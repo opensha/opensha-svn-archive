@@ -1,0 +1,511 @@
+package org.opensha.refFaultParamDb.gui.addEdit;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.StringParameterEditor;
+import org.opensha.param.editor.ConstrainedDoubleParameterEditor;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
+import org.opensha.param.DoubleParameter;
+import org.opensha.param.estimate.EstimateConstraint;
+import org.opensha.param.estimate.EstimateParameter;
+import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SectionSourceDB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.SectionSource;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.Estimate;
+import org.opensha.sha.fault.FaultTrace;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.data.Location;
+
+/**
+ * <p>Title: EditFaultSection.java </p>
+ *
+ * <p>Description: This GUI allows the user to edit a fault section. </p>
+ *
+ * <p>Copyright: Copyright (c) 2002</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class EditFaultSection extends JFrame implements ActionListener, ParameterChangeListener {
+  private JPanel mainPanel = new JPanel();
+  private JSplitPane topSplitPane = new JSplitPane();
+  private  JSplitPane innerSplitPane = new JSplitPane();
+  private JButton cancelButton = new JButton();
+  private JButton okButton = new JButton();
+  private JPanel leftPanel = new JPanel();
+  private JPanel rightPanel = new JPanel();
+  private JPanel centerPanel = new JPanel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  
+  // units for various paramaters
+  private final static String DIP_UNITS = "degrees";
+  private final static String SLIP_RATE_UNITS = "mm/yr";
+  private final static String DEPTH_UNITS = "km";
+  private final static String RAKE_UNITS = "degrees";
+  private final static String ASEISMIC_SLIP_FACTOR_UNITS = "";
+  
+  // fault section name
+  private final static String FAULT_SECTION_PARAM_NAME = "Fault Section";
+  private StringParameter faultSectionNameParam;
+  // source
+  private final static String SOURCE = "Source";
+  private StringParameter sectionSourceParam;
+  
+  // long term slip rate estimate
+  private final static String  AVE_LONG_TERM_SLIP_RATE= "Ave Long Term Slip Rate";
+  private EstimateParameter avgLongTermSlipRateEstParam;
+  private ConstrainedEstimateParameterEditor avgLongTermSlipRateEstParamEditor;
+  private final static double SLIP_RATE_MIN = Double.NEGATIVE_INFINITY;
+  private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
+  private final static String SLIP_RATE_TYPE_PARAM_NAME = "Slip Rate Type";
+  private StringParameter slipRateTypeParam;
+  private ConstrainedStringParameterEditor slipRateTypeParamEditor;
+  
+  // Ave dip estimate
+  private final static String  DIP= "Ave Dip";
+  private EstimateParameter aveDipEstParam;
+  private ConstrainedEstimateParameterEditor aveDipEstParamEditor;
+  private final static double DIP_MIN = Double.NEGATIVE_INFINITY;
+  private final static double DIP_MAX = Double.POSITIVE_INFINITY;
+  // dip direction
+  private final static String  DIP_DIRECTION= "Dip Direction";
+  private DoubleParameter dipDirectionParam;
+  private final static double MIN_DIP_DIRECTION = 0;
+  private final static double MAX_DIP_DIRECTION = 360;
+  // ave rake estimate
+  private final static String  RAKE= "Ave Rake";
+  private EstimateParameter aveRakeEstParam;
+  private ConstrainedEstimateParameterEditor aveRakeEstParamEditor;
+  private final static double RAKE_MIN = Double.NEGATIVE_INFINITY;
+  private final static double RAKE_MAX = Double.POSITIVE_INFINITY;
+  private final static String RAKE_TYPE_PARAM_NAME = "Rake Type";
+  private StringParameter rakeTypeParam;
+  private ConstrainedStringParameterEditor rakeTypeParamEditor;
+  
+  // upper seis depth estimate
+  private final static String  UPPER_DEPTH= "Upper Seis Depth";
+  private EstimateParameter upperDepthEstParam;
+  private ConstrainedEstimateParameterEditor upperDepthEstParamEditor;
+  private final static double UPPER_DEPTH_MIN = 0;
+  private final static double UPPER_DEPTH_MAX = Double.POSITIVE_INFINITY;
+  // lower seis depth estimate
+  private final static String  LOWER_DEPTH= "Lower Seis Depth";
+  private EstimateParameter lowerDepthEstParam;
+  private ConstrainedEstimateParameterEditor lowerDepthEstParamEditor;
+  private final static double LOWER_DEPTH_MIN = 0;
+  private final static double LOWER_DEPTH_MAX = Double.POSITIVE_INFINITY;
+ // aseismic slip estimate
+  private final static String  ASEISMIC_SLIP= "Aseismic Slip Factor";
+  private EstimateParameter aseimsicSlipEstParam;
+  private ConstrainedEstimateParameterEditor aseimsicSlipEstParamEditor;
+  private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
+  private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
+  
+  // Fault Trace
+  private JTextArea faultTraceArea;
+  
+  // Qfault Id
+  private final static String QFAULT_ID = "QFault_Id";
+  private StringParameter qFaultIdParam;
+  // comments
+  private final static String  COMMENTS= "COMMENTS";
+  private StringParameter commentsParam;
+  private FaultSectionVer2 selectedFaultSection;
+  private final static String TITLE = "Edit Fault Section";
+  private final static String MSG_FAULT_TRACE_FORMAT = "Fault Trace should be specified with a lon-lat pair\n"+
+  													"on each line separated by comma";
+  private final static String MSG_UPDATE_SUCCESS = "Fault Section updated successfully in the database";
+  private final static String KNOWN = "Known";
+  private final static String UNKNOWN = "Unknown";
+  private ViewFaultSection viewFaultSection;
+  
+  public EditFaultSection(FaultSectionVer2 faultSection, ViewFaultSection viewFaultSection) {
+    try {
+      this.selectedFaultSection = faultSection;
+      this.viewFaultSection = viewFaultSection;
+    // initialize GUI Components
+      jbInit();
+      // make parameter editors
+      this.initParamsAndEditors();
+      // set rake and slip rate visibility
+      this.setRakeVisibility();
+      this.setSlipRateVisibility();
+      
+      okButton.addActionListener(this);
+      cancelButton.addActionListener(this);
+      setTitle(TITLE);
+      this.pack();
+      this.show();
+    }
+    catch (Exception exception) {
+      exception.printStackTrace();
+    }
+  }
+
+  
+  /**
+   * Make GUI components 
+   * 
+   * @throws Exception
+   */
+  private void jbInit() throws Exception {
+    getContentPane().setLayout(borderLayout1);
+    mainPanel.setLayout(gridBagLayout1);
+    cancelButton.setText("Cancel");
+    okButton.setText("Update");
+    topSplitPane.setLeftComponent(innerSplitPane);
+    leftPanel.setLayout(gridBagLayout1);
+    centerPanel.setLayout(gridBagLayout1);
+    rightPanel.setLayout(gridBagLayout1);
+    
+    topSplitPane.setRightComponent(innerSplitPane);
+    topSplitPane.setTopComponent(innerSplitPane);
+    topSplitPane.add(innerSplitPane, JSplitPane.LEFT);
+    topSplitPane.add(new JScrollPane(rightPanel), JSplitPane.RIGHT);
+    innerSplitPane.add(new JScrollPane(leftPanel), JSplitPane.LEFT);
+    innerSplitPane.add(new JScrollPane(centerPanel), JSplitPane.RIGHT);
+    mainPanel.add(topSplitPane, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(4, 4, 0, 3), 466, 505));
+    mainPanel.add(okButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(13, 92, 12, 0), 22, -3));
+    mainPanel.add(cancelButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(15, 23, 12, 184), 22, -3));
+    this.getContentPane().add(mainPanel, java.awt.BorderLayout.CENTER);
+    topSplitPane.setLastDividerLocation(300);
+    innerSplitPane.setDividerLocation(200);
+  }
+  
+  // make parameter editors and estimate editors
+  private void initParamsAndEditors() throws Exception {
+	  
+	  // fault section param editor
+	  faultSectionNameParam  = new StringParameter(FAULT_SECTION_PARAM_NAME, selectedFaultSection.getSectionName());
+	  StringParameterEditor faultSectionNameParamEditor = new StringParameterEditor(faultSectionNameParam);
+	  leftPanel.add(faultSectionNameParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // fault section sources
+	  SectionSourceDB_DAO sectionSourceDB_DAO = new SectionSourceDB_DAO(DB_AccessAPI.dbConnection);
+	  ArrayList sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
+	  ArrayList sectionSourceNamesList = new ArrayList();
+	  for(int i=0; i<sectionSourcesList.size(); ++i)
+		  sectionSourceNamesList.add(((SectionSource)sectionSourcesList.get(i)).getSectionSourceName());
+	  sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
+	  ConstrainedStringParameterEditor sectionSourceParamEditor = new ConstrainedStringParameterEditor(sectionSourceParam);
+	  leftPanel.add(sectionSourceParamEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // qfault param
+	  String qfaultId = this.selectedFaultSection.getQFaultId();
+	  if(qfaultId==null) qfaultId="";
+	  qFaultIdParam = new StringParameter(QFAULT_ID, qfaultId);
+	  StringParameterEditor qFaultIdParamEditor = new StringParameterEditor(qFaultIdParam);
+	  leftPanel.add(qFaultIdParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // dip Direction
+	  float dipDirection = this.selectedFaultSection.getDipDirection();
+	  Double val;
+	  if(Double.isNaN(dipDirection)) val = null;
+	  else val = new Double(dipDirection);
+	  dipDirectionParam = new DoubleParameter(DIP_DIRECTION, MIN_DIP_DIRECTION, MAX_DIP_DIRECTION, val);
+	  dipDirectionParam.getConstraint().setNullAllowed(true);
+	  ConstrainedDoubleParameterEditor dipDirectionParamEditor = new ConstrainedDoubleParameterEditor(dipDirectionParam);
+	  this.leftPanel.add(dipDirectionParamEditor, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // comments param
+	  commentsParam = new StringParameter(COMMENTS, selectedFaultSection.getComments());
+	  CommentsParameterEditor commentsParamEditor = new CommentsParameterEditor(commentsParam);
+	  leftPanel.add(commentsParamEditor, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // make fault trace param
+	  makeFaultTraceParamAndEditor();
+	  leftPanel.add(new JScrollPane(this.faultTraceArea), new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+    
+	  
+	  ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
+	  
+	  //	 upper depth param
+	  makeUpperDepthParamAndEditor(allowedEstimates);
+	  this.centerPanel.add(this.upperDepthEstParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // lower depth param
+	  makeLowerDepthParamAndEditor(allowedEstimates);
+	  this.centerPanel.add(this.lowerDepthEstParamEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	
+	  // dip estimate param
+	  makeAveDipParamAndEditor(allowedEstimates);
+	  this.centerPanel.add(this.aveDipEstParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	 
+	  
+	  // long term slip rate param
+	  makeSlipRateParamAndEditor(allowedEstimates);
+	  rightPanel.add(this.slipRateTypeParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  this.rightPanel.add(this.avgLongTermSlipRateEstParamEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // ave rake param
+	  makeAveRakeParamAndEditor(allowedEstimates);
+	  rightPanel.add(this.rakeTypeParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  this.rightPanel.add(this.aveRakeEstParamEditor, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+	  // aseismic slip estimate
+	  makeAseismicSlipParamAndEditor(allowedEstimates);
+	  this.rightPanel.add(this.aseimsicSlipEstParamEditor, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
+  }
+  
+  public void actionPerformed(ActionEvent event) {
+	  Object source = event.getSource();
+	  if(source == this.okButton) { // update the fault section
+		  try {
+			  // set the parameters in the fault section object
+			  setParamsInSelectedFaultSection();
+			  // update in the database
+			  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+			  faultSectionDAO.update(this.selectedFaultSection);
+			  viewFaultSection.refreshFaultSectionValues();
+			  // show success message
+			  JOptionPane.showMessageDialog(this, MSG_UPDATE_SUCCESS);
+			  this.dispose();
+		  }catch(Exception e){
+		        JOptionPane.showMessageDialog(this, e.getMessage());
+	      }
+	  } else if(source==this.cancelButton) { // if cancel button is clicked, close this window
+		  this.dispose();
+		  
+	  }
+  }
+  
+  private void setParamsInSelectedFaultSection() {
+	  // section name
+	  selectedFaultSection.setSectionName((String)this.faultSectionNameParam.getValue());
+	  // section source (2002, CFM, new)
+	  this.selectedFaultSection.setSource((String)sectionSourceParam.getValue());
+	  // slip rate
+	  if(((String)slipRateTypeParam.getValue()).equalsIgnoreCase(KNOWN)) {
+		  avgLongTermSlipRateEstParamEditor.setEstimateInParameter();
+		  selectedFaultSection.setAveLongTermSlipRateEst(new EstimateInstances((Estimate)avgLongTermSlipRateEstParam.getValue(), SLIP_RATE_UNITS));
+	  } else selectedFaultSection.setAveLongTermSlipRateEst(null);
+	  // rake
+	  if(((String)rakeTypeParam.getValue()).equalsIgnoreCase(KNOWN)) {
+		  aveRakeEstParamEditor.setEstimateInParameter();
+		  selectedFaultSection.setAveRakeEst(new EstimateInstances((Estimate)aveRakeEstParam.getValue(), RAKE_UNITS));
+	  }else selectedFaultSection.setAveRakeEst(null);
+	   // dip
+	  aveDipEstParamEditor.setEstimateInParameter();
+	  selectedFaultSection.setAveDipEst(new EstimateInstances((Estimate)this.aveDipEstParam.getValue(), DIP_UNITS));
+	  // upper seis depth
+	  this.upperDepthEstParamEditor.setEstimateInParameter();
+	  selectedFaultSection.setAveUpperDepthEst(new EstimateInstances((Estimate)this.upperDepthEstParam.getValue(), DEPTH_UNITS));
+	  // lower seis depth
+	  this.lowerDepthEstParamEditor.setEstimateInParameter();
+	  selectedFaultSection.setAveLowerDepthEst(new EstimateInstances((Estimate)this.lowerDepthEstParam.getValue(), DEPTH_UNITS));
+	  // aseismic slip 
+	  this.aseimsicSlipEstParamEditor.setEstimateInParameter();
+	  selectedFaultSection.setAseismicSlipFactorEst(new EstimateInstances((Estimate)this.aseimsicSlipEstParam.getValue(), ASEISMIC_SLIP_FACTOR_UNITS));
+	  // comments
+	  selectedFaultSection.setComments((String)this.commentsParam.getValue());
+	  // qfault Id
+	  String qFaultId = (String)this.qFaultIdParam.getValue();
+	  if(qFaultId.trim().equalsIgnoreCase("")) qFaultId=null;
+	  //System.out.println("QFaultId="+qFaultId);
+	  selectedFaultSection.setQFaultId(qFaultId);
+	  // dip direction
+	  Double dipDirectionVal = ((Double)dipDirectionParam.getValue());
+	  float dipDirection;
+	  if(dipDirectionVal==null) dipDirection=Float.NaN;
+	  else dipDirection = dipDirectionVal.floatValue();
+	  //System.out.println("Dip Direction="+dipDirection);
+	  selectedFaultSection.setDipDirection(dipDirection);
+	  //fault trace
+	  selectedFaultSection.setFaultTrace(getFaultTrace());
+  }
+  
+  /**
+   * Obtain fault trace from text area
+   * @return
+   */
+  private  FaultTrace getFaultTrace() {
+	  FaultTrace faultTrace = new FaultTrace(this.selectedFaultSection.getSectionName());
+	  String traceString = this.faultTraceArea.getText();
+	  try {	
+		  StringTokenizer tokenizer = new StringTokenizer(traceString,"\n");
+		  double lon, lat;
+		  while(tokenizer.hasMoreTokens()) {
+			  String line = tokenizer.nextToken();
+			  if(line.trim().equalsIgnoreCase("")) continue;
+			  StringTokenizer lineTokenizer = new StringTokenizer(line,",");
+			  lon = Double.parseDouble(lineTokenizer.nextToken().trim());
+			  lat = Double.parseDouble(lineTokenizer.nextToken().trim());
+			  faultTrace.addLocation(new Location(lat,lon));
+		  }
+	  }catch(Exception e) {
+			  throw new RuntimeException(MSG_FAULT_TRACE_FORMAT);
+		}
+	  return faultTrace;
+  }
+  
+/**
+ * Long term slip rate param and editor
+ * @param allowedEstimates
+ */
+private void makeSlipRateParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint slipEstConstraint = new EstimateConstraint(SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
+	  Estimate slipRateEst = null; 
+	  if(this.selectedFaultSection.getAveLongTermSlipRateEst()!=null)
+		  slipRateEst = selectedFaultSection.getAveLongTermSlipRateEst().getEstimate();
+	  avgLongTermSlipRateEstParam = new EstimateParameter(AVE_LONG_TERM_SLIP_RATE, slipEstConstraint,
+			  SLIP_RATE_UNITS, slipRateEst);
+	  avgLongTermSlipRateEstParamEditor= new ConstrainedEstimateParameterEditor(avgLongTermSlipRateEstParam, true, AVE_LONG_TERM_SLIP_RATE);
+	  // whether slip rate is known/unknown
+	  ArrayList slipRateTypes = new ArrayList();
+	  slipRateTypes.add(UNKNOWN);
+	  slipRateTypes.add(KNOWN);
+	  String defaultVal = KNOWN;
+	  if(slipRateEst==null) defaultVal = UNKNOWN;
+	  slipRateTypeParam = new StringParameter(SLIP_RATE_TYPE_PARAM_NAME, slipRateTypes, defaultVal);
+	  slipRateTypeParam.addParameterChangeListener(this);
+	  this.slipRateTypeParamEditor = new ConstrainedStringParameterEditor(slipRateTypeParam);
+}
+
+
+/**
+ * Ave dip estimate parama and editor
+ * @param allowedEstimates
+ */
+private void makeAveDipParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint dipEstConstraint = new EstimateConstraint(DIP_MIN, DIP_MAX, allowedEstimates);
+	  Estimate dipEst = null; 
+	  if(this.selectedFaultSection.getAveDipEst()!=null)
+		  dipEst = selectedFaultSection.getAveDipEst().getEstimate();
+	  aveDipEstParam = new EstimateParameter(DIP, dipEstConstraint, DIP_UNITS, dipEst);
+	  aveDipEstParamEditor= new ConstrainedEstimateParameterEditor(aveDipEstParam, true, DIP);
+}
+
+/**
+ * Ave rake estimate param and editor
+ * @param allowedEstimates
+ */
+private void makeAveRakeParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint rakeEstConstraint = new EstimateConstraint(RAKE_MIN, RAKE_MAX, allowedEstimates);
+	  Estimate rakeEst = null; 
+	  if(this.selectedFaultSection.getAveRakeEst()!=null)
+		  rakeEst = selectedFaultSection.getAveRakeEst().getEstimate();
+	  aveRakeEstParam = new EstimateParameter(RAKE, rakeEstConstraint, RAKE_UNITS, rakeEst);
+	  aveRakeEstParamEditor= new ConstrainedEstimateParameterEditor(aveRakeEstParam, true, RAKE);
+	  //	 whether rake is known/unknown
+	  ArrayList rakeTypes = new ArrayList();
+	  rakeTypes.add(UNKNOWN);
+	  rakeTypes.add(KNOWN);
+	  String defaultVal = KNOWN;
+	  if(rakeEst==null) defaultVal = UNKNOWN;
+	  rakeTypeParam = new StringParameter(RAKE_TYPE_PARAM_NAME, rakeTypes, defaultVal);
+	  rakeTypeParam.addParameterChangeListener(this);
+	  rakeTypeParamEditor = new ConstrainedStringParameterEditor(rakeTypeParam);
+}
+
+public void parameterChange(ParameterChangeEvent event) {
+	String name = event.getParameterName();
+	
+	if(name.equalsIgnoreCase(RAKE_TYPE_PARAM_NAME)) { // rake type param/ whether rake is known/unknown
+		setRakeVisibility();
+	} else if(name.equalsIgnoreCase(SLIP_RATE_TYPE_PARAM_NAME)) { // whether slip rate is known/unknown
+		setSlipRateVisibility();
+	}
+}
+
+private void setRakeVisibility() {
+	String rakeType = (String)this.rakeTypeParam.getValue();
+	if(rakeType.equalsIgnoreCase(UNKNOWN)) this.aveRakeEstParamEditor.setVisible(false);
+	else aveRakeEstParamEditor.setVisible(true);
+}
+
+private void setSlipRateVisibility() {
+	String slipRateType = (String)this.slipRateTypeParam.getValue();
+	if(slipRateType.equalsIgnoreCase(UNKNOWN)) this.avgLongTermSlipRateEstParamEditor.setVisible(false);
+	else avgLongTermSlipRateEstParamEditor.setVisible(true);
+}
+
+private void makeUpperDepthParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint upperDepthConstraint = new EstimateConstraint(UPPER_DEPTH_MIN, UPPER_DEPTH_MAX, allowedEstimates);
+	  Estimate upperDepthEst = null; 
+	  if(this.selectedFaultSection.getAveUpperDepthEst()!=null)
+		  upperDepthEst = selectedFaultSection.getAveUpperDepthEst().getEstimate();
+	  upperDepthEstParam = new EstimateParameter(UPPER_DEPTH, upperDepthConstraint, DEPTH_UNITS, upperDepthEst);
+	  upperDepthEstParamEditor= new ConstrainedEstimateParameterEditor(upperDepthEstParam, true, UPPER_DEPTH);
+}
+
+private void makeLowerDepthParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint lowerDepthConstraint = new EstimateConstraint(LOWER_DEPTH_MIN, LOWER_DEPTH_MAX, allowedEstimates);
+	  Estimate lowerDepthEst = null; 
+	  if(this.selectedFaultSection.getAveLowerDepthEst()!=null)
+		  lowerDepthEst = selectedFaultSection.getAveLowerDepthEst().getEstimate();
+	  lowerDepthEstParam = new EstimateParameter(LOWER_DEPTH, lowerDepthConstraint, DEPTH_UNITS, lowerDepthEst);
+	  lowerDepthEstParamEditor= new ConstrainedEstimateParameterEditor(lowerDepthEstParam, true, LOWER_DEPTH);
+}
+
+private void makeAseismicSlipParamAndEditor(ArrayList allowedEstimates) {
+	EstimateConstraint aseismicSlipConstraint = new EstimateConstraint(ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
+	  Estimate aseimsicSlipEst = null; 
+	  if(this.selectedFaultSection.getAseismicSlipFactorEst()!=null)
+		  aseimsicSlipEst = selectedFaultSection.getAseismicSlipFactorEst().getEstimate();
+	  aseimsicSlipEstParam = new EstimateParameter(ASEISMIC_SLIP, aseismicSlipConstraint, ASEISMIC_SLIP_FACTOR_UNITS, aseimsicSlipEst);
+	  aseimsicSlipEstParamEditor= new ConstrainedEstimateParameterEditor(aseimsicSlipEstParam, true, ASEISMIC_SLIP);
+}
+
+ private void makeFaultTraceParamAndEditor() {
+	 faultTraceArea = new JTextArea();
+	 FaultTrace faultTrace = this.selectedFaultSection.getFaultTrace();
+	 for(int i=0; i<faultTrace.getNumLocations(); ++i) {
+		 Location loc = faultTrace.getLocationAt(i);
+		 faultTraceArea.append(loc.getLongitude()+","+loc.getLatitude()+"\n");
+	 }
+ }
+
+}

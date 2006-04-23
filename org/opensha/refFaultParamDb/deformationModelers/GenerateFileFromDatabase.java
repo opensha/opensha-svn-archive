@@ -32,7 +32,7 @@ public class GenerateFileFromDatabase {
   /** Data Access objects (DAO) to retrieve data from database */
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
-  private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
   private final static String OUT_FILENAME = "PaleoSiteData.txt";
   private final static String UNKNOWN = "Unknown";
   private final static String ESTIMATE = "Estimate";
@@ -49,7 +49,6 @@ public class GenerateFileFromDatabase {
       for (int i = 0; i < paleoSitesList.size(); ++i) {
         PaleoSite paleoSite = (PaleoSite) paleoSitesList.get(i);
         System.out.println(i+". "+paleoSite.getSiteName());
-        int faultId =  this.faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
         ArrayList paleoSitePublicationList = paleoSite.getPaleoSitePubList();
         // loop over all the reference publications for that site
         for (int j = 0; j < paleoSitePublicationList.size(); ++j) {
@@ -68,7 +67,7 @@ public class GenerateFileFromDatabase {
             CombinedSlipRateInfo combinedSlipRateInfo = combinedEventsInfo.
                 getCombinedSlipRateInfo();
             if (combinedSlipRateInfo != null) {
-              writeSiteAndTimeSpanInfo(fw, paleoSite, faultId, paleoSitePub, combinedEventsInfo);
+              writeSiteAndTimeSpanInfo(fw, paleoSite, paleoSite.getFaultSectionId(), paleoSitePub, combinedEventsInfo);
               // write slip rate info
               writeSlipAndDisplacementInfo(fw, "Slip Rate", combinedSlipRateInfo.getSlipRateEstimate(),
                                            combinedSlipRateInfo.getMeasuredComponentQual(),
@@ -84,7 +83,7 @@ public class GenerateFileFromDatabase {
             // WRITE CUMULATIVE DISPLACEMENT INFO
             CombinedDisplacementInfo combinedDisplacementInfo = combinedEventsInfo.getCombinedDisplacementInfo();
             if(combinedDisplacementInfo!=null) {
-              writeSiteAndTimeSpanInfo(fw, paleoSite, faultId, paleoSitePub, combinedEventsInfo);
+              writeSiteAndTimeSpanInfo(fw, paleoSite, paleoSite.getFaultSectionId(), paleoSitePub, combinedEventsInfo);
               // write displacement info
               writeSlipAndDisplacementInfo(fw, "Cumulative Displacement", combinedDisplacementInfo.getDisplacementEstimate(),
                                            combinedDisplacementInfo.getMeasuredComponentQual(),
@@ -293,8 +292,8 @@ public class GenerateFileFromDatabase {
     fw.write("Representativeness of Site="+paleoSitePub.getRepresentativeStrandName()+"\n");
     fw.write("Site Id="+paleoSite.getSiteId()+"\n");
     fw.write("Site Name="+paleoSite.getSiteName()+"\n");
-    fw.write("Fault Id="+faultId+"\n");
-    fw.write("Fault Name="+paleoSite.getFaultName()+"\n");
+    fw.write("Fault Section Id="+faultId+"\n");
+    fw.write("Fault Section Name="+paleoSite.getFaultSectionName()+"\n");
     fw.write("Site Lat(degrees)="+decimalFormat.format(paleoSite.getSiteLat1())+"\n");
     fw.write("Site Lon(degrees)="+decimalFormat.format(paleoSite.getSiteLon1())+"\n");
     float elevation1 = paleoSite.getSiteElevation1();

@@ -362,11 +362,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   // set the values in discrete value estimate
   private void setDiscreteEstimateVals(DiscreteValueEstimate discreteValEst) {
+	this.chooseEstimateParam.setValue(DiscreteValueEstimate.NAME);
     this.arbitrarilyDiscFuncParam.setValue(discreteValEst.getValues());
   }
 
   // set the values in integer estimate
   private void setIntegerEstimateVals(IntegerEstimate integerEst) {
+	this.chooseEstimateParam.setValue(IntegerEstimate.NAME);
     this.arbitrarilyDiscFuncParam.setValue(integerEst.getValues());
   }
 

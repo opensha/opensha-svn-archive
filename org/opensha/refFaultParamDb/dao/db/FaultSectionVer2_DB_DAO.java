@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
@@ -30,7 +29,6 @@ public class FaultSectionVer2_DB_DAO {
   private final static String TABLE_NAME = "Fault_Section";
   private final static String SEQUENCE_NAME = "Fault_Section_Sequence";
   public final static String SECTION_ID = "Section_Id";
-  public final static String FAULT_ID = "Fault_Id";
   public final static String AVE_LONG_TERM_SLIP_RATE_EST = "Ave_Long_Term_Slip_Rate_Est";
   public final static String AVE_DIP_EST = "Ave_Dip_Est";
   public final static String AVE_RAKE_EST = "Ave_Rake_Est";
@@ -44,11 +42,10 @@ public class FaultSectionVer2_DB_DAO {
   public final static String ASEISMIC_SLIP_FACTOR_EST = "Average_Aseismic_Slip_Est";
   public final static String DIP_DIRECTION = "Dip_Direction";
   public final static String SECTION_SOURCE_ID = "Section_Source_Id";
+  public final static String QFAULT_ID = "QFault_Id";
   private DB_AccessAPI dbAccess;
    // estimate instance DAO
    private EstimateInstancesDB_DAO estimateInstancesDAO;
-   // fault DAO
-   private FaultDB_DAO faultDAO;
    //section source DAO
    private SectionSourceDB_DAO sectionSourceDAO;
    // SRID
@@ -65,7 +62,6 @@ public class FaultSectionVer2_DB_DAO {
   public void setDB_Connection(DB_AccessAPI dbAccess) {
     this.dbAccess = dbAccess;
     estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
-    faultDAO = new FaultDB_DAO(dbAccess);
     sectionSourceDAO = new SectionSourceDB_DAO(dbAccess);
   }
 
@@ -85,17 +81,7 @@ public class FaultSectionVer2_DB_DAO {
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
-    // fault Id for this section
-    Fault fault = faultDAO.getFault(faultSection.getFaultName());
-    int faultId=1;
-    if(fault!=null) {
-    	faultId = fault.getFaultId(); 
-    	//throw new InsertException("Unable to insert faultsection \""+faultSection.getSectionName()+"\" into database as Faultname \""+faultSection.getFaultName()+"\" does not exist in database");
-    } else {
-    	System.out.println("Inserting "+faultSection.getSectionName()+" with faultId of 1 as Faultname \""+faultSection.getFaultName()+"\" does not exist in database");
-    }
-    //int faultId = fault.getFaultId();
-
+ 
     // get JGeomtery object from fault trace
     JGeometry faultSectionTraceGeom =  getGeomtery(faultSection.getFaultTrace());
 
@@ -132,16 +118,21 @@ public class FaultSectionVer2_DB_DAO {
     	columnNames+=DIP_DIRECTION+",";
     	columnVals+=dipDirection+",";
     }
-    
+    // check if qfault Id is available
+    String qfaultId = faultSection.getQFaultId();
+    if(qfaultId!=null) {
+    	columnNames+=QFAULT_ID+",";
+    	columnVals+="'"+qfaultId+"',";
+    }
     // insert the fault section into the database
     ArrayList geomteryObjectList = new ArrayList();
     geomteryObjectList.add(faultSectionTraceGeom);
-    String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+FAULT_ID+","+
+    String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+
         columnNames+AVE_DIP_EST+","+AVE_UPPER_DEPTH_EST+","+AVE_LOWER_DEPTH_EST+","+
         CONTRIBUTOR_ID+","+SECTION_NAME+","+ENTRY_DATE+","+COMMENTS+","+
         FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+
         SECTION_SOURCE_ID+") values ("+
-        faultSectionId+","+faultId+","+columnVals+
+        faultSectionId+","+columnVals+
         aveDipEst+","+aveUpperDepthEst+","+aveLowerDepthEst+","+
         SessionInfo.getContributor().getId()+",'"+faultSection.getSectionName()+"','"+
         systemDate+"','"+faultSection.getComments()+"',?,"+
@@ -155,6 +146,77 @@ public class FaultSectionVer2_DB_DAO {
     catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
+  }
+  
+  /**
+   * Update the fault section in the database
+   * 
+   * @param faultSection
+   */
+  public void update(FaultSectionVer2 faultSection) {
+	  
+	  String systemDate;
+	  try {
+		  systemDate = dbAccess.getSystemDate();
+	  } catch(SQLException e) {
+	      throw new InsertException(e.getMessage());
+	    }
+	    // get JGeomtery object from fault trace
+	    JGeometry faultSectionTraceGeom =  getGeomtery(faultSection.getFaultTrace());
+
+	    // various estimate ids
+	    
+	    int aveDipEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveDipEst());
+	    int aveUpperDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveUpperDepthEst());
+	    int aveLowerDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveLowerDepthEst());
+	    int aseismicSlipFactorEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAseismicSlipFactorEst());
+	    int sectionSourceId = this.sectionSourceDAO.getSectionSource(faultSection.getSource()).getSourceId();
+	    
+	    String columnNames="";
+	    
+	    // check if slip rate is present for this fault section
+	    EstimateInstances slipRateEst = faultSection.getAveLongTermSlipRateEst();
+	    if(slipRateEst!=null) { // if slip rate estimate is present
+	    	int aveLongTermSlipRateEstId = this.estimateInstancesDAO.addEstimateInstance(slipRateEst);
+	    	columnNames+=AVE_LONG_TERM_SLIP_RATE_EST+"="+aveLongTermSlipRateEstId+",";
+	    } else columnNames+=AVE_LONG_TERM_SLIP_RATE_EST+"=NULL,";
+	    
+	    // check if rake is present for this section
+	    EstimateInstances aveRakeEst = faultSection.getAveRakeEst();
+	    if(aveRakeEst!=null) {
+	    	int aveRakeEstId =  this.estimateInstancesDAO.addEstimateInstance(aveRakeEst);
+	    	columnNames+=AVE_RAKE_EST+"="+aveRakeEstId+",";
+	    }else columnNames+=AVE_RAKE_EST+"=NULL,";
+	    
+	    // check if dip direction is present for this section. Dip direction is not available wherever dip=90 degrees
+	    float dipDirection  = faultSection.getDipDirection();
+	    if(!Float.isNaN(dipDirection)) {
+	    	columnNames+=DIP_DIRECTION+"="+dipDirection+",";
+	    } else columnNames+=DIP_DIRECTION+"=NULL,";
+	    // check if qfault Id is available
+	    String qfaultId = faultSection.getQFaultId();
+	    if(qfaultId!=null) {
+	    	columnNames+=QFAULT_ID+"="+"'"+qfaultId+"',";
+	    } else columnNames+=QFAULT_ID+"=NULL,";
+	    // insert the fault section into the database
+	    ArrayList geomteryObjectList = new ArrayList();
+	    geomteryObjectList.add(faultSectionTraceGeom);
+	    String sql = "update "+TABLE_NAME+" set "+ 
+	        columnNames+AVE_DIP_EST+"="+aveDipEst+","+AVE_UPPER_DEPTH_EST+"="+aveUpperDepthEst+","+
+	        AVE_LOWER_DEPTH_EST+"="+aveLowerDepthEst+","+CONTRIBUTOR_ID+"="+SessionInfo.getContributor().getId()+","+
+	        SECTION_NAME+"='"+faultSection.getSectionName()+"',"+ENTRY_DATE+"='"+systemDate+"',"+
+	        COMMENTS+"='"+faultSection.getComments()+"',"+FAULT_TRACE+"=?,"+
+	        ASEISMIC_SLIP_FACTOR_EST+"="+aseismicSlipFactorEst+","+SECTION_SOURCE_ID+"="+sectionSourceId+
+	        " where "+SECTION_ID+"="+faultSection.getSectionId();
+	    try {
+	      //System.out.println(sql);
+	      //System.exit(0);
+	      dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
+	    }
+	    catch(SQLException e) {
+	      throw new InsertException(e.getMessage());
+	    }
+	  
   }
   
   /**
@@ -179,8 +241,19 @@ public class FaultSectionVer2_DB_DAO {
   }
   
   public ArrayList getAllFaultSectionsSummary() {
-	  ArrayList faultSectionsSummaryList = new ArrayList();
-	  String sql =  "select "+SECTION_ID+","+SECTION_NAME+" from "+TABLE_NAME+" order by ("+SECTION_NAME+")";
+	  return getFaultSectionSummary("");
+  }
+  
+  public FaultSectionSummary getFaultSectionSummary(int faultSectionId) {
+	  ArrayList faultSectionSummaryList = getFaultSectionSummary(" where "+SECTION_ID+"="+faultSectionId);
+	  FaultSectionSummary faultSectionSummary = null;
+	  if (faultSectionSummaryList.size()>0) faultSectionSummary = (FaultSectionSummary)faultSectionSummaryList.get(0);
+	  return faultSectionSummary;
+  }
+
+private ArrayList getFaultSectionSummary(String condition) {
+	ArrayList faultSectionsSummaryList = new ArrayList();
+	  String sql =  "select "+SECTION_ID+","+SECTION_NAME+" from "+TABLE_NAME+" "+condition+" order by ("+SECTION_NAME+")";
 
 	  try {
 		  ResultSet rs  = dbAccess.queryData(sql);
@@ -193,7 +266,9 @@ public class FaultSectionVer2_DB_DAO {
 		  rs.close();
 	  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
 	  	return faultSectionsSummaryList;
-  }
+}
+  
+  
   /**
    * Get the fault sections based on some filter parameter
    * @param condition
@@ -201,15 +276,15 @@ public class FaultSectionVer2_DB_DAO {
    */
   private ArrayList query(String condition) {
 	  ArrayList faultSectionsList = new ArrayList();
-	  String sqlWithSpatialColumnNames =  "select "+SECTION_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+	  String sqlWithSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+
-      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +" from "+TABLE_NAME+condition;
+      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
 	  
-	  String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+	  String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+ASEISMIC_SLIP_FACTOR_EST+
-      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +" from "+TABLE_NAME+condition;
+      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
 
 	  ArrayList spatialColumnNames = new ArrayList();
 	  spatialColumnNames.add(FAULT_TRACE);
@@ -220,7 +295,6 @@ public class FaultSectionVer2_DB_DAO {
 		  while(rs.next())  {
 			  FaultSectionVer2 faultSection = new FaultSectionVer2();
 			  faultSection.setSectionId(rs.getInt(SECTION_ID));
-			  faultSection.setFaultName(this.faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
 			  faultSection.setComments(rs.getString(COMMENTS));
 			  
 			  faultSection.setEntryDate(rs.getString(ENTRY_DATE));
@@ -254,6 +328,11 @@ public class FaultSectionVer2_DB_DAO {
 				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j]));
 			  }	
 		      faultSection.setFaultTrace(faultTrace);
+		      
+		      // qfault Id
+		      String qFaultId = rs.getString(QFAULT_ID);
+		      if(!rs.wasNull()) faultSection.setQFaultId(qFaultId);
+		      
 			  faultSectionsList.add(faultSection);
 		  }
 		  rs.close();

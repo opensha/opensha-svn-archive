@@ -11,8 +11,9 @@ import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
-import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
@@ -40,16 +41,16 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
  */
 
 public class PutCombinedInfoIntoDatabase {
-  private final static String FILE_NAME = "AllColumns_MMPref_SR_CumDispl.xls";
+  private final static String FILE_NAME = "QFaults_Bird_MMPref_SR_CumDispl.v3.xls";
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
-  private final static int MIN_ROW = 2;
-  private final static int MAX_ROW = 108;
+  private final static int MIN_ROW = 1;
+  private final static int MAX_ROW = 296;
   // columns in this excel file
-  private final static int MIN_COL = 1;
-  private final static int MAX_COL = 44;
+  private final static int MIN_COL = 0;
+  private final static int MAX_COL = 48;
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
-  private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
   private final static String UNKNOWN = "Unknown";
   private final static String MA = "MA";
@@ -64,6 +65,7 @@ public class PutCombinedInfoIntoDatabase {
   private String refSummary;
   private TimeAPI startTime, endTime;
   private String startTimeUnits, endTimeUnits;
+  private final static String NO = "no";
 
   public PutCombinedInfoIntoDatabase() {
     try {
@@ -163,7 +165,7 @@ public class PutCombinedInfoIntoDatabase {
         combinedEventsInfo.setSiteEntryDate(siteInDB.getEntryDate());
 
         // add combined events info to database
-        combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
+         combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
       }
     }catch(Exception e) {
       e.printStackTrace();
@@ -182,8 +184,10 @@ public class PutCombinedInfoIntoDatabase {
                        CombinedEventsInfo combinedEventsInfo,
                        PaleoSitePublication paleoSitePub) {
     switch (columnNumber) {
-      case 1: // fault Id
-        paleoSite.setFaultName(faultDAO.getFault((int)Double.parseDouble(value)).getFaultName());
+      case 0:
+    	  if(value!=null && value.equalsIgnoreCase(NO)) throw new InvalidRowException("No need to put into database as ingest=no");
+    	  break;
+      case 1: // Qfault fault section Id
         break;
       case 2: //  NEO-KINEMA FAULT ID
         if(value!=null) combinedEventsInfo.setNeokinemaFaultNumber(value);
@@ -192,81 +196,110 @@ public class PutCombinedInfoIntoDatabase {
         break;
       case 4: // Peter Bird Reference category
         break;
-      case 5: // fault name
+      case 5: // WG Fault section Id
+      	FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary((int)Double.parseDouble(value));
+        paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+        break;
+      case 6: // other WG fault sectionIds
+    	  String comments = paleoSite.getGeneralComments();
+    	  if(comments==null) comments="";
+    	  comments+="Other WG Fault Section Ids = "+value+"\n";
+    	  paleoSite.setGeneralComments(comments);
+      case 7: // fault name
               // no need to migrate as names here differ somewhat from database names
         break;
-      case 6: // qfault Site-Id
+      case 8: // qfault Site-Id
         paleoSite.setOldSiteId(value);
         break;
-      case 7: // site name
+      case 9: // site name
         // if site name starts with "per", then we will set its name as lat,lon
-        if(value.startsWith("per")) value="";
+        if(value==null || value.startsWith("per")) value="";
         paleoSite.setSiteName(value);
         break;
-      case 8: // Site longitude
+      case 10: // Site longitude 1
         if(value==null) throw new InvalidRowException("Site Longitude is missing");
         paleoSite.setSiteLon1(Float.parseFloat(value));
         paleoSite.setSiteLon2(Float.parseFloat(value));
         break;
-      case 9: // Site latitude
+      case 11: // Site latitude 1
         if(value==null) throw new InvalidRowException("Site latitude is missing");
         paleoSite.setSiteLat1(Float.parseFloat(value));
         paleoSite.setSiteLat2(Float.parseFloat(value));
-        if(paleoSite.getSiteName().equalsIgnoreCase(""))
-          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
+        
         break;
-      case 10: // Site Elevation
-        if(value!=null)
-          paleoSite.setSiteElevation1(Float.parseFloat(value));
-         else  paleoSite.setSiteElevation1(Float.NaN);
-        break;
-      case 11: // reference summary
+      case 12: // Site longitude 2
+    	  if(value!=null)  paleoSite.setSiteLon2(Float.parseFloat(value));
+          break;
+      case 13:
+    	  if(value!=null)   { // Site Lat2
+    		  paleoSite.setSiteLat2(Float.parseFloat(value));
+    		  if(paleoSite.getSiteName().equalsIgnoreCase(""))
+    	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+";"+
+    	        		  paleoSite.getSiteLat2()+","+paleoSite.getSiteLon2());
+    	  }
+    	  else {
+    		  if(paleoSite.getSiteName().equalsIgnoreCase(""))
+    	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
+    	  }
+          break;
+      case 14: // site notes
+    	  String generalComments = paleoSite.getGeneralComments();
+    	  if(generalComments==null) generalComments="";
+    	  generalComments+=value+"\n";
+    	  paleoSite.setGeneralComments(generalComments);
+    	  
+      case 15: // reference summary
         refSummary = value;
         break;
-      case 12: // reference Id in qfaults
+      case 16: // reference Id in qfaults
         if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));
-        else paleoSitePub.setReference(addReferenceToDatabase(refSummary));
-
+        else {
+        	// get reference from database.
+        	Reference ref = this.getReference(refSummary);
+        	Reference refFromDB = this.referenceDAO.getReference(ref.getRefAuth(), ref.getRefYear());
+        	if(refFromDB==null) paleoSitePub.setReference(addReferenceToDatabase(refSummary));
+        	else paleoSitePub.setReference(refFromDB);
+        }
         break;
-      case 13: // combined info comments
+      case 17: // combined info comments
         if(value==null) value="";
         combinedEventsInfo.setDatedFeatureComments(value);
         break;
-      case 14: // representative strand name
+      case 18: // representative strand name
         if(value==null) value = UNKNOWN;
         paleoSitePub.setRepresentativeStrandName(value);
         break;
-      case 15: // measured component
-        if(value==null) value=this.UNKNOWN;
+      case 19: // measured component
+        if(value==null) value=UNKNOWN;
         this.measuredComponent = value;
         break;
-      case 16: // sense of motion
-        if(value==null) value=this.UNKNOWN;
+      case 20: // sense of motion
+        if(value==null) value=UNKNOWN;
         this.senseOfMotion = value;
         break;
-      case 17: //aseismic slip factor for displacement
+     /* case 17: //aseismic slip factor for displacement
          if(value!=null) {
            Estimate estimate = new MinMaxPrefEstimate(Double.NaN,Double.NaN,Double.parseDouble(value),Double.NaN, Double.NaN, Double.NaN);
            combinedDispInfo.setASeismicSlipFactorEstimateForDisp(new EstimateInstances(estimate, AddEditCumDisplacement.ASEISMIC_SLIP_FACTOR_UNITS));
          }
-         break;
-      case 18: // preferred displacement
+         break;*/
+      case 21: // preferred displacement
         if(value==null) this.pref = Double.NaN;
         else {
           this.isDisp = true;
           this.pref = Double.parseDouble(value);
         }
         break;
-      case 19: // No need to migrate (offset error)
+      case 22: // No need to migrate (offset error)
         break;
-      case 20: // min displacement
+      case 23: // min displacement
         if(value==null) this.min = Double.NaN;
         else {
           this.isDisp = true;
           this.min = Double.parseDouble(value);
         }
         break;
-      case 21: // max displacement
+      case 24: // max displacement
         if(value==null) this.max = Double.NaN;
         else {
           this.isDisp = true;
@@ -277,25 +310,25 @@ public class PutCombinedInfoIntoDatabase {
           combinedDispInfo.setDisplacementEstimate(new EstimateInstances(estimate, AddEditCumDisplacement.CUMULATIVE_DISPLACEMENT_UNITS));
         }
         break;
-      case 22: // diplacement comments
+      case 25: // diplacement comments
         if(value==null) value="";
         combinedDispInfo.setDisplacementComments(value);
         break;
-      case 23 : // preferred num events
+      case 26 : // preferred num events
         if(value==null) this.pref = Double.NaN;
         else {
           this.isNumEvents = true;
           this.pref = Double.parseDouble(value);
         }
         break;
-      case 24 : //min num events
+      case 27 : //min num events
         if(value==null) this.min = Double.NaN;
         else {
           this.isNumEvents = true;
           this.min = Double.parseDouble(value);
         }
         break;
-      case 25: // max num events
+      case 28: // max num events
         if(value==null) this.max = Double.NaN;
         else {
           this.isNumEvents = true;
@@ -306,29 +339,29 @@ public class PutCombinedInfoIntoDatabase {
           this.combinedNumEventsInfo.setNumEventsEstimate(new EstimateInstances(estimate, AddEditNumEvents.NUM_EVENTS_UNITS));
         }
         break;
-      case 26: // num events comments
+      case 29: // num events comments
         if(value==null) value="";
         this.combinedNumEventsInfo.setNumEventsComments(value);
         break;
-      case 27: // timespan comments
+      case 30: // timespan comments
         if(value==null) value="";
         combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
         break;
-      case 28: // preferred start time
+      case 31: // preferred start time
         if(value==null) this.pref = Double.NaN;
         else pref = Double.parseDouble(value);
         break;
-      case 29:  // start time units
+      case 32:  // start time units
         if(value!=null) startTimeUnits = value;
         else startTimeUnits="";
         break;
-      case 30: // No need to migrate (start time error)
+      case 33: // No need to migrate (start time error)
         break;
-      case 31: // max start time
+      case 34: // max start time
         if(value==null) this.max = Double.NaN;
         else max = Double.parseDouble(value);
         break;
-      case 32: // min start time
+      case 35: // min start time
         if(value==null) this.min = Double.NaN;
         else min = Double.parseDouble(value);
         if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
@@ -360,19 +393,19 @@ public class PutCombinedInfoIntoDatabase {
         refList.add(paleoSitePub.getReference());
         startTime.setReferencesList(refList);
         break;
-      case 33: // max end time
+      case 36: // max end time
         if(value==null) this.max = Double.NaN;
         else max = Double.parseDouble(value);
         break;
-      case 34: // pref end time
+      case 37: // pref end time
         if(value==null) this.pref = Double.NaN;
         else pref = Double.parseDouble(value);
         break;
-      case 35: // min end time
+      case 38: // min end time
         if(value==null) this.min = Double.NaN;
         else min  = Double.parseDouble(value);
         break;
-      case 36: // end time units
+      case 39: // end time units
         if(value!=null) endTimeUnits = value;
         else   endTimeUnits="";
         if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
@@ -407,33 +440,43 @@ public class PutCombinedInfoIntoDatabase {
         refList1.add(paleoSitePub.getReference());
         endTime.setReferencesList(refList1);
         break;
-      case 37: // dated feature comments
+      case 40: // dated feature comments
         if(value==null) value ="";
         combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
         break;
-      case 38: // aseismic slip factor for Slip Rate
-        if(value!=null) {
-          Estimate estimate = new MinMaxPrefEstimate(Double.NaN,Double.NaN,Double.parseDouble(value),Double.NaN, Double.NaN, Double.NaN);
-          combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(new EstimateInstances(estimate, AddEditSlipRate.ASEISMIC_SLIP_FACTOR_UNITS));
-        }
-        break;
-      case 39: // preferred slip rate
+      case 41:   // MIN aseismic slip factor for Slip Rate
+    	  if(value==null) this.min = Double.NaN;
+    	  else this.min = Double.parseDouble(value);
+    	  break;
+      case 42:   // MAX aseismic slip factor for Slip Rate
+    	  if(value==null) this.max = Double.NaN;
+    	  else this.max = Double.parseDouble(value);
+    	  break;
+      case 43:   // PREF aseismic slip factor for Slip Rate
+    	  if(value==null) this.pref = Double.NaN;
+    	  else this.pref = Double.parseDouble(value);
+    	  if(!Double.isNaN(min) || !Double.isNaN(max) || !Double.isNaN(pref)) {
+    		  Estimate estimate = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+    		  combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(new EstimateInstances(estimate, AddEditSlipRate.ASEISMIC_SLIP_FACTOR_UNITS));
+    	  }
+    	  break;
+      case 44: // preferred slip rate
         if(value==null) this.pref = Double.NaN;
         else {
           this.isSlipRate = true;
           this.pref = Double.parseDouble(value);
         }
         break;
-      case 40: // no need to migrate (slip rate error)
+      case 45: // no need to migrate (slip rate error)
         break;
-      case 41: // min slip rate
+      case 46: // min slip rate
         if(value==null) this.min = Double.NaN;
         else {
           this.isSlipRate = true;
           this.min = Double.parseDouble(value);
         }
         break;
-      case 42: // max slip rate
+      case 47: // max slip rate
         if(value==null) this.max = Double.NaN;
         else {
           this.isSlipRate = true;
@@ -444,7 +487,7 @@ public class PutCombinedInfoIntoDatabase {
          this.combinedSlipRateInfo.setSlipRateEstimate(new EstimateInstances(estimate, AddEditSlipRate.SLIP_RATE_UNITS));
        }
         break;
-      case 43: // slip rate comments
+      case 48: // slip rate comments
         if(value==null) value="";
         this.combinedSlipRateInfo.setSlipRateComments(value);
         break;
@@ -458,16 +501,21 @@ public class PutCombinedInfoIntoDatabase {
    * @return
    */
   private Reference addReferenceToDatabase(String referenceSummary) {
-    Reference ref = new Reference();
-    ref.setFullBiblioReference("");
-    int index = referenceSummary.indexOf("(");
-    ref.setRefAuth(referenceSummary.substring(0,index));
-    ref.setRefYear(referenceSummary.substring(index+1,referenceSummary.indexOf(")")));
+    Reference ref = getReference(referenceSummary);
     int id = this.referenceDAO.addReference(ref);
     //int id=-1;
     ref.setReferenceId(id);
     return ref;
   }
+
+private Reference getReference(String referenceSummary) {
+	Reference ref = new Reference();
+    ref.setFullBiblioReference("");
+    int index = referenceSummary.indexOf("(");
+    ref.setRefAuth(referenceSummary.substring(0,index));
+    ref.setRefYear(referenceSummary.substring(index+1,referenceSummary.indexOf(")")));
+	return ref;
+}
 }
 
 class InvalidRowException extends RuntimeException {

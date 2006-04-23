@@ -18,6 +18,7 @@ import oracle.sql.STRUCT;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -33,7 +34,7 @@ public class PaleoSiteDB_DAO  {
   private final static String SEQUENCE_NAME = "Paleo_Site_Sequence";
   private final static String TABLE_NAME="Paleo_Site";
   private final static String SITE_ID="Site_Id";
-  private final static String FAULT_ID="Fault_Id";
+  private final static String FAULT_SECTION_ID="Fault_Section_Id";
   private final static String ENTRY_DATE="Entry_Date";
   private final static String SITE_NAME="Site_Name";
   private final static String SITE_LOCATION1="Site_Location1";
@@ -49,7 +50,7 @@ public class PaleoSiteDB_DAO  {
   // paleo site publication DAO
   private PaleoSitePublicationsDB_DAO paleoSitePublicationDAO;
   // fault DAO
-  private FaultDB_DAO faultDAO;
+  private FaultSectionVer2_DB_DAO faultSectionDAO;
 
 
 
@@ -59,7 +60,7 @@ public class PaleoSiteDB_DAO  {
 
   public void setDB_Connection(DB_AccessAPI dbAccess) {
    this.dbAccess = dbAccess;
-   faultDAO = new FaultDB_DAO(dbAccess);
+   faultSectionDAO = new FaultSectionVer2_DB_DAO(dbAccess);
    estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
    paleoSitePublicationDAO = new PaleoSitePublicationsDB_DAO(dbAccess);
  }
@@ -81,7 +82,6 @@ public class PaleoSiteDB_DAO  {
       throw new InsertException(e.getMessage());
     }
 
-    int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
     JGeometry location1;
     // if elevation is available
     if(!Float.isNaN(paleoSite.getSiteElevation1()))
@@ -113,15 +113,15 @@ public class PaleoSiteDB_DAO  {
     String dipColName="", dipVal="";
     EstimateInstances dipEst = paleoSite.getDipEstimate();
     if(dipEst!=null) {
-      dipColName = this.DIP_EST_ID+",";
+      dipColName = DIP_EST_ID+",";
       int id = this.estimateInstancesDAO.addEstimateInstance(dipEst);
       dipVal=""+id+",";
     }
-    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
+    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_SECTION_ID+","+
         ENTRY_DATE+","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+dipColName+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
-        " values ("+paleoSiteId+","+faultId+",'"+systemDate+
+        " values ("+paleoSiteId+","+paleoSite.getFaultSectionId()+",'"+systemDate+
         "','"+paleoSite.getSiteName()+"',?,?,"+dipVal+"'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
     try {
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
@@ -181,7 +181,7 @@ public class PaleoSiteDB_DAO  {
   */
  public ArrayList getAllPaleoSiteNames() throws QueryException {
    ArrayList paleoSiteSummaryList = new ArrayList();
-   String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+this.TABLE_NAME+" order by "+this.SITE_NAME;
+   String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME+" order by "+SITE_NAME;
    try {
      ResultSet rs  = dbAccess.queryData(sql);
      while(rs.next())  {
@@ -226,12 +226,12 @@ public class PaleoSiteDB_DAO  {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
-    String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
         ","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+
         DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+
         " from "+TABLE_NAME+condition;
-    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
     ","+SITE_NAME+","+
     DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+
     " from "+TABLE_NAME+condition;
@@ -247,7 +247,8 @@ public class PaleoSiteDB_DAO  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
         paleoSite.setEntryDate(rs.getString(ENTRY_DATE));
-        paleoSite.setFaultName(faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
+        FaultSectionSummary faultSectionSummary =  faultSectionDAO.getFaultSectionSummary(rs.getInt(FAULT_SECTION_ID));
+        paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
 
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         // location 1

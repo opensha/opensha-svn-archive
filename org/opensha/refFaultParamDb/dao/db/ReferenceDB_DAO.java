@@ -54,7 +54,7 @@ public class ReferenceDB_DAO {
    }
 
     String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+REF_AUTH+","+
-        REF_YEAR+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
+        REF_YEAR+","+FULL_BIBLIOGRAPHIC_REFERENCE+")"+
         " values ("+referenceId+",'"+reference.getRefAuth()+"','"+
         reference.getRefYear()+"','"+reference.getFullBiblioReference()+"')";
     try {
@@ -77,8 +77,8 @@ public class ReferenceDB_DAO {
    */
   public boolean updateReference(int referenceId, Reference reference) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+REF_AUTH+"= '"+
-        reference.getRefAuth()+"',"+ this.REF_YEAR+"="+reference.getRefYear()+","+
-        this.FULL_BIBLIOGRAPHIC_REFERENCE+"='"+
+        reference.getRefAuth()+"',"+ REF_YEAR+"="+reference.getRefYear()+","+
+        FULL_BIBLIOGRAPHIC_REFERENCE+"='"+
         reference.getFullBiblioReference()+"' where "+REFERENCE_ID+"="+referenceId;
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
@@ -98,6 +98,20 @@ public class ReferenceDB_DAO {
   public Reference getReference(int referenceId) throws QueryException {
     Reference reference=null;
     String condition  =  " where "+REFERENCE_ID+"="+referenceId;
+    ArrayList referenceList = query(condition);
+    if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
+    return reference;
+  }
+  
+  /**
+   * Get reference corresponding to an Id
+   * @param referenceId
+   * @return
+   * @throws QueryException
+   */
+  public Reference getReference(String author, String year) throws QueryException {
+    Reference reference=null;
+    String condition  =  " where "+REF_AUTH+"='"+author+"' and "+REF_YEAR+"='"+year+"'";
     ArrayList referenceList = query(condition);
     if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
     return reference;
@@ -153,15 +167,15 @@ public class ReferenceDB_DAO {
   public ArrayList getAllReferencesSummary() throws QueryException {
     if(referenceList!=null) return referenceList;
     referenceList = new ArrayList();
-    String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
-        this.REF_AUTH+" from "+TABLE_NAME+" order by "+this.REF_AUTH;
+    String sql = "select "+REFERENCE_ID+","+REF_YEAR+","+
+        REF_AUTH+" from "+TABLE_NAME+" order by "+REF_AUTH;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next())  {
         Reference referenceSummary = new Reference();
-        referenceSummary.setRefAuth(rs.getString(this.REF_AUTH));
+        referenceSummary.setRefAuth(rs.getString(REF_AUTH));
         referenceSummary.setReferenceId(rs.getInt(REFERENCE_ID));
-        referenceSummary.setRefYear(rs.getString(this.REF_YEAR));
+        referenceSummary.setRefYear(rs.getString(REF_YEAR));
         referenceList.add(referenceSummary);
       }
       rs.close();
@@ -172,16 +186,16 @@ public class ReferenceDB_DAO {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
-    String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
-        this.REF_AUTH+","+ QFAULT_REFERENCE_ID+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+
-        " "+condition+" order by "+this.REF_AUTH;
+    String sql = "select "+REFERENCE_ID+","+REF_YEAR+","+
+        REF_AUTH+","+ QFAULT_REFERENCE_ID+","+FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+
+        " "+condition+" order by "+REF_AUTH;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next())  {
         Reference reference = new Reference(rs.getInt(REFERENCE_ID),
-                                            rs.getString(this.REF_AUTH),
-                                            rs.getString(this.REF_YEAR),
-                                            rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE));
+                                            rs.getString(REF_AUTH),
+                                            rs.getString(REF_YEAR),
+                                            rs.getString(FULL_BIBLIOGRAPHIC_REFERENCE));
         int qFaultRefId = rs.getInt(QFAULT_REFERENCE_ID);
         if(!rs.wasNull()) reference.setQfaultReferenceId(qFaultRefId);
         referenceList.add(reference);

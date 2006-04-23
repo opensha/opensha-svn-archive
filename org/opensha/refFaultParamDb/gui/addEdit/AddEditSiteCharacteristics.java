@@ -15,8 +15,6 @@ import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.exceptions.*;
-import org.opensha.exceptions.*;
-import org.opensha.exceptions.*;
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
@@ -27,8 +25,8 @@ import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
-import org.opensha.refFaultParamDb.vo.Fault;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
@@ -123,7 +121,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private JButton addNewReferenceButton = new JButton("Add New Reference");
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
+  private final static String ADD_NEW_REF_TOOL_TIP= "Add Reference not currently in database";
 
   // site type DAO
   private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
@@ -134,7 +132,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   // paleo site DAO
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   // fault DAO
-  private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
   private AddNewSiteType addNewSiteType;
   private AddNewReference addNewReference;
   private LabeledBoxPanel labeledBoxPanel;
@@ -167,7 +165,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       e.printStackTrace();
     }
     this.pack();
-    setSize(this.WIDTH, this.HEIGHT);
+    setSize(WIDTH, HEIGHT);
     this.setLocationRelativeTo(null);
     this.setVisible(true);
   }
@@ -176,7 +174,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private void addActionListeners() {
     this.addNewSiteButton.addActionListener(this);
     addNewReferenceButton.addActionListener(this);
-    addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
+    addNewReferenceButton.setToolTipText(ADD_NEW_REF_TOOL_TIP);
     okButton.addActionListener(this);
     cancelButton.addActionListener(this);
   }
@@ -225,7 +223,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     }
     paleoSite.setGeneralComments(comments);
     paleoSite.setOldSiteId((String)this.oldSiteIdParam.getValue());
-    paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
+    FaultSectionSummary faultSectionSummary = FaultSectionSummary.getFaultSectionSummary((String)this.assocWithFaultParam.getValue());
+    paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
     // see that user chooses at least 1 site reference
     ArrayList siteReferences = (ArrayList)this.siteReferenceParam.getValue();
     if(siteReferences==null || siteReferences.size()==0) {
@@ -249,15 +248,15 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       this.dipEstParamEditor.setEstimateInParameter();
       paleoSite.setDipEstimate(new EstimateInstances((Estimate)this.dipEstParam.getValue(), DIP_UNITS));
     }catch(Exception e){
-      int option = JOptionPane.showConfirmDialog(this, MSG_DIP_INCORRECT, this.TITLE, JOptionPane.YES_NO_OPTION);
+      int option = JOptionPane.showConfirmDialog(this, MSG_DIP_INCORRECT, TITLE, JOptionPane.YES_NO_OPTION);
       if(option == JOptionPane.NO_OPTION) return;
     }
 
     // location 1
     ParameterList location1ParamList = ((ParameterListParameter)siteLocationParam.getLocationParameter()).getParameter();
-    Double lat1 = (Double)location1ParamList.getValue(this.LAT_PARAM_NAME);
-    Double lon1 = (Double)location1ParamList.getValue(this.LON_PARAM_NAME);
-    Double elev1 = (Double)location1ParamList.getValue(this.ELEVATION_PARAM_NAME);
+    Double lat1 = (Double)location1ParamList.getValue(LAT_PARAM_NAME);
+    Double lon1 = (Double)location1ParamList.getValue(LON_PARAM_NAME);
+    Double elev1 = (Double)location1ParamList.getValue(ELEVATION_PARAM_NAME);
     paleoSite.setSiteLat1((float)lat1.doubleValue());
     paleoSite.setSiteLon1((float)lon1.doubleValue());
     if(elev1!=null) paleoSite.setSiteElevation1((float)elev1.doubleValue());
@@ -265,9 +264,9 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
     //location 2
     ParameterList location2ParamList = ((ParameterListParameter)siteLocationParam2.getLocationParameter()).getParameter();
-    Double lat2 = (Double)location2ParamList.getValue(this.LAT_PARAM_NAME);
-    Double lon2 = (Double)location2ParamList.getValue(this.LON_PARAM_NAME);
-    Double elev2 = (Double)location2ParamList.getValue(this.ELEVATION_PARAM_NAME);
+    Double lat2 = (Double)location2ParamList.getValue(LAT_PARAM_NAME);
+    Double lon2 = (Double)location2ParamList.getValue(LON_PARAM_NAME);
+    Double elev2 = (Double)location2ParamList.getValue(ELEVATION_PARAM_NAME);
     paleoSite.setSiteLat2((float)lat2.doubleValue());
     paleoSite.setSiteLon2((float)lon2.doubleValue());
     if(elev2!=null) paleoSite.setSiteElevation2((float)elev2.doubleValue());
@@ -314,7 +313,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     dafaultReference = new ArrayList();
 
       // references for this site
-    this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
+    this.siteReferenceParam = new StringListParameter(CHOOSE_REFERENCE_PARAM_NAME,
         referencesList, dafaultReference);
     this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
 
@@ -378,7 +377,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     splitPane.add(labeledBoxPanel, JSplitPane.LEFT);
     splitPane.add(labeledBoxPanel2, JSplitPane.RIGHT);
-    splitPane.setDividerLocation(this.WIDTH/2);
+    splitPane.setDividerLocation(WIDTH/2);
     contentPane.add(splitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
   }
@@ -390,23 +389,23 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    */
   private void initParametersAndEditors() throws Exception {
 
-    String defaultSiteName, defaultOldSiteId, defaultFaultName;
+    String defaultSiteName, defaultOldSiteId, defaultFaultSectionName;
     String defaultSiteRepresentation, defaultComments;
     Location defaultLocation1, defaultLocation2;
 
     // get various lists from the database
-    ArrayList faultNamesList = getFaultNames();
+    ArrayList faultSectionNamesList = getFaultSectionNames();
     ArrayList siteRepresentations = getSiteRepresentations();
     Estimate dipEstVal=null;
 
     // if a new site has to be added, set some default values
     defaultSiteName =" ";
     defaultOldSiteId = " ";
-    defaultFaultName = (String)faultNamesList.get(0);
+    defaultFaultSectionName = (String)faultSectionNamesList.get(0);
     defaultSiteRepresentation = (String)siteRepresentations.get(0);
     defaultComments = " ";
-    defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL);
-    defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL);
+    defaultLocation1 = new Location(DEFAULT_LAT_VAL, DEFAULT_LON_VAL);
+    defaultLocation2 = new Location(DEFAULT_LAT_VAL, DEFAULT_LON_VAL);
     dipEstVal=null;
 
 
@@ -427,8 +426,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    siteLocationParamEditor2 = new LocationParameterEditor(siteLocationParam2,true);
 
    // choose the fault with which this site is associated
-   assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME, faultNamesList,
-                                              defaultFaultName);
+   assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME, faultSectionNamesList,
+                                              defaultFaultSectionName);
    assocWithFaultParamEditor = new ConstrainedStringParameterEditor(assocWithFaultParam);
 
    // how representative is this site?
@@ -486,7 +485,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    * @param event
    */
   public void parameterChange(ParameterChangeEvent event) {
-    if(event.getParameterName().equalsIgnoreCase(this.SITE_TYPE_PARAM_NAME))
+    if(event.getParameterName().equalsIgnoreCase(SITE_TYPE_PARAM_NAME))
       setSecondLocationVisible();
   }
 
@@ -497,7 +496,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    */
   private void setSecondLocationVisible() {
     ArrayList selectedSiteType =  (ArrayList)this.siteTypeParam.getValue();
-    if(selectedSiteType.contains(this.BETWEEN_LOCATIONS_SITE_TYPE))
+    if(selectedSiteType.contains(BETWEEN_LOCATIONS_SITE_TYPE))
       this.siteLocationParamEditor2.setVisible(true);
     else this.siteLocationParamEditor2.setVisible(false);
   }
@@ -532,16 +531,16 @@ private ArrayList getAvailableReferences() {
 
 
  /**
-   * It gets all the FAULT NAMES from the database
+   * It gets all the Fault Section Names from the database
    * @return
    */
-  private ArrayList getFaultNames() {
-    ArrayList faultVOs = faultDAO.getAllFaults();
-    ArrayList faultNamesList = new ArrayList();
-    for(int i=0; i<faultVOs.size(); ++i) {
-      faultNamesList.add(((Fault)faultVOs.get(i)).getFaultName());
+  private ArrayList getFaultSectionNames() {
+    ArrayList faultSectionSummaryList = faultSectionDAO.getAllFaultSectionsSummary();
+    ArrayList faultSectionNamesList = new ArrayList();
+    for(int i=0; i<faultSectionSummaryList.size(); ++i) {
+    	faultSectionNamesList.add(((FaultSectionSummary)faultSectionSummaryList.get(i)).getAsString());
     }
-    return faultNamesList;
+    return faultSectionNamesList;
   }
 
   /**

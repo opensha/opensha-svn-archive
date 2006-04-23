@@ -1,7 +1,13 @@
 package org.opensha.refFaultParamDb.excelToDatabase;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
 import java.util.StringTokenizer;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
@@ -14,6 +20,8 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import org.opensha.calc.RelativeLocation;
 
@@ -33,6 +41,7 @@ public class PutFaultSectionsIntoDatabase {
   // input files
   private final static String INPUT_FILE1 = "2006_fault_sections.MID";
   private final static String INPUT_FILE2 = "2006_fault_sections.MIF";
+  private final static String NAME_CHANGE_FILE_NAME = "FaultSectionNameChanges.v1.xls";
   // units for various paramaters
   private final static String DIP_UNITS = "degrees";
   private final static String SLIP_RATE_UNITS = "mm/yr";
@@ -50,10 +59,15 @@ public class PutFaultSectionsIntoDatabase {
 
   // DAO to put fault sections to database
   private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+  
+  private final static int MIN_ROW_NAME_CHANGES = 1; // skip first row as it is header
+  private final static int MAX_ROW_NAME_CHANGES = 256;  
 
   // filename to compare the dips
-  private final static String DIP_FILENAME = "DipComparisons.txt";
-  private FileWriter fwDip;
+ // private final static String DIP_FILENAME = "DipComparisons.txt";
+  //private FileWriter fwDip;
+  private final static String SECTION_TRACE_FILE_NAME = "WGCEP_FaultSectionsTrace.txt";
+  
   private String dipDirectionFromFile;
 
   /**
@@ -66,8 +80,10 @@ public class PutFaultSectionsIntoDatabase {
       // load fault trace
       faultSectionTraceLines = FileUtils.loadFile(INPUT_FILE2);
 
-      fwDip = new FileWriter(PutFaultSectionsIntoDatabase.DIP_FILENAME);
+      HashMap nameChangeMap = loadNameChangeFile(NAME_CHANGE_FILE_NAME);
+      //fwDip = new FileWriter(PutFaultSectionsIntoDatabase.DIP_FILENAME);
       // load all the fault sections and their properties (except Fault Trace)
+      FileWriter fwSectionTrace = new FileWriter(SECTION_TRACE_FILE_NAME);
       for(int i=0; i<fileLines1.size(); ++i) {
         try {
           FaultTrace faultSectionTrace = getNextTrace("temp");
@@ -76,18 +92,27 @@ public class PutFaultSectionsIntoDatabase {
           faultSectionsList.add(faultSection);
           faultSection.setFaultTrace(faultSectionTrace);
           calculateDipDirection(faultSection);
-          
+          //fwSectionTrace.write((i+1)+","+faultSection.getSectionName()+"\n");
+          /*fwSectionTrace.write((i+1)+",");
+          int numLocs = faultSectionTrace.getNumLocations();
+          for(int j=0; j<numLocs; ++j) {
+        	  fwSectionTrace.write(faultSectionTrace.getLocationAt(j)+",");
+          }
+          fwSectionTrace.write("\n");*/
           //fwDip.write(dipDirection+"\n");
           // add fault section to the database
-          //faultSectionDAO.addFaultSection(faultSection);
-          System.out.println(faultSection.getSectionName());
+          String newName = (String)nameChangeMap.get(""+(i+1));
+          if(newName!=null) faultSection.setSectionName(newName);
+          faultSectionDAO.addFaultSection(faultSection);
+          //System.out.println(faultSection.getSectionName());
         }catch(Exception e) {
           e.printStackTrace();
           System.exit(0);
           //System.out.println("Problem "+ e.getMessage());
         }
       }
-      fwDip.close();
+      //fwDip.close();
+      fwSectionTrace.close();
       fileLines1 = null;
       faultSectionTraceLines = null;
     }catch(Exception e) {
@@ -117,7 +142,7 @@ public class PutFaultSectionsIntoDatabase {
 	  
 	  //calculate numerical dip direction based on String values from Chris Will's file
 	  if(this.dipDirectionFromFile.equalsIgnoreCase("") || dipDirectionFromFile.equalsIgnoreCase("n/a")) {
-		 // System.out.println("Dip direction not available for section:"+faultSection.getSectionName()+" with dip "+dip);
+		  System.out.println("Dip direction not available for section:"+faultSection.getSectionName()+" with dip "+dip);
 		  return;
 	  }
 	  
@@ -138,7 +163,7 @@ public class PutFaultSectionsIntoDatabase {
 		  //System.out.println("Locations reversed for section:"+faultSection.getSectionName()+" with dip "+dip);
 	  }
 	  else if((dipDirectionDiff>45 && dipDirectionDiff<135) || (dipDirectionDiff>225 && dipDirectionDiff<315)) {
-		 // System.out.println("Please check the section:"+faultSection.getSectionName()+" as difference in dip direction is "+dipDirectionDiff);
+		  System.out.println("Please check the section:"+faultSection.getSectionName()+" as difference in dip direction is "+dipDirectionDiff);
 	  }
 	  
   }
@@ -170,6 +195,29 @@ public class PutFaultSectionsIntoDatabase {
     return sectionTrace;
   }
 
+   private HashMap loadNameChangeFile(String fileName) {
+	   HashMap nameChangesMap = new HashMap();
+	   try {
+		   POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(fileName));
+		   HSSFWorkbook wb = new HSSFWorkbook(fs);
+		   HSSFSheet sheet = wb.getSheetAt(0);
+		   
+		   // read data for each row
+		   for(int r = MIN_ROW_NAME_CHANGES; r<=MAX_ROW_NAME_CHANGES; ++r) {
+			   //System.out.println("Processing Row:"+(r+1));
+			   HSSFRow row = sheet.getRow(r);
+			   HSSFCell cell1 = row.getCell( (short) 0);
+			   HSSFCell cell2 = row.getCell( (short) 2);
+			   if(cell2!=null && !(cell2.getCellType()==HSSFCell.CELL_TYPE_BLANK)) {
+				   nameChangesMap.put(cell1.getStringCellValue().trim(),
+						   cell2.getStringCellValue().trim());
+			   }
+		   }
+	   }catch(Exception e) {
+		   e.printStackTrace();
+	   }
+	   return nameChangesMap;
+   }
 
   /**
    * Get fault section from a file line
@@ -183,19 +231,27 @@ public class PutFaultSectionsIntoDatabase {
     int index = line.indexOf("\",\"");
     // fault section name
     faultSection.setSectionName(line.substring(1, index));
-    //System.out.println(faultSection.getSectionName());
+    
+    System.out.println(faultSection.getSectionName());
     String line2 = line.substring(index+2);
     index = line2.indexOf("\",\"");
+    
     //System.out.println(line2);
     //System.out.println(index);
 
     //used only when 2 incompatible models exist, lists which model includes this fault
+    String qFaultId = removeQuotes(line2.substring(0, index+1));
+    if(!qFaultId.equalsIgnoreCase("")) faultSection.setQFaultId(qFaultId);
+    
+    line2 = line2.substring(index+2);
+    index = line2.indexOf("\",\"");
     String model = removeQuotes(line2.substring(0, index+1));
     //System.out.println(model);
     //System.exit(0);
     if(!model.equalsIgnoreCase("")) {
       comments = comments + "Model="+model+"\n";
     }
+    
     StringTokenizer tokenizer = new StringTokenizer(line2.substring(index+2),",");
     //2002 or CFM
     faultSection.setSource(removeQuotes(tokenizer.nextToken().trim()));
@@ -249,7 +305,6 @@ public class PutFaultSectionsIntoDatabase {
     }
     //from 2002 model
     String fileName = removeQuotes(tokenizer.nextToken().trim());
-    faultSection.setFaultName(fileName);
     if(!fileName.equalsIgnoreCase("")) {
       comments=comments+"FileName="+fileName+"\n";
     }
@@ -334,6 +389,7 @@ public class PutFaultSectionsIntoDatabase {
     return new EstimateInstances(estimate, units);
   }
 
+  
   public static void main(String[] args) {
      new PutFaultSectionsIntoDatabase();
   }

@@ -17,7 +17,6 @@ public class MakeFaultSectionsTextFile {
 	
 	private final static String SECTIONS_TXT_FILENAME = "FaultSectionsVer2.txt";
 	private final static String ESTIMATE = "Estimate";
-	private final static String FAULT_NAME = "Fault_Name";
 	private final static String SECTION_SOURCE = "Section_Source";
 	
 	public MakeFaultSectionsTextFile() {
@@ -32,7 +31,6 @@ public class MakeFaultSectionsTextFile {
 				FaultSectionVer2 faultSection = (FaultSectionVer2)faultSections.get(i);
 				fw.write("#"+faultSection.getSectionName()+"\n");
 				fw.write(FaultSectionVer2_DB_DAO.SECTION_ID+"="+faultSection.getSectionId()+"\n");
-				fw.write(FAULT_NAME+"="+faultSection.getFaultName()+"\n");
 				fw.write(FaultSectionVer2_DB_DAO.ENTRY_DATE+"="+faultSection.getEntryDate()+"\n");
 				fw.write(FaultSectionVer2_DB_DAO.DIP_DIRECTION+"="+faultSection.getDipDirection()+"\n");
 				fw.write(SECTION_SOURCE+"="+faultSection.getSource()+"\n");

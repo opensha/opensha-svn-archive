@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.border.Border;
 import org.opensha.gui.TitledBorderPanel;
@@ -44,7 +46,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private final static String SITE_NAME_PARAM_NAME="Site Name";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location";
   private final static String SITE_ELEVATION_PARAM_NAME="Site Elevation";
-  private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault";
+  private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault Section";
   private final static String SITE_TYPE_PARAM_NAME="Site Type";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
   private final static String SITE_REFERENCES_PARAM_NAME="References";
@@ -104,7 +106,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private JButton editSiteButton = new JButton("Edit");
   private JButton editCombinedInfoButton = new JButton("Edit Data");
   private JButton qFaultsEntriesButton = new JButton("Show QFault entries");
-  private JButton eventSequenceButton = new JButton("Events and Seq.");
   private JButton addInfoButton = new JButton("Add Data");
   private JSplitPane splitPane = new JSplitPane();
 
@@ -137,6 +138,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       jbInit();
       // ad action listeners to catch the event on button click
       addActionListeners();
+      //		 do not allow edit for non authenticated users
+      if(SessionInfo.getContributor()==null) {
+    	  addInfoButton.setEnabled(false);
+    	  this.editCombinedInfoButton.setEnabled(false);
+    	  this.editSiteButton.setEnabled(false);
+      }
+
     }catch(Exception e)  {
       e.printStackTrace();
     }
@@ -535,10 +543,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   * @param paleoSite
   */
   private void setSiteInfo(String siteName)  {
-    String  faultName;
+    String  faultSectionName;
     float latitude, longitude, elevation;
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
-      faultName = "Fault1";
+      faultSectionName = "FaultSection1";
       latitude = 34.0f;
       longitude=-116.0f;
       elevation=0.0f;
@@ -548,7 +556,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
       PaleoSiteSummary paleoSiteSummary = (PaleoSiteSummary)this.paleoSiteSummaryList.get(index);
       paleoSite = this.paleoSiteDAO.getPaleoSite(paleoSiteSummary.getSiteId());
-      faultName = paleoSite.getFaultName();
+      faultSectionName = paleoSite.getFaultSectionName();
       latitude = paleoSite.getSiteLat1();
       longitude = paleoSite.getSiteLon1();
       elevation = paleoSite.getSiteElevation1();
@@ -561,7 +569,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     this.siteElevationLabel.setTextAsHTML(this.SITE_ELEVATION_PARAM_NAME,
                                          elevationStr);
    //  fault with which this site is associated
-    assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultName);
+    assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultSectionName);
     // set the references for this site
     this.initReferencesForSiteParameterAndEditor();
   }

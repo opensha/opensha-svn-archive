@@ -1,5 +1,4 @@
 package org.opensha.refFaultParamDb.vo;
-import java.util.Date;
 import java.util.ArrayList;
 
 /**
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 
 public class PaleoSite {
   private int siteId=-1;
-  private String faultName;
+  private FaultSectionSummary faultSection;
   private String siteName;
   private float siteLat1;
   private float siteLon1;
@@ -37,7 +36,7 @@ public class PaleoSite {
       paleoSiteSubString+=((PaleoSitePublication)paleoSitePubList.get(i)).toString()+"\n";
     String dipEstStr=null;
     if(dipEstimate!=null) dipEstStr = dipEstimate.toString();
-    return "Fault Name="+faultName+"\n"+
+    return "Fault Section Name="+faultSection.getSectionName()+"\n"+
         "Site Name="+siteName+"\n"+
         "Site Lat1="+siteLat1+"\n"+
         "Site Lon1="+siteLon1+"\n"+
@@ -113,11 +112,17 @@ public class PaleoSite {
   public void setSiteElevation2(float siteElevation2) {
     this.siteElevation2 = siteElevation2;
   }
-  public String getFaultName() {
-    return this.faultName;
+  
+  public String getFaultSectionName() {
+    return this.faultSection.getSectionName();
   }
-  public void setFaultName(String faultName) {
-    this.faultName = faultName;
+  
+  public int getFaultSectionId() {
+	  return this.faultSection.getSectionId();
+  }
+  
+  public void setFaultSectionNameId(String faultSectionName, int faultSectionId) {
+     this.faultSection = new FaultSectionSummary(faultSectionId, faultSectionName);
   }
   public void setGeneralComments(String generalComments) {
     this.generalComments = generalComments;

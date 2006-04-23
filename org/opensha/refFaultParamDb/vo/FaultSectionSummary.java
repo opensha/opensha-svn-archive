@@ -32,4 +32,16 @@ public class FaultSectionSummary {
 	public void setSectionName(String sectionName) {
 		this.sectionName = sectionName;
 	}
+	
+	public  String getAsString() {
+		return getSectionName()+"["+getSectionId()+"]";
+	}
+	
+	public static FaultSectionSummary getFaultSectionSummary(String faultSectionSummaryAsStr) {
+		int index1 = faultSectionSummaryAsStr.indexOf("[");
+		int index2 = faultSectionSummaryAsStr.indexOf("]");
+		String faultSectionName = faultSectionSummaryAsStr.substring(0, index1);
+		int faultSectionId =  Integer.parseInt(faultSectionSummaryAsStr.substring(index1+1, index2));
+		return new FaultSectionSummary(faultSectionId, faultSectionName);
+	}
 }

@@ -27,6 +27,7 @@ public class ReadSitesFile {
   private final static float  SITE_ELEVATION_DEFAULT = Float.NaN;
   private final static int REFERENCE_ID_DEFAULT = 6530; // id for WGCEP-2007 reference
   private final static String NONAME_SITENAME="no name";
+  private final static int FAULT_SECTION_ID = 1;
   public ReadSitesFile() {
     try {
      ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
@@ -41,7 +42,7 @@ public class ReadSitesFile {
        paleoSite.setSiteName(tokenizer.nextToken().trim());
        if(paleoSite.getSiteName().equalsIgnoreCase(NONAME_SITENAME))
          paleoSite.setSiteName(" ");
-       paleoSite.setFaultName(tokenizer.nextToken().trim());
+       paleoSite.setFaultSectionNameId(tokenizer.nextToken().trim(), FAULT_SECTION_ID);
        String references = tokenizer.nextToken().trim();
        paleoSite.setSiteLon1(Float.parseFloat(tokenizer.nextToken().trim()));
        paleoSite.setSiteLat1(Float.parseFloat(tokenizer.nextToken().trim()));

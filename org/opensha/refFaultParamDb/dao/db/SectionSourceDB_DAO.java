@@ -62,6 +62,10 @@ public class SectionSourceDB_DAO  {
      if(sectionSourceList.size()>0) sectionSource = (SectionSource)sectionSourceList.get(0);
      return sectionSource;
    }
+   
+   public ArrayList getAllSectionSource() {
+	   return query(" ");
+   }
 
 
   private ArrayList query(String condition) throws QueryException {

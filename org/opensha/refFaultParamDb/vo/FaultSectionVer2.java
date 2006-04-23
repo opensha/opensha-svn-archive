@@ -15,7 +15,6 @@ public class FaultSectionVer2 {
 
   private int sectionId=-1;
   private String sectionName;
-  private String faultName;
   private EstimateInstances aveLongTermSlipRateEst;
   private EstimateInstances aveDipEst;
   private EstimateInstances aveRakeEst;
@@ -27,10 +26,19 @@ public class FaultSectionVer2 {
   private String comments="";
   private FaultTrace faultTrace;
   private float dipDirection;
-
+  private String qFaultId;
 
   public FaultSectionVer2() {
   }
+  
+  public String getQFaultId() {
+	  return this.qFaultId;
+  }
+  
+  public void setQFaultId(String qfaultId) {
+	  this.qFaultId = qfaultId;
+  }
+  
   public EstimateInstances getAseismicSlipFactorEst() {
     return aseismicSlipFactorEst;
   }
@@ -58,9 +66,7 @@ public class FaultSectionVer2 {
   public String getEntryDate() {
     return entryDate;
   }
-  public String getFaultName() {
-    return faultName;
-  }
+  
   public FaultTrace getFaultTrace() {
     return faultTrace;
   }
@@ -80,9 +86,7 @@ public class FaultSectionVer2 {
   public void setFaultTrace(FaultTrace faultTrace) {
     this.faultTrace = faultTrace;
   }
-  public void setFaultName(String faultName) {
-    this.faultName = faultName;
-  }
+  
   public void setEntryDate(String entryDate) {
     this.entryDate = entryDate;
   }

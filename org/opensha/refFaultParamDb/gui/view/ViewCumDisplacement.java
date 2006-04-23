@@ -1,15 +1,11 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import org.opensha.gui.LabeledBoxPanel;
-import java.awt.LayoutManager;
-import javax.swing.JButton;
+
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import java.awt.event.ActionListener;
-import javax.swing.JFrame;
-import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditCumDisplacement;
+
 import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.data.estimate.Estimate;
@@ -51,7 +47,7 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
     super(GUI_Utils.gridBagLayout);
     try {
       viewDisplacementForTimePeriod();
-      setTitle(this.DISPLACEMENT_TITLE);
+      setTitle(DISPLACEMENT_TITLE);
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -89,15 +85,15 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
                       String comments, EstimateInstances rakeForSenseOfMotion, String senseOfMotionQual,
                       String measuredSlipQual) {
     displacementEstimateLabel.setTextAsHTML(displacementEstimate, DISPLACEMENT, PROB);
-    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
+    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, ASEISMIC_SLIP_FACTOR, PROB);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
-    this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
+    this.measuredCompQualLabel.setTextAsHTML(QUALITATIVE, measuredSlipQual);
     // check whether sense of motion is available
     Estimate rakeEst = null;
     if(rakeForSenseOfMotion!=null) rakeEst = rakeForSenseOfMotion.getEstimate();
     this.senseOfMotionRakeLabel.setTextAsHTML(rakeEst, RAKE, PROB);
-    this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE, senseOfMotionQual);
+    this.senseOfMotionQualLabel.setTextAsHTML(QUALITATIVE, senseOfMotionQual);
   }
 
   /**
@@ -109,8 +105,8 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
                                             DISPLACEMENT_PANEL_TITLE);
     JPanel aseismicPanel = GUI_Utils.getPanel(aSesimicSlipFactorLabel,
                                     ASEISMIC_SLIP_PANEL_TITLE);
-    JPanel senseOfMotionPanel = GUI_Utils.getPanel(this.SENSE_OF_MOTION_TITLE);
-    JPanel measuredSlipCompPanel = GUI_Utils.getPanel(this.MEASURED_COMP_SLIP_TITLE);
+    JPanel senseOfMotionPanel = GUI_Utils.getPanel(SENSE_OF_MOTION_TITLE);
+    JPanel measuredSlipCompPanel = GUI_Utils.getPanel(MEASURED_COMP_SLIP_TITLE);
 
     // sense of motion panel
     senseOfMotionPanel.add(this.senseOfMotionRakeLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
