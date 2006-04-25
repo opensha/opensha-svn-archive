@@ -10,7 +10,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 
-
 /**
  * <p>Title: FaultRuptureSource </p>
  * <p>Description: This implements a basic fault source for arbitrary: <p>
@@ -33,20 +32,20 @@ import org.opensha.sha.magdist.*;
  * @version 1.0
  */
 
-public class FaultRuptureSource extends ProbEqkSource {
+public class FaultRuptureSource
+    extends ProbEqkSource {
 
   //for Debug purposes
-  private static String  C = new String("FaultRuptureSource");
+  private static String C = new String("FaultRuptureSource");
   private boolean D = false;
 
-
   //name for this classs
-  protected String  NAME = "Fault Rupture Source";
+  protected String NAME = "Fault Rupture Source";
 
   protected double duration;
 
-  private ArrayList ruptureList;  // keep this in case we add more mags later
-  private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
+  private ArrayList ruptureList; // keep this in case we add more mags later
+  private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
 
   /**
    * Constructor - this is for a single mag, non-poissonian rupture.
@@ -56,32 +55,33 @@ public class FaultRuptureSource extends ProbEqkSource {
    * @param probability - the probability of the source
    */
   public FaultRuptureSource(double magnitude,
-                                  EvenlyGriddedSurface ruptureSurface,
-                                  double rake,
-                                  double probability) {
+                            EvenlyGriddedSurface ruptureSurface,
+                            double rake,
+                            double probability) {
 
-      this.isPoissonian = false;
+    this.isPoissonian = false;
 
-      if (D) {
-        System.out.println("mag: "+magnitude);
-        System.out.println("surface rows, cols: "+ruptureSurface.getNumCols()+", "+ruptureSurface.getNumRows());
-        System.out.println("rake: "+rake);
-        System.out.println("probability: "+probability);
+    if (D) {
+      System.out.println("mag: " + magnitude);
+      System.out.println("surface rows, cols: " + ruptureSurface.getNumCols() +
+                         ", " + ruptureSurface.getNumRows());
+      System.out.println("rake: " + rake);
+      System.out.println("probability: " + probability);
 
-      }
-      // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
-      makeFaultCornerLocs(ruptureSurface);
+    }
+    // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
+    makeFaultCornerLocs(ruptureSurface);
 
-      // make the rupture list
-      ruptureList = new ArrayList();
+    // make the rupture list
+    ruptureList = new ArrayList();
 
-      probEqkRupture = new ProbEqkRupture();
-      probEqkRupture.setAveRake(rake);
-      probEqkRupture.setRuptureSurface(ruptureSurface);
-      probEqkRupture.setMag(magnitude);
-      probEqkRupture.setProbability(probability);
+    probEqkRupture = new ProbEqkRupture();
+    probEqkRupture.setAveRake(rake);
+    probEqkRupture.setRuptureSurface(ruptureSurface);
+    probEqkRupture.setMag(magnitude);
+    probEqkRupture.setProbability(probability);
 
-      ruptureList.add(probEqkRupture);
+    ruptureList.add(probEqkRupture);
 
   }
 
@@ -96,20 +96,19 @@ public class FaultRuptureSource extends ProbEqkSource {
   }
 
   /**
-  * It returns a list of all the locations which make up the surface for this
-  * source.
-  *
-  * @return LocationList - List of all the locations which constitute the surface
-  * of this source
-  */
- public LocationList getAllSourceLocs() {
-   LocationList locList = new LocationList();
-   Iterator it = ((EvenlyGriddedSurface)getSourceSurface()).getAllByRowsIterator();
-   while(it.hasNext()) locList.addLocation((Location)it.next());
-   return locList;
- }
-
-
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+  public LocationList getAllSourceLocs() {
+    LocationList locList = new LocationList();
+    Iterator it = ( (EvenlyGriddedSurface) getSourceSurface()).
+        getAllByRowsIterator();
+    while (it.hasNext()) locList.addLocation( (Location) it.next());
+    return locList;
+  }
 
   /**
    * Constructor - this produces a separate rupture for each mag in the mag-freq-dist.
@@ -120,41 +119,42 @@ public class FaultRuptureSource extends ProbEqkSource {
    * @param duration - the duration in years
    */
   public FaultRuptureSource(IncrementalMagFreqDist magDist,
-                                  EvenlyGriddedSurface ruptureSurface,
-                                  double rake,
-                                  double duration) {
+                            EvenlyGriddedSurface ruptureSurface,
+                            double rake,
+                            double duration) {
 
-      this.isPoissonian = true;
-      this.duration = duration;
+    this.isPoissonian = true;
+    this.duration = duration;
 
-      if (D) {
-        System.out.println("surface rows, cols: "+ruptureSurface.getNumCols()+", "+ruptureSurface.getNumRows());
-        System.out.println("rake: "+rake);
-        System.out.println("duration: "+duration);
+    if (D) {
+      System.out.println("surface rows, cols: " + ruptureSurface.getNumCols() +
+                         ", " + ruptureSurface.getNumRows());
+      System.out.println("rake: " + rake);
+      System.out.println("duration: " + duration);
+    }
+
+    // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
+    makeFaultCornerLocs(ruptureSurface);
+
+    // make the rupture list
+    ruptureList = new ArrayList();
+    double mag;
+    double prob;
+
+    // Make the ruptures
+    for (int i = 0; i < magDist.getNum(); ++i) {
+      mag = magDist.getX(i);
+      // make sure it has a non-zero rate
+      if (magDist.getY(i) > 0) {
+        prob = 1 - Math.exp( -duration * magDist.getY(i));
+        probEqkRupture = new ProbEqkRupture();
+        probEqkRupture.setAveRake(rake);
+        probEqkRupture.setRuptureSurface(ruptureSurface);
+        probEqkRupture.setMag(mag);
+        probEqkRupture.setProbability(prob);
+        ruptureList.add(probEqkRupture);
       }
-
-      // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
-      makeFaultCornerLocs(ruptureSurface);
-
-      // make the rupture list
-      ruptureList = new ArrayList();
-      double mag;
-      double prob;
-
-      // Make the ruptures
-      for(int i=0;i<magDist.getNum();++i){
-        mag = magDist.getX(i);
-        // make sure it has a non-zero rate
-        if(magDist.getY(i) > 0) {
-          prob = 1 - Math.exp(-duration*magDist.getY(i));
-          probEqkRupture = new ProbEqkRupture();
-          probEqkRupture.setAveRake(rake);
-          probEqkRupture.setRuptureSurface(ruptureSurface);
-          probEqkRupture.setMag(mag);
-          probEqkRupture.setProbability(prob);
-          ruptureList.add(probEqkRupture);
-        }
-      }
+    }
 
   }
 
@@ -164,87 +164,89 @@ public class FaultRuptureSource extends ProbEqkSource {
    * @param newDuration
    */
   public void setDuration(double newDuration) {
-    if(this.isPoissonian != true)
-      throw new RuntimeException(C+" Error - the setDuration method can only be used for the Poisson case");
+    if (this.isPoissonian != true)
+      throw new RuntimeException(C +
+          " Error - the setDuration method can only be used for the Poisson case");
     ProbEqkRupture eqkRup;
     double oldProb, newProb;
-    for(int i = 0; i < ruptureList.size(); i++) {
+    for (int i = 0; i < ruptureList.size(); i++) {
       eqkRup = (ProbEqkRupture) ruptureList.get(i);
       oldProb = eqkRup.getProbability();
-      newProb = 1.0 - Math.pow((1.0-oldProb), newDuration/duration);
+      newProb = 1.0 - Math.pow( (1.0 - oldProb), newDuration / duration);
       eqkRup.setProbability(newProb);
     }
-    duration=newDuration;
+    duration = newDuration;
   }
 
   /**
    * @return the total num of rutures for all magnitudes
    */
-  public int getNumRuptures() { return ruptureList.size(); }
-
+  public int getNumRuptures() {
+    return ruptureList.size();
+  }
 
   /**
    * This method returns the nth Rupture in the list
    */
-  public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
+  public ProbEqkRupture getRupture(int nthRupture) {
+    return (ProbEqkRupture) ruptureList.get(nthRupture);
+  }
 
-
-   /**
+  /**
    * This returns the shortest dist to either end of the fault trace, or to the
    * mid point of the fault trace (done also for the bottom edge of the fault).
    * @param site
    * @return minimum distance in km
    */
-   public  double getMinDistance(Site site) {
+  public double getMinDistance(Site site) {
 
-      double min = Double.MAX_VALUE;
-      double tempMin;
+    double min = Double.MAX_VALUE;
+    double tempMin;
 
-      Iterator it = faultCornerLocations.iterator();
+    Iterator it = faultCornerLocations.iterator();
 
-      while(it.hasNext()) {
-        tempMin = RelativeLocation.getHorzDistance(site.getLocation(),(Location)it.next());
-        if(tempMin < min) min = tempMin;
-      }
+    while (it.hasNext()) {
+      tempMin = RelativeLocation.getHorzDistance(site.getLocation(),
+                                                 (Location) it.next());
+      if (tempMin < min) min = tempMin;
+    }
 //System.out.println(C+" minDist for source "+this.NAME+" = "+min);
-      return min;
-    }
+    return min;
+  }
 
+  /**
+   * This makes the vector of fault corner location used by the getMinDistance(site)
+   * method.
+   * @param faultSurface
+   */
+  private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
 
-    /**
-     * This makes the vector of fault corner location used by the getMinDistance(site)
-     * method.
-     * @param faultSurface
-     */
-    private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
+    int nRows = faultSurface.getNumRows();
+    int nCols = faultSurface.getNumCols();
+    faultCornerLocations.add(faultSurface.get(0, 0));
+    faultCornerLocations.add(faultSurface.get(0, (int) (nCols / 2)));
+    faultCornerLocations.add(faultSurface.get(0, nCols - 1));
+    faultCornerLocations.add(faultSurface.get(nRows - 1, 0));
+    faultCornerLocations.add(faultSurface.get(nRows - 1, (int) (nCols / 2)));
+    faultCornerLocations.add(faultSurface.get(nRows - 1, nCols - 1));
 
-      int nRows = faultSurface.getNumRows();
-      int nCols = faultSurface.getNumCols();
-      faultCornerLocations.add(faultSurface.get(0,0));
-      faultCornerLocations.add(faultSurface.get(0,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(0,nCols-1));
-      faultCornerLocations.add(faultSurface.get(nRows-1,0));
-      faultCornerLocations.add(faultSurface.get(nRows-1,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(nRows-1,nCols-1));
+  }
 
+  /**
+   * set the name of this class
+   *
+   * @return
+   */
+  public void setName(String name) {
+    NAME = name;
+  }
 
-    }
-
-    /**
-     * set the name of this class
-     *
-     * @return
-     */
-    public void setName(String name) {
-      NAME=name;
-     }
-
- /**
-  * get the name of this class
-  *
-  * @return
-  */
- public String getName() {
-   return NAME;
+  /**
+   * get the name of this class
+   *
+   * @return
+   */
+  public String getName() {
+    return NAME;
   }
 }

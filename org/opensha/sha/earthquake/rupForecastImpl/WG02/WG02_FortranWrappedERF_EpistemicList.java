@@ -16,7 +16,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.fault.GriddedFaultFactory;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
