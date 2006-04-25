@@ -6,7 +6,7 @@ import org.opensha.data.function.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.FrankelGriddedFaultFactory;
+import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.sha.surface.PointSurface;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
@@ -164,7 +164,7 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
 */
     // make the rupture surfaces
     rupSurfaces = new ArrayList();
-    FrankelGriddedFaultFactory frFltFactory = new FrankelGriddedFaultFactory();
+    FrankelGriddedSurface surface = new FrankelGriddedSurface();
     Location loc1, loc2;
     Direction dir;
     double mag, halfLength;
@@ -187,8 +187,9 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
         FaultTrace fault = new FaultTrace("");
         fault.addLocation(loc1);
         fault.addLocation(loc2);
-        frFltFactory.setAll(fault,aveDip,0.0,0.0,1.0);
-        rupSurfaces.add(frFltFactory.getEvenlyGriddedSurface());
+        surface.setAll(fault,aveDip,0.0,0.0,1.0);
+        surface.createEvenlyGriddedSurface();
+        rupSurfaces.add(surface);
       }
     }
   }

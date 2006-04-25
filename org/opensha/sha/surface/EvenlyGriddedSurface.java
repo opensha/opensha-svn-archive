@@ -41,10 +41,13 @@ public class EvenlyGriddedSurface
     /**
      * @todo Variables
      */
-    private double gridSpacing;
+    protected double gridSpacing;
 
-
-
+    /**
+     * No Argument constructor, called from classes extending it.
+     *
+     */
+    protected EvenlyGriddedSurface(){}
 
     /**
      *  Constructor for the GriddedSurface object
@@ -88,27 +91,6 @@ public class EvenlyGriddedSurface
      */
     public void setLocation( int row, int column, Location location ) {
         super.set( row, column, location );
-    }
-
-
-    /**
-     * Sets the average strike of this surface on the Earth. An InvalidRangeException
-     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
-     */
-    public void setAveStrike( double aveStrike ) throws InvalidRangeException{
-        FaultUtils.assertValidStrike( aveStrike );
-        this.aveStrike =  aveStrike ;
-    }
-
-
-
-    /**
-     * Sets the average dip of this surface into the Earth. An InvalidRangeException
-     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
-     */
-    public void setAveDip( double aveDip ) throws InvalidRangeException{
-        FaultUtils.assertValidDip( aveDip );
-        this.aveDip = aveDip ;
     }
 
 

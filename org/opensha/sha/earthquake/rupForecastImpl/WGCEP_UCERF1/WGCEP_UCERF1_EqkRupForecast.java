@@ -14,7 +14,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRe
 import org.opensha.util.*;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -68,8 +68,8 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
 
-  private FrankelGriddedFaultFactory frankelFaultFactory = new FrankelGriddedFaultFactory();
-  private StirlingGriddedFaultFactory stirlingFaultFactory = new StirlingGriddedFaultFactory();
+  private FrankelGriddedSurface frankelFaultSurface = new FrankelGriddedSurface();
+  private StirlingGriddedSurface stirlingFaultSurface = new StirlingGriddedSurface();
 
   /*
    * Static variables for input files
@@ -406,7 +406,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
     double test, test2=0;
     double magEp, wtEp;
 
-    EvenlyGriddedSurfaceAPI surface;
+    EvenlyGriddedSurface surface;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -807,14 +807,16 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 
       // Make the fault surface
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        frankelFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+        frankelFaultSurface.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = frankelFaultFactory.getEvenlyGriddedSurface();
+        frankelFaultSurface.createEvenlyGriddedSurface();
+        surface = frankelFaultSurface;
       }
       else {
-        stirlingFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+        stirlingFaultSurface.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = stirlingFaultFactory.getEvenlyGriddedSurface();
+        stirlingFaultSurface.createEvenlyGriddedSurface();
+        surface = stirlingFaultSurface;
       }
 
       if(D) {
@@ -825,8 +827,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
-        FaultRuptureSource frs = new FaultRuptureSource(totalMagFreqDist,
-                                                                    (EvenlyGriddedSurface) surface,
+        FaultRuptureSource frs = new FaultRuptureSource(totalMagFreqDist,surface,
                                                                     rake,duration);
         frs.setName(sourceName);
         charFaultSources.add(frs);
@@ -1005,10 +1006,10 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
       // now make the source
       if(iflt == 2)
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
-                                                duration,magCutOff,frankelFaultFactory);
+                                                duration,magCutOff,frankelFaultSurface);
       else
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
-                                                magCutOff, frankelFaultFactory);
+                                                magCutOff, frankelFaultSurface);
 
       // add the source
       frankelBackgrSeisSources.add(src);

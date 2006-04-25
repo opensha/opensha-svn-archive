@@ -91,20 +91,19 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
     faultTrace.addLocation(new Location(34.0200+latIncr,-118.308,5.0));
 
     if(D) System.out.println(this.NAME+" num fault trace points = "+ faultTrace.size());
-
-    StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
-
     // make it dip exactly north
-    double aveDipDir = 0.0;
-    faultFactory.setAveDipDir(aveDipDir);
-    double rake = 90;
+     double aveDipDir = 0.0;
+
+    StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace,27.0,5.0,17.0,1.0,aveDipDir);
+
+     double rake = 90;
 
     if(D) System.out.println(this.NAME+" aveDipDir = "+ aveDipDir);
     if(D) System.out.println(this.NAME+" rake = "+ rake);
 
     sourceList = new ArrayList();
     for(int mag=71; mag<=75;mag += 1) {
-      source = new FaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getEvenlyGriddedSurface(), rake, 0.2);
+      source = new FaultRuptureSource((double)mag/10.0, surface, rake, 0.2);
       source.setName("mag = "+(double)mag/10.0+" PH fault source");
       sourceList.add(source);
     }

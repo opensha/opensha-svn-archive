@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.opensha.param.*;
 import org.opensha.param.event.*;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.*;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.fault.*;
 import org.opensha.data.Location;
@@ -486,7 +486,7 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
       faultParameterChange = false;
       ParameterList independentParamList  = new ParameterList();
       // EvenlyGriddedSurface
-      GriddedFaultFactory fltFactory = null;
+      EvenlyGriddedSurface surface = null;
       //gets the faultName
       String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
       //creates the fault trace data
@@ -585,20 +585,20 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
         double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
         upperSies = upperSiesDepth;
         lowerSies = lowerSiesDepth;
-        //make the object of the FrankelGriddedFaultFactory
+        //make the object of the FrankelGriddedSurface
         if(fltType.equalsIgnoreCase(this.FRANKEL)){
-          fltFactory = new FrankelGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
+          surface = new FrankelGriddedSurface(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
         }
         //make the object for the Stirling gridded fault
         if(fltType.equalsIgnoreCase(this.STIRLING)){
-          fltFactory = new StirlingGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
+          surface = new StirlingGriddedSurface(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
           //checking to see if the Dip Direction Param value is null then assign default Double.NaN
           //else assign the dip direction value.
           Double aveDipDir = (Double)dipDirectionParam.getValue();
           if(aveDipDir == null)
-            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(Double.NaN);
+            ((StirlingGriddedSurface)surface).setAveDipDir(Double.NaN);
           else
-            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
+            ((StirlingGriddedSurface)surface).setAveDipDir(aveDipDir.doubleValue());
         }
 
         //adding the Fault type param to the independent param list
@@ -606,14 +606,14 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
       }
       else{
         //make the object for the simple Listric fault
-        fltFactory = new SimpleListricGriddedFaultFactory(fltTrace,dips,depths,gridSpacing);
+        surface = new SimpleListricGriddedSurface(fltTrace,dips,depths,gridSpacing);
       }
       //gets the griddedsurface from the faultFactory and sets the Value for the
       //SimpleFaultParameter
-      setValue((EvenlyGriddedSurface)fltFactory.getEvenlyGriddedSurface());
+      setValue(surface);
 
       if(D) {
-        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getEvenlyGriddedSurface();
+        EvenlyGriddedSurface surf = surface;
         for(int i=0;i<surf.getNumCols();i++)
           for(int k=0;k<surf.getNumRows();k++)
             System.out.println(surf.getLocation(k,i).toString());

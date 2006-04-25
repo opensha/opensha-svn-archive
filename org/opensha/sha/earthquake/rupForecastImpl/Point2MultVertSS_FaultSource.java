@@ -4,7 +4,7 @@ import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.FrankelGriddedFaultFactory;
+import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.*;
 import org.opensha.sha.surface.*;
 
@@ -40,7 +40,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
   private Location loc;
   private ArrayList faultTraces = new ArrayList();
   private ProbEqkRupture probEqkRupture;
-  private FrankelGriddedFaultFactory frankelFaultFactory  = new FrankelGriddedFaultFactory();;
+  private FrankelGriddedSurface frankelFaultSurface  = new FrankelGriddedSurface();;
 
   /**
    * The Constructor
@@ -147,8 +147,9 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    */
   private EvenlyGriddedSurfaceAPI getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
-    frankelFaultFactory.setAll((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
-    return frankelFaultFactory.getEvenlyGriddedSurface();
+    frankelFaultSurface.setAll((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
+    frankelFaultSurface.createEvenlyGriddedSurface();
+    return frankelFaultSurface;
   }
 
   /**

@@ -14,7 +14,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRe
 import org.opensha.util.*;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -67,8 +67,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
 
-  private FrankelGriddedFaultFactory frankelFaultFactory = new FrankelGriddedFaultFactory();
-  private StirlingGriddedFaultFactory stirlingFaultFactory = new StirlingGriddedFaultFactory();
+  private EvenlyGriddedSurface surface;
 
   /*
    * Static variables for input files
@@ -383,7 +382,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     double test, test2=0;
     double magEp, wtEp;
 
-    EvenlyGriddedSurfaceAPI surface;
+    EvenlyGriddedSurface surface;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -784,14 +783,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
       // Make the fault surface
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        frankelFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+        surface = new FrankelGriddedSurface(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = frankelFaultFactory.getEvenlyGriddedSurface();
       }
       else {
-        stirlingFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+        surface = new StirlingGriddedSurface(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = stirlingFaultFactory.getEvenlyGriddedSurface();
       }
 
       if(D) {
@@ -802,15 +799,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
-        FaultRuptureSource frs = new FaultRuptureSource(totalMagFreqDist,
-                                                                    (EvenlyGriddedSurface) surface,
+        FaultRuptureSource frs = new FaultRuptureSource(totalMagFreqDist,surface,
                                                                     rake,duration);
         frs.setName(sourceName);
         charFaultSources.add(frs);
       }
       else {
-        Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,
-                                                                 (EvenlyGriddedSurface) surface,
+        Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,surface,
                                                                  rupOffset, rake, duration, sourceName);
         grFaultSources.add(fgrs);
       }
@@ -982,10 +977,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       // now make the source
       if(iflt == 2)
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
-                                                duration,magCutOff,frankelFaultFactory);
+                                                duration,magCutOff,new FrankelGriddedSurface());
       else
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
-                                                magCutOff, frankelFaultFactory);
+                                                magCutOff, new FrankelGriddedSurface());
 
       // add the source
       frankelBackgrSeisSources.add(src);

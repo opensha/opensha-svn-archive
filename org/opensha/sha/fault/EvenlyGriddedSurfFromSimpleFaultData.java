@@ -1,79 +1,65 @@
 package org.opensha.sha.fault;
 
+import org.opensha.exceptions.FaultException;
 import java.util.ListIterator;
-import java.io.*;
-
-import org.opensha.sha.surface.EvenlyGriddedSurfaceFactoryAPI;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.data.Location;
-import org.opensha.exceptions.*;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import org.opensha.util.FaultUtils;
-
-
-// Fix - Needs more comments
+import org.opensha.data.Location;
+import java.io.IOException;
+import org.opensha.sha.surface.EvenlyGriddedSurface;
 
 /**
- * <b>Title:</b> SimpleGriddedFaultFactory.  This is the abstract class of any
- * object that creates a gridded surface (actually an EvenlyGriddedSurface1EvenlyGriddedSurface1)
- * using SimpleFaultData (plus a grid spacing)<p>
- * <b>Description:</b> <p>
+ * <p>Title:  EvenlyGriddedSurfFromSimpleFaultData </p>
  *
- * @author Steven W. Rock
+ * <p>Description: </p>
+ *
+ * @author Nitin Gupta
  * @version 1.0
  */
-
-public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory implements Serializable {
+public abstract class EvenlyGriddedSurfFromSimpleFaultData
+    extends EvenlyGriddedSurface{
 
     // *********************
     /** @todo  Variables */
     // *********************
 
     /* Debbuging variables */
-    protected final static String C = "SimpleGriddedFaultFactory";
+    protected final static String C = "EvenlyGriddedSurfFromSimpleFaultData";
     protected final static boolean D = false;
 
     protected FaultTrace faultTrace;
-    protected double aveDip = Double.NaN;
     protected double upperSeismogenicDepth = Double.NaN;
     protected double lowerSeismogenicDepth = Double.NaN;
-    protected double gridSpacing = Double.NaN;
 
 
-    // **********************
-    /** @todo  Constructors */
-    // **********************
+    //default no args constructor
+    protected EvenlyGriddedSurfFromSimpleFaultData(){;}
 
-    public SimpleGriddedFaultFactory() { super(); }
+    protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
+                                                double gridSpacing) throws
+        FaultException {
+      this(simpleFaultData.getFaultTrace(),
+           simpleFaultData.getAveDip(),
+           simpleFaultData.getUpperSeismogenicDepth(),
+           simpleFaultData.getLowerSeismogenicDepth(),
+           gridSpacing);
 
-    public SimpleGriddedFaultFactory(
-        FaultTrace faultTrace,
-        double aveDip,
-        double upperSeismogenicDepth,
-        double lowerSeismogenicDepth,
-        double gridSpacing
-    )
-        throws FaultException
-    {
-        setFaultTrace(faultTrace);
-        setAveDip(aveDip);
-        setUpperSeismogenicDepth(upperSeismogenicDepth);
-        setLowerSeismogenicDepth(lowerSeismogenicDepth);
-        setGridSpacing(gridSpacing);
     }
 
 
-    public SimpleGriddedFaultFactory( SimpleFaultData simpleFaultData,
-                                        double gridSpacing)
-                                        throws FaultException {
-
-        this(simpleFaultData.getFaultTrace(),
-              simpleFaultData.getAveDip(),
-              simpleFaultData.getUpperSeismogenicDepth(),
-              simpleFaultData.getLowerSeismogenicDepth(),
-              gridSpacing);
+    protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace,
+                                                double aveDip,
+                                                double upperSeismogenicDepth,
+                                                double lowerSeismogenicDepth,
+                                                double gridSpacing) throws
+        FaultException {
+      setFaultTrace(faultTrace);
+      setAveDip(aveDip);
+      setUpperSeismogenicDepth(upperSeismogenicDepth);
+      setLowerSeismogenicDepth(lowerSeismogenicDepth);
+      setGridSpacing(gridSpacing);
     }
-
 
     // ***************************************************************
     /** @todo  Serializing Helpers - overide to increase performance */
@@ -151,5 +137,23 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
         }
     }
 
+
+
+    /**
+     * Sets the number of rows and cols in the Container2D object.
+     * @param numRows int
+     * @param numCols int
+     */
+    protected void setRowsAndColsInContainer2d(int numRows,int numCols){
+      this.numCols  = numCols;
+      this.numRows = numRows;
+    }
+
+    /**
+     * Creates the EvenlyGriddedSurface from the Simple Fault Data.
+     * This method has been defined as Abstract in this class, its subclasses
+     * provide the implementation to this method.
+     */
+    public abstract void createEvenlyGriddedSurface();
 
 }

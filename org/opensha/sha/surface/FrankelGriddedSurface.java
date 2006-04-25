@@ -1,4 +1,4 @@
-package org.opensha.sha.fault;
+package org.opensha.sha.surface;
 
 import java.util.*;
 import org.opensha.calc.RelativeLocation;
@@ -7,41 +7,38 @@ import org.opensha.sha.fault.*;
 import org.opensha.exceptions.*;
 
 
-import org.opensha.param.*;
-import org.opensha.data.function.*;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> FrankelGriddedFaultFactory.  This creates an
+ * <b>Title:</b> FrankelGriddedSurface.  This creates an
  * EvenlyDiscretizedSurface using the scheme defined by Art Frankel in his
  * Fortran code for the 1996 USGS hazard maps.  Grid points are projected down
  * dip at an angle perpendicular to the azimuth of each segment.<br>
  * <b>Description:</b> <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
  * @author Steven W. Rock
  * @version 1.0
  */
 
-public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
+public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData {
 
-    protected final static String C = "FrankelGriddedFaultFactory";
+    protected final static String C = "FrankelGriddedSurface";
     protected final static boolean D = false;
 
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
 
-    public FrankelGriddedFaultFactory() { super(); }
+    public FrankelGriddedSurface() { super(); }
 
-    public FrankelGriddedFaultFactory( SimpleFaultData simpleFaultData,
+    public FrankelGriddedSurface( SimpleFaultData simpleFaultData,
                                         double gridSpacing)
                                         throws FaultException {
 
         super(simpleFaultData, gridSpacing);
+        createEvenlyGriddedSurface();
     }
 
 
-    public FrankelGriddedFaultFactory( FaultTrace faultTrace,
+    public FrankelGriddedSurface( FaultTrace faultTrace,
                                         double aveDip,
                                         double upperSeismogenicDepth,
                                         double lowerSeismogenicDepth,
@@ -49,12 +46,18 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
                                         throws FaultException {
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+        createEvenlyGriddedSurface();
     }
 
 
-    public EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface() throws FaultException {
 
-        String S = C + ": getEvenlyGriddedSurface():";
+    /**
+     * Creates the Frankel Gridded Surface from the Simple Fault Data
+     * @throws FaultException
+     */
+    public void createEvenlyGriddedSurface() throws FaultException {
+
+        String S = C + ": createEvenlyGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
 
         assertValidData();
@@ -118,8 +121,11 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
         // Create GriddedSurface
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
+
+        //location object
         Location location1;
-        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, gridSpacing);
+        //initialize the num of Rows and Cols for the container2d object that holds
+        setRowsAndColsInContainer2d(rows,cols);
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
@@ -165,7 +171,7 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
             else
                 topLocation = traceLocation;
 
-            surface.setLocation(0, ith_col, (Location)topLocation.clone());
+            setLocation(0, ith_col, (Location)topLocation.clone());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
@@ -181,7 +187,7 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
                 dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
 
                 Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
-                surface.setLocation(ith_row, ith_col, (Location)depthLocation.clone());
+                setLocation(ith_row, ith_col, (Location)depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
                 ith_row++;
@@ -190,8 +196,20 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
         }
 
         if( D ) System.out.println(S + "Ending");
-        surface.setAveDip(aveDip);
-        return surface;
+
     }
+
+    /**
+     * Returns the grid centered location on each grid surface.
+     * @return GriddedSurfaceAPI returns a Surface that has one less
+     * row and col then the original surface. It averages the 4 corner location
+     * on each grid surface to get the grid centered location.
+     */
+    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() throws UnsupportedOperationException{
+
+      throw new UnsupportedOperationException("Cannot obtain GridCentered Surface "+
+                                               "for Frankel surface, it not defined");
+    }
+
 
 }

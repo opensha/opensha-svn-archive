@@ -24,6 +24,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>
@@ -150,7 +151,6 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     ArrayList grTailSources = new ArrayList();
 
     FaultTrace faultTrace;
-    GriddedFaultFactory faultFactory;
     EvenlyGriddedSurface faultSurface;
 
     WG02_CharEqkSource wg02_source;
@@ -298,8 +298,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       magSigma = new Double(st.nextToken()).doubleValue();
       nSigmaTrunc = new Double(st.nextToken()).doubleValue();
 
-      faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
-      faultSurface = (EvenlyGriddedSurface) faultFactory.getEvenlyGriddedSurface();
+      faultSurface = new StirlingGriddedSurface(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
 
 
       // change the rupArea if it's one of the floating ruptures

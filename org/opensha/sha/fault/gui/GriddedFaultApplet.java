@@ -46,7 +46,6 @@ public class GriddedFaultApplet
     protected final static String C = "GriddedFaultApplet";
     protected final static boolean D = false;
 
-    protected GriddedFaultFactory factory = null;
 
     boolean isStandalone = false;
 
@@ -395,13 +394,11 @@ public class GriddedFaultApplet
         // for Frankel 1996 faults
           faultData = simpleFaultDataList.getSimpleFaultData(faultName);
         if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
-          factory = new StirlingGriddedFaultFactory(faultData,
+          surface = new StirlingGriddedSurface(faultData,
               ((Double)gridSpacingEditor.getValue()).doubleValue());
         else
-          factory = new FrankelGriddedFaultFactory(faultData,
+          surface = new FrankelGriddedSurface(faultData,
               ((Double)gridSpacingEditor.getValue()).doubleValue());
-        surface = factory.getEvenlyGriddedSurface();
-
       } else {   // for custom fault
         this.frankel_StirlingLabel.setVisible(false);
         this.frankel_StirlingComboBox.setVisible(false);

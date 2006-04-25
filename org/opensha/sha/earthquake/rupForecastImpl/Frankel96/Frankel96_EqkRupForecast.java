@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.opensha.param.*;
 import org.opensha.calc.MomentMagCalc;
@@ -15,13 +14,14 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.fault.GriddedFaultFactory;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.TimeSpan;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
+import org.opensha.sha.surface.FrankelGriddedSurface;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 
 
 /**
@@ -207,7 +207,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
     // Debug
     String S = C + ": makeSoureces(): ";
     if( D ) System.out.println(S + "Starting");
-    GriddedFaultFactory factory;
+    EvenlyGriddedSurfaceAPI surface;
     String  faultClass="", faultingStyle, faultName="";
     int i;
     double   lowerSeismoDepth, upperSeismoDepth;
@@ -302,15 +302,13 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
           if( D ) System.out.println(C+":faultTrace::"+faultTrace.toString());
 
           if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-            factory = new FrankelGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
+            surface = new FrankelGriddedSurface( faultTrace, dip, upperSeismoDepth,
                                                    lowerSeismoDepth, GRID_SPACING);
           }
           else {
-            factory = new StirlingGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
+            surface = new StirlingGriddedSurface( faultTrace, dip, upperSeismoDepth,
                                                    lowerSeismoDepth, GRID_SPACING);
           }
-          EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
-
           // Now make the source(s)
           if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){
             // divide the rate according the faction assigned to GR dist

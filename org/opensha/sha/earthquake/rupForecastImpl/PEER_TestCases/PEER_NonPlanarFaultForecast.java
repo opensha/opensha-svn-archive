@@ -268,12 +268,12 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
        // get a fault factory based on the chosen fault model
        String faultModel = (String) faultModelParam.getValue();
-       SimpleGriddedFaultFactory factory;
+       EvenlyGriddedSurfFromSimpleFaultData surface;
        if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-         factory = new FrankelGriddedFaultFactory();
+         surface = new FrankelGriddedSurface();
        }
        else {
-         factory = new StirlingGriddedFaultFactory();
+         surface = new StirlingGriddedSurface();
        }
 
        double offset = ((Double)offsetParam.getValue()).doubleValue();
@@ -290,8 +290,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
          // make the fault surface
-         factory.setAll(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
 
          // make the source
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
@@ -317,40 +317,40 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
                                    "\tE - "+faultTraceE.getTraceLength()+"\n");
 
          //make source A:
-         factory.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
 
          //make source B:
-         factory.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
 
          //make source C:
-         factory.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
 
          //make source D:
-         factory.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
 
          //make source E:
-         factory.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getEvenlyGriddedSurface();
+         surface.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface.createEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);

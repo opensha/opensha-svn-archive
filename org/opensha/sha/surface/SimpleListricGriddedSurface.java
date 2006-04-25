@@ -1,4 +1,4 @@
-package org.opensha.sha.fault;
+package org.opensha.sha.surface;
 
 import java.util.*;
 import org.opensha.calc.RelativeLocation;
@@ -15,7 +15,7 @@ import org.opensha.util.FaultUtils;
 /**
  * <b>Title:</b> SimpleListricGriddedFaultFactory.  This creates an EvenlyGriddedSurface1EvenlyGriddedSurface1
  * for a listric fault (a fault where dip changes with depth).  As with the
- * StirlingGriddedFaultFactory, grid points are projected down at an angle perpendicular
+ * StirlingGriddedSurface, grid points are projected down at an angle perpendicular
  * to the end points of the faultTrace.<br>
  * <b>Description:</b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
@@ -24,7 +24,7 @@ import org.opensha.util.FaultUtils;
  * @version 1.0
  */
 
-public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
+public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
     protected final static String C = "SimpleListricGriddedFaultFactory";
     protected final static boolean D = true;
@@ -49,15 +49,8 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
      */
     protected ArrayList depths;
 
-    /**
-     * The grid spacing to use (³0)
-     */
-    protected double gridSpacing;
 
-    protected double aveDip = Double.NaN;
-
-
-    public SimpleListricGriddedFaultFactory( FaultTrace faultTrace,
+    public SimpleListricGriddedSurface( FaultTrace faultTrace,
                                         ArrayList dips,
                                         ArrayList depths,
                                         double gridSpacing )
@@ -78,18 +71,18 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
               for(int i=0;i<dips.size();++i)
                 System.out.println(i+1+": "+dips.get(i) );
             }
-
+            createEvenlyGriddedSurface();
     }
 
 
     /**
-     * This method creates and returns the griddedSurface for the Listric fault.
+     * This method creates the EvenlyGriddedSurface for the Listric fault.
      * @return
      * @throws FaultException
      */
-    public EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface() throws FaultException {
+    public void createEvenlyGriddedSurface()throws FaultException {
 
-        String S = C + ": getEvenlyGriddedSurface():";
+        String S = C + ": createEvenlyGriddedSurface():";
 
         if( D ) System.out.println(S + "Starting");
 
@@ -176,7 +169,9 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
         Location location1;
-        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, gridSpacing);
+        //initialize the num of Rows and Cols for the container2d object that holds
+        this.numRows = rows;
+        this.numCols = cols;
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
@@ -211,7 +206,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
             // location on the trace
             Location topLocation = RelativeLocation.getLocation( location1, dir  );
 
-            surface.setLocation(0, ith_col, (Location)topLocation.clone());
+            setLocation(0, ith_col, (Location)topLocation.clone());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
@@ -229,7 +224,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
                                               + "; vDist = " + dir.getVertDistance() );
 
                 Location nextLocation = RelativeLocation.getLocation( lastLocation, dir );
-                surface.setLocation(ith_row, ith_col, (Location)nextLocation.clone());
+                setLocation(ith_row, ith_col, (Location)nextLocation.clone());
 
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );
 
@@ -247,8 +242,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
         }
 
         if( D ) System.out.println(S + "Ending");
-        surface.setAveDip(aveDip);
-        return surface;
+        setAveDip(aveDip);
     }
 
 
@@ -299,6 +293,16 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
 
     }
 
+    /**
+     * Sets the AveDip.
+     * @param aveDip double
+     * @throws FaultException
+     */
+    public void setAveDip(double aveDip) throws FaultException {
+      FaultUtils.assertValidDip(aveDip);
+      this.aveDip = aveDip;
+    }
+
 
     /**
      * This is to test this factory using PEER's Fault E in their test-case set #2.
@@ -320,15 +324,14 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
          depths.add(new Double(5.0));
          depths.add(new Double(10.0));
 
-         SimpleListricGriddedFaultFactory test = new SimpleListricGriddedFaultFactory(
+         SimpleListricGriddedSurface test = new SimpleListricGriddedSurface(
                                         faultTrace,
                                         dips,
                                         depths,
                                         1.0 );
 
-         EvenlyGriddedSurfaceAPI surface = test.getEvenlyGriddedSurface();
 
-         Iterator it = surface.getLocationsIterator();
+         Iterator it = test.getLocationsIterator();
          Location loc;
          while (it.hasNext()) {
             loc = (Location) it.next();

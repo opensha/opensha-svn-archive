@@ -115,10 +115,10 @@ public class ReadNGA_DataFile {
         SimpleFaultData fltData = new SimpleFaultData(dip,lowerSiesmogenicDepth,
           upperSeismogenicDepth, fltTrace);
 
-        FrankelGriddedFaultFactory frankelFaultFactory = new FrankelGriddedFaultFactory(fltData,1.0);
+        FrankelGriddedSurface frankelFaultSurface = new FrankelGriddedSurface(fltData,1.0);
 
         EqkRuptureFromNGA rupture = new EqkRuptureFromNGA(eqkId,eqkName,mag,this.DEFAULT_RAKE,
-            frankelFaultFactory.getEvenlyGriddedSurface(),hypoLoc);
+            frankelFaultSurface,hypoLoc);
         //adding the rupture to the list
         nga_ruptureList.add(rupture);
         fileLine = br.readLine();

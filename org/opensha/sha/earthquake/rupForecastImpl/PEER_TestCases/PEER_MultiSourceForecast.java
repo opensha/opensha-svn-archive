@@ -241,21 +241,23 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       // Make gridded surface factory for the two faults (create with fault B trace)
 
-      FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory( faultTraceB,
+      FrankelGriddedSurface surfaceB = new FrankelGriddedSurface( faultTraceB,
                                                                      DIP,
                                                                      seisUpper,
                                                                      seisLower,
                                                                      gridSpacing );
 
-      // get the surface and make the source for Fault B
-      EvenlyGriddedSurfaceAPI surfaceB = factory.getEvenlyGriddedSurface();
-      fltSourceB = new  FloatingPoissonFaultSource(dist_yc_B,(EvenlyGriddedSurface) surfaceB,
+      fltSourceB = new  FloatingPoissonFaultSource(dist_yc_B,surfaceB,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);
 
       // for fault C:
-      factory.setFaultTrace(faultTraceC);
-      EvenlyGriddedSurfaceAPI surfaceC = factory.getEvenlyGriddedSurface();
+      EvenlyGriddedSurfaceAPI surfaceC = new FrankelGriddedSurface( faultTraceC,
+                                                                     DIP,
+                                                                     seisUpper,
+                                                                     seisLower,
+                                                                     gridSpacing );
+
       fltSourceC = new  FloatingPoissonFaultSource(dist_yc_C,(EvenlyGriddedSurface) surfaceC,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);

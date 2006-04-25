@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
@@ -203,12 +203,12 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
     FaultTrace fltTr = new FaultTrace("name");
     fltTr.addLocation(new Location(33.0,-122,0));
     fltTr.addLocation(new Location(34.0,-122,0));
-    FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory(fltTr,90,0,10,1);
+    FrankelGriddedSurface surface = new FrankelGriddedSurface(fltTr,90,0,10,1);
 
     GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
     System.out.println("cumRate="+(float)gr.getTotCumRate());
 
-    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,(EvenlyGriddedSurface)factory.getEvenlyGriddedSurface(),
+    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,surface,
                                                             10.0,0.0,1,"name");
     ProbEqkRupture rup;
     for(int i=0; i< src.getNumRuptures();i++) {

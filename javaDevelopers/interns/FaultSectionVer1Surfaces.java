@@ -5,40 +5,40 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.HashMap;
 
-import org.opensha.sha.fault.FrankelGriddedFaultFactory;
+
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.fault.StirlingGriddedFaultFactory;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+
+import org.opensha.sha.surface.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.util.FileUtils;
 
 /**
  * This class reads the Fault Section Ver 1 and provides API so that they can be viewed in Geo3D.
  *  Fault Section Ver 1 are the fault sections that were used in 2002 NSHMP
- *  This class reads from static file. This file was created by Vipin Gupta on Apr 3, 2006 after reading the 
+ *  This class reads from static file. This file was created by Vipin Gupta on Apr 3, 2006 after reading the
  *  table Fault_Section_Ght_ca from Oracle database in Golden.
- * 
+ *
  * @author vipingupta
  *
  */
 public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
-	
+
 	private final static double GRID_SPACING = 1.0;
 	private final static String DEFAULT_INPUT_FILENAME = "FaultSections_Trace2002.txt";
 	private ArrayList faultSectionsSummaryList; // saves fault section Id and corresponding name
 	private HashMap faultSectionsMap; // saves fault section Id and fault section object mapping
-	
+
 	public FaultSectionVer1Surfaces() {
 		this(DEFAULT_INPUT_FILENAME);
 	}
-	
+
 	public FaultSectionVer1Surfaces(String fileName) {
 		faultSectionsSummaryList = new ArrayList();
 		faultSectionsMap = new HashMap();
-		
+
 		try {
 			//read the file and load the fault sections
 			ArrayList fileLines =  FileUtils.loadFile(fileName);
@@ -76,7 +76,7 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		      e.printStackTrace();
 		    }
 	}
-	
+
 	/**
 	 * Get the names and id of all fault sections
 	 * @return
@@ -92,10 +92,9 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 //		 frankel fault factory
-		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return frankelGriddedFaultFactory.getEvenlyGriddedSurface();
+		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
-	
+
 	/**
 	 * Get Stirling's surface representation for a specific fault section Id
 	 */
@@ -103,11 +102,10 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
-		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return stirlingGriddedFaultFactory.getEvenlyGriddedSurface();	
+		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
-	
-	
+
+
 	private SimpleFaultData getSimpleFaultData(FaultSection2002 faultSection) {
 		SimpleFaultData simpleFaultData = new SimpleFaultData(faultSection.getAveDip(), faultSection.getAveLowerSeisDepth(),
 				faultSection.getAveUpperSeisDepth(), faultSection.getFaultTrace());

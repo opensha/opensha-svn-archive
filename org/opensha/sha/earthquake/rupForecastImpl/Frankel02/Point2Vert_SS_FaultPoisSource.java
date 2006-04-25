@@ -6,7 +6,7 @@ import org.opensha.data.function.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.FrankelGriddedFaultFactory;
+import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.sha.surface.PointSurface;
 import org.opensha.sha.surface.*;
@@ -72,7 +72,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   public Point2Vert_SS_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                        MagLengthRelationship magLengthRelationship,
                                        double strike, double duration, double magCutOff,
-                                       FrankelGriddedFaultFactory frankelFaultFactory){
+                                       FrankelGriddedSurface frankelFaultSurface){
     this.magCutOff = magCutOff;
 
     // make the prob qk rupture
@@ -85,7 +85,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     }
 
     // set the mags, rates, and rupture surfaces
-    setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultFactory);
+    setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultSurface);
   }
 
 
@@ -100,7 +100,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
    public Point2Vert_SS_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                         MagLengthRelationship magLengthRelationship,
                                         double duration, double magCutOff,
-                                        FrankelGriddedFaultFactory frankelFaultFactory){
+                                        FrankelGriddedSurface frankelFaultSurface){
      this.magCutOff = magCutOff;
 
      // make the prob qk rupture
@@ -108,7 +108,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
      probEqkRupture.setAveRake(aveRake);
 
      // set the mags, rates, and rupture surfaces
-     setAll(loc,magFreqDist,magLengthRelationship,duration,frankelFaultFactory);
+     setAll(loc,magFreqDist,magLengthRelationship,duration,frankelFaultSurface);
 
    }
 
@@ -123,13 +123,13 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     */
    public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                       MagLengthRelationship magLengthRelationship,
-                      double duration, FrankelGriddedFaultFactory frankelFaultFactory) {
+                      double duration, FrankelGriddedSurface frankelFaultSurface) {
 
      // get a random strike between -90 and 90
      double strike = (Math.random()-0.5)*180.0;
      if (strike < 0.0) strike +=360;
 // System.out.println(C+" random strike = "+strike);
-     setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultFactory);
+     setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultSurface);
    }
 
 
@@ -146,7 +146,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                      MagLengthRelationship magLengthRelationship,
                      double strike, double duration,
-                     FrankelGriddedFaultFactory frankelFaultFactory) {
+                     FrankelGriddedSurface frankelFaultSurface) {
 
     if(D) System.out.println("duration="+duration);
     if(D) System.out.println("strike="+strike);
@@ -171,8 +171,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       FaultTrace fault = new FaultTrace("");
       fault.addLocation(loc1);
       fault.addLocation(loc2);
-      frankelFaultFactory.setAll(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
-      finiteFault = frankelFaultFactory.getEvenlyGriddedSurface();
+      frankelFaultSurface.setAll(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
+      frankelFaultSurface.createEvenlyGriddedSurface();
     }
   }
 
@@ -294,7 +294,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     Location loc = new Location(34,-118,0);
     GutenbergRichterMagFreqDist dist = new GutenbergRichterMagFreqDist(5,16,0.2,1e17,0.9);
     WC1994_MagLengthRelationship wc_rel = new WC1994_MagLengthRelationship();
-    FrankelGriddedFaultFactory fltFact = new FrankelGriddedFaultFactory();
+    FrankelGriddedSurface fltFact = new FrankelGriddedSurface();
 
 //    Point2Vert_SS_FaultPoisSource src = new Point2Vert_SS_FaultPoisSource(loc, dist,
 //                                       wc_rel,45, 1.0, 6.0, 5.0);

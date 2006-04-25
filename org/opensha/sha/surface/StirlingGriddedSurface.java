@@ -1,32 +1,26 @@
-package org.opensha.sha.fault;
+package org.opensha.sha.surface;
 
 import java.util.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.fault.*;
 import org.opensha.exceptions.*;
-
-
-import org.opensha.param.*;
-import org.opensha.data.function.*;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> StirlingGriddedFaultFactory.  This creates and EvenlyGriddedSurfaceEvenlyGriddedSurface
+ * <b>Title:</b> StirlingGriddedSurface.  This creates an EvenlyGriddedSurface
  * representation of the fault using a scheme described by Mark Stirling
  * to Ned Field in 2001, where grid points are projected down dip at
  * an angle perpendicular to the end-points of the faultTrace.  Use the setAveDipDir()
  * method to over ride this dipping direction.<br>
  * <b>Description:</b> <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
  * @author Ned Field.
  * @version 1.0
  */
 
-public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
+public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData {
 
-    protected final static String C = "StirlingGriddedFaultFactory";
+    protected final static String C = "StirlingGriddedSurface";
     protected final static boolean D = false;
 
     protected double aveDipDir = Double.NaN;
@@ -34,30 +28,57 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
 
-    public StirlingGriddedFaultFactory() { super(); }
+    public StirlingGriddedSurface() { super(); }
 
-    public StirlingGriddedFaultFactory( SimpleFaultData simpleFaultData,
-                                        double gridSpacing)
+    public StirlingGriddedSurface(SimpleFaultData simpleFaultData,
+                                  double gridSpacing) throws FaultException {
+
+      super(simpleFaultData, gridSpacing);
+      createEvenlyGriddedSurface();
+    }
+
+    public StirlingGriddedSurface(FaultTrace faultTrace,
+                                  double aveDip,
+                                  double upperSeismogenicDepth,
+                                  double lowerSeismogenicDepth,
+                                  double gridSpacing) throws FaultException {
+
+      super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth,
+            gridSpacing);
+      createEvenlyGriddedSurface();
+    }
+
+    public StirlingGriddedSurface( SimpleFaultData simpleFaultData,
+                                        double gridSpacing,double aveDipDir)
                                         throws FaultException {
 
         super(simpleFaultData, gridSpacing);
+        setAveDipDir(aveDipDir);
+        createEvenlyGriddedSurface();
     }
 
 
-    public StirlingGriddedFaultFactory( FaultTrace faultTrace,
+    public StirlingGriddedSurface( FaultTrace faultTrace,
                                         double aveDip,
                                         double upperSeismogenicDepth,
                                         double lowerSeismogenicDepth,
-                                        double gridSpacing )
+                                        double gridSpacing,double aveDipDir )
                                         throws FaultException {
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+        setAveDipDir(aveDipDir);
+        createEvenlyGriddedSurface();
     }
 
 
-    public EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface() throws FaultException {
 
-        String S = C + ": getEvenlyGriddedSurface():";
+    /**
+     * Creates the Stirling Gridded Surface from the Simple Fault Data
+     * @throws FaultException
+     */
+    public void createEvenlyGriddedSurface() throws FaultException {
+
+        String S = C + ": createEvenlyGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
 
         assertValidData();
@@ -141,8 +162,12 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         // Create GriddedSurface
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
+        //location object
         Location location1;
-        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, gridSpacing);
+
+
+        //initialize the num of Rows and Cols for the container2d object that holds
+        setRowsAndColsInContainer2d(rows,cols);
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
@@ -188,7 +213,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
             else
                 topLocation = traceLocation;
 
-            surface.setLocation(0, ith_col, (Location)topLocation.clone());
+            setLocation(0, ith_col, (Location)topLocation.clone());
             if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
@@ -204,7 +229,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
 
                 Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
-                surface.setLocation(ith_row, ith_col, (Location)depthLocation.clone());
+                setLocation(ith_row, ith_col, (Location)depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 
                 ith_row++;
@@ -213,9 +238,8 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         }
 
         if( D ) System.out.println(S + "Ending");
-        surface.setAveDip(aveDip);
-        return surface;
     }
+
 
     /**
      * This method allows one to set the averate dip direction (points going down dip will

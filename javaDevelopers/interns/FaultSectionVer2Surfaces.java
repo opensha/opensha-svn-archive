@@ -8,10 +8,8 @@ import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
-import org.opensha.sha.fault.FrankelGriddedFaultFactory;
 import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.fault.StirlingGriddedFaultFactory;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.surface.*;
 
 /**
  * This class reads the fault sections ver2 from the database. It makes gridded suface using the fault trace.
@@ -25,9 +23,9 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private HashMap faultSectionsMap = new HashMap();
-	
+
 	public FaultSectionVer2Surfaces() {}
-	
+
 	/**
 	 * Get the names and id of all fault sections
 	 * @return
@@ -45,10 +43,10 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 //		 frankel fault factory
-		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return frankelGriddedFaultFactory.getEvenlyGriddedSurface();
+		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
+
 	}
-	
+
 	/**
 	 * Get the Gridded surface based on Stirling's method for a Fault Section Id
 	 * @param faultSectionId
@@ -58,8 +56,8 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
-		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return stirlingGriddedFaultFactory.getEvenlyGriddedSurface();	
+		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
+
 	}
 
 	/**
@@ -75,11 +73,11 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		}
 		return faultSection;
 	}
-	
+
 	/**
 	 * Make simple fault data from faulSection. It assumes that all estimates are Min/Max/Pref Estimates. so, we just
 	 * get Preffered values from these estimates
-	 * 
+	 *
 	 * @param faultSection
 	 * @return
 	 */

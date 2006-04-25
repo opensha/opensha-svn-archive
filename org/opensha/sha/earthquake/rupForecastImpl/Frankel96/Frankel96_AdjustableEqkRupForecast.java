@@ -15,8 +15,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.fault.GriddedFaultFactory;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -228,7 +227,7 @@ public class Frankel96_AdjustableEqkRupForecast
     // Debug
     String S = C + ": makeSoureces(): ";
     if (D) System.out.println(S + "Starting");
-    GriddedFaultFactory factory;
+    EvenlyGriddedSurfaceAPI surface;
     String faultClass = "", faultingStyle, faultName = "";
     int i;
     double lowerSeismoDepth, upperSeismoDepth;
@@ -331,17 +330,16 @@ public class Frankel96_AdjustableEqkRupForecast
       if (D) System.out.println(C + ":faultTrace::" + faultTrace.toString());
 
       if (faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        factory = new FrankelGriddedFaultFactory(faultTrace, dip,
+        surface = new FrankelGriddedSurface(faultTrace, dip,
                                                  upperSeismoDepth,
                                                  lowerSeismoDepth, GRID_SPACING);
       }
       else {
-        factory = new StirlingGriddedFaultFactory(faultTrace, dip,
+        surface = new StirlingGriddedSurface(faultTrace, dip,
                                                   upperSeismoDepth,
                                                   lowerSeismoDepth,
                                                   GRID_SPACING);
       }
-      EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
 
       // Now make the source(s)
       if (faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag > 6.5) {
