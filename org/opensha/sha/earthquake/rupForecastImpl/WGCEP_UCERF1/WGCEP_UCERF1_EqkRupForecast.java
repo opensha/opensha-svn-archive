@@ -70,8 +70,8 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   /*
    * Static variables for input files
    */
-  private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
-  //private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
+  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
+  private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
 
 
   /**
@@ -184,7 +184,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
     adjustableParams.addParameter(faultModelParam);
     adjustableParams.addParameter(rupOffset_Param);
     adjustableParams.addParameter(backSeisParam);
-    adjustableParams.addParameter(backSeisRupParam);
+    //adjustableParams.addParameter(backSeisRupParam);
     adjustableParams.addParameter(timeDependentParam);
 
 /*
@@ -1305,9 +1305,24 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   public void parameterChange(ParameterChangeEvent event) {
     super.parameterChange(event);
     String paramName = event.getParameterName();
-    if(paramName.equals(TIME_DEPENDENT_PARAM_NAME)){
+    if (paramName.equals(TIME_DEPENDENT_PARAM_NAME)) {
       setTimespanParameter();
       timeSpanChange(new EventObject(timeSpan));
+    }
+
+    if (paramName.equals(BACK_SEIS_NAME)) {
+      String paramValue = (String) event.getNewValue();
+      if (paramValue.equals(this.BACK_SEIS_EXCLUDE)) {
+        adjustableParams.removeParameter(backSeisRupParam);
+        parameterListChange(new EventObject(adjustableParams));
+      }
+      else {
+        //only add the parameter in the parameter list if it does not already exists
+        if (!adjustableParams.containsParameter(backSeisRupParam)) {
+          adjustableParams.addParameter(backSeisRupParam);
+          parameterListChange(new EventObject(adjustableParams));
+        }
+      }
     }
   }
 
