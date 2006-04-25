@@ -67,15 +67,11 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   protected final static FaultException ERR = new FaultException(
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
-
-  private FrankelGriddedSurface frankelFaultSurface = new FrankelGriddedSurface();
-  private StirlingGriddedSurface stirlingFaultSurface = new StirlingGriddedSurface();
-
   /*
    * Static variables for input files
    */
-  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
-  private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
+  private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
+  //private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
 
 
   /**
@@ -807,16 +803,12 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 
       // Make the fault surface
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        frankelFaultSurface.setAll(faultTrace, dip, upperSeismoDepth,
+        surface = new FrankelGriddedSurface(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        frankelFaultSurface.createEvenlyGriddedSurface();
-        surface = frankelFaultSurface;
       }
       else {
-        stirlingFaultSurface.setAll(faultTrace, dip, upperSeismoDepth,
+        surface = new StirlingGriddedSurface(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        stirlingFaultSurface.createEvenlyGriddedSurface();
-        surface = stirlingFaultSurface;
       }
 
       if(D) {
@@ -834,7 +826,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
       }
       else {
         Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,
-                                                                 (EvenlyGriddedSurface) surface,
+                                                                 surface,
                                                                  rupOffset, rake, duration, sourceName);
         grFaultSources.add(fgrs);
       }
@@ -1006,10 +998,10 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
       // now make the source
       if(iflt == 2)
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
-                                                duration,magCutOff,frankelFaultSurface);
+                                                duration,magCutOff,new FrankelGriddedSurface());
       else
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
-                                                magCutOff, frankelFaultSurface);
+                                                magCutOff, new FrankelGriddedSurface());
 
       // add the source
       frankelBackgrSeisSources.add(src);
