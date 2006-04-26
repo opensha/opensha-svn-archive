@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,7 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.data.Location;
+import org.opensha.geo3d.SCEC_VDO;
 
 
 /**
@@ -72,6 +74,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private JButton editButton = new JButton("Edit");
 	private FaultSectionVer2 selectedFaultSection;
 	private final static String TITLE = "View Fault Section";
+	private ConstrainedStringParameterEditor faultSectionParamEditor;
 	
 	public ViewFaultSection() {
 		this(null);
@@ -86,11 +89,23 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		JFrame frame = new JFrame();
 		frame.getContentPane().add(new JScrollPane(this));
 		frame.setTitle(TITLE);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.show();
 
+	}
+	
+	/**
+	 * Set the selected fault section
+	 * 
+	 * @param selectedFaultSectionNameId
+	 */
+	public void setSelectedFaultSectionNameId(String selectedFaultSectionNameId) {
+		faultSectionParam.setValue(selectedFaultSectionNameId);
+		faultSectionParamEditor.refreshParamEditor();
+		refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
+		
 	}
 	
 	private void initGUI() {
@@ -218,7 +233,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			faultSectionsList.add(((FaultSectionSummary)faultSectionsSummaryList.get(i)).getAsString());
 		faultSectionParam = new StringParameter(FAULT_SECTION_PARAM_NAME, faultSectionsList, (String)faultSectionsList.get(0));
 		faultSectionParam.addParameterChangeListener(this);
-		ConstrainedStringParameterEditor faultSectionParamEditor = new ConstrainedStringParameterEditor(faultSectionParam);
+		faultSectionParamEditor = new ConstrainedStringParameterEditor(faultSectionParam);
 		return faultSectionParamEditor;
 	}
 	
@@ -294,9 +309,5 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		qfaultLabel.setTextAsHTML(QFAULT_ID, selectedFaultSection.getQFaultId());
 	}
 	
-	public static void main(String[] args) {
-		
-		new ViewFaultSection();
-	}
 
 }

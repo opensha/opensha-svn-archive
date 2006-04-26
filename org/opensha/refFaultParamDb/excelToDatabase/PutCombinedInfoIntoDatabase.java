@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
@@ -29,6 +30,7 @@ import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+
 
 /**
  * <p>Title: PutCombinedInfoIntoDatabase.java </p>
@@ -45,6 +47,8 @@ public class PutCombinedInfoIntoDatabase {
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
   private final static int MIN_ROW = 1;
   private final static int MAX_ROW = 296;
+  //private final static int MIN_ROW = 74;
+  //private final static int MAX_ROW = 74;
   // columns in this excel file
   private final static int MIN_COL = 0;
   private final static int MAX_COL = 48;
@@ -66,6 +70,13 @@ public class PutCombinedInfoIntoDatabase {
   private TimeAPI startTime, endTime;
   private String startTimeUnits, endTimeUnits;
   private final static String NO = "no";
+  
+  /*
+   * This hashmap is needed to keep track of already done sites. The excel spreadsheet has multiple rows where each 
+   * row has a combined event info. 
+   * 
+   */
+  private HashMap doneSitesMap = new HashMap(); 
 
   public PutCombinedInfoIntoDatabase() {
     try {
@@ -77,7 +88,7 @@ public class PutCombinedInfoIntoDatabase {
       for(int r = MIN_ROW; r<=MAX_ROW; ++r) {
         System.out.println("Processing Row:"+(r+1));
         HSSFRow row = sheet.getRow(r);
-
+        
         // in case new paleo site needs to be entered into database
         PaleoSite paleoSite = new PaleoSite();
         // combined event info for this site
@@ -152,11 +163,15 @@ public class PutCombinedInfoIntoDatabase {
         if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
 
         // site in DB
-        PaleoSite siteInDB = this.paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
-
+        PaleoSite siteInDB = isSiteInCache(paleoSite.getSiteName(), paleoSite.getOldSiteId(), combinedEventsInfo.getNeokinemaFaultNumber());
+      
+        //boolean isSiteInDB
         if(siteInDB==null) { // site does not exist in database
           paleoSiteDAO.addPaleoSite(paleoSite);
-          siteInDB = paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
+          putSiteInCache(paleoSite, combinedEventsInfo.getNeokinemaFaultNumber());
+          siteInDB = paleoSite;
+          Thread.sleep(1000);
+          //siteInDB = paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
         }
         paleoSitePub.setSiteEntryDate(siteInDB.getEntryDate());
         paleoSitePub.setSiteId(siteInDB.getSiteId());
@@ -171,6 +186,31 @@ public class PutCombinedInfoIntoDatabase {
       e.printStackTrace();
     }
   }
+  
+  /**
+   * Check whether we have already put the PaleoSite data fr this site into PaleoSite table
+   * @param paleoSite
+   * @return
+   */
+  private PaleoSite isSiteInCache(String siteName, String qFaultSiteIdtSiteId,  String neoKinemaFaultNumber) {
+	  String key=null;
+	  if(qFaultSiteIdtSiteId!=null) key = qFaultSiteIdtSiteId;
+	  else if(siteName!=null) key = siteName;
+	  else key = neoKinemaFaultNumber;
+	  PaleoSite paleoSite1  = (PaleoSite)this.doneSitesMap.get(key);
+	  return paleoSite1;
+  }
+  
+  private void putSiteInCache(PaleoSite paleoSite, String neoKinemaFaultNumber) {
+	  String qFaultSiteIdtSiteId = paleoSite.getOldSiteId();
+	  String siteName = paleoSite.getSiteName();
+	  String key = null;
+	  if(qFaultSiteIdtSiteId!=null) key = qFaultSiteIdtSiteId;
+	  else if(siteName!=null) key = siteName;
+	  else key = neoKinemaFaultNumber;
+	  doneSitesMap.put(key, paleoSite);
+  }
+  
 
   /**
    * Process the excel sheet according to the specific column number
@@ -383,7 +423,7 @@ public class PutCombinedInfoIntoDatabase {
 
         // set the start time
         Estimate est = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
-        if(!startTimeUnits.equalsIgnoreCase(TimeAPI.BC))  startTimeUnits = TimeAPI.AD;
+        if(!startTimeUnits.equalsIgnoreCase(TimeAPI.BC) && !startTimeUnits.equalsIgnoreCase(KA))  startTimeUnits = TimeAPI.AD;
         if(startTimeUnits.equalsIgnoreCase(KA))
           ((TimeEstimate)startTime).setForKaUnits(est, ZERO_YEAR);
         else ((TimeEstimate)startTime).setForCalendarYear(est, startTimeUnits);
@@ -406,8 +446,8 @@ public class PutCombinedInfoIntoDatabase {
         else min  = Double.parseDouble(value);
         break;
       case 39: // end time units
-        if(value!=null) endTimeUnits = value;
-        else   endTimeUnits="";
+        //if(value!=null) endTimeUnits = value;
+        /*else*/   endTimeUnits=this.startTimeUnits;
         if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
           endTime = new ExactTime(Integer.parseInt(paleoSitePub.getReference().getRefYear()), 0, 0, 0, 0, 0, TimeAPI.AD, true);
         else {
@@ -419,14 +459,14 @@ public class PutCombinedInfoIntoDatabase {
             pref=pref*1000;
             endTimeUnits = KA;
           }
-
+          //System.out.println(min+","+max+","+pref+","+endTimeUnits+","+this.startTimeUnits);
           // swap min/max in case of AD/BC
           if(!endTimeUnits.equalsIgnoreCase(KA)) {
             double temp = min;
             min=max;
             max=temp;
           }
-
+          //System.out.println(min+","+max+","+pref);
 
           // set the end time
           Estimate endTimeEst = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);

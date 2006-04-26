@@ -78,6 +78,8 @@ public class PaleoSiteDB_DAO  {
       if(paleoSiteId<=0)
         paleoSiteId = dbAccess.getNextSequenceNumber(SEQUENCE_NAME);
         systemDate = dbAccess.getSystemDate();
+        paleoSite.setSiteId(paleoSiteId);
+        paleoSite.setEntryDate(systemDate);
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }

@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.vo.FaultModel;
 import org.opensha.refFaultParamDb.dao.exception.*;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+
 import java.util.ArrayList;
 
 /**
@@ -48,9 +50,12 @@ public class FaultModelDB_DAO  {
     }
     String sql = "insert into "+TABLE_NAME+"("+ FAULT_MODEL_ID+","+CONTRIBUTOR_ID+
         ","+FAULT_MODEL_NAME+") "+
-        " values ("+faultModelId+","+faultModel.getContributor().getId()+
+        " values ("+faultModelId+","+SessionInfo.getContributor().getId()+
         ",'"+faultModel.getFaultModelName()+"')";
-    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+    try { 
+    	dbAccessAPI.insertUpdateOrDeleteData(sql); 
+    	faultModel.setFaultModelId(faultModelId);
+    }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());

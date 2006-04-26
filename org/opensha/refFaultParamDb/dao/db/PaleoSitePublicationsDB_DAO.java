@@ -76,6 +76,7 @@ public class PaleoSitePublicationsDB_DAO {
              paleoSitePublication.getSiteEntryDate()+"','"+
              systemDate+"',"+siteTypeId+","+siteRepIndex+","+
              SessionInfo.getContributor().getId()+","+paleoSitePublication.getReference().getReferenceId()+")";
+          //System.out.println(sql);
          dbAccess.insertUpdateOrDeleteData(sql);
        }
      } catch(SQLException e) {
