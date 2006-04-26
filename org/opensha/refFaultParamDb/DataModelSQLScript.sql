@@ -153,19 +153,19 @@ end;
 
 CREATE TABLE Normal_Est (
   Est_Id INTEGER  NOT NULL,
-  Mean NUMBER(9,3) NOT NULL,
-  Std_Dev NUMBER(9,3) NOT NULL,
-  Min_X NUMBER(9,3) NULL,
-  Max_X NUMBER(9,3) NULL,
+  Mean NUMBER(12,3) NOT NULL,
+  Std_Dev NUMBER(12,3) NOT NULL,
+  Min_X NUMBER(12,3) NULL,
+  Max_X NUMBER(12,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE XY_Est (
-  X NUMBER(9,3) NOT NULL,
+  X NUMBER(12,3) NOT NULL,
   Est_Id INTEGER NOT NULL,
-  Y NUMBER(9,3) NULL,
+  Y NUMBER(12,3) NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
@@ -182,10 +182,10 @@ CREATE TABLE Log_Type (
 CREATE TABLE Log_Normal_Est (
   Est_Id INTEGER NOT NULL,
   Log_Type_Id INTEGER NOT NULL,
-  Median NUMBER(9,3) NOT NULL,
-  Std_Dev NUMBER(9,3) NOT NULL,
-  Min_X NUMBER(9,3) NULL,
-  Max_X NUMBER(9,3) NULL,
+  Median NUMBER(12,3) NOT NULL,
+  Std_Dev NUMBER(12,3) NOT NULL,
+  Min_X NUMBER(12,3) NULL,
+  Max_X NUMBER(12,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
@@ -195,8 +195,8 @@ CREATE TABLE Log_Normal_Est (
 
 CREATE TABLE PDF_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X NUMBER(9,3) NOT NULL,
-  Delta_X NUMBER(9,3) NOT NULL,
+  Min_X NUMBER(12,3) NOT NULL,
+  Delta_X NUMBER(12,3) NOT NULL,
   Num INTEGER  NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
@@ -205,12 +205,12 @@ CREATE TABLE PDF_Est (
 
 CREATE TABLE Min_Max_Pref_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X NUMBER(9,3) NULL,
-  Max_X NUMBER(9,3) NULL,
-  Pref_X NUMBER(9,3) NULL,
-  Min_Prob NUMBER(9,3) NULL,
-  Max_Prob NUMBER(9,3) NULL,
-  Pref_Prob NUMBER(9,3) NULL,
+  Min_X NUMBER(12,3) NULL,
+  Max_X NUMBER(12,3) NULL,
+  Pref_X NUMBER(12,3) NULL,
+  Min_Prob NUMBER(12,3) NULL,
+  Max_Prob NUMBER(12,3) NULL,
+  Pref_Prob NUMBER(12,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
@@ -229,7 +229,6 @@ CREATE TABLE Section_Source (
 
 CREATE TABLE Fault_Section (
   Section_Id INTEGER  NOT NULL,
-  Fault_Id INTEGER  NOT NULL,
   Section_Source_Id INTEGER  NOT NULL,
   Ave_Long_Term_Slip_Rate_Est INTEGER NULL,
   Ave_Dip_Est INTEGER  NOT NULL,
@@ -237,13 +236,14 @@ CREATE TABLE Fault_Section (
   Ave_Upper_Depth_Est INTEGER  NOT NULL,
   Ave_Lower_Depth_Est INTEGER  NOT NULL,
   Contributor_Id INTEGER NOT NULL,
+  QFault_Id VARCHAR(10)  NULL, 
   Name VARCHAR(255) NOT NULL,
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
   Fault_Section_Trace MDSYS.SDO_GEOMETRY,
-  Dip_Direction NUMBER(9,3)  NULL,
+  Dip_Direction NUMBER(12,3)  NULL,
   Average_Aseismic_Slip_Est INTEGER  NOT NULL,
-  PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
+  PRIMARY KEY(Section_Id),
   FOREIGN KEY(Section_Source_Id)
     REFERENCES Section_Source(Section_Source_Id) ON DELETE CASCADE,
   FOREIGN KEY(Contributor_Id)
@@ -307,14 +307,11 @@ end;
 CREATE TABLE Fault_Model_Section (
   Fault_Model_Id INTEGER NOT NULL,
   Section_Id INTEGER  NOT NULL,
-  Fault_Id INTEGER  NOT NULL,
-  Section_Source_Id INTEGER  NOT NULL,
-  Section_Entry_Date date NOT NULL,
-  PRIMARY KEY(Fault_Model_Id, Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date),
+  PRIMARY KEY(Fault_Model_Id, Section_Id),
   FOREIGN KEY(Fault_Model_Id)
      REFERENCES  Fault_Model(Fault_Model_Id) ON DELETE CASCADE,
-  FOREIGN KEY(Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date)
-     REFERENCES Fault_Section(Section_Id, Fault_Id, Section_Source_Id, Entry_Date) ON DELETE CASCADE
+  FOREIGN KEY(Section_Id)
+     REFERENCES Fault_Section(Section_Id) ON DELETE CASCADE
 );
 
 
@@ -344,17 +341,9 @@ end;
 /
 
 
-CREATE TABLE Fault_Names (
-  Fault_Id INTEGER NOT NULL,
-  Fault_Name VARCHAR(255) NOT NULL,
-  PRIMARY KEY(Fault_Id)
-);
-
-
-
 CREATE TABLE Paleo_Site (
   Site_Id INTEGER NOT NULL,
-  Fault_Id INTEGER NOT NULL,
+  Fault_Section_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
   Site_Name VARCHAR(255) NULL,
   Site_Location1 MDSYS.SDO_GEOMETRY,
@@ -365,8 +354,8 @@ CREATE TABLE Paleo_Site (
   PRIMARY KEY(Site_Id, Entry_Date),
   FOREIGN KEY(Dip_Est_Id)
      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
-  FOREIGN KEY (Fault_Id)
-     REFERENCES Fault_Names(Fault_Id) ON DELETE CASCADE
+  FOREIGN KEY (Fault_Section_Id)
+     REFERENCES Fault_Section(Section_Id) ON DELETE CASCADE
 );
 
 create sequence Paleo_Site_Sequence
@@ -644,7 +633,7 @@ CREATE TABLE Event_Sequence (
   Entry_Date date NOT NULL,
   Sequence_Name VARCHAR(255) NOT NULL UNIQUE,
   General_Comments VARCHAR(1000) NOT NULL,
-  Sequence_Probability NUMBER(9,3) NOT NULL,
+  Sequence_Probability NUMBER(12,3) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE
@@ -672,7 +661,7 @@ CREATE TABLE Event_Sequence_Event_List (
   Event_Entry_Date DATE NOT NULL,
   Sequence_Id INTEGER  NOT NULL,
   Sequence_Entry_Date date NOT NULL,
-  Missed_Prob NUMBER(9,3) NOT NULL,
+  Missed_Prob NUMBER(12,3) NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
   PRIMARY KEY(Sequence_Id,  Sequence_Entry_Date, Event_Index_In_Sequence),
   FOREIGN KEY(Event_Id,  Event_Entry_Date)
