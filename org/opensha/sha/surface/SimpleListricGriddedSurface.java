@@ -170,9 +170,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         double distanceAlong, distance, hDistance, vDistance;
         Location location1;
         //initialize the num of Rows and Cols for the container2d object that holds
-        this.numRows = rows;
-        this.numCols = cols;
-
+        setNumRowsAndNumCols(numRows,numCols);
 
         // Loop over each column - ith_col is ith grid step along the fault trace
         if( D ) System.out.println(S + "Iterating over columns up to " + cols );

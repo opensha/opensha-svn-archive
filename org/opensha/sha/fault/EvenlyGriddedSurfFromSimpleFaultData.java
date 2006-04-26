@@ -145,8 +145,7 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
      * @param numCols int
      */
     protected void setRowsAndColsInContainer2d(int numRows,int numCols){
-      this.numCols  = numCols;
-      this.numRows = numRows;
+      setNumRowsAndNumCols(numRows,numCols);
     }
 
     /**

@@ -129,6 +129,19 @@ public class Container2D implements Container2DAPI, Serializable, NamedObjectAPI
 
 
     /**
+     * Sets the number of Rows and Cols of the 2D container object.
+     * @param numRows int  number of rows
+     * @param numCols int  number of cols
+     */
+    public void setNumRowsAndNumCols(int numRows,int numCols){
+      this.numCols = numCols;
+      this.numRows = numRows;
+      size = ( long ) numRows * ( long ) numCols;
+      data = new Object[numRows * numCols];
+
+    }
+
+    /**
      *  Returns the number of rows int this two dimensional container.
      *
      * @return    Number of rows.
