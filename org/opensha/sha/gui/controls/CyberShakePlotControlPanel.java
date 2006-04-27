@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.net.URLConnection;
 import java.util.*;
 
+
 import org.opensha.param.editor.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
@@ -20,6 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.lang.reflect.*;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: CyberShakeDeterministicPlotControlPanel </p>
@@ -602,9 +604,10 @@ public class CyberShakePlotControlPanel
    */
   private boolean setIMT_Params(){
     IMT_GuiBean imtGui = application.getIMTGuiBeanInstance();
+    DecimalFormat format = new DecimalFormat("0.00");
     imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
     String saPeriodString = (String)saPeriodParam.getValue();
-    double saPeriod = Double.parseDouble(saPeriodString.trim());
+    double saPeriod = Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
     DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
     ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
     int size = allowedVals.size();
@@ -619,9 +622,9 @@ public class CyberShakePlotControlPanel
     }
     else {
       for (int i = 0; i < size-1; ++i) {
-        double saVal_first = ((Double)allowedVals.get(i)).doubleValue();
-        double saVal_second = ((Double)allowedVals.get(i+1)).doubleValue();
-        if(saPeriod > saVal_first && saPeriod <saVal_second){
+        double saVal_first = Double.parseDouble(format.format(((Double)allowedVals.get(i)).doubleValue()));
+        double saVal_second = Double.parseDouble(format.format(((Double)allowedVals.get(i+1)).doubleValue()));
+        if(saPeriod >= saVal_first && saPeriod <= saVal_second){
           if((saPeriod - saVal_first) <= (saVal_second - saPeriod))
             imtGui.getParameterEditor("SA Period").setValue((Double)allowedVals.get(i));
           else
