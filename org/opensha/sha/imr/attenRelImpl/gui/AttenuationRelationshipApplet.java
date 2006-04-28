@@ -14,7 +14,6 @@ import org.jfree.data.*;
 
 import org.opensha.data.function.*;
 import org.opensha.gui.*;
-import org.opensha.gui.plot.jfreechart.*;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
@@ -50,7 +49,13 @@ public class AttenuationRelationshipApplet extends JApplet
 
     protected final static String C = "AttenuationRelationshipApplet";
     protected final static String version = "0.9.16";
+    //protected final static String version = "0";
     protected final static boolean D = false;
+
+    protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
+    protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenRelApp_Standalone.jar";
+    protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
+
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -295,8 +300,53 @@ public class AttenuationRelationshipApplet extends JApplet
      *  Construct the applet
      */
     public AttenuationRelationshipApplet() {
+
+      checkAppVersion();
     }
 
+
+    /**
+     * Checks if the current version of the application is latest else direct the
+     * user to the latest version on the website.
+     */
+    public  void checkAppVersion(){
+        ArrayList attenRelVersion = null;
+        try {
+          attenRelVersion = FileUtils.loadFile(new URL(versionURL));
+        }
+        catch (Exception ex1) {
+          return;
+        }
+        String appVersionOnWebsite = (String)attenRelVersion.get(0);
+        if(!appVersionOnWebsite.trim().equals(version.trim())){
+          try{
+            ApplicationVersionInfoWindow messageWindow =
+                new ApplicationVersionInfoWindow(appURL,
+                                                 this.versionUpdateInfoURL,
+                                                 "App Version Update", this);
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            messageWindow.setLocation( (dim.width -
+                                        messageWindow.getSize().width) / 2,
+                                      (dim.height -
+                                       messageWindow.getSize().height) / 2);
+            messageWindow.setVisible(true);
+          }catch(Exception e){
+            e.printStackTrace();
+          }
+        }
+
+      return;
+
+    }
+
+
+    /**
+     * Returns the Application version
+     * @return String
+     */
+    public static String getAppVersion(){
+      return version;
+    }
 
     /**
      *  Sets the frame attribute of the AttenuationRelationshipApplet object
