@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.faultSection;
 
 import java.awt.*;
 import java.awt.event.*;

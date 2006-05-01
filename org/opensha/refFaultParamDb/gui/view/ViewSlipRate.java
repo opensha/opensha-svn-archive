@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import org.opensha.gui.LabeledBoxPanel;
-import java.awt.LayoutManager;
 import java.awt.*;
 import javax.swing.JButton;
 import org.opensha.data.estimate.LogNormalEstimate;
@@ -14,7 +13,9 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditSlipRate;
+
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSlipRate;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import org.opensha.data.estimate.Estimate;

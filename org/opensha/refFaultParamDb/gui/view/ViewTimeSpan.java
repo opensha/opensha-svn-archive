@@ -11,10 +11,11 @@ import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditNumEvents;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditTimeSpan;
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditNumEvents;
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditTimeSpan;
+
 import java.util.ArrayList;
 
 /**

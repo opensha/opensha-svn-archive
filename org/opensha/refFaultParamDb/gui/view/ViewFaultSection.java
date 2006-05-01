@@ -22,7 +22,7 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.gui.addEdit.EditFaultSection;
+import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -86,14 +86,6 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
 		//		 do not allow edit for non authenticated users
 		if(SessionInfo.getContributor()==null) editButton.setEnabled(false);
-		JFrame frame = new JFrame();
-		frame.getContentPane().add(new JScrollPane(this));
-		frame.setTitle(TITLE);
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.show();
-
 	}
 	
 	/**

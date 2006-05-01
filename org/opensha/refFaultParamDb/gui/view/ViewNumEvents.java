@@ -15,7 +15,9 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import javax.swing.JFrame;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditNumEvents;
+
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditNumEvents;
+
 import java.awt.event.ActionListener;
 
 

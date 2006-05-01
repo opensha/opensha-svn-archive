@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.faultModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -20,12 +20,12 @@ public class AddContributorForDatabase {
   public static void main(String[] args) {
     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConn);
     // add fault _sandbox
-    Contributor contributor = new Contributor();
+    /*Contributor contributor = new Contributor();
     contributor.setEmail("fault_sandbox@usc.edu");
     contributor.setFirstName("Fault");
     contributor.setLastName("Sandbox");
     contributor.setName("fault_sandbox");
-    String password = "";
+    String password = "perry";
     contributorDAO.addContributor(contributor,password);
     // add vgupta
     contributor = new Contributor();
@@ -33,7 +33,7 @@ public class AddContributorForDatabase {
     contributor.setFirstName("Vipin");
     contributor.setLastName("Gupta");
     contributor.setName("vgupta");
-    password = "";
+    password = "vgupta";
     contributorDAO.addContributor(contributor,password);
     //System.exit(0);
     contributor = new Contributor();
@@ -41,8 +41,15 @@ public class AddContributorForDatabase {
     contributor.setFirstName("Sue");
     contributor.setLastName("Perry");
     contributor.setName("perry");
-    password = "";
+    password = "perry";
     contributorDAO.addContributor(contributor,password);
+    Contributor contributor = new Contributor();
+    contributor.setEmail("Chris.Wills@conservation.ca.gov");
+    contributor.setFirstName("Chris");
+    contributor.setLastName("Wills");
+    contributor.setName("chris.wills");
+    String password = "uxy4tuz";
+    contributorDAO.addContributor(contributor,password);*/
     System.exit(0);
   }
 

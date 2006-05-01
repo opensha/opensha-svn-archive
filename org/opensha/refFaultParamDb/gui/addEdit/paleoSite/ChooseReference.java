@@ -1,8 +1,9 @@
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.StringParameter;

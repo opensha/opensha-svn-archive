@@ -1,12 +1,13 @@
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.faultModel;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.BorderLayout;
 
 import javax.swing.JTable;
+import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -31,14 +32,14 @@ public class FaultModelTable extends JTable{
 		addMouseListener(new MouseListener(this));
 		// set width of first column 
 		TableColumn col1 = getColumnModel().getColumn(0);
-		col1.setPreferredWidth(65);
+		col1.setPreferredWidth(100);
         //col1.setMinWidth(26);
-        col1.setMaxWidth(65);
+        col1.setMaxWidth(100);
         // set width of second column
         TableColumn col2 = getColumnModel().getColumn(1);
-		col2.setPreferredWidth(65);
+		col2.setPreferredWidth(100);
         //col2.setMinWidth(26);
-        col2.setMaxWidth(65);
+        col2.setMaxWidth(100);
 	}
 
 	
@@ -54,6 +55,7 @@ public class FaultModelTable extends JTable{
 class MouseListener extends MouseAdapter {
 	private JTable table;
 	private ViewFaultSection viewFaultSection ;
+	private JFrame frame;
 	
 	public MouseListener(JTable table) {
 		this.table = table;
@@ -65,7 +67,15 @@ class MouseListener extends MouseAdapter {
         int row = table.rowAtPoint(p);
         int column = table.columnAtPoint(p); // This is the view column!
         if(column!=1) return;
-        if(viewFaultSection==null) viewFaultSection = new ViewFaultSection();
+        if(viewFaultSection==null) 
+        		viewFaultSection = new ViewFaultSection();
+        if(frame==null || !frame.isShowing()) {
+        		frame = new JFrame();
+        		frame.getContentPane().setLayout(new BorderLayout());
+        		frame.getContentPane().add(viewFaultSection, BorderLayout.CENTER);
+        		frame.pack();
+        		frame.show();
+        } 
         viewFaultSection.setSelectedFaultSectionNameId((String)table.getModel().getValueAt(row, column));
 	}
 

@@ -11,7 +11,8 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditSequence;
+
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSequence;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;

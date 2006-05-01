@@ -28,10 +28,16 @@ drop table Fault_Names;
 drop trigger Site_type_Trigger;
 drop sequence Site_type_Sequence;
 drop table site_type;
-drop table Fault_Model_Section;
-drop trigger Fault_Model_Trigger;
-drop sequence Fault_Model_Sequence;
+drop trigger  Def_Model_Trigger;
+drop trigger Def_Model_Insert_Trigger;
+drop table Deformation_Model;
+drop trigger Def_Model_Summary_Trigger;
+drop sequence Def_Model_Summary_Sequence;
+drop table Deformation_Model_Summary;
 drop table Fault_Model;
+drop trigger Fault_Model_Summary_Trigger;
+drop sequence Fault_Model_Summary_Sequence;
+drop table Fault_Model_Summary;
 drop trigger Fault_Section_Trigger;
 drop sequence Fault_Section_Sequence;
 drop table Fault_Section;
@@ -279,7 +285,7 @@ end;
 
 
 
-CREATE TABLE Fault_Model (
+CREATE TABLE Fault_Model_Summary (
   Fault_Model_Id INTEGER NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Fault_Model_Name VARCHAR(255) NOT NULL UNIQUE,
@@ -289,30 +295,95 @@ CREATE TABLE Fault_Model (
 );
 
 
-create sequence Fault_Model_Sequence
+create sequence Fault_Model_Summary_Sequence
 start with 1
 increment by 1
 nomaxvalue;
 
-create trigger Fault_Model_Trigger
-before insert on Fault_Model 
+create trigger Fault_Model_Summary_Trigger
+before insert on Fault_Model_Summary 
 for each row
 begin
 if :new.Fault_Model_Id  is null then
-select  Fault_Model_Sequence.nextval into :new.Fault_Model_Id  from dual;
+select  Fault_Model_Summary_Sequence.nextval into :new.Fault_Model_Id  from dual;
 end if;
 end;
 /
 
-CREATE TABLE Fault_Model_Section (
+CREATE TABLE Fault_Model (
   Fault_Model_Id INTEGER NOT NULL,
   Section_Id INTEGER  NOT NULL,
   PRIMARY KEY(Fault_Model_Id, Section_Id),
   FOREIGN KEY(Fault_Model_Id)
-     REFERENCES  Fault_Model(Fault_Model_Id) ON DELETE CASCADE,
+     REFERENCES  Fault_Model_Summary(Fault_Model_Id) ON DELETE CASCADE,
   FOREIGN KEY(Section_Id)
      REFERENCES Fault_Section(Section_Id) ON DELETE CASCADE
 );
+
+
+
+CREATE TABLE Deformation_Model_Summary (
+  Deformation_Model_Id INTEGER NOT NULL,
+  Contributor_Id INTEGER NOT NULL,
+  Deformation_Model_Name VARCHAR(255) NOT NULL UNIQUE,
+  Fault_Model_Id INTEGER NOT NULL,
+  PRIMARY KEY(Deformation_Model_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE,
+  FOREIGN KEY(Fault_Model_Id) 
+     REFERENCES Fault_Model_Summary(Fault_Model_Id) ON DELETE CASCADE
+);
+
+
+create sequence Def_Model_Summary_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Def_Model_Summary_Trigger
+before insert on Deformation_Model_Summary
+for each row
+begin
+if :new.Deformation_Model_Id  is null then
+select  Def_Model_Summary_Sequence.nextval into :new.Deformation_Model_Id  from dual;
+end if;
+end;
+/
+
+
+
+CREATE TABLE Deformation_Model (
+  Deformation_Model_Id INTEGER NOT NULL,
+  Section_Id INTEGER  NOT NULL,
+  Ave_Long_Term_Slip_Rate_Est INTEGER NULL,
+  Average_Aseismic_Slip_Est INTEGER  NOT NULL,
+  PRIMARY KEY(Deformation_Model_Id, Section_Id),
+  FOREIGN KEY(Deformation_Model_Id)
+     REFERENCES  Deformation_Model_Summary(Deformation_Model_Id) ON DELETE CASCADE,
+  FOREIGN KEY(Section_Id)
+     REFERENCES Fault_Section(Section_Id) ON DELETE CASCADE,
+  FOREIGN KEY(Average_Aseismic_Slip_Est)
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
+  FOREIGN KEY(Ave_Long_Term_Slip_Rate_Est)
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
+);
+
+create trigger Def_Model_Trigger
+before insert on Deformation_Model
+for each row
+begin
+   select Ave_Long_Term_Slip_Rate_Est,  Average_Aseismic_Slip_Est into :new.Ave_Long_Term_Slip_Rate_Est, :new.Average_Aseismic_Slip_Est from Fault_Section where :new.Section_Id=Fault_Section.Section_Id;
+  end;
+/
+
+create trigger Def_Model_Insert_Trigger
+after insert on Deformation_Model_Summary
+for each row
+begin
+insert into Deformation_Model(Deformation_Model_Id, Section_Id)  
+  select :new.Deformation_Model_Id, Fault_Model.Section_Id from Fault_Model where :new.Fault_Model_Id=Fault_Model_Id;
+end;
+/
 
 
 CREATE TABLE Site_Type (

@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
 import org.opensha.param.*;

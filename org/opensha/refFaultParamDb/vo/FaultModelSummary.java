@@ -9,21 +9,21 @@ package org.opensha.refFaultParamDb.vo;
  * @version 1.0
  */
 
-public class FaultModel {
+public class FaultModelSummary {
   private int faultModelId;
   private String faultModelName;
   private Contributor contributor;
 
-  public FaultModel() {
+  public FaultModelSummary() {
   }
 
-  public FaultModel(int faultModelId, String faultModelName, Contributor contributor) {
+  public FaultModelSummary(int faultModelId, String faultModelName, Contributor contributor) {
    setFaultModelId(faultModelId);
    setContributor(contributor);
    setFaultModelName(faultModelName);
  }
 
- public FaultModel(String faultModelName, Contributor contributor) {
+ public FaultModelSummary(String faultModelName, Contributor contributor) {
   setContributor(contributor);
   setFaultModelName(faultModelName);
 }

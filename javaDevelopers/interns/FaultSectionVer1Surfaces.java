@@ -76,6 +76,24 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		      e.printStackTrace();
 		    }
 	}
+	
+	/**
+	 * This function allows the user to refresh the fault section data for this Id from the database.
+	 *  This is used for DB Ver 2 only because ver 1 data is  loaded from text files only.
+	 *  
+	 * @param faultSectionId
+	 */
+	public void reloadFaultSectionFromDatabase(int faultSectionId) {
+		
+	}
+	
+	/**
+	 * Refresh all the fault sections which are currently in cache
+	 *
+	 */
+	public void reloadAllFaultSectionsFromDatabase() {
+		
+	}
 
 	/**
 	 * Get the names and id of all fault sections

@@ -2,6 +2,7 @@
 package javaDevelopers.interns;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.HashMap;
 
 import org.opensha.data.estimate.MinMaxPrefEstimate;
@@ -57,9 +58,35 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
-
 	}
 
+	/**
+	 * This function allows the user to refresh the fault section data for the specific sectionId from the database
+	 *  
+	 * @param faultSectionId
+	 */
+	public void reloadFaultSectionFromDatabase(int faultSectionId) {
+		faultSectionsMap.remove(new Integer(faultSectionId));
+		getFaultSection(faultSectionId);
+	}
+	
+	/**
+	 * Refresh all the fault sections which are currently in cache
+	 *
+	 */
+	public void reloadAllFaultSectionsFromDatabase() {
+		// get Id list of all fault sections which are currently cached
+		ArrayList cachedFaultSectionsIdList= new ArrayList();
+		Iterator keySet = faultSectionsMap.keySet().iterator();
+		while(keySet.hasNext()) {
+			cachedFaultSectionsIdList.add(keySet.next());
+		}
+		// now refresh the fault sections
+		for(int i=0; i<cachedFaultSectionsIdList.size(); ++i) {
+			reloadFaultSectionFromDatabase(((Integer)cachedFaultSectionsIdList.get(i)).intValue());
+		}
+	}
+	
 	/**
 	 * Get fault section based on section Id. Also Cache the fault section in case it is needed for future references
 	 * @param faultSectionId

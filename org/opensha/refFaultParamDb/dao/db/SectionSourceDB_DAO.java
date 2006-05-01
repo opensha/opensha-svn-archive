@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import org.opensha.refFaultParamDb.vo.FaultModel;
+import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.SectionSource;

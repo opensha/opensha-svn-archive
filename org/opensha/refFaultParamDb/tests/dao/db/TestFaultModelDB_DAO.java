@@ -20,7 +20,7 @@ import org.opensha.refFaultParamDb.tests.AllTests;
 public class TestFaultModelDB_DAO extends TestCase {
   private DB_AccessAPI dbConnection ;
   private ContributorDB_DAO contributorDB_DAO = null;
-  private FaultModelDB_DAO faultModelDB_DAO = null;
+  private FaultModelSummaryDB_DAO faultModelDB_DAO = null;
   private static int contributorKey1, contributorKey2;
   private static int faultModelKey1, faultModelKey2;
 
@@ -32,7 +32,7 @@ public class TestFaultModelDB_DAO extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     contributorDB_DAO = new ContributorDB_DAO(dbConnection);
-    faultModelDB_DAO = new FaultModelDB_DAO(dbConnection);
+    faultModelDB_DAO = new FaultModelSummaryDB_DAO(dbConnection);
   }
 
   protected void tearDown() throws Exception {
@@ -44,7 +44,7 @@ public class TestFaultModelDB_DAO extends TestCase {
 
 
   public void testFaultModelDB_DAO() {
-    faultModelDB_DAO = new FaultModelDB_DAO(dbConnection);
+    faultModelDB_DAO = new FaultModelSummaryDB_DAO(dbConnection);
     this.assertNotNull("faultModelDB_DAO object should not be null",faultModelDB_DAO);
   }
 
@@ -55,9 +55,9 @@ public class TestFaultModelDB_DAO extends TestCase {
     contributorKey1 = contributorDB_DAO.addContributor(contributor1,"testpass1");
     contributor1.setId(contributorKey1);
 
-    FaultModel faultModel1 = new FaultModel("usgs2002",contributor1);
-    FaultModel faultModel2 = new FaultModel("usgs1996",contributor2);
-    FaultModel faultModel3 = new FaultModel("CFM",contributor1);
+    FaultModelSummary faultModel1 = new FaultModelSummary("usgs2002",contributor1);
+    FaultModelSummary faultModel2 = new FaultModelSummary("usgs1996",contributor2);
+    FaultModelSummary faultModel3 = new FaultModelSummary("CFM",contributor1);
 
     faultModelKey1= faultModelDB_DAO.addFaultModel(faultModel1);
     try {
@@ -73,7 +73,7 @@ public class TestFaultModelDB_DAO extends TestCase {
   }
 
   public void testGetFaultModel() throws QueryException {
-    FaultModel actualReturn = faultModelDB_DAO.getFaultModel(98989);
+    FaultModelSummary actualReturn = faultModelDB_DAO.getFaultModel(98989);
     assertEquals("No faultmodel exists with id 98989", null, actualReturn);
     actualReturn = faultModelDB_DAO.getFaultModel(faultModelKey1);
     assertNotNull("should not be null as faultmodel exists with id = "+faultModelKey1,actualReturn);
@@ -86,13 +86,13 @@ public class TestFaultModelDB_DAO extends TestCase {
     Contributor contributor2 = new Contributor("Test2");
     contributorKey2 = contributorDB_DAO.addContributor(contributor2,"testpass2");
     contributor2.setId(contributorKey2);
-    FaultModel faultModel = new FaultModel("Test1",contributor2);
+    FaultModelSummary faultModel = new FaultModelSummary("Test1",contributor2);
     boolean status  = faultModelDB_DAO.updateFaultModel(7878, faultModel);
     this.assertFalse("cannot update fault model with 7878 as it does not exist", status);
-    faultModel = new FaultModel("usgs/cgs2002",contributor2);
+    faultModel = new FaultModelSummary("usgs/cgs2002",contributor2);
     status = faultModelDB_DAO.updateFaultModel(faultModelKey1, faultModel);
     assertTrue("faultmodel with id="+faultModelKey1+" should be updated in the database",status);
-    FaultModel actualReturn = faultModelDB_DAO.getFaultModel(faultModelKey1);
+    FaultModelSummary actualReturn = faultModelDB_DAO.getFaultModel(faultModelKey1);
     assertNotNull("should not be null as faultmodel exists with id = "+faultModelKey1,actualReturn);
     assertEquals("faultmodel id "+faultModelKey1+" has name usgs/cgs2002", "usgs/cgs2002", actualReturn.getFaultModelName());
     assertEquals("faultmodel id "+faultModelKey1+" has contributor id "+contributorKey2, contributorKey2, actualReturn.getContributor().getId());

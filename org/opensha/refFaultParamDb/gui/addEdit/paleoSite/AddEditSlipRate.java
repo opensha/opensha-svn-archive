@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
 import org.opensha.param.*;
@@ -6,6 +6,7 @@ import org.opensha.param.estimate.*;
 import java.util.ArrayList;
 import org.opensha.param.editor.ParameterListEditor;
 import java.awt.*;
+
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;

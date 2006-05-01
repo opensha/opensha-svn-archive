@@ -1,18 +1,13 @@
 package org.opensha.refFaultParamDb.gui;
 import java.awt.*;
 import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.net.*;
+
 import java.awt.event.*;
 
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditFaultModel;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.login.RequestUserAccount;
 import org.opensha.refFaultParamDb.gui.login.GetAccountInfo;
 import org.opensha.refFaultParamDb.gui.login.ChangePassword;
-import org.opensha.refFaultParamDb.gui.view.ViewFaultSection;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.util.ClassUtils;
 
@@ -237,7 +232,8 @@ public class LoginWindow extends JFrame implements ActionListener {
   public static void main(String args[]) {
     //LoginWindow loginWindow = new LoginWindow(args[0]);
 	  //LoginWindow loginWindow = new LoginWindow(ViewFaultSection.class.getName());
-	  LoginWindow loginWindow = new LoginWindow(AddEditFaultModel.class.getName());
+	  //LoginWindow loginWindow = new LoginWindow(AddEditFaultModel.class.getName());
+	   LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
   }
 
 }

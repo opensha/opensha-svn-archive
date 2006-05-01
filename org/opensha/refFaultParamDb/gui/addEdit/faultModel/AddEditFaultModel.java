@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.refFaultParamDb.gui.addEdit;
+package org.opensha.refFaultParamDb.gui.addEdit.faultModel;
 
 import java.util.ArrayList;
 
@@ -21,10 +21,11 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.FaultModelSectionDB_DAO;
+import org.opensha.refFaultParamDb.gui.addEdit.faultModel.FaultModelTable;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.refFaultParamDb.vo.FaultModel;
+import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 
@@ -39,8 +40,8 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	
 	private ArrayList faultModelsList;
 	private ArrayList faultSectionsSummaryList;
-	private  FaultModelDB_DAO faultModelDB_DAO = new FaultModelDB_DAO(DB_AccessAPI.dbConnection);
-	private  FaultModelSectionDB_DAO faultModelSectionDB_DAO = new FaultModelSectionDB_DAO(DB_AccessAPI.dbConnection);
+	private  FaultModelSummaryDB_DAO faultModelDB_DAO = new FaultModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private  FaultModelDB_DAO faultModelSectionDB_DAO = new FaultModelDB_DAO(DB_AccessAPI.dbConnection);
 	private  FaultSectionVer2_DB_DAO faultSectionDB_DAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private StringParameter faultModelsParam;
 	private final static String AVAILABLE_FAULT_MODEL_PARAM_NAME = "Choose Fault Model";
@@ -48,16 +49,27 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private JButton removeModelButton = new JButton("Remove Model");
 	private JButton addModelButton = new JButton("Add Model");
 	private JButton updateModelButton = new JButton("Update Model");
+	private JButton selectAllButton = new JButton("Select All");
+	private JButton deselectAllButton = new JButton("Deselect All");
 	private FaultModelTableModel tableModel;
 	private FaultModelTable table;
 	private final static String TITLE = "Fault Model";
 	private final static String MSG_ADD_MODEL_SUCCESS = "Model Added Successfully";
 	private final static String MSG_REMOVE_MODEL_SUCCESS = "Model Removed Successfully";
 	private final static String MSG_UPDATE_MODEL_SUCCESS = "Model Updated Successfully";
+	private final static String MSG_NO_FAULT_MODEL_EXISTS = "Currently, there is no Fault Model";
 	
 	public AddEditFaultModel() {
-		if(SessionInfo.getContributor()==null) this.addModelButton.setEnabled(false);
-		else addModelButton.setEnabled(true);
+		if(SessionInfo.getContributor()==null)  {
+			this.addModelButton.setEnabled(false);
+			this.removeModelButton.setEnabled(false);
+			this.updateModelButton.setEnabled(false);
+		}
+		else {
+			addModelButton.setEnabled(true);
+			removeModelButton.setEnabled(true);
+			updateModelButton.setEnabled(true);
+		}
 //		 load alla fault sections
 		loadAllFaultSectionsSummary();
 		// load all the available fault models
@@ -67,12 +79,6 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		addActionListeners();
 		// add components to the GUI
 		setupGUI();
-		JFrame frame = new JFrame();
-		frame.setTitle(TITLE);
-		frame.getContentPane().add(new JScrollPane(this));
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.show();
 	}
 	
 	/**
@@ -82,17 +88,13 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private void setupGUI() {
 		setLayout(new GridBagLayout());
 		int yPos=1; // a list of fault models is present at yPos==0
-		// remove model button
-		add(this.removeModelButton,
+		
+		JPanel adRemoveButtonPanel = getAddRemoveButtonPanel();
+		// add/remove model button panel
+		add(adRemoveButtonPanel,
 	             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
-	                                    GridBagConstraints.NONE,
-	                                    new Insets(0, 0, 0, 0), 0, 0));
-		// add model button
-		add(this.addModelButton,
-	             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-	                                    , GridBagConstraints.CENTER,
-	                                    GridBagConstraints.NONE,
+	                                    GridBagConstraints.HORIZONTAL,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		// add table
 		add(new JScrollPane(this.table),
@@ -101,11 +103,59 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		// update button
-		add(this.updateModelButton,
+		add(this.getSelectDeselectUpdateButtonPanel(),
 	             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.NONE,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+	}
+	
+	/**
+	 * Select All/Deselect All/ update button panel
+	 * @return
+	 */
+	private JPanel getSelectDeselectUpdateButtonPanel() {
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridBagLayout());
+		// remove model button
+		buttonPanel.add(this.selectAllButton,
+	             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		buttonPanel.add(this.deselectAllButton,
+	             new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		buttonPanel.add(this.updateModelButton,
+	             new GridBagConstraints(3, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		return buttonPanel;
+	}
+	
+	
+	/**
+	 * Add/remove button panel
+	 * @return
+	 */
+	private JPanel getAddRemoveButtonPanel() {
+		JPanel adRemoveButtonPanel = new JPanel();
+		adRemoveButtonPanel.setLayout(new GridBagLayout());
+		// remove model button
+		adRemoveButtonPanel.add(this.removeModelButton,
+	             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		adRemoveButtonPanel.add(this.addModelButton,
+	             new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		return adRemoveButtonPanel;
 	}
 	
 	/**
@@ -116,6 +166,8 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		removeModelButton.addActionListener(this);
 		addModelButton.addActionListener(this);
 		updateModelButton.addActionListener(this);
+		this.selectAllButton.addActionListener(this);
+		this.deselectAllButton.addActionListener(this);
 	}
 	
 	/**
@@ -145,6 +197,10 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 				int faultModelId = this.getFaultModelId(selectedFaultModel);
 				this.faultModelSectionDB_DAO.addFaultModelSections(faultModelId, faultSectionIdList);
 				JOptionPane.showMessageDialog(this, MSG_UPDATE_MODEL_SUCCESS);
+			} else if(source == this.selectAllButton) { // select All 
+				 setAllRowsSelection(true);
+			} else if(source == this.deselectAllButton) { // deselect all
+				setAllRowsSelection(false);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -152,12 +208,24 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		}
 	}
 	
+	 /**
+	  * Select/deselect all rows
+	  * @param isSelected
+	  */
+	 private void setAllRowsSelection(boolean isSelected) {
+		 int numRows = this.tableModel.getRowCount();
+		 Boolean val = new Boolean(isSelected);
+		 for(int i=0; i<numRows; ++i)
+			 tableModel.setValueAt(val, i, 0);
+		 tableModel.fireTableDataChanged();
+	 }
+	
 	/**
 	 * Add a fault model name to the database
 	 * @param faultModelName
 	 */
 	private void addFaultModelToDB(String faultModelName) {
-		FaultModel faultModel = new FaultModel();
+		FaultModelSummary faultModel = new FaultModelSummary();
 		faultModel.setFaultModelName(faultModelName);
 		 this.faultModelDB_DAO.addFaultModel(faultModel);
 	}
@@ -201,7 +269,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	 */
 	private int getFaultModelId(String selectedFaultModel) {
 		for(int i=0; i<this.faultModelsList.size(); ++i) {
-			FaultModel faultModel = (FaultModel)faultModelsList.get(i);
+			FaultModelSummary faultModel = (FaultModelSummary)faultModelsList.get(i);
 			if(faultModel.getFaultModelName().equalsIgnoreCase(selectedFaultModel)) {
 				return faultModel.getFaultModelId();
 			}
@@ -220,12 +288,13 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		// make a list of fault model names
 		ArrayList faultModelNames = new ArrayList();
 		for(int i=0; i<faultModelsList.size(); ++i) {
-			faultModelNames.add(((FaultModel)faultModelsList.get(i)).getFaultModelName());
+			faultModelNames.add(((FaultModelSummary)faultModelsList.get(i)).getFaultModelName());
 		}
 		// make parameter and editor
 		if(faultModelNames==null || faultModelNames.size()==0)  {
 			this.updateModelButton.setEnabled(false);
 			this.removeModelButton.setEnabled(false);
+			JOptionPane.showMessageDialog(this, MSG_NO_FAULT_MODEL_EXISTS);
 			return;
 		}
 		
@@ -258,14 +327,4 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		table = new FaultModelTable(tableModel);
 	}
 	
-	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new AddEditFaultModel();
-		// TODO Auto-generated method stub
-	}
-
 }

@@ -12,7 +12,7 @@ import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import org.opensha.refFaultParamDb.gui.addEdit.AddEditIndividualEvent;
+import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.data.estimate.LogNormalEstimate;
