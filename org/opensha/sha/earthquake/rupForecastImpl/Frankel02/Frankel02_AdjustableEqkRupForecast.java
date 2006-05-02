@@ -67,7 +67,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
 
-  private EvenlyGriddedSurface surface;
 
   /*
    * Static variables for input files
@@ -977,10 +976,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       // now make the source
       if(iflt == 2)
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
-                                                duration,magCutOff,new FrankelGriddedSurface());
+                                                duration,magCutOff);
       else
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
-                                                magCutOff, new FrankelGriddedSurface());
+                                                magCutOff);
 
       // add the source
       frankelBackgrSeisSources.add(src);

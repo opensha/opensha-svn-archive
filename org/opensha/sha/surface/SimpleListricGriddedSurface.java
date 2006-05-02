@@ -7,8 +7,6 @@ import org.opensha.sha.fault.*;
 import org.opensha.exceptions.*;
 
 
-import org.opensha.param.*;
-import org.opensha.data.function.*;
 import org.opensha.data.*;
 import org.opensha.util.FaultUtils;
 
@@ -80,7 +78,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
      * @return
      * @throws FaultException
      */
-    public void createEvenlyGriddedSurface()throws FaultException {
+    private void createEvenlyGriddedSurface()throws FaultException {
 
         String S = C + ": createEvenlyGriddedSurface():";
 

@@ -591,14 +591,13 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
         }
         //make the object for the Stirling gridded fault
         if(fltType.equalsIgnoreCase(this.STIRLING)){
-          surface = new StirlingGriddedSurface(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-          //checking to see if the Dip Direction Param value is null then assign default Double.NaN
+                    //checking to see if the Dip Direction Param value is null then assign default Double.NaN
           //else assign the dip direction value.
           Double aveDipDir = (Double)dipDirectionParam.getValue();
           if(aveDipDir == null)
-            ((StirlingGriddedSurface)surface).setAveDipDir(Double.NaN);
+            surface = new StirlingGriddedSurface(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing,Double.NaN);
           else
-            ((StirlingGriddedSurface)surface).setAveDipDir(aveDipDir.doubleValue());
+            surface = new StirlingGriddedSurface(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing,aveDipDir.doubleValue());
         }
 
         //adding the Fault type param to the independent param list

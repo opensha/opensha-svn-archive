@@ -33,8 +33,6 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     protected double lowerSeismogenicDepth = Double.NaN;
 
 
-    //default no args constructor
-    protected EvenlyGriddedSurfFromSimpleFaultData(){;}
 
     protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
                                                 double gridSpacing) throws
@@ -54,11 +52,11 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
                                                 double lowerSeismogenicDepth,
                                                 double gridSpacing) throws
         FaultException {
-      setFaultTrace(faultTrace);
-      setAveDip(aveDip);
-      setUpperSeismogenicDepth(upperSeismogenicDepth);
-      setLowerSeismogenicDepth(lowerSeismogenicDepth);
-      setGridSpacing(gridSpacing);
+      this.faultTrace =faultTrace;
+      this.aveDip =aveDip;
+      this.upperSeismogenicDepth = upperSeismogenicDepth;
+      this.lowerSeismogenicDepth =lowerSeismogenicDepth;
+      this.gridSpacing = gridSpacing;
     }
 
     // ***************************************************************
@@ -73,44 +71,13 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     }
 
 
-    public void setAll(FaultTrace faultTrace,double aveDip,double upperSeismogenicDepth,
-                       double lowerSeismogenicDepth, double gridSpacing ) {
-
-      setFaultTrace(faultTrace);
-      setAveDip(aveDip);
-      setUpperSeismogenicDepth(upperSeismogenicDepth);
-      setLowerSeismogenicDepth(lowerSeismogenicDepth);
-      setGridSpacing(gridSpacing);
-    }
-
-    public void setFaultTrace(FaultTrace faultTrace) { this.faultTrace = faultTrace; }
     public FaultTrace getFaultTrace() { return faultTrace; }
 
-    public void setAveDip(double aveDip) throws FaultException {
-        FaultUtils.assertValidDip(aveDip);
-        this.aveDip = aveDip;
-    }
-    public double getAveDip() { return aveDip; }
 
-    public void setUpperSeismogenicDepth(double upperSeismogenicDepth) throws FaultException {
-        FaultUtils.assertValidDepth(upperSeismogenicDepth);
-        this.upperSeismogenicDepth = upperSeismogenicDepth;
-    }
     public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
 
-    public void setLowerSeismogenicDepth(double lowerSeismogenicDepth) throws FaultException {
-        FaultUtils.assertValidDepth(lowerSeismogenicDepth);
-        this.lowerSeismogenicDepth = lowerSeismogenicDepth;
-    }
     public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
 
-    public void setGridSpacing(double gridSpacing) throws FaultException {
-        if ( gridSpacing <= 0.0  ){
-            throw new FaultException(C + " : setGridSpacing(): Input value must be greater than 0.");
-        }
-        this.gridSpacing = gridSpacing;
-    }
-    public double getGridSpacing() { return gridSpacing; }
 
     /**
      * This method checks the simple-fault data to make sure it's all OK.
@@ -136,23 +103,4 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
           }
         }
     }
-
-
-
-    /**
-     * Sets the number of rows and cols in the Container2D object.
-     * @param numRows int
-     * @param numCols int
-     */
-    protected void setRowsAndColsInContainer2d(int numRows,int numCols){
-      setNumRowsAndNumCols(numRows,numCols);
-    }
-
-    /**
-     * Creates the EvenlyGriddedSurface from the Simple Fault Data.
-     * This method has been defined as Abstract in this class, its subclasses
-     * provide the implementation to this method.
-     */
-    public abstract void createEvenlyGriddedSurface();
-
 }

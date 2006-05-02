@@ -998,10 +998,10 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
       // now make the source
       if(iflt == 2)
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
-                                                duration,magCutOff,new FrankelGriddedSurface());
+                                                duration,magCutOff);
       else
         src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
-                                                magCutOff, new FrankelGriddedSurface());
+                                                magCutOff);
 
       // add the source
       frankelBackgrSeisSources.add(src);

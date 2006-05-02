@@ -55,7 +55,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;
   private PointSurface ptSurface;
-  private EvenlyGriddedSurfaceAPI finiteFault;
+  private FrankelGriddedSurface finiteFault;
 
   // to hold the non-zero mags, rates, and rupture surfaces
 //  ArrayList mags, rates, rupSurfaces;
@@ -71,8 +71,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
    */
   public Point2Vert_SS_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                        MagLengthRelationship magLengthRelationship,
-                                       double strike, double duration, double magCutOff,
-                                       FrankelGriddedSurface frankelFaultSurface){
+                                       double strike, double duration, double magCutOff){
     this.magCutOff = magCutOff;
 
     // make the prob qk rupture
@@ -85,7 +84,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     }
 
     // set the mags, rates, and rupture surfaces
-    setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultSurface);
+    setAll(loc,magFreqDist,magLengthRelationship,strike,duration);
   }
 
 
@@ -99,8 +98,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     */
    public Point2Vert_SS_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                         MagLengthRelationship magLengthRelationship,
-                                        double duration, double magCutOff,
-                                        FrankelGriddedSurface frankelFaultSurface){
+                                        double duration, double magCutOff){
      this.magCutOff = magCutOff;
 
      // make the prob qk rupture
@@ -108,7 +106,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
      probEqkRupture.setAveRake(aveRake);
 
      // set the mags, rates, and rupture surfaces
-     setAll(loc,magFreqDist,magLengthRelationship,duration,frankelFaultSurface);
+     setAll(loc,magFreqDist,magLengthRelationship,duration);
 
    }
 
@@ -123,13 +121,13 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     */
    public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                       MagLengthRelationship magLengthRelationship,
-                      double duration, FrankelGriddedSurface frankelFaultSurface) {
+                      double duration) {
 
      // get a random strike between -90 and 90
      double strike = (Math.random()-0.5)*180.0;
      if (strike < 0.0) strike +=360;
 // System.out.println(C+" random strike = "+strike);
-     setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultSurface);
+     setAll(loc,magFreqDist,magLengthRelationship,strike,duration);
    }
 
 
@@ -145,8 +143,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     */
   public void setAll(Location loc, IncrementalMagFreqDist magFreqDist,
                      MagLengthRelationship magLengthRelationship,
-                     double strike, double duration,
-                     FrankelGriddedSurface frankelFaultSurface) {
+                     double strike, double duration) {
 
     if(D) System.out.println("duration="+duration);
     if(D) System.out.println("strike="+strike);
@@ -171,9 +168,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       FaultTrace fault = new FaultTrace("");
       fault.addLocation(loc1);
       fault.addLocation(loc2);
-      frankelFaultSurface.setAll(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
-      frankelFaultSurface.createEvenlyGriddedSurface();
-    }
+      finiteFault = new FrankelGriddedSurface(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
+   }
   }
 
   /**
@@ -294,12 +290,11 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     Location loc = new Location(34,-118,0);
     GutenbergRichterMagFreqDist dist = new GutenbergRichterMagFreqDist(5,16,0.2,1e17,0.9);
     WC1994_MagLengthRelationship wc_rel = new WC1994_MagLengthRelationship();
-    FrankelGriddedSurface fltFact = new FrankelGriddedSurface();
 
 //    Point2Vert_SS_FaultPoisSource src = new Point2Vert_SS_FaultPoisSource(loc, dist,
 //                                       wc_rel,45, 1.0, 6.0, 5.0);
     Point2Vert_SS_FaultPoisSource src = new Point2Vert_SS_FaultPoisSource(loc, dist,
-                                       wc_rel, 1.0, 6.0, fltFact);
+                                       wc_rel, 1.0, 6.0);
 
     System.out.println("num rups ="+src.getNumRuptures());
     ProbEqkRupture rup;

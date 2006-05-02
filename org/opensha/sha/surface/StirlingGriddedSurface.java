@@ -11,8 +11,8 @@ import org.opensha.data.*;
  * <b>Title:</b> StirlingGriddedSurface.  This creates an EvenlyGriddedSurface
  * representation of the fault using a scheme described by Mark Stirling
  * to Ned Field in 2001, where grid points are projected down dip at
- * an angle perpendicular to the end-points of the faultTrace.  Use the setAveDipDir()
- * method to over ride this dipping direction.<br>
+ * an angle perpendicular to the end-points of the faultTrace.  Use the constructor()
+ * that takes the dipping direction.<br>
  * <b>Description:</b> <br>
  * @author Ned Field.
  * @version 1.0
@@ -28,7 +28,6 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
 
-    public StirlingGriddedSurface() { super(); }
 
     public StirlingGriddedSurface(SimpleFaultData simpleFaultData,
                                   double gridSpacing) throws FaultException {
@@ -48,12 +47,13 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
       createEvenlyGriddedSurface();
     }
 
+
     public StirlingGriddedSurface( SimpleFaultData simpleFaultData,
                                         double gridSpacing,double aveDipDir)
                                         throws FaultException {
 
         super(simpleFaultData, gridSpacing);
-        setAveDipDir(aveDipDir);
+        this.aveDipDir = aveDipDir;
         createEvenlyGriddedSurface();
     }
 
@@ -66,7 +66,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
                                         throws FaultException {
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
-        setAveDipDir(aveDipDir);
+        this.aveDipDir = aveDipDir;
         createEvenlyGriddedSurface();
     }
 
@@ -76,7 +76,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
      * Creates the Stirling Gridded Surface from the Simple Fault Data
      * @throws FaultException
      */
-    public void createEvenlyGriddedSurface() throws FaultException {
+    private void createEvenlyGriddedSurface() throws FaultException {
 
         String S = C + ": createEvenlyGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
@@ -167,7 +167,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
 
         //initialize the num of Rows and Cols for the container2d object that holds
-        setRowsAndColsInContainer2d(rows,cols);
+        setNumRowsAndNumCols(rows,cols);
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
@@ -241,13 +241,6 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
     }
 
 
-    /**
-     * This method allows one to set the averate dip direction (points going down dip will
-     * be parallel to this direction).  Set this as Double.NaN to compute this direction as perpendicular
-     * to the end points of the fault (Double.NaN is the default setting).
-     * @param aveDipDir
-     */
-    public void setAveDipDir(double aveDipDir) {
-      this.aveDipDir = aveDipDir;
-    }
+
+
 }

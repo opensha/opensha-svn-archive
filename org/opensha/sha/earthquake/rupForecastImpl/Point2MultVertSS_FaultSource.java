@@ -40,7 +40,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
   private Location loc;
   private ArrayList faultTraces = new ArrayList();
   private ProbEqkRupture probEqkRupture;
-  private FrankelGriddedSurface frankelFaultSurface  = new FrankelGriddedSurface();;
+  private FrankelGriddedSurface frankelFaultSurface;
 
   /**
    * The Constructor
@@ -147,8 +147,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    */
   private EvenlyGriddedSurfaceAPI getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
-    frankelFaultSurface.setAll((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
-    frankelFaultSurface.createEvenlyGriddedSurface();
+    frankelFaultSurface = new FrankelGriddedSurface((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
     return frankelFaultSurface;
   }
 

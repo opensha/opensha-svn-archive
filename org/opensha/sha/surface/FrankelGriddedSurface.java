@@ -27,7 +27,6 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
 
-    public FrankelGriddedSurface() { super(); }
 
     public FrankelGriddedSurface( SimpleFaultData simpleFaultData,
                                         double gridSpacing)
@@ -55,7 +54,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
      * Creates the Frankel Gridded Surface from the Simple Fault Data
      * @throws FaultException
      */
-    public void createEvenlyGriddedSurface() throws FaultException {
+    private void createEvenlyGriddedSurface() throws FaultException {
 
         String S = C + ": createEvenlyGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
@@ -125,7 +124,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         //location object
         Location location1;
         //initialize the num of Rows and Cols for the container2d object that holds
-        setRowsAndColsInContainer2d(rows,cols);
+        setNumRowsAndNumCols(rows,cols);
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
