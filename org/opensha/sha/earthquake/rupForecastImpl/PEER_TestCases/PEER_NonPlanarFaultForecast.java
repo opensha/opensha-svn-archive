@@ -268,13 +268,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
        // get a fault factory based on the chosen fault model
        String faultModel = (String) faultModelParam.getValue();
-       EvenlyGriddedSurfFromSimpleFaultData surface;
-       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-         surface = new FrankelGriddedSurface();
-       }
-       else {
-         surface = new StirlingGriddedSurface();
-       }
 
        double offset = ((Double)offsetParam.getValue()).doubleValue();
        double lengthSigma = ((Double)lengthSigmaParam.getValue()).doubleValue();
@@ -290,11 +283,16 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
          // make the fault surface
-         surface.setAll(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
+         EvenlyGriddedSurfFromSimpleFaultData surfaceAll;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL)) {
+           surfaceAll = new FrankelGriddedSurface(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         }
+         else {
+           surfaceAll = new StirlingGriddedSurface(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         }
 
          // make the source
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surfaceAll,
                                              magScalingRel,lengthSigma,rupAspectRatio,offset,
                                              RAKE,timeSpan.getDuration(),minMag);
          // add it to the source list
@@ -305,56 +303,121 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
        else {
 
          // Make the mag freq dist
-         double faultArea = faultTraceA.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
-         double totMoRate = 3e10*faultArea*slipRate;
-         grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
+         double faultArea = faultTraceA.getTraceLength() * ddw * 1e6; // the last is to convert to meters
+         double totMoRate = 3e10 * faultArea * slipRate;
+         grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,
+                                           GR_BVALUE);
 
-         if (D) System.out.println("Segment lengths:\n\n"+
-                                   "\tA - "+faultTraceA.getTraceLength()+"\n"+
-                                   "\tB - "+faultTraceB.getTraceLength()+"\n"+
-                                   "\tC - "+faultTraceC.getTraceLength()+"\n"+
-                                   "\tD - "+faultTraceD.getTraceLength()+"\n"+
-                                   "\tE - "+faultTraceE.getTraceLength()+"\n");
+         if (D) System.out.println("Segment lengths:\n\n" +
+                                   "\tA - " + faultTraceA.getTraceLength() +
+                                   "\n" +
+                                   "\tB - " + faultTraceB.getTraceLength() +
+                                   "\n" +
+                                   "\tC - " + faultTraceC.getTraceLength() +
+                                   "\n" +
+                                   "\tD - " + faultTraceD.getTraceLength() +
+                                   "\n" +
+                                   "\tE - " + faultTraceE.getTraceLength() +
+                                   "\n");
 
          //make source A:
-         surface.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                    RAKE,timeSpan.getDuration(),minMag);
-        sourceList.add(source);
+         EvenlyGriddedSurfFromSimpleFaultData surfaceA;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL))
+           surfaceA = new FrankelGriddedSurface(faultTraceA, DIP,
+                                                UPPER_SEISMO_DEPTH,
+                                                LOWER_SEISMO_DEPTH, gridSpacing);
+         else
+           surfaceA = new StirlingGriddedSurface(faultTraceA, DIP,
+                                                 UPPER_SEISMO_DEPTH,
+                                                 LOWER_SEISMO_DEPTH,
+                                                 gridSpacing);
+         source = new FloatingPoissonFaultSource(grMagFreqDist,
+                                                 (EvenlyGriddedSurface)
+                                                 surfaceA,
+                                                 magScalingRel, lengthSigma,
+                                                 rupAspectRatio, offset,
+                                                 RAKE, timeSpan.getDuration(),
+                                                 minMag);
+         sourceList.add(source);
 
          //make source B:
-         surface.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                    RAKE,timeSpan.getDuration(),minMag);
-        sourceList.add(source);
+         EvenlyGriddedSurfFromSimpleFaultData surfaceB;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL))
+           surfaceB = new FrankelGriddedSurface(faultTraceB, DIP,
+                                                UPPER_SEISMO_DEPTH,
+                                                LOWER_SEISMO_DEPTH, gridSpacing);
+         else
+           surfaceB = new StirlingGriddedSurface(faultTraceB, DIP,
+                                                 UPPER_SEISMO_DEPTH,
+                                                 LOWER_SEISMO_DEPTH,
+                                                 gridSpacing);
+         source = new FloatingPoissonFaultSource(grMagFreqDist,
+                                                 (EvenlyGriddedSurface)
+                                                 surfaceB,
+                                                 magScalingRel, lengthSigma,
+                                                 rupAspectRatio, offset,
+                                                 RAKE, timeSpan.getDuration(),
+                                                 minMag);
+         sourceList.add(source);
 
          //make source C:
-         surface.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                    RAKE,timeSpan.getDuration(),minMag);
-        sourceList.add(source);
+         EvenlyGriddedSurfFromSimpleFaultData surfaceC;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL))
+           surfaceC = new FrankelGriddedSurface(faultTraceC, DIP,
+                                                UPPER_SEISMO_DEPTH,
+                                                LOWER_SEISMO_DEPTH, gridSpacing);
+         else
+           surfaceC = new StirlingGriddedSurface(faultTraceC, DIP,
+                                                 UPPER_SEISMO_DEPTH,
+                                                 LOWER_SEISMO_DEPTH,
+                                                 gridSpacing);
+         source = new FloatingPoissonFaultSource(grMagFreqDist,
+                                                 (EvenlyGriddedSurface)
+                                                 surfaceC,
+                                                 magScalingRel, lengthSigma,
+                                                 rupAspectRatio, offset,
+                                                 RAKE, timeSpan.getDuration(),
+                                                 minMag);
+         sourceList.add(source);
 
          //make source D:
-         surface.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                    RAKE,timeSpan.getDuration(),minMag);
-        sourceList.add(source);
+         EvenlyGriddedSurfFromSimpleFaultData surfaceD;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL))
+           surfaceD = new FrankelGriddedSurface(faultTraceD, DIP,
+                                                UPPER_SEISMO_DEPTH,
+                                                LOWER_SEISMO_DEPTH, gridSpacing);
+         else
+           surfaceD = new StirlingGriddedSurface(faultTraceD, DIP,
+                                                 UPPER_SEISMO_DEPTH,
+                                                 LOWER_SEISMO_DEPTH,
+                                                 gridSpacing);
+         source = new FloatingPoissonFaultSource(grMagFreqDist,
+                                                 (EvenlyGriddedSurface)
+                                                 surfaceD,
+                                                 magScalingRel, lengthSigma,
+                                                 rupAspectRatio, offset,
+                                                 RAKE, timeSpan.getDuration(),
+                                                 minMag);
+         sourceList.add(source);
 
          //make source E:
-         surface.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface.createEvenlyGriddedSurface();
-         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                    RAKE,timeSpan.getDuration(),minMag);
-        sourceList.add(source);
+         EvenlyGriddedSurfFromSimpleFaultData surfaceE;
+         if (faultModel.equals(FAULT_MODEL_FRANKEL))
+           surfaceE = new FrankelGriddedSurface(faultTraceE, DIP,
+                                                UPPER_SEISMO_DEPTH,
+                                                LOWER_SEISMO_DEPTH, gridSpacing);
+         else
+           surfaceE = new StirlingGriddedSurface(faultTraceE, DIP,
+                                                 UPPER_SEISMO_DEPTH,
+                                                 LOWER_SEISMO_DEPTH,
+                                                 gridSpacing);
+         source = new FloatingPoissonFaultSource(grMagFreqDist,
+                                                 (EvenlyGriddedSurface) surfaceE,
+                                                 magScalingRel, lengthSigma,
+                                                 rupAspectRatio, offset,
+                                                 RAKE, timeSpan.getDuration(),
+                                                 minMag);
+         sourceList.add(source);
 
        }
 
