@@ -17,11 +17,11 @@ Check SimpleListricGriddedSurface (subclass of EvenlyGriddedSurface)
 
 	turn off the set methods here too
 
-Make GridCenteredSurface a separate object?
+Make GridCenteredSurface a separate object (and remove those methods from others)?
 
 Revise GriddedFaultApplet and compare old with new to make sure everything looks fine (test floaters too).
 
-Check surfaces with 3D viewer
+Check surfaces with 3D viewer.
 
 Test all apps.
 
