@@ -294,7 +294,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
      * @param aveDip double
      * @throws FaultException
      */
-    public void setAveDip(double aveDip) throws FaultException {
+    private void setAveDip(double aveDip) throws FaultException {
       FaultUtils.assertValidDip(aveDip);
       this.aveDip = aveDip;
     }
