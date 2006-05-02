@@ -48,8 +48,8 @@ public class AttenuationRelationshipApplet extends JApplet
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.9.16";
-    //protected final static String version = "0";
+    //protected final static String version = "0.9.16";
+    protected final static String version = "0";
     protected final static boolean D = false;
 
     protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
@@ -295,14 +295,6 @@ public class AttenuationRelationshipApplet extends JApplet
     protected XY_ValuesControlPanel xyNewDatasetControl;
     protected JButton peelOffButton = new JButton();
 
-
-    /**
-     *  Construct the applet
-     */
-    public AttenuationRelationshipApplet() {
-
-      checkAppVersion();
-    }
 
 
     /**
@@ -697,6 +689,7 @@ public class AttenuationRelationshipApplet extends JApplet
     public static void main( String[] args ) {
 
         AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
+        applet.checkAppVersion();
 
         Color c = new Color( .9f, .9f, 1.0f, 1f );
         Font f = new Font( "Dialog", Font.PLAIN, 11 );
