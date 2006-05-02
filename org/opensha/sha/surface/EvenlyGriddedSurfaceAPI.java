@@ -37,18 +37,6 @@ public interface EvenlyGriddedSurfaceAPI extends Container2DAPI {
     public double getAveStrike();
 
 
-     /**
-     *  Add a Location to the grid - does the same thing as set except that it
-     *  ensures the object is a Location object.
-     *
-     * @param  row                                 The row to set this Location at.
-     * @param  column                              The column to set this Location at.
-     * @param  location                            The new location value.
-     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
-     */
-    public void setLocation( int row, int column, Location location )
-             throws ArrayIndexOutOfBoundsException;
-
 
     /**
      *  Retrieves a Location in the 2D grid - does the same thing as get except

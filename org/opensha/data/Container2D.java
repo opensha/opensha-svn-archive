@@ -133,7 +133,7 @@ public class Container2D implements Container2DAPI, Serializable, NamedObjectAPI
      * @param numRows int  number of rows
      * @param numCols int  number of cols
      */
-    public void setNumRowsAndNumCols(int numRows,int numCols){
+    protected void setNumRowsAndNumCols(int numRows,int numCols){
       this.numCols = numCols;
       this.numRows = numRows;
       size = ( long ) numRows * ( long ) numCols;

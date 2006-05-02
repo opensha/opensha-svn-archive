@@ -66,19 +66,13 @@ public class EvenlyGriddedSurface
      * @param  row                                 The row to set the Location.
      * @param  column                              The row to set the Location.
      * @param  obj                                 Must be a Location object
-     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
-     * @exception  ClassCastException              Thrown if the passed in Obejct is not a Location.
+     * @exception  throws UnsupportedOperationException      Throws this exception if
+     * once created user tries to change any location on the surface.
      */
-    public void set( int row, int column, Object obj ) throws ArrayIndexOutOfBoundsException, ClassCastException {
+    public void set( int row, int column, Object obj ) throws UnsupportedOperationException{
 
-        String S = C + ": set(): ";
-        if ( obj instanceof Location ) {
-            setLocation( row, column, ( Location ) obj );
-        } else {
-            throw new ClassCastException( S + "Object must be a Location" );
-        }
+      throw new UnsupportedOperationException("EvenlyGriddedSurface does not the user the locations once created.");
     }
-
 
     /**
      *  Add a Location to the grid - does the same thing as set except that it
@@ -89,7 +83,7 @@ public class EvenlyGriddedSurface
      * @param  location                            The new location value.
      * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
      */
-    public void setLocation( int row, int column, Location location ) {
+    protected void setLocation( int row, int column, Location location ) {
         super.set( row, column, location );
     }
 
