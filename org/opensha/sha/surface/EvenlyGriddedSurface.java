@@ -349,7 +349,7 @@ public class EvenlyGriddedSurface
       int numCols = getNumCols() -1 ;
       double gridSpacing = getGridSpacing();
       //System.out.println("NumRows:"+numRows+" NumCols:"+numCols);
-      EvenlyGriddedSurfaceAPI surface = new EvenlyGriddedSurface(numRows,
+      EvenlyGriddedSurface surface = new EvenlyGriddedSurface(numRows,
           numCols,gridSpacing);
       for (int i = 0; i < numRows; ++i) {
         for (int j = 0; j < numCols; ++j) {
@@ -367,7 +367,7 @@ public class EvenlyGriddedSurface
           double locDepth = (loc1.getDepth() + loc2.getDepth() + loc3.getDepth() +
                              loc4.getDepth()) / 4;
           loc = new Location(locLat,locLon,locDepth);
-          surface.set(i,j,loc);
+          surface.setLocation(i,j,loc);
         }
       }
       return surface;
