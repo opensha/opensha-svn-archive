@@ -309,7 +309,7 @@ public class AttenuationRelationshipApplet extends JApplet
      * Checks if the current version of the application is latest else direct the
      * user to the latest version on the website.
      */
-    public  void checkAppVersion(){
+    private void checkAppVersion(){
         ArrayList attenRelVersion = null;
         try {
           attenRelVersion = FileUtils.loadFile(new URL(versionURL));
