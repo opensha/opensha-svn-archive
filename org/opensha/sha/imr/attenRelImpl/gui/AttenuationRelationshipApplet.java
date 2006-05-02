@@ -48,12 +48,12 @@ public class AttenuationRelationshipApplet extends JApplet
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    //protected final static String version = "0.9.16";
-    protected final static String version = "0";
+    protected final static String version = "0.9.16";
+    //protected final static String version = "0";
     protected final static boolean D = false;
 
     protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
-    protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenRelApp_Standalone.jar";
+    protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenRelApp.jar";
     protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
 
   /**

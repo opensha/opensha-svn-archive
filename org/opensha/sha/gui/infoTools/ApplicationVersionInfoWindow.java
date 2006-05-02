@@ -26,7 +26,7 @@ public class ApplicationVersionInfoWindow
       "Would you like to quit and download the new version?  If so, please be sure to delete your older version.";
   JPanel msgPanel = new JPanel();
   JLabel imgLabel ;
-  JEditorPane msgPane = new JEditorPane();
+  JTextArea msgPane = new JTextArea();
   Border border1 = BorderFactory.createMatteBorder(6, 6, 6, 6, Color.white);
   Border border2 = BorderFactory.createBevelBorder(BevelBorder.RAISED,
       Color.white, Color.white, new Color(124, 124, 124),
@@ -121,6 +121,8 @@ public class ApplicationVersionInfoWindow
         new Insets(8, 6, 0, 3), 0, 260));
     this.getContentPane().add(msgPanel, java.awt.BorderLayout.CENTER);
     msgPane.setText(this.message);
+    msgPane.setLineWrap(true);
+    msgPane.setWrapStyleWord(true);
     updateVersionInfo.setContentType("text/html");
     updateVersionInfo.setPage(urlToVersionUpdatePage);
     this.setSize(450,200);
