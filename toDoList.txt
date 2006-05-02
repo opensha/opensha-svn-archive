@@ -1,11 +1,7 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-All applications:
-
-	Check whether new version exists when application is launched and
-	notify user (option to download?).  It not internet access 
-	available skip this check.
+Implement new version checking/download option in all apps (skip if no internet access)
 
 Attenuation Relationship Plotter
 
@@ -15,40 +11,17 @@ Attenuation Relationship Plotter
 GriddedSurface Classes:
 ------------------------
 
-EvenlyGriddedSurface - make abstract & remove setAveStrike() and setAveDip() methods.
+Check SimpleListricGriddedSurface (subclass of EvenlyGriddedSurface)
 
-Make the following in the sha/fault directory:
+	constructor makes that surface using method in that factory
 
-	EvenlyGriddedSurfFromSimpleFaultData (Abstract)
+	turn off the set methods here too
 
-		takes SimpleFaultData or those parts in the constructor, & grid spacing
-
-		has get methods for SimpleFaultData or those parts
-
-		throws exception on all set* methods 
-		(can't corrupt the surface it makes)
-
-	FrankelGriddedSurface (subclass of EvenlyGriddedSurfFromSimpleFaultData)
-
-		constructor makes that surface (get method from the factory)
-
-	StirlingGriddedSurface (subclass of EvenlyGriddedSurfFromSimpleFaultData)
-
-		add setAveDipDir to an alternative constructor and add set/get methods for this
-
-		constructor makes that surface (get method from the factory)
-
-	SimpleListricGriddedSurface (subclass of EvenlyGriddedSurface)
-
-		constructor makes that surface using method in that factory
-
-		turn off the set methods here too
-
-Remove all *FaultFactory classes.
-
-Update other classes with these new ones (do with Ned)
+Make GridCenteredSurface a separate object?
 
 Revise GriddedFaultApplet and compare old with new to make sure everything looks fine (test floaters too).
+
+Check surfaces with 3D viewer
 
 Test all apps.
 
