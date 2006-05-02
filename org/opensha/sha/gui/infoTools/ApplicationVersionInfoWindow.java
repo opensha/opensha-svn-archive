@@ -22,8 +22,8 @@ import javax.swing.border.EtchedBorder;
 public class ApplicationVersionInfoWindow
     extends JDialog {
 
-  private final static String message = "A new version of application exists on website,"+
-      "Do you want to quit the current application and download the new version ?";
+  private final static String message = "A new version of this application is available.  "+
+      "Would you like to quit and download the new version?  If so, please be sure to delete your older version.";
   JPanel msgPanel = new JPanel();
   JLabel imgLabel ;
   JEditorPane msgPane = new JEditorPane();
