@@ -88,8 +88,6 @@ public class MeanSigmaCalc
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_RUP_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
-    frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
     frankelForecast.getTimeSpan().setDuration(1.0);
     frankelForecast.updateForecast();

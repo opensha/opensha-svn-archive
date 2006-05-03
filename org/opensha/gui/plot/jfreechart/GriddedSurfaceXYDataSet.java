@@ -53,7 +53,7 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
      *   As far as XYDataset is concerned the data is a collection of
      *   data series, one series maps to one row in the GriddedSurfaceAPI.
      */
-    protected EvenlyGriddedSurfaceAPI surface = null;
+    protected GriddedSurfaceAPI surface = null;
 
     /** XYDatasetAPI - list of listeners for data changes */
     protected ArrayList listeners = new ArrayList();
@@ -74,7 +74,7 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /** Constructor that sets the GriddedSurfaceAPI dataset. */
-    public GriddedSurfaceXYDataSet(EvenlyGriddedSurfaceAPI surface) {
+    public GriddedSurfaceXYDataSet(GriddedSurfaceAPI surface) {
         this.group = new DatasetGroup();
         this.surface = surface;
     }

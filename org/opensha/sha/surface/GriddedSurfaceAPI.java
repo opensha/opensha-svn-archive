@@ -7,10 +7,10 @@ import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> EvenlyGriddedSurfaceAPI<p>
+ * <b>Title:</b> GriddedSurfaceAPI<p>
  * <b>Description:</b>
  *
- * The EvenlyGriddedSurfaceAPI represents a geographical
+ * The GriddedSurfaceAPI represents a geographical
  * surface of Location objects slicing through or on the surface of the earth.
  * Recall that a Container2DAPI represents a collection of Objects in
  * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces
@@ -20,21 +20,22 @@ import org.opensha.data.*;
  * being Location objects. <p>
  *
  * There are no constraints on what locations are put where, but the usual presumption
- * is that the the grid of locations map out the surface in some evenly space way.
+ * is that the the grid of locations map out the surface .
  * it is also presumed that the zeroeth row represent the top edge (or trace). <p>
  *
  * @author     Steven W. Rock & others
  * @created    February 26, 2002
  * @version    1.0
  */
-public interface EvenlyGriddedSurfaceAPI extends GriddedSurfaceAPI {
+public interface GriddedSurfaceAPI extends Container2DAPI {
 
     /** Returns the average dip of this surface into the Earth.  */
-    public double getAveDip();
+    public double getAveDip()throws UnsupportedOperationException;
+;
 
 
     /** Returns the average strike of this surface on the Earth.  */
-    public double getAveStrike();
+    public double getAveStrike()throws UnsupportedOperationException;
 
     /**
      *  Retrieves a Location in the 2D grid - does the same thing as get except
@@ -62,31 +63,9 @@ public interface EvenlyGriddedSurfaceAPI extends GriddedSurfaceAPI {
 
 
     /**
-     * This returns the total length of the surface
-     * @return double
-     */
-    public double getSurfaceLength() ;
-
-
-    /**
-     * This returns the surface width (down dip)
-     * @return double
-     */
-    public double getSurfaceWidth() ;
-
-
-    /**
      * Returns the Metadata for the surface
      * @return String
      */
     public String getSurfaceMetadata();
-
-    /**
-     * returns the grid spacing
-     *
-     * @return
-     */
-    public  double getGridSpacing() ;
-
 
 }

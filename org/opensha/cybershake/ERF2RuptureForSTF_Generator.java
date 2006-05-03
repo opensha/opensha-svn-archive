@@ -81,7 +81,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().getGridCenteredSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
 
         //getting the iterator for all points on the rupture
@@ -175,8 +175,7 @@ public class ERF2RuptureForSTF_Generator {
 
           //getting the rupture on the source and its gridCentered Surface
           ProbEqkRupture rupture = source.getRupture(rupIndex);
-          EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().
-              getGridCenteredSurface();
+          EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
           //getting the iterator for all points on the rupture
           ListIterator lit = rupSurface.getAllByRowsIterator();
@@ -239,7 +238,7 @@ public class ERF2RuptureForSTF_Generator {
       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().getGridCenteredSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -350,10 +349,6 @@ public class ERF2RuptureForSTF_Generator {
         Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
                                  BACK_SEIS_EXCLUDE);
-
-    frankelForecast.getAdjustableParameterList().getParameter(
-        Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
 
     frankelForecast.getAdjustableParameterList().getParameter(
       Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(
@@ -485,7 +480,7 @@ public class ERF2RuptureForSTF_Generator {
     //Local Strike for each grid centered location on the rupture
     double[] localStrikeList = this.getLocalStrikeList(surface);
 
-    EvenlyGriddedSurfaceAPI rupSurface = surface.getGridCenteredSurface();
+    EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(surface);
     int numRows = rupSurface.getNumRows();
     int numCols = rupSurface.getNumCols();
     rupInfo += "NumRows = "+numRows+"\n";

@@ -32,6 +32,8 @@ import java.net.URLConnection;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import org.opensha.util.FileUtils;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.GriddedSurface;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -349,9 +351,9 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
    private void addLocationListToPlot(LocationList locList,
                                      int index) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
-    EvenlyGriddedSurface griddedSurface = new EvenlyGriddedSurface(1, locList.size(),1.0);
+    GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
     for (int i = 0; i < locList.size(); ++i)
-      griddedSurface.set(0, i, locList.getLocationAt(i));
+      griddedSurface.setLocation(0, i, locList.getLocationAt(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
     if(index==0) plot.setDataset(griddedDataSet);
     else plot.setSecondaryDataset(index-1, griddedDataSet);

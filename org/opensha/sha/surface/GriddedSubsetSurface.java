@@ -243,18 +243,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     }
 
 
-
-    /**
-     * Returns the grid centered location on each grid surface.
-     * @return GriddedSurfaceAPI returns a Surface that has one less
-     * row and col then the original surface. It averages the 4 corner location
-     * on each grid surface to get the grid centered location.
-     */
-    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() {
-      return ((EvenlyGriddedSurfaceAPI)data).getGridCenteredSurface();
-    }
-
-
     /**
      * This returns the total length of the surface
      * @return double

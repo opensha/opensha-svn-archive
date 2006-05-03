@@ -198,17 +198,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
 
     }
 
-    /**
-     * Returns the grid centered location on each grid surface.
-     * @return GriddedSurfaceAPI returns a Surface that has one less
-     * row and col then the original surface. It averages the 4 corner location
-     * on each grid surface to get the grid centered location.
-     */
-    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() throws UnsupportedOperationException{
 
-      throw new UnsupportedOperationException("Cannot obtain GridCentered Surface "+
-                                               "for Frankel surface, it not defined");
-    }
 
 
 }

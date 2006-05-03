@@ -5,9 +5,7 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.JOptionPane;
-import javax.swing.BorderFactory;
-import javax.swing.border.*;
-import java.lang.RuntimeException;
+
 
 import org.opensha.param.editor.*;
 import org.opensha.param.*;
@@ -15,9 +13,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.magdist.gui.infoTools.MagFreqDistEditorPanel;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
 /**
