@@ -70,8 +70,8 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   /*
    * Static variables for input files
    */
-  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
-  private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
+  private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/InputFiles_WGCEP_UCERF1/";
+  //private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/";
 
 
   /**
@@ -1313,7 +1313,8 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
     if (paramName.equals(BACK_SEIS_NAME)) {
       String paramValue = (String) event.getNewValue();
       if (paramValue.equals(this.BACK_SEIS_EXCLUDE)) {
-        adjustableParams.removeParameter(backSeisRupParam);
+        if(adjustableParams.containsParameter(backSeisRupParam))
+          adjustableParams.removeParameter(backSeisRupParam);
         parameterListChange(new EventObject(adjustableParams));
       }
       else {
