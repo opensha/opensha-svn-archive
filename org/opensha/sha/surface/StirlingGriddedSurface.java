@@ -2,14 +2,11 @@ package org.opensha.sha.surface;
 
 import java.util.*;
 
-import javax.vecmath.Point3f;
 
 import org.opensha.calc.RelativeLocation;
-import org.opensha.sha.surface.*;
 import org.opensha.sha.fault.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.*;
-import org.scec.geo3d.tools.LatLongToPoint;
 
 /**
  * <b>Title:</b> StirlingGriddedSurface.  This creates an EvenlyGriddedSurface
