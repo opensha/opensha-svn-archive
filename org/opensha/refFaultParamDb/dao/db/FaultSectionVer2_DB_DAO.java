@@ -12,6 +12,8 @@ import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import oracle.spatial.geometry.JGeometry;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
+import org.opensha.data.estimate.MinMaxPrefEstimate;
+
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
@@ -325,7 +327,7 @@ private ArrayList getFaultSectionSummary(String condition) {
 			  int numPoints = faultSectionGeom.getNumPoints();
 			  double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
 			  for(int j=0; j<numPoints; ++j) {
-				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j]));
+				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX()));
 			  }	
 		      faultSection.setFaultTrace(faultTrace);
 		      

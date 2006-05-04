@@ -42,7 +42,7 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
  * @version 1.0
  */
 
-public class PutCombinedInfoIntoDatabase {
+public class PutCombinedInfoIntoDatabase_Qfault_Bird {
   private final static String FILE_NAME = "QFaults_Bird_MMPref_SR_CumDispl.v3.xls";
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
   private final static int MIN_ROW = 1;
@@ -70,6 +70,7 @@ public class PutCombinedInfoIntoDatabase {
   private TimeAPI startTime, endTime;
   private String startTimeUnits, endTimeUnits;
   private final static String NO = "no";
+  private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
   
   /*
    * This hashmap is needed to keep track of already done sites. The excel spreadsheet has multiple rows where each 
@@ -78,7 +79,7 @@ public class PutCombinedInfoIntoDatabase {
    */
   private HashMap doneSitesMap = new HashMap(); 
 
-  public PutCombinedInfoIntoDatabase() {
+  public PutCombinedInfoIntoDatabase_Qfault_Bird() {
     try {
       // read the excel file
       POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(FILE_NAME));
@@ -273,6 +274,9 @@ public class PutCombinedInfoIntoDatabase {
       case 13:
     	  if(value!=null)   { // Site Lat2
     		  paleoSite.setSiteLat2(Float.parseFloat(value));
+    		  ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
+			  siteTypeNames.clear();
+			  siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
     		  if(paleoSite.getSiteName().equalsIgnoreCase(""))
     	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+";"+
     	        		  paleoSite.getSiteLat2()+","+paleoSite.getSiteLon2());
@@ -311,7 +315,10 @@ public class PutCombinedInfoIntoDatabase {
         break;
       case 19: // measured component
         if(value==null) value=UNKNOWN;
-        this.measuredComponent = value;
+        if(value.equalsIgnoreCase("A")) measuredComponent="Total";
+		else if(value.equalsIgnoreCase("B")) measuredComponent="Vertical";
+		else if(value.equalsIgnoreCase("C")) measuredComponent="Horizontal,Trace-Parallel";
+		else if(value.equalsIgnoreCase("D")) measuredComponent="Horizontal,Trace-NORMAL";
         break;
       case 20: // sense of motion
         if(value==null) value=UNKNOWN;

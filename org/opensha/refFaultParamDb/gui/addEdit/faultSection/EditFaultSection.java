@@ -169,29 +169,34 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
     mainPanel.setLayout(gridBagLayout1);
     cancelButton.setText("Cancel");
     okButton.setText("Update");
-    topSplitPane.setLeftComponent(innerSplitPane);
     leftPanel.setLayout(gridBagLayout1);
     centerPanel.setLayout(gridBagLayout1);
     rightPanel.setLayout(gridBagLayout1);
-    
-    topSplitPane.setRightComponent(innerSplitPane);
-    topSplitPane.setTopComponent(innerSplitPane);
     topSplitPane.add(innerSplitPane, JSplitPane.LEFT);
     topSplitPane.add(new JScrollPane(rightPanel), JSplitPane.RIGHT);
     innerSplitPane.add(new JScrollPane(leftPanel), JSplitPane.LEFT);
     innerSplitPane.add(new JScrollPane(centerPanel), JSplitPane.RIGHT);
-    mainPanel.add(topSplitPane, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    mainPanel.add(topSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(4, 4, 0, 3), 466, 505));
-    mainPanel.add(okButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+        new Insets(4, 4, 0, 3), 0, 0));
+    mainPanel.add(getButtonPanel(), new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(13, 92, 12, 0), 22, -3));
-    mainPanel.add(cancelButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(15, 23, 12, 184), 22, -3));
+        new Insets(0, 0, 0, 0), 0, 0));
     this.getContentPane().add(mainPanel, java.awt.BorderLayout.CENTER);
-    topSplitPane.setLastDividerLocation(300);
+    topSplitPane.setDividerLocation(500);
     innerSplitPane.setDividerLocation(200);
+  }
+  
+  
+  private JPanel getButtonPanel() {
+	  JPanel panel = new JPanel(new GridBagLayout());
+	  panel.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+		        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  panel.add(cancelButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+		        , GridBagConstraints.EAST, GridBagConstraints.NONE,
+		        new Insets(0, 0 , 0, 0), 0, 0));
+	  return panel;
   }
   
   // make parameter editors and estimate editors

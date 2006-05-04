@@ -1,8 +1,6 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import com.sun.rowset.CachedRowSetImpl;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**

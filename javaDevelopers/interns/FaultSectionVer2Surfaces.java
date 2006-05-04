@@ -43,6 +43,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+	//	System.out.println(simpleFaultData.getFaultTrace());
 //		 frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 
@@ -56,6 +57,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		//System.out.println(simpleFaultData.getFaultTrace());
 		// stirling fault factory
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
@@ -112,6 +114,8 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
 		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
 		double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferredX();
+		//System.out.println("Pref upper depth="+prefUpperDepth);
+		//System.out.println("Pref lower depth="+prefLowerDepth);
 		SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
 		return simpleFaultData;
 	}

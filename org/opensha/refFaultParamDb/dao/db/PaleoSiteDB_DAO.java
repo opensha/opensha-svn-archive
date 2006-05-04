@@ -125,7 +125,8 @@ public class PaleoSiteDB_DAO  {
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+paleoSite.getFaultSectionId()+",'"+systemDate+
         "','"+paleoSite.getSiteName()+"',?,?,"+dipVal+"'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
-    try {
+    try {	
+      //System.out.println(sql);
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
       // put the reference, site type and representative strand index
       ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
@@ -157,6 +158,20 @@ public class PaleoSiteDB_DAO  {
     return paleoSite;
   }
 
+  /**
+   * Get paleo site data based on qfaultSiteId
+   * @param qFaultSiteId
+   * @return
+   * @throws QueryException
+   */
+  public PaleoSite getPaleoSiteByQfaultId(String qFaultSiteId) throws QueryException {
+    String condition = " where "+this.OLD_SITE_ID+"='"+qFaultSiteId+"'";
+    ArrayList paleoSiteList = query(condition);
+    PaleoSite paleoSite = null;
+    if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
+    return paleoSite;
+  }
+  
   /**
   * Get paleo site data based on paleoSiteName
   * @param paleoSiteName

@@ -555,6 +555,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
       this.individualEventPanel.setSite(paleoSite); // view the events for this site
     }catch(Exception e) {
+    	e.printStackTrace();
       JOptionPane.showMessageDialog(this, MSG_ERROR_RETRIEVING_DATA);
     }
     progressBar.setVisible(false);

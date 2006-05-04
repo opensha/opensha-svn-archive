@@ -207,11 +207,17 @@ public class LoginWindow extends JFrame implements ActionListener {
 		  this.usernameText.setVisible(false);
 		  this.passwordLabel.setVisible(false);
 		  this.passwordText.setVisible(false);
+		  newUserButton.setVisible(false);
+		  forgetPassButton.setVisible(false);
+		  changePassButton.setVisible(false);
 	  } else {
 		  this.userNameLabel.setVisible(true);
 		  this.usernameText.setVisible(true);
 		  this.passwordLabel.setVisible(true);
 		  this.passwordText.setVisible(true);
+		  newUserButton.setVisible(true);
+		  forgetPassButton.setVisible(true);
+		  changePassButton.setVisible(true);
 	  }
   }
 
@@ -233,7 +239,8 @@ public class LoginWindow extends JFrame implements ActionListener {
     //LoginWindow loginWindow = new LoginWindow(args[0]);
 	  //LoginWindow loginWindow = new LoginWindow(ViewFaultSection.class.getName());
 	  //LoginWindow loginWindow = new LoginWindow(AddEditFaultModel.class.getName());
-	   LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
+	  // LoginWindow loginWindow = new LoginWindow(FaultSectionsAndModelsApp.class.getName());
+	   LoginWindow loginWindow = new LoginWindow(PaleoSiteApp2.class.getName());
   }
 
 }

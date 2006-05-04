@@ -14,12 +14,12 @@ public class PaleoSite {
   private int siteId=-1;
   private FaultSectionSummary faultSection;
   private String siteName;
-  private float siteLat1;
-  private float siteLon1;
-  private float siteElevation1;
-  private float siteLat2;
-  private float siteLon2;
-  private float siteElevation2;
+  private float siteLat1=Float.NaN;
+  private float siteLon1=Float.NaN;
+  private float siteElevation1=Float.NaN;
+  private float siteLat2=Float.NaN;
+  private float siteLon2=Float.NaN;
+  private float siteElevation2=Float.NaN;
   private String generalComments;
   private String oldSiteId;
   private String entryDate;

@@ -68,7 +68,7 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		          lon = Double.parseDouble(tokenizer.nextToken());
 		          lat = Double.parseDouble(tokenizer.nextToken());
 		          depth = Double.parseDouble(tokenizer.nextToken());
-		          faultSection.getFaultTrace().addLocation(new Location(lat, lon, depth));
+		          faultSection.getFaultTrace().addLocation(new Location(lat, lon, faultSection.getAveUpperSeisDepth()));
 		        }
 		      }
 
