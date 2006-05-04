@@ -168,6 +168,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       
         //boolean isSiteInDB
         if(siteInDB==null) { // site does not exist in database
+          Thread.sleep(1000);
           paleoSiteDAO.addPaleoSite(paleoSite);
           putSiteInCache(paleoSite, combinedEventsInfo.getNeokinemaFaultNumber());
           siteInDB = paleoSite;
@@ -182,6 +183,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
 
         // add combined events info to database
          combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
+         
       }
     }catch(Exception e) {
       e.printStackTrace();

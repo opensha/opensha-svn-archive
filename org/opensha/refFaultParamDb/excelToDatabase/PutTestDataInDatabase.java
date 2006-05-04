@@ -23,7 +23,8 @@ public class PutTestDataInDatabase {
     //new PutFaultNamesIntoDB(); // put fault names into database
     //new ReadSitesFile(); // put sites data in the database
     //new PutFaultSectionsIntoDatabase();
-    new PutCombinedInfoIntoDatabase();
+    new PutCombinedInfoIntoDatabase_Qfault_Bird();
+    //new PutCombinedInfoIntoDatabase_FAD();
     System.exit(0);
   }
 
