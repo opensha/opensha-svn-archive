@@ -53,7 +53,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static boolean D = false;
 
     protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
-    protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenRelApp.jar";
+    protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationshipApp.jar";
     protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
 
   /**
