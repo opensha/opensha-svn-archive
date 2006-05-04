@@ -132,6 +132,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   public final static String RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
   public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
   public final static String RMI_WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
+  public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
 
   // Strings for control pick list
   protected final static String CONTROL_PANELS = "Control Panels";
@@ -398,6 +399,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 //   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
 //   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
+
 
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);

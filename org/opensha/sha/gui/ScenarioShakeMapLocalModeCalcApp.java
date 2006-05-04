@@ -35,6 +35,7 @@ public class ScenarioShakeMapLocalModeCalcApp
   public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
   public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
+  public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
 
   /**
    * Initialize the ERF Gui Bean
@@ -56,6 +57,7 @@ public class ScenarioShakeMapLocalModeCalcApp
     //   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
     //   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
     erf_Classes.add(WG02_ERF_CLASS_NAME);
+    erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
 
     try {
       erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
