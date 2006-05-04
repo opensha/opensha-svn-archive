@@ -5,26 +5,23 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.JOptionPane;
-import javax.swing.BorderFactory;
-import javax.swing.border.*;
 import java.lang.RuntimeException;
-
 import org.opensha.param.editor.*;
 import org.opensha.param.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.event.*;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.param.estimate.EstimateConstraint;
-import org.opensha.sha.magdist.*;
 import org.opensha.data.estimate.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
-import org.opensha.param.estimate.*;
 import org.opensha.data.estimate.InvalidParamValException;
 import java.text.DecimalFormat;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -45,8 +42,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     ParameterChangeFailListener, ActionListener{
 
    private EstimateParameter estimateParam;
-  // name of the estimate
-   private String name;
+
    /**
     * Paramter List for holding all parameters
     */
@@ -155,9 +151,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // title of Parameter List Editor
    public static final String PROB_TITLE = new String("Probability this value is correct");
 
-   private final static String MIN_CONSTRAINT_LABEL="Min Value:";
-   private final static String MAX_CONSTRAINT_LABEL="Max Value:";
-
+  
    // size of the editor
    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 300 );
 
@@ -180,7 +174,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
    private final static String MSG_VALUE_MISSING_SUFFIX = " value is missing ";
-   private String paramNamesPrefix;
+
    public ConstrainedEstimateParameterEditor() {
    }
 
@@ -194,7 +188,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
                                              String xAxisName){
      this.model = model;
      this.showEditorAsPanel = showEditorAsPanel;
-     this.paramNamesPrefix  = paramNamesPrefix;
      this.xAxisName = xAxisName;
      try {
        this.jbInit();
@@ -287,7 +280,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
        (normalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
         normalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
-      this.truncationTypeParam.setValue(this.TRUNCATED_ABSOLUTE);
+      this.truncationTypeParam.setValue(TRUNCATED_ABSOLUTE);
     }
 
     this.sigmaLowerTruncationParam.setValue(normalEstimate.getMinSigma());
@@ -308,14 +301,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
        (logNormalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
         logNormalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
-      this.truncationTypeParam.setValue(this.TRUNCATED_ABSOLUTE);
+      this.truncationTypeParam.setValue(TRUNCATED_ABSOLUTE);
     }
 
     this.sigmaLowerTruncationParam.setValue(logNormalEstimate.getMinSigma());
     this.sigmaUpperTruncationParam.setValue(logNormalEstimate.getMaxSigma());
     if(logNormalEstimate.getIsBase10())
-      this.logBaseParam.setValue(this.LOG_BASE_10_NAME);
-    else logBaseParam.setValue(this.NATURAL_LOG_NAME);
+      this.logBaseParam.setValue(LOG_BASE_10_NAME);
+    else logBaseParam.setValue(NATURAL_LOG_NAME);
   }
 
   // set the estimate in fractile list estimate
@@ -411,23 +404,23 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     if ( D ) System.out.println( S + "Starting:" );
     String estimateParamName = "";
     if (this.xAxisName!=null) estimateParamName = xAxisName;
-    this.meanParamName = this.MEAN_PARAM_NAME_PREFIX+estimateParamName;
+    this.meanParamName = MEAN_PARAM_NAME_PREFIX+estimateParamName;
     meanParam = new DoubleParameter(meanParamName);
-    this.linearMedianParamName = this.LINEAR_MEDIAN_PARAM_NAME_PREFIX+estimateParamName;
+    this.linearMedianParamName = LINEAR_MEDIAN_PARAM_NAME_PREFIX+estimateParamName;
     linearMedianParam = new DoubleParameter(linearMedianParamName);
-    this.stdDevParamName = this.STD_DEV_PARAM_NAME_PREFIX+estimateParamName;
+    this.stdDevParamName = STD_DEV_PARAM_NAME_PREFIX+estimateParamName;
     stdDevParam = new DoubleParameter(stdDevParamName);
 
     ArbitrarilyDiscretizedFunc arbitraryDiscretizedFunc = new ArbitrarilyDiscretizedFunc();
     arbitraryDiscretizedFunc.setXAxisName("Exact "+estimateParamName);
     arbitraryDiscretizedFunc.setYAxisName("Probability this is correct");
-    this.xyParamName = estimateParamName+this.XY_PARAM_NAME_SUFFIX;
+    this.xyParamName = estimateParamName+XY_PARAM_NAME_SUFFIX;
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(xyParamName, arbitraryDiscretizedFunc);
 
     EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);
     evenlyDiscretizedFunc.setXAxisName(estimateParamName);
     evenlyDiscretizedFunc.setYAxisName("Probability");
-    this.pdfParamName = estimateParamName+this.PDF_PARAM_NAME_SUFFIX;
+    this.pdfParamName = estimateParamName+PDF_PARAM_NAME_SUFFIX;
     evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(pdfParamName, evenlyDiscretizedFunc);
     // list of available estimates
     estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
@@ -440,9 +433,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
     // log choices for log normal distribution
     ArrayList logBases = new ArrayList();
-    logBases.add(this.NATURAL_LOG_NAME);
-    logBases.add(this.LOG_BASE_10_NAME);
-    logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
+    logBases.add(NATURAL_LOG_NAME);
+    logBases.add(LOG_BASE_10_NAME);
+    logBaseParam = new StringParameter(LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
     // put all the parameters in the parameter list
     parameterList = new ParameterList();
@@ -467,11 +460,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setTitle(title);
 
    // parameters for min/max/preferred user choice
-  this.minXParamName = this.MIN_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.minXParamName = MIN_X_PARAM_NAME_PREFIX+estimateParamName;
   minX_Param = new DoubleParameter(minXParamName);
-  this.maxXParamName = this.MAX_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.maxXParamName = MAX_X_PARAM_NAME_PREFIX+estimateParamName;
   maxX_Param = new DoubleParameter(maxXParamName);
-  this.preferredXParamName = this.PREF_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.preferredXParamName = PREF_X_PARAM_NAME_PREFIX+estimateParamName;
   prefferedX_Param = new DoubleParameter(preferredXParamName);
 
   ParameterList xValsParamList = new ParameterList();
@@ -479,7 +472,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   xValsParamList.addParameter(maxX_Param);
   xValsParamList.addParameter(prefferedX_Param);
   xValsParamListEditor = new ParameterListEditor(xValsParamList);
-  xValsParamListEditor.setTitle(estimateParamName+this.X_TITLE_SUFFIX);
+  xValsParamListEditor.setTitle(estimateParamName+X_TITLE_SUFFIX);
 
   this.minProbParamName = "Probability of "+this.minXParamName;
   minProbParam = new DoubleParameter(minProbParamName);
@@ -492,7 +485,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   probParamList.addParameter(maxProbParam);
   probParamList.addParameter(prefferedProbParam);
   probValsParamListEditor = new ParameterListEditor(probParamList);
-  probValsParamListEditor.setTitle(this.PROB_TITLE);
+  probValsParamListEditor.setTitle(PROB_TITLE);
 
    //setEstimateButton = new JButton("Set Estimate");
    viewEstimateButton = new JButton("Plot Estimate");
@@ -523,22 +516,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      * when we deploy this.
      */
     ArrayList truncationTypeList = new ArrayList();
-    truncationTypeList.add(this.TRUNCATION_NONE);
-    truncationTypeList.add(this.TRUNCATED_ABSOLUTE);
-    truncationTypeList.add(this.TRUNCATED_NUM_SIGMAS);
+    truncationTypeList.add(TRUNCATION_NONE);
+    truncationTypeList.add(TRUNCATED_ABSOLUTE);
+    truncationTypeList.add(TRUNCATED_NUM_SIGMAS);
 
-    this.truncationTypeParam= new StringParameter(this.TRUNCATION_TYPE_PARAM_NAME,
+    this.truncationTypeParam= new StringParameter(TRUNCATION_TYPE_PARAM_NAME,
         truncationTypeList, (String)truncationTypeList.get(0));
     truncationTypeParam.addParameterChangeListener(this);
 
     // left and right sigma levels
     this.sigmaLowerTruncationParam = new DoubleParameter(LOWER_SIGMA_PARAM_NAME);
-    this.sigmaUpperTruncationParam = new DoubleParameter(this.UPPER_SIGMA_PARAM_NAME);
+    this.sigmaUpperTruncationParam = new DoubleParameter(UPPER_SIGMA_PARAM_NAME);
 
     // left and right absolute truncation point
-    this.absoluteLowerTruncationParam = new DoubleParameter(this.ABOLUTE_LOWER_PARAM_NAME,
+    this.absoluteLowerTruncationParam = new DoubleParameter(ABOLUTE_LOWER_PARAM_NAME,
         estimateConstraint.getMin());
-    this.absoluteUpperTruncationParam = new DoubleParameter(this.ABOLUTE_UPPER_PARAM_NAME,
+    this.absoluteUpperTruncationParam = new DoubleParameter(ABOLUTE_UPPER_PARAM_NAME,
                                            estimateConstraint.getMax());
 
     parameterList.addParameter(truncationTypeParam);
@@ -565,7 +558,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
       setEstimateParams( (String) chooseEstimateParam.getValue());
       editor.refreshParamEditor();
       this.updateUI();
-    } else if(paramName.equalsIgnoreCase(this.TRUNCATION_TYPE_PARAM_NAME)) {
+    } else if(paramName.equalsIgnoreCase(TRUNCATION_TYPE_PARAM_NAME)) {
       this.setTruncationParamsVisibility();
     }
   }
@@ -612,7 +605,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
     editor.setParameterVisible(meanParamName, false);
     editor.setParameterVisible(stdDevParamName, false);
-    editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
+    editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, false);
     editor.setParameterVisible(linearMedianParamName, false);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
     editor.setParameterVisible(this.pdfParamName, false);
@@ -630,7 +623,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
    editor.setParameterVisible(meanParamName, true);
    editor.setParameterVisible(stdDevParamName, true);
-   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, true);
+   editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, true);
    editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, false);
@@ -655,10 +648,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     if(chosenEstimateName.equalsIgnoreCase(NormalEstimate.NAME) ||
        chosenEstimateName.equalsIgnoreCase(LogNormalEstimate.NAME)) {
       // if absolue truncation parameters need to be visible
-      if(truncationType.equalsIgnoreCase(this.TRUNCATED_ABSOLUTE)) {
+      if(truncationType.equalsIgnoreCase(TRUNCATED_ABSOLUTE)) {
          editor.setParameterVisible(this.absoluteLowerTruncationParam.getName(), true);
          editor.setParameterVisible(this.absoluteUpperTruncationParam.getName(), true);
-      } else if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+      } else if(truncationType.equalsIgnoreCase(TRUNCATED_NUM_SIGMAS)) {
         editor.setParameterVisible(this.sigmaLowerTruncationParam.getName(), true);
         editor.setParameterVisible(this.sigmaUpperTruncationParam.getName(), true);
       }
@@ -677,7 +670,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(stdDevParamName, true);
     editor.setParameterVisible(linearMedianParamName, true);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
-    editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, true);
+    editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, true);
     editor.setParameterVisible(pdfParamName, false);
     editor.setParameterVisible(xyParamName, false);
     setTruncationParamsVisibility();
@@ -694,7 +687,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(meanParamName, false);
    editor.setParameterVisible(stdDevParamName, false);
    editor.setParameterVisible(linearMedianParamName, false);
-   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
+   editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, true);
    editor.setParameterVisible(xyParamName, false);
@@ -723,7 +716,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
    editor.setParameterVisible(meanParamName, false);
    editor.setParameterVisible(stdDevParamName, false);
-   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
+   editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, false);
    editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, false);
@@ -802,7 +795,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // create Normal(Gaussian) estimate
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
    String truncationType = (String)this.truncationTypeParam.getValue();
-   if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+   if(truncationType.equalsIgnoreCase(TRUNCATED_NUM_SIGMAS)) {
      Double lowerSigma =  (Double)this.sigmaLowerTruncationParam.getValue();
      // check that lower sigma value is present
      if(lowerSigma==null)
@@ -845,13 +838,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    double stdDev =stdDevVal.doubleValue();
    // create instance of log normal estimate
    LogNormalEstimate estimate = new LogNormalEstimate(linearMedian, stdDev);
-   if(this.logBaseParam.getValue().equals(this.LOG_BASE_10_NAME))
+   if(this.logBaseParam.getValue().equals(LOG_BASE_10_NAME))
      estimate.setIsBase10(true);
    else   estimate.setIsBase10(false);
 
      // set truncation
    String truncationType = (String)this.truncationTypeParam.getValue();
-   if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+   if(truncationType.equalsIgnoreCase(TRUNCATED_NUM_SIGMAS)) {
      Double lowerSigma =  (Double)this.sigmaLowerTruncationParam.getValue();
      // check that lower sigma value is present
      if(lowerSigma==null)
@@ -886,7 +879,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  private Estimate setDiscreteValueEstimate() {
    ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
    if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
-         this.MSG_VALUE_MISSING_SUFFIX);
+         MSG_VALUE_MISSING_SUFFIX);
    try {
      DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
      return estimate;
@@ -904,7 +897,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  private Estimate setIntegerEstimate() {
    ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
    if(val.getNum()==0)
-      throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+this.MSG_VALUE_MISSING_SUFFIX);
+      throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+MSG_VALUE_MISSING_SUFFIX);
    try {
      IntegerEstimate estimate = new IntegerEstimate(val, true);
      return estimate;
@@ -1044,7 +1037,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    if(Double.isNaN(xVal) && !Double.isNaN(probVal))
      throw new RuntimeException("If " + xParamName +" is empty, "+probParamName+" is not allowed");
    if(!Double.isNaN(xVal) && Double.isNaN(probVal))
-     throw new RuntimeException(probParamName+this.MSG_VALUE_MISSING_SUFFIX);
+     throw new RuntimeException(probParamName+MSG_VALUE_MISSING_SUFFIX);
  }
 
  private double getValueForParameter(Parameter param) {
@@ -1062,7 +1055,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   //static initializer for setting look & feel
    static {
-     String osName = System.getProperty("os.name");
      try {
          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
      }
@@ -1076,13 +1068,53 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   */
   public static void main(String args[]) {
     JFrame frame = new JFrame();
+    JButton summaryButton = new JButton("View Estimate Summary");
+    
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,"Slip Rate");
+    String slipRate = "Slip Rate";
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,slipRate);
+    summaryButton.addActionListener(new EstimateSummaryListener(estimateParameterEditor, slipRate));
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    frame.getContentPane().add(summaryButton, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
     frame.pack();
     frame.setVisible(true);
   }
 
 }
+ 
+ /**
+  * This class is used to view Estimate Summary 
+  * 
+  * @author vipingupta
+  *
+  */
+ class EstimateSummaryListener implements ActionListener {
+	 private ConstrainedEstimateParameterEditor estimateParameterEditor;
+	 private String title;
+	 
+	 public EstimateSummaryListener(ConstrainedEstimateParameterEditor estimateParameterEditor, String title) {
+		  this.estimateParameterEditor=estimateParameterEditor;
+		  this.title = title;
+	 }
+	 
+	 public void actionPerformed(ActionEvent event) {
+		 try {
+			 estimateParameterEditor.setEstimateInParameter();
+			 Estimate estimate = (Estimate)estimateParameterEditor.getParameter().getValue();
+			 JFrame frame = new JFrame();
+			 JPanel panel = GUI_Utils.getPanel(new InfoLabel(estimate, title, "Probability"), title);
+			 frame.getContentPane().add(panel, BorderLayout.CENTER);
+			 frame.setLocationRelativeTo(estimateParameterEditor);
+			 frame.pack();
+			 frame.show();
+		 }catch(Exception e) {
+			 JOptionPane.showMessageDialog(estimateParameterEditor, e.getMessage());
+		 }
+	 }
+		 
+
+ }
