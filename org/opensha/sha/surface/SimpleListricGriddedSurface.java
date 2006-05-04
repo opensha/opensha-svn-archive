@@ -23,8 +23,16 @@ import org.opensha.util.FaultUtils;
  */
 
 public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
+  public SimpleListricGriddedSurface() {
+    try {
+      jbInit();
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
 
-    protected final static String C = "SimpleListricGriddedFaultFactory";
+  protected final static String C = "SimpleListricGriddedFaultFactory";
     protected final static boolean D = true;
 
     protected final static double PI_RADIANS = Math.PI / 180;
@@ -335,5 +343,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
          }
 
     }
+
+  private void jbInit() throws Exception {
+  }
 
 }
