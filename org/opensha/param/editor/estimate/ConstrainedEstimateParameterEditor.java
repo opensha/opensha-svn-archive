@@ -85,9 +85,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * when we deploy this.
     */
    private DoubleParameter sigmaLowerTruncationParam;
-   private final static String LOWER_SIGMA_PARAM_NAME="Lower Truncation(# of sigmas)";
+   private final static String LOWER_SIGMA_PARAM_NAME="Lower Truncation (# of sigmas)";
    private DoubleParameter sigmaUpperTruncationParam ;
-   private final static String UPPER_SIGMA_PARAM_NAME="Upper Truncation(# of sigmas)";
+   private final static String UPPER_SIGMA_PARAM_NAME="Upper Truncation (# of sigmas)";
    private DoubleParameter absoluteLowerTruncationParam;
    private final static String ABOLUTE_LOWER_PARAM_NAME = "Absolute Lower Truncation";
    private DoubleParameter absoluteUpperTruncationParam;
@@ -98,8 +98,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     */
    private final static String TRUNCATION_TYPE_PARAM_NAME = "Truncation Type";
    private final static String TRUNCATION_NONE = "None";
-   private final static String TRUNCATED_ABSOLUTE = "Truncated(absolute limits)";
-   private final static String TRUNCATED_NUM_SIGMAS = "Truncated(number of sigmas)";
+   private final static String TRUNCATED_ABSOLUTE = "Truncated (absolute limits)";
+   private final static String TRUNCATED_NUM_SIGMAS = "Truncated (number of sigmas)";
    private StringParameter truncationTypeParam;
 
    /**
