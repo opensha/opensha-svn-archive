@@ -29,57 +29,6 @@ import org.opensha.data.*;
  */
 public interface EvenlyGriddedSurfaceAPI extends GriddedSurfaceAPI {
 
-    /** Returns the average dip of this surface into the Earth.  */
-    public double getAveDip();
-
-
-    /** Returns the average strike of this surface on the Earth.  */
-    public double getAveStrike();
-
-    /**
-     *  Retrieves a Location in the 2D grid - does the same thing as get except
-     *  that it casts the returned object to a Location.
-     *
-     * @param  row     The row to set this Location at.
-     * @param  column  The column to set this Location at.
-     * @return         The location value
-     */
-    public Location getLocation( int row, int column );
-
-
-    /** Does same thing as listIterator() in super Interface */
-    public ListIterator getLocationsIterator();
-
-    /**
-     * Put all the locations of this surface into a location list
-     *
-     * @return
-     */
-    public LocationList getLocationList();
-
-    /** Common debug string that most Java classes implement */
-    public String toString();
-
-
-    /**
-     * This returns the total length of the surface
-     * @return double
-     */
-    public double getSurfaceLength() ;
-
-
-    /**
-     * This returns the surface width (down dip)
-     * @return double
-     */
-    public double getSurfaceWidth() ;
-
-
-    /**
-     * Returns the Metadata for the surface
-     * @return String
-     */
-    public String getSurfaceMetadata();
 
     /**
      * returns the grid spacing

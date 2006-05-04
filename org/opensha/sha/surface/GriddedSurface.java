@@ -76,6 +76,34 @@ public class GriddedSurface extends Container2D
         "getAveStrike() not supported by GriddedSurface class");
   }
 
+
+
+  /**
+   * Returns the seismogenicLenth of this surface .
+   *
+   * @throws UnsupportedOperationException
+   * @return double
+   * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
+   */
+  public double getSurfaceLength() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException(
+        "getSurfaceLength() not supported by GriddedSurface class");
+  }
+
+  /**
+   * Returns the lowerSeismogenicWidth of this surface.
+   *
+   * @throws UnsupportedOperationException
+   * @return double
+   * @todo Implement this org.opensha.sha.surface.GriddedSurfaceAPI method
+   */
+  public double getSurfaceWidth() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException(
+        "getSurfaceWidth() not supported by GriddedSurface class");
+  }
+
+
+
   /**
    *  Set an object in the 2D grid. Ensures the object passed in is a Location.
    *
