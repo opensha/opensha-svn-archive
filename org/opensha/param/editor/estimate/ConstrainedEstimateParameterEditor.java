@@ -1074,15 +1074,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * test the parameter editor
   * @param args
   */
- /* public static void main(String args[]) {
+  public static void main(String args[]) {
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,true);
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,"Slip Rate");
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();
     frame.setVisible(true);
-  }*/
+  }
 
 }
