@@ -1,11 +1,15 @@
 package org.opensha.sha.surface;
 
 import java.util.*;
+
+import javax.vecmath.Point3f;
+
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.fault.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.*;
+import org.scec.geo3d.tools.LatLongToPoint;
 
 /**
  * <b>Title:</b> StirlingGriddedSurface.  This creates an EvenlyGriddedSurface
@@ -240,6 +244,34 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         if( D ) System.out.println(S + "Ending");
     }
 
+
+    /**
+     * Maine method to test this class
+     * @param args
+     */
+    public static void main(String args[]) {
+        double aveDip = 15;
+        double upperSeismogenicDepth = 9.1;
+        double lowerSeismogenicDepth =15.2;
+        double gridSpacing=1.0;
+        FaultTrace faultTrace = new FaultTrace("Great Valley 13");
+        // TO SEE THE POTENTIAL BUG IN THIS CLASS, CHANGE VALUE OF "faultTraceDepth" to 0
+        double faultTraceDepth = 0.0;
+        faultTrace.addLocation(new Location(36.3547, -120.358, faultTraceDepth));
+        faultTrace.addLocation(new Location(36.2671, -120.254, faultTraceDepth));
+        faultTrace.addLocation(new Location(36.1499, -120.114, faultTraceDepth));
+        StirlingGriddedSurface griddedSurface = new StirlingGriddedSurface(faultTrace, aveDip,
+        		upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+        System.out.println("******Fault Trace*********");
+        System.out.println(faultTrace);
+        Iterator it = griddedSurface.getLocationsIterator();
+        System.out.println("*******Evenly Gridded Surface************");
+        while(it.hasNext()){
+            Location loc = (Location)it.next();
+            System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
+        }
+        
+    }
 
 
 
