@@ -46,6 +46,7 @@
     <pathelement location="${Required.Libraries.home}/jini-core.jar"/>
     <pathelement location="${Required.Libraries.home}/jsk-platform.jar"/>
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
+    <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/dt.jar"/>
@@ -83,7 +84,7 @@
       destdir="${dest}"
       nowarn="false"
       source="1.4"
-      target="1.2"
+      target="1.4"
       failonerror="yes"
       verbose="no"
       classpath="${dest}">

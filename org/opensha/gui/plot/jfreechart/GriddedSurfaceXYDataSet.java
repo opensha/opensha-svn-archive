@@ -6,7 +6,6 @@ import java.util.*;
 import org.jfree.data.*;
 import org.opensha.data.*;
 import org.opensha.sha.surface.*;
-import org.opensha.util.*;
 
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>
