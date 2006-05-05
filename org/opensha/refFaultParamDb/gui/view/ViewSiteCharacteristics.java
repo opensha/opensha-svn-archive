@@ -337,7 +337,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      }
 
    } catch(Exception e) {
-       e.printStackTrace();
+       //e.printStackTrace();
        JOptionPane.showMessageDialog(this, e.getMessage());
      }
 

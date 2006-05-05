@@ -161,14 +161,13 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
         }
 
         // set num events in combined events info
-        if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
+       // if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
 
         // site in DB
         PaleoSite siteInDB = isSiteInCache(paleoSite.getSiteName(), paleoSite.getOldSiteId(), combinedEventsInfo.getNeokinemaFaultNumber());
       
         //boolean isSiteInDB
         if(siteInDB==null) { // site does not exist in database
-          Thread.sleep(1000);
           paleoSiteDAO.addPaleoSite(paleoSite);
           putSiteInCache(paleoSite, combinedEventsInfo.getNeokinemaFaultNumber());
           siteInDB = paleoSite;
@@ -183,6 +182,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
 
         // add combined events info to database
          combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
+         Thread.sleep(500);
          
       }
     }catch(Exception e) {
@@ -323,7 +323,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
 		else if(value.equalsIgnoreCase("D")) measuredComponent="Horizontal,Trace-NORMAL";
         break;
       case 20: // sense of motion
-        if(value==null) value=UNKNOWN;
+        //if(value==null) value=UNKNOWN;
         this.senseOfMotion = value;
         break;
      /* case 17: //aseismic slip factor for displacement

@@ -15,6 +15,7 @@ import org.opensha.data.Location;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
@@ -271,6 +272,14 @@ private ArrayList getFaultSectionSummary(String condition) {
 }
   
   
+	/**
+	 * Return the HashMap containing section Id and the corresponding Mean Slip rate
+	 * @return
+	 */
+  	public HashMap getMeanSlipRate() {
+	  return null;
+  	}
+
   /**
    * Get the fault sections based on some filter parameter
    * @param condition

@@ -16,7 +16,7 @@ public abstract class Estimate {
 
   // comments associated with this object
   protected final static String EST_MSG_MAX_LT_MIN = "Error: Minimum must be less than Maximum";
-  protected final static String EST_MSG_NOT_NORMALIZED = "Error: Function is not normalized";
+  protected final static String EST_MSG_NOT_NORMALIZED = "Error: The probability values do not sum to 1";
   protected final static String EST_MSG_Y_POSITIVE = "Error: All Y values must be positive";
   protected final static String EST_MSG_INVLID_RANGE = "Error: All Y values must be >= 0 and <=1";
   protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";

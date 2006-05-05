@@ -68,7 +68,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
   private final static String UNKNOWN = "Unknown";
   private final static String KA = "ka";
   private final static int ZERO_YEAR=1950;
-  private String measuredComponent, senseOfMotion;
+  private String measuredComponent;
   private CombinedSlipRateInfo combinedSlipRateInfo;
   private CombinedDisplacementInfo combinedDispInfo;
   private boolean isSlipRate;
@@ -152,21 +152,17 @@ public class PutCombinedInfoIntoDatabase_FAD {
 		ArrayList refList = new ArrayList();
 		refList.add(paleoSitePub.getReference());
 		combinedEventsInfo.setReferenceList(refList);
-		senseOfMotion = UNKNOWN;
 		// set slip rate in combined events info
 		if(isSlipRate) {
-			combinedSlipRateInfo.setSenseOfMotionQual(this.senseOfMotion);
+			combinedSlipRateInfo.setSenseOfMotionQual(null);
 			combinedSlipRateInfo.setMeasuredComponentQual(this.measuredComponent);
 			combinedEventsInfo.setCombinedSlipRateInfo(combinedSlipRateInfo);
 		}
 		if(isDisp) {
-			this.combinedDispInfo.setSenseOfMotionQual(this.senseOfMotion);
+			this.combinedDispInfo.setSenseOfMotionQual(null);
 			this.combinedDispInfo.setMeasuredComponentQual(this.measuredComponent);
 			combinedEventsInfo.setCombinedDisplacementInfo(combinedDispInfo);
 		}
-
-		
-
 		
       // site in DB
       PaleoSite siteInDB = getPaleoSite(paleoSitePub);
@@ -205,6 +201,8 @@ public class PutCombinedInfoIntoDatabase_FAD {
 					fadPaleoSite.setSiteLat2((float)loc2.getLatitude());
 					fadPaleoSite.setSiteLon1((float)loc1.getLongitude());
 					fadPaleoSite.setSiteLon2((float)loc2.getLongitude());
+					fadPaleoSite.setGeneralComments(fadPaleoSite.getGeneralComments()+"\n"+
+							"No site location available.   Site is associated with a WG fault section.");
 					ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
 					siteTypeNames.clear();
 					siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
@@ -387,7 +385,9 @@ public class PutCombinedInfoIntoDatabase_FAD {
     	  else this.startTimeUnits =value;
 
           // set the start time
-          Estimate est = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+    	  if(Double.isNaN(max) && Double.isNaN(pref))
+              throw new InvalidRowException("Start Time is missing");
+          Estimate est = new MinMaxPrefEstimate(Double.NaN,max,pref,Double.NaN, Double.NaN, Double.NaN);
           if(startTimeUnits.equalsIgnoreCase(KA))
             ((TimeEstimate)startTime).setForKaUnits(est, ZERO_YEAR);
           else ((TimeEstimate)startTime).setForCalendarYear(est, startTimeUnits);
@@ -399,14 +399,14 @@ public class PutCombinedInfoIntoDatabase_FAD {
           // set the end time
           endTimeUnits=this.startTimeUnits;
           
-          if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref)) {
+          if(Double.isNaN(min)) {
         	 int refYear;
         	 if(paleoSitePub.getReference().getRefYear().equalsIgnoreCase("2002a"))  refYear = 2002;
         	 else refYear = Integer.parseInt(paleoSitePub.getReference().getRefYear());
             endTime = new ExactTime(refYear, 0, 0, 0, 0, 0, TimeAPI.AD, true);
           } else {
             // set the end time
-            Estimate endTimeEst = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+            Estimate endTimeEst = new MinMaxPrefEstimate(min,Double.NaN,Double.NaN,Double.NaN, Double.NaN, Double.NaN);
             if(endTimeUnits.equalsIgnoreCase(KA))
               ((TimeEstimate)endTime).setForKaUnits(endTimeEst, ZERO_YEAR);
             else ((TimeEstimate)endTime).setForCalendarYear(endTimeEst, endTimeUnits);
