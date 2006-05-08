@@ -273,11 +273,24 @@ private ArrayList getFaultSectionSummary(String condition) {
   
   
 	/**
-	 * Return the HashMap containing section Id and the corresponding Mean Slip rate
+	 * Return the HashMap containing section Id and the corresponding  Slip rate estimate
 	 * @return
 	 */
-  	public HashMap getMeanSlipRate() {
-	  return null;
+  	public HashMap getSlipRateEstimates() {
+  	  HashMap sectionSlipRate = new HashMap();
+  	  try {
+  		  String sql = "select "+SECTION_ID+","+AVE_LONG_TERM_SLIP_RATE_EST+" from "+TABLE_NAME;
+  		  ResultSet rs = dbAccess.queryData(sql);
+  		  while(rs.next()) {
+  			EstimateInstances slipRateEstInstance= null;
+  			int slipRateEstId= rs.getInt(FaultSectionVer2_DB_DAO.AVE_LONG_TERM_SLIP_RATE_EST);
+			if(!rs.wasNull()) slipRateEstInstance = this.estimateInstancesDAO.getEstimateInstance(slipRateEstId);
+  			sectionSlipRate.put(new Integer(rs.getInt(SECTION_ID)), slipRateEstInstance);
+  		  }
+  	  }catch(Exception e) {
+  		  e.printStackTrace();
+  	  }
+	  return sectionSlipRate;
   	}
 
   /**

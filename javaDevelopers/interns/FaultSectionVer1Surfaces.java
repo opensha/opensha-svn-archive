@@ -129,4 +129,23 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 				faultSection.getAveUpperSeisDepth(), faultSection.getFaultTrace());
 		return simpleFaultData;
 	}
+	
+	/**
+	 * Get the Minimum value for slip rate 
+	 * @return
+	 */
+	public double getMinSlipRate() { return 0;}
+	
+	/**
+	 * Get the maximum value for slip rate
+	 * @return
+	 */
+	public double getMaxSlipRate(){ return 0;}
+	
+	/**
+	 * Get the slip rate for a fault section Id
+	 * @param faultSectionId
+	 * @return
+	 */
+	public double getSlipRate(int faultSectionId) { return 0;}
 }

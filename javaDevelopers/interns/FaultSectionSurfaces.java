@@ -1,5 +1,6 @@
 package javaDevelopers.interns;
 
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import java.util.ArrayList;
 
@@ -47,5 +48,25 @@ public interface FaultSectionSurfaces {
 	 *
 	 */
 	public void reloadAllFaultSectionsFromDatabase();
+	
+	/**
+	 * Get the Minimum value for slip rate 
+	 * @return
+	 */
+	public double getMinSlipRate() ;
+	
+	/**
+	 * Get the maximum value for slip rate
+	 * @return
+	 */
+	public double getMaxSlipRate();
+	
+	/**
+	 * Get the slip rate for a fault section Id
+	 * @param faultSectionId
+	 * @return
+	 */
+	public double getSlipRate(int faultSectionId) ;
+
 
 }

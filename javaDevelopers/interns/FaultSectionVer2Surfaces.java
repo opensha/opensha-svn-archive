@@ -6,9 +6,11 @@ import java.util.Iterator;
 import java.util.HashMap;
 
 import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.*;
 
@@ -24,6 +26,9 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private HashMap faultSectionsMap = new HashMap();
+	private HashMap faultSectionSlipMap = new HashMap();
+	private double minSlipRate = Double.NaN;
+	private double maxSlipRate = Double.NaN;
 
 	public FaultSectionVer2Surfaces() {}
 
@@ -32,7 +37,20 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public ArrayList getAllFaultSectionsSummary() {
+		faultSectionSlipMap = faultSectionDAO.getSlipRateEstimates();
+		// calculate the min and max slip rate
+		Iterator it = faultSectionSlipMap.values().iterator();
+		minSlipRate = Double.POSITIVE_INFINITY;
+		maxSlipRate = Double.NEGATIVE_INFINITY;
+		double val;
+		while(it.hasNext()) {
+			EstimateInstances estimateInstance   = (EstimateInstances)it.next();
+			val = this.getValueFromEstimate(estimateInstance);
+			if(val<minSlipRate) minSlipRate = val;
+			if(val>maxSlipRate) maxSlipRate = val;
+		}
 		return this.faultSectionDAO.getAllFaultSectionsSummary();
+		
 	}
 
 	/**
@@ -43,8 +61,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
-	//	System.out.println(simpleFaultData.getFaultTrace());
-//		 frankel fault factory
+		//frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 
 	}
@@ -57,7 +74,6 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
-		//System.out.println(simpleFaultData.getFaultTrace());
 		// stirling fault factory
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
@@ -99,6 +115,11 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		if(faultSection==null) {
 			faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 			this.faultSectionsMap.put(new Integer(faultSectionId), faultSection);
+			// update min/max slip rate values
+			double slipRateVal = this.getValueFromEstimate(faultSection.getAveLongTermSlipRateEst());
+			if(slipRateVal<minSlipRate) minSlipRate = slipRateVal;
+			if(slipRateVal>maxSlipRate) maxSlipRate = slipRateVal;
+			this.faultSectionSlipMap.put(new Integer(faultSectionId), faultSection.getAveLongTermSlipRateEst());
 		}
 		return faultSection;
 	}
@@ -114,9 +135,45 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
 		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
 		double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferredX();
-		//System.out.println("Pref upper depth="+prefUpperDepth);
-		//System.out.println("Pref lower depth="+prefLowerDepth);
 		SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
 		return simpleFaultData;
 	}
+	
+	/**
+	 * Get the Minimum value for slip rate 
+	 * @return
+	 */
+	public double getMinSlipRate() {
+		return minSlipRate;
+	}
+	
+	/**
+	 * Get the maximum value for slip rate
+	 * @return
+	 */
+	public double getMaxSlipRate() {
+		return maxSlipRate;
+	}
+	
+	/**
+	 * 
+	 * @param faultSectionId
+	 * @return
+	 */
+	public double getSlipRate(int faultSectionId) {
+		EstimateInstances estimateInstance = (EstimateInstances)this.faultSectionSlipMap.get(new Integer(faultSectionId));
+		return getValueFromEstimate(estimateInstance);
+	}
+
+	/**
+	 * Get value from estimate
+	 * @param estimateInstance
+	 * @return
+	 */
+	private double getValueFromEstimate(EstimateInstances estimateInstance) {
+		if(estimateInstance==null) return 0;
+		return ((NormalEstimate)estimateInstance.getEstimate()).getMean();
+	}
+	
+	
 }
