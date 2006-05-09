@@ -31,6 +31,7 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
     public FaultTrace(String faultName){
         super();
         this.faultName = faultName;
+        
     }
 
     public void setName( String faultName ) { this.faultName = faultName; }
