@@ -22,7 +22,7 @@ public class InfoLabel extends JLabel {
   private Color labelColor = new Color( 80, 80, 133 );
   private final static String ESTIMATE_TYPE = "Estimate Type";
   private final static String TIME = "Time";
-  public final static String NOT_AVAILABLE = "Not Available";
+  public final static String NOT_AVAILABLE = "NA";
   private final static String TIME_VAL = "Time Val";
   private final static String PROB = "Prob this is correct value";
 
@@ -242,13 +242,23 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForNormalEstimate(NormalEstimate estimate) {
-    return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
-        "<b>Mean:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMean())+"<br>"+
-        "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
-        "<b>Lower Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
-        "<b>Upper Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX())+"<br>"+
-        "<b>Lower Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinSigma())+"<br>"+
-        "<b>Upper Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
+    String text = "<b>" + ESTIMATE_TYPE + ":&nbsp;</b>" + estimate.getName() +
+        "<br>" +
+        "<b>Mean =&nbsp;</b>" + GUI_Utils.decimalFormat.format(estimate.getMean()) +
+        "<br>" +
+        "<b>StdDev =&nbsp;</b>" +
+        GUI_Utils.decimalFormat.format(estimate.getStdDev()) + "<br>";
+    if (!Double.isInfinite(estimate.getMinX()))
+      text += "<b>Lower Truncation(absolute):&nbsp;</b>" +
+          GUI_Utils.decimalFormat.format(estimate.getMinX()) + "<br>" +
+          "<b>Lower Truncation(# of sigmas):&nbsp;</b>" +
+          GUI_Utils.decimalFormat.format(estimate.getMinSigma()) + "<br>";
+    if (!Double.isInfinite(estimate.getMaxX()))
+      text += "<b>Upper Truncation(absolute):&nbsp;</b>" +
+          GUI_Utils.decimalFormat.format(estimate.getMaxX()) + "<br>" +
+          "<b>Upper Truncation(# of sigmas):&nbsp;</b>" +
+          GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
+    return text;
   }
 
   /**
@@ -277,7 +287,7 @@ public class InfoLabel extends JLabel {
   private String getTextForDiscretizedFuncEstimate(DiscretizedFuncEstimate estimate) {
     DiscretizedFunc func = estimate.getValues();
     String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
-        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
+        "<b>Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Probability</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
         text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
@@ -338,12 +348,10 @@ public class InfoLabel extends JLabel {
    if(!Double.isNaN(prefProb)) prefProbStr= GUI_Utils.decimalFormat.format(prefProb);
    else prefProbStr = ""+this.NOT_AVAILABLE;
 
-   text+=  "Min "+xAxisName+":&nbsp;&nbsp;"+minXStr+"<br>";
-   text+=  ""+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br>";
-   text+=  "Max "+xAxisName+":&nbsp;&nbsp;"+maxXStr+"<br>";
-   text+=  ""+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br>";
-   text+=  "Pref "+xAxisName+":&nbsp;&nbsp;"+prefXStr+"<br>";
-   text+=  ""+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br>";
+   text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
+   text+=  "Min =&nbsp;&nbsp;"+minXStr+"  ["+minProbStr+"]<br>";
+   text+=  "Max =&nbsp;&nbsp;"+maxXStr+"  ["+maxProbStr+"]<br>";
+   text+=  "<br> Numbers in brackets are Probs that "+xAxisName+" is less than each value.<br>";
 
    return text;
  }
