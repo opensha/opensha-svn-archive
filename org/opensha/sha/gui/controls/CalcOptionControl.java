@@ -1,6 +1,7 @@
 package org.opensha.sha.gui.controls;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 /**

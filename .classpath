@@ -33,7 +33,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
-	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/scec_vdo.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat4"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>
