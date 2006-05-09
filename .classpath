@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path=""/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat 4"/>
-	<classpathentry kind="lib" path="lib/xsdlib.jar"/>
-	<classpathentry kind="lib" path="lib/xmlParserAPIs.jar"/>
-	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
-	<classpathentry kind="lib" path="lib/xercesSamples.jar"/>
-	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="lib/sdoapi.jar"/>
-	<classpathentry kind="lib" path="lib/saaj-impl.jar"/>
-	<classpathentry kind="lib" path="lib/saaj-api.jar"/>
-	<classpathentry kind="lib" path="lib/rowset.jar"/>
-	<classpathentry kind="lib" path="lib/relaxngDatatype.jar"/>
-	<classpathentry kind="lib" path="lib/poi-2.5.1-final-20040804.jar"/>
-	<classpathentry kind="lib" path="lib/ojdbc14.jar"/>
-	<classpathentry kind="lib" path="lib/namespace.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.4.jar"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib/jta-spec1_0_1.jar"/>
-	<classpathentry kind="lib" path="lib/jsk-platform.jar"/>
-	<classpathentry kind="lib" path="lib/jpedal.jar"/>
-	<classpathentry kind="lib" path="lib/jini-core.jar"/>
-	<classpathentry kind="lib" path="lib/jh.jar"/>
-	<classpathentry kind="lib" path="lib/jaxrpc-impl.jar"/>
-	<classpathentry kind="lib" path="lib/jaxrpc-api.jar"/>
-	<classpathentry kind="lib" path="lib/jax-qname.jar"/>
-	<classpathentry kind="lib" path="lib/jaas.jar"/>
-	<classpathentry kind="lib" path="lib/itext-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/dom4j.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
-	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
-	<classpathentry kind="lib" path="lib/activation.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesSamples.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sdoapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/rowset.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/relaxngDatatype.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-2.5.1-final-20040804.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ojdbc14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/namespace.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jta-spec1_0_1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsk-platform.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jini-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jh.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jax-qname.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaas.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/itext-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
+	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/servlet.jar"/>
+	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/scec_vdo.jar"/>
+	<classpathentry kind="output" path="classes/"/>
 </classpath>
