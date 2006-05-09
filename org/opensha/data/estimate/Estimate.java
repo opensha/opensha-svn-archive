@@ -65,7 +65,8 @@ public abstract class Estimate {
   public abstract double getStdDev();
 
   /**
-   * Get fractile for a given probability.
+   * Get fractile for a given probability. This returns the max x value such that
+   * probability of occurrence of this x value is <=prob.
    *
    * @param prob
    * @return
@@ -146,7 +147,7 @@ public abstract class Estimate {
    public abstract DiscretizedFunc getCDF_Test();
 
    /**
-    * Get the probability for that the true value is less than or equal to provided
+    * Get the probability that the true value is less than or equal to the provided
     * x value
     *
     * @param x
