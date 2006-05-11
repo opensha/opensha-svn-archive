@@ -16,7 +16,8 @@ import org.opensha.util.FaultUtils;
  * (a fault where dip changes with depth).  As with the StirlingGriddedSurface,
  * grid points are projected down at an angle perpendicular to the end points of
  * the faultTrace.<br>NOTE: this assumes that all depths in the fault trace are
- * the same as the first depth in the ArrayList (this is check for).
+ * the same as the first depth in the ArrayList (this is check for).<br>  Accuracy Note:
+ * the bending points can be off by up to the gridSpacing (this could be fixed).
 </b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>
@@ -169,8 +170,9 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
         Location location1;
+
         //initialize the num of Rows and Cols for the container2d object that holds
-        setNumRowsAndNumCols(numRows,numCols);
+        setNumRowsAndNumCols(rows,cols);
 
         // Loop over each column - ith_col is ith grid step along the fault trace
         if( D ) System.out.println(S + "Iterating over columns up to " + cols );
@@ -227,7 +229,8 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );
 
                 // Change dir if dip has changed
-                if( nextLocation.getDepth() > ((Double) depths.get(depthNum)).doubleValue() ) {
+                if( nextLocation.getDepth() > ((Double) depths.get(depthNum)).doubleValue() &&
+                    ith_row != rows-1 ) {
                       dip = ( (Double) dips.get(depthNum) ).doubleValue();
                       hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );
                       vDistance = -gridSpacing * Math.sin( dip*PI_RADIANS );
