@@ -327,7 +327,7 @@ public final class GaussianDistCalc {
         }
         else if ( exceedProb > 0.5 && exceedProb < 1.0 ) {
 
-                oldNum=1;
+                oldNum=3;
                 do {
                         testNum = oldNum;
                         do {
@@ -799,6 +799,14 @@ public final class GaussianDistCalc {
     *  main method for running tests
     */
    public static void main(String args[]) {
+
+     System.out.println(getStandRandVar(1-0.1,1,2,1e-6));
+     System.out.println(getStandRandVar(1-0.2,1,2,1e-6));
+     System.out.println(getStandRandVar(1-0.3,1,2,1e-6));
+     System.out.println(getStandRandVar(1-0.4,1,2,1e-6));
+     System.out.println(getStandRandVar(1-0.4949496,1,2,1e-6)+"  0.494949 ");
+     System.out.println(getStandRandVar(1-0.5050504,1,2,1e-6)+"  0.5050504 ");
+
 
 //     test_getCDF();
 //     test_symmetry_getStandRandVar();

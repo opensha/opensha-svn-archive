@@ -162,7 +162,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
             // get location at the top of the fault surface
             Location topLocation;
             if(traceLocation.getDepth() < upperSeismogenicDepth) {
-                vDistance = upperSeismogenicDepth - traceLocation.getDepth();
+                vDistance = traceLocation.getDepth()-upperSeismogenicDepth;
                 hDistance = vDistance / Math.tan( avDipRadians );
                 dir = new Direction(vDistance, hDistance, segmentAzimuth[ segmentNumber - 1 ]+90, 0);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
@@ -197,8 +197,6 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
         if( D ) System.out.println(S + "Ending");
 
     }
-
-
 
 
 }

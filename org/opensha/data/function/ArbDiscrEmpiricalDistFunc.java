@@ -104,7 +104,8 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
 
     /**
-     * This returns the uninterpolated x-axis value using the normalized cumulative
+     * This returns the greatest uninterpolated x-axis value whose normalized
+     * cumulative distribution value is less than or equal to fraction.
      * distribution.
      * @param fraction - a value between 0 and 1.
      * @return

@@ -11,11 +11,13 @@ import org.opensha.data.*;
 import org.opensha.util.FaultUtils;
 
 /**
- * <b>Title:</b> SimpleListricGriddedFaultFactory.  This creates an EvenlyGriddedSurface1EvenlyGriddedSurface1
- * for a listric fault (a fault where dip changes with depth).  As with the
- * StirlingGriddedSurface, grid points are projected down at an angle perpendicular
- * to the end points of the faultTrace.<br>
- * <b>Description:</b> <br>
+ * <b>Title:</b> SimpleListricGriddedFaultFactory.   <br>
+ * <b>Description: This creates an EvenlyGriddedSurface for a listric fault
+ * (a fault where dip changes with depth).  As with the StirlingGriddedSurface,
+ * grid points are projected down at an angle perpendicular to the end points of
+ * the faultTrace.<br>NOTE: this assumes that all depths in the fault trace are
+ * the same as the first depth in the ArrayList (this is check for).
+</b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>
  * @author Ned Field.
@@ -224,6 +226,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
                 if( D ) System.out.println(S + "(x,y) nextLocation = (" + ith_row + ", " + ith_col + ") " + nextLocation );
 
+                // Change dir if dip has changed
                 if( nextLocation.getDepth() > ((Double) depths.get(depthNum)).doubleValue() ) {
                       dip = ( (Double) dips.get(depthNum) ).doubleValue();
                       hDistance = gridSpacing * Math.cos( dip*PI_RADIANS );

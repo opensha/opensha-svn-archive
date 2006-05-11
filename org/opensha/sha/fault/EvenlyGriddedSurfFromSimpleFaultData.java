@@ -12,7 +12,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurface;
 /**
  * <p>Title:  EvenlyGriddedSurfFromSimpleFaultData </p>
  *
- * <p>Description: </p>
+ * <p>Description: This creates and EvenlyGriddedSurface from SimpleFaultData</p>
  *
  * @author Nitin Gupta
  * @version 1.0

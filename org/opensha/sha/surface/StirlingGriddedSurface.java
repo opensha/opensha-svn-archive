@@ -9,12 +9,13 @@ import org.opensha.exceptions.*;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> StirlingGriddedSurface.  This creates an EvenlyGriddedSurface
+ * <b>Title:</b> StirlingGriddedSurface.   <br>
+ * <b>Description: This creates an EvenlyGriddedSurface
  * representation of the fault using a scheme described by Mark Stirling
  * to Ned Field in 2001, where grid points are projected down dip at
- * an angle perpendicular to the end-points of the faultTrace.  Use the constructor()
- * that takes the dipping direction.<br>
- * <b>Description:</b> <br>
+ * an angle perpendicular to the end-points of the faultTrace (or in aveDipDir
+ * if provided using the appropriate constructor).
+</b> <br>
  * @author Ned Field.
  * @version 1.0
  */
@@ -206,7 +207,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             // get location at the top of the fault surface
             Location topLocation;
             if(traceLocation.getDepth() < upperSeismogenicDepth) {
-                vDistance = upperSeismogenicDepth - traceLocation.getDepth();
+                vDistance = traceLocation.getDepth() - upperSeismogenicDepth;
                 hDistance = vDistance / Math.tan( avDipRadians );
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
                 topLocation = RelativeLocation.getLocation( traceLocation, dir );
@@ -243,7 +244,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
 
     /**
-     * Maine method to test this class
+     * Maine method to test this class (found a bug using it)
      * @param args
      */
     public static void main(String args[]) {
@@ -253,7 +254,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
         double gridSpacing=1.0;
         FaultTrace faultTrace = new FaultTrace("Great Valley 13");
         // TO SEE THE POTENTIAL BUG IN THIS CLASS, CHANGE VALUE OF "faultTraceDepth" to 0
-        double faultTraceDepth = 0.0;
+        double faultTraceDepth = 0;
         faultTrace.addLocation(new Location(36.3547, -120.358, faultTraceDepth));
         faultTrace.addLocation(new Location(36.2671, -120.254, faultTraceDepth));
         faultTrace.addLocation(new Location(36.1499, -120.114, faultTraceDepth));
@@ -267,7 +268,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
             Location loc = (Location)it.next();
             System.out.println(loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth());
         }
-        
+
     }
 
 

@@ -311,7 +311,7 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
     public String getName() { return name; }
 
     /**
-     *  set's an object in the 2D grid
+     *  this sets the lat, lon, and depth to be NaN
      *
      * @param  row            The row to get this Location from. Must be 0.
      * @param  column         The column to get this Location from. Must be 0.
@@ -321,9 +321,9 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
              throws ArrayIndexOutOfBoundsException {
         if ( row == 0 && column == 0 ) {
 
-            this.latitude = -1;
-            this.longitude = -1;
-            this.depth = -1;
+            this.latitude = Double.NaN;
+            this.longitude = Double.NaN;
+            this.depth = Double.NaN;
         } else {
             throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }

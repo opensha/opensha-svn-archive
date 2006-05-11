@@ -19,7 +19,7 @@ public class EvenlyGridCenteredSurface
     extends EvenlyGriddedSurface {
 
 
-  private EvenlyGriddedSurfaceAPI surface;
+  private EvenlyGriddedSurfaceAPI origSurface;
 
   /**
    * Class constructor that takes in a EvenGriddedSurface and computes a EvenlyGridCentered
@@ -31,7 +31,7 @@ public class EvenlyGridCenteredSurface
       throw new UnsupportedOperationException(
           "Grid-Centered Surface not defined " +
           "for Frankel surface");
-    this.surface = surface;
+    this.origSurface = surface;
     this.gridSpacing = surface.getGridSpacing();
     getGridCenteredSurface();
   }
@@ -46,16 +46,16 @@ public class EvenlyGridCenteredSurface
    */
   private void getGridCenteredSurface() {
 
-    int numRows = surface.getNumRows() - 1;
-    int numCols = surface.getNumCols() - 1;
+    int numRows = origSurface.getNumRows() - 1;
+    int numCols = origSurface.getNumCols() - 1;
     setNumRowsAndNumCols(numRows, numCols);
     for (int i = 0; i < numRows; ++i) {
       for (int j = 0; j < numCols; ++j) {
         Location loc;
-        Location loc1 = surface.getLocation(i, j);
-        Location loc2 = surface.getLocation(i, j + 1);
-        Location loc3 = surface.getLocation(i + 1, j);
-        Location loc4 = surface.getLocation(i + 1, j + 1);
+        Location loc1 = origSurface.getLocation(i, j);
+        Location loc2 = origSurface.getLocation(i, j + 1);
+        Location loc3 = origSurface.getLocation(i + 1, j);
+        Location loc4 = origSurface.getLocation(i + 1, j + 1);
         double locLat = (loc1.getLatitude() + loc2.getLatitude() +
                          loc3.getLatitude() +
                          loc4.getLatitude()) / 4;
@@ -73,10 +73,16 @@ public class EvenlyGridCenteredSurface
 
 
   /** Returns the average strike of this surface on the Earth.  */
-  public double getAveStrike() { return surface.getAveStrike(); }
+  public double getAveStrike() { return origSurface.getAveStrike(); }
 
   /** Returns the average dip of this surface into the Earth.  */
-  public double getAveDip() { return surface.getAveDip(); }
+  public double getAveDip() { return origSurface.getAveDip(); }
+
+  /**
+   * This returns the original surface
+   * @return EvenlyGriddedSurfaceAPI
+   */
+  public EvenlyGriddedSurfaceAPI getOrigSurface() {return origSurface; }
 
 
 }

@@ -17,8 +17,8 @@ import org.opensha.calc.RelativeLocation;
  *
  * <b>Description:</b> Base implementation of the EvenlyGriddedSurfaceAPI.
  *
- * @author     Steven W. Rock
- * @created    February 26, 2002
+ * @author
+ * @created
  * @version    1.0
  */
 public abstract class EvenlyGriddedSurface
@@ -71,7 +71,7 @@ public abstract class EvenlyGriddedSurface
      */
     public void set( int row, int column, Object obj ) throws UnsupportedOperationException{
 
-      throw new UnsupportedOperationException("EvenlyGriddedSurface does not the user the locations once created.");
+      throw new UnsupportedOperationException("EvenlyGriddedSurface does not allow the user to set locations.");
     }
 
     /**

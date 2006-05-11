@@ -1,9 +1,7 @@
 package org.opensha.sha.surface;
-import java.lang.ArrayIndexOutOfBoundsException;
 
 import java.util.*;
 import org.opensha.data.Location;
-import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.*;
 
 /**
@@ -15,16 +13,15 @@ import org.opensha.data.*;
  * Recall that a Container2DAPI represents a collection of Objects in
  * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces
  * do is to constrain the object at each grid point to be a Location object.
- * There are also additional calculation methods specific to surfaces,
- * such as aveDip, aveStrike, etc. that depends on the grid objects
- * being Location objects. <p>
+ * There are also methods for getting info about the surface (e.g., ave dip,
+ * ave strike, etc.). <p>
  *
  * There are no constraints on what locations are put where, but the presumption
  * is that the the grid of locations map out the surface .
  * it is also presumed that the zeroeth row represent the top edge (or trace). <p>
  *
- * @author     Steven W. Rock & others
- * @created    February 26, 2002
+ * @author
+ * @created
  * @version    1.0
  */
 public interface GriddedSurfaceAPI extends Container2DAPI {

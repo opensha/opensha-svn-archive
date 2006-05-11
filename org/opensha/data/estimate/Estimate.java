@@ -66,7 +66,7 @@ public abstract class Estimate {
 
   /**
    * Get fractile for a given probability. This returns the max x value such that
-   * probability of occurrence of this x value is <=prob.
+   * probability of occurrence of this x value is less than or equal to prob.
    *
    * @param prob
    * @return

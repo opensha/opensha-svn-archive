@@ -79,7 +79,7 @@ public class GriddedSurface extends Container2D
 
 
   /**
-   * Returns the seismogenicLenth of this surface .
+   * Returns the lenth of this surface.
    *
    * @throws UnsupportedOperationException
    * @return double
@@ -91,7 +91,7 @@ public class GriddedSurface extends Container2D
   }
 
   /**
-   * Returns the lowerSeismogenicWidth of this surface.
+   * Returns the down-dip width of this surface.
    *
    * @throws UnsupportedOperationException
    * @return double
@@ -141,6 +141,7 @@ public class GriddedSurface extends Container2D
     }
   }
 
+
   /** Does same thing as listIterator() in super Interface */
   public ListIterator getLocationsIterator() {
     return super.listIterator();
@@ -157,6 +158,7 @@ public class GriddedSurface extends Container2D
     while (it.hasNext()) locList.addLocation( (Location) it.next());
     return locList;
   }
+
 
   final static char TAB = '\t';
   /** Prints out each location and fault information for debugging */
