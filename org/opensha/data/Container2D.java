@@ -262,10 +262,10 @@ public class Container2D implements Container2DAPI, Serializable, NamedObjectAPI
             throw new ArrayIndexOutOfBoundsException( preffix + "Column cannot be less than zero" );
         }
         if ( row >= numRows ) {
-            throw new ArrayIndexOutOfBoundsException( preffix + "Row cannot be greater to max index: " + numRows );
+            throw new ArrayIndexOutOfBoundsException( preffix + "Row cannot be greater than max index: " + numRows );
         }
         if ( column >= numCols ) {
-            throw new ArrayIndexOutOfBoundsException( preffix + "Column cannot be greater to max index: " + numCols );
+            throw new ArrayIndexOutOfBoundsException( preffix + "Column cannot be greater than max index: " + numCols );
         }
     }
 

@@ -28,7 +28,7 @@ import org.opensha.util.FaultUtils;
 public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
 
   protected final static String C = "SimpleListricGriddedFaultFactory";
-    protected final static boolean D = true;
+    protected final static boolean D = false;
 
     protected final static double PI_RADIANS = Math.PI / 180;
 
@@ -287,7 +287,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
         ListIterator it=faultTrace.listIterator();
         while(it.hasNext()) {
           if(((Location)it.next()).getDepth() != depth){
-            throw new FaultException(C + "All depths of faultTrace locations must be same as the first in the depths ArrayList");
+            throw new FaultException(C + "All depths of faultTrace locations must be same as the first depth in the depths ArrayList");
           }
         }
 
@@ -322,7 +322,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
          dips.add(new Double(45.0));
 
          ArrayList depths = new ArrayList();
-         depths.add(new Double(0.0));
+         depths.add(new Double(3.0));
          depths.add(new Double(5.0));
          depths.add(new Double(10.0));
 
