@@ -101,8 +101,8 @@ public final class GaussianDistCalc {
     * distribution. The distribution is non-symmetrically truncated on both sides
     *
     * @param standRandVariable
-    * @param lowerTruncLevel, must be negative
-    * @param upperTruncLevel in units of SRV, must be positive
+    * @param lowerTruncLevel in units of SRV
+    * @param upperTruncLevel in units of SRV
     * @return the exceedance probability
     */
     public static double getExceedProb(double standRandVariable, double lowerTruncLevel, double upperTruncLevel) {
@@ -145,7 +145,7 @@ public final class GaussianDistCalc {
       else                      return 1.0-result;
     }
 
-
+    
     /**
      * This returns the standardized random variable (SRV) associated with the
      * given exceedance probability.  The tolerance specifies the accuracy of the
@@ -179,6 +179,8 @@ public final class GaussianDistCalc {
      * getStandRandVar(0.000001,0,2,1e-6) =  4.76<br>
      * getStandRandVar(0.999999,0,2,1e-6) = -4.62
      *
+     * This could simply call the other getStandRandVar method, but we're leaving this 
+     * here because it's more efficient with untruncated cases (although this may not be significant)
      *
      * @param exceedProb  The target exceedance probability
      * @param truncType   The truncation type
@@ -285,15 +287,17 @@ public final class GaussianDistCalc {
      *
      *
      * @param exceedProb  The target exceedance probability
-     * @param lowerTruncLevel   The lower truncation level, must be negative
-     * @param upperTruncLevel  The upper truncation level (num SRVs), must be positive
+     * @param lowerTruncLevel   The lower truncation level must be ² 0
+     * @param upperTruncLevel  The upper truncation level must be ² 0
      * @param tolerance   The tolerance
      * @return  The SRV found for the target exceedProb
      */
     public static double getStandRandVar(double exceedProb, double lowerTruncLevel, double upperTruncLevel, double tolerance) {
 
-      if(lowerTruncLevel >= upperTruncLevel)
-        throw new RuntimeException("GaussianDistCalc.getStandRandVar(): lowerTruncLevel should be less than upperTruncLevel");
+        if(lowerTruncLevel >= 0 )
+            throw new RuntimeException("GaussianDistCalc.getStandRandVar(): lowerTruncLevel should be < 0");
+        if(upperTruncLevel < 0 )
+            throw new RuntimeException("GaussianDistCalc.getStandRandVar(): upperTruncLevel should be ³ 0");
 
 
         float delta = 1;
@@ -327,7 +331,7 @@ public final class GaussianDistCalc {
         }
         else if ( exceedProb > 0.5 && exceedProb < 1.0 ) {
 
-                oldNum=3;
+                oldNum=1;
                 do {
                         testNum = oldNum;
                         do {
@@ -800,15 +804,10 @@ public final class GaussianDistCalc {
     */
    public static void main(String args[]) {
 
-     System.out.println(getStandRandVar(1-0.1,1,2,1e-6));
-     System.out.println(getStandRandVar(1-0.2,1,2,1e-6));
-     System.out.println(getStandRandVar(1-0.3,1,2,1e-6));
-     System.out.println(getStandRandVar(1-0.4,1,2,1e-6));
-     System.out.println(getStandRandVar(1-0.4949496,1,2,1e-6)+"  0.494949 ");
-     System.out.println(getStandRandVar(1-0.5050504,1,2,1e-6)+"  0.5050504 ");
-
-
-//     test_getCDF();
+	   	System.out.println(getCDF(Double.NEGATIVE_INFINITY));
+	   	System.out.println(getCDF(Double.POSITIVE_INFINITY));
+	   	//
+	   	//     test_getCDF();
 //     test_symmetry_getStandRandVar();
 //     testSpeed_getStandRandVar();
 //     test2_getStandRandVar() ;
