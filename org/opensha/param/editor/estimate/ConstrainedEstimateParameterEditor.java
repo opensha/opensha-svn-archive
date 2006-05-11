@@ -805,7 +805,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      if(upperSigma==null)
        throw new RuntimeException(this.sigmaUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
      estimate.setMinMaxSigmas(lowerSigma.doubleValue(), upperSigma.doubleValue());
-   } else {
+   } else if(truncationType.equalsIgnoreCase(TRUNCATED_ABSOLUTE)) {
      Double absoluteMin =  (Double)this.absoluteLowerTruncationParam.getValue();
      // check that lower truncation value is present
      if(absoluteMin==null)

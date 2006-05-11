@@ -74,7 +74,7 @@ public class MakeFaultSectionsTextFile {
 	 */
 	private void writeEstimateToFile(FileWriter fw, EstimateInstances estimateInstance, String label) throws IOException {
 		fw.write(label+"="+ESTIMATE+"\n");
-	    fw.write(estimateInstance.getEstimate().toString(label)+"\n");
+	    fw.write(estimateInstance.getEstimate().toString()+"\n");
 	    fw.write(label+" Units="+estimateInstance.getUnits()+"\n");
 	}
 	

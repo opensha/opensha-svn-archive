@@ -44,7 +44,7 @@ public class LogNormalEstimate extends Estimate {
     maxX = Double.POSITIVE_INFINITY;
   }
 
-  public String toString(String xLabel) {
+  public String toString() {
     String logBase = "E";
     if(isBase10) logBase="10";
     return "Estimate Type="+getName()+"\n"+

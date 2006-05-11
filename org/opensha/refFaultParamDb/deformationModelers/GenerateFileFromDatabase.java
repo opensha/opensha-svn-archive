@@ -138,7 +138,8 @@ public class GenerateFileFromDatabase {
       String senseOfMotionQual, EstimateInstances rakeInstance,
       EstimateInstances aseismicSlipFactorInstance) throws IOException {
     fw.write(label+"="+ESTIMATE+"\n");
-    fw.write(slipOrDispInstance.getEstimate().toString(label)+"\n");
+    fw.write(label+"\n");
+    fw.write(slipOrDispInstance.getEstimate().toString()+"\n");
     fw.write(label+" Units="+slipOrDispInstance.getUnits()+"\n");
     // measured component
     if(measuredComp!=null) fw.write("Measured Component of Slip ="+measuredComp+"\n");
@@ -152,7 +153,7 @@ public class GenerateFileFromDatabase {
     else  { // if rake estimate is present
       fw.write(label+" Rake (degrees, per Aki & Richards convention)=" +
                ESTIMATE + "\n");
-      fw.write(rakeInstance.getEstimate().toString("Rake")+"\n");
+      fw.write(rakeInstance.getEstimate().toString()+"\n");
     }
     // aseismic slip factor
     if(aseismicSlipFactorInstance==null) // if rake in unavailable
@@ -160,7 +161,7 @@ public class GenerateFileFromDatabase {
     else  { // if rake estimate is present
       fw.write("Aseismic Slip Factor=" +
                ESTIMATE + "\n");
-      fw.write(aseismicSlipFactorInstance.getEstimate().toString("Aseismic Slip Factor")+"\n");
+      fw.write(aseismicSlipFactorInstance.getEstimate().toString()+"\n");
     }
 
   }
@@ -239,7 +240,7 @@ public class GenerateFileFromDatabase {
    */
   private void writeTimeEstimate(FileWriter fw, TimeEstimate timeEstimate, String label) throws IOException {
     fw.write(label+"="+ESTIMATE+"\n");
-    fw.write(timeEstimate.getEstimate().toString(label)+"\n");
+    fw.write(timeEstimate.getEstimate().toString()+"\n");
     String units = timeEstimate.getEra();
     if(timeEstimate.isKaSelected()) units=KA;
     fw.write(label+" units="+units+"\n");
@@ -304,7 +305,7 @@ public class GenerateFileFromDatabase {
     EstimateInstances dipEstInstance  = paleoSite.getDipEstimate();
     if(dipEstInstance==null) fw.write("Fault Dip(as measured at this site)="+UNKNOWN+"\n");
     else fw.write("Fault Dip(as measured at this site)="+ESTIMATE+"\n"+
-                  dipEstInstance.getEstimate().toString("Dip"));
+                  dipEstInstance.getEstimate().toString());
 
   }
 

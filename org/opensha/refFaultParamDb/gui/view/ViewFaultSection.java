@@ -4,10 +4,8 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import javax.swing.JPanel;
-import javax.swing.JFrame;
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -30,7 +28,6 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.data.Location;
-import org.opensha.geo3d.SCEC_VDO;
 
 
 /**
@@ -72,8 +69,12 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private GridBagLayout gridBagLayout = new GridBagLayout();
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
 	private JButton editButton = new JButton("Edit");
+	private JButton removeButton = new JButton("Remove");
+	private JButton addButton = new JButton("Add");
+	private final static String MSG_REMOVE_CONFIRM = "Do you want to delete this fault Section from the database?\n"+
+		"All PaleoSites associated with this Fault Section will be removed.";
+	private final static String MSG_REMOVE_SUCCESS = "Fault Section removed sucessfully from the database";
 	private FaultSectionVer2 selectedFaultSection;
-	private final static String TITLE = "View Fault Section";
 	private ConstrainedStringParameterEditor faultSectionParamEditor;
 	
 	public ViewFaultSection() {
@@ -85,7 +86,10 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		if(selectedFaultSectionNameId!=null) this.faultSectionParam.setValue(selectedFaultSectionNameId);
 		refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
 		//		 do not allow edit for non authenticated users
-		if(SessionInfo.getContributor()==null) editButton.setEnabled(false);
+		if(SessionInfo.getContributor()==null) {
+			editButton.setEnabled(false);
+			removeButton.setEnabled(false);
+		}
 	}
 	
 	/**
@@ -103,15 +107,11 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private void initGUI() {
 		// set the Layout
 		this.setLayout(gridBagLayout);
-		int pos = 0;
+		int pos = 1;
 		
-		// fault section name editor 
-		add(makeFaultSectionNamesEditor(), new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-		        new Insets(0, 0, 0, 0), 0, 0));
-		
-		
-		
+		// fault section names parameter editor
+		this.makeFaultSectionNamesEditor();
+			
 		// JPanel to view QfaultId, entry date, source and comments
 		JPanel idPanel = getInfoPanel();	
 		add(idPanel, new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
@@ -135,11 +135,9 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		pos = 0;
 		
 		//		 button to allow editing of Fault Section 
-		add(this.editButton, new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
-		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		add(this.makeButtonPanel(), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
-		editButton.addActionListener(this);
-		
 		
 		// slip rate
 		add(GUI_Utils.getPanel(slipRateLabel, AVE_LONG_TERM_SLIP_RATE), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
@@ -161,14 +159,60 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		add(GUI_Utils.getPanel(aseismicSlipLabel, ASEISMIC_SLIP), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
+	}
 	
-		
+	private JPanel makeButtonPanel() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		// edit fault section button
+		panel.add(this.editButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		editButton.addActionListener(this);
+		// remove fault section button
+		panel.add(this.removeButton, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		removeButton.addActionListener(this);
+		// add fault section button
+		panel.add(this.addButton, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		addButton.addActionListener(this);
+		return panel;
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		EditFaultSection editFaultSection = new EditFaultSection(this.selectedFaultSection, this);
+		Object source = event.getSource();
+		if(source == this.editButton) { // edit fault section
+			EditFaultSection editFaultSection = new EditFaultSection(this.selectedFaultSection, this);
+		}
+		else if(source == this.removeButton) { // remove fault section
+			removeFaultSection();
+			refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
+		} else if(source == this.addButton) { // add a new fault section
+			EditFaultSection editFaultSection = new EditFaultSection(null, this);
+		}
 	}
 
+	/**
+	 * Remove the fault section from the database.
+	 * Ask the user to confirm the removal of fault section first
+	 *
+	 */
+	private void removeFaultSection() {
+		int option = JOptionPane.showConfirmDialog(this, MSG_REMOVE_CONFIRM);
+		// if user chooses to remove the fault section
+		if(option == JOptionPane.OK_OPTION) {
+			String faultSectionName = (String)faultSectionParam.getValue();
+			// get id of the selected fault section
+			FaultSectionSummary faultSectionSummary = FaultSectionSummary.getFaultSectionSummary(faultSectionName);
+			faultSectionDAO.removeFaultSection(faultSectionSummary.getSectionId());
+			JOptionPane.showMessageDialog(this, MSG_REMOVE_SUCCESS);
+			makeFaultSectionNamesEditor();	
+		}
+	}
+	
+	
 	private JPanel getDipPanel() {
 		JPanel dipPanel = GUI_Utils.getPanel(DIP);
 		
@@ -218,7 +262,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	 * Make parameter editor to list all availble Fault Section names
 	 * @return
 	 */
-	private ConstrainedStringParameterEditor makeFaultSectionNamesEditor() {
+	public void makeFaultSectionNamesEditor() {
+		if(faultSectionParamEditor!=null) this.remove(faultSectionParamEditor);
 		ArrayList faultSectionsSummaryList = faultSectionDAO.getAllFaultSectionsSummary();
 		ArrayList faultSectionsList = new ArrayList();
 		for(int i=0; i<faultSectionsSummaryList.size(); ++i)
@@ -226,7 +271,11 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		faultSectionParam = new StringParameter(FAULT_SECTION_PARAM_NAME, faultSectionsList, (String)faultSectionsList.get(0));
 		faultSectionParam.addParameterChangeListener(this);
 		faultSectionParamEditor = new ConstrainedStringParameterEditor(faultSectionParam);
-		return faultSectionParamEditor;
+		// fault section name editor 
+		add(faultSectionParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		this.updateUI();
 	}
 	
 	/**

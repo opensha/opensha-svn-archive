@@ -176,20 +176,8 @@ public abstract class Estimate {
     func.setInfo("CDF using getFractile() method");
     return func;
   }
+  
+  public abstract  String toString();
 
-  /**
-   * Convert this estimate into a String
-   * @return
-   */
-  public String toString() {
-    return toString("X");
-  }
 
-  /**
-   * X label is displayed instead of X .
-   * @param xLabel
-   * @param yLabel
-   * @return
-   */
-  public abstract String toString(String xLabel);
 }

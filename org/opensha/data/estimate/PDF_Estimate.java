@@ -69,7 +69,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
    return NAME;
  }
 
- public String toString(String xLabel) {
+ public String toString() {
     String text =  "EstimateType="+getName()+"\n";
     text+="Number Of PDF values="+func.getNum();
     for(int i=0; func!=null && i<func.getNum(); ++i) {

@@ -38,7 +38,7 @@ public class NormalEstimate extends Estimate {
   }
 
 
-  public String toString(String xLabel) {
+  public String toString() {
     return "Estimate Type="+getName()+"\n"+
         "Mean="+ decimalFormat.format(getMean())+"\n"+
         "Standard Deviation="+ decimalFormat.format(getStdDev())+"\n"+

@@ -102,13 +102,13 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   private final static String  UPPER_DEPTH= "Upper Seis Depth";
   private EstimateParameter upperDepthEstParam;
   private ConstrainedEstimateParameterEditor upperDepthEstParamEditor;
-  private final static double UPPER_DEPTH_MIN = 0;
+  private final static double UPPER_DEPTH_MIN = Double.NEGATIVE_INFINITY;
   private final static double UPPER_DEPTH_MAX = Double.POSITIVE_INFINITY;
   // lower seis depth estimate
   private final static String  LOWER_DEPTH= "Lower Seis Depth";
   private EstimateParameter lowerDepthEstParam;
   private ConstrainedEstimateParameterEditor lowerDepthEstParamEditor;
-  private final static double LOWER_DEPTH_MIN = 0;
+  private final static double LOWER_DEPTH_MIN = Double.NEGATIVE_INFINITY;
   private final static double LOWER_DEPTH_MAX = Double.POSITIVE_INFINITY;
  // aseismic slip estimate
   private final static String  ASEISMIC_SLIP= "Aseismic Slip Factor";
@@ -131,13 +131,21 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   private final static String MSG_FAULT_TRACE_FORMAT = "Fault Trace should be specified with a lon-lat pair\n"+
   													"on each line separated by comma";
   private final static String MSG_UPDATE_SUCCESS = "Fault Section updated successfully in the database";
+  private final static String MSG_ADD_SUCCESS = "Fault Section added succesfully to the database";
   private final static String KNOWN = "Known";
   private final static String UNKNOWN = "Unknown";
   private ViewFaultSection viewFaultSection;
+  private boolean isEdit = false;
   
   public EditFaultSection(FaultSectionVer2 faultSection, ViewFaultSection viewFaultSection) {
     try {
-      this.selectedFaultSection = faultSection;
+      if(faultSection!=null) { // edit the fault section
+    	  this.selectedFaultSection = faultSection;
+    	  this.isEdit = true;
+      } else { // adda a new fault section
+    	  selectedFaultSection = new FaultSectionVer2();
+    	  this.isEdit = false;
+      }
       this.viewFaultSection = viewFaultSection;
     // initialize GUI Components
       jbInit();
@@ -313,10 +321,17 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 			  setParamsInSelectedFaultSection();
 			  // update in the database
 			  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-			  faultSectionDAO.update(this.selectedFaultSection);
-			  viewFaultSection.refreshFaultSectionValues();
-			  // show success message
-			  JOptionPane.showMessageDialog(this, MSG_UPDATE_SUCCESS);
+			  if(this.isEdit) {  // edit fault section
+				  faultSectionDAO.update(this.selectedFaultSection);
+				  viewFaultSection.refreshFaultSectionValues();
+				  // show success message
+				  JOptionPane.showMessageDialog(this, MSG_UPDATE_SUCCESS);
+			  } else { // add a fault section
+				  faultSectionDAO.addFaultSection(selectedFaultSection);
+				  // show success message
+				  JOptionPane.showMessageDialog(this, MSG_ADD_SUCCESS);
+				  viewFaultSection.makeFaultSectionNamesEditor();
+			  }
 			  this.dispose();
 		  }catch(Exception e){
 		        JOptionPane.showMessageDialog(this, e.getMessage());
@@ -507,7 +522,7 @@ private void makeAseismicSlipParamAndEditor(ArrayList allowedEstimates) {
  private void makeFaultTraceParamAndEditor() {
 	 faultTraceArea = new JTextArea();
 	 FaultTrace faultTrace = this.selectedFaultSection.getFaultTrace();
-	 for(int i=0; i<faultTrace.getNumLocations(); ++i) {
+	 for(int i=0; faultTrace!=null && i<faultTrace.getNumLocations(); ++i) {
 		 Location loc = faultTrace.getLocationAt(i);
 		 faultTraceArea.append(loc.getLongitude()+","+loc.getLatitude()+"\n");
 	 }

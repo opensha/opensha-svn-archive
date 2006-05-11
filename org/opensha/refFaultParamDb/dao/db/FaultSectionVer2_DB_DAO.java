@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 
 import oracle.spatial.geometry.JGeometry;
 import org.opensha.sha.fault.FaultTrace;
@@ -234,7 +235,7 @@ public class FaultSectionVer2_DB_DAO {
 	  if(faultSectionsList.size()>0) faultSection = (FaultSectionVer2)faultSectionsList.get(0);
 	  return faultSection;  
   }
-  
+   
   /**
    * Get all the fault sections from the database
    * @return
@@ -378,6 +379,18 @@ private ArrayList getFaultSectionSummary(String condition) {
       coords[j] = d;
     }
     return JGeometry.createMultiPoint(coords, 2, SRID);
+  }
+  
+  /**
+   * Remove the fault section from th database
+   * 
+   * @param faultSectionId
+   */
+  public void removeFaultSection(int faultSectionId) {
+	  String sql = "delete from "+TABLE_NAME+" where "+SECTION_ID+"="+faultSectionId;
+		try {
+			dbAccess.insertUpdateOrDeleteData(sql);
+		} catch(SQLException e) { throw new UpdateException(e.getMessage()); }
   }
 
 }

@@ -25,10 +25,10 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	private HashMap faultSectionsMap = new HashMap();
-	private HashMap faultSectionSlipMap = new HashMap();
-	private double minSlipRate = Double.NaN;
-	private double maxSlipRate = Double.NaN;
+	private  static HashMap faultSectionsMap = new HashMap();
+	private  static HashMap faultSectionSlipMap  = null;
+	private static double minSlipRate = Double.NaN;
+	private static double maxSlipRate = Double.NaN;
 
 	public FaultSectionVer2Surfaces() {}
 
@@ -37,6 +37,11 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public ArrayList getAllFaultSectionsSummary() {
+		return this.faultSectionDAO.getAllFaultSectionsSummary();
+		
+	}
+
+	private void loadSlipRates() {
 		faultSectionSlipMap = faultSectionDAO.getSlipRateEstimates();
 		// calculate the min and max slip rate
 		Iterator it = faultSectionSlipMap.values().iterator();
@@ -49,8 +54,6 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 			if(val<minSlipRate) minSlipRate = val;
 			if(val>maxSlipRate) maxSlipRate = val;
 		}
-		return this.faultSectionDAO.getAllFaultSectionsSummary();
-		
 	}
 
 	/**
@@ -114,12 +117,12 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		FaultSectionVer2 faultSection  = (FaultSectionVer2) faultSectionsMap.get(new Integer(faultSectionId));
 		if(faultSection==null) {
 			faultSection = faultSectionDAO.getFaultSection(faultSectionId);
-			this.faultSectionsMap.put(new Integer(faultSectionId), faultSection);
+			faultSectionsMap.put(new Integer(faultSectionId), faultSection);
 			// update min/max slip rate values
 			double slipRateVal = this.getValueFromEstimate(faultSection.getAveLongTermSlipRateEst());
 			if(slipRateVal<minSlipRate) minSlipRate = slipRateVal;
 			if(slipRateVal>maxSlipRate) maxSlipRate = slipRateVal;
-			this.faultSectionSlipMap.put(new Integer(faultSectionId), faultSection.getAveLongTermSlipRateEst());
+			faultSectionSlipMap.put(new Integer(faultSectionId), faultSection.getAveLongTermSlipRateEst());
 		}
 		return faultSection;
 	}
@@ -144,6 +147,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public double getMinSlipRate() {
+		if (faultSectionSlipMap  == null) this.loadSlipRates();
 		return minSlipRate;
 	}
 	
@@ -152,6 +156,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public double getMaxSlipRate() {
+		if (faultSectionSlipMap  == null) this.loadSlipRates();
 		return maxSlipRate;
 	}
 	
@@ -161,7 +166,8 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public double getSlipRate(int faultSectionId) {
-		EstimateInstances estimateInstance = (EstimateInstances)this.faultSectionSlipMap.get(new Integer(faultSectionId));
+		if (faultSectionSlipMap  == null) this.loadSlipRates();
+		EstimateInstances estimateInstance = (EstimateInstances)faultSectionSlipMap.get(new Integer(faultSectionId));
 		return getValueFromEstimate(estimateInstance);
 	}
 
