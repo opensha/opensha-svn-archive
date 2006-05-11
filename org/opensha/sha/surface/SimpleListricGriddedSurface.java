@@ -322,7 +322,7 @@ public class SimpleListricGriddedSurface extends EvenlyGriddedSurface {
          dips.add(new Double(45.0));
 
          ArrayList depths = new ArrayList();
-         depths.add(new Double(3.0));
+         depths.add(new Double(0.0));
          depths.add(new Double(5.0));
          depths.add(new Double(10.0));
 
