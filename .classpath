@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path=""/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/xsdlib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlParserAPIs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
@@ -35,5 +34,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
 	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/scec_vdo.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.4.2"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

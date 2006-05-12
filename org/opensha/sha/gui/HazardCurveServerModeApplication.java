@@ -1142,7 +1142,7 @@ public class HazardCurveServerModeApplication extends JFrame
       try {
         if (isProbCurve)
           hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
-              hazFunction, site, imr, (EqkRupForecastAPI) forecast);
+              hazFunction, site,imr, (EqkRupForecastAPI) forecast);
         else {
           progressCheckBox.setSelected(false);
           progressCheckBox.setEnabled(false);
