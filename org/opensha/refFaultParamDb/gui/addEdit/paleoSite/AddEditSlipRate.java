@@ -139,7 +139,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
    ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
    this.slipRateEstimateParam = new EstimateParameter(this.SLIP_RATE_PARAM_NAME,
         SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
-    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true,  SLIP_RATE);
+    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true);
     // whether aseismic slip is available or not
    ArrayList allowedVals = new ArrayList();
    allowedVals.add(this.KNOWN);
@@ -151,7 +151,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
-    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true,  ASEISMIC_SLIP_FACTOR);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true);
     // slip rate comments
     slipRateCommentsParam = new StringParameter(this.SLIP_RATE_COMMENTS_PARAM_NAME);
     slipRateCommentsParamEditor = new CommentsParameterEditor(slipRateCommentsParam);

@@ -117,7 +117,7 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 		        ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
 		    if(aseismicSlipEst!=null && aseismicSlipEst.getEstimate()!=null )
 		    	aSeismicSlipFactorParam.setValue(aseismicSlipEst.getEstimate());
-		    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true,  ASEISMIC_SLIP_FACTOR);
+		    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true);
 	  }
 	  
 	  /**

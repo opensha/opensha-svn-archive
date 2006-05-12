@@ -112,11 +112,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
    // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
    private ArbitrarilyDiscretizedFuncParameter arbitrarilyDiscFuncParam;
-   private final static String XY_PARAM_NAME_SUFFIX = " Values";
+   private final static String XY_PARAM_NAME_SUFFIX = " Values/Probabilities";
    private String xyParamName;
 
    private EvenlyDiscretizedFuncParameter evenlyDiscFuncParam;
-   private final static String PDF_PARAM_NAME_SUFFIX = " PDF Vals";
+   private final static String PDF_PARAM_NAME_SUFFIX = "Evenly Discretized Values";
    private String pdfParamName;
 
    //private JButton setEstimateButton ;
@@ -168,7 +168,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private boolean showEditorAsPanel = false;
 
    private EstimateConstraint estimateConstraint;
-   private String xAxisName;
    private final static DecimalFormat decimalFormat = new DecimalFormat("0.###");
 
 
@@ -179,16 +178,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    }
 
     public ConstrainedEstimateParameterEditor(ParameterAPI model) {
-      this(model, false, null);
+      this(model, false);
     }
 
    //constructor taking the Parameter as the input argument
    public ConstrainedEstimateParameterEditor(ParameterAPI model,
-                                             boolean showEditorAsPanel,
-                                             String xAxisName){
+                                             boolean showEditorAsPanel){
      this.model = model;
      this.showEditorAsPanel = showEditorAsPanel;
-     this.xAxisName = xAxisName;
      try {
        this.jbInit();
        setParameter(model);
@@ -402,25 +399,23 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // Starting
     String S = C + ": initControlsParamListAndEditor(): ";
     if ( D ) System.out.println( S + "Starting:" );
-    String estimateParamName = "";
-    if (this.xAxisName!=null) estimateParamName = xAxisName;
-    this.meanParamName = MEAN_PARAM_NAME_PREFIX+estimateParamName;
+    this.meanParamName = MEAN_PARAM_NAME_PREFIX;
     meanParam = new DoubleParameter(meanParamName);
-    this.linearMedianParamName = LINEAR_MEDIAN_PARAM_NAME_PREFIX+estimateParamName;
+    this.linearMedianParamName = LINEAR_MEDIAN_PARAM_NAME_PREFIX;
     linearMedianParam = new DoubleParameter(linearMedianParamName);
-    this.stdDevParamName = STD_DEV_PARAM_NAME_PREFIX+estimateParamName;
+    this.stdDevParamName = STD_DEV_PARAM_NAME_PREFIX;
     stdDevParam = new DoubleParameter(stdDevParamName);
 
     ArbitrarilyDiscretizedFunc arbitraryDiscretizedFunc = new ArbitrarilyDiscretizedFunc();
-    arbitraryDiscretizedFunc.setXAxisName("Exact "+estimateParamName);
-    arbitraryDiscretizedFunc.setYAxisName("Probability this is correct");
-    this.xyParamName = estimateParamName+XY_PARAM_NAME_SUFFIX;
+    arbitraryDiscretizedFunc.setXAxisName("Values");
+    arbitraryDiscretizedFunc.setYAxisName("Probabilities");
+    this.xyParamName = XY_PARAM_NAME_SUFFIX;
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(xyParamName, arbitraryDiscretizedFunc);
 
     EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);
-    evenlyDiscretizedFunc.setXAxisName(estimateParamName);
+    evenlyDiscretizedFunc.setXAxisName("Value");
     evenlyDiscretizedFunc.setYAxisName("Probability");
-    this.pdfParamName = estimateParamName+PDF_PARAM_NAME_SUFFIX;
+    this.pdfParamName = PDF_PARAM_NAME_SUFFIX;
     evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(pdfParamName, evenlyDiscretizedFunc);
     // list of available estimates
     estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
@@ -455,16 +450,16 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // show the units and estimate param name as the editor title
    String units = estimateParam.getUnits();
    String title;
-   if(units!=null && !units.equalsIgnoreCase("")) title = estimateParam.getName()+"("+units+")";
+   if(units!=null && !units.equalsIgnoreCase("")) title = estimateParam.getName()+" ("+units+")";
    else title = estimateParam.getName();
    editor.setTitle(title);
 
    // parameters for min/max/preferred user choice
-  this.minXParamName = MIN_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.minXParamName = MIN_X_PARAM_NAME_PREFIX;
   minX_Param = new DoubleParameter(minXParamName);
-  this.maxXParamName = MAX_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.maxXParamName = MAX_X_PARAM_NAME_PREFIX;
   maxX_Param = new DoubleParameter(maxXParamName);
-  this.preferredXParamName = PREF_X_PARAM_NAME_PREFIX+estimateParamName;
+  this.preferredXParamName = PREF_X_PARAM_NAME_PREFIX;
   prefferedX_Param = new DoubleParameter(preferredXParamName);
 
   ParameterList xValsParamList = new ParameterList();
@@ -472,20 +467,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   xValsParamList.addParameter(maxX_Param);
   xValsParamList.addParameter(prefferedX_Param);
   xValsParamListEditor = new ParameterListEditor(xValsParamList);
-  xValsParamListEditor.setTitle(estimateParamName+X_TITLE_SUFFIX);
+  xValsParamListEditor.setTitle(X_TITLE_SUFFIX);
 
-  this.minProbParamName = "Probability of "+this.minXParamName;
+  this.minProbParamName = "Prob (² Min)";
   minProbParam = new DoubleParameter(minProbParamName);
-  this.maxProbParamName = "Probability of "+this.maxXParamName;
+  this.maxProbParamName = "Prob (² Max)";
   maxProbParam = new DoubleParameter(maxProbParamName);
-  this.prefferedProbParamName = "Probability of "+this.preferredXParamName;
+  this.prefferedProbParamName = "Prob (² Preferred)";
   prefferedProbParam = new DoubleParameter(prefferedProbParamName);
   ParameterList probParamList = new ParameterList();
   probParamList.addParameter(minProbParam);
   probParamList.addParameter(maxProbParam);
   probParamList.addParameter(prefferedProbParam);
   probValsParamListEditor = new ParameterListEditor(probParamList);
-  probValsParamListEditor.setTitle(PROB_TITLE);
+  probValsParamListEditor.setTitle("Probability ² Values");
 
    //setEstimateButton = new JButton("Set Estimate");
    viewEstimateButton = new JButton("Plot Estimate");
@@ -1071,10 +1066,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     JButton summaryButton = new JButton("View Estimate Summary");
     
     frame.getContentPane().setLayout(new GridBagLayout());
-    EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    String slipRate = "Slip Rate";
-    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,slipRate);
-    summaryButton.addActionListener(new EstimateSummaryListener(estimateParameterEditor, slipRate));
+    EstimateParameter estimateParam = new EstimateParameter("Slip Rate", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true);
+    summaryButton.addActionListener(new EstimateSummaryListener(estimateParameterEditor, "Slip Rate"));
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.getContentPane().add(summaryButton, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0

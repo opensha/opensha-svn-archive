@@ -114,7 +114,7 @@ public class EditSlipRate extends JFrame implements ActionListener {
 		   this.slipRateEstimateParam = new EstimateParameter(SLIP_RATE_PARAM_NAME,
 		        SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
 		   if(slipRateEst!=null && slipRateEst.getEstimate()!=null) slipRateEstimateParam.setValue(slipRateEst.getEstimate());
-		    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true,  SLIP_RATE);
+		    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true);
 	  }
 	  
 	  /**

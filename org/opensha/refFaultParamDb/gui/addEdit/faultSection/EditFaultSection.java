@@ -422,7 +422,7 @@ private void makeSlipRateParamAndEditor(ArrayList allowedEstimates) {
 		  slipRateEst = selectedFaultSection.getAveLongTermSlipRateEst().getEstimate();
 	  avgLongTermSlipRateEstParam = new EstimateParameter(AVE_LONG_TERM_SLIP_RATE, slipEstConstraint,
 			  SLIP_RATE_UNITS, slipRateEst);
-	  avgLongTermSlipRateEstParamEditor= new ConstrainedEstimateParameterEditor(avgLongTermSlipRateEstParam, true, AVE_LONG_TERM_SLIP_RATE);
+	  avgLongTermSlipRateEstParamEditor= new ConstrainedEstimateParameterEditor(avgLongTermSlipRateEstParam, true);
 	  // whether slip rate is known/unknown
 	  ArrayList slipRateTypes = new ArrayList();
 	  slipRateTypes.add(UNKNOWN);
@@ -445,7 +445,7 @@ private void makeAveDipParamAndEditor(ArrayList allowedEstimates) {
 	  if(this.selectedFaultSection.getAveDipEst()!=null)
 		  dipEst = selectedFaultSection.getAveDipEst().getEstimate();
 	  aveDipEstParam = new EstimateParameter(DIP, dipEstConstraint, DIP_UNITS, dipEst);
-	  aveDipEstParamEditor= new ConstrainedEstimateParameterEditor(aveDipEstParam, true, DIP);
+	  aveDipEstParamEditor= new ConstrainedEstimateParameterEditor(aveDipEstParam, true);
 }
 
 /**
@@ -458,7 +458,7 @@ private void makeAveRakeParamAndEditor(ArrayList allowedEstimates) {
 	  if(this.selectedFaultSection.getAveRakeEst()!=null)
 		  rakeEst = selectedFaultSection.getAveRakeEst().getEstimate();
 	  aveRakeEstParam = new EstimateParameter(RAKE, rakeEstConstraint, RAKE_UNITS, rakeEst);
-	  aveRakeEstParamEditor= new ConstrainedEstimateParameterEditor(aveRakeEstParam, true, RAKE);
+	  aveRakeEstParamEditor= new ConstrainedEstimateParameterEditor(aveRakeEstParam, true);
 	  //	 whether rake is known/unknown
 	  ArrayList rakeTypes = new ArrayList();
 	  rakeTypes.add(UNKNOWN);
@@ -498,7 +498,7 @@ private void makeUpperDepthParamAndEditor(ArrayList allowedEstimates) {
 	  if(this.selectedFaultSection.getAveUpperDepthEst()!=null)
 		  upperDepthEst = selectedFaultSection.getAveUpperDepthEst().getEstimate();
 	  upperDepthEstParam = new EstimateParameter(UPPER_DEPTH, upperDepthConstraint, DEPTH_UNITS, upperDepthEst);
-	  upperDepthEstParamEditor= new ConstrainedEstimateParameterEditor(upperDepthEstParam, true, UPPER_DEPTH);
+	  upperDepthEstParamEditor= new ConstrainedEstimateParameterEditor(upperDepthEstParam, true);
 }
 
 private void makeLowerDepthParamAndEditor(ArrayList allowedEstimates) {
@@ -507,7 +507,7 @@ private void makeLowerDepthParamAndEditor(ArrayList allowedEstimates) {
 	  if(this.selectedFaultSection.getAveLowerDepthEst()!=null)
 		  lowerDepthEst = selectedFaultSection.getAveLowerDepthEst().getEstimate();
 	  lowerDepthEstParam = new EstimateParameter(LOWER_DEPTH, lowerDepthConstraint, DEPTH_UNITS, lowerDepthEst);
-	  lowerDepthEstParamEditor= new ConstrainedEstimateParameterEditor(lowerDepthEstParam, true, LOWER_DEPTH);
+	  lowerDepthEstParamEditor= new ConstrainedEstimateParameterEditor(lowerDepthEstParam, true);
 }
 
 private void makeAseismicSlipParamAndEditor(ArrayList allowedEstimates) {
@@ -516,7 +516,7 @@ private void makeAseismicSlipParamAndEditor(ArrayList allowedEstimates) {
 	  if(this.selectedFaultSection.getAseismicSlipFactorEst()!=null)
 		  aseimsicSlipEst = selectedFaultSection.getAseismicSlipFactorEst().getEstimate();
 	  aseimsicSlipEstParam = new EstimateParameter(ASEISMIC_SLIP, aseismicSlipConstraint, ASEISMIC_SLIP_FACTOR_UNITS, aseimsicSlipEst);
-	  aseimsicSlipEstParamEditor= new ConstrainedEstimateParameterEditor(aseimsicSlipEstParam, true, ASEISMIC_SLIP);
+	  aseimsicSlipEstParamEditor= new ConstrainedEstimateParameterEditor(aseimsicSlipEstParam, true);
 }
 
  private void makeFaultTraceParamAndEditor() {

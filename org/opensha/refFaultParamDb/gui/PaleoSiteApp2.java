@@ -480,7 +480,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       combinedDisplacementInfo.setMeasuredComponentQual("Total");
      // FAKE DATA FOR TEST SITE
      // Slip Rate Estimate
-     MinMaxPrefEstimate diplacementEstimate = new MinMaxPrefEstimate(60, 150, 95, 0.2, 0.1, 0.7);
+     MinMaxPrefEstimate diplacementEstimate = new MinMaxPrefEstimate(60, 150, 95, 0.2, 0.8, 0.7);
      combinedDisplacementInfo.setDisplacementEstimate(new EstimateInstances(diplacementEstimate,"units"));
      // Aseismic slip rate estimate
      ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
@@ -494,7 +494,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
      String comments = "Pertinent comments will be displayed here";
      combinedDisplacementInfo.setDisplacementComments(comments);
      combinedDisplacementInfo.setSenseOfMotionQual("RL-R");
-     MinMaxPrefEstimate rakeEst = new MinMaxPrefEstimate(165, 180, 170, 0.4, 0.1, 0.5);
+     MinMaxPrefEstimate rakeEst = new MinMaxPrefEstimate(165, 180, 170, 0.4, 0.7, 0.5);
      combinedDisplacementInfo.setSenseOfMotionRake(new EstimateInstances(rakeEst,""));
      displacementPanel.setInfo(combinedDisplacementInfo);
    } else if(this.isValidSiteAndInfoAvailable() &&

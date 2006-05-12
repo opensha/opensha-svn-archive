@@ -43,9 +43,9 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     private final static String MAX_PARAM_NAME_PREFIX="Max ";
     private IntegerParameter numParam;
     private String numParamName;
-    private final static String NUM_PARAM_NAME_PREFIX="Number of ";
+    private final static String NUM_PARAM_NAME_PREFIX="Number of Points";
 
-    private final static String EDITOR_TITLE = "Create table of Evenly Discretized Vals";
+    //private final static String EDITOR_TITLE = "Evenly Discretized ";
 
     private final static String  ONE_Y_VAL_MSG = "Each line should have just " +
         "one Y value";
@@ -78,6 +78,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     private EvenlyDiscretizedFunc function;
     private String xAxisName = "";
     private String yAxisName = "";
+    private  String title ;
 
     /** No-Arg constructor calls parent constructor */
     public EvenlyDiscretizedFuncParameterEditor() {
@@ -122,12 +123,12 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       if ( (model != null) && ! (model instanceof EvenlyDiscretizedFuncParameter))
         throw new RuntimeException(S +
                                    "Input model parameter must be a EvenlyDiscretizedFuncParameter.");
-
       // make the params editor
       function = (EvenlyDiscretizedFunc)param.getValue();
 
       xAxisName = "";
       yAxisName = "";
+      title = param.getName();
       if(function!=null) {
         if(function.getXAxisName()!=null) xAxisName = function.getXAxisName();
         if(function.getYAxisName()!=null) yAxisName = function.getYAxisName();
@@ -181,7 +182,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
         System.out.println(S + "Starting:");
       minParam = new DoubleParameter(MIN_PARAM_NAME_PREFIX+xAxisName);
       maxParam = new DoubleParameter(MAX_PARAM_NAME_PREFIX+xAxisName);
-      numParam = new IntegerParameter(NUM_PARAM_NAME_PREFIX+xAxisName);
+      numParam = new IntegerParameter(NUM_PARAM_NAME_PREFIX);
 
       // put all the parameters in the parameter list
       parameterList = new ParameterList();
@@ -189,7 +190,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       parameterList.addParameter(this.maxParam);
       parameterList.addParameter(this.numParam);
       this.editor = new ParameterListEditor(parameterList);
-      editor.setTitle(EDITOR_TITLE);
+      editor.setTitle(title);
 
       xTextArea = new JTextArea();
       xTextArea.setEnabled(false);

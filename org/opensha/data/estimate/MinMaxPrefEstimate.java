@@ -4,8 +4,9 @@ import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: MinMaxPrefEstimate.java </p>
- * <p>Description: This saves the min/max and preferred values and the corresonding
- * probabilites. Though this is not a complete estimate, this is needed for Ref Fault paramter database GUI.</p>
+ * <p>Description: This stores min, max, and preferred values, and the corresonding
+ * probabilites that the true value is less than or equal to each. Though this is 
+ * not a complete estimate, this is needed for Ref Fault paramter database GUI.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
@@ -17,8 +18,10 @@ public class MinMaxPrefEstimate extends Estimate{
   private double minX, maxX, prefX;
   private double minProb, maxProb, prefProb;
   private final static double tol = 1e-6;
-  private final static String MSG_INVALID_X_VALS = "Preferred X should be greater than/equal to Minimum X"+
-                                  "\n"+"Maximum X should be greater than/equal to Preferred X";
+  private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be >  Min &"+
+                                  "\n"+"Max should be > Preferred";
+  private final static String MSG_INVALID_PROB_VALS = "Error: Preferred Prob should be > Min Prob &"+
+  "\n"+"Max Prob should be >  Preferred Prob";
 
   /**
    * @param minX
@@ -32,25 +35,30 @@ public class MinMaxPrefEstimate extends Estimate{
                             double minProb, double maxProb, double prefProb) {
 
     // check that minX<=prefX<=maxX
-    if(!Double.isNaN(minX) && !Double.isNaN(prefX) && minX>prefX)
+    if(!Double.isNaN(minX) && !Double.isNaN(prefX) && minX>=prefX)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(minX) && !Double.isNaN(maxX) && minX>maxX)
+    if(!Double.isNaN(minX) && !Double.isNaN(maxX) && minX>=maxX)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(prefX) && !Double.isNaN(maxX) && prefX>maxX)
+    if(!Double.isNaN(prefX) && !Double.isNaN(maxX) && prefX>=maxX)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
+    
+    // check that aprobabilites are in increasing order 
+    if(!Double.isNaN(minProb) && !Double.isNaN(prefProb) && minProb>=prefProb)
+        throw new InvalidParamValException(MSG_INVALID_PROB_VALS);
+      if(!Double.isNaN(minProb) && !Double.isNaN(maxProb) && minProb>=maxProb)
+        throw new InvalidParamValException(MSG_INVALID_PROB_VALS);
+      if(!Double.isNaN(prefProb) && !Double.isNaN(maxProb) && prefProb>=maxProb)
+        throw new InvalidParamValException(MSG_INVALID_PROB_VALS);
 
-    /* check whether probabilites sum upto 1. check only if at least one of the
-    probs is not Nan */
-    if(!Double.isNaN(minProb) || !Double.isNaN(maxProb) ||
-       !Double.isNaN(prefProb)) {
-      double probSum = 0.0;
-      if(!Double.isNaN(minProb)) probSum+=minProb;
-      if(!Double.isNaN(maxProb)) probSum+=maxProb;
-      if(!Double.isNaN(prefProb)) probSum+=prefProb;
-      if (Math.abs(probSum - 1) > tol)
-        throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
-    }
-    this.minX = minX;
+    /* check whether probabilites are between 0 & 1. */
+    if(!Double.isNaN(minProb) && (minProb<0 || minProb>1))
+     	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+     if(!Double.isNaN(maxProb) && (maxProb<0 || maxProb>1))
+     	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+     if(!Double.isNaN(prefProb) && (prefProb<0 || prefProb>1))
+     	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+    		
+     	this.minX = minX;
     this.maxX = maxX;
     this.prefX = prefX;
     this.minProb = minProb;

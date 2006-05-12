@@ -8,7 +8,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  * <p>Title: NormalEstimate.java  </p>
  * <p>Description:  This represents a Normal Distribution defined by a
  * mean and standard deviation (the latter must be positive).
- * The minimum and maximum X values serve to truncate the distribution, such that
+ * The Min and Max values serve to truncate the distribution, such that
  * probabilities are zero below and above these values, respectively (the defaults
  * are +/- infinity).
  *
@@ -23,6 +23,7 @@ public class NormalEstimate extends Estimate {
   public final static String NAME  =  "Normal (Gaussian)";
   private double mean=Double.NaN;
   private double stdDev=Double.NaN;
+  private final static String MSG_TRUNCATION_ERR = "Error: Lower and Upper Truncation must be below and above the mean respectively";
 
   /**
    * Default constructor - accepts mean and standard deviation.
@@ -121,7 +122,8 @@ public class NormalEstimate extends Estimate {
   /**
    *
    * Returns the max x value such that probability of occurrence of this x value
-   * is <=prob
+   * is <= prob.  This assumes that minX and maxX (the truncations) are below and 
+   * above the mean, respectively.
    *
    * @param prob - probability value
    */
@@ -130,9 +132,14 @@ public class NormalEstimate extends Estimate {
     * NOTE: In the statement below, we have to use (1-prob) because GaussianDistCalc
     * accepts the probability of exceedance as the parameter
     */
-   double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
-       getStandRandVar(maxX), 1e-6);
-   return getMean() + stdRndVar*getStdDev();
+	 try {
+		 double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
+				 getStandRandVar(maxX), 1e-6);
+		 return getMean() + stdRndVar*getStdDev();
+	 }catch(RuntimeException e) {
+		 throw new RuntimeException(MSG_TRUNCATION_ERR);
+	 }
+   
  }
 
 
@@ -150,7 +157,7 @@ public class NormalEstimate extends Estimate {
  }
 
  /**
-  * Set the minimum and maximum X-axis value
+  * Set the truncations in absolute units
   *
   * @param minX double
   * @param maxX double
@@ -162,8 +169,8 @@ public class NormalEstimate extends Estimate {
  }
 
  /**
-  * Sigma values for truncation.
-  * For left truncation, negative value of minSigma may be used
+  * Set the truncations in units or sigma 
+  * (using negative values for truncation below the mean).
   *
   * @param minSigma
   * @param maxSigma
@@ -247,7 +254,7 @@ public class NormalEstimate extends Estimate {
   private EvenlyDiscretizedFunc getEvenlyDiscretizedFunc() {
     double minX = mean-4*stdDev;
     double maxX = mean+4*stdDev;
-    int numPoints = 80;
+    int numPoints = 81;
     EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, maxX, numPoints);
     return func;
   }

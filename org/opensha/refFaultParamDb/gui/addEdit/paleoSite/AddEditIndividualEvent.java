@@ -173,7 +173,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
     this.slipEstParam = new EstimateParameter(this.SLIP_ESTIMATE_PARAM_NAME,
       SLIP_UNITS, SLIP_MIN, SLIP_MAX, allowedEstimates);
-    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true, SLIP);
+    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true);
 
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));

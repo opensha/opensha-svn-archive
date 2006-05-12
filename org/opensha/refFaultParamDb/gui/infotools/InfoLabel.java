@@ -331,27 +331,27 @@ public class InfoLabel extends JLabel {
    String minXStr="", maxXStr="", prefXStr="", minProbStr="", maxProbStr="", prefProbStr="";
    // min X
    if(!Double.isNaN(minX)) minXStr= GUI_Utils.decimalFormat.format(minX);
-   else minXStr = ""+this.NOT_AVAILABLE;
+   else minXStr = ""+NOT_AVAILABLE;
      // max X
    if(!Double.isNaN(maxX)) maxXStr= GUI_Utils.decimalFormat.format(maxX);
-   else maxXStr = ""+this.NOT_AVAILABLE;
+   else maxXStr = ""+NOT_AVAILABLE;
      // pref X
    if(!Double.isNaN(prefX)) prefXStr= GUI_Utils.decimalFormat.format(prefX);
-   else prefXStr = ""+this.NOT_AVAILABLE;
+   else prefXStr = ""+NOT_AVAILABLE;
      // min Prob
    if(!Double.isNaN(minProb)) minProbStr= GUI_Utils.decimalFormat.format(minProb);
-   else minProbStr = ""+this.NOT_AVAILABLE;
+   else minProbStr = ""+NOT_AVAILABLE;
      // max Prob
    if(!Double.isNaN(maxProb)) maxProbStr= GUI_Utils.decimalFormat.format(maxProb);
-   else maxProbStr = ""+this.NOT_AVAILABLE;
+   else maxProbStr = ""+NOT_AVAILABLE;
      // pref Prob
    if(!Double.isNaN(prefProb)) prefProbStr= GUI_Utils.decimalFormat.format(prefProb);
-   else prefProbStr = ""+this.NOT_AVAILABLE;
+   else prefProbStr = ""+NOT_AVAILABLE;
 
    text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
    text+=  "Min =&nbsp;&nbsp;"+minXStr+"  ["+minProbStr+"]<br>";
    text+=  "Max =&nbsp;&nbsp;"+maxXStr+"  ["+maxProbStr+"]<br>";
-   text+=  "<br> Numbers in brackets are Probs that "+xAxisName+" is less than each value.<br>";
+   text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is ² each value.<br>";
 
    return text;
  }

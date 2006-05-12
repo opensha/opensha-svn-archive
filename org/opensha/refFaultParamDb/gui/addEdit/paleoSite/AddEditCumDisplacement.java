@@ -143,7 +143,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
         CUMULATIVE_DISPLACEMENT_PARAM_NAME,
         CUMULATIVE_DISPLACEMENT_UNITS, CUMULATIVE_DISPLACEMENT_MIN,
         CUMULATIVE_DISPLACEMENT_MAX, allowedEstimates);
-    cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true, CUMULATIVE_DISPLACEMENT);
+    cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true);
     // whether aseismic slip is available or not
     ArrayList allowedVals = new ArrayList();
     allowedVals.add(this.KNOWN);
@@ -155,7 +155,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
-    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, ASEISMIC_SLIP_FACTOR_);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true);
     // comments parameter editor
     displacementCommentsParam = new StringParameter(this.
         CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME);
