@@ -5,7 +5,9 @@ import java.text.DecimalFormat;
 
 /**
  * <p>Title: Estimate.java </p>
- * <p>Description: This is the abstract class for various types of estimates </p>
+ * <p>Description: This is the abstract class for various types of estimates.
+ * Most methods here throw unsupported exceptions because this will often be the
+ * case in subclasses.  </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author
@@ -22,6 +24,10 @@ public abstract class Estimate {
   protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
   protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
   protected final static String MSG_ALL_Y_ZERO = "Error: At least one Y value must be > 0.";
+  protected final static String EST_MSG_PROBS_NOT_INCREASING = "Probabilities must be in increasing order";
+  protected final static String MEDIAN_UNDEFINED = "Error: Median is undefined";
+  protected final static String FRACTILE_UNDEFINED = "Error: Fractile is undefined";
+
   protected String comments="";
   protected double minX, maxX;
   protected String units;
@@ -48,21 +54,29 @@ public abstract class Estimate {
    *
    * @return
    */
-  public abstract double getMean();
+  public double getMean() {
+    throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
+  }
+
 
   /**
    * Get median for this estimate
    *
    * @return
    */
-  public abstract double getMedian();
+  public double getMedian() {
+    throw new java.lang.UnsupportedOperationException("Method getMedian() not supported");
+  }
+
 
   /**
    * Get Std Dev for this estimate
    *
    * @return
    */
-  public abstract double getStdDev();
+  public double getStdDev() {
+    throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported");
+  }
 
   /**
    * Get fractile for a given probability (the value where the CDF equals prob).
@@ -70,14 +84,20 @@ public abstract class Estimate {
    * @param prob
    * @return
    */
-  public abstract double getFractile(double prob);
+  public double getFractile(double prob) {
+    throw new java.lang.UnsupportedOperationException("Method getFractile() not supported");
+  }
+
 
   /**
    * Get mode for this estimate
    *
    * @return
    */
-  public abstract double getMode();
+  public double getMode() {
+    throw new java.lang.UnsupportedOperationException("Method getMode() not supported");
+  }
+
 
 
   /**
@@ -86,7 +106,7 @@ public abstract class Estimate {
    * @return It returns true if any x<0. If all x>=0, it returns false
    */
   public boolean isNegativeValuePresent() {
-    return (minX<0.0);
+    return (getMinX()<0.0);
   }
 
   /**
@@ -135,7 +155,10 @@ public abstract class Estimate {
     *
     * @return
     */
-   public abstract DiscretizedFunc getPDF_Test();
+   public DiscretizedFunc getPDF_Test() {
+    throw new java.lang.UnsupportedOperationException("Method getPDF_Test() not supported");
+  }
+
 
    /**
     * Test function to get the CDF for this estimate. It uses the
@@ -143,16 +166,22 @@ public abstract class Estimate {
     *
     * @return
     */
-   public abstract DiscretizedFunc getCDF_Test();
+   public DiscretizedFunc getCDF_Test() {
+    throw new java.lang.UnsupportedOperationException("Method getCDF_Test() not supported");
+  }
+
 
    /**
     * Get the probability that the true value is less than or equal to the provided
-    * x value
+    * x value (the CDF for a probability density funtion)
     *
     * @param x
     * @return
     */
-   public abstract double getProbLessThanEqual(double x);
+   public double getProbLessThanEqual(double x) {
+    throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported");
+  }
+
 
    /**
    * Test function to get the CDF for this estimate. It uses the
@@ -175,8 +204,22 @@ public abstract class Estimate {
     func.setInfo("CDF using getFractile() method");
     return func;
   }
-  
-  public abstract  String toString();
 
+  public String toString() {
+    String text = "Values from Methods:\n";
+    try {
+      text += "Mean = "+getMean()+"\n";
+    }
+    catch ( Exception e) {
+      text += "Mean = NA\n";
+    }
+    try {
+      text += "Mode = "+getMode()+"\n";
+    }
+    catch ( Exception e) {
+      text += "Mode = NA\n";
+    }
+    return text;
+  }
 
 }

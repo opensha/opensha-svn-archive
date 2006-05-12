@@ -12,7 +12,7 @@ import org.opensha.param.*;
  * Estimate types.
  * The main purpose of this class is to call isAllowed() which will return true
  * if the value is an object of one of the allowed Estimate types and
- * all the values are within the range.  See the
+ * all the values are within the range specified here.  See the
  * DoubleConstraint javadocs for further documentation. <p>
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -142,9 +142,10 @@ public class EstimateConstraint extends DoubleConstraint {
 
     /**
      *
-     * This function checks first checks that estimate object is one of the
+     * This function first checks that estimate object is one of the
      * allowed estimates. Then it compares the min and max value of constraint
-     * with the min and max value from the estimate. It also makes sure that both,
+     * with the min and max value from the estimate (the latter must be within
+     * the former). It also makes sure that both,
      * Estimate object and EstimateParameter have same units
      *
      * @param estimate

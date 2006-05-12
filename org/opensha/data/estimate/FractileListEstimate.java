@@ -7,9 +7,8 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
- * <p>Description: This estimate is the cumulative distribution
- * This estimate can also be used if user just provides
- * min,max and preferred values which is very common.
+ * <p>Description: This estimate is a list of arbitrary points from a cumulative
+ * distribution (CDF).
  *
  * The rules for this etimate are:
  * 1. 1>=y>=0
@@ -28,9 +27,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 public class FractileListEstimate extends Estimate {
   public final static String NAME  =  "Fractile List";
   private final static double tol = 1e-6;
-  private ArbDiscrEmpiricalDistFunc func=null;
-  private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
-       " for these set of Y values. ";
+  private DiscretizedFunc func=null;
 
    /**
     * Construnctor - Accepts the ArbDiscrEmpiricalDistFunc of X and Y values.
@@ -39,7 +36,7 @@ public class FractileListEstimate extends Estimate {
     *
     * @param func ArbitrarilyDiscretizedFunc function of  X and Y values
     */
-   public FractileListEstimate(ArbDiscrEmpiricalDistFunc func) {
+   public FractileListEstimate(DiscretizedFunc func) {
      setValues(func);
    }
 
@@ -52,40 +49,33 @@ public class FractileListEstimate extends Estimate {
 
 
    /**
-    * 1. y(i+1)>=y(i) - This is implied because ArbDiscrEmpiricalDistFunc enforces that.
+    * This checks:
+    * 1. y(i+1)>=y(i)
     * 2. All Y >=0
-    * 3. To ensure that median is available:
-    *    If number of values==1, ensure that y =  0.5
-    *    If number of values > 1, first_y<=0.5 and last_y>=0.5
+    *
+    * Func is cloned and held internally
     *
     * @param func
     */
-   public void setValues(ArbDiscrEmpiricalDistFunc func) {
+   public void setValues(DiscretizedFunc func) {
      maxX = func.getMaxX();
      minX = func.getMinX();
      int numValues = func.getNum();
      // check that 0²Y²1
-     double y;
+     double y,y_last=-1;
      double sum=0;
      for(int i = 0; i<numValues;++i) {
        y = func.getY(i);
        sum+=y;
        if(y<0 || y>1) throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+       if(y_last >= y) throw new InvalidParamValException(EST_MSG_PROBS_NOT_INCREASING);
+       y_last = y;
      }
      if(Math.abs(sum-1)>tol)
        throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
-     this.func = (ArbDiscrEmpiricalDistFunc)func.deepClone();
+     this.func = (DiscretizedFunc)func.deepClone();
    }
 
-
-   /**
-    * getMean() is not supported for FractileListEstimate
-    *
-    * @return throws an exception specifying that this function is not supported
-    */
-   public double getMean() {
-     throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
-   }
 
 
    /**
@@ -102,38 +92,24 @@ public class FractileListEstimate extends Estimate {
        throw new InvalidParamValException(MEDIAN_UNDEFINED);
      else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
        throw new InvalidParamValException(MEDIAN_UNDEFINED);
-     return func.getDiscreteFractile(0.5);
+     return func.getFirstInterpolatedX(0.5);
   }
 
 
-  /**
-   * getStdDev() is not supported for FractileListEstimate
-   *
-   * @return throws an exception specifying that this function is not supported
-   */
-   public double getStdDev() {
-     throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
-   }
-
-
    /**
-    *
+    * If a point with the associated probability does not exist, the fractal is
+    * found by linear interpolation between the two points that bracket the prob.
+    * An exeption is thrown if no such points exist.
     * @param prob
     * @return
     */
    public double getFractile(double prob) {
-     return func.getFirstInterpolatedX(prob);
+     if(prob > func.getY(0) && prob > func.getY(func.getNum()-1))
+        return func.getFirstInterpolatedX(prob);
+     else
+       throw new InvalidParamValException(FRACTILE_UNDEFINED);
    }
 
-
-  /**
-   * getMode() is not supported for FractileListEstimate
-   *
-   * @return throws an exception specifying that this function is not supported
-   */
-  public double getMode() {
-     throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
-  }
 
   public DiscretizedFunc getValues() {
     return this.func;
@@ -142,42 +118,5 @@ public class FractileListEstimate extends Estimate {
   public String getName() {
    return NAME;
  }
-
- public DiscretizedFunc getPDF_Test() {
-   return this.func;
- }
-
- /**
-  * Get the cumulative distribution function
-  * @return
-  */
- public DiscretizedFunc getCDF_Test() {
-   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-   return func;
- }
-
- /**
-    * Get the probability for that the true value is less than or equal to provided
-    * x value
-    *
-    * @param x
-    * @return
-    */
-   public  double getProbLessThanEqual(double x) {
-      throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
-   }
-
-   /**
-    * Test function to get the CDF for this estimate. It uses the
-    * getFractile() function internally. It discretizes the Y values and then
-    * calls the getFractile() method to get corresponding x values and then
-    * plot them.
-    *
-    * @return
-    */
-   public  DiscretizedFunc getCDF_TestUsingFractile() {
-      throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
-   }
-
 
 }

@@ -258,6 +258,8 @@ public class InfoLabel extends JLabel {
           GUI_Utils.decimalFormat.format(estimate.getMaxX()) + "<br>" +
           "<b>Upper Truncation(# of sigmas):&nbsp;</b>" +
           GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
+    else
+      text += "<b>No Truncation";
     return text;
   }
 
@@ -348,8 +350,8 @@ public class InfoLabel extends JLabel {
    if(!Double.isNaN(prefProb)) prefProbStr= GUI_Utils.decimalFormat.format(prefProb);
    else prefProbStr = ""+NOT_AVAILABLE;
 
-   text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
    text+=  "Min =&nbsp;&nbsp;"+minXStr+"  ["+minProbStr+"]<br>";
+   text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
    text+=  "Max =&nbsp;&nbsp;"+maxXStr+"  ["+maxProbStr+"]<br>";
    text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is ² each value.<br>";
 

@@ -151,7 +151,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // title of Parameter List Editor
    public static final String PROB_TITLE = new String("Probability this value is correct");
 
-  
+
    // size of the editor
    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 300 );
 
@@ -464,21 +464,21 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   ParameterList xValsParamList = new ParameterList();
   xValsParamList.addParameter(minX_Param);
-  xValsParamList.addParameter(maxX_Param);
   xValsParamList.addParameter(prefferedX_Param);
+  xValsParamList.addParameter(maxX_Param);
   xValsParamListEditor = new ParameterListEditor(xValsParamList);
   xValsParamListEditor.setTitle(X_TITLE_SUFFIX);
 
   this.minProbParamName = "Prob (² Min)";
-  minProbParam = new DoubleParameter(minProbParamName);
+  minProbParam = new DoubleParameter(minProbParamName,0,1);
   this.maxProbParamName = "Prob (² Max)";
-  maxProbParam = new DoubleParameter(maxProbParamName);
+  maxProbParam = new DoubleParameter(maxProbParamName,0,1);
   this.prefferedProbParamName = "Prob (² Preferred)";
-  prefferedProbParam = new DoubleParameter(prefferedProbParamName);
+  prefferedProbParam = new DoubleParameter(prefferedProbParamName,0,1);
   ParameterList probParamList = new ParameterList();
   probParamList.addParameter(minProbParam);
-  probParamList.addParameter(maxProbParam);
   probParamList.addParameter(prefferedProbParam);
+  probParamList.addParameter(maxProbParam);
   probValsParamListEditor = new ParameterListEditor(probParamList);
   probValsParamListEditor.setTitle("Probability ² Values");
 
@@ -1064,7 +1064,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   public static void main(String args[]) {
     JFrame frame = new JFrame();
     JButton summaryButton = new JButton("View Estimate Summary");
-    
+
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Slip Rate", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
     ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true);
@@ -1079,22 +1079,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   }
 
 }
- 
+
  /**
-  * This class is used to view Estimate Summary 
-  * 
+  * This class is used to view Estimate Summary
+  *
   * @author vipingupta
   *
   */
  class EstimateSummaryListener implements ActionListener {
 	 private ConstrainedEstimateParameterEditor estimateParameterEditor;
 	 private String title;
-	 
+
 	 public EstimateSummaryListener(ConstrainedEstimateParameterEditor estimateParameterEditor, String title) {
 		  this.estimateParameterEditor=estimateParameterEditor;
 		  this.title = title;
 	 }
-	 
+
 	 public void actionPerformed(ActionEvent event) {
 		 try {
 			 estimateParameterEditor.setEstimateInParameter();
@@ -1109,6 +1109,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 			 JOptionPane.showMessageDialog(estimateParameterEditor, e.getMessage());
 		 }
 	 }
-		 
+
 
  }

@@ -122,7 +122,7 @@ public class NormalEstimate extends Estimate {
   /**
    *
    * Returns the max x value such that probability of occurrence of this x value
-   * is <= prob.  This assumes that minX and maxX (the truncations) are below and 
+   * is <= prob.  This assumes that minX and maxX (the truncations) are below and
    * above the mean, respectively.
    *
    * @param prob - probability value
@@ -139,7 +139,7 @@ public class NormalEstimate extends Estimate {
 	 }catch(RuntimeException e) {
 		 throw new RuntimeException(MSG_TRUNCATION_ERR);
 	 }
-   
+
  }
 
 
@@ -169,7 +169,7 @@ public class NormalEstimate extends Estimate {
  }
 
  /**
-  * Set the truncations in units or sigma 
+  * Set the truncations in units or sigma
   * (using negative values for truncation below the mean).
   *
   * @param minSigma
@@ -181,10 +181,18 @@ public class NormalEstimate extends Estimate {
    this.maxX = this.mean+maxSigma*this.stdDev;
  }
 
+ /**
+  * This gets the lower truncation in units of sigma (standard deviations)
+  * @return double
+  */
  public double getMinSigma() {
    return (minX-mean)/stdDev;
  }
 
+ /**
+  * This gets the upper truncation in units of sigma (standard deviations)
+  * @return double
+  */
  public double getMaxSigma() {
    return (maxX-mean)/stdDev;
  }

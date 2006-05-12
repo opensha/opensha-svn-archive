@@ -1,31 +1,29 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Estimate:
+
+	remove the "X" in minX, maxX ets (including documentation); subclasses too
+
+	remove use of decimalFormat (cast to floats instead), and fix use of this elsewhere
+	(prob if 0.000000000001 --> 0.0)
+
+	Implement toString() in here and in subclasses and use in editor main() for debugging.
+
+EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
+
+FractileListEstimate - add this to the parameter editor
+
+	
+
+
+
+
 Implement new version checking/download option in all apps (skip if no internet access)
 
 Attenuation Relationship Plotter
 
 	Buttons at the bottom right disappear if window is too narrow
-
-
-GriddedSurface Classes:
-------------------------
-
-Check SimpleListricGriddedSurface (subclass of EvenlyGriddedSurface)
-
-	constructor makes that surface using method in that factory
-
-	turn off the set methods here too
-
-Make GridCenteredSurface a separate object (and remove those methods from others)?
-
-Revise GriddedFaultApplet and compare old with new to make sure everything looks fine (test floaters too).
-
-Check surfaces with 3D viewer.
-
-Test all apps.
-
--------------------------------
 
 
 

@@ -5,7 +5,7 @@ import org.opensha.data.function.DiscretizedFunc;
 /**
  * <p>Title: MinMaxPrefEstimate.java </p>
  * <p>Description: This stores min, max, and preferred values, and the corresonding
- * probabilites that the true value is less than or equal to each. Though this is 
+ * probabilites that the true value is less than or equal to each. Though this is
  * not a complete estimate, this is needed for Ref Fault paramter database GUI.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -15,7 +15,7 @@ import org.opensha.data.function.DiscretizedFunc;
 
 public class MinMaxPrefEstimate extends Estimate{
   public final static String NAME  =  "Min, Max and Preferred";
-  private double minX, maxX, prefX;
+  private double prefX;
   private double minProb, maxProb, prefProb;
   private final static double tol = 1e-6;
   private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be >  Min &"+
@@ -41,8 +41,8 @@ public class MinMaxPrefEstimate extends Estimate{
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
     if(!Double.isNaN(prefX) && !Double.isNaN(maxX) && prefX>=maxX)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    
-    // check that aprobabilites are in increasing order 
+
+    // check that aprobabilites are in increasing order
     if(!Double.isNaN(minProb) && !Double.isNaN(prefProb) && minProb>=prefProb)
         throw new InvalidParamValException(MSG_INVALID_PROB_VALS);
       if(!Double.isNaN(minProb) && !Double.isNaN(maxProb) && minProb>=maxProb)
@@ -57,8 +57,8 @@ public class MinMaxPrefEstimate extends Estimate{
      	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
      if(!Double.isNaN(prefProb) && (prefProb<0 || prefProb>1))
      	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
-    		
-     	this.minX = minX;
+
+    this.minX = minX;
     this.maxX = maxX;
     this.prefX = prefX;
     this.minProb = minProb;
@@ -83,24 +83,25 @@ public class MinMaxPrefEstimate extends Estimate{
   }
 
 
+  /**
+   * This returns the original Min (even if it's NaN)
+   * @return double
+   */
   public double getMinimumX() { return this.minX; }
+
+  /**
+  * This returns the original Max (even if it's NaN)
+  * @return double
+  */
   public double getMaximumX() { return this.maxX; }
+
   public double getPreferredX() { return this.prefX; }
   public double getMinimumProb() { return this.minProb; }
   public double getMaximumProb() { return this.maxProb; }
   public double getPreferredProb() { return this.prefProb; }
 
   /**
-   * Checks whether there exist any X values which is less than 0.
-   *
-   * @return It returns true if any x<0. If all x>=0, it returns false
-   */
-  public boolean isNegativeValuePresent() {
-    return (getMinX()<0.0);
-  }
-
-  /**
-   * Get the maximum X value
+   * Get the maximum value among min, preferred, and max (i.e., NaNs excluded)
    *
    * @return maximum value (on X axis)
    */
@@ -112,7 +113,7 @@ public class MinMaxPrefEstimate extends Estimate{
   }
 
   /**
-   * Get the minimum X value
+   * Get the minimum X value among min, preferred, and max (i.e., NaNs excluded)
    *
    * @return minimum value (on X axis)
    */
@@ -123,91 +124,8 @@ public class MinMaxPrefEstimate extends Estimate{
     return Double.NaN;
   }
 
-
-  /**
-   * getMean() is not supported for MinMaxPrefEstimate
-   *
-   * @return throws an exception specifying that this function is not supported
-   */
-  public double getMean() {
-    throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
-  }
-
-
-  /**
-   * getMedian() is not supported for MinMaxPrefEstimate
-   *
-   * @return throws an exception specifying that this function is not supported
-   */
-  public double getMedian() {
-    throw new java.lang.UnsupportedOperationException("Method getMedian() not supported.");
- }
-
-
- /**
-  * getStdDev() is not supported for minMaxPrefEstimate
-  *
-  * @return throws an exception specifying that this function is not supported
-  */
-  public double getStdDev() {
-    throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
-  }
-
-
-  /**
-   * getFractile() is not supported for MinMaxPrefEstimate
-   *
-   * @return throws an exception specifying that this function is not supported
-   */
-  public double getFractile(double prob) {
-    throw new java.lang.UnsupportedOperationException("Method getFractile() not supported.");
-  }
-
-
- /**
-  * getMode() is not supported for MinMaxPrefEstimate
-  *
-  * @return throws an exception specifying that this function is not supported
-  */
- public double getMode() {
-    throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
- }
-
-
  public String getName() {
    return NAME;
- }
-
- /**
-  *
-  * @return throws an exception specifying that this function is not supported
-  */
- public DiscretizedFunc getPDF_Test() {
-   throw new java.lang.UnsupportedOperationException("Method getPDF_Test() not supported.");
- }
-
- /**
-  * @return throws an exception specifying that this function is not supported
-  */
- public DiscretizedFunc getCDF_Test() {
-   throw new java.lang.UnsupportedOperationException("Method getCDF_Test() not supported.");
- }
-
- /**
-  *
-  * @param x
-  * @return throws an exception specifying that this function is not supported
-  */
- public  double getProbLessThanEqual(double x) {
-   throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
- }
-
- /**
-  *
-  * @return throws an exception specifying that this function is not supported
-  */
- public  DiscretizedFunc getCDF_TestUsingFractile() {
-   throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
  }
 
 }
