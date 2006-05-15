@@ -15,19 +15,27 @@ EstimateParameterEditor - problem with IntegerEstimate (won't recover if non int
 FractileListEstimate - add this to the parameter editor
 
 	
-
-
-
-
+	
+	
+	
 Implement new version checking/download option in all apps (skip if no internet access)
 
 Attenuation Relationship Plotter
 
 	Buttons at the bottom right disappear if window is too narrow
+	
+
+Update the HazardSpectrumApp with latest GUI beans.
+
+Implement RELM ERFs (discuss with Ned)
+
+Implement NGA models 
+
+Implement mag PDF option in single fault ERFs (ned will do)
 
 
 
-MagFreqDistParamEditor
+MagFreqDistParamEditor DONE
 
 	Change "Update Mag ..." button to "Done"
 
@@ -38,7 +46,7 @@ MagFreqDistParamEditor
 
 	Create similar MagPDF_ParamEditor
 
-New MagFreqDistTesterApplet:
+New MagFreqDistTesterApplet: DONE
 
 	1) does not show all three plots at once, but does have peel-off capability
 	2) hide the "Done" and "Show Dist" options in the param editor
@@ -49,13 +57,9 @@ New MagFreqDistTesterApplet:
 	to "Cumulative" and peel off again, for example, without having to start over.
 
 
+Include "Max Source-Site Distance" (from control panel) in metadata for hazard curves. DONE
 
-
-Things Ned has done while Guptas gone (i.e., not in on-line applications)
-
-Include "Max Source-Site Distance" (from control panel) in metadata for hazard curves.
-
-DisaggregationCalculator:
+DisaggregationCalculator: DONE
 
 	Add tabs for selecting what to show below plot:
 
@@ -69,11 +73,7 @@ DisaggregationCalculator:
 	show the pdf rather than the jpeg since it's nicer (will require open-src pdf viewer)
 
 
-Update the HazardSpectrumApp with latest GUI beans.
-
 Explore source and rupture visualization options, including JFreeChart, GMT, GoogleEarth, and VDO.  Build the visualization of sources (we added a getAllSourceLocs() method to all sources) and/or ruptures & associated info into the applications (especially for deterministic calcs).  Also include plotting MFDs for sources.  Vipin
-
-Get feedback on CA Ref. Fault Param. Database GUI (Vipin)
 
 Continue working on the all-ruptures-in-fault-system tool (Vipin)
 
@@ -88,7 +88,6 @@ Vs30 worldwide tool (Ned should talk to David Wald)
 ERF2GriddedSeisRateCalc - Ned needs to look it over.
 
 Work on html-based help documentation
-
 
 HypoMagFreqDistAtLoc:
 
