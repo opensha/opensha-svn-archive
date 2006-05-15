@@ -158,7 +158,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
       okButton.addActionListener(this);
       cancelButton.addActionListener(this);
       setTitle(TITLE);
-      this.pack();
+      this.setSize(600, 800);
       this.show();
     }
     catch (Exception exception) {
@@ -191,8 +191,9 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 0, 0, 0), 0, 0));
     this.getContentPane().add(mainPanel, java.awt.BorderLayout.CENTER);
-    topSplitPane.setDividerLocation(500);
+    topSplitPane.setDividerLocation(400);
     innerSplitPane.setDividerLocation(200);
+   
   }
   
   

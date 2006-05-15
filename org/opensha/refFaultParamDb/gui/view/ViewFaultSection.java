@@ -89,6 +89,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		if(SessionInfo.getContributor()==null) {
 			editButton.setEnabled(false);
 			removeButton.setEnabled(false);
+			addButton.setEnabled(false);
 		}
 	}
 	

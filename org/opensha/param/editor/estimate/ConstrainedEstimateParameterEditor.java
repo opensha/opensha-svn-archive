@@ -589,7 +589,18 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    * make the parameters vfisible/invisible for Min/Max/Pref estimate
    */
   private void setParamsForMinMaxPrefEstimate() {
-    setParamsForFractileListEstimate();
+	  editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
+	  editor.setParameterVisible(meanParamName, false);
+	  editor.setParameterVisible(stdDevParamName, false);
+	  editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, false);
+	  editor.setParameterVisible(linearMedianParamName, false);
+	  editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+	  editor.setParameterVisible(this.pdfParamName, false);
+	  editor.setParameterVisible(this.xyParamName, false);
+	  setTruncationParamsVisibility();
+	  xValsParamListEditor.setVisible(true);
+	  probValsParamListEditor.setVisible(true);
+	  viewEstimateButton.setVisible(false);
   }
 
   /**
