@@ -259,6 +259,7 @@ public class AttenuationRelationshipApplet extends JApplet
     JPanel sheetPanel = new JPanel();
     JSplitPane parametersSplitPane = new JSplitPane();
     JSplitPane mainSplitPane = new JSplitPane();
+    JSplitPane plotSplitPane =  new JSplitPane();
 
 
     private boolean yLog = false;
@@ -550,9 +551,17 @@ public class AttenuationRelationshipApplet extends JApplet
 
         mainSplitPane.setOrientation( JSplitPane.HORIZONTAL_SPLIT );
         mainSplitPane.setBorder( null );
-        mainSplitPane.setDividerSize( 5 );
+        mainSplitPane.setDividerSize( 2 );
 
-
+        plotSplitPane.setOrientation( JSplitPane.VERTICAL_SPLIT );
+        plotSplitPane.setBorder( null );
+        plotSplitPane.setDividerSize( 2 );
+        
+        plotSplitPane.setBottomComponent( buttonPanel );
+        plotSplitPane.setTopComponent(mainPanel );
+        plotSplitPane.setDividerLocation(570 );
+ 
+        
         attenRelLabel.setForeground( darkBlue );
         attenRelLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
         attenRelLabel.setText( "Choose Model:    " );
@@ -595,7 +604,7 @@ public class AttenuationRelationshipApplet extends JApplet
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-        outerPanel.add( mainPanel,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        outerPanel.add( plotSplitPane,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0) );
 
         titlePanel.add( this.attenRelLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
@@ -608,9 +617,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
         mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
-
-        mainPanel.add(buttonPanel,  new GridBagConstraints(0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0) );
 
 
         controlPanel.add(parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -640,10 +646,9 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonPanel.add(xyDatasetButton, 3);
         buttonPanel.add(buttonControlPanel,4);
         buttonPanel.add(plotColorCheckBox, 5);
-
-        outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
-        outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(imgLabel, 6);
+        
+         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 4, 0));
 
 
@@ -656,7 +661,7 @@ public class AttenuationRelationshipApplet extends JApplet
         mainSplitPane.setBottomComponent( outerControlPanel );
         mainSplitPane.setTopComponent(plotPanel );
         mainSplitPane.setDividerLocation(600 );
-        mainSplitPane.setOneTouchExpandable( false );
+ 
 
         // Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
         // inputsPanel
