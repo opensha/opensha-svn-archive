@@ -19,19 +19,18 @@ public abstract class Estimate {
   // comments associated with this object
   protected final static String EST_MSG_MAX_LT_MIN = "Error: Minimum must be less than Maximum";
   protected final static String EST_MSG_NOT_NORMALIZED = "Error: The probability values do not sum to 1";
-  protected final static String EST_MSG_Y_POSITIVE = "Error: All Y values must be positive";
+  protected final static String EST_MSG_PROB_POSITIVE = "Error: All probability values must be positive";
   protected final static String EST_MSG_INVLID_RANGE = "Error: All probabilities must be ³ 0 and ² 1";
-  protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
-  protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
-  protected final static String MSG_ALL_Y_ZERO = "Error: At least one Y value must be > 0.";
-  protected final static String EST_MSG_PROBS_NOT_INCREASING = "Probabilities must be in increasing order";
+  protected final static String EST_MSG_FIRST_LAST_PROB_ZERO = "Error: First and Last probability values must be 0";
+  protected final static String MSG_INVALID_STDDEV = "Error: Standard deviation must be positive.";
+  protected final static String MSG_ALL_PROB_ZERO = "Error: At least one probability value must be > 0.";
+  protected final static String EST_MSG_PROBS_NOT_INCREASING = "Error: Probabilities must be in increasing order";
   protected final static String MEDIAN_UNDEFINED = "Error: Median is undefined";
   protected final static String FRACTILE_UNDEFINED = "Error: Fractile is undefined";
 
   protected String comments="";
-  protected double minX, maxX;
+  protected double min, max;
   protected String units;
-  protected final static DecimalFormat decimalFormat = new DecimalFormat("0.0####");
 
   /**
    * Get units for this estimate
@@ -101,27 +100,27 @@ public abstract class Estimate {
 
 
   /**
-   * Checks whether there exist any X values which is less than 0.
+   * Checks whether there exist any X values which are less than 0.
    *
    * @return It returns true if any x<0. If all x>=0, it returns false
    */
   public boolean isNegativeValuePresent() {
-    return (getMinX()<0.0);
+    return (getMin()<0.0);
   }
 
   /**
-   * Get the maximum X value
+   * Get the maximum  value (on X axis)
    *
    * @return maximum value (on X axis)
    */
-  public double getMaxX() {return maxX;};
+  public double getMax() {return max;};
 
   /**
-   * Get the minimum X value
+   * Get the minimum value (on X axis)
    *
    * @return minimum value (on X axis)
    */
-  public double getMinX() {return minX;}
+  public double getMin() {return min;}
 
 
    /**
@@ -194,31 +193,69 @@ public abstract class Estimate {
   public  DiscretizedFunc getCDF_TestUsingFractile() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     //discretize the Y values
-    double minY = 0.00001;
-    double maxY = 0.99999;
+    double minProb = 0.00001;
+    double maxProb = 0.99999;
     int numPoints = 100;
-    double deltaY = (maxY-minY)/(numPoints-1);
+    double deltaProb = (maxProb-minProb)/(numPoints-1);
     // find the X values correpsoding to Y values
-    for(double y=minY; y<=maxY;y=y+deltaY)
-      func.set(getFractile(y),y);
+    for(double prob=minProb; prob<=maxProb;prob=prob+deltaProb)
+      func.set(getFractile(prob),prob);
     func.setInfo("CDF using getFractile() method");
     return func;
   }
 
   public String toString() {
     String text = "Values from Methods:\n";
+    
+    // mean
     try {
       text += "Mean = "+getMean()+"\n";
     }
-    catch ( Exception e) {
+    catch ( UnsupportedOperationException e) {
       text += "Mean = NA\n";
     }
+    
+    // mode
     try {
       text += "Mode = "+getMode()+"\n";
     }
-    catch ( Exception e) {
+    catch ( UnsupportedOperationException e) {
       text += "Mode = NA\n";
     }
+    
+    // median
+    try {
+        text += "Median = "+getMedian()+"\n";
+    }
+     catch ( UnsupportedOperationException e) {
+        text += "Median = NA\n";
+    }
+     
+    // std Dev
+     try {
+         text += "Std Dev = "+getStdDev()+"\n";
+     }
+      catch ( UnsupportedOperationException e) {
+         text += "Std Dev = NA\n";
+     } 
+      
+     // fractile
+      try {
+    	  text += "Fractile(0.5) = "+getFractile(0.5)+"\n";
+      } catch(UnsupportedOperationException e) {
+    	  text += "Fractile(0.5) = NA\n";
+      }
+      
+      //isNegativeValuePresent
+      text += "IsNegativeValPresent = "+this.isNegativeValuePresent()+"\n";
+      
+      // max
+      text += "Max = "+this.getMax()+"\n";
+      
+      // min
+      text += "Min = "+this.getMin()+"\n";
+      
+   
     return text;
   }
 

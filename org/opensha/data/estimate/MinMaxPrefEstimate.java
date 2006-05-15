@@ -1,6 +1,5 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: MinMaxPrefEstimate.java </p>
@@ -15,7 +14,7 @@ import org.opensha.data.function.DiscretizedFunc;
 
 public class MinMaxPrefEstimate extends Estimate{
   public final static String NAME  =  "Min, Max and Preferred";
-  private double prefX;
+  private double pref;
   private double minProb, maxProb, prefProb;
   private final static double tol = 1e-6;
   private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be >  Min &"+
@@ -24,22 +23,22 @@ public class MinMaxPrefEstimate extends Estimate{
   "\n"+"Max Prob should be >  Preferred Prob";
 
   /**
-   * @param minX
-   * @param maxX
-   * @param prefX
+   * @param min
+   * @param max
+   * @param pref
    * @param minProb
    * @param maxProb
    * @param prefProb
    */
-  public MinMaxPrefEstimate(double minX, double maxX, double prefX,
+  public MinMaxPrefEstimate(double min, double max, double pref,
                             double minProb, double maxProb, double prefProb) {
 
-    // check that minX<=prefX<=maxX
-    if(!Double.isNaN(minX) && !Double.isNaN(prefX) && minX>=prefX)
+    // check that min<=pref<=max
+    if(!Double.isNaN(min) && !Double.isNaN(pref) && min>=pref)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(minX) && !Double.isNaN(maxX) && minX>=maxX)
+    if(!Double.isNaN(min) && !Double.isNaN(max) && min>=max)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(prefX) && !Double.isNaN(maxX) && prefX>=maxX)
+    if(!Double.isNaN(pref) && !Double.isNaN(max) && pref>=max)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
 
     // check that aprobabilites are in increasing order
@@ -58,28 +57,21 @@ public class MinMaxPrefEstimate extends Estimate{
      if(!Double.isNaN(prefProb) && (prefProb<0 || prefProb>1))
      	throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
 
-    this.minX = minX;
-    this.maxX = maxX;
-    this.prefX = prefX;
+    this.min = min;
+    this.max = max;
+    this.pref = pref;
     this.minProb = minProb;
     this.maxProb = maxProb;
     this.prefProb = prefProb;
   }
 
   public String toString() {
-    String UNKNOWN = "Unknown";
-    String minXStr=UNKNOWN, maxXStr=UNKNOWN, prefXStr=UNKNOWN;
-    String minProbStr=UNKNOWN, maxProbStr=UNKNOWN, prefProbStr=UNKNOWN;
-    if(!Double.isNaN(minX)) minXStr = decimalFormat.format(minX);
-    if(!Double.isNaN(maxX)) maxXStr = decimalFormat.format(maxX);
-    if(!Double.isNaN(prefX)) prefXStr = decimalFormat.format(prefX);
-    if(!Double.isNaN(minProb)) minProbStr = decimalFormat.format(minProb);
-    if(!Double.isNaN(maxProb)) maxProbStr = decimalFormat.format(maxProb);
-    if(!Double.isNaN(prefProb)) prefProbStr = decimalFormat.format(prefProb);
     return "Estimate Type="+getName()+"\n"+
-        "Minimum "+"="+minXStr+"["+minProbStr+"]\n"+
-        "Maximum "+"="+maxXStr+"["+maxProbStr+"]\n"+
-        "Preferred "+"="+prefXStr+"["+prefProbStr+"]\n";
+    	super.toString()+"\n"+
+        "Values from toString() method of specific estimate\n"+
+        "Min "+"="+min+"["+minProb+"]\n"+
+        "Max "+"="+max+"["+maxProb+"]\n"+
+        "Pref "+"="+pref+"["+prefProb+"]\n";
   }
 
 
@@ -87,15 +79,15 @@ public class MinMaxPrefEstimate extends Estimate{
    * This returns the original Min (even if it's NaN)
    * @return double
    */
-  public double getMinimumX() { return this.minX; }
+  public double getMinimum() { return this.min; }
 
   /**
   * This returns the original Max (even if it's NaN)
   * @return double
   */
-  public double getMaximumX() { return this.maxX; }
+  public double getMaximum() { return this.max; }
 
-  public double getPreferredX() { return this.prefX; }
+  public double getPreferred() { return this.pref; }
   public double getMinimumProb() { return this.minProb; }
   public double getMaximumProb() { return this.maxProb; }
   public double getPreferredProb() { return this.prefProb; }
@@ -105,22 +97,22 @@ public class MinMaxPrefEstimate extends Estimate{
    *
    * @return maximum value (on X axis)
    */
-  public double getMaxX() {
-    if(!Double.isNaN(maxX)) return maxX;
-    if(!Double.isNaN(prefX)) return prefX;
-    if(!Double.isNaN(minX)) return minX;
+  public double getMax() {
+    if(!Double.isNaN(max)) return max;
+    if(!Double.isNaN(pref)) return pref;
+    if(!Double.isNaN(min)) return min;
     return Double.NaN;
   }
 
   /**
-   * Get the minimum X value among min, preferred, and max (i.e., NaNs excluded)
+   * Get the minimum value  (on X axis) among min, preferred, and max (i.e., NaNs excluded)
    *
    * @return minimum value (on X axis)
    */
-  public double getMinX() {
-    if(!Double.isNaN(minX)) return minX;
-    if(!Double.isNaN(prefX)) return prefX;
-    if(!Double.isNaN(maxX)) return maxX;
+  public double getMin() {
+    if(!Double.isNaN(min)) return min;
+    if(!Double.isNaN(pref)) return pref;
+    if(!Double.isNaN(max)) return max;
     return Double.NaN;
   }
 

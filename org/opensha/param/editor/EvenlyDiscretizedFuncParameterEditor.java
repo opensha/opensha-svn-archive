@@ -230,24 +230,25 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       Double minVal = (Double)minParam.getValue();
       String isMissing = " is missing";
       if(minVal==null) {
+    	this.editor.getParameterEditor(minParam.getName()).grabFocus();
         JOptionPane.showMessageDialog(this, minParam.getName()+isMissing);
-        this.editor.getParameterEditor(minParam.getName()).grabFocus();
         return;
       }
       double min = minVal.doubleValue();
       // check that user has entered max val
       Double maxVal = (Double)maxParam.getValue();
       if(maxVal==null) {
+    	  this.editor.getParameterEditor(maxParam.getName()).grabFocus();
         JOptionPane.showMessageDialog(this, maxParam.getName()+isMissing);
-        this.editor.getParameterEditor(maxParam.getName()).grabFocus();
         return;
       }
       double max = maxVal.doubleValue();
       //check that user has entered num values
       Integer numVal = (Integer)numParam.getValue();
       if(numVal==null) {
+    	  this.editor.getParameterEditor(numParam.getName()).grabFocus();
         JOptionPane.showMessageDialog(this, numParam.getName()+isMissing);
-        this.editor.getParameterEditor(numParam.getName()).grabFocus();
+        
         return;
       }
       int num = numVal.intValue();
@@ -281,6 +282,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       super.focusLost(e);
 
       if(!focusLostProcessing ) return;
+      System.out.println("Focus lost");
 
       String str = yTextArea.getText();
       StringTokenizer st = new StringTokenizer(str,"\n");

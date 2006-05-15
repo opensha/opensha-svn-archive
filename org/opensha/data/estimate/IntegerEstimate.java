@@ -23,7 +23,7 @@ public class IntegerEstimate extends DiscreteValueEstimate{
 
  /**
   * Constructor - Accepts DiscretizedFunc & an indication of whether it's
-  * already normized. It checks that the X values in the function are integers
+  * already normized. It checks that the values(along X Axis) in the function are integers
   * (or withing tolerance of integers)
   *
   * @param func DiscretizedFunc containing the X and Y values
@@ -34,23 +34,14 @@ public class IntegerEstimate extends DiscreteValueEstimate{
 
  }
 
- public String toString() {
-    String text =  "EstimateType="+getName()+"\n";
-    text+="Number Of Discrete values="+func.getNum();
-    for(int i=0; func!=null && i<func.getNum(); ++i) {
-      text += "\n"+func.getX(i) + "\t"+decimalFormat.format(func.getY(i));
-    }
-    return text;
-  }
 
 
  /**
-  * It checks whether x values are indeed integers:
+  * It checks whether values (on X Axis) are indeed integers:
   *
-  * @param func ArbitrarilyDiscretizedFunc containing the X and Y values
+  * @param func ArbitrarilyDiscretizedFunc containing the values and probabilities
   */
  public void checkValues() {
-   double diff= 0, x;
    if(!func.areAllXValuesInteger(this.tol)) throw new InvalidParamValException(EST_MSG_X_INTEGER);
  }
 

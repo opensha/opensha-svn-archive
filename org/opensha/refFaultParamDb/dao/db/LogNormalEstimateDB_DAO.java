@@ -61,12 +61,12 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
       logTypeId = logTypeDB_DAO.getLogTypeId(LogTypeDB_DAO.LOG_BASE_10);
     else logTypeId = logTypeDB_DAO.getLogTypeId(LogTypeDB_DAO.LOG_BASE_E);
     String colNames="", colVals="";
-    double minX = logNormalEstimate.getMinX();
+    double minX = logNormalEstimate.getMin();
     if(minX!=0) {
       colNames +=MIN_X+",";
       colVals +=minX+",";
     }
-    double maxX = logNormalEstimate.getMaxX();
+    double maxX = logNormalEstimate.getMax();
     if(!Double.isInfinite(maxX)) {
       colNames +=MAX_X+",";
       colVals +=maxX+",";
@@ -134,7 +134,7 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
        if(rs.wasNull()) minX = 0;
        double maxX = rs.getFloat(this.MAX_X);
        if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
-       estimate.setMinMaxX(minX, maxX);
+       estimate.setMinMax(minX, maxX);
        estimateList.add(estimate);
      }
      rs.close();

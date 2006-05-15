@@ -2,7 +2,6 @@ package org.opensha.data.estimate;
 
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
  * <p>Description:  This can be used to specify probabilities associated with
@@ -18,7 +17,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  */
 
 public abstract class DiscretizedFuncEstimate extends Estimate {
-  protected DiscretizedFunc func=null;
+  protected ArbDiscrEmpiricalDistFunc func=null;
   protected DiscretizedFunc cumDistFunc = null;
 
   // tolerance for checking normalization
@@ -36,19 +35,31 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
     setValues(func, isNormalized);
   }
 
+  public String toString() {
+	  String text =  "EstimateType="+getName()+"\n";
+	  text+=super.toString()+"\n";
+	  text+="Values from toString() method of specific estimate\nValue\tProbability\n";
+	  for(int i=0; func!=null && i<func.getNum(); ++i) {
+		  text += "\n"+func.getX(i) + "\t"+func.getY(i);
+	  }	
+	  text+="\ngetFractile(0.5) = "+this.getFractile(0.5)+"\n"+
+	  		"getDiscreteFractile(0.5) = "+this.getDiscreteFractile(0.5)+"\n";
+	  return text;
+  }
 
   /**
    * As implemented, the function passed in is cloned.
-   *  MaxX and MinX are set by those in the function passed in.
+   *  Max and Min are set by those in the function passed in.
    *
    * @param func
    */
   public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
-
-    this.func = (DiscretizedFunc) newFunc.deepClone();
-
-    minX = func.getMinX();
-    maxX = func.getMaxX();
+	func = new ArbDiscrEmpiricalDistFunc();
+    for(int i=0; i<newFunc.getNum(); ++i)
+    	func.set(newFunc.getX(i), newFunc.getY(i));
+    
+    min = func.getMinX();
+    max = func.getMaxX();
 
     // Check normalization and value range
     double sum=0, val;
@@ -66,26 +77,21 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
     else { // sum y vals and check positivity
       for (int i = 0; i < num; ++i) {
         val = func.getY(i);
-        if (val < 0)throw new InvalidParamValException(EST_MSG_Y_POSITIVE);
+        if (val < 0)throw new InvalidParamValException(EST_MSG_PROB_POSITIVE);
         sum += val;
       }
-      if(sum==0) throw new InvalidParamValException(MSG_ALL_Y_ZERO);
+      if(sum==0) throw new InvalidParamValException(MSG_ALL_PROB_ZERO);
       // normalize the function
       for (int i = 0; i < num; ++i) {
         val = func.getY(i);
         func.set( i, val/sum );
       }
     }
-    this.cumDistFunc = (DiscretizedFunc) newFunc.deepClone();
-    double runningSum=0;
-    for(int i=0; i<num; ++i) {
-      runningSum+=func.getY(i);
-      cumDistFunc.set(i, runningSum);
-    }
+    this.cumDistFunc = func.getCumDist();
   }
 
   /**
-   * get the X Y values for this estimate
+   * get the values and corresponding probabilities from this estimate
    * @return
    */
   public DiscretizedFunc getValues() {
@@ -100,7 +106,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * @return
    */
   public double getMode() {
-    return func.getX(func.getXIndex(func.getMaxY()));
+    return func.getMode();
  }
 
  /**
@@ -109,7 +115,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   * @return
   */
   public double getMedian() {
-    return getFractile(0.5);
+    return func.getMedian();
   }
 
   /**
@@ -117,7 +123,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * @return
    */
   public double getStdDev() {
-    throw new java.lang.UnsupportedOperationException("Method getStdDev() not yet implement.");
+    return func.getStdDev();
   }
 
 
@@ -126,7 +132,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * @return
    */
   public double getMean() {
-   throw new java.lang.UnsupportedOperationException("Method getMean() not yet implement");
+   return func.getMean();
  }
 
  /**
@@ -142,5 +148,26 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   */
  public DiscretizedFunc getFunc() { return this.func;}
 
+ /**
+  * Get fractile for a given probability (the value where the CDF equals prob).
+  * This gets the interpolated fractile. To get the discrete fractile. getDiscretFractile() funcation can be used
+  *
+  * @param prob
+  * @return
+  */
+ public double getFractile(double prob) {
+   return func.getInterpolatedFractile(prob);
+ }
+ 
+ /**
+  * Get fractile for a given probability (the value where the CDF equals prob).
+  * this gets the discrete fractile. 
+  *
+  * @param prob
+  * @return
+  */
+ public double getDiscreteFractile(double prob) {
+   return func.getDiscreteFractile(prob);
+ }
 
 }

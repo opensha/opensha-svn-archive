@@ -1,9 +1,6 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFunc;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
@@ -30,22 +27,27 @@ public class FractileListEstimate extends Estimate {
   private DiscretizedFunc func=null;
 
    /**
-    * Construnctor - Accepts the ArbDiscrEmpiricalDistFunc of X and Y values.
+    * Construnctor - Accepts the ArbitrarilyDiscretizedFunc of values and probabilites.
     * The values specified should follow the constraints as specified in
     * the setValues() function.
     *
-    * @param func ArbitrarilyDiscretizedFunc function of  X and Y values
+    * @param func ArbitrarilyDiscretizedFunc function of  values and probabilities
     */
    public FractileListEstimate(DiscretizedFunc func) {
      setValues(func);
    }
 
+   
+   
    public String toString() {
-    String text =  "EstimateType="+getName()+"\n";
-    for(int i=0; func!=null && i<func.getNum(); ++i)
-      text+=   decimalFormat.format(func.getX(i))+"\t"+decimalFormat.format(func.getY(i))+"\n";
-    return text;
-  }
+	   String text =  "EstimateType="+getName()+"\n";
+	   text+=super.toString()+"\n";
+	   text+="Values from toString() method of specific estimate\nValue\tProbability\n";
+	   for(int i=0; func!=null && i<func.getNum(); ++i) {
+		   text += "\n"+func.getX(i) + "\t"+func.getY(i);
+	   }	
+	   return text;
+   }
 
 
    /**
@@ -58,8 +60,8 @@ public class FractileListEstimate extends Estimate {
     * @param func
     */
    public void setValues(DiscretizedFunc func) {
-     maxX = func.getMaxX();
-     minX = func.getMinX();
+     max = func.getMaxX();
+     min = func.getMinX();
      int numValues = func.getNum();
      // check that 0²Y²1
      double y,y_last=-1;

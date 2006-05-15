@@ -350,7 +350,7 @@ private ArrayList getFaultSectionSummary(String condition) {
 			  int numPoints = faultSectionGeom.getNumPoints();
 			  double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
 			  for(int j=0; j<numPoints; ++j) {
-				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX()));
+				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferred()));
 			  }	
 		      faultSection.setFaultTrace(faultTrace);
 		      

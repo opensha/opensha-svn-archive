@@ -248,17 +248,17 @@ public class InfoLabel extends JLabel {
         "<br>" +
         "<b>StdDev =&nbsp;</b>" +
         GUI_Utils.decimalFormat.format(estimate.getStdDev()) + "<br>";
-    if (!Double.isInfinite(estimate.getMinX()))
+    if (!Double.isInfinite(estimate.getMin()))
       text += "<b>Lower Truncation(absolute):&nbsp;</b>" +
-          GUI_Utils.decimalFormat.format(estimate.getMinX()) + "<br>" +
+          GUI_Utils.decimalFormat.format(estimate.getMin()) + "<br>" +
           "<b>Lower Truncation(# of sigmas):&nbsp;</b>" +
           GUI_Utils.decimalFormat.format(estimate.getMinSigma()) + "<br>";
-    if (!Double.isInfinite(estimate.getMaxX()))
+    if (!Double.isInfinite(estimate.getMax()))
       text += "<b>Upper Truncation(absolute):&nbsp;</b>" +
-          GUI_Utils.decimalFormat.format(estimate.getMaxX()) + "<br>" +
+          GUI_Utils.decimalFormat.format(estimate.getMax()) + "<br>" +
           "<b>Upper Truncation(# of sigmas):&nbsp;</b>" +
           GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
-    else
+    if(Double.isInfinite(estimate.getMin()) && Double.isInfinite(estimate.getMax()))
       text += "<b>No Truncation";
     return text;
   }
@@ -273,8 +273,8 @@ public class InfoLabel extends JLabel {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Linear Median:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getLinearMedian())+"<br>"+
         "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
-        "<b>Lower Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
-        "<b>Upper Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX())+"<br>"+
+        "<b>Lower Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMin())+"<br>"+
+        "<b>Upper Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMax())+"<br>"+
         "<b>Lower Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinSigma())+"<br>"+
         "<b>Upper Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
 
@@ -323,9 +323,9 @@ public class InfoLabel extends JLabel {
  private String getTextForMinMaxPrefEstimate(MinMaxPrefEstimate estimate,
                                              String xAxisName, String yAxisName) {
    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>";
-   double minX = estimate.getMinimumX();
-   double maxX = estimate.getMaximumX();
-   double prefX = estimate.getPreferredX();
+   double minX = estimate.getMinimum();
+   double maxX = estimate.getMaximum();
+   double prefX = estimate.getPreferred();
    double minProb = estimate.getMinimumProb();
    double maxProb = estimate.getMaximumProb();
    double prefProb = estimate.getPreferredProb();

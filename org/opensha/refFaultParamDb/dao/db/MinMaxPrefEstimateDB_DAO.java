@@ -55,19 +55,19 @@ public class MinMaxPrefEstimateDB_DAO implements EstimateDAO_API {
     MinMaxPrefEstimate minMaxPrefEstimate = (MinMaxPrefEstimate)estimate;
     String colNames="", colVals="";
     // min X
-    double minX = minMaxPrefEstimate.getMinimumX();
+    double minX = minMaxPrefEstimate.getMinimum();
     if(!Double.isNaN(minX)) {
       colNames +=MIN_X+",";
       colVals +=minX+",";
     }
     // max X
-    double maxX = minMaxPrefEstimate.getMaximumX();
+    double maxX = minMaxPrefEstimate.getMaximum();
     if(!Double.isNaN(maxX)) {
       colNames +=MAX_X+",";
       colVals +=maxX+",";
     }
     // pref X
-    double prefX = minMaxPrefEstimate.getPreferredX();
+    double prefX = minMaxPrefEstimate.getPreferred();
     if(!Double.isNaN(prefX)) {
       colNames +=PREF_X+",";
       colVals +=prefX+",";

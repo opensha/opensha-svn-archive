@@ -20,7 +20,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
   /**
    * Constructor - Accepts a ArbitrarilyDiscretizedFunc and an indication of whether it is
    * normalized. Note that the function passed in is cloned.
-   * MaxX and MinX are set according to those of the function
+   * min and max are set according to those of the function
    * passed in.
    * @param func
    */
@@ -29,32 +29,23 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
   }
 
   /**
-  * As implemented, the function passed in is cloned.
-  * MaxX and MinX are set by those in the function passed in.
-  *
-  * @param func
-  */
- public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
-   super.setValues(newFunc, isNormalized);
-
- }
+   * As implemented, the function passed in is cloned.
+   * max and min are set by those in the function passed in.
+   *
+   * @param func
+   */
+  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
+	  super.setValues(newFunc, isNormalized);
+	  
+  }
+ 
 
  /**
-  * Return the name of the estimate. This is the name viisble to the user
+  * Return the name of the estimate. This is the name visible to the user
   * @return
   */
   public String getName() {
     return NAME;
-  }
-
-
-  public String toString() {
-    String text =  "EstimateType="+getName()+"\n";
-    text+="Number Of Discrete values="+func.getNum();
-    for(int i=0; func!=null && i<func.getNum(); ++i) {
-      text += "\n"+decimalFormat.format(func.getX(i)) + "\t"+decimalFormat.format(func.getY(i));
-    }
-    return text;
   }
 
 

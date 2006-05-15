@@ -5,9 +5,7 @@ import org.opensha.exceptions.DataPoint2DException;
 
 import java.util.*;
 import java.io.Serializable;
-import org.opensha.util.*;
 import org.opensha.exceptions.*;
-import org.opensha.param.ParameterList;
 import org.opensha.data.*;
 
 /**
@@ -145,6 +143,48 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
       return getCumDist(totSum);
     }
+    
+    
+    /**
+     * calculates the mean for normalized distribution
+     * @return
+     */
+    public double getMean() {
+    	ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
+    	double mean=0.0;
+    	for(int i=0; i<tempCumDist.getNum(); ++i) mean+=tempCumDist.getX(i)*tempCumDist.getY(i);
+    	return mean;
+    }
+    
+    /**
+     * Calculates the standard deviation for normalized distribution
+     * 
+     * @return
+     */
+    public double getStdDev() {
+    	double mean = getMean();
+    	double stdDev=0;
+    	for(int i=0; i<getNum(); ++i) stdDev+=Math.pow(mean-getX(i),2);
+    	stdDev /=getNum();
+    	return Math.sqrt(stdDev);
+    }
+    
+    /**
+     *  Get the mode (X value where Y is maximum).
+     * Returns the smallest X value in case of multi-modal distribution
+     * @return
+     */
+    public double getMode() {
+    	return getX(getYIndex(getMaxY()));
+    }
+    
+    /**
+     * Get the median. It returns the  interpolated fractile at 0.5 for normalized distribution.
+     * @return
+     */
+    public double getMedian() {
+    	return getInterpolatedFractile(0.5);
+    }
 
 
     /**
@@ -174,7 +214,6 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public ArbitrarilyDiscretizedFunc getCumDist() {
-
       return getCumDist(1.0);
     }
 

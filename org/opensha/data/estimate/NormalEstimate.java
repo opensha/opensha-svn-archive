@@ -3,6 +3,7 @@ import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
@@ -34,17 +35,25 @@ public class NormalEstimate extends Estimate {
   public NormalEstimate(double mean, double stdDev) {
     setMean(mean);
     setStdDev(stdDev);
-    this.minX=Double.NEGATIVE_INFINITY;
-    this.maxX=Double.POSITIVE_INFINITY;
+    this.min=Double.NEGATIVE_INFINITY;
+    this.max=Double.POSITIVE_INFINITY;
   }
 
 
   public String toString() {
-    return "Estimate Type="+getName()+"\n"+
-        "Mean="+ decimalFormat.format(getMean())+"\n"+
-        "Standard Deviation="+ decimalFormat.format(getStdDev())+"\n"+
-        "Left Truncation Sigma="+ decimalFormat.format(getMinSigma())+"\n"+
-        "Right Truncation Sigma="+ decimalFormat.format(getMaxSigma());
+	  String text= "Estimate Type="+getName()+"\n"+super.toString()+"\n"+	
+	    "Values from toString() method of specific estimate:\n "+
+      	"Mean="+ getMean()+"\n"+
+      	"Standard Deviation="+ getStdDev()+"\n";
+	  if (!Double.isInfinite(getMin())) // min value
+		  text += "Lower Truncation(absolute):" + getMin() +"\n" +
+		  		"Lower Truncation(# of sigmas):" + getMinSigma() + "\n";
+	  if (!Double.isInfinite(getMax()))
+		  text += "Upper Truncation(absolute):" +getMax() + "\n" +
+	     "Upper Truncation(# of sigmas):" + getMaxSigma()+"\n";
+	  if(Double.isInfinite(getMin()) && Double.isInfinite(getMax()))
+		  text += "No Truncation";
+	  return text;
   }
 
   /**
@@ -53,10 +62,10 @@ public class NormalEstimate extends Estimate {
    * @param mean
    * @param stdDev
    */
-  public NormalEstimate(double mean, double stdDev, double minX, double maxX) {
+  public NormalEstimate(double mean, double stdDev, double min, double max) {
     setMean(mean);
     setStdDev(stdDev);
-    this.setMinMaxX(minX,maxX);
+    this.setMinMax(min,max);
   }
 
   /**
@@ -121,8 +130,8 @@ public class NormalEstimate extends Estimate {
 
   /**
    *
-   * Returns the max x value such that probability of occurrence of this x value
-   * is <= prob.  This assumes that minX and maxX (the truncations) are below and
+   * Returns the max x value such that probability of occurrence of this  value (on X axis)
+   * is <= prob.  This assumes that min and max (the truncations) are below and
    * above the mean, respectively.
    *
    * @param prob - probability value
@@ -133,8 +142,8 @@ public class NormalEstimate extends Estimate {
     * accepts the probability of exceedance as the parameter
     */
 	 try {
-		 double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
-				 getStandRandVar(maxX), 1e-6);
+		 double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(min),
+				 getStandRandVar(max), 1e-6);
 		 return getMean() + stdRndVar*getStdDev();
 	 }catch(RuntimeException e) {
 		 throw new RuntimeException(MSG_TRUNCATION_ERR);
@@ -162,10 +171,10 @@ public class NormalEstimate extends Estimate {
   * @param minX double
   * @param maxX double
   */
- public void setMinMaxX(double minX, double maxX) {
-   if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
-   this.maxX = maxX;
-   this.minX = minX;
+ public void setMinMax(double min, double max) {
+   if(max < min) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   this.max = max;
+   this.min = min;
  }
 
  /**
@@ -177,8 +186,8 @@ public class NormalEstimate extends Estimate {
   */
  public void setMinMaxSigmas(double minSigma, double maxSigma) {
    if(maxSigma<minSigma) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
-   this.minX = this.mean+minSigma*this.stdDev;
-   this.maxX = this.mean+maxSigma*this.stdDev;
+   this.min = this.mean+minSigma*this.stdDev;
+   this.max = this.mean+maxSigma*this.stdDev;
  }
 
  /**
@@ -186,7 +195,7 @@ public class NormalEstimate extends Estimate {
   * @return double
   */
  public double getMinSigma() {
-   return (minX-mean)/stdDev;
+   return (min-mean)/stdDev;
  }
 
  /**
@@ -194,7 +203,7 @@ public class NormalEstimate extends Estimate {
   * @return double
   */
  public double getMaxSigma() {
-   return (maxX-mean)/stdDev;
+   return (max-mean)/stdDev;
  }
 
  /**
@@ -229,14 +238,14 @@ public class NormalEstimate extends Estimate {
 
   /**
    * Get the probability for that the true value is less than or equal to provided
-   * x value
+   *  value (on X axis)
    *
    * @param x
    * @return
    */
   public double getProbLessThanEqual(double x) {
-    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(x), getStandRandVar(minX),
-       getStandRandVar(maxX)));
+    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(x), getStandRandVar(min),
+       getStandRandVar(max)));
   }
 
 
@@ -246,9 +255,7 @@ public class NormalEstimate extends Estimate {
    */
   public DiscretizedFunc getCDF_Test() {
     EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
-    double deltaX = func.getDelta();
     int numPoints = func.getNum();
-    double x;
     for(int i=0; i<numPoints; ++i)
       func.set(i, getProbLessThanEqual(func.getX(i)));
     func.setInfo("CDF from Normal Distribution using getProbLessThanEqual() method");
@@ -260,10 +267,10 @@ public class NormalEstimate extends Estimate {
    * @return
    */
   private EvenlyDiscretizedFunc getEvenlyDiscretizedFunc() {
-    double minX = mean-4*stdDev;
-    double maxX = mean+4*stdDev;
+    double min = mean-4*stdDev;
+    double max = mean+4*stdDev;
     int numPoints = 81;
-    EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, maxX, numPoints);
+    EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(min, max, numPoints);
     return func;
   }
 

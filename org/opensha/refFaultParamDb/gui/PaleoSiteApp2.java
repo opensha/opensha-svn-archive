@@ -261,12 +261,12 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       // try to display pref value, then maximum and then minimum
      else if (estimate instanceof MinMaxPrefEstimate) {
         MinMaxPrefEstimate minMaxPrefEst =  (MinMaxPrefEstimate) estimate;
-        if(!Double.isNaN(minMaxPrefEst.getPreferredX()))
-          timeString +=  format.format(minMaxPrefEst.getPreferredX());
-        else if(!Double.isNaN(minMaxPrefEst.getMaximumX()))
-          timeString +=   format.format(minMaxPrefEst.getMaximumX());
-        else if(!Double.isNaN(minMaxPrefEst.getMinimumX()))
-          timeString +=   format.format(minMaxPrefEst.getMinimumX());
+        if(!Double.isNaN(minMaxPrefEst.getPreferred()))
+          timeString +=  format.format(minMaxPrefEst.getPreferred());
+        else if(!Double.isNaN(minMaxPrefEst.getMaximum()))
+          timeString +=   format.format(minMaxPrefEst.getMaximum());
+        else if(!Double.isNaN(minMaxPrefEst.getMinimum()))
+          timeString +=   format.format(minMaxPrefEst.getMinimum());
       }
       if (timeEstimate.isKaSelected()) // if user entered ka values
         timeString += "ka";

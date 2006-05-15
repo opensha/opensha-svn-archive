@@ -15,7 +15,6 @@ import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.data.estimate.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.data.estimate.InvalidParamValException;
@@ -269,14 +268,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.chooseEstimateParam.setValue(NormalEstimate.NAME);
     this.meanParam.setValue(normalEstimate.getMean());
     this.stdDevParam.setValue(normalEstimate.getStdDev());
-    this.absoluteLowerTruncationParam.setValue(normalEstimate.getMinX());
-    this.absoluteUpperTruncationParam.setValue(normalEstimate.getMaxX());
+    this.absoluteLowerTruncationParam.setValue(normalEstimate.getMin());
+    this.absoluteUpperTruncationParam.setValue(normalEstimate.getMax());
     Double estimateConstraintMin = this.estimateConstraint.getMin();
     Double estimateConstraintMax = this.estimateConstraint.getMax();
     // set truncation type parameter
     if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
-       (normalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
-        normalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
+       (normalEstimate.getMin()!=estimateConstraintMin.doubleValue() ||
+        normalEstimate.getMax()!=estimateConstraintMax.doubleValue())) {
       this.truncationTypeParam.setValue(TRUNCATED_ABSOLUTE);
     }
 
@@ -290,14 +289,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.chooseEstimateParam.setValue(LogNormalEstimate.NAME);
     this.linearMedianParam.setValue(logNormalEstimate.getLinearMedian());
     this.stdDevParam.setValue(logNormalEstimate.getStdDev());
-    this.absoluteLowerTruncationParam.setValue(logNormalEstimate.getMinX());
-    this.absoluteUpperTruncationParam.setValue(logNormalEstimate.getMaxX());
+    this.absoluteLowerTruncationParam.setValue(logNormalEstimate.getMin());
+    this.absoluteUpperTruncationParam.setValue(logNormalEstimate.getMax());
     Double estimateConstraintMin = this.estimateConstraint.getMin();
     Double estimateConstraintMax = this.estimateConstraint.getMax();
     // set truncation type parameter
     if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
-       (logNormalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
-        logNormalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
+       (logNormalEstimate.getMin()!=estimateConstraintMin.doubleValue() ||
+        logNormalEstimate.getMax()!=estimateConstraintMax.doubleValue())) {
       this.truncationTypeParam.setValue(TRUNCATED_ABSOLUTE);
     }
 
@@ -327,13 +326,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   private void setMinMaxPrefVals(MinMaxPrefEstimate minMaxPrefEstimate) {
     this.chooseEstimateParam.setValue(MinMaxPrefEstimate.NAME);
     // min X
-    double minX = minMaxPrefEstimate.getMinimumX();
+    double minX = minMaxPrefEstimate.getMinimum();
     if(!Double.isNaN(minX))  this.minX_Param.setValue(new Double(decimalFormat.format(minX)));
     // pref X
-    double prefX = minMaxPrefEstimate.getPreferredX();
+    double prefX = minMaxPrefEstimate.getPreferred();
     if(!Double.isNaN(prefX)) prefferedX_Param.setValue(new Double(decimalFormat.format(prefX)));
     //max X
-    double maxX = minMaxPrefEstimate.getMaximumX();
+    double maxX = minMaxPrefEstimate.getMaximum();
     if(!Double.isNaN(maxX)) maxX_Param.setValue(new Double(decimalFormat.format(maxX)));
     //min Prob
     double minProb = minMaxPrefEstimate.getMinimumProb();
@@ -597,18 +596,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    * make the parameters visible/invisible for FractileListEstimate estimate
    */
   private void setParamsForFractileListEstimate() {
-    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-    editor.setParameterVisible(meanParamName, false);
-    editor.setParameterVisible(stdDevParamName, false);
-    editor.setParameterVisible(TRUNCATION_TYPE_PARAM_NAME, false);
-    editor.setParameterVisible(linearMedianParamName, false);
-    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-    editor.setParameterVisible(this.pdfParamName, false);
-    editor.setParameterVisible(this.xyParamName, false);
-    setTruncationParamsVisibility();
-    xValsParamListEditor.setVisible(true);
-    probValsParamListEditor.setVisible(true);
-    viewEstimateButton.setVisible(false);
+	  setParamsForXY_Estimate();
   }
 
   /**
@@ -809,7 +797,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      Double absoluteMax = (Double)this.absoluteUpperTruncationParam.getValue();
      if(absoluteMax==null)
        throw new RuntimeException(this.absoluteUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
-     estimate.setMinMaxX(absoluteMin.doubleValue(), absoluteMax.doubleValue());
+     estimate.setMinMax(absoluteMin.doubleValue(), absoluteMax.doubleValue());
    }
    return estimate;
  }
@@ -858,7 +846,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      Double absoluteMax = (Double)this.absoluteUpperTruncationParam.getValue();
      if(absoluteMax==null)
        throw new RuntimeException(this.absoluteUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
-     estimate.setMinMaxX(absoluteMin.doubleValue(), absoluteMax.doubleValue());
+     estimate.setMinMax(absoluteMin.doubleValue(), absoluteMax.doubleValue());
    }
 
 
@@ -951,71 +939,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    * Set the estimate paramter value to be min/max/preferred estimate
    */
  private Estimate setFractileListEstimate() {
-   ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
-   throw new RuntimeException("setFractileListEstimate() not supported");
-   /*double minX, maxX, prefX, minProb, maxProb, prefProb;
-   minX = getValueForParameter(minX_Param);
-   maxX = getValueForParameter(maxX_Param);
-   prefX = getValueForParameter(prefferedX_Param);
-   // check that user typed in atleast one of minX, maxX or prefX
-   if(Double.isNaN(minX) && Double.isNaN(maxX) && Double.isNaN(prefX)) {
-     throw new RuntimeException("Enter atleast one of "+minX_Param.getName()+","+
-                                maxX_Param.getName()+" or "+prefferedX_Param.getName());
-   }
-   minProb = getValueForParameter(minProbParam);
-   maxProb = getValueForParameter(maxProbParam);
-   prefProb = getValueForParameter(prefferedProbParam);
-   // check that if user entered minX, then minProb was also entered
-   checkValidVals(minX, minProb, minX_Param.getName(), minProbParam.getName());
-   // check that if user entered maxX, then maxProb was also entered
-   checkValidVals(maxX, maxProb, maxX_Param.getName(), maxProbParam.getName());
-   // check that if user entered prefX, then prefProb was also entered
-   checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
-
-
-   // if min/max/pref is symmetric, ask the user whether normal distribution can be used
-   if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||
-        Double.isNaN(minProb) || Double.isNaN(maxProb) || Double.isNaN(prefProb))) { //
-     if((minX>prefX) || (minX>maxX) || (prefX>maxX))
-       throw new RuntimeException(prefferedX_Param.getName()+" should be greater than/equal to "+minX_Param.getName()+
-                                  "\n"+maxX_Param.getName()+" should be greater than/equal to "+prefferedX_Param.getName());
-     double diffX1 = prefX - minX;
-     double diffX2 = maxX - prefX;
-     double diffProb1 = prefProb - minProb;
-     double diffProb2 = prefProb - maxProb;
-     if(diffX1==diffX2 && diffProb1==diffProb2 &&
-        chooseEstimateParam.getAllowedStrings().contains(NormalEstimate.NAME)) { // it is symmetric
-        // ask the user if normal distribution can be used
-        int option = JOptionPane.showConfirmDialog(this, MSG_IS_NORMAL_OK);
-        if(option==JOptionPane.OK_OPTION) {
-          this.chooseEstimateParam.setValue(NormalEstimate.NAME);
-          throw new RuntimeException("Changing to Normal Estimate");
-        }
-     }
-   }
-
-   if(Double.isNaN(minX)) {
-     minX = estimateConstraint.getMin().doubleValue();
-     minProb = 0;
-   } else
-   if(Double.isNaN(maxX)) {
-     maxX = estimateConstraint.getMax().doubleValue();
-     maxProb = 0;
-   }
-   if(Double.isNaN(prefX)) {
-     prefX = (minX+maxX)/2;
-     prefProb = 0;
-   }*/
-
-   /* if(!Double.isNaN(minX)) empiricalFunc.set(minX, minProb);
-    if(!Double.isNaN(maxX)) empiricalFunc.set(maxX, maxProb);
-    if(!Double.isNaN(prefX)) empiricalFunc.set(prefX, prefProb); */
-
-   /*empiricalFunc.set(minX, minProb);
-   empiricalFunc.set(maxX, maxProb);
-   empiricalFunc.set(prefX, prefProb);
-   FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
-   return estimate;*/
+	 ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
+	   if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
+	         MSG_VALUE_MISSING_SUFFIX);
+	   try {
+	     DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
+	     return estimate;
+	   }catch(InvalidParamValException e) {
+	     throw new RuntimeException(this.model.getName()+":"+e.getMessage());
+	   }
  }
 
  /**
@@ -1063,15 +995,19 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   */
   public static void main(String args[]) {
     JFrame frame = new JFrame();
-    JButton summaryButton = new JButton("View Estimate Summary");
+    JButton htmlSummaryButton = new JButton("View Estimate Summary(HTML)");
+    JButton textSummaryButton = new JButton("Estimate toString()");
 
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Slip Rate", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
     ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true);
-    summaryButton.addActionListener(new EstimateSummaryListener(estimateParameterEditor, "Slip Rate"));
+    htmlSummaryButton.addActionListener(new HtmlEstimateSummaryListener(estimateParameterEditor, "Slip Rate"));
+    textSummaryButton.addActionListener(new TextEstimateSummaryListener(estimateParameterEditor, "Slip Rate"));
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    frame.getContentPane().add(summaryButton, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+    frame.getContentPane().add(htmlSummaryButton, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    frame.getContentPane().add(textSummaryButton, new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
             , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
     frame.pack();
@@ -1081,16 +1017,16 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 }
 
  /**
-  * This class is used to view Estimate Summary
+  * This class is used to view Estimate Summary in HTML form
   *
   * @author vipingupta
   *
   */
- class EstimateSummaryListener implements ActionListener {
+ class HtmlEstimateSummaryListener implements ActionListener {
 	 private ConstrainedEstimateParameterEditor estimateParameterEditor;
 	 private String title;
 
-	 public EstimateSummaryListener(ConstrainedEstimateParameterEditor estimateParameterEditor, String title) {
+	 public HtmlEstimateSummaryListener(ConstrainedEstimateParameterEditor estimateParameterEditor, String title) {
 		  this.estimateParameterEditor=estimateParameterEditor;
 		  this.title = title;
 	 }
@@ -1109,6 +1045,37 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 			 JOptionPane.showMessageDialog(estimateParameterEditor, e.getMessage());
 		 }
 	 }
+ }
+	
+	 /**
+	  * This class is used to view Estimate Summary in HTML form
+	  *
+	  * @author vipingupta
+	  *
+	  */
+	 class TextEstimateSummaryListener implements ActionListener {
+		 private ConstrainedEstimateParameterEditor estimateParameterEditor;
+		 private String title;
+
+		 public TextEstimateSummaryListener(ConstrainedEstimateParameterEditor estimateParameterEditor, String title) {
+			  this.estimateParameterEditor=estimateParameterEditor;
+			  this.title = title;
+		 }
+
+		 public void actionPerformed(ActionEvent event) {
+			 try {
+				 estimateParameterEditor.setEstimateInParameter();
+				 Estimate estimate = (Estimate)estimateParameterEditor.getParameter().getValue();
+				 JFrame frame = new JFrame();
+				 JTextArea textArea = new JTextArea(estimate.toString());
+				 frame.getContentPane().add(new JScrollPane(textArea), BorderLayout.CENTER);
+				 frame.setLocationRelativeTo(estimateParameterEditor);
+				 frame.pack();
+				 frame.show();
+			 }catch(Exception e) {
+				 JOptionPane.showMessageDialog(estimateParameterEditor, e.getMessage());
+			 }
+		 }
 
 
  }

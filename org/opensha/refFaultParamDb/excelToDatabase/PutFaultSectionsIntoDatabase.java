@@ -126,7 +126,7 @@ public class PutFaultSectionsIntoDatabase {
    * @param faultSection
    */
   private void calculateDipDirection(FaultSectionVer2 faultSection) {
-	  double dip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
+	  double dip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferred();
 	  // there is no dip direction if dip is 90 degrees
 	  if(dip==90) {
 		  faultSection.setDipDirection(Float.NaN);

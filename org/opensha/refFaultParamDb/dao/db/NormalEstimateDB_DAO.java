@@ -53,12 +53,12 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
     if(!(estimate instanceof NormalEstimate)) throw new InsertException(ERR_MSG);
     String colNames="", colVals="";
     NormalEstimate normalEstimate = (NormalEstimate)estimate;
-    double minX = normalEstimate.getMinX();
+    double minX = normalEstimate.getMin();
     if(!Double.isInfinite(minX)) {
       colNames +=MIN_X+",";
       colVals +=minX+",";
     }
-    double maxX = normalEstimate.getMaxX();
+    double maxX = normalEstimate.getMax();
     if(!Double.isInfinite(maxX)) {
       colNames +=MAX_X+",";
       colVals +=maxX+",";
@@ -121,7 +121,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
        if(rs.wasNull()) minX = Double.NEGATIVE_INFINITY;
        double maxX = rs.getFloat(this.MAX_X);
        if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
-       normalEstimate.setMinMaxX(minX, maxX);
+       normalEstimate.setMinMax(minX, maxX);
        estimateList.add(normalEstimate);
 
      }

@@ -40,19 +40,20 @@ public class LogNormalEstimate extends Estimate {
   public LogNormalEstimate(double linearMedian, double stdDev) {
     setLinearMedian(linearMedian);
     setStdDev(stdDev);
-    minX = 0.0;
-    maxX = Double.POSITIVE_INFINITY;
+    min = 0.0;
+    max = Double.POSITIVE_INFINITY;
   }
 
   public String toString() {
     String logBase = "E";
     if(isBase10) logBase="10";
     return "Estimate Type="+getName()+"\n"+
-        "Linear Median="+ decimalFormat.format(this.getLinearMedian())+"\n"+
-        "Standard Deviation="+ decimalFormat.format(getStdDev())+"\n"+
+    
+        "Linear Median="+ this.getLinearMedian()+"\n"+
+        "Standard Deviation="+ getStdDev()+"\n"+
         "Log Base="+logBase+"\n"+
-        "Left Truncation Sigma="+ decimalFormat.format(getMinSigma())+"\n"+
-        "Right Truncation Sigma="+ decimalFormat.format(getMaxSigma());
+        "Left Truncation Sigma="+ getMinSigma()+"\n"+
+        "Right Truncation Sigma="+ getMaxSigma();
   }
 
 
@@ -139,8 +140,8 @@ public double getFractile(double prob) {
    * NOTE: In the statement below, we have to use (1-prob) because GaussianDistCalc
    * accepts the probability of exceedance as the parameter
    */
-   double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
-       getStandRandVar(maxX), 1e-6);
+   double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(min),
+       getStandRandVar(max), 1e-6);
    return getUnLogVal(getLogVal(linearMedian) + stdRndVar*stdDev);
  }
 
@@ -208,16 +209,16 @@ public double getFractile(double prob) {
  }
 
  /**
-  * Set the minimum and maximum X-axis value
+  * Set the minimum and maximum  values
   *
-  * @param minX double
-  * @param maxX double
+  * @param min double
+  * @param max double
   */
- public void setMinMaxX(double minX, double maxX) {
-   if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
-   if(minX<0 || maxX<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
-   this.maxX = maxX;
-   this.minX = minX;
+ public void setMinMax(double min, double max) {
+   if(max < min) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   if(min<0 || max<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
+   this.max = max;
+   this.min = min;
  }
 
  /**
@@ -232,25 +233,25 @@ public double getFractile(double prob) {
    double min, max;
    min = getUnLogVal(getLogVal(this.linearMedian)+getLogVal(minSigma*this.stdDev));
    max = getUnLogVal(getLogVal(this.linearMedian)+getLogVal(maxSigma*stdDev));
-   if(minX<0 || maxX<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
-   this.minX = min;
-   this.maxX = max;
+   if(min<0 || max<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
+   this.min = min;
+   this.max = max;
  }
 
  public double getMinSigma() {
-   return getUnLogVal(getLogVal(minX)-getLogVal(linearMedian))/stdDev;
+   return getUnLogVal(getLogVal(min)-getLogVal(linearMedian))/stdDev;
  }
 
  public double getMaxSigma() {
-   return getUnLogVal(getLogVal(maxX)-getLogVal(linearMedian))/stdDev;
+   return getUnLogVal(getLogVal(max)-getLogVal(linearMedian))/stdDev;
  }
 
 
  /**
   * Get the probability density function.
   * It calculates the PDF for x values.
-  * The PDF is calculated for evenly discretized X values with minX=0,
-  * maxX=linearMedian*Math.exp(4*stdDev), numX=160
+  * The PDF is calculated for evenly discretized  values with min=0,
+  * max=linearMedian*Math.exp(4*stdDev), num=160
   *
   * @return
   */
@@ -278,9 +279,7 @@ public double getFractile(double prob) {
   */
  public DiscretizedFunc getCDF_Test() {
    EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
-   double deltaX = func.getDelta();
    int numPoints = func.getNum();
-   double x;
    for(int i=0; i<numPoints; ++i)
      func.set(i, getProbLessThanEqual(func.getX(i)));
    func.setInfo("CDF from LogNormal Distribution using getProbLessThanEqual() method");
@@ -303,14 +302,14 @@ public double getFractile(double prob) {
 
  /**
    * Get the probability for that the true value is less than or equal to provided
-   * x value
+   *  value
    *
-   * @param x
+   * @param val
    * @return
    */
-  public  double getProbLessThanEqual(double x) {
-    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(x), getStandRandVar(minX),
-       getStandRandVar(maxX)));
+  public  double getProbLessThanEqual(double val) {
+    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(val), getStandRandVar(min),
+       getStandRandVar(max)));
   }
 
  public static void main(String args[]) {

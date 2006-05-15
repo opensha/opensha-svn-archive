@@ -46,6 +46,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
 
     private JTextArea xValsTextArea;
     private JTextArea yValsTextArea;
+    private boolean isFocusListenerForX = false;
 
     /** No-Arg constructor calls parent constructor */
     public ArbitrarilyDiscretizedFuncParameterEditor() { super(); }
@@ -182,8 +183,11 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         focusLostProcessing = false;
         if( keyTypeProcessing == true ) return;
         focusLostProcessing = true;
-
         setValueInParameter();
+        if(!isFocusListenerForX)  {
+        	xValsTextArea.addFocusListener(this);
+        	isFocusListenerForX = true;
+        }
         focusLostProcessing = false;
         if(D) System.out.println(S + "Ending");
       }

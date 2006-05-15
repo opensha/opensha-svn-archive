@@ -115,9 +115,6 @@ public class EstimateConstraint extends DoubleConstraint {
       return allowedEstimateList.getAllowedStrings();
     }
 
-
-
-
     /**
      * This function first checks whether null values are allowed and if passed
      * in value is a null value. If null values are allowed and passed in value
@@ -159,8 +156,8 @@ public class EstimateConstraint extends DoubleConstraint {
         String name = (String)list.get(i);
         if(estimate.getName().equalsIgnoreCase(name)) {
           // if this object is among list of allowed estimates, check min/max value
-          Double estimateMinValue = new Double(estimate.getMinX());
-          Double estimateMaxValue = new Double(estimate.getMaxX());
+          Double estimateMinValue = new Double(estimate.getMin());
+          Double estimateMaxValue = new Double(estimate.getMax());
           if(min==null && max==null) return true;
           if(min!=null && max!=null && estimateMinValue.compareTo(min)>=0 &&  estimateMaxValue.compareTo(max)<=0)
             return true;
@@ -201,7 +198,8 @@ public class EstimateConstraint extends DoubleConstraint {
     public static ArrayList createConstraintForPositiveDoubleValues() {
       ArrayList allowedEstimateTypes = new ArrayList();
       allowedEstimateTypes.add(NormalEstimate.NAME);
-      allowedEstimateTypes.add(LogNormalEstimate.NAME);
+      //allowedEstimateTypes.add(LogNormalEstimate.NAME);
+      allowedEstimateTypes.add(FractileListEstimate.NAME);
       allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
       allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);
       allowedEstimateTypes.add(PDF_Estimate.NAME);
@@ -228,7 +226,8 @@ public class EstimateConstraint extends DoubleConstraint {
    public static ArrayList createConstraintForAllEstimates() {
      ArrayList allowedEstimateTypes = new ArrayList();
      allowedEstimateTypes.add(NormalEstimate.NAME);
-     allowedEstimateTypes.add(LogNormalEstimate.NAME);
+     //allowedEstimateTypes.add(LogNormalEstimate.NAME);
+     allowedEstimateTypes.add(FractileListEstimate.NAME);
      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
      allowedEstimateTypes.add(IntegerEstimate.NAME);
      allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);

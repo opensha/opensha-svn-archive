@@ -43,12 +43,8 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
    if(!(newFunc instanceof EvenlyDiscretizedFunc))
      throw new InvalidParamValException(MSG_EVENLY_DISCRETIZED_ALLOWED);
-   int num = newFunc.getNum();
-   /*double lastY = newFunc.getY(num-1);
-   double firstY = newFunc.getY(0);
-   if(firstY!=0 || lastY!=0) throw new InvalidParamValException(this.EST_MSG_FIRST_LAST_Y_ZERO);
-  */
-   super.setValues(newFunc, isNormalized);
+ 
+     super.setValues(newFunc, isNormalized);
    //normalizeForUnitArea(); // normalize so that PDF has unit area
  }
 
@@ -69,16 +65,6 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
    return NAME;
  }
 
- public String toString() {
-    String text =  "EstimateType="+getName()+"\n";
-    text+="Number Of PDF values="+func.getNum();
-    for(int i=0; func!=null && i<func.getNum(); ++i) {
-      text += "\n" + decimalFormat.format(func.getX(i)) + "\t" +
-          decimalFormat.format(func.getY(i));
-    }
-    return text;
-  }
-
 
 
   /**
@@ -87,7 +73,6 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   */
  public DiscretizedFunc getCDF_Test() {
    EvenlyDiscretizedFunc cdfFunc = (EvenlyDiscretizedFunc)func.deepClone();
-   double deltaX = cdfFunc.getDelta();
    int numPoints = cdfFunc.getNum();
    double x;
    for(int i=0; i<numPoints; ++i) {
@@ -100,7 +85,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
 
  /**
   * Get the probability for that the true value is less than or equal to provided
-  * x value
+  *  value
   *
   * @param x
   * @return
