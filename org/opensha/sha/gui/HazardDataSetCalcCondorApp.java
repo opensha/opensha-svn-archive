@@ -59,7 +59,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   protected final static String version = "0.0.3";
   
   protected final static String versionURL = "http://www.opensha.org/applications/hazMapApps/HazMapApps_Version.txt";
-  protected final static String appURL = "http://www.opensha.org/applications/hazMapApps/HazardDataSetCalcCondorApp.jar";
+  protected final static String appURL = "http://gravity.usc.edu/OpenSHA/HazardDataSetCalcCondorApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazMapApps/versionUpdate.html";
   
 
