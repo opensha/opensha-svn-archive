@@ -9,6 +9,8 @@ import java.util.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.Thread;
+import java.net.URL;
+
 import javax.swing.Timer;
 //import javax.help.*;
 
@@ -33,6 +35,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.mapping.gui.beans.*;
+import org.opensha.util.FileUtils;
 import org.opensha.util.SystemPropertiesUtils;
 
 /**
@@ -67,6 +70,13 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   protected final static boolean D = false;
 
 
+  protected final static String version = "0.0.4";
+  
+  protected final static String versionURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp_Version.txt";
+  protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp.jar";
+  protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/scenShakeMapApp/versionUpdate.html";
+
+  
 
   //variables that determine the width and height of the frame
   protected static final int W=550;
@@ -258,6 +268,39 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     this.initMapGuiBean();
   }
 
+	  /**
+	   * Checks if the current version of the application is latest else direct the
+	   * user to the latest version on the website.
+	   */
+	  protected void checkAppVersion(){
+	      ArrayList scenarioShakeVersion = null;
+	      try {
+	    	  scenarioShakeVersion = FileUtils.loadFile(new URL(versionURL));
+	      }
+	      catch (Exception ex1) {
+	        return;
+	      }
+	      String appVersionOnWebsite = (String)scenarioShakeVersion.get(0);
+	      if(!appVersionOnWebsite.trim().equals(version.trim())){
+	        try{
+	          ApplicationVersionInfoWindow messageWindow =
+	              new ApplicationVersionInfoWindow(appURL,
+	                                               this.versionUpdateInfoURL,
+	                                               "App Version Update", this);
+	          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+	          messageWindow.setLocation( (dim.width -
+	                                      messageWindow.getSize().width) / 2,
+	                                    (dim.height -
+	                                     messageWindow.getSize().height) / 2);
+	          messageWindow.setVisible(true);
+	        }catch(Exception e){
+	          e.printStackTrace();
+	        }
+	      }
+	
+	    return;
+	
+	  }
 
 
   //Component initialization
@@ -336,6 +379,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
+    applet.checkAppVersion();
     applet.init();
     applet.setVisible(true);
   }

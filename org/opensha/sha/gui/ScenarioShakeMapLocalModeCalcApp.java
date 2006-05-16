@@ -21,9 +21,11 @@ public class ScenarioShakeMapLocalModeCalcApp
     extends ScenarioShakeMapApp {
 
 
-  /**
+	protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapLocalCalcApp.jar";		
+		
+  /**	
    *  The object class names for all the supported Eqk Rup Forecasts
-   */
+   */	
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
@@ -74,6 +76,7 @@ public class ScenarioShakeMapLocalModeCalcApp
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
+    applet.checkAppVersion();
     applet.init();
     applet.setVisible(true);
   }

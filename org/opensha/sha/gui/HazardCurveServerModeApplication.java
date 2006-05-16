@@ -3,6 +3,7 @@ package org.opensha.sha.gui;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 
 import java.util.ArrayList;
 import java.rmi.RemoteException;
@@ -42,6 +43,7 @@ import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -51,6 +53,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.util.SystemPropertiesUtils;
 
@@ -65,6 +68,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import java.awt.*;
+
 import javax.swing.*;
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -363,7 +367,14 @@ public class HazardCurveServerModeApplication extends JFrame
   private JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
+  protected final static String version = "0.0.5";
+  
+  protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
+  protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
+  protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazCurvApp/versionUpdate.html";
 
+  
+  
 
   //Construct the applet
   public HazardCurveServerModeApplication() {
@@ -614,7 +625,7 @@ public class HazardCurveServerModeApplication extends JFrame
     this.setLocation((dim.width - this.getSize().width) / 2, 0);
     //EXIT_ON_CLOSE == 3
     this.setDefaultCloseOperation(3);
-    this.setTitle("Hazard Curve Calculator");
+    this.setTitle("Hazard Curve Application ("+getAppVersion()+" )");
 
   }
 
@@ -623,24 +634,70 @@ public class HazardCurveServerModeApplication extends JFrame
     return "Hazard Curves Applet";
   }
 
+  
+	  /**
+	   * Checks if the current version of the application is latest else direct the
+	   * user to the latest version on the website.
+	   */
+	  protected void checkAppVersion(){
+	      ArrayList hazCurveVersion = null;
+	      try {
+	    	  hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
+	      }
+	      catch (Exception ex1) {
+	        return;
+	      }
+	      String appVersionOnWebsite = (String)hazCurveVersion.get(0);
+	      if(!appVersionOnWebsite.trim().equals(version.trim())){
+	        try{
+	          ApplicationVersionInfoWindow messageWindow =
+	              new ApplicationVersionInfoWindow(appURL,
+	                                               this.versionUpdateInfoURL,
+	                                               "App Version Update", this);
+	          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+	          messageWindow.setLocation( (dim.width -
+	                                      messageWindow.getSize().width) / 2,
+	                                    (dim.height -
+	                                     messageWindow.getSize().height) / 2);
+	          messageWindow.setVisible(true);
+	        }catch(Exception e){
+	          e.printStackTrace();
+	        }
+	      }
+	
+	    return;
+	
+	  }
 
-  //Main method
-  public static void main(String[] args) {
-    HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
-    applet.init();
-    applet.setVisible(true);
-  }
 
-  //static initializer for setting look & feel
-  static {
-    String osName = System.getProperty("os.name");
-    try {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
-  }
-
+	  /**
+	   * Returns the Application version
+	   * @return String
+	   */
+	  public static String getAppVersion(){
+	    return version;
+	  }
+	  
+	  
+	
+	  //Main method
+	  public static void main(String[] args) {
+	    HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
+	    applet.checkAppVersion();
+	    applet.init();
+	    applet.setVisible(true);
+	  }
+	
+	  //static initializer for setting look & feel
+	  static {
+	    String osName = System.getProperty("os.name");
+	    try {
+	        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	    }
+	    catch(Exception e) {
+	    }
+	  }
+	
 
 
   /**

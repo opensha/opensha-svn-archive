@@ -44,6 +44,11 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
   public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
 
+  
+  protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
+
+  
+  
   /**
    * Initialize the ERF Gui Bean
    */
@@ -170,6 +175,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
   public static void main(String[] args) {
     HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
+    applet.checkAppVersion();
     applet.init();
     applet.setVisible(true);
   }
