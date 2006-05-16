@@ -111,15 +111,16 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateList = new ArrayList();
-   String sql = "select "+EST_ID+","+MEAN+","+STD_DEV+","+MIN_X+","+MAX_X+" from "+TABLE_NAME+" "+condition;
+   // this awkward sql is needed else we get "Invalid scale exception"
+   String sql = "select "+EST_ID+",("+MEAN+"+0) "+MEAN+",("+STD_DEV+"+0) "+STD_DEV+", ("+MIN_X+"+0) " +MIN_X+",("+MAX_X+"+0) "+MAX_X+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
        NormalEstimate normalEstimate = new NormalEstimate(rs.getFloat(MEAN),
                                            rs.getFloat(STD_DEV));
-       double minX = rs.getFloat(this.MIN_X);
+       double minX = rs.getFloat(MIN_X);
        if(rs.wasNull()) minX = Double.NEGATIVE_INFINITY;
-       double maxX = rs.getFloat(this.MAX_X);
+       double maxX = rs.getFloat(MAX_X);
        if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
        normalEstimate.setMinMax(minX, maxX);
        estimateList.add(normalEstimate);

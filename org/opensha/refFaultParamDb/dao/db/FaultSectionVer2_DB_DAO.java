@@ -301,15 +301,16 @@ private ArrayList getFaultSectionSummary(String condition) {
    */
   private ArrayList query(String condition) {
 	  ArrayList faultSectionsList = new ArrayList();
+	  // this awkward sql is needed else we get "Invalid scale exception"
 	  String sqlWithSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+
-      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
+      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
 	  
 	  String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+ASEISMIC_SLIP_FACTOR_EST+
-      ","+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
+      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
 
 	  ArrayList spatialColumnNames = new ArrayList();
 	  spatialColumnNames.add(FAULT_TRACE);

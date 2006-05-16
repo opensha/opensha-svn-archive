@@ -17,8 +17,8 @@ public class MinMaxPrefEstimate extends Estimate{
   private double pref;
   private double minProb, maxProb, prefProb;
   private final static double tol = 1e-6;
-  private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be >  Min &"+
-                                  "\n"+"Max should be > Preferred";
+  private final static String MSG_INVALID_X_VALS = "Error: Preferred value should be ³  Min &"+
+                                  "\n"+"Max should be ² Preferred";
   private final static String MSG_INVALID_PROB_VALS = "Error: Preferred Prob should be > Min Prob &"+
   "\n"+"Max Prob should be >  Preferred Prob";
 
@@ -34,11 +34,11 @@ public class MinMaxPrefEstimate extends Estimate{
                             double minProb, double maxProb, double prefProb) {
 
     // check that min<=pref<=max
-    if(!Double.isNaN(min) && !Double.isNaN(pref) && min>=pref)
+    if(!Double.isNaN(min) && !Double.isNaN(pref) && min>pref)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(min) && !Double.isNaN(max) && min>=max)
+    if(!Double.isNaN(min) && !Double.isNaN(max) && min>max)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
-    if(!Double.isNaN(pref) && !Double.isNaN(max) && pref>=max)
+    if(!Double.isNaN(pref) && !Double.isNaN(max) && pref>max)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
 
     // check that aprobabilites are in increasing order

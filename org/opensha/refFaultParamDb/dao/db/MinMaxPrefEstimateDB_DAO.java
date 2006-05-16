@@ -139,23 +139,25 @@ public class MinMaxPrefEstimateDB_DAO implements EstimateDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateList = new ArrayList();
-   String sql = "select "+EST_ID+","+MIN_X+","+MAX_X+","+PREF_X+","+
-       MIN_PROB+","+MAX_PROB+","+PREF_PROB+" from "+TABLE_NAME+" "+condition;
+   // this awkward sql is needed else we get "Invalid scale exception"
+   String sql = "select "+EST_ID+",("+MIN_X+"+0) "+MIN_X+",("+MAX_X+"+0) "+ MAX_X+
+      ",("+PREF_X+"+0) "+PREF_X+",("+ MIN_PROB+"+0) "+MIN_PROB+",("+MAX_PROB+"+0) "+MAX_PROB+
+      ", ("+PREF_PROB+"+0) "+PREF_PROB+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
        // get min/max and preferred
-       double minX = rs.getFloat(this.MIN_X);
+       double minX = rs.getFloat(MIN_X);
        if(rs.wasNull()) minX = Double.NaN;
-       double maxX = rs.getFloat(this.MAX_X);
+       double maxX = rs.getFloat(MAX_X);
        if(rs.wasNull()) maxX = Double.NaN;
-       double prefX = rs.getFloat(this.PREF_X);
+       double prefX = rs.getFloat(PREF_X);
        if(rs.wasNull()) prefX = Double.NaN;
-       double minProb = rs.getFloat(this.MIN_PROB);
+       double minProb = rs.getFloat(MIN_PROB);
        if(rs.wasNull()) minProb = Double.NaN;
-       double maxProb = rs.getFloat(this.MAX_PROB);
+       double maxProb = rs.getFloat(MAX_PROB);
        if(rs.wasNull()) maxProb = Double.NaN;
-       double prefProb = rs.getFloat(this.PREF_PROB);
+       double prefProb = rs.getFloat(PREF_PROB);
        if(rs.wasNull()) prefProb = Double.NaN;
        // min/max/pref estimate
        MinMaxPrefEstimate estimate = new MinMaxPrefEstimate(minX, maxX, prefX,

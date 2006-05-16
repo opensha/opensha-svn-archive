@@ -75,8 +75,9 @@ public class PDF_EstimateDB_DAO implements EstimateDAO_API {
     * @throws QueryException
     */
    public Estimate getEstimate(int estimateInstanceId) throws QueryException {
-     String sql = "select "+EST_ID+","+MIN_X+","+DELTA_X+","+NUM+" from "+
-         this.TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
+	   // this awkward sql is needed else we get "Invalid scale exception"
+     String sql = "select "+EST_ID+",("+MIN_X+"+0) "+MIN_X+",("+DELTA_X+"+0) "+DELTA_X+","+NUM+" from "+
+         TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
      EvenlyDiscretizedFunc evenlyDiscFunc=null;
     try {
       ResultSet rs = dbAccessAPI.queryData(sql);
@@ -101,7 +102,7 @@ public class PDF_EstimateDB_DAO implements EstimateDAO_API {
     */
    public boolean removeEstimate(int estimateInstanceId) throws UpdateException {
      boolean isRemovedFromXY_Est= xyEstimateDB_DAO.removeEstimate(estimateInstanceId);
-     String sql = "delete from "+this.TABLE_NAME+" where "+this.EST_ID+"="+estimateInstanceId;
+     String sql = "delete from "+TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
 
      try {
        int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);

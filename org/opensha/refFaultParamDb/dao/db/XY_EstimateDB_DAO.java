@@ -70,7 +70,8 @@ public class XY_EstimateDB_DAO  {
    */
   public void getEstimate(int estimateInstanceId, DiscretizedFuncAPI func) throws QueryException {
     String condition = " where " + EST_ID + "=" + estimateInstanceId;
-    String sql = "select "+EST_ID+","+X+","+Y+" from "+TABLE_NAME+" "+condition;
+    // this awkward sql is needed else we get "Invalid scale exception"
+    String sql = "select "+EST_ID+",("+X+"+0) "+X+",("+Y+"+0) "+Y+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {

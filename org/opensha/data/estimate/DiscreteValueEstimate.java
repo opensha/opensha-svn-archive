@@ -28,17 +28,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
     super(func, isNormalized);
   }
 
-  /**
-   * As implemented, the function passed in is cloned.
-   * max and min are set by those in the function passed in.
-   *
-   * @param func
-   */
-  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
-	  super.setValues(newFunc, isNormalized);
-	  
-  }
- 
+  
 
  /**
   * Return the name of the estimate. This is the name visible to the user
@@ -55,7 +45,6 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
   */
  public DiscretizedFunc getCDF_Test() {
    ArbitrarilyDiscretizedFunc cdfFunc = new ArbitrarilyDiscretizedFunc();
-   System.out.println(cumDistFunc);
    int num = func.getNum();
    double delta = 1e-3;
    double x ;
@@ -93,13 +82,13 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
  * @param prob Probability for which fractile is desired
  * @return
  */
- public double getFractile(double prob) {
+ /*public double getFractile(double prob) {
    int num = cumDistFunc.getNum();
    for(int i=0; i<num; ++i)
      if(cumDistFunc.getY(i)>prob)
        return cumDistFunc.getX(i);
    return 1;
- }
+ }*/
 
 
  public  DiscretizedFunc getPDF_Test() {

@@ -134,12 +134,11 @@ public class EventSequenceDB_DAO {
  private ArrayList query(String condition) {
    ArrayList sequenceList = new ArrayList();
    String sql = "select "+SEQUENCE_ID+","+SEQUENCE_NAME+
-            ","+INFO_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
-            SEQUENCE_PROB+","+ GENERAL_COMMENT+" from "+
-            this.TABLE_NAME+" "+condition;
+            ","+INFO_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+",("+
+            SEQUENCE_PROB+"+0) " +SEQUENCE_PROB+","+ GENERAL_COMMENT+" from "+
+            TABLE_NAME+" "+condition;
    try {
     ResultSet rs  = dbAccess.queryData(sql);
-    ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccess);
     PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(dbAccess);
     while(rs.next())  {
       // create event sequence
@@ -148,7 +147,7 @@ public class EventSequenceDB_DAO {
       eventSequence.setSequenceProb(rs.getFloat(SEQUENCE_PROB));
       eventSequence.setComments(rs.getString(GENERAL_COMMENT));
       // get a list of all the events and missed event probs forming this sequence
-      sql = "select "+EVENT_ID+","+MISSED_PROB+" from "+ SEQUENCE_EVENT_LIST_TABLE_NAME+
+      sql = "select "+EVENT_ID+",("+MISSED_PROB+"+0) "+MISSED_PROB+" from "+ SEQUENCE_EVENT_LIST_TABLE_NAME+
           " where "+SEQUENCE_ID+"="+rs.getInt(SEQUENCE_ID)+" and "+
           SEQUENCE_ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"' order by "+
           EVENT_INDEX_IN_SEQUENCE;

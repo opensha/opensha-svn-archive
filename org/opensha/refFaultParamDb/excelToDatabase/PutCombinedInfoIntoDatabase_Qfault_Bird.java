@@ -161,7 +161,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
         }
 
         // set num events in combined events info
-       // if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
+        if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
 
         // site in DB
         PaleoSite siteInDB = isSiteInCache(paleoSite.getSiteName(), paleoSite.getOldSiteId(), combinedEventsInfo.getNeokinemaFaultNumber());
@@ -413,9 +413,11 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 35: // min start time
         if(value==null) this.min = Double.NaN;
         else min = Double.parseDouble(value);
-        if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
-           throw new InvalidRowException("Start Time is missing");
-         if(startTimeUnits.equalsIgnoreCase("")) throw new InvalidRowException("Start Time units are missing");
+        if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref)) {
+        	startTime = null;
+        	break;
+        }
+        if(startTimeUnits.equalsIgnoreCase("")) throw new InvalidRowException("Start Time units are missing");
          // if units are MA
         if(startTimeUnits.equalsIgnoreCase(MA)) {
           min = min*1000;
@@ -457,6 +459,10 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 39: // end time units
         //if(value!=null) endTimeUnits = value;
         /*else*/   endTimeUnits=this.startTimeUnits;
+        if(startTime==null) {
+        	endTime = null;
+        	break;
+        }
         if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
           endTime = new ExactTime(Integer.parseInt(paleoSitePub.getReference().getRefYear()), 0, 0, 0, 0, 0, TimeAPI.AD, true);
         else {

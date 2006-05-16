@@ -54,19 +54,14 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
    * @param func
    */
   public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
-	func = new ArbDiscrEmpiricalDistFunc();
-    for(int i=0; i<newFunc.getNum(); ++i)
-    	func.set(newFunc.getX(i), newFunc.getY(i));
-    
-    min = func.getMinX();
-    max = func.getMaxX();
+
 
     // Check normalization and value range
     double sum=0, val;
-    int num = func.getNum();
+    int num = newFunc.getNum();
     if(isNormalized) { // check values
       for (int i = 0; i < num; ++i) {
-        val = func.getY(i);
+        val = newFunc.getY(i);
         if (val < 0 || val > 1)throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
         sum += val;
       }
@@ -76,17 +71,23 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
     }
     else { // sum y vals and check positivity
       for (int i = 0; i < num; ++i) {
-        val = func.getY(i);
+        val = newFunc.getY(i);
         if (val < 0)throw new InvalidParamValException(EST_MSG_PROB_POSITIVE);
         sum += val;
       }
       if(sum==0) throw new InvalidParamValException(MSG_ALL_PROB_ZERO);
       // normalize the function
       for (int i = 0; i < num; ++i) {
-        val = func.getY(i);
-        func.set( i, val/sum );
+        val = newFunc.getY(i);
+        newFunc.set( i, val/sum );
       }
     }
+	func = new ArbDiscrEmpiricalDistFunc();
+    for(int i=0; i<newFunc.getNum(); ++i)
+    	func.set(newFunc.getX(i), newFunc.getY(i));
+    
+    min = func.getMinX();
+    max = func.getMaxX();
     this.cumDistFunc = func.getCumDist();
   }
 

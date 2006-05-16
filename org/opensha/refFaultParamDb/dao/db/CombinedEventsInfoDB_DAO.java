@@ -3,7 +3,6 @@ package org.opensha.refFaultParamDb.dao.db;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import java.sql.SQLException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
 import java.sql.ResultSet;
@@ -85,24 +84,34 @@ public class CombinedEventsInfoDB_DAO {
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
-    // get the start time Id
-    int startTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getStartTime());
-    // get the end time Id
-    int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
+    
+    // get the start time Id (if available)
+    String colNames="", colVals="";
+    if(combinedEventsInfo.getStartTime()!=null) {
+    	int startTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getStartTime());
+    	colNames+=START_TIME_ID+",";
+    	colVals+=startTimeId+",";
+    }
+    // get the end time Id (if available)
+    if(combinedEventsInfo.getEndTime()!=null) {
+    	int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
+    	colNames+=END_TIME_ID+",";
+    	colVals+=endTimeId+",";
+    }
     String expertOpinion = NO;
     if(combinedEventsInfo.getIsExpertOpinion()) expertOpinion= YES;
 
 
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
-        START_TIME_ID+","+END_TIME_ID+","+
-        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+","+this.IS_RECORD_DELETED+","+
+        colNames+
+        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+","+IS_RECORD_DELETED+","+
         NEOKINEMA_FAULT_NUMBER+") "+
         "values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
-        SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+",'"+
+        SessionInfo.getContributor().getId()+","+colVals+"'"+
         combinedEventsInfo.getDatedFeatureComments()+"','"+expertOpinion+"','"+
-        this.NO+"','"+combinedEventsInfo.getNeokinemaFaultNumber()+"')";
+        NO+"','"+combinedEventsInfo.getNeokinemaFaultNumber()+"')";
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
@@ -125,7 +134,7 @@ public class CombinedEventsInfoDB_DAO {
      ArrayList referenceList = combinedEventsInfo.getReferenceList();
      for(int i=0; i<referenceList.size(); ++i) {
        int referenceId =((Reference)referenceList.get(i)).getReferenceId();
-       sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+COMBINED_EVENTS_ID+
+       sql = "insert into "+REFERENCES_TABLE_NAME+"("+COMBINED_EVENTS_ID+
            ","+COMBINED_EVENTS_ENTRY_DATE+","+REFERENCE_ID+") "+
            "values ("+infoId+",'"+
            systemDate+"',"+referenceId+")";
@@ -146,8 +155,8 @@ public class CombinedEventsInfoDB_DAO {
    * @return
    */
   public ArrayList getCombinedEventsInfoList(int siteId, int referenceId) {
-    String condition = " where "+SITE_ID+"="+siteId+" and "+this.IS_RECORD_DELETED+
-        "='"+this.NO+"'";
+    String condition = " where "+SITE_ID+"="+siteId+" and "+IS_RECORD_DELETED+
+        "='"+NO+"'";
     return query(condition, referenceId);
   }
 
@@ -161,16 +170,15 @@ public class CombinedEventsInfoDB_DAO {
     ArrayList combinedInfoList = new ArrayList();
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
-        START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
-        ","+IS_EXPERT_OPINION+","+this.NEOKINEMA_FAULT_NUMBER+" from "+this.TABLE_NAME+condition;
+        START_TIME_ID+","+END_TIME_ID+","+CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
+        ","+IS_EXPERT_OPINION+","+NEOKINEMA_FAULT_NUMBER+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
-      int estId;
       while(rs.next())  {
 
         // get all the references for this site
         ArrayList referenceList = new ArrayList();
-        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+        sql = "select "+REFERENCE_ID+" from "+REFERENCES_TABLE_NAME+
             " where "+COMBINED_EVENTS_ID+"="+rs.getInt(INFO_ID)+" and "+
             COMBINED_EVENTS_ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";
         ResultSet referenceResultSet = dbAccess.queryData(sql);
@@ -190,10 +198,12 @@ public class CombinedEventsInfoDB_DAO {
         combinedEventsInfo.setEntryDate(rs.getString(ENTRY_DATE));
         combinedEventsInfo.setSiteId(rs.getInt(SITE_ID));
         combinedEventsInfo.setSiteEntryDate(rs.getString(SITE_ENTRY_DATE));
-        combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(START_TIME_ID)));
-        combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(END_TIME_ID)));
+        int startTimeId = rs.getInt(START_TIME_ID);
+        if(!rs.wasNull()) combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(startTimeId));
+        int endTimeId = rs.getInt(END_TIME_ID);
+        if(!rs.wasNull()) combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(endTimeId));
         combinedEventsInfo.setDatedFeatureComments(rs.getString(DATED_FEATURE_COMMENTS));
-        combinedEventsInfo.setNeokinemaFaultNumber(rs.getString(this.NEOKINEMA_FAULT_NUMBER));
+        combinedEventsInfo.setNeokinemaFaultNumber(rs.getString(NEOKINEMA_FAULT_NUMBER));
         // set displacement
         combinedEventsInfo.setCombinedDisplacementInfo(
             this.combinedDispInfoDB_DAO.getDisplacementInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
@@ -207,7 +217,7 @@ public class CombinedEventsInfoDB_DAO {
         combinedEventsInfo.setEventSequenceList(
             this.eventSequenceDAO.getSequences(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
         // get the contributor info
-        combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
+        combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)).getName());
         if(rs.getString(IS_EXPERT_OPINION).equalsIgnoreCase(YES))
           combinedEventsInfo.setIsExpertOpinion(true);
        else combinedEventsInfo.setIsExpertOpinion(false);

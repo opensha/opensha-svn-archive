@@ -121,7 +121,10 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateList = new ArrayList();
-   String sql = "select "+EST_ID+","+MEDIAN+","+MIN_X+","+MAX_X+","+STD_DEV+","+LOG_TYPE_ID+" from "+TABLE_NAME+" "+condition;
+    // this awkward sql is needed else we get "Invalid scale exception"
+   String sql = "select "+EST_ID+",("+MEDIAN+"+0) "+MEDIAN+",("+MIN_X+"+0) "+MIN_X+
+   				",("+MAX_X+"+0) "+MAX_X+",("+STD_DEV+"+0) "+STD_DEV+
+   				","+LOG_TYPE_ID+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
@@ -130,9 +133,9 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
        String logBase = this.logTypeDB_DAO.getLogBase(rs.getInt(LOG_TYPE_ID));
        if(logBase.equalsIgnoreCase(LogTypeDB_DAO.LOG_BASE_10)) estimate.setIsBase10(true);
        else estimate.setIsBase10(false);
-       double minX = rs.getFloat(this.MIN_X);
+       double minX = rs.getFloat(MIN_X);
        if(rs.wasNull()) minX = 0;
-       double maxX = rs.getFloat(this.MAX_X);
+       double maxX = rs.getFloat(MAX_X);
        if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
        estimate.setMinMax(minX, maxX);
        estimateList.add(estimate);

@@ -385,8 +385,12 @@ public class PutCombinedInfoIntoDatabase_FAD {
     	  else this.startTimeUnits =value;
 
           // set the start time
-    	  if(Double.isNaN(max) && Double.isNaN(pref))
-              throw new InvalidRowException("Start Time is missing");
+    	  if(Double.isNaN(max) && Double.isNaN(pref)) {
+              //throw new InvalidRowException("Start Time is missing");
+              startTime = null;
+              endTime = null;
+          	  break;
+    	  }
           Estimate est = new MinMaxPrefEstimate(Double.NaN,max,pref,Double.NaN, Double.NaN, Double.NaN);
           if(startTimeUnits.equalsIgnoreCase(KA))
             ((TimeEstimate)startTime).setForKaUnits(est, ZERO_YEAR);

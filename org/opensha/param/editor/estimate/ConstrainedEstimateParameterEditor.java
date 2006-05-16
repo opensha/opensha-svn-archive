@@ -727,7 +727,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
        setEstimateInParameter();
        viewEstimate();
      }catch(Exception ex) {
-       JOptionPane.showMessageDialog(this,ex.getMessage());
+       JOptionPane.showMessageDialog(this, estimateParam+getName()+"\n"+ex.getMessage());
      }
    } else if (e.getSource()==this.button) {
      frame.pack();
@@ -752,24 +752,27 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  public void setEstimateInParameter() {
    Estimate estimate = null;
    String estimateName=(String)this.chooseEstimateParam.getValue();
+   try {
+	   if (estimateName.equalsIgnoreCase(NormalEstimate.NAME))
+		   estimate = setNormalEstimate();
+	   else if (estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
+		   estimate = setLogNormalEstimate();
+	   else if (estimateName.equalsIgnoreCase(MinMaxPrefEstimate.NAME))
+		   estimate = setMinMaxPrefEstimate();
+	   else if (estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
+		   estimate = setFractileListEstimate();
+	   else if (estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
+		   estimate = setIntegerEstimate();
+	   else if (estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
+		   estimate = setDiscreteValueEstimate();
+	   else if (estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
+		   estimate = setPDF_Estimate();
 
-   if (estimateName.equalsIgnoreCase(NormalEstimate.NAME))
-     estimate = setNormalEstimate();
-   else if (estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
-     estimate = setLogNormalEstimate();
-   else if (estimateName.equalsIgnoreCase(MinMaxPrefEstimate.NAME))
-   estimate = setMinMaxPrefEstimate();
-   else if (estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
-     estimate = setFractileListEstimate();
-   else if (estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
-     estimate = setIntegerEstimate();
-   else if (estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
-     estimate = setDiscreteValueEstimate();
-   else if (estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
-     estimate = setPDF_Estimate();
-
-   estimate.setUnits(estimateParam.getUnits());
-   this.estimateParam.setValue(estimate);
+	   estimate.setUnits(estimateParam.getUnits());
+	   this.estimateParam.setValue(estimate);
+   }catch(Exception e) {
+	   throw new RuntimeException(this.estimateParam.getName()+"\n"+e.getMessage());
+   }
  }
 
  /**
@@ -1053,7 +1056,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 			 frame.pack();
 			 frame.show();
 		 }catch(Exception e) {
-			 JOptionPane.showMessageDialog(estimateParameterEditor, e.getMessage());
+			 JOptionPane.showMessageDialog(estimateParameterEditor,  e.getMessage());
 		 }
 	 }
  }

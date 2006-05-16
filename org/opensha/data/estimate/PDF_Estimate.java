@@ -72,13 +72,14 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   * @return
   */
  public DiscretizedFunc getCDF_Test() {
-   EvenlyDiscretizedFunc cdfFunc = (EvenlyDiscretizedFunc)func.deepClone();
-   int numPoints = cdfFunc.getNum();
+   
+   DiscretizedFunc cdfFunc = (DiscretizedFunc)cumDistFunc.deepClone();
+   /*int numPoints = cdfFunc.getNum();
    double x;
    for(int i=0; i<numPoints; ++i) {
      x = cdfFunc.getX(i);
      cdfFunc.set(i, getProbLessThanEqual(x));
-   }
+   }*/
    cdfFunc.setInfo("CDF from PDF Distribution");
    return cdfFunc;
  }
@@ -102,10 +103,10 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
  * @param prob Probability for which fractile is desired
  * @return
  */
- public double getFractile(double prob) {
+ /*public double getFractile(double prob) {
    if(prob<cumDistFunc.getY(0)) return 0;
    return this.cumDistFunc.getFirstInterpolatedX(prob);
- }
+ }*/
 
  /**
   * Get the PDF
