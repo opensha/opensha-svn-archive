@@ -302,6 +302,16 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 	
 	  }
 
+	  /**
+	   * Returns the Application version
+	   * @return String
+	   */
+	  public static String getAppVersion(){
+	    return version;
+	  }
+		  
+		  	  
+	  
 
   //Component initialization
   protected void jbInit() throws Exception {
