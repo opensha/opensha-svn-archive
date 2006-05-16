@@ -21,6 +21,7 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
@@ -53,6 +54,14 @@ public class HazardDataSetCalcCondorApp extends JApplet
   protected final static boolean D = false;
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapCalcServlet";
   public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
+  
+  
+  protected final static String version = "0.0.3";
+  
+  protected final static String versionURL = "http://www.opensha.org/applications/hazMapApps/HazMapApps_Version.txt";
+  protected final static String appURL = "http://www.opensha.org/applications/hazMapApps/HazardDataSetCalcCondorApp.jar";
+  protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazMapApps/versionUpdate.html";
+  
 
   //variables that determine the width and height of the frame
   private static final int W=600;
@@ -206,7 +215,10 @@ public class HazardDataSetCalcCondorApp extends JApplet
                                     JOptionPane.OK_OPTION);
       return;
       }
+      
   }
+  
+  
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
@@ -277,7 +289,53 @@ public class HazardDataSetCalcCondorApp extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
+    
   }
+
+  
+	  /**
+	   * Checks if the current version of the application is latest else direct the
+	   * user to the latest version on the website.
+	   */
+	  protected void checkAppVersion(){
+	      ArrayList hazCurveVersion = null;
+	      try {
+	    	  hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
+	      }
+	      catch (Exception ex1) {
+	        return;
+	      }
+	      String appVersionOnWebsite = (String)hazCurveVersion.get(0);
+	      if(!appVersionOnWebsite.trim().equals(version.trim())){
+	        try{
+	          ApplicationVersionInfoWindow messageWindow =
+	              new ApplicationVersionInfoWindow(appURL,
+	                                               this.versionUpdateInfoURL,
+	                                               "App Version Update", this);
+	          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+	          messageWindow.setLocation( (dim.width -
+	                                      messageWindow.getSize().width) / 2,
+	                                    (dim.height -
+	                                     messageWindow.getSize().height) / 2);
+	          messageWindow.setVisible(true);
+	        }catch(Exception e){
+	          e.printStackTrace();
+	        }
+	      }
+	
+	    return;
+	
+	  }
+	
+	
+	  /**
+	   * Returns the Application version
+	   * @return String
+	   */
+	  public static String getAppVersion(){
+	    return version;
+	  }
+	  
 
 
   //Main method
@@ -287,7 +345,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("HazardMap App");
+    frame.setTitle("HazardMapDataCalc App ("+getAppVersion()+" )");
     frame.getContentPane().add(application, BorderLayout.CENTER);
     application.init();
     frame.setSize(W,H);
