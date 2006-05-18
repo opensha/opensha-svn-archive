@@ -363,17 +363,17 @@ public class HazardCurveServerModeApplication extends JFrame
   * then add new data to the existing data(this option only works if it is ERF_List).
   * */
   boolean addData= true;
-  private JButton cancelCalcButton = new JButton();
+  protected JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
   protected final static String version = "0.0.5";
-  
+
   protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazCurvApp/versionUpdate.html";
 
-  
-  
+
+
 
   //Construct the applet
   public HazardCurveServerModeApplication() {
@@ -633,7 +633,7 @@ public class HazardCurveServerModeApplication extends JFrame
     return "Hazard Curves Applet";
   }
 
-  
+
 	  /**
 	   * Checks if the current version of the application is latest else direct the
 	   * user to the latest version on the website.
@@ -663,9 +663,9 @@ public class HazardCurveServerModeApplication extends JFrame
 	          e.printStackTrace();
 	        }
 	      }
-	
+
 	    return;
-	
+
 	  }
 
 
@@ -676,9 +676,9 @@ public class HazardCurveServerModeApplication extends JFrame
 	  public static String getAppVersion(){
 	    return version;
 	  }
-	  
-	  
-	
+
+
+
 	  //Main method
 	  public static void main(String[] args) {
 	    HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
@@ -686,7 +686,7 @@ public class HazardCurveServerModeApplication extends JFrame
 	    applet.init();
 	    applet.setVisible(true);
 	  }
-	
+
 	  //static initializer for setting look & feel
 	  static {
 	    String osName = System.getProperty("os.name");
@@ -696,7 +696,7 @@ public class HazardCurveServerModeApplication extends JFrame
 	    catch(Exception e) {
 	    }
 	  }
-	
+
 
 
   /**
