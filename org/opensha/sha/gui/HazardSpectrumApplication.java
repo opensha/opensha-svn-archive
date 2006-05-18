@@ -97,7 +97,7 @@ public class HazardSpectrumApplication extends JApplet
   private final static String DETERMINISTIC = "Deterministic";
 
   //Static String to tell the IMT as the SA becuase it is the only supported IMT for this Application
-  private static String SA_NAME = "SA";
+  protected static String SA_NAME = "SA";
   private static String SA_PERIOD = "SA Period";
 
 

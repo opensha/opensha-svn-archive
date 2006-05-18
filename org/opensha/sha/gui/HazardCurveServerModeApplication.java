@@ -116,9 +116,8 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   private final static String C = "HazardCurveServerModeApplication";
   // for debug purpose
-  private final static boolean D = false;
+  protected final static boolean D = false;
 
-  public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardCurveCalcServlet";
 
 
   /**
@@ -149,9 +148,9 @@ public class HazardCurveServerModeApplication extends JFrame
 
   // instances of the GUI Beans which will be shown in this applet
   protected ERF_GuiBean erfGuiBean;
-  private IMR_GuiBean imrGuiBean;
+  protected IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
-  private Site_GuiBean siteGuiBean;
+  protected Site_GuiBean siteGuiBean;
   protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
 
 
@@ -165,38 +164,38 @@ public class HazardCurveServerModeApplication extends JFrame
   GraphWindow graphWindow;
 
   //X and Y Axis  when plotting tha Curves Name
-  private String xAxisName;
-  private String yAxisName;
+  protected String xAxisName;
+  protected String yAxisName;
 
 
   // Strings for control pick list
-  private final static String CONTROL_PANELS = "Control Panels";
+  protected final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
-  private final static String EPISTEMIC_CONTROL = "Epistemic List Control";
-  private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
-  private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
-  private final static String CVM_CONTROL = "Set Site Params from Web Services";
-  private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
+  protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
+  protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
+  protected final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
+  protected final static String CVM_CONTROL = "Set Site Params from Web Services";
+  protected final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
   //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
-  private final static String PLOTTING_OPTION = "Set new dataset plotting option";
-  private final static String XY_Values_Control = "Set external XY dataset";
+  protected final static String PLOTTING_OPTION = "Set new dataset plotting option";
+  protected final static String XY_Values_Control = "Set external XY dataset";
   private final static String PLOT_CYBERSHAKE_DATASET_CONTROL = "Plot Cybershake data";
 
 
   // objects for control panels
-  private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
-  private DisaggregationControlPanel disaggregationControlPanel;
-  private ERF_EpistemicListControlPanel epistemicControlPanel;
-  private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
-  private SitesOfInterestControlPanel sitesOfInterest;
-  private SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
-  private X_ValuesInCurveControlPanel xValuesPanel;
-  private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
-  private PlottingOptionControl plotOptionControl;
-  private XY_ValuesControlPanel xyPlotControl;
-  private CyberShakePlotControlPanel cyberControlPanel;
+  protected PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
+  protected DisaggregationControlPanel disaggregationControlPanel;
+  protected ERF_EpistemicListControlPanel epistemicControlPanel;
+  protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+  protected SitesOfInterestControlPanel sitesOfInterest;
+  protected SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
+  protected X_ValuesInCurveControlPanel xValuesPanel;
+  protected RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
+  protected PlottingOptionControl plotOptionControl;
+  protected XY_ValuesControlPanel xyPlotControl;
+  protected CyberShakePlotControlPanel cyberControlPanel;
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -217,28 +216,28 @@ public class HazardCurveServerModeApplication extends JFrame
   /**
    * List of ArbitrarilyDiscretized functions and Weighted funstions
    */
-  private ArrayList functionList = new ArrayList();
+  protected ArrayList functionList = new ArrayList();
 
   //holds the ArbitrarilyDiscretizedFunc
-  private ArbitrarilyDiscretizedFunc function;
+  protected ArbitrarilyDiscretizedFunc function;
 
   //instance to get the default IMT X values for the hazard Curve
-  private IMT_Info imtInfo = new IMT_Info();
+  protected IMT_Info imtInfo = new IMT_Info();
 
   // variable needed for plotting Epistemic list
-  private boolean isEqkList = false; // whther we are plottin the Eqk List
+  protected boolean isEqkList = false; // whther we are plottin the Eqk List
   //private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
-  private boolean isAllCurves = true; // whether to plot all curves
+  protected boolean isAllCurves = true; // whether to plot all curves
   // whether user wants to plot custom fractile
-  private String fractileOption ;
+  protected String fractileOption ;
   // whether avg is selected by the user
-  private boolean avgSelected = false;
+  protected boolean avgSelected = false;
 
   //Variables required to update progress bar if ERF List is selected
   //total number of ERF's in list
-  private int numERFsInEpistemicList =0;
+  protected int numERFsInEpistemicList =0;
   //index number of ERF for which Hazard Curve is being calculated
-  private int currentERFInEpistemicListForHazardCurve =0;
+  protected int currentERFInEpistemicListForHazardCurve =0;
 
 
   /**
@@ -266,7 +265,7 @@ public class HazardCurveServerModeApplication extends JFrame
 
 
   //checks if Deterministic or Probabilistic Calculations
-  private boolean isProbCurve = true;
+  protected boolean isProbCurve = true;
 
 
   // PEER Test Cases
@@ -352,11 +351,11 @@ public class HazardCurveServerModeApplication extends JFrame
 
 
   //maintains which ERFList was previously selected
-  private String prevSelectedERF_List = null;
+  protected String prevSelectedERF_List = null;
 
   //keeps track which was the last selected Weighted function list.
   //It only initialises this weighted function list if user wants to add data to the existing ERF_List
-  private WeightedFuncListforPlotting weightedFuncList;
+  protected WeightedFuncListforPlotting weightedFuncList;
 
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -416,7 +415,7 @@ public class HazardCurveServerModeApplication extends JFrame
   }
 
   //Component initialization
-  private void jbInit() throws Exception {
+  protected void jbInit() throws Exception {
     border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     border3 = BorderFactory.createEmptyBorder();
@@ -1080,7 +1079,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * if some computation is already going on.
    * @param b
    */
-  private void setButtonsEnable(boolean b){
+  protected void setButtonsEnable(boolean b){
     addButton.setEnabled(b);
     clearButton.setEnabled(b);
     peelOffButton.setEnabled(b);
@@ -1586,7 +1585,7 @@ public class HazardCurveServerModeApplication extends JFrame
   /**
    * Initialize the IMR Gui Bean
    */
-  private void initIMR_GuiBean() {
+  protected void initIMR_GuiBean() {
 
      imrGuiBean = new IMR_GuiBean();
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
@@ -1617,7 +1616,7 @@ public class HazardCurveServerModeApplication extends JFrame
   /**
    * Initialize the site gui bean
    */
-  private void initSiteGuiBean() {
+  protected void initSiteGuiBean() {
 
      // get the selected IMR
      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -1739,7 +1738,7 @@ public class HazardCurveServerModeApplication extends JFrame
   /**
    * Initialize the items to be added to the control list
    */
-  private void initControlList() {
+  protected void initControlList() {
     controlComboBox.addItem(CONTROL_PANELS);
     controlComboBox.addItem(PEER_TEST_CONTROL);
     controlComboBox.addItem(DISAGGREGATION_CONTROL);
@@ -1946,7 +1945,7 @@ public class HazardCurveServerModeApplication extends JFrame
   /**
    * Initialise the item to be added to the Prob and Deter Selection
    */
-  private void initProbOrDeterList(){
+  protected void initProbOrDeterList(){
     this.probDeterSelection.addItem(PROBABILISTIC);
     this.probDeterSelection.addItem(DETERMINISTIC);
   }
@@ -2262,7 +2261,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * This function peels off the window from the current plot and shows in a new
    * window. The current plot just shows empty window.
    */
-  private void peelOffCurves(){
+  protected void peelOffCurves(){
     graphWindow = new GraphWindow(this);
     clearPlot(true);
     graphWindow.setVisible(true);

@@ -23,7 +23,7 @@ import org.opensha.sha.earthquake.ERF_API;
  * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-
+ 
 public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
