@@ -83,6 +83,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
   private int fadReferenceId;
   private HashMap insertedFAD_SiteIntoDB = new HashMap();
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
+  private final static String DATA_SOURCE=" SCEC-FAD";
   
   public PutCombinedInfoIntoDatabase_FAD() {
     try {
@@ -172,7 +173,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
       combinedEventsInfo.setIsExpertOpinion(false);
       combinedEventsInfo.setSiteId(siteInDB.getSiteId());
       combinedEventsInfo.setSiteEntryDate(siteInDB.getEntryDate());
-
+      combinedEventsInfo.setDataSource(DATA_SOURCE);
       // add combined events info to database
        combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
        Thread.sleep(500);

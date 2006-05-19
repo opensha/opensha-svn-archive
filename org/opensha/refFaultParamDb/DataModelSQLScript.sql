@@ -159,19 +159,19 @@ end;
 
 CREATE TABLE Normal_Est (
   Est_Id INTEGER  NOT NULL,
-  Mean NUMBER(12,3) NOT NULL,
-  Std_Dev NUMBER(12,3) NOT NULL,
-  Min_X NUMBER(12,3) NULL,
-  Max_X NUMBER(12,3) NULL,
+  Mean FLOAT NOT NULL,
+  Std_Dev FLOAT NOT NULL,
+  Min_X FLOAT NULL,
+  Max_X FLOAT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE XY_Est (
-  X NUMBER(12,3) NOT NULL,
+  X FLOAT NOT NULL,
   Est_Id INTEGER NOT NULL,
-  Y NUMBER(12,3) NULL,
+  Y FLOAT NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
@@ -188,10 +188,10 @@ CREATE TABLE Log_Type (
 CREATE TABLE Log_Normal_Est (
   Est_Id INTEGER NOT NULL,
   Log_Type_Id INTEGER NOT NULL,
-  Median NUMBER(12,3) NOT NULL,
-  Std_Dev NUMBER(12,3) NOT NULL,
-  Min_X NUMBER(12,3) NULL,
-  Max_X NUMBER(12,3) NULL,
+  Median FLOAT NOT NULL,
+  Std_Dev FLOAT NOT NULL,
+  Min_X FLOAT NULL,
+  Max_X FLOAT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
@@ -201,8 +201,8 @@ CREATE TABLE Log_Normal_Est (
 
 CREATE TABLE PDF_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X NUMBER(12,3) NOT NULL,
-  Delta_X NUMBER(12,3) NOT NULL,
+  Min_X FLOAT NOT NULL,
+  Delta_X FLOAT NOT NULL,
   Num INTEGER  NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
@@ -211,12 +211,12 @@ CREATE TABLE PDF_Est (
 
 CREATE TABLE Min_Max_Pref_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X NUMBER(12,3) NULL,
-  Max_X NUMBER(12,3) NULL,
-  Pref_X NUMBER(12,3) NULL,
-  Min_Prob NUMBER(12,3) NULL,
-  Max_Prob NUMBER(12,3) NULL,
-  Pref_Prob NUMBER(12,3) NULL,
+  Min_X FLOAT NULL,
+  Max_X FLOAT NULL,
+  Pref_X FLOAT NULL,
+  Min_Prob FLOAT NULL,
+  Max_Prob FLOAT NULL,
+  Pref_Prob FLOAT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
@@ -247,7 +247,7 @@ CREATE TABLE Fault_Section (
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
   Fault_Section_Trace MDSYS.SDO_GEOMETRY,
-  Dip_Direction NUMBER(12,3)  NULL,
+  Dip_Direction FLOAT  NULL,
   Average_Aseismic_Slip_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id),
   FOREIGN KEY(Section_Source_Id)
@@ -546,12 +546,13 @@ CREATE TABLE Combined_Events_Info (
   Site_Entry_Date date NOT NULL,  
   Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
-  Start_Time_Id INTEGER  NOT NULL,
-  End_Time_Id INTEGER  NOT NULL,	
+  Start_Time_Id INTEGER  NULL,
+  End_Time_Id INTEGER  NULL,	
   Dated_Feature_Comments VARCHAR(255) NULL,
   Is_Expert_Opinion char(1) NOT NULL,
   Is_Record_Deleted char(1) NOT NULL,
   NeoKinema_Fault_Number VARCHAR(20) NULL, 
+  Data_Source VARCHAR2(20) NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
     REFERENCES Paleo_Site(Site_Id, Entry_Date) ON DELETE CASCADE,
@@ -704,7 +705,7 @@ CREATE TABLE Event_Sequence (
   Entry_Date date NOT NULL,
   Sequence_Name VARCHAR(255) NOT NULL UNIQUE,
   General_Comments VARCHAR(1000) NOT NULL,
-  Sequence_Probability NUMBER(12,3) NOT NULL,
+  Sequence_Probability FLOAT NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE
@@ -732,7 +733,7 @@ CREATE TABLE Event_Sequence_Event_List (
   Event_Entry_Date DATE NOT NULL,
   Sequence_Id INTEGER  NOT NULL,
   Sequence_Entry_Date date NOT NULL,
-  Missed_Prob NUMBER(12,3) NOT NULL,
+  Missed_Prob FLOAT NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
   PRIMARY KEY(Sequence_Id,  Sequence_Entry_Date, Event_Index_In_Sequence),
   FOREIGN KEY(Event_Id,  Event_Entry_Date)

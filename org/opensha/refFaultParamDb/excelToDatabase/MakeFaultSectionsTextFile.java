@@ -29,8 +29,10 @@ public class MakeFaultSectionsTextFile {
 			// iterate over all the fault sections and write them to the file
 			for(int i=0; i<numSections; ++i) {
 				FaultSectionVer2 faultSection = (FaultSectionVer2)faultSections.get(i);
-				fw.write("#"+faultSection.getSectionName()+"\n");
-				fw.write(FaultSectionVer2_DB_DAO.SECTION_ID+"="+faultSection.getSectionId()+"\n");
+				fw.write(faultSection.getSectionId()+";"+faultSection.getSectionName()+";"+
+						faultSection.getSource()+"\n");
+				//fw.write("#"+faultSection.getSectionName()+"\n");
+				/*fw.write(FaultSectionVer2_DB_DAO.SECTION_ID+"="+faultSection.getSectionId()+"\n");
 				fw.write(FaultSectionVer2_DB_DAO.ENTRY_DATE+"="+faultSection.getEntryDate()+"\n");
 				fw.write(FaultSectionVer2_DB_DAO.DIP_DIRECTION+"="+faultSection.getDipDirection()+"\n");
 				fw.write(SECTION_SOURCE+"="+faultSection.getSource()+"\n");
@@ -41,7 +43,7 @@ public class MakeFaultSectionsTextFile {
 				writeEstimateToFile(fw, faultSection.getAveLowerDepthEst(), FaultSectionVer2_DB_DAO.AVE_LOWER_DEPTH_EST);
 				writeEstimateToFile(fw, faultSection.getAveRakeEst(), FaultSectionVer2_DB_DAO.AVE_RAKE_EST);
 				writeEstimateToFile(fw, faultSection.getAveUpperDepthEst(), FaultSectionVer2_DB_DAO.AVE_UPPER_DEPTH_EST);
-				writeFaultTraceToFile(fw, faultSection.getFaultTrace());
+				writeFaultTraceToFile(fw, faultSection.getFaultTrace());*/
 			}
 			fw.close();
 		} catch (IOException e) {

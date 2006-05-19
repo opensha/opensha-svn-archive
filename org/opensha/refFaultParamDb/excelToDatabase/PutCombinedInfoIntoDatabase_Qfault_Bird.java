@@ -233,7 +233,12 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 1: // Qfault fault section Id
         break;
       case 2: //  NEO-KINEMA FAULT ID
-        if(value!=null) combinedEventsInfo.setNeokinemaFaultNumber(value);
+        if(value!=null && !value.equalsIgnoreCase("")) {
+        	combinedEventsInfo.setNeokinemaFaultNumber(value);
+        	combinedEventsInfo.setDataSource("Peter Bird");
+        } else {
+        	combinedEventsInfo.setDataSource("Qfaults");
+        }
         break;
       case 3: // NEO-KINEMA Fault name
         break;
@@ -246,7 +251,8 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 6: // other WG fault sectionIds
     	  String comments = paleoSite.getGeneralComments();
     	  if(comments==null) comments="";
-    	  comments+="Other WG Fault Section Ids = "+value+"\n";
+    	  if(value!=null)
+    		  comments+="Other WG Fault Section Ids = "+value+"\n";
     	  paleoSite.setGeneralComments(comments);
       case 7: // fault name
               // no need to migrate as names here differ somewhat from database names
@@ -291,7 +297,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 14: // site notes
     	  String generalComments = paleoSite.getGeneralComments();
     	  if(generalComments==null) generalComments="";
-    	  generalComments+=value+"\n";
+    	  if(value!=null) generalComments+=value+"\n";
     	  paleoSite.setGeneralComments(generalComments);
     	  
       case 15: // reference summary

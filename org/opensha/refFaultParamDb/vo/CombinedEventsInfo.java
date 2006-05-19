@@ -29,7 +29,16 @@ public class CombinedEventsInfo {
   private boolean isExpertOpinion=false;
   private PaleoSitePublication paleoSitePublication;
   private ArrayList referenceList;
-  private String neokinemaFaultNumber="";
+  private String neokinemaFaultNumber="";  
+  private String dataSource="";
+
+  public String getDataSource() {
+	  return this.dataSource;
+  }
+  
+  public void setDataSource(String dataSource) {
+	  this.dataSource = dataSource;
+  }
 
   public String toString() {
     String startTimeStr=null, endTimeStr=null, combinedSlipRateInfoStr=null;

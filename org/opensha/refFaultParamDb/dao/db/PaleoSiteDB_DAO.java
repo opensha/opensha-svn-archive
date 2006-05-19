@@ -42,6 +42,7 @@ public class PaleoSiteDB_DAO  {
   private final static String GENERAL_COMMENTS="General_Comments";
   private final static String OLD_SITE_ID="Old_Site_Id";
   private final static String DIP_EST_ID = "Dip_Est_Id";
+  
   private final static int SRID=8307;
 
   private DB_AccessAPI dbAccess;
@@ -124,7 +125,8 @@ public class PaleoSiteDB_DAO  {
         SITE_LOCATION2+","+dipColName+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+paleoSite.getFaultSectionId()+",'"+systemDate+
-        "','"+paleoSite.getSiteName()+"',?,?,"+dipVal+"'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
+        "','"+paleoSite.getSiteName()+"',?,?,"+dipVal+"'"+paleoSite.getGeneralComments()+"','"+
+        paleoSite.getOldSiteId()+"')";
     try {	
       //System.out.println(sql);
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
@@ -165,7 +167,7 @@ public class PaleoSiteDB_DAO  {
    * @throws QueryException
    */
   public PaleoSite getPaleoSiteByQfaultId(String qFaultSiteId) throws QueryException {
-    String condition = " where "+this.OLD_SITE_ID+"='"+qFaultSiteId+"'";
+    String condition = " where "+OLD_SITE_ID+"='"+qFaultSiteId+"'";
     ArrayList paleoSiteList = query(condition);
     PaleoSite paleoSite = null;
     if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
@@ -288,9 +290,9 @@ public class PaleoSiteDB_DAO  {
         if(point2.length>2)
           paleoSite.setSiteElevation2((float)point2[2]);
         else paleoSite.setSiteElevation2(Float.NaN);
-        int dipEstId = rs.getInt(this.DIP_EST_ID);
+        int dipEstId = rs.getInt(DIP_EST_ID);
         if(!rs.wasNull()) paleoSite.setDipEstimate(this.estimateInstancesDAO.getEstimateInstance(dipEstId));
-
+        
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         paleoSite.setPaleoSitePubList(this.paleoSitePublicationDAO.getPaleoSitePublicationInfo(rs.getInt(SITE_ID)));

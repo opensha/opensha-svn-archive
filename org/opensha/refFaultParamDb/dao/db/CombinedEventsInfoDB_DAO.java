@@ -33,6 +33,7 @@ public class CombinedEventsInfoDB_DAO {
   private final static String END_TIME_ID="End_Time_Id";
   private final static String DATED_FEATURE_COMMENTS = "Dated_Feature_Comments";
   private final static String NEOKINEMA_FAULT_NUMBER = "NeoKinema_Fault_Number";
+  private final static String DATA_SOURCE = "Data_Source";
   //table for references
   private final static String REFERENCES_TABLE_NAME = "Combined_Events_References";
   private final static String COMBINED_EVENTS_ID = "Combined_Events_Id";
@@ -97,6 +98,11 @@ public class CombinedEventsInfoDB_DAO {
     	int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
     	colNames+=END_TIME_ID+",";
     	colVals+=endTimeId+",";
+    }
+    // get the data source
+    if(combinedEventsInfo.getDataSource()!=null) {
+    	colNames+=DATA_SOURCE+",";
+    	colVals+="'"+combinedEventsInfo.getDataSource()+"',";
     }
     String expertOpinion = NO;
     if(combinedEventsInfo.getIsExpertOpinion()) expertOpinion= YES;
@@ -171,7 +177,7 @@ public class CombinedEventsInfoDB_DAO {
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         START_TIME_ID+","+END_TIME_ID+","+CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
-        ","+IS_EXPERT_OPINION+","+NEOKINEMA_FAULT_NUMBER+" from "+TABLE_NAME+condition;
+        ","+IS_EXPERT_OPINION+","+NEOKINEMA_FAULT_NUMBER+","+DATA_SOURCE+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       while(rs.next())  {
@@ -202,6 +208,8 @@ public class CombinedEventsInfoDB_DAO {
         if(!rs.wasNull()) combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(startTimeId));
         int endTimeId = rs.getInt(END_TIME_ID);
         if(!rs.wasNull()) combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(endTimeId));
+        String dataSource = rs.getString(DATA_SOURCE);
+        if(!rs.wasNull()) combinedEventsInfo.setDataSource(dataSource);
         combinedEventsInfo.setDatedFeatureComments(rs.getString(DATED_FEATURE_COMMENTS));
         combinedEventsInfo.setNeokinemaFaultNumber(rs.getString(NEOKINEMA_FAULT_NUMBER));
         // set displacement
