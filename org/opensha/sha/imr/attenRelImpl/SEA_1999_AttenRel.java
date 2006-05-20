@@ -885,6 +885,9 @@ public class SEA_1999_AttenRel
 
     protected final static String C = "SEA_1999_AttenRelCoefficients";
     protected final static boolean D = false;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654329L;
+
 
     protected String name;
     protected double period = -1;

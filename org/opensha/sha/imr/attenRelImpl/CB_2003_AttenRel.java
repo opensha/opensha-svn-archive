@@ -1072,8 +1072,11 @@ public class CB_2003_AttenRel
   class CB_2003_AttenRelCoefficients
       implements NamedObjectAPI {
 
-    protected final static String C = "CB_2003_AttenRelCoefficients";
+   /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654325L;
+	protected final static String C = "CB_2003_AttenRelCoefficients";
     protected final static boolean D = true;
+ 
 
     protected String name;
     protected double period = -1;

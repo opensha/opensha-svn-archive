@@ -1223,6 +1223,9 @@ public class ShakeMap_2003_AttenRel
 
     protected final static String C = "BJF_1997_AttenRelCoefficients";
     protected final static boolean D = false;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654320L;
+
 
     protected String name;
     protected double period = -1;

@@ -695,6 +695,9 @@ public class Field_2000_AttenRel
 
     protected final static String C = "Field_2000_AttenRelCoefficients";
     protected final static boolean D = false;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654327L;
+
 
     protected String name;
     protected double period = -1;

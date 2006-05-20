@@ -1299,6 +1299,11 @@ public class AS_1997_AttenRel
     protected final static String C = "AS_1997_AttenRelCoefficients";
     protected final static boolean D = true;
 
+    
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654322L;
+    
+    
     protected String name;
     protected double period = -1;
     protected double c4;
@@ -1313,6 +1318,9 @@ public class AS_1997_AttenRel
     protected double b5;
     protected double b6;
 
+    
+    
+    
     /**
      *  Constructor for the AS_1997_AttenRelCoefficients object
      *

@@ -988,6 +988,9 @@ public class Campbell_1997_AttenRel
 
     protected final static String C = "Campbell_1997_AttenRelCoefficients";
     protected final static boolean D = true;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654324L;
+
 
     protected String name;
     protected double period = -1;

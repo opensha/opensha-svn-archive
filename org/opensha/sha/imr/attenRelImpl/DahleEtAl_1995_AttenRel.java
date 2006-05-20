@@ -559,6 +559,9 @@ public class DahleEtAl_1995_AttenRel
 
     protected final static String C = "DahleEtAl_AttenRelCoefficients";
     protected final static boolean D = false;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654326L;
+
 
     protected String name;
     protected double period = -1;

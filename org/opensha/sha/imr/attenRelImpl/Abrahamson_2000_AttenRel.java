@@ -1168,6 +1168,12 @@ public class Abrahamson_2000_AttenRel
 
     protected final static String C = "Abrahamson_2000_AttenRelCoefficients";
     protected final static boolean D = true;
+    
+    
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654321L;
+
+
 
     protected String name;
     protected double period = -1;
