@@ -43,8 +43,6 @@
     <pathelement location="${Required.Libraries.home}/saaj-api.jar"/>
     <pathelement location="${Required.Libraries.home}/dom4j.jar"/>
     <pathelement location="${Tomcat.4.1.Servlet.home}/servlet.jar"/>
-    <pathelement location="${Required.Libraries.home}/jini-core.jar"/>
-    <pathelement location="${Required.Libraries.home}/jsk-platform.jar"/>
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
     <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
@@ -143,15 +141,12 @@
   </target>
   <target name="unjarfiles">
     <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
-    <unjar src="${Required.Libraries.home}/jsk-platform.jar" dest="${dest}" />
-    <unjar src="${Required.Libraries.home}/jini-core.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
     <jar destfile="HazardDataSetCalcCondorApp.jar" basedir="${dest}" manifest="HazDataSetCalcCondor_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="com/**"/>
-      <include name="net/**"/>
     </jar>
     <antcall target="postcompile" />
   </target>

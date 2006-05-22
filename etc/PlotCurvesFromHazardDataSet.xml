@@ -41,8 +41,6 @@
     <pathelement location="${Required.Libraries.home}/saaj-impl.jar"/>
     <pathelement location="${Required.Libraries.home}/saaj-api.jar"/>
     <pathelement location="${Required.Libraries.home}/dom4j.jar"/>
-    <pathelement location="${Required.Libraries.home}/jini-core.jar"/>
-    <pathelement location="${Required.Libraries.home}/jsk-platform.jar"/>
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
     <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
     <pathelement location="${Tomcat.4.1.Servlet.home}/servlet.jar"/>
