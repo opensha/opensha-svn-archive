@@ -12,7 +12,6 @@ import org.opensha.data.TimeSpan;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterAPI;
-import net.jini.core.event.RemoteEventListener;
 
 /**
  * <p>Title: RemoteERF_API</p>
@@ -55,14 +54,6 @@ public interface RemoteERF_API  extends Remote{
     */
    public boolean setParameter(String name, Object value) throws RemoteException;
 
-
-   /**
-    * adds the listener obj to list. When the change events come, all
-    * listeners added to it are notified of it.
-    * @param obj Object
-    */
-    public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
-        throws RemoteException;
 
    /**
     * save the forecast in a file

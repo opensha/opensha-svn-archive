@@ -15,7 +15,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import net.jini.core.event.RemoteEventListener;
+
 
 
 /**

@@ -8,7 +8,6 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 import java.util.EventObject;
 import java.util.ArrayList;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -122,14 +121,6 @@ public abstract  class GriddedHypoMagFreqDistForecast
     return region.getNumGridLocs();
   }
 
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
-    listenerList.add(obj);
-  }
 
   /**
    *  Function that must be implemented by all Timespan Listeners for
@@ -139,11 +130,6 @@ public abstract  class GriddedHypoMagFreqDistForecast
    */
   public void timeSpanChange(EventObject event) {
     this.parameterChangeFlag = true;
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(event);
-    }
   }
 
   /**
@@ -157,11 +143,6 @@ public abstract  class GriddedHypoMagFreqDistForecast
    */
   public void parameterChange(ParameterChangeEvent event) {
     parameterChangeFlag = true;
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(event);
-    }
   }
   /**
    * Allows the user to get the Timespan for this GriddedHypoMagFreqDistForecast

@@ -8,15 +8,9 @@ import java.util.*;
 import java.util.ListIterator;
 import java.util.EventObject;
 
-import net.jini.jeri.BasicILFactory;
-import net.jini.jeri.BasicJeriExporter;
-import net.jini.jeri.tcp.TcpServerEndpoint;
-import net.jini.export.Exporter;
+
 import java.rmi.*;
 
-import net.jini.core.event.RemoteEventListener;
-import net.jini.core.event.RemoteEvent;
-import net.jini.core.event.UnknownEventException;
 
 import org.opensha.data.TimeSpan;
 import org.opensha.param.ParameterList;
@@ -41,24 +35,12 @@ import java.rmi.server.*;
  * @author Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListener,
+public class RemoteERF_Client extends EqkRupForecast implements 
     ParameterChangeListener{
 
   private RemoteEqkRupForecastAPI erfServer = null;
 
-
-  //adds the listeners to this list
-  private transient ArrayList listenerList = new ArrayList();
-
-  //creates the EventObject to send to the listeners for parameter change
-  //and timespan change
-  private EventObject eventObj;
-
-  //checks if within the notify function
-  private boolean withinNotify = false;
-  //named of the parameter whose value is being changed
-  private String changedParameterName;
-
+  
   /**
    * Get the reference to the remote ERF
    */
@@ -86,16 +68,6 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     }
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
-    }
-    //Make a proxy of myself to pass to the server/filter
-    Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
-                                              new BasicILFactory());
-    try {
-      RemoteEventListener proxy = (RemoteEventListener) exporter.export(this);
-      erfServer.addParameterAndTimeSpanChangeListener(proxy);
-    }
-    catch (ExportException ex) {
-      ex.printStackTrace();
     }
   }
 
@@ -147,16 +119,6 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     }
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
-    }
-    //Make a proxy of myself to pass to the server/filter
-    Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
-                                              new BasicILFactory());
-    try {
-      RemoteEventListener proxy = (RemoteEventListener) exporter.export(this);
-      erfServer.addParameterAndTimeSpanChangeListener(proxy);
-    }
-    catch (ExportException ex) {
-      ex.printStackTrace();
     }
 
   }
@@ -232,8 +194,14 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
   public void parameterChange(ParameterChangeEvent event) {
     try {
       String eventParamName = event.getParameterName();
-      if(!(withinNotify && eventParamName.equals(changedParameterName)))
-        erfServer.setParameter(event.getParameterName(), event.getNewValue());
+      erfServer.setParameter(event.getParameterName(), event.getNewValue());
+      // adding the listeners to the parameters
+      adjustableParams = erfServer.getAdjustableParameterList();
+      addListenersToParameters();
+      //getting the timespan object and adding the parameterchange listener obejct to it
+      //getting the timespan and adjustable params
+      timeSpan = erfServer.getTimeSpan();
+      addListenersToTimeSpan();
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
@@ -552,48 +520,7 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     return null;
 
   }
-
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
-    listenerList.add(obj);
-  }
-
-  /**
-   * This method is called from the remote event is received from the Server by the client.
-   * @param remoteEvent RemoteEvent
-   * @throws UnknownEventException
-   * @throws RemoteException
-   */
-  public void notify(RemoteEvent remoteEvent) throws UnknownEventException,
-      RemoteException {
-    withinNotify = true;
-    Object obj = remoteEvent.getSource();
-    eventObj = new EventObject(obj);
-    if(obj instanceof ParameterAPI){
-      ParameterAPI param = (ParameterAPI)obj;
-      changedParameterName = param.getName();
-      adjustableParams.getParameter(param.getName()).setValue(param.getValue());
-    }
-    else if(obj instanceof TimeSpan){
-      timeSpan = (TimeSpan)obj;
-      addListenersToTimeSpan();
-    }
-    else if(obj instanceof ParameterList){
-      adjustableParams = (ParameterList)obj;
-      addListenersToParameters();
-    }
-
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener = (ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(eventObj);
-    }
-    withinNotify = false;
-  }
+ 
 
   /**
    * This function returns the ArbDiscrEmpirical object that holds the

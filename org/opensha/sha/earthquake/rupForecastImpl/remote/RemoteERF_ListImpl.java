@@ -13,11 +13,7 @@ import org.opensha.data.Location;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
-import net.jini.core.event.RemoteEventListener;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
-import net.jini.core.event.RemoteEvent;
 import java.util.EventObject;
-import net.jini.core.event.UnknownEventException;
 
 /**
  * <p>Title: RemoteERF_ListImpl</p>
@@ -29,7 +25,7 @@ import net.jini.core.event.UnknownEventException;
 
 public class RemoteERF_ListImpl
     extends UnicastRemoteObject implements
-    RemoteERF_ListAPI, ParameterAndTimeSpanChangeListener {
+    RemoteERF_ListAPI{
 
   private ERF_List erfList = null;
   private static final boolean D = false;
@@ -46,8 +42,7 @@ public class RemoteERF_ListImpl
       IOException {
     erfList = (ERF_List) org.opensha.util.ClassUtils.
         createNoArgConstructorClassInstance(className);
-    erfList.addParameterAndTimeSpanChangeListener(this);
-  }
+   }
 
   /**
    * get the number of Eqk Rup Forecasts in this list
@@ -57,15 +52,6 @@ public class RemoteERF_ListImpl
     return erfList.getNumERFs();
   }
 
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-  public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj) throws
-      RemoteException {
-    listenerList.add(obj);
-  }
 
   /**
    * Loops over all the adjustable parameters and set parameter with the given
@@ -192,28 +178,6 @@ public class RemoteERF_ListImpl
     return erfList.getParameter(paramName);
   }
 
-  /**
-   * Notifys the Client when any parameter, parameterList or Timespan changes
-   * on the Remote ERF Server.
-   * @param eventObj EventObject
-   */
-  public void parameterOrTimeSpanChange(EventObject eventObj) {
-    Object obj = eventObj.getSource();
-    RemoteEvent event = new RemoteEvent(obj, 0, 0, null);
-    int size = listenerList.size();
-    for (int i = 0; i < size; ++i) {
-      RemoteEventListener listener = (RemoteEventListener) listenerList.get(i);
-      try {
-        listener.notify(event);
-      }
-      catch (RemoteException ex) {
-        ex.printStackTrace();
-      }
-      catch (UnknownEventException ex) {
-        ex.printStackTrace();
-      }
-    }
-  }
 
   /**
    * Update the forecast and save it in serialized mode into a file

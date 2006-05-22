@@ -71,8 +71,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   /*
    * Static variables for input files
    */
-  private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
-  //private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
+  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
+  private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
 
 
   /**
@@ -1124,13 +1124,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
        if(paramValue.equals(this.BACK_SEIS_EXCLUDE)){
          if(adjustableParams.containsParameter(backSeisRupParam))
            adjustableParams.removeParameter(backSeisRupParam);
-         parameterListChange(new EventObject(adjustableParams));
        }
        else{
          //only add the parameter in the parameter list if it does not already exists
          if(!adjustableParams.containsParameter(backSeisRupParam)){
            adjustableParams.addParameter(backSeisRupParam);
-           parameterListChange(new EventObject(adjustableParams));
          }
        }
 

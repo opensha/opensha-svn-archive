@@ -7,7 +7,6 @@ import java.util.ListIterator;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 
 
 /**

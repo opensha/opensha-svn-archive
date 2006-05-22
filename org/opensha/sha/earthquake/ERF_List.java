@@ -36,7 +36,6 @@ public abstract class ERF_List implements ERF_ListAPI,
   protected ParameterList adjustableParams = new ParameterList();
   // time span param
   protected TimeSpan timeSpan;
-  private ArrayList listenerList = new ArrayList();
 
 
   /**
@@ -161,15 +160,6 @@ public abstract class ERF_List implements ERF_ListAPI,
  }
 
 
- /**
-  * adds the listener obj to list. When the change events come, all
-  * listeners added to it are notified of it.
-  * @param obj Object
-  */
- public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
-   listenerList.add(obj);
- }
-
 
 
  /**
@@ -180,11 +170,6 @@ public abstract class ERF_List implements ERF_ListAPI,
   */
  public void timeSpanChange(EventObject event) {
    this.parameterChangeFlag = true;
-   int size = listenerList.size();
-   for(int i=0;i<size;++i){
-     ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-     listener.parameterOrTimeSpanChange(new EventObject(timeSpan));
-   }
  }
 
  /**
@@ -198,11 +183,6 @@ public abstract class ERF_List implements ERF_ListAPI,
   */
  public void parameterChange(ParameterChangeEvent event) {
    parameterChangeFlag = true;
-   int size = listenerList.size();
-   for(int i=0;i<size;++i){
-     ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-     listener.parameterOrTimeSpanChange(event);
-   }
   }
 
  /**

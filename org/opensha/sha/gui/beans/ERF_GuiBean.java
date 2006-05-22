@@ -37,7 +37,7 @@ import org.opensha.data.TimeSpan;
  */
 
 public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
-    ParameterChangeListener, ParameterAndTimeSpanChangeListener{
+    ParameterChangeListener{
 
   private final static String C = "ERF_GuiBean";
 
@@ -214,7 +214,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        ParameterAPI param = (ParameterAPI)it.next();
        //System.out.println("Param Name: "+param.getName());
        //if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
-         //param.addParameterChangeListener(this);
+       param.addParameterChangeListener(this);
        param.addParameterChangeFailListener(this);
 
        parameterList.addParameter(param);
@@ -465,19 +465,24 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
          for(int i=0;i<size;++i){
            if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
              eqkRupForecast = (ERF_API)this.createERFClassInstance((String)erfClasses.get(i));
-             eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
              break;
            }
          }
-         setParamsInForecast();
        }catch(Exception e){
          e.printStackTrace();
        }
-        //       applet.updateChosenERF();
      }
+     
+     try {
+		setParamsInForecast();
+	} catch (InvocationTargetException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+     createTimeSpanPanel();
+  
      this.validate();
      this.repaint();
-
    }
 
    /**
@@ -611,34 +616,6 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     this.add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
     erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
-  }
-
-  /**
-   *
-   * @param obj EventObject
-   */
-  public void parameterOrTimeSpanChange(EventObject eventObj) {
-    Object obj = eventObj.getSource();
-    if(obj instanceof ParameterAPI){
-      ParameterAPI param = (ParameterAPI)obj;
-      listEditor.getParameterEditor(param.getName()).refreshParamEditor();
-    }
-    else if(obj instanceof TimeSpan){
-      createTimeSpanPanel();
-      this.validate();
-      this.repaint();
-    }
-    else if(obj instanceof ParameterList){
-      try {
-        this.setParamsInForecast();
-      }
-      catch (InvocationTargetException ex) {
-        ex.printStackTrace();
-      }
-      this.validate();
-      this.repaint();
-    }
-
   }
 
 }

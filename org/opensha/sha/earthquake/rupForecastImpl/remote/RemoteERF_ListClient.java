@@ -12,14 +12,7 @@ import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.GeographicRegion;
-import net.jini.core.event.RemoteEvent;
-import net.jini.core.event.UnknownEventException;
-import java.rmi.server.ExportException;
-import net.jini.jeri.BasicILFactory;
-import net.jini.core.event.RemoteEventListener;
-import net.jini.export.Exporter;
-import net.jini.jeri.BasicJeriExporter;
-import net.jini.jeri.tcp.TcpServerEndpoint;
+
 
 /**
  * <p>Title: RemoteERF_ListClient</p>
@@ -30,22 +23,10 @@ import net.jini.jeri.tcp.TcpServerEndpoint;
  * @version 1.0
  */
 
-public class RemoteERF_ListClient extends ERF_List implements
-    RemoteEventListener{
+public class RemoteERF_ListClient extends ERF_List implements 
+	ParameterChangeListener{
 
   private RemoteERF_ListAPI erfListServer = null;
-  //adds the listeners to this list
-  private transient ArrayList listenerList = new ArrayList();
-
-  //creates the EventObject to send to the listeners for parameter change
-  //and timespan change
-  private EventObject eventObj;
-
-
-  //checks if within the notify function
-  private boolean withinNotify = false;
-  //named of the parameter whose value is being changed
-  private String changedParameterName;
 
 
   /**
@@ -68,17 +49,6 @@ public class RemoteERF_ListClient extends ERF_List implements
     }
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
-    }
-
-    //Make a proxy of myself to pass to the server/filter
-    Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
-                                              new BasicILFactory());
-    try {
-      RemoteEventListener proxy = (RemoteEventListener) exporter.export(this);
-      erfListServer.addParameterAndTimeSpanChangeListener(proxy);
-    }
-    catch (ExportException ex) {
-      ex.printStackTrace();
     }
 
   }
@@ -215,8 +185,12 @@ public class RemoteERF_ListClient extends ERF_List implements
   public void parameterChange(ParameterChangeEvent event) {
     try {
       String eventParamName = event.getParameterName();
-      if(!(withinNotify && eventParamName.equals(changedParameterName)))
-        erfListServer.setParameter(event.getParameterName(), event.getNewValue());
+      erfListServer.setParameter(event.getParameterName(), event.getNewValue());
+      adjustableParams = erfListServer.getAdjustableParameterList();
+      addListenersToParamaters();
+      //getting the timespan and adjustable params
+      timeSpan =erfListServer.getTimeSpan();
+      addListenersToTimeSpan();
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
@@ -238,50 +212,9 @@ public class RemoteERF_ListClient extends ERF_List implements
     return null;
  }
 
- /**
-  * adds the listener obj to list. When the change events come, all
-  * listeners added to it are notified of it.
-  * @param obj Object
-  */
- public void addParameterAndTimeSpanChangeListener(
-     ParameterAndTimeSpanChangeListener obj) {
-   listenerList.add(obj);
- }
+ 
 
 
-
- /**
-  * This method is called from the remote event is received from the Server by the client.
-  * @param remoteEvent RemoteEvent
-  * @throws UnknownEventException
-  * @throws RemoteException
-  */
- public void notify(RemoteEvent remoteEvent) throws UnknownEventException,
-     RemoteException {
-   withinNotify = true;
-   Object obj = remoteEvent.getSource();
-   eventObj = new EventObject(obj);
-   if(obj instanceof ParameterAPI){
-     ParameterAPI param = (ParameterAPI)obj;
-     changedParameterName = param.getName();
-     adjustableParams.getParameter(param.getName()).setValue(param.getValue());
-   }
-   else if(obj instanceof TimeSpan){
-     timeSpan = (TimeSpan)obj;
-     addListenersToTimeSpan();
-   }
-   else if(obj instanceof ParameterList){
-     adjustableParams = (ParameterList)obj;
-     addListenersToParamaters();
-   }
-
-   int size = listenerList.size();
-   for(int i=0;i<size;++i){
-     ParameterAndTimeSpanChangeListener listener = (ParameterAndTimeSpanChangeListener)listenerList.get(i);
-     listener.parameterOrTimeSpanChange(eventObj);
-   }
-   withinNotify = false;
- }
 
 
  /**

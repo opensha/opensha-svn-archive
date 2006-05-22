@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.opensha.param.*;
+import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
@@ -132,7 +133,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
     timeSpan.addParameterChangeListener(this);
 
     // create and add adj params to list
-    intiAdjParams();
+    initAdjParams();
 
 
     // add the change listener to parameters so that forecast can be updated
@@ -161,38 +162,37 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
 
   }
 
-// make the adjustable parameters & the list
-  private void intiAdjParams() {
-
-  faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
-  faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
-  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
-                                        (String)faultModelNamesStrings.get(0));
-
-  backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
-  backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
-  backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-  backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
-
-  fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
-                                     FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
-  fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
-
-  rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
-                                        RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
-  rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
-
-/* COMMENTED OUT FOR THIS VERSION
-// add adjustable parameters to the list
-  adjustableParams.addParameter(faultModelParam);
-  adjustableParams.addParameter(fracGR_Param);
-  adjustableParams.addParameter(rupOffset_Param);
-  adjustableParams.addParameter(backSeisParam);
-*/
-
-}
-
-
+	// make the adjustable parameters & the list
+	  private void initAdjParams() {
+	
+	  faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
+	  faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
+	  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
+	                                        (String)faultModelNamesStrings.get(0));
+	
+	  backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
+	  backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
+	  backSeisOptionsStrings.add(BACK_SEIS_ONLY);
+	  backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
+	
+	  fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
+	                                     FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
+	  fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
+	
+	  rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+	                                        RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
+	  rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+	
+	/* COMMENTED OUT FOR THIS VERSION
+	// add adjustable parameters to the list
+	  adjustableParams.addParameter(faultModelParam);
+	  adjustableParams.addParameter(fracGR_Param);
+	  adjustableParams.addParameter(rupOffset_Param);
+	  adjustableParams.addParameter(backSeisParam);
+	*/
+	
+	}
+  
   /**
    * Read the Fault file and make the sources
    *

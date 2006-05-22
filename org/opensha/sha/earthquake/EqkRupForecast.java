@@ -23,21 +23,17 @@ import java.text.DecimalFormat;
 import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.param.StringParameter;
 import org.opensha.param.BooleanParameter;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
-import org.opensha.param.event.ParameterListChangeListener;
 
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <p>Title: EqkRupForecast/p>
+ * <p>Description: Abstract class that provides the  basic implementation for the EqkRupForecast objects.</p>
  * @author unascribed
  * @version 1.0
  */
 
 public abstract class EqkRupForecast implements EqkRupForecastAPI,
-    TimeSpanChangeListener,ParameterChangeListener,ParameterListChangeListener {
+    TimeSpanChangeListener,ParameterChangeListener{
 
   // adjustable params for each forecast
   protected ParameterList adjustableParams = new ParameterList();
@@ -49,7 +45,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   protected boolean parameterChangeFlag = true;
 
 
-  private ArrayList listenerList = new ArrayList();
 
   /**
    * get the adjustable parameters for this forecast
@@ -109,14 +104,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     return this.timeSpan;
   }
 
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
-    listenerList.add(obj);
-  }
+
 
 
   /**
@@ -149,28 +137,9 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public void timeSpanChange(EventObject event) {
     parameterChangeFlag = true;
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(event);
-    }
   }
 
 
-  /**
-   *  Function that must be implemented by all ParameterList Listeners for
-   *  ParameterList change events.
-   *
-   * @param  event  The Event which triggered this function call
-   */
-  public void parameterListChange(EventObject event){
-    parameterChangeFlag = true;
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(event);
-    }
-  }
 
   /**
    *  This is the main function of this interface. Any time a control
@@ -183,11 +152,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public void parameterChange(ParameterChangeEvent event) {
     parameterChangeFlag = true;
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(event);
-    }
   }
 
   /**
@@ -408,6 +372,4 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
     return seisRates.getMagRateDistForRegion(minMag,this,region);
   }
-
-
 }

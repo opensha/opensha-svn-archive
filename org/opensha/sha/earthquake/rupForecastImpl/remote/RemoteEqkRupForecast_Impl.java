@@ -19,10 +19,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
-import net.jini.core.event.RemoteEvent;
-import net.jini.core.event.RemoteEventListener;
-import net.jini.core.event.*;
+
 
 /**
  *
@@ -35,12 +32,10 @@ import net.jini.core.event.*;
  */
 public class RemoteEqkRupForecast_Impl
 	extends UnicastRemoteObject
-	implements RemoteEqkRupForecastAPI,ParameterAndTimeSpanChangeListener {
+	implements RemoteEqkRupForecastAPI{
 
    private EqkRupForecast eqkRupForecast = null;
    private static final boolean D = false;
-
-   private ArrayList listenerList = new ArrayList();
 
 
    /**
@@ -53,7 +48,6 @@ public class RemoteEqkRupForecast_Impl
    public RemoteEqkRupForecast_Impl(String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(className);
-     eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
    }
 
    /**
@@ -66,7 +60,6 @@ public class RemoteEqkRupForecast_Impl
    public RemoteEqkRupForecast_Impl(ArrayList params,ArrayList paramTypes,String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
-     eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
    }
 
    /* (non-Javadoc)
@@ -113,15 +106,7 @@ public class RemoteEqkRupForecast_Impl
    }
 
 
-   /**
-    * adds the listener obj to list. When the change events come, all
-    * listeners added to it are notified of it.
-    * @param obj Object
-    */
-   public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
-       throws RemoteException{
-     listenerList.add(obj);
-  }
+
 
    /* (non-Javadoc)
     * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getName()
@@ -352,26 +337,6 @@ public class RemoteEqkRupForecast_Impl
        GeographicRegion region) throws RemoteException {
      return eqkRupForecast.getMagRateDistForRegion(minMag, region);
    }
-
-   /**
-    * Notifys the Client when any parameter or Timespan changes on the Remote ERF Server
-    * @param eventObj EventObject
-    */
-   public void parameterOrTimeSpanChange(EventObject eventObj) {
-    Object obj = eventObj.getSource();
-    RemoteEvent event = new RemoteEvent(obj, 0, 0, null);
-    int size = listenerList.size();
-    for(int i=0;i<size;++i){
-      RemoteEventListener listener =(RemoteEventListener)listenerList.get(i);
-      try {
-        listener.notify(event);
-      }
-      catch (RemoteException ex) {
-      }
-      catch (UnknownEventException ex) {
-      }
-    }
-  }
 
 }
 

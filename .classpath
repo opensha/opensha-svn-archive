@@ -18,9 +18,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-spec1_0_1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsk-platform.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jpedal.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jini-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jh.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-impl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc-api.jar"/>
@@ -32,8 +30,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
-	<classpathentry kind="lib" path="/Users/nitingupta/projects/sha/lib/scec_vdo.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.4.2"/>
+	<classpathentry exported="true" kind="lib" path="/Users/nitingupta/projects/sha/lib/scec_vdo.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat4"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.4.2"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

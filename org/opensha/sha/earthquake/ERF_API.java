@@ -7,7 +7,6 @@ import org.opensha.data.Location;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.NamedObjectAPI;
 import java.util.ListIterator;
-import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 
 
 /**
@@ -60,13 +59,6 @@ public interface ERF_API extends NamedObjectAPI{
    * This method gets the time-span field
    */
   public TimeSpan getTimeSpan();
-
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj);
 
 
   /**
