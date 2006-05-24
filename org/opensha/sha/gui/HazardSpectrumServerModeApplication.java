@@ -64,6 +64,13 @@ public class HazardSpectrumServerModeApplication
   protected String TITLE = new String("Response Spectra Curves");
 
   
+  protected final static String version = "0.0.6";
+
+  protected final static String versionURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumApp_Version.txt";
+  protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumServerModeApp.jar";
+  protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazSpectrumApp/versionUpdate.html";
+
+  
 
   /**
    * Initialize the IMR Gui Bean
@@ -716,7 +723,7 @@ public class HazardSpectrumServerModeApplication
   public static void main(String[] args) {
     HazardSpectrumServerModeApplication applet = new
         HazardSpectrumServerModeApplication();
-    //applet.checkAppVersion();
+    applet.checkAppVersion();
     applet.init();
     applet.setVisible(true);
   }

@@ -156,11 +156,11 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
     protected final static String SEA_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel";
     //protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
-    protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
+    /*protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
     protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
     protected final static String CY_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
     protected final static String BOORE_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
-    protected final static String CB_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
+    protected final static String CB_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";*/
 
 
     /**
@@ -178,7 +178,7 @@ public class AttenuationRelationshipApplet extends JApplet
      *  loader to load these
      */
     static {
-      imNames.add(AS_2005_prelim_AttenRel.NAME);
+      /*imNames.add(AS_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(AS_2005_CLASS_NAME);
       imNames.add(CY_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(CY_2005_CLASS_NAME);
@@ -186,6 +186,8 @@ public class AttenuationRelationshipApplet extends JApplet
       attenRelClasses.add(CB_2005_CLASS_NAME);
       imNames.add(Boore_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(BOORE_2005_CLASS_NAME);
+      imNames.add(CS_2005_AttenRel.NAME);
+      attenRelClasses.add(CS_CLASS_NAME);*/
       imNames.add(BJF_1997_AttenRel.NAME);
       attenRelClasses.add(BJF_CLASS_NAME);
       imNames.add(AS_1997_AttenRel.NAME);
@@ -204,8 +206,7 @@ public class AttenuationRelationshipApplet extends JApplet
       attenRelClasses.add(SM_CLASS_NAME);
       imNames.add(SEA_1999_AttenRel.NAME);
       attenRelClasses.add(SEA_CLASS_NAME);
-      imNames.add(CS_2005_AttenRel.NAME);
-      attenRelClasses.add(CS_CLASS_NAME);
+      
 
         //imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
