@@ -19,6 +19,8 @@ import java.text.DecimalFormat;
 public class GUI_Utils {
   public final static GridBagLayout gridBagLayout = new GridBagLayout();
   public final static DecimalFormat decimalFormat = new DecimalFormat("0.0####");
+  public final static DecimalFormat latFormat = new DecimalFormat("0.0000");
+  public final static DecimalFormat lonFormat = new DecimalFormat("0.000");
 
   /**
    * Get Bordered Panel

@@ -26,6 +26,7 @@ import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditCumDisplacement;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditNumEvents;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSlipRate;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
@@ -268,12 +269,12 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 10: // Site longitude 1
         if(value==null) throw new InvalidRowException("Site Longitude is missing");
         paleoSite.setSiteLon1(Float.parseFloat(value));
-        paleoSite.setSiteLon2(Float.parseFloat(value));
+        paleoSite.setSiteLon2(Float.NaN);
         break;
       case 11: // Site latitude 1
         if(value==null) throw new InvalidRowException("Site latitude is missing");
         paleoSite.setSiteLat1(Float.parseFloat(value));
-        paleoSite.setSiteLat2(Float.parseFloat(value));
+        paleoSite.setSiteLat2(Float.NaN);
         
         break;
       case 12: // Site longitude 2
@@ -286,12 +287,15 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
 			  siteTypeNames.clear();
 			  siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
     		  if(paleoSite.getSiteName().equalsIgnoreCase(""))
-    	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+";"+
-    	        		  paleoSite.getSiteLat2()+","+paleoSite.getSiteLon2());
+    	          paleoSite.setSiteName(GUI_Utils.latFormat.format(paleoSite.getSiteLat1())+","+
+    	        		  GUI_Utils.lonFormat.format(paleoSite.getSiteLon1())+";"+
+    	        		  GUI_Utils.latFormat.format(paleoSite.getSiteLat2())+","+
+    	        		  GUI_Utils.lonFormat.format(paleoSite.getSiteLon2()));
     	  }
     	  else {
     		  if(paleoSite.getSiteName().equalsIgnoreCase(""))
-    	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
+    	          paleoSite.setSiteName(GUI_Utils.latFormat.format(paleoSite.getSiteLat1())+","+
+    	        		  GUI_Utils.lonFormat.format(paleoSite.getSiteLon1()));
     	  }
           break;
       case 14: // site notes

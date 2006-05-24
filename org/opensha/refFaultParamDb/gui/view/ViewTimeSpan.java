@@ -40,8 +40,11 @@ public class ViewTimeSpan extends LabeledBoxPanel{
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Dating Methodology";
   // entry date
   private final static String ENTRY_DATE_PARAM_NAME="Entry Date";
-  //contribbutor
+  //contributor
   private final static String CONTRIBUTOR_PARAM_NAME="Contributor";
+  // data source
+  private final static String DATA_SOURCE = "Data Source";
+  
   private final static String REFERENCES_PANEL_TITLE = "References";
   // dating comments params
   private StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
@@ -52,6 +55,7 @@ public class ViewTimeSpan extends LabeledBoxPanel{
   private InfoLabel referencesLabel = new InfoLabel();
   private InfoLabel entryDateLabel = new InfoLabel();
   private InfoLabel contributorLabel = new InfoLabel();
+  private InfoLabel dataSourceLabel = new InfoLabel();
 
   /**
    *
@@ -91,6 +95,8 @@ public class ViewTimeSpan extends LabeledBoxPanel{
     int yPos = 0;
     add(this.entryDateLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(this.dataSourceLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(this.contributorLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(startTimePanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -112,12 +118,14 @@ public class ViewTimeSpan extends LabeledBoxPanel{
    * @param datingComments
    */
   public void setTimeSpan(TimeAPI startTime, TimeAPI endTime, String datingComments,
-                          ArrayList references, String entryDate, String contributorName) {
+                          ArrayList references, String entryDate, String contributorName,
+                          String dataSource) {
     this.startTimeLabel.setTextAsHTML(startTime);
     this.endTimeLabel.setTextAsHTML(endTime);
     this.referencesLabel.setTextAsHTML(references);
-    this.contributorLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, contributorName);
-    this.entryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, entryDate);
+    this.contributorLabel.setTextAsHTML(CONTRIBUTOR_PARAM_NAME, contributorName);
+    this.entryDateLabel.setTextAsHTML(ENTRY_DATE_PARAM_NAME, entryDate);
+    this.dataSourceLabel.setTextAsHTML(DATA_SOURCE, dataSource);
     this.datedFeatureCommentsParam.setValue(datingComments);
     this.datedFeatureCommentsParamEditor.refreshParamEditor();
   }

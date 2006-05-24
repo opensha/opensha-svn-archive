@@ -10,23 +10,17 @@ import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
-import javax.swing.border.TitledBorder;
-import javax.swing.border.Border;
 import org.opensha.gui.TitledBorderPanel;
 import org.opensha.gui.LabeledBoxPanel;
-import org.opensha.data.Location;
-import org.opensha.refFaultParamDb.gui.addEdit.*;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSiteCharacteristics;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddSiteInfo;
-import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.dao.db.*;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
-import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
@@ -79,10 +73,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private JCheckBox slipRateCheckBox, cumDispCheckBox, numEventsCheckBox,
       individualEventsCheckBox, sequenceCheckBox;
 
-  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Timespan";
-
-
-  private final static String TITLE = "View Sites";
 
   // input parameters declaration
   private StringParameter siteNameParam;
@@ -159,11 +149,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private void addUserProvidedInfoChoices() {
     iHaveInfoOnPanel = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
     iHaveInfoOnPanel.setTitle(AVAILABLE_INFO_PARAM_NAME);
-    slipRateCheckBox = new JCheckBox(this.SLIP_RATE_INFO);
-    cumDispCheckBox = new JCheckBox(this.CUMULATIVE_DISPLACEMENT_INFO);
-    numEventsCheckBox = new JCheckBox(this.NUM_EVENTS_INFO);
-    individualEventsCheckBox = new JCheckBox(this.INDIVIDUAL_EVENTS_INFO);
-    sequenceCheckBox = new JCheckBox(this.SEQUENCE_INFO);
+    slipRateCheckBox = new JCheckBox(SLIP_RATE_INFO);
+    cumDispCheckBox = new JCheckBox(CUMULATIVE_DISPLACEMENT_INFO);
+    numEventsCheckBox = new JCheckBox(NUM_EVENTS_INFO);
+    individualEventsCheckBox = new JCheckBox(INDIVIDUAL_EVENTS_INFO);
+    sequenceCheckBox = new JCheckBox(SEQUENCE_INFO);
     slipRateCheckBox.addActionListener(this);
     cumDispCheckBox.addActionListener(this);
     int yPos=0;
@@ -200,7 +190,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    * Add the editors to the window
    */
   private void jbInit() {
-    int yPos = 0;
     setLayout(GUI_Utils.gridBagLayout);
     splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     // site name editor
@@ -469,7 +458,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      pubNames.add("Ref 1");
      pubNames.add("Ref 2");
    }
-   referencesForSiteParam = new StringParameter(this.SITE_REFERENCES_PARAM_NAME, pubNames,
+   referencesForSiteParam = new StringParameter(SITE_REFERENCES_PARAM_NAME, pubNames,
        (String)pubNames.get(0));
     referencesForSiteParam.addParameterChangeListener(this);
     referencesForSiteParamEditor = new ConstrainedStringParameterEditor(referencesForSiteParam);
@@ -514,9 +503,9 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    // Site representation
    siteRepresentationLabel.setTextAsHTML(SITE_REPRESENTATION_PARAM_NAME,siteRepresentation);
    // last entry date
-   this.lastEntryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, lastEntryDate);
+   this.lastEntryDateLabel.setTextAsHTML(ENTRY_DATE_PARAM_NAME, lastEntryDate);
    // last entry by
-   this.contributorNameLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
+   this.contributorNameLabel.setTextAsHTML(CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
    // call the listener
    siteSelectionListener.siteSelected(this.paleoSite, refId); // call the listening class
 
@@ -548,7 +537,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private void setSiteInfo(String siteName)  {
     String  faultSectionName;
     float latitude, longitude, elevation;
-    if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
+    if(siteName.equalsIgnoreCase(TEST_SITE)) { // test site
       faultSectionName = "FaultSection1";
       latitude = 34.0f;
       longitude=-116.0f;
@@ -566,10 +555,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     }
 
     siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,
-                                    GUI_Utils.decimalFormat.format(latitude)+","+ GUI_Utils.decimalFormat.format(longitude));
+                                    GUI_Utils.latFormat.format(latitude)+","+ GUI_Utils.lonFormat.format(longitude));
     String elevationStr = null;
     if(!Float.isNaN(elevation)) elevationStr = GUI_Utils.decimalFormat.format(elevation);
-    this.siteElevationLabel.setTextAsHTML(this.SITE_ELEVATION_PARAM_NAME,
+    this.siteElevationLabel.setTextAsHTML(SITE_ELEVATION_PARAM_NAME,
                                          elevationStr);
    //  fault with which this site is associated
     assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultSectionName);
@@ -581,7 +570,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
  public void parameterChange(ParameterChangeEvent event) {
    String paramName = event.getParameterName();
    // if a  new site names is selected by the user
-   if(paramName.equalsIgnoreCase(this.SITE_NAME_PARAM_NAME)) {
+   if(paramName.equalsIgnoreCase(SITE_NAME_PARAM_NAME)) {
      String siteName = (String) this.siteNameParam.getValue();
      // if add site is selected, show window to add a site
      if(siteName.equalsIgnoreCase(this.ADD_SITE)) {
@@ -591,7 +580,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      else setSiteInfo(siteName);
    }
    // if user chooses a new reference
-   else if(paramName.equalsIgnoreCase(this.SITE_REFERENCES_PARAM_NAME)) {
+   else if(paramName.equalsIgnoreCase(SITE_REFERENCES_PARAM_NAME)) {
      String refName = (String)this.referencesForSiteParam.getValue();
      setValuesBasedOnReference(refName);
    }
@@ -604,7 +593,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
  private ArrayList getSiteNames() {
    paleoSiteSummaryList = paleoSiteDAO.getAllPaleoSiteNames();
    siteNamesList = new ArrayList();
-   siteNamesList.add(this.TEST_SITE);
+   siteNamesList.add(TEST_SITE);
    int numSites = paleoSiteSummaryList.size();
    String siteName;
    PaleoSiteSummary paleoSiteSummary;

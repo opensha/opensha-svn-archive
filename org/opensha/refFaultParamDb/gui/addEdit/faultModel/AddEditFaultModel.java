@@ -63,11 +63,15 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 			this.addModelButton.setEnabled(false);
 			this.removeModelButton.setEnabled(false);
 			this.updateModelButton.setEnabled(false);
+			this.selectAllButton.setEnabled(false);
+			this.deselectAllButton.setEnabled(false);
 		}
 		else {
 			addModelButton.setEnabled(true);
 			removeModelButton.setEnabled(true);
 			updateModelButton.setEnabled(true);
+			this.selectAllButton.setEnabled(true);
+			this.deselectAllButton.setEnabled(true);
 		}
 //		 load alla fault sections
 		loadAllFaultSectionsSummary();
@@ -251,7 +255,6 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		//deselect all the check boxes in the table
 		for(int i=0; i<this.tableModel.getRowCount(); ++i)
 			tableModel.setValueAt(new Boolean(false), i, 0);
-		
 		// only select the check boxes which are part of this fault model
 		int numSectionsInFaultModel = faultSectionIdList.size();
 		for(int i=0; i<numSectionsInFaultModel; ++i) {

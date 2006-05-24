@@ -443,9 +443,9 @@ public class FileForDeformationModelers {
 		 row.createCell((short)col++).setCellValue("SITE NAME");
 		 row.createCell((short)col++).setCellValue("SITE TYPE");
 		 row.createCell((short)col++).setCellValue("DATA SOURCE");
-		 row.createCell((short)col++).setCellValue("SITE_LONG");
-		 row.createCell((short)col++).setCellValue("SITE_LAT");
-		 row.createCell((short)col++).setCellValue("SITE_ELEV");
+		 row.createCell((short)col++).setCellValue("SITE_LONG 1");
+		 row.createCell((short)col++).setCellValue("SITE_LAT 1");
+		 row.createCell((short)col++).setCellValue("SITE_ELEV 1");
 		 row.createCell((short)col++).setCellValue("SITE LONG 2");
 		 row.createCell((short)col++).setCellValue("SITE LAT 2");
 		 row.createCell((short)col++).setCellValue("SITE ELEV 2");

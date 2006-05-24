@@ -26,6 +26,7 @@ import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditCumDisplacement;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSlipRate;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
@@ -207,9 +208,10 @@ public class PutCombinedInfoIntoDatabase_FAD {
 					ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
 					siteTypeNames.clear();
 					siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
+					
 					if(fadPaleoSite.getSiteName().equalsIgnoreCase("NaN,Nan"))
-						fadPaleoSite.setSiteName(fadPaleoSite.getSiteLat1()+","+fadPaleoSite.getSiteLon1()+";"+
-								fadPaleoSite.getSiteLat2()+","+fadPaleoSite.getSiteLon2());
+						fadPaleoSite.setSiteName( GUI_Utils.latFormat.format(fadPaleoSite.getSiteLat1())+","+GUI_Utils.lonFormat.format(fadPaleoSite.getSiteLon1())+";"+
+								GUI_Utils.latFormat.format(fadPaleoSite.getSiteLat2())+","+GUI_Utils.lonFormat.format(fadPaleoSite.getSiteLon2()));
 				}
 				paleoSiteDAO.addPaleoSite(fadPaleoSite);
 				Thread.sleep(1000);
@@ -290,13 +292,13 @@ public class PutCombinedInfoIntoDatabase_FAD {
 		            else if(c==1 && value!=null && !value.equalsIgnoreCase("NULL")) paleoSite.setOldSiteId(value); // qfault Id
 		            else if(c==2 && value!=null && !value.equalsIgnoreCase("NULL")) { // site lat
 		            	paleoSite.setSiteLat1(Float.parseFloat(value));
-		            	paleoSite.setSiteLat2(Float.parseFloat(value));
+		            	paleoSite.setSiteLat2(Float.NaN);
 		            } else if(c==3 && value!=null && !value.equalsIgnoreCase("NULL")) { // site lon
 		            	paleoSite.setSiteLon1(Float.parseFloat(value));
-		            	paleoSite.setSiteLon2(Float.parseFloat(value));
+		            	paleoSite.setSiteLon2(Float.NaN);
 		            } else if(c==4 && value!=null && !value.equalsIgnoreCase("NULL")) { // site elevation
 		            	paleoSite.setSiteElevation1(Float.parseFloat(value));
-		            	paleoSite.setSiteElevation2(Float.parseFloat(value));
+		            	paleoSite.setSiteElevation2(Float.NaN);
 		            } else if(c==5 && value!=null && !value.equalsIgnoreCase("NULL")) { // site name
 		            	paleoSite.setSiteName(value);
 		            } else if(c==6 && value!=null && !value.equalsIgnoreCase("NULL")) { // site comments
@@ -304,7 +306,9 @@ public class PutCombinedInfoIntoDatabase_FAD {
 		            }
 		          }
 			  if(paleoSite.getSiteName()==null || paleoSite.getSiteName().equalsIgnoreCase("")) {
-	    	          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
+				    if(!Float.isNaN(paleoSite.getSiteLat1()))
+	    	          paleoSite.setSiteName(GUI_Utils.latFormat.format(paleoSite.getSiteLat1())+","+GUI_Utils.lonFormat.format(paleoSite.getSiteLon1()));
+				    else paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
 			  } 
 			  if(paleoSite.getGeneralComments()==null) paleoSite.setGeneralComments("");
 			  this.fadSites.put(new Integer(fadSiteId), paleoSite);

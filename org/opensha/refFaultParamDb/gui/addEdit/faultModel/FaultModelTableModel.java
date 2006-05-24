@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.table.DefaultTableModel;
+
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 /**
@@ -70,7 +72,7 @@ public class FaultModelTableModel extends DefaultTableModel {
       public boolean isCellEditable(int row, int col) {
           //Note that the data/cell address is constant,
           //no matter where the cell appears onscreen.
-          if (col == 0) 
+          if (col == 0 && SessionInfo.getContributor()!=null) 
               return true;
            return false;
       }

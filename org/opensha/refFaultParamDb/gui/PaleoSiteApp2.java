@@ -526,7 +526,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       this.numEventsPanel.setInfo(numEventsEstimate, comments);
     }else if(this.isValidSiteAndInfoAvailable() && combinedEventsInfo.getCombinedNumEventsInfo()!=null) {
       CombinedNumEventsInfo combinedNumEventsInfo =combinedEventsInfo.getCombinedNumEventsInfo();
-      numEventsPanel.setInfo((IntegerEstimate)combinedNumEventsInfo.getNumEventsEstimate().getEstimate(),
+      numEventsPanel.setInfo(combinedNumEventsInfo.getNumEventsEstimate().getEstimate(),
                                combinedNumEventsInfo.getNumEventsComments());
     }
     else { // information not available yet
@@ -576,7 +576,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       references.add("Ref 4");
       references.add("Ref 1");
       // timeSpan panel which will contain start time and end time
-      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references,null, null);
+      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references,null, null, null);
     } else if(this.isValidSiteAndInfoAvailable()){
       ArrayList refList =  combinedEventsInfo.getReferenceList();
       ArrayList summaryList = new ArrayList();
@@ -588,10 +588,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
                                 combinedEventsInfo.getDatedFeatureComments(),
                                 summaryList,
                                 combinedEventsInfo.getEntryDate(),
-                                combinedEventsInfo.getContributorName());
+                                combinedEventsInfo.getContributorName(),
+                                combinedEventsInfo.getDataSource());
     }
     else {
-      this.timeSpanPanel.setTimeSpan(null, null, null, null,null,null);
+      this.timeSpanPanel.setTimeSpan(null, null, null, null,null,null, null);
     }
   }
 

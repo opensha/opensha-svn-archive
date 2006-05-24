@@ -264,13 +264,17 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
     //location 2
     ParameterList location2ParamList = ((ParameterListParameter)siteLocationParam2.getLocationParameter()).getParameter();
-    Double lat2 = (Double)location2ParamList.getValue(LAT_PARAM_NAME);
-    Double lon2 = (Double)location2ParamList.getValue(LON_PARAM_NAME);
-    Double elev2 = (Double)location2ParamList.getValue(ELEVATION_PARAM_NAME);
-    paleoSite.setSiteLat2((float)lat2.doubleValue());
-    paleoSite.setSiteLon2((float)lon2.doubleValue());
-    if(elev2!=null) paleoSite.setSiteElevation2((float)elev2.doubleValue());
-    else   paleoSite.setSiteElevation2(Float.NaN);
+    float lat2 =  Float.NaN, lon2 = Float.NaN, elev2 = Float.NaN;
+    ArrayList selectedSiteType =  (ArrayList)this.siteTypeParam.getValue();
+    if(selectedSiteType.contains(BETWEEN_LOCATIONS_SITE_TYPE)) {
+    	lat2 = (float)((Double)location2ParamList.getValue(LAT_PARAM_NAME)).doubleValue();
+    	lon2 = (float)((Double)location2ParamList.getValue(LON_PARAM_NAME)).doubleValue();
+    	Double elev2Double = (Double)location2ParamList.getValue(ELEVATION_PARAM_NAME);
+    	if(elev2Double!=null) elev2 =(float) elev2Double.doubleValue();
+    }
+    paleoSite.setSiteLat2(lat2);
+    paleoSite.setSiteLon2(lon2);
+    paleoSite.setSiteElevation2(elev2);
 
     try {
       // add the paleo site to the database

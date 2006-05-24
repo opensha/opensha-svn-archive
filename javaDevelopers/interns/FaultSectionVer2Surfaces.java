@@ -122,7 +122,8 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 			double slipRateVal = this.getValueFromEstimate(faultSection.getAveLongTermSlipRateEst());
 			if(slipRateVal<minSlipRate) minSlipRate = slipRateVal;
 			if(slipRateVal>maxSlipRate) maxSlipRate = slipRateVal;
-			faultSectionSlipMap.put(new Integer(faultSectionId), faultSection.getAveLongTermSlipRateEst());
+			if(faultSectionSlipMap!=null)
+				faultSectionSlipMap.put(new Integer(faultSectionId), faultSection.getAveLongTermSlipRateEst());
 		}
 		return faultSection;
 	}

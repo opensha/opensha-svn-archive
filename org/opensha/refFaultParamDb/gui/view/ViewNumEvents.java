@@ -1,24 +1,14 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import org.opensha.gui.LabeledBoxPanel;
-import java.awt.LayoutManager;
-import java.awt.LayoutManager;
-import javax.swing.JButton;
+
 import java.awt.*;
 import org.opensha.param.*;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import org.opensha.data.estimate.IntegerEstimate;
+import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JPanel;
-import java.awt.event.ActionEvent;
-import javax.swing.JFrame;
-
-import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditNumEvents;
-
-import java.awt.event.ActionListener;
 
 
 /**
@@ -43,7 +33,7 @@ public class ViewNumEvents extends LabeledBoxPanel {
     super(GUI_Utils.gridBagLayout);
     try {
       viewNumEventsForTimePeriod();
-      setTitle(this.NUM_EVENTS_TITLE);
+      setTitle(NUM_EVENTS_TITLE);
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -57,7 +47,7 @@ public class ViewNumEvents extends LabeledBoxPanel {
    * @param comments
    * @param references
    */
-  public void setInfo(IntegerEstimate numEventsEstimate, String comments) {
+  public void setInfo(Estimate numEventsEstimate, String comments) {
     numEventsEstimateLabel.setTextAsHTML(numEventsEstimate, NUM_EVENTS, PROB);
     commentsParam.setValue(comments);
     commentsParamEditor.refreshParamEditor();

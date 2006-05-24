@@ -98,34 +98,43 @@ public class PaleoSiteDB_DAO  {
                                    SRID);
 
 
+    
+    ArrayList geomteryObjectList = new ArrayList();
+    geomteryObjectList.add(location1);
+    
+    String colNames="", colVals="";
+    
+    // check whether dip estimate exists
+    EstimateInstances dipEst = paleoSite.getDipEstimate();
+    if(dipEst!=null) {
+      colNames = DIP_EST_ID+",";
+      int id = this.estimateInstancesDAO.addEstimateInstance(dipEst);
+      colVals=""+id+",";
+    }
+    
+    //check whether second location exists or not
     JGeometry location2;
-    // if elevation is available
-    if(!Float.isNaN(paleoSite.getSiteElevation2()))
-      location2 = new JGeometry(paleoSite.getSiteLon2(),
+    if(!Float.isNaN(paleoSite.getSiteLat1())) {
+    	// if elevation is available
+    	if(!Float.isNaN(paleoSite.getSiteElevation2()))
+    		location2 = new JGeometry(paleoSite.getSiteLon2(),
                                 paleoSite.getSiteLat2(),
                                 paleoSite.getSiteElevation2(),
                                 SRID);
-    // if elevation is not available
-    else location2 = new JGeometry(paleoSite.getSiteLon2(),
+    	// if elevation is not available
+    	else location2 = new JGeometry(paleoSite.getSiteLon2(),
                                 paleoSite.getSiteLat2(),
                                 SRID);
-
-    ArrayList geomteryObjectList = new ArrayList();
-    geomteryObjectList.add(location1);
-    geomteryObjectList.add(location2);
-    String dipColName="", dipVal="";
-    EstimateInstances dipEst = paleoSite.getDipEstimate();
-    if(dipEst!=null) {
-      dipColName = DIP_EST_ID+",";
-      int id = this.estimateInstancesDAO.addEstimateInstance(dipEst);
-      dipVal=""+id+",";
+    	geomteryObjectList.add(location2);
+    	colNames+=SITE_LOCATION2+",";
+    	colVals+="?,";
     }
+    
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_SECTION_ID+","+
-        ENTRY_DATE+","+SITE_NAME+","+SITE_LOCATION1+","+
-        SITE_LOCATION2+","+dipColName+
+        ENTRY_DATE+","+SITE_NAME+","+SITE_LOCATION1+","+colNames+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+paleoSite.getFaultSectionId()+",'"+systemDate+
-        "','"+paleoSite.getSiteName()+"',?,?,"+dipVal+"'"+paleoSite.getGeneralComments()+"','"+
+        "','"+paleoSite.getSiteName()+"',?,"+colVals+"'"+paleoSite.getGeneralComments()+"','"+
         paleoSite.getOldSiteId()+"')";
     try {	
       //System.out.println(sql);
@@ -214,6 +223,37 @@ public class PaleoSiteDB_DAO  {
    return paleoSiteSummaryList;
  }
 
+ /**
+  * Get a list of PaleoSites which just have Id, Name and Locations
+  * @return
+  * @throws QueryException
+  */
+ public ArrayList getPaleoSiteNameIdAndLocations() throws QueryException {
+	 ArrayList paleoSiteList = new ArrayList();
+	    String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
+	        SITE_LOCATION2+" from "+TABLE_NAME;
+	    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME;
+
+	    ArrayList spatialColumnNames = new ArrayList();
+	    spatialColumnNames.add(SITE_LOCATION1);
+	    spatialColumnNames.add(SITE_LOCATION2);
+	    try {
+	      SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
+	      ResultSet rs = spatialQueryResult.getCachedRowSet();
+	      int i=0;
+	      while(rs.next())  {
+	        PaleoSite paleoSite = new PaleoSite();
+	        paleoSite.setSiteId(rs.getInt(SITE_ID));
+	        paleoSite.setSiteName(rs.getString(SITE_NAME));
+	        // location 1
+	        ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+	        setPaleoSiteLocations(paleoSite, geometries);
+	        paleoSiteList.add(paleoSite);
+	      }
+	      rs.close();
+	    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+	    return paleoSiteList;
+ }
 
   /**
    * remove a paleo site from the database
@@ -241,7 +281,7 @@ public class PaleoSiteDB_DAO  {
    return query(" ");
   }
 
-
+  
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
@@ -272,24 +312,7 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         // location 1
         ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
-        JGeometry location1 =(JGeometry) geometries.get(0);
-        double []point1 = location1.getPoint();
-        //location 2
-        JGeometry location2 = (JGeometry) geometries.get(1);
-        double []point2 = location2.getPoint();
-
-        paleoSite.setSiteLat1((float)point1[1]);
-        paleoSite.setSiteLon1((float)point1[0]);
-        // if elevation available, set it else set it as NaN
-        if(point1.length>2)
-          paleoSite.setSiteElevation1((float)point1[2]);
-        else paleoSite.setSiteElevation1(Float.NaN);
-        paleoSite.setSiteLat2((float)point2[1]);
-        paleoSite.setSiteLon2((float)point2[0]);
-        // if elevation available, set it else set it as NaN
-        if(point2.length>2)
-          paleoSite.setSiteElevation2((float)point2[2]);
-        else paleoSite.setSiteElevation2(Float.NaN);
+        setPaleoSiteLocations(paleoSite, geometries);
         int dipEstId = rs.getInt(DIP_EST_ID);
         if(!rs.wasNull()) paleoSite.setDipEstimate(this.estimateInstancesDAO.getEstimateInstance(dipEstId));
         
@@ -302,5 +325,36 @@ public class PaleoSiteDB_DAO  {
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return paleoSiteList;
   }
+
+  /**
+   * set the locations in paleo site
+   * @param paleoSite
+   * @param geometries
+   */
+private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
+	JGeometry location1 =(JGeometry) geometries.get(0);
+	double []point1 = location1.getPoint();
+	//location 2
+	JGeometry location2 = (JGeometry) geometries.get(1);
+	
+
+	paleoSite.setSiteLat1((float)point1[1]);
+	paleoSite.setSiteLon1((float)point1[0]);
+	// if elevation available, set it else set it as NaN
+	if(point1.length>2)
+	  paleoSite.setSiteElevation1((float)point1[2]);
+	else paleoSite.setSiteElevation1(Float.NaN);
+	
+	// check whether second locations exists or not
+	if(location2!=null) {
+		double []point2 = location2.getPoint();
+		paleoSite.setSiteLat2((float)point2[1]);
+		paleoSite.setSiteLon2((float)point2[0]);
+		// if elevation available, set it else set it as NaN
+		if(point2.length>2)
+			paleoSite.setSiteElevation2((float)point2[2]);
+		else paleoSite.setSiteElevation2(Float.NaN);
+	}
+}
 
 }

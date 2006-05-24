@@ -825,8 +825,12 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     while(result.next()) {
       ArrayList geomteryObjectsList = new ArrayList();
       for (int i = 0; i < spatialColumnNames.size(); ++i) {
-        STRUCT st1 = (STRUCT) result.getObject( (String) spatialColumnNames.get(
-            i));
+    	Object obj =  result.getObject( (String) spatialColumnNames.get(i));
+    	if(result.wasNull()) {
+    		geomteryObjectsList.add(null);
+    		continue;
+    	}
+        STRUCT st1 = (STRUCT) obj;
         JGeometry geometry = JGeometry.load(st1);
         geomteryObjectsList.add(geometry);
       }
