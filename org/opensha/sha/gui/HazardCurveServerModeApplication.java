@@ -269,7 +269,7 @@ public class HazardCurveServerModeApplication extends JFrame
 
 
   // PEER Test Cases
-  private String TITLE = new String("Hazard Curves");
+  protected String TITLE = new String("Hazard Curves");
 
 
   private JPanel jPanel1 = new JPanel();
@@ -366,7 +366,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-  protected final static String version = "0.0.5";
+  protected final static String version = "0.0.6";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
@@ -834,7 +834,7 @@ public class HazardCurveServerModeApplication extends JFrame
     /**
      * this function is called to draw the graph
      */
-    private void addButton() {
+    protected void addButton() {
       setButtonsEnable(false);
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
@@ -868,8 +868,8 @@ public class HazardCurveServerModeApplication extends JFrame
                   progressClass.updateProgress(currRupture, totRupture);
               }
               else{
-                if(numERFsInEpistemicList !=0)
-                  progressClass.updateProgress(currentERFInEpistemicListForHazardCurve,numERFsInEpistemicList);
+                if((numERFsInEpistemicList) !=0)
+                  progressClass.updateProgress(currentERFInEpistemicListForHazardCurve+1,numERFsInEpistemicList);
               }
               if (isHazardCalcDone) {
                 timer.stop();
@@ -923,14 +923,14 @@ public class HazardCurveServerModeApplication extends JFrame
      *
      * @returns the application component
      */
-    private Component getApplicationComponent(){
+    protected Component getApplicationComponent(){
       return this;
     }
 
     /**
      * to draw the graph
      */
-    private void drawGraph() {
+    protected void drawGraph() {
       // you can show warning messages now
      imrGuiBean.showWarningMessages(true);
      addGraphPanel();
@@ -1094,7 +1094,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
-  private void computeHazardCurve() {
+  protected void computeHazardCurve() {
 
     //starting the calculation
     isHazardCalcDone = false;
@@ -1447,7 +1447,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * @param imr : selected IMR
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
-  private void handleForecastList(Site site,
+  protected void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
                                   ERF_API eqkRupForecast) {
 

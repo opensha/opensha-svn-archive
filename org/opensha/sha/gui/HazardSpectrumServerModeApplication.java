@@ -4,11 +4,14 @@
 package org.opensha.sha.gui;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -24,6 +27,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -56,7 +60,27 @@ public class HazardSpectrumServerModeApplication
   private int numSA_PeriodVals;
   //Total number of the values for which we have ran the Hazard Curve
   private int numSA_PeriodValDone = 0;
+  //Graph Title
+  protected String TITLE = new String("Response Spectra Curves");
 
+  
+
+  /**
+   * Initialize the IMR Gui Bean
+   */
+  protected void initIMR_GuiBean() {
+
+     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+     //sets the Intensity measure for the IMR
+     imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);
+     // show this gui bean the JPanel
+     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+     imrPanel.updateUI();
+  }
+  
+  
   //Initialize the applet
   public void init() {
     try {
@@ -91,7 +115,7 @@ public class HazardSpectrumServerModeApplication
       bugWindow.pack();
       //e.printStackTrace();
     }
-
+    this.setTitle("HazardSpectrum Application");
     ( (JPanel) getContentPane()).updateUI();
   }
 
@@ -99,11 +123,11 @@ public class HazardSpectrumServerModeApplication
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
-  private void computeHazardCurve() {
+  protected void computeHazardCurve() {
 
     //starting the calculation
     isHazardCalcDone = false;
-
+    numERFsInEpistemicList = 0;
     ERF_API forecast = null;
     ProbEqkRupture rupture = null;
     if (!this.isProbCurve)
@@ -126,7 +150,7 @@ public class HazardSpectrumServerModeApplication
       return;
     }
     if (this.progressCheckBox.isSelected()) {
-      progressClass = new CalcProgressBar("Hazard-Curve Calc Status",
+      progressClass = new CalcProgressBar("Response-Spectrum Calc Status",
                                           "Beginning Calculation ");
       progressClass.displayProgressBar();
       timer.start();
@@ -135,6 +159,8 @@ public class HazardSpectrumServerModeApplication
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship) imrGuiBean.
         getSelectedIMR_Instance();
+    
+    getSA_PeriodForIMR(imr);
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
@@ -204,8 +230,6 @@ public class HazardSpectrumServerModeApplication
     }
     // initialize the values in condProbfunc with log values as passed in hazFunction
     initX_Values(tempHazFunction, imlProbValue, imlAtProb, probAtIML);
-
-    //System.out.println("22222222HazFunction: "+hazFunction.toString());
     try {
       // calculate the hazard curve
       //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
@@ -213,6 +237,7 @@ public class HazardSpectrumServerModeApplication
         if (isProbCurve) {
 //	        	iterating over all the SA Periods for the IMR's
           for (int i = 0; i < numSA_PeriodVals; ++i) {
+        	  
             double saPeriodVal = ( (Double)this.saPeriodVector.get(i)).
                 doubleValue();
             imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
@@ -223,6 +248,7 @@ public class HazardSpectrumServerModeApplication
             double val = getHazFuncIML_ProbValues(tempHazFunction, imlProbValue,
                                                   imlAtProb, probAtIML);
             hazFunction.set(saPeriodVal, val);
+            
           }
         }
         else {
@@ -284,7 +310,9 @@ public class HazardSpectrumServerModeApplication
       setButtonsEnable(true);
       return;
     }
-
+    numSA_PeriodValDone =0;
+    numSA_PeriodVals = 0;
+    isHazardCalcDone = true;
     // add the function to the function list
     functionList.add(hazFunction);
 
@@ -401,6 +429,73 @@ public class HazardSpectrumServerModeApplication
     }
   }
 
+  
+  /**
+   * this function is called to draw the graph
+   */
+  protected void addButton() {
+    setButtonsEnable(false);
+    // do not show warning messages in IMR gui bean. this is needed
+    // so that warning messages for site parameters are not shown when Add graph is clicked
+    imrGuiBean.showWarningMessages(false);
+    if(plotOptionControl !=null){
+      if(this.plotOptionControl.getSelectedOption().equals(PlottingOptionControl.PLOT_ON_TOP))
+        addData = true;
+      else
+        addData = false;
+    }
+    try{
+        createCalcInstance();
+    }catch(Exception e){
+      setButtonsEnable(true);
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+      bugWindow.setVisible(true);
+      bugWindow.pack();
+      e.printStackTrace();
+    }
+
+    // check if progress bar is desired and set it up if so
+    if(this.progressCheckBox.isSelected())  {
+
+      timer = new Timer(500, new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+          try{
+            if(!isEqkList){
+              if((numSA_PeriodVals)!=0)
+                progressClass.updateProgress(numSA_PeriodValDone+1, numSA_PeriodVals);
+            }
+            else{
+              if((numERFsInEpistemicList+1) !=0)
+                progressClass.updateProgress(currentERFInEpistemicListForHazardCurve+1,numERFsInEpistemicList);
+            }
+            if (isHazardCalcDone) {
+              timer.stop();
+              progressClass.dispose();
+              drawGraph();
+            }
+          }catch(Exception e){
+            //e.printStackTrace();
+            timer.stop();
+            setButtonsEnable(true);
+            ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
+            bugWindow.setVisible(true);
+            bugWindow.pack();
+          }
+        }
+      });
+
+      calcThread = new Thread(this);
+      calcThread.start();
+    }
+    else {
+      this.computeHazardCurve();
+      this.drawGraph();
+    }
+  }
+
+  
+  
+  
   /**
    * Gets the SA Period Values for the IMR
    * @param imr
@@ -429,7 +524,7 @@ public class HazardSpectrumServerModeApplication
    * @param imr : selected IMR
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
-  private void handleForecastList(Site site,
+  protected void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
                                   ERF_API eqkRupForecast,
                                   double imlProbValue, boolean imlAtProb,
@@ -574,27 +669,6 @@ public class HazardSpectrumServerModeApplication
     }
   }
 
-  /**
-   * Implementing the run method in the Runnable interface that creates a new thread
-   * to do Hazard Curve Calculation, this thread created is seperate from the
-   * timer thread, so that progress bar updation does not conflicts with Calculations.
-   */
-  public void run() {
-    try {
-      computeHazardCurve();
-      cancelCalcButton.setVisible(false);
-      //disaggCalc = null;
-      calcThread = null;
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
-          getParametersInfoAsString());
-      bugWindow.setVisible(true);
-      bugWindow.pack();
-    }
-
-  }
 
   /**
    *
