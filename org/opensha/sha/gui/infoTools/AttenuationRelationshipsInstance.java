@@ -53,10 +53,10 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(CB_CLASS_NAME);
     supportedAttenRelClasses.add(SM_CLASS_NAME);
     supportedAttenRelClasses.add(USGS04_CLASS_NAME);
-    /*supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
-    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);*/
+    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
   }
 
   /**
