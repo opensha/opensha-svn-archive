@@ -857,8 +857,9 @@ public class HazardCurveServerModeApplication extends JFrame
 
       // check if progress bar is desired and set it up if so
       if(this.progressCheckBox.isSelected())  {
-
-        timer = new Timer(500, new ActionListener() {
+        calcThread = new Thread(this);
+        calcThread.start();
+        timer = new Timer(200, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             try{
               if(!isEqkList){
@@ -888,7 +889,7 @@ public class HazardCurveServerModeApplication extends JFrame
         });
 
         // timer for disaggregation progress bar
-        disaggTimer = new Timer(500, new ActionListener() {
+        disaggTimer = new Timer(200, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             try{
               int totalRupture = disaggCalc.getTotRuptures();
@@ -909,9 +910,7 @@ public class HazardCurveServerModeApplication extends JFrame
           }
         });
 
-        calcThread = new Thread(this);
-        calcThread.start();
-      }
+       }
       else {
         this.computeHazardCurve();
         this.drawGraph();

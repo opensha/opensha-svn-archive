@@ -579,10 +579,10 @@ public class HazardSpectrumApplication extends JApplet
       }
         // check if progress bar is desired and set it up if so
         if(this.progressCheckBox.isSelected())  {
-          //progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-          //progressClass.displayProgressBar();
+            Thread t = new Thread(this);
+            t.start();
 
-          timer = new Timer(500, new ActionListener() {
+          timer = new Timer(200, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
               try{
                 if(calc.getCurrRuptures()!=-1){
@@ -615,9 +615,6 @@ public class HazardSpectrumApplication extends JApplet
             }
           }
         });*/
-
-          Thread t = new Thread(this);
-            t.start();
         }
         else {
           this.computeHazardCurve();
