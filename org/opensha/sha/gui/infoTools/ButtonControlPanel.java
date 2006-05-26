@@ -66,7 +66,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     this.setLayout(flowLayout1);
     this.setDoubleBuffered(false);
     this.setMinimumSize(new Dimension(0, 0));
-    this.setPreferredSize(new Dimension(400, 36));
+    this.setPreferredSize(new Dimension(500, 36));
     jCheckxlog.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         jCheckxlog_itemStateChanged(e);
