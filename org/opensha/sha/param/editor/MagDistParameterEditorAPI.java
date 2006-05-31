@@ -34,7 +34,12 @@ public interface MagDistParameterEditorAPI {
      */
     public void setMagFreqDistParamButtonVisible(boolean visible);
 
-
+    /**
+     * Clones the Mag ParamList and the makes the parameters visible based on the
+     * selected Distribution.
+     * @return
+     */
+    public ParameterListEditor createMagFreqDistParameterEditor() ;
 
     /**
      * Function that returns the magFreDist Param as a parameterListeditor

@@ -465,13 +465,28 @@ public class MagFreqDistParameter
         parameterList.addParameter(fixParam);
     }
 
+    /**
+     * Updates the MagFreqDistParams with the new parameters.
+     * @param newParamList Cloned Parameterlist
+     */
+    public void setMagDist(ParameterList newParamList) {
+		parameterList.replaceParameter(SET_ALL_PARAMS_BUT,newParamList.getParameter(SET_ALL_PARAMS_BUT));
+		parameterList.replaceParameter(FIX,newParamList.getParameter(FIX));
+		
+		ListIterator it = newParamList.getParametersIterator();
+    		while(it.hasNext()){
+    			ParameterAPI tempParam = (ParameterAPI)it.next();
+    			parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+    		}
+    
+    		setMagDist();
+    }
 
     /**
      * set the IncrementalMagFreqDist object based on parameters given
-     * @param parameterList
-     * @return
+     * 
      */
-    public void setMagDist(ParameterList parameterList) {
+    public void setMagDist() {
       String S = C + ": getMagDist():";
       String distributionName = parameterList.getParameter(MagFreqDistParameter.
           DISTRIBUTION_NAME).getValue().toString();

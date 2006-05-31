@@ -93,13 +93,8 @@ public class MagPDF_ParameterEditor
     //removeAll();
     magPDF_Param = (MagPDF_Parameter) param;
 
-    // make the params editor
-    initParamList();
-    editor = new ParameterListEditor(parameterList);
-    editor.setTitle(MAG_DIST_TITLE);
-
-    // Update which parameters should be invisible
-    synchRequiredVisibleParameters();
+    createMagFreqDistParameterEditor();
+ 
     // All done
     if (D) System.out.println(S + "Ending:");
   }
@@ -110,8 +105,8 @@ public class MagPDF_ParameterEditor
    * @param ae
    */
   public void actionPerformed(ActionEvent ae) {
-    if (magDistPanel == null)
-      magDistPanel = new MagFreqDistApp();
+    
+    magDistPanel = new MagFreqDistApp();
     magDistPanel.setMagDistEditor(this);
     //magDistPanel.pack();
     magDistPanel.setVisible(true);
@@ -129,13 +124,31 @@ public class MagPDF_ParameterEditor
   }
 
   /**
+   * Clones the Mag ParamList and the makes the parameters visible based on the
+   * selected Distribution.
+   * @return
+   */
+  public ParameterListEditor createMagFreqDistParameterEditor() {
+	  // make the params editor
+	  initParamList();
+	  editor = new ParameterListEditor(parameterList);
+	  editor.setTitle(MAG_DIST_TITLE);
+
+	  
+      // Update which parameters should be invisible
+      synchRequiredVisibleParameters();
+      return editor;
+  }
+  
+  
+  /**
    * Function that returns the magFreDist Param as a parameterListeditor
    * so that user can display it as the panel in window rather then
    * button.
    * @return
    */
-  public ParameterListEditor getMagFreqDistParameterEditor() {
-    return editor;
+  public ParameterListEditor getMagFreqDistParameterEditor(){
+	  return editor;
   }
 
   /**
@@ -171,17 +184,16 @@ public class MagPDF_ParameterEditor
     /**
      * get adjustable params from MagFreqDistParam and add listeners to them
      */
-    parameterList = magPDF_Param.getAdjustableParams();
+    parameterList = (ParameterList)magPDF_Param.getAdjustableParams().clone();
     //do it if not done already ( allows the person to just do it once)
-    if (!addedListenersToParameters) {
-      ListIterator it = parameterList.getParametersIterator();
-      while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
-        param.addParameterChangeFailListener(this);
-        param.addParameterChangeListener(this);
-      }
-      addedListenersToParameters = true;
+    
+    ListIterator it = parameterList.getParametersIterator();
+	while (it.hasNext()) {
+	   ParameterAPI param = (ParameterAPI) it.next();
+	   param.addParameterChangeFailListener(this);
+	   param.addParameterChangeListener(this);
     }
+      
   }
 
   /**

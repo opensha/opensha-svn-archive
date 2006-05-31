@@ -380,13 +380,27 @@ public class MagPDF_Parameter
         parameterList.addParameter(mag);
     }
 
+    
+    /**
+     * Updates the MagFreqDistParams with the new parameters.
+     * @param newParamList Cloned Parameterlist
+     */
+    public void setMagDist(ParameterList newParamList) {		
+		ListIterator it = newParamList.getParametersIterator();
+    		while(it.hasNext()){
+    			ParameterAPI tempParam = (ParameterAPI)it.next();
+    			parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+    		}
+    
+    		setMagDist();
+    }   
 
     /**
      * set the IncrementalMagFreqDist object based on parameters given
      * @param parameterList
      * @return
      */
-    public void setMagDist(ParameterList parameterList) {
+    public void setMagDist() {
       String S = C + ": getMagDist():";
       String distributionName = parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
 

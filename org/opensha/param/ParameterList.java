@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
+import org.opensha.param.editor.ParameterEditor;
 
 /**
  * <b>Title:</b> ParameterList<p>
@@ -265,7 +266,24 @@ public class ParameterList implements Serializable {
 
 
 
+    /**
+     * Searches for the named parameter, then replaces the parameter
+     * it is currently editing.
+     * @param parameterName : Name of the parameter that is being removed
+     * @param param : New parameter that is replacing the old parameter
+     */
+    public void replaceParameter( String parameterName, ParameterAPI param ) {
 
+      parameterName = getParameterName( parameterName );
+      int index = getIndexOf(parameterName);
+      if ( index != -1 ) {
+        removeParameter( parameterName );
+        addParameter( param );
+      }
+
+    }
+    
+    
 
     /**
      * compares 2 ParameterList to see if they are equal.

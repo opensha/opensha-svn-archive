@@ -71,11 +71,11 @@ public class A_FaultSource
    * Constructor 
    */
   public A_FaultSource(ArrayList segmentData, MagAreaRelationship magAreaRel, double[] scenarioWts,
-		  boolean aseisReducesArea, double[] floatingPDF_Wts) {
+		  boolean aseisReducesArea, IncrementalMagFreqDist floatingRup_PDF) {
 
     this.isPoissonian = true;
     
-    // make sure the two input double[] arrays sum to 1.
+    // make sure scenarioWts sum to 1.
     // the last element in scenarioWts applies to floater
 
     if (D) {
@@ -86,10 +86,10 @@ public class A_FaultSource
     num_rup = num_seg*(num_seg+1)/2;
     num_scen = (int) Math.pow(2,num_rup-1);
     
-    if(num_seg > 5)
-		throw new RuntimeException("Error: there can't be more than 5 segments");
+    if(num_seg > 5 || num_seg < 2)
+		throw new RuntimeException("Error: num segments must be between 2 and 5");
     if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
-		throw new RuntimeException("Error: bla bla bla");
+		throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
     
     int seg,rup,scen; // for loops
    
