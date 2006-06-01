@@ -418,7 +418,7 @@ CREATE TABLE Paleo_Site (
   Entry_Date date NOT NULL,
   Site_Name VARCHAR(255) NULL,
   Site_Location1 MDSYS.SDO_GEOMETRY,
-  Site_Location2 MDSYS.SDO_GEOMETRY,
+  Site_Location2 MDSYS.SDO_GEOMETRY NULL,
   General_Comments VARCHAR(1000) NULL,
   Old_Site_Id VARCHAR(20) NULL,
   Dip_Est_Id INTEGER NULL,
