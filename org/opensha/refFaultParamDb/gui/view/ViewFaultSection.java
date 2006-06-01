@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
@@ -74,7 +74,7 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private final static String MSG_REMOVE_CONFIRM = "Do you want to delete this fault Section from the database?\n"+
 		"All PaleoSites associated with this Fault Section will be removed.";
 	private final static String MSG_REMOVE_SUCCESS = "Fault Section removed sucessfully from the database";
-	private FaultSectionVer2 selectedFaultSection;
+	private FaultSectionData selectedFaultSection;
 	private ConstrainedStringParameterEditor faultSectionParamEditor;
 	
 	public ViewFaultSection() {

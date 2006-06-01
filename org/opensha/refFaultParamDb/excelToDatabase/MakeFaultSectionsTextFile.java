@@ -8,7 +8,7 @@ import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.sha.fault.FaultTrace;
 
 
@@ -28,7 +28,7 @@ public class MakeFaultSectionsTextFile {
 			int numSections = faultSections.size();
 			// iterate over all the fault sections and write them to the file
 			for(int i=0; i<numSections; ++i) {
-				FaultSectionVer2 faultSection = (FaultSectionVer2)faultSections.get(i);
+				FaultSectionData faultSection = (FaultSectionData)faultSections.get(i);
 				fw.write(faultSection.getSectionId()+";"+faultSection.getSectionName()+";"+
 						faultSection.getSource()+"\n");
 				//fw.write("#"+faultSection.getSectionName()+"\n");

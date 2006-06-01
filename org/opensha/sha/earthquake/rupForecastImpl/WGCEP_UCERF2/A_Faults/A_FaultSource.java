@@ -3,13 +3,19 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 /**
  * <p>Title: A_FaultSource </p>
@@ -21,12 +27,11 @@ import org.opensha.calc.magScalingRelations.MagAreaRelationship;
  * @version 1.0
  */
 
-public class A_FaultSource
-    extends ProbEqkSource {
+public class A_FaultSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String C = new String("A_FaultSource");
-  private boolean D = false;
+  private final static boolean D = true;
 
   //name for this classs
   protected String NAME = "Type-A Fault Source";
@@ -37,6 +42,14 @@ public class A_FaultSource
   private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
   
   private int num_seg, num_rup, num_scen;
+  
+  // x-axis attributes for the MagFreqDists
+  private final static double MIN_MAG = 6;
+  private final static double MAX_MAG = 15;
+  private final static double DELTA_MAG = 0.01;
+  private final static int NUM_MAG = 901;
+  
+  private final static double TOLERANCE = 1e6;
   
   // array giving which seg (row) is in each rupture (column)
   final static int[][] segInRup = {
@@ -68,74 +81,192 @@ public class A_FaultSource
 
 
   /**
-   * Constructor 
+   * Description:
+   * Notes: might want to add sigma, truncType, and truncLevel for characteristic events
+   * 
+   * @param segmentData - an ArrayList containing n ArrayLists (one for each segment), 
+   * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
+   * It is assumed that these are in proper order such that concatenating the FaultTraces will produce
+   * a total FaultTrace with locations in the proper order.
+   * @param magAreaRel - any MagAreaRelationship
+   * @param magSigma - the aleatory uncertainty on the magnitude for a given area
+   * @param magTruncLevel - the last non-zero rate (in units of magSigma) on the magFreqDist for ruptures
+   * @param magTruncType - the truncation type: 0=none; 1=upper; and 2= upper and lower
+   * @param scenarioWts - should have 2^(n-1) + 1 elements, where the last is for the floaters
+   * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise as reduction of slip rate
+   * @param floatingRup_PDF - mag PDF of floaters; this is normalized internally to make sure it's a PDF
+   * @
    */
-  public A_FaultSource(ArrayList segmentData, MagAreaRelationship magAreaRel, double[] scenarioWts,
+  public A_FaultSource(ArrayList segmentData, MagAreaRelationship magAreaRel, double magSigma,
+          double magTruncLevel,int magTruncType, double[] scenarioWts,
 		  boolean aseisReducesArea, IncrementalMagFreqDist floatingRup_PDF) {
 
-    this.isPoissonian = true;
+	  this.isPoissonian = true;
+ 
+	  // make sure scenarioWts sum to 1.
+	  double sum = 0.0;
+	  for(int i=0; i<scenarioWts.length; ++i) sum+=scenarioWts[i];
+	  if(Math.abs(sum-1.0)>TOLERANCE) throw new RuntimeException("Scenario Weights do not sum to 1"); 
     
-    // make sure scenarioWts sum to 1.
-    // the last element in scenarioWts applies to floater
+	  // make sure trunc type is 0, 1, or 2; 
+	  if(magTruncType!=0 && magTruncType!=2 && magTruncType!=3)
+		  throw new RuntimeException("Invalid truncation type value. Value values are 0, 1 and 2");
+    
+	  //magSigma is positive; 
+	  if(magSigma<0) throw new RuntimeException ("Magnitude Sigma should be ³ 0 ");
+     
+	  // magTruncLevel us positive
+	  if(magTruncLevel<0) throw new RuntimeException("Truncation Level for magnitude should ³ 0");
 
-    if (D) {
-      System.out.println("mag: ");
+    
+	  num_seg = segmentData.size();
+	  num_rup = num_seg*(num_seg+1)/2;
+	  num_scen = (int) Math.pow(2,num_seg-1);
+    
+	  if(num_seg > 5 || num_seg < 2)
+		  throw new RuntimeException("Error: num segments must be between 2 and 5");
+	  if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
+		  throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
+    
+	  int seg,rup,scen; // for loops
+   
+	  double[] segArea = new double[num_seg];
+	  double[] segMoRate = new double[num_seg];
+	  String[] segName = new String[num_seg];
+    
+    
+	  // fill in segName, segArea and segMoRate
+	  for(seg=0;seg<num_seg;seg++) {
+    	segArea[seg]=0;
+    	segMoRate[seg]=0;
+    	ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
+    	Iterator it = segmentDatum.iterator();
+    	boolean first = true;
+    	while(it.hasNext()) {
+    		FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
+    		// set the name
+    		if(first) {
+    			segName[seg] = sectData.getSectionName();
+    			first = false;
+    		}
+    		else
+    			segName[seg] += " -- "+sectData.getSectionName();
+    		//set the area & moRate
+    		double length = sectData.getFaultTrace().getTraceLength(); // km
+    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
+    		if(aseisReducesArea) {
+    			segArea[seg] += length*ddw*1e6*(1-sectData.getAseismicSlipFactor()); // meters-squared
+    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
+    		}
+    		else {
+    			segArea[seg] += length*ddw*1e6; // meters-squared
+    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
+    		}
+    	}
+    	if(D) {
+    		System.out.println("SegArea["+seg+"]="+segArea[seg] );
+    		System.out.println("segMoRate["+seg+"]="+segMoRate[seg] );
+    	}
     }
     
-    num_seg = segmentData.size();
-    num_rup = num_seg*(num_seg+1)/2;
-    num_scen = (int) Math.pow(2,num_rup-1);
-    
-    if(num_seg > 5 || num_seg < 2)
-		throw new RuntimeException("Error: num segments must be between 2 and 5");
-    if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
-		throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
-    
-    int seg,rup,scen; // for loops
-   
-    double[] segArea = new double[num_seg];
-    double[] segMoRate = new double[num_seg];
-    
-    // fill in the above two
-    
     double totalMoRate = 0;
-    for(seg=0; seg<num_seg; seg++)  totalMoRate += segMoRate[seg];
+    double totalArea = 0;
+    for(seg=0; seg<num_seg; seg++) {
+    	totalMoRate += segMoRate[seg];
+    	totalArea += segArea[seg];
+    }
     
     // get the moRate for the floater using the last element in the scenarioWts array.
     double floaterWt = scenarioWts[num_scen];
     double floaterMoRate = totalMoRate*floaterWt;
     
+    // get magFreqDist for floater
+    IncrementalMagFreqDist floaterMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+    EvenlyDiscretizedFunc cumDist = floatingRup_PDF.getCumRateDist();
+    for(int i=0; i<floaterMFD.getNum(); ++i) {
+    	double x = floaterMFD.getX(i);
+    	double x1 = x-DELTA_MAG/2;
+    	double x2 = x + DELTA_MAG/2;
+    	double cumRate1=0, cumRate2=0;
+    	//check that the Mag lies within the range of cumDist
+    	if(x1<cumDist.getMinX()) cumRate1 = 0.0;
+    	else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
+    	else cumRate1 = cumDist.getInterpolatedY(x1);
+    	if(x2<cumDist.getMinX()) cumRate2 = 0.0;
+    	else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
+    	else cumRate2 = cumDist.getInterpolatedY(x2);
+    	floaterMFD.set(i, cumRate2-cumRate1);
+    }
+    floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+    
     double[] rupArea = new double[num_rup];
-    double[] rupMag = new double[num_rup];
+    double[] rupMeanMag = new double[num_rup];
     double[] rupMaxMoRate = new double[num_rup]; // if all moment rate could go into this rupture
     double[] rupMoRate = new double[num_rup];
+    double[] rupRate = new double[num_rup];
+    GaussianMagFreqDist[] rupMagFreqDist = new GaussianMagFreqDist[num_rup];
+    String[] rupName = new String [num_rup];
     
   	// compute rupArea, rupMaxMoRate, and rupMag for each rupture
     for(rup=0; rup<num_rup; rup++){
     		rupArea[rup] = 0;
     		rupMaxMoRate[rup] = 0;
+    		boolean isFirst = true;
     		for(seg=0; seg < num_seg; seg++) {
-    			rupArea[rup] += segArea[seg]*(double)segInRup[seg][rup];
-        		rupMaxMoRate[rup] += segMoRate[seg]*(double)segInRup[seg][rup];
+    			
+    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
+    				if(isFirst) { // append the section name to rupture name
+    					rupName[rup] = segName[seg];
+    					isFirst = false;
+    				} else rupName[rup] += " + "+segName[seg];
+    				
+    				rupArea[rup] += segArea[seg];
+            		rupMaxMoRate[rup] += segMoRate[seg];
+    			}
+    			
     		}
-    		rupMag[rup] = magAreaRel.getMedianMag(rupArea[rup]);
+    		// compute magnitude, rounded to nearest MFD x-axis point
+    		rupMeanMag[rup] = Math.round((magAreaRel.getMedianMag(rupArea[rup]))/DELTA_MAG) * DELTA_MAG;
+    		if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
     }
+    
+    SummedMagFreqDist summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+    summedMagFreqDist.addIncrementalMagFreqDist(floaterMFD);
     
     // compute the actual rupture MoRate (considering floater weight as well)
     double totMoRateTest = 0;
+    String[] scenName = new String[num_scen];
     for(rup=0; rup<num_rup; rup++){
 		rupMoRate[rup] = 0;
+		boolean isFirst = true;
 		for(scen=0; scen < num_scen; scen++) {
-			rupMoRate[rup] += (1.0-floaterWt)*rupMaxMoRate[rup]*(double)scenHasRup[scen][rup]*scenarioWts[scen];
+			if(scenHasRup[scen][rup]==1) { // if this rupture is included in current scenario
+				if(isFirst) { // append the rupture name to scenario name
+					scenName[scen]=rupName[rup];
+					isFirst = false;
+				} else scenName[scen]+=";"+rupName[rup];
+				
+				rupMoRate[rup] += (1.0-floaterWt)*rupMaxMoRate[rup]*scenarioWts[scen];
+			}
 		}
+		
+		rupMagFreqDist[rup] = new GaussianMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, rupMeanMag[rup], magSigma,
+				rupMoRate[rup], magTruncLevel, magTruncType);
+		summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[rup]);
+		rupRate[rup] = rupMoRate[rup]/MomentMagCalc.getMoment(rupMeanMag[rup]);
 		totMoRateTest += rupMoRate[rup];
     }
 
     // check total moment rates
     totMoRateTest += floaterMoRate;
+    double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
+    
     if(D) {
     		System.out.println("TotMoRate from segs = "+(float) totalMoRate);
     		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
+    		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
     }
     	
     
@@ -257,6 +388,44 @@ public class A_FaultSource
    */
   public String getName() {
     return NAME;
+  }
+  
+  
+  public static void main(String[] args) {
+	  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+	  FaultSectionPrefData santaCruz  = faultSectionDAO.getFaultSection(56).getFaultSectionPrefData(); // San Andreas - Santa Cruz
+	  FaultSectionPrefData peninsula  = faultSectionDAO.getFaultSection(67).getFaultSectionPrefData(); // San Andreas - Peninsula
+	  FaultSectionPrefData northCoastSouth  = faultSectionDAO.getFaultSection(27).getFaultSectionPrefData(); // San Andreas - North Coast South
+	  FaultSectionPrefData northCoastNorth  = faultSectionDAO.getFaultSection(26).getFaultSectionPrefData(); // San Andreas - North Coast North
+	  if(D) System.out.println("After retrieving fault sections from database");
+	  // segment1
+	  ArrayList santaCruzList = new ArrayList();
+	  santaCruzList.add(santaCruz);
+	  
+	  //segment2
+	  ArrayList peninsulaList = new ArrayList();
+	  peninsulaList.add(peninsula);
+	  
+	  //segment3
+	  ArrayList northCoastSouthList = new ArrayList();
+	  northCoastSouthList.add(northCoastSouth);
+	  
+	  //segment4
+	  ArrayList northCoastNorthList = new ArrayList();
+	  northCoastNorthList.add(northCoastNorth);
+	  
+	  // list of all segments
+	  ArrayList segmentData = new ArrayList();
+	  segmentData.add(santaCruzList);
+	  segmentData.add(peninsulaList);
+	  segmentData.add(northCoastSouthList);
+	  segmentData.add(northCoastNorthList);
+	  
+	  
+	  double[] scenarioWts = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2};
+	  GutenbergRichterMagFreqDist grMagFreqDist = new GutenbergRichterMagFreqDist(1, 1.0, 6, 8, 21);
+	  A_FaultSource aFaultSource = new A_FaultSource(segmentData,  new WC1994_MagAreaRelationship(), 
+			  0.12, 2.0, 2, scenarioWts, true, grMagFreqDist);
   }
 }
 

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
@@ -196,7 +196,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
 				pubList.add(paleoSitePub);
 				fadPaleoSite.setPaleoSitePubList(pubList);
 				if(Float.isNaN(fadPaleoSite.getSiteLat1())) {
-					FaultSectionVer2 faultSection = this.faultSectionDAO.getFaultSection(fadPaleoSite.getFaultSectionId());
+					FaultSectionData faultSection = this.faultSectionDAO.getFaultSection(fadPaleoSite.getFaultSectionId());
 					Location loc1 = faultSection.getFaultTrace().getLocationAt(0);
 					Location loc2 = faultSection.getFaultTrace().getLocationAt(faultSection.getFaultTrace().getNumLocations()-1);
 					fadPaleoSite.setSiteLat1((float)loc1.getLatitude());

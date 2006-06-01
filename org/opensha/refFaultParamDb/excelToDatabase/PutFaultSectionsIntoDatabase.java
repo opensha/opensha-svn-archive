@@ -8,7 +8,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import java.util.StringTokenizer;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.data.estimate.Estimate;
@@ -87,7 +87,7 @@ public class PutFaultSectionsIntoDatabase {
       for(int i=0; i<fileLines1.size(); ++i) {
         try {
           FaultTrace faultSectionTrace = getNextTrace("temp");
-          FaultSectionVer2 faultSection = getFaultSection( (String) fileLines1.get(i));
+          FaultSectionData faultSection = getFaultSection( (String) fileLines1.get(i));
           faultSectionTrace.setName(faultSection.getSectionName());
           faultSectionsList.add(faultSection);
           faultSection.setFaultTrace(faultSectionTrace);
@@ -125,7 +125,7 @@ public class PutFaultSectionsIntoDatabase {
    * 
    * @param faultSection
    */
-  private void calculateDipDirection(FaultSectionVer2 faultSection) {
+  private void calculateDipDirection(FaultSectionData faultSection) {
 	  double dip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferred();
 	  // there is no dip direction if dip is 90 degrees
 	  if(dip==90) {
@@ -225,8 +225,8 @@ public class PutFaultSectionsIntoDatabase {
    * @param line
    * @return
    */
-  private FaultSectionVer2 getFaultSection(String line) {
-    FaultSectionVer2 faultSection = new FaultSectionVer2();
+  private FaultSectionData getFaultSection(String line) {
+    FaultSectionData faultSection = new FaultSectionData();
     String comments = "";
     int index = line.indexOf("\",\"");
     // fault section name

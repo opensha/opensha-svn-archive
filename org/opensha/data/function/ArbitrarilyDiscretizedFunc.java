@@ -194,11 +194,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     /** Returns the x value of a point given the index */
     public int getXIndex(double x){ return points.getIndex( new DataPoint2D(x, 0.0 ) ); }
 
-    /** Returns the y value of a point given the index */
-    public int getYIndex(double y){
-        throw new UnsupportedOperationException(C + ": Not implemented yet,l needs a Y comparator similar to the X value comparator.");
-    }
-
+ 
     /** Either adds a new DataPoint, or replaces an existing one, within tolerance */
     public void set(DataPoint2D point) throws DataPoint2DException{ points.put(point); }
 

@@ -9,7 +9,7 @@ import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.*;
@@ -62,7 +62,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
-		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
+		FaultSectionData faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		//frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
@@ -75,7 +75,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
-		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
+		FaultSectionData faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
@@ -113,8 +113,8 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @param faultSectionId
 	 * @return
 	 */
-	private FaultSectionVer2 getFaultSection(int faultSectionId) {
-		FaultSectionVer2 faultSection  = (FaultSectionVer2) faultSectionsMap.get(new Integer(faultSectionId));
+	private FaultSectionData getFaultSection(int faultSectionId) {
+		FaultSectionData faultSection  = (FaultSectionData) faultSectionsMap.get(new Integer(faultSectionId));
 		if(faultSection==null) {
 			faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 			faultSectionsMap.put(new Integer(faultSectionId), faultSection);
@@ -135,7 +135,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @param faultSection
 	 * @return
 	 */
-	private SimpleFaultData getSimpleFaultData(FaultSectionVer2 faultSection) {
+	private SimpleFaultData getSimpleFaultData(FaultSectionData faultSection) {
 		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferred();
 		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferred();
 		double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferred();

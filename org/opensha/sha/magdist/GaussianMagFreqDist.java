@@ -327,27 +327,37 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * truncLevel(which specifies the # of stdDev from mean where dist. cut to zero
    */
   private void calculateRelativeRates()throws DataPoint2DException {
-    for(int i=0;i<num;++i) {
-      double mag=getX(i);
-      double rate = Math.exp(-Math.pow((mag - mean),2)/(2*stdDev*stdDev));
-      super.set(i,rate);
-    }
-
-    if(truncType !=0) {
-      double magUpper = mean + truncLevel*stdDev;
-      int index = Math.round((float)((magUpper - minX)/delta));
-      // Make this the last non-zero rate by adding one in the next loop
-      for(int i=index+1;i<num;i++)
-        super.set(i,0);
-    }
-
-    if(truncType ==2) {
-      double magLower = this.mean - this.truncLevel *this.stdDev;
-      int index = Math.round((float)((magLower-this.minX)/this.delta));
-      // Make this the first non-zero rate by the <index in the next loop
-      for(int i=0;i<index;i++)
-        super.set(i,0);
-    }
+	if(stdDev != 0) {
+	    for(int i=0;i<num;++i) {
+	      double mag=getX(i);
+	      double rate = Math.exp(-Math.pow((mag - mean),2)/(2*stdDev*stdDev));
+	      super.set(i,rate);
+	    }
+	
+	    if(truncType !=0) {
+	      double magUpper = mean + truncLevel*stdDev;
+	      int index = Math.round((float)((magUpper - minX)/delta));
+	      // Make this the last non-zero rate by adding one in the next loop
+	      for(int i=index+1;i<num;i++)
+	        super.set(i,0);
+	    }
+	
+	    if(truncType ==2) {
+	      double magLower = this.mean - this.truncLevel *this.stdDev;
+	      int index = Math.round((float)((magLower-this.minX)/this.delta));
+	      // Make this the first non-zero rate by the <index in the next loop
+	      for(int i=0;i<index;i++)
+	        super.set(i,0);
+	    }
+	}
+	else {
+	    for(int i=0;i<num;++i) super.set(i,0);
+	    try {
+	    	super.set(mean, 1.0);
+	    } catch(RuntimeException e){
+	    	throw new RuntimeException("If sigma=0, then mean must equal one of the discrete X-axis magnitudes");
+	    }
+  	}
 
 
   }

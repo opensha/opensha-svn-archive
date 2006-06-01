@@ -1,5 +1,9 @@
 package org.opensha.refFaultParamDb.vo;
 
+import org.opensha.data.estimate.DiscreteValueEstimate;
+import org.opensha.data.estimate.Estimate;
+import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.sha.fault.FaultTrace;
 
 /**
@@ -11,7 +15,7 @@ import org.opensha.sha.fault.FaultTrace;
  * @version 1.0
  */
 
-public class FaultSectionVer2 {
+public class FaultSectionData {
 
   private int sectionId=-1;
   private String sectionName;
@@ -28,7 +32,7 @@ public class FaultSectionVer2 {
   private float dipDirection;
   private String qFaultId;
 
-  public FaultSectionVer2() {
+  public FaultSectionData() {
   }
   
   public String getQFaultId() {
@@ -117,8 +121,45 @@ public class FaultSectionVer2 {
   public String getSource() {
     return source;
   }
+  
   public void setSource(String source) {
     this.source = source;
+  }
+  
+  /**
+   * Convert the estimates nt o a single preffered value and return the FaultSectionPrefData object
+   * @return
+   */
+  public FaultSectionPrefData getFaultSectionPrefData() {
+	  FaultSectionPrefData faultSectionPrefData = new FaultSectionPrefData();
+	  faultSectionPrefData.setAseismicSlipFactor(getPrefForEstimate(aseismicSlipFactorEst));
+	  faultSectionPrefData.setAveDip(getPrefForEstimate(aveDipEst));
+	  faultSectionPrefData.setAveLongTermSlipRate(getPrefForEstimate(aveLongTermSlipRateEst));
+	  faultSectionPrefData.setAveLowerDepth(getPrefForEstimate(aveLowerDepthEst));
+	  faultSectionPrefData.setAveRake(getPrefForEstimate(aveRakeEst));
+	  faultSectionPrefData.setAveUpperDepth(getPrefForEstimate(aveUpperDepthEst));
+	  faultSectionPrefData.setDipDirection(dipDirection);
+	  faultSectionPrefData.setSectionId(sectionId);
+	  faultSectionPrefData.setSectionName(sectionName);
+	  faultSectionPrefData.setFaultTrace(this.faultTrace);
+	  return faultSectionPrefData;
+  }
+  
+  /**
+   * Extract a single preferred value from the estimate  
+   * @param estimateInstance
+   * @return
+   */
+  private double getPrefForEstimate(EstimateInstances estimateInstance) {
+	  if(estimateInstance==null) return Double.NaN;
+	  Estimate estimate = estimateInstance.getEstimate();
+	  if(estimate instanceof MinMaxPrefEstimate) {
+		  return ((MinMaxPrefEstimate)estimate).getPreferred();
+	  } else if(estimate instanceof NormalEstimate) {
+		  return ((NormalEstimate)estimate).getMean();
+	  } else if(estimate instanceof DiscreteValueEstimate) {
+		  return ((DiscreteValueEstimate)estimate).getMode();
+	  } else throw new RuntimeException("FaultSectionData: Unable to handle this estimate type");
   }
 
 }

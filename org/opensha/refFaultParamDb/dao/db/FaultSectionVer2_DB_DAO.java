@@ -1,7 +1,7 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 import java.sql.ResultSet;
@@ -74,7 +74,7 @@ public class FaultSectionVer2_DB_DAO {
    * @param faultSection
    * @return
    */
-  public int addFaultSection(FaultSectionVer2 faultSection) {
+  public int addFaultSection(FaultSectionData faultSection) {
 
     int faultSectionId = faultSection.getSectionId();
     String systemDate;
@@ -157,7 +157,7 @@ public class FaultSectionVer2_DB_DAO {
    * 
    * @param faultSection
    */
-  public void update(FaultSectionVer2 faultSection) {
+  public void update(FaultSectionData faultSection) {
 	  
 	  String systemDate;
 	  try {
@@ -228,11 +228,11 @@ public class FaultSectionVer2_DB_DAO {
    * @param faultSectionId
    * @return
    */
-  public FaultSectionVer2 getFaultSection(int faultSectionId) {	
+  public FaultSectionData getFaultSection(int faultSectionId) {	
 	  String condition = " where "+SECTION_ID+"="+faultSectionId;
 	  ArrayList faultSectionsList = query(condition);	
-	  FaultSectionVer2 faultSection = null;		
-	  if(faultSectionsList.size()>0) faultSection = (FaultSectionVer2)faultSectionsList.get(0);
+	  FaultSectionData faultSection = null;		
+	  if(faultSectionsList.size()>0) faultSection = (FaultSectionData)faultSectionsList.get(0);
 	  return faultSection;  
   }
    
@@ -319,7 +319,7 @@ private ArrayList getFaultSectionSummary(String condition) {
 		  ResultSet rs = spatialQueryResult.getCachedRowSet();
 		  int i=0;
 		  while(rs.next())  {
-			  FaultSectionVer2 faultSection = new FaultSectionVer2();
+			  FaultSectionData faultSection = new FaultSectionData();
 			  faultSection.setSectionId(rs.getInt(SECTION_ID));
 			  faultSection.setComments(rs.getString(COMMENTS));
 			  

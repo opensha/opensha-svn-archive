@@ -20,7 +20,7 @@ import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.SectionSourceDB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.SectionSource;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
@@ -126,7 +126,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   // comments
   private final static String  COMMENTS= "COMMENTS";
   private StringParameter commentsParam;
-  private FaultSectionVer2 selectedFaultSection;
+  private FaultSectionData selectedFaultSection;
   private final static String TITLE = "Edit Fault Section";
   private final static String MSG_FAULT_TRACE_FORMAT = "Fault Trace should be specified with a lon-lat pair\n"+
   													"on each line separated by comma";
@@ -137,13 +137,13 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   private ViewFaultSection viewFaultSection;
   private boolean isEdit = false;
   
-  public EditFaultSection(FaultSectionVer2 faultSection, ViewFaultSection viewFaultSection) {
+  public EditFaultSection(FaultSectionData faultSection, ViewFaultSection viewFaultSection) {
     try {
       if(faultSection!=null) { // edit the fault section
     	  this.selectedFaultSection = faultSection;
     	  this.isEdit = true;
       } else { // adda a new fault section
-    	  selectedFaultSection = new FaultSectionVer2();
+    	  selectedFaultSection = new FaultSectionData();
     	  this.isEdit = false;
       }
       this.viewFaultSection = viewFaultSection;
