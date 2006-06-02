@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.*;
@@ -32,6 +31,7 @@ public class A_FaultSource extends ProbEqkSource {
   //for Debug purposes
   private static String C = new String("A_FaultSource");
   private final static boolean D = true;
+  private final static double KM_TO_METERS_CONVERT=1e6;
 
   //name for this classs
   protected String NAME = "Type-A Fault Source";
@@ -161,11 +161,33 @@ public class A_FaultSource extends ProbEqkSource {
     		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
     		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
     }
+    
+    // find the rate for each segment
+    double[] segRate = new double[num_seg];
+    computeSegRate(segRate, rupRate);
+    
+    // find the slip distribution of each segment
+    
   }
   
+ 
+  /**
+   * Compute the rate for all segments.
+   *  
+   * @param segRate
+   * @param rupRate
+   */
+  private void computeSegRate(double[] segRate, double[] rupRate) {
+	  for(int seg=0; seg<num_seg; ++seg) {
+		  segRate[seg]=0.0;
+		  // Sum the rates of all ruptures which are part of a segment
+		  for(int rup=0; rup<num_rup; rup++)
+			  if(segInRup[seg][rup]==1) segRate[seg]+=rupRate[rup];
+	  }
+  }
   
 /**
- *  compute the actual rupture MoRate (considering floater weight as well)
+ * Compute the actual rupture MoRate (considering floater weight as well)
  * @param magSigma
  * @param magTruncLevel
  * @param magTruncType
@@ -240,8 +262,8 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 	    			
 	    		}
 	    		// compute magnitude, rounded to nearest MFD x-axis point
-	    		
-	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup])/DELTA_MAG) * DELTA_MAG;
+	    		// convert area to km-sqr
+	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
 	    		if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
 	    }
 	}
@@ -305,12 +327,12 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	    		double length = sectData.getFaultTrace().getTraceLength(); // km
 	    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
 	    		if(aseisReducesArea) {
-	    			segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor()); // meters-squared
+	    			segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
 	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
 	    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
 	    		}
 	    		else {
-	    			segArea[seg] += length*ddw; // meters-squared
+	    			segArea[seg] += length*ddw*KM_TO_METERS_CONVERT; // meters-squared
 	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
 	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 	    		}
