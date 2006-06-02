@@ -23,5 +23,17 @@ public final class FaultMomentCalc {
   public static double getMoment(double area, double slip) {
     return 3e10*slip*area;
   }
+  
+  /**
+   * This function calculates slip for a given fault area and moment, assuming a shear modulus of 3e10 N-m.
+   * This also calculates slip rate if moment rate is given
+   * 
+   * @param area: the fault area (in square Meters)
+   * @param moment:(in Newton-Meters) or moment rate 
+   * @returns Slip (in meters) or slip rate if moment-rate is given
+   */
+  public static double getSlip(double area, double moment) {
+	  return moment/(area*3e10);
+  }
 
 }
