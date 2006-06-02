@@ -3,6 +3,7 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.*;
 
 import javax.swing.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.opensha.util.ImageUtils;
@@ -30,7 +31,7 @@ public class ApplicationDisclaimerWindow
   Border border2 = BorderFactory.createBevelBorder(BevelBorder.RAISED,
       Color.white, Color.white, new Color(124, 124, 124),
       new Color(178, 178, 178));
-  JScrollPane versionUpdateText = new JScrollPane();
+  JScrollPane disclaimerPane = new JScrollPane();
   TitledBorder titledBorder1 = new TitledBorder("");
   Border border3 = BorderFactory.createLineBorder(Color.lightGray, 2);
   Border border4 = BorderFactory.createEtchedBorder(EtchedBorder.RAISED,
@@ -59,7 +60,7 @@ public class ApplicationDisclaimerWindow
 
     try {
       jbInit();
-      setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+      setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
     catch (Exception exception) {
       exception.printStackTrace();
@@ -76,8 +77,8 @@ public class ApplicationDisclaimerWindow
     msgPanel.setLayout(gridBagLayout2);
     msgPane.setBackground(SystemColor.window);
     msgPane.setBorder(border2);
-    versionUpdateText.getViewport().setBackground(SystemColor.desktop);
-    versionUpdateText.setBorder(border5);
+    disclaimerPane.getViewport().setBackground(SystemColor.desktop);
+    disclaimerPane.setBorder(border5);
     understandButton.setText("I Understand");
     understandButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -91,11 +92,12 @@ public class ApplicationDisclaimerWindow
       }
     });
     quitButton.setText("Quit");
-    versionUpdateText.getViewport().add(updateVersionInfo);
+    
+    disclaimerPane.getViewport().add(updateVersionInfo);
 
-    msgPanel.add(updateVersionInfo, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    msgPanel.add(disclaimerPane, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(4, 4, 0, 4), 321, 236));
+        new Insets(4, 4, 0, 4), 0, 0));
     msgPanel.add(understandButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 15, 7, 0), 26, 0));
@@ -107,7 +109,7 @@ public class ApplicationDisclaimerWindow
     updateVersionInfo.setContentType("text/html");
     updateVersionInfo.setPage(urlToDisclaimerMsgPage);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setSize(250,150);
+    this.setSize(200,100);
     setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
     this.pack();
   }

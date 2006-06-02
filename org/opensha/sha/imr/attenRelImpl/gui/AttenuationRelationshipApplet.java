@@ -715,7 +715,7 @@ public class AttenuationRelationshipApplet extends JFrame
         jToolBar.setFloatable(false);
 
         this.getContentPane().add(jToolBar, BorderLayout.NORTH);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         updateChoosenAttenuationRelationship();
         createHelpMenu();
         
