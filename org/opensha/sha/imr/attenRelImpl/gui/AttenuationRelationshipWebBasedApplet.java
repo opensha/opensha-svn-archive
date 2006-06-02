@@ -46,11 +46,7 @@ public class AttenuationRelationshipWebBasedApplet
         //creating the Object the GraphPaenl class
         graphPanel = new GraphPanel(this);
 
-        imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-          public void mouseClicked(MouseEvent e) {
-            imgLabel_mouseClicked(e);
-          }
-        });
+        
         plotPanel.setLayout(GBL);
         innerPlotPanel.setLayout(GBL);
         innerPlotPanel.setBorder( null );
@@ -123,20 +119,20 @@ public class AttenuationRelationshipWebBasedApplet
         imgLabel.setText("");
         imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
         
-    xyDatasetButton.setText("Add Data Points");
-    xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        xyDatasetButton_actionPerformed(e);
-      }
-    });
-    peelOffButton.setText("Peel Off");
-    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        peelOffButton_actionPerformed(e);
-      }
-    });
-    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+	    xyDatasetButton.setText("Add Data Points");
+	    xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {
+	      public void actionPerformed(ActionEvent e) {
+	        xyDatasetButton_actionPerformed(e);
+	      }
+	    });
+	    peelOffButton.setText("Peel Off");
+	    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
+	      public void actionPerformed(ActionEvent e) {
+	        peelOffButton_actionPerformed(e);
+	      }
+	    });
+	    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+	            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
         outerPanel.add( plotSplitPane,         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0) );
@@ -209,55 +205,10 @@ public class AttenuationRelationshipWebBasedApplet
   public static void main( String[] args ) {
 
       AttenuationRelationshipWebBasedApplet applet = new AttenuationRelationshipWebBasedApplet();
+      applet.checkAppVersion();
+	  applet.init();
+	  applet.setVisible(true);     
 
-      Color c = new Color( .9f, .9f, 1.0f, 1f );
-      Font f = new Font( "Dialog", Font.PLAIN, 11 );
-
-      UIManager.put( "ScrollBar.width", new Integer( 12 ) );
-      UIManager.put( "ScrollPane.width", new Integer( 12 ) );
-
-      UIManager.put( "PopupMenu.font", f );
-      UIManager.put( "Menu.font", f );
-      UIManager.put( "MenuItem.font", f );
-
-      UIManager.put( "ScrollBar.border", BorderFactory.createEtchedBorder( 1 ) );
-
-      UIManager.put( "PopupMenu.background", c );
-
-      //UIManager.put("PopupMenu.selectionBackground", c );
-      //UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.red, 1 ) );
-
-      UIManager.put( "Menu.background", c );
-      //UIManager.put("Menu.selectionBackground", c );
-
-      UIManager.put( "MenuItem.background", c );
-      UIManager.put( "MenuItem.disabledBackground", c );
-      //UIManager.put("MenuItem.selectionBackground", c );
-
-      // UIManager.put("MenuItem.borderPainted", new Boolean(false) );
-      UIManager.put( "MenuItem.margin", new Insets( 0, 0, 0, 0 ) );
-
-      UIManager.put( "ComboBox.background", c );
-      //UIManager.put("ComboBox.selectionBackground", new Color(220, 230, 170));
-
-
-      applet.isStandalone = true;
-      JFrame frame = new JFrame();
-      //EXIT_ON_CLOSE == 3
-      frame.setDefaultCloseOperation( 3 );
-
-      frame.getContentPane().add( applet, BorderLayout.CENTER );
-
-      applet.init();
-      applet.start();
-      applet.setFrame( frame );
-
-      //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
-      frame.setTitle( applet.getAppletInfo() + " (Version:"+applet.version+")");
-      frame.setSize( W, H );
-      Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-      frame.setLocation( ( d.width - frame.getSize().width ) / 2, ( d.height - frame.getSize().height ) / 2 );
-      frame.setVisible( true );
   }
 
 

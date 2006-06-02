@@ -21,6 +21,7 @@
     <pathelement location="${Unit.Test.home}/unittest.jar"/>
     <pathelement location="${Tomcat.4.1.Servlet.home}/servlet.jar"/>
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
+  	<pathelement location="${Required.Libraries.home}/jh.jar"/>
     <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar"/>
@@ -79,6 +80,9 @@
     <copy todir="${dest}/img" overwrite="true">
       <fileset dir="${src}/img"/>
     </copy>
+  	<copy todir="${dest}/etc/AttenuationRelationshipAppHelpDocuments" overwrite="true">
+  	      <fileset dir="${src}/etc/AttenuationRelationshipAppHelpDocuments"/>
+  	    </copy>
     <copy todir="${dest}/org/jfree/chart" overwrite="true">
       <fileset dir="${src}/org/jfree/chart">
         <include name="**/*.properties"/>
@@ -99,13 +103,15 @@
   </target>
   <target name="unjarfiles">
     <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
+  	<unjar src="${Required.Libraries.home}/jh.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
     <jar destfile="AttenuationRelationshipApp.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
-      <include name="com/lowagie/**"/>
-      <include name="com/keypoint/**"/>
+    	 <include name="javax/**"/>
+    	<include name="etc/**"/>
+      <include name="com/**"/>
     </jar>
     <antcall target="postcompile" />
   </target>

@@ -21,7 +21,7 @@ import org.opensha.util.*;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;
-
+import javax.help.*;
 
 /**
  *  <b>Title:</b> AttenuationRelationshipApplet<br>
@@ -41,21 +41,23 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * @version    1.0
  */
 
-public class AttenuationRelationshipApplet extends JApplet
+public class AttenuationRelationshipApplet extends JFrame
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
         ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.9.16";
+    protected final static String version = "0.10.16";
     //protected final static String version = "0";
     protected final static boolean D = false;
 
     protected final static String versionURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationship_Version.txt";
     protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationshipApp.jar";
     protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
-
+    protected final static String disclaimerPageURL = "http://www.opensha.org/documentation/applications/disclaimer.html";
+  
+    
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -127,8 +129,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
     protected final static int W = 860;
     protected final static int H = 730;
-    protected final static int A1 = 360;
-    protected final static int A2 = 430;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
     protected final static Font TITLE_FONT = new java.awt.Font( "Dialog", Font.BOLD, 12 );
 
@@ -138,6 +138,27 @@ public class AttenuationRelationshipApplet extends JApplet
      *  drawn
      */
     protected final static int MIN_NUMBER_POINTS = 15;
+
+    //Adding the Menu to the application
+    JMenuBar menuBar = new JMenuBar();
+    JMenu helpMenu = new JMenu();
+    JMenu fileMenu = new JMenu();
+
+    JMenuItem fileExitMenu = new JMenuItem();
+    JMenuItem fileSaveMenu = new JMenuItem();
+    JMenuItem filePrintMenu = new JCheckBoxMenuItem();
+    JToolBar jToolBar = new JToolBar();
+
+    JButton closeButton = new JButton();
+    ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+
+    JButton printButton = new JButton();
+    ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+
+    JButton saveButton = new JButton();
+    ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+
+    JMenuItem helpLaunchMenu = new JMenuItem();
 
 
     //boolean to check if the plot preferences to be used to draw the curves
@@ -217,9 +238,7 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
 
-    protected int currentControlsBar = A1;
-    protected int currentMainBar = A2;
-
+ 
     /**
      *  Used to determine if shoudl switch to new AttenuationRelationship, and for display purposes
      */
@@ -288,7 +307,7 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private double Y_MIN_VAL = 1e-8;
     protected JLabel imgLabel = new JLabel();
-    private JLabel jLabel1 = new JLabel();
+    
     protected Border border1;
     protected FlowLayout flowLayout1 = new FlowLayout();
     protected JButton xyDatasetButton = new JButton();
@@ -298,12 +317,11 @@ public class AttenuationRelationshipApplet extends JApplet
     protected JButton peelOffButton = new JButton();
 
 
-
     /**
      * Checks if the current version of the application is latest else direct the
      * user to the latest version on the website.
      */
-    private void checkAppVersion(){
+    protected void checkAppVersion(){
         ArrayList attenRelVersion = null;
         try {
           attenRelVersion = FileUtils.loadFile(new URL(versionURL));
@@ -343,28 +361,6 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
     /**
-     *  Sets the frame attribute of the AttenuationRelationshipApplet object
-     *
-     * @param  newFrame  The new frame value
-     */
-    public void setFrame( JFrame newFrame ) {
-        frame = newFrame;
-    }
-
-
-    /**
-     *  Get a parameter value
-     *
-     * @param  key  Description of the Parameter
-     * @param  def  Description of the Parameter
-     * @return      The parameter value
-     */
-    public String getParameter( String key, String def ) {
-        return isStandalone ? System.getProperty( key, def ) :
-                ( getParameter( key ) != null ? getParameter( key ) : def );
-    }
-
-    /**
      *  Gets the currentAttenuationRelationshipName attribute of the AttenuationRelationshipApplet object
      *
      * @return    The currentAttenuationRelationshipName value
@@ -378,18 +374,10 @@ public class AttenuationRelationshipApplet extends JApplet
      *
      * @return    The appletInfo value
      */
-    public String getAppletInfo() {
-        return "Attenuation Relationship Applet";
+    public String getAppInfo() {
+        return "Attenuation Relationship Application";
     }
 
-    /**
-     *  Get parameter info
-     *
-     * @return    The parameterInfo value
-     */
-    public String[][] getParameterInfo() {
-        return null;
-    }
 
 
     /**
@@ -500,7 +488,7 @@ public class AttenuationRelationshipApplet extends JApplet
         border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),2);
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.setSize(new Dimension(900, 690) );
-        this.getContentPane().setLayout( GBL);
+        this.getContentPane().setLayout( new BorderLayout());
         outerPanel.setLayout( GBL );
         mainPanel.setBorder(border1 );
         mainPanel.setLayout( GBL );
@@ -511,11 +499,6 @@ public class AttenuationRelationshipApplet extends JApplet
         //creating the Object the GraphPaenl class
         graphPanel = new GraphPanel(this);
 
-        imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-          public void mouseClicked(MouseEvent e) {
-            imgLabel_mouseClicked(e);
-          }
-        });
         plotPanel.setLayout(GBL);
         innerPlotPanel.setLayout(GBL);
         innerPlotPanel.setBorder( null );
@@ -560,7 +543,7 @@ public class AttenuationRelationshipApplet extends JApplet
         
         plotSplitPane.setBottomComponent( buttonPanel );
         plotSplitPane.setTopComponent(mainPanel );
-        plotSplitPane.setDividerLocation(570 );
+        plotSplitPane.setDividerLocation(500 );
  
         
         attenRelLabel.setForeground( darkBlue );
@@ -587,9 +570,7 @@ public class AttenuationRelationshipApplet extends JApplet
         //loading the OpenSHA Logo
         imgLabel.setText("");
         imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-        jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
-        jLabel1.setForeground(new Color(80, 80, 133));
-        jLabel1.setText("Attenuation Relationship Plotter");
+
     xyDatasetButton.setText("Add Data Points");
     xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -602,10 +583,9 @@ public class AttenuationRelationshipApplet extends JApplet
         peelOffButton_actionPerformed(e);
       }
     });
-    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+    this.getContentPane().add( outerPanel, BorderLayout.CENTER);
 
-        outerPanel.add( plotSplitPane,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        outerPanel.add( plotSplitPane,         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0) );
 
         titlePanel.add( this.attenRelLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
@@ -648,10 +628,6 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonPanel.add(buttonControlPanel,4);
         buttonPanel.add(plotColorCheckBox, 5);
         buttonPanel.add(imgLabel, 6);
-        
-         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 4, 0));
-
 
         parametersSplitPane.setBottomComponent( sheetPanel );
         parametersSplitPane.setTopComponent( inputPanel );
@@ -663,27 +639,181 @@ public class AttenuationRelationshipApplet extends JApplet
         mainSplitPane.setTopComponent(plotPanel );
         mainSplitPane.setDividerLocation(600 );
  
+        //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
+        setTitle( this.getAppInfo() + " (Version:"+version+")");
+        setSize( W, H );
+        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
+       
+        
+        
+         
+        fileMenu.setText("File");
+        fileExitMenu.setText("Exit");
+        fileSaveMenu.setText("Save");
+        filePrintMenu.setText("Print");
+        //adding the Menu to the application
+        helpMenu.setText("Help");
+        helpLaunchMenu.setText("Help Application");
+        helpMenu.add(helpLaunchMenu);
+  
 
+        fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            fileExitMenu_actionPerformed(e);
+          }
+        });
+
+        fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            fileSaveMenu_actionPerformed(e);
+          }
+        });
+
+        filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            filePrintMenu_actionPerformed(e);
+          }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent actionEvent) {
+            closeButton_actionPerformed(actionEvent);
+          }
+        });
+        printButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent actionEvent) {
+            printButton_actionPerformed(actionEvent);
+          }
+        });
+        saveButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent actionEvent) {
+            saveButton_actionPerformed(actionEvent);
+          }
+        });
+
+
+        menuBar.add(fileMenu,0);
+        menuBar.add(helpMenu,1);
+        fileMenu.add(fileSaveMenu);
+        fileMenu.add(filePrintMenu);
+        fileMenu.add(fileExitMenu);
+
+        setJMenuBar(menuBar);
+        closeButton.setIcon(closeFileImage);
+        closeButton.setToolTipText("Exit Application");
+        Dimension d1 = closeButton.getSize();
+        jToolBar.add(closeButton);
+        printButton.setIcon(printFileImage);
+        printButton.setToolTipText("Print Graph");
+        printButton.setSize(d1);
+        jToolBar.add(printButton);
+        saveButton.setIcon(saveFileImage);
+        saveButton.setToolTipText("Save Graph as image");
+        saveButton.setSize(d1);
+        jToolBar.add(saveButton);
+        jToolBar.setFloatable(false);
+
+        this.getContentPane().add(jToolBar, BorderLayout.NORTH);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        updateChoosenAttenuationRelationship();
+        createHelpMenu();
+        
         // Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
         // inputsPanel
-        updateChoosenAttenuationRelationship();
+        
+        this.setVisible( true );        
+    }
 
+    private void createHelpMenu(){
+	    LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
+	    HelpBroker hb = helpMenu.createHelpMenu("etc/AttenuationRelationshipAppHelpDocuments/shaHelp.xml");
+	    helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
+    }
+    
+    
+    /**
+     * File | Exit action performed.
+     *
+     * @param actionEvent ActionEvent
+     */
+    private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+      close();
     }
 
     /**
-     *  Start the applet
+     *
      */
-    public void start() { }
+    private void close() {
+      int option = JOptionPane.showConfirmDialog(this,
+          "Do you really want to exit the application?\n" +
+                                                 "You will loose all unsaved data.",
+                                                 "Exit App",
+                                                 JOptionPane.OK_CANCEL_OPTION);
+      if (option == JOptionPane.OK_OPTION)
+        System.exit(0);
+    }
 
     /**
-     *  Stop the applet
+     * File | Exit action performed.
+     *
+     * @param actionEvent ActionEvent
      */
-    public void stop() { }
+    private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+      try {
+        save();
+      }
+      catch (IOException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                      JOptionPane.OK_OPTION);
+        return;
+      }
+    }
 
     /**
-     *  Destroy the applet
+     * File | Exit action performed.
+     *
+     * @param actionEvent ActionEvent
      */
-    public void destroy() { }
+    private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+      print();
+    }
+
+    /**
+     * Opens a file chooser and gives the user an opportunity to save the chart
+     * in PNG format.
+     *
+     * @throws IOException if there is an I/O error.
+     */
+    public void save() throws IOException {
+      graphPanel.save();
+    }
+
+    /**
+     * Creates a print job for the chart.
+     */
+    public void print() {
+      graphPanel.print(this);
+    }
+
+    public void closeButton_actionPerformed(ActionEvent actionEvent) {
+      close();
+    }
+
+    public void printButton_actionPerformed(ActionEvent actionEvent) {
+      print();
+    }
+
+    public void saveButton_actionPerformed(ActionEvent actionEvent) {
+      try {
+        save();
+      }
+      catch (IOException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                      JOptionPane.OK_OPTION);
+        return;
+      }
+    }
 
 
 
@@ -693,58 +823,13 @@ public class AttenuationRelationshipApplet extends JApplet
      * @param  args  The command line arguments
      */
     public static void main( String[] args ) {
-
+    		new ApplicationDisclaimerWindow(disclaimerPageURL);
         AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
+         
         applet.checkAppVersion();
-
-        Color c = new Color( .9f, .9f, 1.0f, 1f );
-        Font f = new Font( "Dialog", Font.PLAIN, 11 );
-
-        UIManager.put( "ScrollBar.width", new Integer( 12 ) );
-        UIManager.put( "ScrollPane.width", new Integer( 12 ) );
-
-        UIManager.put( "PopupMenu.font", f );
-        UIManager.put( "Menu.font", f );
-        UIManager.put( "MenuItem.font", f );
-
-        UIManager.put( "ScrollBar.border", BorderFactory.createEtchedBorder( 1 ) );
-
-        UIManager.put( "PopupMenu.background", c );
-
-        //UIManager.put("PopupMenu.selectionBackground", c );
-        //UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.red, 1 ) );
-
-        UIManager.put( "Menu.background", c );
-        //UIManager.put("Menu.selectionBackground", c );
-
-        UIManager.put( "MenuItem.background", c );
-        UIManager.put( "MenuItem.disabledBackground", c );
-        //UIManager.put("MenuItem.selectionBackground", c );
-
-        // UIManager.put("MenuItem.borderPainted", new Boolean(false) );
-        UIManager.put( "MenuItem.margin", new Insets( 0, 0, 0, 0 ) );
-
-        UIManager.put( "ComboBox.background", c );
-        //UIManager.put("ComboBox.selectionBackground", new Color(220, 230, 170));
-
-
-        applet.isStandalone = true;
-        JFrame frame = new JFrame();
-        //EXIT_ON_CLOSE == 3
-        frame.setDefaultCloseOperation( 3 );
-
-        frame.getContentPane().add( applet, BorderLayout.CENTER );
-
-        applet.init();
-        applet.start();
-        applet.setFrame( frame );
-
-        //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
-        frame.setTitle( applet.getAppletInfo() + " (Version:"+applet.version+")");
-        frame.setSize( W, H );
-        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation( ( d.width - frame.getSize().width ) / 2, ( d.height - frame.getSize().height ) / 2 );
-        frame.setVisible( true );
+	    applet.init();
+	    applet.setVisible(true);
+ 
     }
 
 
@@ -1355,16 +1440,6 @@ public class AttenuationRelationshipApplet extends JApplet
   */
  public boolean getYLog(){
    return yLog;
-  }
-
-
-  protected void imgLabel_mouseClicked(MouseEvent e) {
-    try{
-      this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_new");
-    }catch(java.net.MalformedURLException ee){
-      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
-    }
   }
 
   /**
