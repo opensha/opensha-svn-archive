@@ -73,12 +73,11 @@ public class ApplicationDisclaimerWindow
 
   private void jbInit() throws Exception {
     this.setModal(true);
+    this.setSize(450,300);
     this.getContentPane().setLayout(borderLayout2);
     msgPanel.setLayout(gridBagLayout2);
     msgPane.setBackground(SystemColor.window);
     msgPane.setBorder(border2);
-    disclaimerPane.getViewport().setBackground(SystemColor.desktop);
-    disclaimerPane.setBorder(border5);
     understandButton.setText("I Understand");
     understandButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -100,18 +99,19 @@ public class ApplicationDisclaimerWindow
         new Insets(4, 4, 0, 4), 0, 0));
     msgPanel.add(understandButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 15, 7, 0), 26, 0));
+        new Insets(0, 15, 7, 0), 0, 0));
     msgPanel.add(quitButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 0, 7, 47), 59, 0));
+        new Insets(0, 0, 7, 47), 0, 0));
     this.getContentPane().add(msgPanel, java.awt.BorderLayout.CENTER);
 
     updateVersionInfo.setContentType("text/html");
     updateVersionInfo.setPage(urlToDisclaimerMsgPage);
+    
+    
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setSize(200,100);
     setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
-    this.pack();
+    //this.pack();
   }
 
 
