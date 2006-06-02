@@ -103,30 +103,12 @@ public class A_FaultSource extends ProbEqkSource {
 
 	  this.isPoissonian = true;
  
-	  // make sure scenarioWts sum to 1.
-	  double sum = 0.0;
-	  for(int i=0; i<scenarioWts.length; ++i) sum+=scenarioWts[i];
-	  if(Math.abs(sum-1.0)>TOLERANCE) throw new RuntimeException("Scenario Weights do not sum to 1"); 
-    
-	  // make sure trunc type is 0, 1, or 2; 
-	  if(magTruncType!=0 && magTruncType!=2 && magTruncType!=3)
-		  throw new RuntimeException("Invalid truncation type value. Value values are 0, 1 and 2");
-    
-	  //magSigma is positive; 
-	  if(magSigma<0) throw new RuntimeException ("Magnitude Sigma should be ³ 0 ");
-     
-	  // magTruncLevel us positive
-	  if(magTruncLevel<0) throw new RuntimeException("Truncation Level for magnitude should ³ 0");
+	  // make sure scenarioWts sum to 1;  make sure trunc type is 0, 1, or 2; magSigma is positive; magTruncLevel us positive
+	  checkValidVals(magSigma, magTruncLevel, magTruncType, scenarioWts);
 
-    
-	  num_seg = segmentData.size();
-	  num_rup = num_seg*(num_seg+1)/2;
-	  num_scen = (int) Math.pow(2,num_seg-1);
-    
-	  if(num_seg > 5 || num_seg < 2)
-		  throw new RuntimeException("Error: num segments must be between 2 and 5");
-	  if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
-		  throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
+	  // calculte the number of segments, ruptures and scenarios. 
+	  // Make sure that the number of scenario wts paased to this function are equal to number of scenarios for these segments
+	  calcNumSegsRupsScenarios(segmentData, scenarioWts);
     
 	  int seg,rup,scen; // for loops
    
@@ -134,72 +116,23 @@ public class A_FaultSource extends ProbEqkSource {
 	  double[] segMoRate = new double[num_seg];
 	  String[] segName = new String[num_seg];
     
+	  // calculate the Area, Name and Moment Rate for each segment
+	  calcSegArea_Name_MoRate(segmentData, aseisReducesArea, segArea, segMoRate, segName);
     
-	  // fill in segName, segArea and segMoRate
-	  for(seg=0;seg<num_seg;seg++) {
-    	segArea[seg]=0;
-    	segMoRate[seg]=0;
-    	ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
-    	Iterator it = segmentDatum.iterator();
-    	boolean first = true;
-    	while(it.hasNext()) {
-    		FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-    		// set the name
-    		if(first) {
-    			segName[seg] = sectData.getSectionName();
-    			first = false;
-    		}
-    		else
-    			segName[seg] += " -- "+sectData.getSectionName();
-    		//set the area & moRate
-    		double length = sectData.getFaultTrace().getTraceLength(); // km
-    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
-    		if(aseisReducesArea) {
-    			segArea[seg] += length*ddw*1e6*(1-sectData.getAseismicSlipFactor()); // meters-squared
-    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
-    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
-    		}
-    		else {
-    			segArea[seg] += length*ddw*1e6; // meters-squared
-    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
-    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
-    		}
-    	}
-    	if(D) {
-    		System.out.println("SegArea["+seg+"]="+segArea[seg] );
-    		System.out.println("segMoRate["+seg+"]="+segMoRate[seg] );
-    	}
-    }
-    
-    double totalMoRate = 0;
-    double totalArea = 0;
-    for(seg=0; seg<num_seg; seg++) {
-    	totalMoRate += segMoRate[seg];
-    	totalArea += segArea[seg];
-    }
+	  // calculate the total Area and Moment Rate for all the segments
+	  double totalMoRate = 0;
+	  double totalArea = 0;
+	  for(seg=0; seg<num_seg; seg++) {
+		  totalMoRate += segMoRate[seg];
+		  totalArea += segArea[seg];
+	  }
     
     // get the moRate for the floater using the last element in the scenarioWts array.
     double floaterWt = scenarioWts[num_scen];
     double floaterMoRate = totalMoRate*floaterWt;
     
-    // get magFreqDist for floater
-    IncrementalMagFreqDist floaterMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-    EvenlyDiscretizedFunc cumDist = floatingRup_PDF.getCumRateDist();
-    for(int i=0; i<floaterMFD.getNum(); ++i) {
-    	double x = floaterMFD.getX(i);
-    	double x1 = x-DELTA_MAG/2;
-    	double x2 = x + DELTA_MAG/2;
-    	double cumRate1=0, cumRate2=0;
-    	//check that the Mag lies within the range of cumDist
-    	if(x1<cumDist.getMinX()) cumRate1 = 0.0;
-    	else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
-    	else cumRate1 = cumDist.getInterpolatedY(x1);
-    	if(x2<cumDist.getMinX()) cumRate2 = 0.0;
-    	else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
-    	else cumRate2 = cumDist.getInterpolatedY(x2);
-    	floaterMFD.set(i, cumRate2-cumRate1);
-    }
-    floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+    // get MFD for floater 
+    IncrementalMagFreqDist floaterMFD = getMFD_ForFloater(floatingRup_PDF, floaterMoRate);
     
     double[] rupArea = new double[num_rup];
     double[] rupMeanMag = new double[num_rup];
@@ -210,33 +143,47 @@ public class A_FaultSource extends ProbEqkSource {
     String[] rupName = new String [num_rup];
     
   	// compute rupArea, rupMaxMoRate, and rupMag for each rupture
-    for(rup=0; rup<num_rup; rup++){
-    		rupArea[rup] = 0;
-    		rupMaxMoRate[rup] = 0;
-    		boolean isFirst = true;
-    		for(seg=0; seg < num_seg; seg++) {
-    			
-    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
-    				if(isFirst) { // append the section name to rupture name
-    					rupName[rup] = segName[seg];
-    					isFirst = false;
-    				} else rupName[rup] += " + "+segName[seg];
-    				
-    				rupArea[rup] += segArea[seg];
-            		rupMaxMoRate[rup] += segMoRate[seg];
-    			}
-    			
-    		}
-    		// compute magnitude, rounded to nearest MFD x-axis point
-    		rupMeanMag[rup] = Math.round((magAreaRel.getMedianMag(rupArea[rup]))/DELTA_MAG) * DELTA_MAG;
-    		if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
-    }
+    getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, segName, rupArea, rupMeanMag, rupMaxMoRate, rupName);
     
+    // make summed Mag FreqDist
     SummedMagFreqDist summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
     summedMagFreqDist.addIncrementalMagFreqDist(floaterMFD);
     
     // compute the actual rupture MoRate (considering floater weight as well)
-    double totMoRateTest = 0;
+    double totMoRateTest = computeRupMoRate(magSigma, magTruncLevel, magTruncType, scenarioWts, floaterWt, rupMeanMag, rupMaxMoRate, rupMoRate, rupRate, rupMagFreqDist, rupName, summedMagFreqDist);
+
+    // check total moment rates
+    totMoRateTest += floaterMoRate;
+    double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
+    
+    if(D) {
+    		System.out.println("TotMoRate from segs = "+(float) totalMoRate);
+    		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
+    		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
+    }
+  }
+  
+  
+/**
+ *  compute the actual rupture MoRate (considering floater weight as well)
+ * @param magSigma
+ * @param magTruncLevel
+ * @param magTruncType
+ * @param scenarioWts
+ * @param floaterWt
+ * @param rupMeanMag
+ * @param rupMaxMoRate
+ * @param rupMoRate
+ * @param rupRate
+ * @param rupMagFreqDist
+ * @param rupName
+ * @param summedMagFreqDist
+ * @return
+ */
+private double computeRupMoRate(double magSigma, double magTruncLevel, int magTruncType, double[] scenarioWts, double floaterWt, double[] rupMeanMag, double[] rupMaxMoRate, double[] rupMoRate, double[] rupRate, GaussianMagFreqDist[] rupMagFreqDist, String[] rupName, SummedMagFreqDist summedMagFreqDist) {
+	int rup;
+	int scen;
+	double totMoRateTest = 0;
     String[] scenName = new String[num_scen];
     for(rup=0; rup<num_rup; rup++){
 		rupMoRate[rup] = 0;
@@ -258,22 +205,167 @@ public class A_FaultSource extends ProbEqkSource {
 		rupRate[rup] = rupMoRate[rup]/MomentMagCalc.getMoment(rupMeanMag[rup]);
 		totMoRateTest += rupMoRate[rup];
     }
+	return totMoRateTest;
+}
 
-    // check total moment rates
-    totMoRateTest += floaterMoRate;
-    double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
-    
-    if(D) {
-    		System.out.println("TotMoRate from segs = "+(float) totalMoRate);
-    		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
-    		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
+	  /**
+	   * compute rupArea, rupMaxMoRate, and rupMag for each rupture
+	   * @param magAreaRel
+	   * @param segArea
+	   * @param segMoRate
+	   * @param segName
+	   * @param rupArea
+	   * @param rupMeanMag
+	   * @param rupMaxMoRate
+	   * @param rupName
+	   */
+	private void getRupArea_MaxMoRate_Mag(MagAreaRelationship magAreaRel, double[] segArea, double[] segMoRate, String[] segName, double[] rupArea, double[] rupMeanMag, double[] rupMaxMoRate, String[] rupName) {
+		int seg;
+		int rup;
+		for(rup=0; rup<num_rup; rup++){
+	    		rupArea[rup] = 0;
+	    		rupMaxMoRate[rup] = 0;
+	    		boolean isFirst = true;
+	    		for(seg=0; seg < num_seg; seg++) {
+	    			
+	    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
+	    				if(isFirst) { // append the section name to rupture name
+	    					rupName[rup] = segName[seg];
+	    					isFirst = false;
+	    				} else rupName[rup] += " + "+segName[seg];
+	    				
+	    				rupArea[rup] += segArea[seg];
+	            		rupMaxMoRate[rup] += segMoRate[seg];
+	    			}
+	    			
+	    		}
+	    		// compute magnitude, rounded to nearest MFD x-axis point
+	    		
+	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup])/DELTA_MAG) * DELTA_MAG;
+	    		if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
+	    }
+	}
+
+  /**
+   * Get MFD for floater 
+   * @param floatingRup_PDF
+   * @param floaterMoRate
+   * @return
+   */
+private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floatingRup_PDF, double floaterMoRate) {
+	// get magFreqDist for floater
+    IncrementalMagFreqDist floaterMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+    EvenlyDiscretizedFunc cumDist = floatingRup_PDF.getCumRateDist();
+    for(int i=0; i<floaterMFD.getNum(); ++i) {
+    	double x = floaterMFD.getX(i);
+    	double x1 = x-DELTA_MAG/2;
+    	double x2 = x + DELTA_MAG/2;
+    	double cumRate1=0, cumRate2=0;
+    	//check that the Mag lies within the range of cumDist
+    	if(x1<cumDist.getMinX()) cumRate1 = 0.0;
+    	else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
+    	else cumRate1 = cumDist.getInterpolatedY(x1);
+    	if(x2<cumDist.getMinX()) cumRate2 = 0.0;
+    	else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
+    	else cumRate2 = cumDist.getInterpolatedY(x2);
+    	floaterMFD.set(i, cumRate2-cumRate1);
     }
-    	
-    
-    
-  
-    
-  }
+    floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+	return floaterMFD;
+}
+ 
+	  /**
+	   * Calculate  Area, MoRate and Name for each segment
+	   * @param segmentData
+	   * @param aseisReducesArea
+	   * @param segArea
+	   * @param segMoRate
+	   * @param segName
+	   * @return
+	   */
+	private void calcSegArea_Name_MoRate(ArrayList segmentData, boolean aseisReducesArea, double[] segArea, double[] segMoRate, String[] segName) {
+	
+		// fill in segName, segArea and segMoRate
+		  for(int seg=0;seg<num_seg;seg++) {
+	    	segArea[seg]=0;
+	    	segMoRate[seg]=0;
+	    	ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
+	    	Iterator it = segmentDatum.iterator();
+	    	boolean first = true;
+	    	while(it.hasNext()) {
+	    		FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
+	    		// set the name
+	    		if(first) {
+	    			segName[seg] = sectData.getSectionName();
+	    			first = false;
+	    		}
+	    		else
+	    			segName[seg] += " -- "+sectData.getSectionName();
+	    		//set the area & moRate
+	    		double length = sectData.getFaultTrace().getTraceLength(); // km
+	    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
+	    		if(aseisReducesArea) {
+	    			segArea[seg] += length*ddw*1e6*(1-sectData.getAseismicSlipFactor()); // meters-squared
+	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+	    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
+	    		}
+	    		else {
+	    			segArea[seg] += length*ddw*1e6; // meters-squared
+	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
+	    		}
+	    	}
+	    	if(D) {
+	    		System.out.println("SegArea["+seg+"]="+segArea[seg] );
+	    		System.out.println("segMoRate["+seg+"]="+segMoRate[seg] );
+	    	}
+	    }
+		return ;
+	}
+	  /**
+	   * Calculte the number of segments, ruptures and scenarios.
+	   * Make sure that the number of scenario wts paased to this function are
+	   * equal to number of scenarios for these segments
+	   * @param segmentData
+	   * @param scenarioWts
+	   */
+		private void calcNumSegsRupsScenarios(ArrayList segmentData, double[] scenarioWts) {
+			num_seg = segmentData.size();
+			  num_rup = num_seg*(num_seg+1)/2;
+			  num_scen = (int) Math.pow(2,num_seg-1);
+		    
+			  if(num_seg > 5 || num_seg < 2)
+				  throw new RuntimeException("Error: num segments must be between 2 and 5");
+			  if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
+				  throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
+		}
+
+	  /**
+	   *  make sure scenarioWts sum to 1; 
+	   *  make sure trunc type is 0, 1, or 2; 
+	   *  magSigma is positive;
+	   *  magTruncLevel us positive
+	   *  
+	   * @param magSigma
+	   * @param magTruncLevel
+	   * @param magTruncType
+	   * @param scenarioWts
+	   */
+	private void checkValidVals(double magSigma, double magTruncLevel, int magTruncType, double[] scenarioWts) {
+		double sum = 0.0;
+		  for(int i=0; i<scenarioWts.length; ++i) sum+=scenarioWts[i];
+		  if(Math.abs(sum-1.0)>TOLERANCE) throw new RuntimeException("Scenario Weights do not sum to 1"); 
+	    
+		  // make sure trunc type is 0, 1, or 2; 
+		  if(magTruncType!=0 && magTruncType!=2 && magTruncType!=3)
+			  throw new RuntimeException("Invalid truncation type value. Value values are 0, 1 and 2");
+	    
+		  //magSigma is positive; 
+		  if(magSigma<0) throw new RuntimeException ("Magnitude Sigma should be ³ 0 ");
+	     
+		  // magTruncLevel us positive
+		  if(magTruncLevel<0) throw new RuntimeException("Truncation Level for magnitude should ³ 0");
+	}
 
   /**
    * Returns the Source Surface.
