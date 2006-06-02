@@ -10,6 +10,7 @@ import javax.swing.border.Border;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
+import java.awt.Rectangle;
 
 /**
  * <p>Title: ApplicationDisclaimerWindow</p>
@@ -41,11 +42,10 @@ public class ApplicationDisclaimerWindow
   JButton quitButton = new JButton();
   BorderLayout borderLayout1 = new BorderLayout();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
-  BorderLayout borderLayout2 = new BorderLayout();
   //URL string to the application
   private String urlToDisclaimerMsgPage;
-
+  GridBagLayout gridBagLayout2 = new GridBagLayout();
+  BorderLayout borderLayout2 = new BorderLayout();
 
   /**
    *
@@ -90,26 +90,24 @@ public class ApplicationDisclaimerWindow
         noButton_actionPerformed(actionEvent);
       }
     });
-
     quitButton.setText("Quit");
     versionUpdateText.getViewport().add(updateVersionInfo);
 
     msgPanel.add(updateVersionInfo, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(4, 4,4, 4), 0, 0));
-    msgPanel.add(quitButton, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(4, 4, 0, 4), 321, 236));
+    msgPanel.add(understandButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 6, 12, 38), 26, 0));
-    msgPanel.add(understandButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+        new Insets(0, 15, 7, 0), 26, 0));
+    msgPanel.add(quitButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 91, 12, 0), 26, 0));
+        new Insets(0, 0, 7, 47), 59, 0));
     this.getContentPane().add(msgPanel, java.awt.BorderLayout.CENTER);
-    
+
     updateVersionInfo.setContentType("text/html");
     updateVersionInfo.setPage(urlToDisclaimerMsgPage);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setSize(300,100);
+    this.setSize(250,150);
     setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
     this.pack();
   }
