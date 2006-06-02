@@ -8,6 +8,8 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.*;
+import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
@@ -166,11 +168,61 @@ public class A_FaultSource extends ProbEqkSource {
     double[] segRate = new double[num_seg];
     computeSegRate(segRate, rupRate);
     
-    // find the slip distribution of each segment
+    // find the slip distribution of each rupture
+    ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
+    computeRupSlipDist(rupMagFreqDist, rupArea, rupSlipDist);
     
+    // find the slip distribution of each segment
+    ArbDiscrEmpiricalDistFunc[] segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
+    computeSegSlipDist(rupSlipDist, segSlipDist);
+   /* if(D) {
+    	// print the slip distribution of each segment
+    	for(int i=0; i<num_seg; ++i) {
+    		System.out.println("Slip for segment "+i+":");
+    		System.out.println(segSlipDist[i]);
+    	}
+    }*/
   }
   
- 
+  /**
+   * Compute the  slip distribution for segment
+   * 
+   * @param rupSlipDist
+   * @param segSlipDist
+   */
+  private void computeSegSlipDist(ArbitrarilyDiscretizedFunc[] rupSlipDist, 
+		  ArbDiscrEmpiricalDistFunc[] segSlipDist) {
+	  for(int seg=0; seg<num_seg; ++seg) {
+		  segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
+		  // Add the rates of all ruptures which are part of a segment
+		  for(int rup=0; rup<num_rup; rup++)
+			  if(segInRup[seg][rup]==1) {
+				  for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
+					  segSlipDist[seg].set(rupSlipDist[rup].getX(i), rupSlipDist[rup].getY(i));
+			  }
+	  }
+  }
+  
+  /**
+   * Compute slip distribution from Mag Distribution
+   * 
+   * @param rupMagFreqDist
+   * @param rupArea
+   * @param rupSlipDist
+   */
+  private void computeRupSlipDist(IncrementalMagFreqDist[] rupMagFreqDist, double[] rupArea,
+		  ArbitrarilyDiscretizedFunc[] rupSlipDist) {
+	  for(int rup=0; rup<num_rup; ++rup) {
+		  rupSlipDist[rup] = new ArbitrarilyDiscretizedFunc();
+		  for(int mag=0; mag<rupMagFreqDist[rup].getNum(); ++mag) {
+			  if(rupMagFreqDist[rup].getY(mag)==0) continue; // if rate is 0, do not find the slip for this mag
+			  double moRate = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(mag));
+			  double slip = FaultMomentCalc.getSlip(rupArea[rup], moRate);
+			  rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(mag));
+		  }
+	  }
+  }
+  
   /**
    * Compute the rate for all segments.
    *  
@@ -264,7 +316,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 	    		// compute magnitude, rounded to nearest MFD x-axis point
 	    		// convert area to km-sqr
 	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
-	    		if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
+	    		//if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
 	    }
 	}
 
@@ -337,10 +389,10 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 	    		}
 	    	}
-	    	if(D) {
+	    	/*if(D) {
 	    		System.out.println("SegArea["+seg+"]="+segArea[seg] );
 	    		System.out.println("segMoRate["+seg+"]="+segMoRate[seg] );
-	    	}
+	    	}*/
 	    }
 		return ;
 	}
