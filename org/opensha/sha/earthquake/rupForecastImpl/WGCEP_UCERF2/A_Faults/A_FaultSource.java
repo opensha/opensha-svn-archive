@@ -45,9 +45,9 @@ public class A_FaultSource extends ProbEqkSource {
   
   // x-axis attributes for the MagFreqDists
   private final static double MIN_MAG = 6;
-  private final static double MAX_MAG = 15;
+  private final static double MAX_MAG = 8.5;
   private final static double DELTA_MAG = 0.01;
-  private final static int NUM_MAG = 901;
+  private final static int NUM_MAG = 251;
   
   private final static double TOLERANCE = 1e6;
   
@@ -305,12 +305,12 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	    		double length = sectData.getFaultTrace().getTraceLength(); // km
 	    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
 	    		if(aseisReducesArea) {
-	    			segArea[seg] += length*ddw*1e6*(1-sectData.getAseismicSlipFactor()); // meters-squared
+	    			segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor()); // meters-squared
 	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
 	    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
 	    		}
 	    		else {
-	    			segArea[seg] += length*ddw*1e6; // meters-squared
+	    			segArea[seg] += length*ddw; // meters-squared
 	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
 	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 	    		}
