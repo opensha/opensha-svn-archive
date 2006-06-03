@@ -125,8 +125,8 @@ public class ApplicationVersionInfoWindow
     msgPane.setWrapStyleWord(true);
     updateVersionInfo.setContentType("text/html");
     updateVersionInfo.setPage(urlToVersionUpdatePage);
-    this.setSize(450,200);
-    this.pack();
+    this.setSize(450,500);
+    //this.pack();
   }
 
 
