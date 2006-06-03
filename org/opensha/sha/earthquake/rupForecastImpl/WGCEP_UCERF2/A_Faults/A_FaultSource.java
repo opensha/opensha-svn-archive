@@ -109,7 +109,7 @@ public class A_FaultSource extends ProbEqkSource {
 	  checkValidVals(magSigma, magTruncLevel, magTruncType, scenarioWts);
 
 	  // calculte the number of segments, ruptures and scenarios. 
-	  // Make sure that the number of scenario wts paased to this function are equal to number of scenarios for these segments
+	  // Make sure that the number of scenario wts pased to this function are equal to number of scenarios for these segments
 	  calcNumSegsRupsScenarios(segmentData, scenarioWts);
     
 	  int seg,rup,scen; // for loops
