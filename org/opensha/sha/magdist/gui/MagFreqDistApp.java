@@ -350,11 +350,11 @@ public class MagFreqDistApp
         magFreqDistEditor.setMagFreqDistParamButtonVisible(false);
       }
       else
-        editorPanel.remove(magDistEditor.createMagFreqDistParameterEditor());
+        editorPanel.remove(magDistEditor.getMagFreqDistParameterEditor());
       setMagDistEditor(magFreqDistEditor);
     }
     else{
-      editorPanel.remove(magDistEditor.createMagFreqDistParameterEditor());
+      editorPanel.remove(magDistEditor.getMagFreqDistParameterEditor());
       if(magPDF_Editor == null){
         String MAG_DIST_PARAM_NAME = "Mag Dist Param";
         // make  the mag dist parameter
