@@ -6,6 +6,7 @@ import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.ParameterAPI;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 /**
@@ -67,6 +68,17 @@ public interface MagDistParameterEditorAPI {
      * @exception  ConstraintException  Description of the Exception
      */
     public void setMagDistFromParams() throws ConstraintException;
+
+
+    /**
+     *  Sets the MagDistParam to be SummedMagFreqDist
+     *
+     * @return                          The choosenFunction value
+     * @exception  ConstraintException  Description of the Exception
+     */
+    public void setMagDistFromParams(SummedMagFreqDist summedDist,
+                                     String metadata) throws ConstraintException;
+
 
     /**
      * returns the MagDistName

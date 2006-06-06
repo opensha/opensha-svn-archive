@@ -60,10 +60,6 @@ public class MagPDF_ParameterEditor
   //shows the parameters in a window
   private MagFreqDistApp magDistPanel;
 
-  //keeps track if it has got the magdist parameter list and added listeners to it
-  //Also keeps track if we have already got the parameters options for the magdist parameters
-  private boolean addedListenersToParameters;
-
   /**
    * Constructor
    */
@@ -94,7 +90,8 @@ public class MagPDF_ParameterEditor
     magPDF_Param = (MagPDF_Parameter) param;
 
     createMagFreqDistParameterEditor();
- 
+
+
     // All done
     if (D) System.out.println(S + "Ending:");
   }
@@ -105,7 +102,7 @@ public class MagPDF_ParameterEditor
    * @param ae
    */
   public void actionPerformed(ActionEvent ae) {
-    
+
     magDistPanel = new MagFreqDistApp();
     magDistPanel.setMagDistEditor(this);
     //magDistPanel.pack();
@@ -134,13 +131,13 @@ public class MagPDF_ParameterEditor
 	  editor = new ParameterListEditor(parameterList);
 	  editor.setTitle(MAG_DIST_TITLE);
 
-	  
+
       // Update which parameters should be invisible
       synchRequiredVisibleParameters();
       return editor;
   }
-  
-  
+
+
   /**
    * Function that returns the magFreDist Param as a parameterListeditor
    * so that user can display it as the panel in window rather then
@@ -186,14 +183,14 @@ public class MagPDF_ParameterEditor
      */
     parameterList = (ParameterList)magPDF_Param.getAdjustableParams().clone();
     //do it if not done already ( allows the person to just do it once)
-    
+
     ListIterator it = parameterList.getParametersIterator();
 	while (it.hasNext()) {
 	   ParameterAPI param = (ParameterAPI) it.next();
 	   param.addParameterChangeFailListener(this);
 	   param.addParameterChangeListener(this);
     }
-      
+
   }
 
   /**
@@ -384,6 +381,19 @@ public class MagPDF_ParameterEditor
       magPDF_Param.setMagDist(this.parameterList);
       magPDF_ParamsChange = false;
     }
+  }
+
+
+  /**
+   *  Sets the MagDistParam to be SummedMagFreqDist
+   *
+   * @return                          The choosenFunction value
+   * @exception  ConstraintException  Description of the Exception
+   */
+  public void setMagDistFromParams(SummedMagFreqDist summedDist,
+                                   String metadata) throws UnsupportedOperationException {
+   throw new UnsupportedOperationException("setMagDistFromParams  not implemented "+
+                                            "for MagPDF_Parameter");
   }
 
   /**

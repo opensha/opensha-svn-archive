@@ -35,6 +35,8 @@ public abstract class DependentParameter
    * ArrayList to store the independent Parameters
    */
   protected ArrayList independentParameters = new ArrayList();
+  //gets the Parameters Metadata
+  protected String metadataString;
 
   /** Empty no-arg constructor. Only calls super constructor. */
   public DependentParameter() { super(); }
@@ -154,12 +156,13 @@ public abstract class DependentParameter
     String S = C + ": setIndependentParameters(): ";
     checkEditable(S);
     independentParameters.clear();
-    ListIterator it = list.getParametersIterator();
-    while( it.hasNext() ){
-      ParameterAPI param = (ParameterAPI)it.next();
-      independentParameters.add(param);
+    if(list != null){
+      ListIterator it = list.getParametersIterator();
+      while (it.hasNext()) {
+        ParameterAPI param = (ParameterAPI) it.next();
+        independentParameters.add(param);
+      }
     }
-
   }
 
   /**
@@ -170,19 +173,29 @@ public abstract class DependentParameter
    * @return
    */
   public String getDependentParamMetadataString() {
-    StringBuffer metadata = new StringBuffer();
-    metadata.append(getName()+" [ ");
-    ListIterator list = getIndependentParametersIterator();
-    while(list.hasNext()){
-     ParameterAPI tempParam = (ParameterAPI)list.next();
-     metadata.append(tempParam.getMetadataString()+" ; ");
-     /* Note that the getmetadatSring is called here rather than the
-        getDependentParamMetadataString() method becuase the former is
-        so far overriden in all Parameter types that have independent
-        parameters; we may want to change this later on. */
+    if(independentParameters.size() >0){
+      StringBuffer metadata = new StringBuffer();
+      metadata.append(getName() + " [ ");
+      ListIterator list = getIndependentParametersIterator();
+      while (list.hasNext()) {
+        ParameterAPI tempParam = (ParameterAPI) list.next();
+        metadata.append(tempParam.getMetadataString() + " ; ");
+        /* Note that the getmetadatSring is called here rather than the
+           getDependentParamMetadataString() method becuase the former is
+           so far overriden in all Parameter types that have independent
+           parameters; we may want to change this later on. */
+      }
+      metadata.replace(metadata.length() - 2, metadata.length(), " ]");
+      metadataString = metadata.toString();
     }
-    metadata.replace(metadata.length()-2,metadata.length()," ]");
-    return metadata.toString();
+    return metadataString;
+  }
+
+  /**
+   * Sets the Metadata String for the parameter that has dependent parameters.
+   */
+  public void setDependentParamMetadataString(String dependentParamMedataString){
+    metadataString = dependentParamMedataString;
   }
 
 

@@ -74,10 +74,6 @@ public class MagFreqDistParameterEditor
   private StringConstraint sdFixOptions, grSetAllButOptions, grFixOptions,
       ycSetAllButOptions, gdSetAllButOptions;
 
-  //keeps track if it has got the magdist parameter list and added listeners to it
-  //Also keeps track if we have already got the parameters options for the magdist parameters
-  private boolean addedListenersToParameters;
-
   /**
    * Constructor
    */
@@ -106,8 +102,9 @@ public class MagFreqDistParameterEditor
     // remove the previous editor
     //removeAll();
     magDistParam = (MagFreqDistParameter) param;
- 
+
     createMagFreqDistParameterEditor();
+
     // All done
     if (D) System.out.println(S + "Ending:");
   }
@@ -118,7 +115,7 @@ public class MagFreqDistParameterEditor
    * @param ae
    */
   public void actionPerformed(ActionEvent ae) {
-    
+
     magDistPanel = new MagFreqDistApp();
     magDistPanel.setMagDistEditor(this);
     //magDistPanel.pack();
@@ -136,25 +133,24 @@ public class MagFreqDistParameterEditor
     valueEditor.setVisible(visible);
   }
 
- 
+
   /**
    * Clones the Mag ParamList and the makes the parameters visible based on the
    * selected Distribution.
    * @return
    */
   public ParameterListEditor createMagFreqDistParameterEditor() {
-	  // make the params editor
-	  initParamListAndEditor();
-	  editor = new ParameterListEditor(parameterList);
-	  editor.setTitle(MAG_DIST_TITLE);
+    // make the params editor
+    initParamListAndEditor();
+    editor = new ParameterListEditor(parameterList);
+    editor.setTitle(MAG_DIST_TITLE);
 
-	  
-      // Update which parameters should be invisible
-      synchRequiredVisibleParameters();
-      return editor;
+    // Update which parameters should be invisible
+    synchRequiredVisibleParameters();
+    return editor;
   }
-  
-  
+
+
   /**
    * Function that returns the magFreDist Param as a parameterListeditor
    * so that user can display it as the panel in window rather then
@@ -213,7 +209,6 @@ public class MagFreqDistParameterEditor
       grFixOptions = magDistParam.getGRFixOptions();
       ycSetAllButOptions = magDistParam.getYCSetAllButOptions();
       gdSetAllButOptions = magDistParam.getGaussianDistSetAllButOptions();
-      addedListenersToParameters = true;
   }
 
   /**
@@ -546,6 +541,18 @@ public class MagFreqDistParameterEditor
       magDistParamsChange = false;
     }
   }
+
+  /**
+   *  Sets the MagDistParam to be SummedMagFreqDist
+   *
+   * @return                          The choosenFunction value
+   * @exception  ConstraintException  Description of the Exception
+   */
+  public void setMagDistFromParams(SummedMagFreqDist summedDist,
+                                   String metadata) throws ConstraintException {
+    magDistParam.setMagDistAsSummedMagDist(summedDist,metadata);
+  }
+
 
   /**
    *  Shown when a Constraint error is thrown on a ParameterEditor

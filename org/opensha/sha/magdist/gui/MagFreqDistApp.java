@@ -264,7 +264,7 @@ public class MagFreqDistApp
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     plotSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     editorPanel.setLayout(gridBagLayout1);
-    MagSelectionEditorPanel.setLayout(gridBagLayout1);
+
     buttonPanel.setLayout(flowLayout1);
     plotSplitPane.add(plotTabPane, JSplitPane.LEFT);
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
@@ -328,6 +328,7 @@ public class MagFreqDistApp
         ConstrainedStringParameterEditor(stParam);
     stParam.addParameterChangeListener(this);
     MagSelectionEditorPanel = new JPanel();
+    MagSelectionEditorPanel.setLayout(gridBagLayout1);
     MagSelectionEditorPanel.add(stParamEditor,
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
@@ -553,6 +554,12 @@ public class MagFreqDistApp
       incrRateFunctionList.add(summedMagFreqDist);
       cumRateFunctionList.add(summedMagFreqDist.getCumRateDist());
       momentRateFunctionList.add(summedMagFreqDist.getMomentRateDist());
+      String metadata = "";
+      for (int i = 0; i < incrRateFunctionList.size(); ++i)
+        metadata += ( (EvenlyDiscretizedFunc) incrRateFunctionList.get(i)).getInfo()+ "\n";
+
+      magDistEditor.setMagDistFromParams(summedMagFreqDist, metadata);
+
       addGraphPanel();
        //adding the plotting features to the sum distribution because this will
        //allow to create the default color scheme first then can change for the
@@ -657,14 +664,14 @@ public class MagFreqDistApp
           momentRateFunctionList.add(moRateFunction);
           numFunctionsWithoutSumDist = momentRateFunctionList.size();
 
-          if (jCheckSumDist.isSelected() && jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
+          if (jCheckSumDist.isVisible() && jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
             try {
               // add this distribution to summed distribution
               summedMagFreqDist.addIncrementalMagFreqDist(function);
 
               // this function will insert summed distribution at top of function list
               insertSummedDistribution();
-              magDistEditor.getParameter().setValue(summedMagFreqDist);
+
             }
             catch (Exception ex) {
               JOptionPane.showMessageDialog(this,

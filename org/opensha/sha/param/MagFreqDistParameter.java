@@ -470,21 +470,35 @@ public class MagFreqDistParameter
      * @param newParamList Cloned Parameterlist
      */
     public void setMagDist(ParameterList newParamList) {
-		parameterList.replaceParameter(SET_ALL_PARAMS_BUT,newParamList.getParameter(SET_ALL_PARAMS_BUT));
-		parameterList.replaceParameter(FIX,newParamList.getParameter(FIX));
-		
-		ListIterator it = newParamList.getParametersIterator();
-    		while(it.hasNext()){
-    			ParameterAPI tempParam = (ParameterAPI)it.next();
-    			parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
-    		}
-    
-    		setMagDist();
+      parameterList.replaceParameter(SET_ALL_PARAMS_BUT,
+                                     newParamList.getParameter(SET_ALL_PARAMS_BUT));
+      parameterList.replaceParameter(FIX, newParamList.getParameter(FIX));
+
+      ListIterator it = newParamList.getParametersIterator();
+      while (it.hasNext()) {
+        ParameterAPI tempParam = (ParameterAPI) it.next();
+        parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+      }
+
+      setMagDist();
+    }
+
+
+    /**
+     * Sets the MagDist as the Summed MagDist.
+     * @param magDist SummedMagFreqDist
+     * @param metadata String
+     */
+    public void setMagDistAsSummedMagDist(SummedMagFreqDist magDist, String metadata){
+      this.setValue(magDist);
+      setDependentParamMetadataString(metadata);
+      // sets the independent param list to be null
+      setIndependentParameters(null);
     }
 
     /**
      * set the IncrementalMagFreqDist object based on parameters given
-     * 
+     *
      */
     public void setMagDist() {
       String S = C + ": getMagDist():";

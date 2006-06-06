@@ -327,8 +327,6 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     * @return
     */
    public ERF_API getSelectedERF_Instance() throws InvocationTargetException{
-     // update the mag dist param
-     updateMagDistParam();
      //update the fault Parameter
      updateFaultParam();
      return eqkRupForecast;
@@ -391,10 +389,10 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    /**checks if the magFreqDistParameter exists inside it ,
     * if so then gets its Editor and calls the method to update the magDistParams.
     */
-   protected void updateMagDistParam() {
+   /*protected void updateMagDistParam() {
      MagFreqDistParameterEditor magEditor=getMagDistEditor();
-     if(magEditor!=null)  ((MagFreqDistParameter)magEditor.getParameter()).setMagDist();
-   }
+     if(magEditor!=null) magEditor.setMagDistFromParams();
+   }*/
 
    /**checks if the Fault Parameter Editor exists inside it ,
     * if so then gets its Editor and calls the method to update the faultParams.
@@ -472,7 +470,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
          e.printStackTrace();
        }
      }
-     
+
      try {
 		setParamsInForecast();
 	} catch (InvocationTargetException e) {
@@ -480,7 +478,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 		e.printStackTrace();
 	}
      createTimeSpanPanel();
-  
+
      this.validate();
      this.repaint();
    }
