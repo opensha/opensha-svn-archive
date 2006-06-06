@@ -441,6 +441,7 @@ public class IntegerParameter
         else param = new IntegerParameter( name, c1, units, new Integer( this.value.toString() )  );
         if( param == null ) return null;
         param.editable = true;
+        param.info = info;
         return param;
     }
 

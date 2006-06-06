@@ -149,6 +149,7 @@ public class EvenlyDiscretizedFuncParameter extends DependentParameter
       param = new EvenlyDiscretizedFuncParameter(name,(EvenlyDiscretizedFunc)((EvenlyDiscretizedFunc)value).deepClone());
       if( param == null ) return null;
       param.editable = true;
+      param.info = info;
       return param;
   }
 

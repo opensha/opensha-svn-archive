@@ -27,13 +27,15 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
+import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.sha.param.MagPDF_Parameter;
-
+import org.opensha.param.StringListConstraint;
 /**
  * <p>Title:MagFreqDistApp </p>
  *
@@ -54,6 +56,7 @@ public class MagFreqDistApp
   private JSplitPane plotSplitPane = new JSplitPane();
   private JTabbedPane plotTabPane = new JTabbedPane();
   private JPanel editorPanel = new JPanel();
+  private JPanel MagSelectionEditorPanel = new JPanel();
   private JPanel buttonPanel = new JPanel();
 
   /**
@@ -80,6 +83,8 @@ public class MagFreqDistApp
 
   //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
   private GraphWindow graphWindow;
+  
+  private JSplitPane paramSplitPane = new JSplitPane();
 
   //X and Y Axis  when plotting the Curves Name
   private String incrRateXAxisName = "Magnitude", incrRateYAxisName = "Incremental-Rate";
@@ -259,12 +264,14 @@ public class MagFreqDistApp
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     plotSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     editorPanel.setLayout(gridBagLayout1);
+    MagSelectionEditorPanel.setLayout(gridBagLayout1);
     buttonPanel.setLayout(flowLayout1);
     plotSplitPane.add(plotTabPane, JSplitPane.LEFT);
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    plotSplitPane.add(editorPanel, JSplitPane.RIGHT);
+    plotSplitPane.add(paramSplitPane, JSplitPane.RIGHT);
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-
+    paramSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    paramSplitPane.setDividerLocation(200);
     this.getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
     plotSplitPane.setDividerLocation(600);
     mainSplitPane.setDividerLocation(570);
@@ -306,7 +313,8 @@ public class MagFreqDistApp
   }
 
   /**
-   *
+   * Initiates the Mag Param selection and adds that to the GUI.
+   * User has the option of creating a MagFreqDist or MagPDF
    */
   private void initMagParamEditor() {
     ArrayList magParamTypes = new ArrayList();
@@ -319,17 +327,26 @@ public class MagFreqDistApp
     ConstrainedStringParameterEditor stParamEditor = new
         ConstrainedStringParameterEditor(stParam);
     stParam.addParameterChangeListener(this);
-    editorPanel.add(stParamEditor,
+    MagSelectionEditorPanel.add(stParamEditor,
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
                                            new Insets(1, 1, 1, 1), 0, 0));
-    editorPanel.validate();
-    editorPanel.repaint();
+    MagSelectionEditorPanel.validate();
+    MagSelectionEditorPanel.repaint();
+    this.paramSplitPane.add(MagSelectionEditorPanel,paramSplitPane.TOP);
     this.setDefaultCloseOperation(3);
 
   }
 
+  /**
+   * Creates the MagDist Param.
+   * It can be Mag_PDF_Param or MagFreqDistParam.
+   * Adding the SummedDist MagDist to the MagFreqDistParam list of Distribution.
+   * It has not been added the Mag_PDFParam because then user will have to provide 
+   * Relative Wts for the Dist. which has not decided yet.
+   *
+   */
   private void createMagParam(){
     String magTypeSelected = (String)stParam.getValue();
     if(magTypeSelected.equals(MAG_FREQ_DIST)){
@@ -339,6 +356,7 @@ public class MagFreqDistApp
         distNames.add(GutenbergRichterMagFreqDist.NAME);
         distNames.add(GaussianMagFreqDist.NAME);
         distNames.add(YC_1985_CharMagFreqDist.NAME);
+        distNames.add(SummedMagFreqDist.NAME);
 
         String MAG_DIST_PARAM_NAME = "Mag Dist Param";
         // make  the mag dist parameter
@@ -380,11 +398,19 @@ public class MagFreqDistApp
    */
   public void setMagDistEditor(MagDistParameterEditorAPI magDistEditor) {
     this.magDistEditor = magDistEditor;
-    editorPanel.add(magDistEditor.createMagFreqDistParameterEditor(),
+    ParameterListEditor listEditor = magDistEditor.createMagFreqDistParameterEditor();
+    ArrayList allowedVals = ((StringConstraint)listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).
+    		getParameter().getConstraint()).getAllowedValues();
+    //if Summed Distn. is within the allowed list of MagDistn then show it as the JCheckBox.
+    if(allowedVals.contains(SummedMagFreqDist.NAME)){
+    		makeSumDistVisible(true);
+    }
+    editorPanel.add(listEditor,
                     new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
                                            new Insets(2, 2, 2, 2), 0, 0));
+   paramSplitPane.add(editorPanel,paramSplitPane.BOTTOM);
    editorPanel.validate();
    editorPanel.repaint();
   }
@@ -621,13 +647,14 @@ public class MagFreqDistApp
           momentRateFunctionList.add(moRateFunction);
           numFunctionsWithoutSumDist = momentRateFunctionList.size();
 
-          if (jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
+          if (jCheckSumDist.isSelected() && jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
             try {
               // add this distribution to summed distribution
               summedMagFreqDist.addIncrementalMagFreqDist(function);
 
               // this function will insert summed distribution at top of function list
               insertSummedDistribution();
+              magDistEditor.getParameter().setValue(summedMagFreqDist);
             }
             catch (Exception ex) {
               JOptionPane.showMessageDialog(this,

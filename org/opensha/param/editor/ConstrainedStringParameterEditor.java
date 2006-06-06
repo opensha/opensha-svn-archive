@@ -105,7 +105,7 @@ public class ConstrainedStringParameterEditor
      * DoubleDiscreteConstraint. Then the constraints are checked that
      * there is at least one. If any of these fails an error is thrown.
      */
-    private void verifyModel(ParameterAPI model) throws ConstraintException{
+    protected void verifyModel(ParameterAPI model) throws ConstraintException{
 
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");

@@ -169,6 +169,7 @@ public class LocationListParameter extends DependentParameter
       else param = new LocationListParameter(name,(LocationList)value);
       if( param == null ) return null;
       param.editable = true;
+      param.info = info;
       return param;
   }
 

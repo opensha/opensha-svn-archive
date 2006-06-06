@@ -82,6 +82,7 @@ public class BooleanParameter extends DependentParameter
     param = new BooleanParameter(name,(Boolean)value);
     if( param == null ) return null;
     param.editable = true;
+    param.info = info;
     return param;
   }
 

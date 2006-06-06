@@ -271,6 +271,7 @@ public class StringParameter
         else param = new StringParameter( name, c1, units, this.value.toString() );
         if( param == null ) return null;
         param.editable = true;
+        param.info = info;
         return param;
 
     }

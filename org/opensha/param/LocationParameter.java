@@ -629,6 +629,7 @@ public class LocationParameter extends DependentParameter
         param = new LocationParameter(name);
     }
     param.editable = true;
+    param.info = info;
     return param;
 
   }

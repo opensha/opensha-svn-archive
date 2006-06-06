@@ -339,7 +339,7 @@ public class MagFreqDistParameter
      */
     private void initAdjustableParams() {
 
-       StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,getAllowedMagDists(),
+       MagDistStringParameter distributionName =new MagDistStringParameter(DISTRIBUTION_NAME,getAllowedMagDists(),
            (String) getAllowedMagDists().get(0));
 
        // make the min, delta and num Parameters

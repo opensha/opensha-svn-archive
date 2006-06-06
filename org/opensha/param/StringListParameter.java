@@ -243,6 +243,7 @@ public class StringListParameter extends StringParameter {
         else param = new StringListParameter( name, c1, units,(ArrayList) (((ArrayList)this.value).clone()));
         if( param == null ) return null;
         param.editable = true;
+        param.info = info;
         return param;
 
     }

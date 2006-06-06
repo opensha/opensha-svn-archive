@@ -23,7 +23,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
   private DiscretizedFuncList savedMagFreqDists;  // to save the each distribution
   private ArrayList savedInfoList;     // to save the info strings only
 
-  private static String NAME = "Summed Dist";
+  public static String NAME = "Summed Dist";
 
 
   /**

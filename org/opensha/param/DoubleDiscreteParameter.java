@@ -320,6 +320,7 @@ public class DoubleDiscreteParameter
         if( value == null ) param = new DoubleDiscreteParameter( name, c1, units);
         else param = new DoubleDiscreteParameter( name, c1, units, new Double( this.value.toString() )  );
         param.editable = true;
+        param.info = info;
         return param;
     }
 

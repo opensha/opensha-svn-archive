@@ -151,6 +151,7 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
       param = new ArbitrarilyDiscretizedFuncParameter(name,(ArbitrarilyDiscretizedFunc)((ArbitrarilyDiscretizedFunc)value).deepClone());
       if( param == null ) return null;
       param.editable = true;
+      param.info = info;
       return param;
   }
 
