@@ -201,7 +201,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
      parameterList = new ParameterList();
      parameterList.addParameter(chooseERF_Param);
-
+     updateMagDistParam();
      // get the selected forecast
      getSelectedERF_Instance();
 
@@ -389,10 +389,10 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    /**checks if the magFreqDistParameter exists inside it ,
     * if so then gets its Editor and calls the method to update the magDistParams.
     */
-   /*protected void updateMagDistParam() {
+   protected void updateMagDistParam() {
      MagFreqDistParameterEditor magEditor=getMagDistEditor();
      if(magEditor!=null) magEditor.setMagDistFromParams();
-   }*/
+   }
 
    /**checks if the Fault Parameter Editor exists inside it ,
     * if so then gets its Editor and calls the method to update the faultParams.
