@@ -56,7 +56,7 @@ public class MagFreqDistApp
   private JSplitPane plotSplitPane = new JSplitPane();
   private JTabbedPane plotTabPane = new JTabbedPane();
   private JPanel editorPanel = new JPanel();
-  private JPanel MagSelectionEditorPanel = new JPanel();
+  private JPanel MagSelectionEditorPanel;
   private JPanel buttonPanel = new JPanel();
 
   /**
@@ -83,7 +83,7 @@ public class MagFreqDistApp
 
   //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
   private GraphWindow graphWindow;
-  
+
   private JSplitPane paramSplitPane = new JSplitPane();
 
   //X and Y Axis  when plotting the Curves Name
@@ -327,6 +327,7 @@ public class MagFreqDistApp
     ConstrainedStringParameterEditor stParamEditor = new
         ConstrainedStringParameterEditor(stParam);
     stParam.addParameterChangeListener(this);
+    MagSelectionEditorPanel = new JPanel();
     MagSelectionEditorPanel.add(stParamEditor,
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
@@ -343,7 +344,7 @@ public class MagFreqDistApp
    * Creates the MagDist Param.
    * It can be Mag_PDF_Param or MagFreqDistParam.
    * Adding the SummedDist MagDist to the MagFreqDistParam list of Distribution.
-   * It has not been added the Mag_PDFParam because then user will have to provide 
+   * It has not been added the Mag_PDFParam because then user will have to provide
    * Relative Wts for the Dist. which has not decided yet.
    *
    */
@@ -373,6 +374,8 @@ public class MagFreqDistApp
     }
     else{
       editorPanel.remove(magDistEditor.getMagFreqDistParameterEditor());
+      //making the Summed Distn option not visible for Mag PDF.
+      this.makeSumDistVisible(false);
       if(magPDF_Editor == null){
         String MAG_DIST_PARAM_NAME = "Mag Dist Param";
         // make  the mag dist parameter
@@ -410,6 +413,12 @@ public class MagFreqDistApp
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
                                            new Insets(2, 2, 2, 2), 0, 0));
+    //if user is not being the shown the option of both PDF and MagFreqDist then
+    //user just making the SplitPane not adjustable.
+   if(MagSelectionEditorPanel == null){
+     paramSplitPane.setDividerLocation(0);
+     paramSplitPane.setOneTouchExpandable(false);
+   }
    paramSplitPane.add(editorPanel,paramSplitPane.BOTTOM);
    editorPanel.validate();
    editorPanel.repaint();
@@ -435,7 +444,6 @@ public class MagFreqDistApp
    */
   void jCheckSumDist_actionPerformed(ActionEvent e) {
 
-    int k=0;
     if(jCheckSumDist.isSelected()) {
 
      // if user wants a summed distribution
@@ -456,11 +464,13 @@ public class MagFreqDistApp
                                        "min, max, and num must be the same to sum the distributions"
                                        );
          jCheckSumDist.setSelected(false);
+
          return;
       }
 
       // now we will do work so that we can put summed distribuiton to top of functionlist
       insertSummedDistribution();
+      magDistEditor.getParameter().setValue(summedMagFreqDist);
 
     }
     // if summed distribution needs to be removed
