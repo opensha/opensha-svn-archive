@@ -87,6 +87,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private TreeBranchWeightsParameter scenarioWtsParam;
 	private final static String SCENARIO_WT_PARAM_NAME = "Scenario Wts";
 	private final static String SCECNARIO_PREFIX = "Scenario ";
+	private final static String FLOATER_RUP_WT_NAME="Floating Rup";
 	private final static Double MIN_SCEN_WEIGHT = new Double(0);
 	private final static Double MAX_SCEN_WEIGHT = new Double(1);
 	
@@ -267,7 +268,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private double[] getScenarioWts() {
 		ParameterList wtParamList = (ParameterList)paramList.getValue(SCENARIO_WT_PARAM_NAME);
-		double scenarioWts[] = new double[paramList.size()];
+		double scenarioWts[] = new double[wtParamList.size()];
 		Iterator it = wtParamList.getParametersIterator();
 		int i=0;
 		while(it.hasNext()) {
@@ -325,12 +326,16 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private void makeScenarioWtsParamAndEditor(int numScenarios) {
 		ParameterList scenarioWeightsParamList = new ParameterList();
-		Double defaultVal = new Double(1.0/numScenarios);
+		Double defaultVal = new Double(1.0/(numScenarios+1));
 		for(int i=0; i<numScenarios; ++i) {
 			DoubleParameter wtParam = new DoubleParameter(SCECNARIO_PREFIX+" "+i, 
 					MIN_SCEN_WEIGHT, MAX_SCEN_WEIGHT, defaultVal );
 			scenarioWeightsParamList.addParameter(wtParam);
 		}
+		// flaoter Rup wt
+		DoubleParameter wtParam = new DoubleParameter(FLOATER_RUP_WT_NAME, 
+				MIN_SCEN_WEIGHT, MAX_SCEN_WEIGHT, defaultVal );
+		scenarioWeightsParamList.addParameter(wtParam);
 		 scenarioWtsParam = new TreeBranchWeightsParameter(SCENARIO_WT_PARAM_NAME, scenarioWeightsParamList);
 		 if(this.paramList.containsParameter(SCENARIO_WT_PARAM_NAME)) {
 			 paramList.replaceParameter(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
