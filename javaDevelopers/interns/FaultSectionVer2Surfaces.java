@@ -45,11 +45,13 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 		faultSectionSlipMap = faultSectionDAO.getSlipRateEstimates();
 		// calculate the min and max slip rate
 		Iterator it = faultSectionSlipMap.values().iterator();
+		//Iterator keyIterator = faultSectionSlipMap.keySet().iterator();
 		minSlipRate = Double.POSITIVE_INFINITY;
 		maxSlipRate = Double.NEGATIVE_INFINITY;
 		double val;
 		while(it.hasNext()) {
 			EstimateInstances estimateInstance   = (EstimateInstances)it.next();
+			//System.out.println("Fault section Id="+((Integer)keyIterator.next()).intValue());
 			val = this.getValueFromEstimate(estimateInstance);
 			if(val<minSlipRate) minSlipRate = val;
 			if(val>maxSlipRate) maxSlipRate = val;
@@ -179,7 +181,9 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 */
 	private double getValueFromEstimate(EstimateInstances estimateInstance) {
 		if(estimateInstance==null) return 0;
-		return ((NormalEstimate)estimateInstance.getEstimate()).getMean();
+		if(estimateInstance.getEstimate() instanceof NormalEstimate)
+			return ((NormalEstimate)estimateInstance.getEstimate()).getMean();
+		else return ((MinMaxPrefEstimate)estimateInstance.getEstimate()).getPreferred();
 	}
 	
 	

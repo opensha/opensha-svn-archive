@@ -54,7 +54,7 @@ public class A_FaultSource extends ProbEqkSource {
   private final static double TOLERANCE = 1e6;
   
   // array giving which seg (row) is in each rupture (column)
-  final static int[][] segInRup = {
+  private final static int[][] segInRup = {
   			{1,0,1,0,0,1,0,0,0,1,0,0,0,0,1}, // seg 1
   			{0,1,1,0,1,1,0,0,1,1,0,0,0,1,1}, // seg 2
   			{0,0,0,1,1,1,0,1,1,1,0,0,1,1,1}, // seg 3
@@ -62,7 +62,7 @@ public class A_FaultSource extends ProbEqkSource {
   			{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1}};// seg 5
   
   	// array giving which scen (row) has each rupture (column)
-  final static int[][] scenHasRup = {
+  private final static int[][] scenHasRup = {
 		//   1,2,3,4,5,6,7,8,9,0,1,2,3,4,5
 			{1,1,0,1,0,0,1,0,0,0,1,0,0,0,0}, // scen 1
 			{0,0,1,1,0,0,1,0,0,0,1,0,0,0,0}, // scen 2
@@ -142,18 +142,19 @@ public class A_FaultSource extends ProbEqkSource {
     double[] rupMoRate = new double[num_rup];
     double[] rupRate = new double[num_rup];
     GaussianMagFreqDist[] rupMagFreqDist = new GaussianMagFreqDist[num_rup];
-    String[] rupName = new String [num_rup];
+    String[] rupName = getRuptureNames(segName);
     
   	// compute rupArea, rupMaxMoRate, and rupMag for each rupture
-    getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, segName, rupArea, rupMeanMag, rupMaxMoRate, rupName);
+    getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, segName, rupArea, rupMeanMag, rupMaxMoRate);
     
     // make summed Mag FreqDist
     SummedMagFreqDist summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
     summedMagFreqDist.addIncrementalMagFreqDist(floaterMFD);
     
     // compute the actual rupture MoRate (considering floater weight as well)
-    double totMoRateTest = computeRupMoRate(magSigma, magTruncLevel, magTruncType, scenarioWts, floaterWt, rupMeanMag, rupMaxMoRate, rupMoRate, rupRate, rupMagFreqDist, rupName, summedMagFreqDist);
-
+    double totMoRateTest = computeRupMoRate(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMeanMag, rupMaxMoRate, rupMoRate, rupRate, rupMagFreqDist, summedMagFreqDist);
+    String []scenNames = this.getScenarioNames(rupName, num_seg);
+    
     // check total moment rates
     totMoRateTest += floaterMoRate;
     double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
@@ -244,7 +245,6 @@ public class A_FaultSource extends ProbEqkSource {
  * @param magTruncLevel
  * @param magTruncType
  * @param scenarioWts
- * @param floaterWt
  * @param rupMeanMag
  * @param rupMaxMoRate
  * @param rupMoRate
@@ -254,22 +254,17 @@ public class A_FaultSource extends ProbEqkSource {
  * @param summedMagFreqDist
  * @return
  */
-private double computeRupMoRate(double magSigma, double magTruncLevel, int magTruncType, double[] scenarioWts, double floaterWt, double[] rupMeanMag, double[] rupMaxMoRate, double[] rupMoRate, double[] rupRate, GaussianMagFreqDist[] rupMagFreqDist, String[] rupName, SummedMagFreqDist summedMagFreqDist) {
+private double computeRupMoRate(double magSigma, double magTruncLevel, int magTruncType, 
+		double[] scenarioWts, double[] rupMeanMag, double[] rupMaxMoRate, 
+		double[] rupMoRate, double[] rupRate, GaussianMagFreqDist[] rupMagFreqDist, SummedMagFreqDist summedMagFreqDist) {
 	int rup;
 	int scen;
 	double totMoRateTest = 0;
-    String[] scenName = new String[num_scen];
     for(rup=0; rup<num_rup; rup++){
 		rupMoRate[rup] = 0;
-		boolean isFirst = true;
 		for(scen=0; scen < num_scen; scen++) {
 			if(scenHasRup[scen][rup]==1) { // if this rupture is included in current scenario
-				if(isFirst) { // append the rupture name to scenario name
-					scenName[scen]=rupName[rup];
-					isFirst = false;
-				} else scenName[scen]+=";"+rupName[rup];
-				
-				rupMoRate[rup] += (1.0-floaterWt)*rupMaxMoRate[rup]*scenarioWts[scen];
+				rupMoRate[rup] += rupMaxMoRate[rup]*scenarioWts[scen];
 			}
 		}
 		
@@ -281,6 +276,53 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
     }
 	return totMoRateTest;
 }
+	
+	/**
+	 * Get the rupture names based on segment names
+	 * @param sectionNames
+	 * @return
+	 */
+	public final static String[] getRuptureNames(String[] segmentNames) {
+		int seg;
+		int numRups = getNumRuptures(segmentNames.length);
+		String[] rupName = new String[numRups];
+		for(int rup=0; rup<numRups; rup++){
+			boolean isFirst = true;
+			for(seg=0; seg < segmentNames.length; seg++) {
+				if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
+					if(isFirst) { // append the section name to rupture name
+						rupName[rup] = segmentNames[seg];
+						isFirst = false;
+					} else rupName[rup] += " + "+segmentNames[seg];
+				}
+			}
+		}
+		return rupName;
+	}
+	
+	
+	/**
+	 * Get the scenario names based on rupture names
+	 * 
+	 * @param rupNames
+	 * @return
+	 */
+	public final static String[] getScenarioNames(String[] rupNames, int numSegments) {
+		int numScenarios = getNumScenarios(numSegments);
+		String[] scenName = new String[numScenarios];
+	    for(int rup=0; rup<rupNames.length; rup++){
+			boolean isFirst = true;
+			for(int scen=0; scen < numScenarios; scen++) {
+				if(scenHasRup[scen][rup]==1) { // if this rupture is included in current scenario
+					if(isFirst) { // append the rupture name to scenario name
+						scenName[scen]=rupNames[rup];
+						isFirst = false;
+					} else scenName[scen]+=";"+rupNames[rup];
+				}
+			}
+	    }
+	    return scenName;
+	}
 
 	  /**
 	   * compute rupArea, rupMaxMoRate, and rupMag for each rupture
@@ -293,21 +335,17 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 	   * @param rupMaxMoRate
 	   * @param rupName
 	   */
-	private void getRupArea_MaxMoRate_Mag(MagAreaRelationship magAreaRel, double[] segArea, double[] segMoRate, String[] segName, double[] rupArea, double[] rupMeanMag, double[] rupMaxMoRate, String[] rupName) {
+	private void getRupArea_MaxMoRate_Mag(MagAreaRelationship magAreaRel, double[] segArea, 
+			double[] segMoRate, String[] segName, double[] rupArea, 
+			double[] rupMeanMag, double[] rupMaxMoRate) {
 		int seg;
 		int rup;
 		for(rup=0; rup<num_rup; rup++){
 	    		rupArea[rup] = 0;
 	    		rupMaxMoRate[rup] = 0;
-	    		boolean isFirst = true;
 	    		for(seg=0; seg < num_seg; seg++) {
 	    			
-	    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
-	    				if(isFirst) { // append the section name to rupture name
-	    					rupName[rup] = segName[seg];
-	    					isFirst = false;
-	    				} else rupName[rup] += " + "+segName[seg];
-	    				
+	    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment	
 	    				rupArea[rup] += segArea[seg];
 	            		rupMaxMoRate[rup] += segMoRate[seg];
 	    			}
@@ -316,7 +354,6 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 	    		// compute magnitude, rounded to nearest MFD x-axis point
 	    		// convert area to km-sqr
 	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
-	    		//if(D) System.out.println("rupMeanMag["+rup+"]="+rupMeanMag[rup]);
 	    }
 	}
 
@@ -365,16 +402,10 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	    	segMoRate[seg]=0;
 	    	ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
 	    	Iterator it = segmentDatum.iterator();
-	    	boolean first = true;
+	    	ArrayList faultSectionNames = new ArrayList();
 	    	while(it.hasNext()) {
 	    		FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-	    		// set the name
-	    		if(first) {
-	    			segName[seg] = sectData.getSectionName();
-	    			first = false;
-	    		}
-	    		else
-	    			segName[seg] += " -- "+sectData.getSectionName();
+	    		faultSectionNames.add(sectData.getSectionName());
 	    		//set the area & moRate
 	    		double length = sectData.getFaultTrace().getTraceLength(); // km
 	    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
@@ -389,13 +420,25 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 	    		}
 	    	}
-	    	/*if(D) {
-	    		System.out.println("SegArea["+seg+"]="+segArea[seg] );
-	    		System.out.println("segMoRate["+seg+"]="+segMoRate[seg] );
-	    	}*/
+	    	segName[seg] = getSegmentName(faultSectionNames);
 	    }
 		return ;
 	}
+	
+	/**
+	 * Get the segment name based on fault section names
+	 * @param sectionNames
+	 * @return
+	 */
+	public final static String getSegmentName(ArrayList sectionNames) {
+		String segName=null;
+		for(int i=0; i<sectionNames.size(); ++i) {
+			if(i==0) segName = (String)sectionNames.get(i);
+			else segName += " -- "+(String)sectionNames.get(i);
+		}
+		return segName;
+	}
+	
 	  /**
 	   * Calculte the number of segments, ruptures and scenarios.
 	   * Make sure that the number of scenario wts paased to this function are
@@ -405,13 +448,32 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	   */
 		private void calcNumSegsRupsScenarios(ArrayList segmentData, double[] scenarioWts) {
 			num_seg = segmentData.size();
-			  num_rup = num_seg*(num_seg+1)/2;
-			  num_scen = (int) Math.pow(2,num_seg-1);
-		    
-			  if(num_seg > 5 || num_seg < 2)
-				  throw new RuntimeException("Error: num segments must be between 2 and 5");
-			  if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
-				  throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
+			num_rup = getNumRuptures(num_seg);
+			num_scen = getNumScenarios(num_seg);
+			
+			if(num_seg > 5 || num_seg < 2)
+				throw new RuntimeException("Error: num segments must be between 2 and 5");
+			if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
+				throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
+		}
+		
+		/**
+		 * Get number of ruptures based on number of segments
+		 * @param numSegs
+		 * @return
+		 */
+		private final static int getNumRuptures(int numSegs) {
+			return numSegs*(numSegs+1)/2;
+		}
+		
+		/**
+		 * Get the number of scenarios based on number of segments
+		 * 
+		 * @param numSegs
+		 * @return
+		 */
+		private final static int getNumScenarios(int numSegs) {
+			return (int) Math.pow(2,numSegs-1);
 		}
 
 	  /**
