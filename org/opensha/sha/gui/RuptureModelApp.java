@@ -7,13 +7,16 @@ package org.opensha.sha.gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import javax.swing.JApplet;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,37 +24,35 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
+import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import org.opensha.param.TreeBranchWeightsParameter;
-import org.opensha.param.editor.BooleanParameterEditor;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.editor.DoubleParameterEditor;
 import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.editor.TreeBranchWeightsParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.param.MagPDF_Parameter;
-import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.util.FileUtils;
 
 /**
  * @author vipingupta
  *
  */
-public class RuptureModelApp extends JFrame implements ParameterChangeListener {
+public class RuptureModelApp extends JFrame implements ParameterChangeListener, ActionListener {
 	private final static String SEGMENT_MODELS_FILE_NAME = "SegmentModels.txt";
 
 	// choose deformation model
@@ -65,6 +66,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Chooes Mag-Area Relationship";
 	// choose Mag Sigma
 	private final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
+	private final static Double MAG_SIGMA_DEFAULT = new Double(2.0);
 	//Mag Truncation Type
 	private final static String TRUNC_TYPE_PARAM_NAME = "Truncation Type";
 	private final static String NO_TRUNCATION = "No Truncation";
@@ -72,6 +74,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	private final static String TWO_SIDED_TRUNCATION = "Upper & Lower Truncation";
 	// Mag truncation level
 	private final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
+	private final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
 	
 	// aseismic factor interpolated
 	
@@ -82,14 +85,13 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	
 	// sceanrio weights
 	private TreeBranchWeightsParameter scenarioWtsParam;
-	private TreeBranchWeightsParameterEditor scenarioWtsParamEditor;
 	private final static String SCENARIO_WT_PARAM_NAME = "Scenario Wts";
 	private final static String SCECNARIO_PREFIX = "Scenario ";
 	private final static Double MIN_SCEN_WEIGHT = new Double(0);
 	private final static Double MAX_SCEN_WEIGHT = new Double(1);
 	
 	private final static String SEGMENT_MODEL_NAME_PREFIX = "-";
-	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList deformationModelsList;
 	private final static String MSG_NO_DEF_MODEL_EXISTS = "Currently, there is no Deformation Model";
@@ -101,8 +103,12 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	
 	private ParameterList paramList;
 	private ParameterListEditor paramListEditor;
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	
+	// DAO to access the fault section database
+	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	
+	private JButton calcButton  = new JButton("Calculate");
 
 	/**
 	 * Constructor
@@ -111,6 +117,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	public RuptureModelApp() {
 		initParamsAndEditor();
 		this.createGUI();
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.show();
 	}
@@ -156,11 +163,160 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+		leftPanel.add(this.calcButton, new GridBagConstraints(0, 1, 1, 0, 1.0, 0.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
+		calcButton.addActionListener(this);
 		segmentAndScenarioNames.setEnabled(false);
 		rightPanel.add(new JScrollPane(this.segmentAndScenarioNames), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+	}
+	
+	/**
+	 * This function is called when user clicks on "calculate" button
+	 */
+	public void actionPerformed(ActionEvent event) {
+		Object source = event.getSource();
+		
+		if(source == this.calcButton) { // if calculate button is clicked
+			calculate();
+		}
+	}
+	
+	/**
+	 * Calculate the segment and rupture data
+	 *
+	 */
+	private void calculate() {
+		ArrayList segmentData = getSegmentData();
+		MagAreaRelationship magAreaRel = getMagAreaRelationship();
+		double magSigma = getMagSigma();
+		double magTruncLevel = getMagTruncLevel();
+		int truncType = getTruncType();
+		double[] scenarioWts = getScenarioWts();
+		boolean isAseisReducesArea = getAseisReducesArea();
+		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
+		A_FaultSource aFaultSource = new A_FaultSource( segmentData,  magAreaRel,  magSigma,
+		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
+	}
+	
+	
+	/**
+	 * Get the segment data
+	 * @return
+	 */
+	private ArrayList getSegmentData() {
+		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
+		int selectdDeformationModelId = getSelectedDeformationModelId();
+		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
+		ArrayList newSegmentsList = new ArrayList();
+		// iterate over all segment
+		for(int i=0; i<segmentsList.size(); ++i) {
+			ArrayList segment = (ArrayList)segmentsList.get(i);
+			ArrayList newSegment = new ArrayList();
+			// iterate over all sections in a segment
+			for(int j=0; j<segment.size(); ++j) {
+				int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
+				FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
+				// get slip rate and aseimic slip factor from deformation model
+				faultSectionData.setAseismicSlipFactorEst(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
+				faultSectionData.setAveLongTermSlipRateEst(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
+				newSegment.add(faultSectionData.getFaultSectionPrefData());
+			}
+			newSegmentsList.add(newSegment);
+		}
+		return newSegmentsList;
+	}
+	
+	private int getSelectedDeformationModelId() {
+		String selectedDefModel  = (String)this.paramList.getValue(this.DEFORMATION_MODEL_PARAM_NAME);
+		for(int i=0; i<this.deformationModelsList.size(); ++i) {
+			DeformationModelSummary deformationModel = (DeformationModelSummary)deformationModelsList.get(i);
+			if(deformationModel.getDeformationModelName().equalsIgnoreCase(selectedDefModel)) {
+				return deformationModel.getDeformationModelId();
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Get the PDF for floating rup
+	 * @return
+	 */
+	private IncrementalMagFreqDist getFloatingRup_PDF() {
+		MagPDF_Parameter param = (MagPDF_Parameter)paramList.getParameter(MAG_PDF_PARAM_NAME);
+		param.setMagDist();
+		return (IncrementalMagFreqDist)param.getValue();
+	}
+	
+	/**
+	 * Whether Aseis reduces area
+	 * @return
+	 */
+	private boolean getAseisReducesArea() {
+		return ((Boolean)paramList.getValue(ASEIS_INTER_PARAM_NAME)).booleanValue();
+	}
+	
+	/**
+	 * Get scenario weights
+	 * 
+	 * @return
+	 */
+	private double[] getScenarioWts() {
+		ParameterList wtParamList = (ParameterList)paramList.getValue(SCENARIO_WT_PARAM_NAME);
+		double scenarioWts[] = new double[paramList.size()];
+		Iterator it = wtParamList.getParametersIterator();
+		int i=0;
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			scenarioWts[i++] = ((Double)param.getValue()).doubleValue();
+		}
+		return scenarioWts;
+	}
+	
+	/**
+	 * Get the selected Mag Area relationship
+	 * @return
+	 */
+	private MagAreaRelationship getMagAreaRelationship() {
+		String magAreaRel = (String)this.paramList.getValue(MAG_AREA_RELS_PARAM_NAME);
+		if(magAreaRel.equalsIgnoreCase(WC1994_MagAreaRelationship.NAME))
+			return new WC1994_MagAreaRelationship();
+		return null;
+	}
+	
+	/**
+	 * Get the sigma
+	 *
+	 */
+	private double getMagSigma() {
+		return ((Double)this.paramList.getValue(MAG_SIGMA_PARAM_NAME)).doubleValue();
+	}
+	
+	
+	/**
+	 * Mag trunc level
+	 * 
+	 * @return
+	 */
+	private double getMagTruncLevel() {
+		return ((Double)this.paramList.getValue(TRUNC_LEVEL_PARAM_NAME)).doubleValue();
+	}
+	
+	/**
+	 * Get the truncation type
+	 * 
+	 * @return
+	 */
+	private int getTruncType() {
+		String truncType = (String)paramList.getValue(TRUNC_TYPE_PARAM_NAME);
+		if(truncType.equalsIgnoreCase(NO_TRUNCATION)) return 0;
+		if(truncType.equalsIgnoreCase(ONE_SIDED_TRUNCATION)) return 1;
+		if(truncType.equalsIgnoreCase(this.TWO_SIDED_TRUNCATION)) return 2;
+		throw new RuntimeException("Unsupported truncation type");
 	}
 	
 	/**
@@ -222,7 +378,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	 */
 	private void makeMagSigmaTruncParamsAndEditor() throws Exception {
 		// choose Mag Sigma
-		 DoubleParameter magSigmaParam = new DoubleParameter(MAG_SIGMA_PARAM_NAME);
+		 DoubleParameter magSigmaParam = new DoubleParameter(MAG_SIGMA_PARAM_NAME, MAG_SIGMA_DEFAULT);
 		 paramList.addParameter(magSigmaParam);
 		 /*DoubleParameterEditor magSigmaParamEditor = new DoubleParameterEditor(magSigmaParam);
 		 add(magSigmaParamEditor,
@@ -245,7 +401,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	                                    GridBagConstraints.HORIZONTAL,
 	                                    new Insets(0, 0, 0, 0), 0, 0));*/
 		// Mag truncation level
-		DoubleParameter truncLevelParam = new DoubleParameter(TRUNC_LEVEL_PARAM_NAME);
+		DoubleParameter truncLevelParam = new DoubleParameter(TRUNC_LEVEL_PARAM_NAME, TRUNC_LEVEL_DEFAULT);
 		paramList.addParameter(truncLevelParam);
 		/*truncLevelParamEditor = new DoubleParameterEditor(truncLevelParam);
 		add(truncLevelParamEditor,
@@ -255,13 +411,6 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	                                    new Insets(0, 0, 0, 0), 0, 0));*/
 	}
 	
-	
-	/**
-	 * Initialize the Applet
-	 */
-	public void init() {
-		
-	}
 	
 	/**
 	 * Load the deformation models from the database
@@ -408,7 +557,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener {
 	 *
 	 */
 	private void updateSegmentNamesAndScenarios() {
-		String selectedSegmentModel = (String)this.paramList.getValue(this.SEGMENT_MODELS_PARAM_NAME);
+		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		// get the segment names
 		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
 		String[] segmentNames= new String[segmentsList.size()];
