@@ -43,6 +43,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
+import org.opensha.sha.gui.infoTools.RuptureModelOuput;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.param.MagPDF_Parameter;
@@ -110,7 +111,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
 	
 	private JButton calcButton  = new JButton("Calculate");
-
+	private final static int W = 800;
+	private final static int H = 700;
 	/**
 	 * Constructor
 	 *
@@ -119,7 +121,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		initParamsAndEditor();
 		this.createGUI();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.pack();
+		this.setSize(W, H);
 		this.show();
 	}
 
@@ -174,6 +176,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+		mainSplitPane.setDividerLocation(300);
 	}
 	
 	/**
@@ -202,6 +205,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
 		A_FaultSource aFaultSource = new A_FaultSource( segmentData,  magAreaRel,  magSigma,
 		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
+		RuptureModelOuput ouputWindow  =  new RuptureModelOuput(aFaultSource, this.paramList.toString());
 	}
 	
 	

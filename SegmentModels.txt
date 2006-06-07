@@ -1,0 +1,17 @@
+# This file contains segment models. The line with "-" is the segment model name. 
+# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. Examples:
+# - Test Model
+# 2,7, 51
+# 3, 35, 1, 2
+# The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
+# Segment 1 has fault section Ids 2,7 and 15. Segment 2 has fault sections 3, 35, 1 and 2
+
+- Northern California Segment Model
+56
+67
+27
+26
+ - Test Segment Model
+15, 13, 14
+18, 100
+20
