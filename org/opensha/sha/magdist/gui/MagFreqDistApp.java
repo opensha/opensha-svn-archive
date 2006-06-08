@@ -446,7 +446,7 @@ public class MagFreqDistApp
   void jCheckSumDist_actionPerformed(ActionEvent e) {
 
     if(jCheckSumDist.isSelected()) {
-
+      magDistEditor.setSummedDistPlotted(true);
      // if user wants a summed distribution
       double min = magDistEditor.getMin();
       double max = magDistEditor.getMax();
@@ -471,22 +471,28 @@ public class MagFreqDistApp
 
       // now we will do work so that we can put summed distribuiton to top of functionlist
       insertSummedDistribution();
-      magDistEditor.getParameter().setValue(summedMagFreqDist);
+
 
     }
     // if summed distribution needs to be removed
    else {
-     // remove the summed distribution and related moment rate and cumulative rate
-     incrRateFunctionList.remove(incrRateFunctionList.size() -1);
-     cumRateFunctionList.remove(cumRateFunctionList.size() -1);
-     momentRateFunctionList.remove(momentRateFunctionList.size() -1);
-     //removing the plotting features from the plot prefs. for the summed distribution
-     ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
-     ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
-     ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
-     incrPlotFeaturesList.remove(incrPlotFeaturesList.size()-1);
-     cumPlotFeaturesList.remove(cumPlotFeaturesList.size()-1);
-     momentPlotFeaturesList.remove(momentPlotFeaturesList.size()-1);
+     magDistEditor.setSummedDistPlotted(false);
+     if(incrRateFunctionList.size()>0){
+       // remove the summed distribution and related moment rate and cumulative rate
+       incrRateFunctionList.remove(incrRateFunctionList.size() - 1);
+       cumRateFunctionList.remove(cumRateFunctionList.size() - 1);
+       momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
+       //removing the plotting features from the plot prefs. for the summed distribution
+       ArrayList incrPlotFeaturesList = incrRateGraphPanel.
+           getCurvePlottingCharacterstic();
+       ArrayList cumPlotFeaturesList = cumRateGraphPanel.
+           getCurvePlottingCharacterstic();
+       ArrayList momentPlotFeaturesList = momentRateGraphPanel.
+           getCurvePlottingCharacterstic();
+       incrPlotFeaturesList.remove(incrPlotFeaturesList.size() - 1);
+       cumPlotFeaturesList.remove(cumPlotFeaturesList.size() - 1);
+       momentPlotFeaturesList.remove(momentPlotFeaturesList.size() - 1);
+     }
    }
     addGraphPanel();
 

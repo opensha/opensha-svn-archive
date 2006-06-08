@@ -393,7 +393,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     */
    protected void updateMagDistParam() {
      MagFreqDistParameterEditor magEditor=getMagDistEditor();
-     if(magEditor!=null) magEditor.setMagDistFromParams();
+     if(magEditor!=null) ((MagFreqDistParameter)magEditor.getParameter()).setMagDist();
    }
 
    /**checks if the Fault Parameter Editor exists inside it ,
