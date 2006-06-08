@@ -5,6 +5,7 @@ import java.util.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 
 /**
  *  <b>Title:</b> MagFreqDistParameter<p>
@@ -35,13 +36,16 @@ public class MagFreqDistParameter
 
     /**
      * Name and Info strings of params needed by all distributions
-    */
-   public static final String MIN=new String("Min");
-   public static final String MIN_INFO=new String("Minimum magnitude of the discetized function");
-   public static final String MAX=new String("Max");
-   public static final String MAX_INFO=new String("Maximum magnitude of the discetized function");
-   public static final String NUM=new String("Num");
-   public static final String NUM_INFO=new String("Number of points in  the discetized function");
+     */
+    public static final String MIN = new String("Min");
+    public static final String MIN_INFO = new String(
+        "Minimum magnitude of the discetized function");
+    public static final String MAX = new String("Max");
+    public static final String MAX_INFO = new String(
+        "Maximum magnitude of the discetized function");
+    public static final String NUM = new String("Num");
+    public static final String NUM_INFO = new String(
+        "Number of points in  the discetized function");
 
    /**
     * Name, units, and info strings for parameters needed by more than one distribution (shared)
@@ -105,12 +109,15 @@ public class MagFreqDistParameter
   public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation Level(# of Std Devs)");
   public static final String NONE= new String("None");
 
+
   // String Constraints
   private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
       ycSetAllButOptions, gdSetAllButOptions;
   private boolean summedMagDistSelected;
   private SummedMagFreqDist summedMagDist;
   private String summedMagDistMetadata;
+
+  private EvenlyDiscretizedFuncParameter evenlyDiscrtizedFunc;
 
 
   /**
@@ -466,7 +473,26 @@ public class MagFreqDistParameter
         parameterList.addParameter(totCumRate);
         // now add params that present choice dependent on above choice
         parameterList.addParameter(fixParam);
+        initArbIncrementalMagFreqDist();
     }
+
+    /**
+     * Initialisez the Arb. Incremental MagFreq Func
+     */
+    private void initArbIncrementalMagFreqDist(){
+      ArbIncrementalMagFreqDist arbIncrDist = new ArbIncrementalMagFreqDist(0,10,101);
+      evenlyDiscrtizedFunc = new EvenlyDiscretizedFuncParameter(" Arb. Incremental Mag Dist",
+          arbIncrDist);
+    }
+
+    /**
+     * Returns the EvenlyDiscretizedFuncParameter
+     * @return EvenlyDiscretizedFuncParameter
+     */
+    public EvenlyDiscretizedFuncParameter getArbIncrementalMagFreqDist(){
+      return evenlyDiscrtizedFunc;
+    }
+
 
     /**
      * Updates the MagFreqDistParams with the new parameters.
@@ -530,6 +556,23 @@ public class MagFreqDistParameter
           DISTRIBUTION_NAME));
 
       IncrementalMagFreqDist magDist = null;
+
+      if(distributionName.equals(ArbIncrementalMagFreqDist.NAME)){
+        EvenlyDiscretizedFunc func =(EvenlyDiscretizedFunc)evenlyDiscrtizedFunc.getValue();
+        double min = func.getMinX();
+        double max = func.getMaxX();
+        int num = func.getNum();
+        ArbIncrementalMagFreqDist arbMagDist = new ArbIncrementalMagFreqDist(min,max,num);
+        for(int i=0;i<num;++i)
+          arbMagDist.set(func.getX(i),func.getY(i));
+        magDist =arbMagDist;
+        System.out.println("Arb Incr Vals="+magDist.toString());
+        this.setValue(magDist);
+        // sets the independent param list to be null
+        setIndependentParameters(null);
+        return;
+      }
+
       try {
         Double min = (Double) parameterList.getParameter(MagFreqDistParameter.MIN).
             getValue();

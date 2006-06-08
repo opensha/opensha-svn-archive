@@ -61,9 +61,8 @@ public class MagFreqDistParameterEditor
   // title of Parameter List Editor
   public static final String MAG_DIST_TITLE = new String("Mag Dist Params");
 
-  //Instance for the framee to show the all parameters in this editor
-  protected JDialog frame;
-  //instance for the
+
+  //instance for the selection of the Mag Dist
   protected JComboBox magDistPlotListSelector;
 
 
@@ -154,7 +153,7 @@ public class MagFreqDistParameterEditor
    * @return
    */
   public ParameterListEditor getMagFreqDistParameterEditor(){
-	  return editor;
+    return editor;
   }
 
   /**
@@ -321,6 +320,8 @@ public class MagFreqDistParameterEditor
     if (D)
       System.out.println(S + "Ending: ");
   }
+
+
 
   /**
    * make the parameters related to SINGLE Mag dist visible

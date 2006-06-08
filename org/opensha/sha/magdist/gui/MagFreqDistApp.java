@@ -35,7 +35,9 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.sha.param.MagPDF_Parameter;
-import org.opensha.param.StringListConstraint;
+import org.opensha.param.*;
+import org.opensha.param.editor.EvenlyDiscretizedFuncParameterEditor;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 /**
  * <p>Title:MagFreqDistApp </p>
  *
@@ -158,6 +160,10 @@ public class MagFreqDistApp
   private static final String MAG_FREQ_DIST = "Mag. Freq. Dist";
   private static final String MAG_PDF_PARAM = "Mag. PDF";
   private StringParameter stParam;
+
+  //instance for the selection of the Arb MagDist
+  private JDialog arbMagDistWindow;
+
 
 
   public MagFreqDistApp() {
@@ -359,7 +365,7 @@ public class MagFreqDistApp
         distNames.add(GaussianMagFreqDist.NAME);
         distNames.add(YC_1985_CharMagFreqDist.NAME);
         distNames.add(SummedMagFreqDist.NAME);
-
+        distNames.add(ArbIncrementalMagFreqDist.NAME);
         String MAG_DIST_PARAM_NAME = "Mag Dist Param";
         // make  the mag dist parameter
         MagFreqDistParameter magDist = new MagFreqDistParameter(
@@ -403,6 +409,8 @@ public class MagFreqDistApp
   public void setMagDistEditor(MagDistParameterEditorAPI magDistEditor) {
     this.magDistEditor = magDistEditor;
     ParameterListEditor listEditor = magDistEditor.createMagFreqDistParameterEditor();
+    ParameterAPI distParam = listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).getParameter();
+    distParam.addParameterChangeListener(this);
     ArrayList allowedVals = ((StringConstraint)listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).
     		getParameter().getConstraint()).getAllowedValues();
     //if Summed Distn. is within the allowed list of MagDistn then show it as the JCheckBox.
@@ -471,7 +479,6 @@ public class MagFreqDistApp
 
       // now we will do work so that we can put summed distribuiton to top of functionlist
       insertSummedDistribution();
-
 
     }
     // if summed distribution needs to be removed
@@ -608,6 +615,66 @@ public class MagFreqDistApp
 
 
 
+  private void initArbIncrementalMagFreqParamWindow(){
+    if(arbMagDistWindow == null){
+      EvenlyDiscretizedFuncParameter evenDiscretizedParam =
+          ((MagFreqDistParameter)magDistEditor.getParameter()).getArbIncrementalMagFreqDist();
+      EvenlyDiscretizedFuncParameterEditor discrParamEditor = null;
+      try {
+        discrParamEditor = new EvenlyDiscretizedFuncParameterEditor(
+            evenDiscretizedParam);
+      }
+      catch (Exception ex) {
+        ex.printStackTrace();
+      }
+      discrParamEditor.refreshParamEditor();
+      arbMagDistWindow = new JDialog();
+      arbMagDistWindow.setModal(true);
+
+      arbMagDistWindow.setTitle("Set " + evenDiscretizedParam.getName());
+      arbMagDistWindow.getContentPane().setLayout(new GridBagLayout());
+      arbMagDistWindow.getContentPane().add(discrParamEditor,
+                                 new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+          , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+          new Insets(4, 4, 4, 4), 0, 0));
+
+      //Adding Button to update the forecast
+      JButton button = new JButton();
+      button.setText("Done");
+      button.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          updateMagDistButton_actionPerformed(e);
+        }
+      });
+      arbMagDistWindow.getContentPane().add(button,
+                                 new GridBagConstraints(0, 1, 1, 0, 0.0, 0.0
+          , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          new Insets(4, 4, 4, 4), 0, 0));
+      arbMagDistWindow.setSize(300, 650);
+    }
+    arbMagDistWindow.setLocationRelativeTo(this);
+    arbMagDistWindow.setVisible(true);
+  }
+
+
+  /**
+   * This function when update Arb Incr Mag dist is called
+   *
+   * @param ae
+   */
+  public void updateMagDistButton_actionPerformed(ActionEvent e) {
+    try{
+      this.addButton();
+      arbMagDistWindow.dispose();
+    }catch(RuntimeException ee){
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
+
+
+
+
   /**
    * this function is called when "Add Dist" button is clicked
    * @param e
@@ -618,92 +685,109 @@ public class MagFreqDistApp
 
 
 
-    /**
-     *  This causes the model data to be calculated and a plot trace added to
-     *  the current plot
-     *
-     * @param  e  The feature to be added to the Button_mouseClicked attribute
-     */
-    private void addButton(){
-
-        if ( D ) System.out.println("Starting" );
-
-        try{
-          this.magDistEditor.setMagDistFromParams();
-
-          String magDistMetadata = magDistEditor.getMagFreqDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
-
-          IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDistEditor.getParameter().getValue();
-          function.setInfo(magDistMetadata);
-          function.setName("Mag - Incremental Rate Dist.");
-          if(D) System.out.println(" after getting mag dist from editor");
-          EvenlyDiscretizedFunc cumRateFunction;
-          EvenlyDiscretizedFunc moRateFunction;
-
-          // get the cumulative rate and moment rate distributions for this function
-          cumRateFunction=(EvenlyDiscretizedFunc)function.getCumRateDist();
-          cumRateFunction.setInfo(magDistMetadata);
-          cumRateFunction.setName("Mag - Cumulative Rate Dist.");
-          moRateFunction=(EvenlyDiscretizedFunc)function.getMomentRateDist();
-          moRateFunction.setInfo(magDistMetadata);
-          moRateFunction.setName("Mag - Moment Rate Dist.");
-          int size = incrRateFunctionList.size();
-          //if the number of functions is 1 more then numFunctionsWithoutSumDist
-          //then summed has been added ealier so needs to be removed
-          if(size ==numFunctionsWithoutSumDist+1){
-            incrRateFunctionList.remove(incrRateFunctionList.size() - 1);
-            cumRateFunctionList.remove(cumRateFunctionList.size() - 1);
-            momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
-
-            //removing the plotting features from the plot prefs. for the summed distribution
-            ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
-            ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
-            ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
-            incrPlotFeaturesList.remove(incrPlotFeaturesList.size()-1);
-            cumPlotFeaturesList.remove(cumPlotFeaturesList.size()-1);
-            momentPlotFeaturesList.remove(momentPlotFeaturesList.size()-1);
-          }
-
-          // add the functions to the functionlist
-          incrRateFunctionList.add( (EvenlyDiscretizedFunc) function);
-          cumRateFunctionList.add(cumRateFunction);
-          momentRateFunctionList.add(moRateFunction);
-          numFunctionsWithoutSumDist = momentRateFunctionList.size();
-
-          if (jCheckSumDist.isVisible() && jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
-            try {
-              // add this distribution to summed distribution
-              summedMagFreqDist.addIncrementalMagFreqDist(function);
-
-              // this function will insert summed distribution at top of function list
-              insertSummedDistribution();
-
-            }
-            catch (Exception ex) {
-              JOptionPane.showMessageDialog(this,
-                                            "min, max, and num must be the same to sum the distributions." +
-                                            "\n To add this distribution first deselect the Summed Dist option"
-                  );
-              return;
-            }
-          }
-          // draw the graph
-          addGraphPanel();
 
 
-        // catch the error and display messages in case of input error
-        }catch(NumberFormatException e){
-          JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
-        }catch(NullPointerException e) {
-          //JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
-          e.printStackTrace();
-        }catch(Exception e) {
-          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+  /**
+   *  This causes the model data to be calculated and a plot trace added to
+   *  the current plot
+   *
+   * @param  e  The feature to be added to the Button_mouseClicked attribute
+   */
+  private void addButton() {
+
+    if (D)
+      System.out.println("Starting");
+
+    try {
+      this.magDistEditor.setMagDistFromParams();
+
+      String magDistMetadata = magDistEditor.getMagFreqDistParameterEditor().
+          getVisibleParametersCloned().getParameterListMetadataString();
+
+      IncrementalMagFreqDist function = (IncrementalMagFreqDist)this.
+          magDistEditor.getParameter().getValue();
+      function.setInfo(magDistMetadata);
+      function.setName("Mag - Incremental Rate Dist.");
+      if (D)
+        System.out.println(" after getting mag dist from editor");
+      EvenlyDiscretizedFunc cumRateFunction;
+      EvenlyDiscretizedFunc moRateFunction;
+
+      // get the cumulative rate and moment rate distributions for this function
+      cumRateFunction = (EvenlyDiscretizedFunc) function.getCumRateDist();
+      cumRateFunction.setInfo(magDistMetadata);
+      cumRateFunction.setName("Mag - Cumulative Rate Dist.");
+      moRateFunction = (EvenlyDiscretizedFunc) function.getMomentRateDist();
+      moRateFunction.setInfo(magDistMetadata);
+      moRateFunction.setName("Mag - Moment Rate Dist.");
+      int size = incrRateFunctionList.size();
+      //if the number of functions is 1 more then numFunctionsWithoutSumDist
+      //then summed has been added ealier so needs to be removed
+      if (size == numFunctionsWithoutSumDist + 1) {
+        incrRateFunctionList.remove(incrRateFunctionList.size() - 1);
+        cumRateFunctionList.remove(cumRateFunctionList.size() - 1);
+        momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
+
+        //removing the plotting features from the plot prefs. for the summed distribution
+        ArrayList incrPlotFeaturesList = incrRateGraphPanel.
+            getCurvePlottingCharacterstic();
+        ArrayList cumPlotFeaturesList = cumRateGraphPanel.
+            getCurvePlottingCharacterstic();
+        ArrayList momentPlotFeaturesList = momentRateGraphPanel.
+            getCurvePlottingCharacterstic();
+        incrPlotFeaturesList.remove(incrPlotFeaturesList.size() - 1);
+        cumPlotFeaturesList.remove(cumPlotFeaturesList.size() - 1);
+        momentPlotFeaturesList.remove(momentPlotFeaturesList.size() - 1);
+      }
+
+      // add the functions to the functionlist
+      incrRateFunctionList.add( (EvenlyDiscretizedFunc) function);
+      cumRateFunctionList.add(cumRateFunction);
+      momentRateFunctionList.add(moRateFunction);
+      numFunctionsWithoutSumDist = momentRateFunctionList.size();
+
+      if (jCheckSumDist.isVisible() && jCheckSumDist.isSelected()) { // if summed distribution is selected, add to summed distribution
+        try {
+          // add this distribution to summed distribution
+          summedMagFreqDist.addIncrementalMagFreqDist(function);
+
+          // this function will insert summed distribution at top of function list
+          insertSummedDistribution();
+
         }
+        catch (Exception ex) {
+          JOptionPane.showMessageDialog(this,
+                                        "min, max, and num must be the same to sum the distributions." +
+                                        "\n To add this distribution first deselect the Summed Dist option"
+              );
+          return;
+        }
+      }
+      // draw the graph
+      addGraphPanel();
 
-       if ( D ) System.out.println("Ending" );
-
+      // catch the error and display messages in case of input error
     }
+    catch (NumberFormatException e) {
+      JOptionPane.showMessageDialog(this,
+                                    new String("Enter a Valid Numerical Value"),
+                                    "Invalid Data Entered",
+                                    JOptionPane.ERROR_MESSAGE);
+    }
+    catch (NullPointerException e) {
+      //JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
+      e.printStackTrace();
+    }
+    catch (Exception e) {
+      JOptionPane.showMessageDialog(this, new String(e.getMessage()),
+                                    "Invalid Data Entered",
+                                    JOptionPane.ERROR_MESSAGE);
+    }
+
+    if (D)
+      System.out.println("Ending");
+
+  }
 
 
   /**
@@ -1115,6 +1199,12 @@ public class MagFreqDistApp
     String paramName = event.getParameterName();
     if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
       createMagParam();
+    }
+    if(paramName.equals(MagFreqDistParameter.DISTRIBUTION_NAME)){
+      String paramVal = (String)event.getNewValue();
+      if(paramVal.equals(ArbIncrementalMagFreqDist.NAME)){
+        this.initArbIncrementalMagFreqParamWindow();
+      }
     }
   }
 }

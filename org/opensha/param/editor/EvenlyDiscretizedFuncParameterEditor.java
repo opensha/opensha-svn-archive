@@ -123,6 +123,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       if ( (model != null) && ! (model instanceof EvenlyDiscretizedFuncParameter))
         throw new RuntimeException(S +
                                    "Input model parameter must be a EvenlyDiscretizedFuncParameter.");
+      this.model = param;
       // make the params editor
       function = (EvenlyDiscretizedFunc)param.getValue();
 
@@ -248,7 +249,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       if(numVal==null) {
     	  this.editor.getParameterEditor(numParam.getName()).grabFocus();
         JOptionPane.showMessageDialog(this, numParam.getName()+isMissing);
-        
+
         return;
       }
       int num = numVal.intValue();
@@ -261,7 +262,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       for(int i=0; i<num; ++i) {
         if(i<y.length) function.set(i,y[i]);
         else function.set(i,0.0);
-        xStr = xStr + function.getX(i) + "\n";
+        xStr = xStr + (float)function.getX(i) + "\n";
         yStr = yStr +  function.getY(i)+" \n";
       }
       xTextArea.setText(xStr);
@@ -282,7 +283,6 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       super.focusLost(e);
 
       if(!focusLostProcessing ) return;
-      System.out.println("Focus lost");
 
       String str = yTextArea.getText();
       StringTokenizer st = new StringTokenizer(str,"\n");
@@ -301,6 +301,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
           tempY_Val = Double.parseDouble(st1.nextToken());
           // set the Y value in the function
           function.set(yIndex, tempY_Val);
+
           ++yIndex;
         }catch(NumberFormatException ex){
           JOptionPane.showMessageDialog(this, Y_VALID_MSG);
@@ -310,6 +311,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
            return;
         }
       }
+      System.out.println("Focus LostProcessing with Function Vals:"+function.toString());
       // check that user has entered correct number of Y values
       if(yIndex!=function.getNum())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
@@ -331,6 +333,10 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       this.minParam.setValue(func.getMinX());
       this.maxParam.setValue(func.getMaxX());
       this.numParam.setValue(new Integer(func.getNum()));
+      editor.getParameterEditor(minParam.getName()).refreshParamEditor();
+      editor.getParameterEditor(maxParam.getName()).refreshParamEditor();
+      editor.getParameterEditor(numParam.getName()).refreshParamEditor();
+
       if ( func != null ) { // show X, Y values from the function
         this.xTextArea.setText("");
         this.yTextArea.setText("");
@@ -338,7 +344,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
         String xText = "";
         String yText= "";
         for(int i=0; i<num; ++i) {
-          xText += func.getX(i)  + "\n";
+          xText += (float)func.getX(i)  + "\n";
           yText += func.getY(i)  + "\n";
         }
         xTextArea.setText(xText);
