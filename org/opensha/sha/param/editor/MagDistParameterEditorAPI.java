@@ -42,6 +42,13 @@ public interface MagDistParameterEditorAPI {
      */
     public ParameterListEditor createMagFreqDistParameterEditor() ;
 
+
+    /**
+     * Sets the Summed Dist plotted to be false or true based on
+     * @param sumDistPlotted boolean
+     */
+    public void setSummedDistPlotted(boolean sumDistPlotted);
+
     /**
      * Function that returns the magFreDist Param as a parameterListeditor
      * so that user can display it as the panel in window rather then

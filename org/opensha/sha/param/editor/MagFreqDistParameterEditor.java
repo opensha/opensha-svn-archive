@@ -17,9 +17,9 @@ import org.opensha.sha.magdist.*;
 import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
 /**
- *  <b>Title:</b> MagFreqDistParameterEditor<p>
+ * <b>Title:</b> MagFreqDistParameterEditor<p>
  *
- *  b>Description:</b> This is a MagFreqDistParameter editor. All parameters listed
+ * <b>Description:</b> This is a MagFreqDistParameter editor. All parameters listed
  * in the constraint of the MagFreqDistParameter are listed as choices, and below
  * are shown the associated independent parameters than need to be filled in to
  * make the desired distribution.<p>
@@ -66,20 +66,16 @@ public class MagFreqDistParameterEditor
   //instance for the
   protected JComboBox magDistPlotListSelector;
 
-  private static final String SELECT_INCREMENTAL_DIST = "Incremental Dist.";
-  private static final String SELECT_MOMENT_RATE_DIST = "Moment-Rate Dist";
-  private static final String SELECT_CUMULATIVE_DIST = "Cumulative Dist";
 
   // String Constraints
   private StringConstraint sdFixOptions, grSetAllButOptions, grFixOptions,
       ycSetAllButOptions, gdSetAllButOptions;
 
+
   /**
    * Constructor
    */
-  public MagFreqDistParameterEditor() {
-
-  }
+  public MagFreqDistParameterEditor() {}
 
   public MagFreqDistParameterEditor(ParameterAPI model) {
     super(model);
@@ -536,7 +532,7 @@ public class MagFreqDistParameterEditor
     // Starting
     String S = C + ": setMagDistFromParams():";
     if (D) System.out.println(S + "Starting");
-    if (magDistParamsChange) {
+    if (magDistParamsChange ) {
       magDistParam.setMagDist(this.parameterList);
       magDistParamsChange = false;
     }
@@ -553,6 +549,14 @@ public class MagFreqDistParameterEditor
     magDistParam.setMagDistAsSummedMagDist(summedDist,metadata);
   }
 
+
+  /**
+   * Sets the Summed Dist plotted to be false or true based on
+   * @param sumDistPlotted boolean
+   */
+  public void setSummedDistPlotted(boolean sumDistPlotted){
+    magDistParam.setSummedDistPlotted(sumDistPlotted);
+  }
 
   /**
    *  Shown when a Constraint error is thrown on a ParameterEditor

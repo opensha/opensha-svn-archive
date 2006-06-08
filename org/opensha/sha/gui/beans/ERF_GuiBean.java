@@ -201,10 +201,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
      parameterList = new ParameterList();
      parameterList.addParameter(chooseERF_Param);
-     updateMagDistParam();
      // get the selected forecast
      getSelectedERF_Instance();
-
      //getting the EqkRupForecast param List and its iterator
      ParameterList paramList = eqkRupForecast.getAdjustableParameterList();
      Iterator it = paramList.getParametersIterator();
@@ -225,6 +223,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        erfAndTimespanPanel.remove(listEditor);
        listEditor = null;
      }
+
+
 
      //creating the new instance of ERF parameter list editors
      listEditor = new ParameterListEditor(parameterList);
@@ -327,6 +327,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     * @return
     */
    public ERF_API getSelectedERF_Instance() throws InvocationTargetException{
+     //updating the MagDist Editor
+     updateMagDistParam();
      //update the fault Parameter
      updateFaultParam();
      return eqkRupForecast;

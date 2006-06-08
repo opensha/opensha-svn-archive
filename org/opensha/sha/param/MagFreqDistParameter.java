@@ -108,6 +108,9 @@ public class MagFreqDistParameter
   // String Constraints
   private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
       ycSetAllButOptions, gdSetAllButOptions;
+  private boolean summedMagDistSelected;
+  private SummedMagFreqDist summedMagDist;
+  private String summedMagDistMetadata;
 
 
   /**
@@ -471,15 +474,16 @@ public class MagFreqDistParameter
      */
     public void setMagDist(ParameterList newParamList) {
       parameterList.replaceParameter(SET_ALL_PARAMS_BUT,
-                                     newParamList.getParameter(SET_ALL_PARAMS_BUT));
+                                     newParamList.getParameter(
+                                         SET_ALL_PARAMS_BUT));
       parameterList.replaceParameter(FIX, newParamList.getParameter(FIX));
 
       ListIterator it = newParamList.getParametersIterator();
       while (it.hasNext()) {
         ParameterAPI tempParam = (ParameterAPI) it.next();
-        parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+        parameterList.getParameter(tempParam.getName()).setValue(tempParam.
+            getValue());
       }
-
       setMagDist();
     }
 
@@ -490,10 +494,17 @@ public class MagFreqDistParameter
      * @param metadata String
      */
     public void setMagDistAsSummedMagDist(SummedMagFreqDist magDist, String metadata){
-      this.setValue(magDist);
-      setDependentParamMetadataString(metadata);
-      // sets the independent param list to be null
-      setIndependentParameters(null);
+      this.summedMagDist = magDist;
+      this.summedMagDistMetadata= metadata;
+
+    }
+
+    /**
+     * Sets the Summed Dist plotted to be false or true based on
+     * @param sumDistPlotted boolean
+     */
+    public void setSummedDistPlotted(boolean sumDistPlotted){
+      summedMagDistSelected = sumDistPlotted;
     }
 
     /**
@@ -502,6 +513,14 @@ public class MagFreqDistParameter
      */
     public void setMagDist() {
       String S = C + ": getMagDist():";
+      if(summedMagDistSelected){
+        this.setValue(summedMagDist);
+        setDependentParamMetadataString(summedMagDistMetadata);
+        // sets the independent param list to be null
+        setIndependentParameters(null);
+        return;
+      }
+
       String distributionName = parameterList.getParameter(MagFreqDistParameter.
           DISTRIBUTION_NAME).getValue().toString();
 

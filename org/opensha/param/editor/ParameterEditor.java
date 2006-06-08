@@ -189,7 +189,8 @@ public class ParameterEditor
 
                 }
                 catch(ParameterException ee){
-                    System.out.println(S + ee.toString());
+                  ee.printStackTrace();
+
                 }
             }
             else return;
@@ -208,7 +209,7 @@ public class ParameterEditor
                     model.setValue( value );
                 }
                 catch(ParameterException ee){
-                    System.out.println(S + ee.toString());
+                    ee.printStackTrace();
 
                 }
             }

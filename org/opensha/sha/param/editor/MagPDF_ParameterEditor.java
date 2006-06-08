@@ -397,6 +397,16 @@ public class MagPDF_ParameterEditor
   }
 
   /**
+   * Sets the Summed Dist plotted to be false or true based on
+   * @param sumDistPlotted boolean
+   */
+  public void setSummedDistPlotted(boolean sumDistPlotted) throws UnsupportedOperationException{
+    throw new UnsupportedOperationException("setMagDistFromParams  not implemented "+
+                                         "for MagPDF_Parameter");
+  }
+
+
+  /**
    *  Shown when a Constraint error is thrown on a ParameterEditor
    *
    * @param  e  Description of the Parameter
