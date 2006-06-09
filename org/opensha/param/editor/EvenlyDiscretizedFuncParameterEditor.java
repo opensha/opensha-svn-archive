@@ -35,15 +35,6 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    private DoubleParameter minParam ;
-    private String minParamName;
-    private final static String MIN_PARAM_NAME_PREFIX="Min ";
-    private DoubleParameter maxParam ;
-    private String maxParamName;
-    private final static String MAX_PARAM_NAME_PREFIX="Max ";
-    private IntegerParameter numParam;
-    private String numParamName;
-    private final static String NUM_PARAM_NAME_PREFIX="Number of Points";
 
     //private final static String EDITOR_TITLE = "Evenly Discretized ";
 
@@ -56,6 +47,8 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
      * Paramter List for holding all parameters
      */
     private ParameterList parameterList;
+
+    private EvenlyDiscretizedFuncParameter evenlyDiscrFuncParam;
 
     /**
      * ParameterListEditor for holding parameters
@@ -120,10 +113,11 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
 
       String S = C + ": Constructor(): ";
       if (D) System.out.println(S + "Starting:");
-      if ( (model != null) && ! (model instanceof EvenlyDiscretizedFuncParameter))
+      if ( (param != null) && ! (param instanceof EvenlyDiscretizedFuncParameter))
         throw new RuntimeException(S +
                                    "Input model parameter must be a EvenlyDiscretizedFuncParameter.");
-      this.model = param;
+      setParameterInEditor(param);
+      evenlyDiscrFuncParam = (EvenlyDiscretizedFuncParameter)param;
       // make the params editor
       function = (EvenlyDiscretizedFunc)param.getValue();
 
@@ -181,15 +175,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       String S = C + ": initControlsParamListAndEditor(): ";
       if (D)
         System.out.println(S + "Starting:");
-      minParam = new DoubleParameter(MIN_PARAM_NAME_PREFIX+xAxisName);
-      maxParam = new DoubleParameter(MAX_PARAM_NAME_PREFIX+xAxisName);
-      numParam = new IntegerParameter(NUM_PARAM_NAME_PREFIX);
-
-      // put all the parameters in the parameter list
-      parameterList = new ParameterList();
-      parameterList.addParameter(this.minParam);
-      parameterList.addParameter(this.maxParam);
-      parameterList.addParameter(this.numParam);
+      parameterList = evenlyDiscrFuncParam.getEvenlyDiscretizedParams();
       this.editor = new ParameterListEditor(parameterList);
       editor.setTitle(title);
 
@@ -228,27 +214,27 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       super.focusGained(e);
       focusLostProcessing = false;
       // check that user has entered min Val
-      Double minVal = (Double)minParam.getValue();
+      Double minVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).getValue();
       String isMissing = " is missing";
       if(minVal==null) {
-    	this.editor.getParameterEditor(minParam.getName()).grabFocus();
-        JOptionPane.showMessageDialog(this, minParam.getName()+isMissing);
+    	this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).grabFocus();
+        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME+isMissing);
         return;
       }
       double min = minVal.doubleValue();
       // check that user has entered max val
-      Double maxVal = (Double)maxParam.getValue();
+      Double maxVal = (Double)parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).getValue();
       if(maxVal==null) {
-    	  this.editor.getParameterEditor(maxParam.getName()).grabFocus();
-        JOptionPane.showMessageDialog(this, maxParam.getName()+isMissing);
+    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).grabFocus();
+        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME+isMissing);
         return;
       }
       double max = maxVal.doubleValue();
       //check that user has entered num values
-      Integer numVal = (Integer)numParam.getValue();
+      Integer numVal = (Integer)parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).getValue();
       if(numVal==null) {
-    	  this.editor.getParameterEditor(numParam.getName()).grabFocus();
-        JOptionPane.showMessageDialog(this, numParam.getName()+isMissing);
+    	  this.editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).grabFocus();
+        JOptionPane.showMessageDialog(this, EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME+isMissing);
 
         return;
       }
@@ -328,14 +314,14 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
      * the new parameter value.
      */
     public void refreshParamEditor() {
-      if(model==null || model.getValue()==null) return;
-      EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)model.getValue();
-      this.minParam.setValue(func.getMinX());
-      this.maxParam.setValue(func.getMaxX());
-      this.numParam.setValue(new Integer(func.getNum()));
-      editor.getParameterEditor(minParam.getName()).refreshParamEditor();
-      editor.getParameterEditor(maxParam.getName()).refreshParamEditor();
-      editor.getParameterEditor(numParam.getName()).refreshParamEditor();
+      if(evenlyDiscrFuncParam==null || evenlyDiscrFuncParam.getValue()==null) return;
+      EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)evenlyDiscrFuncParam.getValue();
+      parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).setValue(new Double(func.getMinX()));
+      parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).setValue(new Double(func.getMaxX()));
+      parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).setValue(new Integer(func.getNum()));
+      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).refreshParamEditor();
+      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).refreshParamEditor();
+      editor.getParameterEditor(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).refreshParamEditor();
 
       if ( func != null ) { // show X, Y values from the function
         this.xTextArea.setText("");

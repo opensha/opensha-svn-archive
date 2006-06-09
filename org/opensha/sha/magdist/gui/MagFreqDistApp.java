@@ -621,13 +621,6 @@ public class MagFreqDistApp
   }
 
 
-
-
-
-
-
-
-
   /**
    * this function is called when "Add Dist" button is clicked
    * @param e
@@ -637,12 +630,9 @@ public class MagFreqDistApp
   }
 
 
-
-
-
   /**
-   *  This causes the model data to be calculated and a plot trace added to
-   *  the current plot
+   * This causes the model data to be calculated and a plot trace added to
+   * the current plot
    *
    * @param  e  The feature to be added to the Button_mouseClicked attribute
    */

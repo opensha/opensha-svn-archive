@@ -2,6 +2,7 @@ package org.opensha.param;
 
 import org.opensha.exceptions.*;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.param.editor.ParameterListEditor;
 
 /**
  * <p>Title: EvenlyDiscretizedFuncParameter.java </p>
@@ -31,6 +32,16 @@ public class EvenlyDiscretizedFuncParameter extends DependentParameter
   protected final static String PARAM_TYPE ="EvenlyDiscretizedFuncParameter";
   private String xUnits="";
 
+  private DoubleParameter minParam;
+  public final static String MIN_PARAM_NAME = "Min ";
+
+  private DoubleParameter maxParam;
+  public final static String MAX_PARAM_NAME = "Max ";
+
+  private IntegerParameter numParam;
+  public final static String NUM_PARAM_NAME = "Number of Points";
+
+  private ParameterList paramList;
 
 
   /**
@@ -41,8 +52,43 @@ public class EvenlyDiscretizedFuncParameter extends DependentParameter
    */
   public EvenlyDiscretizedFuncParameter(String name, EvenlyDiscretizedFunc discretizedFunc){
     super(name,null,null,discretizedFunc);
-
+    initParamListAndEditor();
   }
+
+
+  /**
+   * Creates the min, max and num param for the EvenlyDiscrized Params
+   */
+  private void initParamListAndEditor() {
+
+     // Starting
+     String S = C + ": initControlsParamListAndEditor(): ";
+     EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)getValue();
+     double min = func.getMinX();
+     double max = func.getMaxX();
+     int num = func.getNum();
+     if (D)
+       System.out.println(S + "Starting:");
+     minParam = new DoubleParameter(MIN_PARAM_NAME,new Double(min));
+     maxParam = new DoubleParameter(MAX_PARAM_NAME,new Double(max));
+     numParam = new IntegerParameter(NUM_PARAM_NAME,new Integer(num));
+
+     // put all the parameters in the parameter list
+     paramList = new ParameterList();
+     paramList.addParameter(this.minParam);
+     paramList.addParameter(this.maxParam);
+     paramList.addParameter(this.numParam);
+     setIndependentParameters(paramList);
+   }
+
+   /**
+    * gets the ParameterList for the EvenlyDiscretized parameter
+    * @return ParameterList
+    */
+   public ParameterList getEvenlyDiscretizedParams(){
+     return paramList;
+   }
+
 
   /**
    * Sets the units for X Values. To set the units for Y values, use
@@ -177,7 +223,15 @@ public class EvenlyDiscretizedFuncParameter extends DependentParameter
    * @returns Sstring
    */
   public String getMetadataString() {
-    return getDependentParamMetadataString();
+    String metadata = getDependentParamMetadataString();
+    metadata +="\n"+"Function Info="+" [ ";
+    EvenlyDiscretizedFunc func= (EvenlyDiscretizedFunc)getValue();
+    int num = func.getNum();
+    for(int i=0;i<num;++i)
+      metadata +=(float)func.getX(i)+" "+(float)func.getY(i)+" , ";
+    metadata = metadata.substring(0,metadata.lastIndexOf(","));
+    metadata +=" ]";
+    return metadata;
   }
 
 
