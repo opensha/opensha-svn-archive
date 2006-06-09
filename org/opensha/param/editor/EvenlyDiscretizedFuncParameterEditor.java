@@ -311,7 +311,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
            return;
         }
       }
-      System.out.println("Focus LostProcessing with Function Vals:"+function.toString());
+
       // check that user has entered correct number of Y values
       if(yIndex!=function.getNum())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);

@@ -111,6 +111,7 @@ public class FloatingPoissonFaultERF extends EqkRupForecast{
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
     supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
     supportedMagDists.add(SummedMagFreqDist.NAME);
+    supportedMagDists.add(ArbIncrementalMagFreqDist.NAME);
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
 
     faultParam = new SimpleFaultParameter(FAULT_PARAM_NAME);

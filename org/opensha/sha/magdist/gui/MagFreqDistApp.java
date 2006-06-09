@@ -149,6 +149,10 @@ public class MagFreqDistApp
   private ArrayList momentRateFunctionList = new ArrayList();
   //summed distribution
   private SummedMagFreqDist summedMagFreqDist;
+  private final static String textString = "(Last Plotted Dist. gets used"+
+      ", Summed Dist. gets used if selected)";
+  private JLabel textLabel = new JLabel(textString);
+
 
   private String incrRatePlotTitle="",cumRatePlotTitle="",momentRatePlotTitle="";
 
@@ -160,10 +164,6 @@ public class MagFreqDistApp
   private static final String MAG_FREQ_DIST = "Mag. Freq. Dist";
   private static final String MAG_PDF_PARAM = "Mag. PDF";
   private StringParameter stParam;
-
-  //instance for the selection of the Arb MagDist
-  private JDialog arbMagDistWindow;
-
 
 
   public MagFreqDistApp() {
@@ -306,6 +306,8 @@ public class MagFreqDistApp
     buttonPanel.add(peelOffButton, 3);
     buttonPanel.add(buttonControlPanel, 4);
     buttonPanel.add(imgLabel, 5);
+    buttonPanel.add(textLabel, 6);
+
 
     incrRateGraphPanel = new GraphPanel(this);
     cumRateGraphPanel = new GraphPanel(this);
@@ -345,6 +347,7 @@ public class MagFreqDistApp
     this.paramSplitPane.add(MagSelectionEditorPanel,paramSplitPane.TOP);
     this.setDefaultCloseOperation(3);
 
+
   }
 
   /**
@@ -356,8 +359,10 @@ public class MagFreqDistApp
    *
    */
   private void createMagParam(){
+
     String magTypeSelected = (String)stParam.getValue();
     if(magTypeSelected.equals(MAG_FREQ_DIST)){
+
       if(magFreqDistEditor == null){
         ArrayList distNames = new ArrayList();
         distNames.add(SingleMagFreqDist.NAME);
@@ -391,6 +396,7 @@ public class MagFreqDistApp
         distNames.add(GutenbergRichterMagFreqDist.NAME);
         distNames.add(GaussianMagFreqDist.NAME);
         distNames.add(YC_1985_CharMagFreqDist.NAME);
+        distNames.add(ArbIncrementalMagFreqDist.NAME);
         MagPDF_Parameter magDist = new MagPDF_Parameter(
             MAG_DIST_PARAM_NAME, distNames);
         magPDF_Editor = new MagPDF_ParameterEditor();
@@ -407,6 +413,7 @@ public class MagFreqDistApp
    *
    */
   public void setMagDistEditor(MagDistParameterEditorAPI magDistEditor) {
+
     this.magDistEditor = magDistEditor;
     ParameterListEditor listEditor = magDistEditor.createMagFreqDistParameterEditor();
     ParameterAPI distParam = listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).getParameter();
@@ -615,61 +622,7 @@ public class MagFreqDistApp
 
 
 
-  private void initArbIncrementalMagFreqParamWindow(){
-    if(arbMagDistWindow == null){
-      EvenlyDiscretizedFuncParameter evenDiscretizedParam =
-          ((MagFreqDistParameter)magDistEditor.getParameter()).getArbIncrementalMagFreqDist();
-      EvenlyDiscretizedFuncParameterEditor discrParamEditor = null;
-      try {
-        discrParamEditor = new EvenlyDiscretizedFuncParameterEditor(
-            evenDiscretizedParam);
-      }
-      catch (Exception ex) {
-        ex.printStackTrace();
-      }
-      discrParamEditor.refreshParamEditor();
-      arbMagDistWindow = new JDialog();
-      arbMagDistWindow.setModal(true);
 
-      arbMagDistWindow.setTitle("Set " + evenDiscretizedParam.getName());
-      arbMagDistWindow.getContentPane().setLayout(new GridBagLayout());
-      arbMagDistWindow.getContentPane().add(discrParamEditor,
-                                 new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-          new Insets(4, 4, 4, 4), 0, 0));
-
-      //Adding Button to update the forecast
-      JButton button = new JButton();
-      button.setText("Done");
-      button.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          updateMagDistButton_actionPerformed(e);
-        }
-      });
-      arbMagDistWindow.getContentPane().add(button,
-                                 new GridBagConstraints(0, 1, 1, 0, 0.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-          new Insets(4, 4, 4, 4), 0, 0));
-      arbMagDistWindow.setSize(300, 650);
-    }
-    arbMagDistWindow.setLocationRelativeTo(this);
-    arbMagDistWindow.setVisible(true);
-  }
-
-
-  /**
-   * This function when update Arb Incr Mag dist is called
-   *
-   * @param ae
-   */
-  public void updateMagDistButton_actionPerformed(ActionEvent e) {
-    try{
-      this.addButton();
-      arbMagDistWindow.dispose();
-    }catch(RuntimeException ee){
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
-    }
-  }
 
 
 
@@ -1199,12 +1152,6 @@ public class MagFreqDistApp
     String paramName = event.getParameterName();
     if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
       createMagParam();
-    }
-    if(paramName.equals(MagFreqDistParameter.DISTRIBUTION_NAME)){
-      String paramVal = (String)event.getNewValue();
-      if(paramVal.equals(ArbIncrementalMagFreqDist.NAME)){
-        this.initArbIncrementalMagFreqParamWindow();
-      }
     }
   }
 }

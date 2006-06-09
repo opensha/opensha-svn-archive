@@ -249,6 +249,7 @@ public class MagFreqDistParameterEditor
       param3.addParameterChangeListener(this);
       param3.setInfo(MagFreqDistParameter.FIX_INFO);
       editor.replaceParameterForEditor(MagFreqDistParameter.FIX, param3);
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
 
       this.setSingleDistParamsVisible();
     }
@@ -274,6 +275,7 @@ public class MagFreqDistParameterEditor
       param3.addParameterChangeListener(this);
       param3.setInfo(MagFreqDistParameter.FIX_INFO);
       editor.replaceParameterForEditor(MagFreqDistParameter.FIX, param3);
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
 
       setGR_DistParamsVisible();
     }
@@ -291,6 +293,7 @@ public class MagFreqDistParameterEditor
       param2.addParameterChangeListener(this);
       // swap editors
       editor.replaceParameterForEditor(setAllButParam.getName(), param2);
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
 
       this.setGaussianDistParamsVisible();
     }
@@ -309,9 +312,13 @@ public class MagFreqDistParameterEditor
 
       // swap editors
       editor.replaceParameterForEditor(setAllButParam.getName(), param2);
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
 
       this.setYC_DistParamsVisible();
     }
+    else if(distributionName.equalsIgnoreCase(ArbIncrementalMagFreqDist.NAME))
+      this.setArbIncrDistParamsVisible();
+
 
     editor.validate();
     editor.repaint();
@@ -457,6 +464,16 @@ public class MagFreqDistParameterEditor
       editor.setParameterVisible(MagFreqDistParameter.TOT_MO_RATE, true);
     }
 
+  }
+
+  /**
+   * make the parameters for the Arb Incremental MagFreqDist Visible
+   */
+  private void setArbIncrDistParamsVisible(){
+    editor.getParameterEditor(MagFreqDistParameter.MIN).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.MAX).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.NUM).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(true);
   }
 
   /**

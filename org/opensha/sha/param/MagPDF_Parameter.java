@@ -91,6 +91,11 @@ public class MagPDF_Parameter
    */
   private ParameterList parameterList = new ParameterList();
 
+  //EvenlyDiscretized Param
+  private EvenlyDiscretizedFuncParameter evenlyDiscrtizedFunc;
+  //paramName
+  public static final String ARB_INCR_PARAM_NAME = " Arb. Incremental Mag Dist";
+
 
     /**
      *  No constraints specified, all MagFreqDists allowed. Sets the name of this
@@ -378,22 +383,34 @@ public class MagPDF_Parameter
         parameterList.addParameter(truncType);
         parameterList.addParameter(truncLevel);
         parameterList.addParameter(mag);
-    }
+        initArbIncrementalMagFreqDist();
+        parameterList.addParameter(evenlyDiscrtizedFunc);
+     }
 
-    
+     /**
+      * Initialisez the Arb. Incremental MagFreq Func
+      */
+     private void initArbIncrementalMagFreqDist(){
+       ArbIncrementalMagFreqDist arbIncrDist = new ArbIncrementalMagFreqDist(0,10,101);
+       evenlyDiscrtizedFunc = new EvenlyDiscretizedFuncParameter(ARB_INCR_PARAM_NAME,
+           arbIncrDist);
+     }
+
+
+
     /**
      * Updates the MagFreqDistParams with the new parameters.
      * @param newParamList Cloned Parameterlist
      */
-    public void setMagDist(ParameterList newParamList) {		
+    public void setMagDist(ParameterList newParamList) {
 		ListIterator it = newParamList.getParametersIterator();
     		while(it.hasNext()){
     			ParameterAPI tempParam = (ParameterAPI)it.next();
     			parameterList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
     		}
-    
+
     		setMagDist();
-    }   
+    }
 
     /**
      * set the IncrementalMagFreqDist object based on parameters given

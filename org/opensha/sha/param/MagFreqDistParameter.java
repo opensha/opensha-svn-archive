@@ -117,7 +117,10 @@ public class MagFreqDistParameter
   private SummedMagFreqDist summedMagDist;
   private String summedMagDistMetadata;
 
+  //EvenlyDiscretized Param
   private EvenlyDiscretizedFuncParameter evenlyDiscrtizedFunc;
+  //paramName
+  public static final String ARB_INCR_PARAM_NAME = " Arb. Incremental Mag Dist";
 
 
   /**
@@ -474,6 +477,7 @@ public class MagFreqDistParameter
         // now add params that present choice dependent on above choice
         parameterList.addParameter(fixParam);
         initArbIncrementalMagFreqDist();
+        parameterList.addParameter(evenlyDiscrtizedFunc);
     }
 
     /**
@@ -481,7 +485,7 @@ public class MagFreqDistParameter
      */
     private void initArbIncrementalMagFreqDist(){
       ArbIncrementalMagFreqDist arbIncrDist = new ArbIncrementalMagFreqDist(0,10,101);
-      evenlyDiscrtizedFunc = new EvenlyDiscretizedFuncParameter(" Arb. Incremental Mag Dist",
+      evenlyDiscrtizedFunc = new EvenlyDiscretizedFuncParameter(ARB_INCR_PARAM_NAME,
           arbIncrDist);
     }
 
@@ -566,7 +570,6 @@ public class MagFreqDistParameter
         for(int i=0;i<num;++i)
           arbMagDist.set(func.getX(i),func.getY(i));
         magDist =arbMagDist;
-        System.out.println("Arb Incr Vals="+magDist.toString());
         this.setValue(magDist);
         // sets the independent param list to be null
         setIndependentParameters(null);

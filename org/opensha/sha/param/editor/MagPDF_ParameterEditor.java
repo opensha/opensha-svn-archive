@@ -185,12 +185,11 @@ public class MagPDF_ParameterEditor
     //do it if not done already ( allows the person to just do it once)
 
     ListIterator it = parameterList.getParametersIterator();
-	while (it.hasNext()) {
-	   ParameterAPI param = (ParameterAPI) it.next();
-	   param.addParameterChangeFailListener(this);
-	   param.addParameterChangeListener(this);
+    while (it.hasNext()) {
+      ParameterAPI param = (ParameterAPI) it.next();
+      param.addParameterChangeFailListener(this);
+      param.addParameterChangeListener(this);
     }
-
   }
 
   /**
@@ -223,6 +222,7 @@ public class MagPDF_ParameterEditor
      * in the values.
      */
     if (distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME)) {
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
       setSingleDistParamsVisible();
     }
 
@@ -230,6 +230,7 @@ public class MagPDF_ParameterEditor
      *  If Gutenberg Richter Freq dist is selected
      */
     if (distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME)) {
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
       setGR_DistParamsVisible();
     }
 
@@ -237,6 +238,7 @@ public class MagPDF_ParameterEditor
      * If Gaussian Freq dist is selected
      */
     if (distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME)) {
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
       this.setGaussianDistParamsVisible();
     }
 
@@ -244,8 +246,13 @@ public class MagPDF_ParameterEditor
      * If YC Freq dist is selected
      */
     if (distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
+      editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(false);
       this.setYC_DistParamsVisible();
+
     }
+    else if (distributionName.equalsIgnoreCase(ArbIncrementalMagFreqDist.NAME))
+      this.setArbIncrDistParamsVisible();
+
 
     editor.validate();
     editor.repaint();
@@ -339,29 +346,18 @@ public class MagPDF_ParameterEditor
         e.printStackTrace();
       }
     }
-    else { // if only parameters within a distribution change
-      String distributionName = parameterList.getParameter(MagFreqDistParameter.
-          DISTRIBUTION_NAME).getValue().toString();
-      /** if Single Mag Freq dist is selected*/
-      if (distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME))
-        setSingleDistParamsVisible();
-
-      /** If Gutenberg Richter Freq dist is selected */
-      if (distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME))
-        setGR_DistParamsVisible();
-
-      /**If Gaussian Freq dist is selected*/
-      if (distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME))
-        setGaussianDistParamsVisible();
-
-      /**If YC Freq dist is selected*/
-      if (distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME))
-        setYC_DistParamsVisible();
-
-    }
-
     magPDF_ParamsChange = true;
 
+  }
+
+  /**
+   * make the parameters for the Arb Incremental MagFreqDist Visible
+   */
+  private void setArbIncrDistParamsVisible(){
+    editor.getParameterEditor(MagFreqDistParameter.MIN).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.MAX).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.NUM).setVisible(false);
+    editor.getParameterEditor(MagFreqDistParameter.ARB_INCR_PARAM_NAME).setVisible(true);
   }
 
   /**
