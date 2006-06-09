@@ -129,7 +129,6 @@ public class A_FaultSource extends ProbEqkSource {
 
   /**
    * Description:
-   * Notes: might want to add sigma, truncType, and truncLevel for characteristic events
    * 
    * @param segmentData - an ArrayList containing n ArrayLists (one for each segment), 
    * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
@@ -198,9 +197,9 @@ public class A_FaultSource extends ProbEqkSource {
     SummedMagFreqDist summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
     summedMagFreqDist.addIncrementalMagFreqDist(floaterMFD);
     
-    // compute the actual rupture MoRate (considering floater weight as well)
-    double totMoRateTest = computeRupMoRate(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, rupRate, summedMagFreqDist);
-    String []scenNames = this.getScenarioNames(rupName, num_seg);
+    // compute the actual rupture MoRates and MFDs (and add each to summedMagFreqDist)
+    double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, rupRate, summedMagFreqDist);
+    String[] scenNames = this.getScenarioNames(rupName, num_seg);
     
     // check total moment rates
     totMoRateTest += floaterMoRate;
@@ -357,11 +356,11 @@ public class A_FaultSource extends ProbEqkSource {
 		  ArbitrarilyDiscretizedFunc[] rupSlipDist) {
 	  for(int rup=0; rup<num_rup; ++rup) {
 		  rupSlipDist[rup] = new ArbitrarilyDiscretizedFunc();
-		  for(int mag=0; mag<rupMagFreqDist[rup].getNum(); ++mag) {
-			  if(rupMagFreqDist[rup].getY(mag)==0) continue; // if rate is 0, do not find the slip for this mag
-			  double moRate = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(mag));
-			  double slip = FaultMomentCalc.getSlip(rupArea[rup], moRate);
-			  rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(mag));
+		  for(int imag=0; imag<rupMagFreqDist[rup].getNum(); ++imag) {
+			  if(rupMagFreqDist[rup].getY(imag)==0) continue; // if rate is 0, do not find the slip for this mag
+			  double moment = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(imag));
+			  double slip = FaultMomentCalc.getSlip(rupArea[rup], moment);
+			  rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(imag));
 		  }
 	  }
   }
@@ -396,7 +395,7 @@ public class A_FaultSource extends ProbEqkSource {
  * @param summedMagFreqDist
  * @return
  */
-private double computeRupMoRate(double magSigma, double magTruncLevel, int magTruncType, 
+private double computeRupRates(double magSigma, double magTruncLevel, int magTruncType, 
 		double[] scenarioWts, double[] rupMaxMoRate, 
 		double[] rupMoRate, double[] rupRate, SummedMagFreqDist summedMagFreqDist) {
 	int rup;
@@ -414,7 +413,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 				rupMoRate[rup], magTruncLevel, magTruncType);
 		summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[rup]);
 		// this next one should be replaced with the tot rate of the MFD
-		rupRate[rup] = rupMoRate[rup]/MomentMagCalc.getMoment(rupMeanMag[rup]);
+		rupRate[rup] = rupMagFreqDist[rup].getTotalIncrRate();
 		totMoRateTest += rupMoRate[rup];
     }
 	return totMoRateTest;
@@ -537,33 +536,33 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 	   * @return
 	   */
 	private void calcSegArea_Name_MoRate(ArrayList segmentData, boolean aseisReducesArea, double[] segMoRate) {
-	
+		
 		// fill in segName, segArea and segMoRate
-		  for(int seg=0;seg<num_seg;seg++) {
-	    	segArea[seg]=0;
-	    	segMoRate[seg]=0;
-	    	ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
-	    	Iterator it = segmentDatum.iterator();
-	    	ArrayList faultSectionNames = new ArrayList();
-	    	while(it.hasNext()) {
-	    		FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-	    		faultSectionNames.add(sectData.getSectionName());
-	    		//set the area & moRate
-	    		double length = sectData.getFaultTrace().getTraceLength(); // km
-	    		double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
-	    		if(aseisReducesArea) {
-	    			segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
-	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
-	    					sectData.getAveLongTermSlipRate()*1e-3); // SI units
-	    		}
-	    		else {
-	    			segArea[seg] += length*ddw*KM_TO_METERS_CONVERT; // meters-squared
-	    			segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
-	    					sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
-	    		}
-	    	}
-	    	segName[seg] = getSegmentName(faultSectionNames);
-	    }
+		for(int seg=0;seg<num_seg;seg++) {
+			segArea[seg]=0;
+			segMoRate[seg]=0;
+			ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
+			Iterator it = segmentDatum.iterator();
+			ArrayList faultSectionNames = new ArrayList();
+			while(it.hasNext()) {
+				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
+				faultSectionNames.add(sectData.getSectionName());
+				//set the area & moRate
+				double length = sectData.getFaultTrace().getTraceLength(); // km
+				double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
+				if(aseisReducesArea) {
+					segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
+					segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+							sectData.getAveLongTermSlipRate()*1e-3); // SI units
+				}
+				else {
+					segArea[seg] += length*ddw*KM_TO_METERS_CONVERT; // meters-squared
+					segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+							sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
+				}
+			}
+			segName[seg] = getSegmentName(faultSectionNames);
+		}
 		return ;
 	}
 	
@@ -592,8 +591,8 @@ private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floating
 			num_seg = segmentData.size();
 			num_rup = getNumRuptures(num_seg);
 			num_scen = getNumScenarios(num_seg);
-			if(num_seg > 5 || num_seg < 2)
-				throw new RuntimeException("Error: num segments must be between 2 and 5");
+			if(num_seg > 6 || num_seg < 2)
+				throw new RuntimeException("Error: num segments must be between 2 and 6");
 			if(num_scen+1 != scenarioWts.length)  // the plus 1 is for the floater
 				throw new RuntimeException("Error: number of segments incompatible with number of scenarioWts");
 		}
