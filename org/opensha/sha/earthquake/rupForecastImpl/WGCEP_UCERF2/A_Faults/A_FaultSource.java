@@ -53,33 +53,69 @@ public class A_FaultSource extends ProbEqkSource {
   
   private final static double TOLERANCE = 1e6;
   
-  // array giving which seg (row) is in each rupture (column)
-  private final static int[][] segInRup = {
-  			{1,0,1,0,0,1,0,0,0,1,0,0,0,0,1}, // seg 1
-  			{0,1,1,0,1,1,0,0,1,1,0,0,0,1,1}, // seg 2
-  			{0,0,0,1,1,1,0,1,1,1,0,0,1,1,1}, // seg 3
-  			{0,0,0,0,0,0,1,1,1,1,0,1,1,1,1}, // seg 4
-  			{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1}};// seg 5
+  private final static int[][] rupInSeg = {
+	  // 1,2,3,4,5
+		{1,0,0,0,0,0}, // rup 1
+		{0,1,0,0,0,0}, // rup 2
+		{1,1,0,0,0,0}, // rup 3
+		{0,0,1,0,0,0}, // rup 4
+		{0,1,1,0,0,0}, // rup 5
+		{1,1,1,0,0,0}, // rup 6
+		{0,0,0,1,0,0}, // rup 7
+		{0,0,1,1,0,0}, // rup 8
+		{0,1,1,1,0,0}, // rup 9
+		{1,1,1,1,0,0}, // rup 10
+		{0,0,0,0,1,0}, // rup 11
+		{0,0,0,1,1,0}, // rup 12
+		{0,0,1,1,1,0}, // rup 13
+		{0,1,1,1,1,0}, // rup 14
+		{1,1,1,1,1,0}, // rup 15
+		{0,0,0,0,0,1}, // rup 16
+		{0,0,0,0,1,1}, // rup 17
+		{0,0,0,1,1,1}, // rup 18
+		{0,0,1,1,1,1}, // rup 19
+		{0,1,1,1,1,1}, // rup 20
+		{1,1,1,1,1,1}  // rup 21
+  	};
+  
   
   	// array giving which scen (row) has each rupture (column)
   private final static int[][] scenHasRup = {
-		//   1,2,3,4,5,6,7,8,9,0,1,2,3,4,5
-			{1,1,0,1,0,0,1,0,0,0,1,0,0,0,0}, // scen 1
-			{0,0,1,1,0,0,1,0,0,0,1,0,0,0,0}, // scen 2
-			{1,0,0,0,1,0,1,0,0,0,1,0,0,0,0}, // scen 3
-			{0,0,0,0,0,1,1,0,0,0,1,0,0,0,0}, // scen 4
-			{1,1,0,0,0,0,0,1,0,0,1,0,0,0,0}, // scen 5
-			{0,0,1,0,0,0,0,1,0,0,1,0,0,0,0}, // scen 6
-			{1,0,0,0,0,0,0,0,1,0,1,0,0,0,0}, // scen 7
-			{0,0,0,0,0,0,0,0,0,1,1,0,0,0,0}, // scen 8
-			{1,1,0,1,0,0,0,0,0,0,0,1,0,0,0}, // scen 9
-			{0,0,1,1,0,0,0,0,0,0,0,1,0,0,0}, // scen 10
-			{1,0,0,0,1,0,0,0,0,0,0,1,0,0,0}, // scen 11
-			{0,0,0,0,0,1,0,0,0,0,0,1,0,0,0}, // scen 12
-			{1,1,0,0,0,0,0,0,0,0,0,0,1,0,0}, // scen 13
-			{0,0,1,0,0,0,0,0,0,0,0,0,1,0,0}, // scen 14
-			{1,0,0,0,0,0,0,0,0,0,0,0,0,1,0}, // scen 15
-			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}};// scen 16
+	//_ rup  1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
+			{1,1,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 1
+			{0,0,1,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 2
+			{1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 3
+			{0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 4
+			{1,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 5
+			{0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 6
+			{1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0}, // scen 7
+			{0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0}, // scen 8
+			{1,1,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0}, // scen 9
+			{0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0}, // scen 10
+			{1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0}, // scen 11
+			{0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0}, // scen 12
+			{1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0}, // scen 13
+			{0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0}, // scen 14
+			{1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0}, // scen 15
+			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0}, // scen 16
+			{1,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 17
+			{0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 18
+			{1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 19
+			{0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 20
+			{1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 21
+			{0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 22
+			{1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0}, // scen 23
+			{0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0}, // scen 24
+			{1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0}, // scen 25
+			{0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0}, // scen 26
+			{1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0}, // scen 27
+			{0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0}, // scen 28
+			{1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0}, // scen 29
+			{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0}, // scen 30
+			{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0}, // scen 31
+			{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}  // scen 32
+
+  };
   
   	private String[] segName;  // segment name
   	private double[] segArea;  // segment area
@@ -144,6 +180,8 @@ public class A_FaultSource extends ProbEqkSource {
     
     // get MFD for floater 
     floaterMFD = getMFD_ForFloater(floatingRup_PDF, floaterMoRate);
+    
+    // System.out.println(floaterMoRate +"  "+floaterMFD.getTotalMomentRate());
     
     double[] rupArea = new double[num_rup];
     rupMeanMag = new double[num_rup];
@@ -301,7 +339,7 @@ public class A_FaultSource extends ProbEqkSource {
 		  segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 		  // Add the rates of all ruptures which are part of a segment
 		  for(int rup=0; rup<num_rup; rup++)
-			  if(segInRup[seg][rup]==1) {
+			  if(rupInSeg[rup][seg]==1) {
 				  for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
 					  segSlipDist[seg].set(rupSlipDist[rup].getX(i), rupSlipDist[rup].getY(i));
 			  }
@@ -339,7 +377,7 @@ public class A_FaultSource extends ProbEqkSource {
 		  segRate[seg]=0.0;
 		  // Sum the rates of all ruptures which are part of a segment
 		  for(int rup=0; rup<num_rup; rup++)
-			  if(segInRup[seg][rup]==1) segRate[seg]+=rupRate[rup];
+			  if(rupInSeg[rup][seg]==1) segRate[seg]+=rupRate[rup];
 	  }
   }
   
@@ -375,6 +413,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 		rupMagFreqDist[rup] = new GaussianMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, rupMeanMag[rup], magSigma,
 				rupMoRate[rup], magTruncLevel, magTruncType);
 		summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[rup]);
+		// this next one should be replaced with the tot rate of the MFD
 		rupRate[rup] = rupMoRate[rup]/MomentMagCalc.getMoment(rupMeanMag[rup]);
 		totMoRateTest += rupMoRate[rup];
     }
@@ -393,7 +432,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 		for(int rup=0; rup<numRups; rup++){
 			boolean isFirst = true;
 			for(seg=0; seg < segmentNames.length; seg++) {
-				if(segInRup[seg][rup]==1) { // if this rupture is included in this segment
+				if(rupInSeg[rup][seg]==1) { // if this rupture is included in this segment
 					if(isFirst) { // append the section name to rupture name
 						rupName[rup] = segmentNames[seg];
 						isFirst = false;
@@ -448,7 +487,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 	    		rupMaxMoRate[rup] = 0;
 	    		for(seg=0; seg < num_seg; seg++) {
 	    			
-	    			if(segInRup[seg][rup]==1) { // if this rupture is included in this segment	
+	    			if(rupInSeg[rup][seg]==1) { // if this rupture is included in this segment	
 	    				rupArea[rup] += segArea[seg];
 	            		rupMaxMoRate[rup] += segMoRate[seg];
 	    			}
