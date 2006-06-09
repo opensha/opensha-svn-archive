@@ -574,9 +574,9 @@ public class MagFreqDistApp
       incrRateFunctionList.add(summedMagFreqDist);
       cumRateFunctionList.add(summedMagFreqDist.getCumRateDist());
       momentRateFunctionList.add(summedMagFreqDist.getMomentRateDist());
-      String metadata = "";
-      for (int i = 0; i < incrRateFunctionList.size(); ++i)
-        metadata += ( (EvenlyDiscretizedFunc) incrRateFunctionList.get(i)).getInfo()+ "\n";
+      String metadata = "\n"+( (EvenlyDiscretizedFunc) incrRateFunctionList.get(incrRateFunctionList.size()-1)).getInfo()+"\n";
+      for (int i = 0; i < incrRateFunctionList.size()-1; ++i)
+        metadata += (i+1)+")"+( (EvenlyDiscretizedFunc) incrRateFunctionList.get(i)).getInfo()+ "\n";
 
       magDistEditor.setMagDistFromParams(summedMagFreqDist, metadata);
 
