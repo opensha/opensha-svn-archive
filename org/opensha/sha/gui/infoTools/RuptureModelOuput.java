@@ -66,7 +66,7 @@ public class RuptureModelOuput extends JFrame {
 			segmentOutput.append(i+"\t"+
 					(float)aFaultSource.getSegmentArea(i)+"\t"+
 					+(float)aFaultSource.getSegmentRate(i)+"\t"+
-					(float)(1.0/aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
+					(float)(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
 					aFaultSource.getSegmentName(i)+"\n");
 		}
 		

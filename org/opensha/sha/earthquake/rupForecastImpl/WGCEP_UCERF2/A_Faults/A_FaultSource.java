@@ -434,9 +434,9 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 			for(seg=0; seg < segmentNames.length; seg++) {
 				if(rupInSeg[rup][seg]==1) { // if this rupture is included in this segment
 					if(isFirst) { // append the section name to rupture name
-						rupName[rup] = ""+seg;
+						rupName[rup] = ""+(seg+1);
 						isFirst = false;
-					} else rupName[rup] += " + "+seg;
+					} else rupName[rup] += (seg+1);
 				}
 			}
 		}
@@ -460,7 +460,7 @@ private double computeRupMoRate(double magSigma, double magTruncLevel, int magTr
 					if(isFirst) { // append the rupture name to scenario name
 						scenName[scen]=rupNames[rup];
 						isFirst = false;
-					} else scenName[scen]+=";"+rupNames[rup];
+					} else scenName[scen]+="; "+rupNames[rup];
 				}
 			}
 	    }

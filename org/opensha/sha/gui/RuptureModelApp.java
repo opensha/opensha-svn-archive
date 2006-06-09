@@ -73,12 +73,15 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	// text area to show segment names when segment model is chosen
 	private JTextArea segmentAndScenarioNames = new JTextArea();
 	// choose mag area relationship
-	private final static String MAG_AREA_RELS_PARAM_NAME = "Chooes Mag-Area Relationship";
+	private final static String MAG_AREA_RELS_PARAM_NAME = "Choose Mag-Area Relationship";
+	private final static String MAG_AREA_RELS_PARAM_INFO = "Mag-Area Relationship for mean mag of characteristic events";
 	// choose Mag Sigma
 	private final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
-	private final static Double MAG_SIGMA_DEFAULT = new Double(2.0);
+	private final static String MAG_SIGMA_PARAM_INFO = "Standard Deviation for characteristic events";
+	private final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
 	//Mag Truncation Type
 	private final static String TRUNC_TYPE_PARAM_NAME = "Truncation Type";
+	private final static String TRUNC_TYPE_PARAM_INFO = "Truncation of gaussian for characteristic events";
 	private final static String NO_TRUNCATION = "No Truncation";
 	private final static String ONE_SIDED_TRUNCATION = "Upper Truncation";
 	private final static String TWO_SIDED_TRUNCATION = "Upper & Lower Truncation";
@@ -88,7 +91,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	
 	// aseismic factor interpolated
 	
-	private final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor Interpolated";
+	private final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor reduces section area";
+	private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces section slip rate";
 	
 	// floater MFD _ PDF
 	private final static String MAG_PDF_PARAM_NAME = "Floating Rup Mag PDF";
@@ -141,8 +145,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private void initParamsAndEditor() {
 		try {
 			paramList = new ParameterList();
-			loadDeformationModels();
 			loadSegmentModels();
+			loadDeformationModels();
 			makeMagAreRelationshipParamAndEditor();
 			makeMagSigmaTruncParamsAndEditor();
 			makeAseisFactorInterpolationParamAndEditor();
@@ -393,7 +397,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 *
 	 */
 	private void makeAseisFactorInterpolationParamAndEditor() {
-		BooleanParameter aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME);
+		BooleanParameter aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
 		paramList.addParameter(aseisFactorInterParam);
 		/*BooleanParameterEditor aseisFactorInterParamEditor= new BooleanParameterEditor(aseisFactorInterParam);
 		add(aseisFactorInterParamEditor,
