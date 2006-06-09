@@ -48,8 +48,8 @@ public class A_FaultSource extends ProbEqkSource {
   // x-axis attributes for the MagFreqDists
   private final static double MIN_MAG = 6;
   private final static double MAX_MAG = 8.5;
-  private final static double DELTA_MAG = 0.01;
-  private final static int NUM_MAG = 251;
+  private final static double DELTA_MAG = 0.1;
+  private final static int NUM_MAG = 26;
   
   private final static double TOLERANCE = 1e6;
   
@@ -178,7 +178,8 @@ public class A_FaultSource extends ProbEqkSource {
     double floaterMoRate = totalMoRate*floaterWt;
     
     // get MFD for floater 
-    floaterMFD = getMFD_ForFloater(floatingRup_PDF, floaterMoRate);
+      floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
+      floaterMFD.scaleToTotalMomentRate(floaterMoRate);
     
     // System.out.println(floaterMoRate +"  "+floaterMFD.getTotalMomentRate());
     
@@ -191,11 +192,12 @@ public class A_FaultSource extends ProbEqkSource {
     rupName = getRuptureNames(segName);
     
   	// compute rupArea, rupMaxMoRate, and rupMag for each rupture
-    getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, rupArea, rupMaxMoRate);
+    getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, rupArea, rupMaxMoRate,magSigma);
     
     // make summed Mag FreqDist
     SummedMagFreqDist summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-    summedMagFreqDist.addIncrementalMagFreqDist(floaterMFD);
+    // add a resampled version of the floater dist
+    summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
     
     // compute the actual rupture MoRates and MFDs (and add each to summedMagFreqDist)
     double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, rupRate, summedMagFreqDist);
@@ -478,7 +480,7 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
 	   * @param rupName
 	   */
 	private void getRupArea_MaxMoRate_Mag(MagAreaRelationship magAreaRel, double[] segArea, 
-			double[] segMoRate, double[] rupArea, double[] rupMaxMoRate) {
+			double[] segMoRate, double[] rupArea, double[] rupMaxMoRate, double magSigma) {
 		int seg;
 		int rup;
 		for(rup=0; rup<num_rup; rup++){
@@ -492,39 +494,45 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
 	    			}
 	    			
 	    		}
-	    		// compute magnitude, rounded to nearest MFD x-axis point
+	    		// compute magnitude (rounded to nearest MFD x-axis point if magSigma=0)
 	    		// convert area to km-sqr
-	    		rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
+	    		if(magSigma == 0)
+	    			rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
+	    		else
+	    			rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT);
 	    }
 	}
 
-  /**
-   * Get MFD for floater 
-   * @param floatingRup_PDF
-   * @param floaterMoRate
-   * @return
-   */
-private IncrementalMagFreqDist getMFD_ForFloater(IncrementalMagFreqDist floatingRup_PDF, double floaterMoRate) {
-	// get magFreqDist for floater
-    IncrementalMagFreqDist floaterMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-    EvenlyDiscretizedFunc cumDist = floatingRup_PDF.getCumRateDist();
-    for(int i=0; i<floaterMFD.getNum(); ++i) {
-    	double x = floaterMFD.getX(i);
-    	double x1 = x-DELTA_MAG/2;
-    	double x2 = x + DELTA_MAG/2;
-    	double cumRate1=0, cumRate2=0;
-    	//check that the Mag lies within the range of cumDist
-    	if(x1<cumDist.getMinX()) cumRate1 = 0.0;
-    	else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
-    	else cumRate1 = cumDist.getInterpolatedY(x1);
-    	if(x2<cumDist.getMinX()) cumRate2 = 0.0;
-    	else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
-    	else cumRate2 = cumDist.getInterpolatedY(x2);
-    	floaterMFD.set(i, cumRate2-cumRate1);
-    }
-    floaterMFD.scaleToTotalMomentRate(floaterMoRate);
-	return floaterMFD;
+
+
+/**
+ * re-sample magFreqDist 
+ * This has some offset problems, but does honor the total moment rate.
+ * This should be put in the Incr  MagFreqDist class
+ * @param magFreqDist
+ * @return
+ */
+private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDist) {
+  IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+  EvenlyDiscretizedFunc cumDist = magFreqDist.getCumRateDist();
+  for(int i=0; i<newMFD.getNum(); ++i) {
+  	double x = newMFD.getX(i);
+  	double x1 = x-DELTA_MAG/2;
+  	double x2 = x + DELTA_MAG/2;
+  	double cumRate1=0, cumRate2=0;
+  	//check that the Mag lies within the range of cumDist
+  	if(x1<cumDist.getMinX()) cumRate1 = 0.0;
+  	else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
+  	else cumRate1 = cumDist.getInterpolatedY(x1);
+  	if(x2<cumDist.getMinX()) cumRate2 = 0.0;
+  	else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
+  	else cumRate2 = cumDist.getInterpolatedY(x2);
+  	newMFD.set(i, cumRate2-cumRate1);
+  }
+  newMFD.scaleToTotalMomentRate(magFreqDist.getTotalMomentRate());
+	return newMFD;
 }
+
  
 	  /**
 	   * Calculate  Area, MoRate and Name for each segment
