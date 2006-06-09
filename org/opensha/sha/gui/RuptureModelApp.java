@@ -25,6 +25,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
@@ -290,6 +294,14 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		String magAreaRel = (String)this.paramList.getValue(MAG_AREA_RELS_PARAM_NAME);
 		if(magAreaRel.equalsIgnoreCase(WC1994_MagAreaRelationship.NAME))
 			return new WC1994_MagAreaRelationship();
+		else if (magAreaRel.equalsIgnoreCase(Ellsworth_A_WG02_MagAreaRel.NAME))
+			return new Ellsworth_A_WG02_MagAreaRel();
+		else if (magAreaRel.equalsIgnoreCase(Ellsworth_B_WG02_MagAreaRel.NAME))
+			return new Ellsworth_B_WG02_MagAreaRel();
+		else if (magAreaRel.equalsIgnoreCase(HanksBakun2002_MagAreaRel.NAME))
+			return new HanksBakun2002_MagAreaRel();
+		else if (magAreaRel.equalsIgnoreCase(Somerville_2006_MagAreaRel.NAME))
+			return new Somerville_2006_MagAreaRel();
 		return null;
 	}
 	
@@ -495,6 +507,10 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private void makeMagAreRelationshipParamAndEditor() {
 		ArrayList magAreaList = new ArrayList();
 		magAreaList.add(WC1994_MagAreaRelationship.NAME);
+		magAreaList.add(Ellsworth_A_WG02_MagAreaRel.NAME);
+		magAreaList.add(Ellsworth_B_WG02_MagAreaRel.NAME);
+		magAreaList.add(HanksBakun2002_MagAreaRel.NAME);
+		magAreaList.add(Somerville_2006_MagAreaRel.NAME);
 		StringParameter magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaList, (String)magAreaList.get(0));
 		paramList.addParameter(magAreaRelParam);
 		/*ConstrainedStringParameterEditor magAreaRelParamEditor = new ConstrainedStringParameterEditor(magAreaRelParam);

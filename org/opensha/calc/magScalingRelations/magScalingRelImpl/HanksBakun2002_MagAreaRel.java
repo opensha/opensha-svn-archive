@@ -28,7 +28,7 @@ public class HanksBakun2002_MagAreaRel extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-    		if(mag <= 537)
+    		if(area <= 537)
     			return  3.98 + Math.log(area)*lnToLog;
     		else
     			return  3.07 + (4/3)*Math.log(area)*lnToLog;
