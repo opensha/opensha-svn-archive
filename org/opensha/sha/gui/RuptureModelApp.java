@@ -48,8 +48,13 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
 import org.opensha.sha.gui.infoTools.RuptureModelOuput;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagPDF_Parameter;
 import org.opensha.util.FileUtils;
 
@@ -367,7 +372,12 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private void makeFloaterPDFParam() {
 		ArrayList allowedMagDists = new ArrayList();
+		allowedMagDists.add(SingleMagFreqDist.NAME);
+		allowedMagDists.add(GutenbergRichterMagFreqDist.NAME);
 		allowedMagDists.add(GaussianMagFreqDist.NAME);
+		allowedMagDists.add(YC_1985_CharMagFreqDist.NAME);
+		allowedMagDists.add(SummedMagFreqDist.NAME);
+		allowedMagDists.add(ArbIncrementalMagFreqDist.NAME);
 		MagPDF_Parameter magPDF_Parameter = new MagPDF_Parameter(MAG_PDF_PARAM_NAME, allowedMagDists);
 		paramList.addParameter(magPDF_Parameter);
 		/*MagPDF_ParameterEditor magPDF_ParameterEditor = new MagPDF_ParameterEditor(magPDF_Parameter);
