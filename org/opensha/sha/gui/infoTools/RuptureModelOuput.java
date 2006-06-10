@@ -6,12 +6,18 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
 
 /**
@@ -20,10 +26,17 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultS
  * @author vipingupta
  *
  */
-public class RuptureModelOuput extends JFrame {
+public class RuptureModelOuput extends JFrame implements ActionListener{
 	private JTabbedPane outputTabbedPane = new JTabbedPane();
 	private final static int W = 800;
-	private final static int H = 700;
+	private final static int H = 400;
+	private JButton segmentSlipButton = new JButton("Cum Slip Dist Plot");
+	private JButton totalRupMFDButton = new JButton("Total Mag Freq Dist Plot");
+	private JButton floaterDistButton = new JButton("Floater Mag Freq Dist Plot");
+	private ArrayList cumSlipFuncList;
+	private ArrayList totalRupMFD;
+	private ArrayList floaterRupMFD;
+	
 	
 	/**
 	 * Accepts A_FaultSource object and creates output to show segment data, rupture data,
@@ -39,7 +52,7 @@ public class RuptureModelOuput extends JFrame {
 		// show data related to ruptures
 		createRupturesOutput(aFaultSource);
 		// show data related to Floater ruptures
-		createFloaterOutput(aFaultSource);
+		//createFloaterOutput(aFaultSource);
 		// show the input parameters as well
 		showInputParameters(inputParameters);
 		getContentPane().add(this.outputTabbedPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -56,24 +69,38 @@ public class RuptureModelOuput extends JFrame {
 	 * @param aFaultSource
 	 */
 	private void createSegmentOutput(A_FaultSource aFaultSource) {
+		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea segmentOutput = new JTextArea();
-		segmentOutput.setEnabled(false);
-		this.outputTabbedPane.addTab("Segment Info", new JScrollPane(segmentOutput));
+		segmentOutput.setEditable(false);
+		panel.add(new JScrollPane(segmentOutput), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
+		panel.add(this.segmentSlipButton, new GridBagConstraints(0, 1, 1, 0, 1.0, 0.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+		segmentSlipButton.addActionListener(this);
+		this.outputTabbedPane.addTab("Segment Info", panel);
 		// list index, name, area, rate and recurrence interval(1/rate) for each segment
 		int numSegments = aFaultSource.getNumSegments();
-		segmentOutput.append("Index\tSegment Area\tSegment Rate\tRecurrence Interval\tSegment Name\n\n");
+		segmentOutput.append("Index\tSegment Area(sq. m)\tSegment Rate\tRecurrence Interval\tSegment Name\n\n");
 		for(int i=0; i<numSegments; ++i) {
-			segmentOutput.append(i+"\t"+
-					(float)aFaultSource.getSegmentArea(i)+"\t"+
+			segmentOutput.append((i+1)+"\t"+
+					(float)aFaultSource.getSegmentArea(i)+"\t\t"+
 					+(float)aFaultSource.getSegmentRate(i)+"\t"+
 					(float)(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
 					aFaultSource.getSegmentName(i)+"\n");
 		}
 		
 		// now list cumulative slip distribution for each segment
-		segmentOutput.append("Cumulative Slip distribution for each segment:\n\n");
+		//segmentOutput.append("Cumulative Slip distribution for each segment:\n\n");
+		cumSlipFuncList = new ArrayList();
 		for(int i=0; i<numSegments; ++i) {
-			segmentOutput.append("Segment "+i+":\n"+aFaultSource.getSegmentSlipDist(i).getCumDist().toString()+"\n");
+			ArbitrarilyDiscretizedFunc func = aFaultSource.getSegmentSlipDist(i).getCumDist();
+			func.setInfo("Cumulative Slip distribution for segment "+(i+1));
+			cumSlipFuncList.add(func);
+	//		segmentOutput.append("Segment "+(i+1)+":\n"+aFaultSource.getSegmentSlipDist(i).getCumDist().toString()+"\n");
 		}
 		segmentOutput.setCaretPosition(0);
 		
@@ -85,18 +112,37 @@ public class RuptureModelOuput extends JFrame {
 	 * @param aFaultSource
 	 */
 	private void createRupturesOutput(A_FaultSource aFaultSource) {
+		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea rupOutput = new JTextArea();
-		rupOutput.setEnabled(false);
-		this.outputTabbedPane.addTab("Rupture Info", new JScrollPane(rupOutput));
+		rupOutput.setEditable(false);
+		panel.add(new JScrollPane(rupOutput), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
+		panel.add(this.totalRupMFDButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+		totalRupMFDButton.addActionListener(this);
+		panel.add(this.floaterDistButton, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0));
+		floaterDistButton.addActionListener(this);
+		this.outputTabbedPane.addTab("Rupture Info", panel);
 		// list index, meanMag, total Rate, name for each rupture
 		int numRuptures = aFaultSource.getNumRuptures();
-		rupOutput.append("Rup Index\tMean Mag\tTotal Rate\tRup Name\n\n");
+		rupOutput.append("Rup Index\tMean Mag\tTotal Rate\t\tRup Name\n\n");
 		for(int i=0; i<numRuptures; ++i) {
-			rupOutput.append(i+"\t"+(float)aFaultSource.getRupMeanMag(i)+"\t"+
-					(float)aFaultSource.getRupMagFreqDist(i).getTotalIncrRate()+"\t"+
+			rupOutput.append((i+1)+"\t"+(float)aFaultSource.getRupMeanMag(i)+"\t"+
+					(float)aFaultSource.getRupRate(i)+"\t\t"+
 					aFaultSource.getRupName(i)+"\n");
 		}
 		rupOutput.setCaretPosition(0);
+		this.floaterRupMFD = new ArrayList();
+		floaterRupMFD.add(aFaultSource.getFloaterMagFreqDist());
+		this.totalRupMFD  = new ArrayList();
+		totalRupMFD.add(aFaultSource.getTotalRupMFD());
 	}
 	
 	/**
@@ -104,13 +150,13 @@ public class RuptureModelOuput extends JFrame {
 	 * 
 	 * @param aFaultSource
 	 */
-	private void createFloaterOutput(A_FaultSource aFaultSource) {
+	/*private void createFloaterOutput(A_FaultSource aFaultSource) {
 		JTextArea floaterOutput = new JTextArea();
-		floaterOutput.setEnabled(false);
+		floaterOutput.setEditable(false);
 		this.outputTabbedPane.addTab("Floater Ruptures", new JScrollPane(floaterOutput));
 		floaterOutput.append(aFaultSource.getFloaterMagFreqDist().toString());
 		floaterOutput.setCaretPosition(0);
-	}
+	}*/
 	
 	/**
 	 * Show input parameters as metadata
@@ -119,9 +165,24 @@ public class RuptureModelOuput extends JFrame {
 	 */
 	private void showInputParameters(String metadata) {
 		JTextArea metadataTextArea = new JTextArea();
-		metadataTextArea.setEnabled(false);
+		metadataTextArea.setEditable(false);
+		metadataTextArea.setWrapStyleWord(true);
+		metadataTextArea.setLineWrap(true);
 		this.outputTabbedPane.addTab("Metadata", new JScrollPane(metadataTextArea));
 		metadataTextArea.append(metadata);
 		metadataTextArea.setCaretPosition(0);
+	}
+	
+	/**
+	 * This function is called when a buton is clicked
+	 */
+	public void actionPerformed(ActionEvent event) {
+		Object source = event.getSource();
+		if(source == this.segmentSlipButton)
+			new RuptureModelsGraphWindowAPI_Impl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
+		else if(source == this.totalRupMFDButton)
+			new RuptureModelsGraphWindowAPI_Impl(this.totalRupMFD, "Mag", "Rate", "Total Mag Freq Dist for Rups");
+		else if(source == this.floaterDistButton)
+			new RuptureModelsGraphWindowAPI_Impl(this.floaterRupMFD, "Mag", "Rate", "Mag Freq Dist for floaters");
 	}
 }

@@ -126,6 +126,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private JButton calcButton  = new JButton("Calculate");
 	private final static int W = 800;
 	private final static int H = 700;
+	private String scenarioNames[];
 	/**
 	 * Constructor
 	 *
@@ -184,7 +185,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	                                    GridBagConstraints.NONE,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		calcButton.addActionListener(this);
-		segmentAndScenarioNames.setEnabled(false);
+		segmentAndScenarioNames.setEditable(false);
 		rightPanel.add(new JScrollPane(this.segmentAndScenarioNames), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
@@ -218,9 +219,26 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
 		A_FaultSource aFaultSource = new A_FaultSource( segmentData,  magAreaRel,  magSigma,
 		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
-		RuptureModelOuput ouputWindow  =  new RuptureModelOuput(aFaultSource, this.paramList.toString());
+		RuptureModelOuput ouputWindow  =  new RuptureModelOuput(aFaultSource, getMetadata());
 	}
 	
+	/**
+	 * Get metadata 
+	 * @return
+	 */
+	private String getMetadata() {
+		String metadata = "";
+		metadata+=this.paramList.getParameter(SEGMENT_MODELS_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(DEFORMATION_MODEL_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(MAG_AREA_RELS_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(MAG_SIGMA_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(TRUNC_TYPE_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(TRUNC_LEVEL_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(ASEIS_INTER_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(SCENARIO_WT_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=this.paramList.getParameter(MAG_PDF_PARAM_NAME).getMetadataString()+"\n";
+		return metadata;
+	}
 	
 	/**
 	 * Get the segment data
@@ -353,21 +371,23 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		ParameterList scenarioWeightsParamList = new ParameterList();
 		Double defaultVal = new Double(1.0/(numScenarios+1));
 		for(int i=0; i<numScenarios; ++i) {
-			DoubleParameter wtParam = new DoubleParameter(SCECNARIO_PREFIX+" "+i, 
+			DoubleParameter wtParam = new DoubleParameter(SCECNARIO_PREFIX+" "+(i+1), 
 					MIN_SCEN_WEIGHT, MAX_SCEN_WEIGHT, defaultVal );
+			if(scenarioNames!=null)
+				wtParam.setInfo(this.scenarioNames[i]);
 			scenarioWeightsParamList.addParameter(wtParam);
 		}
 		// flaoter Rup wt
 		DoubleParameter wtParam = new DoubleParameter(FLOATER_RUP_WT_NAME, 
 				MIN_SCEN_WEIGHT, MAX_SCEN_WEIGHT, defaultVal );
 		scenarioWeightsParamList.addParameter(wtParam);
-		 scenarioWtsParam = new TreeBranchWeightsParameter(SCENARIO_WT_PARAM_NAME, scenarioWeightsParamList);
-		 if(this.paramList.containsParameter(SCENARIO_WT_PARAM_NAME)) {
-			 paramList.replaceParameter(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
-			 this.paramListEditor.replaceParameterForEditor(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
-		 }
-		 else paramList.addParameter(scenarioWtsParam);
-		 
+		scenarioWtsParam = new TreeBranchWeightsParameter(SCENARIO_WT_PARAM_NAME, scenarioWeightsParamList);
+		if(this.paramList.containsParameter(SCENARIO_WT_PARAM_NAME)) {
+			paramList.replaceParameter(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
+			this.paramListEditor.replaceParameterForEditor(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
+		}
+		else paramList.addParameter(scenarioWtsParam);
+
 	}
 	
 	/**
@@ -398,6 +418,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private void makeAseisFactorInterpolationParamAndEditor() {
 		BooleanParameter aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
+		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		paramList.addParameter(aseisFactorInterParam);
 		/*BooleanParameterEditor aseisFactorInterParamEditor= new BooleanParameterEditor(aseisFactorInterParam);
 		add(aseisFactorInterParamEditor,
@@ -414,7 +435,9 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private void makeMagSigmaTruncParamsAndEditor() throws Exception {
 		// choose Mag Sigma
 		 DoubleParameter magSigmaParam = new DoubleParameter(MAG_SIGMA_PARAM_NAME, MAG_SIGMA_DEFAULT);
+		 magSigmaParam.setInfo(MAG_SIGMA_PARAM_INFO);
 		 paramList.addParameter(magSigmaParam);
+		 
 		 /*DoubleParameterEditor magSigmaParamEditor = new DoubleParameterEditor(magSigmaParam);
 		 add(magSigmaParamEditor,
 	             new GridBagConstraints(0, 6, 1, 1, 1.0, 1.0
@@ -428,6 +451,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		truncTypes.add(TWO_SIDED_TRUNCATION);
 		StringParameter truncTypesParam = new StringParameter(TRUNC_TYPE_PARAM_NAME, truncTypes, (String)truncTypes.get(0));
 		truncTypesParam.addParameterChangeListener(this);
+		truncTypesParam.setInfo(TRUNC_TYPE_PARAM_INFO);
 		paramList.addParameter(truncTypesParam);
 		/*ConstrainedStringParameterEditor truncTypesParamEditor = new ConstrainedStringParameterEditor(truncTypesParam);
 		add(truncTypesParamEditor,
@@ -526,6 +550,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		magAreaList.add(HanksBakun2002_MagAreaRel.NAME);
 		magAreaList.add(Somerville_2006_MagAreaRel.NAME);
 		StringParameter magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaList, (String)magAreaList.get(0));
+		magAreaRelParam.setInfo(MAG_AREA_RELS_PARAM_INFO);
 		paramList.addParameter(magAreaRelParam);
 		/*ConstrainedStringParameterEditor magAreaRelParamEditor = new ConstrainedStringParameterEditor(magAreaRelParam);
 		// mag area relationship selection editor
@@ -610,7 +635,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		// get the rupture names
 		String rupNames[] = A_FaultSource.getRuptureNames(segmentNames);
 		// get the scenario names
-		String scenarioNames[] = A_FaultSource.getScenarioNames(rupNames, segmentNames.length);
+		scenarioNames = A_FaultSource.getScenarioNames(rupNames, segmentNames.length);
 		// updatet he text area with segment names, scenario names and rup names
 		updateTextArea(segmentNames, rupNames, scenarioNames);
 		makeScenarioWtsParamAndEditor(scenarioNames.length);
@@ -627,15 +652,15 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		// segment names
 		String text  = "SEGMENTS\n\n";
 		for(int i=0; i<segmentNames.length; ++i)
-			text+="Segment "+i+": "+segmentNames[i]+"\n";
+			text+="Segment "+(i+1)+": "+segmentNames[i]+"\n";
 		// scenario names
 		text+="\n\nSCENARIOS\n\n";
 		for(int i=0; i<scenarioNames.length; ++i) 
-			text+="Scenario "+i+": "+scenarioNames[i]+"\n";
+			text+="Scenario "+(i+1)+": "+scenarioNames[i]+"\n";
 		// rupture names
 		text+="\n\nRUPTURES\n\n";
 		for(int i=0; i<rupNames.length; ++i) 
-			text+="Rupture "+i+": "+rupNames[i]+"\n";
+			text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
 		this.segmentAndScenarioNames.setText(text);
 	}
 	
