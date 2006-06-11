@@ -682,7 +682,7 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 		String segName=null;
 		for(int i=0; i<sectionNames.size(); ++i) {
 			if(i==0) segName = (String)sectionNames.get(i);
-			else segName += " -- "+(String)sectionNames.get(i);
+			else segName += " + "+(String)sectionNames.get(i);
 		}
 		return segName;
 	}

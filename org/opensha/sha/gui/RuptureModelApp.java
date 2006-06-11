@@ -57,8 +57,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
-import org.opensha.sha.param.MagPDF_Parameter;
+import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.util.FileUtils;
+import java.text.DecimalFormat;
 
 /**
  * @author vipingupta
@@ -134,6 +135,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private String scenarioNames[];
 	private String faultSectionsDataString;
 	private ArrayList magAreaRelationships;
+	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	/**
 	 * Constructor
 	 *
@@ -225,7 +227,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
 		A_FaultSource aFaultSource = new A_FaultSource( segmentData,  magAreaRel,  magSigma,
 		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
-		RuptureModelOuput ouputWindow  =  new RuptureModelOuput(aFaultSource, getMetadata());
+		RuptureModelOuput outputWindow  =  new RuptureModelOuput(aFaultSource, getMetadata());
 	}
 	
 	/**
@@ -272,6 +274,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		// faultSectionsDataString="\n\nName,Slip Rate(mm/yr),Aseis Factor,Length(km),Down Dip Width(km),Area(sq. km),Upper Depth(km),LowerDepth(km),Dip\n";
 		StringBuffer faultSectionsString = new StringBuffer("");
 		double totalArea = 0;
+		double totalAseisReduceArea=0;
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
 			ArrayList segment = (ArrayList)segmentsList.get(i);
@@ -288,7 +291,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 				double ddw = faultSectionPrefData.getDownDipWidth();
 				double area = length*ddw;
 				totalArea+=area;
-				faultSectionsString.append("Section Name: "+faultSectionPrefData.getSectionName()+"\n");
+				totalAseisReduceArea+=(1-faultSectionPrefData.getAseismicSlipFactor())*area;
+				faultSectionsString.append(faultSectionPrefData.getSectionName()+" Section:\n\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (mm/yr)\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAseismicSlipFactor()+ " Aseismic Factor\n");
 				faultSectionsString.append("\t"+(float)length+" Length (km)\n");
@@ -296,7 +300,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 				faultSectionsString.append("\t"+(float)area+" Area (sq km) \n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveUpperDepth()+" Upper Depth (km)\n");
 				faultSectionsString.append("\t"+(float)	faultSectionPrefData.getAveLowerDepth()+" Lower Depth (km)\n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n\n");
 				
 				/*faultSectionsDataString+=faultSectionPrefData.getSectionName()+","+
 										(float)faultSectionPrefData.getAveLongTermSlipRate()+","+
@@ -312,10 +316,15 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 			}
 			newSegmentsList.add(newSegment);
 		}
-		String summaryString="\nTotal Area (sq km) ="+(float)totalArea+"\n";
+		String summaryString="\nSegment Totals:\n   Total Area (sq km) ="+(float)totalArea+"\n";
 		for(int i=0; i<magAreaRelationships.size(); ++i) {
 			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
-			summaryString+="Mean Mag ("+magAreaRel.getName()+") = "+(float)magAreaRel.getMedianMag(totalArea)+"\n";
+			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalArea))+"\n";
+		}
+		summaryString+="\nSegment Totals (aseis reduced):\n   Total Area (sq km) ="+(float)totalAseisReduceArea+"\n";
+		for(int i=0; i<magAreaRelationships.size(); ++i) {
+			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
+			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalAseisReduceArea))+"\n";
 		}
 		faultSectionsDataString = summaryString+"\n"+faultSectionsString;
 		frame.dispose();
@@ -338,7 +347,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 * @return
 	 */
 	private IncrementalMagFreqDist getFloatingRup_PDF() {
-		MagPDF_Parameter param = (MagPDF_Parameter)paramList.getParameter(MAG_PDF_PARAM_NAME);
+		MagFreqDistParameter param = (MagFreqDistParameter)paramList.getParameter(MAG_PDF_PARAM_NAME);
 		param.setMagDist();
 		return (IncrementalMagFreqDist)param.getValue();
 	}
@@ -454,7 +463,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		allowedMagDists.add(YC_1985_CharMagFreqDist.NAME);
 		allowedMagDists.add(SummedMagFreqDist.NAME);
 		allowedMagDists.add(ArbIncrementalMagFreqDist.NAME);
-		MagPDF_Parameter magPDF_Parameter = new MagPDF_Parameter(MAG_PDF_PARAM_NAME, allowedMagDists);
+		MagFreqDistParameter magPDF_Parameter = new MagFreqDistParameter(MAG_PDF_PARAM_NAME, allowedMagDists);
 		paramList.addParameter(magPDF_Parameter);
 		/*MagPDF_ParameterEditor magPDF_ParameterEditor = new MagPDF_ParameterEditor(magPDF_Parameter);
 		add(magPDF_ParameterEditor,
@@ -597,11 +606,11 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private void makeMagAreRelationshipParamAndEditor() {
 		// make objects if Mag Area Relationships
 		magAreaRelationships = new ArrayList();
-		magAreaRelationships.add(new WC1994_MagAreaRelationship());
 		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
 		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
 		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
+		magAreaRelationships.add(new WC1994_MagAreaRelationship());
 		
 		// array List of Mag Area Rel names
 		ArrayList magAreaNamesList = new ArrayList();
