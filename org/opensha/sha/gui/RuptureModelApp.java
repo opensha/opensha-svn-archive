@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -45,6 +46,7 @@ import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
 import org.opensha.sha.gui.infoTools.RuptureModelOuput;
@@ -66,14 +68,16 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private final static String SEGMENT_MODELS_FILE_NAME = "SegmentModels.txt";
 
 	// choose deformation model
-	private final static String DEFORMATION_MODEL_PARAM_NAME = "Choose Deformation Model";	
+	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	
 	// choose segment model
-	private final static String SEGMENT_MODELS_PARAM_NAME = "Choose Segment Model";
+	private final static String SEGMENT_MODELS_PARAM_NAME = "Segment Model";
+	private final static String NONE = "None";
+	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
 	// text area to show segment names when segment model is chosen
 	private JTextArea segmentAndScenarioNames = new JTextArea();
 	// choose mag area relationship
-	private final static String MAG_AREA_RELS_PARAM_NAME = "Choose Mag-Area Relationship";
+	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
 	private final static String MAG_AREA_RELS_PARAM_INFO = "Mag-Area Relationship for mean mag of characteristic events";
 	// choose Mag Sigma
 	private final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
@@ -118,6 +122,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	
 	private ParameterList paramList;
 	private ParameterListEditor paramListEditor;
+	private ArrayList segmentData ;
 	
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
@@ -127,6 +132,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private final static int W = 800;
 	private final static int H = 700;
 	private String scenarioNames[];
+	private String faultSectionsDataString;
+	private ArrayList magAreaRelationships;
 	/**
 	 * Constructor
 	 *
@@ -209,7 +216,6 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 *
 	 */
 	private void calculate() {
-		ArrayList segmentData = getSegmentData();
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		double magSigma = getMagSigma();
 		double magTruncLevel = getMagTruncLevel();
@@ -245,10 +251,27 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 * @return
 	 */
 	private ArrayList getSegmentData() {
+		// show the progress bar
+		JFrame frame = new JFrame();
+		frame.getContentPane().setLayout(new GridBagLayout());
+		JProgressBar progressBar = new JProgressBar();
+		frame.getContentPane().add(progressBar,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		frame.setLocationRelativeTo(this);
+		frame.setSize(450, 50);
+		frame.show();
+		progressBar.setStringPainted(true);
+		progressBar.setVisible(true);
+		progressBar.setString(MSG_FROM_DATABASE);
+		progressBar.paintImmediately(progressBar.getBounds());
+		
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		int selectdDeformationModelId = getSelectedDeformationModelId();
 		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
 		ArrayList newSegmentsList = new ArrayList();
+		// faultSectionsDataString="\n\nName,Slip Rate(mm/yr),Aseis Factor,Length(km),Down Dip Width(km),Area(sq. km),Upper Depth(km),LowerDepth(km),Dip\n";
+		StringBuffer faultSectionsString = new StringBuffer("");
+		double totalArea = 0;
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
 			ArrayList segment = (ArrayList)segmentsList.get(i);
@@ -260,15 +283,47 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 				// get slip rate and aseimic slip factor from deformation model
 				faultSectionData.setAseismicSlipFactorEst(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
 				faultSectionData.setAveLongTermSlipRateEst(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
-				newSegment.add(faultSectionData.getFaultSectionPrefData());
+				FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
+				double length = faultSectionPrefData.getLength();
+				double ddw = faultSectionPrefData.getDownDipWidth();
+				double area = length*ddw;
+				totalArea+=area;
+				faultSectionsString.append("Section Name: "+faultSectionPrefData.getSectionName()+"\n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (mm/yr)\n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAseismicSlipFactor()+ " Aseismic Factor\n");
+				faultSectionsString.append("\t"+(float)length+" Length (km)\n");
+				faultSectionsString.append("\t"+(float)ddw+" Down Dip Width (km)\n");
+				faultSectionsString.append("\t"+(float)area+" Area (sq km) \n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveUpperDepth()+" Upper Depth (km)\n");
+				faultSectionsString.append("\t"+(float)	faultSectionPrefData.getAveLowerDepth()+" Lower Depth (km)\n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n");
+				
+				/*faultSectionsDataString+=faultSectionPrefData.getSectionName()+","+
+										(float)faultSectionPrefData.getAveLongTermSlipRate()+","+
+										(float)faultSectionPrefData.getAseismicSlipFactor()+","+
+										(float)length+","+
+										(float)ddw+","+
+										(float)area+","+
+										(float)faultSectionPrefData.getAveUpperDepth()+","+
+										(float)faultSectionPrefData.getAveLowerDepth()+","+
+										(float)faultSectionPrefData.getAveDip()+"\n";*/
+				newSegment.add(faultSectionPrefData);
+				
 			}
 			newSegmentsList.add(newSegment);
 		}
+		String summaryString="\nTotal Area (sq km) ="+(float)totalArea+"\n";
+		for(int i=0; i<magAreaRelationships.size(); ++i) {
+			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
+			summaryString+="Mean Mag ("+magAreaRel.getName()+") = "+(float)magAreaRel.getMedianMag(totalArea)+"\n";
+		}
+		faultSectionsDataString = summaryString+"\n"+faultSectionsString;
+		frame.dispose();
 		return newSegmentsList;
 	}
 	
 	private int getSelectedDeformationModelId() {
-		String selectedDefModel  = (String)this.paramList.getValue(this.DEFORMATION_MODEL_PARAM_NAME);
+		String selectedDefModel  = (String)this.paramList.getValue(DEFORMATION_MODEL_PARAM_NAME);
 		for(int i=0; i<this.deformationModelsList.size(); ++i) {
 			DeformationModelSummary deformationModel = (DeformationModelSummary)deformationModelsList.get(i);
 			if(deformationModel.getDeformationModelName().equalsIgnoreCase(selectedDefModel)) {
@@ -318,17 +373,14 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 * @return
 	 */
 	private MagAreaRelationship getMagAreaRelationship() {
-		String magAreaRel = (String)this.paramList.getValue(MAG_AREA_RELS_PARAM_NAME);
-		if(magAreaRel.equalsIgnoreCase(WC1994_MagAreaRelationship.NAME))
-			return new WC1994_MagAreaRelationship();
-		else if (magAreaRel.equalsIgnoreCase(Ellsworth_A_WG02_MagAreaRel.NAME))
-			return new Ellsworth_A_WG02_MagAreaRel();
-		else if (magAreaRel.equalsIgnoreCase(Ellsworth_B_WG02_MagAreaRel.NAME))
-			return new Ellsworth_B_WG02_MagAreaRel();
-		else if (magAreaRel.equalsIgnoreCase(HanksBakun2002_MagAreaRel.NAME))
-			return new HanksBakun2002_MagAreaRel();
-		else if (magAreaRel.equalsIgnoreCase(Somerville_2006_MagAreaRel.NAME))
-			return new Somerville_2006_MagAreaRel();
+		String magAreaRelName = (String)this.paramList.getValue(MAG_AREA_RELS_PARAM_NAME);
+		// iterate over all Mag Area relationships to find the selected one
+		for(int i=0; i<magAreaRelationships.size(); ++i) {
+			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
+			if(magAreaRel.getName().equalsIgnoreCase(magAreaRelName))
+				return magAreaRel;
+		}
+		
 		return null;
 	}
 	
@@ -359,7 +411,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		String truncType = (String)paramList.getValue(TRUNC_TYPE_PARAM_NAME);
 		if(truncType.equalsIgnoreCase(NO_TRUNCATION)) return 0;
 		if(truncType.equalsIgnoreCase(ONE_SIDED_TRUNCATION)) return 1;
-		if(truncType.equalsIgnoreCase(this.TWO_SIDED_TRUNCATION)) return 2;
+		if(truncType.equalsIgnoreCase(TWO_SIDED_TRUNCATION)) return 2;
 		throw new RuntimeException("Unsupported truncation type");
 	}
 	
@@ -508,7 +560,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private void loadSegmentModels() {
 		ArrayList segmentModelNames = new ArrayList();
-		
+		segmentModelNames.add(NONE);
 		// add segment models 
 		try {
 			// read the text file
@@ -543,13 +595,20 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	}
 	
 	private void makeMagAreRelationshipParamAndEditor() {
-		ArrayList magAreaList = new ArrayList();
-		magAreaList.add(WC1994_MagAreaRelationship.NAME);
-		magAreaList.add(Ellsworth_A_WG02_MagAreaRel.NAME);
-		magAreaList.add(Ellsworth_B_WG02_MagAreaRel.NAME);
-		magAreaList.add(HanksBakun2002_MagAreaRel.NAME);
-		magAreaList.add(Somerville_2006_MagAreaRel.NAME);
-		StringParameter magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaList, (String)magAreaList.get(0));
+		// make objects if Mag Area Relationships
+		magAreaRelationships = new ArrayList();
+		magAreaRelationships.add(new WC1994_MagAreaRelationship());
+		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
+		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
+		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
+		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
+		
+		// array List of Mag Area Rel names
+		ArrayList magAreaNamesList = new ArrayList();
+		for(int i=0; i<magAreaRelationships.size(); ++i)
+			magAreaNamesList.add(((MagAreaRelationship)magAreaRelationships.get(i)).getName());
+		
+		StringParameter magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaNamesList, (String)magAreaNamesList.get(0));
 		magAreaRelParam.setInfo(MAG_AREA_RELS_PARAM_INFO);
 		paramList.addParameter(magAreaRelParam);
 		/*ConstrainedStringParameterEditor magAreaRelParamEditor = new ConstrainedStringParameterEditor(magAreaRelParam);
@@ -622,6 +681,13 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 */
 	private void updateSegmentNamesAndScenarios() {
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
+		if(selectedSegmentModel.equalsIgnoreCase(NONE)) {
+			segmentAndScenarioNames.setText("");
+			this.calcButton.setEnabled(false); // if no Segment model is chosen, disable the calc button
+			return;
+		}
+		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
+		segmentData = getSegmentData();
 		// get the segment names
 		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
 		String[] segmentNames= new String[segmentsList.size()];
@@ -661,7 +727,8 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		text+="\n\nRUPTURES\n\n";
 		for(int i=0; i<rupNames.length; ++i) 
 			text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
-		this.segmentAndScenarioNames.setText(text);
+		this.segmentAndScenarioNames.setText(text+faultSectionsDataString);
+		segmentAndScenarioNames.setCaretPosition(0);
 	}
 	
 	/**

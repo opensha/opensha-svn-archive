@@ -654,9 +654,9 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
 				faultSectionNames.add(sectData.getSectionName());
 				//set the area & moRate
-				double length = sectData.getFaultTrace().getTraceLength(); // km
+				double length = sectData.getLength(); // km
 				segLengths[seg]+=length;
-				double ddw = (sectData.getAveLowerDepth()-sectData.getAveUpperDepth())/Math.sin( sectData.getAveDip()*Math.PI/ 180); //km
+				double ddw = sectData.getDownDipWidth(); //km
 				if(aseisReducesArea) {
 					segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
 					segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 

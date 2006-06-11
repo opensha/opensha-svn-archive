@@ -82,5 +82,11 @@ public class FaultSectionPrefData {
 	public void setSectionName(String sectionName) {
 		this.sectionName = sectionName;
 	}
+	public double getLength() {
+		return this.faultTrace.getTraceLength();
+	}
+	public double getDownDipWidth() {
+		return (getAveLowerDepth()-getAveUpperDepth())/Math.sin(getAveDip()*Math.PI/ 180);
+	}
 
 }
