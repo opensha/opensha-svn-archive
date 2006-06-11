@@ -6,11 +6,14 @@
 # The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
 # Segment 1 has fault section Ids 2,7 and 15. Segment 2 has fault sections 3, 35, 1 and 2
 
-- Northern California Segment Model
+- Northern SAF
 56
 67
 27
 26
+- Green Valley
+1
+71
  - Test Segment Model
 15, 13, 14
 18, 100
