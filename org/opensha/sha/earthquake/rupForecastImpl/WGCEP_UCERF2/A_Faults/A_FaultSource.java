@@ -208,14 +208,14 @@ public class A_FaultSource extends ProbEqkSource {
     double floaterWt = scenarioWts[num_scen];
     //  get MFD for floater 
     if(floaterWt != 0) {
-    	floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
+    		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
         double floaterMoRate = totalMoRate*floaterWt;
-    	floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+    		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
 //    	 add a resampled version of the floater dist
-    	summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
+    		summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
         // get the rate of floaters on each segment
         segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
-    	totMoRateTest += floaterMoRate;
+        totMoRateTest += floaterMoRate;
     }
 
     // check total moment rates
@@ -231,13 +231,19 @@ public class A_FaultSource extends ProbEqkSource {
      segRate = new double[num_seg];
      computeSegRate(totRupRate, segFloaterMFD);
     
-    // find the slip distribution of each rupture
+    // find the slip distribution of each rupture & segment
     ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
     computeRupSlipDist( rupArea, rupSlipDist);
     
+    
+    // get the increase/decrease factor for the ave slip on a segment, given a rupture,
+    // relative to the ave slip for the entire rupture
+    double[][] segRupSlipFactor = getSegRupSlipFactor(segMoRate, segArea);
+  	  
+    
     // find the slip distribution of each segment
     segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
-    computeSegSlipDist(rupSlipDist, segFloaterMFD, magAreaRel);
+    computeSegSlipDist(rupSlipDist, segFloaterMFD, magAreaRel, segRupSlipFactor);
    /* if(D) {
     	// print the slip distribution of each segment
     	for(int i=0; i<num_seg; ++i) {
@@ -442,19 +448,25 @@ public class A_FaultSource extends ProbEqkSource {
   }
   
   /**
-   * Compute the  slip distribution for segment
+   * Compute the slip distribution for each segment
+   * The average slip for each event is partitioned among the different segments
+   * according to segRupSlipFactor.
+
    * 
    * @param rupSlipDist
    * @param segSlipDist
    */
-  private void computeSegSlipDist(ArbitrarilyDiscretizedFunc[] rupSlipDist, IncrementalMagFreqDist[] segFloaterMFD, MagAreaRelationship magAreaRel) {
+  private void computeSegSlipDist(ArbitrarilyDiscretizedFunc[] rupSlipDist, 
+		  IncrementalMagFreqDist[] segFloaterMFD, MagAreaRelationship magAreaRel,
+		  double[][] segRupSlipFactor) {
 	  for(int seg=0; seg<num_seg; ++seg) {
 		  segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 		  // Add the rates of all ruptures which are part of a segment
 		  for(int rup=0; rup<num_rup; rup++)
 			  if(rupInSeg[rup][seg]==1) {
 				  for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
-					  segSlipDist[seg].set(rupSlipDist[rup].getX(i), rupSlipDist[rup].getY(i));
+					  segSlipDist[seg].set(segRupSlipFactor[rup][seg]*rupSlipDist[rup].getX(i), 
+							  rupSlipDist[rup].getY(i));
 			  }
 		  if(segFloaterMFD!=null) {
 			  IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
@@ -468,22 +480,49 @@ public class A_FaultSource extends ProbEqkSource {
 	  }
   }
   
+  
   /**
-   * Compute slip distribution from Mag Distribution
+   * This computes the increase/decrease factor for the ave slip on a segment relative to the
+   * ave slip for the entire rupture (based on moment rates and areas).  The idea being, 
+   * for example, that if only full fault rupture is allowed on a fuult where the segments 
+   * have different slip rates, then the amount of slip on each segment for that rupture
+   * must vary to match the long-term slip rates).
+   * @param segAveSlipRate
+   */
+  private double[][] getSegRupSlipFactor(double[] segMoRate, double[] segArea) {
+	  double[][] segRupSlipFactor = new double[num_rup][num_seg];
+	  for(int rup=0; rup<num_rup; ++rup) {
+		  double totMoRate = 0;
+		  double totArea = 0;
+		  for(int seg=0; seg<num_seg; seg++) {
+			  if(rupInSeg[rup][seg]==1) {
+				  totMoRate += segMoRate[seg];
+				  totArea += segArea[seg];
+			  }
+		  }
+		  for(int seg=0; seg<num_seg; seg++) {
+			  segRupSlipFactor[rup][seg] = rupInSeg[rup][seg]*segMoRate[seg]*totArea/(totMoRate*segArea[seg]);
+		  }
+	  }
+	  return segRupSlipFactor;
+  }
+  
+  /**
+   * This computes the rates of slips for each rupture.
    * 
    * @param rupMagFreqDist
    * @param rupArea
    * @param rupSlipDist
    */
-  private void computeRupSlipDist( double[] rupArea,
-		  ArbitrarilyDiscretizedFunc[] rupSlipDist) {
+  private void computeRupSlipDist( double[] rupArea, ArbitrarilyDiscretizedFunc[] rupSlipDist) {
+
 	  for(int rup=0; rup<num_rup; ++rup) {
 		  rupSlipDist[rup] = new ArbitrarilyDiscretizedFunc();
 		  for(int imag=0; imag<rupMagFreqDist[rup].getNum(); ++imag) {
-			  if(rupMagFreqDist[rup].getY(imag)==0) continue; // if rate is 0, do not find the slip for this mag
-			  double moment = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(imag));
-			  double slip = FaultMomentCalc.getSlip(rupArea[rup], moment);
-			  rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(imag));
+				if(rupMagFreqDist[rup].getY(imag)==0) continue; // if rate is 0, do not find the slip for this mag
+				double moment = MomentMagCalc.getMoment(rupMagFreqDist[rup].getX(imag));
+				double slip = FaultMomentCalc.getSlip(rupArea[rup], moment);
+				rupSlipDist[rup].set(slip, rupMagFreqDist[rup].getY(imag));
 		  }
 	  }
   }
