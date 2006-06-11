@@ -18,6 +18,8 @@ import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
+import sun.tools.tree.ThisExpression;
+
 /**
  * <p>Title: A_FaultSource </p>
  * <p>Description: 
@@ -858,8 +860,50 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
     return NAME;
   }
   
+  /**
+   * This makes a file that can be used to plot (e.g., in GMT) 
+   * ruptures versus scenarios
+   *
+   */
+  public static void writeSegScenPlotData() {
+	  String dataSeparator = ">";
+	  // make the startX and endX for each rupture
+	  double[] startX = new double[21];
+	  double[] endX = new double[21];
+	  
+	  for(int rup=0; rup<21; rup++) {
+		  boolean gotStart = false;
+		  for(int seg = 0; seg<6; seg++) {
+			  if(rupInSeg[rup][seg] == 1) {
+				  if(!gotStart) {
+					  startX[rup] = seg+0.1;
+					  gotStart = true;
+				  }
+				  endX[rup] = seg+0.9;
+			  }
+		  }
+//		  System.out.println("rup="+rup+"  "+startX[rup]+"  "+endX[rup]);
+	  }
+	  
+	  // now write our desired data
+	  for(int scen = 0; scen<32; scen++) {
+		  for(int rup=0; rup<21; rup++) {
+			  if(scenHasRup[scen][rup] == 1){
+				  System.out.println(startX[rup]+"\t"+(scen+1));
+				  System.out.println(endX[rup]+"\t"+(scen+1));
+				  if (scen != 31) System.out.println(dataSeparator);
+			  }
+		  }
+	  }
+
+	  
+  }
+  
   
   public static void main(String[] args) {
+	  
+	  writeSegScenPlotData();
+	  /*
 	  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	  FaultSectionPrefData santaCruz  = faultSectionDAO.getFaultSection(56).getFaultSectionPrefData(); // San Andreas - Santa Cruz
 	  FaultSectionPrefData peninsula  = faultSectionDAO.getFaultSection(67).getFaultSectionPrefData(); // San Andreas - Peninsula
@@ -894,6 +938,8 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 	  GutenbergRichterMagFreqDist grMagFreqDist = new GutenbergRichterMagFreqDist(1, 1.0, 6, 8, 21);
 	  A_FaultSource aFaultSource = new A_FaultSource(segmentData,  new WC1994_MagAreaRelationship(), 
 			  0.12, 2.0, 2, scenarioWts, true, grMagFreqDist);
+			  
+	 */
   }
 }
 
