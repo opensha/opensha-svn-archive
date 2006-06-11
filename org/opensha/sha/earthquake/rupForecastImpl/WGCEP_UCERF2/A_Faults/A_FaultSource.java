@@ -125,6 +125,7 @@ public class A_FaultSource extends ProbEqkSource {
   	private String[] segName;  // segment name
   	private double[] segArea;  // segment area
   	private double[] segRate; // segment rate 
+  	private double[] segAveSlipRate; // ave slip rate for segment
   	private ArbDiscrEmpiricalDistFunc[] segSlipDist;  // segment slip dist
   	private double[] rupMeanMag ; // rupture mean mae
   	private String[] rupName;
@@ -169,6 +170,7 @@ public class A_FaultSource extends ProbEqkSource {
 	  double[] segMoRate = new double[num_seg];
 	  double[] segLengths = new double[num_seg];
 	  segName = new String[num_seg];
+	  segAveSlipRate = new double[num_seg];
     
 	  // calculate the Area, Name and Moment Rate for each segment
 	  calcSegArea_Name_MoRate(segmentData, aseisReducesArea, segMoRate, segLengths);
@@ -180,15 +182,7 @@ public class A_FaultSource extends ProbEqkSource {
 		  totalMoRate += segMoRate[seg];
 		  totalArea += segArea[seg];
 	  }
-    
-    // get the moRate for the floater using the last element in the scenarioWts array.
-    double floaterWt = scenarioWts[num_scen];
-    double floaterMoRate = totalMoRate*floaterWt;
-    
-    // get MFD for floater 
-    floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
-    floaterMFD.scaleToTotalMomentRate(floaterMoRate);
-    
+        
     // System.out.println(floaterMoRate +"  "+floaterMFD.getTotalMomentRate());
     
     double[] rupArea = new double[num_rup];
@@ -209,11 +203,22 @@ public class A_FaultSource extends ProbEqkSource {
     double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, totRupRate, summedMagFreqDist);
     String[] scenNames = this.getScenarioNames(rupName, num_seg);
     
-    // add a resampled version of the floater dist
-    summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
+    // get the moRate for the floater using the last element in the scenarioWts array.
+    IncrementalMagFreqDist[] segFloaterMFD = null;
+    double floaterWt = scenarioWts[num_scen];
+    //  get MFD for floater 
+    if(floaterWt != 0) {
+    	floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
+        double floaterMoRate = totalMoRate*floaterWt;
+    	floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+//    	 add a resampled version of the floater dist
+    	summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
+        // get the rate of floaters on each segment
+        segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
+    	totMoRateTest += floaterMoRate;
+    }
 
     // check total moment rates
-    totMoRateTest += floaterMoRate;
     double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
     
     if(D) {
@@ -221,10 +226,7 @@ public class A_FaultSource extends ProbEqkSource {
     		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
     		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
     }
-    
-    // get the rate of floaters on each segment
-    IncrementalMagFreqDist[] segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
-    
+        
     // find the rate of ruptures for each segment
      segRate = new double[num_seg];
      computeSegRate(totRupRate, segFloaterMFD);
@@ -352,6 +354,27 @@ public class A_FaultSource extends ProbEqkSource {
   }
   
   /**
+   * Initial Ave Segment slip rate
+   * 
+   * @param ithSegment
+   * @return
+   */
+  public double getSegAveSlipRate(int ithSegment) {
+	  return this.segAveSlipRate[ithSegment];
+  }
+  
+  /**
+   * Final ave segment slip rate
+   */
+  public double getFinalAveSegSlipRate(int ithSegment) {
+	  ArbDiscrEmpiricalDistFunc segmenstSlipDist = getSegmentSlipDist(ithSegment);
+	  double slipRate=0;
+	  for(int i=0; i<segmenstSlipDist.getNum(); ++i)
+		  slipRate+=segmenstSlipDist.getX(i)*segmenstSlipDist.getY(i);
+	  return slipRate;
+  }
+  
+  /**
    * Get rate for ith segment
    * 
    * @param ithSegment
@@ -433,12 +456,14 @@ public class A_FaultSource extends ProbEqkSource {
 				  for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
 					  segSlipDist[seg].set(rupSlipDist[rup].getX(i), rupSlipDist[rup].getY(i));
 			  }
-		  IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
-		  for(int i=0; i<segFloater.getNum(); ++i) {
-			  double mag = segFloater.getX(i);
-			  double moment = MomentMagCalc.getMoment(mag);
-			  double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*KM_TO_METERS_CONVERT, moment);
-			  segSlipDist[seg].set(slip, segFloater.getY(i));
+		  if(segFloaterMFD!=null) {
+			  IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
+			  for(int i=0; i<segFloater.getNum(); ++i) {
+				  double mag = segFloater.getX(i);
+				  double moment = MomentMagCalc.getMoment(mag);
+				  double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*KM_TO_METERS_CONVERT, moment);
+				  segSlipDist[seg].set(slip, segFloater.getY(i));
+			  }
 		  }
 	  }
   }
@@ -475,7 +500,8 @@ public class A_FaultSource extends ProbEqkSource {
 		  // Sum the rates of all ruptures which are part of a segment
 		  for(int rup=0; rup<num_rup; rup++) 
 			  if(rupInSeg[rup][seg]==1) segRate[seg]+=totRupRate[rup];
-		  segRate[seg]+=segFloaterMFD[seg].getTotalIncrRate();
+		  if(segFloaterMFD!=null)
+			  segRate[seg]+=segFloaterMFD[seg].getTotalIncrRate();
 	  }
   }
   
@@ -668,6 +694,7 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 							sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 				}
 			}
+			segAveSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			segName[seg] = getSegmentName(faultSectionNames);
 		}
 		return ;

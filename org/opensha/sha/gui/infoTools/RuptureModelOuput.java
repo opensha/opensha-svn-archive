@@ -29,7 +29,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultS
 public class RuptureModelOuput extends JFrame implements ActionListener{
 	private JTabbedPane outputTabbedPane = new JTabbedPane();
 	private final static int W = 800;
-	private final static int H = 400;
+	private final static int H = 600;
 	private JButton segmentSlipButton = new JButton("Cum Slip Dist Plot");
 	private JButton totalRupMFDButton = new JButton("Total Mag Freq Dist Plot");
 	private JButton floaterDistButton = new JButton("Floater Mag Freq Dist Plot");
@@ -84,24 +84,28 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 		this.outputTabbedPane.addTab("Segment Info", panel);
 		// list index, name, area, rate and recurrence interval(1/rate) for each segment
 		int numSegments = aFaultSource.getNumSegments();
-		segmentOutput.append("Index\tSegment Area(sq. m)\tSegment Rate\tRecurrence Interval\tSegment Name\n\n");
+		cumSlipFuncList = new ArrayList();
+		segmentOutput.append("Index\tSegment Area(sq. m)\tSegment Rate\tRecurrence Int\tSegment Name\n\n");
+		String initialSlipRateStr = "\nInitial Ave Seg Slip Rate:\nIndex\tSlip Rate(mm/yr)\n";
+		String finalSlipRateStr = "\nFinal Seg Slip Rate:\nIndex\tSlip Rate(mm/yr)\n";
 		for(int i=0; i<numSegments; ++i) {
 			segmentOutput.append((i+1)+"\t"+
 					(float)aFaultSource.getSegmentArea(i)+"\t\t"+
 					+(float)aFaultSource.getSegmentRate(i)+"\t"+
 					(float)(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
 					aFaultSource.getSegmentName(i)+"\n");
+			initialSlipRateStr+=(i+1)+"\t"+(float)aFaultSource.getSegAveSlipRate(i)*1000+"\n"; // mm/yr
+			finalSlipRateStr+=(i+1)+"\t"+(float)aFaultSource.getFinalAveSegSlipRate(i)*1000+"\n";// mm/yr
+			ArbitrarilyDiscretizedFunc func = aFaultSource.getSegmentSlipDist(i).getCumDist();
+			func.setInfo("Cumulative Slip distribution for segment "+(i+1));
+			cumSlipFuncList.add(func);
 		}
 		
 		// now list cumulative slip distribution for each segment
 		//segmentOutput.append("Cumulative Slip distribution for each segment:\n\n");
-		cumSlipFuncList = new ArrayList();
-		for(int i=0; i<numSegments; ++i) {
-			ArbitrarilyDiscretizedFunc func = aFaultSource.getSegmentSlipDist(i).getCumDist();
-			func.setInfo("Cumulative Slip distribution for segment "+(i+1));
-			cumSlipFuncList.add(func);
-	//		segmentOutput.append("Segment "+(i+1)+":\n"+aFaultSource.getSegmentSlipDist(i).getCumDist().toString()+"\n");
-		}
+		segmentOutput.append(initialSlipRateStr);
+		segmentOutput.append(finalSlipRateStr);
+
 		segmentOutput.setCaretPosition(0);
 		
 	}
