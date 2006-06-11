@@ -53,6 +53,9 @@ public class A_FaultSource extends ProbEqkSource {
   private final static double DELTA_MAG = 0.1;
   private final static int NUM_MAG = 26;
   
+  // for rounding magnitudes
+  private final static double ROUND_MAG_TO = 0.01;
+  
   private final static double TOLERANCE = 1e6;
   
   private final static int[][] rupInSeg = {
@@ -127,14 +130,14 @@ public class A_FaultSource extends ProbEqkSource {
   	private String[] rupName;
   	private GaussianMagFreqDist[] rupMagFreqDist; // MFD for rupture
   	private IncrementalMagFreqDist floaterMFD; // Mag Freq dist for floater
-  	private double[] rupRate; // ruptures rate
+  	private double[] totRupRate; // total rate of char ruptures
   	private SummedMagFreqDist summedMagFreqDist;
 
 
   /**
    * Description:
    * 
-   * @param segmentData - an ArrayList containing n ArrayLists (one for each segment), 
+   * @param segmentData - an ArrayList containing N ArrayLists (one for each segment), 
    * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
    * It is assumed that these are in proper order such that concatenating the FaultTraces will produce
    * a total FaultTrace with locations in the proper order.
@@ -192,22 +195,23 @@ public class A_FaultSource extends ProbEqkSource {
     rupMeanMag = new double[num_rup];
     double[] rupMaxMoRate = new double[num_rup]; // if all moment rate could go into this rupture
     double[] rupMoRate = new double[num_rup];
-    rupRate = new double[num_rup];
+    totRupRate = new double[num_rup];
     rupMagFreqDist = new GaussianMagFreqDist[num_rup];
     rupName = getRuptureNames(segName);
     
   	// compute rupArea, rupMaxMoRate, and rupMag for each rupture
     getRupArea_MaxMoRate_Mag(magAreaRel, segArea, segMoRate, rupArea, rupMaxMoRate,magSigma);
     
-    // make summed Mag FreqDist
+    // create the summed Mag FreqDist object
      summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-    // add a resampled version of the floater dist
-    summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
     
     // compute the actual rupture MoRates and MFDs (and add each to summedMagFreqDist)
-    double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, rupRate, summedMagFreqDist);
+    double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, totRupRate, summedMagFreqDist);
     String[] scenNames = this.getScenarioNames(rupName, num_seg);
     
+    // add a resampled version of the floater dist
+    summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
+
     // check total moment rates
     totMoRateTest += floaterMoRate;
     double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
@@ -218,10 +222,12 @@ public class A_FaultSource extends ProbEqkSource {
     		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
     }
     
+    // get the rate of floaters on each segment
     IncrementalMagFreqDist[] segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
-    // find the rate for each segment
+    
+    // find the rate of ruptures for each segment
      segRate = new double[num_seg];
-     computeSegRate(rupRate, segFloaterMFD);
+     computeSegRate(totRupRate, segFloaterMFD);
     
     // find the slip distribution of each rupture
     ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
@@ -299,17 +305,17 @@ public class A_FaultSource extends ProbEqkSource {
   }
   
   /**
-   * Get rupture rate
+   * Get total rupture rate of the ith char rupture
    * 
    * @param ithRup
    * @return
    */
   public double getRupRate(int ithRup) {
-	  return this.rupRate[ithRup];
+	  return this.totRupRate[ithRup];
   }
   
   /**
-   * Get total Mag Freq dist for ruptures
+   * Get total Mag Freq dist for ruptures (including floater)
    *
    */
   public IncrementalMagFreqDist getTotalRupMFD() {
@@ -431,11 +437,10 @@ public class A_FaultSource extends ProbEqkSource {
 		  for(int i=0; i<segFloater.getNum(); ++i) {
 			  double mag = segFloater.getX(i);
 			  double moment = MomentMagCalc.getMoment(mag);
-			  double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag), moment);
+			  double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*KM_TO_METERS_CONVERT, moment);
 			  segSlipDist[seg].set(slip, segFloater.getY(i));
 		  }
 	  }
-	  
   }
   
   /**
@@ -462,14 +467,14 @@ public class A_FaultSource extends ProbEqkSource {
    * Compute the rate for all segments.
    *  
    * @param segRate
-   * @param rupRate
+   * @param totRupRate
    */
-  private void computeSegRate( double[] rupRate, IncrementalMagFreqDist[] segFloaterMFD) {
+  private void computeSegRate( double[] totRupRate, IncrementalMagFreqDist[] segFloaterMFD) {
 	  for(int seg=0; seg<num_seg; ++seg) {
 		  segRate[seg]=0.0;
 		  // Sum the rates of all ruptures which are part of a segment
 		  for(int rup=0; rup<num_rup; rup++) 
-			  if(rupInSeg[rup][seg]==1) segRate[seg]+=rupRate[rup];
+			  if(rupInSeg[rup][seg]==1) segRate[seg]+=totRupRate[rup];
 		  segRate[seg]+=segFloaterMFD[seg].getTotalIncrRate();
 	  }
   }
@@ -483,7 +488,7 @@ public class A_FaultSource extends ProbEqkSource {
  * @param rupMeanMag
  * @param rupMaxMoRate
  * @param rupMoRate
- * @param rupRate
+ * @param totRupRate
  * @param rupMagFreqDist
  * @param rupName
  * @param summedMagFreqDist
@@ -491,7 +496,7 @@ public class A_FaultSource extends ProbEqkSource {
  */
 private double computeRupRates(double magSigma, double magTruncLevel, int magTruncType, 
 		double[] scenarioWts, double[] rupMaxMoRate, 
-		double[] rupMoRate, double[] rupRate, SummedMagFreqDist summedMagFreqDist) {
+		double[] rupMoRate, double[] totRupRate, SummedMagFreqDist summedMagFreqDist) {
 	int rup;
 	int scen;
 	double totMoRateTest = 0;
@@ -506,8 +511,7 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
 		rupMagFreqDist[rup] = new GaussianMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG, rupMeanMag[rup], magSigma,
 				rupMoRate[rup], magTruncLevel, magTruncType);
 		summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[rup]);
-		// this next one should be replaced with the tot rate of the MFD
-		rupRate[rup] = rupMagFreqDist[rup].getTotalIncrRate();
+		totRupRate[rup] = rupMagFreqDist[rup].getTotalIncrRate();
 		totMoRateTest += rupMoRate[rup];
     }
 	return totMoRateTest;
@@ -591,7 +595,7 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
 	    		if(magSigma == 0)
 	    			rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/DELTA_MAG) * DELTA_MAG;
 	    		else
-	    			rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT);
+	    			rupMeanMag[rup] = Math.round(magAreaRel.getMedianMag(rupArea[rup]/KM_TO_METERS_CONVERT)/ROUND_MAG_TO) * ROUND_MAG_TO;
 	    }
 	}
 
@@ -635,7 +639,8 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 	   * @param segName
 	   * @return
 	   */
-	private void calcSegArea_Name_MoRate(ArrayList segmentData, boolean aseisReducesArea, double[] segMoRate, double[] segLengths) {
+	private void calcSegArea_Name_MoRate(ArrayList segmentData, boolean aseisReducesArea, 
+			                             double[] segMoRate, double[] segLengths) {
 		
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<num_seg;seg++) {
