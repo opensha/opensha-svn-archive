@@ -338,7 +338,7 @@ public class GutenbergRichterMagFreqDist
   }
 
   /** Returns a rcopy of this and all points in this GutenbergRichter */
-  public DiscretizedFuncAPI deepClone() throws DataPoint2DException {
+  /*public DiscretizedFuncAPI deepClone() throws DataPoint2DException {
 
     GutenbergRichterMagFreqDist f = new GutenbergRichterMagFreqDist(minX, num,
         delta);
@@ -346,7 +346,7 @@ public class GutenbergRichterMagFreqDist
                          this.bValue);
     f.tolerance = tolerance;
     return f;
-  }
+  }*/
 
   /**
    * this method (defined in parent) is deactivated here (name is finalized)

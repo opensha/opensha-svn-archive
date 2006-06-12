@@ -211,13 +211,13 @@ public class A_FaultSource extends ProbEqkSource {
     //  get MFD for floater 
     if(floaterWt != 0) {
     		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
-        double floaterMoRate = totalMoRateFromSegments*floaterWt;
+    		double floaterMoRate = totalMoRateFromSegments*floaterWt;
     		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
-//    	 add a resampled version of the floater dist
+    		//  add a resampled version of the floater dist
     		summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
-        // get the rate of floaters on each segment
-        segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
-        totalMoRateFromRups += floaterMoRate;
+    		// get the rate of floaters on each segment
+    		segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
+    		totalMoRateFromRups += floaterMoRate;
     }
 
     // check total moment rates
@@ -297,7 +297,7 @@ public class A_FaultSource extends ProbEqkSource {
 			else prob = (totalLength-l)*multFactor/rupLength;
 			probFunc.set(i, prob);
 		}
-	  } else { // if(rupLength<totalLength/2)
+	  } else { // if(rupLengt>totalLength/2)
 		  for(int i=0; i<probFunc.getNum(); ++i) {
 				double l = probFunc.getX(i);
 				double prob;
