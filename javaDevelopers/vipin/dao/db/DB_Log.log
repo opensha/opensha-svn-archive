@@ -6,11 +6,11 @@ dbServer = jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
 dbLogin = fault_sandbox
 log file = javaDevelopers/vipin/dao/db/DB_Log.log
 minconnections = 2
-maxconnections = 50
+maxconnections = 7
 Total refresh interval = 0.5 days
 logAppend = false
 maxCheckoutSeconds = 60
 debugLevel = 2
 -----------------------------------------
-Mon Jul 18 15:15:23 PDT 2005  Opening connection 0 oracle.jdbc.driver.OracleConnection@5f2db0:
-Mon Jul 18 15:15:25 PDT 2005  Opening connection 1 oracle.jdbc.driver.OracleConnection@4d76b4:
+Mon Jun 12 08:12:52 PDT 2006  Opening connection 0 oracle.jdbc.driver.OracleConnection@6bd9e0:
+Mon Jun 12 08:12:54 PDT 2006  Opening connection 1 oracle.jdbc.driver.OracleConnection@d349e2:

@@ -213,15 +213,29 @@ public class A_FaultSource extends ProbEqkSource {
     		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
     		double floaterMoRate = totalMoRateFromSegments*floaterWt;
     		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+    		
+    		// change the info
+    		String new_info = floaterMFD.getInfo();
+    		new_info += "\n\nNew Moment Rate: "+(float)floaterMoRate+"\n\nNew Total Rate: "+(float)floaterMFD.getCumRate(0);
+    		floaterMFD.setInfo(new_info);
+    		
     		//  add a resampled version of the floater dist
     		summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
+    		
     		// get the rate of floaters on each segment
     		segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
     		totalMoRateFromRups += floaterMoRate;
     }
+    
+
 
     // check total moment rates
     double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
+    
+	// add info to the summed dist
+	String summed_info = "\n\nMoment Rate: "+(float)totMoRateTest2+"\n\nTotal Rate: "+(float)summedMagFreqDist.getCumRate(0);
+	summedMagFreqDist.setInfo(summed_info);
+
     
     if(D) {
     		System.out.println("TotMoRate from segs = "+(float) this.totalMoRateFromSegments);
@@ -292,7 +306,7 @@ public class A_FaultSource extends ProbEqkSource {
 		for(int i=0; i<probFunc.getNum(); ++i) {
 			double l = probFunc.getX(i);
 			double prob;
-			if(l<rupLength) prob = l* multFactor;
+			if(l<rupLength) prob = l/rupLength;
 			else if(l<(totalLength-rupLength)) prob = multFactor;
 			else prob = (totalLength-l)*multFactor/rupLength;
 			probFunc.set(i, prob);
@@ -681,8 +695,8 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
 
 /**
  * re-sample magFreqDist 
- * This has some offset problems, but does honor the total moment rate.
- * This should be put in the Incr  MagFreqDist class
+ * This takes the rate at each old magnitude and adds it to the 
+ * rate at the nearest new magnitude. This could be put in the MagFreqDist class.
  * @param magFreqDist
  * @return
  */
@@ -693,9 +707,10 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
   for(int i=0; i<magFreqDist.getNum(); ++i) {
 	  double mag = magFreqDist.getX(i);  //get the magnitude
 	  if(mag >= magLower && mag <= magUpper) {
+		  // find the nearest mag in the new distribution
 		  int j = Math.round((float)((mag-MIN_MAG)/DELTA_MAG));
-//		  System.out.println(magLower+"  "+magUpper+"  "+ j +"  "+mag);
-		  newMFD.set(j,magFreqDist.getY(i));
+		  // add the rate (rather than replace) in case more than one old mag runds to a new mag
+		  newMFD.set(j,newMFD.getY(j)+magFreqDist.getY(i));
 	  }
   }
   /*
