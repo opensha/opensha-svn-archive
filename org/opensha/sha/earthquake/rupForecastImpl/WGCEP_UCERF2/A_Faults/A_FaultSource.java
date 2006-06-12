@@ -133,6 +133,8 @@ public class A_FaultSource extends ProbEqkSource {
   	private IncrementalMagFreqDist floaterMFD; // Mag Freq dist for floater
   	private double[] totRupRate; // total rate of char ruptures
   	private SummedMagFreqDist summedMagFreqDist;
+  	private double totalMoRateFromSegments;
+  	private double totalMoRateFromRups;
 
 
   /**
@@ -176,10 +178,10 @@ public class A_FaultSource extends ProbEqkSource {
 	  calcSegArea_Name_MoRate(segmentData, aseisReducesArea, segMoRate, segLengths);
     
 	  // calculate the total Area and Moment Rate for all the segments
-	  double totalMoRate = 0;
+	  this.totalMoRateFromSegments = 0;
 	  double totalArea = 0;
 	  for(seg=0; seg<num_seg; seg++) {
-		  totalMoRate += segMoRate[seg];
+		  totalMoRateFromSegments += segMoRate[seg];
 		  totalArea += segArea[seg];
 	  }
         
@@ -200,7 +202,7 @@ public class A_FaultSource extends ProbEqkSource {
      summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
     
     // compute the actual rupture MoRates and MFDs (and add each to summedMagFreqDist)
-    double totMoRateTest = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, totRupRate, summedMagFreqDist);
+     totalMoRateFromRups = computeRupRates(magSigma, magTruncLevel, magTruncType, scenarioWts, rupMaxMoRate, rupMoRate, totRupRate, summedMagFreqDist);
     String[] scenNames = this.getScenarioNames(rupName, num_seg);
     
     // get the moRate for the floater using the last element in the scenarioWts array.
@@ -209,21 +211,21 @@ public class A_FaultSource extends ProbEqkSource {
     //  get MFD for floater 
     if(floaterWt != 0) {
     		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
-        double floaterMoRate = totalMoRate*floaterWt;
+        double floaterMoRate = totalMoRateFromSegments*floaterWt;
     		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
 //    	 add a resampled version of the floater dist
     		summedMagFreqDist.addIncrementalMagFreqDist(getReSampledMFD(floaterMFD));
         // get the rate of floaters on each segment
         segFloaterMFD = getSegFloaterMFD(magAreaRel, segLengths, totalArea);
-        totMoRateTest += floaterMoRate;
+        totalMoRateFromRups += floaterMoRate;
     }
 
     // check total moment rates
     double totMoRateTest2  = summedMagFreqDist.getTotalMomentRate();
     
     if(D) {
-    		System.out.println("TotMoRate from segs = "+(float) totalMoRate);
-    		System.out.println("TotMoRate from ruptures = "+(float) totMoRateTest);
+    		System.out.println("TotMoRate from segs = "+(float) this.totalMoRateFromSegments);
+    		System.out.println("TotMoRate from ruptures = "+(float) this.totalMoRateFromRups);
     		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
     }
         
@@ -253,6 +255,17 @@ public class A_FaultSource extends ProbEqkSource {
     }*/
   }
   
+  public double getTotalMoRateFromSegs() {
+	  return this.totalMoRateFromSegments;
+  }
+  
+  public double getTotalMoRateFromRups() {
+	  return this.totalMoRateFromRups;
+  }
+  
+  public double getTotalMoRateFromSummedMFD() {
+	  return this.summedMagFreqDist.getTotalMomentRate();
+  }
   
   private IncrementalMagFreqDist[] getSegFloaterMFD(MagAreaRelationship magAreaRel, double[] segLengths, double totalArea) {
 	  // compute total length

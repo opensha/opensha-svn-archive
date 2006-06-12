@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -105,7 +106,9 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 		//segmentOutput.append("Cumulative Slip distribution for each segment:\n\n");
 		segmentOutput.append(initialSlipRateStr);
 		segmentOutput.append(finalSlipRateStr);
-
+		segmentOutput.append("\nTotal Moment Rate from segments ="+(float)aFaultSource.getTotalMoRateFromSegs()+"\n");
+		segmentOutput.append("Total Moment Rate from ruptures ="+(float)aFaultSource.getTotalMoRateFromRups()+"\n");
+		segmentOutput.append("Total Moment Rate from summed dist ="+(float)aFaultSource.getTotalMoRateFromSummedMFD()+"\n");
 		segmentOutput.setCaretPosition(0);
 		
 	}
@@ -143,8 +146,10 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 					aFaultSource.getRupName(i)+"\n");
 		}
 		rupOutput.setCaretPosition(0);
-		this.floaterRupMFD = new ArrayList();
-		floaterRupMFD.add(aFaultSource.getFloaterMagFreqDist());
+		if(aFaultSource.getFloaterMagFreqDist()!=null) {
+			this.floaterRupMFD = new ArrayList();
+			floaterRupMFD.add(aFaultSource.getFloaterMagFreqDist());
+		} else floaterRupMFD = null;
 		this.totalRupMFD  = new ArrayList();
 		totalRupMFD.add(aFaultSource.getTotalRupMFD());
 	}
@@ -186,7 +191,12 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 			new RuptureModelsGraphWindowAPI_Impl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
 		else if(source == this.totalRupMFDButton)
 			new RuptureModelsGraphWindowAPI_Impl(this.totalRupMFD, "Mag", "Rate", "Total Mag Freq Dist for Rups");
-		else if(source == this.floaterDistButton)
+		else if(source == this.floaterDistButton) {
+			if(floaterRupMFD==null){
+				 JOptionPane.showMessageDialog(this, "Floater MFD not available");
+				 return;
+			}
 			new RuptureModelsGraphWindowAPI_Impl(this.floaterRupMFD, "Mag", "Rate", "Mag Freq Dist for floaters");
+		}
 	}
 }

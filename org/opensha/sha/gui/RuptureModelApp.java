@@ -35,6 +35,7 @@ import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
+import org.opensha.param.ParameterListParameter;
 import org.opensha.param.StringParameter;
 import org.opensha.param.TreeBranchWeightsParameter;
 import org.opensha.param.editor.ParameterListEditor;
@@ -243,7 +244,16 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		metadata+=this.paramList.getParameter(TRUNC_TYPE_PARAM_NAME).getMetadataString()+"\n";
 		metadata+=this.paramList.getParameter(TRUNC_LEVEL_PARAM_NAME).getMetadataString()+"\n";
 		metadata+=this.paramList.getParameter(ASEIS_INTER_PARAM_NAME).getMetadataString()+"\n";
-		metadata+=this.paramList.getParameter(SCENARIO_WT_PARAM_NAME).getMetadataString()+"\n";
+		metadata+=SCENARIO_WT_PARAM_NAME+":\n";
+		ParameterList wtParams = ((ParameterListParameter)paramList.getParameter(SCENARIO_WT_PARAM_NAME)).getParameter();
+		Iterator it = wtParams.getParametersIterator();
+		int i=1;
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			if(param.getName().equalsIgnoreCase(this.FLOATER_RUP_WT_NAME))
+				metadata+="   "+param.getMetadataString()+"\n";
+			else metadata+="   "+(i++)+" = "+(float)((Double)param.getValue()).doubleValue()+"\n";
+		}
 		metadata+=this.paramList.getParameter(MAG_PDF_PARAM_NAME).getMetadataString()+"\n";
 		return metadata;
 	}
