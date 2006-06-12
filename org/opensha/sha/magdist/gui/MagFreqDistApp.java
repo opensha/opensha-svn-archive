@@ -36,7 +36,6 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.sha.param.MagPDF_Parameter;
 import org.opensha.param.*;
-import org.opensha.param.editor.EvenlyDiscretizedFuncParameterEditor;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 /**
  * <p>Title:MagFreqDistApp </p>
@@ -148,7 +147,6 @@ public class MagFreqDistApp
   private ArrayList cumRateFunctionList =  new ArrayList();
   private ArrayList momentRateFunctionList = new ArrayList();
   //summed distribution
-  private SummedMagFreqDist summedMagFreqDist;
   private final static String textString = "(Last Plotted Dist. gets used"+
       ", Summed Dist. gets used if selected)";
   private JLabel textLabel = new JLabel(textString);
@@ -164,6 +162,7 @@ public class MagFreqDistApp
   private static final String MAG_FREQ_DIST = "Mag. Freq. Dist";
   private static final String MAG_PDF_PARAM = "Mag. PDF";
   private StringParameter stParam;
+  private SummedMagFreqDist summedMagFreqDist;
 
 
   public MagFreqDistApp() {
@@ -421,6 +420,7 @@ public class MagFreqDistApp
     ArrayList allowedVals = ((StringConstraint)listEditor.getParameterEditor(MagFreqDistParameter.DISTRIBUTION_NAME).
     		getParameter().getConstraint()).getAllowedValues();
     //if Summed Distn. is within the allowed list of MagDistn then show it as the JCheckBox.
+    //it will work the same for the Mag_PDF_Dist
     if(allowedVals.contains(SummedMagFreqDist.NAME)){
     		makeSumDistVisible(true);
     }
@@ -509,7 +509,6 @@ public class MagFreqDistApp
      }
    }
     addGraphPanel();
-
   }
 
 
@@ -642,6 +641,7 @@ public class MagFreqDistApp
       System.out.println("Starting");
 
     try {
+      magDistEditor.setSummedDistPlotted(false);
       this.magDistEditor.setMagDistFromParams();
 
       String magDistMetadata = magDistEditor.getMagFreqDistParameterEditor().
@@ -691,6 +691,13 @@ public class MagFreqDistApp
 
       if (jCheckSumDist.isVisible() && jCheckSumDist.isSelected()) { // if summed distribution is selected, add to summed distribution
         try {
+          magDistEditor.setSummedDistPlotted(true);
+          double min = magDistEditor.getMin();
+          double max = magDistEditor.getMax();
+          int num = magDistEditor.getNum();
+
+          if(summedMagFreqDist == null)
+            summedMagFreqDist = new SummedMagFreqDist(min,max,num);
           // add this distribution to summed distribution
           summedMagFreqDist.addIncrementalMagFreqDist(function);
 
@@ -712,16 +719,19 @@ public class MagFreqDistApp
       // catch the error and display messages in case of input error
     }
     catch (NumberFormatException e) {
+      e.printStackTrace();
       JOptionPane.showMessageDialog(this,
                                     new String("Enter a Valid Numerical Value"),
                                     "Invalid Data Entered",
                                     JOptionPane.ERROR_MESSAGE);
     }
     catch (NullPointerException e) {
+      e.printStackTrace();
       //JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
       e.printStackTrace();
     }
     catch (Exception e) {
+      e.printStackTrace();
       JOptionPane.showMessageDialog(this, new String(e.getMessage()),
                                     "Invalid Data Entered",
                                     JOptionPane.ERROR_MESSAGE);
@@ -765,6 +775,7 @@ public class MagFreqDistApp
       incrRateFunctionList.clear();
       cumRateFunctionList.clear();
       momentRateFunctionList.clear();
+      summedMagFreqDist = null;
     }
     if(isCumRatePlot)
       cumCustomAxis = false;

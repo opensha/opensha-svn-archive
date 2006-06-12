@@ -319,7 +319,7 @@ public class MagPDF_Parameter
      */
     private void initAdjustableParams() {
 
-       StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,getAllowedMagPDFs(),
+       MagDistStringParameter distributionName =new MagDistStringParameter(DISTRIBUTION_NAME,getAllowedMagPDFs(),
            (String) getAllowedMagPDFs().get(0));
 
        // make the min, delta and num Parameters

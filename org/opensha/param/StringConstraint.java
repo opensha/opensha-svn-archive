@@ -114,8 +114,10 @@ public class StringConstraint
 
     /** Returns true if the string is in the allowed list, false otherwise*/
     public boolean containsString( String str ) {
-        if ( strings.contains( str ) ) return true;
-        else return false;
+      if (strings.contains(str))
+        return true;
+      else
+        return false;
     }
 
 

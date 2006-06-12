@@ -629,6 +629,12 @@ public class MagFreqDistParameterEditor
    * @return
    */
   public double getMin() {
+    String distributionName = parameterList.getParameter(MagFreqDistParameter.
+        DISTRIBUTION_NAME).getValue().toString();
+    if (distributionName.equalsIgnoreCase(ArbIncrementalMagFreqDist.NAME))
+      return ( (EvenlyDiscretizedFuncParameterEditor) editor.getParameterEditor(
+          MagFreqDistParameter.ARB_INCR_PARAM_NAME)).getMin();
+
     return ( (Double) parameterList.getParameter(MagFreqDistParameter.MIN).
             getValue()).doubleValue();
   }
@@ -638,6 +644,12 @@ public class MagFreqDistParameterEditor
    * @return
    */
   public double getMax() {
+    String distributionName = parameterList.getParameter(MagFreqDistParameter.
+        DISTRIBUTION_NAME).getValue().toString();
+    if (distributionName.equalsIgnoreCase(ArbIncrementalMagFreqDist.NAME))
+      return ( (EvenlyDiscretizedFuncParameterEditor) editor.getParameterEditor(
+        MagFreqDistParameter.ARB_INCR_PARAM_NAME)).getMax();
+
     return ( (Double) parameterList.getParameter(MagFreqDistParameter.MAX).
             getValue()).doubleValue();
   }
@@ -647,6 +659,12 @@ public class MagFreqDistParameterEditor
    * @return
    */
   public int getNum() {
+    String distributionName = parameterList.getParameter(MagFreqDistParameter.
+        DISTRIBUTION_NAME).getValue().toString();
+    if (distributionName.equalsIgnoreCase(ArbIncrementalMagFreqDist.NAME))
+      return ( (EvenlyDiscretizedFuncParameterEditor) editor.getParameterEditor(
+        MagFreqDistParameter.ARB_INCR_PARAM_NAME)).getNum();
+
     return ( (Integer) parameterList.getParameter(MagFreqDistParameter.NUM).
             getValue()).intValue();
   }

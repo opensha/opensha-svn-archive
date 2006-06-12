@@ -257,6 +257,35 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     }
 
     /**
+     * returns the Min of the magnitude for the distribution
+     * @return
+     */
+    public double getMin() {
+
+      return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MIN_PARAM_NAME).
+              getValue()).doubleValue();
+    }
+
+    /**
+     * returns the Max of the magnitude for thr distribution
+     * @return
+     */
+    public double getMax() {
+      return ( (Double) parameterList.getParameter(EvenlyDiscretizedFuncParameter.MAX_PARAM_NAME).
+              getValue()).doubleValue();
+    }
+
+    /**
+     * returns the Number of magnitudes for the Distribution
+     * @return
+     */
+    public int getNum() {
+      return ( (Integer) parameterList.getParameter(EvenlyDiscretizedFuncParameter.NUM_PARAM_NAME).
+              getValue()).intValue();
+    }
+
+
+    /**
      * Called when the user clicks on another area of the GUI outside
      * this editor panel. This synchornizes the editor text field
      * value to the internal parameter reference.
