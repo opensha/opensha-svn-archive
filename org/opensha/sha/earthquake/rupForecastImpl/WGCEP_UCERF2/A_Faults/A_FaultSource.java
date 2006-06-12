@@ -258,7 +258,7 @@ public class A_FaultSource extends ProbEqkSource {
 	  // compute total length
 	  double totalLength = 0.0;
 	  for(int i=0; i<segLengths.length; ++i) totalLength+=segLengths[i];
-	  double aveDDW = totalArea/totalLength; // average Down dip width
+	  double aveDDW = totalArea/KM_TO_METERS_CONVERT/totalLength; // average Down dip width
 	  IncrementalMagFreqDist[] segFloaterMFD = new IncrementalMagFreqDist[num_seg]; 
 	  for(int i=0; i<num_seg; ++i) segFloaterMFD[i] = (IncrementalMagFreqDist)this.floaterMFD.deepClone(); 
 	  // loop over all magnitudes in flaoter MFD
@@ -675,6 +675,17 @@ private double computeRupRates(double magSigma, double magTruncLevel, int magTru
  */
 private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDist) {
   IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+  double magLower = newMFD.getMinX();
+  double magUpper = newMFD.getMaxX();
+  for(int i=0; i<magFreqDist.getNum(); ++i) {
+	  double mag = magFreqDist.getX(i);  //get the magnitude
+	  if(mag >= magLower && mag <= magUpper) {
+		  int j = Math.round((float)((mag-MIN_MAG)/DELTA_MAG));
+//		  System.out.println(magLower+"  "+magUpper+"  "+ j +"  "+mag);
+		  newMFD.set(j,magFreqDist.getY(i));
+	  }
+  }
+  /*
   EvenlyDiscretizedFunc cumDist = magFreqDist.getCumRateDist();
   for(int i=0; i<newMFD.getNum(); ++i) {
   	double x = newMFD.getX(i);
@@ -690,6 +701,7 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
   	else cumRate2 = cumDist.getInterpolatedY(x2);
   	newMFD.set(i, cumRate2-cumRate1);
   }
+  */
   newMFD.scaleToTotalMomentRate(magFreqDist.getTotalMomentRate());
 	return newMFD;
 }
