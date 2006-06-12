@@ -110,6 +110,7 @@ public class MagFreqDistParameterEditor
    * @param ae
    */
   public void actionPerformed(ActionEvent ae) {
+    magDistParamsChange = true;
     magDistParam.setSummedDistPlotted(false);
     magDistPanel = new MagFreqDistApp();
     magDistPanel.setMagDistEditor(this);
