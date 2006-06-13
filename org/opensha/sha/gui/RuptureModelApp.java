@@ -561,6 +561,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		}
 		
 		StringParameter deformationModelsParam = new StringParameter(DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, (String)deformationModelNames.get(0) );
+		deformationModelsParam.addParameterChangeListener(this);
 		paramList.addParameter(deformationModelsParam);
 		/*ConstrainedStringParameterEditor deformationModelsParamEditor = new ConstrainedStringParameterEditor(deformationModelsParam);
 		// deformation model selection editor

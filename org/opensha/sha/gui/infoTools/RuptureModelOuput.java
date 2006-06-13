@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -37,6 +38,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	private ArrayList cumSlipFuncList;
 	private ArrayList totalRupMFD;
 	private ArrayList floaterRupMFD;
+	private final static  DecimalFormat FORMAT = new DecimalFormat("0.00");
 	
 	
 	/**
@@ -86,13 +88,13 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 		// list index, name, area, rate and recurrence interval(1/rate) for each segment
 		int numSegments = aFaultSource.getNumSegments();
 		cumSlipFuncList = new ArrayList();
-		segmentOutput.append("Index\tSegment Area(sq. m)\tSegment Rate\tRecurrence Int\tSegment Name\n\n");
+		segmentOutput.append("Index\tSegment Area(sq. m)\tSegment Rate\t\tRecurrence Int\tSegment Name\n\n");
 		String initialSlipRateStr = "\nInitial Ave Seg Slip Rate:\nIndex\tSlip Rate(mm/yr)\n";
 		String finalSlipRateStr = "\nFinal Seg Slip Rate:\nIndex\tSlip Rate(mm/yr)\n";
 		for(int i=0; i<numSegments; ++i) {
 			segmentOutput.append((i+1)+"\t"+
 					(float)aFaultSource.getSegmentArea(i)+"\t\t"+
-					+(float)aFaultSource.getSegmentRate(i)+"\t"+
+					+(float)aFaultSource.getSegmentRate(i)+"\t\t"+
 					(float)(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
 					aFaultSource.getSegmentName(i)+"\n");
 			initialSlipRateStr+=(i+1)+"\t"+(float)aFaultSource.getSegAveSlipRate(i)*1000+"\n"; // mm/yr

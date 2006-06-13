@@ -213,7 +213,7 @@ public class A_FaultSource extends ProbEqkSource {
     		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
     		double floaterMoRate = totalMoRateFromSegments*floaterWt;
     		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
-    		
+    		//if (D) System.out.println("Floater MFD after scaling according to total Segment mo rate="+floaterMFD.toString());
     		// change the info
     		String new_info = floaterMFD.getInfo();
     		new_info += "\n\nNew Moment Rate: "+(float)floaterMoRate+"\n\nNew Total Rate: "+(float)floaterMFD.getCumRate(0);
@@ -291,27 +291,36 @@ public class A_FaultSource extends ProbEqkSource {
 	  // loop over all magnitudes in flaoter MFD
 	  for (int i=0; i<floaterMFD.getNum(); ++i) {
 		  double mag = floaterMFD.getX(i);
+		  if(mag<MIN_MAG || mag>MAX_MAG || floaterMFD.getY(i)==0) continue;
 		  double rupLength = magAreaRel.getMedianArea(mag)/aveDDW;
 		  double[] segProbs = getProbSegObsFloater(segLengths, totalLength, rupLength);
-		  for(int j=0; j<num_seg; ++j) segFloaterMFD[j].set(i, segProbs[j]*segFloaterMFD[j].getY(i));
+		  
+		  for(int j=0; j<num_seg; ++j) {
+			 /* if(segFloaterMFD[j].getY(i)!=0) {
+				 if(D) System.out.println("Seg Index="+j+", mag="+mag+",rupLength="+rupLength+",totalLength="+
+						  totalLength+",segProbs[j]="+segProbs[j]+",segFloaterMFD[j].getY(i)="+segFloaterMFD[j].getY(i));
+			  }*/
+			  segFloaterMFD[j].set(i, segProbs[j]*segFloaterMFD[j].getY(i));
+		  }
 	  }
 	  return segFloaterMFD;
   }
   
   private double[] getProbSegObsFloater(double[] segLengths, double totalLength, double rupLength) {
 	  EvenlyDiscretizedFunc probFunc = new EvenlyDiscretizedFunc(0, totalLength, 100);
-	  
+	  // check whether rup length exceed fault length and shorten if so
+	  if(rupLength>totalLength) rupLength = totalLength;
 	  if(rupLength<totalLength/2) {
 		double multFactor = rupLength/(totalLength-rupLength);  
 		for(int i=0; i<probFunc.getNum(); ++i) {
 			double l = probFunc.getX(i);
 			double prob;
-			if(l<rupLength) prob = l/rupLength;
+			if(l<rupLength) prob = l/rupLength*multFactor;
 			else if(l<(totalLength-rupLength)) prob = multFactor;
 			else prob = (totalLength-l)*multFactor/rupLength;
 			probFunc.set(i, prob);
 		}
-	  } else { // if(rupLengt>totalLength/2)
+	  } else { //  if(rupLength>totalLength/2) {
 		  for(int i=0; i<probFunc.getNum(); ++i) {
 				double l = probFunc.getX(i);
 				double prob;
@@ -320,8 +329,9 @@ public class A_FaultSource extends ProbEqkSource {
 				else prob = (totalLength-l)/(totalLength-rupLength);
 				probFunc.set(i, prob);
 			}
-	  }
+	  } 
 	 
+	  //if (D) System.out.println("Prob Func="+probFunc.toString());
 	  double[] segProbs = new double[segLengths.length];
 	  double firstLength = 0;
 	  double lastLength;
@@ -763,18 +773,22 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 				segLengths[seg]+=length;
 				double ddw = sectData.getDownDipWidth(); //km
 				if(aseisReducesArea) {
-					segArea[seg] += length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
-					segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+					double area = length*ddw*(1-sectData.getAseismicSlipFactor())*KM_TO_METERS_CONVERT; // meters-squared
+					segArea[seg] += area;
+					segMoRate[seg] += FaultMomentCalc.getMoment(area, 
 							sectData.getAveLongTermSlipRate()*1e-3); // SI units
 				}
 				else {
-					segArea[seg] += length*ddw*KM_TO_METERS_CONVERT; // meters-squared
-					segMoRate[seg] += FaultMomentCalc.getMoment(segArea[seg], 
+					double area  = length*ddw*KM_TO_METERS_CONVERT;
+					segArea[seg] +=  area;// meters-squared
+					segMoRate[seg] += FaultMomentCalc.getMoment(area, 
 							sectData.getAveLongTermSlipRate()*1e-3*(1-sectData.getAseismicSlipFactor())); // SI units
 				}
+				
 			}
 			segAveSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			segName[seg] = getSegmentName(faultSectionNames);
+			if (D) System.out.println("Seg Area="+segArea[seg]+",segMoRate[seg]="+segMoRate[seg]+",segAveSlipRate[seg]="+segAveSlipRate[seg]);
 		}
 		return ;
 	}
