@@ -38,7 +38,6 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	private ArrayList cumSlipFuncList;
 	private ArrayList totalRupMFD;
 	private ArrayList floaterRupMFD;
-	private final static  DecimalFormat FORMAT = new DecimalFormat("0.00");
 	
 	
 	/**
@@ -95,7 +94,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 			segmentOutput.append((i+1)+"\t"+
 					(float)aFaultSource.getSegmentArea(i)+"\t\t"+
 					+(float)aFaultSource.getSegmentRate(i)+"\t\t"+
-					(float)(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
+					Math.round(aFaultSource.getSegmentRecurrenceInterval(i))+"\t"+
 					aFaultSource.getSegmentName(i)+"\n");
 			initialSlipRateStr+=(i+1)+"\t"+(float)aFaultSource.getSegAveSlipRate(i)*1000+"\n"; // mm/yr
 			finalSlipRateStr+=(i+1)+"\t"+(float)aFaultSource.getFinalAveSegSlipRate(i)*1000+"\n";// mm/yr

@@ -237,11 +237,11 @@ public class A_FaultSource extends ProbEqkSource {
 	summedMagFreqDist.setInfo(summed_info);
 
     
-    if(D) {
+    /*if(D) {
     		System.out.println("TotMoRate from segs = "+(float) this.totalMoRateFromSegments);
     		System.out.println("TotMoRate from ruptures = "+(float) this.totalMoRateFromRups);
     		System.out.println("TotMoRate from summed = "+(float) totMoRateTest2);
-    }
+    }*/
         
     // find the rate of ruptures for each segment
      segRate = new double[num_seg];
@@ -296,7 +296,7 @@ public class A_FaultSource extends ProbEqkSource {
 		  double[] segProbs = getProbSegObsFloater(segLengths, totalLength, rupLength);
 		  
 		  for(int j=0; j<num_seg; ++j) {
-			 /* if(segFloaterMFD[j].getY(i)!=0) {
+			  /*if(segFloaterMFD[j].getY(i)!=0) {
 				 if(D) System.out.println("Seg Index="+j+", mag="+mag+",rupLength="+rupLength+",totalLength="+
 						  totalLength+",segProbs[j]="+segProbs[j]+",segFloaterMFD[j].getY(i)="+segFloaterMFD[j].getY(i));
 			  }*/
@@ -325,7 +325,7 @@ public class A_FaultSource extends ProbEqkSource {
 				double l = probFunc.getX(i);
 				double prob;
 				if(l<(totalLength-rupLength)) prob = l/(totalLength-rupLength);
-				else if(l<rupLength) prob = 1;
+				else if(l<=rupLength) prob = 1;
 				else prob = (totalLength-l)/(totalLength-rupLength);
 				probFunc.set(i, prob);
 			}
@@ -788,8 +788,7 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 			}
 			segAveSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			segName[seg] = getSegmentName(faultSectionNames);
-			if (D) System.out.println("Seg Area="+segArea[seg]+",segMoRate[seg]="+segMoRate[seg]+",segAveSlipRate[seg]="+segAveSlipRate[seg]);
-		}
+			}
 		return ;
 	}
 	

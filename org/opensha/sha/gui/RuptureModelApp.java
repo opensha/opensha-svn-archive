@@ -91,6 +91,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	private final static String NO_TRUNCATION = "No Truncation";
 	private final static String ONE_SIDED_TRUNCATION = "Upper Truncation";
 	private final static String TWO_SIDED_TRUNCATION = "Upper & Lower Truncation";
+	private final static String TRUNC_TYPE_DEFAULT = TWO_SIDED_TRUNCATION;
 	// Mag truncation level
 	private final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
 	private final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
@@ -102,6 +103,11 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	
 	// floater MFD _ PDF
 	private final static String MAG_PDF_PARAM_NAME = "Floating Rup Mag PDF";
+	
+	// convenience parameter to set All weights to 0 or 1
+	private final static String AUTO_WEIGHTS_PARAM_NAME= "Set All Scenario Weights To";
+	private final static String EQUAL_WEIGHTS = "Equal Weights";
+	private final static String ZERO_WEIGHT = "Zero Weight";
 	
 	// sceanrio weights
 	private TreeBranchWeightsParameter scenarioWtsParam;
@@ -163,6 +169,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 			makeAseisFactorInterpolationParamAndEditor();
 			makeFloaterPDFParam();
 			makeScenarioWtsParamAndEditor(1);
+			this.makeAutoWeightsParamAndEditor();
 			paramListEditor = new ParameterListEditor(this.paramList);
 			paramListEditor.setTitle(PARAM_EDITOR_TITLE);
 			setTruncLevelVisibility();
@@ -458,7 +465,16 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 			this.paramListEditor.replaceParameterForEditor(SCENARIO_WT_PARAM_NAME, scenarioWtsParam);
 		}
 		else paramList.addParameter(scenarioWtsParam);
-
+	}
+	
+	
+	private void makeAutoWeightsParamAndEditor() {
+		ArrayList weightOptions = new ArrayList();
+		weightOptions.add(EQUAL_WEIGHTS);
+		weightOptions.add(ZERO_WEIGHT);
+		StringParameter weightOptionsParam = new StringParameter(AUTO_WEIGHTS_PARAM_NAME, weightOptions, (String)weightOptions.get(0));
+		weightOptionsParam.addParameterChangeListener(this);
+		paramList.addParameter(weightOptionsParam);
 	}
 	
 	/**
@@ -520,7 +536,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		truncTypes.add(NO_TRUNCATION);
 		truncTypes.add(ONE_SIDED_TRUNCATION);
 		truncTypes.add(TWO_SIDED_TRUNCATION);
-		StringParameter truncTypesParam = new StringParameter(TRUNC_TYPE_PARAM_NAME, truncTypes, (String)truncTypes.get(0));
+		StringParameter truncTypesParam = new StringParameter(TRUNC_TYPE_PARAM_NAME, truncTypes, TRUNC_TYPE_DEFAULT);
 		truncTypesParam.addParameterChangeListener(this);
 		truncTypesParam.setInfo(TRUNC_TYPE_PARAM_INFO);
 		paramList.addParameter(truncTypesParam);
@@ -692,7 +708,29 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 			setTruncLevelVisibility();
 		else if(paramName.equalsIgnoreCase(SEGMENT_MODELS_PARAM_NAME))
 			updateSegmentNamesAndScenarios();
-		
+		else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME))
+			updateSegmentNamesAndScenarios();
+		else if(paramName.equalsIgnoreCase(AUTO_WEIGHTS_PARAM_NAME))
+			setWeightsAuto();
+	}
+	
+	/**
+	 * Set weights automatically
+	 *
+	 */
+	private void setWeightsAuto() {
+		String weightsAutoOption = (String)this.paramList.getValue(AUTO_WEIGHTS_PARAM_NAME);
+		double weight=0.0;
+		if(weightsAutoOption==EQUAL_WEIGHTS && scenarioNames!=null) 
+				weight = 1.0/this.scenarioNames.length;
+		else if (weightsAutoOption==ZERO_WEIGHT) weight = 0.0;
+		ParameterList wtParams = ((ParameterListParameter)paramList.getParameter(SCENARIO_WT_PARAM_NAME)).getParameter();
+		Iterator it = wtParams.getParametersIterator();
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			param.setValue(new Double(weight));
+		}
+		this.paramListEditor.getParameterEditor(SCENARIO_WT_PARAM_NAME).refreshParamEditor();
 	}
 	
 	/**
@@ -703,6 +741,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		if(selectedSegmentModel.equalsIgnoreCase(NONE)) {
 			segmentAndScenarioNames.setText("");
+			this.scenarioNames = null;
 			this.calcButton.setEnabled(false); // if no Segment model is chosen, disable the calc button
 			return;
 		}
