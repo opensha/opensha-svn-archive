@@ -34,6 +34,7 @@ public class AttenuationRelationshipsInstance {
   public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
   public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
   public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
+  public final static String CS_2005_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
 
   //arrayList to store the supported AttenRel Class Names with their full package structure.
   ArrayList supportedAttenRelClasses = new ArrayList();
@@ -57,6 +58,7 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(CS_2005_CLASS_NAME);
   }
 
   /**
