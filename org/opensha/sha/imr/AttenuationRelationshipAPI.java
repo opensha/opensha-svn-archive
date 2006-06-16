@@ -109,6 +109,40 @@ public interface AttenuationRelationshipAPI
       );
 
   /**
+   * This calculates the intensity-measure level for each Sa Period
+   * associated with probability
+   * held by the exceedProbParam given the mean and standard deviation
+   * (according to the chosen truncation type and level).  Note
+   * that this does not store the answer in the value of the internally held
+   * intensity-measure parameter.
+   * @param exceedProb : Sets the Value of the exceed Prob param with this value.
+   * @return                         The intensity-measure level
+   * @exception  ParameterException  Description of the Exception
+   */
+  public DiscretizedFuncAPI getSA_IML_AtExceedProbability(double exceedProb) throws
+      ParameterException,
+      IMRException;
+
+
+  /**
+   *  This calculates the exceed-probability for each SA-Period that
+   *  the supplied intensity-measure level
+   *  will be exceeded given the mean and stdDev computed from current independent
+   *  parameter values.  Note that the answer is not stored in the internally held
+   *  exceedProbParam (this latter param is used only for the
+   *  getIML_AtExceedProb() method).
+   *
+   * @return     DiscretizedFuncAPI  The DiscretizedFuncAPI function with each
+   * value corresponding the SA Period
+   * @exception  ParameterException  Description of the Exception
+   * @exception  IMRException        Description of the Exception
+   */
+  public DiscretizedFuncAPI getSA_ExceedProbability(double iml) throws ParameterException,
+      IMRException ;
+
+
+
+  /**
    *  This calculates the probability that the supplied intensity-measure level
    *  will be exceeded given the mean and stdDev computed from current independent
    *  parameter values.  Note that the answer is not stored in the internally held

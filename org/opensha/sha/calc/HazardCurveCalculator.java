@@ -37,13 +37,13 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   public final static double MAX_DISTANCE_DEFAULT = 200;
   protected double MAX_DISTANCE = MAX_DISTANCE_DEFAULT;
 
-  private int currRuptures = -1;
-  private int totRuptures=0;
+  protected int currRuptures = -1;
+  protected int totRuptures=0;
 
   //index to keep track how many sources have been traversed
-  private int sourceIndex;
+  protected int sourceIndex;
   // get total number of sources
-  int numSources;
+  protected int numSources;
 
   /**
    * creates the HazardCurveCalculator object
@@ -303,7 +303,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    *
    * @param arb
    */
-  private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+  protected void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
     int num = arb.getNum();
     for(int i=0;i<num;++i)
       arb.set(i,val);

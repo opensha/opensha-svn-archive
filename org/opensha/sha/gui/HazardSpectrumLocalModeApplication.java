@@ -58,10 +58,7 @@ public class HazardSpectrumLocalModeApplication
 
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
-  //Total number of the SA Period Values
-  private int numSA_PeriodVals;
-  //Total number of the values for which we have ran the Hazard Curve
-  private int numSA_PeriodValDone = 0;
+
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");
 
@@ -305,8 +302,6 @@ public class HazardSpectrumLocalModeApplication
       setButtonsEnable(true);
       return;
     }
-    numSA_PeriodValDone =0;
-    numSA_PeriodVals = 0;
     isHazardCalcDone = true;
     // add the function to the function list
     functionList.add(hazFunction);
@@ -477,7 +472,6 @@ public class HazardSpectrumLocalModeApplication
           if (independentParam.getName().equalsIgnoreCase(this.SA_PERIOD)) {
             saPeriodVector = ( (DoubleDiscreteParameter) independentParam).
                 getAllowedDoubles();
-            numSA_PeriodVals = saPeriodVector.size();
           }
         }
       }
