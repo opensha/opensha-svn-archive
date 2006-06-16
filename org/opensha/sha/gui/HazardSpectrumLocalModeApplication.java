@@ -267,7 +267,7 @@ public class HazardSpectrumLocalModeApplication
         else {
           progressCheckBox.setSelected(false);
           progressCheckBox.setEnabled(false);
-          if (probAtIML)
+          if (probAtIML)//if the user has selected prob@IML
             hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
                 site, imr,rupture,  probAtIML, imlProbValue);
           else //if the user has selected IML@prob
@@ -285,7 +285,6 @@ public class HazardSpectrumLocalModeApplication
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
-
       }
       ((ArbitrarilyDiscretizedFunc)hazFunction).setInfo(getParametersInfoAsString());
     }
@@ -322,7 +321,6 @@ public class HazardSpectrumLocalModeApplication
     controlComboBox.addItem(DISTANCE_CONTROL);
     controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     controlComboBox.addItem(CVM_CONTROL);
-    controlComboBox.addItem(X_VALUES_CONTROL);
     controlComboBox.addItem(PLOTTING_OPTION);
     controlComboBox.addItem(XY_Values_Control);
   }
