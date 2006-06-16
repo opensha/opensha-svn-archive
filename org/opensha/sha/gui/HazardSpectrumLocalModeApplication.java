@@ -215,9 +215,7 @@ public class HazardSpectrumLocalModeApplication
       probAtIML = false;
     }
     xAxisName = X_AXIS_LABEL;
-    // check whether this forecast is a Forecast List
-    // if this is forecast list , handle it differently
-    boolean isEqkForecastList = false;
+
     if (forecast instanceof ERF_List && isProbCurve) {
       //if add on top get the name of ERF List forecast
       if (addData)
@@ -270,11 +268,8 @@ public class HazardSpectrumLocalModeApplication
           progressCheckBox.setSelected(false);
           progressCheckBox.setEnabled(false);
           if (probAtIML)
-
             hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
                 site, imr,rupture,  probAtIML, imlProbValue);
-
-
           else //if the user has selected IML@prob
             hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
                 site, imr,rupture,  !probAtIML, imlProbValue);
@@ -305,10 +300,7 @@ public class HazardSpectrumLocalModeApplication
     isHazardCalcDone = true;
     // add the function to the function list
     functionList.add(hazFunction);
-
   }
-
-
 
   /**
    * Initialise the IMT_Prob Selector Gui Bean
@@ -454,9 +446,6 @@ public class HazardSpectrumLocalModeApplication
     }
   }
 
-
-
-
   /**
    * Gets the SA Period Values for the IMR
    * @param imr
@@ -581,30 +570,6 @@ public class HazardSpectrumLocalModeApplication
     if (addData)
       functionList.add(weightedFuncList);
     // set the X, Y axis label
-  }
-
-  /**
-   * set x values in log space for Hazard Function to be passed to IMR as IMT is
-   * always SA
-   * It accepts 1 parameters
-   *
-   * @param originalFunc :  this is the function with X values set
-   */
-  private void initX_Values(DiscretizedFuncAPI arb, double imlProbVal,
-                            boolean imlAtProb,
-                            boolean probAtIML) {
-
-    if (probAtIML) //prob@iml
-      arb.set(Math.log(imlProbVal), 1);
-    else { //iml@Prob then we have to interpolate over a range of X-Values
-      if (!useCustomX_Values)
-        function = imtInfo.getDefaultHazardCurve(SA_NAME);
-
-      if (imtInfo.isIMT_LogNormalDist(SA_NAME)) {
-        for (int i = 0; i < function.getNum(); ++i)
-          arb.set(Math.log(function.getX(i)), 1);
-      }
-    }
   }
 
 
