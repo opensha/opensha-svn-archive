@@ -643,6 +643,65 @@ public abstract class AttenuationRelationship
 
 
   /**
+   *  This calculates the exceed-probability for each SA-Period that
+   *  the supplied intensity-measure level
+   *  will be exceeded given the mean and stdDev computed from current independent
+   *  parameter values.  Note that the answer is not stored in the internally held
+   *  exceedProbParam (this latter param is used only for the
+   *  getIML_AtExceedProb() method).
+   *
+   * @return     DiscretizedFuncAPI  The DiscretizedFuncAPI function with each
+   * value corresponding the SA Period
+   * @exception  ParameterException  Description of the Exception
+   * @exception  IMRException        Description of the Exception
+   */
+  public DiscretizedFuncAPI getSA_ExceedProbability(double iml) throws ParameterException,
+      IMRException {
+    this.setIntensityMeasure(this.SA_NAME);
+    im.setValue(new Double(iml));
+    DiscretizedFuncAPI exeedProbFunction =  new ArbitrarilyDiscretizedFunc();
+    ArrayList allowedSA_Periods = periodParam.getAllowedDoubles();
+    int size = allowedSA_Periods.size();
+    for(int i=0;i<size;++i){
+      Double saPeriod = (Double)allowedSA_Periods.get(i);
+      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      exeedProbFunction.set(saPeriod.doubleValue(),getExceedProbability());
+    }
+    return exeedProbFunction;
+  }
+
+
+  /**
+   * This calculates the intensity-measure level for each Sa Period
+   * associated with probability
+   * held by the exceedProbParam given the mean and standard deviation
+   * (according to the chosen truncation type and level).  Note
+   * that this does not store the answer in the value of the internally held
+   * intensity-measure parameter.
+   * @param exceedProb : Sets the Value of the exceed Prob param with this value.
+   * @return                         The intensity-measure level
+   * @exception  ParameterException  Description of the Exception
+   */
+  public DiscretizedFuncAPI getSA_IML_AtExceedProbability(double exceedProb) throws ParameterException,
+      IMRException {
+    this.setIntensityMeasure(this.SA_NAME);
+    //sets the value of the exceedProb Param.
+    exceedProbParam.setValue(exceedProb);
+    DiscretizedFuncAPI imlFunction =  new ArbitrarilyDiscretizedFunc();
+    ArrayList allowedSA_Periods = periodParam.getAllowedDoubles();
+    int size = allowedSA_Periods.size();
+    for(int i=0;i<size;++i){
+      Double saPeriod = (Double)allowedSA_Periods.get(i);
+      getParameter(this.PERIOD_NAME).setValue(saPeriod);
+      imlFunction.set(saPeriod.doubleValue(),getIML_AtExceedProb());
+    }
+
+    return imlFunction;
+  }
+
+
+
+  /**
    * This returns (iml-mean)/stdDev, ignoring any truncation.  This gets the iml
    * from the value in the Intensity-Measure Parameter.  SHOULD THIS THROW AN
    * EXCEPTION LIKE GetExceedProbabilityY()?
