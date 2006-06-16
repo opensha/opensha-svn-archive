@@ -655,7 +655,7 @@ public abstract class AttenuationRelationship
    * @exception  ParameterException  Description of the Exception
    * @exception  IMRException        Description of the Exception
    */
-  public DiscretizedFuncAPI getSA_ExceedProbability(double iml) throws ParameterException,
+  public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException {
     this.setIntensityMeasure(this.SA_NAME);
     im.setValue(new Double(iml));
@@ -682,7 +682,7 @@ public abstract class AttenuationRelationship
    * @return                         The intensity-measure level
    * @exception  ParameterException  Description of the Exception
    */
-  public DiscretizedFuncAPI getSA_IML_AtExceedProbability(double exceedProb) throws ParameterException,
+  public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws ParameterException,
       IMRException {
     this.setIntensityMeasure(this.SA_NAME);
     //sets the value of the exceedProb Param.

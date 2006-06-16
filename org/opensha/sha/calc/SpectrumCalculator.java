@@ -178,11 +178,11 @@ public class SpectrumCalculator{
 
          if(probAtIML)
            // get the conditional probability of exceedance from the IMR
-           condProbFunc=(DiscretizedFuncAPI)imr.getSA_ExceedProbability(Math.log(imlProbVal));
+           condProbFunc=(DiscretizedFuncAPI)imr.getSA_ExceedProbSpectrum(Math.log(imlProbVal));
          else{
            // get the conditional probability of exceedance from the IMR
            condProbFunc = (DiscretizedFuncAPI) imr.
-               getSA_IML_AtExceedProbability(imlProbVal);
+               getSA_IML_AtExceedProbSpectrum(imlProbVal);
            int size = hazFunction.getNum();
            for (int i = 0; i < size; ++i) {
              condProbFunc.set(i, Math.exp(condProbFunc.getY(i)));
@@ -226,7 +226,6 @@ public class SpectrumCalculator{
          hazFunction.set(i,0.0);
      if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
      return hazFunction;
-
    }
 
 
@@ -296,9 +295,9 @@ public class SpectrumCalculator{
      DiscretizedFuncAPI hazFunction = null;
      if(probAtIML)
        // get the conditional probability of exceedance from the IMR
-       hazFunction = (DiscretizedFuncAPI) imr.getSA_ExceedProbability(Math.log(imlProbVal));
+       hazFunction = (DiscretizedFuncAPI) imr.getSA_ExceedProbSpectrum(Math.log(imlProbVal));
      else{
-       hazFunction = (DiscretizedFuncAPI) imr.getSA_IML_AtExceedProbability(
+       hazFunction = (DiscretizedFuncAPI) imr.getSA_IML_AtExceedProbSpectrum(
            imlProbVal);
        int numPoints = hazFunction.getNum();
        for(int i=0;i<numPoints;++i){

@@ -119,7 +119,7 @@ public interface AttenuationRelationshipAPI
    * @return                         The intensity-measure level
    * @exception  ParameterException  Description of the Exception
    */
-  public DiscretizedFuncAPI getSA_IML_AtExceedProbability(double exceedProb) throws
+  public DiscretizedFuncAPI getSA_IML_AtExceedProbSpectrum(double exceedProb) throws
       ParameterException,
       IMRException;
 
@@ -137,7 +137,7 @@ public interface AttenuationRelationshipAPI
    * @exception  ParameterException  Description of the Exception
    * @exception  IMRException        Description of the Exception
    */
-  public DiscretizedFuncAPI getSA_ExceedProbability(double iml) throws ParameterException,
+  public DiscretizedFuncAPI getSA_ExceedProbSpectrum(double iml) throws ParameterException,
       IMRException ;
 
 
