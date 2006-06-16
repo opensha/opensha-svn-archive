@@ -258,7 +258,6 @@ public class HazardSpectrumLocalModeApplication
     }
     try {
       // calculate the hazard curve
-      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
       try {
         if (isProbCurve)
           hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
@@ -610,7 +609,6 @@ public class HazardSpectrumLocalModeApplication
         erfGuiBean.getSelectedERFTimespanGuiBean().
         getParameterListMetadataString() + "<br><br>" +
         "Max. Source-Site Distance = " + maxSourceSiteDistance;
-
   }
 
   //Main method
