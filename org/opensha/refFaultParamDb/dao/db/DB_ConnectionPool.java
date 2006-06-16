@@ -39,7 +39,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     private String pid;
 
     private final int DEFAULTMAXCHECKOUTSECONDS=60;
-    private final int DEFAULTDEBUGLEVEL=2;
+    private final int DEFAULTDEBUGLEVEL=0;
 
 
 
