@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.opensha.sha.gui;
 
 import java.awt.GridBagConstraints;
@@ -207,11 +204,11 @@ public class HazardSpectrumLocalModeApplication
     double imlProbValue = imlProbGuiBean.getIML_Prob();
     boolean probAtIML = false;
     if (imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML)) {
-      yAxisName = IML;
+      yAxisName = PROB_AT_EXCEED;
       probAtIML = true;
     }
     else {
-      yAxisName = PROB_AT_EXCEED;
+      yAxisName = IML;
       probAtIML = false;
     }
     xAxisName = X_AXIS_LABEL;

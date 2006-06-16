@@ -178,11 +178,16 @@ public class SpectrumCalculator{
 
          if(probAtIML)
            // get the conditional probability of exceedance from the IMR
-           condProbFunc=(DiscretizedFuncAPI)imr.getSA_ExceedProbability(imlProbVal);
-         else
+           condProbFunc=(DiscretizedFuncAPI)imr.getSA_ExceedProbability(Math.log(imlProbVal));
+         else{
            // get the conditional probability of exceedance from the IMR
-           condProbFunc=(DiscretizedFuncAPI)imr.getSA_IML_AtExceedProbability(imlProbVal);
-
+           condProbFunc = (DiscretizedFuncAPI) imr.
+               getSA_IML_AtExceedProbability(imlProbVal);
+           int size = hazFunction.getNum();
+           for (int i = 0; i < size; ++i) {
+             condProbFunc.set(i, Math.exp(condProbFunc.getY(i)));
+           }
+         }
 
          // For poisson source
          if(poissonSource) {
