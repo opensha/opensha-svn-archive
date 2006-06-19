@@ -57,9 +57,9 @@ public class SpectrumCalculator{
   }
 
   /**
-   * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve
-   * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
-   * exceedance probabilites are desired).
+   * This function computes a spectrum curve for the given Site, IMR, and ERF.  The curve
+   * in place in the passed in hazFunction (with the X-axis values being the SA
+   * Periods for which exceedance probabilites are desired).
    * @param hazFunction: This function is where the hazard curve is placed
    * @param site: site object
    * @param imr: selected IMR object
@@ -69,8 +69,7 @@ public class SpectrumCalculator{
   public DiscretizedFuncAPI getSpectrumCurve(Site site,
                                              AttenuationRelationshipAPI imr,
                                              EqkRupForecastAPI eqkRupForecast,
-                                             boolean probAtIML,
-                                             double imlProbVal,
+                                             double imlVal,
                                              ArrayList supportedSA_Periods) {
 
     //creating the Master function that initializes the Function with supported SA Periods Vals
@@ -176,19 +175,10 @@ public class SpectrumCalculator{
 
          DiscretizedFuncAPI condProbFunc = null;
 
-         if(probAtIML)
-           // get the conditional probability of exceedance from the IMR
-           condProbFunc=(DiscretizedFuncAPI)imr.getSA_ExceedProbSpectrum(Math.log(imlProbVal));
-         else{
-           // get the conditional probability of exceedance from the IMR
-           condProbFunc = (DiscretizedFuncAPI) imr.
-               getSA_IML_AtExceedProbSpectrum(imlProbVal);
-           int size = hazFunction.getNum();
-           for (int i = 0; i < size; ++i) {
-             condProbFunc.set(i, Math.exp(condProbFunc.getY(i)));
-           }
-         }
 
+         // get the conditional probability of exceedance from the IMR
+         condProbFunc = (DiscretizedFuncAPI) imr.getSA_ExceedProbSpectrum(Math.log(
+             imlVal));
          // For poisson source
          if(poissonSource) {
            /* First make sure the probability isn't 1.0 (or too close); otherwise rates are
@@ -227,6 +217,7 @@ public class SpectrumCalculator{
      if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
      return hazFunction;
    }
+
 
 
    /**
