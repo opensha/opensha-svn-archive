@@ -14,6 +14,7 @@ import java.awt.Insets;
 import java.util.ArrayList;
 
 import org.opensha.param.StringParameter;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.sha.fault.FaultTrace;
@@ -44,17 +45,17 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private InfoLabel entryDateLabel = new InfoLabel();
 	private final static String SOURCE = "Source";
 	private InfoLabel sourceLabel = new InfoLabel();
-	private final static String  AVE_LONG_TERM_SLIP_RATE= "Ave Long Term Slip Rate";
+	private final static String  AVE_LONG_TERM_SLIP_RATE= "Ave Long Term Slip Rate (mm/yr)";
 	private InfoLabel slipRateLabel = new InfoLabel();
-	private final static String  DIP= "Ave Dip";
+	private final static String  DIP= "Ave Dip (degrees)";
 	private InfoLabel dipLabel = new InfoLabel();
 	private final static String  DIP_DIRECTION= "Dip Direction";
 	private InfoLabel dipDirectionLabel = new InfoLabel();
 	private final static String  RAKE= "Ave Rake";
 	private InfoLabel rakeLabel = new InfoLabel();
-	private final static String  UPPER_DEPTH= "Upper Seis Depth";
+	private final static String  UPPER_DEPTH= "Upper Seis Depth (km)";
 	private InfoLabel upperDepthLabel = new InfoLabel();
-	private final static String  LOWER_DEPTH= "Lower Seis Depth";
+	private final static String  LOWER_DEPTH= "Lower Seis Depth (km)";
 	private InfoLabel lowerDepthLabel = new InfoLabel();
 	private final static String  ASEISMIC_SLIP= "Aseismic Slip Factor";
 	private InfoLabel aseismicSlipLabel = new InfoLabel();
@@ -66,6 +67,13 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private final static String PROB = "Prob";
 	private final static String INFO = "Info";
 	private InfoLabel commentsLabel = new InfoLabel();
+	private final static String DERIVED_VALS = "Derived Values";
+	private final static String SECTION_LENGTH = "Fault Trace Length (km)";
+	private InfoLabel sectionLengthLabel = new InfoLabel();
+	private final static String SECTION_DOWN_DIP_WIDTH = "Down Dip Width (km)";
+	private InfoLabel downDipWidthLabel = new InfoLabel();
+	private final static String SECTION_AREA = "Area (sq km)";
+	private InfoLabel sectionAreaLabel = new InfoLabel();
 	private GridBagLayout gridBagLayout = new GridBagLayout();
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
 	private JButton editButton = new JButton("Edit");
@@ -156,8 +164,13 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		
 		
-		// aseismic lsip factor
+		// aseismic slip factor
 		add(GUI_Utils.getPanel(aseismicSlipLabel, ASEISMIC_SLIP), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		
+		// derived values
+		add(getDerivedValsPanel(), new GridBagConstraints(1, pos++, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	}
@@ -229,6 +242,23 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		return dipPanel;
 	}
 
+	private JPanel getDerivedValsPanel() {
+		JPanel derivedValsPanel = GUI_Utils.getPanel(DERIVED_VALS);	
+		// Fault Trace Length
+		derivedValsPanel.add(this.sectionLengthLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		// Down Dip width
+		derivedValsPanel.add(this.downDipWidthLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		// Section Area
+		derivedValsPanel.add(this.sectionAreaLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		return derivedValsPanel;
+	}
+	
 	/**
 	 * JPanel to view QfaultId, entry date, source and comments
 	 * @return
@@ -342,8 +372,17 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			Location loc = faultTrace.getLocationAt(i);
 			locsAsString.add(loc.getLongitude()+","+loc.getLatitude());
 		}
-		faultTraceLabel.setTextAsHTML(locsAsString);
 		
+		faultTraceLabel.setTextAsHTML(locsAsString);
+		FaultSectionPrefData faultsectionPrefData = selectedFaultSection.getFaultSectionPrefData();
+		// fault trace length
+		double length = faultsectionPrefData.getLength();
+		this.sectionLengthLabel.setTextAsHTML(SECTION_LENGTH, ""+(float)length);
+		// down dip width
+		double ddw = faultsectionPrefData.getDownDipWidth();
+		this.downDipWidthLabel.setTextAsHTML(SECTION_DOWN_DIP_WIDTH, ""+(float)ddw);
+		// area
+		this.sectionAreaLabel.setTextAsHTML(SECTION_AREA, ""+(float)(length*ddw));
 		// comments
 		commentsLabel.setTextAsHTML(COMMENTS, selectedFaultSection.getComments());
 		

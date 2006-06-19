@@ -5,12 +5,9 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 import org.jfree.data.Range;
-import org.opensha.sha.gui.infoTools.*;
 import org.opensha.util.ImageUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
 import java.io.IOException;
 
 /**
