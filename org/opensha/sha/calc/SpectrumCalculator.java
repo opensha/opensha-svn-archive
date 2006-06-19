@@ -263,7 +263,7 @@ public class SpectrumCalculator{
     * @param rupture: Single Earthquake Rupture
     * @return
     */
-   public DiscretizedFuncAPI getSpectrumCurve(
+   public DiscretizedFuncAPI getDeterministicSpectrumCurve(
        Site site, AttenuationRelationshipAPI imr, EqkRupture rupture,
         boolean probAtIML, double imlProbVal) {
 

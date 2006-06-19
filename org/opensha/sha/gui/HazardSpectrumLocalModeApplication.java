@@ -315,11 +315,11 @@ public class HazardSpectrumLocalModeApplication
           progressCheckBox.setSelected(false);
           progressCheckBox.setEnabled(false);
           if (probAtIML)//if the user has selected prob@IML
-            hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
+            hazFunction = (DiscretizedFuncAPI) calc.getDeterministicSpectrumCurve(
                 site, imr,rupture,  probAtIML, imlProbValue);
           else //if the user has selected IML@prob
-            hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
-                site, imr,rupture,!probAtIML, imlProbValue);
+            hazFunction = (DiscretizedFuncAPI) calc.getDeterministicSpectrumCurve(
+                site, imr,rupture,probAtIML, imlProbValue);
 
           progressCheckBox.setSelected(true);
           progressCheckBox.setEnabled(true);
