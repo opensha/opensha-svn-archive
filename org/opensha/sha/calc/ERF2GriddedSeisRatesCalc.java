@@ -72,7 +72,7 @@ public class ERF2GriddedSeisRatesCalc {
    * region. Each element of the arraylist contains a IncrementalMagFreqDist object
    * and the number of elements in the arraylist are equal to number of locations
    * in the gridded region. This function was tested for Frankel02 ERF.
-   * Following testing procedure was applied(Region used was RELM Gridded region and
+   * Following testing procedure was applied (Region used was RELM Gridded region and
    *  min mag=5, max Mag=9, Num mags=41):
    * 1. Choose an arbitrary location say 31.5, -117.2
    * 2. Make Frankel02 ERF with Background only sources
@@ -114,13 +114,23 @@ public class ERF2GriddedSeisRatesCalc {
         mag = magFreqDist.getX(j);
         // get interpolated rate
         cumRate1 = getRateForMag(cumFunc, mag - delta/2);
-        // get interpolated rate for the mag. If mag does not exist,
+        // get interpolated rate for the mag
         cumRate2 = getRateForMag(cumFunc, mag + delta/2);
         // set the rate in Incremental Mag Freq Dist
         magFreqDist.set(mag, cumRate1-cumRate2);
       }
       //if(i==0) System.out.println("Mag Freq Dist::::\n"+magFreqDist.getMetadataString());
+      
     }
+    
+    
+    /* test:
+    ArbitrarilyDiscretizedFunc cumFunc = (ArbitrarilyDiscretizedFunc)cumMFDList.get(500);
+    System.out.println(cumFunc.toDebugString());
+    IncrementalMagFreqDist magFreqDist = (IncrementalMagFreqDist) mfdList.get(500);
+    System.out.println(magFreqDist.toString());
+*/
+
     return mfdList;
   }
 
@@ -184,15 +194,16 @@ public class ERF2GriddedSeisRatesCalc {
         magRateDist.add(null);
       }
       else {
-        ArbitrarilyDiscretizedFunc func = funcs[i].getCumDist();
+    	  // get the cumulative dist of the ArbDiscrFunc (sum of values ² X)
+        ArbitrarilyDiscretizedFunc cumDist = funcs[i].getCumDist();
         //if(i==0) System.out.println("cum function>>>>>>\n"+func.toString());
-        int numFuncs = func.getNum();
-        ArbitrarilyDiscretizedFunc magRateFunction = new
-            ArbitrarilyDiscretizedFunc();
-        magRateFunction.set(func.getX(0), func.getY(numFuncs- 1));
-        for (int magIndex=1; magIndex < numFuncs;  ++magIndex) {
-          double rates = func.getY(numFuncs- 1) - func.getY(magIndex-1);
-          magRateFunction.set(func.getX(magIndex), rates);
+        int numMags = cumDist.getNum();
+        ArbitrarilyDiscretizedFunc magRateFunction = new ArbitrarilyDiscretizedFunc();
+        // now convert it to the cumulative mag-freq-dist (sum of values ³ each mag)
+        magRateFunction.set(cumDist.getX(0), cumDist.getY(numMags- 1));
+        for (int magIndex=1; magIndex < numMags;  ++magIndex) {
+          double rates = cumDist.getY(numMags- 1) - cumDist.getY(magIndex-1);
+          magRateFunction.set(cumDist.getX(magIndex), rates);
         }
         //putting the Mag-Rate distribution for each location in the gridded region.
         magRateDist.add(magRateFunction);
@@ -345,7 +356,7 @@ public class ERF2GriddedSeisRatesCalc {
   }
 
   /*
-   * Computing the Rate for each location on the rupture
+   * Computing the annualized rate for each location on the rupture
    * @param eqkRupForecast EqkRupForecastAPI
    * @param rupture ProbEqkRupture
    * @param numPts long

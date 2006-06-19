@@ -47,7 +47,7 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
    * Accepts a forecast and a region. It calculates Magnitude-Freq distribution for
    * each location within the region.
    *
-   * @param forecast - EqkRupForecast which need to be converted to GriddedHypoMagFreqDistForecast
+   * @param forecast - the EqkRupForecast to be converted to GriddedHypoMagFreqDistForecast
    * @param griddedRegion - EvenlyGriddedRegion for calculating magnitude frequency distribution
    * @param minMag - Center of first magnitude bin to make IncrementalMagFreqDist.
    * @param maxMag - Center of last magnitude bin to make IncrementalMagFreqDist

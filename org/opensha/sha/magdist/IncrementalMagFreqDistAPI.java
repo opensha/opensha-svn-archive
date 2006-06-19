@@ -31,14 +31,16 @@ public interface IncrementalMagFreqDistAPI {
   public double getIncrRate(int index) ;
 
      /**
-      * This function finds the cumulative Rate at a specified magnitude
+      * This function finds the cumulative Rate at a specified magnitude (the rate greater than
+      * and equal to that magnitude)
       * @param mag
       * @return
       */
   public double getCumRate(double mag) ;
 
     /**
-     * This function finds the cumulative Rate at a specified index
+     * This function finds the cumulative Rate at a specified index  (the rate greater than
+     * and equal to that index)
      * @param index
      * @return
      */
@@ -82,7 +84,7 @@ public interface IncrementalMagFreqDistAPI {
 
   /**
    * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
-   * with Incr Rate Distribution
+   * with Incr Rate Distribution  (the rate greater than and equal to each magnitude)
    * @return
    */
   public EvenlyDiscretizedFunc getCumRateDist() ;

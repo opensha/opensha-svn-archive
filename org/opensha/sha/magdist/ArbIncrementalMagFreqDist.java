@@ -14,7 +14,7 @@ import org.opensha.exceptions.*;
 public class ArbIncrementalMagFreqDist
     extends IncrementalMagFreqDist {
 
-  public  static String NAME = "ArbIncremental Dist";
+  public  static String NAME = "Arb Mag Freq Dist";
 
 
   public ArbIncrementalMagFreqDist(double min, double max, int num) throws
@@ -35,6 +35,6 @@ public class ArbIncrementalMagFreqDist
    * @return String
    */
   public String getDefaultInfo() {
-    return "ArbIncremental Mag Freq. Dist";
+    return "Arbitrary Incremental Magnitude Frequency Dististribution";
   }
 }

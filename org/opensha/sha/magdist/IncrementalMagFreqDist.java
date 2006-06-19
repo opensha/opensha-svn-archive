@@ -72,7 +72,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
 
       /**
-       * This function finds the cumulative Rate at a specified magnitude
+       * This function finds the cumulative Rate at a specified magnitude (the rate greater than
+     * and equal to that mag)
        * @param mag
        * @return
        */
@@ -82,7 +83,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
 
     /**
-     * This function finds the cumulative Rate at a specified index (including that index)
+     * This function finds the cumulative Rate at a specified index  (the rate greater than
+     * and equal to that index)
      * @param index
      * @return
      */
@@ -162,7 +164,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
      /**
       * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
-      * with Cum Rate Distribution
+      * with Cum Rate Distribution (the rate greater than and equal to each magnitude)
       * @return
       */
 

@@ -197,7 +197,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
     /**
      * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
-     * distribution normalized by the value (totSum) passed in
+     * distribution (sum of Y values less than and equal te each X value) normalized by the value (totSum) passed in
      * @return
      */
     private ArbitrarilyDiscretizedFunc getCumDist(double totSum) throws DataPoint2DException {
@@ -218,7 +218,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
     /**
      * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
-     * distribution.
+     * distribution (sum of Y values less than and equal te each X value).
      * @return
      */
     public ArbitrarilyDiscretizedFunc getCumDist() {
