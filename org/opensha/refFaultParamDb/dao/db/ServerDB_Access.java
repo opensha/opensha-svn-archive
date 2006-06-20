@@ -28,10 +28,10 @@ public class ServerDB_Access
   private static final boolean D = false;
   
   // GRAVITY FOR JAVA 1.4
-  //private final static String SERVLET_URL  = "http://gravity.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
+  private final static String SERVLET_URL  = "http://gravity.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
   
   // SCECDATA FOR JAVA 1.5
-  private final static String SERVLET_URL  = "http://scecdata.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
+  //private final static String SERVLET_URL  = "http://scecdata.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
  
   // for GOLDEN TEST PC 
   //private final static String SERVLET_URL = "http://136.177.30.208:8080/UCERF/servlet/DB_AccessServlet";
