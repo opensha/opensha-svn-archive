@@ -257,8 +257,6 @@ public class HazardSpectrumLocalModeApplication
       bugWindow.pack();
       e.printStackTrace();
     }
-
-
     try {
       // calculate the hazard curve
       try {
@@ -268,42 +266,18 @@ public class HazardSpectrumLocalModeApplication
                 site, imr, (EqkRupForecastAPI) forecast,
                 imlProbValue,saPeriodVector);
           else{
-            DiscretizedFuncAPI tempHazFunction = new ArbitrarilyDiscretizedFunc();
             hazFunction = new ArbitrarilyDiscretizedFunc();
-            HazardCurveCalculator hazCalc = null;
-            try {
-              hazCalc = new HazardCurveCalculator();
-              // set the value for the distance from the distance control panel
-              if (distanceControlPanel != null)
-                hazCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-            }
-            catch (RemoteException e) {
-              e.printStackTrace();
-            }
+
             // initialize the values in condProbfunc with log values as passed in hazFunction
-            initX_Values(tempHazFunction);
+            initX_Values(hazFunction);
             try {
-              //iterating over all the SA Periods for the IMR's
-              for (int i = 0; i < numSA_PeriodVals; ++i) {
-                double saPeriodVal = ( (Double)this.saPeriodVector.get(i)).
-                    doubleValue();
-                imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.
-                    get(i));
-                try {
-                  // calculate the hazard curve for each SA Period
-                  hazCalc.getHazardCurve((ArbitrarilyDiscretizedFunc)tempHazFunction, site, imr,
-                                      (EqkRupForecast) forecast);
-                }
-                catch (RemoteException e) {
-                  e.printStackTrace();
-                }
-                //number of SA Periods for which we have ran the Hazard Curve
-                this.numSA_PeriodValDone = i;
-                double val = getHazFuncIML_ProbValues(tempHazFunction,imlProbValue);
-                hazFunction.set(saPeriodVal, val);
+
+                hazFunction = calc.getIML_SpectrumCurve(hazFunction,site,imr,
+                    (EqkRupForecastAPI)forecast,imlProbValue,saPeriodVector);
+
               }
-            }
             catch (RuntimeException e) {
+              e.printStackTrace();
               JOptionPane.showMessageDialog(this, e.getMessage(),
                                             "Parameters Invalid",
                                             JOptionPane.INFORMATION_MESSAGE);
@@ -459,15 +433,12 @@ public class HazardSpectrumLocalModeApplication
         public void actionPerformed(ActionEvent evt) {
           try{
             if(!isEqkList){
-              if(probAtIML){
-                int totRupture = calc.getTotRuptures();
-                int currRupture = calc.getCurrRuptures();
-                if (currRupture != -1)
-                  progressClass.updateProgress(currRupture, totRupture);
-              }
-              else{
-                progressClass.updateProgress(numSA_PeriodValDone+1,numSA_PeriodVals);
-              }
+
+              int totRupture = calc.getTotRuptures();
+              int currRupture = calc.getCurrRuptures();
+              if (currRupture != -1)
+                progressClass.updateProgress(currRupture, totRupture);
+
             }
             else{
               if((numERFsInEpistemicList+1) !=0)
@@ -573,43 +544,16 @@ public class HazardSpectrumLocalModeApplication
               site, imr, (EqkRupForecastAPI) forecast,
               imlProbValue, saPeriodVector);
         else {
-          DiscretizedFuncAPI tempHazFunction = new ArbitrarilyDiscretizedFunc();
           hazFunction = new ArbitrarilyDiscretizedFunc();
-          HazardCurveCalculator hazCalc = null;
-          try {
-            hazCalc = new HazardCurveCalculator();
-            // set the value for the distance from the distance control panel
-            if (distanceControlPanel != null)
-              hazCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-          }
-          catch (RemoteException e) {
-            e.printStackTrace();
-          }
+
           // initialize the values in condProbfunc with log values as passed in hazFunction
-          initX_Values(tempHazFunction);
+          initX_Values(hazFunction);
           try {
-            //iterating over all the SA Periods for the IMR's
-            for (int j = 0; j < numSA_PeriodVals; ++j) {
-              double saPeriodVal = ( (Double)this.saPeriodVector.get(j)).
-                  doubleValue();
-              imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.
-                  get(j));
-              try {
-                // calculate the hazard curve for each SA Period
-                hazCalc.getHazardCurve( (ArbitrarilyDiscretizedFunc)
-                                       tempHazFunction,
-                                       site, imr,
-                                       (EqkRupForecast) forecast);
-              }
-              catch (RemoteException e) {
-                e.printStackTrace();
-              }
-              //number of SA Periods for which we have ran the Hazard Curve
-              this.numSA_PeriodValDone = j;
-              double val = getHazFuncIML_ProbValues(tempHazFunction,
-                  imlProbValue);
-              hazFunction.set(saPeriodVal, val);
-            }
+
+            hazFunction = calc.getIML_SpectrumCurve(hazFunction, site, imr,
+                                                    (EqkRupForecastAPI) forecast,
+                                                    imlProbValue, saPeriodVector);
+
           }
           catch (RuntimeException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -618,7 +562,6 @@ public class HazardSpectrumLocalModeApplication
             return;
           }
         }
-
         //System.out.println("Num points:" +hazFunction.toString());
       }
       catch (Exception e) {
@@ -685,37 +628,9 @@ public class HazardSpectrumLocalModeApplication
     if (!useCustomX_Values)
       function = imtInfo.getDefaultHazardCurve(SA_NAME);
 
-    if (imtInfo.isIMT_LogNormalDist(SA_NAME)) {
+
       for (int i = 0; i < function.getNum(); ++i)
-        arb.set(Math.log(function.getX(i)), 1);
-    }
-  }
-
-  /**
-   * set x values back from the log space to the original linear values
-   * for Hazard Function after completion of the Hazard Calculations
-   * and returns back to the user IML or Prob value
-   * It accepts 1 parameters
-   *
-   * @param hazFunction :  this is the function with X values set
-   */
-  private double getHazFuncIML_ProbValues(DiscretizedFuncAPI hazFunc,
-                                     double imlProbVal) {
-
-    //gets the number of points in the function
-    int numPoints = hazFunc.getNum();
-    //if iml at prob is selected just return the interpolated IML value.
-    DiscretizedFuncAPI tempFunc = new ArbitrarilyDiscretizedFunc();
-    for (int i = 0; i < numPoints; ++i)
-      tempFunc.set(function.getX(i), hazFunc.getY(i));
-
-    /*we are calling the function (getFirst InterpolatedX ) becuase x values for the PEER
-     * are the X values and the function we get from the Hazard Curve Calc are the
-     * Y Values for the Prob., now we have to find the interpolated IML which corresponds
-     * X value and imlProbVal is the Y value parameter which this function accepts
-     */
-    //returns the interpolated IML value for the given prob.
-    return tempFunc.getFirstInterpolatedX_inLogXLogYDomain(imlProbVal);
+        arb.set(function.getX(i), 1);
   }
 
 
