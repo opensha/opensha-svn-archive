@@ -35,6 +35,7 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
+import org.opensha.sha.calc.SpectrumCalculatorAPI;
 import java.rmi.RemoteException;
 
 /**
@@ -67,9 +68,7 @@ public class HazardSpectrumLocalModeApplication
   protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumServerModeApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazSpectrumApp/versionUpdate.html";
   //instances of various calculators
-  protected SpectrumCalculator calc;
-  private int numSA_PeriodVals;
-  private int numSA_PeriodValDone;
+  protected SpectrumCalculatorAPI calc;
   //Prob@IML or IML@Prob
   boolean probAtIML;
 
@@ -436,7 +435,7 @@ public class HazardSpectrumLocalModeApplication
               int totRupture = calc.getTotRuptures();
               int currRupture = calc.getCurrRuptures();
               if (currRupture != -1)
-                progressClass.updateProgress(currRupture, totRupture);
+                progressClass.updateProgress(currRupture+1, totRupture);
 
             }
             else{
@@ -483,7 +482,6 @@ public class HazardSpectrumLocalModeApplication
           if (independentParam.getName().equalsIgnoreCase(this.SA_PERIOD)) {
             saPeriodVector = ( (DoubleDiscreteParameter) independentParam).
                 getAllowedDoubles();
-            numSA_PeriodVals = saPeriodVector.size();
             return;
           }
         }

@@ -1,36 +1,33 @@
 package org.opensha.sha.calc;
 
-import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.data.Site;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import java.util.ArrayList;
-import org.opensha.sha.gui.infoTools.IMT_Info;
+import java.rmi.*;
+import java.rmi.server.*;
+import java.util.*;
+
+import org.opensha.data.*;
+import org.opensha.data.function.*;
+import org.opensha.sha.earthquake.*;
+import org.opensha.sha.gui.infoTools.*;
+import org.opensha.sha.imr.*;
 
 /**
  * <p>Title: SpectrumCalculator</p>
  *
- * <p>Description: </p>
+ * <p>Description: This class computes the Spectral Values for given IML or Prob.
+ * Value </p>
  *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
+ * @author Nitin Gupta
  * @version 1.0
  */
-public class SpectrumCalculator{
+public class SpectrumCalculator extends UnicastRemoteObject
+    implements SpectrumCalculatorAPI {
 
 
   protected final static String C = "SpectrumCalculator";
   protected final static boolean D = false;
 
-  /* maximum permitted distance between fault and site to consider source in
+  /*
+   maximum permitted distance between fault and site to consider source in
    hazard analysis for that site; this default value is to allow all PEER test
    cases to pass through
    */
@@ -44,6 +41,15 @@ public class SpectrumCalculator{
   protected int sourceIndex;
   // get total number of sources
   protected int numSources;
+
+
+  /**
+   * SpectrumCalculator
+   *
+   * @throws RemoteException
+   */
+  public SpectrumCalculator() throws RemoteException {}
+
 
   /**
    * This sets the maximum distance of sources to be considered in the calculation
@@ -309,7 +315,8 @@ public class SpectrumCalculator{
                                              AttenuationRelationshipAPI imr,
                                              EqkRupForecastAPI eqkRupForecast,
                                              double imlVal,
-                                             ArrayList supportedSA_Periods) {
+                                             ArrayList supportedSA_Periods) throws
+      RemoteException {
 
     //creating the Master function that initializes the Function with supported SA Periods Vals
     DiscretizedFuncAPI hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -504,7 +511,7 @@ public class SpectrumCalculator{
     */
    public DiscretizedFuncAPI getDeterministicSpectrumCurve(
        Site site, AttenuationRelationshipAPI imr, EqkRupture rupture,
-        boolean probAtIML, double imlProbVal) {
+        boolean probAtIML, double imlProbVal)  throws RemoteException{
 
 
      //resetting the Parameter change Listeners on the AttenuationRelationship
@@ -537,4 +544,6 @@ public class SpectrumCalculator{
      if (D) System.out.println(C + "hazFunction.toString" + hazFunction.toString());
      return hazFunction;
   }
+
+
 }
