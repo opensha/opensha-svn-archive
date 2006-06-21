@@ -274,7 +274,6 @@ public class HazardSpectrumLocalModeApplication
 
                 hazFunction = calc.getIML_SpectrumCurve(hazFunction,site,imr,
                     (EqkRupForecastAPI)forecast,imlProbValue,saPeriodVector);
-
               }
             catch (RuntimeException e) {
               e.printStackTrace();
