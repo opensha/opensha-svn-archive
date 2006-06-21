@@ -179,9 +179,9 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      }
 
      // fill the combo box with available data sets
-     Enumeration enum=metaDataHash.keys();
+     Enumeration enum1=metaDataHash.keys();
      ArrayList keys = new ArrayList();
-     while(enum.hasMoreElements()) keys.add(enum.nextElement());
+     while(enum1.hasMoreElements()) keys.add(enum1.nextElement());
      Collections.sort(keys);
      dataSetParam = new StringParameter(DATA_SET_PARAM_NAME,keys,(String)keys.get(0));
      dataSetParam.addParameterChangeListener(this);

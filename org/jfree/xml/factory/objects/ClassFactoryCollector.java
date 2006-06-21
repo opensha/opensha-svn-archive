@@ -138,9 +138,9 @@ public class ClassFactoryCollector extends ClassFactoryImpl {
         ArrayList list = new ArrayList();
         for (int i = 0; i < factories.size(); i++) {
             ClassFactory f = (ClassFactory) factories.get(i);
-            Iterator enum = f.getRegisteredClasses();
-            while (enum.hasNext()) {
-                list.add(enum.next());
+            Iterator enum1 = f.getRegisteredClasses();
+            while (enum1.hasNext()) {
+                list.add(enum1.next());
             }
         }
         return list.iterator();

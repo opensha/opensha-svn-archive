@@ -100,9 +100,9 @@ public abstract class ClassFactoryImpl implements ClassFactory {
      */
     public ObjectDescription getSuperClassObjectDescription
         (Class d, ObjectDescription knownSuperClass) {
-        Iterator enum = classes.keySet().iterator();
-        while (enum.hasNext()) {
-            Class keyClass = (Class) enum.next();
+        Iterator enum1 = classes.keySet().iterator();
+        while (enum1.hasNext()) {
+            Class keyClass = (Class) enum1.next();
             if (keyClass.isAssignableFrom(d)) {
                 ObjectDescription od = (ObjectDescription) classes.get(keyClass);
                 if (knownSuperClass == null) {
