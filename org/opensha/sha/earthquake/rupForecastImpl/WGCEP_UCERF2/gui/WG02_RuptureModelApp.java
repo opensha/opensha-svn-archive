@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.gui;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
 
 import java.awt.GridBagConstraints;
@@ -49,7 +49,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 import org.opensha.sha.gui.infoTools.RuptureModelOuput;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -66,7 +66,7 @@ import java.text.DecimalFormat;
  * @author vipingupta
  *
  */
-public class RuptureModelApp extends JFrame implements ParameterChangeListener, ActionListener {
+public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListener, ActionListener {
 	private final static String SEGMENT_MODELS_FILE_NAME = "SegmentModels.txt";
 
 	// choose deformation model
@@ -147,7 +147,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 * Constructor
 	 *
 	 */
-	public RuptureModelApp() {
+	public WG02_RuptureModelApp() {
 		initParamsAndEditor();
 		this.createGUI();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -233,9 +233,9 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 		double[] scenarioWts = getScenarioWts();
 		boolean isAseisReducesArea = getAseisReducesArea();
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
-		A_FaultSource aFaultSource = new A_FaultSource( segmentData,  magAreaRel,  magSigma,
+		WG_02FaultSource faultSource = new WG_02FaultSource( segmentData,  magAreaRel,  magSigma,
 		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
-		RuptureModelOuput outputWindow  =  new RuptureModelOuput(aFaultSource, getMetadata());
+		RuptureModelOuput outputWindow  =  new RuptureModelOuput(faultSource, getMetadata());
 	}
 	
 	/**
@@ -755,12 +755,12 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 			ArrayList segment = (ArrayList)segmentsList.get(i);
 			for(int j=0; j<segment.size(); ++j)
 				sectionNamesList.add(((FaultSectionSummary)segment.get(j)).getSectionName());
-			segmentNames[i]=A_FaultSource.getSegmentName(sectionNamesList);
+			segmentNames[i]=WG_02FaultSource.getSegmentName(sectionNamesList);
 		}
 		// get the rupture names
-		String rupNames[] = A_FaultSource.getRuptureNames(segmentNames);
+		String rupNames[] = WG_02FaultSource.getRuptureNames(segmentNames);
 		// get the scenario names
-		scenarioNames = A_FaultSource.getScenarioNames(rupNames, segmentNames.length);
+		scenarioNames = WG_02FaultSource.getScenarioNames(rupNames, segmentNames.length);
 		// updatet he text area with segment names, scenario names and rup names
 		updateTextArea(segmentNames, rupNames, scenarioNames);
 		makeScenarioWtsParamAndEditor(scenarioNames.length);
@@ -805,7 +805,7 @@ public class RuptureModelApp extends JFrame implements ParameterChangeListener, 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		RuptureModelApp rupModelApp = new RuptureModelApp();
+		WG02_RuptureModelApp rupModelApp = new WG02_RuptureModelApp();
 
 	}
 

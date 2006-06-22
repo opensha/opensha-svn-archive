@@ -21,7 +21,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 import sun.tools.tree.ThisExpression;
 
 /**
- * <p>Title: A_FaultSource </p>
+ * <p>Title: WG_02FaultSource </p>
  * <p>Description: 
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -30,10 +30,10 @@ import sun.tools.tree.ThisExpression;
  * @version 1.0
  */
 
-public class A_FaultSource extends ProbEqkSource {
+public class WG_02FaultSource extends ProbEqkSource {
 
   //for Debug purposes
-  private static String C = new String("A_FaultSource");
+  private static String C = new String("WG_02FaultSource");
   private final static boolean D = true;
   private final static double KM_TO_METERS_CONVERT=1e6;
 
@@ -153,7 +153,7 @@ public class A_FaultSource extends ProbEqkSource {
    * @param floatingRup_PDF - mag PDF of floaters; this is normalized internally to make sure it's a PDF
    * @
    */
-  public A_FaultSource(ArrayList segmentData, MagAreaRelationship magAreaRel, double magSigma,
+  public WG_02FaultSource(ArrayList segmentData, MagAreaRelationship magAreaRel, double magSigma,
           double magTruncLevel,int magTruncType, double[] scenarioWts,
 		  boolean aseisReducesArea, IncrementalMagFreqDist floatingRup_PDF) {
 
@@ -1060,7 +1060,7 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 	  
 	  double[] scenarioWts = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2};
 	  GutenbergRichterMagFreqDist grMagFreqDist = new GutenbergRichterMagFreqDist(1, 1.0, 6, 8, 21);
-	  A_FaultSource aFaultSource = new A_FaultSource(segmentData,  new WC1994_MagAreaRelationship(), 
+	  WG_02FaultSource faultSource = new WG_02FaultSource(segmentData,  new WC1994_MagAreaRelationship(), 
 			  0.12, 2.0, 2, scenarioWts, true, grMagFreqDist);
 			  
 	 */

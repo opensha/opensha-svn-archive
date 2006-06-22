@@ -1,6 +1,9 @@
 
 package javaDevelopers.interns;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.HashMap;
@@ -31,17 +34,20 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 	private ArrayList faultSectionsSummaryList; // saves fault section Id and corresponding name
 	private HashMap faultSectionsMap; // saves fault section Id and fault section object mapping
 
-	public FaultSectionVer1Surfaces() {
+	public FaultSectionVer1Surfaces() throws FileNotFoundException, IOException{
 		this(DEFAULT_INPUT_FILENAME);
 	}
 
-	public FaultSectionVer1Surfaces(String fileName) {
-		faultSectionsSummaryList = new ArrayList();
-		faultSectionsMap = new HashMap();
+	public FaultSectionVer1Surfaces(URL url) throws Exception {
+		this(FileUtils.loadFile(url));
+	}
+	
+	public FaultSectionVer1Surfaces(ArrayList fileLines) {
 
 		try {
 			//read the file and load the fault sections
-			ArrayList fileLines =  FileUtils.loadFile(fileName);
+			faultSectionsSummaryList = new ArrayList();
+			faultSectionsMap = new HashMap();
 			// parse the fault section file to load the fault trace locations in LocationList
 			double lon, lat, depth;
 			FaultSection2002 faultSection=null;
@@ -75,6 +81,11 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 		    }catch(Exception e) {
 		      e.printStackTrace();
 		    }
+	}
+	
+	public FaultSectionVer1Surfaces(String fileName) throws FileNotFoundException, IOException {
+		this(FileUtils.loadFile(fileName));
+	
 	}
 	
 	/**

@@ -20,7 +20,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 
 /**
  *This class generaates a window to show the ouput of the Rupture Model App
@@ -47,7 +47,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	 * @param aFaultSource
 	 * @param inputParameters
 	 */
-	public RuptureModelOuput(A_FaultSource aFaultSource, String inputParameters) {
+	public RuptureModelOuput(WG_02FaultSource aFaultSource, String inputParameters) {
 		this.getContentPane().setLayout(new GridBagLayout());
 		// show data related to each segment
 		createSegmentOutput(aFaultSource);
@@ -70,7 +70,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	 * 
 	 * @param aFaultSource
 	 */
-	private void createSegmentOutput(A_FaultSource aFaultSource) {
+	private void createSegmentOutput(WG_02FaultSource aFaultSource) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea segmentOutput = new JTextArea();
 		segmentOutput.setEditable(false);
@@ -119,7 +119,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	 * Create Ruptures output
 	 * @param aFaultSource
 	 */
-	private void createRupturesOutput(A_FaultSource aFaultSource) {
+	private void createRupturesOutput(WG_02FaultSource aFaultSource) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea rupOutput = new JTextArea();
 		rupOutput.setEditable(false);
