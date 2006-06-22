@@ -218,4 +218,10 @@ public interface AttenuationRelationshipAPI
    */
   public void setSiteLocation(Location loc);
 
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName();
+
 }

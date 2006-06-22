@@ -49,6 +49,8 @@ public class BJF_1997_AttenRel
   private final static String C = "BJF_1997_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Boore, Joyner & Fumal (1997)";
+  public final static String SHORT_NAME = "BJF1997";
+
 
   // style of faulting options
   public final static String FLT_TYPE_UNKNOWN = "Unknown";
@@ -581,6 +583,14 @@ public class BJF_1997_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

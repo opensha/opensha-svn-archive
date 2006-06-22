@@ -79,6 +79,8 @@ public class ShakeMap_2003_AttenRel
   private final static String C = "ShakeMap_2003_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "ShakeMap (2003)";
+  public final static String SHORT_NAME = "ShakeMap2003";
+
 
   // PGA thresholds for computing amp factors (convert from gals to g)
   private final static double pga_low = -1.87692; // Math.log(150/980);
@@ -1080,6 +1082,14 @@ public class ShakeMap_2003_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

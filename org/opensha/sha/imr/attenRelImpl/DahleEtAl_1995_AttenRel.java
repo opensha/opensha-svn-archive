@@ -46,6 +46,8 @@ public class DahleEtAl_1995_AttenRel
   private final static String C = "DahleEtAl_1995_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Dahle et al. (1995)";
+  public final static String SHORT_NAME = "Dahle1995";
+
 
   // component
   public final static String COMPONENT_UNKNOWN_HORZ = "Unknown Horizontal";
@@ -468,6 +470,15 @@ public class DahleEtAl_1995_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

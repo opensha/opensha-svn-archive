@@ -48,6 +48,8 @@ public class AS_2005_prelim_AttenRel
   // Debugging stuff
   private final static String C = "AS_2005_prelim_AttenRel";
   private final static boolean D = false;
+  public final static String SHORT_NAME = "AS2005";
+
 
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2005 prelim)";
@@ -610,6 +612,14 @@ public class AS_2005_prelim_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

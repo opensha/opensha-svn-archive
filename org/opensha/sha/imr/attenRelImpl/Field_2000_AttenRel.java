@@ -51,6 +51,8 @@ public class Field_2000_AttenRel
   private final static String C = "Field_2000_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Field (2000)";
+  public final static String SHORT_NAME = "Field2000";
+
 
   // style of faulting options
   public final static String FLT_TYPE_OTHER = "Other/Unknown";
@@ -260,6 +262,14 @@ public class Field_2000_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

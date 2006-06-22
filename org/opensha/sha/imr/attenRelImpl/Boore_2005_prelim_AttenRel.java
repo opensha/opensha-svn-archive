@@ -46,6 +46,8 @@ public class Boore_2005_prelim_AttenRel
   // Debugging stuff
   private final static String C = "Boore_2005_prelim_AttenRel";
   private final static boolean D = false;
+  public final static String SHORT_NAME = "Boore2005";
+
 
   // Name of IMR
   public final static String NAME = "Boore & Atkinson (2005 prelim)";
@@ -475,6 +477,14 @@ public class Boore_2005_prelim_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   public double getMean(int iper, double vs30, double rjb, double mag,

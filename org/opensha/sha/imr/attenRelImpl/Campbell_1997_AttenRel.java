@@ -51,6 +51,8 @@ public class Campbell_1997_AttenRel
   public final static String C = "Campbell_1997_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Campbell (1997) w/ erratum (2000) changes";
+  public final static String SHORT_NAME = "Campbell_1997";
+
 
   // style of faulting options
   public final static String FLT_TYPE_REVERSE = "Reverse";
@@ -280,6 +282,15 @@ public class Campbell_1997_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

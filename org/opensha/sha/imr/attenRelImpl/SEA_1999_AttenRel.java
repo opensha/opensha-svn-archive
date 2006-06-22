@@ -52,6 +52,8 @@ public class SEA_1999_AttenRel
   private final static String C = "SEA_1999_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "SEA (Spudich et al., 1997)";
+  public final static String SHORT_NAME = "Spudich1997";
+
 
   // warning constraint fields:
   protected final static Double MAG_WARN_MIN = new Double(5.0);
@@ -653,6 +655,15 @@ public class SEA_1999_AttenRel
   public String getName() {
     return NAME;
   }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
+  }
+
 
   /**
    *  This creates the hashtable of coefficients for the supported

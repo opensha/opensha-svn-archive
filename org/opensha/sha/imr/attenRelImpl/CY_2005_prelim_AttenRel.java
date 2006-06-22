@@ -50,6 +50,8 @@ public class CY_2005_prelim_AttenRel
 
   // Name of IMR
   public final static String NAME = "Chiou & Youngs (2005 prelim)";
+  public final static String SHORT_NAME = "CY2005";
+
 
   // coefficients:
   double[] period = {
@@ -513,6 +515,15 @@ public class CY_2005_prelim_AttenRel
   public String getName() {
     return NAME;
   }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
+  }
+
 
   private double getYref(int iper, double vs30, double rRup,
                          double distRupJB_Fraction,

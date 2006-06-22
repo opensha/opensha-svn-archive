@@ -48,6 +48,8 @@ public class SCEMY_1997_AttenRel
   private final static String C = "SCEMY_1997_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Sadigh et al (1997)";
+  public final static String SHORT_NAME = "Sadigh1997";
+
 
   // style of faulting options
   public final static String FLT_TYPE_DEFAULT = "Other";
@@ -238,6 +240,15 @@ public class SCEMY_1997_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

@@ -45,6 +45,8 @@ public class WC94_DisplMagRel
   private final static String C = "WC94_DisplMagRel";
   private final static boolean D = false;
   public final static String NAME = "Wells & Coppersmith (1994)";
+  public final static String SHORT_NAME = "WC_1994";
+
 
   /**
    * maximum rupture distance (rupture distances greater than this will always
@@ -211,6 +213,14 @@ public class WC94_DisplMagRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

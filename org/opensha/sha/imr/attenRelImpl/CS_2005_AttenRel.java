@@ -48,6 +48,8 @@ public class CS_2005_AttenRel
   private final static String C = "CS_2005_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Choi & Stewart (2005)";
+  public final static String SHORT_NAME = "CS2005";
+
 
   // warning constraint fields:
   protected final static Double VS30_WARN_MIN = new Double(50.0);
@@ -486,6 +488,14 @@ public class CS_2005_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**

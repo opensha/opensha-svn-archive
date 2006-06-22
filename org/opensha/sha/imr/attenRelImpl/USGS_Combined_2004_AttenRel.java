@@ -127,6 +127,8 @@ public class USGS_Combined_2004_AttenRel
   private final static String C = "USGS_Combined_2004_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "USGS Combined (2004)";
+  public final static String SHORT_NAME = "USGS_2004";
+
 
   // attenuation relationships used.
   private final AS_1997_AttenRel as_1997_attenRel;
@@ -1016,6 +1018,14 @@ public double getEpsilon() {
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   // this method, required by the API, does nothing here (it's not needed).

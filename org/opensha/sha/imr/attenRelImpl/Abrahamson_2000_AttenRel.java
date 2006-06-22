@@ -56,6 +56,7 @@ public class Abrahamson_2000_AttenRel
   private final static String C = "Abrahamson_2000_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Abrahamson (2000)";
+  public final static String SHORT_NAME = "Abrahamson2000";
 
   // style of faulting options
 //    private final static String FLT_TYPE_REVERSE = "Reverse";
@@ -1149,6 +1150,16 @@ public class Abrahamson_2000_AttenRel
   }
 
   /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
+  }
+
+
+
+  /**
    *  <b>Title:</b> Abrahamson_2000_AttenRelCoefficients<br>
    *  <b>Description:</b> This class encapsulates all the
    *  coefficients needed to calculate the Mean and StdDev for
@@ -1168,8 +1179,8 @@ public class Abrahamson_2000_AttenRel
 
     protected final static String C = "Abrahamson_2000_AttenRelCoefficients";
     protected final static boolean D = true;
-    
-    
+
+
     /** For serialization. */
     private static final long serialVersionUID = 1234567890987654321L;
 

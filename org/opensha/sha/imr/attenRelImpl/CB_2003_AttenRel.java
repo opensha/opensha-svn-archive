@@ -54,6 +54,8 @@ public class CB_2003_AttenRel
   private final static String C = "CB_2003_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Campbell and Bozorgnia (2003)";
+  public final static String SHORT_NAME = "CB2003";
+
 
   // style of faulting options
   public final static String FLT_TYPE_THRUST = "Thrust (dip<45)";
@@ -249,6 +251,14 @@ public class CB_2003_AttenRel
    */
   public String getName() {
     return NAME;
+  }
+
+  /**
+   * Returns the Short Name of each AttenuationRelationship
+   * @return String
+   */
+  public String getShortName() {
+    return SHORT_NAME;
   }
 
   /**
@@ -1076,7 +1086,7 @@ public class CB_2003_AttenRel
     private static final long serialVersionUID = 1234567890987654325L;
 	protected final static String C = "CB_2003_AttenRelCoefficients";
     protected final static boolean D = true;
- 
+
 
     protected String name;
     protected double period = -1;
