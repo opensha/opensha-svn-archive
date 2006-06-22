@@ -1,12 +1,15 @@
 /**
  * 
  */
-package org.opensha.sha.gui.infoTools;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  *  This class will used to plot the Mag Freq dist for RuptureModelApp
@@ -14,7 +17,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @author vipingupta
  *
  */
-public class RuptureModelsGraphWindowAPI_Impl implements GraphWindowAPI {
+public class WG02_RuptureModelsGraphWindowAPI_Impl implements GraphWindowAPI {
 	private ArrayList funcs;
 	private String xAxisLabel, yAxisLabel;
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -33,7 +36,7 @@ public class RuptureModelsGraphWindowAPI_Impl implements GraphWindowAPI {
 	/**
 	 * ArrayList of ArbitrarilyDiscretizedFunctions
 	 */
-	public RuptureModelsGraphWindowAPI_Impl(ArrayList funcs, String xAxisLabel, String yAxisLabel, String plotLabel) {
+	public WG02_RuptureModelsGraphWindowAPI_Impl(ArrayList funcs, String xAxisLabel, String yAxisLabel, String plotLabel) {
 		this.funcs = funcs;
 		this.xAxisLabel = xAxisLabel;
 		this.yAxisLabel = yAxisLabel;

@@ -50,7 +50,6 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
-import org.opensha.sha.gui.infoTools.RuptureModelOuput;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -235,7 +234,7 @@ public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListe
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
 		WG_02FaultSource faultSource = new WG_02FaultSource( segmentData,  magAreaRel,  magSigma,
 		           magTruncLevel, truncType,  scenarioWts, isAseisReducesArea,  floatingRup_PDF);
-		RuptureModelOuput outputWindow  =  new RuptureModelOuput(faultSource, getMetadata());
+		WG02_RuptureModelOuput outputWindow  =  new WG02_RuptureModelOuput(faultSource, getMetadata());
 	}
 	
 	/**

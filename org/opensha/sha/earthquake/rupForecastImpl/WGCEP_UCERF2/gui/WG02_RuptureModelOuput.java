@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.gui.infoTools;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,7 +28,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02Fau
  * @author vipingupta
  *
  */
-public class RuptureModelOuput extends JFrame implements ActionListener{
+public class WG02_RuptureModelOuput extends JFrame implements ActionListener{
 	private JTabbedPane outputTabbedPane = new JTabbedPane();
 	private final static int W = 800;
 	private final static int H = 600;
@@ -47,7 +47,7 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	 * @param aFaultSource
 	 * @param inputParameters
 	 */
-	public RuptureModelOuput(WG_02FaultSource aFaultSource, String inputParameters) {
+	public WG02_RuptureModelOuput(WG_02FaultSource aFaultSource, String inputParameters) {
 		this.getContentPane().setLayout(new GridBagLayout());
 		// show data related to each segment
 		createSegmentOutput(aFaultSource);
@@ -189,15 +189,15 @@ public class RuptureModelOuput extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 		if(source == this.segmentSlipButton)
-			new RuptureModelsGraphWindowAPI_Impl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
+			new WG02_RuptureModelsGraphWindowAPI_Impl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
 		else if(source == this.totalRupMFDButton)
-			new RuptureModelsGraphWindowAPI_Impl(this.totalRupMFD, "Mag", "Rate", "Total Mag Freq Dist for Rups");
+			new WG02_RuptureModelsGraphWindowAPI_Impl(this.totalRupMFD, "Mag", "Rate", "Total Mag Freq Dist for Rups");
 		else if(source == this.floaterDistButton) {
 			if(floaterRupMFD==null){
 				 JOptionPane.showMessageDialog(this, "Floater MFD not available");
 				 return;
 			}
-			new RuptureModelsGraphWindowAPI_Impl(this.floaterRupMFD, "Mag", "Rate", "Mag Freq Dist for floaters");
+			new WG02_RuptureModelsGraphWindowAPI_Impl(this.floaterRupMFD, "Mag", "Rate", "Mag Freq Dist for floaters");
 		}
 	}
 }
