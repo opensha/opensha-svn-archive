@@ -5,22 +5,37 @@
 # 3, 35, 1, 2
 # The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
 # Segment 1 has fault section Ids 2,7 and 15. Segment 2 has fault sections 3, 35, 1 and 2
-
-- Northern SAF
-56
-67
-27
-26
-- Green Valley
-1
-71
- - Test Segment Model
-15, 13, 14
-18, 100
-20
-- elsinore Segment Model
-103 
-102
-299,298
-297,296
+- Elsinore
 237
+296, 297
+299, 298
+102
+103
+- Garlock
+48
+341
+49
+- San Jacinto
+119
+289, 290
+293, 291, 292
+101
+99
+28
+- Northern SAF
+26
+27
+67
+56
+- Southern SAF
+32
+285
+300
+287
+286
+301
+282
+283
+284
+295
+
