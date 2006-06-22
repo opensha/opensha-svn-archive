@@ -643,6 +643,8 @@ public class CS_2005_AttenRel
 
     protected final static String C = "CS_2005_AttenRelCoefficients";
     protected final static boolean D = false;
+    /** For serialization. */
+    private static final long serialVersionUID = 1234567890987654399L;
 
     protected String name;
     protected double period = -1;
