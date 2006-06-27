@@ -67,7 +67,7 @@ public class MeanSigmaCalc
 
   private DecimalFormat format = new DecimalFormat("0.000##");
 
-  protected String inputFileName = "siteList.txt";
+  protected String inputFileName = "MeanSigmaCalc_InputFile.txt";
   protected String dirName = "MeanSigma";
 
   public MeanSigmaCalc(String inpFile,String outDir) {
@@ -82,11 +82,11 @@ public class MeanSigmaCalc
       fileLines = FileUtils.loadFile(inputFileName);
 
       int j = 0;
-      int numIMRdone=1;
+      int numIMRdone=0;
       int numIMRs=0;
-      int numIMTdone=1;
+      int numIMTdone=0;
       int numIMTs=0;
-      int numSitesDone=1;
+      int numSitesDone=0;
       int numSites =0;
       for(int i=0; i<fileLines.size(); ++i) {
         String line = ((String)fileLines.get(i)).trim();
@@ -104,39 +104,29 @@ public class MeanSigmaCalc
         if(j==3)
           numIMRs = Integer.parseInt(line.trim());
         if(j==4){
-          if(numIMRdone == numIMRs){
-            ++j;
-            continue;
-          }
-          else{
             setIMR(line.trim());
             ++numIMRdone;
-          }
-          continue;
+            if(numIMRdone == numIMRs)
+              ++j;
+            continue;
         }
         if(j==5)
           numIMTs = Integer.parseInt(line.trim());
         if(j==6){
-          if(numIMTdone == numIMTs){
+          setIMT(line.trim());
+          ++numIMTdone;
+          if (numIMTdone == numIMTs)
             ++j;
-            continue;
-          }
-          else{
-            setIMT(line.trim());
-            ++numIMTdone;
-          }
+          continue;
         }
         if(j==7)
           numSites = Integer.parseInt(line.trim());
         if(j==8){
-          if(numSitesDone == numSites){
+          setSite(line.trim());
+          ++numSitesDone;
+          if (numSitesDone == numSites)
             ++j;
-            continue;
-          }
-          else{
-            setSite(line.trim());
-            ++numSitesDone;
-          }
+          continue;
         }
         ++j;
       }
@@ -151,7 +141,7 @@ public class MeanSigmaCalc
       locList = new LocationList();
     StringTokenizer st = new StringTokenizer(line);
     int tokens = st.countTokens();
-    if(tokens >2){
+    if(tokens > 3 || tokens < 2){
       throw new RuntimeException("Must Enter valid Lat Lon in each line in the file");
     }
     double lat = Double.parseDouble(st.nextToken().trim());
@@ -252,7 +242,7 @@ public class MeanSigmaCalc
     }
   }
 
-  protected void getERF(String line){
+  private void getERF(String line){
     if(line.trim().equals(Frankel02_AdjustableEqkRupForecast.NAME))
       createFrankel02Forecast();
     else
@@ -262,7 +252,7 @@ public class MeanSigmaCalc
   /**
    * Creating the instance of the Frankel02 forecast
    */
-  protected void createFrankel02Forecast(){
+  private void createFrankel02Forecast(){
 
     forecast = new Frankel02_AdjustableEqkRupForecast();
     forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
@@ -273,7 +263,7 @@ public class MeanSigmaCalc
   /**
    * Creating the instance of the Frankel02 forecast
    */
-  protected void createUCERF_Forecast(){
+  private void createUCERF_Forecast(){
     forecast = new WGCEP_UCERF1_EqkRupForecast();
     forecast.getAdjustableParameterList().getParameter(
         WGCEP_UCERF1_EqkRupForecast.
@@ -286,7 +276,7 @@ public class MeanSigmaCalc
 
   }
 
-  protected void toApplyBackGroud(boolean toApply){
+  private void toApplyBackGroud(boolean toApply){
     if(toApply){
       if(forecast instanceof Frankel02_AdjustableEqkRupForecast){
         forecast.getAdjustableParameterList().getParameter(
@@ -318,7 +308,7 @@ public class MeanSigmaCalc
     }
   }
 
-  protected void setRupOffset(double rupOffset){
+  private void setRupOffset(double rupOffset){
     if (forecast instanceof Frankel02_AdjustableEqkRupForecast){
       forecast.getAdjustableParameterList().getParameter(
           Frankel02_AdjustableEqkRupForecast.
@@ -334,26 +324,12 @@ public class MeanSigmaCalc
 
   }
 
-  /**
-   * Creating the instances of the Attenuation Relationhships
-   */
-  protected void createAttenuationRelationObjects() {
-    AS_1997_AttenRel as1997 = new AS_1997_AttenRel(this);
-    CB_2003_AttenRel cb2003 = new CB_2003_AttenRel(this);
-    SadighEtAl_1997_AttenRel scemy1997 = new SadighEtAl_1997_AttenRel(this);
-    BJF_1997_AttenRel bjf1997 = new BJF_1997_AttenRel(this);
-    supportedAttenuationsList = new ArrayList();
-    supportedAttenuationsList.add(as1997);
-    supportedAttenuationsList.add(cb2003);
-    supportedAttenuationsList.add(scemy1997);
-    supportedAttenuationsList.add(bjf1997);
-  }
 
   /**
    * Starting with the Mean and Sigma calculation.
    * Creates the directory to put the mean and sigma files.
    */
-  protected void getMeanSigma() {
+  private void getMeanSigma() {
 
     int numIMRs = supportedAttenuationsList.size();
     File file = new File(dirName);
@@ -389,7 +365,7 @@ public class MeanSigmaCalc
    * @param willsClass
    * @param basinDepth
    */
-  protected void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
                                   String willsClass) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -413,7 +389,7 @@ public class MeanSigmaCalc
    * Creates a location using the given locations to find source cut-off disance.
    * @return
    */
-  protected void createSiteList() {
+  private void createSiteList() {
      //gets the min lat, lon and max lat, lon from given set of locations.
     double minLon = Double.MAX_VALUE;
     double maxLon = Double.NEGATIVE_INFINITY;
@@ -438,7 +414,7 @@ public class MeanSigmaCalc
     double middleLat = (minLat + maxLat) / 2;
 
     //getting the source-site cuttoff distance
-    sourceCutOffDistance = RelativeLocation.getHorzDistance(middleLat, middleLon,
+    sourceCutOffDistance = (float)RelativeLocation.getHorzDistance(middleLat, middleLon,
         minLat, minLon) + MIN_DIST;
     siteForSourceCutOff = new Site(new Location(middleLat, middleLon));
 
@@ -451,7 +427,7 @@ public class MeanSigmaCalc
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  protected void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,
+  private void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,
                                           String imtLine,
                                           String dirName) {
 
@@ -488,8 +464,8 @@ public class MeanSigmaCalc
 
         // get the ith source
         ProbEqkSource source = forecast.getSource(sourceIndex);
-
-        if (source.getMinDistance(siteForSourceCutOff) > sourceCutOffDistance)
+        double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+        if (sourceDistFromSite > sourceCutOffDistance)
           continue;
 
         // get the number of ruptures for the current source
@@ -519,7 +495,7 @@ public class MeanSigmaCalc
 
             imr.setIntensityMeasure(imt);
             if (pd != null && !pd.equals(""))
-              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(pd);
+              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
           }
           meanSigmaFile.write("\n");
         }
@@ -536,7 +512,7 @@ public class MeanSigmaCalc
    * @param eqkRupForecast EqkRupForecastAPI
    * @param outFileName String
    */
-  protected void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
+  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
                                             String dirName) {
     String outFileName = dirName+"src_rup_metadata.txt";
     // get total number of sources
@@ -556,8 +532,10 @@ public class MeanSigmaCalc
           // get the ith source
           ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 
-          if (source.getMinDistance(siteForSourceCutOff) > sourceCutOffDistance)
+          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+          if (sourceDistFromSite > sourceCutOffDistance)
             continue;
+
           // get the number of ruptures for the current source
           int numRuptures = source.getNumRuptures();
 
@@ -583,7 +561,7 @@ public class MeanSigmaCalc
    * @param eqkRupForecast EqkRupForecastAPI
    * @param outFileName String
    */
-  protected void generateRupSiteDistFile(EqkRupForecastAPI eqkRupForecast,
+  private void generateRupSiteDistFile(EqkRupForecastAPI eqkRupForecast,
       String dirName) {
     String outFileName = dirName+"rup_dist_info.txt";
     // get total number of sources
@@ -602,8 +580,10 @@ public class MeanSigmaCalc
           // get the ith source
           ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 
-          if (source.getMinDistance(siteForSourceCutOff) > sourceCutOffDistance)
+          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+          if (sourceDistFromSite > sourceCutOffDistance)
             continue;
+
           // get the number of ruptures for the current source
           int numRuptures = source.getNumRuptures();
 
@@ -620,6 +600,7 @@ public class MeanSigmaCalc
               double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
               fwRup.write((float)rupDist+"  ");
             }
+            fwRup.write("\n");
           }
         }
         fwRup.close();
@@ -652,7 +633,7 @@ public class MeanSigmaCalc
       System.out.println("Usage :\n\t"+"java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
       System.out.println("jarfileName : Name of the executable jar file, by default it is MeanSigmaCalc.jar");
       System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns"+
-                         " \"SiteTrackNumber Lon Lat\", For eg: see \"siteList.txt\". ");
+                         " \"Lon Lat Vs30\", For eg: see \"MeanSigmaCalc_InputFile.txt\". ");
       System.out.println("output directory name : Name of the output directory where all the output files will be generated");
       System.exit(0);
     }
@@ -667,6 +648,11 @@ public class MeanSigmaCalc
     catch (IOException ex) {
       ex.printStackTrace();
     }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    calc.createSiteList();
     calc.getMeanSigma();
   }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.opensha.data;
 
@@ -12,15 +12,15 @@ package org.opensha.data;
  */
 public class ValueWeight {
 	private final static String C = "ValueWeight";
-	private double value = Double.NaN;  // value 
+	private double value = Double.NaN;  // value
 	private double weight = Double.NaN; // weight associated with this value
-	
+
 	/**
 	 * Default constructor
 	 *
 	 */
 	public ValueWeight() { }
-	
+
 	/**
 	 * Set the value and weight
 	 * @param value
@@ -30,8 +30,8 @@ public class ValueWeight {
 		setValue(value);
 		setWeight(weight);
 	}
-	
-	
+
+
 	/**
 	 * Get value
 	 * @return
@@ -39,9 +39,9 @@ public class ValueWeight {
 	public double getValue() {
 		return value;
 	}
-	
+
 	/**
-	 * Set value 
+	 * Set value
 	 * @param value
 	 */
 	public void setValue(double value) {
@@ -63,15 +63,15 @@ public class ValueWeight {
 	public void setWeight(double weight) {
 		this.weight = weight;
 	}
-	
+
 	/**
-	 * clone 
+	 * clone
 	 */
-	public ValueWeight clone() {
+	public Object clone() {
 		ValueWeight valWeight = new ValueWeight(this.value, this.weight);
 		return valWeight;
 	}
-	
+
 	/**
      *  Compares the values to if this is less than, equal to, or greater than
      *  the comparing objects. Weight is irrelevant in this case
@@ -91,7 +91,7 @@ public class ValueWeight {
         }
         ValueWeight param = ( ValueWeight ) obj;
         Double thisVal = new Double(value);
-        
+
         return thisVal.compareTo( new Double(param.value) );
     }
 }

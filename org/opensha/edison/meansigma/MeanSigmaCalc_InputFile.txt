@@ -10,7 +10,7 @@
 USGS/CGS 2002 Adj. Cal. ERF
 #
 # Second line indicates whether to include BackGround sources (true or false)
-true
+false
 # Third line defines rupture offset for flaoters 
 # (between 1 and 100; 5 is generally best)
 5
@@ -62,3 +62,6 @@ SA 1.0
 3
 # Enter the Lat, Lon, and optionally Vs30 on a separate line for each:
 # e.g., "34.1 -118.1 760"  
+34.0543 -118.0821 270
+33.6567 -117.7051 270
+34.0852 -118.1421 360
