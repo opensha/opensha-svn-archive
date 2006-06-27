@@ -452,7 +452,7 @@ public class DoubleValueWeightParameter extends DependentParameter
         c1 = ( DoubleValueWeightConstraint ) constraint.clone();
       	DoubleValueWeightParameter param = null;
         if( value == null ) param = new DoubleValueWeightParameter( name, c1, units);
-        else param = new DoubleValueWeightParameter( name, c1, units, ( (ValueWeight) this.value).clone()  );
+        else param = new DoubleValueWeightParameter( name, c1, units, (ValueWeight)( (ValueWeight) this.value).clone()  );
         if( param == null ) return null;
         param.editable = true;
         param.info = info;
