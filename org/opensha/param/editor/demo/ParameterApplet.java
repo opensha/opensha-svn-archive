@@ -11,10 +11,12 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
+import org.opensha.data.ValueWeight;
 import org.opensha.param.DoubleConstraint;
 import org.opensha.param.DoubleDiscreteConstraint;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.DoubleParameter;
+import org.opensha.param.DoubleValueWeightParameter;
 import org.opensha.param.WarningIntegerParameter;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.IntegerConstraint;
@@ -194,9 +196,21 @@ public class ParameterApplet
         for ( int i = 3; i < number; i++ )
             list.addParameter( makeStringParameter() );
         list.addParameter(makeParameterListParameter());
+        list.addParameter(makeDoubleValueWeightParameter());
         return list;
     }
 
+    private ParameterAPI makeDoubleValueWeightParameter() {
+    	  String name = "Name " + paramCount;
+          paramCount++;
+          DoubleValueWeightParameter param = new DoubleValueWeightParameter( name, 0, 1, 0 , 1000, "mm/yr", new ValueWeight( 0.5, 99.9 ) );
+          param.addParameterChangeFailListener(this);
+          param.addParameterChangeListener(this);
+
+          return param;
+    }
+    
+    
     private ParameterAPI makeParameterListParameter(){
       DoubleParameter param1 = new DoubleParameter("param1",new Double(.01));
       DoubleParameter param2 = new DoubleParameter("param2",new Double(.02));
