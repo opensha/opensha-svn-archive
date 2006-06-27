@@ -1,79 +1,81 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Estimate:
+Mean/sigma calculator at multiple sites (for Nico, Patti, and Cybershake)
 
-	remove the "X" in minX, maxX ets (including documentation); subclasses too
+NGA models implementation
 
-	remove use of decimalFormat (cast to floats instead), and fix use of this elsewhere
-	(prob if 0.000000000001 --> 0.0)
+Hazus PSHA dataset calculator - GUI-based app?
 
-	Implement toString() in here and in subclasses and use in editor main() for debugging.
+Cybershake Scatter plotter
+
+Warning/Disclaimer message is blank if no intenet access (put html in jar file).
+
+
+
+Fault Section, Fault Model, and Deformation Model flat files - make GUI able to write these out?
+
+Distance between fault sectons calculator?
+
+Latest JFreeChart
+
+Type_A_Fault Ruptures Model GUI
+
+	ValueWeight object
+	DoubleValueWeightParameter
+	DoubleValueWeightConstraint
+	DoubleValueWeightParameterEditor (diff one for constrained vs unconstrainted?)
+	
+	ParameterListParameter should be usable with the above?
+	
+	Changes (relative to WG02 GUI)
+	
+		Take Mag Sigma & Tuncation Stuff out (at least for now)
+		
+		Remove Floating Rup PDF (for now)
+		
+		Remove scenario weights
+		
+		Move "Set All Scenario Weights To" option to TreeBranchWeightParamEditor 
+		as a "Set All" option as a JComboBox (where Set All is what you always 
+		see except when you're selecting)
+		
+		Add "Slip Model" StringParam w/ following options: "Char. Slip (Dsr=Ds)", 
+		"WG02 Slip (Dsr prop. to Vs)", "Uniform/Boxcar Slip"
+		
+		Add Rupture Model Type Param w/ following options: "Min Rate Solution", 
+		"Max Rate Solution", "Equal Rate Solution", & "Geol Insight Solution"
+		
+		Add "Segment MRI" ParamListParam of Doubles (defaults as null until we get values)
+
+		Add "Segment Ave Slip Per Event" ParamListParam of Doubles (defaults as null until we get values)
+		
+		Add "A Priori Rupture Rates" as ParamListParam of DoubleWeightParams
+		(num_rups = num_seg*(num_seg+1)/2
+		
+		Remove "Scenarios" stuff from initial info window
+	
+Increase speed of accessing preferred fault data for SCEC VDO and other apps.
+
+
 
 EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
 
 FractileListEstimate - add this to the parameter editor
 
-	
-	
-	
-	
 Implement new version checking/download option in all apps (skip if no internet access)
+
+
 
 Attenuation Relationship Plotter
 
 	Buttons at the bottom right disappear if window is too narrow
 	
-
-Update the HazardSpectrumApp with latest GUI beans.
-
 Implement RELM ERFs (discuss with Ned)
 
-Implement NGA models 
+Do MFD & gridded forecast stuff on Ned's hand written notes.
 
 Implement mag PDF option in single fault ERFs (ned will do)
-
-
-
-MagFreqDistParamEditor DONE
-
-	Change "Update Mag ..." button to "Done"
-
-	Add a pick-list that always says "Show Dist", but there the selectable options are
-	"Incremental" "Cumulative or" "Moment Rate", pop a plot up including the metadata,
-	and also include whether it's "Incremental" "Cumulative or" "Moment Rate" in the plot.
-	Don't support more than one curve per plot
-
-	Create similar MagPDF_ParamEditor
-
-New MagFreqDistTesterApplet: DONE
-
-	1) does not show all three plots at once, but does have peel-off capability
-	2) hide the "Done" and "Show Dist" options in the param editor
-	3) toggle between "Incremental" "Cumulative" and "Moment Rate" 
-	   (revert to auto scale when changed, and maintain plot preferences)
-	4) include the summed dist option (but only if all x-axis values the same)
-	5) maintain list of curves after peel off so one can change from "Incremental" 
-	to "Cumulative" and peel off again, for example, without having to start over.
-
-
-Include "Max Source-Site Distance" (from control panel) in metadata for hazard curves. DONE
-
-DisaggregationCalculator: DONE
-
-	Add tabs for selecting what to show below plot:
-
-		Mean/Mode (default)
-		Metatdata
-		Source List (if option chosen)
-		Binned data (if option chosen)
-
-	(make the data format better now that it's text rather than html)
-
-	show the pdf rather than the jpeg since it's nicer (will require open-src pdf viewer)
-
-
-Explore source and rupture visualization options, including JFreeChart, GMT, GoogleEarth, and VDO.  Build the visualization of sources (we added a getAllSourceLocs() method to all sources) and/or ruptures & associated info into the applications (especially for deterministic calcs).  Also include plotting MFDs for sources.  Vipin
 
 Continue working on the all-ruptures-in-fault-system tool (Vipin)
 
