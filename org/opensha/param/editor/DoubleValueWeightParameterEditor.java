@@ -151,7 +151,6 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
 		// set the value in the parameter
 		if(valueWeight==null) {
 			valueWeight = new ValueWeight();
-			model.setValue(valueWeight);
 		}
 		
 		// update the parameter value
@@ -166,6 +165,7 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
 			if(weight==null) weight = new Double(Double.NaN);
 			valueWeight.setWeight(weight.doubleValue());
 		}
+		model.setValue(valueWeight);
 	}
 	
 }

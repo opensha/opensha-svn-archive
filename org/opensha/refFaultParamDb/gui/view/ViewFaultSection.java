@@ -3,14 +3,20 @@
  */
 package org.opensha.refFaultParamDb.gui.view;
 
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Insets;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.param.StringParameter;
@@ -78,6 +84,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
 	private JButton editButton = new JButton("Edit");
 	private JButton removeButton = new JButton("Remove");
+	private JButton saveButton = new JButton("Save All to File");
+	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections to a txt file";
 	private JButton addButton = new JButton("Add");
 	private final static String MSG_REMOVE_CONFIRM = "Do you want to delete this fault Section from the database?\n"+
 		"All PaleoSites associated with this Fault Section will be removed.";
@@ -192,6 +200,12 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		addButton.addActionListener(this);
+		// save all fault sections to a file button
+		panel.add(this.saveButton, new GridBagConstraints(3, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		saveButton.addActionListener(this);
+		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
 		return panel;
 	}
 	
@@ -205,9 +219,28 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 			refreshFaultSectionValues(); // fill the fault section values according to selected Fault Section
 		} else if(source == this.addButton) { // add a new fault section
 			EditFaultSection editFaultSection = new EditFaultSection(null, this);
+		} else if(source == this.saveButton) { // save all fault sections to a file
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.showSaveDialog(this);
+			File file = fileChooser.getSelectedFile();
+			if(file!=null) writeSectionsToFile(file);
 		}
 	}
 
+	/**
+	 * Write fault sections to a file
+	 * @param file
+	 */
+	private void writeSectionsToFile(File file) {
+		ArrayList faultSectionsSummaryList = faultSectionDAO.getAllFaultSectionsSummary();
+		int[] faultSectionIds = new int[faultSectionsSummaryList.size()];
+		for(int i=0; i<faultSectionsSummaryList.size(); ++i) {
+			faultSectionIds[i] = ((FaultSectionSummary)faultSectionsSummaryList.get(i)).getSectionId();
+		}
+		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter();
+		fileWriter.writeForFaultModel(faultSectionIds, file);
+	}
+	
 	/**
 	 * Remove the fault section from the database.
 	 * Ask the user to confirm the removal of fault section first

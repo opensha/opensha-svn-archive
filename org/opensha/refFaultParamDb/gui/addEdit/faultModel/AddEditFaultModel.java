@@ -10,11 +10,16 @@ import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
@@ -24,7 +29,9 @@ import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.addEdit.faultModel.FaultModelTable;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.view.SectionInfoFileWriter;
 import org.opensha.refFaultParamDb.vo.FaultModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 
@@ -53,6 +60,8 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	private FaultModelTableModel tableModel;
 	private FaultModelTable table;
 	private final static String TITLE = "Fault Model";
+	private JButton saveButton = new JButton("Save All to File");
+	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections in this Fault Model to a txt file";
 	private final static String MSG_ADD_MODEL_SUCCESS = "Model Added Successfully";
 	private final static String MSG_REMOVE_MODEL_SUCCESS = "Model Removed Successfully";
 	private final static String MSG_UPDATE_MODEL_SUCCESS = "Model Updated Successfully";
@@ -158,6 +167,11 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.NONE,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+		adRemoveButtonPanel.add(this.saveButton,
+	             new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
 		return adRemoveButtonPanel;
 	}
 	
@@ -171,6 +185,8 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 		updateModelButton.addActionListener(this);
 		this.selectAllButton.addActionListener(this);
 		this.deselectAllButton.addActionListener(this);
+		saveButton.addActionListener(this);
+		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
 	}
 	
 	/**
@@ -204,11 +220,30 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 				 setAllRowsSelection(true);
 			} else if(source == this.deselectAllButton) { // deselect all
 				setAllRowsSelection(false);
+			} else if(source == this.saveButton) { // save to a text file
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.showSaveDialog(this);
+				File file = fileChooser.getSelectedFile();
+				if(file!=null) writeSectionsToFile(file);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
+	}
+	
+	/**
+	 * Write fault sections to a file
+	 * @param file
+	 */
+	private void writeSectionsToFile(File file) {
+		ArrayList faultSectionIdList  = this.getFaultSectionIdList();
+		int []faultSectionIds = new int[faultSectionIdList.size()];
+		for(int i=0; i<faultSectionIdList.size(); ++i) {
+			faultSectionIds[i] = ((Integer)faultSectionIdList.get(i)).intValue();
+		}
+		SectionInfoFileWriter fileWriter = new SectionInfoFileWriter();
+		fileWriter.writeForFaultModel(faultSectionIds, file);
 	}
 	
 	 /**
@@ -246,11 +281,7 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 	 *
 	 */
 	private void setFaultSectionsBasedOnFaultModel() {
-		String selectedFaultModel  = (String)this.faultModelsParam.getValue();
-		// find the fault model id
-		int faultModelId=getFaultModelId(selectedFaultModel);
-		// get all the fault sections within this fault model
-		ArrayList faultSectionIdList = this.faultModelSectionDB_DAO.getFaultSectionIdList(faultModelId);
+		ArrayList faultSectionIdList = getFaultSectionIdList();
 		
 		//deselect all the check boxes in the table
 		for(int i=0; i<this.tableModel.getRowCount(); ++i)
@@ -262,6 +293,19 @@ public class AddEditFaultModel extends JPanel implements ActionListener, Paramet
 			tableModel.setSelected(faultSectionId.intValue(), true);
 		}
 		tableModel.fireTableDataChanged();
+	}
+	
+	/**
+	 * Get fault section Id list for the current fault model
+	 * @return
+	 */
+	private ArrayList getFaultSectionIdList() {
+		String selectedFaultModel  = (String)this.faultModelsParam.getValue();
+		// find the fault model id
+		int faultModelId=getFaultModelId(selectedFaultModel);
+		// get all the fault sections within this fault model
+		ArrayList faultSectionIdList = this.faultModelSectionDB_DAO.getFaultSectionIdList(faultModelId);
+		return faultSectionIdList;
 	}
 
 	/**
