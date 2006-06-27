@@ -180,18 +180,18 @@ public class Vs30SiteTranslator implements java.io.Serializable{
       }
 
       //SCEMY Site type
-      else if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
+      else if(tempParam.getName().equalsIgnoreCase(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME)){
         if(Double.isNaN(basinDepth)){
           if(vs30 <=400)
-            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
+            tempParam.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_SOIL);
           else
-            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+            tempParam.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
         }
         else {
           if(vs30 <=400 && basinDepth > 100)
-            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
+            tempParam.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_SOIL);
           else
-            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+            tempParam.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
         }
       }
 

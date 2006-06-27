@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refactor PUBLIC "-//Borland Software Corporation//Refactor 1.0//EN" "http://www.borland.com/devsupport/jbuilder/dtds/refactor_1_0.dtd">
+<refactor>
+  <rename-class id="6AP0ABPBRSOEA9SN302BODZ0" creation-time="Fri Jun 23 09:27:02.366 PDT 2006">
+    <old-class-name>org.opensha.sha.imr.attenRelImpl.SCEMY_1997_AttenRel</old-class-name>
+    <new-class-name>org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel</new-class-name>
+  </rename-class>
+</refactor>

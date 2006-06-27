@@ -140,14 +140,14 @@ public class SiteTranslator
     }
 
     // SCEMY_1997_AttenRel.SITE_TYPE_NAME
-    else if (param.getName().equals(SCEMY_1997_AttenRel.SITE_TYPE_NAME)) {
+    else if (param.getName().equals(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME)) {
 
       if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
-        param.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
+        param.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_SOIL);
         return true;
       }
       else if (wc.equals(WILLS_C) || wc.equals(WILLS_BC) || wc.equals(WILLS_B)) {
-        param.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        param.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
         return true;
       }
       else {
@@ -287,6 +287,31 @@ public class SiteTranslator
     }
   }
 
+
+
+  /**
+   * Returns the Correponding Wills Site Class value for the given Vs30 value
+   * @param vs30 double
+   * @return String
+   */
+  public static String getWillsSiteClassForVs30(double vs30){
+    if(vs30 <= 180)
+      return "DE";
+    else if(vs30 >= 180 && vs30 <= 270)
+      return "D";
+    else if(vs30>=270 && vs30 <= 360)
+      return "CD";
+    else if(vs30>=360  && vs30 <= 560)
+      return "C";
+    else if(vs30 >=560 && vs30 <= 760)
+      return "BC";
+    else if(vs30 > 1000)
+      return "B";
+    else
+      return "E";
+  }
+
+
   /**
    * This will test the translation from all wills categories for the parameter given
    * @param param
@@ -393,8 +418,8 @@ public class SiteTranslator
     ar = new AS_1997_AttenRel(null);
     siteTrans.test(ar.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME));
 
-    ar = new SCEMY_1997_AttenRel(null);
-    siteTrans.test(ar.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME));
+    ar = new SadighEtAl_1997_AttenRel(null);
+    siteTrans.test(ar.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 
     ar = new BJF_1997_AttenRel(null);
     siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));

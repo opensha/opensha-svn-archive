@@ -28,7 +28,7 @@ import org.opensha.data.*;
 public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningListener {
 
 
-  SCEMY_1997_AttenRel scemy_1997 = null;
+  SadighEtAl_1997_AttenRel scemy_1997 = null;
   //Tolerence to check if the results fall within the range.
   private static double tolerence = .01; //default value for the tolerence
 
@@ -55,7 +55,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
 
   protected void setUp() {
     // create the instance of the SCEMY_1997
-    scemy_1997 = new SCEMY_1997_AttenRel(this);
+    scemy_1997 = new SadighEtAl_1997_AttenRel(this);
     attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
   }
 

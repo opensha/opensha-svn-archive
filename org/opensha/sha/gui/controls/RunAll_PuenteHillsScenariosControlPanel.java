@@ -46,7 +46,7 @@ public class RunAll_PuenteHillsScenariosControlPanel {
     attenuationRelationships.add(BJF_1997_AttenRel.NAME);
     attenuationRelationships.add(CB_2003_AttenRel.NAME);
     attenuationRelationships.add(Field_2000_AttenRel.NAME);
-    attenuationRelationships.add(SCEMY_1997_AttenRel.NAME);
+    attenuationRelationships.add(SadighEtAl_1997_AttenRel.NAME);
     attenuationRelationships.add(ShakeMap_2003_AttenRel.NAME);
   }
 

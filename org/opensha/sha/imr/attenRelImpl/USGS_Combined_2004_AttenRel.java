@@ -133,7 +133,7 @@ public class USGS_Combined_2004_AttenRel
   // attenuation relationships used.
   private final AS_1997_AttenRel as_1997_attenRel;
   private final CB_2003_AttenRel cb_2003_attenRel;
-  private final SCEMY_1997_AttenRel scemy_1997_attenRel;
+  private final SadighEtAl_1997_AttenRel scemy_1997_attenRel;
   private final BJF_1997_AttenRel bjf_1997_attenRel;
 
   private double vs30;
@@ -201,7 +201,7 @@ public class USGS_Combined_2004_AttenRel
     // init the attenuation relationships
     as_1997_attenRel = new AS_1997_AttenRel(warningListener);
     cb_2003_attenRel = new CB_2003_AttenRel(warningListener);
-    scemy_1997_attenRel = new SCEMY_1997_AttenRel(warningListener);
+    scemy_1997_attenRel = new SadighEtAl_1997_AttenRel(warningListener);
     bjf_1997_attenRel = new BJF_1997_AttenRel(warningListener);
 
     // init the BC boundary site object, and set it in the attenuation relationships:

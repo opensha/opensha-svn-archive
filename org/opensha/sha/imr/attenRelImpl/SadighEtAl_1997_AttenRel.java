@@ -40,7 +40,7 @@ import org.opensha.util.*;
  */
 
 
-public class SCEMY_1997_AttenRel
+public class SadighEtAl_1997_AttenRel
     extends AttenuationRelationship implements
     AttenuationRelationshipAPI,
     NamedObjectAPI {
@@ -48,7 +48,7 @@ public class SCEMY_1997_AttenRel
   private final static String C = "SCEMY_1997_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Sadigh et al (1997)";
-  public final static String SHORT_NAME = "Sadigh1997";
+  public final static String SHORT_NAME = "SadighEtAl1997";
 
 
   // style of faulting options
@@ -216,7 +216,7 @@ public class SCEMY_1997_AttenRel
   /**
    *  No-Arg constructor. This initializes several ParameterList objects.
    */
-  public SCEMY_1997_AttenRel(ParameterChangeWarningListener warningListener) {
+  public SadighEtAl_1997_AttenRel(ParameterChangeWarningListener warningListener) {
 
     super();
 

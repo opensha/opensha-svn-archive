@@ -215,7 +215,7 @@ public class AttenuationRelationshipApplet extends JFrame
       attenRelClasses.add(AS_CLASS_NAME);
       imNames.add(Campbell_1997_AttenRel.NAME);
       attenRelClasses.add(C_CLASS_NAME);
-      imNames.add(SCEMY_1997_AttenRel.NAME);
+      imNames.add(SadighEtAl_1997_AttenRel.NAME);
       attenRelClasses.add(SCEMY_CLASS_NAME);
       imNames.add(Field_2000_AttenRel.NAME);
       attenRelClasses.add(F_CLASS_NAME);

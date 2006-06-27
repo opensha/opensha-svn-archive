@@ -99,7 +99,7 @@ public class MeanSigmaCalc
   protected void createAttenuationRelationObjects() {
     AS_1997_AttenRel as1997 = new AS_1997_AttenRel(this);
     CB_2003_AttenRel cb2003 = new CB_2003_AttenRel(this);
-    SCEMY_1997_AttenRel scemy1997 = new SCEMY_1997_AttenRel(this);
+    SadighEtAl_1997_AttenRel scemy1997 = new SadighEtAl_1997_AttenRel(this);
     BJF_1997_AttenRel bjf1997 = new BJF_1997_AttenRel(this);
     supportedAttenuationsList = new ArrayList();
     supportedAttenuationsList.add(as1997);
