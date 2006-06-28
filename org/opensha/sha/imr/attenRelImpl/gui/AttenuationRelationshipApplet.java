@@ -56,8 +56,8 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String appURL = "http://www.opensha.org/applications/attenRelApp/AttenuationRelationshipApp.jar";
     protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/attenRelApp/versionUpdate.html";
     protected final static String disclaimerPageURL = "http://www.opensha.org/documentation/applications/disclaimer.html";
-  
-    
+
+
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -170,7 +170,7 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
     protected final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
     protected final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
-    protected final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+    protected final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
     protected final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
     protected final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
     protected final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
@@ -227,7 +227,7 @@ public class AttenuationRelationshipApplet extends JFrame
       attenRelClasses.add(SM_CLASS_NAME);
       imNames.add(SEA_1999_AttenRel.NAME);
       attenRelClasses.add(SEA_CLASS_NAME);
-      
+
 
         //imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
@@ -238,7 +238,7 @@ public class AttenuationRelationshipApplet extends JFrame
     }
 
 
- 
+
     /**
      *  Used to determine if shoudl switch to new AttenuationRelationship, and for display purposes
      */
@@ -307,7 +307,7 @@ public class AttenuationRelationshipApplet extends JFrame
      */
     private double Y_MIN_VAL = 1e-8;
     protected JLabel imgLabel = new JLabel();
-    
+
     protected Border border1;
     protected FlowLayout flowLayout1 = new FlowLayout();
     protected JButton xyDatasetButton = new JButton();
@@ -540,12 +540,12 @@ public class AttenuationRelationshipApplet extends JFrame
         plotSplitPane.setOrientation( JSplitPane.VERTICAL_SPLIT );
         plotSplitPane.setBorder( null );
         plotSplitPane.setDividerSize( 2 );
-        
+
         plotSplitPane.setBottomComponent( buttonPanel );
         plotSplitPane.setTopComponent(mainPanel );
         plotSplitPane.setDividerLocation(500 );
- 
-        
+
+
         attenRelLabel.setForeground( darkBlue );
         attenRelLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
         attenRelLabel.setText( "Choose Model:    " );
@@ -638,16 +638,16 @@ public class AttenuationRelationshipApplet extends JFrame
         mainSplitPane.setBottomComponent( outerControlPanel );
         mainSplitPane.setTopComponent(plotPanel );
         mainSplitPane.setDividerLocation(600 );
- 
+
         //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
         setTitle( this.getAppInfo() + " (Version:"+version+")");
         setSize( W, H );
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation( ( d.width - getSize().width ) / 2, ( d.height - getSize().height ) / 2 );
-       
-        
-        
-         
+
+
+
+
         fileMenu.setText("File");
         fileExitMenu.setText("Exit");
         fileSaveMenu.setText("Save");
@@ -656,7 +656,7 @@ public class AttenuationRelationshipApplet extends JFrame
         helpMenu.setText("Help");
         helpLaunchMenu.setText("Help Application");
         helpMenu.add(helpLaunchMenu);
-  
+
 
         fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -718,11 +718,11 @@ public class AttenuationRelationshipApplet extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         updateChoosenAttenuationRelationship();
         createHelpMenu();
-        
+
         // Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
         // inputsPanel
-        
-        this.setVisible( true );        
+
+        this.setVisible( true );
     }
 
     private void createHelpMenu(){
@@ -730,8 +730,8 @@ public class AttenuationRelationshipApplet extends JFrame
 	    HelpBroker hb = helpMenu.createHelpMenu("etc/AttenuationRelationshipAppHelpDocuments/shaHelp.xml");
 	    helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
     }
-    
-    
+
+
     /**
      * File | Exit action performed.
      *
@@ -825,11 +825,11 @@ public class AttenuationRelationshipApplet extends JFrame
     public static void main( String[] args ) {
     		new ApplicationDisclaimerWindow(disclaimerPageURL);
         AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
-         
+
         applet.checkAppVersion();
 	    applet.init();
 	    applet.setVisible(true);
- 
+
     }
 
 

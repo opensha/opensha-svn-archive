@@ -24,7 +24,7 @@ public class AttenuationRelationshipsInstance {
   public final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
   public final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
   public final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
-  public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+  public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
   public final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
@@ -54,10 +54,10 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(CB_CLASS_NAME);
     supportedAttenRelClasses.add(SM_CLASS_NAME);
     supportedAttenRelClasses.add(USGS04_CLASS_NAME);
-    supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
+    /*supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
-    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);*/
     supportedAttenRelClasses.add(CS_2005_CLASS_NAME);
   }
 

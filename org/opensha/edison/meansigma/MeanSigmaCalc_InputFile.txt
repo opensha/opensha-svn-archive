@@ -10,7 +10,7 @@
 USGS/CGS 2002 Adj. Cal. ERF
 #
 # Second line indicates whether to include BackGround sources (true or false)
-false
+true
 # Third line defines rupture offset for flaoters 
 # (between 1 and 100; 5 is generally best)
 5
