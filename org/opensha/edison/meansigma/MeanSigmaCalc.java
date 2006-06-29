@@ -218,6 +218,13 @@ public class MeanSigmaCalc
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
+      /*attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
+          setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
+          setValue(new Double(3.0));
+      attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
+          setValue(USGS_Combined_2004_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);*/
+
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
       supportedAttenuationsList.add(attenRel);
