@@ -353,7 +353,7 @@ public class MeanSigmaCalc
     for (int i = 0; i < numIMRs; ++i) {
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
           supportedAttenuationsList.get(i);
-      attenRel.setUserMaxDistance(MIN_DIST);
+      attenRel.setUserMaxDistance(sourceCutOffDistance);
       attenRel.setParamDefaults();
       for (int j = 0; j < numIMTs; ++j) {
         String imtLine = (String) supportedIMTs.get(j);

@@ -354,7 +354,7 @@ public class MedianCalc_Cybershake
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
           supportedAttenuationsList.get(i);
       attenRel.setParamDefaults();
-      attenRel.setUserMaxDistance(MIN_DIST);
+      attenRel.setUserMaxDistance(sourceCutOffDistance);
       for (int j = 0; j < numIMTs; ++j) {
         String imtLine = (String) supportedIMTs.get(j);
         generateMedian(attenRel, imtLine,
@@ -488,35 +488,35 @@ public class MedianCalc_Cybershake
 
           EqkRupture rupture = source.getRupture(n);
           float mag = (float)rupture.getMag();
-          if(!(mag >=6.5) && !(mag<=7.0))
-        	  	continue;
-          // set the EqkRup in the IMR
-          imr.setEqkRupture(rupture);
-
-          medianFile.write(sourceIndex + "  " + n + "  ");
-
-          int numSites = locList.size();
-
-          //looping over all the sites for the selected Attenuation Relationship
-          for (int j = 0; j < numSites; ++j) {
-            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
-            //this method added to the Attenuation Relationship allows to set the
-            //Location in the site of the attenuation relationship
-            Location loc = (Location)locList.getLocationAt(j);
-            imr.setSiteLocation(loc);
-            //setting different intensity measures for each site and writing those to the file.
-            imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
-            medianFile.write(format.format(Math.exp(imr.getMean())) + " ");
-            Site site = new Site(loc);
-            PropagationEffect propEffect = new PropagationEffect(site,rupture);
-            double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
-            medianFile.write((float)rupDist+"  ");
-
-            imr.setIntensityMeasure(imt);
-            if (pd != null && !pd.equals(""))
-              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
-          }
-          medianFile.write("\n");
+          if(mag >=6.5 && mag<=7.0){
+	          // set the EqkRup in the IMR
+	          imr.setEqkRupture(rupture);
+	
+	          medianFile.write(sourceIndex + "  " + n + "  ");
+	
+	          int numSites = locList.size();
+	
+	          //looping over all the sites for the selected Attenuation Relationship
+	          for (int j = 0; j < numSites; ++j) {
+	            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
+	            //this method added to the Attenuation Relationship allows to set the
+	            //Location in the site of the attenuation relationship
+	            Location loc = (Location)locList.getLocationAt(j);
+	            imr.setSiteLocation(loc);
+	            //setting different intensity measures for each site and writing those to the file.
+	            imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+	            medianFile.write(format.format(Math.exp(imr.getMean())) + " ");
+	            Site site = new Site(loc);
+	            PropagationEffect propEffect = new PropagationEffect(site,rupture);
+	            double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+	            medianFile.write((float)rupDist+"  ");
+	
+	            imr.setIntensityMeasure(imt);
+	            if (pd != null && !pd.equals(""))
+	              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+	          }
+	          medianFile.write("\n");
+	        }
         }
       }
       medianFile.close();
@@ -526,57 +526,56 @@ public class MedianCalc_Cybershake
     }
   }
 
-  /**
-   * generate the Rupture Probability file
-   * @param eqkRupForecast EqkRupForecastAPI
-   * @param outFileName String
-   */
-  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
-                                            String dirName) {
-    String outFileName = dirName+"src_rup_metadata.txt";
-    // get total number of sources
-    int numSources = eqkRupForecast.getNumSources();
-    // init the current rupture number
-    int currRuptures = 0;
-    try {
-      File fw = new File(outFileName);
-      if (!fw.exists()) {
-        //opens the files for writing
-        FileWriter fwRup = new FileWriter(outFileName);
-        double duration = ((TimeSpan)eqkRupForecast.getTimeSpan()).getDuration();
-
-        // loop over sources
-        for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
-
-          // get the ith source
-          ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
-
-          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
-          if (sourceDistFromSite > sourceCutOffDistance)
-            continue;
-
-          // get the number of ruptures for the current source
-          int numRuptures = source.getNumRuptures();
-
-          // loop over these ruptures
-          for (int n = 0; n < numRuptures; n++, ++currRuptures) {
-
-            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
-            float mag = (float)rupture.getMag();
-            if(!(mag >=6.5) && !(mag<=7.0))
-          	  	continue;
-            double rate = -Math.log(1 - rupture.getProbability())/duration;
-            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
-          }
-        }
-        fwRup.close();
-      }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-
-  }
+	  /**
+	   * generate the Rupture Probability file
+	   * @param eqkRupForecast EqkRupForecastAPI
+	   * @param outFileName String
+	   */
+	  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
+	                                            String dirName) {
+	    String outFileName = dirName+"src_rup_metadata.txt";
+	    // get total number of sources
+	    int numSources = eqkRupForecast.getNumSources();
+	    // init the current rupture number
+	    int currRuptures = 0;
+	    try {
+	      File fw = new File(outFileName);
+	      if (!fw.exists()) {
+	        //opens the files for writing
+	        FileWriter fwRup = new FileWriter(outFileName);
+	        double duration = ((TimeSpan)eqkRupForecast.getTimeSpan()).getDuration();
+	
+	        // loop over sources
+	        for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
+	
+	          // get the ith source
+	          ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+	
+	          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+	          if (sourceDistFromSite > sourceCutOffDistance)
+	            continue;
+	
+	          // get the number of ruptures for the current source
+	          int numRuptures = source.getNumRuptures();
+	
+	          // loop over these ruptures
+	          for (int n = 0; n < numRuptures; n++, ++currRuptures) {
+	
+	            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
+	            float mag = (float)rupture.getMag();
+	            if(mag >=6.5 && mag<=7.0){
+		            double rate = -Math.log(1 - rupture.getProbability())/duration;
+		            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
+	            }
+	          }
+	        	}
+	        	fwRup.close();
+	    }
+	   }
+	    catch (Exception e) {
+		  e.printStackTrace();
+	  }	
+    	}
 
   /**
    * generate the Rupture Probability file
@@ -614,19 +613,19 @@ public class MedianCalc_Cybershake
 
             ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
             float mag = (float)rupture.getMag();
-            if(!(mag >=6.5) && !(mag<=7.0))
-          	  	continue;
-            fwRup.write(sourceIndex + "  " + n+" ");
-            int numSites = locList.size();
-            for(int s=0 ; s<numSites ; ++s){
-              Location loc = locList.getLocationAt(s);
-              Site site = new Site(loc);
-              PropagationEffect propEffect = new PropagationEffect(site,rupture);
-              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
-              fwRup.write((float)rupDist+"  ");
+            if(mag >=6.5 && mag<=7.0){
+	            fwRup.write(sourceIndex + "  " + n+" ");
+	            int numSites = locList.size();
+	            for(int s=0 ; s<numSites ; ++s){
+	              Location loc = locList.getLocationAt(s);
+	              Site site = new Site(loc);
+	              PropagationEffect propEffect = new PropagationEffect(site,rupture);
+	              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+	              fwRup.write((float)rupDist+"  ");
+	            }
+	            fwRup.write("\n");
             }
-            fwRup.write("\n");
-          }
+           }
         }
         fwRup.close();
       }
