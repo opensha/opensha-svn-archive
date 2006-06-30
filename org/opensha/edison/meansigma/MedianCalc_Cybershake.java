@@ -457,9 +457,13 @@ public class MedianCalc_Cybershake
       StringTokenizer st = new StringTokenizer(imtLine);
       int numTokens = st.countTokens();
       String imt = st.nextToken().trim();
+      imr.setIntensityMeasure(imt);
+ 
       String pd = "";
       if (numTokens == 2) {
         pd = st.nextToken().trim();
+        if (pd != null && !pd.equals(""))	
+        	  imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
         medianFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + "_" + pd + ".txt");
       }
@@ -504,16 +508,11 @@ public class MedianCalc_Cybershake
 	            Location loc = (Location)locList.getLocationAt(j);
 	            imr.setSiteLocation(loc);
 	            //setting different intensity measures for each site and writing those to the file.
-	            imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 	            medianFile.write(format.format(Math.exp(imr.getMean())) + " ");
 	            Site site = new Site(loc);
 	            PropagationEffect propEffect = new PropagationEffect(site,rupture);
 	            double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
-	            medianFile.write((float)rupDist+"  ");
-	
-	            imr.setIntensityMeasure(imt);
-	            if (pd != null && !pd.equals(""))
-	              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+	            medianFile.write((float)rupDist+"  ");	
 	          }
 	          medianFile.write("\n");
 	        }

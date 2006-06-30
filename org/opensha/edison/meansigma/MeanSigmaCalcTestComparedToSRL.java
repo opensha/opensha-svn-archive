@@ -70,12 +70,12 @@ public class MeanSigmaCalcTestComparedToSRL {
     int numIMLs = imlVals.length;
     int numMeanVals = meanVals.length;
     for(int i=0;i<numIMLs;++i){
-      double imlCDF = 0 ;
+      double imlExceedProb = 0 ;
       for(int j=0;j<numMeanVals;++j){
-        double stRndVar = (imlVals[i] - meanVals[j]) / sigVals[j];
-        imlCDF += (GaussianDistCalc.getCDF(stRndVar)*rupRates[j]);
+        double stRndVar = (Math.log(imlVals[i]) - meanVals[j]) / sigVals[j];
+        imlExceedProb += (GaussianDistCalc.getExceedProb(stRndVar,1,3.0)*rupRates[j]);
       }
-      function.set(imlVals[i],imlCDF);
+      function.set(imlVals[i],imlExceedProb);
     }
 
     System.out.println(function.toString());
