@@ -311,7 +311,7 @@ public class HazardSpectrumLocalModeApplication
       JOptionPane.showMessageDialog(this, e.getMessage(),
                                     "Parameters Invalid",
                                     JOptionPane.INFORMATION_MESSAGE);
-      //e.printStackTrace();
+      e.printStackTrace();
       setButtonsEnable(true);
       return;
     }
@@ -538,38 +538,39 @@ public class HazardSpectrumLocalModeApplication
 
         if (probAtIML)
           hazFunction = (DiscretizedFuncAPI) calc.getSpectrumCurve(
-              site, imr, (EqkRupForecastAPI) forecast,
+              site, imr, erfList.getERF(i),
               imlProbValue, saPeriodVector);
         else {
           hazFunction = new ArbitrarilyDiscretizedFunc();
 
           // initialize the values in condProbfunc with log values as passed in hazFunction
           initX_Values(hazFunction);
-          try {
+          
 
             hazFunction = calc.getIML_SpectrumCurve(hazFunction, site, imr,
-                                                    (EqkRupForecastAPI) forecast,
+            		erfList.getERF(i),
                                                     imlProbValue, saPeriodVector);
 
-          }
-          catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(),
-                                          "Parameters Invalid",
-                                          JOptionPane.INFORMATION_MESSAGE);
-            return;
-          }
-        }
+         
+        	}
+      }
+      catch(RemoteException e){
+	    	  setButtonsEnable(true);
+	      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+	      bugWindow.setVisible(true);
+	      bugWindow.pack();
+	      e.printStackTrace();
+      }
+      catch (RuntimeException e) {
+      	  	//e.printStackTrace();
+      	  setButtonsEnable(true);	
+          JOptionPane.showMessageDialog(this, e.getMessage(),
+                                        "Parameters Invalid",
+                                        JOptionPane.INFORMATION_MESSAGE);
+          return;
+      }
         //System.out.println("Num points:" +hazFunction.toString());
-      }
-      catch (Exception e) {
-        setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
-            getParametersInfoAsString());
-        bugWindow.setVisible(true);
-        bugWindow.pack();
-        e.printStackTrace();
-      }
-
+     
       hazardFuncList.add(hazFunction);
     }
     weightedFuncList.addList(erfList.getRelativeWeightsList(), hazardFuncList);
