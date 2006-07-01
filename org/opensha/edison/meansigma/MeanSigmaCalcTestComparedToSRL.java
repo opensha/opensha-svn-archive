@@ -32,13 +32,11 @@ public class MeanSigmaCalcTestComparedToSRL {
   private float[] meanVals;
   private float[] sigVals;
 
-  double[] imlVals = {
-      .005, .007, .0098, .0137, .0192, .0269, .0376, .0527, .0738,
-      .103, .145, .203, .284, .397, .556, .778, 1.09, 1.52, 2.13};
+  double[] imlVals = {0.3220, 0.5972};
 
 
   private void readFile() throws FileNotFoundException, IOException {
-    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"BJF1997_PGA.txt");
+    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"USGS_2004_PGA.txt");
     int numEntries = fileLines.size();
     rupRates = new float[numEntries];
     meanVals = new float[numEntries];
@@ -75,7 +73,7 @@ public class MeanSigmaCalcTestComparedToSRL {
         double stRndVar = (Math.log(imlVals[i]) - meanVals[j]) / sigVals[j];
         imlExceedProb += (GaussianDistCalc.getExceedProb(stRndVar,1,3.0)*rupRates[j]);
       }
-      function.set(imlVals[i],imlExceedProb);
+       function.set(imlVals[i],imlExceedProb);
     }
 
     System.out.println(function.toString());
@@ -92,7 +90,7 @@ public class MeanSigmaCalcTestComparedToSRL {
       System.exit(0);
     }
 
-    MeanSigmaCalc.main(args);
+    //MeanSigmaCalc.main(args);
 
     MeanSigmaCalcTestComparedToSRL meansigmacalctestcomparedtosrl = new
         MeanSigmaCalcTestComparedToSRL(args[1]);

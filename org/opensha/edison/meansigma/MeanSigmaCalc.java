@@ -220,14 +220,14 @@ public class MeanSigmaCalc
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
+      /*attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
           setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
       attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
           setValue(new Double(3.0));
       attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-      setValue(AttenuationRelationship.COMPONENT_RANDOM_HORZ);
+      setValue(AttenuationRelationship.COMPONENT_RANDOM_HORZ);*/
       /*attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-          setValue(USGS_Combined_2004_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);*/
+          setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);*/
        supportedAttenuationsList.add(attenRel);
     }
     catch (ClassCastException e) {
@@ -470,7 +470,6 @@ public class MeanSigmaCalc
         meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + ".txt");
 
-      System.out.println("IMR Metadata:\n"+imr.getAllParamMetadata());
       // loop over sources
       for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
 
