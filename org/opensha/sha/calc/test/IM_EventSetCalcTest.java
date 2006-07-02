@@ -1,7 +1,9 @@
-package org.opensha.edison.meansigma;
+package org.opensha.sha.calc.test;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
+
+import org.opensha.sha.calc.IM_EventSetCalc;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -20,10 +22,10 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  * @author not attributable
  * @version 1.0
  */
-public class MeanSigmaCalcTestComparedToSRL {
+public class IM_EventSetCalcTest {
 
   private String dirName ;
-  public MeanSigmaCalcTestComparedToSRL(String dirName) {
+  public IM_EventSetCalcTest(String dirName) {
     this.dirName = dirName;
   }
 
@@ -32,11 +34,12 @@ public class MeanSigmaCalcTestComparedToSRL {
   private float[] meanVals;
   private float[] sigVals;
 
-  double[] imlVals = {0.3220, 0.5972};
+  double[] imlVals = {.005,.007,.0098,.0137,.0192,.0269,.0376,.0527,.0738,.103,
+		  .145,.203,.284,.397,.556,.778,1.09,1.52,2.13};
 
 
   private void readFile() throws FileNotFoundException, IOException {
-    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"USGS_2004_PGA.txt");
+    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"USGS_2004_SA_1.0.txt");
     int numEntries = fileLines.size();
     rupRates = new float[numEntries];
     meanVals = new float[numEntries];
@@ -90,10 +93,10 @@ public class MeanSigmaCalcTestComparedToSRL {
       System.exit(0);
     }
 
-    //MeanSigmaCalc.main(args);
+    IM_EventSetCalc.main(args);
 
-    MeanSigmaCalcTestComparedToSRL meansigmacalctestcomparedtosrl = new
-        MeanSigmaCalcTestComparedToSRL(args[1]);
+    IM_EventSetCalcTest meansigmacalctestcomparedtosrl = new
+        IM_EventSetCalcTest(args[1]);
     try {
       meansigmacalctestcomparedtosrl.readFile();
     }

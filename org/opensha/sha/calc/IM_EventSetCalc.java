@@ -1,4 +1,4 @@
-package org.opensha.edison.meansigma;
+package org.opensha.sha.calc;
 
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
@@ -30,7 +30,7 @@ import org.opensha.data.TimeSpan;
 
 
 /**
- * <p>Title: MeanSigmaCalc</p>
+ * <p>Title: IM_EventSetCalc</p>
  *
  * <p>Description: This class computes the Mean and Sigma for any Attenuation
  * supported and any IMT supported by these AttenuationRelationships.
@@ -40,7 +40,7 @@ import org.opensha.data.TimeSpan;
  * @author Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class MedianCalc_Cybershake
+public class IM_EventSetCalc
     implements ParameterChangeWarningListener {
 
   protected ArrayList willsSiteClassVals;
@@ -59,7 +59,7 @@ public class MedianCalc_Cybershake
   protected ArrayList supportedIMTs;
 
   protected double sourceCutOffDistance;
-  protected final static double MIN_DIST = 100;
+  protected final static double MIN_DIST = 200;
   protected Site siteForSourceCutOff;
 
   // site translator
@@ -70,7 +70,7 @@ public class MedianCalc_Cybershake
   protected String inputFileName = "MeanSigmaCalc_InputFile.txt";
   protected String dirName = "MeanSigma";
 
-  public MedianCalc_Cybershake(String inpFile,String outDir) {
+  public IM_EventSetCalc(String inpFile,String outDir) {
     inputFileName = inpFile;
     dirName = outDir ;
   }
@@ -218,16 +218,17 @@ public class MedianCalc_Cybershake
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
-      /*attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
+      //setting the Attenuation with the default parameters
+      attenRel.setParamDefaults();
+      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
           setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
       attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
           setValue(new Double(3.0));
+      /*attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
+      setValue(AttenuationRelationship.COMPONENT_RANDOM_HORZ);*/
       attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-          setValue(USGS_Combined_2004_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);*/
-
-      //setting the Attenuation with the default parameters
-      attenRel.setParamDefaults();
-      supportedAttenuationsList.add(attenRel);
+          setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);
+       supportedAttenuationsList.add(attenRel);
     }
     catch (ClassCastException e) {
       e.printStackTrace();
@@ -336,7 +337,7 @@ public class MedianCalc_Cybershake
    * Starting with the Mean and Sigma calculation.
    * Creates the directory to put the mean and sigma files.
    */
-  private void getMedian() {
+  private void getMeanSigma() {
 
     int numIMRs = supportedAttenuationsList.size();
     File file = new File(dirName);
@@ -353,11 +354,10 @@ public class MedianCalc_Cybershake
     for (int i = 0; i < numIMRs; ++i) {
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
           supportedAttenuationsList.get(i);
-      attenRel.setParamDefaults();
       attenRel.setUserMaxDistance(sourceCutOffDistance);
       for (int j = 0; j < numIMTs; ++j) {
         String imtLine = (String) supportedIMTs.get(j);
-        generateMedian(attenRel, imtLine,
+        generateMeanAndSigmaFile(attenRel, imtLine,
                                  dirName +
                                  SystemPropertiesUtils.getSystemFileSeparator());
       }
@@ -435,7 +435,7 @@ public class MedianCalc_Cybershake
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  private void generateMedian(AttenuationRelationshipAPI imr,
+  private void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,
                                           String imtLine,
                                           String dirName) {
 
@@ -448,7 +448,7 @@ public class MedianCalc_Cybershake
 
     // set the Site in IMR
     try {
-      FileWriter medianFile;
+      FileWriter meanSigmaFile;
 
       String fileNamePrefixCommon = dirName +
           SystemPropertiesUtils.getSystemFileSeparator() + imr.getShortName();
@@ -458,23 +458,18 @@ public class MedianCalc_Cybershake
       int numTokens = st.countTokens();
       String imt = st.nextToken().trim();
       imr.setIntensityMeasure(imt);
- 
       String pd = "";
       if (numTokens == 2) {
         pd = st.nextToken().trim();
-        if (pd != null && !pd.equals(""))	
-        	  imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
-        medianFile = new FileWriter(fileNamePrefixCommon + "_" +
+        if (pd != null && !pd.equals(""))
+            imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+        meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + "_" + pd + ".txt");
       }
       else
-        medianFile = new FileWriter(fileNamePrefixCommon + "_" +
+        meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + ".txt");
-      medianFile.write("#SrcId\tRupId\tUSC-Median\tUSC-RUP_DIST\t"+
-    		  "PAS-Median\tPAS-RUP_DIST\tLADT-Median\tLADT-RUP_DIST\tLBP-Median\t"+
-    		  "LBP-RUP_DIST\tSABD-Median\tSABD-RUP_DIST\tWNGC-Median\tWNGC-RUP_DIST\t"+
-    		  "SBSM-Median\tSBSM-RUP_DIST\tFFI-Median\tFFI-RUP_DIST\tCCP-Median\tCCP-RUP_DIST\t" +
-    		  "SMCA-Median\tSMCA-RUP_DIST\n");
+
       // loop over sources
       for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
 
@@ -491,90 +486,81 @@ public class MedianCalc_Cybershake
         for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
           EqkRupture rupture = source.getRupture(n);
-          float mag = (float)rupture.getMag();
-          if(mag >=6.5 && mag<=7.0){
-	          // set the EqkRup in the IMR
-	          imr.setEqkRupture(rupture);
-	
-	          medianFile.write(sourceIndex + "  " + n + "  ");
-	
-	          int numSites = locList.size();
-	
-	          //looping over all the sites for the selected Attenuation Relationship
-	          for (int j = 0; j < numSites; ++j) {
-	            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
-	            //this method added to the Attenuation Relationship allows to set the
-	            //Location in the site of the attenuation relationship
-	            Location loc = (Location)locList.getLocationAt(j);
-	            imr.setSiteLocation(loc);
-	            //setting different intensity measures for each site and writing those to the file.
-	            medianFile.write(format.format(Math.exp(imr.getMean())) + " ");
-	            Site site = new Site(loc);
-	            PropagationEffect propEffect = new PropagationEffect(site,rupture);
-	            double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
-	            medianFile.write((float)rupDist+"  ");	
-	          }
-	          medianFile.write("\n");
-	        }
+          // set the EqkRup in the IMR
+          imr.setEqkRupture(rupture);
+
+          meanSigmaFile.write(sourceIndex + "  " + n + "  ");
+
+          int numSites = locList.size();
+
+          //looping over all the sites for the selected Attenuation Relationship
+          for (int j = 0; j < numSites; ++j) {
+            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
+            //this method added to the Attenuation Relationship allows to set the
+            //Location in the site of the attenuation relationship
+            imr.setSiteLocation(locList.getLocationAt(j));
+            //setting different intensity measures for each site and writing those to the file.
+            meanSigmaFile.write(format.format(imr.getMean()) + " ");
+            meanSigmaFile.write(format.format(imr.getStdDev()) + " ");
+          }
+          meanSigmaFile.write("\n");
         }
       }
-      medianFile.close();
+      meanSigmaFile.close();
     }
     catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-	  /**
-	   * generate the Rupture Probability file
-	   * @param eqkRupForecast EqkRupForecastAPI
-	   * @param outFileName String
-	   */
-	  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
-	                                            String dirName) {
-	    String outFileName = dirName+"src_rup_metadata.txt";
-	    // get total number of sources
-	    int numSources = eqkRupForecast.getNumSources();
-	    // init the current rupture number
-	    int currRuptures = 0;
-	    try {
-	      File fw = new File(outFileName);
-	      if (!fw.exists()) {
-	        //opens the files for writing
-	        FileWriter fwRup = new FileWriter(outFileName);
-	        double duration = ((TimeSpan)eqkRupForecast.getTimeSpan()).getDuration();
-	
-	        // loop over sources
-	        for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
-	
-	          // get the ith source
-	          ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
-	
-	          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
-	          if (sourceDistFromSite > sourceCutOffDistance)
-	            continue;
-	
-	          // get the number of ruptures for the current source
-	          int numRuptures = source.getNumRuptures();
-	
-	          // loop over these ruptures
-	          for (int n = 0; n < numRuptures; n++, ++currRuptures) {
-	
-	            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
-	            float mag = (float)rupture.getMag();
-	            if(mag >=6.5 && mag<=7.0){
-		            double rate = -Math.log(1 - rupture.getProbability())/duration;
-		            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
-	            }
-	          }
-	        	}
-	        	fwRup.close();
-	    }
-	   }
-	    catch (Exception e) {
-		  e.printStackTrace();
-	  }	
-    	}
+  /**
+   * generate the Rupture Probability file
+   * @param eqkRupForecast EqkRupForecastAPI
+   * @param outFileName String
+   */
+  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
+                                            String dirName) {
+    String outFileName = dirName+"src_rup_metadata.txt";
+    // get total number of sources
+    int numSources = eqkRupForecast.getNumSources();
+    // init the current rupture number
+    int currRuptures = 0;
+    try {
+      File fw = new File(outFileName);
+      if (!fw.exists()) {
+        //opens the files for writing
+        FileWriter fwRup = new FileWriter(outFileName);
+        double duration = ((TimeSpan)eqkRupForecast.getTimeSpan()).getDuration();
+
+        // loop over sources
+        for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
+
+          // get the ith source
+          ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+
+          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
+          if (sourceDistFromSite > sourceCutOffDistance)
+            continue;
+
+          // get the number of ruptures for the current source
+          int numRuptures = source.getNumRuptures();
+
+          // loop over these ruptures
+          for (int n = 0; n < numRuptures; n++, ++currRuptures) {
+
+            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
+            double rate = -Math.log(1 - rupture.getProbability())/duration;
+            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
+          }
+        }
+        fwRup.close();
+      }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+  }
 
   /**
    * generate the Rupture Probability file
@@ -611,20 +597,17 @@ public class MedianCalc_Cybershake
           for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
             ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
-            float mag = (float)rupture.getMag();
-            if(mag >=6.5 && mag<=7.0){
-	            fwRup.write(sourceIndex + "  " + n+" ");
-	            int numSites = locList.size();
-	            for(int s=0 ; s<numSites ; ++s){
-	              Location loc = locList.getLocationAt(s);
-	              Site site = new Site(loc);
-	              PropagationEffect propEffect = new PropagationEffect(site,rupture);
-	              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
-	              fwRup.write((float)rupDist+"  ");
-	            }
-	            fwRup.write("\n");
+            fwRup.write(sourceIndex + "  " + n+" ");
+            int numSites = locList.size();
+            for(int s=0 ; s<numSites ; ++s){
+              Location loc = locList.getLocationAt(s);
+              Site site = new Site(loc);
+              PropagationEffect propEffect = new PropagationEffect(site,rupture);
+              double rupDist = ((Double)propEffect.getParamValue(DistanceRupParameter.NAME)).doubleValue();
+              fwRup.write((float)rupDist+"  ");
             }
-           }
+            fwRup.write("\n");
+          }
         }
         fwRup.close();
       }
@@ -661,7 +644,7 @@ public class MedianCalc_Cybershake
       System.exit(0);
     }
 
-    MedianCalc_Cybershake calc = new MedianCalc_Cybershake(args[0],args[1]);
+    IM_EventSetCalc calc = new IM_EventSetCalc(args[0],args[1]);
     try {
       calc.parseFile();
     }
@@ -676,6 +659,6 @@ public class MedianCalc_Cybershake
     }
 
     calc.createSiteList();
-    calc.getMedian();
+    calc.getMeanSigma();
   }
 }

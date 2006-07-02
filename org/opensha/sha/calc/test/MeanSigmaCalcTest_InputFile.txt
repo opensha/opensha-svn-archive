@@ -13,7 +13,7 @@ USGS/CGS 2002 Adj. Cal. ERF
 true
 # Third line defines rupture offset for flaoters 
 # (between 1 and 100; 5 is generally best)
-5
+1.0
 #
 # Fourth line specifies number N of Attenuation Relations
 1 
@@ -45,7 +45,7 @@ USGS_Combined_2004_AttenRel
 # Number of IMTs for which computation needs to be done
 1
 # Identify those IMT's:
-PGA
+SA 1.0
 # 
 # Next, give the number of sites and then the lat, lon, and  
 # Vs30 (m/sec) for each. If no Vs30 is given, then it will 
@@ -57,4 +57,4 @@ PGA
 1
 # Enter the Lat, Lon, and optionally Vs30 on a separate line for each:
 # e.g., "34.1 -118.1 760"  
-34.1 -118.2 760
+34.0852 -118.1421 760
