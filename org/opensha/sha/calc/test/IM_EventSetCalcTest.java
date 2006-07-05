@@ -39,7 +39,7 @@ public class IM_EventSetCalcTest {
 
 
   private void readFile() throws FileNotFoundException, IOException {
-    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"USGS_2004_SA_1.0.txt");
+    ArrayList fileLines = FileUtils.loadFile(dirName+"/"+"USGS_2004_PGA.txt");
     int numEntries = fileLines.size();
     rupRates = new float[numEntries];
     meanVals = new float[numEntries];
@@ -76,7 +76,8 @@ public class IM_EventSetCalcTest {
         double stRndVar = (Math.log(imlVals[i]) - meanVals[j]) / sigVals[j];
         imlExceedProb += (GaussianDistCalc.getExceedProb(stRndVar,1,3.0)*rupRates[j]);
       }
-       function.set(imlVals[i],imlExceedProb);
+      double val = 1-Math.exp(-imlExceedProb*50.0);
+       function.set(imlVals[i],val);	
     }
 
     System.out.println(function.toString());
@@ -88,7 +89,7 @@ public class IM_EventSetCalcTest {
           "java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
       System.out.println("jarfileName : Name of the executable jar file, by default it is MeanSigmaCalc.jar");
       System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns" +
-                         " \"Lon Lat Vs30\", For eg: see \"MeanSigmaCalcTest_InputFile.txt\". ");
+                         " \"Lon Lat Vs30\", For eg: see \"Im_EventSetCalcTest_InputFile.txt\". ");
       System.out.println("output directory name : Name of the output directory where all the output files will be generated");
       System.exit(0);
     }

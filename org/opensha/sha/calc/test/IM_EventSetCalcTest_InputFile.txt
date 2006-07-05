@@ -45,7 +45,7 @@ USGS_Combined_2004_AttenRel
 # Number of IMTs for which computation needs to be done
 1
 # Identify those IMT's:
-SA 1.0
+PGA
 # 
 # Next, give the number of sites and then the lat, lon, and  
 # Vs30 (m/sec) for each. If no Vs30 is given, then it will 
@@ -57,4 +57,4 @@ SA 1.0
 1
 # Enter the Lat, Lon, and optionally Vs30 on a separate line for each:
 # e.g., "34.1 -118.1 760"  
-34.0852 -118.1421 760
+33.6567 -117.7051 760
