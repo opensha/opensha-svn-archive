@@ -1,9 +1,8 @@
-package org.opensha.sha.calc.test;
+package org.opensha.sha.calc.IM_EventSetCalc;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-import org.opensha.sha.calc.IM_EventSetCalc;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
