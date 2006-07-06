@@ -1,6 +1,6 @@
 package org.opensha.sha.calc.IM_EventSetCalc;
 
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
@@ -25,9 +25,13 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  * http://eqint.cr.usgs.gov/eq-men/html/lookup-2002-interp-06.html.
  * </p>
  * <p>
+ * It produces the output curve on the console.
+ * </p>
+ * <p>
  * NOTE :Summation of curves is not really correct
  * for non-poissonian sources (e.g., UCERF 1).
- * This we can fix later before the release of UCERF 2. </p>
+ * This we can fix later before the release of UCERF 2.
+ *  </p>
  *
  * @author Nitin Gupta
  * @version 1.0
