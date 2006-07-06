@@ -631,9 +631,9 @@ public class IM_EventSetCalc
   public static void main(String[] args) {
     if(args.length != 2){
       System.out.println("Usage :\n\t"+"java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
-      System.out.println("jarfileName : Name of the executable jar file, by default it is MeanSigmaCalc.jar");
-      System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns"+
-                         " \"Lon Lat Vs30\", For eg: see \"MeanSigmaCalc_InputFile.txt\". ");
+      System.out.println("jarfileName : Name of the executable jar file, by default it is IM_EventSetCalc.jar");
+      System.out.println("inputFileName :Name of the input file"+
+                         " For eg: see \"IM_EventSetCalc_InputFile.txt\". ");
       System.out.println("output directory name : Name of the output directory where all the output files will be generated");
       System.exit(0);
     }

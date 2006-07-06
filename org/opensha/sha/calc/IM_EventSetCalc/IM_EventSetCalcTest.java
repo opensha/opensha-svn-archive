@@ -18,15 +18,13 @@ import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
- * <p>Title: </p>
+ * <p>Title: IM_EventSetCalcTest</p>
  *
- * <p>Description: </p>
+ * <p>Description: This class test the IM_EventSetCalc by averaging the annualized rates produced by
+ * selected AttenuationRelationship. The results can then be compared with the USGS website at
+ * http://eqint.cr.usgs.gov/eq-men/html/lookup-2002-interp-06.html </p>
  *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
+ * @author Nitin Gupta
  * @version 1.0
  */
 public class IM_EventSetCalcTest extends IM_EventSetCalc{
@@ -59,8 +57,6 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
       createSiteList();
       getMeanSigma();
   }
-
-
 
   double[] imlVals = {.005,.007,.0098,.0137,.0192,.0269,.0376,.0527,.0738,.103,
 		  .145,.203,.284,.397,.556,.778,1.09,1.52,2.13};
@@ -250,17 +246,19 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
   public static void main(String[] args) {
     if (args.length != 2) {
       System.out.println("Usage :\n\t" +
-          "java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
-      System.out.println("jarfileName : Name of the executable jar file, by default it is MeanSigmaCalc.jar");
-      System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns" +
-                         " \"Lon Lat Vs30\", For eg: see \"Im_EventSetCalcTest_InputFile.txt\". ");
-      System.out.println("output directory name : Name of the output directory where all the output files will be generated");
+          "java -jar [jarfileName] [inputFileName] [inputDirectory]\n\n");
+      System.out.println("jarfileName : Name of the executable jar file, by default it is IM_EventSetCalcTest.jar");
+      System.out.println("inputFileName :Name of the input file" +
+                         " For eg: see \"Im_EventSetCalcTest_InputFile.txt\". ");
+      System.out.println("input directory name : Name of the input directory where all the data files are located for"+
+    		  " each AttennuationRelationship. This test application will read those files and then generate the averaged" +
+    		  " annualized rates curves.");
       System.exit(0);
     }
 
-    IM_EventSetCalcTest meansigmacalctestcomparedtosrl = new
+    IM_EventSetCalcTest imEventSetCalcTest = new
         IM_EventSetCalcTest(args[0],args[1]);
     
-     meansigmacalctestcomparedtosrl.getAverageAnnualizedRates();
+    imEventSetCalcTest.getAverageAnnualizedRates();
   }
 }
