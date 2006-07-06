@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import java.io.File;
 
 /**
  * <p>Title: IM_EventSetCalcTest</p>
@@ -36,7 +37,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  * @author Nitin Gupta
  * @version 1.0
  */
-public class IM_EventSetCalcTest extends IM_EventSetCalc{
+public class IM_EventSetCalcTest{
 
   private String dirName ;
   private float[] rupRates;
@@ -46,25 +47,12 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
   private ArbitrarilyDiscretizedFunc averagedFunction;
   //checks to see if this teh first IMR/IMT it is reading.
   private boolean first = true;
+  private int numIMRsToAverageTheCurve = 0;
 
-  public IM_EventSetCalcTest(String inputFileName,String dirName) {
-	super(inputFileName,dirName);
+  public IM_EventSetCalcTest(String dirName) {
+
     this.dirName = dirName;
-    try {
-        parseFile();
-      }
-      catch (FileNotFoundException ex) {
-        ex.printStackTrace();
-      }
-      catch (IOException ex) {
-        ex.printStackTrace();
-      }
-      catch (Exception ex) {
-        ex.printStackTrace();
-      }
 
-      createSiteList();
-      getMeanSigma();
   }
 
   double[] imlVals = {.005,.007,.0098,.0137,.0192,.0269,.0376,.0527,.0738,.103,
@@ -89,7 +77,8 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
     }
     fileLines = null;
 	if(first){
-	    fileLines = FileUtils.loadFile(dirName+"/"+"src_rup_metadata.txt");
+	    fileLines = FileUtils.loadFile(dirName+SystemPropertiesUtils.getSystemFileSeparator()
+                                           +"src_rup_metadata.txt");
 	    //getting the event rates for each rup from Src-Rup file
 	    for(int i=0;i<numEntries;++i){
 	      StringTokenizer st = new StringTokenizer((String)fileLines.get(i));
@@ -107,132 +96,58 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
    * Reads each Attenuation Relationship file and IMT file to get the
    * averaged annualized rates
    */
-  private void getAverageAnnualizedRates(){
-	  int numIMTs = supportedIMTs.size();
-	  int numIMRs = supportedAttenuationsList.size();
-	  initArbFunction();
-	  String fileName="";
-	    for (int i = 0; i < numIMRs; ++i) {
-	      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
-	          supportedAttenuationsList.get(i);
-	      attenRel.setUserMaxDistance(sourceCutOffDistance);
-	      for (int j = 0; j < numIMTs; ++j) {
-	        String imtLine = (String) supportedIMTs.get(j);
-	        String fileNamePrefixCommon = dirName +
-		    SystemPropertiesUtils.getSystemFileSeparator() + attenRel.getShortName();
-
-		    // opens the files for writing
-		    StringTokenizer st = new StringTokenizer(imtLine);
-		    int numTokens = st.countTokens();
-		    String imt = st.nextToken().trim();
-
-		    String pd = "";
-		    if (numTokens == 2) {
-		      pd = st.nextToken().trim();
-		      fileName = fileNamePrefixCommon + "_" +imt + "_" + pd + ".txt";
-		    }
-		    else
-		    	  fileName = fileNamePrefixCommon + "_" +imt + ".txt";
-		    try {
-				readFile(fileName);
-				createArbFuncForEachIML();
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	      }
-	    }
-	    averageArbFunction();
-	    System.out.println(averagedFunction.toString());
-  }
-
-
-  /**
-   * Creates a class instance from a string of the full class name including packages.
-   * This is how you dynamically make objects at runtime if you don't know which\
-   * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
-   * it the normal way:<P>
-   *
-   * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
-   *
-   * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
-   * instead to create the same class by:<P>
-   *
-   * <code>BJF_1997_AttenRel imr =
-   * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.opensha.sha.imt.attenRelImpl.BJF_1997_AttenRel");
-   * </code><p>
-   *
-   */
-  protected void createIMRClassInstance(String AttenRelClassName) {
-    String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
+  private void getAverageAnnualizedRates() {
+    initArbFunction();
     try {
-      Class listenerClass = Class.forName(
-          "org.opensha.param.event.ParameterChangeWarningListener");
-      Object[] paramObjects = new Object[] {
-          this};
-      Class[] params = new Class[] {
-          listenerClass};
-      Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
-      Constructor con = imrClass.getConstructor(params);
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
-      if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
-    	  	throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
-      //setting the Attenuation with the default parameters
-      attenRel.setParamDefaults();
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
-          setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
-          setValue(new Double(3.0));
-      attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-      setValue(AttenuationRelationship.COMPONENT_AVE_HORZ);
-      supportedAttenuationsList.add(attenRel);
-    }
-    catch (ClassCastException e) {
-      e.printStackTrace();
-    }
-    catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    catch (NoSuchMethodException e) {
-      e.printStackTrace();
-    }
-    catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
-    catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-    catch (InstantiationException e) {
-      e.printStackTrace();
-    }
-  }
+      File file = new File(dirName);
+      String absPath = file.getAbsolutePath()+SystemPropertiesUtils.getSystemFileSeparator();
+      File[] files = file.listFiles();
+      int numFiles = files.length;
 
+      for (int i = 0; i < numFiles; ++i) {
+        String fileName = files[i].getName();
+        if (fileName.endsWith(".txt") && ! (fileName.contains("rup"))) {
+          ++numIMRsToAverageTheCurve;
+
+          readFile(absPath+fileName);
+          createArbFuncForEachIML();
+
+        }
+      }
+    }
+    catch (FileNotFoundException e) {
+
+      e.printStackTrace();
+    }
+    catch (IOException e) {
+
+      e.printStackTrace();
+    }
+    averageArbFunction();
+    System.out.println(averagedFunction.toString());
+  }
 
   /**
    * Initializes the function with the 0.0
    *
    */
   private void initArbFunction(){
-	  averagedFunction = new ArbitrarilyDiscretizedFunc();
-	  int numIMLs = imlVals.length;
-	   for(int i=0;i<numIMLs;++i){
-		   averagedFunction.set(imlVals[i],0.0);
-	   }
+    averagedFunction = new ArbitrarilyDiscretizedFunc();
+    int numIMLs = imlVals.length;
+    for (int i = 0; i < numIMLs; ++i) {
+      averagedFunction.set(imlVals[i], 0.0);
+    }
   }
-
   /**
    * Averages the annualized rates values in the function with the number of AttennuationRelationships for which
    * calcualtion was done.
    *
    */
   private void averageArbFunction(){
-	  int numIMLs = imlVals.length;
-	  int numIMRs = supportedAttenuationsList.size();
-	   for(int i=0;i<numIMLs;++i)
-		   averagedFunction.set(i,averagedFunction.getY(i)/numIMRs);
+    int numIMLs = imlVals.length;
+
+    for (int i = 0; i < numIMLs; ++i)
+      averagedFunction.set(i, averagedFunction.getY(i) / numIMRsToAverageTheCurve);
 
   }
 
@@ -255,10 +170,8 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
   public static void main(String[] args) {
     if (args.length != 2) {
       System.out.println("Usage :\n\t" +
-          "java -jar [jarfileName] [inputFileName] [inputDirectory]\n\n");
+          "java -jar [jarfileName] [inputDirectory]\n\n");
       System.out.println("jarfileName : Name of the executable jar file, by default it is IM_EventSetCalcTest.jar");
-      System.out.println("inputFileName :Name of the input file" +
-                         " For eg: see \"Im_EventSetCalcTest_InputFile.txt\". ");
       System.out.println("input directory name : Name of the input directory where all the data files are located for"+
     		  " each AttennuationRelationship. This test application will read those files and then generate the averaged" +
     		  " annualized rates curves.");
@@ -266,7 +179,7 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
     }
 
     IM_EventSetCalcTest imEventSetCalcTest = new
-        IM_EventSetCalcTest(args[0],args[1]);
+        IM_EventSetCalcTest(args[0]);
 
     imEventSetCalcTest.getAverageAnnualizedRates();
   }
