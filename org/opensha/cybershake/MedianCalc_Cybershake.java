@@ -222,8 +222,7 @@ public class MedianCalc_Cybershake
           setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
       attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
           setValue(new Double(3.0));
-      attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-          setValue(USGS_Combined_2004_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);*/
+      */
 
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
@@ -264,7 +263,10 @@ public class MedianCalc_Cybershake
     forecast = new Frankel02_AdjustableEqkRupForecast();
     forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
+    forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
+    		FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
         forecast.getTimeSpan().setDuration(1.0);
+        
   }
 
   /**

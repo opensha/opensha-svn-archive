@@ -62,7 +62,7 @@ public class HazardSpectrumLocalModeApplication
   protected String TITLE = new String("Response Spectra Curves");
 
 
-  protected final static String version = "0.0.6";
+  protected final static String version = "0.0.7";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumServerModeApp.jar";
@@ -439,7 +439,7 @@ public class HazardSpectrumLocalModeApplication
 
             }
             else{
-              if((numERFsInEpistemicList+1) !=0)
+              if((numERFsInEpistemicList+1) !=0 && !isHazardCalcDone)
                 progressClass.updateProgress(currentERFInEpistemicListForHazardCurve+1,numERFsInEpistemicList);
             }
             if (isHazardCalcDone) {
