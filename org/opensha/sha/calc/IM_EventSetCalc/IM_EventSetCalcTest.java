@@ -163,7 +163,7 @@ public class IM_EventSetCalcTest{
    }
 
   public static void main(String[] args) {
-    if (args.length != 2) {
+    if (args.length != 1) {
       System.out.println("Usage :\n\t" +
           "java -jar [jarfileName] [inputDirectory]\n\n");
       System.out.println("jarfileName : Name of the executable jar file, by default it is IM_EventSetCalcTest.jar");
