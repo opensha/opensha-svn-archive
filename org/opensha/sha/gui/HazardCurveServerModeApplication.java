@@ -870,7 +870,7 @@ public class HazardCurveServerModeApplication extends JFrame
               }
               else{
                 if((numERFsInEpistemicList) !=0)
-                  progressClass.updateProgress(currentERFInEpistemicListForHazardCurve+1,numERFsInEpistemicList);
+                  progressClass.updateProgress(currentERFInEpistemicListForHazardCurve,numERFsInEpistemicList);
               }
               if (isHazardCalcDone) {
                 timer.stop();

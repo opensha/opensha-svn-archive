@@ -435,12 +435,12 @@ public class HazardSpectrumLocalModeApplication
               int totRupture = calc.getTotRuptures();
               int currRupture = calc.getCurrRuptures();
               if (currRupture != -1)
-                progressClass.updateProgress(currRupture+1, totRupture);
+                progressClass.updateProgress(currRupture, totRupture);
 
             }
             else{
               if((numERFsInEpistemicList+1) !=0 && !isHazardCalcDone)
-                progressClass.updateProgress(currentERFInEpistemicListForHazardCurve+1,numERFsInEpistemicList);
+                progressClass.updateProgress(currentERFInEpistemicListForHazardCurve,numERFsInEpistemicList);
             }
             if (isHazardCalcDone) {
               timer.stop();
