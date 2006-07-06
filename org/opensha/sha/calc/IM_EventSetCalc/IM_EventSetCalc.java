@@ -75,7 +75,7 @@ public class IM_EventSetCalc
     dirName = outDir ;
   }
 
-  private void parseFile() throws FileNotFoundException,IOException{
+  protected void parseFile() throws FileNotFoundException,IOException{
 
       ArrayList fileLines = null;
 
@@ -206,7 +206,7 @@ public class IM_EventSetCalc
    * </code><p>
    *
    */
-  private void createIMRClassInstance(String AttenRelClassName) {
+  protected void createIMRClassInstance(String AttenRelClassName) {
     String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
     try {
       Class listenerClass = Class.forName(
@@ -218,17 +218,11 @@ public class IM_EventSetCalc
       Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
+      if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
+    	  	throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
-          setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-      attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
-          setValue(new Double(3.0));
-      /*attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-      setValue(AttenuationRelationship.COMPONENT_RANDOM_HORZ);*/
-      attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
-          setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);
-       supportedAttenuationsList.add(attenRel);
+      supportedAttenuationsList.add(attenRel);
     }
     catch (ClassCastException e) {
       e.printStackTrace();
@@ -337,7 +331,7 @@ public class IM_EventSetCalc
    * Starting with the Mean and Sigma calculation.
    * Creates the directory to put the mean and sigma files.
    */
-  private void getMeanSigma() {
+  protected void getMeanSigma() {
 
     int numIMRs = supportedAttenuationsList.size();
     File file = new File(dirName);
@@ -397,7 +391,7 @@ public class IM_EventSetCalc
    * Creates a location using the given locations to find source cut-off disance.
    * @return
    */
-  private void createSiteList() {
+  protected void createSiteList() {
      //gets the min lat, lon and max lat, lon from given set of locations.
     double minLon = Double.MAX_VALUE;
     double maxLon = Double.NEGATIVE_INFINITY;
