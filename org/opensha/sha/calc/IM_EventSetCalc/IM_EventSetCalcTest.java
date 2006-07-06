@@ -3,12 +3,7 @@ package org.opensha.sha.calc.IM_EventSetCalc;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
-import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.util.SystemPropertiesUtils;
 
