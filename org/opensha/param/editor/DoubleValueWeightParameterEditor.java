@@ -147,11 +147,12 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
 	 */
 	public void parameterChange(ParameterChangeEvent event) {
 		String paramName = event.getParameterName();
-		ValueWeight valueWeight  = (ValueWeight)this.model.getValue();
+		ValueWeight oldValueWeight  = (ValueWeight)this.model.getValue();
+		ValueWeight valueWeight;
 		// set the value in the parameter
-		if(valueWeight==null) {
+		if(oldValueWeight==null) {
 			valueWeight = new ValueWeight();
-		}
+		} else valueWeight = (ValueWeight)oldValueWeight.clone();
 		
 		// update the parameter value
 		if(paramName.equalsIgnoreCase(VALUE)) {

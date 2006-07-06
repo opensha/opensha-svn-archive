@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.fault.FaultTrace;
@@ -18,7 +18,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class SectionInfoFileWriter implements Runnable {
-	private  FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
+	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
@@ -72,7 +72,7 @@ public class SectionInfoFileWriter implements Runnable {
 	 */
 	public  void writeForFaultModel(int faultSectionId, FileWriter fw) {
 		try{
-			writeForFaultModel(faultSectionDAO.getFaultSection(faultSectionId).getFaultSectionPrefData(), fw);
+			writeForFaultModel(faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId), fw);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -84,7 +84,7 @@ public class SectionInfoFileWriter implements Runnable {
 	 */
 	public  void getStringForFaultModel(int faultSectionId) {
 		try{
-			getStringForFaultModel(faultSectionDAO.getFaultSection(faultSectionId).getFaultSectionPrefData());
+			getStringForFaultModel(faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId));
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

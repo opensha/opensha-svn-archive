@@ -180,25 +180,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
         Date nowc = new Date();
         pid = formatter.format(nowc);
 
-        BufferedWriter pidout = new BufferedWriter(new
-            FileWriter(logFileString + "pid"));
-        pidout.write(pid);
-        pidout.close();
-
-        log.println("-----------------------------------------");
-        log.println("-----------------------------------------");
-        log.println("Starting DbConnectionBroker Version 1.0.13:");
-        log.println("dbDriver = " + dbDriver);
-        log.println("dbServer = " + dbServer);
-        log.println("dbLogin = " + dbLogin);
-        log.println("log file = " + logFileString);
-        log.println("minconnections = " + minConns);
-        log.println("maxconnections = " + maxConns);
-        log.println("Total refresh interval = " + maxConnTime + " days");
-        log.println("logAppend = " + logAppend);
-        log.println("maxCheckoutSeconds = " + maxCheckoutSeconds);
-        log.println("debugLevel = " + debugLevel);
-        log.println("-----------------------------------------");
+       
 
 
         // Initialize the pool of connections with the mininum connections:

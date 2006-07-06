@@ -7,7 +7,6 @@ import java.net.URL;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.net.URLConnection;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
 import java.io.IOException;
@@ -202,7 +201,8 @@ public class ServerDB_Access
 
     Object outputFromRemoteDB = null;
     try{
-
+    	//System.out.println("***********"+SERVLET_URL+"**************");	
+        //System.out.flush();
       if(D) System.out.println("starting to make connection with servlet");
       URL dbAccessServlet = new URL(SERVLET_URL);
 

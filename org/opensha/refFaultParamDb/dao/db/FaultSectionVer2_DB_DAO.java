@@ -345,14 +345,10 @@ private ArrayList getFaultSectionSummary(String condition) {
 			  faultSection.setAveUpperDepthEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.AVE_UPPER_DEPTH_EST)));
 			  
 		      // fault trace
+			  String sectionName = faultSection.getSectionName();
+			  double upperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferred();
 			  ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
-			  JGeometry faultSectionGeom =(JGeometry) geometries.get(0);
-			  FaultTrace faultTrace = new FaultTrace(rs.getString(SECTION_NAME));
-			  int numPoints = faultSectionGeom.getNumPoints();
-			  double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
-			  for(int j=0; j<numPoints; ++j) {
-				  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferred()));
-			  }	
+			  FaultTrace faultTrace = getFaultTrace(sectionName, upperDepth, geometries);	
 		      faultSection.setFaultTrace(faultTrace);
 		      
 		      // qfault Id
@@ -365,13 +361,24 @@ private ArrayList getFaultSectionSummary(String condition) {
 	  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
 	  	return faultSectionsList;
   }
+
+public static FaultTrace getFaultTrace(String sectionName, double upperDepth, ArrayList geometries) {
+	JGeometry faultSectionGeom =(JGeometry) geometries.get(0);
+	  FaultTrace faultTrace = new FaultTrace(sectionName);
+	  int numPoints = faultSectionGeom.getNumPoints();
+	  double[] ordinatesArray = faultSectionGeom.getOrdinatesArray();
+	  for(int j=0; j<numPoints; ++j) {
+		  faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j], upperDepth));
+	  }
+	return faultTrace;
+}
   
   /**
    * Create JGeomtery object from FaultTrace
    * @param faultTrace
    * @return
    */
-  private JGeometry getGeomtery(FaultTrace faultTrace) {
+  public static JGeometry getGeomtery(FaultTrace faultTrace) {
     int numLocations = faultTrace.getNumLocations();
     Object[] coords = new Object[numLocations];
     for(int j=0; j<numLocations; ++j) {

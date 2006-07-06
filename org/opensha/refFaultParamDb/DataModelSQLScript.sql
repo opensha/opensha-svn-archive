@@ -38,6 +38,7 @@ drop table Fault_Model;
 drop trigger Fault_Model_Summary_Trigger;
 drop sequence Fault_Model_Summary_Sequence;
 drop table Fault_Model_Summary;
+drop table Pref_Fault_Section_Data;
 drop trigger Fault_Section_Trigger;
 drop sequence Fault_Section_Sequence;
 drop table Fault_Section;
@@ -282,6 +283,22 @@ select  Fault_Section_Sequence.nextval into :new.Section_Id  from dual;
 end if;
 end;
 /
+
+CREATE TABLE Pref_Fault_Section_Data (
+  Name VARCHAR(255) NOT NULL,
+  Section_Id INTEGER  NOT NULL,
+  Pref_Slip_Rate FLOAT NULL,
+  Pref_Dip FLOAT  NOT NULL,
+  Pref_Rake FLOAT  NULL,
+  Pref_Upper_Depth FLOAT  NOT NULL,
+  Pref_Lower_Depth FLOAT  NOT NULL,
+  Fault_Section_Trace MDSYS.SDO_GEOMETRY,
+  Dip_Direction FLOAT  NULL,
+  Pref_Aseismic_Slip FLOAT NOT NULL,
+  PRIMARY KEY(Section_Id),
+  FOREIGN KEY(Section_Id)
+    REFERENCES Fault_Section(Section_Id) ON DELETE CASCADE
+);
 
 
 
