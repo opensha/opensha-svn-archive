@@ -22,7 +22,12 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  *
  * <p>Description: This class test the IM_EventSetCalc by averaging the annualized rates produced by
  * selected AttenuationRelationship. The results can then be compared with the USGS website at
- * http://eqint.cr.usgs.gov/eq-men/html/lookup-2002-interp-06.html </p>
+ * http://eqint.cr.usgs.gov/eq-men/html/lookup-2002-interp-06.html.
+ * </p>
+ * <p>
+ * NOTE :Summation of curves is not really correct
+ * for non-poissonian sources (e.g., UCERF 1).
+ * This we can fix later before the release of UCERF 2. </p>
  *
  * @author Nitin Gupta
  * @version 1.0
@@ -33,13 +38,13 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
   private float[] rupRates;
   private float[] meanVals;
   private float[] sigVals;
-  
+
   private ArbitrarilyDiscretizedFunc averagedFunction;
   //checks to see if this teh first IMR/IMT it is reading.
   private boolean first = true;
 
   public IM_EventSetCalcTest(String inputFileName,String dirName) {
-	super(inputFileName,dirName);  
+	super(inputFileName,dirName);
     this.dirName = dirName;
     try {
         parseFile();
@@ -93,10 +98,10 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
     fileLines = null;
   }
 
-  
+
   /**
    * Reads each Attenuation Relationship file and IMT file to get the
-   * averaged annualized rates 
+   * averaged annualized rates
    */
   private void getAverageAnnualizedRates(){
 	  int numIMTs = supportedIMTs.size();
@@ -111,12 +116,12 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
 	        String imtLine = (String) supportedIMTs.get(j);
 	        String fileNamePrefixCommon = dirName +
 		    SystemPropertiesUtils.getSystemFileSeparator() + attenRel.getShortName();
-		
+
 		    // opens the files for writing
 		    StringTokenizer st = new StringTokenizer(imtLine);
 		    int numTokens = st.countTokens();
 		    String imt = st.nextToken().trim();
-		      
+
 		    String pd = "";
 		    if (numTokens == 2) {
 		      pd = st.nextToken().trim();
@@ -134,13 +139,13 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	      }	
+	      }
 	    }
 	    averageArbFunction();
 	    System.out.println(averagedFunction.toString());
   }
-  
-  
+
+
   /**
    * Creates a class instance from a string of the full class name including packages.
    * This is how you dynamically make objects at runtime if you don't know which\
@@ -200,8 +205,8 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
       e.printStackTrace();
     }
   }
-  
-  
+
+
   /**
    * Initializes the function with the 0.0
    *
@@ -210,25 +215,25 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
 	  averagedFunction = new ArbitrarilyDiscretizedFunc();
 	  int numIMLs = imlVals.length;
 	   for(int i=0;i<numIMLs;++i){
-		   averagedFunction.set(imlVals[i],0.0);	
+		   averagedFunction.set(imlVals[i],0.0);
 	   }
   }
-  
+
   /**
-   * Averages the annualized rates values in the function with the number of AttennuationRelationships for which 
-   * calcualtion was done. 
+   * Averages the annualized rates values in the function with the number of AttennuationRelationships for which
+   * calcualtion was done.
    *
    */
   private void averageArbFunction(){
 	  int numIMLs = imlVals.length;
 	  int numIMRs = supportedAttenuationsList.size();
 	   for(int i=0;i<numIMLs;++i)
-		   averagedFunction.set(i,averagedFunction.getY(i)/numIMRs);	
-	  
+		   averagedFunction.set(i,averagedFunction.getY(i)/numIMRs);
+
   }
 
   private void createArbFuncForEachIML(){
-	
+
     int numIMLs = imlVals.length;
     int numMeanVals = meanVals.length;
     for(int i=0;i<numIMLs;++i){
@@ -238,7 +243,7 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
         imlExceedRate += (GaussianDistCalc.getExceedProb(stRndVar,1,3.0)*rupRates[j]);
       }
       //double val = 1-Math.exp(-imlExceedRate*50.0);
-      averagedFunction.set(imlVals[i],averagedFunction.getY(i)+imlExceedRate);	
+      averagedFunction.set(imlVals[i],averagedFunction.getY(i)+imlExceedRate);
     }
 
    }
@@ -258,7 +263,7 @@ public class IM_EventSetCalcTest extends IM_EventSetCalc{
 
     IM_EventSetCalcTest imEventSetCalcTest = new
         IM_EventSetCalcTest(args[0],args[1]);
-    
+
     imEventSetCalcTest.getAverageAnnualizedRates();
   }
 }
