@@ -16,7 +16,7 @@ true
 1.0
 #
 # Fourth line specifies number N of Attenuation Relations
-4
+1 
 # One the next N lines, identify the N attenuation 
 # relationships from the following options:
 # "AS_1997_AttenRel"
@@ -30,9 +30,6 @@ true
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
 BJF_1997_AttenRel
-AS_1997_AttenRel
-CB_2003_AttenRel
-SadighEtAl_1997_AttenRel
 #
 # Next, first choose the number of Intensity Measure Types to consider 
 # in this calculation, and then specify those Intensity Measure Types.  
@@ -44,10 +41,10 @@ SadighEtAl_1997_AttenRel
 # intensity-measure type is not supported by the chosen attenuation 
 # relationship (the html documentation given above lists those that are supported)
 # 
-# Number of IMTs for which computation needs to be done (has to be just 1 for the test case. If more then 1 it will average out the curves for wrong  IMT's)
+# Number of IMTs for which computation needs to be done
 1
 # Identify those IMT's:
-SA 0.2
+PGA
 # 
 # Next, give the number of sites and then the lat, lon, and  
 # Vs30 (m/sec) for each. If no Vs30 is given, then it will 
@@ -55,8 +52,8 @@ SA 0.2
 # Wills et al. (2000, BSSA, pages S187-S208). This latter
 # feature requires internet access.
 #
-# Specify the number of sites(Just one, if more then 1 then curves will average out for wrong sites):
+# Specify the number of sites:
 1
 # Enter the Lat, Lon, and optionally Vs30 on a separate line for each:
 # e.g., "34.1 -118.1 760"  
-34.0852 -118.1421 760
+34.1 -118.2 760

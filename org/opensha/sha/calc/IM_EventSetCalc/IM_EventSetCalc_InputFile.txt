@@ -27,7 +27,6 @@ true
 # "SadighEtAl_1997_AttenRel"
 # "SEA_1999_AttenRel"
 # "ShakeMap_2003_AttenRel"
-# "USGS_Combined_2004_AttenRel"
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
 AS_1997_AttenRel
@@ -49,7 +48,7 @@ CB_2003_AttenRel
 3
 # Identify those IMT's:
 PGA
-SA 0.3
+SA 0.2
 SA 1.0 
 # 
 # Next, give the number of sites and then the lat, lon, and  
