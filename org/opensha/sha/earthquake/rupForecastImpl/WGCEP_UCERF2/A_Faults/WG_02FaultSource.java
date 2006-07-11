@@ -18,8 +18,7 @@ import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
-import sun.tools.tree.ThisExpression;
-
+ 
 /**
  * <p>Title: WG_02FaultSource </p>
  * <p>Description: 
