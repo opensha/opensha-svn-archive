@@ -5,10 +5,14 @@ package org.opensha.refFaultParamDb.gui.view;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -17,20 +21,23 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  * @author vipingupta
  *
  */
-public class SectionInfoFileWriter implements Runnable {
+public class DeformationModelFileWriter implements Runnable {
 	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
+	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
+	
 	/**
 	 * Write FaultSectionPrefData to file.
 	 * @param faultSectionIds  array of faultsection Ids
 	 * @param file
 	 */
-	public  void writeForFaultModel(int[] faultSectionIds, File file) {
+	public  void writeForDeformationModel(int deformationModelId, File file) {
 		try {
 			currSection=0;
-			totSections = faultSectionIds.length;
+			ArrayList faultSectionIds = deformationModelDAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+			totSections = faultSectionIds.size();
 			// make JProgressBar
 			progressBar = new CalcProgressBar("Writing to file", "Writing Fault sections");
 			progressBar.displayProgressBar();
@@ -38,11 +45,13 @@ public class SectionInfoFileWriter implements Runnable {
 			t.start();
 			// write to file
 			FileWriter fw = new FileWriter(file);
-			fw.write(getFormatStringForFaultModel());
+			fw.write(getFormatStringForDeformationModel());
 			
 			for(currSection=0; currSection<totSections; ++currSection) {
-				System.out.println(currSection);
-				writeForFaultModel(faultSectionIds[currSection], fw);
+				//System.out.println(currSection);
+				writeForDeformationModel(deformationModelId, 
+						((Integer)faultSectionIds.get(currSection)).intValue(), 
+						fw);
 			}
 			fw.close();
 			
@@ -70,9 +79,14 @@ public class SectionInfoFileWriter implements Runnable {
 	 * @param faultSectionId Fault section Id for which data needs to be written to file
 	 * @param fw
 	 */
-	public  void writeForFaultModel(int faultSectionId, FileWriter fw) {
+	public  void writeForDeformationModel(int deformationModelId, int faultSectionId, FileWriter fw) {
 		try{
-			writeForFaultModel(faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId), fw);
+			FaultSectionPrefData faultSectionPrefData = faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId);
+			EstimateInstances slipRateEst = deformationModelDAO.getSlipRateEstimate(deformationModelId, faultSectionId);
+			faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(slipRateEst));
+			EstimateInstances aseismicSlipEst = deformationModelDAO.getAseismicSlipEstimate(deformationModelId, faultSectionId);
+			faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(aseismicSlipEst));
+			writeForDeformationModel(faultSectionPrefData, fw);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -80,30 +94,32 @@ public class SectionInfoFileWriter implements Runnable {
 	
 	
 	/**
-	 * Write FaultSectionPrefData to the file. It does not contain slip rate and aseismic slip factor
+	 * Write FaultSectionPrefData to the file. It also contains slip rate and aseismic slip factor
 	 * @param faultSectionPrefData
 	 * @param fw
 	 */
-	public  void writeForFaultModel(FaultSectionPrefData faultSectionPrefData, FileWriter fw) {
+	public  void writeForDeformationModel(FaultSectionPrefData faultSectionPrefData, FileWriter fw) {
 		try{
-			fw.write(getStringForFaultModel(faultSectionPrefData));
+			fw.write(getStringForDeformationModel(faultSectionPrefData));
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Get String for faultSectionPrefData ( excluding slip rate and aseismic slip factor)
+	 * Get String for faultSectionPrefData ( including slip rate and aseismic slip factor)
 	 * @param faultSectionPrefData
 	 * @return
 	 */
-	public  String getStringForFaultModel(FaultSectionPrefData faultSectionPrefData) {
+	public  String getStringForDeformationModel(FaultSectionPrefData faultSectionPrefData) {
 		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
 		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
 			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveDip()) +"\n"+
 			getValue(faultSectionPrefData.getDipDirection())+"\n"+
+			getValue(faultSectionPrefData.getAveLongTermSlipRate())+"\n"+
+			getValue(faultSectionPrefData.getAseismicSlipFactor())+"\n"+
 			getValue(faultSectionPrefData.getAveRake())+"\n"+
 			getValue(faultTrace.getTraceLength())+"\n"+
 			faultTrace.getNumLocations()+"\n";
@@ -119,18 +135,20 @@ public class SectionInfoFileWriter implements Runnable {
 	}
 	
 	/**
-	 * File format for writing fault sections in a fault model file.
-	 * Fault sections within a fault model do not have slip rate and aseismic slip factor
-	 * 
+	 * File format for writing fault sections in a deformation model file.
+	 * Fault sections within a deformation model have slip rate and aseismic slip factor as well
+	 *  
 	 * @return
 	 */
-	public  String getFormatStringForFaultModel() {
+	public  String getFormatStringForDeformationModel() {
 		return "********************************\n"+ 
 			"#Section Name\n"+
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+
 			"#Ave Dip Direction\n"+
+			"#Ave Long Term Slip Rate\n"+
+			"#Ave Aseismic Slip Factor\n"+
 			"#Ave Rake\n"+
 			"#Trace Length (derivative value) (km)\n"+
 			"#Num Trace Points\n"+

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.opensha.calc.RelativeLocation;
 import org.opensha.data.Location;
@@ -37,7 +38,7 @@ import java.util.Iterator;
  * @author vipingupta
  *
  */
-public class FaultSectionsDistanceCalcGUI extends JFrame implements ActionListener {
+public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListener {
 	private final static double GRID_SPACING = 1.0;
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
 	private StringParameter faultSection1Param, faultSection2Param, faultModelParam;
@@ -54,10 +55,7 @@ public class FaultSectionsDistanceCalcGUI extends JFrame implements ActionListen
 		makeFaultSectionNamesParamAndEditor();
 		makeFaultModelParamAndEditor();
 		calcButton.addActionListener(this);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		createGUI();
-		pack();
-		show();
 	}
 	
 	
@@ -66,8 +64,7 @@ public class FaultSectionsDistanceCalcGUI extends JFrame implements ActionListen
 	 *
 	 */
 	private void createGUI() {
-		Container container= this.getContentPane();
-		container.setLayout(new GridBagLayout());
+		setLayout(new GridBagLayout());
 		int pos=0;
 		add(faultSection1ParamEditor, new GridBagConstraints(0, pos++, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,

@@ -8,9 +8,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,6 +31,7 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.AddDeformationModel;
 import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.DeformationModelTableModel;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.view.DeformationModelFileWriter;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 
 /**
@@ -48,12 +52,16 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	private DeformationModelTableModel tableModel = new DeformationModelTableModel();
 	private DeformationModelTable table = new DeformationModelTable(tableModel);
 	private final static String TITLE = "Deformation Model";
+	private JButton saveButton = new JButton("Save All to File");
+	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections in this Fault Model to a txt file";
 	private final static String MSG_ADD_MODEL_SUCCESS = "Deformation Model Added Successfully";
 	private final static String MSG_REMOVE_MODEL_SUCCESS = "Deformation Model Removed Successfully";
 	private final static String MSG_UPDATE_MODEL_SUCCESS = "Deformation Model Updated Successfully";
 	private final static String MSG_NO_DEF_MODEL_EXISTS = "Currently, there is no Deformation Model";
 	private StringParameter faultModelNameParam = new StringParameter("Fault Model");
 	private StringParameterEditor faultModelNameParamEditor;
+	private int selectedDeformationModelId;
+	private ArrayList faultSectionsIdListInDefModel;
 	
 	public EditDeformationModel() {
 		if(SessionInfo.getContributor()==null)  {
@@ -125,6 +133,12 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.NONE,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+		//save button
+		buttonPanel.add(this.saveButton,
+	             new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+	                                    , GridBagConstraints.CENTER,
+	                                    GridBagConstraints.NONE,
+	                                    new Insets(0, 0, 0, 0), 0, 0));
 		return buttonPanel;
 	}
 	
@@ -135,6 +149,8 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	private void addActionListeners() {
 		removeModelButton.addActionListener(this);
 		addModelButton.addActionListener(this);
+		saveButton.addActionListener(this);
+		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
 	}
 	
 	/**
@@ -153,11 +169,26 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 				JOptionPane.showMessageDialog(this, MSG_REMOVE_MODEL_SUCCESS);
 				loadAllDeformationModels();
 			
-			} 
+			} else if(source == this.saveButton) { // save to a text file
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.showSaveDialog(this);
+				File file = fileChooser.getSelectedFile();
+				if(file!=null) writeSectionsToFile(file);
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
+	}
+	
+	/**
+	 * Write fault sections to the file
+	 * 
+	 * @param file
+	 */
+	private void writeSectionsToFile(File file) {
+		DeformationModelFileWriter defModelWriter = new DeformationModelFileWriter();
+		defModelWriter.writeForDeformationModel(this.selectedDeformationModelId, file);
 	}
 	
 	/**
@@ -185,12 +216,12 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 		String selectedDefModel  = (String)this.deformationModelsParam.getValue();
 		DeformationModelSummary defModelSummary = getDeformationModelSummary(selectedDefModel);
 		// find the deformation model id
-		int deformationModelId=defModelSummary.getDeformationModelId();
+		selectedDeformationModelId=defModelSummary.getDeformationModelId();
 		this.faultModelNameParam.setValue(defModelSummary.getFaultModel().getFaultModelName());
 		faultModelNameParamEditor.refreshParamEditor();
 		// get the Defomation Model from database based on user selected deformation model
-		ArrayList faultSectionsIdList = this.deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
-		tableModel.setDeformationModel(deformationModelId, faultSectionsIdList);
+		faultSectionsIdListInDefModel = this.deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(selectedDeformationModelId);
+		tableModel.setDeformationModel(selectedDeformationModelId, faultSectionsIdListInDefModel);
 		tableModel.fireTableDataChanged();
 	}
 

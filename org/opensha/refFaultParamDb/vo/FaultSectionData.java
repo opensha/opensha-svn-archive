@@ -150,7 +150,7 @@ public class FaultSectionData {
    * @param estimateInstance
    * @return
    */
-  private double getPrefForEstimate(EstimateInstances estimateInstance) {
+  public static double getPrefForEstimate(EstimateInstances estimateInstance) {
 	  if(estimateInstance==null) return Double.NaN;
 	  Estimate estimate = estimateInstance.getEstimate();
 	  if(estimate instanceof MinMaxPrefEstimate) {
