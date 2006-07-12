@@ -12,6 +12,7 @@ import oracle.spatial.geometry.JGeometry;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.fault.FaultTrace;
@@ -248,7 +249,10 @@ public class PrefFaultSectionDataDB_DAO {
 	 * @param args
 	 */
 	public static void main(String []args) {
-		DB_AccessAPI dbAccessAPI = new DB_ConnectionPool();
+		DB_AccessAPI dbAccessAPI = new ServerDB_Access();
+		SessionInfo.setUserName(args[0]);
+	    SessionInfo.setPassword(args[1]);
+	    SessionInfo.setContributorInfo();
 		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new  PrefFaultSectionDataDB_DAO(dbAccessAPI);
 		prefFaultSectionDAO.rePopulatePrefDataTable();
 		System.exit(0);
