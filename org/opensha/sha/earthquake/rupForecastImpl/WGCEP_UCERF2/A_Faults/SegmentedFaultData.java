@@ -19,7 +19,6 @@ public class SegmentedFaultData {
 	private double totalArea, totalMoRate;
 	private double[] segArea, segLength, segMoRate, segSlipRate; 
 	private String[] segName;
-	private final static double KM_TO_METERS_CONVERT=1e6;
 
 	
 	/**
