@@ -270,8 +270,8 @@ public class CS_2005_AttenRel
       double vs30, sigmaV, sigmaAS;
 
       // get As-1997 stdDev
-      as_1997_attenRel.setIntensityMeasure(im);
-      sigmaAS = as_1997_attenRel.getStdDev();
+//      as_1997_attenRel.setIntensityMeasure(im);
+//      sigmaAS = as_1997_attenRel.getStdDev();
 
       // set vs30 from the parameters
       if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
@@ -302,8 +302,7 @@ public class CS_2005_AttenRel
         sigmaV = coeffs.e3;
       }
 
-      return Math.sqrt(sigmaV * sigmaV + coeffs.tau * coeffs.tau +
-                       sigmaAS * sigmaAS);
+      return Math.sqrt(sigmaV * sigmaV + coeffs.tau * coeffs.tau);
     }
   }
 
