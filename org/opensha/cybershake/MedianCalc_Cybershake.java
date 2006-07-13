@@ -494,7 +494,7 @@ public class MedianCalc_Cybershake
 
           EqkRupture rupture = source.getRupture(n);
           float mag = (float)rupture.getMag();
-          if(mag >=6.5 && mag<=7.0){
+          if(mag >=6.0 && mag<=7.0){
 	          // set the EqkRup in the IMR
 	          imr.setEqkRupture(rupture);
 	
