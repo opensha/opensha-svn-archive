@@ -8,7 +8,7 @@
 -->
 <project basedir="." default="jarfile" name="attenuationrelationship_test">
   <property name="jbuilder.home" value="/Developer/Applications/JBuilder-2005/JBuilder.framework"/>
-  <property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Home"/>
+  <property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home"/>
   <property name="dest" value="../classes.ant"/>
   <property name="JUnit.home" value="${jbuilder.home}/thirdparty/junit3.8"/>
   <property name="Unit.Test.home" value="${jbuilder.home}/lib"/>
@@ -23,14 +23,14 @@
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
   	<pathelement location="${Required.Libraries.home}/jh.jar"/>
     <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/dt.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jce.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jsse.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/laf.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/sunrsasign.jar"/>
-    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/ui.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/jce.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/jsse.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/laf.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/sunrsasign.jar"/>
+    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/ui.jar"/>
     <pathelement location="${jdk.home}/lib/dt.jar"/>
     <pathelement location="${jdk.home}/lib/ext/apple_provider.jar"/>
     <pathelement location="${jdk.home}/lib/ext/ldapsec.jar"/>
@@ -59,8 +59,8 @@
       optimize="true"
       destdir="${dest}"
       nowarn="false"
-      source="1.4"
-      target="1.4"
+      source="1.5"
+      target="1.5"
       failonerror="yes"
       verbose="no"
       classpath="${dest}">
