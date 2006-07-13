@@ -141,7 +141,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	
 	private JButton calcButton  = new JButton("Calculate");
-	private final static int W = 800;
+	private final static int W = 900;
 	private final static int H = 700;
 	private String faultSectionsDataString;
 	private ArrayList magAreaRelationships;
