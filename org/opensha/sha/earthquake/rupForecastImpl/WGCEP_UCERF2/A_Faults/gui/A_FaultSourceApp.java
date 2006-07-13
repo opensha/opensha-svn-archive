@@ -345,11 +345,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 				double ddw = faultSectionPrefData.getDownDipWidth();
 				double area = length*ddw;
 				faultSectionsString.append(faultSectionPrefData.getSectionName()+" Section:\n\n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (mm/yr)\n");
+				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (cm/yr)\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAseismicSlipFactor()+ " Aseismic Factor\n");
 				faultSectionsString.append("\t"+(float)length+" Length (km)\n");
 				faultSectionsString.append("\t"+(float)ddw+" Down Dip Width (km)\n");
-				faultSectionsString.append("\t"+(float)area+" Area (sq km) \n");
+				faultSectionsString.append("\t"+(float)area+" Area (sq-km) \n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveUpperDepth()+" Upper Depth (km)\n");
 				faultSectionsString.append("\t"+(float)	faultSectionPrefData.getAveLowerDepth()+" Lower Depth (km)\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n\n");
@@ -848,8 +848,8 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Index", "Slip Rate (mm/yr)", "Area(sq km)",
-		"Length(km)", "Moment Rate", "Name"};
+	private final static String[] columnNames = { "Index", "Slip Rate (cm/yr)", "Area (sq-km)",
+		"Length (km)", "Moment Rate", "Name"};
 	private SegmentedFaultData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
