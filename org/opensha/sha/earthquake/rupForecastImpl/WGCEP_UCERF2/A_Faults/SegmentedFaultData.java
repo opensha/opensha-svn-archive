@@ -16,7 +16,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 public class SegmentedFaultData {
 	private ArrayList segmentData;
 	private boolean aseisReducesArea;
-	private double totalArea, totalMoRate;
+	private double totalArea, totalMoRate, totalLength;
 	private double[] segArea, segLength, segMoRate, segSlipRate; 
 	private String[] segName;
 
@@ -82,6 +82,15 @@ public class SegmentedFaultData {
 	}
 	
 	/**
+	 * Get total length of all segments combined
+	 * 
+	 * @return length in SI units (meters)
+	 */
+	public double getTotalLength() {
+		return this.totalLength;
+	}
+	
+	/**
 	 * Get segment slip rate by index (note that this is reduce by any non-zero 
 	 * aseismicity factors if aseisReducesArea is false)
 	 * @param index
@@ -120,6 +129,14 @@ public class SegmentedFaultData {
 	}
 	
 	/**
+	 * Get an array of all segment names
+	 * @return
+	 */
+	public String[] getSegmentNames() {
+		return this.segName;
+	}
+	
+	/**
 	 * Calculate  Stuff
 	 * @return
 	 */
@@ -130,6 +147,7 @@ public class SegmentedFaultData {
 		segLength = new double[segmentData.size()];
 		segMoRate = new double[segmentData.size()];
 		segSlipRate = new double[segmentData.size()];
+		segName = new String[segmentData.size()];
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<segmentData.size();seg++) {
 			segArea[seg]=0;
@@ -143,10 +161,9 @@ public class SegmentedFaultData {
 				if(it.hasNext()) segName[seg]+=sectData.getSectionName()+" + ";
 				else segName[seg]+=sectData.getSectionName();
 				//set the area & moRate
-				double length = sectData.getLength(); // km
-				segLength[seg]+=length*1e3;  // converted to meters
+				segLength[seg]+= sectData.getLength()*1e3;  // converted to meters
 				double ddw = sectData.getDownDipWidth()*1e3; // converted to meters
-				double area = ddw*length; // converted to meters-squared
+				double area = ddw*segLength[seg]; // converted to meters-squared
 				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
 				if(aseisReducesArea) {
@@ -163,6 +180,7 @@ public class SegmentedFaultData {
 			segSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			totalArea+=segArea[seg];
 			totalMoRate+=segMoRate[seg];
+			totalLength+=segLength[seg];
 		}
 		return ;
 	}

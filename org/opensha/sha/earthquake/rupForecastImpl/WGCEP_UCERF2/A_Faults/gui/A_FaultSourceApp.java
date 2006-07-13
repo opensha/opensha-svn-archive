@@ -23,7 +23,10 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.AbstractTableModel;
 
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
@@ -34,11 +37,9 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.DoubleValueWeightParameter;
-import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterListParameter;
 import org.opensha.param.StringParameter;
-import org.opensha.param.TreeBranchWeightsParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
@@ -46,19 +47,13 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
-import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
-import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.util.FileUtils;
 
 /**
@@ -140,6 +135,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	
 	private JButton calcButton  = new JButton("Calculate");
 	private final static int W = 800;
@@ -147,6 +143,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private String faultSectionsDataString;
 	private ArrayList magAreaRelationships;
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
+	private JTabbedPane tabbedPane = new JTabbedPane();
+	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
+	private final static String MSG_ASEIS_REDUCES_AREA = "Note that Aseismicity Factors reduce Area";
+	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "Note that Aseismicity Factors reduce Slip Rate";
+	
 	/**
 	 * Constructor
 	 *
@@ -184,7 +185,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			paramListEditor = new ParameterListEditor(this.paramList);
 			paramListEditor.setTitle(PARAM_EDITOR_TITLE);
 			//setTruncLevelVisibility();
-			updateSegmentAndRupNames();
+			updateSegmentAndRupNames(true);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -230,7 +231,8 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		mainSplitPane.add(this.leftPanel, JSplitPane.LEFT);
-		mainSplitPane.add(this.rightPanel, JSplitPane.RIGHT);
+		mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
+		tabbedPane.addTab("Segment Data", this.rightPanel);
 		leftPanel.add(this.paramListEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
@@ -240,11 +242,17 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	                                    GridBagConstraints.NONE,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		calcButton.addActionListener(this);
+		
 		segmentAndRupNames.setEditable(false);
-		rightPanel.add(new JScrollPane(this.segmentAndRupNames), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		JTable segmentTable = new JTable(this.segmentTableModel);
+		rightPanel.add(new JScrollPane(segmentTable), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
+		rightPanel.add(new JScrollPane(this.segmentAndRupNames), new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH,
+                new Insets(0, 0, 0, 0), 0, 0));
 		mainSplitPane.setDividerLocation(300);
 	}
 	
@@ -325,8 +333,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		ArrayList newSegmentsList = new ArrayList();
 		// faultSectionsDataString="\n\nName,Slip Rate(mm/yr),Aseis Factor,Length(km),Down Dip Width(km),Area(sq. km),Upper Depth(km),LowerDepth(km),Dip\n";
 		StringBuffer faultSectionsString = new StringBuffer("");
-		double totalArea = 0;
-		double totalAseisReduceArea=0;
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
 			ArrayList segment = (ArrayList)segmentsList.get(i);
@@ -334,16 +340,15 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			// iterate over all sections in a segment
 			for(int j=0; j<segment.size(); ++j) {
 				int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
-				FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
+				FaultSectionPrefData faultSectionPrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSectionId);
+				//FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
 				// get slip rate and aseimic slip factor from deformation model
-				faultSectionData.setAseismicSlipFactorEst(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
-				faultSectionData.setAveLongTermSlipRateEst(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
-				FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
+				faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionId)));
+				faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionId)));
+				//FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
 				double length = faultSectionPrefData.getLength();
 				double ddw = faultSectionPrefData.getDownDipWidth();
 				double area = length*ddw;
-				totalArea+=area;
-				totalAseisReduceArea+=(1-faultSectionPrefData.getAseismicSlipFactor())*area;
 				faultSectionsString.append(faultSectionPrefData.getSectionName()+" Section:\n\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (mm/yr)\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAseismicSlipFactor()+ " Aseismic Factor\n");
@@ -368,7 +373,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			}
 			newSegmentsList.add(newSegment);
 		}
-		String summaryString="\nSegment Totals:\n   Total Area (sq km) ="+(float)totalArea+"\n";
+		/*String summaryString="\nSegment Totals:\n   Total Area (sq km) ="+(float)totalArea+"\n";
 		for(int i=0; i<magAreaRelationships.size(); ++i) {
 			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
 			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalArea))+"\n";
@@ -377,8 +382,8 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		for(int i=0; i<magAreaRelationships.size(); ++i) {
 			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
 			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalAseisReduceArea))+"\n";
-		}
-		faultSectionsDataString = summaryString+"\n"+faultSectionsString;
+		}*/
+		faultSectionsDataString = faultSectionsString.toString();
 		frame.dispose();
 		return newSegmentsList;
 	}
@@ -517,6 +522,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		BooleanParameter aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
 		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		paramList.addParameter(aseisFactorInterParam);
+		aseisFactorInterParam.addParameterChangeListener(this);
 		/*BooleanParameterEditor aseisFactorInterParamEditor= new BooleanParameterEditor(aseisFactorInterParam);
 		add(aseisFactorInterParamEditor,
 	             new GridBagConstraints(0, 9, 1, 1, 1.0, 1.0
@@ -699,9 +705,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		/*if(paramName.equalsIgnoreCase(TRUNC_TYPE_PARAM_NAME))
 			setTruncLevelVisibility();
 		else*/ if(paramName.equalsIgnoreCase(SEGMENT_MODELS_PARAM_NAME))
-			updateSegmentAndRupNames();
+			updateSegmentAndRupNames(true);
 		else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME))
-			updateSegmentAndRupNames();
+			updateSegmentAndRupNames(true);
+		else if(paramName.equalsIgnoreCase(ASEIS_INTER_PARAM_NAME))
+			updateSegmentAndRupNames(true);
 	}
 	
 
@@ -710,33 +718,29 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	 * Update the segment names and scenario names wheneever a new segment model is chosen
 	 *
 	 */
-	private void updateSegmentAndRupNames() {
+	private void updateSegmentAndRupNames(boolean refreshData) {
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		if(selectedSegmentModel.equalsIgnoreCase(NONE)) {
 			segmentAndRupNames.setText("");
+			this.segmentTableModel.setSegmentedFaultData(null);
+			segmentTableModel.fireTableDataChanged();
 			this.calcButton.setEnabled(false); // if no Segment model is chosen, disable the calc button
 			return;
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
-		segmentData = getSegmentData();
-		// get the segment names
-		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
-		String[] segmentNames= new String[segmentsList.size()];
-		for(int i=0; i<segmentsList.size(); ++i) {
-			ArrayList sectionNamesList = new ArrayList();
-			ArrayList segment = (ArrayList)segmentsList.get(i);
-			for(int j=0; j<segment.size(); ++j)
-				sectionNamesList.add(((FaultSectionSummary)segment.get(j)).getSectionName());
-			segmentNames[i]=WG_02FaultSource.getSegmentName(sectionNamesList);
-		}
+		if(refreshData) segmentData = getSegmentData();
+		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
+		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
+		segmentTableModel.fireTableDataChanged();
+		
 		// get the rupture names
-		String rupNames[] = WG_02FaultSource.getRuptureNames(segmentNames);
+		String rupNames[] = WG_02FaultSource.getRuptureNames(segmetedFaultData.getSegmentNames());
 		// updatet he text area with segment names, scenario names and rup names
-		updateTextArea(segmentNames, rupNames);
+		updateTextArea();
 		// make  mean recurrence interval param for all segments
-		makeMeanRecurrenceIntervalParams(segmentNames);
+		makeMeanRecurrenceIntervalParams(segmetedFaultData.getSegmentNames());
 		// ave slip per event for all segments
-		makeAveSlipPerEventParams(segmentNames);
+		makeAveSlipPerEventParams(segmetedFaultData.getSegmentNames());
 		// a priori rup rates
 		makeAPrioriRupRatesParams(rupNames);
 	}
@@ -812,16 +816,18 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	 * @param rupNames
 	 * @param scenarioNames
 	 */
-	private void updateTextArea(String[] segmentNames, String[] rupNames) {
+	private void updateTextArea() {
 		// segment names
-		String text  = "SEGMENTS\n\n";
-		for(int i=0; i<segmentNames.length; ++i)
-			text+="Segment "+(i+1)+": "+segmentNames[i]+"\n";
+		//String text  = "SEGMENTS\n\n";
+		//for(int i=0; i<segmentNames.length; ++i)
+	//		text+="Segment "+(i+1)+": "+segmentNames[i]+"\n";
 		// rupture names
-		text+="\n\nRUPTURES\n\n";
-		for(int i=0; i<rupNames.length; ++i) 
-			text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
-		this.segmentAndRupNames.setText(text+faultSectionsDataString);
+		//text+="\n\nRUPTURES\n\n";
+		//for(int i=0; i<rupNames.length; ++i) 
+		//		text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
+		String text = MSG_ASEIS_REDUCES_SLIPRATE;
+		if(this.getAseisReducesArea()) text = MSG_ASEIS_REDUCES_AREA;
+		this.segmentAndRupNames.setText(text+"\n"+faultSectionsDataString);
 		segmentAndRupNames.setCaretPosition(0);
 	}
 	
@@ -842,5 +848,114 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	public static void main(String[] args) {
 		A_FaultSourceApp faultSourceApp = new A_FaultSourceApp();
 
+	}
+}
+
+class SegmentDataTableModel extends AbstractTableModel {
+	// column names
+	private final static String[] columnNames = { "Index", "Slip Rate (mm/yr)", "Area(sq km)",
+		"Length(km)", "Moment Rate", "Name"};
+	private SegmentedFaultData segFaultData;
+	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
+	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
+	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
+	
+	
+	
+	/**
+	 * default constructor
+	 *
+	 */
+	public SegmentDataTableModel() {
+		this(null);
+	}
+	
+	/**
+	 * Segmented Fault data
+	 * @param segFaultData
+	 */
+	public SegmentDataTableModel( SegmentedFaultData segFaultData) {
+		setSegmentedFaultData(segFaultData);
+	}
+	
+	/**
+	 * Set the segmented fault data
+	 * @param segFaultData
+	 */
+	public void setSegmentedFaultData(SegmentedFaultData segFaultData) {
+		this.segFaultData =   segFaultData;
+	}
+	
+	/**
+	 * Get number of columns
+	 */
+	public int getColumnCount() {
+		return columnNames.length;
+	}
+	
+	
+	/**
+	 * Get column name
+	 */
+	public String getColumnName(int index) {
+		return columnNames[index];
+	}
+	
+	/*
+	 * Get number of rows
+	 * (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+		if(segFaultData==null) return 0;
+		return (segFaultData.getNumSegments()+1); 
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public Object getValueAt (int rowIndex, int columnIndex) {
+		if(segFaultData==null) return "";
+		if(rowIndex == segFaultData.getNumSegments()) return getTotalValues(columnIndex);
+		switch(columnIndex) {
+			case 0:
+				return ""+rowIndex;
+			case 1: 
+				// convert to mm/yr
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
+			case 2:
+				// convert to sq km
+				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
+			case 3:
+				// convert to km
+				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
+			case 4:
+				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
+			case 5:
+				return ""+segFaultData.getSegmentName(rowIndex);
+		}
+		return "";
+	}
+	
+	private Object getTotalValues(int columnIndex) {
+		switch(columnIndex) {
+		case 0:
+			return "Total";
+		case 1: 
+			// convert to mm/yr
+			return "";
+		case 2:
+			// convert to sq km
+			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
+		case 3:
+			// convert to km
+			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
+		case 4:
+			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
+		case 5:
+			return "";
+	}
+	return "";
 	}
 }
