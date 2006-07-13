@@ -57,12 +57,12 @@ public class HazardSpectrumLocalModeApplication
 
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
+  
+  protected final static String version = "0.0.8";
 
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");
 
-
-  protected final static String version = "0.0.7";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumServerModeApp.jar";
@@ -123,7 +123,7 @@ public class HazardSpectrumLocalModeApplication
       bugWindow.pack();
       //e.printStackTrace();
     }
-    this.setTitle("HazardSpectrum Application");
+    this.setTitle("Hazard Spectrum Application ("+version+")");
     ( (JPanel) getContentPane()).updateUI();
   }
 
