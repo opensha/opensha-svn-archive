@@ -93,6 +93,7 @@
       <exclude name="org/opensha/sha/imr/attenRelImpl/gui/**"/>
       <exclude name="org/opensha/sha/imr/attenRelImpl/test/**"/>
       <include name="org/opensha/sha/gui/ScenarioShakeMapApp.java"/>
+    	  <include name="org/opensha/sha/param/**" />
       <include name="org/opensha/param/**"/>
       <include name="org/opensha/sha/earthquake/**"/>
       <include name="org/opensha/sha/calc/ScenarioShakeMapCalculator.java"/>

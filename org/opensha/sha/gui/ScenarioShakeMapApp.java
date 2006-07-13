@@ -256,7 +256,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
         this.initERFSelector_GuiBean();
 
       }catch(RuntimeException e){
-        //e.printStackTrace();
+        e.printStackTrace();
         step =0;
         JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
                                       JOptionPane.OK_OPTION);

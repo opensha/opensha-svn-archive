@@ -564,7 +564,7 @@ public class MedianCalc_Cybershake
 	
 	            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
 	            float mag = (float)rupture.getMag();
-	            if(mag >=6.5 && mag<=7.0){
+	            if(mag >=6.0 && mag<=7.0){
 		            double rate = -Math.log(1 - rupture.getProbability())/duration;
 		            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
 	            }
@@ -614,7 +614,7 @@ public class MedianCalc_Cybershake
 
             ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
             float mag = (float)rupture.getMag();
-            if(mag >=6.5 && mag<=7.0){
+            if(mag >=6.0 && mag<=7.0){
 	            fwRup.write(sourceIndex + "  " + n+" ");
 	            int numSites = locList.size();
 	            for(int s=0 ; s<numSites ; ++s){

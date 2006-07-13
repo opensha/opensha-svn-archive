@@ -94,6 +94,7 @@
       <exclude name="org/opensha/sha/imr/attenRelImpl/test/**"/>
       <include name="org/opensha/sha/gui/HazardCurveServerModeApplication.java"/>
       <include name="org/opensha/param/**"/>
+    	<include name="org/opensha/sha/param/**" />
       <include name="org/opensha/sha/earthquake/**"/>
       <include name="org/opensha/sha/calc/**"/>
       <include name="org/jfree/resources/**"/>
