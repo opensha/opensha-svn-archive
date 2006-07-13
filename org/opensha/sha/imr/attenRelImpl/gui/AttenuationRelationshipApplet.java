@@ -48,7 +48,7 @@ public class AttenuationRelationshipApplet extends JFrame
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.10.17";
+    protected final static String version = "0.10.18";
     //protected final static String version = "0";
     protected final static boolean D = false;
 
@@ -199,14 +199,14 @@ public class AttenuationRelationshipApplet extends JFrame
      *  loader to load these
      */
     static {
-      imNames.add(AS_2005_prelim_AttenRel.NAME);
+      /*imNames.add(AS_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(AS_2005_CLASS_NAME);
       imNames.add(CY_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(CY_2005_CLASS_NAME);
       imNames.add(CB_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(CB_2005_CLASS_NAME);
       imNames.add(Boore_2005_prelim_AttenRel.NAME);
-      attenRelClasses.add(BOORE_2005_CLASS_NAME);
+      attenRelClasses.add(BOORE_2005_CLASS_NAME);*/
       imNames.add(CS_2005_AttenRel.NAME);
       attenRelClasses.add(CS_CLASS_NAME);
       imNames.add(BJF_1997_AttenRel.NAME);

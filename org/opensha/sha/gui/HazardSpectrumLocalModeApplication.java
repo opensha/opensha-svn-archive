@@ -57,8 +57,8 @@ public class HazardSpectrumLocalModeApplication
 
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
-  
-  protected final static String version = "0.0.8";
+
+  protected final static String version = "0.0.9";
 
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");
@@ -545,13 +545,13 @@ public class HazardSpectrumLocalModeApplication
 
           // initialize the values in condProbfunc with log values as passed in hazFunction
           initX_Values(hazFunction);
-          
+
 
             hazFunction = calc.getIML_SpectrumCurve(hazFunction, site, imr,
             		erfList.getERF(i),
                                                     imlProbValue, saPeriodVector);
 
-         
+
         	}
       }
       catch(RemoteException e){
@@ -563,14 +563,14 @@ public class HazardSpectrumLocalModeApplication
       }
       catch (RuntimeException e) {
       	  	//e.printStackTrace();
-      	  setButtonsEnable(true);	
+      	  setButtonsEnable(true);
           JOptionPane.showMessageDialog(this, e.getMessage(),
                                         "Parameters Invalid",
                                         JOptionPane.INFORMATION_MESSAGE);
           return;
       }
         //System.out.println("Num points:" +hazFunction.toString());
-     
+
       hazardFuncList.add(hazFunction);
     }
     weightedFuncList.addList(erfList.getRelativeWeightsList(), hazardFuncList);

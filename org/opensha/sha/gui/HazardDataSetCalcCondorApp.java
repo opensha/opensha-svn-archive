@@ -54,14 +54,14 @@ public class HazardDataSetCalcCondorApp extends JApplet
   protected final static boolean D = false;
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapCalcServlet";
   public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
-  
-  
-  protected final static String version = "0.0.4";
-  
+
+
+  protected final static String version = "0.0.5";
+
   protected final static String versionURL = "http://www.opensha.org/applications/hazMapApps/HazMapApps_Version.txt";
   protected final static String appURL = "http://gravity.usc.edu/OpenSHA/HazardDataSetCalcCondorApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazMapApps/versionUpdate.html";
-  
+
 
   //variables that determine the width and height of the frame
   private static final int W=600;
@@ -215,10 +215,10 @@ public class HazardDataSetCalcCondorApp extends JApplet
                                     JOptionPane.OK_OPTION);
       return;
       }
-      
+
   }
-  
-  
+
+
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
@@ -289,10 +289,10 @@ public class HazardDataSetCalcCondorApp extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
-    
+
   }
 
-  
+
 	  /**
 	   * Checks if the current version of the application is latest else direct the
 	   * user to the latest version on the website.
@@ -322,12 +322,12 @@ public class HazardDataSetCalcCondorApp extends JApplet
 	          e.printStackTrace();
 	        }
 	      }
-	
+
 	    return;
-	
+
 	  }
-	
-	
+
+
 	  /**
 	   * Returns the Application version
 	   * @return String
@@ -335,7 +335,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
 	  public static String getAppVersion(){
 	    return version;
 	  }
-	  
+
 
 
   //Main method

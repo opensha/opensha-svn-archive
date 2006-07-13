@@ -70,13 +70,13 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   protected final static boolean D = false;
 
 
-  protected final static String version = "0.0.6";
-  
+  protected final static String version = "0.0.7";
+
   protected final static String versionURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/scenShakeMapApp/versionUpdate.html";
 
-  
+
 
   //variables that determine the width and height of the frame
   protected static final int W=550;
@@ -297,9 +297,9 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 	          e.printStackTrace();
 	        }
 	      }
-	
+
 	    return;
-	
+
 	  }
 
 	  /**
@@ -309,9 +309,9 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 	  public static String getAppVersion(){
 	    return version;
 	  }
-		  
-		  	  
-	  
+
+
+
 
   //Component initialization
   protected void jbInit() throws Exception {
