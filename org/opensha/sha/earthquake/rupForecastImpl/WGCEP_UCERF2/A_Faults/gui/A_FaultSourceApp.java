@@ -28,6 +28,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
+import org.opensha.calc.FaultMomentCalc;
+import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -71,7 +73,8 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
 	// text area to show segment names when segment model is chosen
-	private JTextArea segmentAndRupNames = new JTextArea();
+	private JTextArea sectionDataTextArea = new JTextArea();
+	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
 	private final static String MAG_AREA_RELS_PARAM_INFO = "Mag-Area Relationship for mean mag of characteristic events";
@@ -143,10 +146,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private String faultSectionsDataString;
 	private ArrayList magAreaRelationships;
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
+	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
-	private final static String MSG_ASEIS_REDUCES_AREA = "Note that Aseismicity Factors reduce Area";
-	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "Note that Aseismicity Factors reduce Slip Rate";
+	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
+	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	
 	/**
 	 * Constructor
@@ -243,11 +247,18 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		calcButton.addActionListener(this);
 		
-		segmentAndRupNames.setEditable(false);
+		sectionDataTextArea.setEditable(false);
+		magAreasTextArea.setEditable(false);
+		magAreasTextArea.setLineWrap(true);
+		magAreasTextArea.setWrapStyleWord(true);
+		JSplitPane sectionDataSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		sectionDataSplitPane.add(new JScrollPane(this.sectionDataTextArea),JSplitPane.BOTTOM);
+		sectionDataSplitPane.add(new JScrollPane(this.magAreasTextArea),JSplitPane.TOP);
 		JTable segmentTable = new JTable(this.segmentTableModel);
 		rightSplitPane.add(new JScrollPane(segmentTable), JSplitPane.TOP);
-		rightSplitPane.add(new JScrollPane(this.segmentAndRupNames), JSplitPane.BOTTOM);
-		rightSplitPane.setDividerLocation(200);
+		rightSplitPane.add(sectionDataSplitPane, JSplitPane.BOTTOM);
+		rightSplitPane.setDividerLocation(150);
+		sectionDataSplitPane.setDividerLocation(200);
 		mainSplitPane.setDividerLocation(300);
 	}
 	
@@ -353,16 +364,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveUpperDepth()+" Upper Depth (km)\n");
 				faultSectionsString.append("\t"+(float)	faultSectionPrefData.getAveLowerDepth()+" Lower Depth (km)\n");
 				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n\n");
-				
-				/*faultSectionsDataString+=faultSectionPrefData.getSectionName()+","+
-										(float)faultSectionPrefData.getAveLongTermSlipRate()+","+
-										(float)faultSectionPrefData.getAseismicSlipFactor()+","+
-										(float)length+","+
-										(float)ddw+","+
-										(float)area+","+
-										(float)faultSectionPrefData.getAveUpperDepth()+","+
-										(float)faultSectionPrefData.getAveLowerDepth()+","+
-										(float)faultSectionPrefData.getAveDip()+"\n";*/
 				newSegment.add(faultSectionPrefData);
 				
 			}
@@ -716,7 +717,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private void updateSegmentAndRupNames(boolean refreshData) {
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		if(selectedSegmentModel.equalsIgnoreCase(NONE)) {
-			segmentAndRupNames.setText("");
+			sectionDataTextArea.setText("");
 			this.segmentTableModel.setSegmentedFaultData(null);
 			segmentTableModel.fireTableDataChanged();
 			this.calcButton.setEnabled(false); // if no Segment model is chosen, disable the calc button
@@ -727,10 +728,10 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
-		
+		setMagAndSlipsString(segmetedFaultData);
 		// get the rupture names
 		String rupNames[] = WG_02FaultSource.getRuptureNames(segmetedFaultData.getSegmentNames());
-		// updatet he text area with segment names, scenario names and rup names
+		// updatet he text area with section data
 		updateTextArea();
 		// make  mean recurrence interval param for all segments
 		makeMeanRecurrenceIntervalParams(segmetedFaultData.getSegmentNames());
@@ -739,6 +740,32 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		// a priori rup rates
 		makeAPrioriRupRatesParams(rupNames);
 	}
+	
+	
+	
+	private void setMagAndSlipsString(SegmentedFaultData segmetedFaultData ) {
+		int numSegs = segmetedFaultData.getNumSegments();
+		String summaryString = "MAGS & AVE SLIPS IMPLIED BY M(A) RELATIONS\n"+
+								"------------------------------------------\n\n";
+		for(int i=0; i<magAreaRelationships.size(); ++i) {
+			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
+			summaryString+="Segment  Mag       Ave-slip(m) for  ("+magAreaRel.getName()+")\n";
+			for(int j=0; j<numSegs; ++j) {
+				double mag = magAreaRel.getMedianMag(segmetedFaultData.getSegmentArea(j)/1e6);
+				double moment = MomentMagCalc.getMoment(mag);
+				summaryString+=j+"              "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
+			}
+			double mag = magAreaRel.getMedianMag(segmetedFaultData.getTotalArea()/1e6);
+			double moment = MomentMagCalc.getMoment(mag);
+			summaryString+="All            "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getTotalArea(), moment))+"\n\n";		
+		}
+		String text = MSG_ASEIS_REDUCES_SLIPRATE;
+		if(this.getAseisReducesArea()) text = MSG_ASEIS_REDUCES_AREA;
+		magAreasTextArea.setText(text+"\n\n"+summaryString);
+		magAreasTextArea.setCaretPosition(0);
+	}
+	
+	
 	
 	/**
 	 * A priori rup rates
@@ -820,10 +847,13 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		//text+="\n\nRUPTURES\n\n";
 		//for(int i=0; i<rupNames.length; ++i) 
 		//		text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
-		String text = MSG_ASEIS_REDUCES_SLIPRATE;
-		if(this.getAseisReducesArea()) text = MSG_ASEIS_REDUCES_AREA;
-		this.segmentAndRupNames.setText(text+"\n"+faultSectionsDataString);
-		segmentAndRupNames.setCaretPosition(0);
+		
+		
+		this.sectionDataTextArea.setText(
+				"FAULT SECTION DATA:\n"+
+				"--------------------\n"+
+				faultSectionsDataString);
+		sectionDataTextArea.setCaretPosition(0);
 	}
 	
 	/**
