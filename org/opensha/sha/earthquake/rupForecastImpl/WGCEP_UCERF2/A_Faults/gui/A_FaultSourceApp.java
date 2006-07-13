@@ -125,7 +125,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	
 	private JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	private JPanel leftPanel = new JPanel(new GridBagLayout());
-	private JPanel rightPanel = new JPanel(new GridBagLayout());
+	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private final static String PARAM_EDITOR_TITLE = "Rupture Model Params";
 	
 	private ParameterList paramList;
@@ -232,7 +232,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		mainSplitPane.add(this.leftPanel, JSplitPane.LEFT);
 		mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
-		tabbedPane.addTab("Segment Data", this.rightPanel);
+		tabbedPane.addTab("Segment Data", rightSplitPane);
 		leftPanel.add(this.paramListEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
@@ -245,14 +245,9 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		
 		segmentAndRupNames.setEditable(false);
 		JTable segmentTable = new JTable(this.segmentTableModel);
-		rightPanel.add(new JScrollPane(segmentTable), new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-	                                    , GridBagConstraints.CENTER,
-	                                    GridBagConstraints.BOTH,
-	                                    new Insets(0, 0, 0, 0), 0, 0));
-		rightPanel.add(new JScrollPane(this.segmentAndRupNames), new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0));
+		rightSplitPane.add(new JScrollPane(segmentTable), JSplitPane.TOP);
+		rightSplitPane.add(new JScrollPane(this.segmentAndRupNames), JSplitPane.BOTTOM);
+		rightSplitPane.setDividerLocation(200);
 		mainSplitPane.setDividerLocation(300);
 	}
 	
