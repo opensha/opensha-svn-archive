@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import javax.swing.JButton;
@@ -72,8 +71,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
-	// text area to show segment names when segment model is chosen
-	private JTextArea sectionDataTextArea = new JTextArea();
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -143,12 +140,12 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private JButton calcButton  = new JButton("Calculate");
 	private final static int W = 900;
 	private final static int H = 700;
-	private String faultSectionsDataString;
 	private ArrayList magAreaRelationships;
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
+	private FaultSectionTableModel faultSectionTableModel = new FaultSectionTableModel();
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	
@@ -247,12 +244,12 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	                                    new Insets(0, 0, 0, 0), 0, 0));
 		calcButton.addActionListener(this);
 		
-		sectionDataTextArea.setEditable(false);
 		magAreasTextArea.setEditable(false);
 		magAreasTextArea.setLineWrap(true);
 		magAreasTextArea.setWrapStyleWord(true);
+		JTable sectionDataTable = new JTable(faultSectionTableModel);
 		JSplitPane sectionDataSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		sectionDataSplitPane.add(new JScrollPane(this.sectionDataTextArea),JSplitPane.BOTTOM);
+		sectionDataSplitPane.add(new JScrollPane(sectionDataTable),JSplitPane.BOTTOM);
 		sectionDataSplitPane.add(new JScrollPane(this.magAreasTextArea),JSplitPane.TOP);
 		JTable segmentTable = new JTable(this.segmentTableModel);
 		rightSplitPane.add(new JScrollPane(segmentTable), JSplitPane.TOP);
@@ -337,8 +334,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		int selectdDeformationModelId = getSelectedDeformationModelId();
 		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
 		ArrayList newSegmentsList = new ArrayList();
-		// faultSectionsDataString="\n\nName,Slip Rate(mm/yr),Aseis Factor,Length(km),Down Dip Width(km),Area(sq. km),Upper Depth(km),LowerDepth(km),Dip\n";
-		StringBuffer faultSectionsString = new StringBuffer("");
+		ArrayList faultSectionList = new ArrayList();
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
 			ArrayList segment = (ArrayList)segmentsList.get(i);
@@ -352,34 +348,14 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 				faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionId)));
 				faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionId)));
 				//FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
-				double length = faultSectionPrefData.getLength();
-				double ddw = faultSectionPrefData.getDownDipWidth();
-				double area = length*ddw;
-				faultSectionsString.append(faultSectionPrefData.getSectionName()+" Section:\n\n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveLongTermSlipRate()+" Slip Rate (cm/yr)\n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAseismicSlipFactor()+ " Aseismic Factor\n");
-				faultSectionsString.append("\t"+(float)length+" Length (km)\n");
-				faultSectionsString.append("\t"+(float)ddw+" Down Dip Width (km)\n");
-				faultSectionsString.append("\t"+(float)area+" Area (sq-km) \n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveUpperDepth()+" Upper Depth (km)\n");
-				faultSectionsString.append("\t"+(float)	faultSectionPrefData.getAveLowerDepth()+" Lower Depth (km)\n");
-				faultSectionsString.append("\t"+(float)faultSectionPrefData.getAveDip()+" Ave Dip (degrees)\n\n");
+				faultSectionList.add(faultSectionPrefData);
 				newSegment.add(faultSectionPrefData);
 				
 			}
 			newSegmentsList.add(newSegment);
 		}
-		/*String summaryString="\nSegment Totals:\n   Total Area (sq km) ="+(float)totalArea+"\n";
-		for(int i=0; i<magAreaRelationships.size(); ++i) {
-			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
-			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalArea))+"\n";
-		}
-		summaryString+="\nSegment Totals (aseis reduced):\n   Total Area (sq km) ="+(float)totalAseisReduceArea+"\n";
-		for(int i=0; i<magAreaRelationships.size(); ++i) {
-			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
-			summaryString+="   Mean Mag ("+magAreaRel.getName()+") = "+MAG_FORMAT.format(magAreaRel.getMedianMag(totalAseisReduceArea))+"\n";
-		}*/
-		faultSectionsDataString = faultSectionsString.toString();
+		this.faultSectionTableModel.setFaultSectionData(faultSectionList);
+		faultSectionTableModel.fireTableDataChanged();
 		frame.dispose();
 		return newSegmentsList;
 	}
@@ -717,9 +693,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private void updateSegmentAndRupNames(boolean refreshData) {
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		if(selectedSegmentModel.equalsIgnoreCase(NONE)) {
-			sectionDataTextArea.setText("");
+			this.faultSectionTableModel.setFaultSectionData(null);
+			faultSectionTableModel.fireTableDataChanged();
 			this.segmentTableModel.setSegmentedFaultData(null);
 			segmentTableModel.fireTableDataChanged();
+			magAreasTextArea.setText("");
 			this.calcButton.setEnabled(false); // if no Segment model is chosen, disable the calc button
 			return;
 		}
@@ -731,8 +709,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		setMagAndSlipsString(segmetedFaultData);
 		// get the rupture names
 		String rupNames[] = WG_02FaultSource.getRuptureNames(segmetedFaultData.getSegmentNames());
-		// updatet he text area with section data
-		updateTextArea();
 		// make  mean recurrence interval param for all segments
 		makeMeanRecurrenceIntervalParams(segmetedFaultData.getSegmentNames());
 		// ave slip per event for all segments
@@ -749,7 +725,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 								"------------------------------------------\n\n";
 		for(int i=0; i<magAreaRelationships.size(); ++i) {
 			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRelationships.get(i);
-			summaryString+="Segment  Mag       Ave-slip(m) for  ("+magAreaRel.getName()+")\n";
+			summaryString+="Segment  Mag       Ave-slip (m) for  ("+magAreaRel.getName()+")\n";
 			for(int j=0; j<numSegs; ++j) {
 				double mag = magAreaRel.getMedianMag(segmetedFaultData.getSegmentArea(j)/1e6);
 				double moment = MomentMagCalc.getMoment(mag);
@@ -832,31 +808,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	
 	
 	/**
-	 * Update the text area with segment names, scenario names and rupture names
-	 * 
-	 * @param segmentNames
-	 * @param rupNames
-	 * @param scenarioNames
-	 */
-	private void updateTextArea() {
-		// segment names
-		//String text  = "SEGMENTS\n\n";
-		//for(int i=0; i<segmentNames.length; ++i)
-	//		text+="Segment "+(i+1)+": "+segmentNames[i]+"\n";
-		// rupture names
-		//text+="\n\nRUPTURES\n\n";
-		//for(int i=0; i<rupNames.length; ++i) 
-		//		text+="Rupture "+(i+1)+": "+rupNames[i]+"\n";
-		
-		
-		this.sectionDataTextArea.setText(
-				"FAULT SECTION DATA:\n"+
-				"--------------------\n"+
-				faultSectionsDataString);
-		sectionDataTextArea.setCaretPosition(0);
-	}
-	
-	/**
 	 * Make the truncation level visible only if Truncation Type is not None
 	 *
 	 */
@@ -876,9 +827,121 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	}
 }
 
+/**
+ * Fault Section Table Model
+ * 
+ * @author vipingupta
+ *
+ */
+class FaultSectionTableModel extends AbstractTableModel {
+//	 column names
+	private final static String[] columnNames = { "Name", "Slip Rate (mm/yr)", 
+		"Aseismic Factor","Length (km)","Down Dip Width (km)", "Area (sq-km)",
+		"Upper Depth (km)", "Lower Depth (km)", "Ave Dip (degrees)"};
+	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
+	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
+	private ArrayList faultSectionsPrefDataList = new ArrayList();
+	
+	/**
+	 * default constructor
+	 *
+	 */
+	public FaultSectionTableModel() {
+		this(null);
+	}
+	
+	/**
+	 *  Preferred Fault section data
+	 *  
+	 * @param faultSectionsPrefDataList  ArrayList of PrefFaultSedctionData
+	 */
+	public FaultSectionTableModel(ArrayList faultSectionsPrefDataList) {
+		setFaultSectionData(faultSectionsPrefDataList);
+	}
+	
+	/**
+	 * Set the segmented fault data
+	 * @param segFaultData
+	 */
+	public void setFaultSectionData(ArrayList faultSectionsPrefDataList) {
+		this.faultSectionsPrefDataList =   faultSectionsPrefDataList;
+	}
+	
+	/**
+	 * Get number of columns
+	 */
+	public int getColumnCount() {
+		return columnNames.length;
+	}
+	
+	
+	/**
+	 * Get column name
+	 */
+	public String getColumnName(int index) {
+		return columnNames[index];
+	}
+	
+	/*
+	 * Get number of rows
+	 * (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+		if(faultSectionsPrefDataList==null) return 0;
+		return (faultSectionsPrefDataList.size()); 
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public Object getValueAt (int rowIndex, int columnIndex) {
+		if(faultSectionsPrefDataList==null) return "";
+		FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData) faultSectionsPrefDataList.get(rowIndex);
+		
+		//"Name", "Slip Rate (cm/yr)", 
+			//"Aseismic Factor","Length (km)","Down Dip Width (km)", "Area (sq-km)",
+			//"Upper Depth (km)", "Lower Depth (km)", "Ave Dip (degrees)"};
+		
+		switch(columnIndex) {
+			case 0:
+				return faultSectionPrefData.getSectionName();
+			case 1: // convert to mm/yr
+				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getAveLongTermSlipRate());
+			case 2:
+				return ""+faultSectionPrefData.getAseismicSlipFactor();
+			case 3:
+				// km
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getLength());
+			case 4:
+				// convert to km
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth());
+			case 5:
+				// sq km
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth() *
+						faultSectionPrefData.getLength());
+			case 6:
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveUpperDepth());
+			case 7:
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveLowerDepth());
+			case 8:
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveDip());
+		}
+		return "";
+	}
+}
+
+
+/**
+ * Segment Table Model
+ * 
+ * @author vipingupta
+ *
+ */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Index", "Slip Rate (cm/yr)", "Area (sq-km)",
+	private final static String[] columnNames = { "Index", "Slip Rate (mm/yr)", "Area (sq-km)",
 		"Length (km)", "Moment Rate", "Name"};
 	private SegmentedFaultData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
