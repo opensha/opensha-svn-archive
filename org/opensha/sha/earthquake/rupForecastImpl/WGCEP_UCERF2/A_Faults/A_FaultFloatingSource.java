@@ -20,8 +20,8 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 
 
 /**
- * <p>Title: WG_A_FaultFloatingSource </p>
- * <p>Description: 
+ * <p>Title: A_FaultFloatingSource </p>
+ * <p>Description: 	CONSIDER EFFECT OF ASEISMICITY AND OVERLAPPING STEPOVERS
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -46,15 +46,14 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	private int num_seg;
 	private double[] segRate, segVisibleRate; // segment rates 
 	private double[] segAveSlipRate; // ave slip rate for segment
-	private ArbDiscrEmpiricalDistFunc[] segSlipDist;  // segment slip dist
+	private ArbDiscrEmpiricalDistFunc[] segSlipDist, segVisibleSlipDist;  // segment slip dist
 	
 	private IncrementalMagFreqDist floaterMFD; // Mag Freq dist for floater
 	private IncrementalMagFreqDist visibleFloaterMFD; // Mag Freq dist for visible ruptures
 	IncrementalMagFreqDist[] segFloaterMFD;  // Mag Freq Dist for each segment
 	IncrementalMagFreqDist[] visibleSegFloaterMFD;  // Mag Freq Dist for visible ruptures on each segment
 
-
-	
+	// inputs:
 	SegmentedFaultData segmentData;
 	MagAreaRelationship magAreaRel;
 	IncrementalMagFreqDist floatingRup_PDF;
@@ -103,26 +102,25 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		// find the total rate of ruptures for each segment
 		segRate = new double[num_seg];
 		segVisibleRate = new double[num_seg];
-		computeSegRate();
-		
-		// find the slip distribution of each rupture & segment
-		ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
-		computeRupSlipDist( rupArea, rupSlipDist);
-		
+		for(int s=0; s< num_seg; s++) {
+			segRate[s] = segFloaterMFD[s].getTotalIncrRate();
+			segVisibleRate[s] = visibleSegFloaterMFD[s].getTotalIncrRate();
+		}
 		
 		// find the slip distribution of each segment
-		segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
-		computeSegSlipDist(rupSlipDist, segFloaterMFD, magAreaRel, segRupSlipFactor);
-		/* if(D) {
-		 // print the slip distribution of each segment
-		  for(int i=0; i<num_seg; ++i) {
-		  System.out.println("Slip for segment "+i+":");
-		  System.out.println(segSlipDist[i]);
-		  }
-		  }*/
+		computeSegSlipDist();
+		if(D)
+		  for(int i=0; i<num_seg; ++i)
+			  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
 	}
 	
-	
+	/**
+	 * This gets the magnitude frequency distribution for each segment by multiplying the original MFD
+	 * by the average probability of observing each rupture on each segment (assuming ruptures have a
+	 * uniform spatial distribution - or equal probability of landing anywhere).  If asiemicity reduces
+	 * area, then the DDW here is effectively reduced (is this what we want?).
+	 *
+	 */
 	private void getSegFloaterMFD() {
 		// get segment lengths
 		double[] segLengths = new double[num_seg];
@@ -200,11 +198,23 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	
 	/**
 	 * This returns the probability that the given magnitude 
-	 * event will be observed at the ground surface.
+	 * event will be observed at the ground surface.  This is based
+	 * on equation 4 of Youngs et al. [2003, A Methodology for Probabilistic Fault
+	 * Displacement Hazard Analysis (PFDHA), Earthquake Spectra 19, 191-219] using 
+	 * the coefficients they list in their appendix for "Data from Wills and 
+	 * Coppersmith (1993) 276 worldwide earthquakes".
 	 * @return
 	 */
 	private double getProbVisible(double mag) {
-		return 1.0;
+		return Math.exp(-12.51+mag*2.053)/(1.0 + Math.exp(-12.51+mag*2.053));
+/* Ray & Glenn's equation
+		if(mag <= 5) 
+			return 0.0;
+		else if (mag <= 7.6)
+			return -0.0608*mag*mag + 1.1366*mag + -4.1314;
+		else 
+			return 1.0;
+*/
 	}
 	
 	/**
@@ -259,100 +269,29 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	}
 	
 	/**
-	 * Compute the slip distribution for each segment
-	 * The average slip for each event is partitioned among the different segments
-	 * according to segRupSlipFactor.
-	 
-	 * 
-	 * @param rupSlipDist
-	 * @param segSlipDist
+	 * Compute both total and visible slip distribution for each segment (segSlipDist[seg] & segVisibleSlipDist[seg])
 	 */
-	private void computeSegSlipDist(ArbitrarilyDiscretizedFunc[] rupSlipDist, 
-			IncrementalMagFreqDist[] segFloaterMFD, MagAreaRelationship magAreaRel,
-			double[][] segRupSlipFactor) {
+	private void computeSegSlipDist() {
+		
+		segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
+		segVisibleSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
+		
 		for(int seg=0; seg<num_seg; ++seg) {
 			segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
-			// Add the rates of all ruptures which are part of a segment
-			for(int rup=0; rup<num_rup; rup++)
-				if(rupInSeg[rup][seg]==1) {
-					for(int i=0; i<rupSlipDist[rup].getNum(); ++i)
-						segSlipDist[seg].set(segRupSlipFactor[rup][seg]*rupSlipDist[rup].getX(i), 
-								rupSlipDist[rup].getY(i));
-				}
-			if(segFloaterMFD!=null) {
-				IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
-				for(int i=0; i<segFloater.getNum(); ++i) {
-					double mag = segFloater.getX(i);
-					double moment = MomentMagCalc.getMoment(mag);
-					double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*KM_TO_METERS_CONVERT, moment);
-					segSlipDist[seg].set(slip, segFloater.getY(i));
-				}
+			segVisibleSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
+			IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
+			IncrementalMagFreqDist visibleSegFloater =  visibleSegFloaterMFD[seg];
+			for(int i=0; i<segFloater.getNum(); ++i) {
+				double mag = segFloater.getX(i);
+				double moment = MomentMagCalc.getMoment(mag);
+				double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*1e6, moment);
+				segSlipDist[seg].set(slip, segFloater.getY(i));
+				segVisibleSlipDist[seg].set(slip, visibleSegFloater.getY(i));
 			}
 		}
 	}
 	
-	
-	
-	/**
-	 * Compute the rate for all segments.
-	 *  
-	 * @param segRate
-	 * @param totRupRate
-	 */
-	private void computeSegRate( double[] totRupRate, IncrementalMagFreqDist[] segFloaterMFD) {
-		for(int seg=0; seg<num_seg; ++seg) {
-			segRate[seg]=0.0;
-			// Sum the rates of all ruptures which are part of a segment
-			for(int rup=0; rup<num_rup; rup++) 
-				if(rupInSeg[rup][seg]==1) segRate[seg]+=totRupRate[rup];
-			if(segFloaterMFD!=null)
-				segRate[seg]+=segFloaterMFD[seg].getTotalIncrRate();
-		}
-	}
-	
-	
-	/**
-	 * re-sample magFreqDist 
-	 * This takes the rate at each old magnitude and adds it to the 
-	 * rate at the nearest new magnitude. This could be put in the MagFreqDist class.
-	 * @param magFreqDist
-	 * @return
-	 */
-	private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDist) {
-		IncrementalMagFreqDist newMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		double magLower = newMFD.getMinX();
-		double magUpper = newMFD.getMaxX();
-		for(int i=0; i<magFreqDist.getNum(); ++i) {
-			double mag = magFreqDist.getX(i);  //get the magnitude
-			if(mag >= magLower && mag <= magUpper) {
-				// find the nearest mag in the new distribution
-				int j = Math.round((float)((mag-MIN_MAG)/DELTA_MAG));
-				// add the rate (rather than replace) in case more than one old mag runds to a new mag
-				newMFD.set(j,newMFD.getY(j)+magFreqDist.getY(i));
-			}
-		}
-		/*
-		 EvenlyDiscretizedFunc cumDist = magFreqDist.getCumRateDist();
-		 for(int i=0; i<newMFD.getNum(); ++i) {
-		 double x = newMFD.getX(i);
-		 double x1 = x-DELTA_MAG/2;
-		 double x2 = x + DELTA_MAG/2;
-		 double cumRate1=0, cumRate2=0;
-		 //check that the Mag lies within the range of cumDist
-		  if(x1<cumDist.getMinX()) cumRate1 = 0.0;
-		  else if(x1>cumDist.getMaxX()) cumRate1 = cumDist.getMaxY() ;
-		  else cumRate1 = cumDist.getInterpolatedY(x1);
-		  if(x2<cumDist.getMinX()) cumRate2 = 0.0;
-		  else if(x2>cumDist.getMaxX()) cumRate2 = cumDist.getMaxY();
-		  else cumRate2 = cumDist.getInterpolatedY(x2);
-		  newMFD.set(i, cumRate2-cumRate1);
-		  }
-		  */
-		newMFD.scaleToTotalMomentRate(magFreqDist.getTotalMomentRate());
-		return newMFD;
-	}
-	
-	
+
 	
 	/**
 	 * Returns the Source Surface.
@@ -401,7 +340,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @return the total num of rutures for all magnitudes
 	 */
 	public int getNumRuptures() {
-		return num_rup;
+		return 0;
 	}
 	
 	/**
