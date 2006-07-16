@@ -172,6 +172,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			loadSegmentModels();
 			loadDeformationModels();
 			makeAseisFactorInterpolationParamAndEditor();
+			makeMagAreRelationshipParamAndEditor();
 			makeSlipModelParamAndEditor();
 			makeRupModelParamAndEditor();
 			//make  mean recurrence interval param for all segments
@@ -180,7 +181,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			makeAveSlipPerEventParams(null);
 			// a priori ruptures rates
 			makeAPrioriRupRatesParams(null,null);
-			makeMagAreRelationshipParamAndEditor();
 			//makeMagSigmaTruncParamsAndEditor();
 			//makeFloaterPDFParam();
 			//makeScenarioWtsParamAndEditor(1);
