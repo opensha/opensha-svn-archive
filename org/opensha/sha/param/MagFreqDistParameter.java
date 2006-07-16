@@ -370,7 +370,7 @@ public class MagFreqDistParameter
         magLower.setInfo(GR_MAG_LOWER_INFO);
         DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER, new Double(8));
         magUpper.setInfo(GR_MAG_UPPER_INFO);
-        DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY, new Double(1));
+        DoubleParameter bValue = new DoubleParameter(GR_BVALUE,Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, new Double(1));
         bValue.setInfo(BVALUE_INFO);
         DoubleParameter totCumRate = new DoubleParameter(TOT_CUM_RATE, 0, Double.POSITIVE_INFINITY,
                                                          RATE_UNITS, new Double(3.33));

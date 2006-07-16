@@ -303,7 +303,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @param ithRup
 	 * @return
 	 */
-	public String getRupNameLong(int ithRup) {
+	public String getLongRupName(int ithRup) {
 		return rupNameLong[ithRup];
 	}
 	
@@ -314,7 +314,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @param ithRup
 	 * @return
 	 */
-	public String getRupNameShort(int ithRup) {
+	public String getShortRupName(int ithRup) {
 		return rupNameShort[ithRup];
 	}
 	

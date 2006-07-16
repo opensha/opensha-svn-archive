@@ -21,7 +21,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 
 /**
  * <p>Title: A_FaultFloatingSource </p>
- * <p>Description: 	CONSIDER EFFECT OF ASEISMICITY AND OVERLAPPING STEPOVERS
+ * <p>Description: 	CONSIDER EFFECT OF: ASEISMICITY; VARIABLE AREA FOR GIVEN MAG, AND OVERLAPPING STEPOVERS.
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -218,7 +218,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	}
 	
 	/**
-	 * Final ave segment slip rate
+	 * Final, implied average, slip rate on the segment
 	 */
 	public double getFinalAveSegSlipRate(int ithSegment) {
 		ArbDiscrEmpiricalDistFunc segmenstSlipDist = getSegmentSlipDist(ithSegment);
@@ -235,7 +235,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @return
 	 */
 	public double getSegmentRate(int ithSegment) {
-		return this.segRate[ithSegment];
+		return segRate[ithSegment];
 	}
 	
 	/**
@@ -245,7 +245,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @return
 	 */
 	public double getSegmentRecurrenceInterval(int ithSegment) {
-		return 1.0/this.segRate[ithSegment];
+		return 1.0/segRate[ithSegment];
 	}
 	
 	/**
@@ -255,7 +255,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @return
 	 */
 	public ArbDiscrEmpiricalDistFunc getSegmentSlipDist(int ithSegment) {
-		return this.segSlipDist[ithSegment];
+		return segSlipDist[ithSegment];
 	}
 	
 	
@@ -265,7 +265,18 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @return
 	 */
 	public IncrementalMagFreqDist getFloaterMagFreqDist() {
-		return this.floaterMFD; 
+		return floaterMFD; 
+	}
+	
+	
+	
+	/**
+	 * Get the Mag Freq Dist for "visible" floater ruptures
+	 * 
+	 * @return
+	 */
+	public IncrementalMagFreqDist getVisibleFloaterMagFreqDist() {
+		return visibleFloaterMFD; 
 	}
 	
 	/**
