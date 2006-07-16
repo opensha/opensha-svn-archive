@@ -200,7 +200,7 @@ class SegmentOutputTableModel extends AbstractTableModel {
 //	 column names
 	private final static String[] columnNames = { "Index", "Name", 
 		"Rate","Recur Intv","Visible Rate", "Visible Recur Intv",
-		"Orig Slip Rate(mm/yr)", "Implied Slip Rate"};
+		"Orig Slip Rate (mm/yr)", "Implied Slip Rate (mm/yr)"};
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private A_FaultFloatingSource floatingSource;
 	private SegmentedFaultData segmentedFaultData;
@@ -268,7 +268,7 @@ class SegmentOutputTableModel extends AbstractTableModel {
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segmentedFaultData.getSegmentSlipRate(rowIndex)*1000);
 			case 7:
-				return SLIP_RATE_FORMAT.format(floatingSource.getFinalAveSegSlipRate(rowIndex));
+				return SLIP_RATE_FORMAT.format(floatingSource.getFinalAveSegSlipRate(rowIndex)*1000);
 		}
 		return "";
 	}

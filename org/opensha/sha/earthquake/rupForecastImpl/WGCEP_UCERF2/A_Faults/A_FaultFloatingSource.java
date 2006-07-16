@@ -45,7 +45,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	
 	private int num_seg;
 	private double[] segRate, segVisibleRate; // segment rates 
-	private double[] segAveSlipRate; // ave slip rate for segment
+	//private double[] segAveSlipRate; // ave slip rate for segment
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist, segVisibleSlipDist;  // segment slip dist
 	
 	private IncrementalMagFreqDist floaterMFD; // Mag Freq dist for floater
@@ -110,9 +110,9 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		
 		// find the slip distribution of each segment
 		computeSegSlipDist();
-		if(D)
-		  for(int i=0; i<num_seg; ++i)
-			  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
+		//if(D)
+		//  for(int i=0; i<num_seg; ++i)
+		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
 	}
 	
 	/**
@@ -126,8 +126,8 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		// get segment lengths
 		double[] segLengths = new double[num_seg];
 		for(int i = 0; i< num_seg; i++) segLengths[i] = 1e-3*segmentData.getSegmentLength(i); // converted to km
-		double totalLength = segmentData.getTotalLength();
-		double aveDDW = 1e-3*segmentData.getTotalArea()/totalLength; // average Down dip width in km
+		double totalLength = segmentData.getTotalLength()*1e-3;
+		double aveDDW = (segmentData.getTotalArea()*1e-6)/totalLength; // average Down dip width in km
 		segFloaterMFD = new IncrementalMagFreqDist[num_seg]; 
 		for(int i=0; i<num_seg; ++i) segFloaterMFD[i] = (IncrementalMagFreqDist) floaterMFD.deepClone(); 
 		// loop over all magnitudes in flaoter MFD
