@@ -248,6 +248,27 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		return 1.0/segRate[ithSegment];
 	}
 	
+	
+	/**
+	 * Get visible rate for ith segment
+	 * 
+	 * @param ithSegment
+	 * @return
+	 */
+	public double getSegmentVisibleRate(int ithSegment) {
+		return segVisibleRate[ithSegment];
+	}
+	
+	/**
+	 * Get visible recurrence interval for the ith Segment
+	 * 
+	 * @param ithSegment
+	 * @return
+	 */
+	public double getSegmentVisibleRecurrenceInterval(int ithSegment) {
+		return 1.0/segVisibleRate[ithSegment];
+	}
+	
 	/**
 	 * Get Slip Distribution for this segment
 	 * 
