@@ -50,10 +50,13 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
@@ -99,7 +102,6 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	
 	private ParameterList paramList;
 	private ParameterListEditor paramListEditor;
-	private ArrayList segmentData ;
 	
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
@@ -118,6 +120,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private final static String TITLE = " Type A Floating Source App";
+	private  SegmentedFaultData segmetedFaultData;
 	/**
 	 * Constructor
 	 *
@@ -210,11 +213,10 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 */
 	private void calculate() {
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
-		//double magSigma = getMagSigma();
-		//double magTruncLevel = getMagTruncLevel();
-		//int truncType = getTruncType();
 		boolean isAseisReducesArea = getAseisReducesArea();
-		//IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
+		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
+		A_FaultFloatingSource faultSource = new A_FaultFloatingSource( this.segmetedFaultData,  magAreaRel, floatingRup_PDF);
+		A_FloatingSourceOuput outputWindow  =  new A_FloatingSourceOuput(faultSource, segmetedFaultData, getMetadata());
 		
 	}
 	
@@ -227,21 +229,8 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		metadata+=this.paramList.getParameter(SEGMENT_MODELS_PARAM_NAME).getMetadataString()+"\n";
 		metadata+=this.paramList.getParameter(DEFORMATION_MODEL_PARAM_NAME).getMetadataString()+"\n";
 		metadata+=this.paramList.getParameter(MAG_AREA_RELS_PARAM_NAME).getMetadataString()+"\n";
-		//metadata+=this.paramList.getParameter(MAG_SIGMA_PARAM_NAME).getMetadataString()+"\n";
-		//metadata+=this.paramList.getParameter(TRUNC_TYPE_PARAM_NAME).getMetadataString()+"\n";
-		//metadata+=this.paramList.getParameter(TRUNC_LEVEL_PARAM_NAME).getMetadataString()+"\n";
 		metadata+=this.paramList.getParameter(ASEIS_INTER_PARAM_NAME).getMetadataString()+"\n";
-		//metadata+=SCENARIO_WT_PARAM_NAME+":\n";
-		/*ParameterList wtParams = ((ParameterListParameter)paramList.getParameter(SCENARIO_WT_PARAM_NAME)).getParameter();
-		Iterator it = wtParams.getParametersIterator();
-		int i=1;
-		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
-			if(param.getName().equalsIgnoreCase(this.FLOATER_RUP_WT_NAME))
-				metadata+="   "+param.getMetadataString()+"\n";
-			else metadata+="   "+(i++)+" = "+(float)((Double)param.getValue()).doubleValue()+"\n";
-		}
-		metadata+=this.paramList.getParameter(MAG_PDF_PARAM_NAME).getMetadataString()+"\n";*/
+		metadata+=this.paramList.getParameter(MAG_PDF_PARAM_NAME).getMetadataString()+"\n";
 		return metadata;
 	}
 	
@@ -309,11 +298,11 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 * Get the PDF for floating rup
 	 * @return
 	 */
-	/*private IncrementalMagFreqDist getFloatingRup_PDF() {
+	private IncrementalMagFreqDist getFloatingRup_PDF() {
 		MagFreqDistParameter param = (MagFreqDistParameter)paramList.getParameter(MAG_PDF_PARAM_NAME);
 		param.setMagDist();
 		return (IncrementalMagFreqDist)param.getValue();
-	}*/
+	}
 	
 	/**
 	 * Whether Aseis reduces area
@@ -558,8 +547,9 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			return;
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
+		ArrayList segmentData = null;
 		if(refreshData) segmentData = getSegmentData();
-		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
+		segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
 		setMagAndSlipsString(segmetedFaultData);

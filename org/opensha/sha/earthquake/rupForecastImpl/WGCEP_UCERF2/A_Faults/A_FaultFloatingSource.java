@@ -93,6 +93,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		getSegFloaterMFD();
 		
 		// now get the visible MFD for each segment
+		visibleSegFloaterMFD = new IncrementalMagFreqDist[num_seg];
 		for(int s=0; s< num_seg; s++) {
 			visibleSegFloaterMFD[s] = (IncrementalMagFreqDist) segFloaterMFD[s].deepClone();
 			for(int i =0; i<floaterMFD.getNum(); i++)
@@ -127,7 +128,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		for(int i = 0; i< num_seg; i++) segLengths[i] = 1e-3*segmentData.getSegmentLength(i); // converted to km
 		double totalLength = segmentData.getTotalLength();
 		double aveDDW = 1e-3*segmentData.getTotalArea()/totalLength; // average Down dip width in km
-		IncrementalMagFreqDist[] segFloaterMFD = new IncrementalMagFreqDist[num_seg]; 
+		segFloaterMFD = new IncrementalMagFreqDist[num_seg]; 
 		for(int i=0; i<num_seg; ++i) segFloaterMFD[i] = (IncrementalMagFreqDist) floaterMFD.deepClone(); 
 		// loop over all magnitudes in flaoter MFD
 		for (int i=0; i<floaterMFD.getNum(); ++i) {
