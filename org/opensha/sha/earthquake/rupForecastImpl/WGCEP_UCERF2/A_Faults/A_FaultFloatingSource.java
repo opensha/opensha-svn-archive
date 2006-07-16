@@ -290,7 +290,6 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	}
 	
 	
-	
 	/**
 	 * Get the Mag Freq Dist for "visible" floater ruptures
 	 * 
