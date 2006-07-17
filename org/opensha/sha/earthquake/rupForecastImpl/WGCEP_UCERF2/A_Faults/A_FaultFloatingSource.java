@@ -78,10 +78,6 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
 		double floaterMoRate = segmentData.getTotalMomentRate();
 		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
-		// change the info
-		String new_info = floaterMFD.getInfo();
-		new_info += "\n\nMoment Rate: "+(float)floaterMoRate+"\n\nNew Total Rate: "+(float)floaterMFD.getCumRate(0);
-		floaterMFD.setInfo(new_info);
 		
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
@@ -99,6 +95,17 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 			for(int i =0; i<floaterMFD.getNum(); i++)
 				visibleSegFloaterMFD[s].set(i,segFloaterMFD[s].getY(i)*getProbVisible(segFloaterMFD[s].getX(i)));
 		}
+		
+		// change the info in the MFDs
+		String new_info = "Floater MFD\n"+floaterMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)floaterMoRate+"\n\n\tNew Total Rate: "+(float)floaterMFD.getCumRate(0);
+		floaterMFD.setInfo(new_info);
+
+		new_info = "Visible Floater MFD\n"+visibleFloaterMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleFloaterMFD.getTotalMomentRate()+
+		 			"\n\n\tNew Total Rate: "+(float)visibleFloaterMFD.getCumRate(0);
+		visibleFloaterMFD.setInfo(new_info);
+
 		
 		// find the total rate of ruptures for each segment
 		segRate = new double[num_seg];

@@ -257,11 +257,11 @@ class SegmentOutputTableModel extends AbstractTableModel {
 			case 1: 
 				return segmentedFaultData.getSegmentName(rowIndex);
 			case 2:
-				return ""+this.floatingSource.getSegmentRate(rowIndex);
+				return ""+(float) this.floatingSource.getSegmentRate(rowIndex);
 			case 3:
 				return ""+ (int)floatingSource.getSegmentRecurrenceInterval(rowIndex);
 			case 4:
-				return ""+this.floatingSource.getSegmentVisibleRate(rowIndex);
+				return ""+(float) this.floatingSource.getSegmentVisibleRate(rowIndex);
 			case 5:
 				return ""+ (int)floatingSource.getSegmentVisibleRecurrenceInterval(rowIndex);
 			case 6:
