@@ -26,6 +26,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * Output for A floating source
@@ -38,10 +40,8 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	private final static int H = 600;
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
 	private JButton segmentSlipButton = new JButton("Cum Slip Dist Plot");
-	private JButton visibleFloaterMFDButton = new JButton("Visible Floater Mag Freq Dist Plot");
 	private JButton floaterDistButton = new JButton("Floater Mag Freq Dist Plot");
 	private ArrayList cumSlipFuncList;
-	private ArrayList visibleFloaterMFD;
 	private ArrayList floaterMFD;
 	private final static String TITLE = "A Floating Source Output";
 	
@@ -99,9 +99,13 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 		int numSegments = segmentedFaultData.getNumSegments();
 		cumSlipFuncList = new ArrayList();
 		for(int i=0; i<numSegments; ++i) {
-			ArbitrarilyDiscretizedFunc func = aFaultFloatingSource.getSegmentSlipDist(i).getCumDist();
-			func.setInfo("Cumulative Slip distribution for segment "+(i+1));
-			cumSlipFuncList.add(func);
+			ArbitrarilyDiscretizedFunc func1 = aFaultFloatingSource.getSegmentSlipDist(i).getCumDist();
+			func1.setName("Solid Line :   Cumulative Slip distribution for segment "+(i+1));
+			cumSlipFuncList.add(func1);
+			ArbitrarilyDiscretizedFunc func2 = aFaultFloatingSource.getSegmentVisibleSlipDist(i).getCumDist();
+			func2.setName("Dashed Line :   Cumulative Visible Slip distribution for segment "+(i+1));
+			cumSlipFuncList.add(func2);
+			
 		}		
 	}
 
@@ -119,11 +123,6 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
                 , GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
-		panel.add(this.visibleFloaterMFDButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER,
-                GridBagConstraints.NONE,
-                new Insets(0, 0, 0, 0), 0, 0));
-		visibleFloaterMFDButton.addActionListener(this);
 		panel.add(this.floaterDistButton, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER,
                 GridBagConstraints.NONE,
@@ -134,12 +133,18 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 		rupOutput.append("Total Original Moment Rate (from segments)="+MOMENT_FORMAT.format(segmentedFaultData.getTotalMomentRate())+"\n");
 		rupOutput.append("Total Final Moment Rate (from MFD)="+MOMENT_FORMAT.format(aFaultFloatingSource.getFloaterMagFreqDist().getTotalMomentRate())+"\n");
 		rupOutput.setCaretPosition(0);
-		if(aFaultFloatingSource.getFloaterMagFreqDist()!=null) {
+		IncrementalMagFreqDist floaterMagFreqDist = aFaultFloatingSource.getFloaterMagFreqDist();
+		IncrementalMagFreqDist visiblefloaterMFD = aFaultFloatingSource.getVisibleFloaterMagFreqDist();
+		if(floaterMagFreqDist!=null) {
 			this.floaterMFD = new ArrayList();
-			floaterMFD.add(aFaultFloatingSource.getFloaterMagFreqDist());
+			floaterMagFreqDist.setName("Solid Line:"+floaterMagFreqDist.getName());
+			floaterMFD.add(floaterMagFreqDist);
 		} else floaterMFD = null;
-		this.visibleFloaterMFD  = new ArrayList();
-		visibleFloaterMFD.add(aFaultFloatingSource.getVisibleFloaterMagFreqDist());
+		if(visiblefloaterMFD!=null) {
+			if(floaterMFD==null) this.floaterMFD = new ArrayList();
+			visiblefloaterMFD.setName("Dashed Line:"+visiblefloaterMFD.getName());
+			floaterMFD.add(visiblefloaterMFD);
+		} 
 	}
 	
 	/**
@@ -176,15 +181,13 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 		if(source == this.segmentSlipButton)
-			new WG02_RuptureModelsGraphWindowAPI_Impl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
-		else if(source == this.visibleFloaterMFDButton)
-			new WG02_RuptureModelsGraphWindowAPI_Impl(this.visibleFloaterMFD, "Mag", "Rate", "Visible Mag Freq Dist");
+			new A_FloatingSourceOutputGraphWindowImpl(cumSlipFuncList, "Slip (meters)", "Rate", "Cum Slip Dist for Segments");
 		else if(source == this.floaterDistButton) {
 			if(floaterMFD==null){
 				 JOptionPane.showMessageDialog(this, "Floater MFD not available");
 				 return;
 			}
-			new WG02_RuptureModelsGraphWindowAPI_Impl(this.floaterMFD, "Mag", "Rate", "Mag Freq Dist");
+			new A_FloatingSourceOutputGraphWindowImpl(this.floaterMFD, "Mag", "Rate", "Mag Freq Dist");
 		}
 	}
 }
@@ -274,3 +277,70 @@ class SegmentOutputTableModel extends AbstractTableModel {
 	}
 }
 
+class A_FloatingSourceOutputGraphWindowImpl extends WG02_RuptureModelsGraphWindowAPI_Impl {
+	
+	/**
+	 * ArrayList of ArbitrarilyDiscretizedFunctions
+	 */
+	public A_FloatingSourceOutputGraphWindowImpl(ArrayList funcs, String xAxisLabel, String yAxisLabel, String plotLabel) {
+		super(funcs, xAxisLabel, yAxisLabel,  plotLabel);
+	}
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
+	 */
+	public ArrayList getPlottingFeatures() {
+		 ArrayList list = new ArrayList();
+		 //System.out.println("Called plotting features");
+		 int numFuncs = this.funcs.size()/2;
+		 //System.out.println(numFuncs+"\n\n"+funcs);
+		 if(numFuncs>0)  {
+			 list.add(this.PLOT_CHAR1);
+			 list.add(this.PLOT_CHAR13);
+		 }
+		 if(numFuncs>1)  {
+			 list.add(this.PLOT_CHAR2);
+			 list.add(this.PLOT_CHAR14);
+		 }
+		 if(numFuncs>2) {
+			 list.add(this.PLOT_CHAR3);
+			 list.add(this.PLOT_CHAR15);
+		 }
+		 if(numFuncs>3) {
+			 list.add(this.PLOT_CHAR4);
+			 list.add(this.PLOT_CHAR16);
+		 }
+		 if(numFuncs>4) {
+			 list.add(this.PLOT_CHAR5);
+			 list.add(this.PLOT_CHAR17);
+		 }
+		 if(numFuncs>5) {
+			 list.add(this.PLOT_CHAR6);
+			 list.add(this.PLOT_CHAR18);
+		 }
+		 if(numFuncs>6) {
+			 list.add(this.PLOT_CHAR7);
+			 list.add(this.PLOT_CHAR19);
+		 }
+		 if(numFuncs>7) {
+			 list.add(this.PLOT_CHAR8);
+			 list.add(this.PLOT_CHAR20);
+		 }
+		 if(numFuncs>8) {
+			 list.add(this.PLOT_CHAR9);
+			 list.add(this.PLOT_CHAR21);
+		 }
+		 if(numFuncs>9) {
+			 list.add(this.PLOT_CHAR10);
+			 list.add(this.PLOT_CHAR22);
+		 }
+		 if(numFuncs>10) {
+			 list.add(this.PLOT_CHAR11);
+			 list.add(this.PLOT_CHAR23);
+		 }
+		 if(numFuncs>11) {
+			 list.add(this.PLOT_CHAR12);
+			 list.add(this.PLOT_CHAR24);
+		 }
+		 return list;
+	}
+}

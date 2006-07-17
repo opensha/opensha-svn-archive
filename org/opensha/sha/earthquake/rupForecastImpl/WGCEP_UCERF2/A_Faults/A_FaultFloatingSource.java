@@ -287,6 +287,16 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		return segSlipDist[ithSegment];
 	}
 	
+	/**
+	 * Get Visible Slip Distribution for this segment
+	 * 
+	 * @param ithSegment
+	 * @return
+	 */
+	public ArbDiscrEmpiricalDistFunc getSegmentVisibleSlipDist(int ithSegment) {
+		return segVisibleSlipDist[ithSegment];
+	}
+	
 	
 	/**
 	 * Get the Mag Freq Dist for floater ruptures
