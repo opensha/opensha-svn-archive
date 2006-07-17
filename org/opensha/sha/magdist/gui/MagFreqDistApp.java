@@ -641,7 +641,8 @@ public class MagFreqDistApp
       System.out.println("Starting");
 
     try {
-      magDistEditor.setSummedDistPlotted(false);
+    	if(magDistEditor instanceof MagFreqDistParameterEditor)
+    	   magDistEditor.setSummedDistPlotted(false);
       this.magDistEditor.setMagDistFromParams();
 
       String magDistMetadata = magDistEditor.getMagFreqDistParameterEditor().
