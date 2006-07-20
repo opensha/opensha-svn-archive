@@ -11,6 +11,8 @@ package org.opensha.calc;
  */
 
 public final class FaultMomentCalc {
+	
+public final static double SHEAR_MODULUS = 3.0e10;
 
  /**
   * This function calculates the moment (SI units) for the given fault area and average slip,
@@ -21,7 +23,7 @@ public final class FaultMomentCalc {
   * @returns Moment (in Newton-Meters) or moment rate if slip-rate given.
   */
   public static double getMoment(double area, double slip) {
-    return 3e10*slip*area;
+    return SHEAR_MODULUS*slip*area;
   }
   
   /**
@@ -33,7 +35,7 @@ public final class FaultMomentCalc {
    * @returns Slip (in meters) or slip rate if moment-rate is given
    */
   public static double getSlip(double area, double moment) {
-	  return moment/(area*3e10);
+	  return moment/(area*SHEAR_MODULUS);
   }
 
 }

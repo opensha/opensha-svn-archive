@@ -22,6 +22,9 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 /**
  * <p>Title: A_FaultFloatingSource </p>
  * <p>Description: 	CONSIDER EFFECT OF: ASEISMICITY; VARIABLE AREA FOR GIVEN MAG, AND OVERLAPPING STEPOVERS.
+ * 
+ * If Asismicity is applied as a reduction of area, then effective all down-dip widths (DDW) are reduced, 
+ * and given a single value applied to all segments (DDW = the total reduced area divided by total length).
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field

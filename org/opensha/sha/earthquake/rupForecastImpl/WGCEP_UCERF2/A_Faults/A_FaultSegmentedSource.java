@@ -88,15 +88,24 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @
 	 */
 	public A_FaultSegmentedSource(SegmentedFaultData segmentData, MagAreaRelationship magAreaRel, 
-			int slipModelType, int rupModelSolutionType,
-			double[] segMRIs, double[] segAveSlips, double[] aPrioriRupRates) {
+			int slipModelType, int rupModelSolutionType, ValueWeight[] aPrioriRupRates) {
 		
 		this.segmentData = segmentData;
 		this.isPoissonian = true;
 		
 		num_seg = segmentData.getNumSegments();
-		num_rup = getNumRuptures(segmentData);
 		
+		// get the RupInSeg Matrix for the given number of segments
+		if(segmentData.getFaultName().equals("San Jacinto")) {
+			rupInSeg = getSanJacintoRupInSeg();	// special case for this branching fault
+			num_rup = 25;
+		}
+		else {
+			rupInSeg = getRupInSegMatrix(num_seg);
+			num_rup = getNumRuptures(segmentData);
+		}
+	
+/*
 		// do some checks
 		if(num_seg != segMRIs.length)
 			throw new RuntimeException("Error: number of segments is incompatible with number of elements in segMRIs");
@@ -104,50 +113,53 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			throw new RuntimeException("Error: number of segments is incompatible with number of elements in segAveSlips");
 		if(num_rup != aPrioriRupRates.length)
 			throw new RuntimeException("Error: number of ruptures is incompatible with number of elements in aPrioriRupRates");
-		
+*/
 		//		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
-		
-		// get the RupInSeg Matrix for the given number of segments
-		rupInSeg = getRupInSegMatrix(num_seg);
 		
 		
 		rupNameShort = getAllShortRuptureNames(segmentData);
 		rupNameLong = getAllLongRuptureNames(segmentData);
+		
 		getRupAreas();
 		
+		getRupMeanMagsAssumingCharSlip();
+		
 		// this is where the work is done (calculates totalMoRateFromRups too?)
-		getRupMagsAndRates();
+		// getRupRates();
 		
 		// create the summed Mag FreqDist object
-		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		// summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		// now add the rates of each rupture to this ...
 		// ?????????????????????????????????????????????
 		
 		// add info to the summed dist
+		/*
 		String summed_info = "\n\nMoment Rate: "+(float) getTotalMoRateFromSummedMFD() +
 		"\n\nTotal Rate: "+(float)summedMagFreqDist.getCumRate(0);
 		summedMagFreqDist.setInfo(summed_info);
+		*/
 		
 		// get total rate of events on each segment
-		computeSegRates();
+		//computeSegRates();
 		
 		// find the slip distribution of each rupture & segment
 		// ?????????????????????????????????????????????????????
-		ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
-		computeRupSlipDist( rupArea, rupSlipDist);
+		//ArbitrarilyDiscretizedFunc[] rupSlipDist = new ArbitrarilyDiscretizedFunc[num_rup];
+		//computeRupSlipDist( rupArea, rupSlipDist);
 		
 		
 		// get the increase/decrease factor for the ave slip on a segment, given a rupture,
 		// relative to the ave slip for the entire rupture
 		// ????????????????????????????????????????????????
-		double[][] segRupSlipFactor = getWG02_SegRupSlipFactor();
+		//double[][] segRupSlipFactor = getWG02_SegRupSlipFactor();
 		
 		
 		// find the slip distribution of each segment
 		// ????????????????????????????????????????????????
+		/*
 		segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
 		computeSegSlipDist(rupSlipDist, magAreaRel, segRupSlipFactor);
-		/**/ 
+		 
 		if(D) {
 			// print the slip distribution of each segment
 			for(int i=0; i<num_seg; ++i) {
@@ -155,14 +167,39 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				System.out.println(segSlipDist[i]);
 			}
 		}
+		*/
 	}
 	
 	
+	/**
+	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship)
+	 *
+	 */
+	private void getRupMeanMagsAssumingCharSlip() {
+		rupMeanMag = new double[num_rup];
+		double[] rupMo = new double[num_rup];
+		// first compute the total moment for each rupture
+		double area, slip;
+		for(int rup=0; rup<num_rup; rup++){
+			rupMeanMag[rup] = 0;
+			for(int seg=0; seg < num_seg; seg++) {
+				if(rupInSeg[seg][rup]==1) { // if this rupture is included in this segment	
+					area = segmentData.getSegmentArea(seg);
+					slip = segmentData.getSegmentSlipRate(seg)*segmentData.getRecurInterval(seg);
+					rupMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
+				}
+			}
+		}
+		
+		// now convert moment to mag
+		for(int rup=0; rup<num_rup; rup++) rupMeanMag[rup] = MomentMagCalc.getMag(rupMo[rup]);
+
+	}
 	
-	private void getRupMagsAndRates() {
+	
+	private void getRupRates() {
 		
 		// solve for the following:
-		rupMeanMag = new double[num_rup];
 		rupMoRate = new double[num_rup];
 		totRupRate = new double[num_rup];  // if rupture given an MFD
 		
@@ -172,11 +209,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// first compute the rupture mags and slips
 		// slipModelType: 0 = Characteristic; 1 = Uniform/Boxcar; 2 = WGCEP-2002
 		// rupModelSolutionType: 0 = Min Rate; 1 = Max Rate; 2 = Equal Rate; 3 = Geol. Insight
-		
-		
-		
-		
-		
+	
 	}
 	
 	
@@ -212,6 +245,33 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		
 		return rupInSeg;
+	}
+	
+	
+	private final static int[][] getSanJacintoRupInSeg() {
+		int num_seg = 7;
+		int num_rup = 25;
+		int[][] sjfRupInSeg = {
+				  // 1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5
+					{1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,1}, // seg 1
+					{0,1,0,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,1,1,1,0,1,1,1}, // seg 2
+					{0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,1,0,1,1,1,1,1,1,1}, // seg 3
+					{0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1}, // seg 4
+					{0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1}, // seg 5
+					{0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,1}, // seg 6
+					{0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,1}, // seg 7
+			  	};
+		
+		// check result
+		if(D) {
+			for(int seg = 0; seg < num_seg; seg+=1) {
+				System.out.print("\n");
+				for(int rup = 0; rup < num_rup; rup += 1)
+					System.out.print(sjfRupInSeg[seg][rup]+"  ");
+			}
+		}
+		
+		return sjfRupInSeg;
 	}
 	
 	
@@ -297,6 +357,16 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public double getRupMeanMag(int ithRup) {
 		return rupMeanMag[ithRup];
 	}
+	
+	/**
+	 * Get area for ith Rupture
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupArea(int ithRup) {
+		return rupArea[ithRup];
+	}
+	
 	
 	/**
 	 * Get the long name for ith Rup (the segment names combined)
@@ -413,7 +483,12 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public final static String[] getAllShortRuptureNames(SegmentedFaultData segmentData) {
 		int nSeg = segmentData.getNumSegments();
 		int nRup = getNumRuptures(segmentData);
-		int[][] rupInSeg = getRupInSegMatrix(nSeg);
+		int[][] rupInSeg;
+		// get the RupInSeg Matrix for the given number of segments
+		if(segmentData.getFaultName().equals("San Jacinto"))
+			rupInSeg = getSanJacintoRupInSeg();	// special case for this branching fault
+		else
+			rupInSeg = getRupInSegMatrix(nSeg);
 		String[] rupNameShort = new String[nRup];
 		for(int rup=0; rup<nRup; rup++){
 			boolean isFirst = true;
@@ -441,7 +516,12 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public final static String[] getAllLongRuptureNames(SegmentedFaultData segmentData) {
 		int nSeg = segmentData.getNumSegments();
 		int nRup = getNumRuptures(segmentData);
-		int[][] rupInSeg = getRupInSegMatrix(nSeg);
+		int[][] rupInSeg;
+		// get the RupInSeg Matrix for the given number of segments
+		if(segmentData.getFaultName().equals("San Jacinto"))
+			rupInSeg = getSanJacintoRupInSeg();	// special case for this branching fault
+		else
+			rupInSeg = getRupInSegMatrix(nSeg);
 		String[] rupNameLong = new String[nRup];
 		for(int rup=0; rup<nRup; rup++){
 			boolean isFirst = true;
@@ -535,7 +615,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public final static int getNumRuptures(SegmentedFaultData segmentData) {
 		int nSeg = segmentData.getNumSegments();
-		return nSeg*(nSeg+1)/2;
+		if(segmentData.getFaultName().equals("San Jacinto"))
+			return 25;
+		else
+			return nSeg*(nSeg+1)/2;
 	}
 	
 	/**
@@ -608,17 +691,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	public static void main(String[] args) {
 		
-		A_FaultSegmentedSource.getRupInSegMatrix(2);
+		A_FaultSegmentedSource.getSanJacintoRupInSeg();
 		System.out.println(" ");
-		A_FaultSegmentedSource.getRupInSegMatrix(3);
+		A_FaultSegmentedSource.getRupInSegMatrix(2);
 		System.out.println(" ");
 		A_FaultSegmentedSource.getRupInSegMatrix(4);
 		System.out.println(" ");
-		A_FaultSegmentedSource.getRupInSegMatrix(5);
-		System.out.println(" ");
 		A_FaultSegmentedSource.getRupInSegMatrix(6);
-		System.out.println(" ");
-		A_FaultSegmentedSource.getRupInSegMatrix(7);
 		System.out.println(" ");
 		A_FaultSegmentedSource.getRupInSegMatrix(8);
 		
