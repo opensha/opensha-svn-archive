@@ -19,6 +19,8 @@ public class SegmentedFaultData {
 	private double totalArea, totalMoRate, totalLength;
 	private double[] segArea, segLength, segMoRate, segSlipRate; 
 	private String[] segName;
+	private String faultName;
+	private double[] recurInterval;
 
 	
 	/**
@@ -39,10 +41,20 @@ public class SegmentedFaultData {
   	 * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise it reduces slip rate
   	 * @
   	 */
-	public SegmentedFaultData(ArrayList segmentData, boolean aseisReducesArea) {
+	public SegmentedFaultData(ArrayList segmentData, boolean aseisReducesArea, String faultName, double[] recurInterval) {
+		this.recurInterval = recurInterval;
+		this.faultName = faultName;
 		this.segmentData = segmentData;	
 		this.aseisReducesArea = aseisReducesArea;
 		calcAll();
+	}
+	
+	/**
+	 * This returns the name of the fault.
+	 * @return
+	 */
+	public String getFaultName() {
+		return faultName;
 	}
 	
 	/**
@@ -98,6 +110,15 @@ public class SegmentedFaultData {
 	 */
 	public double getSegmentSlipRate(int index) {
 		return segSlipRate[index];
+	}
+	
+	/**
+	 * Get segment recur interval
+	 * @param index
+	 * @return recur int in years
+	 */
+	public double getRecurInterval(int index) {
+		return recurInterval[index];
 	}
 	
 	/**
