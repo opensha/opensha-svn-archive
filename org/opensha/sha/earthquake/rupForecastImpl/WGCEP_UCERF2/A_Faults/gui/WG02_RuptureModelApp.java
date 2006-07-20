@@ -601,8 +601,10 @@ public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListe
 					segmentModelName = getSegmentModelName(line);
 					segmentModelNames.add(segmentModelName);
 					segmentsList = new ArrayList();
-				} else segmentsList.add(getSegment(line));
-				
+				} else{
+					StringTokenizer tokenizer = new StringTokenizer(line, ":\n");
+					segmentsList.add(getSegment(tokenizer.nextToken()));
+				}		
 			}
 			segmentModels.put(segmentModelName, segmentsList);
 			makeSegmentModelParamAndEditor(segmentModelNames);

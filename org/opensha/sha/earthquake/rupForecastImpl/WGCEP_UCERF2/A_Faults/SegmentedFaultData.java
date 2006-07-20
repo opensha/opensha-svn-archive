@@ -42,6 +42,8 @@ public class SegmentedFaultData {
   	 * @
   	 */
 	public SegmentedFaultData(ArrayList segmentData, boolean aseisReducesArea, String faultName, double[] recurInterval) {
+		if(recurInterval!=null && (recurInterval.length!=segmentData.size()))
+				throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
 		this.recurInterval = recurInterval;
 		this.faultName = faultName;
 		this.segmentData = segmentData;	

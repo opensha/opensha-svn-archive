@@ -77,6 +77,8 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
+	private HashMap segmentRecurrIntv = new HashMap();
+	
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -404,7 +406,6 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	}
 	
 	
-	
 	/**
 	 * Load the Segment models from a text file
 	 *
@@ -417,6 +418,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			// read the text file
 			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
 			ArrayList segmentsList=null;
+			ArrayList recurrIntv = null;
 			String segmentModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {
 				// read the file line by line
@@ -428,14 +430,23 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 					if(segmentModelName!=null ){
 						// put segment model and corresponding ArrayList of segments in a HashMap
 						this.segmentModels.put(segmentModelName, segmentsList);
+						segmentRecurrIntv.put(segmentModelName, recurrIntv);
 					}
 					segmentModelName = getSegmentModelName(line);
 					segmentModelNames.add(segmentModelName);
 					segmentsList = new ArrayList();
-				} else segmentsList.add(getSegment(line));
+					recurrIntv = new ArrayList();
+				} else  {
+					// read the section ids with a segment as well as segment recurrence interval
+					StringTokenizer tokenizer = new StringTokenizer(line, ":\n");
+					segmentsList.add(getSegment(tokenizer.nextToken()));
+					if(tokenizer.hasMoreTokens()) recurrIntv.add(new Double(tokenizer.nextToken()));
+					else recurrIntv.add(null);
+				}
 				
 			}
 			segmentModels.put(segmentModelName, segmentsList);
+			this.segmentRecurrIntv.put(segmentModelName, segmentRecurrIntv);
 			makeSegmentModelParamAndEditor(segmentModelNames);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -548,11 +559,25 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
 		ArrayList segmentData = null;
-		if(refreshData) segmentData = getSegmentData();
-		segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
+		double[] recurIntv = null;
+		if(refreshData)  {
+			segmentData = getSegmentData();
+			// get recurrence interval
+			recurIntv = getRecurIntv(selectedSegmentModel);
+		}
+		segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea(), selectedSegmentModel,
+				recurIntv);
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
 		setMagAndSlipsString(segmetedFaultData);
+	}
+	
+	private double[] getRecurIntv(String selectedSegmentModel) {
+		ArrayList recurrIntervalsList = (ArrayList)this.segmentRecurrIntv.get(selectedSegmentModel);
+		double[] recurIntv = new double[recurrIntervalsList.size()];
+		for(int i=0; i<recurrIntervalsList.size(); ++i)
+			recurIntv[i] = ((Double)recurrIntervalsList.get(i)).doubleValue();
+		return recurIntv;
 	}
 	
 	

@@ -71,6 +71,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
+	private HashMap segmentRecurrIntv = new HashMap();
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -573,6 +574,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			// read the text file
 			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
 			ArrayList segmentsList=null;
+			ArrayList recurrIntv = null;
 			String segmentModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {
 				// read the file line by line
@@ -584,14 +586,23 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 					if(segmentModelName!=null ){
 						// put segment model and corresponding ArrayList of segments in a HashMap
 						this.segmentModels.put(segmentModelName, segmentsList);
+						segmentRecurrIntv.put(segmentModelName, recurrIntv);
 					}
 					segmentModelName = getSegmentModelName(line);
 					segmentModelNames.add(segmentModelName);
 					segmentsList = new ArrayList();
-				} else segmentsList.add(getSegment(line));
+					recurrIntv = new ArrayList();
+				} else  {
+					// read the section ids with a segment as well as segment recurrence interval
+					StringTokenizer tokenizer = new StringTokenizer(line, ":\n");
+					segmentsList.add(getSegment(tokenizer.nextToken()));
+					if(tokenizer.hasMoreTokens()) recurrIntv.add(new Double(tokenizer.nextToken()));
+					else recurrIntv.add(null);
+				}
 				
 			}
 			segmentModels.put(segmentModelName, segmentsList);
+			segmentRecurrIntv.put(segmentModelName, recurrIntv);
 			makeSegmentModelParamAndEditor(segmentModelNames);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -703,8 +714,14 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			return;
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
-		if(refreshData) segmentData = getSegmentData();
-		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea());
+		double[] recurIntv = null;
+		if(refreshData)  {
+			segmentData = getSegmentData();
+			// get recurrence interval
+			recurIntv = getRecurIntv(selectedSegmentModel);
+		}
+		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea(), selectedSegmentModel,
+				recurIntv);
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
 		setMagAndSlipsString(segmetedFaultData);
@@ -720,6 +737,13 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	}
 	
 	
+	private double[] getRecurIntv(String selectedSegmentModel) {
+		ArrayList recurrIntervalsList = (ArrayList)this.segmentRecurrIntv.get(selectedSegmentModel);
+		double[] recurIntv = new double[recurrIntervalsList.size()];
+		for(int i=0; i<recurrIntervalsList.size(); ++i)
+			recurIntv[i] = ((Double)recurrIntervalsList.get(i)).doubleValue();
+		return recurIntv;
+	}
 	
 	private void setMagAndSlipsString(SegmentedFaultData segmetedFaultData ) {
 		int numSegs = segmetedFaultData.getNumSegments();
@@ -731,7 +755,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			for(int j=0; j<numSegs; ++j) {
 				double mag = magAreaRel.getMedianMag(segmetedFaultData.getSegmentArea(j)/1e6);
 				double moment = MomentMagCalc.getMoment(mag);
-				summaryString+=j+"              "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
+				summaryString+=(j+1)+"              "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
 			}
 			double mag = magAreaRel.getMedianMag(segmetedFaultData.getTotalArea()/1e6);
 			double moment = MomentMagCalc.getMoment(mag);
@@ -944,7 +968,7 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Segment Index", "Slip Rate (mm/yr)", "Area (sq-km)",
+	private final static String[] columnNames = { "Segment Index", "Rec Intv (yr)","Slip Rate (mm/yr)", "Area (sq-km)",
 		"Length (km)", "Moment Rate", "Segment Name"};
 	private SegmentedFaultData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
@@ -1011,19 +1035,21 @@ class SegmentDataTableModel extends AbstractTableModel {
 		if(rowIndex == segFaultData.getNumSegments()) return getTotalValues(columnIndex);
 		switch(columnIndex) {
 			case 0:
-				return ""+rowIndex;
-			case 1: 
+				return ""+(rowIndex+1);
+			case 1:
+				return ""+segFaultData.getRecurInterval(rowIndex);
+			case 2: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
-			case 2:
+			case 3:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
-			case 3:
+			case 4:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
-			case 4:
-				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 5:
+				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
+			case 6:
 				return ""+segFaultData.getSegmentName(rowIndex);
 		}
 		return "";

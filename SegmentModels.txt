@@ -1,52 +1,49 @@
 # This file contains segment models. The line with "-" is the segment model name. 
-# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. Examples:
+# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. 
+# The number after : indicaates the  recurrence interval for the segment 
+#  Examples:
 # - Test Model
-# 2,7, 51
-# 3, 35, 1, 2
+# 2,7, 51 : 150
+# 3, 35, 1, 2 : 200
 # The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
-# Segment 1 has fault section Ids 2,7 and 15. Segment 2 has fault sections 3, 35, 1 and 2
+# Segment 1 has fault section Ids 2,7 and 15 and recurrence interval of segment 1 is 150. 
+# Segment 2 has fault sections 3, 35, 1 and 2 and recurrence interval of segment 2 is 200
 - Elsinore
-237
-296, 297
-299, 298
-102
-103
+237 : 1380
+296, 297 : 333.33
+299, 298 : 600
+102 : 2000
+103 : 933.33
 - Garlock
-48
-341
-49
+48 : 933.33
+341 : 1200
+49 : 1000
 - San Jacinto
-119
-289, 290
-291,293
-292
-101
-99
-28
+119 : 200
+289, 290 : 208.33
+291, 293 : 240
+292 : 240
+101 : 375
+99 : 130
+28 : 350
 - Northern SAF
-26
-27
-67
-56
-361
+26 : 200
+27 : 200
+67  : 205.8824
+56 : 200
+361 : 105
 - Southern SAF
-32
-285
-300
-287
-286
-301
-282
-283
-284
-295
+32 : 24.5
+285 : 155
+300 : 175
+287 : 175
+286 : 155
+301 : 130
+282 : 175
+283 : 200
+284 : 225
+295 : 212
 - Hayward-Rodgers Creek
-25
-68
-69
-- Calaveras
-4
-55
-- San Gregorio
-12
-29
+25 : 250
+68 : 150
+69 : 150
