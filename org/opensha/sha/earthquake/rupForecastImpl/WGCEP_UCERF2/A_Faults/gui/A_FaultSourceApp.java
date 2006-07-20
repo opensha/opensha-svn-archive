@@ -147,6 +147,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
 	private FaultSectionTableModel faultSectionTableModel = new FaultSectionTableModel();
+	private RuptureTableModel rupTableModel = new RuptureTableModel();
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private final static String TITLE = " Type A Fault Source App";
@@ -236,6 +237,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		mainSplitPane.add(this.leftPanel, JSplitPane.LEFT);
 		mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
 		tabbedPane.addTab("Segment Data", rightSplitPane);
+		tabbedPane.addTab("Ruptures Info", new JScrollPane(new JTable(this.rupTableModel)));
 		leftPanel.add(this.paramListEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	                                    , GridBagConstraints.CENTER,
 	                                    GridBagConstraints.BOTH,
@@ -734,6 +736,11 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		String longRupNames[] = A_FaultSegmentedSource.getAllLongRuptureNames(segmetedFaultData);
 		String shortRupNames[] = A_FaultSegmentedSource.getAllShortRuptureNames(segmetedFaultData);
 		makeAPrioriRupRatesParams(shortRupNames, longRupNames);
+		
+		A_FaultSegmentedSource segmentedFaultSource = new A_FaultSegmentedSource(segmetedFaultData, this.getMagAreaRelationship(),
+				0,0,null);
+		this.rupTableModel.setFaultSegmentedSource(segmentedFaultSource);
+		rupTableModel.fireTableDataChanged();
 	}
 	
 	
@@ -959,6 +966,97 @@ class FaultSectionTableModel extends AbstractTableModel {
 	}
 }
 
+/**
+* Fault Section Table Model
+* 
+* @author vipingupta
+*
+*/
+class RuptureTableModel extends AbstractTableModel {
+//	 column names
+	private final static String[] columnNames = { "Rup Index", "Rup Area (sq km)", "Rup Mag", 
+		"Short Name", "Long Name"};
+	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
+	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
+	private A_FaultSegmentedSource aFaultSegmentedSource;
+	
+	/**
+	 * default constructor
+	 *
+	 */
+	public RuptureTableModel() {
+		this(null);
+	}
+	
+	/**
+	 *  Preferred Fault section data
+	 *  
+	 * @param faultSectionsPrefDataList  ArrayList of PrefFaultSedctionData
+	 */
+	public RuptureTableModel(A_FaultSegmentedSource aFaultSegmentedSource) {
+		setFaultSegmentedSource(aFaultSegmentedSource);
+	}
+	
+	/**
+	 * Set the segmented fault data
+	 * @param segFaultData
+	 */
+	public void setFaultSegmentedSource(A_FaultSegmentedSource aFaultSegmentedSource) {
+		this.aFaultSegmentedSource =   aFaultSegmentedSource;
+	}
+	
+	/**
+	 * Get number of columns
+	 */
+	public int getColumnCount() {
+		return columnNames.length;
+	}
+	
+	
+	/**
+	 * Get column name
+	 */
+	public String getColumnName(int index) {
+		return columnNames[index];
+	}
+	
+	/*
+	 * Get number of rows
+	 * (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+		if(aFaultSegmentedSource==null) return 0;
+		return (aFaultSegmentedSource.getNumRuptures()); 
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public Object getValueAt (int rowIndex, int columnIndex) {
+		
+		//{ "Rup Index", "Rup Area", "Rup Mag", 
+			//"Short Name", "Long Name"};
+		
+		if(aFaultSegmentedSource==null) return "";
+		
+		switch(columnIndex) {
+			case 0:
+				return ""+(rowIndex+1);
+			case 1: 
+				return AREA_LENGTH_FORMAT.format(aFaultSegmentedSource.getRupArea(rowIndex)/1e6);
+			case 2:
+				return MAG_FORMAT.format(aFaultSegmentedSource.getRupMeanMag(rowIndex));
+			case 3:
+				return aFaultSegmentedSource.getShortRupName(rowIndex);
+			case 4:
+				return aFaultSegmentedSource.getLongRupName(rowIndex);
+		}
+		return "";
+	}
+}
+
 
 /**
  * Segment Table Model
@@ -968,7 +1066,7 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Segment Index", "Rec Intv (yr)","Slip Rate (mm/yr)", "Area (sq-km)",
+	private final static String[] columnNames = { "Segment Index", "Rec Interv (yr)","Slip Rate (mm/yr)", "Area (sq-km)",
 		"Length (km)", "Moment Rate", "Segment Name"};
 	private SegmentedFaultData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
