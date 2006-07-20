@@ -100,6 +100,7 @@ public class SectionInfoFileWriter implements Runnable {
 	public  String getStringForFaultModel(FaultSectionPrefData faultSectionPrefData) {
 		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
 		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
+			getValue(faultSectionPrefData.getShortName())+"\n"+
 			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveDip()) +"\n"+
@@ -118,6 +119,11 @@ public class SectionInfoFileWriter implements Runnable {
 		else return GUI_Utils.decimalFormat.format(val);
 	}
 	
+	private String getValue(String val) {
+		if(val==null || val.equalsIgnoreCase("")) return "Not Available";
+		else return val;
+	}
+	
 	/**
 	 * File format for writing fault sections in a fault model file.
 	 * Fault sections within a fault model do not have slip rate and aseismic slip factor
@@ -127,6 +133,7 @@ public class SectionInfoFileWriter implements Runnable {
 	public  String getFormatStringForFaultModel() {
 		return "********************************\n"+ 
 			"#Section Name\n"+
+			"#Short Name\n"+
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+

@@ -36,6 +36,7 @@ public class PrefFaultSectionDataDB_DAO {
 	public final static String PREF_UPPER_DEPTH = "Pref_Upper_Depth";
 	public final static String PREF_LOWER_DEPTH = "Pref_Lower_Depth";
 	public final static String SECTION_NAME = "Name";
+	public final static String SHORT_NAME = "Short_Name";
 	public final static String FAULT_TRACE = "Fault_Section_Trace";
 	public final static String PREF_ASEISMIC_SLIP= "Pref_Aseismic_Slip";
 	public final static String DIP_DIRECTION = "Dip_Direction";
@@ -110,7 +111,12 @@ public class PrefFaultSectionDataDB_DAO {
 	    	columnNames+=DIP_DIRECTION+",";
 	    	columnVals+=dipDirection+",";
 	    }
-	    
+	    // check if short name is available
+	    String shortName = faultSectionPrefData.getShortName();
+	    if(shortName!=null) {
+	    	columnNames+=SHORT_NAME+",";
+	    	columnVals+="'"+shortName+"',";
+	    }
 	    // insert the fault section into the database
 	    ArrayList geomteryObjectList = new ArrayList();
 	    geomteryObjectList.add(faultSectionTraceGeom);
@@ -185,9 +191,10 @@ public class PrefFaultSectionDataDB_DAO {
 		", ("+PREF_RAKE+"+0) "+ PREF_RAKE+
 		", ("+PREF_UPPER_DEPTH+"+0) "+ PREF_UPPER_DEPTH+
 		", ("+PREF_LOWER_DEPTH+"+0) "+PREF_LOWER_DEPTH+
-		","+SECTION_NAME+","+FAULT_TRACE+
+		","+SECTION_NAME+","+FAULT_TRACE+","+SHORT_NAME+
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
-		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+" from "+TABLE_NAME+condition+ " order by "+SECTION_NAME;
+		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+
+		" from "+TABLE_NAME+condition+ " order by "+SECTION_NAME;
 		
 		String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+
 		", ("+PREF_SLIP_RATE+"+0) "+PREF_SLIP_RATE+
@@ -195,7 +202,7 @@ public class PrefFaultSectionDataDB_DAO {
 		", ("+PREF_RAKE+"+0) "+ PREF_RAKE+
 		", ("+PREF_UPPER_DEPTH+"+0) "+ PREF_UPPER_DEPTH+
 		", ("+PREF_LOWER_DEPTH+"+0) "+PREF_LOWER_DEPTH+
-		","+SECTION_NAME+
+		","+SECTION_NAME+","+SHORT_NAME+
 		",("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+
 		",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+" from "+TABLE_NAME+condition+" order by "+SECTION_NAME;
 		
@@ -233,6 +240,11 @@ public class PrefFaultSectionDataDB_DAO {
 				  
 			      // fault trace
 				String sectionName = faultSectionPrefData.getSectionName();
+				
+//				 short name
+				String shortName = rs.getString(SHORT_NAME);
+				if(!rs.wasNull()) faultSectionPrefData.setShortName(shortName);
+				
 				ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getAveUpperDepth(), geometries);	
 				faultSectionPrefData.setFaultTrace(faultTrace);

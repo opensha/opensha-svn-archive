@@ -40,6 +40,7 @@ public class FaultSectionVer2_DB_DAO {
   public final static String AVE_LOWER_DEPTH_EST = "Ave_Lower_Depth_Est";
   public final static String CONTRIBUTOR_ID =  "Contributor_Id";
   public final static String SECTION_NAME = "Name";
+  public final static String SHORT_NAME = "Short_Name";
   public final static String ENTRY_DATE = "Entry_Date";
   public final static String COMMENTS   = "Comments";
   public final static String FAULT_TRACE = "Fault_Section_Trace";
@@ -128,6 +129,13 @@ public class FaultSectionVer2_DB_DAO {
     	columnNames+=QFAULT_ID+",";
     	columnVals+="'"+qfaultId+"',";
     }
+    // check if short name is available
+    String shortName = faultSection.getShortName();
+    if(shortName!=null) {
+    	columnNames+=SHORT_NAME+",";
+    	columnVals+="'"+shortName+"',";
+    }
+    
     // insert the fault section into the database
     ArrayList geomteryObjectList = new ArrayList();
     geomteryObjectList.add(faultSectionTraceGeom);
@@ -197,11 +205,19 @@ public class FaultSectionVer2_DB_DAO {
 	    if(!Float.isNaN(dipDirection)) {
 	    	columnNames+=DIP_DIRECTION+"="+dipDirection+",";
 	    } else columnNames+=DIP_DIRECTION+"=NULL,";
+	    
 	    // check if qfault Id is available
 	    String qfaultId = faultSection.getQFaultId();
 	    if(qfaultId!=null) {
 	    	columnNames+=QFAULT_ID+"="+"'"+qfaultId+"',";
 	    } else columnNames+=QFAULT_ID+"=NULL,";
+	    
+	    // check if short name is available
+	    String shortName = faultSection.getShortName();
+	    if(shortName!=null) {
+	    	columnNames+=SHORT_NAME+"="+"'"+shortName+"',";
+	    } else columnNames+=SHORT_NAME+"=NULL,";
+	    
 	    // insert the fault section into the database
 	    ArrayList geomteryObjectList = new ArrayList();
 	    geomteryObjectList.add(faultSectionTraceGeom);
@@ -305,12 +321,12 @@ private ArrayList getFaultSectionSummary(String condition) {
 	  String sqlWithSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+
-      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
+      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+" from "+TABLE_NAME+condition;
 	  
 	  String sqlWithNoSpatialColumnNames =  "select "+SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
       ","+AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+
       AVE_LOWER_DEPTH_EST+","+SECTION_NAME+","+COMMENTS+","+ASEISMIC_SLIP_FACTOR_EST+
-      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+" from "+TABLE_NAME+condition;
+      ",("+DIP_DIRECTION+"+0) "+DIP_DIRECTION+","+SECTION_SOURCE_ID +","+QFAULT_ID+","+SHORT_NAME+" from "+TABLE_NAME+condition;
 
 	  ArrayList spatialColumnNames = new ArrayList();
 	  spatialColumnNames.add(FAULT_TRACE);
@@ -354,6 +370,10 @@ private ArrayList getFaultSectionSummary(String condition) {
 		      // qfault Id
 		      String qFaultId = rs.getString(QFAULT_ID);
 		      if(!rs.wasNull()) faultSection.setQFaultId(qFaultId);
+		      
+		      // short name
+		      String shortName = rs.getString(SHORT_NAME);
+		      if(!rs.wasNull()) faultSection.setShortName(shortName);
 		      
 			  faultSectionsList.add(faultSection);
 		  }

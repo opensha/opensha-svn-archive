@@ -28,6 +28,7 @@ drop table Fault_Names;
 drop trigger Site_type_Trigger;
 drop sequence Site_type_Sequence;
 drop table site_type;
+drop table Pref_Deformation_Model_Data;
 drop trigger  Def_Model_Trigger;
 drop trigger Def_Model_Insert_Trigger;
 drop table Deformation_Model;
@@ -245,6 +246,7 @@ CREATE TABLE Fault_Section (
   Contributor_Id INTEGER NOT NULL,
   QFault_Id VARCHAR(10)  NULL, 
   Name VARCHAR(255) NOT NULL,
+  Short_Name VARCHAR(255) NULL,
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
   Fault_Section_Trace MDSYS.SDO_GEOMETRY,
@@ -286,6 +288,7 @@ end;
 
 CREATE TABLE Pref_Fault_Section_Data (
   Name VARCHAR(255) NOT NULL,
+  Short_Name VARCHAR(255) NULL,
   Section_Id INTEGER  NOT NULL,
   Pref_Slip_Rate FLOAT NULL,
   Pref_Dip FLOAT  NOT NULL,
@@ -401,6 +404,16 @@ insert into Deformation_Model(Deformation_Model_Id, Section_Id)
   select :new.Deformation_Model_Id, Fault_Model.Section_Id from Fault_Model where :new.Fault_Model_Id=Fault_Model_Id;
 end;
 /
+
+CREATE TABLE Pref_Deformation_Model_Data (
+ Deformation_Model_Id INTEGER NOT NULL,
+ Section_Id INTEGER  NOT NULL,
+ Pref_Long_Term_Slip_Rate FLOAT NULL,
+ Pref_Aseismic_Slip FLOAT  NOT NULL,
+ PRIMARY KEY(Deformation_Model_Id, Section_Id),
+ FOREIGN KEY(Deformation_Model_Id, Section_Id)
+     REFERENCES  Deformation_Model(Deformation_Model_Id, Section_Id) ON DELETE CASCADE
+);
 
 
 CREATE TABLE Site_Type (

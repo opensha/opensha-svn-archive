@@ -123,6 +123,11 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
   // Qfault Id
   private final static String QFAULT_ID = "QFault_Id";
   private StringParameter qFaultIdParam;
+  
+  // short name
+  private final static String SHORT_NAME = "Short_Name";
+  private StringParameter shortNameParam;
+  
   // comments
   private final static String  COMMENTS= "COMMENTS";
   private StringParameter commentsParam;
@@ -218,6 +223,15 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
+	  // short name
+	  String shortName = this.selectedFaultSection.getShortName();
+	  if(shortName==null) shortName="";
+	  shortNameParam = new StringParameter(SHORT_NAME, shortName);
+	  StringParameterEditor shortNameParamEditor = new StringParameterEditor(shortNameParam);
+	  leftPanel.add(shortNameParamEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+		        new Insets(0, 0, 0, 0), 0, 0));
+	  
 	  // fault section sources
 	  SectionSourceDB_DAO sectionSourceDB_DAO = new SectionSourceDB_DAO(DB_AccessAPI.dbConnection);
 	  ArrayList sectionSourcesList = sectionSourceDB_DAO.getAllSectionSource();
@@ -226,7 +240,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 		  sectionSourceNamesList.add(((SectionSource)sectionSourcesList.get(i)).getSectionSourceName());
 	  sectionSourceParam = new StringParameter(SOURCE, sectionSourceNamesList, (String)sectionSourceNamesList.get(0));
 	  ConstrainedStringParameterEditor sectionSourceParamEditor = new ConstrainedStringParameterEditor(sectionSourceParam);
-	  leftPanel.add(sectionSourceParamEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+	  leftPanel.add(sectionSourceParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
@@ -235,7 +249,7 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	  if(qfaultId==null) qfaultId="";
 	  qFaultIdParam = new StringParameter(QFAULT_ID, qfaultId);
 	  StringParameterEditor qFaultIdParamEditor = new StringParameterEditor(qFaultIdParam);
-	  leftPanel.add(qFaultIdParamEditor, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+	  leftPanel.add(qFaultIdParamEditor, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
@@ -247,20 +261,20 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	  dipDirectionParam = new DoubleParameter(DIP_DIRECTION, MIN_DIP_DIRECTION, MAX_DIP_DIRECTION, val);
 	  dipDirectionParam.getConstraint().setNullAllowed(true);
 	  ConstrainedDoubleParameterEditor dipDirectionParamEditor = new ConstrainedDoubleParameterEditor(dipDirectionParam);
-	  this.leftPanel.add(dipDirectionParamEditor, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+	  this.leftPanel.add(dipDirectionParamEditor, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
 	  // comments param
 	  commentsParam = new StringParameter(COMMENTS, selectedFaultSection.getComments());
 	  CommentsParameterEditor commentsParamEditor = new CommentsParameterEditor(commentsParam);
-	  leftPanel.add(commentsParamEditor, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+	  leftPanel.add(commentsParamEditor, new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
 	  // make fault trace param
 	  makeFaultTraceParamAndEditor();
-	  leftPanel.add(new JScrollPane(this.faultTraceArea), new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
+	  leftPanel.add(new JScrollPane(this.faultTraceArea), new GridBagConstraints(0, 6, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
 	  
@@ -375,8 +389,12 @@ public class EditFaultSection extends JFrame implements ActionListener, Paramete
 	  // qfault Id
 	  String qFaultId = (String)this.qFaultIdParam.getValue();
 	  if(qFaultId.trim().equalsIgnoreCase("")) qFaultId=null;
-	  //System.out.println("QFaultId="+qFaultId);
 	  selectedFaultSection.setQFaultId(qFaultId);
+	  // short name
+	  String shortName = (String)this.shortNameParam.getValue();
+	  if(shortName.trim().equalsIgnoreCase("")) shortName = null;
+	  selectedFaultSection.setShortName(shortName);
+	  
 	  // dip direction
 	  Double dipDirectionVal = ((Double)dipDirectionParam.getValue());
 	  float dipDirection;

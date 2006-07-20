@@ -19,6 +19,7 @@ public class FaultSectionData {
 
   private int sectionId=-1;
   private String sectionName;
+  private String shortName;
   private EstimateInstances aveLongTermSlipRateEst;
   private EstimateInstances aveDipEst;
   private EstimateInstances aveRakeEst;
@@ -33,6 +34,14 @@ public class FaultSectionData {
   private String qFaultId;
 
   public FaultSectionData() {
+  }
+  
+  public String getShortName() {
+	  return this.shortName;
+  }
+  
+  public void setShortName(String shortName) {
+	  this.shortName = shortName;
   }
   
   public String getQFaultId() {
@@ -141,6 +150,7 @@ public class FaultSectionData {
 	  faultSectionPrefData.setDipDirection(dipDirection);
 	  faultSectionPrefData.setSectionId(sectionId);
 	  faultSectionPrefData.setSectionName(sectionName);
+	  faultSectionPrefData.setShortName(this.shortName);
 	  faultSectionPrefData.setFaultTrace(this.faultTrace);
 	  return faultSectionPrefData;
   }

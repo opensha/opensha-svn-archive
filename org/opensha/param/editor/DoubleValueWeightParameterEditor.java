@@ -78,9 +78,10 @@ public class DoubleValueWeightParameterEditor extends ParameterEditor
     	 // add editors to the GUI
     	 //JPanel panel = new JPanel(new GridBagLayout());
     	  this.titledBorder1.setTitle(model.getName());
+    	  this.setToolTipText(model.getInfo());
     	 //panel.add(new JLabel(model.getName()), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
     		//	 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );	 
-    	  widgetPanel.add(this.valueParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
+    	 widgetPanel.add(this.valueParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0, 
     			 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     	 widgetPanel.add(this.weightParameterEditor, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0, 
     			 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );

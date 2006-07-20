@@ -13,6 +13,7 @@ import org.opensha.sha.fault.FaultTrace;
 public class FaultSectionPrefData {
 	private int sectionId=-1;
 	private String sectionName;
+	private String shortName;
 	private double aveLongTermSlipRate;
 	private double aveDip;
 	private double aveRake;
@@ -21,6 +22,14 @@ public class FaultSectionPrefData {
 	private double aseismicSlipFactor;
 	private FaultTrace faultTrace;
 	private float dipDirection;
+	
+	public String getShortName() {
+		return this.shortName;
+	}
+	  
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
 	
 	public double getAseismicSlipFactor() {
 		return aseismicSlipFactor;

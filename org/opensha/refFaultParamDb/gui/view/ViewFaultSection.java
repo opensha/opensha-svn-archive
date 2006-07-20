@@ -47,6 +47,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	// paramter to provide a list of all fault sections in the database
 	private final static String FAULT_SECTION_PARAM_NAME = "Fault Section";
 	private StringParameter faultSectionParam;
+	private final static String SHORT_NAME = "Short Name";
+	private InfoLabel shortNameLabel = new InfoLabel();
 	private final static String ENTRY_DATE = "Entry Date";
 	private InfoLabel entryDateLabel = new InfoLabel();
 	private final static String SOURCE = "Source";
@@ -300,23 +302,28 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		// JPanel to view QfaultId, entry date, source and comments
 		JPanel idPanel = GUI_Utils.getPanel(INFO);
 		
+		// short name
+		idPanel.add(shortNameLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		
 		// entry date
-		idPanel.add(entryDateLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+		idPanel.add(entryDateLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		
 		// qfault Id
-		idPanel.add(qfaultLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		idPanel.add(qfaultLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		
 		// source 
-		idPanel.add(sourceLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+		idPanel.add(sourceLabel, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		
 		//		 comments
-		idPanel.add(commentsLabel, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+		idPanel.add(commentsLabel, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
 		        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		return idPanel;
@@ -421,6 +428,8 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		
 		// qfault Id
 		qfaultLabel.setTextAsHTML(QFAULT_ID, selectedFaultSection.getQFaultId());
+		this.shortNameLabel.setTextAsHTML(SHORT_NAME, selectedFaultSection.getShortName());
+		
 	}
 	
 

@@ -567,7 +567,8 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			for(int j=0; j<numSegs; ++j) {
 				double mag = magAreaRel.getMedianMag(segmetedFaultData.getSegmentArea(j)/1e6);
 				double moment = MomentMagCalc.getMoment(mag);
-				summaryString+=j+"              "+MAG_FORMAT.format(mag)+"      "+SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
+				summaryString+=j+"              "+MAG_FORMAT.format(mag)+"      "+
+								SLIP_FORMAT.format(FaultMomentCalc.getSlip(segmetedFaultData.getSegmentArea(j), moment))+"\n";
 			}
 			double mag = magAreaRel.getMedianMag(segmetedFaultData.getTotalArea()/1e6);
 			double moment = MomentMagCalc.getMoment(mag);

@@ -114,6 +114,7 @@ public class DeformationModelFileWriter implements Runnable {
 	public  String getStringForDeformationModel(FaultSectionPrefData faultSectionPrefData) {
 		FaultTrace faultTrace = faultSectionPrefData.getFaultTrace(); 
 		String str =  "#"+faultSectionPrefData.getSectionName()+"\n"+
+		    getValue(faultSectionPrefData.getShortName())+"\n"+
 			getValue(faultSectionPrefData.getAveUpperDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveLowerDepth())+"\n"+
 			getValue(faultSectionPrefData.getAveDip()) +"\n"+
@@ -134,6 +135,11 @@ public class DeformationModelFileWriter implements Runnable {
 		else return GUI_Utils.decimalFormat.format(val);
 	}
 	
+	private String getValue(String val) {
+		if(val==null || val.equalsIgnoreCase("")) return "Not Available";
+		else return val;
+	}
+	
 	/**
 	 * File format for writing fault sections in a deformation model file.
 	 * Fault sections within a deformation model have slip rate and aseismic slip factor as well
@@ -143,6 +149,7 @@ public class DeformationModelFileWriter implements Runnable {
 	public  String getFormatStringForDeformationModel() {
 		return "********************************\n"+ 
 			"#Section Name\n"+
+			"#Short Name\n"+
 			"#Ave Upper Seis Depth (km)\n"+
 			"#Ave Lower Seis Depth (km)\n"+
 			"#Ave Dip (degrees)\n"+
