@@ -203,7 +203,7 @@ public class AttenuationRelationshipGuiBean
             throw new RuntimeException( S + e.toString() );
         } catch ( InvocationTargetException e ) {
             System.out.println(S + e.toString());
-            //e.printStackTrace();
+            e.printStackTrace();
             throw new RuntimeException( S + e.toString() );
         } catch ( IllegalAccessException e ) {
             System.out.println(S + e.toString());

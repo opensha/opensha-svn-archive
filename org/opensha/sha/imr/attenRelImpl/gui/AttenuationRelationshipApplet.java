@@ -179,9 +179,9 @@ public class AttenuationRelationshipApplet extends JFrame
     //protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
     protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
     protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-    protected final static String CY_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
-    protected final static String BOORE_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
-    protected final static String CB_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
+    protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
+    protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
+    protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
 
 
     /**
@@ -201,12 +201,12 @@ public class AttenuationRelationshipApplet extends JFrame
     static {
       imNames.add(AS_2005_prelim_AttenRel.NAME);
       attenRelClasses.add(AS_2005_CLASS_NAME);
-      imNames.add(CY_2005_prelim_AttenRel.NAME);
-      attenRelClasses.add(CY_2005_CLASS_NAME);
-      imNames.add(CB_2005_prelim_AttenRel.NAME);
-      attenRelClasses.add(CB_2005_CLASS_NAME);
-      imNames.add(Boore_2005_prelim_AttenRel.NAME);
-      attenRelClasses.add(BOORE_2005_CLASS_NAME);
+      imNames.add(CY_2006_AttenRel.NAME);
+      attenRelClasses.add(CY_2006_CLASS_NAME);
+      imNames.add(CB_2006_AttenRel.NAME);
+      attenRelClasses.add(CB_2006_CLASS_NAME);
+      imNames.add(BA_2006_AttenRel.NAME);
+      attenRelClasses.add(BOORE_2006_CLASS_NAME);
       imNames.add(CS_2005_AttenRel.NAME);
       attenRelClasses.add(CS_CLASS_NAME);
       imNames.add(BJF_1997_AttenRel.NAME);

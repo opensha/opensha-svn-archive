@@ -9,9 +9,10 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
+import org.opensha.util.FaultUtils;
 
 /**
- * <b>Title:</b> Boore_2005_prelim_AttenRel<p>
+ * <b>Title:</b> BA_2006_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Boore (2005) <p>
@@ -38,65 +39,52 @@ import org.opensha.sha.param.*;
  */
 
 
-public class Boore_2005_prelim_AttenRel
+public class BA_2006_AttenRel
     extends AttenuationRelationship implements
     AttenuationRelationshipAPI,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff
-  private final static String C = "Boore_2005_prelim_AttenRel";
+  private final static String C = "BA_2006_AttenRel";
   private final static boolean D = false;
-  public final static String SHORT_NAME = "Boore2005";
+  public final static String SHORT_NAME = "Boore2006";
 
 
   // Name of IMR
-  public final static String NAME = "Boore & Atkinson (2005 prelim)";
+  public final static String NAME = "Boore & Atkinson (2006)";
 
   // coefficients:
-  // note that index 0 is for PGV, and that the last index (6) is for his pga4nl term (rock-PGA for computing amp factor)
-  double[] period = {
-       -1, 0, 0.1, 0.2, 1, 3, -2};
-  double[] e01 = {
-      4.73642, -0.92027, -0.36995, 0.01688, -1.00316, -2.27419, -0.96409};
-  double[] e02 = {
-      0.46374, 0.28115, 0.06284, 0.19353, 0.70367, 0.78311, 0.29795};
-  double[] e03 = {
-       -0.1324, -0.21409, -0.24453, -0.26457, -0.25927, -0.46006, -0.20341};
-  double[] e04 = {
-      0, 0, 0, 0, 0.30832, 0.9588, 0};
-  double[] mh = {
-      8.5, 7, 7, 7, 7, 7, 7};
-  double[] c01 = {
-       -0.7468, -0.5641, -0.5404, -0.6379, -0.7478, -0.7986, -0.55};
-  double[] c02 = {
-      0, 0, 0, 0, 0, 0, 0};
-  double[] c03 = {
-       -0.00622, -0.01151, -0.01359, -0.00967, -0.00322, -0.00196, -0.01151};
-  double[] mref = {
-      6, 6, 6, 6, 6, 6, 6};
-  double[] rref = {
-      5, 5, 5, 5, 5, 5, 5};
-  double[] h = {
-      4.4, 3.2, 3.4, 4.6, 4, 5, 3};
-  double[] blin = {
-       -0.6, -0.36, -0.25, -0.31, -0.7, -0.74, 0};
-  double[] vref = {
-      760, 760, 760, 760, 760, 760, 760};
-  double[] b1 = {
-       -0.5, -0.64, -0.6, -0.52, -0.44, -0.34, 0};
-  double[] b2 = {
-       -0.06, -0.14, -0.13, -0.19, 0, 0, 0};
-  double[] v1 = {
-      180, 180, 180, 180, 180, 180, 180};
-  double[] v2 = {
-      300, 300, 300, 300, 300, 300, 300};
-  double[] pga_low = {
-      0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06};
-  double[] sig1 = {
-      0.49, 0.49, 0.523, 0.523, 0.571, 0.562, -999};
-  double[] sig2 = {
-      0.26, 0.253, 0.311, 0.235, 0.311, 0.433, -999};
-  //double[] sigt = { 0.555, 0.553, 0.608, 0.573, 0.649, 0.709, 0.241 };
+  // note that index 0 is for PGA4nl (rock-PGA for computing amp factor),
+  //index 1 is for PGV and index 2 is for PGA
+  double[] period = {-2,-1,0,0.1,0.2,1,2,3};
+  double[] e01 = {-0.96402,4.4555,-0.99856,-0.37456,-0.02226,-1.1229,-1.91959,-2.463};
+  double[] e02 = {-0.96402,4.51767,-0.96172,-0.33081,0.00076,-1.08836,-1.84131,-2.37551};
+  double[] e03 = {-0.96402,4.09492,-1.21708,-0.54534,-0.17985,-1.43789,-2.27626,-2.85859};
+  double[] e04 = {-0.96402,4.48774,-0.97485,-0.39063,0.01211,-1.05239,-1.97819,-2.55923};
+  double[] e05 = {0.29795,0.45269,0.39881,0.21476,0.46512,0.71081,0.7488,0.78104};
+  double[] e06 = {-0.20341,-0.10949,-0.11032,-0.13716,-0.15204,-0.19137,-0.30555,-0.41815};
+  double[] e07 = {0,0,0,0,0,0,0.33411,0.72716};
+  double[] e08 = {0,0,0,0,0,0,0,0};
+  double[] mh = {7,8.5,7,7,7,	7,7,7};
+  double[] c01 = {-0.55,-0.8477,-0.7258,-0.7264,-0.6368,-0.8908,-0.8771,	-0.8209};
+  double[] c02	={0,0.1152,0.1289,0.1297,0.04354,0.109,0.1002,0.06827};
+  double[] c03	={0.01151,-0.00622,-0.01151,-0.01359,-0.00967,-0.00322,-0.00258,-0.00196};
+  double[] c04	={0,0,0,0,0,0,0,0};
+  double[] mref ={6,4.5,4.5,4.5,4.5,4.5,4.5,4.5};
+  double[] rref	={5,5,5,	5,5,5,5,5};
+  double[] h =	{3,4.4,3.2,3.8,4,4.6,	4.7,4.8};
+  double[] blin		={-0.6,-0.36,-0.25,-0.31,-0.7,-0.73,-0.74};
+  double[] vref	=	{760	,760,760,760,760,760,760};
+  double[] b1	=	{-0.5,-0.64,-0.6,-0.52,-0.44,-0.38,-0.34};
+  double[] b2	=	{-0.06,-0.14,-0.13,-0.19,0,0,0};
+  double[] v1	=	{180	,180,180,180,180,180,180};
+  double[] v2	=	{300,300,300,300,300,300,300};
+  double[] pga_low=	{0.06,0.06,0.06,0.06,0.06,0.06,0.06};
+  double[] sig1	=	{0.518,0.507,0.532,0.525,0.578,0.587,0.571};
+  double[] sig2u	=	{0.288,0.267,0.332,0.286,0.306,0.398,0.414};
+  double[] sigtu	=	{0.592,0.571,0.626,0.596,0.654,0.709,0.705};
+  double[] sig2m	=	{0.26,0.262,0.334,0.288,0.29,0.389,0.403};
+  double[] sigtm	=	{0.58,0.569,0.629,0.599,0.647,0.705,0.7};
 
   private HashMap indexFromPerHashMap;
 
@@ -113,6 +101,16 @@ public class Boore_2005_prelim_AttenRel
   protected final static Double VS30_WARN_MIN = new Double(120.0);
   protected final static Double VS30_WARN_MAX = new Double(2000.0);
 
+  
+  // style of faulting options
+  public final static String FLT_TYPE_UNKNOWN = "Unknown";
+  public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
+  public final static String FLT_TYPE_REVERSE = "Reverse";
+  public final static String FLT_TYPE_NORMAL = "Normal";
+  public final static String FLT_TYPE_DEFAULT = "Unknown";
+
+  
+  
   /**
    * The DistanceRupParameter, closest distance to fault surface.
    */
@@ -125,7 +123,7 @@ public class Boore_2005_prelim_AttenRel
   /**
    *  This initializes several ParameterList objects.
    */
-  public Boore_2005_prelim_AttenRel(ParameterChangeWarningListener
+  public BA_2006_AttenRel(ParameterChangeWarningListener
                                     warningListener) {
 
     super();
@@ -134,7 +132,7 @@ public class Boore_2005_prelim_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for (int i = 1; i < period.length - 1; i++) {
+    for (int i = 3; i < period.length ; i++) {
       indexFromPerHashMap.put(new Double(period[i]), new Integer(i));
     }
 
@@ -160,8 +158,7 @@ public class Boore_2005_prelim_AttenRel
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-
-//    setFaultTypeFromRake(eqkRupture.getAveRake());
+    setFaultTypeFromRake(eqkRupture.getAveRake());
     this.eqkRupture = eqkRupture;
     setPropagationEffectParams();
 
@@ -217,10 +214,10 @@ public class Boore_2005_prelim_AttenRel
     }
 
     if (im.getName().equalsIgnoreCase(PGV_NAME)) {
-      iper = 0;
+      iper = 1;
     }
     else if (im.getName().equalsIgnoreCase(PGA_NAME)) {
-      iper = 1;
+      iper = 2;
     }
     else {
       iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
@@ -246,8 +243,8 @@ public class Boore_2005_prelim_AttenRel
       return VERY_SMALL_MEAN;
     }
     if (parameterChange) {
-      // remember that pga4nl term uses coeff index 6
-      double pga4nl = Math.exp(getMean(6, vs30, rjb, mag, 0.0));
+      // remember that pga4nl term uses coeff index 0
+      double pga4nl = Math.exp(getMean(0, vs30, rjb, mag, 0.0));
       return getMean(iper, vs30, rjb, mag, pga4nl);
     }
     return 0;
@@ -265,6 +262,35 @@ public class Boore_2005_prelim_AttenRel
   }
 
   /**
+   * Determines the style of faulting from the rake angle (which
+   * comes from the eqkRupture object) and fills in the
+   * value of the fltTypeParam.  Options are "Reverse" if 150>rake>30,
+   * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Unkown"
+   * otherwise (which means normal-faulting events are assigned as "Unkown";
+   * confirmed by David Boore via email as being correct).
+   *
+   * @param rake                      in degrees
+   * @throws InvalidRangeException    If not valid rake angle
+   */
+  protected void setFaultTypeFromRake(double rake) throws InvalidRangeException {
+    FaultUtils.assertValidRake(rake);
+    if (Math.abs(Math.sin(rake * Math.PI / 180)) <= 0.5) {
+      fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP); // 0.5 = sin(30)
+    }
+    else if (rake >= 30 && rake <= 150) {
+      fltTypeParam.setValue(FLT_TYPE_REVERSE);
+    }
+    else if (rake >= -150 && rake <= -30) {
+        fltTypeParam.setValue(FLT_TYPE_NORMAL);
+      }
+    else {
+      fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
+    }
+  } 
+  
+  
+  
+  /**
    * Allows the user to set the default parameter values for the selected Attenuation
    * Relationship.
    */
@@ -273,6 +299,7 @@ public class Boore_2005_prelim_AttenRel
     vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     saParam.setValue(SA_DEFAULT);
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
@@ -300,6 +327,7 @@ public class Boore_2005_prelim_AttenRel
     meanIndependentParams.addParameter(distanceJBParam);
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(magParam);
+    meanIndependentParams.addParameter(fltTypeParam);
     meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
@@ -310,6 +338,7 @@ public class Boore_2005_prelim_AttenRel
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     exceedProbIndependentParams.addParameterList(meanIndependentParams);
+    
     exceedProbIndependentParams.addParameter(stdDevTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -320,6 +349,31 @@ public class Boore_2005_prelim_AttenRel
     imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
   }
 
+  /**
+   * This sets the site and eqkRupture, and the related parameters,
+   *  from the propEffect object passed in. Warning constrains are ingored.
+   * @param propEffect
+   * @throws ParameterException Thrown if the Site object doesn't contain a
+   * Vs30 parameter
+   * @throws InvalidRangeException thrown if rake is out of bounds
+   */
+  public void setPropagationEffect(PropagationEffect propEffect) throws
+      InvalidRangeException, ParameterException {
+
+    this.site = propEffect.getSite();
+    this.eqkRupture = propEffect.getEqkRupture();
+
+    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+
+    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+    setFaultTypeFromRake(eqkRupture.getAveRake());
+
+    propEffect.setParamValue(distanceJBParam);
+  }
+  
+  
+  
+  
   /**
    *  Creates the Site-Type parameter and adds it to the siteParams list.
    *  Makes the parameters noneditable.
@@ -357,8 +411,19 @@ public class Boore_2005_prelim_AttenRel
     magParam.addParameterChangeWarningListener(warningListener);
     magParam.setNonEditable();
 
+    StringConstraint constraint = new StringConstraint();
+    constraint.addString(FLT_TYPE_UNKNOWN);
+    constraint.addString(FLT_TYPE_STRIKE_SLIP);
+    constraint.addString(FLT_TYPE_NORMAL);
+    constraint.addString(FLT_TYPE_REVERSE);
+    constraint.setNonEditable();
+    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
+    fltTypeParam.setInfo(FLT_TYPE_INFO);
+    fltTypeParam.setNonEditable();
+
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
+    eqkRuptureParams.addParameter(fltTypeParam);
   }
 
   /**
@@ -391,7 +456,7 @@ public class Boore_2005_prelim_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 1; i < period.length - 1; i++) {
+    for (int i = 3; i < period.length; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
@@ -490,42 +555,57 @@ public class Boore_2005_prelim_AttenRel
   public double getMean(int iper, double vs30, double rjb, double mag,
                         double pga4nl) {
 
-    // remember that pga4ln term uses coeff index 6
+    // remember that pga4ln term uses coeff index 0
     double Fm, Fd, Fs;
+    int U =0, S=0, N=0, R=0;
+    String fltType = (String)fltTypeParam.getValue();
+    if(fltType.equals(FLT_TYPE_UNKNOWN))
+    	  U=1;
+    else if(fltType.equals(FLT_TYPE_NORMAL))
+    	 N=1;
+    else if(fltType.equals(FLT_TYPE_STRIKE_SLIP))
+    	 S=1;
+    else
+    	 R=1;
     if (mag <= mh[iper]) {
-      Fm = e01[iper] + e02[iper] * (mag - mh[iper]) +
-          e03[iper] * Math.pow( (mag - mh[iper]), 2);
+      Fm = e01[iper]*U + e02[iper] *S +
+          e03[iper]*N+e04[iper]*R+e05[iper]* (mag - mh[iper]) +e06[iper] * Math.pow( (mag - mh[iper]), 2);
     }
     else {
-      Fm = e01[iper] + e04[iper] * (mag - mh[iper]);
+      Fm = e01[iper]*U +e02[iper]*S+e03[iper]*N+ e04[iper]*R+
+      	e07[iper] * (mag - mh[iper])+ e08[iper] *Math.pow((mag - mh[iper]),2);
     }
 
     double r = Math.sqrt(rjb * rjb + h[iper] * h[iper]);
-    Fd = c01[iper] * Math.log(r / rref[iper]) + c02[iper] * (mag - mref[iper])
-        * Math.log(r / rref[iper]) + c03[iper] * (r - rref[iper]);
+    Fd = (c01[iper] + c02[iper] * (mag - mref[iper]))
+        * Math.log(r / rref[iper]) + (c03[iper] + c04[iper] * (mag - mref[iper]))* (r - rref[iper]);
 
-    double bnl = 0;
-    if (vs30 <= v1[iper]) {
-      bnl = b1[iper];
-    }
-    else if (vs30 <= v2[iper] && vs30 > v1[iper]) {
-      bnl = (b1[iper] - b2[iper]) * Math.log(vs30 / v2[iper]) /
-          Math.log(v1[iper] / v2[iper]) + b2[iper];
-    }
-    else if (vs30 <= vref[iper] && vs30 > v2[iper]) {
-      bnl = b2[iper] * Math.log(vs30 / vref[iper]) /
-          Math.log(v2[iper] / vref[iper]);
-    }
-    else if (vs30 > vref[iper]) {
-      bnl = 0.0;
-    }
-
-    if (pga4nl <= 0.06) {
-      Fs = blin[iper] * Math.log(vs30 / vref[iper]) + bnl * Math.log(0.06 / 0.1);
-    }
-    else {
-      Fs = blin[iper] * Math.log(vs30 / vref[iper]) +
-          bnl * Math.log(pga4nl / 0.1);
+   	//if mean for iper then make Fs to be zero
+    if(iper == 0)
+    		Fs =0;
+    else{
+	    double bnl = 0;
+	    if (vs30 <= v1[iper]) {
+	      bnl = b1[iper];
+	    }
+	    else if (vs30 <= v2[iper] && vs30 > v1[iper]) {
+	      bnl = (b1[iper] - b2[iper]) * Math.log(vs30 / v2[iper]) /
+	          Math.log(v1[iper] / v2[iper]) + b2[iper];
+	    }
+	    else if (vs30 <= vref[iper] && vs30 > v2[iper]) {
+	      bnl = b2[iper] * Math.log(vs30 / vref[iper]) /
+	          Math.log(v2[iper] / vref[iper]);
+	    }
+	    else if (vs30 > vref[iper]) {
+	      bnl = 0.0;
+	    }   
+    		if (pga4nl <= 0.06) {
+    			Fs = blin[iper] * Math.log(vs30 / vref[iper]) + bnl * Math.log(0.06 / 0.1);
+    		}	
+    		else {
+    			Fs = blin[iper] * Math.log(vs30 / vref[iper]) +
+    			bnl * Math.log(pga4nl / 0.1);
+    		}
     }
     return (Fm + Fd + Fs);
   }
@@ -536,13 +616,13 @@ public class Boore_2005_prelim_AttenRel
       return 0;
     }
     else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
-      return sig2[iper];
+      return sig2u[iper];
     }
     else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
       return sig1[iper];
     }
     else { // it's total sigma
-      return Math.sqrt(sig1[iper] * sig1[iper] + sig2[iper] * sig2[iper]);
+      return Math.sqrt(sig1[iper] * sig1[iper] + sig2u[iper] * sig2u[iper]);
     }
   }
 

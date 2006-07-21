@@ -288,7 +288,7 @@ public abstract class AttenuationRelationship
   protected DoubleDiscreteParameter periodParam = null;
   public final static String PERIOD_NAME = "SA Period";
   public final static String PERIOD_UNITS = "sec";
-  protected final static Double PERIOD_DEFAULT = new Double(0.0);
+  protected final static Double PERIOD_DEFAULT = new Double(1.0);
   public final static String PERIOD_INFO = "Oscillator Period for SA";
   // The constraint is created and added in the subclass.
 

@@ -74,9 +74,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   public final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
   public final static String USGS04_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
   public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-  //public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
-  public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
-  public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
+  //public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
+  public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
+  public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
 
   //arrayList to store the supported AttenRel Class Names with their full package structure.
   ArrayList supportedAttenRelClasses = new ArrayList();
