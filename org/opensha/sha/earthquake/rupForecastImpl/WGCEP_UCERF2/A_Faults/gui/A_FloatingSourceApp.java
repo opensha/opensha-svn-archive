@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -27,6 +28,11 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -68,8 +74,8 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FloatingSourceApp extends JFrame implements ParameterChangeListener, ActionListener {
-	private final static String SEGMENT_MODELS_FILE_NAME = "SegmentModels.txt";
-
+	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/SegmentModels.txt";
+	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/Ray-all-AfaultsTable1.1.xls";
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	
 	// choose segment model
@@ -77,8 +83,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
-	private HashMap segmentRecurrIntv = new HashMap();
-	
+	private HashMap segmentIntvAndRupRates = new HashMap();
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -144,6 +149,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		try {
 			paramList = new ParameterList();
 			loadSegmentModels();
+			this.readRupAndSegRatesFromExcelFile();
 			loadDeformationModels();
 			makeAseisFactorInterpolationParamAndEditor();
 			makeMagAreRelationshipParamAndEditor();
@@ -410,6 +416,10 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 * Load the Segment models from a text file
 	 *
 	 */
+	/**
+	 * Load the Segment models from a text file
+	 *
+	 */
 	private void loadSegmentModels() {
 		ArrayList segmentModelNames = new ArrayList();
 		segmentModelNames.add(NONE);
@@ -418,7 +428,6 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			// read the text file
 			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
 			ArrayList segmentsList=null;
-			ArrayList recurrIntv = null;
 			String segmentModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {
 				// read the file line by line
@@ -430,23 +439,17 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 					if(segmentModelName!=null ){
 						// put segment model and corresponding ArrayList of segments in a HashMap
 						this.segmentModels.put(segmentModelName, segmentsList);
-						segmentRecurrIntv.put(segmentModelName, recurrIntv);
 					}
 					segmentModelName = getSegmentModelName(line);
 					segmentModelNames.add(segmentModelName);
 					segmentsList = new ArrayList();
-					recurrIntv = new ArrayList();
 				} else  {
-					// read the section ids with a segment as well as segment recurrence interval
-					StringTokenizer tokenizer = new StringTokenizer(line, ":\n");
-					segmentsList.add(getSegment(tokenizer.nextToken()));
-					if(tokenizer.hasMoreTokens()) recurrIntv.add(new Double(tokenizer.nextToken()));
-					else recurrIntv.add(null);
+					// read the section ids
+					segmentsList.add(getSegment(line));
 				}
 				
 			}
 			segmentModels.put(segmentModelName, segmentsList);
-			this.segmentRecurrIntv.put(segmentModelName, segmentRecurrIntv);
 			makeSegmentModelParamAndEditor(segmentModelNames);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -454,6 +457,49 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			e.printStackTrace();
 		}
 		
+	}
+	
+	
+	/**
+	 * Read rupture rates and segment rates from Excel file
+	 *
+	 */
+	private void readRupAndSegRatesFromExcelFile() {
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastIndex = sheet.getLastRowNum();
+			// read data for each row
+			for(int r = 1; r<=lastIndex; ++r) {	
+				HSSFRow row = sheet.getRow(r);
+				HSSFCell cell = row.getCell( (short) 0);
+				// segment name
+				String segmentName = cell.getStringCellValue().trim();
+				RupSegRates rupSegRates = new RupSegRates(segmentName);
+				r=r+2;
+				while(true) {
+					row = sheet.getRow(r++);
+					cell = row.getCell( (short) 0);
+					if(cell.getStringCellValue().trim().equalsIgnoreCase("Total"))
+						break;
+					// rup rate for the 3 models
+					double prefRate = row.getCell((short)1).getNumericCellValue();
+					double minRate = row.getCell((short)2).getNumericCellValue();
+					double maxRate = row.getCell((short)3).getNumericCellValue();
+					rupSegRates.addRupRate(prefRate, minRate, maxRate);
+					// if segment rate is available
+					cell = row.getCell( (short) 5);
+					if(cell != null &&
+							! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) 
+						rupSegRates.addSegRecurInterv(1.0/cell.getNumericCellValue());
+				}
+				r=r+1;
+				this.segmentIntvAndRupRates.put(segmentName, rupSegRates);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void makeMagAreRelationshipParamAndEditor() {
@@ -573,10 +619,10 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	}
 	
 	private double[] getRecurIntv(String selectedSegmentModel) {
-		ArrayList recurrIntervalsList = (ArrayList)this.segmentRecurrIntv.get(selectedSegmentModel);
-		double[] recurIntv = new double[recurrIntervalsList.size()];
-		for(int i=0; i<recurrIntervalsList.size(); ++i)
-			recurIntv[i] = ((Double)recurrIntervalsList.get(i)).doubleValue();
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+		double[] recurIntv = new double[rupSegRates.getNumSegments()];
+		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
+			recurIntv[i] = rupSegRates.getSegRecurInterv(i);
 		return recurIntv;
 	}
 	

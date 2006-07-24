@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -27,6 +28,11 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -35,6 +41,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_M
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
+import org.opensha.data.ValueWeight;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.DoubleValueWeightParameter;
@@ -62,8 +69,8 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultSourceApp extends JFrame implements ParameterChangeListener, ActionListener {
-	private final static String SEGMENT_MODELS_FILE_NAME = "SegmentModels.txt";
-
+	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/SegmentModels.txt";
+	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/Ray-all-AfaultsTable1.1.xls";
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	
 	// choose segment model
@@ -71,7 +78,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
 	private HashMap segmentModels = new HashMap();
-	private HashMap segmentRecurrIntv = new HashMap();
+	private HashMap segmentIntvAndRupRates = new HashMap();
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -171,7 +178,9 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	private void initParamsAndEditor() {
 		try {
 			paramList = new ParameterList();
-			loadSegmentModels();
+			loadSegmentModels(); // load segment models
+			// read rup and segment rates from excel file
+			readRupAndSegRatesFromExcelFile();
 			loadDeformationModels();
 			makeAseisFactorInterpolationParamAndEditor();
 			makeMagAreRelationshipParamAndEditor();
@@ -206,6 +215,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		rupModels.add(EQUAL_RATE_RUP_MODEL);
 		rupModels.add(GEOL_INSIGHT_RUP_MODEL);
 		StringParameter rupModelParam = new StringParameter(RUP_MODEL_TYPE, rupModels, (String)rupModels.get(0));
+		rupModelParam.addParameterChangeListener(this);
 		paramList.addParameter(rupModelParam);
 	}
 	
@@ -576,7 +586,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			// read the text file
 			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
 			ArrayList segmentsList=null;
-			ArrayList recurrIntv = null;
 			String segmentModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {
 				// read the file line by line
@@ -588,23 +597,17 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 					if(segmentModelName!=null ){
 						// put segment model and corresponding ArrayList of segments in a HashMap
 						this.segmentModels.put(segmentModelName, segmentsList);
-						segmentRecurrIntv.put(segmentModelName, recurrIntv);
 					}
 					segmentModelName = getSegmentModelName(line);
 					segmentModelNames.add(segmentModelName);
 					segmentsList = new ArrayList();
-					recurrIntv = new ArrayList();
 				} else  {
-					// read the section ids with a segment as well as segment recurrence interval
-					StringTokenizer tokenizer = new StringTokenizer(line, ":\n");
-					segmentsList.add(getSegment(tokenizer.nextToken()));
-					if(tokenizer.hasMoreTokens()) recurrIntv.add(new Double(tokenizer.nextToken()));
-					else recurrIntv.add(null);
+					// read the section ids
+					segmentsList.add(getSegment(line));
 				}
 				
 			}
 			segmentModels.put(segmentModelName, segmentsList);
-			segmentRecurrIntv.put(segmentModelName, recurrIntv);
 			makeSegmentModelParamAndEditor(segmentModelNames);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -695,7 +698,9 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME))
 			updateSegmentAndRupNames(true);
 		else if(paramName.equalsIgnoreCase(ASEIS_INTER_PARAM_NAME))
-			updateSegmentAndRupNames(true);
+			updateSegmentAndRupNames(false);
+		else if(paramName.equalsIgnoreCase(RUP_MODEL_TYPE))
+			updateSegmentAndRupNames(false);
 	}
 	
 
@@ -736,19 +741,62 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		String longRupNames[] = A_FaultSegmentedSource.getAllLongRuptureNames(segmetedFaultData);
 		String shortRupNames[] = A_FaultSegmentedSource.getAllShortRuptureNames(segmetedFaultData);
 		makeAPrioriRupRatesParams(shortRupNames, longRupNames);
-		
+		ValueWeight[] aprioriRupRates = getAprioriRupRates(selectedSegmentModel);
 		A_FaultSegmentedSource segmentedFaultSource = new A_FaultSegmentedSource(segmetedFaultData, this.getMagAreaRelationship(),
-				0,0,null);
+				0, getRupModelType(), aprioriRupRates);
 		this.rupTableModel.setFaultSegmentedSource(segmentedFaultSource);
 		rupTableModel.fireTableDataChanged();
 	}
 	
 	
+	/**
+	 * Rup model type
+	 * @return
+	 */
+	private int getRupModelType() {
+		String selectedRupModel = (String)this.paramList.getValue(RUP_MODEL_TYPE);
+		if(selectedRupModel.equalsIgnoreCase(GEOL_INSIGHT_RUP_MODEL)) return 3;
+		else if(selectedRupModel.equalsIgnoreCase(MIN_RATE_RUP_MODEL)) return 0;
+		else if (selectedRupModel.equalsIgnoreCase(MAX_RATE_RUP_MODEL)) return 1;
+		return 2;
+	}
+	
+	
+	/**
+	 * Get apriori rupture rates
+	 * @param selectedSegmentModel
+	 * @return
+	 */
+	private ValueWeight[] getAprioriRupRates(String selectedSegmentModel) {
+		String selectedRupModel = (String)this.paramList.getValue(RUP_MODEL_TYPE);
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+		ValueWeight[] rupRates = new ValueWeight[rupSegRates.getNumRups()];
+		// geol insight rup model
+		if(selectedRupModel.equalsIgnoreCase(GEOL_INSIGHT_RUP_MODEL)) {
+			for(int i=0; i<rupSegRates.getNumRups(); ++i)
+				rupRates[i] = new ValueWeight(rupSegRates.getPrefModelRupRate(i), 1.0);
+		}
+		// min rup model
+		else if(selectedRupModel.equalsIgnoreCase(MIN_RATE_RUP_MODEL)) {
+			for(int i=0; i<rupSegRates.getNumRups(); ++i)
+				rupRates[i] = new ValueWeight(rupSegRates.getMinModelRupRate(i), 1.0);
+	
+		}
+		// max rup model
+		else if (selectedRupModel.equalsIgnoreCase(MAX_RATE_RUP_MODEL)) {
+			for(int i=0; i<rupSegRates.getNumRups(); ++i)
+				rupRates[i] = new ValueWeight(rupSegRates.getMaxModelRupRate(i), 1.0);
+	
+		} else rupRates = null;
+		
+		return rupRates;
+	}
+	
 	private double[] getRecurIntv(String selectedSegmentModel) {
-		ArrayList recurrIntervalsList = (ArrayList)this.segmentRecurrIntv.get(selectedSegmentModel);
-		double[] recurIntv = new double[recurrIntervalsList.size()];
-		for(int i=0; i<recurrIntervalsList.size(); ++i)
-			recurIntv[i] = ((Double)recurrIntervalsList.get(i)).doubleValue();
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+		double[] recurIntv = new double[rupSegRates.getNumSegments()];
+		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
+			recurIntv[i] = rupSegRates.getSegRecurInterv(i);
 		return recurIntv;
 	}
 	
@@ -817,6 +865,50 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 			this.paramListEditor.replaceParameterForEditor(SLIP_PER_EVENT_PARAM_NAME, slipPerEventParamListParameter);
 		}
 		else paramList.addParameter(slipPerEventParamListParameter);
+	}
+	
+	
+	/**
+	 * Read rupture rates and segment rates from Excel file
+	 *
+	 */
+	private void readRupAndSegRatesFromExcelFile() {
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastIndex = sheet.getLastRowNum();
+			// read data for each row
+			for(int r = 1; r<=lastIndex; ++r) {	
+				HSSFRow row = sheet.getRow(r);
+				HSSFCell cell = row.getCell( (short) 0);
+				// segment name
+				String segmentName = cell.getStringCellValue().trim();
+				RupSegRates rupSegRates = new RupSegRates(segmentName);
+				r=r+2;
+				while(true) {
+					row = sheet.getRow(r++);
+					cell = row.getCell( (short) 0);
+					if(cell.getStringCellValue().trim().equalsIgnoreCase("Total"))
+						break;
+					// rup rate for the 3 models
+					double prefRate = row.getCell((short)1).getNumericCellValue();
+					double minRate = row.getCell((short)2).getNumericCellValue();
+					double maxRate = row.getCell((short)3).getNumericCellValue();
+					rupSegRates.addRupRate(prefRate, minRate, maxRate);
+					// if segment rate is available
+					cell = row.getCell( (short) 5);
+					//System.out.println("***** ==" +cell.getNumericCellValue());
+					if(cell != null &&
+							! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) 
+						rupSegRates.addSegRecurInterv(1.0/cell.getNumericCellValue());
+				}
+				r=r+1;
+				this.segmentIntvAndRupRates.put(segmentName, rupSegRates);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
