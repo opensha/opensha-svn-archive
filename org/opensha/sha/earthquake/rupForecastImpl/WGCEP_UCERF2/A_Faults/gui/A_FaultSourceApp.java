@@ -724,9 +724,9 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		double[] recurIntv = null;
 		if(refreshData)  {
 			segmentData = getSegmentData();
-			// get recurrence interval
-			recurIntv = getRecurIntv(selectedSegmentModel);
 		}
+		// get recurrence interval
+		recurIntv = getRecurIntv(selectedSegmentModel);
 		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea(), selectedSegmentModel,
 				recurIntv);
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
@@ -1067,9 +1067,10 @@ class FaultSectionTableModel extends AbstractTableModel {
 class RuptureTableModel extends AbstractTableModel {
 //	 column names
 	private final static String[] columnNames = { "Rup Index", "Rup Area (sq km)", "Rup Mag", 
-		"Short Name", "Long Name"};
+		"Rup Rate","Short Name", "Long Name"};
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
+	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.00000");
 	private A_FaultSegmentedSource aFaultSegmentedSource;
 	
 	/**
@@ -1141,8 +1142,10 @@ class RuptureTableModel extends AbstractTableModel {
 			case 2:
 				return MAG_FORMAT.format(aFaultSegmentedSource.getRupMeanMag(rowIndex));
 			case 3:
-				return aFaultSegmentedSource.getShortRupName(rowIndex);
+				return RATE_FORMAT.format(aFaultSegmentedSource.getRupRate(rowIndex));
 			case 4:
+				return aFaultSegmentedSource.getShortRupName(rowIndex);
+			case 5:
 				return aFaultSegmentedSource.getLongRupName(rowIndex);
 		}
 		return "";

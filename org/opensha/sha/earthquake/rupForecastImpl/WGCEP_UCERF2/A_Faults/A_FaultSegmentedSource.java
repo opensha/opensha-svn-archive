@@ -124,6 +124,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		
 		getRupMeanMagsAssumingCharSlip();
 		
+		totRupRate = new double[aPrioriRupRates.length];
+		for(int i=0; i<totRupRate.length; ++i)
+			totRupRate[i] = aPrioriRupRates[i].getValue();
+		
 		// this is where the work is done (calculates totalMoRateFromRups too?)
 		// getRupRates();
 		
