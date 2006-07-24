@@ -607,7 +607,7 @@ public class CB_2006_AttenRel
     
     //modeling depence on magnitude
     if(mag<= 5.5)
-    		fmag = c0[iper]+c1[iper]*mag+c2[iper]*(mag-5.5);
+    		fmag = c0[iper]+c1[iper]*mag;
     else if(mag > 5.5  && mag <=6.5)
     	   fmag = c0[iper]+c1[iper]*mag+c2[iper]*(mag-5.5);
     else
@@ -665,12 +665,12 @@ public class CB_2006_AttenRel
     else
     	 fhngd = (90-dip)/20; 
     
-    fhng = c9[iper]*fhngr*fhngm*fhngz*fhngz;
+    fhng = c9[iper]*fhngr*fhngm*fhngz*fhngd;
     
     
     //modelling dependence on linear and non-linear site conditions
     if(vs30< k1[iper])
-    	 fsite = c10[iper]*Math.log(vs30/k1[iper])+(k2[iper]*(Math.log(pgar+c*Math.pow(vs30/k1[iper],n))) -
+    	 fsite = c10[iper]*Math.log(vs30/k1[iper])+k2[iper]*(Math.log(pgar+c*Math.pow(vs30/k1[iper],n)) -
     			 Math.log(pgar+c));
     else
     	 fsite = (c10[iper]+k2[iper]*n)*Math.log(vs30/k1[iper]);
