@@ -304,7 +304,7 @@ public class CY_2006_AttenRel
   private DistanceJBParameter distanceJBParam = null;
   private final static Double DISTANCE_JB_DEFAULT = new Double(0);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_JB_WARN_MAX = new Double(80.0);
+  protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
 
   /**
    * RuptureWidth parameter - Width of rupture.  This is created in the
@@ -786,7 +786,6 @@ public class CY_2006_AttenRel
 
     // Linear soil amplification
     double a = phi1[iper] * Math.min(Math.log(vs30/1130), 0);
-
 
 
     //Nonlinear soil amplification
