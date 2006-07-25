@@ -144,7 +144,7 @@ public class CB_2006_AttenRel
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_JB_WARN_MAX = new Double(80.0);
+  protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
   protected final static Double VS30_WARN_MIN = new Double(120.0);
   protected final static Double VS30_WARN_MAX = new Double(2000.0);
   protected final static Double DEPTH_2pt5_WARN_MIN = new Double(0);
