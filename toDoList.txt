@@ -11,12 +11,6 @@ Cybershake Scatter plotter
 
 Warning/Disclaimer message is blank if no intenet access (put html in jar file).
 
-
-
-Fault Section, Fault Model, and Deformation Model flat files - make GUI able to write these out?
-
-Distance between fault sectons calculator?
-
 Latest JFreeChart
 
 Type_A_Fault Ruptures Model GUI
@@ -57,15 +51,11 @@ Type_A_Fault Ruptures Model GUI
 	
 Increase speed of accessing preferred fault data for SCEC VDO and other apps.
 
-
-
 EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
 
 FractileListEstimate - add this to the parameter editor
 
 Implement new version checking/download option in all apps (skip if no internet access)
-
-
 
 Attenuation Relationship Plotter
 
@@ -89,54 +79,7 @@ Vs30 worldwide tool (Ned should talk to David Wald)
 
 ERF2GriddedSeisRateCalc - Ned needs to look it over.
 
-Work on html-based help documentation
-
-HypoMagFreqDistAtLoc:
-
-	Remove editable and all set methods
-	Remove ignoreFocalMech and just do that if it's null
-	Make MagFreqDist and FocMech arrays of each to support multiple foc mech
-	Loc can be null if it's not needed.
-
-	Might want to subclass to take EvenlyGriddedRegion and index.
-
-GriddedHypoMagFreqDistAtLocAPI
-
-	change getHypRatesAtLoc() to getHypoMagFreqDistAtLoc()
-	change getNumHypoLocation() to getNumHypoMagFreqDistAtLocs()
-	Take "Gridded out of class name.
-
-GriddedHypoMagFreqDistForecast
-
-	remove editable boolean
-	needs get/set methods for adjustable parameters. 
-	Add evenlyGriddedRegion with get, but no set method.
-	Make this abstract (ERF wrapper will be subclass)
-	Note that indexing on HypMagFreqDistAtLocs is exactly the same as for griddedRegion
-
-AfterShockHypoMagFreqDistForecast
-
-	add set method for griddedRegion (defined in parent), and change name to aftershockZone
-
-
-EvenlyGriddedGeographicRegions
-
-	make all extend EvenlyGriddedGeographicRegion to share methods
-
-	Change getGridLocation(int index,EvenlyGriddedGeographicRegionAPI region) to
-	getNearestGridLocation(int index,EvenlyGriddedGeographicRegionAPI region)
-
-	Have methods return null if loc or index not in region.
-
-        Document the following in either EvenlyGriddedGeographicRegion or EvenlyGriddedGeographicRegionAPI:
-
-		1) that methods return null if ...
-		2) ordering of locs in region is as reading a book
-		3) nice grid values
-		4) pointers returned for speed (at sacrifice of memory because e3ntire list is created); 
-		otherwise use get*Clone* methods.
-		5)
-
+Work on html-based help documentation.
 
 Nitin has to look on how to get the OpenSHA code to the source-forge.
 
