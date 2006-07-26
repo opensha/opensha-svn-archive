@@ -59,6 +59,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.A_FaultsFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -74,16 +75,12 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FloatingSourceApp extends JFrame implements ParameterChangeListener, ActionListener {
-	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/SegmentModels.txt";
-	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/Ray-all-AfaultsTable1.1.xls";
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	
 	// choose segment model
 	private final static String SEGMENT_MODELS_PARAM_NAME = "Segment Model";
 	private final static String NONE = "None";
 	private final static String MSG_FROM_DATABASE = "Retrieving Data from database. Please wait....";
-	private HashMap segmentModels = new HashMap();
-	private HashMap segmentIntvAndRupRates = new HashMap();
 	private JTextArea magAreasTextArea = new JTextArea();
 	// choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -95,8 +92,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	
 	// floater MFD _ PDF
 	private final static String MAG_PDF_PARAM_NAME = "Floating Rup Mag PDF";
-	
-	private final static String SEGMENT_MODEL_NAME_PREFIX = "-";
+
 	
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList deformationModelsList;
@@ -109,12 +105,8 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	
 	private ParameterList paramList;
 	private ParameterListEditor paramListEditor;
-	
-	// DAO to access the fault section database
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-	
+	private A_FaultsFetcher aFaultsFetcher;
+		
 	private JButton calcButton  = new JButton("Calculate");
 	private final static int W = 900;
 	private final static int H = 700;
@@ -149,7 +141,6 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		try {
 			paramList = new ParameterList();
 			loadSegmentModels();
-			this.readRupAndSegRatesFromExcelFile();
 			loadDeformationModels();
 			makeAseisFactorInterpolationParamAndEditor();
 			makeMagAreRelationshipParamAndEditor();
@@ -246,7 +237,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 * Get the segment data
 	 * @return
 	 */
-	private ArrayList getSegmentData() {
+	private SegmentedFaultData getSegmentData() {
 		// show the progress bar
 		JFrame frame = new JFrame();
 		frame.getContentPane().setLayout(new GridBagLayout());
@@ -263,32 +254,13 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		int selectdDeformationModelId = getSelectedDeformationModelId();
-		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
-		ArrayList newSegmentsList = new ArrayList();
-		ArrayList faultSectionList = new ArrayList();
-		// iterate over all segment
-		for(int i=0; i<segmentsList.size(); ++i) {
-			ArrayList segment = (ArrayList)segmentsList.get(i);
-			ArrayList newSegment = new ArrayList();
-			// iterate over all sections in a segment
-			for(int j=0; j<segment.size(); ++j) {
-				int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
-				FaultSectionPrefData faultSectionPrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSectionId);
-				//FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
-				// get slip rate and aseimic slip factor from deformation model
-				faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionId)));
-				faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionId)));
-				//FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
-				faultSectionList.add(faultSectionPrefData);
-				newSegment.add(faultSectionPrefData);
-				
-			}
-			newSegmentsList.add(newSegment);
-		}
-		this.faultSectionTableModel.setFaultSectionData(faultSectionList);
+		SegmentedFaultData segFaultData = this.aFaultsFetcher.getSegmentedFaultData(selectedSegmentModel, selectdDeformationModelId, this.getAseisReducesArea());
+		
+		this.faultSectionTableModel.setFaultSectionData(aFaultsFetcher.getPrefFaultSectionDataList(selectedSegmentModel, selectdDeformationModelId));
+		faultSectionTableModel.fireTableDataChanged();
 		faultSectionTableModel.fireTableDataChanged();
 		frame.dispose();
-		return newSegmentsList;
+		return segFaultData;
 	}
 	
 	private int getSelectedDeformationModelId() {
@@ -421,86 +393,15 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 *
 	 */
 	private void loadSegmentModels() {
-		ArrayList segmentModelNames = new ArrayList();
-		segmentModelNames.add(NONE);
-		// add segment models 
-		try {
-			// read the text file
-			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
-			ArrayList segmentsList=null;
-			String segmentModelName=null;
-			for(int i=0; i<fileLines.size(); ++i) {
-				// read the file line by line
-				String line = ((String)fileLines.get(i)).trim();
-				// skip the comment and blank lines
-				if(line.equalsIgnoreCase("") || line.startsWith("#")) continue;
-				// check if this is a segment model name
-				if(line.startsWith(SEGMENT_MODEL_NAME_PREFIX)) {
-					if(segmentModelName!=null ){
-						// put segment model and corresponding ArrayList of segments in a HashMap
-						this.segmentModels.put(segmentModelName, segmentsList);
-					}
-					segmentModelName = getSegmentModelName(line);
-					segmentModelNames.add(segmentModelName);
-					segmentsList = new ArrayList();
-				} else  {
-					// read the section ids
-					segmentsList.add(getSegment(line));
-				}
-				
-			}
-			segmentModels.put(segmentModelName, segmentsList);
-			makeSegmentModelParamAndEditor(segmentModelNames);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		 aFaultsFetcher = new A_FaultsFetcher();
+		 ArrayList segmentModelNames = aFaultsFetcher.getSegmentNames();
+		 segmentModelNames.add(0, NONE);
+		 makeSegmentModelParamAndEditor(segmentModelNames);
 		
 	}
 	
 	
-	/**
-	 * Read rupture rates and segment rates from Excel file
-	 *
-	 */
-	private void readRupAndSegRatesFromExcelFile() {
-		try {
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
-			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			HSSFSheet sheet = wb.getSheetAt(0);
-			int lastIndex = sheet.getLastRowNum();
-			// read data for each row
-			for(int r = 1; r<=lastIndex; ++r) {	
-				HSSFRow row = sheet.getRow(r);
-				HSSFCell cell = row.getCell( (short) 0);
-				// segment name
-				String segmentName = cell.getStringCellValue().trim();
-				RupSegRates rupSegRates = new RupSegRates(segmentName);
-				r=r+2;
-				while(true) {
-					row = sheet.getRow(r++);
-					cell = row.getCell( (short) 0);
-					if(cell.getStringCellValue().trim().equalsIgnoreCase("Total"))
-						break;
-					// rup rate for the 3 models
-					double prefRate = row.getCell((short)1).getNumericCellValue();
-					double minRate = row.getCell((short)2).getNumericCellValue();
-					double maxRate = row.getCell((short)3).getNumericCellValue();
-					rupSegRates.addRupRate(prefRate, minRate, maxRate);
-					// if segment rate is available
-					cell = row.getCell( (short) 5);
-					if(cell != null &&
-							! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) 
-						rupSegRates.addSegRecurInterv(1.0/cell.getNumericCellValue());
-				}
-				r=r+1;
-				this.segmentIntvAndRupRates.put(segmentName, rupSegRates);
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 	
 	private void makeMagAreRelationshipParamAndEditor() {
 		// make objects if Mag Area Relationships
@@ -549,27 +450,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
                 new Insets(0, 0, 0, 0), 0, 0));*/
 	}
 	
-	/*
-	 * Get a list of fault sections for the current segment 
-	 */ 
-	private ArrayList getSegment(String line) {
-		ArrayList faultSectionsIdList = new ArrayList();
-		StringTokenizer tokenizer = new StringTokenizer(line,"\n,");
-		while(tokenizer.hasMoreTokens()) 
-			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer.nextToken().trim())));
-		return faultSectionsIdList;
-	}
 	
-	/**
-	 * Get the Segment model name
-	 * 
-	 * @param line
-	 * @return
-	 */
-	private String getSegmentModelName(String line) {
-		int index = line.indexOf("-");
-		return line.substring(index+1).trim();
-	}
 	
 	/**
 	 * This function is called on change of a parameter
@@ -604,27 +485,12 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 			return;
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
-		ArrayList segmentData = null;
-		double[] recurIntv = null;
-		if(refreshData)  {
-			segmentData = getSegmentData();
-			// get recurrence interval
-			recurIntv = getRecurIntv(selectedSegmentModel);
-		}
-		segmetedFaultData = new SegmentedFaultData(segmentData, this.getAseisReducesArea(), selectedSegmentModel,
-				recurIntv);
+		segmetedFaultData = getSegmentData();
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
 		setMagAndSlipsString(segmetedFaultData);
 	}
 	
-	private double[] getRecurIntv(String selectedSegmentModel) {
-		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
-		double[] recurIntv = new double[rupSegRates.getNumSegments()];
-		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
-			recurIntv[i] = rupSegRates.getSegRecurInterv(i);
-		return recurIntv;
-	}
 	
 	
 	
