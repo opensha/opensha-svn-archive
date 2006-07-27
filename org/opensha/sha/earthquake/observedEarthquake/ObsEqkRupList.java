@@ -21,6 +21,8 @@ import org.opensha.data.region.GeographicRegionAPI;
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  * @version 1.0
  */
+
+
 public class ObsEqkRupList {
 
   /** Class name used for debugging purposes */

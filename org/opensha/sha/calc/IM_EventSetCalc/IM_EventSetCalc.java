@@ -86,7 +86,7 @@ public class IM_EventSetCalc
       int numIMRs=0;
       int numIMTdone=0;
       int numIMTs=0;
-      int numSitesDone=0;
+      int numSitesDone= 0;
       int numSites =0;
       for(int i=0; i<fileLines.size(); ++i) {
         String line = ((String)fileLines.get(i)).trim();
@@ -94,8 +94,10 @@ public class IM_EventSetCalc
         if(line.startsWith("#") || line.equals("")) continue;
         if(j==0)getERF(line);
         if(j==1){
-          boolean toApplyBackGround = Boolean.parseBoolean(line.trim());
-          toApplyBackGroud(toApplyBackGround);
+        	  if(line.trim().equals("true"))
+             toApplyBackGroud(true);
+        	  else 
+        		toApplyBackGroud(false);
         }
         if(j==2){
           double rupOffset = Double.parseDouble(line.trim());
