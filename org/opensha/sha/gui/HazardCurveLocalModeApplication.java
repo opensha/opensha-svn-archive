@@ -3,14 +3,19 @@ package org.opensha.sha.gui;
 
 import java.util.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
 
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>
@@ -47,6 +52,50 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
+  /**
+   * Returns the Application version
+   * @return String
+   */
+  
+  public static String getAppVersion(){
+    return version;
+  }
+
+  
+  
+  /**
+   * Checks if the current version of the application is latest else direct the
+   * user to the latest version on the website.
+   */
+  protected void checkAppVersion(){
+      ArrayList hazCurveVersion = null;
+      try {
+    	  hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
+      }
+      catch (Exception ex1) {
+        return;
+      }
+      String appVersionOnWebsite = (String)hazCurveVersion.get(0);
+      if(!appVersionOnWebsite.trim().equals(version.trim())){
+        try{
+          ApplicationVersionInfoWindow messageWindow =
+              new ApplicationVersionInfoWindow(appURL,
+                                               this.versionUpdateInfoURL,
+                                               "App Version Update", this);
+          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+          messageWindow.setLocation( (dim.width -
+                                      messageWindow.getSize().width) / 2,
+                                    (dim.height -
+                                     messageWindow.getSize().height) / 2);
+          messageWindow.setVisible(true);
+        }catch(Exception e){
+          e.printStackTrace();
+        }
+      }
+
+    return;
+
+  }  
   
   
   /**

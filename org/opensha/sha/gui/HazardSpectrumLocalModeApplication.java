@@ -1,6 +1,8 @@
 package org.opensha.sha.gui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
@@ -36,6 +39,9 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
+import org.opensha.util.FileUtils;
+
+import java.net.URL;
 import java.rmi.RemoteException;
 
 /**
@@ -65,13 +71,60 @@ public class HazardSpectrumLocalModeApplication
 
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumApp_Version.txt";
-  protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumServerModeApp.jar";
+  protected final static String appURL = "http://www.opensha.org/applications/hazSpectrumApp/HazardSpectrumLocalModeApp.jar";
   protected final static String versionUpdateInfoURL = "http://www.opensha.org/applications/hazSpectrumApp/versionUpdate.html";
   //instances of various calculators
   protected SpectrumCalculatorAPI calc;
   //Prob@IML or IML@Prob
   boolean probAtIML;
 
+  
+  /**
+   * Returns the Application version
+   * @return String
+   */
+  
+  public static String getAppVersion(){
+    return version;
+  }
+
+  
+  
+  /**
+   * Checks if the current version of the application is latest else direct the
+   * user to the latest version on the website.
+   */
+  protected void checkAppVersion(){
+      ArrayList hazCurveVersion = null;
+      try {
+    	  hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
+      }
+      catch (Exception ex1) {
+        return;
+      }
+      String appVersionOnWebsite = (String)hazCurveVersion.get(0);
+      if(!appVersionOnWebsite.trim().equals(version.trim())){
+        try{
+          ApplicationVersionInfoWindow messageWindow =
+              new ApplicationVersionInfoWindow(appURL,
+                                               this.versionUpdateInfoURL,
+                                               "App Version Update", this);
+          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+          messageWindow.setLocation( (dim.width -
+                                      messageWindow.getSize().width) / 2,
+                                    (dim.height -
+                                     messageWindow.getSize().height) / 2);
+          messageWindow.setVisible(true);
+        }catch(Exception e){
+          e.printStackTrace();
+        }
+      }
+
+    return;
+
+  }  
+    
+  
 
   /**
    * Initialize the IMR Gui Bean

@@ -1,9 +1,17 @@
 package org.opensha.sha.gui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
+
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
+import org.opensha.util.FileUtils;
+
 import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
@@ -72,7 +80,50 @@ public class ScenarioShakeMapLocalModeCalcApp
     calculationFromServer = false;
   }
 
+  /**
+   * Checks if the current version of the application is latest else direct the
+   * user to the latest version on the website.
+   */
+  protected void checkAppVersion(){
+      ArrayList scenarioShakeVersion = null;
+      try {
+    	  scenarioShakeVersion = FileUtils.loadFile(new URL(versionURL));
+      }
+      catch (Exception ex1) {
+        return;
+      }
+      String appVersionOnWebsite = (String)scenarioShakeVersion.get(0);
+      if(!appVersionOnWebsite.trim().equals(version.trim())){
+        try{
+          ApplicationVersionInfoWindow messageWindow =
+              new ApplicationVersionInfoWindow(appURL,
+                                               this.versionUpdateInfoURL,
+                                               "App Version Update", this);
+          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+          messageWindow.setLocation( (dim.width -
+                                      messageWindow.getSize().width) / 2,
+                                    (dim.height -
+                                     messageWindow.getSize().height) / 2);
+          messageWindow.setVisible(true);
+        }catch(Exception e){
+          e.printStackTrace();
+        }
+      }
 
+    return;
+
+  }
+
+  /**
+   * Returns the Application version
+   * @return String
+   */
+  public static String getAppVersion(){
+    return version;
+  }
+
+  
+  
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
