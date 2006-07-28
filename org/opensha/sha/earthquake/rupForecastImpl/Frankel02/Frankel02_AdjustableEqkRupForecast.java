@@ -417,6 +417,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     aleStdDev = Double.parseDouble(st.nextToken());
     aleWidth = Double.parseDouble(st.nextToken());
 
+// System.out.println(gridSpacing+"  "+ dmove +"  "+ numBranches+"  "+branchDmags.get(0)+
+//		"  "+ branchWts.get(0)+"  "+aleStdDev+"  "+aleWidth+"  "+fileName1);
+
     // Loop over lines of input file and create each source in the process
     while( it.hasNext() ){
 
@@ -483,7 +486,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
           }
 
           // make the Char magFreqDist for case where no  uncertainties should be considered
+          // Only the sources in file "ca-wg99-dist-char" fall into here
           if(minMag < 5.8 || aleStdDev == 0.0) {   // the no-uncertainty case:
+//System.out.println("TYPE1 - Char w/ no uncertainties --- "+sourceName);
             if(fileName2 == null){
               SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
               totalMagFreqDist = new SummedMagFreqDist(mag,1,0.1, false, false);
@@ -511,6 +516,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
             }
           }
           else { // Apply both aleatory and epistemic uncertainties
+//System.out.println("TYPE2 - Char w/ both epi & ale uncertainties --- "+sourceName);
+
             //find the lower and upper magnitudes
             if(fileName2 == null){
               mLow = minMag;
@@ -597,6 +604,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
             // Do Gaussian dist w/ aleatory and epistemic uncertainty first
             if(minMag >= 5.8 && aleStdDev != 0.0) {
+System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties  --- mag="+mag+"; magLower="+magLower+"; minMag="+minMag+" --- "+sourceName+" --- "+fileName1);
 
               // get mLow and mHigh for distribution
               if (fileName2 != null) {
@@ -642,6 +650,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
             }
             // Do Single mag dist w/ no uncertainties
             else {
+//System.out.println("TYPE4 - SingleMag-GR as single mag dist --- "+sourceName);
+
               if(fileName2 == null){
                 SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
                 totalMagFreqDist = new SummedMagFreqDist(mag,1,0.1, false, false);
@@ -667,7 +677,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
           // GR distribution case
           else {
-
             // get mLow and mHigh of the total mag-freq-dist
             test = mag + ((Double)branchDmags.get(0)).doubleValue();
             if(test >= 6.5 && aleStdDev != 0.0) {
@@ -708,7 +717,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
             GutenbergRichterMagFreqDist tempGR_dist = new GutenbergRichterMagFreqDist(mLow,mHigh,numMag);
 
             // GR with epistemic uncertainties
-            if(test >= 6.5 && aleStdDev != 0.0) {
+           if(test >= 6.5 && aleStdDev != 0.0) {
+//System.out.println("TYPE5 - GR w/ epi uncertainties --- "+sourceName);
+
               for(int i=0;i<branchDmags.size();i++) {
                 magEp = mag + ((Double)branchDmags.get(i)).doubleValue();
                 wtEp = ((Double)branchWts.get(i)).doubleValue();
@@ -718,6 +729,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
             }
             // GR w/ no epistemic uncertainties
             else {
+//System.out.println("TYPE6 - GR w/ zero uncertainties --- "+test+"  "+aleStdDev+" --- "+sourceName);
+
               tempGR_dist.setAllButTotCumRate(magLower,mag,moRate*wt1,bVal);
               totalMagFreqDist.addIncrementalMagFreqDist(tempGR_dist);
             }
@@ -1145,6 +1158,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.updateForecast();
+     /*
      try {
        frankCast.writeRuptureTraces();
      }
@@ -1159,6 +1173,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
        ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
        System.out.println(i+"\t"+src.getName());
      }
+     */
 //     System.out.println("num sources="+frankCast.getNumSources());
 /*     ArrayList srcs = frankCast.getAllGR_FaultSources();
      for(int i=0; i<srcs.size(); i++) {
