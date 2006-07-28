@@ -488,13 +488,18 @@ public class MedianCalc_Cybershake
 
         // get the number of ruptures for the current source
         int numRuptures = source.getNumRuptures();
-
+        boolean nameIsGR_Or_flChar = false;
+        if(source.getName().endsWith("GR") || source.getName().endsWith("fl-Char"))
+        	 nameIsGR_Or_flChar = true;
         // loop over these ruptures
         for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
           EqkRupture rupture = source.getRupture(n);
           float mag = (float)rupture.getMag();
+          if(nameIsGR_Or_flChar)
+        	    mag = (float)(1.89 + 0.69 * mag);
           if(mag >=6.0 && mag<=7.0){
+        	      rupture.setMag(mag);
 	          // set the EqkRup in the IMR
 	          imr.setEqkRupture(rupture);
 	
@@ -558,7 +563,6 @@ public class MedianCalc_Cybershake
 	
 	          // get the number of ruptures for the current source
 	          int numRuptures = source.getNumRuptures();
-	
 	          // loop over these ruptures
 	          for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 	

@@ -1,9 +1,11 @@
 package org.opensha.sha.hazus;
 
-import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.*;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.*;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.*;
@@ -27,33 +29,31 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 34.823168;
   private final double MIN_LON = -118.943793 ;
   private final double MAX_LON= -117.644716;
-  private final double GRID_SPACING= .05;
+  private final double GRID_SPACING= 0.1;
   private final static String PGA_DIR_NAME = "pga/";
   private final static String SA_1_DIR_NAME = "sa_1/";
   private final static String SA_DIR_NAME = "sa_.3/";
   private final static String PGV_DIR_NAME = "pgv/";
+  
 
+  private Frankel02_AdjustableEqkRupForecast forecast;
+  private USGS_Combined_2004_AttenRel attenRel;
+  private SitesInGriddedRectangularRegion region;
+  
   private IMT_Info defaultXVals = new IMT_Info();
 
   public HazusDataGenerator() throws RegionConstraintException {
 
-    Campbell_1997_AttenRel attenRel = new Campbell_1997_AttenRel(this);
-    Frankel96_EqkRupForecast forecast = new Frankel96_EqkRupForecast();
-    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
-    //((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(0.3));
-    //make the Gridded Region object
-    SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
-        MAX_LON, GRID_SPACING);
-    attenRel.getParameter(attenRel.SITE_TYPE_NAME).setValue(attenRel.SITE_TYPE_GEN_ROCK);
-    region.addSiteParams(attenRel.getSiteParamsIterator());
-    forecast.updateForecast();
-
+	createAttenRel_Instance();
+	createERF_Instance();
+    attenRel.setIntensityMeasure(attenRel.PGA_NAME);    
+    createRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
     String metaData = "For Hazus Values\n\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
-                      "\t"+"Site Name: "+ attenRel.SITE_TYPE_GEN_ROCK+"\n"+
+                      "\t"+"Site Name: "+ attenRel.VS30_NAME+"\n"+
                       "Region Info: "+
                       "\t MIN LAT: "+region.getMinLat()+" MAX LAT:"+region.getMaxLat()+
                       " MIN LON: "+region.getMinLon()+" MAX LON: "+region.getMaxLon()+
@@ -94,7 +94,42 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     }
   }
 
+   
+  private void createERF_Instance(){
+	   forecast = new Frankel02_AdjustableEqkRupForecast();
+	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
+	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
+	   forecast.getTimeSpan().setDuration(1.0);
+	   forecast.getAdjustableParameterList().getParameter(
+	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
+	                                         BACK_SEIS_INCLUDE);
+	   forecast.getAdjustableParameterList().getParameter(
+	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
+	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);
+	   forecast.updateForecast();
+  }
+  
+  
+  private void createAttenRel_Instance(){
+	  attenRel = new USGS_Combined_2004_AttenRel(this);
+	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
+	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
+	  setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
+	  setValue(new Double(3.0));
+	  attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).
+	  setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);
+  }
 
+  
+ private void createRegion() throws RegionConstraintException{
+	 //	make the Gridded Region object
+	 region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
+	        MAX_LON, GRID_SPACING);
+	 region.addSiteParams(attenRel.getSiteParamsIterator());
+ }
+  
+  
   /**
    *  Function that must be implemented by all Listeners for
    *  ParameterChangeWarnEvents.
@@ -109,7 +144,6 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
     //System.out.println(b);
     param.setValueIgnoreWarning(e.getNewValue());
-
   }
 
 
