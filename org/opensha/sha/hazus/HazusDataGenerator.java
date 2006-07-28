@@ -50,7 +50,8 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     createRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "For Hazus Values\n\n"+
+    String metaData = "Hazus Run 1(a) for the Default Grid spacing of 0.1km with no Soil Effects:\n"+
+    	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
                       "\t"+"Site Name: "+ attenRel.VS30_NAME+"\n"+
@@ -84,9 +85,12 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     attenRel.setIntensityMeasure(attenRel.PGV_NAME);
     calc.getHazardMapCurves(PGV_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
   }
+  
+  
   public static void main(String[] args) {
     try {
       HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
+      HazusIML_FileGenerator hazusIML_FileGenerator1 = new HazusIML_FileGenerator();
     }
     catch (RegionConstraintException ex) {
       System.out.println(ex.getMessage());
@@ -99,13 +103,16 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	   forecast = new Frankel02_AdjustableEqkRupForecast();
 	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
 	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-	   forecast.getTimeSpan().setDuration(1.0);
+	   forecast.getTimeSpan().setDuration(50.0);
 	   forecast.getAdjustableParameterList().getParameter(
+               WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
+                                        BACK_SEIS_EXCLUDE);
+	   /*forecast.getAdjustableParameterList().getParameter(
 	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
 	                                         BACK_SEIS_INCLUDE);
 	   forecast.getAdjustableParameterList().getParameter(
 	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);
+	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);*/
 	   forecast.updateForecast();
   }
   

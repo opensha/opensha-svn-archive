@@ -14,7 +14,7 @@ import java.text.DecimalFormat;
 
 public class HazusIML_FileGenerator {
 
-  private final String Hazus ="/Users/nitingupta/Desktop/Hazus/HazusMapDataSets/";
+  private final String Hazus ="HazusMapDataSets/";
   DecimalFormat format = new DecimalFormat("0.000000##");
   public HazusIML_FileGenerator() {
 
@@ -70,9 +70,9 @@ public class HazusIML_FileGenerator {
   }
 
 
-  public static void main(String[] args) {
+  /*public static void main(String[] args) {
     HazusIML_FileGenerator hazusIML_FileGenerator1 = new HazusIML_FileGenerator();
-  }
+  }*/
 
   private void createReturnPdFile(String fileName,double rate,String metaData){
     ArrayList imlVector = new ArrayList();
