@@ -29,28 +29,28 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 34.823168;
   private final double MIN_LON = -118.943793 ;
   private final double MAX_LON= -117.644716;
-  private final double GRID_SPACING= 0.1;
+  private final double GRID_SPACING= 0.05;
   private final static String PGA_DIR_NAME = "pga/";
   private final static String SA_1_DIR_NAME = "sa_1/";
   private final static String SA_DIR_NAME = "sa_.3/";
   private final static String PGV_DIR_NAME = "pgv/";
-  
+
 
   private Frankel02_AdjustableEqkRupForecast forecast;
   private USGS_Combined_2004_AttenRel attenRel;
   private SitesInGriddedRectangularRegion region;
-  
+
   private IMT_Info defaultXVals = new IMT_Info();
 
   public HazusDataGenerator() throws RegionConstraintException {
 
 	createAttenRel_Instance();
 	createERF_Instance();
-    attenRel.setIntensityMeasure(attenRel.PGA_NAME);    
+    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
     createRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 1(a) for the Default Grid spacing of 0.1km with no Soil Effects:\n"+
+    String metaData = "Hazus Run 2(a) for the finer Grid spacing of 0.05km with no Soil Effects:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
@@ -85,8 +85,8 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     attenRel.setIntensityMeasure(attenRel.PGV_NAME);
     calc.getHazardMapCurves(PGV_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
   }
-  
-  
+
+
   public static void main(String[] args) {
     try {
       HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
@@ -98,7 +98,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     }
   }
 
-   
+
   private void createERF_Instance(){
 	   forecast = new Frankel02_AdjustableEqkRupForecast();
 	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
@@ -115,8 +115,8 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);*/
 	   forecast.updateForecast();
   }
-  
-  
+
+
   private void createAttenRel_Instance(){
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
 	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
@@ -128,15 +128,15 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	  setValue(USGS_Combined_2004_AttenRel.COMPONENT_AVE_HORZ);
   }
 
-  
+
  private void createRegion() throws RegionConstraintException{
 	 //	make the Gridded Region object
 	 region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
 	        MAX_LON, GRID_SPACING);
 	 region.addSiteParams(attenRel.getSiteParamsIterator());
  }
-  
-  
+
+
   /**
    *  Function that must be implemented by all Listeners for
    *  ParameterChangeWarnEvents.
