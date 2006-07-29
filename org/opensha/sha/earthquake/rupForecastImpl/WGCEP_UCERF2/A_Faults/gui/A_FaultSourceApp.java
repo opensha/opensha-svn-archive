@@ -193,7 +193,6 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		ArrayList rupModels = new ArrayList();
 		rupModels.add(A_FaultsFetcher.MIN_RATE_RUP_MODEL);
 		rupModels.add(A_FaultsFetcher.MAX_RATE_RUP_MODEL);
-		rupModels.add(A_FaultsFetcher.EQUAL_RATE_RUP_MODEL);
 		rupModels.add(A_FaultsFetcher.GEOL_INSIGHT_RUP_MODEL);
 		StringParameter rupModelParam = new StringParameter(RUP_MODEL_TYPE, rupModels, (String)rupModels.get(0));
 		rupModelParam.addParameterChangeListener(this);

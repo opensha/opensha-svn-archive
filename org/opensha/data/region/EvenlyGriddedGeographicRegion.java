@@ -183,15 +183,20 @@ public class EvenlyGriddedGeographicRegion
     // and number of locations below each starting lat.
     for(int iLat = 0;iLat<numLats;++iLat) {
       double lat = niceMinLat + iLat*gridSpacing;
-      double lon = minLon;
+      double lon = niceMinLon;
+      int iLon=0;
       ArrayList lonList = new ArrayList();
       while (lon <= niceMaxLon) {
         //creating the location object for the lat and lon that we got
         Location loc = new Location(lat, lon);
+        //if(lat==36.1) System.out.println("lat="+lat+"; lon="+lon);
         //checking if this location lies in the given gridded region
         if (this.isLocationInside(loc))
           lonList.add(new Double(lon));
-        lon += gridSpacing;
+        //lon = Math.round((lon+gridSpacing)/gridSpacing)*gridSpacing;
+        ++iLon;
+        lon = niceMinLon+iLon*gridSpacing;
+        
       }
       //assigning number of locations below a grid lat to the grid Lat above this lat.
       locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
@@ -217,6 +222,8 @@ public class EvenlyGriddedGeographicRegion
     niceMinLon = Math.ceil(minLon / gridSpacing) * gridSpacing;
     niceMaxLat = Math.floor(maxLat / gridSpacing) * gridSpacing;
     niceMaxLon = Math.floor(maxLon / gridSpacing) * gridSpacing;
+    //System.out.println("niceMinLat="+niceMinLat+",niceMinLon="+niceMinLon+",niceMaxLat="+niceMaxLat+",niceMaxLon="+
+    	//	niceMaxLon+",gridSpacing="+gridSpacing);
     //this function creates a Lon Array for each gridLat. It also creates a
     //int array which tells how many locations are there below a given lat
     initLatLonArray();
@@ -405,19 +412,27 @@ public class EvenlyGriddedGeographicRegion
   }
 
   /**
-   * Returns the index of the nearest location in the given gridded region, to
-   * the provided Location.
+   * This returns the index of the grid location that is nearest to the one provided. 
+   * A value of -1 is returned if none is found.  
+   * Note that we convert the input lat & lon to the nearest equivalent grid lat & lon 
+   * (e.g., latNew = Math.round(lat/gridSpacing)*gridSpacing), and then return that index if the converted
+   *  location is inside the region.  This means that a location that originally is not in the region
+   * might get assigned to a grid point that's in the region, and a grid point that originally
+   * is in the region might get converted to a point that is not in the region.  Thus, a return
+   * of -1 here (grid point not found) does not necessarily mean that isLocationInside() will return
+   * false.
    * @param loc Location Location to which we have to find the nearest location.
    * @return int nearest location index in the gridded region.
    * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationIndex(Location)
    */
   public int getNearestLocationIndex(Location loc) {
 
-    double lat = loc.getLatitude();
-    double lon = loc.getLongitude();
+    double lat = Math.round(loc.getLatitude()/gridSpacing)*gridSpacing;
+    double lon = Math.round(loc.getLongitude()/gridSpacing)*gridSpacing;
+//    double lon = loc.getLongitude();
 
     //throw exception if location is outside the region lat bounds.
-    if (!isLocationInside(loc))
+    if (!isLocationInside(new Location(lat,lon)))
       return -1;
     else{ //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
@@ -436,12 +451,17 @@ public class EvenlyGriddedGeographicRegion
     //number of locations below this latitude
     int locIndex = locsBelowLat[latIndex];
     ArrayList lonList = (ArrayList)lonsPerLatList.get(latIndex);
-
+    
+    //System.out.println("Latindex="+latIndex);
+   // System.out.println("locIndex="+locIndex);
+    
     int size = lonList.size();
     //iterating over all the lons for a given lat and finding the lon to the given lon.
     for(int i=0;i<size;++i){
       double latLon = ((Double)lonList.get(i)).doubleValue();
+      //System.out.println("Latlon="+latLon);
       if (Math.abs(latLon - lon) <= gridSpacing/2) {
+    	  //System.out.println("Latlon="+latLon+", lon="+lon+",i="+i);
         locIndex += i;
         break;
       }
@@ -556,7 +576,7 @@ public class EvenlyGriddedGeographicRegion
    * evenly gridded location.
    */
   public static void main(String[] args) {
-    LocationList locList = new LocationList();
+    /*LocationList locList = new LocationList();
     locList.addLocation(new Location(37.19, -120.61, 0.0));
     locList.addLocation(new Location(36.43, -122.09, 0.0));
     locList.addLocation(new Location(38.23, -123.61, 0.0));
@@ -574,8 +594,14 @@ public class EvenlyGriddedGeographicRegion
       }
       catch (IOException ex) {
         ex.printStackTrace();
-      }
-
+      }*/
+	  EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	  int index1 = region.getNearestLocationIndex(new Location(36.099999999999994, -122.8)); // 3117
+	  int index2 = region.getNearestLocationIndex(new Location(36.099999999999994, -114.5)); // 3117
+	  int index3 = region.getNearestLocationIndex(new Location(36.1, -114.5)); 
+	  //int index1 = region.getNearestLocationIndex(new Location(36.099999999999994, -122.7)); // 3118
+	  //int index2 = region.getNearestLocationIndex(new Location(36.099999999999994, -114.6)); // 3199
+	  System.out.println(index1+","+index2+","+index3);
   }
 
 }

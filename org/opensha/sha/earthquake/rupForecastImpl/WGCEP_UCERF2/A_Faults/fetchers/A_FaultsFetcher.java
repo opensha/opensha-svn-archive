@@ -45,9 +45,8 @@ public class A_FaultsFetcher {
 	private final static String SEGMENT_MODEL_NAME_PREFIX = "-";
 	private ArrayList segmentModelNames;
 	private HashMap segmentIntvAndRupRates = new HashMap();
-	public final static String MIN_RATE_RUP_MODEL = "Min Rate Solution";
-	public final static String MAX_RATE_RUP_MODEL = "Max Rate Solution";
-	public final static String EQUAL_RATE_RUP_MODEL = "Equal Rate Solution";
+	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
+	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
 	private String selectedSegmentModel=null;
 	private int deformationModelId=-1;

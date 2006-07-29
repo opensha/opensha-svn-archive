@@ -32,12 +32,11 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
 
   /**
    * Location list which formas the outline of the ploygon for RELM region
-   * This was obtained by reading RELM output file and finding min/max Longitude
-   * for each latitude and then ordering them correctly to form the polygon.
-   * The program is presently in javaDevelopers.vipin.erf.CreateRELM_GriddedRegion
+   * This was obtained by reading RELM output file and finding min/max Longitude. then, Ned edited the file to minimize the number of points
    */
   private LocationList getLocationList() {
     LocationList locList = new LocationList();
+    
     locList.addLocation(new Location(31.5,-117.2));
     locList.addLocation(new Location(31.6, -117.4));
     locList.addLocation(new Location(31.7, -117.6));
@@ -271,5 +270,10 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
     locList.addLocation(new Location(31.6, -115.2));
     locList.addLocation(new Location(31.5, -116.4));
     return locList;
+  }
+  
+  public static void main(String []args) {
+	  EvenlyGriddedRELM_Region region = new  EvenlyGriddedRELM_Region();
+	  System.out.println(region.getGridLocation(0));
   }
 }
