@@ -174,20 +174,29 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private final static Double CHAR_VS_GR_DEFAULT = new Double(50.0);
 	  private final static String CHAR_VS_GR_INFO = "Rate of events for magnitude >=5 ";
 	  private DoubleParameter charGRParam; 
-		
-		
-	  
 	  
 	  // 
 	  private double[] totalRelativeGriddedRates;
-	  
 	  private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
 	  
 	  
 	  // char mag sigma >=0 and <=1
-	  // Char mag trunc level (units is number of sigmas) >=0 and <=6
+	  private final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
+	  private final static Double MAG_SIGMA_MIN = new Double(0.0);
+	  private final static Double MAG_SIGMA_MAX = new Double(1.0);
+	  private final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
+	  private final static String MAG_SIGMA_INFO = "Standard Deviation for characteristic events";
+	  private DoubleParameter magSigmaParam;
 	  
-
+	  // Char mag trunc level (units is number of sigmas) >=0 and <=6
+	 // Mag truncation level
+	  private final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
+	  private final static Double TRUNC_LEVEL_MIN = new Double(0.0);
+	  private final static Double TRUNC_LEVEL_MAX = new Double(6.0);
+	  private final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
+	  private final static String TRUNC_LEVEL_INFO = "Truncation Level (Number of sigmas)";
+	  private DoubleParameter truncLevelParam;
+	  
 	/*
 	  // fault file parameter for testing
 	  public final static String FAULT_FILE_NAME = new String ("Fault File");
@@ -256,7 +265,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    totalMagRateParam.setInfo(TOT_MAG_RATE_INFO);
 	    
 	    // % char vs GR param
-	    charGRParam = new DoubleParameter(this.CHAR_VS_GR_PARAM_NAME, CHAR_VS_GR_MIN,
+	    charGRParam = new DoubleParameter(CHAR_VS_GR_PARAM_NAME, CHAR_VS_GR_MIN,
 	    		CHAR_VS_GR_MAX, CHAR_VS_GR_DEFAULT);
 	    totalMagRateParam.setInfo(CHAR_VS_GR_INFO);
 	    
@@ -296,6 +305,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		rupModels.add(UNSEGMENTED_A_FAULT_MODEL);
 		rupModelParam = new StringParameter(RUP_MODEL_TYPE, rupModels, (String)rupModels.get(0));
 
+		
+		// mag Sigma Param
+		magSigmaParam = new DoubleParameter(MAG_SIGMA_PARAM_NAME, MAG_SIGMA_MIN, MAG_SIGMA_MAX,
+				MAG_SIGMA_DEFAULT);
+		magSigmaParam.setInfo(MAG_SIGMA_INFO);
+		
+		// trunc level
+		truncLevelParam = new DoubleParameter(TRUNC_LEVEL_PARAM_NAME, TRUNC_LEVEL_MIN, TRUNC_LEVEL_MAX,
+				TRUNC_LEVEL_DEFAULT);
+		truncLevelParam.setInfo(TRUNC_LEVEL_INFO);
+		
 	    //	 add adjustable parameters to the list
 	    // adjustableParams.addParameter(faultModelParam);
 	    adjustableParams.addParameter(rupOffset_Param);
@@ -305,6 +325,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    adjustableParams.addParameter(aseisFactorInterParam);
 	    adjustableParams.addParameter(rupModelParam);
 	    adjustableParams.addParameter(charGRParam);
+	    adjustableParams.addParameter(magSigmaParam);
+	    adjustableParams.addParameter(truncLevelParam);
 	    adjustableParams.addParameter(backSeisParam);
 	  }
 	  
