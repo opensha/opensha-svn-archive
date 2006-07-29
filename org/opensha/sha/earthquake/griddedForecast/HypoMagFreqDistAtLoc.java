@@ -29,6 +29,19 @@ public class HypoMagFreqDistAtLoc {
     magFreqDist = magDist;
     location = loc;
   }
+  
+  
+  /**
+   * Class Constructor.
+   * In this case the no focalMechanism has been specified for the given location.
+   * @param magDist IncrementalMagFreqDist MagFreqDist for the given location.
+   * @param loc Location
+   */
+  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc) {
+    magFreqDist = new IncrementalMagFreqDist[1];
+    magFreqDist[0] = magDist; 
+    location = loc;
+  }
 
   /**
    * Class constructor.
@@ -70,5 +83,15 @@ public class HypoMagFreqDistAtLoc {
    */
   public IncrementalMagFreqDist[] getMagFreqDist() {
     return magFreqDist;
+  }
+  
+  /**
+   * Returns the first MagFreqDist for a given location.
+   * This function can be used when there are no multiple MagFreqDist as no Focal Mechanism, 
+   * so just have one single MagFreqDist for a given location.
+   * @return IncrementalMagFreqDist
+   */
+  public IncrementalMagFreqDist getFirstMagFreqDist(){
+	return magFreqDist[0];
   }
 }
