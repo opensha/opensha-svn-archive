@@ -24,7 +24,7 @@ public class SegmentedFaultData {
 
 	
 	/**
-  	 * Description: This class contains data for a number of contiguous fault segments, 
+  	 * Description: This class contains data for one or more contiguous fault segments, 
   	 * where each segment is composed of one or more contiguous fault sections 
   	 * (or FaultSectionPrefData objects).  This class also provides various derived data.
   	 * Note that areas (or slip rates if aseisReducesArea is false)  will be reduced by any 
@@ -87,7 +87,7 @@ public class SegmentedFaultData {
 	}
 	
 	/**
-	 * Get segment length by index
+	 * Get segment length by index.  Note that this is not reduced if aseisReducesArea.
 	 * @param index
 	 * @return length in SI units (meters)
 	 */
@@ -96,7 +96,7 @@ public class SegmentedFaultData {
 	}
 	
 	/**
-	 * Get total length of all segments combined
+	 * Get total length of all segments combined.    Note that this is not reduced if aseisReducesArea.
 	 * 
 	 * @return length in SI units (meters)
 	 */
@@ -115,7 +115,7 @@ public class SegmentedFaultData {
 	}
 	
 	/**
-	 * Get segment recur interval
+	 * Get segment recur interval.  This simply gives back values given in the constructor.
 	 * @param index
 	 * @return recur int in years
 	 */
