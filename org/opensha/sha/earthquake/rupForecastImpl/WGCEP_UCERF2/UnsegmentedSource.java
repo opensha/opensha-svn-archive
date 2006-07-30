@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,7 +13,6 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -21,7 +20,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 
 
 /**
- * <p>Title: A_FaultFloatingSource </p>
+ * <p>Title: UnsegmentedSource </p>
  * <p>Description: 	CONSIDER EFFECT OF: ASEISMICITY; VARIABLE AREA FOR GIVEN MAG, AND OVERLAPPING STEPOVERS.
  * 
  * If Asismicity is applied as a reduction of area, then effective all down-dip widths (DDW) are reduced, 
@@ -33,14 +32,14 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
  * @version 1.0
  */
 
-public class A_FaultFloatingSource extends ProbEqkSource {
+public class UnsegmentedSource extends ProbEqkSource {
 	
 	//for Debug purposes
-	private static String C = new String("A_FaultFloatingSource");
+	private static String C = new String("UnsegmentedSource");
 	private final static boolean D = true;
 	
 	//name for this classs
-	protected String NAME = "Type-A Fault Floating Source";
+	protected String NAME = "Unsegmented Source";
 	
 	protected double duration;
 	
@@ -52,14 +51,15 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	//private double[] segAveSlipRate; // ave slip rate for segment
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist, segVisibleSlipDist;  // segment slip dist
 	
-	private IncrementalMagFreqDist floaterMFD; // Mag Freq dist for floater
-	private IncrementalMagFreqDist visibleFloaterMFD; // Mag Freq dist for visible ruptures
-	IncrementalMagFreqDist[] segFloaterMFD;  // Mag Freq Dist for each segment
-	IncrementalMagFreqDist[] visibleSegFloaterMFD;  // Mag Freq Dist for visible ruptures on each segment
+	private IncrementalMagFreqDist sourceMFD; // Mag Freq dist for source
+	private IncrementalMagFreqDist visibleSourceMFD; // Mag Freq dist for visible ruptures
+	private IncrementalMagFreqDist[] segSourceMFD;  // Mag Freq Dist for each segment
+	private IncrementalMagFreqDist[] visibleSegSourceMFD;  // Mag Freq Dist for visible ruptures on each segment
+	private double sourceMag;  // this is the char mag or upper mag if mag PDF is not given
 	
 	// inputs:
-	FaultSegmentData segmentData;
-	MagAreaRelationship magAreaRel;
+	private FaultSegmentData segmentData;
+	private MagAreaRelationship magAreaRel;
 	
 	
 	
@@ -67,55 +67,58 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * Description:  The constructs the source using a supplied Mag PDF
 	 * 
 	 */
-	public A_FaultFloatingSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
-			IncrementalMagFreqDist floatingRup_PDF) {
+	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
+			IncrementalMagFreqDist sourceMagPDF) {
 		
 		this.isPoissonian = true;
+		
+		// source mag undefined because PDF given
+		sourceMag = Double.NaN;
 		
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
 		
 		num_seg = segmentData.getNumSegments();
 		
-		// get the floater MFD
-		floaterMFD = (IncrementalMagFreqDist)floatingRup_PDF.deepClone();
-		double floaterMoRate = segmentData.getTotalMomentRate();
-		floaterMFD.scaleToTotalMomentRate(floaterMoRate);
+		// get the source MFD
+		sourceMFD = (IncrementalMagFreqDist)sourceMagPDF.deepClone();
+		double sourceMoRate = segmentData.getTotalMomentRate();
+		sourceMFD.scaleToTotalMomentRate(sourceMoRate);
 		
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
-		visibleFloaterMFD = (IncrementalMagFreqDist)floaterMFD.deepClone();
-		for(int i =0; i<floaterMFD.getNum(); i++)
-			visibleFloaterMFD.set(i,floaterMFD.getY(i)*getProbVisible(floaterMFD.getX(i)));
+		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
+		for(int i =0; i<sourceMFD.getNum(); i++)
+			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 		
-		// get the rate of floaters on each segment (segFloaterMFD[seg])
-		getSegFloaterMFD();
+		// get the rate of ruptures on each segment (segSourceMFD[seg])
+		getSegSourceMFD();
 		
 		// now get the visible MFD for each segment
-		visibleSegFloaterMFD = new IncrementalMagFreqDist[num_seg];
+		visibleSegSourceMFD = new IncrementalMagFreqDist[num_seg];
 		for(int s=0; s< num_seg; s++) {
-			visibleSegFloaterMFD[s] = (IncrementalMagFreqDist) segFloaterMFD[s].deepClone();
-			for(int i =0; i<floaterMFD.getNum(); i++)
-				visibleSegFloaterMFD[s].set(i,segFloaterMFD[s].getY(i)*getProbVisible(segFloaterMFD[s].getX(i)));
+			visibleSegSourceMFD[s] = (IncrementalMagFreqDist) segSourceMFD[s].deepClone();
+			for(int i =0; i<sourceMFD.getNum(); i++)
+				visibleSegSourceMFD[s].set(i,segSourceMFD[s].getY(i)*getProbVisible(segSourceMFD[s].getX(i)));
 		}
 		
 		// change the info in the MFDs
-		String new_info = "Floater MFD\n"+floaterMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)floaterMoRate+"\n\n\tNew Total Rate: "+(float)floaterMFD.getCumRate(0);
-		floaterMFD.setInfo(new_info);
+		String new_info = "Unsegmented Source MFD\n"+sourceMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)sourceMoRate+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
+		sourceMFD.setInfo(new_info);
 		
-		new_info = "Visible Floater MFD\n"+visibleFloaterMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleFloaterMFD.getTotalMomentRate()+
-		"\n\n\tNew Total Rate: "+(float)visibleFloaterMFD.getCumRate(0);
-		visibleFloaterMFD.setInfo(new_info);
+		new_info = "Visible Unsegmented Source MFD\n"+visibleSourceMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleSourceMFD.getTotalMomentRate()+
+		"\n\n\tNew Total Rate: "+(float)visibleSourceMFD.getCumRate(0);
+		visibleSourceMFD.setInfo(new_info);
 		
 		
 		// find the total rate of ruptures for each segment
 		segRate = new double[num_seg];
 		segVisibleRate = new double[num_seg];
 		for(int s=0; s< num_seg; s++) {
-			segRate[s] = segFloaterMFD[s].getTotalIncrRate();
-			segVisibleRate[s] = visibleSegFloaterMFD[s].getTotalIncrRate();
+			segRate[s] = segSourceMFD[s].getTotalIncrRate();
+			segVisibleRate[s] = visibleSegSourceMFD[s].getTotalIncrRate();
 		}
 		
 		// find the slip distribution of each segment
@@ -132,7 +135,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * Description:  The constructs the source as a fraction of charateristic (Gaussian) and GR
 	 * 
 	 */
-	public A_FaultFloatingSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
+	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
 			double mag_lowerGR, double b_valueGR) {
@@ -144,63 +147,63 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		
-		double meanCharMag, moRate;
-		meanCharMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
-		meanCharMag = Math.round(meanCharMag/delta_mag) * delta_mag;
+		double moRate;
+		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
 		moRate = segmentData.getTotalMomentRate();
 		
 		// only apply char if mag <= lower RG mag 
-		if(meanCharMag <= mag_lowerGR) {
-			GaussianMagFreqDist floaterMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
-					meanCharMag, charMagSigma, moRate, charMagTruncLevel, 2);
+		if(sourceMag <= mag_lowerGR) {
+			sourceMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+					sourceMag, charMagSigma, moRate, charMagTruncLevel, 2);
 		}
 		else {
-			floaterMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
+			sourceMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
 //			make char dist 
 			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
-					meanCharMag, charMagSigma, moRate*fractCharVsGR, charMagTruncLevel, 2);
-			((SummedMagFreqDist) floaterMFD).addIncrementalMagFreqDist(charMFD);
+					sourceMag, charMagSigma, moRate*fractCharVsGR, charMagTruncLevel, 2);
+			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
 			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
-					mag_lowerGR, meanCharMag, moRate*(1-fractCharVsGR), b_valueGR);
-			((SummedMagFreqDist)floaterMFD).addIncrementalMagFreqDist(grMFD);
+					mag_lowerGR, sourceMag, moRate*(1-fractCharVsGR), b_valueGR);
+			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
 		}
 		
 		num_seg = segmentData.getNumSegments();
 		
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
-		visibleFloaterMFD = (IncrementalMagFreqDist)floaterMFD.deepClone();
-		for(int i =0; i<floaterMFD.getNum(); i++)
-			visibleFloaterMFD.set(i,floaterMFD.getY(i)*getProbVisible(floaterMFD.getX(i)));
+		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
+		for(int i =0; i<sourceMFD.getNum(); i++)
+			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 		
-		// get the rate of floaters on each segment (segFloaterMFD[seg])
-		getSegFloaterMFD();
+		// get the rate of ruptures on each segment (segSourceMFD[seg])
+		getSegSourceMFD();
 		
 		// now get the visible MFD for each segment
-		visibleSegFloaterMFD = new IncrementalMagFreqDist[num_seg];
+		visibleSegSourceMFD = new IncrementalMagFreqDist[num_seg];
 		for(int s=0; s< num_seg; s++) {
-			visibleSegFloaterMFD[s] = (IncrementalMagFreqDist) segFloaterMFD[s].deepClone();
-			for(int i =0; i<floaterMFD.getNum(); i++)
-				visibleSegFloaterMFD[s].set(i,segFloaterMFD[s].getY(i)*getProbVisible(segFloaterMFD[s].getX(i)));
+			visibleSegSourceMFD[s] = (IncrementalMagFreqDist) segSourceMFD[s].deepClone();
+			for(int i =0; i<sourceMFD.getNum(); i++)
+				visibleSegSourceMFD[s].set(i,segSourceMFD[s].getY(i)*getProbVisible(segSourceMFD[s].getX(i)));
 		}
 		
 		// change the info in the MFDs
-		String new_info = "Floater MFD\n"+floaterMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)floaterMoRate+"\n\n\tNew Total Rate: "+(float)floaterMFD.getCumRate(0);
-		floaterMFD.setInfo(new_info);
+		String new_info = "Source MFD\n"+sourceMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)sourceMFD.getTotalMomentRate()+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
+		sourceMFD.setInfo(new_info);
 		
-		new_info = "Visible Floater MFD\n"+visibleFloaterMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleFloaterMFD.getTotalMomentRate()+
-		"\n\n\tNew Total Rate: "+(float)visibleFloaterMFD.getCumRate(0);
-		visibleFloaterMFD.setInfo(new_info);
+		new_info = "Visible Source MFD\n"+visibleSourceMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleSourceMFD.getTotalMomentRate()+
+		"\n\n\tNew Total Rate: "+(float)visibleSourceMFD.getCumRate(0);
+		visibleSourceMFD.setInfo(new_info);
 		
 		
 		// find the total rate of ruptures for each segment
 		segRate = new double[num_seg];
 		segVisibleRate = new double[num_seg];
 		for(int s=0; s< num_seg; s++) {
-			segRate[s] = segFloaterMFD[s].getTotalIncrRate();
-			segVisibleRate[s] = visibleSegFloaterMFD[s].getTotalIncrRate();
+			segRate[s] = segSourceMFD[s].getTotalIncrRate();
+			segVisibleRate[s] = visibleSegSourceMFD[s].getTotalIncrRate();
 		}
 		
 		// find the slip distribution of each segment
@@ -211,27 +214,45 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	}
 	
 	/**
+	 * This returns of magnitude computed for the characteristic earthquake 
+	 * (and upper mag of the GR) if that constructor was used (no mag PDF given)
+	 * @return
+	 */
+	public double getSourceMag() {
+		return sourceMag;
+	}
+	
+	
+	/**
+	 * Get fault segment data
+	 * @return
+	 */
+	public FaultSegmentData getFaultSegmentData() {
+		return this.segmentData;
+	}
+	
+	/**
 	 * This gets the magnitude frequency distribution for each segment by multiplying the original MFD
 	 * by the average probability of observing each rupture on each segment (assuming ruptures have a
 	 * uniform spatial distribution - or equal probability of landing anywhere).  If asiemicity reduces
 	 * area, then the DDW here is effectively reduced (is this what we want?).
 	 *
 	 */
-	private void getSegFloaterMFD() {
+	private void getSegSourceMFD() {
 		// get segment lengths
 		double[] segLengths = new double[num_seg];
 		for(int i = 0; i< num_seg; i++) segLengths[i] = 1e-3*segmentData.getSegmentLength(i); // converted to km
 		double totalLength = segmentData.getTotalLength()*1e-3;
 		double aveDDW = (segmentData.getTotalArea()*1e-6)/totalLength; // average Down dip width in km
-		segFloaterMFD = new IncrementalMagFreqDist[num_seg]; 
-		for(int i=0; i<num_seg; ++i) segFloaterMFD[i] = (IncrementalMagFreqDist) floaterMFD.deepClone(); 
+		segSourceMFD = new IncrementalMagFreqDist[num_seg]; 
+		for(int i=0; i<num_seg; ++i) segSourceMFD[i] = (IncrementalMagFreqDist) sourceMFD.deepClone(); 
 		// loop over all magnitudes in flaoter MFD
-		for (int i=0; i<floaterMFD.getNum(); ++i) {
-			double mag = floaterMFD.getX(i);
+		for (int i=0; i<sourceMFD.getNum(); ++i) {
+			double mag = sourceMFD.getX(i);
 			double rupLength = magAreaRel.getMedianArea(mag)/aveDDW;  // in km
-			double[] segProbs = getProbSegObsFloater(segLengths, totalLength, rupLength);
+			double[] segProbs = getProbSegObsRupture(segLengths, totalLength, rupLength);
 			for(int j=0; j<num_seg; ++j) {
-				segFloaterMFD[j].set(i, segProbs[j]*segFloaterMFD[j].getY(i));
+				segSourceMFD[j].set(i, segProbs[j]*segSourceMFD[j].getY(i));
 			}
 		}
 	}
@@ -248,7 +269,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * @param rupLength
 	 * @return
 	 */
-	private double[] getProbSegObsFloater(double[] segLengths, double totalLength, double rupLength) {
+	private double[] getProbSegObsRupture(double[] segLengths, double totalLength, double rupLength) {
 		EvenlyDiscretizedFunc probFunc = new EvenlyDiscretizedFunc(0, totalLength, 100);
 		// check whether rup length exceed fault length and shorten if so
 		if(rupLength>totalLength) rupLength = totalLength;
@@ -387,22 +408,22 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	
 	
 	/**
-	 * Get the Mag Freq Dist for floater ruptures
+	 * Get the Mag Freq Dist for the source
 	 * 
 	 * @return
 	 */
-	public IncrementalMagFreqDist getFloaterMagFreqDist() {
-		return floaterMFD; 
+	public IncrementalMagFreqDist getMagFreqDist() {
+		return sourceMFD; 
 	}
 	
 	
 	/**
-	 * Get the Mag Freq Dist for "visible" floater ruptures
+	 * Get the Mag Freq Dist for "visible" source ruptures
 	 * 
 	 * @return
 	 */
-	public IncrementalMagFreqDist getVisibleFloaterMagFreqDist() {
-		return visibleFloaterMFD; 
+	public IncrementalMagFreqDist getVisibleSourceMagFreqDist() {
+		return visibleSourceMFD; 
 	}
 	
 	/**
@@ -416,14 +437,14 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 		for(int seg=0; seg<num_seg; ++seg) {
 			segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 			segVisibleSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
-			IncrementalMagFreqDist segFloater =  segFloaterMFD[seg];
-			IncrementalMagFreqDist visibleSegFloater =  visibleSegFloaterMFD[seg];
-			for(int i=0; i<segFloater.getNum(); ++i) {
-				double mag = segFloater.getX(i);
+			IncrementalMagFreqDist segMFD =  segSourceMFD[seg];
+			IncrementalMagFreqDist visibleSegMFD =  visibleSegSourceMFD[seg];
+			for(int i=0; i<segMFD.getNum(); ++i) {
+				double mag = segMFD.getX(i);
 				double moment = MomentMagCalc.getMoment(mag);
 				double slip = FaultMomentCalc.getSlip(magAreaRel.getMedianArea(mag)*1e6, moment);
-				segSlipDist[seg].set(slip, segFloater.getY(i));
-				segVisibleSlipDist[seg].set(slip, visibleSegFloater.getY(i));
+				segSlipDist[seg].set(slip, segMFD.getY(i));
+				segVisibleSlipDist[seg].set(slip, visibleSegMFD.getY(i));
 			}
 		}
 	}

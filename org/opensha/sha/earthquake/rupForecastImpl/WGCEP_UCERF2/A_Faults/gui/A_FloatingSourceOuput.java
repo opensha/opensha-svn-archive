@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -53,7 +53,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * @param aFaultSource
 	 * @param inputParameters
 	 */
-	public A_FloatingSourceOuput(A_FaultFloatingSource aFaultFloatingSource,
+	public A_FloatingSourceOuput(UnsegmentedSource aFaultFloatingSource,
 			FaultSegmentData segmentedFaultData, 
 			String inputParameters) {
 		this.getContentPane().setLayout(new GridBagLayout());
@@ -79,7 +79,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * 
 	 * @param aFaultSource
 	 */
-	private void createSegmentOutput(A_FaultFloatingSource aFaultFloatingSource,
+	private void createSegmentOutput(UnsegmentedSource aFaultFloatingSource,
 			FaultSegmentData segmentedFaultData) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		SegmentOutputTableModel segmentOutputModel = 
@@ -114,7 +114,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * Create Ruptures output
 	 * @param aFaultSource
 	 */
-	private void createRupturesOutput(A_FaultFloatingSource aFaultFloatingSource,
+	private void createRupturesOutput(UnsegmentedSource aFaultFloatingSource,
 			FaultSegmentData segmentedFaultData) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea rupOutput = new JTextArea();
@@ -131,10 +131,10 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 		this.outputTabbedPane.addTab("Rupture Info", panel);
 		// list index, meanMag, total Rate, name for each rupture
 		rupOutput.append("Total Original Moment Rate (from segments)="+MOMENT_FORMAT.format(segmentedFaultData.getTotalMomentRate())+"\n");
-		rupOutput.append("Total Final Moment Rate (from MFD)="+MOMENT_FORMAT.format(aFaultFloatingSource.getFloaterMagFreqDist().getTotalMomentRate())+"\n");
+		rupOutput.append("Total Final Moment Rate (from MFD)="+MOMENT_FORMAT.format(aFaultFloatingSource.getMagFreqDist().getTotalMomentRate())+"\n");
 		rupOutput.setCaretPosition(0);
-		IncrementalMagFreqDist floaterMagFreqDist = aFaultFloatingSource.getFloaterMagFreqDist();
-		IncrementalMagFreqDist visiblefloaterMFD = aFaultFloatingSource.getVisibleFloaterMagFreqDist();
+		IncrementalMagFreqDist floaterMagFreqDist = aFaultFloatingSource.getMagFreqDist();
+		IncrementalMagFreqDist visiblefloaterMFD = aFaultFloatingSource.getVisibleSourceMagFreqDist();
 		if(floaterMagFreqDist!=null) {
 			this.floaterMFD = new ArrayList();
 			floaterMagFreqDist.setName("Solid Line:"+floaterMagFreqDist.getName());
@@ -205,14 +205,14 @@ class SegmentOutputTableModel extends AbstractTableModel {
 		"Rate","Recur Intv","Visible Rate", "Visible Recur Intv",
 		"Orig Slip Rate (mm/yr)", "Implied Slip Rate (mm/yr)"};
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
-	private A_FaultFloatingSource floatingSource;
+	private UnsegmentedSource floatingSource;
 	private FaultSegmentData segmentedFaultData;
 	
 	/**
 	 * default constructor
 	 *
 	 */
-	public SegmentOutputTableModel(A_FaultFloatingSource floatingSource, 
+	public SegmentOutputTableModel(UnsegmentedSource floatingSource, 
 			FaultSegmentData segmentedFaultData) {
 		this.segmentedFaultData = segmentedFaultData;
 		this.floatingSource = floatingSource;

@@ -57,9 +57,9 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.A_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.A_FaultsFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -214,7 +214,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = getAseisReducesArea();
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
-		A_FaultFloatingSource faultSource = new A_FaultFloatingSource( this.segmetedFaultData,  magAreaRel, floatingRup_PDF);
+		UnsegmentedSource faultSource = new UnsegmentedSource( this.segmetedFaultData,  magAreaRel, floatingRup_PDF);
 		A_FloatingSourceOuput outputWindow  =  new A_FloatingSourceOuput(faultSource, segmetedFaultData, getMetadata());
 		
 	}

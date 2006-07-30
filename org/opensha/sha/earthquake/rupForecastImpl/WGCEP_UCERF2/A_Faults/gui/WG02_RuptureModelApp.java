@@ -66,7 +66,7 @@ import java.text.DecimalFormat;
  *
  */
 public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListener, ActionListener {
-	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/SegmentModels.txt";
+	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/SegmentModels.txt";
 
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	

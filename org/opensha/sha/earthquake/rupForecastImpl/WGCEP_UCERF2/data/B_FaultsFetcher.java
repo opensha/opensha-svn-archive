@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;

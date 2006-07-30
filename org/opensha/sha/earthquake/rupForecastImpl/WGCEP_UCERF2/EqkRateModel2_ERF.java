@@ -40,8 +40,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_GR_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.A_FaultsFetcher;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.B_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.A_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.B_FaultsFetcher;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -215,9 +215,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  // A and B faults fetcher
 	  private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	  private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher();
-	  private  ArrayList bFaultSegmentData;
-	  private double[] b_FaultMeanCharMag, b_FaultTotRate;
-	  private ArrayList aFaultSources;
+	  private ArrayList aFaultSources, bFaultSources;
 	  
 	/*
 	  // fault file parameter for testing
@@ -623,32 +621,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 	    	ArrayList aFaultSegmentData = this.aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 	    			isAseisReducesArea);
-	    	double meanCharMag, moRate;
-	    	aFaultSources = null;
+	    	aFaultSources = new ArrayList();
 	    	aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    	for(int i=0; i<aFaultSegmentData.size(); ++i) {
 	    		FaultSegmentData segmentData = (FaultSegmentData)aFaultSegmentData.get(i);
-	    		meanCharMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
-	    		meanCharMag = Math.round(meanCharMag/DELTA_MAG) * DELTA_MAG;
-	    		moRate = segmentData.getTotalMomentRate();
-	    		
-	    		
-	    		// only apply char if mag <= lower RG mag 
-	    		if(meanCharMag <= B_FAULT_GR_MAG_LOWER) {
-	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-		    				meanCharMag, magSigma, moRate, magTruncLevel, 2);
-		    		aFaultSummedMFD.addIncrementalMagFreqDist(charMFD);
-	    		}
-	    		else {
-//	    			make char dist 
-	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-		    				meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
-		    		aFaultSummedMFD.addIncrementalMagFreqDist(charMFD);
-		    		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-	                        B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
-		    		aFaultSummedMFD.addIncrementalMagFreqDist(grMFD);
-	    		}
-	    		
+	    		UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
+	    				 fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
+	    				magSigma, magTruncLevel, 
+	    				B_FAULT_GR_MAG_LOWER, B_FAULT_GR_B_VALUE);
+	    		aFaultSources.add(source);
+	    		aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
  	    	}
 	    }
 	    
@@ -659,47 +641,28 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 	    	int deformationModelId = this.getSelectedDeformationModelId();
 	    	boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
-	    	 bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
+	    	ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 	    			isAseisReducesArea);
-	    	double meanCharMag, moRate;
 //	    	ArrayList B_faultCharMFDs = new ArrayList();
 //	    	ArrayList B_faultGR_MFDs = new ArrayList();
 	    	bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    	bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-	    	b_FaultMeanCharMag = new double[bFaultSegmentData.size()];
-	    	b_FaultTotRate = new double[bFaultSegmentData.size()];
+	    	bFaultSources = new ArrayList();
 	    	for(int i=0; i<bFaultSegmentData.size(); ++i) {
 	    		FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
-	    		meanCharMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
-	    		meanCharMag = Math.round(meanCharMag/DELTA_MAG) * DELTA_MAG;
-	    		moRate = segmentData.getTotalMomentRate();
-	    		// only apply char if mag <= lower RG mag 
-	    		if(meanCharMag <= B_FAULT_GR_MAG_LOWER) {
-	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-	    					meanCharMag, magSigma, moRate, magTruncLevel, 2);
-		    		bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
-		    		b_FaultTotRate[i]=charMFD.getTotalIncrRate();
-	    		}
-	    		else {
-//	    			make char dist 
-	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-	    					meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
-	    			bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
-//	    			B_faultCharMFDs.add(charMFD);
-	    			// make GR dist
-	    			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-	    					B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
-	    			bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMFD);
-//	    			B_faultGR_MFDs.add(grMFD);
-	    			b_FaultTotRate[i]=charMFD.getTotalIncrRate()+grMFD.getTotalIncrRate();
-	    		}
-	    		b_FaultMeanCharMag[i] = meanCharMag;
+	    		UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
+	    				 fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
+	    				magSigma, magTruncLevel, 
+	    				B_FAULT_GR_MAG_LOWER, B_FAULT_GR_B_VALUE);
+	    		bFaultSources.add(source);
+	    		bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());
  	    	}
 	    }
 	    
 	    
 	    /**
-	     * Get a List of aFaultSegmentData objects. It returns null in case of unsegmented model
+	     * Get a List of A_FaultSegmentedSorce objects. 
+	     * Returns a list of  UnsegmentedFaultSource in case of unsegmented.
 	     * 
 	     * @return
 	     */
@@ -708,37 +671,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    }
 	    
 	    /**
-	     * Return an  Arraylist of FaultSegmentData objects for Type-B faults
+	     * Get a List of b Fault sources (objects of UnsegmentedFaultSource)
 	     * 
-	     * NOTE - this is temporary until we have a B_FaultSource object implemented
 	     * @return
 	     */
-	    public ArrayList getB_FaultSegmentDataList() {
-	    	return bFaultSegmentData;
+	    public ArrayList get_B_FaultSources() {
+	    	return this.bFaultSources;
 	    }
 	    
-	    /**
-	     * Get mean Char mag for B Fault
-	     * 
-	     * NOTE - this is temporary until we have a B_FaultSource object implemented
-	     * 
-	     * @param index
-	     * @return
-	     */
-	    public double get_B_FaultMag(int index) {
-	    	return b_FaultMeanCharMag[index];
-	    }
-	    
-	    /**
-	     * Get Total Rate for B-type Fault
-	     * 
-	     * NOTE - this is temporary until we have a B_FaultSource object implemented
-	     * @param index
-	     * @return
-	     */
-	    public double get_B_FaultTotRate(int index) {
-	    	return b_FaultTotRate[index];
-	    }
+
 
 	     /**
 	      * Get the list of all earthquake sources.

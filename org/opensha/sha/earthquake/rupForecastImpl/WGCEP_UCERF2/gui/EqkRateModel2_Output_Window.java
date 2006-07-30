@@ -67,6 +67,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private HashMap aFaultSourceMap;
 	private SegmentDataPanel segmentDataPanel;
+	private RuptureDataPanel ruptureDataPanel;
 	private final static int W = 500;
 	private final static int H = 800;
 	private StringParameter aFaultParam;
@@ -91,6 +92,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private void createGUI() {
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
 		tabbedPane.addTab("A Fault Summary", getA_FaultSummaryGUI());
+		tabbedPane.addTab("B Fault Summary", getB_FaultSummaryGUI());
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
 		container.add(tabbedPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -135,6 +137,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		ArrayList aFaultSources = this.eqkRateModelERF.get_A_FaultSources();
 		if(aFaultSources==null) return panel;
 		segmentDataPanel = new SegmentDataPanel();
+		ruptureDataPanel = new RuptureDataPanel();
 		ArrayList faultNames = new ArrayList();
 		for(int i=0; i<aFaultSources.size(); ++i) {
 			A_FaultSegmentedSource source = (A_FaultSegmentedSource)aFaultSources.get(i);
@@ -148,10 +151,25 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		JTabbedPane segmentInfoTabbedPane = new JTabbedPane();
 		segmentInfoTabbedPane.addTab("Segment Info", segmentDataPanel);
+		segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
 		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		
 		updateA_FaultTableData();
+		return panel;
+	}
+	
+	/**
+	 * B faults sources
+	 * @return
+	 */
+	private JPanel getB_FaultSummaryGUI() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		ArrayList bFaultSources = this.eqkRateModelERF.get_B_FaultSources();
+		B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
+		bFaultDataPanel.setB_FaultSources(bFaultSources);
+		panel.add(bFaultDataPanel,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		return panel;
 	}
 	
@@ -171,6 +189,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private void updateA_FaultTableData() {
 		String selectedFault = (String)aFaultParam.getValue();
 		A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(selectedFault);
+		ruptureDataPanel.setSource(source);
 		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
 		this.segmentDataPanel.setFaultSegmentData(source.getFaultSegmentData(), isAseisReducesArea);
 	}

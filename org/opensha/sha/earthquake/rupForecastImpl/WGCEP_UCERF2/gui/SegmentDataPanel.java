@@ -329,15 +329,15 @@ class SegmentDataTableModel extends AbstractTableModel {
 		case 1: 
 			// convert to mm/yr
 			return "";
-		case 2:
+		case 4:
 			// convert to sq km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
-		case 3:
+		case 5:
 			// convert to km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
-		case 4:
+		case 6:
 			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
-		case 5:
+		case 7:
 			return "";
 	}
 	return "";
