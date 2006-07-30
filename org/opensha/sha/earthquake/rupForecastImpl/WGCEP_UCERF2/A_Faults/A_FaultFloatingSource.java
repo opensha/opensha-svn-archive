@@ -13,6 +13,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -57,7 +58,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	IncrementalMagFreqDist[] visibleSegFloaterMFD;  // Mag Freq Dist for visible ruptures on each segment
 
 	// inputs:
-	SegmentedFaultData segmentData;
+	FaultSegmentData segmentData;
 	MagAreaRelationship magAreaRel;
 	IncrementalMagFreqDist floatingRup_PDF;
 	
@@ -66,7 +67,7 @@ public class A_FaultFloatingSource extends ProbEqkSource {
 	 * Description:
 	 * 
 	 */
-	public A_FaultFloatingSource(SegmentedFaultData segmentData, MagAreaRelationship magAreaRel, 
+	public A_FaultFloatingSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			IncrementalMagFreqDist floatingRup_PDF) {
 		
 		this.isPoissonian = true;

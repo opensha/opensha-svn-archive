@@ -46,8 +46,8 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.A_FaultsFetcher;
 
 /**
@@ -180,7 +180,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	 */
 	private void loadSegmentModels() {
 		 aFaultsFetcher = new A_FaultsFetcher();
-		 ArrayList segmentModelNames = aFaultsFetcher.getSegmentNames();
+		 ArrayList segmentModelNames = aFaultsFetcher.getAllFaultNames();
 		 segmentModelNames.add(0, NONE);
 		 makeSegmentModelParamAndEditor(segmentModelNames);
 	}
@@ -309,7 +309,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	 * Get the segment data
 	 * @return
 	 */
-	private SegmentedFaultData getSegmentData() {
+	private FaultSegmentData getSegmentData() {
 		// show the progress bar
 		JFrame frame = new JFrame();
 		frame.getContentPane().setLayout(new GridBagLayout());
@@ -327,9 +327,9 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		int selectdDeformationModelId = getSelectedDeformationModelId();
 		
-		SegmentedFaultData segFaultData = this.aFaultsFetcher.getSegmentedFaultData(selectedSegmentModel, selectdDeformationModelId, this.getAseisReducesArea());
+		FaultSegmentData segFaultData = this.aFaultsFetcher.getFaultSegmentData(selectedSegmentModel, selectdDeformationModelId, this.getAseisReducesArea());
 		
-		this.faultSectionTableModel.setFaultSectionData(aFaultsFetcher.getPrefFaultSectionDataList(selectedSegmentModel, selectdDeformationModelId));
+		this.faultSectionTableModel.setFaultSectionData(segFaultData.getPrefFaultSectionDataList());
 		faultSectionTableModel.fireTableDataChanged();
 		frame.dispose();
 		return segFaultData;
@@ -624,7 +624,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		}
 		this.calcButton.setEnabled(true); // if a Segment model is chosen, enable the calc button
 
-		SegmentedFaultData segmetedFaultData = this.getSegmentData();
+		FaultSegmentData segmetedFaultData = this.getSegmentData();
 		this.segmentTableModel.setSegmentedFaultData(segmetedFaultData);
 		segmentTableModel.fireTableDataChanged();
 		setMagAndSlipsString(segmetedFaultData);
@@ -670,7 +670,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 	
 
 	
-	private void setMagAndSlipsString(SegmentedFaultData segmetedFaultData ) {
+	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData ) {
 		int numSegs = segmetedFaultData.getNumSegments();
 		String summaryString = "MAGS & AVE SLIPS IMPLIED BY M(A) RELATIONS\n"+
 								"------------------------------------------\n\n";
@@ -992,7 +992,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	private final static String[] columnNames = { "Segment Index", "Rec Interv (yr)","Slip Rate (mm/yr)", "Area (sq-km)",
 		"Length (km)", "Moment Rate", "Segment Name"};
-	private SegmentedFaultData segFaultData;
+	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
@@ -1011,7 +1011,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * Segmented Fault data
 	 * @param segFaultData
 	 */
-	public SegmentDataTableModel( SegmentedFaultData segFaultData) {
+	public SegmentDataTableModel( FaultSegmentData segFaultData) {
 		setSegmentedFaultData(segFaultData);
 	}
 	
@@ -1019,7 +1019,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * Set the segmented fault data
 	 * @param segFaultData
 	 */
-	public void setSegmentedFaultData(SegmentedFaultData segFaultData) {
+	public void setSegmentedFaultData(FaultSegmentData segFaultData) {
 		this.segFaultData =   segFaultData;
 	}
 	

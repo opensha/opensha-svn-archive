@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,8 +13,8 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
  * @author Vipin Gupta and Ned Field
  *
  */
-public class SegmentedFaultData {
-	private ArrayList segmentData;
+public class FaultSegmentData {
+	private ArrayList sectionToSegmentData;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalLength;
 	private double[] segArea, segLength, segMoRate, segSlipRate; 
@@ -34,19 +34,19 @@ public class SegmentedFaultData {
   	 * All data provided in the get methods are in SI units, which generally differs from the
   	 * units in the input.
   	 * 
-  	 * @param segmentData - an ArrayList containing N ArrayLists (one for each segment), 
+  	 * @param sectionToSegmentData - an ArrayList containing N ArrayLists (one for each segment), 
   	 * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
   	 * It is assumed that these are in proper order such that concatenating the FaultTraces will produce
   	 * a total FaultTrace with locations in the proper order.
   	 * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise it reduces slip rate
   	 * @
   	 */
-	public SegmentedFaultData(ArrayList segmentData, boolean aseisReducesArea, String faultName, double[] recurInterval) {
-		if(recurInterval!=null && (recurInterval.length!=segmentData.size()))
+	public FaultSegmentData(ArrayList sectionToSegmentData, boolean aseisReducesArea, String faultName, double[] recurInterval) {
+		if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
 				throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
 		this.recurInterval = recurInterval;
 		this.faultName = faultName;
-		this.segmentData = segmentData;	
+		this.sectionToSegmentData = sectionToSegmentData;	
 		this.aseisReducesArea = aseisReducesArea;
 		calcAll();
 	}
@@ -73,7 +73,7 @@ public class SegmentedFaultData {
 	 * @return
 	 */
 	public int getNumSegments() {
-		return segmentData.size();
+		return sectionToSegmentData.size();
 	}
 	
 	/**
@@ -160,23 +160,41 @@ public class SegmentedFaultData {
 	}
 	
 	/**
+	 * Get a list of FaultSectionPrefData for selected fault model 
+	 * (Not sure if this is the best place for this because the info 
+	 * can be accessed from a returned FaultSegmentData object)
+	 * @param faultModel
+	 * @param deformationModelId
+	 * @return
+	 */
+	public ArrayList getPrefFaultSectionDataList() {
+		ArrayList faultSectionList = new ArrayList();
+		for(int i=0; i<sectionToSegmentData.size(); ++i) {
+			ArrayList prefDataList = (ArrayList)sectionToSegmentData.get(i);
+			faultSectionList.addAll(prefDataList);
+		}
+		return faultSectionList;
+	}
+	
+	
+	/**
 	 * Calculate  Stuff
 	 * @return
 	 */
 	private void calcAll() {
 		totalArea=0;
 		totalMoRate=0;
-		segArea = new double[segmentData.size()];
-		segLength = new double[segmentData.size()];
-		segMoRate = new double[segmentData.size()];
-		segSlipRate = new double[segmentData.size()];
-		segName = new String[segmentData.size()];
+		segArea = new double[sectionToSegmentData.size()];
+		segLength = new double[sectionToSegmentData.size()];
+		segMoRate = new double[sectionToSegmentData.size()];
+		segSlipRate = new double[sectionToSegmentData.size()];
+		segName = new String[sectionToSegmentData.size()];
 		// fill in segName, segArea and segMoRate
-		for(int seg=0;seg<segmentData.size();seg++) {
+		for(int seg=0;seg<sectionToSegmentData.size();seg++) {
 			segArea[seg]=0;
 			segLength[seg]=0;
 			segMoRate[seg]=0;
-			ArrayList segmentDatum = (ArrayList) segmentData.get(seg);
+			ArrayList segmentDatum = (ArrayList) sectionToSegmentData.get(seg);
 			Iterator it = segmentDatum.iterator();
 			segName[seg]="";
 			while(it.hasNext()) {

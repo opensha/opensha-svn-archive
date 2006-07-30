@@ -102,13 +102,22 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
 
   /**
    * Get the mode (X value where Y is maximum).
-   * Returns the smallest X value in case of multi-modal distribution
+   * Returns the most cental mode value in case of multi-modal distribution
+   * Calls the getMostCentralMode() method of ArbDiscrEmpiricalDistFunc
    *
    * @return
    */
   public double getMode() {
-    return func.getMode();
+    return func.getMostCentralMode();
  }
+  
+  /**
+   * Whether the estimate has more than one mode
+   * @return
+   */
+  public boolean isMultiModal() {
+  	return func.isMultiModal();
+  }
 
  /**
   * Get the median which is same as fractile at probability of 0.5.

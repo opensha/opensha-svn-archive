@@ -168,7 +168,9 @@ public class FaultSectionData {
 	  } else if(estimate instanceof NormalEstimate) {
 		  return ((NormalEstimate)estimate).getMean();
 	  } else if(estimate instanceof DiscreteValueEstimate) {
-		  return ((DiscreteValueEstimate)estimate).getMode();
+		  DiscreteValueEstimate discValEst = (DiscreteValueEstimate)estimate;
+		  //if(discValEst.isMultiModal()) System.out.println("*************Multi Modal***************");
+		  return discValEst.getMean();
 	  } else throw new RuntimeException("FaultSectionData: Unable to handle this estimate type");
   }
 

@@ -56,8 +56,8 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.fetchers.A_FaultsFetcher;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -119,7 +119,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private final static String TITLE = " Type A Floating Source App";
-	private  SegmentedFaultData segmetedFaultData;
+	private  FaultSegmentData segmetedFaultData;
 	/**
 	 * Constructor
 	 *
@@ -237,7 +237,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 * Get the segment data
 	 * @return
 	 */
-	private SegmentedFaultData getSegmentData() {
+	private FaultSegmentData getSegmentData() {
 		// show the progress bar
 		JFrame frame = new JFrame();
 		frame.getContentPane().setLayout(new GridBagLayout());
@@ -254,9 +254,9 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		
 		String selectedSegmentModel = (String)this.paramList.getValue(SEGMENT_MODELS_PARAM_NAME);
 		int selectdDeformationModelId = getSelectedDeformationModelId();
-		SegmentedFaultData segFaultData = this.aFaultsFetcher.getSegmentedFaultData(selectedSegmentModel, selectdDeformationModelId, this.getAseisReducesArea());
+		FaultSegmentData segFaultData = this.aFaultsFetcher.getFaultSegmentData(selectedSegmentModel, selectdDeformationModelId, this.getAseisReducesArea());
 		
-		this.faultSectionTableModel.setFaultSectionData(aFaultsFetcher.getPrefFaultSectionDataList(selectedSegmentModel, selectdDeformationModelId));
+		this.faultSectionTableModel.setFaultSectionData(segFaultData.getPrefFaultSectionDataList());
 		faultSectionTableModel.fireTableDataChanged();
 		faultSectionTableModel.fireTableDataChanged();
 		frame.dispose();
@@ -394,7 +394,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	 */
 	private void loadSegmentModels() {
 		 aFaultsFetcher = new A_FaultsFetcher();
-		 ArrayList segmentModelNames = aFaultsFetcher.getSegmentNames();
+		 ArrayList segmentModelNames = aFaultsFetcher.getAllFaultNames();
 		 segmentModelNames.add(0, NONE);
 		 makeSegmentModelParamAndEditor(segmentModelNames);
 		
@@ -494,7 +494,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 	
 	
 	
-	private void setMagAndSlipsString(SegmentedFaultData segmetedFaultData ) {
+	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData ) {
 		int numSegs = segmetedFaultData.getNumSegments();
 		String summaryString = "MAGS & AVE SLIPS IMPLIED BY M(A) RELATIONS\n"+
 								"------------------------------------------\n\n";

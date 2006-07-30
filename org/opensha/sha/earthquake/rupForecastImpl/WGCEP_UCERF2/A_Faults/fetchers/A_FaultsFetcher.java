@@ -23,7 +23,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.RupSegRates;
 import org.opensha.util.FileUtils;
 
@@ -35,55 +35,58 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher {
-	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/Ray-all-AfaultsTable1.1.xls";
+	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/Ray-all-AfaultsTable3.0.xls";
 	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/A_Faults/SegmentModels.txt";
-	private HashMap segmentModels = new HashMap();
+	private HashMap faultModels = new HashMap();
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-	private final static String SEGMENT_MODEL_NAME_PREFIX = "-";
-	private ArrayList segmentModelNames;
+	private final static String FAULT_MODEL_NAME_PREFIX = "-";
+	private ArrayList faultModelNames;
 	private HashMap segmentIntvAndRupRates = new HashMap();
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
-	private String selectedSegmentModel=null;
+	private String selectedFaultModel=null;
 	private int deformationModelId=-1;
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
 	
 	
 	public A_FaultsFetcher() {
+		// make faultModels hashMap:
 		this.loadSegmentModels();
+		// this may be dependent on deformation model (fix later?):
 		this.readRupAndSegRatesFromExcelFile();
 	}
 	
 	/**
-	 * Load the Segment models from a text file
+	 * Create the faultModels hashMap by reading a file that defines what 
+	 * sections are in each segment and what segments are in each fault model
 	 *
 	 */
 	private void loadSegmentModels() {
-		segmentModelNames = new ArrayList();
-		// add segment models 
+		faultModelNames = new ArrayList();
+		// read file 
 		try {
-			// read the text file
+			// read the text file that defines the sctions in each segment for each fault model
 			ArrayList fileLines = FileUtils.loadFile(SEGMENT_MODELS_FILE_NAME);
-			ArrayList segmentsList=null;
-			String segmentModelName=null;
+			ArrayList segmentsList=null;  // segments in a given fault model
+			String faultModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {
 				// read the file line by line
 				String line = ((String)fileLines.get(i)).trim();
 				// skip the comment and blank lines
 				if(line.equalsIgnoreCase("") || line.startsWith("#")) continue;
-				// check if this is a segment model name
-				if(line.startsWith(SEGMENT_MODEL_NAME_PREFIX)) {
-					if(segmentModelName!=null ){
+				// check if this is a fault model name
+				if(line.startsWith(FAULT_MODEL_NAME_PREFIX)) {
+					if(faultModelName!=null ){
 						// put segment model and corresponding ArrayList of segments in a HashMap
-						this.segmentModels.put(segmentModelName, segmentsList);
+						faultModels.put(faultModelName, segmentsList);
 					}
-					segmentModelName = getSegmentModelName(line);
-					segmentModelNames.add(segmentModelName);
+					faultModelName = getSegmentModelName(line);
+					faultModelNames.add(faultModelName);
 					segmentsList = new ArrayList();
 				} else  {
 					// read the section ids
@@ -91,7 +94,7 @@ public class A_FaultsFetcher {
 				}
 				
 			}
-			segmentModels.put(segmentModelName, segmentsList);
+			faultModels.put(faultModelName, segmentsList);
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -102,28 +105,30 @@ public class A_FaultsFetcher {
 	}
 	
 	/**
-	 * Get all segments in an ArrayList
+	 * This returns a list of FaultSegmentData object for all the Type A faults
 	 * @param deformationModelId
 	 * @param isAseisReducesArea
 	 * @return
 	 */
-	public ArrayList getAllSegments(int deformationModelId, boolean isAseisReducesArea) {
-		ArrayList segmentsList = new ArrayList();
-		for(int i=0; i< this.segmentModelNames.size(); ++i)
-			segmentsList.add(getSegmentedFaultData((String)segmentModelNames.get(i), deformationModelId, isAseisReducesArea));
-		return segmentsList;
+	public ArrayList getFaultSegmentDataList(int deformationModelId, boolean isAseisReducesArea) {
+		ArrayList faultList = new ArrayList();
+		for(int i=0; i< faultModelNames.size(); ++i)
+			faultList.add(getFaultSegmentData((String)faultModelNames.get(i), deformationModelId, isAseisReducesArea));
+		return faultList;
 	}
 	
 	
 	
 	/**
-	 * Return a list of ids of all fault sections which constitute A_faults
+	 * Return a list of ids of all fault sections in any of the A fault models.
+	 * This is used, or example, to filter out A-fault sections to get B-fault sections from
+	 * a master list.
 	 * @return
 	 */
 	public ArrayList getAllFaultSectionsIdList() {
 		ArrayList faultSectionIdList = new ArrayList();
-		for(int i=0; i< this.segmentModelNames.size(); ++i)
-			faultSectionIdList.addAll(getFaultSectionsIdList((String)segmentModelNames.get(i)));
+		for(int i=0; i< this.faultModelNames.size(); ++i)
+			faultSectionIdList.addAll(getFaultSectionsIdList((String)faultModelNames.get(i)));
 		return faultSectionIdList;
 	}
 	
@@ -131,8 +136,8 @@ public class A_FaultsFetcher {
 	 * Get a list of fault section Ids within the selected segment model
 	 * @return
 	 */
-	public ArrayList getFaultSectionsIdList(String selectedSegmentModel) {
-		ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
+	private ArrayList getFaultSectionsIdList(String faultModel) {
+		ArrayList segmentsList = (ArrayList)this.faultModels.get(faultModel);
 		ArrayList faultSectionIdList = new ArrayList();
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
@@ -153,30 +158,29 @@ public class A_FaultsFetcher {
 	 * @param selectedSegmentName
 	 * @return
 	 */
-	public SegmentedFaultData getSegmentedFaultData(String selectedSegmentModel, int deformationModelId,
+	public FaultSegmentData getFaultSegmentData(String faultModel, int deformationModelId,
 			boolean isAseisReducesArea) {
 		
 		// no need to re-fetch data from database if the data alraady exists in cache
-		if(this.selectedSegmentModel==null || !this.selectedSegmentModel.equalsIgnoreCase(selectedSegmentModel) ||
-				this.deformationModelId!=deformationModelId)  {
-			this.selectedSegmentModel = selectedSegmentModel;
+		if(selectedFaultModel==null || !selectedFaultModel.equalsIgnoreCase(faultModel) ||
+				deformationModelId!=deformationModelId)  {
+			selectedFaultModel = faultModel;
 			this.deformationModelId = deformationModelId;
-			ArrayList segmentsList = (ArrayList)this.segmentModels.get(selectedSegmentModel);
+			// get the segment array list of section array lists
+			ArrayList segmentsList = (ArrayList)faultModels.get(faultModel);
 			faultDataListInSelectedSegment = new ArrayList();
 			faultSectionList = new ArrayList();
 			// iterate over all segment
 			for(int i=0; i<segmentsList.size(); ++i) {
-				ArrayList segment = (ArrayList)segmentsList.get(i);
+				ArrayList sectionList = (ArrayList)segmentsList.get(i);
 				ArrayList newSegment = new ArrayList();
 				// iterate over all sections in a segment
-				for(int j=0; j<segment.size(); ++j) {
-					int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
+				for(int j=0; j<sectionList.size(); ++j) {
+					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 					FaultSectionPrefData faultSectionPrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSectionId);
-					//FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
 					// get slip rate and aseimic slip factor from deformation model
 					faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getAseismicSlipEstimate(deformationModelId, faultSectionId)));
 					faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(this.deformationModelDB_DAO.getSlipRateEstimate(deformationModelId, faultSectionId)));
-					//FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
 					faultSectionList.add(faultSectionPrefData);
 					newSegment.add(faultSectionPrefData);		
 				}
@@ -185,30 +189,19 @@ public class A_FaultsFetcher {
 		}
 		
 		// make SegmentedFaultData 
-		double[]recurIntv = getRecurIntv(selectedSegmentModel);
-		SegmentedFaultData segmetedFaultData = new SegmentedFaultData(faultDataListInSelectedSegment, isAseisReducesArea, selectedSegmentModel,
+		double[]recurIntv = getRecurIntv(faultModel);
+		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, isAseisReducesArea, faultModel,
 				recurIntv);
 		return segmetedFaultData;
 		
 	}
 	
-	/**
-	 * Get a list of FaultSectionPrefData for selected segment model
-	 * @param selectedSegmentModel
-	 * @param deformationModelId
-	 * @return
-	 */
-	public ArrayList getPrefFaultSectionDataList(String selectedSegmentModel, int deformationModelId) {
-		if(this.selectedSegmentModel==null || !this.selectedSegmentModel.equalsIgnoreCase(selectedSegmentModel) ||
-				this.deformationModelId!=deformationModelId) this.getSegmentedFaultData(selectedSegmentModel, deformationModelId, true);
-		return this.faultSectionList;
-	}
-	
+
 	/**
 	 * Get a list of all fault sections in A_Faults
 	 * @param deformationModelId
 	 * @return
-	 */
+	 
 	public ArrayList getAllPrefFaultSectionDataList(int deformationModelId) {
 		ArrayList faultSectionsList = new ArrayList();
 		for(int i=0; i< this.segmentModelNames.size(); ++i)
@@ -216,7 +209,7 @@ public class A_FaultsFetcher {
 		return faultSectionsList;
 
 	}
-	
+*/
 	
 	
 	/**
@@ -266,8 +259,8 @@ public class A_FaultsFetcher {
 	 * Get a list of all segment names
 	 * @return
 	 */
-	public ArrayList getSegmentNames() {
-		return this.segmentModelNames;
+	public ArrayList getAllFaultNames() {
+		return this.faultModelNames;
 	}
 	
 	/**
@@ -289,22 +282,23 @@ public class A_FaultsFetcher {
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public ValueWeight[] getAprioriRupRates(String selectedSegmentModel, String selectedRupModel) {
-		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+	public ValueWeight[] getAprioriRupRates(String faultModel, String rupModelType) {
+		
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(faultModel);
 		ValueWeight[] rupRates = new ValueWeight[rupSegRates.getNumRups()];
 		// geol insight rup model
-		if(selectedRupModel.equalsIgnoreCase(GEOL_INSIGHT_RUP_MODEL)) {
+		if(rupModelType.equalsIgnoreCase(GEOL_INSIGHT_RUP_MODEL)) {
 			for(int i=0; i<rupSegRates.getNumRups(); ++i)
 				rupRates[i] = new ValueWeight(rupSegRates.getPrefModelRupRate(i), 1.0);
 		}
 		// min rup model
-		else if(selectedRupModel.equalsIgnoreCase(MIN_RATE_RUP_MODEL)) {
+		else if(rupModelType.equalsIgnoreCase(MIN_RATE_RUP_MODEL)) {
 			for(int i=0; i<rupSegRates.getNumRups(); ++i)
 				rupRates[i] = new ValueWeight(rupSegRates.getMinModelRupRate(i), 1.0);
 	
 		}
 		// max rup model
-		else if (selectedRupModel.equalsIgnoreCase(MAX_RATE_RUP_MODEL)) {
+		else if (rupModelType.equalsIgnoreCase(MAX_RATE_RUP_MODEL)) {
 			for(int i=0; i<rupSegRates.getNumRups(); ++i)
 				rupRates[i] = new ValueWeight(rupSegRates.getMaxModelRupRate(i), 1.0);
 	

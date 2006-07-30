@@ -34,6 +34,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
     /* Class name Debbuging variables */
     protected final static String C = "ArbDiscrEmpiricalDistFunc";
+    private final static String ERR_MSG_MULTI_MODAL = "Error: There exists mre than 1 mode";
 
     /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = true;
@@ -146,14 +147,20 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     
     
     /**
-     * calculates the mean for normalized distribution
+     * calculates the mean for normalized distribution (done simply as a weight average)
      * @return
      */
     public double getMean() {
-    	ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
-    	double mean=0.0;
-    	for(int i=0; i<tempCumDist.getNum(); ++i) mean+=tempCumDist.getX(i)*tempCumDist.getY(i);
-    	return mean;
+    	//ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
+    	double sumXY=0.0, sumY=0.0;
+    	
+    	for(int i=0; i<getNum(); ++i) {
+    		//System.out.println(getX(i)+","+getY(i));
+    		sumXY+=getX(i)*getY(i);
+    		sumY+=getY(i);
+    	}
+    	//System.out.println("sumXY="+sumXY+",sumY="+sumY);
+    	return sumXY/sumY;
     }
     
     /**
@@ -162,19 +169,21 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public double getStdDev() {
-    	double mean = getMean();
+    	throw new RuntimeException("Need to confirm whether this is implemented correctly");
+    	/*double mean = getMean();
     	double stdDev=0;
     	for(int i=0; i<getNum(); ++i) stdDev+=Math.pow(mean-getX(i),2);
     	stdDev /=getNum();
-    	return Math.sqrt(stdDev);
+    	return Math.sqrt(stdDev);*/
     }
     
     /**
      *  Get the mode (X value where Y is maximum).
-     * Returns the smallest X value in case of multi-modal distribution
+     * Returns throws a runtime exception in the case of a multi-modal distribution
      * @return
      */
     public double getMode() {
+    	if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
     	int index=-1;
     	double maxY = Double.NEGATIVE_INFINITY;
     	for(int i=0; i<getNum(); ++i) {
@@ -184,6 +193,34 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     		}
     	}
     	return getX(index);
+    }
+    
+    /**
+     *  Get the most central mode in the case of a multi-modal distribution.  
+     *  If there is an even number of modes (two central modes) we give back 
+     *  the larger of the two.
+     * @return
+     */
+    public double getMostCentralMode() {
+     	double maxY = getMaxY();
+    	// now create list of X-axis values where Y=Ymax
+    	ArrayList xVals = new ArrayList();
+    	for(int i=0; i<getNum(); ++i)  {
+    		if(getY(i)==maxY) xVals.add(new Double(getX(i)));
+    	}
+    	int index = xVals.size()/2;
+    	return getX(index);
+    }
+    
+    
+    public boolean isMultiModal() {
+    	int count=0;
+    	double val = getMaxY();
+    	for(int i=0; i<getNum(); ++i)  {
+    		if(getY(i)==val) ++count;
+    	}
+    	if(count>1) return true;	
+    	else return false;
     }
     
     /**

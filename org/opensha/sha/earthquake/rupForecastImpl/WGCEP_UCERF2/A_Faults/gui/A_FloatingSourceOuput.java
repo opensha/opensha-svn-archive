@@ -23,8 +23,8 @@ import javax.swing.table.AbstractTableModel;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultFloatingSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.SegmentedFaultData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -54,7 +54,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * @param inputParameters
 	 */
 	public A_FloatingSourceOuput(A_FaultFloatingSource aFaultFloatingSource,
-			SegmentedFaultData segmentedFaultData, 
+			FaultSegmentData segmentedFaultData, 
 			String inputParameters) {
 		this.getContentPane().setLayout(new GridBagLayout());
 		// show data related to each segment
@@ -80,7 +80,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * @param aFaultSource
 	 */
 	private void createSegmentOutput(A_FaultFloatingSource aFaultFloatingSource,
-			SegmentedFaultData segmentedFaultData) {
+			FaultSegmentData segmentedFaultData) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		SegmentOutputTableModel segmentOutputModel = 
 			new SegmentOutputTableModel(aFaultFloatingSource, segmentedFaultData);
@@ -115,7 +115,7 @@ public class A_FloatingSourceOuput extends JFrame implements ActionListener{
 	 * @param aFaultSource
 	 */
 	private void createRupturesOutput(A_FaultFloatingSource aFaultFloatingSource,
-			SegmentedFaultData segmentedFaultData) {
+			FaultSegmentData segmentedFaultData) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		JTextArea rupOutput = new JTextArea();
 		rupOutput.setEditable(false);
@@ -206,14 +206,14 @@ class SegmentOutputTableModel extends AbstractTableModel {
 		"Orig Slip Rate (mm/yr)", "Implied Slip Rate (mm/yr)"};
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private A_FaultFloatingSource floatingSource;
-	private SegmentedFaultData segmentedFaultData;
+	private FaultSegmentData segmentedFaultData;
 	
 	/**
 	 * default constructor
 	 *
 	 */
 	public SegmentOutputTableModel(A_FaultFloatingSource floatingSource, 
-			SegmentedFaultData segmentedFaultData) {
+			FaultSegmentData segmentedFaultData) {
 		this.segmentedFaultData = segmentedFaultData;
 		this.floatingSource = floatingSource;
 	}
