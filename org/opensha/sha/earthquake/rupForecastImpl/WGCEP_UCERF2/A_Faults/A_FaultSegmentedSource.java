@@ -127,13 +127,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// Make MFD for each rupture & the total sum
 		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
 		totRupRate = new double[num_rup];
+		rupMoRate = new double[num_rup];
+		totalMoRateFromRups = 0.0;
 		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		double moRate;
 		for(int i=0; i<num_rup; ++i) {
 			// we will conserve the following (no necessarily total rate of each rupture)
-			moRate = aPrioriRupRates[i].getValue() * MomentMagCalc.getMoment(rupMeanMag[i]);
+			rupMoRate[i] = aPrioriRupRates[i].getValue() * MomentMagCalc.getMoment(rupMeanMag[i]);
+			totalMoRateFromRups+=rupMoRate[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-					rupMeanMag[i], magSigma, moRate, magTruncLevel, 2);
+					rupMeanMag[i], magSigma, rupMoRate[i], magTruncLevel, 2);
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
 		}
@@ -411,6 +413,17 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public double getRupRate(int ithRup) {
 		return totRupRate[ithRup];
+	}
+	
+	
+	/**
+	 * Get rupture moment rate of the ith char rupture
+	 * 
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupMoRate(int ithRup) {
+		return rupMoRate[ithRup];
 	}
 	
 	/**

@@ -29,7 +29,7 @@ public class B_FaultsFetcher {
 	// This holds the special, multi-section B Faults
 	private ArrayList specialFaults;
 	private ArrayList allSpecialFaultIds;
-	private int[] concordGreenValleySections = {1, 71, 38};
+	private int[] concordGreenValleySections = {1, 71, 3};
 	private int[] greenvilleSections = {6, 7};
 	private String[] specialFaultNames = {"Concord Green Valley","Greenville"};
 	
