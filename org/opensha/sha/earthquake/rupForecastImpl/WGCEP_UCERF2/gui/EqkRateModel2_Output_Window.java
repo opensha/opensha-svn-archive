@@ -115,6 +115,14 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		IncrementalMagFreqDist magFreqDist = this.eqkRateModelERF.getTotalMFD();
 		textArea.append("Total Rate (M>=5) = "+(float)magFreqDist.getTotalIncrRate()+"\n");
 		textArea.append("Total Moment Rate = "+(float)magFreqDist.getTotalMomentRate()+"\n\n");
+		textArea.append("Rate (M>=5) Moment Rate\n");
+		textArea.append("------------------------\n");
+		textArea.append("A Faults\t"+(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalMomentRate()+"\n");
+		textArea.append("B Char\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getTotalMomentRate()+"\n");
+		textArea.append("B GR\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
+		textArea.append("C Zone\t"+(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");
+		textArea.append("Background\t"+(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getTotalMomentRate()+"\n");
+		textArea.append("Total\t"+(float)this.eqkRateModelERF.getTotalMFD().getTotalMomentRate()+"\n\n");
 		textArea.append("Adjustable Params Metadata:\n");
 		textArea.append(eqkRateModelERF.getAdjustableParameterList().getParameterListMetadataString("\n"));
 		panel.add(new JScrollPane(textArea),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0

@@ -304,7 +304,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 1:
 				return ""+(rowIndex+1);
 			case 2:
-				return ""+segFaultData.getRecurInterval(rowIndex);
+				return ""+(int)segFaultData.getRecurInterval(rowIndex);
 			case 3: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);

@@ -22,10 +22,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.DeformationModelTableModel;
-import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditAseismicSlipFactor;
-import org.opensha.refFaultParamDb.gui.addEdit.deformationModel.EditSlipRate;
-import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
@@ -103,6 +99,8 @@ class B_FaultDataTableModel extends AbstractTableModel {
 	}
 	
 	
+	
+	
 	/**
 	 * Get column name
 	 */
@@ -136,7 +134,7 @@ class B_FaultDataTableModel extends AbstractTableModel {
 			case 1:
 				return MAG_FORMAT.format(source.getSourceMag());
 			case 2:
-				return ""+source.getMagFreqDist().getTotalIncrRate();
+				return ""+(float)source.getMagFreqDist().getTotalIncrRate();
 			case 3: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(faultSegmentData.getSegmentSlipRate(0)*1e3);
@@ -154,6 +152,7 @@ class B_FaultDataTableModel extends AbstractTableModel {
 				ArrayList funcs = new ArrayList();
 				funcs.add(source.getMagFreqDist());
 				funcs.add(source.getVisibleSourceMagFreqDist());
+				return funcs;
 		}
 		return "";
 	}
