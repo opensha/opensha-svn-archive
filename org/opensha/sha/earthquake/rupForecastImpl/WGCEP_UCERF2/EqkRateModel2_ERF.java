@@ -655,7 +655,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    				magSigma, magTruncLevel, 
 	    				B_FAULT_GR_MAG_LOWER, B_FAULT_GR_B_VALUE);
 	    		bFaultSources.add(source);
-	    		bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());
+	    		bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getCharMagFreqDist());
+	    		if(source.getGR_MagFreqDist() != null)  // will be null if char mag is lower than mag lower of GR
+	    			bFaultGR_SummedMFD.addIncrementalMagFreqDist(source.getGR_MagFreqDist());
  	    	}
 	    }
 	    

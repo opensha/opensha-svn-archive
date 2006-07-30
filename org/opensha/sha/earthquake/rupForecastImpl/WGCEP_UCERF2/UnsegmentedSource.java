@@ -51,7 +51,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	//private double[] segAveSlipRate; // ave slip rate for segment
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist, segVisibleSlipDist;  // segment slip dist
 	
-	private IncrementalMagFreqDist sourceMFD; // Mag Freq dist for source
+	private IncrementalMagFreqDist sourceMFD, grMFD, charMFD; // Mag Freq dist for source
 	private IncrementalMagFreqDist visibleSourceMFD; // Mag Freq dist for visible ruptures
 	private IncrementalMagFreqDist[] segSourceMFD;  // Mag Freq Dist for each segment
 	private IncrementalMagFreqDist[] visibleSegSourceMFD;  // Mag Freq Dist for visible ruptures on each segment
@@ -74,6 +74,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 		// source mag undefined because PDF given
 		sourceMag = Double.NaN;
+		grMFD = null;
+		charMFD = null;
 		
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
@@ -154,16 +156,17 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
-			sourceMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 					sourceMag, charMagSigma, moRate, charMagTruncLevel, 2);
+			sourceMFD = charMFD;
 		}
 		else {
 			sourceMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
 //			make char dist 
-			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 					sourceMag, charMagSigma, moRate*fractCharVsGR, charMagTruncLevel, 2);
 			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
-			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR, sourceMag, moRate*(1-fractCharVsGR), b_valueGR);
 			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
 		}
@@ -414,6 +417,25 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public IncrementalMagFreqDist getMagFreqDist() {
 		return sourceMFD; 
+	}
+	
+	/**
+	 * The returns the characteristic mag freq dist if it exists (i.e., the constructor
+	 * that specifies a fraction of char vs GR was used)
+	 * @return
+	 */
+	public IncrementalMagFreqDist getCharMagFreqDist() {
+		return charMFD; 
+	}
+	
+	
+	/**
+	 * The returns the GR mag freq dist if it exists (i.e., the constructor
+	 * that specifies a fraction of char vs GR was used)
+	 * @return
+	 */
+	public IncrementalMagFreqDist getGR_MagFreqDist() {
+		return grMFD;
 	}
 	
 	
