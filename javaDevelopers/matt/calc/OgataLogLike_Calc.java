@@ -1,6 +1,6 @@
 package javaDevelopers.matt.calc;
 
-import org.opensha.sha.earthquake.griddedForecast.AfterShockHypoMagFreqDistForecast;
+//import org.opensha.sha.earthquake.griddedForecast.AfterShockHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 
@@ -59,7 +59,7 @@ public class OgataLogLike_Calc {
     double sumInt = 0;
     double Acp;
     double pInv = 1-p_value;
-    double logLikelihood;
+    //double logLikelihood;
 
     int numInts = intEventTimes.length;
 

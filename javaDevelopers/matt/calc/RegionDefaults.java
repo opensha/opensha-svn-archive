@@ -50,6 +50,11 @@ public class RegionDefaults {
   public static double upperSeismoDepth = 10.0;
 
   public static boolean useFixed_cValue = true;
+  
+  // set the parameters for the AIC Calcs for the model elements
+  public static int genNumFreeParams = 0;
+  public static int seqNumFreeParams = 0;
+  public static int spaNumFreeParams = 3;  // should be 4 if c is not fixed
 
 
 

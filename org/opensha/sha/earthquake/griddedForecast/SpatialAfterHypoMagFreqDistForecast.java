@@ -182,7 +182,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   * the entire grid is not calculated
   */
 
-  private HypoMagFreqDistAtLoc getHypoMagFreqDist(int gridIndex) {
+  public HypoMagFreqDistAtLoc calcHypoMagFreqDistAtLoc(int gridIndex) {
 
     double[] rjParms = new double[4];
     double[] forecastDays = new double[2];
@@ -264,9 +264,51 @@ public class SpatialAfterHypoMagFreqDistForecast
   public double[] getGriddedCompletenessMag() {
     return spaNodeCompletenessMag;
   }
-
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
+  
+  /**
+   * get_Spa_aValueAtLoc
+   */
+  public double get_Spa_aValueAtLoc(int ithLocation) {
+    return grid_Spa_aValue[ithLocation];
   }
+
+  /**
+   * get_Spa_bValueAtLoc
+   */
+  public double get_Spa_bValueAtLoc(int ithLocation) {
+    return grid_Spa_bValue[ithLocation];
+  }
+
+  /**
+   * get_Spa_pValueAtLoc
+   */
+  public double get_Spa_pValueAtLoc(int ithLocation) {
+    return grid_Spa_pValue[ithLocation];
+  }
+
+  /**
+   * get_Spa_kValueAtLoc
+   */
+  public double get_Spa_kValueAtLoc(int ithLocation) {
+    return grid_Spa_kValue[ithLocation];
+  }
+
+  /**
+   * get_Spa_cValueAtLoc
+   */
+  public double get_Spa_cValueAtLoc(int ithLocation) {
+    return grid_Spa_cValue[ithLocation];
+  }
+
+  /**
+   * getCompletenessMagAtLoc
+   */
+  public double getCompletenessMagAtLoc(int ithLocation) {
+    return spaNodeCompletenessMag[ithLocation];
+  }
+
+  //public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+  //  return null;
+  //}
 
 }

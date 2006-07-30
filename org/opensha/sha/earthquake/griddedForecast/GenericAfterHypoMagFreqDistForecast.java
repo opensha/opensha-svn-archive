@@ -50,12 +50,7 @@ public class GenericAfterHypoMagFreqDistForecast
     this.setMainShock(mainshock);
     this.region = aftershockZone;
     numGridLocs = aftershockZone.getNumGridLocs();
-    grid_Gen_aVal = new double[numGridLocs];
-    grid_Gen_bVal = new double[numGridLocs];
-    grid_Gen_cVal = new double[numGridLocs];
-    grid_Gen_pVal = new double[numGridLocs];
-    grid_Gen_kVal = new double[numGridLocs];
-
+    
     this.calc_GenNodeCompletenessMag();
     this.set_Gridded_Gen_bValue();
     this.set_Gridded_Gen_cValue();
@@ -77,8 +72,22 @@ public class GenericAfterHypoMagFreqDistForecast
     c_valueGeneric = rjParms[2];
     p_valueGeneric = rjParms[3];
   }
+  
+  
 
-  /**
+  public int getNumGridLocs() {
+	return numGridLocs;
+}
+
+
+
+public void setNumGridLocs() {
+	 numGridLocs = this.region.getNumGridLocs();
+}
+
+
+
+/**
    * set_kScaler
    */
   public void set_kScaler(double[] kScaler) {
@@ -92,7 +101,7 @@ public class GenericAfterHypoMagFreqDistForecast
    */
 
   public void set_Gridded_Gen_kValue() {
-
+	   grid_Gen_kVal = new double[numGridLocs];
     double rightSide = a_valueGeneric + b_valueGeneric *
         (this.mainShock.getMag() - this.genNodeCompletenessMag);
     double generic_k = Math.pow(10, rightSide);
@@ -108,6 +117,7 @@ public class GenericAfterHypoMagFreqDistForecast
    * set_Gridded_aValue
    */
   public void set_Gridded_Gen_aValue() {
+	  grid_Gen_aVal = new double[numGridLocs];
     java.util.Arrays.fill(grid_Gen_aVal, a_valueGeneric);
   }
 
@@ -115,6 +125,7 @@ public class GenericAfterHypoMagFreqDistForecast
    * set_Gridded_bValue
    */
   public void set_Gridded_Gen_bValue() {
+	  grid_Gen_bVal = new double[numGridLocs];
     java.util.Arrays.fill(grid_Gen_bVal, b_valueGeneric);
   }
 
@@ -122,6 +133,7 @@ public class GenericAfterHypoMagFreqDistForecast
    * set_Gridded_pValue
    */
   public void set_Gridded_Gen_pValue() {
+	  grid_Gen_pVal = new double[numGridLocs];
     java.util.Arrays.fill(grid_Gen_pVal, p_valueGeneric);
   }
 
@@ -129,6 +141,7 @@ public class GenericAfterHypoMagFreqDistForecast
    * set_Gridded_cValue
    */
   public void set_Gridded_Gen_cValue() {
+	   grid_Gen_cVal = new double[numGridLocs];
     java.util.Arrays.fill(grid_Gen_cVal, c_valueGeneric);
   }
 
@@ -187,7 +200,7 @@ public class GenericAfterHypoMagFreqDistForecast
    * this calculates the forecast and places it into a
    * HypoMagFreqDistForecastAtLoc object
    */
-  public HypoMagFreqDistAtLoc getHypoMagFreqDist(int gridIndex) {
+  public HypoMagFreqDistAtLoc calcHypoMagFreqDist(int gridIndex) {
     double[] rjParms = new double[4];
     double[] forecastDays = new double[2];
     //int numNodes = grid_Gen_kVal.length;
@@ -252,6 +265,10 @@ public class GenericAfterHypoMagFreqDistForecast
   public double get_p_valueGeneric() {
     return p_valueGeneric;
   }
+  
+  public double get_k_valueGenericAtLoc(int ithLocation){
+	  return grid_Gen_kVal[ithLocation];
+  }
 
   /**
    * getGridded_k_value_generic
@@ -283,9 +300,9 @@ public class GenericAfterHypoMagFreqDistForecast
     return rateForecastGrid;
   }
 
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
-  }
+  //public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+  //  return ;
+  //}
 
 
 }

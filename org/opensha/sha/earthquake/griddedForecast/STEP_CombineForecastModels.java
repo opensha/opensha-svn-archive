@@ -50,7 +50,10 @@ public class STEP_CombineForecastModels
   private GenericAfterHypoMagFreqDistForecast genElement;
   private SequenceAfterHypoMagFreqDistForecast seqElement = null;
   private SpatialAfterHypoMagFreqDistForecast spaElement = null;
-
+  private STEP_AftershockForecast combinedModel;
+  private double sampleSizeAIC;
+  
+  
   /**
    * STEP_AftershockForecast
    */
@@ -85,10 +88,10 @@ public class STEP_CombineForecastModels
    */
   private void setChildParms(STEP_AftershockForecast model) {
     model.setTimeSpan(timeSpan);
-    model.setMinForecastMag(rDefs.minForecastMag);
-    model.setMaxForecastMag(rDefs.maxForecastMag);
-    model.setDeltaForecastMag(rDefs.deltaForecastMag);
-    model.setUseFixed_cValue(rDefs.useFixed_cValue);
+    model.setMinForecastMag(RegionDefaults.minForecastMag);
+    model.setMaxForecastMag(RegionDefaults.maxForecastMag);
+    model.setDeltaForecastMag(RegionDefaults.deltaForecastMag);
+    model.setUseFixed_cValue(RegionDefaults.useFixed_cValue);
     model.dayStart = this.daysSinceMainshockStart;
     model.dayEnd = this.daysSinceMainshockEnd;
   }
@@ -98,6 +101,8 @@ public class STEP_CombineForecastModels
    * createSequenceElement
    */
   public void createSequenceElement() {
+	  boolean useSeq = true;
+	  this.set_useSeqAndSpatial(useSeq);
     SequenceAfterHypoMagFreqDistForecast seqElement =
         new SequenceAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.getAfterShocks());
     seqElement.set_kScaler(kScaler);
@@ -107,8 +112,114 @@ public class STEP_CombineForecastModels
    * createSpatialElement
    */
   public void createSpatialElement() {
+	  boolean useSpa = true;
+	  this.set_useSeqAndSpatial(useSpa);
     SpatialAfterHypoMagFreqDistForecast spatialElement =
         new SpatialAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.getAfterShocks());
+  }
+  
+  /**
+   * createCombinedForecast
+   * 
+   * Combine the 3 forecasts into a single forecast using AIC weighting
+   *
+   */
+  public void createCombinedForecast(){
+	  IncrementalMagFreqDist[] genDist, seqDist, spaDist, combDist = new IncrementalMagFreqDist[1];
+	  
+	  double genLikelihood, seqLikelihood, spaLikelihood;
+	  double genAIC, seqAIC, spaAIC;
+	  double[] genOmoriVals = new double[3];
+	  double[] seqOmoriVals = new double[3];
+	  double[] spaOmoriVals = new double[3];
+	  
+	  // first we must calculate the Ogata-Omori likelihood score at each
+	  // gridnode, for each model element created
+	  if (this.useSeqAndSpatial) {
+		  int numGridNodes = this.getAfterShockZone().getNumGridLocs();
+		  
+		  // first find the number observed within each grid cell
+		 // int griddedNumObs[] = countObsInGrid();
+		  int griddedNumObs[] = new int[3];
+		  
+		  // get the generic p and c - the same everywhere
+		  genOmoriVals[2] = this.genElement.get_p_valueGeneric();
+		  genOmoriVals[1] = this.genElement.get_c_valueGeneric();
+		  
+		  // get the sequence p and c - the same everywhere
+		  seqOmoriVals[2] = this.seqElement.get_pValSequence();
+		  seqOmoriVals[1] = this.seqElement.get_cVal_Sequence();
+		  
+		  /** loop over all grid nodes
+		   *  get the likelihood for each node, for each model element
+		   *  then calc the AICc score
+		   */
+		  int gLoop = 0;
+		  while ( gLoop < numGridNodes){
+			  
+			  // get the smoothed generic k val for the grid node
+		 	  genOmoriVals[0] = this.genElement.get_k_valueGenericAtLoc(gLoop);
+		 	  // 1st calculate the Ogata likelihood of the generic parameters
+		 	  OgataLogLike_Calc genOgataCalc = new OgataLogLike_Calc(genOmoriVals,this.afterShocks);
+			  genLikelihood = genOgataCalc.get_OgataLogLikelihood();
+			  // get the AIC score for the generic likelihood
+			  AkaikeInformationCriterion genAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.genNumFreeParams,genLikelihood);
+			  genAIC = genAIC_Calc.getAIC_Score();
+			  
+			  // get the smoothed k val for the sequence model for the grid node
+			  seqOmoriVals[0] = this.seqElement.get_kVal_SequenceAtLoc(gLoop);
+			  // now calculate the likelihood for the sequence parameters
+			  OgataLogLike_Calc seqOgataCalc = new OgataLogLike_Calc(seqOmoriVals,this.afterShocks);
+			  seqLikelihood = seqOgataCalc.get_OgataLogLikelihood();
+			  // get the AIC score for the sequence likelihood
+			  AkaikeInformationCriterion seqAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.seqNumFreeParams,seqLikelihood);
+			  seqAIC = seqAIC_Calc.getAIC_Score();
+			  
+			  // get the parameters for the spatial  model for the grid node
+			  spaOmoriVals[0] = this.spaElement.get_Spa_kValueAtLoc(gLoop);
+			  spaOmoriVals[1] = this.spaElement.get_Spa_cValueAtLoc(gLoop);
+			  spaOmoriVals[2] = this.spaElement.get_Spa_pValueAtLoc(gLoop);
+			  // now calculate the likelihood for the spatial parameters
+			  OgataLogLike_Calc spaOgataCalc = new OgataLogLike_Calc(spaOmoriVals,this.afterShocks);
+			  spaLikelihood = spaOgataCalc.get_OgataLogLikelihood();
+			  // get the AIC score for the spatial likelihood
+			  AkaikeInformationCriterion spaAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.spaNumFreeParams,spaLikelihood);
+			  spaAIC = spaAIC_Calc.getAIC_Score();
+			  
+			  // calculate the weighting factor for each model element
+			  // forecast based on its AIC score.  
+			  CalcAIC_Weights.calcWeights(genAIC,seqAIC,spaAIC);
+			  double genWeight = CalcAIC_Weights.getGenWeight();
+			  double seqWeight = CalcAIC_Weights.getSeqWeight();
+			  double spaWeight = CalcAIC_Weights.getSpaWeight();
+			  
+			  // get the HypoMagFreqDist forecast for this location for each model element
+			  genDist = this.genElement.getHypoMagFreqDistAtLoc(gLoop).getMagFreqDist();
+			  seqDist = this.seqElement.getHypoMagFreqDistAtLoc(gLoop).getMagFreqDist(); 
+			  spaDist = this.spaElement.getHypoMagFreqDistAtLoc(gLoop++).getMagFreqDist();
+			  
+			  
+			 
+			  double numMags = ((genDist[0].getMaxX()-genDist[0].getMinX())/10)+1;
+			  
+			  for (int mLoop = 0; mLoop < numMags; mLoop++){
+				  
+				  combDist[mLoop].set(genDist[0].getIncrRate(mLoop)*genWeight +
+				  seqDist[0].getIncrRate(mLoop)*seqWeight + spaDist[0].getIncrRate(mLoop)*spaWeight,mLoop); 
+			  }
+			  
+			  
+			  
+			  
+
+			  
+		  }
+	  }
+	  else{
+		  combinedModel = genElement; //if there is no spatial or seq element just use the generic
+	  }
+		  
+	  
   }
 
   /**
@@ -346,6 +457,13 @@ public class STEP_CombineForecastModels
     double timeDiffMils = startInMils - mainshockInMils;
     this.daysSinceMainshockStart = timeDiffMils / 1000.0 / 60.0 / 60.0 / 24.0;
     this.daysSinceMainshockEnd = this.daysSinceMainshockStart + duration;
+  }
+  
+  /**
+   * get_useSeqAndSpatial
+   */
+  public void set_useSeqAndSpatial(boolean useSeqAndSpatial) {
+    this.useSeqAndSpatial = useSeqAndSpatial;
   }
 
   /**

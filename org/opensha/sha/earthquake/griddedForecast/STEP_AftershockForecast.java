@@ -17,16 +17,16 @@ import org.opensha.sha.fault.*;
  */
 public class STEP_AftershockForecast
     extends AfterShockHypoMagFreqDistForecast {
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
-  }
+  
 
   protected double dayStart, dayEnd;
   protected SimpleFaultData mainshockFault;
   protected double minForecastMag, maxForecastMag, deltaForecastMag;
   protected boolean useFixed_cValue;
   protected double addToMc;
-
+  protected HypoMagFreqDistAtLoc forecastAtloc;
+  protected HypoMagFreqDistAtLoc griddedMagFreqDistForecast[];
+  
   public STEP_AftershockForecast() {
   }
 
@@ -100,6 +100,31 @@ public class STEP_AftershockForecast
   public void set_addToMcConstant(double mcConst) {
     this.addToMc = mcConst;
   }
-
+  
+  /**
+   * setMagFreqDistAtLoc
+   * 
+   * @param forecastAtLoc
+   * @param ithLocation
+   */
+  public void setGriddedMagFreqDistAtLoc(HypoMagFreqDistAtLoc forecastAtLoc, int ithLocation){
+	  griddedMagFreqDistForecast[ithLocation] = forecastAtLoc;
+  }
+  
+  /**
+   *  initNumGridInForecast
+   *
+   */
+  public void initNumGridInForecast(){
+	  griddedMagFreqDistForecast = new HypoMagFreqDistAtLoc[this.getNumHypoLocs()];
+  }
+  
+  /**
+   *  getHypoMagFreqDistAtLoc
+   */
+  
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+	    return griddedMagFreqDistForecast[ithLocation];
+  }
 
 }

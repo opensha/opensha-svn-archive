@@ -63,8 +63,9 @@ public class SequenceAfterHypoMagFreqDistForecast
    * set_SequenceRJParms
    */
   public void set_SequenceRJParms() {
-    ObsEqkRupList aftershockList = this.getAfterShocks();
-    MaxLikeGR_Calc.setMags(aftershockList);
+        ObsEqkRupList aftershockListComplete =
+        this.afterShocks.getObsEqkRupsAboveMag(seqNodeCompletenessMag);
+    MaxLikeGR_Calc.setMags(aftershockListComplete);
     aVal_Sequence = MaxLikeGR_Calc.get_aValueMaxLike();
     bVal_Sequence = MaxLikeGR_Calc.get_bValueMaxLike();
   }
@@ -92,6 +93,13 @@ public class SequenceAfterHypoMagFreqDistForecast
    * fillGridWithParms
    */
   public void fillGridWithSeqParms() {
+	numGridLocs =  this.region.getNumGridLocs();
+	  grid_Seq_aVal = new double[numGridLocs];
+	  grid_Seq_bVal = new double[numGridLocs];
+	  grid_Seq_cVal = new double[numGridLocs];
+	  grid_Seq_pVal = new double[numGridLocs];
+	  grid_Seq_kVal = new double[numGridLocs];
+	  
     this.set_Gridded_Seq_aValue();
     this.set_Gridded_Seq_bValue();
     this.set_Gridded_Seq_cValue();
@@ -172,7 +180,7 @@ public class SequenceAfterHypoMagFreqDistForecast
     * this will return a single HypoMagFreqDistAtLoc - this is only one location
     * the entire grid is not calculated
    */
-  private HypoMagFreqDistAtLoc getHypoMagFreqDist(int gridIndex) {
+  public HypoMagFreqDistAtLoc calcHypoMagFreqDistAtLoc(int gridIndex) {
     double[] rjParms = new double[4];
     double[] forecastDays = new double[2];
     int numNodes = grid_Seq_kVal.length;
@@ -277,6 +285,10 @@ public class SequenceAfterHypoMagFreqDistForecast
    */
   public double get_cVal_Sequence() {
     return cVal_Sequence;
+  }
+  
+  public double get_kVal_SequenceAtLoc(int ithLocation){
+	  return grid_Seq_kVal[ithLocation];
   }
 
   /**

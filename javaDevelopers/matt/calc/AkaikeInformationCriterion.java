@@ -19,6 +19,36 @@ public class AkaikeInformationCriterion {
 
   public AkaikeInformationCriterion() {
   }
+  
+  public AkaikeInformationCriterion(int sampleSize, int numFreeParams,
+		  double logLikeliHood) {
+	  calc_AIC();
+  }
+  
+  /**
+   * getSampleSize
+   */
+  public int getSampleSize(){
+  return sampleSize;
+  }
+  
+  /**
+   * getNumberFreeParams
+   */
+  public int getNumberFreeParams(){
+  return numFreeParams;
+  }
+  
+  /**
+   * getNumberFreeParams
+   */
+  public double getLogLikeliHood(){
+  return logLikelihood;
+  }
+  
+  public double getAIC_Score(){
+	  return singleAICc;
+  }
 
   /**
    * setNumberFreeParams
@@ -35,7 +65,7 @@ public class AkaikeInformationCriterion {
   /**
    * calc_AIC
    */
-  public void calc_AIC() {
+  private void calc_AIC() {
 
     if (sampleSize-numFreeParams-1 == 0)
       singleAICc = -2*logLikelihood+2*numFreeParams;

@@ -141,15 +141,11 @@ public class STEP_main {
            new STEP_CombineForecastModels(newEvent,backGroundRatesGrid,rDefs);
 
         // if the new event is already an aftershock to something else
-        // set it as a secondary event.
+        // set it as a secondary event.  Default is true
         if (isAftershock) {
-          //newGenForecastMod.set_isPrimary(false);
+          newForecastMod.set_isPrimary(false);
         }
-        else {
-          //newGenForecastMod.set_isPrimary(true);
-        }
-
-
+        
         // add the new event to the list of mainshocks and increment the number
         // of total mainshocks (for the loop)
         STEP_AftershockForecastList.add(newForecastMod);
@@ -169,10 +165,17 @@ public class STEP_main {
     for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
       forecastModel =
           (STEP_CombineForecastModels)STEP_AftershockForecastList.get(modelLoop);
-      //UpdateSTEP_Forecast(forecastModel);
+      // update the combined model
+      UpdateSTEP_Forecast updateModel = new UpdateSTEP_Forecast(forecastModel);
+      
+      /**
+       * after the forecasts have been made, compare the forecast to
+       *  the background at each location and keep whichever total 
+       *  is higher
+       */
     }
 
-
+   
 
   }
 
