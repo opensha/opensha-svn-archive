@@ -37,7 +37,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	//for Debug purposes
 	private static String C = new String("A_FaultSource");
-	private final static boolean D = true;
+	private final static boolean D = false;
 	
 	//name for this classs
 	protected String NAME = "Type-A Fault Source";
@@ -123,6 +123,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		
 		// Make MFD for each rupture & the total sum
 		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
+		totRupRate = new double[num_rup];
 		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		double moRate;
 		for(int i=0; i<num_rup; ++i) {

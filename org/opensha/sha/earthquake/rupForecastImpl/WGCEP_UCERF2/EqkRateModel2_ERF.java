@@ -293,7 +293,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		
 		//		 make objects of Mag Area Relationships
-		ArrayList magAreaRelationships = new ArrayList();
+		 magAreaRelationships = new ArrayList();
 		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
 		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
@@ -580,7 +580,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    }
 	    
 	    private void makeC_ZoneSources() {
-	    	
+	    	this.cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    }
 	    
 	    private void mkA_FaultSegmentedSources() {
@@ -654,7 +654,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    		bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
 //	    		B_faultCharMFDs.add(charMFD);
 	    		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-                        this.B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
+                        B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
 	    		bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMFD);
 //	    		B_faultGR_MFDs.add(grMFD);
  	    	}
@@ -684,22 +684,28 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	   
 	   
 	   public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
+		   bFaultCharSummedMFD.setInfo("Type B-Faults Total Char Mag Freq Dist");
 		   return this.bFaultCharSummedMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_B_FaultsGR_MFD() {
+		   bFaultGR_SummedMFD.setInfo("Type B-Faults Total GR Mag Freq Dist");
 		   return this.bFaultGR_SummedMFD;
+		   
 	   } 
 	   
 	   public IncrementalMagFreqDist getTotal_A_FaultsMFD() {
+		   aFaultSummedMFD.setInfo("Type A-Faults Total Mag Freq Dist");
 		   return this.aFaultSummedMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_BackgroundMFD() {
+		   totBackgroundMFD.setInfo("Background Total Mag Freq Dist");
 		   return this.totBackgroundMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_C_ZoneMFD() {
+		   cZoneSummedMFD.setInfo("C Zone Total Mag Freq Dist");
 		   return this.cZoneSummedMFD;
 	   }
 	   
@@ -710,6 +716,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		   totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
 		   totalMFD.addIncrementalMagFreqDist(totBackgroundMFD);
 		   totalMFD.addIncrementalMagFreqDist(cZoneSummedMFD);
+		   totalMFD.setInfo("Total Mag Freq Dist from ERF");
 		   return totalMFD;
 	   }
 	   
@@ -719,15 +726,18 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    **/
 
 	   public void updateForecast() {
-
-		 this.mkB_FaultSources();
 		 String rupModel = (String)this.rupModelParam.getValue();
+		 System.out.println("Creating A Fault sources");
 		 if(rupModel.equalsIgnoreCase(this.UNSEGMENTED_A_FAULT_MODEL)) 
 			 mkA_FaultUnsegmentedSources();
 		 else 
 			 mkA_FaultSegmentedSources();
+		 System.out.println("Creating B Fault sources");
+		 this.mkB_FaultSources();
+		 System.out.println("Creating Background sources");
 		 // makeTotalRelativeGriddedRates();
 		 makeBackgroundGridSources();
+		 System.out.println("Creating C Zone Fault sources");
 		 // Make C Zone MFD
 		 makeC_ZoneSources();
 		   
