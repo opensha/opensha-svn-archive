@@ -81,13 +81,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  public final static double B_FAULT_GR_B_VALUE = 1.0;
 	  public final static double B_FAULT_GR_MAG_LOWER = 6.5;
 	  public final static double BACKGROUND_MAG_LOWER = 5.0;
-	  public final static double BACKGROUND_B_VALUE = 1.0;
+	  public final static double REGIONAL_B_VALUE = 1.0;
 
 	  public final static double BACK_SEIS_DEPTH = 5.0;
 	  
 	  // various summed MFDs
 	  private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
-	  private GutenbergRichterMagFreqDist totBackgroundMFD;
+	  private IncrementalMagFreqDist totBackgroundMFD;
+	  private GutenbergRichterMagFreqDist targetRegionalMFD;
 
 	  /*
 	   * Static variables for input files
@@ -95,14 +96,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
 	  private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/";
 
-
-	  /**
-	   * Vectors for holding the various sources, separated by type
-	   */
-	  private ArrayList typeA_FaultSources;
-	  private ArrayList typeB_FaultCharSources;
-	  private ArrayList typeB_FaultGR_Sources;
-	  
 	  private ArrayList allSources;
 
 	  private MagAreaRelationship magAreaRel;
@@ -564,22 +557,41 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    }
 	    
 	    
+	    private void makeTargetRegionalMFD() {
+	    	double totCumRate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
+	    	targetRegionalMFD = new GutenbergRichterMagFreqDist(REGIONAL_B_VALUE, totCumRate,
+                    MIN_MAG, MAX_MAG, NUM_MAG);
+	    }
+	    
+	    
 	    private void  makeBackgroundGridSources() {
 	    	
 	    	//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 	    	
 	    	// get the total rate of M³5 events
-	    	double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
+	    	//double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
 	    	double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
 	    	
 	    	// now subtract the A, B, & C fault/zone rates
-	    	rate -= this.bFaultCharSummedMFD.getTotalIncrRate();
-	    	rate -= this.bFaultGR_SummedMFD.getTotalIncrRate();
-	    	rate -= this.aFaultSummedMFD.getTotalIncrRate();
+	    	//rate -= this.bFaultCharSummedMFD.getTotalIncrRate();
+	    	//rate -= this.bFaultGR_SummedMFD.getTotalIncrRate();
+	    	//	rate -= this.aFaultSummedMFD.getTotalIncrRate();
 	    	
-	    	totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-                    BACKGROUND_MAG_LOWER, magMax, 1, BACKGROUND_B_VALUE);
-	    	totBackgroundMFD.scaleToCumRate(0, rate);
+	    	totBackgroundMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+	    	double backRate, targetRate, aRate, bRateGR, bRateChar, cRate, mag;
+	    	for(int i=0; i<totBackgroundMFD.getNum(); i++) {
+	    		mag = totBackgroundMFD.getX(i);
+	    		if(mag <= magMax) {
+	    			targetRate = targetRegionalMFD.getY(mag);
+	    			aRate = aFaultSummedMFD.getY(mag);
+	    			bRateGR = bFaultGR_SummedMFD.getY(mag);
+	    			bRateChar = bFaultCharSummedMFD.getY(mag);
+	    			cRate = cZoneSummedMFD.getY(mag);
+	    			backRate = targetRate - aRate - bRateGR - bRateChar - cRate;
+	    			if (backRate > 0) totBackgroundMFD.set(mag,backRate);
+	    		}
+	    		
+	    	}
 	    }
 	    
 	    private void makeC_ZoneSources() {
@@ -704,6 +716,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 
 	   
 	   
+	   public IncrementalMagFreqDist getTargetRegionalMFD() {
+		   return this.targetRegionalMFD;
+	   }
+	   
 	   public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
 		   return this.bFaultCharSummedMFD;
 	   }
@@ -740,6 +756,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    **/
 
 	   public void updateForecast() {
+		 
+		 makeTargetRegionalMFD();
+		   
 		 String rupModel = (String)this.rupModelParam.getValue();
 		 System.out.println("Creating A Fault sources");
 		 long time1 = System.currentTimeMillis();
@@ -751,16 +770,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		 System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
 		 this.mkB_FaultSources();
 		 long time3 = System.currentTimeMillis();
-		 System.out.println("Creating Background sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
+		 System.out.println("Creating C Zone Fault sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
+//		 Make C Zone MFD
+		 makeC_ZoneSources();
+		 long time4 = System.currentTimeMillis();
+		 System.out.println("Creating Background sources. Time Spent in creating C Zone Sources="+(time4-time3)/1000+" sec");
+
 		 // makeTotalRelativeGriddedRates();
 		 makeBackgroundGridSources();
-		 long time4 = System.currentTimeMillis();
-		 System.out.println("Creating C Zone Fault sources. Time Spent in creating background Sources="+(time4-time3)/1000+" sec");
-		 // Make C Zone MFD
-		 makeC_ZoneSources();
 		 long time5 = System.currentTimeMillis();
-		 System.out.println("Done. Time Spent in creating C Zone Sources="+(time5-time4)/1000+" sec");
-  
+		 System.out.println("Done. Time Spent in creating background Sources="+(time5-time4)/1000+" sec");
+ 
 		   /* OLD STUFF BELOW
 	     // make sure something has changed
 	     if(parameterChangeFlag) {
