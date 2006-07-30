@@ -45,6 +45,7 @@ public class A_FaultsFetcher {
 	private final static String FAULT_MODEL_NAME_PREFIX = "-";
 	private ArrayList faultModelNames;
 	private HashMap segmentIntvAndRupRates = new HashMap();
+	private HashMap segmentNamesMap = new HashMap();
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
@@ -163,7 +164,7 @@ public class A_FaultsFetcher {
 		
 		// no need to re-fetch data from database if the data alraady exists in cache
 		if(selectedFaultModel==null || !selectedFaultModel.equalsIgnoreCase(faultModel) ||
-				deformationModelId!=deformationModelId)  {
+				this.deformationModelId!=deformationModelId)  {
 			selectedFaultModel = faultModel;
 			this.deformationModelId = deformationModelId;
 			// get the segment array list of section array lists
@@ -190,7 +191,7 @@ public class A_FaultsFetcher {
 		
 		// make SegmentedFaultData 
 		double[]recurIntv = getRecurIntv(faultModel);
-		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, isAseisReducesArea, faultModel,
+		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, (String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel,
 				recurIntv);
 		return segmetedFaultData;
 		
@@ -227,14 +228,17 @@ public class A_FaultsFetcher {
 				HSSFRow row = sheet.getRow(r);
 				HSSFCell cell = row.getCell( (short) 0);
 				// segment name
-				String segmentName = cell.getStringCellValue().trim();
-				RupSegRates rupSegRates = new RupSegRates(segmentName);
+				String faultName = cell.getStringCellValue().trim();
+				RupSegRates rupSegRates = new RupSegRates(faultName);
+				ArrayList segmentNames = new ArrayList();
 				r=r+2;
 				while(true) {
 					row = sheet.getRow(r++);
 					cell = row.getCell( (short) 0);
-					if(cell.getStringCellValue().trim().equalsIgnoreCase("Total"))
+					String name = cell.getStringCellValue().trim();
+					if(name.equalsIgnoreCase("Total"))
 						break;
+					else segmentNames.add(name);
 					// rup rate for the 3 models
 					double prefRate = row.getCell((short)1).getNumericCellValue();
 					double minRate = row.getCell((short)2).getNumericCellValue();
@@ -248,7 +252,11 @@ public class A_FaultsFetcher {
 						rupSegRates.addSegRecurInterv(1.0/cell.getNumericCellValue());
 				}
 				r=r+1;
-				this.segmentIntvAndRupRates.put(segmentName, rupSegRates);
+				// convert segment names ArrayLList to String[] 
+				String segNames[] = new String[segmentNames.size()];
+				for(int i=0; i<segmentNames.size(); ++i) segNames[i] = (String) segmentNames.get(i);
+				this.segmentIntvAndRupRates.put(faultName, rupSegRates);
+				this.segmentNamesMap.put(faultName, segNames);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

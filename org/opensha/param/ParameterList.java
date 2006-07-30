@@ -497,20 +497,25 @@ public class ParameterList implements Serializable {
      * parameterList from scratch.
      */
     public String getParameterListMetadataString(){
-      int size  = params.size();
-      StringBuffer metaData = new StringBuffer();
-      boolean first = true;
-      for(int i=0;i<size;++i){
-        ParameterAPI tempParam=(ParameterAPI)params.get(i);
-        if(first){
-          metaData.append(tempParam.getMetadataString());
-          first = false;
-        }
-        else
-          metaData.append("; "+tempParam.getMetadataString());
-      }
-      return metaData.toString();
+    	return getParameterListMetadataString("; ");
     }
+    
+    public String getParameterListMetadataString(String delimiter){
+        int size  = params.size();
+        StringBuffer metaData = new StringBuffer();
+        boolean first = true;
+        for(int i=0;i<size;++i){
+          ParameterAPI tempParam=(ParameterAPI)params.get(i);
+          if(first){
+            metaData.append(tempParam.getMetadataString());
+            first = false;
+          }
+          else
+            metaData.append(delimiter+tempParam.getMetadataString());
+        }
+        return metaData.toString();
+      }
+
 
 
     /** Returns the index of the named Parameter in this list. Returns -1 if not found. */

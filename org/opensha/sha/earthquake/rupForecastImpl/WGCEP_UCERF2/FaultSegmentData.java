@@ -16,9 +16,9 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
 	private boolean aseisReducesArea;
-	private double totalArea, totalMoRate, totalLength;
-	private double[] segArea, segLength, segMoRate, segSlipRate; 
-	private String[] segName;
+	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
+	private double[] segArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate; 
+	private String[] segName, sectionsInSegString;
 	private String faultName;
 	private double[] recurInterval;
 
@@ -41,7 +41,7 @@ public class FaultSegmentData {
   	 * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise it reduces slip rate
   	 * @
   	 */
-	public FaultSegmentData(ArrayList sectionToSegmentData, boolean aseisReducesArea, String faultName, double[] recurInterval) {
+	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, String faultName, double[] recurInterval) {
 		if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
 				throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
 		this.recurInterval = recurInterval;
@@ -49,6 +49,8 @@ public class FaultSegmentData {
 		this.sectionToSegmentData = sectionToSegmentData;	
 		this.aseisReducesArea = aseisReducesArea;
 		calcAll();
+		if(segNames==null) this.segName = this.sectionsInSegString;
+		else this.segName = segNames;
 	}
 	
 	/**
@@ -143,6 +145,15 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * Get the average aseismicity factor (computed as final total moment rate
+	 * divided by original total moment rate)
+	 * @return total moment rate in SI units
+	 */
+	public double getTotalAveAseismicityFactor() {
+		return totalMoRate/totalMoRateIgnoringAseis;
+	}
+
+	/**
 	 * Get segment name by index
 	 * @param index
 	 * @return
@@ -152,12 +163,23 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * Get segment name as a concatenated String of section names by index
+	 * @param index
+	 * @return
+	 */
+	public String getSectionsInSeg(int index) {
+		return this.sectionsInSegString[index];
+	}
+	
+	/**
 	 * Get an array of all segment names
 	 * @return
 	 */
 	public String[] getSegmentNames() {
 		return this.segName;
 	}
+	
+	
 	
 	/**
 	 * Get a list of FaultSectionPrefData for selected fault model 
@@ -184,29 +206,33 @@ public class FaultSegmentData {
 	private void calcAll() {
 		totalArea=0;
 		totalMoRate=0;
+		totalMoRateIgnoringAseis=0;
 		segArea = new double[sectionToSegmentData.size()];
 		segLength = new double[sectionToSegmentData.size()];
 		segMoRate = new double[sectionToSegmentData.size()];
+		segMoRateIgnoringAseis = new double[sectionToSegmentData.size()];
 		segSlipRate = new double[sectionToSegmentData.size()];
-		segName = new String[sectionToSegmentData.size()];
+		sectionsInSegString = new String[sectionToSegmentData.size()];
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<sectionToSegmentData.size();seg++) {
 			segArea[seg]=0;
 			segLength[seg]=0;
 			segMoRate[seg]=0;
+			segMoRateIgnoringAseis[seg]=0;
 			ArrayList segmentDatum = (ArrayList) sectionToSegmentData.get(seg);
 			Iterator it = segmentDatum.iterator();
-			segName[seg]="";
+			sectionsInSegString[seg]="";
 			while(it.hasNext()) {
 				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-				if(it.hasNext()) segName[seg]+=sectData.getSectionName()+" + ";
-				else segName[seg]+=sectData.getSectionName();
+				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
+				else sectionsInSegString[seg]+=sectData.getSectionName();
 				//set the area & moRate
 				segLength[seg]+= sectData.getLength()*1e3;  // converted to meters
 				double ddw = sectData.getDownDipWidth()*1e3; // converted to meters
 				double area = ddw*segLength[seg]; // converted to meters-squared
 				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
+				segMoRateIgnoringAseis[seg] += FaultMomentCalc.getMoment(area,slipRate); // SI units
 				if(aseisReducesArea) {
 					segArea[seg] += area*alpha;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area*alpha,slipRate); // SI units
@@ -221,6 +247,7 @@ public class FaultSegmentData {
 			segSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			totalArea+=segArea[seg];
 			totalMoRate+=segMoRate[seg];
+			totalMoRateIgnoringAseis+=segMoRateIgnoringAseis[seg];
 			totalLength+=segLength[seg];
 		}
 		return ;

@@ -83,6 +83,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	private SummedMagFreqDist summedMagFreqDist;
 	private double totalMoRateFromSegments, totalMoRateFromRups;
+	
+	private ValueWeight[] aPrioriRupRates;
 
 	
 	/**
@@ -93,6 +95,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, ValueWeight[] aPrioriRupRates,
 			double magSigma, double magTruncLevel) {
 		
+		this.aPrioriRupRates = aPrioriRupRates;
 		this.segmentData = segmentData;
 		this.isPoissonian = true;
 		this.magSigma = magSigma;
@@ -183,6 +186,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			int slipModelType, int rupModelSolutionType, ValueWeight[] aPrioriRupRates) {
 		
+		this.aPrioriRupRates = aPrioriRupRates;
 		this.segmentData = segmentData;
 		this.isPoissonian = true;
 		
@@ -291,10 +295,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		for(int rup=0; rup<num_rup; rup++){
 			// compute magnitude (rounded to nearest MFD x-axis point if magSigma=0)
 			// convert area to km-sqr
-			if(magSigma == 0)
+			//if(magSigma == 0)
 				rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/DELTA_MAG) * DELTA_MAG;
-			else
-				rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/ROUND_MAG_TO) * ROUND_MAG_TO;
+			//else
+				//rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/ROUND_MAG_TO) * ROUND_MAG_TO;
 		}
 	}
 	
@@ -399,6 +403,17 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public double getRupRate(int ithRup) {
 		return totRupRate[ithRup];
 	}
+	
+	/**
+	 * Get a priori rupture rate of the ith char rupture
+	 * 
+	 * @param ithRup
+	 * @return
+	 */
+	public double getAPrioriRupRate(int ithRup) {
+		return aPrioriRupRates[ithRup].getValue();
+	}
+	
 	
 	/**
 	 * Get total Mag Freq dist for ruptures (including floater)

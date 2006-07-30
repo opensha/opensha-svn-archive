@@ -136,7 +136,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  public final static String BACK_SEIS_MAG_NAME = "Backgroud Seismicity Mmax";
 	  public final static Double BACK_SEIS_MAG_MIN = new Double(5.0);
 	  public final static Double BACK_SEIS_MAG_MAX = new Double(9.0);
-	  public final static Double BACK_SEIS_MAG_DEFAULT = new Double(5.0);
+	  public final static Double BACK_SEIS_MAG_DEFAULT = new Double(7.0);
 	  private final static String BACK_SEIS_MAG_INFO = "Maximum Magnitude for background seismicity";
 	  private DoubleParameter backSeisMaxMagParam ;
 	  
@@ -215,6 +215,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  // A and B faults fetcher
 	  private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	  private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher();
+	  private  ArrayList bFaultSegmentData;
+	  private double[] b_FaultMeanCharMag, b_FaultTotRate;
+	  private ArrayList aFaultSources;
 	  
 	/*
 	  // fault file parameter for testing
@@ -261,7 +264,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
 	    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
 	    backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-	    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
+	    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
 	    
 	    // backgroud treated as point sources/finite sources
 	    backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
@@ -347,6 +350,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    adjustableParams.addParameter(magSigmaParam);
 	    adjustableParams.addParameter(truncLevelParam);
 	    adjustableParams.addParameter(backSeisParam);
+	    adjustableParams.addParameter(backSeisMaxMagParam);
 	  }
 	  
 		
@@ -577,6 +581,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	
 	    	totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
                     BACKGROUND_MAG_LOWER, magMax, 1, BACKGROUND_B_VALUE);
+	    	totBackgroundMFD.scaleToCumRate(0, rate);
 	    }
 	    
 	    private void makeC_ZoneSources() {
@@ -591,12 +596,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 	    	ArrayList aFaultSegmentData = this.aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 	    			isAseisReducesArea);
+	    	aFaultSources = new ArrayList();
 	    	aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    	for(int i=0; i<aFaultSegmentData.size(); ++i) {
 	    		FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 	    		ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
 	    		A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, aPrioriRates, 
 	    				magSigma, magTruncLevel);
+	    		aFaultSources.add(aFaultSources);
 	    		aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 	    	}
 	    }
@@ -617,17 +624,31 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	ArrayList aFaultSegmentData = this.aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 	    			isAseisReducesArea);
 	    	double meanCharMag, moRate;
+	    	aFaultSources = null;
 	    	aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    	for(int i=0; i<aFaultSegmentData.size(); ++i) {
 	    		FaultSegmentData segmentData = (FaultSegmentData)aFaultSegmentData.get(i);
 	    		meanCharMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+	    		meanCharMag = Math.round(meanCharMag/DELTA_MAG) * DELTA_MAG;
 	    		moRate = segmentData.getTotalMomentRate();
-	    		GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-	    				meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
-	    		aFaultSummedMFD.addIncrementalMagFreqDist(charMFD);
-	    		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-                        this.B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
-	    		aFaultSummedMFD.addIncrementalMagFreqDist(grMFD);
+	    		
+	    		
+	    		// only apply char if mag <= lower RG mag 
+	    		if(meanCharMag <= B_FAULT_GR_MAG_LOWER) {
+	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
+		    				meanCharMag, magSigma, moRate, magTruncLevel, 2);
+		    		aFaultSummedMFD.addIncrementalMagFreqDist(charMFD);
+	    		}
+	    		else {
+//	    			make char dist 
+	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
+		    				meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
+		    		aFaultSummedMFD.addIncrementalMagFreqDist(charMFD);
+		    		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
+	                        B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
+		    		aFaultSummedMFD.addIncrementalMagFreqDist(grMFD);
+	    		}
+	    		
  	    	}
 	    }
 	    
@@ -638,28 +659,86 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    	MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 	    	int deformationModelId = this.getSelectedDeformationModelId();
 	    	boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
-	    	ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
+	    	 bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 	    			isAseisReducesArea);
 	    	double meanCharMag, moRate;
 //	    	ArrayList B_faultCharMFDs = new ArrayList();
 //	    	ArrayList B_faultGR_MFDs = new ArrayList();
 	    	bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	    	bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+	    	b_FaultMeanCharMag = new double[bFaultSegmentData.size()];
+	    	b_FaultTotRate = new double[bFaultSegmentData.size()];
 	    	for(int i=0; i<bFaultSegmentData.size(); ++i) {
 	    		FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
 	    		meanCharMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+	    		meanCharMag = Math.round(meanCharMag/DELTA_MAG) * DELTA_MAG;
 	    		moRate = segmentData.getTotalMomentRate();
-	    		GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-	    				meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
-	    		bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
-//	    		B_faultCharMFDs.add(charMFD);
-	    		GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
-                        B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
-	    		bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMFD);
-//	    		B_faultGR_MFDs.add(grMFD);
+	    		// only apply char if mag <= lower RG mag 
+	    		if(meanCharMag <= B_FAULT_GR_MAG_LOWER) {
+	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
+	    					meanCharMag, magSigma, moRate, magTruncLevel, 2);
+		    		bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
+		    		b_FaultTotRate[i]=charMFD.getTotalIncrRate();
+	    		}
+	    		else {
+//	    			make char dist 
+	    			GaussianMagFreqDist charMFD = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
+	    					meanCharMag, magSigma, moRate*fractCharVsGR, magTruncLevel, 2);
+	    			bFaultCharSummedMFD.addIncrementalMagFreqDist(charMFD);
+//	    			B_faultCharMFDs.add(charMFD);
+	    			// make GR dist
+	    			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG,
+	    					B_FAULT_GR_MAG_LOWER, meanCharMag, moRate*(1-fractCharVsGR), B_FAULT_GR_B_VALUE);
+	    			bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMFD);
+//	    			B_faultGR_MFDs.add(grMFD);
+	    			b_FaultTotRate[i]=charMFD.getTotalIncrRate()+grMFD.getTotalIncrRate();
+	    		}
+	    		b_FaultMeanCharMag[i] = meanCharMag;
  	    	}
 	    }
-
+	    
+	    
+	    /**
+	     * Get a List of aFaultSegmentData objects. It returns null in case of unsegmented model
+	     * 
+	     * @return
+	     */
+	    public ArrayList get_A_FaultSources() {
+	    	return this.aFaultSources;
+	    }
+	    
+	    /**
+	     * Return an  Arraylist of FaultSegmentData objects for Type-B faults
+	     * 
+	     * NOTE - this is temporary until we have a B_FaultSource object implemented
+	     * @return
+	     */
+	    public ArrayList getB_FaultSegmentDataList() {
+	    	return bFaultSegmentData;
+	    }
+	    
+	    /**
+	     * Get mean Char mag for B Fault
+	     * 
+	     * NOTE - this is temporary until we have a B_FaultSource object implemented
+	     * 
+	     * @param index
+	     * @return
+	     */
+	    public double get_B_FaultMag(int index) {
+	    	return b_FaultMeanCharMag[index];
+	    }
+	    
+	    /**
+	     * Get Total Rate for B-type Fault
+	     * 
+	     * NOTE - this is temporary until we have a B_FaultSource object implemented
+	     * @param index
+	     * @return
+	     */
+	    public double get_B_FaultTotRate(int index) {
+	    	return b_FaultTotRate[index];
+	    }
 
 	     /**
 	      * Get the list of all earthquake sources.
@@ -667,7 +746,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	      * @return ArrayList of Prob Earthquake sources
 	      */
 	     public ArrayList  getSourceList(){
-
 	       return allSources;
 	     }
 
@@ -684,28 +762,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	   
 	   
 	   public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
-		   bFaultCharSummedMFD.setInfo("Type B-Faults Total Char Mag Freq Dist");
 		   return this.bFaultCharSummedMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_B_FaultsGR_MFD() {
-		   bFaultGR_SummedMFD.setInfo("Type B-Faults Total GR Mag Freq Dist");
-		   return this.bFaultGR_SummedMFD;
-		   
+		   return this.bFaultGR_SummedMFD;  
 	   } 
 	   
 	   public IncrementalMagFreqDist getTotal_A_FaultsMFD() {
-		   aFaultSummedMFD.setInfo("Type A-Faults Total Mag Freq Dist");
 		   return this.aFaultSummedMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_BackgroundMFD() {
-		   totBackgroundMFD.setInfo("Background Total Mag Freq Dist");
 		   return this.totBackgroundMFD;
 	   }
 	   
 	   public IncrementalMagFreqDist getTotal_C_ZoneMFD() {
-		   cZoneSummedMFD.setInfo("C Zone Total Mag Freq Dist");
 		   return this.cZoneSummedMFD;
 	   }
 	   
@@ -716,7 +788,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		   totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
 		   totalMFD.addIncrementalMagFreqDist(totBackgroundMFD);
 		   totalMFD.addIncrementalMagFreqDist(cZoneSummedMFD);
-		   totalMFD.setInfo("Total Mag Freq Dist from ERF");
 		   return totalMFD;
 	   }
 	   
@@ -728,19 +799,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	   public void updateForecast() {
 		 String rupModel = (String)this.rupModelParam.getValue();
 		 System.out.println("Creating A Fault sources");
-		 if(rupModel.equalsIgnoreCase(this.UNSEGMENTED_A_FAULT_MODEL)) 
+		 long time1 = System.currentTimeMillis();
+		 if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) 
 			 mkA_FaultUnsegmentedSources();
 		 else 
 			 mkA_FaultSegmentedSources();
-		 System.out.println("Creating B Fault sources");
+		 long time2 = System.currentTimeMillis();
+		 System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
 		 this.mkB_FaultSources();
-		 System.out.println("Creating Background sources");
+		 long time3 = System.currentTimeMillis();
+		 System.out.println("Creating Background sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
 		 // makeTotalRelativeGriddedRates();
 		 makeBackgroundGridSources();
-		 System.out.println("Creating C Zone Fault sources");
+		 long time4 = System.currentTimeMillis();
+		 System.out.println("Creating C Zone Fault sources. Time Spent in creating background Sources="+(time4-time3)/1000+" sec");
 		 // Make C Zone MFD
 		 makeC_ZoneSources();
-		   
+		 long time5 = System.currentTimeMillis();
+		 System.out.println("Done. Time Spent in creating C Zone Sources="+(time5-time4)/1000+" sec");
+  
 		   /* OLD STUFF BELOW
 	     // make sure something has changed
 	     if(parameterChangeFlag) {

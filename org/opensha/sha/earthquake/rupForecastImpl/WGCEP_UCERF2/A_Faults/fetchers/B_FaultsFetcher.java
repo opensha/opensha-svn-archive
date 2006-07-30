@@ -149,7 +149,7 @@ public class B_FaultsFetcher {
 			boolean isAseisReducesArea) {
 		this.generateBFaults(deformationModelId);
 		ArrayList segmentList = (ArrayList) this.faultSegmentMap.get(faultModel);
-		return  new FaultSegmentData(segmentList, isAseisReducesArea, faultModel,
+		return  new FaultSegmentData(segmentList, null, isAseisReducesArea, faultModel,
 				null);
 		
 	}
