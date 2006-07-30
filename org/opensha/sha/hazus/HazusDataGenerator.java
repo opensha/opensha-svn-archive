@@ -1,7 +1,11 @@
 package org.opensha.sha.hazus;
 
+import java.util.ArrayList;
+import java.util.ListIterator;
+
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
@@ -48,9 +52,10 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	createERF_Instance();
     attenRel.setIntensityMeasure(attenRel.PGA_NAME);
     createRegion();
+    getSiteParamsForRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 2(a) for the finer Grid spacing of 0.05km with no Soil Effects:\n"+
+    String metaData = "Hazus Run 3(a) for the finer Grid spacing of 0.05km with Soil Effects with No Background:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
@@ -98,6 +103,31 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     }
   }
 
+  
+  
+  /**
+   * Gets the wills site class for the given sites
+   */
+  private void getSiteParamsForRegion() {
+    region.addSiteParams(attenRel.getSiteParamsIterator());
+    //getting Wills Site Class
+    region.setSiteParamsForRegionFromServlet(false);
+    //getting the Attenuation Site Parameters Liat
+    ListIterator it = attenRel.getSiteParamsIterator();
+    //creating the list of default Site Parameters, so that site parameter values can be filled in
+    //if Site params file does not provide any value to us for it.
+    ArrayList defaultSiteParams = new ArrayList();
+    SiteTranslator siteTrans = new SiteTranslator();
+    while (it.hasNext()) {
+      //adding the clone of the site parameters to the list
+      ParameterAPI tempParam = (ParameterAPI) ( (ParameterAPI) it.next()).clone();
+      //getting the Site Param Value corresponding to the default Wills site class selected by the user
+      // for the seleted IMR  from the SiteTranslator
+      siteTrans.setParameterValue(tempParam, SiteTranslator.WILLS_BC, Double.NaN);
+      defaultSiteParams.add(tempParam);
+    }
+    region.setDefaultSiteParams(defaultSiteParams);
+  }
 
   private void createERF_Instance(){
 	   forecast = new Frankel02_AdjustableEqkRupForecast();
@@ -119,7 +149,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
   private void createAttenRel_Instance(){
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
-	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
+	  //attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
 	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
 	  setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
 	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
