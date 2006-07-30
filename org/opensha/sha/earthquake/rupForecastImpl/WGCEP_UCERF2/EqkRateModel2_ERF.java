@@ -172,7 +172,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private ArrayList deformationModelsList;
 	  
 	  // aseismic factor interpolated
-	  private final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor reduces section area";
+	  public final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor reduces section area";
 	  private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces section slip rate";
 	  private BooleanParameter aseisFactorInterParam; 
 	 
@@ -603,7 +603,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    		ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
 	    		A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, aPrioriRates, 
 	    				magSigma, magTruncLevel);
-	    		aFaultSources.add(aFaultSources);
+	    		aFaultSources.add(aFaultSource);
 	    		aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 	    	}
 	    }

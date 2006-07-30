@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,7 +23,12 @@ import javax.swing.JTextArea;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -35,7 +41,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAPI, ActionListener{
+public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAPI, ActionListener, ParameterChangeListener{
 	private final static String X_AXIS_LABEL = "Magnitude";
 	private final static String Y_AXIS_LABEL = "Rate";
 	private final static String PLOT_LABEL = "Eqk Rates";
@@ -59,8 +65,13 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private EqkRateModel2_ERF eqkRateModelERF;
 	private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
-	private final static int W = 300;
-	private final static int H = 500;
+	private HashMap aFaultSourceMap;
+	private SegmentDataPanel segmentDataPanel;
+	private final static int W = 500;
+	private final static int H = 800;
+	private StringParameter aFaultParam;
+	private final static String A_FAULT_PARAM_NAME = "A Fault";
+	
 	/**
 	 * 
 	 * @param eqkRateModelERF
@@ -79,6 +90,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	
 	private void createGUI() {
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
+		tabbedPane.addTab("A Fault Summary", getA_FaultSummaryGUI());
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
 		container.add(tabbedPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -110,6 +122,57 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		textArea.setEditable(false);
 		plotMFDsButton.addActionListener(this);
 		return panel;
+	}
+	
+	/**
+	 * A Fault summary GUI
+	 * 
+	 * @return
+	 */
+	private JPanel getA_FaultSummaryGUI() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		aFaultSourceMap = new HashMap();
+		ArrayList aFaultSources = this.eqkRateModelERF.get_A_FaultSources();
+		if(aFaultSources==null) return panel;
+		segmentDataPanel = new SegmentDataPanel();
+		ArrayList faultNames = new ArrayList();
+		for(int i=0; i<aFaultSources.size(); ++i) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)aFaultSources.get(i);
+			faultNames.add(source.getFaultSegmentData().getFaultName());
+			aFaultSourceMap.put(source.getFaultSegmentData().getFaultName(), source);
+		}
+		this.aFaultParam = new StringParameter(A_FAULT_PARAM_NAME, faultNames, (String)faultNames.get(0));
+		aFaultParam.addParameterChangeListener(this);
+		ConstrainedStringParameterEditor paramEditor = new ConstrainedStringParameterEditor(aFaultParam);
+		panel.add(paramEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		JTabbedPane segmentInfoTabbedPane = new JTabbedPane();
+		segmentInfoTabbedPane.addTab("Segment Info", segmentDataPanel);
+		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		
+		updateA_FaultTableData();
+		return panel;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 */
+	public void parameterChange(ParameterChangeEvent event) {
+		updateA_FaultTableData();
+	}
+	
+	
+	/**
+	 * update the A fault table data based on the selected A fault
+	 *
+	 */
+	private void updateA_FaultTableData() {
+		String selectedFault = (String)aFaultParam.getValue();
+		A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(selectedFault);
+		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
+		this.segmentDataPanel.setFaultSegmentData(source.getFaultSegmentData(), isAseisReducesArea);
 	}
 
 

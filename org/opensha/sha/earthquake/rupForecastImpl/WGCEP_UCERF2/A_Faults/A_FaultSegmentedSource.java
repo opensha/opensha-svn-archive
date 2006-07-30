@@ -273,6 +273,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	
 	/**
+	 * Return the fault segment data
+	 * 
+	 * @return
+	 */
+	public FaultSegmentData getFaultSegmentData() {
+		return this.segmentData;
+	}
+	
+	/**
 	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship)
 	 *
 	 */
