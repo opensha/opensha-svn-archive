@@ -137,15 +137,15 @@ class B_FaultDataTableModel extends AbstractTableModel {
 				return ""+(float)source.getMagFreqDist().getTotalIncrRate();
 			case 3: 
 				// convert to mm/yr
-				return SLIP_RATE_FORMAT.format(faultSegmentData.getSegmentSlipRate(0)*1e3);
+				return SLIP_RATE_FORMAT.format(faultSegmentData.getTotalAveSlipRate()*1e3);
 			case 4:
 				// convert to sq km
-				return AREA_LENGTH_FORMAT.format(faultSegmentData.getSegmentArea(0)/1e6);
+				return AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalArea()/1e6);
 			case 5:
 				// convert to km
-				return AREA_LENGTH_FORMAT.format(faultSegmentData.getSegmentLength(0)/1e3);
+				return AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalLength()/1e3);
 			case 6:
-				return MOMENT_FORMAT.format(faultSegmentData.getSegmentMomentRate(0));
+				return MOMENT_FORMAT.format(faultSegmentData.getTotalMomentRate());
 			case 7:
 				return ""+faultSegmentData.getTotalAveAseismicityFactor();
 			case 8:
