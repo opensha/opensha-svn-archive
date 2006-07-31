@@ -28,6 +28,8 @@ import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -72,6 +74,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private final static int H = 800;
 	private StringParameter aFaultParam;
 	private final static String A_FAULT_PARAM_NAME = "A Fault";
+	private boolean isUnsegmented;
 	
 	/**
 	 * 
@@ -149,14 +152,20 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		JPanel panel = new JPanel(new GridBagLayout());
 		aFaultSourceMap = new HashMap();
 		ArrayList aFaultSources = this.eqkRateModelERF.get_A_FaultSources();
+		
+		// whether this is segmented or unsegmented
+		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE).getValue();
+		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) this.isUnsegmented = true;
+		else this.isUnsegmented = false;
+		
 		if(aFaultSources==null) return panel;
 		segmentDataPanel = new SegmentDataPanel();
-		ruptureDataPanel = new RuptureDataPanel();
 		ArrayList faultNames = new ArrayList();
 		for(int i=0; i<aFaultSources.size(); ++i) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)aFaultSources.get(i);
-			faultNames.add(source.getFaultSegmentData().getFaultName());
-			aFaultSourceMap.put(source.getFaultSegmentData().getFaultName(), source);
+			Object source = aFaultSources.get(i);
+			FaultSegmentData faultSegmentData = getFaultSegmentData(source);
+			faultNames.add(faultSegmentData.getFaultName());
+			aFaultSourceMap.put(faultSegmentData.getFaultName(), source);
 		}
 		this.aFaultParam = new StringParameter(A_FAULT_PARAM_NAME, faultNames, (String)faultNames.get(0));
 		aFaultParam.addParameterChangeListener(this);
@@ -165,12 +174,29 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		JTabbedPane segmentInfoTabbedPane = new JTabbedPane();
 		segmentInfoTabbedPane.addTab("Segment Info", segmentDataPanel);
-		segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
+		if(this.isUnsegmented) {
+			B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
+			bFaultDataPanel.setB_FaultSources(aFaultSources);
+			segmentInfoTabbedPane.addTab("Rupture Info", bFaultDataPanel);
+		} else {
+			ruptureDataPanel = new RuptureDataPanel();
+			segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
+		}
 		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		
 		updateA_FaultTableData();
 		return panel;
+	}
+	
+	/**
+	 * Get fault segment data based on A fault source type (whether it is segmented or unsegmented)
+	 * @param source
+	 * @return
+	 */
+	private FaultSegmentData getFaultSegmentData(Object source) {
+		if(this.isUnsegmented) return ((UnsegmentedSource)source).getFaultSegmentData();
+		else return ((A_FaultSegmentedSource)source).getFaultSegmentData();
 	}
 	
 	/**
@@ -182,7 +208,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		ArrayList bFaultSources = this.eqkRateModelERF.get_B_FaultSources();
 		B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
 		bFaultDataPanel.setB_FaultSources(bFaultSources);
-		panel.add(bFaultDataPanel,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+		panel.add(bFaultDataPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		return panel;
 	}
@@ -202,10 +228,12 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 */
 	private void updateA_FaultTableData() {
 		String selectedFault = (String)aFaultParam.getValue();
-		A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(selectedFault);
-		ruptureDataPanel.setSource(source);
+		Object source =   aFaultSourceMap.get(selectedFault);
+		if(!this.isUnsegmented)  {
+			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
+		}
 		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
-		this.segmentDataPanel.setFaultSegmentData(source.getFaultSegmentData(), isAseisReducesArea);
+		this.segmentDataPanel.setFaultSegmentData(getFaultSegmentData(source), isAseisReducesArea);
 	}
 
 

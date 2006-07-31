@@ -178,8 +178,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 
 	 
 	  //	 rupture model type
-	  private final static String RUP_MODEL_TYPE = "A Fault Model Type";
-	  private final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented A-Fault Model";
+	  public final static String RUP_MODEL_TYPE = "A Fault Model Type";
+	  public final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented A-Fault Model";
 	  private StringParameter rupModelParam;
 	 
 	  // % char vs GR param
