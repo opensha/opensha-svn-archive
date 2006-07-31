@@ -132,7 +132,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		rupMoRate = new double[num_rup];
 		totalMoRateFromRups = 0.0;
 		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		boolean singleMag = (magSigma*magTruncLevel > DELTA_MAG/2);
+		boolean singleMag = (magSigma*magTruncLevel < DELTA_MAG/2);
 		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
 		double mag;
 		for(int i=0; i<num_rup; ++i) {
@@ -145,9 +145,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			else
 				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-					rupMeanMag[i], magSigma, rupMoRate[i], magTruncLevel, 2);
+					mag, magSigma, rupMoRate[i], magTruncLevel, 2);
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
+//if(this.segmentData.getFaultName().equals("N. San Andreas"))
+//				System.out.println(i+"  "+mag+"  "+MomentMagCalc.getMoment(rupMeanMag[i])+"  "+
+//						aPrioriRupRates[i].getValue()+"  "+rupMoRate[i]+"  "+this.getLongRupName(i));
+
 		}
 
 		
@@ -299,6 +303,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	private void getRupMeanMagsAssumingCharSlip() {
 		rupMeanMag = new double[num_rup];
+		//double[] testSegRates = new double[num_seg];
 		double[] rupMo = new double[num_rup];
 		// first compute the total moment for each rupture
 		double area, slip;
@@ -308,10 +313,20 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					area = segmentData.getSegmentArea(seg);
 					slip = segmentData.getSegmentSlipRate(seg)*segmentData.getRecurInterval(seg);
 					rupMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
+					//testSegRates[seg] += aPrioriRupRates[rup].getValue();
+//if(this.segmentData.getFaultName().equals("N. San Andreas"))
+//	System.out.println(rup+"  "+seg+"  "+area+"  "+slip+"  "+segmentData.getSegmentSlipRate(seg)+"  "+segmentData.getRecurInterval(seg));
 				}
 			}
 			rupMeanMag[rup] = MomentMagCalc.getMag(rupMo[rup]);
+//if(this.segmentData.getFaultName().equals("Garlock"))
+//	System.out.println(rup+"  "+rupMo[rup]+"  "+rupMeanMag[rup]);
+
 		}
+		/*if(this.segmentData.getFaultName().equals("N. San Andreas"))
+			for(int seg=0; seg < num_seg; seg++) {
+				System.out.println(testSegRates[seg]+"  ,  "+1/testSegRates[seg]);
+			}*/
 /*
 		// now convert moment to mag
 		for(int rup=0; rup<num_rup; rup++){

@@ -117,6 +117,16 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * Get total ave slip rate - wt averaged by area (note that this is reduce by  
+	 * any non-zero aseismicity factors if aseisReducesArea is false)
+	 * @param index
+	 * @return slip rate in SI units (m/sec)
+	 */
+	public double getTotalAveSlipRate() {
+		return totalMoRate/(totalArea*FaultMomentCalc.SHEAR_MODULUS);
+	}
+	
+	/**
 	 * Get segment recur interval.  This simply gives back values given in the constructor.
 	 * @param index
 	 * @return recur int in years
