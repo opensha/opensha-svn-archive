@@ -140,12 +140,10 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
     else if(connectForBasinDepth){ //if we need to get the Basin depth values to
       // set the site parameters for each location in the region.
       try{
-        willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
         basinDepth = ConnectToCVM.getBasinDepthFromCVM(locList);
       }catch(Exception e){
-        /*willsSiteClassList = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-        getGridSpacing(),WILLS_SITE_CLASS_FILE);
-        basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+
+        /*basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
         getGridSpacing(),BASIN_DEPTH_FILE);*/
         //throw new RuntimeException(e.getMessage());
       }

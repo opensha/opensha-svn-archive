@@ -55,7 +55,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     getSiteParamsForRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 3(a) for the finer Grid spacing of 0.05km with Soil Effects with No Background:\n"+
+    String metaData = "Hazus Run 3(b) for the finer Grid spacing of 0.05km with Soil Effects with Background:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
@@ -103,15 +103,15 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     }
   }
 
-  
-  
+
+
   /**
    * Gets the wills site class for the given sites
    */
   private void getSiteParamsForRegion() {
     region.addSiteParams(attenRel.getSiteParamsIterator());
     //getting Wills Site Class
-    region.setSiteParamsForRegionFromServlet(false);
+    region.setSiteParamsForRegionFromServlet(true);
     //getting the Attenuation Site Parameters Liat
     ListIterator it = attenRel.getSiteParamsIterator();
     //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -137,12 +137,12 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	   forecast.getAdjustableParameterList().getParameter(
                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
                                         BACK_SEIS_EXCLUDE);
-	   /*forecast.getAdjustableParameterList().getParameter(
+	   forecast.getAdjustableParameterList().getParameter(
 	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
 	                                         BACK_SEIS_INCLUDE);
 	   forecast.getAdjustableParameterList().getParameter(
 	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);*/
+	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);
 	   forecast.updateForecast();
   }
 
@@ -163,7 +163,6 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	 //	make the Gridded Region object
 	 region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
 	        MAX_LON, GRID_SPACING);
-	 region.addSiteParams(attenRel.getSiteParamsIterator());
  }
 
 
