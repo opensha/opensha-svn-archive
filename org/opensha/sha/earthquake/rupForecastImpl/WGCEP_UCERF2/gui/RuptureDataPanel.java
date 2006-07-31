@@ -211,7 +211,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
 	 */
 	public boolean getXLog() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -246,35 +246,35 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
 	 */
 	public boolean isCustomAxis() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
 	public double getMinX() {
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 40.0;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
 	public double getMaxX() {
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 10000;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
 	public double getMinY() {
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 5.5;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
 	public double getMaxY() {
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 8.5;
 	}
 }
 
