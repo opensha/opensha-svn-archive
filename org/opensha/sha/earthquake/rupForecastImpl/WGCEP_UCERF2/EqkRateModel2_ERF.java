@@ -372,6 +372,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			}
 			return -1;
 		}
+		
+		/**
+		 * Return list of objects of MagAreaRelationships which are supported by this model
+		 * @return
+		 */
+		public ArrayList getMagAreaRelationships() {
+			return this.magAreaRelationships;
+		}
 	  
 	  
 	  /**

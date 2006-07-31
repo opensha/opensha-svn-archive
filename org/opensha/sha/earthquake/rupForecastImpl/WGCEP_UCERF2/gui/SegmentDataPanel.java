@@ -44,20 +44,10 @@ public class SegmentDataPanel extends JPanel {
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	
 	public SegmentDataPanel() {
-		makeMagAreaRelationships();
 		setLayout(new GridBagLayout());
 		createGUI();
 	}
-	
-	private void makeMagAreaRelationships() {
-		// make objects if Mag Area Relationships
-		magAreaRelationships = new ArrayList();
-		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
-		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
-		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
-		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
-		magAreaRelationships.add(new WC1994_MagAreaRelationship());
-	}
+
 	
 	
 	private void createGUI() {
@@ -83,8 +73,8 @@ public class SegmentDataPanel extends JPanel {
 	 * @param faultSegmentData
 	 * @param isAseisReducesArea
 	 */
-	public void setFaultSegmentData(FaultSegmentData faultSegmentData, boolean isAseisReducesArea) {
-		setMagAndSlipsString(faultSegmentData, isAseisReducesArea);
+	public void setFaultSegmentData(FaultSegmentData faultSegmentData, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
+		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships);
 		segmentTableModel.setSegmentedFaultData(faultSegmentData);
 		segmentTableModel.fireTableDataChanged();
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
@@ -92,7 +82,7 @@ public class SegmentDataPanel extends JPanel {
 		faultSectionTableModel.fireTableDataChanged();
 	}
 	
-	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea ) {
+	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea, ArrayList magAreaRelationships ) {
 		magAreasTextArea.setText("");
 		if(segmetedFaultData==null) return ;
 		int numSegs = segmetedFaultData.getNumSegments();
