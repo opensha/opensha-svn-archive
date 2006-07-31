@@ -670,7 +670,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 						rupNameLong[rup] = segmentData.getSegmentName(seg);
 						isFirst = false;
 					} else {
-						rupNameLong[rup] += "; "+segmentData.getSegmentName(seg);
+						rupNameLong[rup] += "+"+segmentData.getSegmentName(seg);
 					}
 				}
 			}
