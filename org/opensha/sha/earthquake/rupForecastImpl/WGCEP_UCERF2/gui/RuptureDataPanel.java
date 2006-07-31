@@ -115,22 +115,26 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		magAreaPlotButton.setEnabled(true);
 		int numFaults = aFaultSegmentedSourceList.size();
 		int numMagAreaRels = magAreaRels.size();
-		
+		double area;
 		// create function list for all faults
 		for(int i=0; i<numFaults; ++i) {
 			A_FaultSegmentedSource aFaultSegmentedSource = (A_FaultSegmentedSource) aFaultSegmentedSourceList.get(i);
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
-				//func.set(x, y)
+				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
+				if(func.getXIndex(area)!=-1) System.out.println("RuptureDataPanel::setSourcesForMagAreaPlot()::**********Duplicate Area********");
+				func.set(area, aFaultSegmentedSource.getRupMeanMag(j));
 			}
+			func.setName(aFaultSegmentedSource.getFaultSegmentData().getFaultName());
+			magAreaFuncs.add(func);
 		}
 		
 		// create function list for mag area relationships
 		double min = Math.log10(MIN_AREA);
 		double max = Math.log10(MAX_AREA);
 		int numPoints =101;
-		double delta = (min-max)/(numPoints-1);
-		double area;
+		double delta = (max-min)/(numPoints-1);
+		//System.out.println(min+","+max+","+delta);
 		for(int i=0; i<numMagAreaRels; ++i) {
 			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRels.get(i);
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
@@ -138,6 +142,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 				area = Math.pow(10, min+j*delta);
 				func.set(area, magAreaRel.getMedianMag(area));
 			}
+			func.setName(magAreaRel.getName());
 			magAreaFuncs.add(func);
 		}
 		
