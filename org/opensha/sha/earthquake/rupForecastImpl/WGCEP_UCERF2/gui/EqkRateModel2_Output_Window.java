@@ -63,7 +63,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		      Color.RED, 2);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
 	private EqkRateModel2_ERF eqkRateModelERF;
-	private ArbitrarilyDiscretizedFunc historicalMFD;
+	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private HashMap aFaultSourceMap;
 	private SegmentDataPanel segmentDataPanel;
@@ -78,9 +78,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * @param eqkRateModelERF
 	 * @param historicalMFD
 	 */
-	public EqkRateModel2_Output_Window(EqkRateModel2_ERF eqkRateModelERF, ArbitrarilyDiscretizedFunc historicalMFD) {
+	public EqkRateModel2_Output_Window(EqkRateModel2_ERF eqkRateModelERF) {
 		this.eqkRateModelERF = eqkRateModelERF;
-		this.historicalMFD = historicalMFD;
+		//this.historicalMFD = historicalMFD;
 		createGUI();
 		this.pack();
 		setSize(W,H);
@@ -258,7 +258,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		funcs.add(cumDist);
 		
 		// historical cum dist
-		funcs.add(historicalMFD);
+		funcs.add(this.eqkRateModelERF.getTargetRegionalMFD().getCumRateDist());
 	}
 
 	/* (non-Javadoc)

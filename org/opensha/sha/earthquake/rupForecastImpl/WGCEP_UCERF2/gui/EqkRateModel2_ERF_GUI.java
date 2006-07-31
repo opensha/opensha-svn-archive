@@ -37,7 +37,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	private ParameterListEditor editor; // editor
 	private final static String TITLE = "Eqk Rate Model2 Params";
 	private JButton calcButton = new JButton("Calculate");
-	private ArbitrarilyDiscretizedFunc historicalMFD;
+	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private final static int W = 300;
 	private final static int H = 800;
 	
@@ -50,7 +50,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
 		editor = new ParameterListEditor(paramList);
 		editor.setTitle(TITLE);
-		createHistoricalMFD();
+		//createHistoricalMFD();
 		createGUI();
 		calcButton.addActionListener(this);
 		pack();
@@ -61,7 +61,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	}
 	
 	
-	private void createHistoricalMFD() {
+	/*private void createHistoricalMFD() {
 		historicalMFD = new ArbitrarilyDiscretizedFunc();
 		double fractionInRELM_Region=0.75;
 		historicalMFD.set(5.0, 11.5*fractionInRELM_Region);
@@ -71,7 +71,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		historicalMFD.set(7.0, 0.089*fractionInRELM_Region);
 		historicalMFD.set(7.5, 0.019*fractionInRELM_Region);
 		historicalMFD.setInfo("Observed CUMULATIVE distribution (w/ model cum dist. prediction)");
-	}
+	}*/
 	/**
 	 * Create GUI
 	 *
@@ -93,7 +93,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent event) {
 		eqkRateModelERF.updateForecast(); // update forecasr
 		// show the output
-		new EqkRateModel2_Output_Window(eqkRateModelERF, historicalMFD);
+		new EqkRateModel2_Output_Window(eqkRateModelERF);
 	}
 	
 	
