@@ -33,6 +33,7 @@ import sun.tools.tree.ThisExpression;
  * @version 1.0
  */
 
+
 public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	//for Debug purposes
@@ -79,7 +80,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	private String[] rupNameShort, rupNameLong;
 	private double[] rupArea, rupMeanMag, rupMoRate, totRupRate; // rupture mean mag
-	private GaussianMagFreqDist[] rupMagFreqDist; // MFD for rupture
+	private IncrementalMagFreqDist[] rupMagFreqDist; // MFD for rupture
 	
 	private SummedMagFreqDist summedMagFreqDist;
 	private double totalMoRateFromSegments, totalMoRateFromRups;
@@ -91,6 +92,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * This constructor is for a model that assumed characteristic slip for computing mags and
 	 * applies the rates of each rupture given in aPrioriRupRates (ignoring the weights since they are
 	 * useless here). 
+	 * If sigma is ~zero, then the magnitude in the MFD is rounded to the nearest discrete mag value 
+	 * (moment is preserved; and the mag returned by getRupMeanMag is not rounded).
 	 */
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, ValueWeight[] aPrioriRupRates,
 			double magSigma, double magTruncLevel) {
@@ -125,15 +128,22 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		getRupMeanMagsAssumingCharSlip();
 		
 		// Make MFD for each rupture & the total sum
-		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
 		totRupRate = new double[num_rup];
 		rupMoRate = new double[num_rup];
 		totalMoRateFromRups = 0.0;
 		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		boolean singleMag = (magSigma*magTruncLevel > DELTA_MAG/2);
+		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
+		double mag;
 		for(int i=0; i<num_rup; ++i) {
 			// we will conserve the following (no necessarily total rate of each rupture)
 			rupMoRate[i] = aPrioriRupRates[i].getValue() * MomentMagCalc.getMoment(rupMeanMag[i]);
 			totalMoRateFromRups+=rupMoRate[i];
+			// round the magnitude if need be
+			if(singleMag)
+				mag = Math.round(rupMeanMag[i]/DELTA_MAG) * DELTA_MAG;
+			else
+				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
 					rupMeanMag[i], magSigma, rupMoRate[i], magTruncLevel, 2);
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
@@ -300,17 +310,18 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					rupMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
 				}
 			}
+			rupMeanMag[rup] = MomentMagCalc.getMag(rupMo[rup]);
 		}
-		
+/*
 		// now convert moment to mag
 		for(int rup=0; rup<num_rup; rup++){
 			// compute magnitude (rounded to nearest MFD x-axis point if magSigma=0)
-			// convert area to km-sqr
 			//if(magSigma == 0)
 				rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/DELTA_MAG) * DELTA_MAG;
 			//else
 				//rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/ROUND_MAG_TO) * ROUND_MAG_TO;
 		}
+*/
 	}
 	
 	
