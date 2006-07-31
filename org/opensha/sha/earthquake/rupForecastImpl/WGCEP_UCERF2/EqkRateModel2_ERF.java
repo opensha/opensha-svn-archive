@@ -611,7 +611,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    			bRateChar = bFaultCharSummedMFD.getCumRate(mag);
 	    			cRate = cZoneSummedMFD.getCumRate(mag);
 	    			backRate = targetRate - aRate - bRateGR - bRateChar - cRate;
-	    			if(mag==5) System.out.println(targetRate +" "+ aRate +" "+bRateGR +" "+bRateChar+" "+cRate+" "+backRate);
+	    			//if(mag==5) System.out.println(targetRate +" "+ aRate +" "+bRateGR +" "+bRateChar+" "+cRate+" "+backRate);
 	    			if (backRate > 0) cumTotBackgroundMFD.set(mag,backRate);
 	    		}
 	    	}
