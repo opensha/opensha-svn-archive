@@ -181,6 +181,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		} else {
 			ruptureDataPanel = new RuptureDataPanel();
 			segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
+			ruptureDataPanel.setSourcesForMagAreaPlot(aFaultSources, this.eqkRateModelERF.getMagAreaRelationships());
 		}
 		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
@@ -233,8 +234,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
 		}
 		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
-		this.segmentDataPanel.setFaultSegmentData(getFaultSegmentData(source), isAseisReducesArea);
-	}
+		this.segmentDataPanel.setFaultSegmentData(getFaultSegmentData(source), isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+	} 
 
 
 	/**
