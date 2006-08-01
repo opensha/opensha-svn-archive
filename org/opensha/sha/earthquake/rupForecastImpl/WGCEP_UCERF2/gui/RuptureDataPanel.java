@@ -36,7 +36,8 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 public class RuptureDataPanel extends JPanel implements ActionListener, GraphWindowAPI {
 	private RuptureTableModel rupTableModel = new RuptureTableModel();
 	private JButton mfdButton = new JButton("Selected A Fault MFD");
-	private JButton magAreaPlotButton = new JButton("Mag Area Plot");
+	private JButton magAreaPlotButton = new JButton("Mag Area Plot (Color coded by Relative Rup Rates)");
+	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
 	private A_FaultSegmentedSource source;
 	
 	//	Filled Circles for rupture from each plot
@@ -86,7 +87,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	
 	private ArrayList plottingFeatures;
 	private ArrayList magAreaFuncs;
-
+	private ArrayList aFaultSegmentedSourceList;
+	private ArrayList magAreaRels;
 	
 	
 	public RuptureDataPanel() {
@@ -98,10 +100,11 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(magAreaPlotButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(magAreaPlotButton2,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		mfdButton.addActionListener(this);
 		magAreaPlotButton.addActionListener(this);
-		mfdButton.setEnabled(false);
-		magAreaPlotButton.setEnabled(false);
+		magAreaPlotButton2.addActionListener(this);
 	}
 	
 	/**
@@ -110,9 +113,117 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param aFaultSegmentedSourceList
 	 */
 	public void setSourcesForMagAreaPlot(ArrayList aFaultSegmentedSourceList, ArrayList magAreaRels) {
+		this.aFaultSegmentedSourceList = aFaultSegmentedSourceList;
+		this.magAreaRels = magAreaRels;
+	}
+	
+	/**
+	 * Color coding by rup rates
+	 *
+	 */
+	private void createFuncListColorCodingByRupRates() {
 		plottingFeatures = new ArrayList();
 		magAreaFuncs = new ArrayList();
 		magAreaPlotButton.setEnabled(true);
+		int numFaults = aFaultSegmentedSourceList.size();
+		int numMagAreaRels = magAreaRels.size();
+		double area;
+		// create function list for all faults
+		int numRateDiscretizations=30;
+		for(int i=0; i<numRateDiscretizations; ++i) {
+			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+			magAreaFuncs.add(func);
+		}
+		
+		int index;
+		double maxRelativeRate = 1.0;
+		double minRelativeRate = 0.001;
+		double deltaRate = (Math.log10(maxRelativeRate)-Math.log10(minRelativeRate))/numRateDiscretizations;
+		//System.out.println("DeltaRate="+deltaRate);
+		for(int i=0; i<numFaults; ++i) {
+			A_FaultSegmentedSource aFaultSegmentedSource = (A_FaultSegmentedSource) aFaultSegmentedSourceList.get(i);
+			ArbitrarilyDiscretizedFunc func;
+			double[] relativeRupRates = getRelativeRupRates(aFaultSegmentedSource);
+			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
+				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
+				
+				//if(relativeRupRates[j]<minRelativeRate) System.out.println(" Low relative rate for:"+ 
+					//	aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+relativeRupRates[j]);
+				/*System.out.println(" rate for:"+ 
+						aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+j+"="+relativeRupRates[j]+","+
+						Math.log10(relativeRupRates[j]));*/
+				//System.out.println(relativeRupRates[j]+","+Math.log10(relativeRupRates[j])+","+index);
+				index = numRateDiscretizations -  (int) ((Math.log10(relativeRupRates[j]) - Math.log10(minRelativeRate))/deltaRate);
+				if(index==numRateDiscretizations) {
+					index=numRateDiscretizations-1;
+					//System.out.println("Index is max for fault: "+aFaultSegmentedSource.getFaultSegmentData().getFaultName());
+				}
+				//System.out.println(relativeRupRates[j]+","+Math.log10(relativeRupRates[j])+","+index);
+				func = (ArbitrarilyDiscretizedFunc)magAreaFuncs.get(index);
+				if(func.getXIndex(area)!=-1) System.out.println("RuptureDataPanel::setSourcesForMagAreaPlot()::**********Duplicate Area********");
+				func.set(area, aFaultSegmentedSource.getRupMeanMag(j));
+			}
+			//func.setName(aFaultSegmentedSource.getFaultSegmentData().getFaultName());
+		}
+		
+		
+		// remove functions which have 0 elements
+		for(int i=0; i<magAreaFuncs.size(); ++i) {
+			ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)magAreaFuncs.get(i);
+			if(func.getNum()==0) {
+				magAreaFuncs.remove(i);
+				--i;
+			}
+		}
+		
+		// add colors
+		int minColor = 0;
+		int maxColor=255;
+		int deltaColor =   (maxColor-minColor)/magAreaFuncs.size();
+		int colorVal;
+		for(int i=0; i<magAreaFuncs.size(); ++i) {
+			colorVal = minColor+i*deltaColor;
+			plottingFeatures.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
+		      new Color(colorVal, colorVal, colorVal), 2));
+			//System.out.println("Number of points in function "+i+"="+((ArbitrarilyDiscretizedFunc)magAreaFuncs.get(i)).getNum());
+		}
+		
+		
+		// create function list for mag area relationships
+		double min = Math.log10(MIN_AREA);
+		double max = Math.log10(MAX_AREA);
+		int numPoints =101;
+		double delta = (max-min)/(numPoints-1);
+		//System.out.println(min+","+max+","+delta);
+		for(int i=0; i<numMagAreaRels; ++i) {
+			MagAreaRelationship magAreaRel = (MagAreaRelationship)magAreaRels.get(i);
+			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+			for(int j=0; j<=numPoints; ++j) {
+				area = Math.pow(10, min+j*delta);
+				func.set(area, magAreaRel.getMedianMag(area));
+			}
+			func.setName(magAreaRel.getName());
+			magAreaFuncs.add(func);
+		}
+		// plotting features for mag area rels
+		if(numMagAreaRels>0) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR1);
+		if(numMagAreaRels>1) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR2);
+		if(numMagAreaRels>2) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR3);
+		if(numMagAreaRels>3) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR4);
+		if(numMagAreaRels>4) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR5);
+		if(numMagAreaRels>5) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR6);
+		if(numMagAreaRels>6) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR7);
+	}
+	
+	
+	/**
+	 * Color Coding by fault names
+	 * 
+	 * @param aFaultSegmentedSourceList
+	 */
+	public void setColorCodingbyFaultNames() {
+		plottingFeatures = new ArrayList();
+		magAreaFuncs = new ArrayList();
 		int numFaults = aFaultSegmentedSourceList.size();
 		int numMagAreaRels = magAreaRels.size();
 		double area;
@@ -171,6 +282,27 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		if(numMagAreaRels>6) plottingFeatures.add(this.MAG_AREA_PLOT_CHAR7);
 	}
 	
+	/**
+	 * Get relative rates of the ruptures
+	 * 
+	 * @param aFaultSegmentedSource
+	 * @return
+	 */
+	public double[] getRelativeRupRates(A_FaultSegmentedSource aFaultSegmentedSource) {
+		double[] relativeRates = new double[aFaultSegmentedSource.getNumRuptures()];
+		double maxRate=0.0;
+		for(int i=0; i< aFaultSegmentedSource.getNumRuptures(); ++i) {
+			if(maxRate<aFaultSegmentedSource.getRupRate(i))
+				maxRate = aFaultSegmentedSource.getRupRate(i);
+		}
+		for(int i=0; i< aFaultSegmentedSource.getNumRuptures(); ++i) {
+			relativeRates[i]=aFaultSegmentedSource.getRupRate(i)/maxRate;
+		}
+		return relativeRates;
+	}
+	
+	
+	
 	public void actionPerformed(ActionEvent event) {
 		Object eventSource = event.getSource();
 		if(eventSource == mfdButton) { // MFD for selected A Fault
@@ -178,6 +310,14 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			funcs.add(source.getTotalRupMFD());
 			new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
 		} else if(eventSource == this.magAreaPlotButton) {
+			this.createFuncListColorCodingByRupRates();
+			GraphWindow graphWindow= new GraphWindow(this);
+		    graphWindow.setPlotLabel("Mag Area Plot");
+		    graphWindow.plotGraphUsingPlotPreferences();
+		    //graphWindow.pack();
+		    graphWindow.setVisible(true);;
+		}else if(eventSource == this.magAreaPlotButton2) {
+			this.setColorCodingbyFaultNames();
 			GraphWindow graphWindow= new GraphWindow(this);
 		    graphWindow.setPlotLabel("Mag Area Plot");
 		    graphWindow.plotGraphUsingPlotPreferences();
