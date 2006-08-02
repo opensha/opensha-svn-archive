@@ -92,7 +92,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	 * @param event
 	 */
 	public void actionPerformed(ActionEvent event) {
-		CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time)..........");
+		CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
 		progressBar.setLocationRelativeTo(this);
 		eqkRateModelERF.updateForecast(); // update forecast
 		// show the output

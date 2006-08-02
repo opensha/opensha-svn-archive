@@ -153,12 +153,9 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 						aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+j+"="+relativeRupRates[j]+","+
 						Math.log10(relativeRupRates[j]));*/
 				//System.out.println(relativeRupRates[j]+","+Math.log10(relativeRupRates[j])+","+index);
-				index = numRateDiscretizations -  (int) ((Math.log10(relativeRupRates[j]) - Math.log10(minRelativeRate))/deltaRate);
-				if(index==numRateDiscretizations) {
-					index=numRateDiscretizations-1;
-					//System.out.println("Index is max for fault: "+aFaultSegmentedSource.getFaultSegmentData().getFaultName());
-				}
-				//System.out.println(relativeRupRates[j]+","+Math.log10(relativeRupRates[j])+","+index);
+				if(relativeRupRates[j]<=minRelativeRate) index = numRateDiscretizations-1;
+				else index = numRateDiscretizations -  (int) ((Math.log10(relativeRupRates[j]) - Math.log10(minRelativeRate))/deltaRate);
+				//System.out.println(aFaultSegmentedSource.getFaultSegmentData().getFaultName()+":"+relativeRupRates[j]+","+Math.log10(relativeRupRates[j])+","+index);
 				func = (ArbitrarilyDiscretizedFunc)magAreaFuncs.get(index);
 				if(func.getXIndex(area)!=-1) System.out.println("RuptureDataPanel::setSourcesForMagAreaPlot()::**********Duplicate Area********");
 				func.set(area, aFaultSegmentedSource.getRupMeanMag(j));
