@@ -245,11 +245,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	public void actionPerformed(ActionEvent event) {
 		Object src = event.getSource();
 		if(src == this.plotMFDsButton) {
-			
 			GraphWindow graphWindow= new GraphWindow(this);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.pack();
+			graphWindow.setLocationRelativeTo(this);
 			graphWindow.setVisible(true);
 		}
 	}

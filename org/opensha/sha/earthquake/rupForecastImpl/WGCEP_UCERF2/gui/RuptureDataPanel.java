@@ -314,6 +314,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			GraphWindow graphWindow= new GraphWindow(this);
 		    graphWindow.setPlotLabel("Mag Area Plot");
 		    graphWindow.plotGraphUsingPlotPreferences();
+		    graphWindow.setLocationRelativeTo(this);
 		    //graphWindow.pack();
 		    graphWindow.setVisible(true);;
 		}else if(eventSource == this.magAreaPlotButton2) {
@@ -321,6 +322,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			GraphWindow graphWindow= new GraphWindow(this);
 		    graphWindow.setPlotLabel("Mag Area Plot");
 		    graphWindow.plotGraphUsingPlotPreferences();
+		    graphWindow.setLocationRelativeTo(this);
 		    //graphWindow.pack();
 		    graphWindow.setVisible(true);;
 		}

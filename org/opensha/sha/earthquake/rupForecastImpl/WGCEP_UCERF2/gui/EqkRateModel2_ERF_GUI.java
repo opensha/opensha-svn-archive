@@ -19,6 +19,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -91,9 +92,13 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	 * @param event
 	 */
 	public void actionPerformed(ActionEvent event) {
-		eqkRateModelERF.updateForecast(); // update forecasr
+		CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time)..........");
+		progressBar.setLocationRelativeTo(this);
+		eqkRateModelERF.updateForecast(); // update forecast
 		// show the output
-		new EqkRateModel2_Output_Window(eqkRateModelERF);
+		EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(eqkRateModelERF);
+		outputWindow.setLocationRelativeTo(this);
+		progressBar.showProgress(false);
 	}
 	
 	
