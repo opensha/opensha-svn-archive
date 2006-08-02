@@ -154,7 +154,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		ArrayList aFaultSources = this.eqkRateModelERF.get_A_FaultSources();
 		
 		// whether this is segmented or unsegmented
-		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE).getValue();
+		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
 		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) this.isUnsegmented = true;
 		else this.isUnsegmented = false;
 		

@@ -79,17 +79,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  public final static double DELTA_MAG = 0.1;
 	  public final static int NUM_MAG = (int)Math.round((MAX_MAG-MIN_MAG)/DELTA_MAG) + 1;
 	  
-	  public final static double B_FAULT_GR_B_DEFAULT= 1.0;
 	  public final static double B_FAULT_GR_MAG_LOWER = 6.5;
 	  public final static double BACKGROUND_MAG_LOWER = 5.0;
-	  public final static double REGIONAL_B_DEFAULT = 1.0;
-	  public DoubleParameter regionB_ValParam;
-	  public DoubleParameter bFaultB_ValParam;
-	  public final static String REGION_B_VAL_PARAM_NAME = "Regional B Value";
-	  public final static String B_FAULTS_B_VAL_PARAM_NAME = "B Faults B Value";
-	  public final static Double B_VAL_MIN = new Double(-1);
-	  public final static Double B_VAL_MAX = new Double(2);
-	  
+
+	  	  
 	  public final static double BACK_SEIS_DEPTH = 5.0;
 	  
 	  // various summed MFDs
@@ -133,7 +126,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private StringParameter backSeisRupParam;
 	  
 	  // 
-	  public final static String BACK_SEIS_MAG_NAME = "Backgroud Seismicity Mmax";
+	  public final static String BACK_SEIS_MAG_NAME = "Backgroud Seis Mmax";
 	  public final static Double BACK_SEIS_MAG_MIN = new Double(5.0);
 	  public final static Double BACK_SEIS_MAG_MAX = new Double(9.0);
 	  public final static Double BACK_SEIS_MAG_DEFAULT = new Double(7.0);
@@ -152,34 +145,36 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private DoubleParameter rupOffset_Param;
 	  
 	  // rate for M>=5
-	  private final static String TOT_MAG_RATE_PARAM_NAME = "Total M>=5 Rate";
+	  private final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	  public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	  public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	  public final static Double TOT_MAG_RATE_DEFAULT = new Double(7.5);
-	  private final static String TOT_MAG_RATE_INFO = "Total regional rate of M>=5 events in the RELM test region (set as 4.05 for no aftershocks, or 7.5 including aftershocks)";
+	  private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 4.0 for no aftershocks, or 7.5 including aftershocks)";
 	  private DoubleParameter totalMagRateParam ;
 	  
 	  //choose mag area relationship
 	  private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
-	  private final static String MAG_AREA_RELS_PARAM_INFO = "Mag-Area Relationship for mean mag of characteristic events";
+	  private final static String MAG_AREA_RELS_PARAM_INFO = "Mag-Area Relationship for computing mean mag from area or vice versa";
 	  private StringParameter magAreaRelParam;
 	  private ArrayList magAreaRelationships;
 	  
 	  // choose deformation model
 	  private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
+	  private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.8 use Fault Model 2.1, and D2.9 to D2.16 use Fault Model 2.2";
 	  private StringParameter deformationModelsParam;
 	  private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
 	  private ArrayList deformationModelsList;
 	  
 	  // aseismic factor interpolated
-	  public final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor reduces section area";
-	  private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces section slip rate";
+	  public final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor Reduces Area?";
+	  private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces slip rate";
 	  private BooleanParameter aseisFactorInterParam; 
 	 
 	 
 	  //	 rupture model type
-	  public final static String RUP_MODEL_TYPE = "A Fault Model Type";
-	  public final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented A-Fault Model";
+	  public final static String RUP_MODEL_TYPE_NAME = "A-Fault Solution Type";
+	  public final static String RUP_MODEL_TYPE_INFO = "The type of solution to apply for all A-Fault Sources";
+	  public final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented Model";
 	  private StringParameter rupModelParam;
 	 
 	  // % char vs GR param
@@ -187,7 +182,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private final static Double CHAR_VS_GR_MIN = new Double(.0);
 	  private final static Double CHAR_VS_GR_MAX = new Double(100.0);
 	  private final static Double CHAR_VS_GR_DEFAULT = new Double(67.0);
-	  private final static String CHAR_VS_GR_INFO = "The % moment rate put into characteristic (vs GR) events on B Faults (and A faults for un-segmented option)";
+	  private final static String CHAR_VS_GR_INFO = "The % moment rate put into characteristic (vs GR) events on B-Faults (and A-Faults for un-segmented option)";
 	  private DoubleParameter percentCharVsGRParam; 
 	  
 	  // 
@@ -200,17 +195,34 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	  private final static Double MAG_SIGMA_MIN = new Double(0.0);
 	  private final static Double MAG_SIGMA_MAX = new Double(1.0);
 	  private final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
-	  private final static String MAG_SIGMA_INFO = "Standard Deviation for characteristic events";
+	  private final static String MAG_SIGMA_INFO = "Standard Deviation for characteristic MFD";
 	  private DoubleParameter magSigmaParam;
 	  
 	  // Char mag trunc level (units is number of sigmas) >=0 and <=6
 	 // Mag truncation level
 	  private final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
+	  private final static String TRUNC_LEVEL_PARAM_UNITS = "Number of sigmas";
 	  private final static Double TRUNC_LEVEL_MIN = new Double(0.0);
 	  private final static Double TRUNC_LEVEL_MAX = new Double(6.0);
 	  private final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
-	  private final static String TRUNC_LEVEL_INFO = "Truncation Level (Number of sigmas)";
+	  private final static String TRUNC_LEVEL_INFO = "This defines the last non-zero value on the characteristic MFD";
 	  private DoubleParameter truncLevelParam;
+	  
+	  public final static String B_FAULTS_B_VAL_PARAM_NAME = "B-Faults b-value";
+	  public final static String B_FAULTS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to B-Faults";
+	  public final static double B_FAULT_GR_B_DEFAULT= 1.0;
+	  public final static Double B_VAL_MIN = new Double(-1);
+	  public final static Double B_VAL_MAX = new Double(2);
+	  public DoubleParameter bFaultB_ValParam;
+	  
+	  public final static String REGION_B_VAL_PARAM_NAME = "Regional b-value";
+	  public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the entire region";
+	  public final static double REGIONAL_B_DEFAULT = 1.0;
+	  // min and max same as for bFaultB_ValParam
+	  public DoubleParameter regionB_ValParam;
+	  
+	  
+
 	  
 	  // A and B faults fetcher
 	  private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
@@ -280,31 +292,31 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	    rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
 	    
 	    // total M>-5 rate
-	    this.totalMagRateParam = new DoubleParameter(TOT_MAG_RATE_PARAM_NAME, TOT_MAG_RATE_MIN,
+	    totalMagRateParam = new DoubleParameter(TOT_MAG_RATE_PARAM_NAME, TOT_MAG_RATE_MIN,
 	    		TOT_MAG_RATE_MAX, TOT_MAG_RATE_DEFAULT);
 	    totalMagRateParam.setInfo(TOT_MAG_RATE_INFO);
 	    
 	    // % char vs GR param
 	    percentCharVsGRParam = new DoubleParameter(CHAR_VS_GR_PARAM_NAME, CHAR_VS_GR_MIN,
 	    		CHAR_VS_GR_MAX, CHAR_VS_GR_DEFAULT);
-	    totalMagRateParam.setInfo(CHAR_VS_GR_INFO);
+	    percentCharVsGRParam.setInfo(CHAR_VS_GR_INFO);
 	    
 	    // aseis factor param
 	    aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
 		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		
 		//		 make objects of Mag Area Relationships
-		 magAreaRelationships = new ArrayList();
+		magAreaRelationships = new ArrayList();
 		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
 		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
 		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
-		magAreaRelationships.add(new WC1994_MagAreaRelationship());
+//		magAreaRelationships.add(new WC1994_MagAreaRelationship());
 		// array List of Mag Area Rel names
 		ArrayList magAreaNamesList = new ArrayList();
 		for(int i=0; i<magAreaRelationships.size(); ++i)
 			magAreaNamesList.add(((MagAreaRelationship)magAreaRelationships.get(i)).getName());
-		magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaNamesList, (String)magAreaNamesList.get(0));
+		magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaNamesList, (String)magAreaNamesList.get(3));
 		magAreaRelParam.setInfo(MAG_AREA_RELS_PARAM_INFO);
 		
 		
@@ -316,14 +328,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			deformationModelNames.add(((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName());
 		}
 		deformationModelsParam = new StringParameter(DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, (String)deformationModelNames.get(0) );
-
+		deformationModelsParam.setInfo(DEFORMATION_MODEL_PARAM_INFO);
+		
 		// A-Fault model type
 		ArrayList rupModels = new ArrayList();
 		rupModels.add(A_FaultsFetcher.MIN_RATE_RUP_MODEL);
 		rupModels.add(A_FaultsFetcher.MAX_RATE_RUP_MODEL);
 		rupModels.add(A_FaultsFetcher.GEOL_INSIGHT_RUP_MODEL);
 		rupModels.add(UNSEGMENTED_A_FAULT_MODEL);
-		rupModelParam = new StringParameter(RUP_MODEL_TYPE, rupModels, (String)rupModels.get(0));
+		rupModelParam = new StringParameter(RUP_MODEL_TYPE_NAME, rupModels, A_FaultsFetcher.GEOL_INSIGHT_RUP_MODEL);
+		rupModelParam.setInfo(RUP_MODEL_TYPE_INFO);
 
 		
 		// mag Sigma Param
@@ -333,27 +347,28 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		// trunc level
 		truncLevelParam = new DoubleParameter(TRUNC_LEVEL_PARAM_NAME, TRUNC_LEVEL_MIN, TRUNC_LEVEL_MAX,
-				TRUNC_LEVEL_DEFAULT);
+				TRUNC_LEVEL_PARAM_UNITS, TRUNC_LEVEL_DEFAULT);
 		truncLevelParam.setInfo(TRUNC_LEVEL_INFO);
 		
-		this.bFaultB_ValParam = new DoubleParameter(this.B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.B_FAULT_GR_B_DEFAULT));
-		this.regionB_ValParam = new DoubleParameter(this.REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.REGIONAL_B_DEFAULT));
-		
+		bFaultB_ValParam = new DoubleParameter(this.B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.B_FAULT_GR_B_DEFAULT));
+		bFaultB_ValParam.setInfo(B_FAULTS_B_VAL_PARAM_INFO);
+		regionB_ValParam = new DoubleParameter(this.REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.REGIONAL_B_DEFAULT));
+		regionB_ValParam.setInfo(REGION_B_VAL_PARAM_INFO);
 		
 	    //	 add adjustable parameters to the list
-	    // adjustableParams.addParameter(faultModelParam);
-	    adjustableParams.addParameter(rupOffset_Param);
-	    adjustableParams.addParameter(totalMagRateParam);
+//	    adjustableParams.addParameter(faultModelParam);		not needed for now
+//	    adjustableParams.addParameter(rupOffset_Param);		not needed for now
 	    adjustableParams.addParameter(deformationModelsParam);
-	    adjustableParams.addParameter(magAreaRelParam);
 	    adjustableParams.addParameter(aseisFactorInterParam);
+	    adjustableParams.addParameter(magAreaRelParam);
 	    adjustableParams.addParameter(rupModelParam);
-	    adjustableParams.addParameter(percentCharVsGRParam);
-	    adjustableParams.addParameter(bFaultB_ValParam);
-	    adjustableParams.addParameter(regionB_ValParam);
 	    adjustableParams.addParameter(magSigmaParam);
 	    adjustableParams.addParameter(truncLevelParam);
-	    adjustableParams.addParameter(backSeisParam);
+	    adjustableParams.addParameter(percentCharVsGRParam);
+	    adjustableParams.addParameter(bFaultB_ValParam);
+//	    adjustableParams.addParameter(backSeisParam);		not needed for now
+	    adjustableParams.addParameter(totalMagRateParam);
+	    adjustableParams.addParameter(regionB_ValParam);
 	    adjustableParams.addParameter(backSeisMaxMagParam);
 	  }
 	  
