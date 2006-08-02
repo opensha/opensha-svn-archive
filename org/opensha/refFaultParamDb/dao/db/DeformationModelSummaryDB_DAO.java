@@ -135,7 +135,8 @@ public class DeformationModelSummaryDB_DAO {
 
 	  private ArrayList query(String condition) throws QueryException {
 	    ArrayList deformationModelList = new ArrayList();
-	    String sql =  "select "+DEF_MODEL_ID+","+FAULT_MODEL_ID+","+DEF_MODEL_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
+	    String sql =  "select "+DEF_MODEL_ID+","+FAULT_MODEL_ID+","+DEF_MODEL_NAME+","+CONTRIBUTOR_ID+" from "+
+	    TABLE_NAME+condition+ " order by "+DEF_MODEL_ID;
 	    try {
 	      ResultSet rs  = dbAccessAPI.queryData(sql);
 	      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccessAPI);
