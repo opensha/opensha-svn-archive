@@ -134,9 +134,9 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
 	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
 	   forecast.getTimeSpan().setDuration(50.0);
-	   forecast.getAdjustableParameterList().getParameter(
+	  /* forecast.getAdjustableParameterList().getParameter(
                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
-                                        BACK_SEIS_EXCLUDE);
+                                        BACK_SEIS_EXCLUDE);*/
 	   forecast.getAdjustableParameterList().getParameter(
 	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
 	                                         BACK_SEIS_INCLUDE);
