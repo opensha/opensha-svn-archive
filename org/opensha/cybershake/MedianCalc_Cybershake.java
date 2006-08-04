@@ -6,6 +6,7 @@ import org.opensha.data.LocationList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_GR_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.*;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.*;
@@ -486,7 +487,7 @@ public class MedianCalc_Cybershake
         double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
         if (sourceDistFromSite > sourceCutOffDistance)
           continue;
-        if(!(source instanceof Frankel02_GR_EqkSource))
+        if(!(source instanceof FaultRuptureSource))
      	   continue;
 
         // get the number of ruptures for the current source
@@ -497,9 +498,9 @@ public class MedianCalc_Cybershake
 
           EqkRupture rupture = source.getRupture(n);
           float mag = (float)rupture.getMag();
-        	  mag = (float)(1.89 + 0.69 * mag);
+        	  //mag = (float)(1.89 + 0.69 * mag);
           if(mag >=6.0 && mag<=7.0){
-        	      rupture.setMag(mag);
+        	      //rupture.setMag(mag);
 	          // set the EqkRup in the IMR
 	          imr.setEqkRupture(rupture);
 	
@@ -560,7 +561,7 @@ public class MedianCalc_Cybershake
 	          double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
 	          if (sourceDistFromSite > sourceCutOffDistance)
 	            continue;
-	          if(!(source instanceof Frankel02_GR_EqkSource))
+	          if(!(source instanceof FaultRuptureSource))
 	        	   continue;
 	          // get the number of ruptures for the current source
 	          int numRuptures = source.getNumRuptures();
@@ -569,7 +570,7 @@ public class MedianCalc_Cybershake
 	
 	            ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
 	            float mag = (float)rupture.getMag();
-	        	    mag = (float)(1.89 + 0.69 * mag);
+	        	    //mag = (float)(1.89 + 0.69 * mag);
 	            if(mag >=6.0 && mag<=7.0){
 		            double rate = -Math.log(1 - rupture.getProbability())/duration;
 		            fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+mag+"  "+source.getName() + "\n");
@@ -611,6 +612,9 @@ public class MedianCalc_Cybershake
           double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
           if (sourceDistFromSite > sourceCutOffDistance)
             continue;
+          
+          if(!(source instanceof FaultRuptureSource))
+   	          continue;
 
           // get the number of ruptures for the current source
           int numRuptures = source.getNumRuptures();

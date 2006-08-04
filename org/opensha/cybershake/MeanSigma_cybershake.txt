@@ -30,7 +30,7 @@ false
 # "USGS_Combined_2004_AttenRel"
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
-AS_1997_AttenRel
+Field_2000_AttenRel
 #
 # Next, first choose the number of Intensity Measure Types to consider 
 # in this calculation, and then specify those Intensity Measure Types.  

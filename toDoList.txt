@@ -3,6 +3,62 @@
 
 Mean/sigma calculator at multiple sites (for Nico, Patti, and Cybershake)
 
+Patti comments
+---------------
+I really like the application and I have a few suggestions in regard to the
+output files format.
+   It would be useful to define EventIDs from the sourceID and rupture ID
+   pairs. The EventID can be defined in the Src-Rup Metadata file and then
+   used in the Mean and Sigma file instead of repeating the SrcID and
+   RuptID
+   I would prefer to keep the 'mean sigma file' as lean as possible as if
+   there are many sites and many events, the size of the file can grow
+   substantially
+   Provide the option to write the rupture distance file, as with many
+   sites this may not be used
+   Provide the option to enter a threshold for the IMT to keep in the
+   output files, so all the EventID-SiteID pairs with an IMT value lower
+   than the threshold won't show up in the file
+   Write the Mean Sigma file as follows:
+
+            EventID_i   SiteID_i    Mean(Event_i, Site_i)
+SD(Event_i, Site_i)
+----------------------
+
+Keith Comments
+------------------
+Second, using commas and quotes within a source name does not affect one's
+ability to use CSV format. Commas can appear within a text string, because
+the string doesn't end until the second double-quotes is encountered.
+Double-quotes can appear _within_ a text string as long as the double-quote
+is doubled, i.e., "". Two double-quotes appearing within a text string are
+treated as a literal double-quote, rather than as the end of the text
+string. (Try opening "test.csv" in Excel.)
+
+Third, regarding "C," what I mean is that the output file could have the
+following field list: 
+
+SourceID
+RuptureID
+SiteID
+AttenID
+IMT
+Mean
+Stdev
+
+Thus, one record refers to combination of source ID, rupture ID, site ID,
+and AttenID, and gives the one Mean IM and the one Stdev IM value for that
+combination. Where the current output has one line for 3 sites, the proposed
+format would have three lines. Where the current output has 12 files (4
+attenuation relationships x 3 intensity measure types), the proposed format
+would have one file. If you'd like the schema files for the tables I have
+created form your output files, I can email them. I don't know if you would
+find them useful. 
+-----------------------------
+
+
+
+
 NGA models implementation
 
 Hazus PSHA dataset calculator - GUI-based app?
