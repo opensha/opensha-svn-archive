@@ -24,7 +24,7 @@ public class FaultSections {
   private final static String INPUT_FILE_NAME2 = "javaDevelopers/ned/NSHMP02_CA_Traces_RV.txt";
   private final static String INPUT_FILE_NAME3 = "javaDevelopers/ned/NSHMP02_CA_Traces_SS.txt";
   private HashMap faultTraceMapping; // fault section and their correpsonding traces
-  private final static double LAT_CUTOFF = 45.0; // any fault section have a location above this CUTOFF is neglected
+  private final static double LAT_CUTOFF = 34.0; // any fault section have a location above this CUTOFF is neglected
   private FileWriter fw;
 
   // load the fault sections from files
@@ -81,7 +81,7 @@ public class FaultSections {
           StringTokenizer tokenizer = new StringTokenizer(line);
           lon = Double.parseDouble(tokenizer.nextToken());
           lat = Double.parseDouble(tokenizer.nextToken());
-          if (lat > this.LAT_CUTOFF)
+          if (lat > LAT_CUTOFF)
             lowerThanCutoff = false;
           depth = Double.parseDouble(tokenizer.nextToken());
           locList.addLocation(new Location(lat, lon, depth));

@@ -38,15 +38,15 @@ public class PrepareTreeStructure {
   private ArrayList rupList;
   private ArrayList faultSectionPrintOrder;
   //private double rupLength;
-  private int rupCounter =0;
+  //private int rupCounter =0;
   private boolean doOneSection= false; // whether we need to do just a particular section
   private int sectionIndex=-1;
   private String faultSectionFilename1, faultSectionFilename2, faultSectionFilename3;
   private boolean writeSectionsToFile = true;
   // whether we need ruptures above a specified length
-  private final static boolean isMinRupLenCutOff = false;
+  private final static boolean isMinRupLenCutOff = true;
   // minimum rup length in case we want to just view ruptures greater than a specific length
-  private final static double MIN_RUP_LEN = 100;
+  private final static double MIN_RUP_LEN = 50;
 
   public PrepareTreeStructure() {
   }
@@ -238,9 +238,11 @@ public class PrepareTreeStructure {
   private void processFaultSection(String faultSectionName) {
     // add the links to nearby fault sections
     addSecondaryLinks(faultSectionName, new ArrayList());
+    System.out.println("After adding secondary links");
     // get all the ruptures
-    //getRuptures(faultSectionName);
-    Node node = (Node) faultTree.get(faultSectionName);
+    getRuptures(faultSectionName);
+    System.out.println("After getting ruptures");
+   /* Node node = (Node) faultTree.get(faultSectionName);
     try {
       double dist;
       while (node != null) { // print the nearby Sections
@@ -272,7 +274,7 @@ public class PrepareTreeStructure {
       }
     }catch(Exception e) {
       e.printStackTrace();
-    }
+    }*/
 
     // remove the secondary links
     removeSecondaryLinks();
@@ -309,9 +311,9 @@ public class PrepareTreeStructure {
       ArrayList nodesList = new ArrayList();
       nodesList.add(node);
       traverse(node, nodesList, 0.0f);
-      double offsetDist=0;
-      Location loc1 = node.getLoc();
-      Location loc2;
+      //double offsetDist=0;
+      //Location loc1 = node.getLoc();
+      //Location loc2;
       node = node.getPrimaryLink();
     }
   }
@@ -373,7 +375,9 @@ public class PrepareTreeStructure {
 
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, float rupLen) {
-    // sinle location ruptures are excluded
+    // single location ruptures are excluded
+	//if(!nodesList.contains(node)) nodesList.add(node);
+	//else return;
     if(nodesList.size()>1 &&
        (!isMinRupLenCutOff || (isMinRupLenCutOff && rupLen>MIN_RUP_LEN))) {
         // check if rupture already exists in the list
@@ -381,7 +385,6 @@ public class PrepareTreeStructure {
          //   nodesList.clone());
         Location startLoc = ( (Node) nodesList.get(0)).getLoc();
         Location endLoc = ( (Node) nodesList.get(nodesList.size()-1)).getLoc();
-
         // strategy to eliminate duplcate ruptures
         if((endLoc.getLatitude()>startLoc.getLatitude()) ||
            (endLoc.getLatitude()==startLoc.getLatitude() && endLoc.getLongitude()>startLoc.getLongitude())) {
@@ -392,7 +395,6 @@ public class PrepareTreeStructure {
             this.addToFaultSectionPrintOrder( ( (Node) nodesList.get(i)).
                                              getFaultSectionName());
         }
-
         // if rupture does not exist already, then add it
         /*if (!rupList.contains(multiSectionRup)) {
           multiSectionRup.setLength(rupLen);
@@ -403,11 +405,12 @@ public class PrepareTreeStructure {
           rupList.add(multiSectionRup);
         }*/
       }
-
+      //System.out.println(node.getId());
       // first select the primary link
       Node nextNode;
 
       // first select the primary link
+      //System.out.println("Accessing the primary links");
       nextNode = node.getPrimaryLink();
       if(nextNode!=null && !nodesList.contains(nextNode)) {
         Location loc = nextNode.getLoc();
@@ -415,8 +418,9 @@ public class PrepareTreeStructure {
         traverse(nextNode, nodesList, rupLen+(float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
-
+      
       // access the secondary links
+      //System.out.println("Accessing the secondary links");
       ArrayList secondaryLinks = node.getSecondaryLinks();
       for(int i=0; secondaryLinks!=null && i<secondaryLinks.size(); ++i) {
         nextNode = (Node)secondaryLinks.get(i);
@@ -430,6 +434,7 @@ public class PrepareTreeStructure {
         traverse(nextNode, nodesList, rupLen+dist);
         nodesList.remove(nextNode);
       }
+      //nodesList.remove(node);
   }
 
   /**
@@ -455,25 +460,30 @@ public class PrepareTreeStructure {
     faultTree = new HashMap();
     // create individual trees for each section
     int id =1;
+    int numSubSections = 0;
     while(it.hasNext()) {
       String faultSectionName = (String)it.next();
       LocationList locList = (LocationList)faultTraceMapping.get(faultSectionName);
+      ++numSubSections;
       Node node = new Node(id++, faultSectionName, locList.getLocationAt(0));
       faultTree.put(faultSectionName, node);
       // discretization is 5km
       int i;
       for(i=DISCRETIZATION; i<locList.size(); i=i+DISCRETIZATION) {
+    	 ++numSubSections;
         Node newNode = new Node(id++, faultSectionName, locList.getLocationAt(i));
         node.setPrimaryLink(newNode);
         node = newNode;
       }
       // include the last point in the fault trace
       if((i-DISCRETIZATION)!=(locList.size()-1)) {
+    	++numSubSections;
         Node newNode = new Node(id++, faultSectionName, locList.getLocationAt(locList.size()-1));
         node.setPrimaryLink(newNode);
         node = newNode;
       }
     }
+    System.out.println("Number of "+DISCRETIZATION+" km subsections="+numSubSections);
   }
 
 
