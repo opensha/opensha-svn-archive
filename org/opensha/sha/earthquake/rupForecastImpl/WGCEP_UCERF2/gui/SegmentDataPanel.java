@@ -26,6 +26,8 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_Ma
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
 
 /**
  * Panel to show the Segments and Fault sections data 
@@ -39,7 +41,7 @@ public class SegmentDataPanel extends JPanel {
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private JTextArea magAreasTextArea = new JTextArea();
-	private ArrayList magAreaRelationships;
+	
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	
@@ -73,15 +75,64 @@ public class SegmentDataPanel extends JPanel {
 	 * @param faultSegmentData
 	 * @param isAseisReducesArea
 	 */
-	public void setFaultSegmentData(FaultSegmentData faultSegmentData, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
+	public void setFaultSegmentData(A_FaultSegmentedSource segmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
+		FaultSegmentData faultSegmentData = segmentedSource.getFaultSegmentData();
+		double[] predMRI = new double[faultSegmentData.getNumSegments()];
+		double[] finalMRI = new double[predMRI.length];
+		for(int i=0; i<finalMRI.length; ++i) {
+			predMRI[i] = 1.0/segmentedSource.getSegRateFromAprioriRates(i);
+			finalMRI[i] = segmentedSource.getFinalSegRecurInt(i);
+		}
+		// update the segment table model
+		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, predMRI, finalMRI);
+	}
+	
+	
+	/**
+	 * Update the data in the tables with the selected fault 
+	 * 
+	 * @param faultSegmentData
+	 * @param isAseisReducesArea
+	 */
+	public void setFaultSegmentData(UnsegmentedSource unsegmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
+		FaultSegmentData faultSegmentData = unsegmentedSource.getFaultSegmentData();
+		double[] predMRI = new double[faultSegmentData.getNumSegments()];
+		double[] finalMRI = new double[predMRI.length];
+		for(int i=0; i<finalMRI.length; ++i) {
+			predMRI[i] = Double.NaN;
+			finalMRI[i] = Double.NaN;
+		}
+		// update the segment table model
+		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, predMRI, finalMRI);
+	}
+
+
+	/**
+	 * Update the segment table model
+	 * @param isAseisReducesArea
+	 * @param magAreaRelationships
+	 * @param faultSegmentData
+	 * @param predMRI
+	 * @param finalMRI
+	 */
+	private void updateSegTableModel(boolean isAseisReducesArea, ArrayList magAreaRelationships, FaultSegmentData faultSegmentData, 
+			double[] predMRI, double[] finalMRI) {
 		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships);
-		segmentTableModel.setSegmentedFaultData(faultSegmentData);
+		segmentTableModel.setSegmentedFaultData(faultSegmentData, predMRI, finalMRI);
 		segmentTableModel.fireTableDataChanged();
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
 		else faultSectionTableModel.setFaultSectionData(null);
 		faultSectionTableModel.fireTableDataChanged();
 	}
 	
+	
+	
+	/**
+	 * Set mag and slip
+	 * @param segmetedFaultData
+	 * @param isAseisReducesArea
+	 * @param magAreaRelationships
+	 */
 	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea, ArrayList magAreaRelationships ) {
 		magAreasTextArea.setText("");
 		if(segmetedFaultData==null) return ;
@@ -102,8 +153,20 @@ public class SegmentDataPanel extends JPanel {
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;
 		if(isAseisReducesArea) text = MSG_ASEIS_REDUCES_AREA;
-		magAreasTextArea.setText(text+"\n\n"+summaryString);
+		magAreasTextArea.setText(getLegend()+"\n\n"+text+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
+	}
+	
+	private String getLegend() {
+		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
+		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
+		legend += "Final MRI - Final MRI given MFDs\n";
+		legend += "Char Slip - meters\n";
+		legend += "Slip Rate - mm/yr\n";
+		legend += "Area - sq km\n";
+		legend += "Length - km\n";
+		legend += "Moment Rate - Newton-Meters/yr\n";
+		return legend;
 	}
 }
 
@@ -223,13 +286,13 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Segment Name", "Segment Num", "Rec Interv (yr)","Slip Rate (mm/yr)", "Area (sq-km)",
-		"Length (km)", "Moment Rate", "Sections In Segment"};
+	private final static String[] columnNames = { "Seg Name", "Num", "Slip Rate", "Area",
+		"Length", "Moment Rate", "Orig MRI", "Pred MRI", "final MRI", "Char Slip", "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
-	
+	private double[] predMRI, finalMRI;
 	
 	
 	/**
@@ -237,23 +300,25 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 *
 	 */
 	public SegmentDataTableModel() {
-		this(null);
+		this(null, null, null);
 	}
 	
 	/**
 	 * Segmented Fault data
 	 * @param segFaultData
 	 */
-	public SegmentDataTableModel( FaultSegmentData segFaultData) {
-		setSegmentedFaultData(segFaultData);
+	public SegmentDataTableModel( FaultSegmentData segFaultData, double[] predMRI, double[] finalMRI) {
+		setSegmentedFaultData(segFaultData, predMRI, finalMRI);
 	}
 	
 	/**
 	 * Set the segmented fault data
 	 * @param segFaultData
 	 */
-	public void setSegmentedFaultData(FaultSegmentData segFaultData) {
+	public void setSegmentedFaultData(FaultSegmentData segFaultData, double[] predMRI, double[] finalMRI) {
 		this.segFaultData =   segFaultData;
+		this.predMRI = predMRI;
+		this.finalMRI = finalMRI;
 	}
 	
 	/**
@@ -288,25 +353,36 @@ class SegmentDataTableModel extends AbstractTableModel {
 	public Object getValueAt (int rowIndex, int columnIndex) {
 		if(segFaultData==null) return "";
 		if(rowIndex == segFaultData.getNumSegments()) return getTotalValues(columnIndex);
+		
+		
+		//"Seg Name", "Num", "Slip Rate (mm/yr)", "Area (sq-km)",
+		//"Length (km)", "Moment Rate", "Orig MRI", "Pred MRI", "final MRI", "Char Slip", "Sections In Segment"
+		
 		switch(columnIndex) {
 			case 0:
 				return segFaultData.getSegmentName(rowIndex);
 			case 1:
 				return ""+(rowIndex+1);
-			case 2:
-				return ""+(int)segFaultData.getRecurInterval(rowIndex);
-			case 3: 
+			case 2: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
-			case 4:
+			case 3:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
-			case 5:
+			case 4:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
-			case 6:
+			case 5:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
+			case 6:
+				return ""+(int)segFaultData.getRecurInterval(rowIndex);
 			case 7:
+				return ""+(int)this.predMRI[rowIndex];
+			case 8:
+				return ""+(int)this.finalMRI[rowIndex];
+			case 9:	
+				return ""+ SLIP_RATE_FORMAT.format(this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex)*1e3);
+			case 10:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
@@ -319,15 +395,15 @@ class SegmentDataTableModel extends AbstractTableModel {
 		case 1: 
 			// convert to mm/yr
 			return "";
-		case 4:
+		case 3:
 			// convert to sq km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
-		case 5:
+		case 4:
 			// convert to km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
-		case 6:
+		case 5:
 			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
-		case 7:
+		case 8:
 			return "";
 	}
 	return "";

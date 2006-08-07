@@ -56,7 +56,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.YELLOW, 2);
+		      Color.PINK, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.MAGENTA, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -230,11 +230,13 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private void updateA_FaultTableData() {
 		String selectedFault = (String)aFaultParam.getValue();
 		Object source =   aFaultSourceMap.get(selectedFault);
+		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
 		if(!this.isUnsegmented)  {
 			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
+			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+		} else {
+			this.segmentDataPanel.setFaultSegmentData((UnsegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
 		}
-		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
-		this.segmentDataPanel.setFaultSegmentData(getFaultSegmentData(source), isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
 	} 
 
 
