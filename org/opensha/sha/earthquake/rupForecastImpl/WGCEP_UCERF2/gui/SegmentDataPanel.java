@@ -161,11 +161,11 @@ public class SegmentDataPanel extends JPanel {
 		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
 		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
 		legend += "Final MRI - Final MRI given MFDs\n";
+		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
 		legend += "Char Slip - meters\n";
 		legend += "Slip Rate - mm/yr\n";
 		legend += "Area - sq km\n";
 		legend += "Length - km\n";
-		legend += "Moment Rate - Newton-Meters/yr\n";
 		return legend;
 	}
 }
@@ -287,11 +287,12 @@ class FaultSectionTableModel extends AbstractTableModel {
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	private final static String[] columnNames = { "Seg Name", "Num", "Slip Rate", "Area",
-		"Length", "Moment Rate", "Orig MRI", "Pred MRI", "final MRI", "Char Slip", "Sections In Segment"};
+		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
-	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
-	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
+	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
+	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
+	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private double[] predMRI, finalMRI;
 	
 	
@@ -381,7 +382,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 8:
 				return ""+(int)this.finalMRI[rowIndex];
 			case 9:	
-				return ""+ SLIP_RATE_FORMAT.format(this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex)*1e3);
+				return ""+ CHAR_SLIP_RATE_FORMAT.format(this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex));
 			case 10:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
