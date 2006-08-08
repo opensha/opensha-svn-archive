@@ -3,6 +3,7 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -22,9 +24,15 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**
@@ -63,8 +71,10 @@ class B_FaultDataTableModel extends AbstractTableModel {
 	private ArrayList unsegmentedSourceList;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
-	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
+	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
+	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.00000");
+	private final static DecimalFormat ASEISMSIC_FORMAT = new DecimalFormat("0.00");
 	
 	
 	/**
@@ -88,7 +98,12 @@ class B_FaultDataTableModel extends AbstractTableModel {
 	 * @param segFaultData
 	 */
 	public void setUnsegmentedSourceList(ArrayList unsegmentedSourceList) {
-		this.unsegmentedSourceList =   unsegmentedSourceList;
+		TreeMap map = new TreeMap();
+		for(int i=0; i<unsegmentedSourceList.size(); ++i) {
+			UnsegmentedSource source = (UnsegmentedSource)unsegmentedSourceList.get(i);
+			map.put(source.getFaultSegmentData().getFaultName(), source);
+		}
+		this.unsegmentedSourceList =   new ArrayList(map.values());
 	}
 	
 	/**
@@ -147,11 +162,22 @@ class B_FaultDataTableModel extends AbstractTableModel {
 			case 6:
 				return MOMENT_FORMAT.format(faultSegmentData.getTotalMomentRate());
 			case 7:
-				return ""+faultSegmentData.getTotalAveAseismicityFactor();
+				return ASEISMSIC_FORMAT.format(faultSegmentData.getTotalAveAseismicityFactor());
 			case 8:
 				ArrayList funcs = new ArrayList();
-				funcs.add(source.getMagFreqDist());
-				funcs.add(source.getVisibleSourceMagFreqDist());
+				IncrementalMagFreqDist magFreqDist1 = source.getMagFreqDist();
+				magFreqDist1.setName("Mag Freq Dist");
+				EvenlyDiscretizedFunc cumFreqDist1 = magFreqDist1.getCumRateDist();
+				cumFreqDist1.setName("Cumulative Mag Freq Dist");
+				funcs.add(magFreqDist1);
+				funcs.add(cumFreqDist1);
+				
+				IncrementalMagFreqDist magFreqDist2 = source.getVisibleSourceMagFreqDist();
+				magFreqDist2.setName("Visible Mag Freq Dist (Dashed Lines)");
+				EvenlyDiscretizedFunc cumFreqDist2 = magFreqDist2.getCumRateDist();
+				cumFreqDist2.setName("Visible Cumulative Mag Freq Dist (Dashed Lines)");
+				funcs.add(magFreqDist2);
+				funcs.add(cumFreqDist2);
 				return funcs;
 		}
 		return "";
@@ -172,7 +198,7 @@ class B_Faults_Table extends JTable {
 	 */
 	public B_Faults_Table(TableModel dm) {
 		super(dm);
-		getTableHeader().setReorderingAllowed(false);
+		setColumnSelectionAllowed(true);
 		getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer(MFD));
 		addMouseListener(new MouseListener(this));
 		// set width of first column 
@@ -196,8 +222,21 @@ class B_Faults_Table extends JTable {
  * @author vipingupta
  *
  */
-class MouseListener extends MouseAdapter {
+class MouseListener extends MouseAdapter  implements GraphWindowAPI {
 	private JTable table;
+	private ArrayList funcs;
+	//	 SOLID LINES
+	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.BLUE, 2);
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.RED, 2);
+	// dashed lines
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
+		      Color.BLUE, 2);
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
+		      Color.RED, 2);
+	
+
 	
 	public MouseListener(JTable table) {
 		this.table = table;
@@ -210,9 +249,97 @@ class MouseListener extends MouseAdapter {
         int column = table.columnAtPoint(p); // This is the view column!
         TableModel tableModel = table.getModel();
         if(column==8) { // edit slip rate
-        	ArrayList funcs = (ArrayList)tableModel.getValueAt(row, column);
-        	new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
+        	funcs = (ArrayList)tableModel.getValueAt(row, column);
+        	GraphWindow graphWindow= new GraphWindow(this);
+    	    graphWindow.setPlotLabel("Mag Rate");
+    	    graphWindow.plotGraphUsingPlotPreferences();
+    	    //graphWindow.pack();
+    	    graphWindow.setVisible(true);;
         }
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
+	 */
+	public ArrayList getCurveFunctionList() {
+		return funcs;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
+	 */
+	public boolean getXLog() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
+	 */
+	public boolean getYLog() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
+	 */
+	public String getXAxisLabel() {
+		return "Mag";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
+	 */
+	public String getYAxisLabel() {
+		return "Rate";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
+	 */
+	public ArrayList getPlottingFeatures() {
+		 ArrayList list = new ArrayList();
+		 list.add(this.PLOT_CHAR1);
+		 list.add(this.PLOT_CHAR2);
+		 list.add(this.PLOT_CHAR3);
+		 list.add(this.PLOT_CHAR4);
+		 return list;
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
+	 */
+	public boolean isCustomAxis() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
+	 */
+	public double getMinX() {
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
+	 */
+	public double getMaxX() {
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
+	 */
+	public double getMinY() {
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
+	 */
+	public double getMaxY() {
+		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 }	

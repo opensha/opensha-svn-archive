@@ -20,12 +20,14 @@ import javax.swing.table.AbstractTableModel;
 
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * Show the rupture data in the window
@@ -35,7 +37,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  */
 public class RuptureDataPanel extends JPanel implements ActionListener, GraphWindowAPI {
 	private RuptureTableModel rupTableModel = new RuptureTableModel();
-	private JButton mfdButton = new JButton("Selected A Fault MFD");
+	private JButton mfdButton = new JButton("Plot Selected Fault MFDs");
 	private JButton magAreaPlotButton = new JButton("Mag Area Plot (Color coded by Relative Rup Rates)");
 	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
 	private A_FaultSegmentedSource source;
@@ -93,8 +95,9 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	
 	public RuptureDataPanel() {
 		this.setLayout(new GridBagLayout());
-		
-		add(new JScrollPane(new JTable(this.rupTableModel)),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+		JTable table = new JTable(this.rupTableModel);
+		table.setColumnSelectionAllowed(true);
+		add(new JScrollPane(table),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(mfdButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
@@ -304,7 +307,11 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		Object eventSource = event.getSource();
 		if(eventSource == mfdButton) { // MFD for selected A Fault
 			ArrayList funcs = new ArrayList();
-			funcs.add(source.getTotalRupMFD());
+			IncrementalMagFreqDist magFreqDist = source.getTotalRupMFD();
+			EvenlyDiscretizedFunc cumRateDist = magFreqDist.getCumRateDist();
+			cumRateDist.setInfo("Cumulative Mag Freq Dist");
+			funcs.add(magFreqDist);
+			funcs.add(cumRateDist);
 			new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
 		} else if(eventSource == this.magAreaPlotButton) {
 			this.createFuncListColorCodingByRupRates();
@@ -432,7 +439,7 @@ class RuptureTableModel extends AbstractTableModel {
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.00000");
-	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.#####E0");
+	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private A_FaultSegmentedSource aFaultSegmentedSource;
 	
 	/**
@@ -520,12 +527,21 @@ class RuptureTableModel extends AbstractTableModel {
 	 * @return
 	 */
 	private String getTotal(int colIndex) {
+		double totalRate = 0.0;
 		switch(colIndex) {
-		case 0:
-			return "Total";
-		case 5:
-			if(aFaultSegmentedSource!=null)
-				return MOMENT_FORMAT.format(aFaultSegmentedSource.getTotalMoRateFromRups());
+			case 0:
+				return "Total";
+			case 3:
+				for(int i=0; i<aFaultSegmentedSource.getNumRuptures(); ++i)
+					totalRate+=aFaultSegmentedSource.getRupRate(i);
+				return RATE_FORMAT.format(totalRate);
+			case 4:
+				for(int i=0; i<aFaultSegmentedSource.getNumRuptures(); ++i)
+					totalRate+=aFaultSegmentedSource.getAPrioriRupRate(i);
+				return RATE_FORMAT.format(totalRate);
+			case 5:
+				if(aFaultSegmentedSource!=null)
+					return MOMENT_FORMAT.format(aFaultSegmentedSource.getTotalMoRateFromRups());
 		
 		}
 		return "";

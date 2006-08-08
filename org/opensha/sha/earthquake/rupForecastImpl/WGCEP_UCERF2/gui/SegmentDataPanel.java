@@ -57,10 +57,13 @@ public class SegmentDataPanel extends JPanel {
 		magAreasTextArea.setLineWrap(true);
 		magAreasTextArea.setWrapStyleWord(true);
 		JTable sectionDataTable = new JTable(faultSectionTableModel);
+		sectionDataTable.setColumnSelectionAllowed(true);
+		
 		JSplitPane sectionDataSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		sectionDataSplitPane.add(new JScrollPane(sectionDataTable),JSplitPane.BOTTOM);
 		sectionDataSplitPane.add(new JScrollPane(this.magAreasTextArea),JSplitPane.TOP);
 		JTable segmentTable = new JTable(this.segmentTableModel);
+		segmentTable.setColumnSelectionAllowed(true);
 		rightSplitPane.add(new JScrollPane(segmentTable), JSplitPane.TOP);
 		rightSplitPane.add(sectionDataSplitPane, JSplitPane.BOTTOM);
 		rightSplitPane.setDividerLocation(150);
@@ -184,6 +187,7 @@ class FaultSectionTableModel extends AbstractTableModel {
 		"Upper Depth (km)", "Lower Depth (km)", "Ave Dip (degrees)"};
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
+	private final static DecimalFormat ASEISMSIC__FORMAT = new DecimalFormat("0.00");
 	private ArrayList faultSectionsPrefDataList = new ArrayList();
 	
 	/**
@@ -255,7 +259,7 @@ class FaultSectionTableModel extends AbstractTableModel {
 			case 1: // convert to mm/yr
 				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getAveLongTermSlipRate());
 			case 2:
-				return ""+faultSectionPrefData.getAseismicSlipFactor();
+				return ASEISMSIC__FORMAT.format(faultSectionPrefData.getAseismicSlipFactor());
 			case 3:
 				// km
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getLength());
