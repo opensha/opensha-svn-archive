@@ -69,7 +69,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     double[] xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
-    calc.getHazardMapCurves(PGA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(PGA_DIR_NAME,region,attenRel,forecast,metaData);
 
     //Doing for SA
     function = defaultXVals.getDefaultHazardCurve(attenRel.SA_NAME);
@@ -78,9 +78,9 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
       xValues[i] = function.getX(i);
     attenRel.setIntensityMeasure(attenRel.SA_NAME);
     ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(0.3));
-    calc.getHazardMapCurves(SA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(SA_DIR_NAME,region,attenRel,forecast,metaData);
     ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(1.0));
-    calc.getHazardMapCurves(SA_1_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(SA_1_DIR_NAME,region,attenRel,forecast,metaData);
 
     //Doing for PGV
     function = defaultXVals.getDefaultHazardCurve(attenRel.PGV_NAME);
@@ -88,7 +88,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
     attenRel.setIntensityMeasure(attenRel.PGV_NAME);
-    calc.getHazardMapCurves(PGV_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(PGV_DIR_NAME,region,attenRel,forecast,metaData);
   }
 
 

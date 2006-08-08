@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import org.opensha.data.function.*;
 import org.opensha.data.Site;
+import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
@@ -53,9 +54,12 @@ public class HazusMapCalculator {
   // flag to indicate whether this IMT requires X values to be in log
   boolean xLogFlag = true;
   // name of the new directory for this data set
-  String newDir;
+  private String newDir;
 
 
+  private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
+ 
+  
   /**
    * This sets the maximum distance of sources to be considered in the calculation
    * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
@@ -81,8 +85,7 @@ public class HazusMapCalculator {
      * @param mapParametersInfo  : Parameters in String form used to generate the map
      * @return
    */
-  public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRectangularRegion griddedSites,
+  public void getHazardMapCurves(SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -117,7 +120,7 @@ public class HazusMapCalculator {
     }catch(IOException ee){
       ee.printStackTrace();
     }
-    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast);
+    calculate(griddedSites, imr, eqkRupForecast);
   }
 
   /**
@@ -134,7 +137,7 @@ public class HazusMapCalculator {
    * @param mapParametersInfo  : Parameters in String form used to generate the map
    * @return
    */
-  public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
+  public void getHazardMapCurves(String dirName,
                                  SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
@@ -160,7 +163,7 @@ public class HazusMapCalculator {
     newDir = DATASETS_PATH+dirName;
     boolean success = (new File(DATASETS_PATH+dirName)).mkdir();
 
-    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast);
+    calculate(griddedSites, imr, eqkRupForecast);
   }
 
 
@@ -174,93 +177,42 @@ public class HazusMapCalculator {
    * @param eqkRupForecast
    * @param mapParametersInfo
    */
-  private void calculate( boolean imtLogFlag, double [] xValues,
-                                  SitesInGriddedRectangularRegion griddedSites,
-                                  AttenuationRelationshipAPI imr,
-                                  EqkRupForecast eqkRupForecast) {
-    Site site;
-    this.xLogFlag = imtLogFlag;
+  private void calculate( SitesInGriddedRectangularRegion griddedSites,
+                          AttenuationRelationshipAPI imr,
+                          EqkRupForecast eqkRupForecast) {
+    
     try{
-      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-      //hazCurveCalc.showProgressBar(false);
-
-      if(this.showProgressBar) { // show the progress bar
-        progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
-        progressClass.displayProgressBar();
+      for(int retPdIndex =0;retPdIndex<returnPd.length;++retPdIndex){
+    	    FileWriter fw = new FileWriter(this.DATASETS_PATH+newDir+"/"+returnPd[retPdIndex]+".txt");
+    	    fw.write("# Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1\n");
+    	    int numSites = griddedSites.getNumGridLocs();
+    	    double prob = 1-Math.exp(-(1/returnPd[retPdIndex])*eqkRupForecast.getTimeSpan().getDuration());
+    	    for(int i=0;i<numSites;++i){
+    	    	    Site site = griddedSites.getSite(i);
+    	     	String lat = decimalFormat.format(site.getLocation().getLatitude());
+    	        String lon = decimalFormat.format(site.getLocation().getLongitude());
+    	    		//Going over all IMT's calculates IML value for each site.
+    	    		imr.	setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+    	    		double pga_iml = imr.getIML_AtExceedProb(prob);
+    	    		imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+    	    	    ((DoubleDiscreteParameter)imr.getParameter(AttenuationRelationship.PERIOD_NAME)).setValue(new Double(0.3));
+    	    	    double sa_03_iml = imr.getIML_AtExceedProb(prob);
+    	    	    ((DoubleDiscreteParameter)imr.getParameter(AttenuationRelationship.PERIOD_NAME)).setValue(new Double(1.0));
+    	    	    double sa_1_iml = imr.getIML_AtExceedProb(prob);
+    	    	    imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+    	    	    double pgv_iml = imr.getIML_AtExceedProb(prob);
+    	    	    fw.write(lat+" , "+lon+" , "+(float)pga_iml+" , "+
+    	    	    		(float)sa_03_iml+" , "+(float)sa_1_iml+" , "+(float)pgv_iml+"\n");
+    	    }
       }
-      int numSites = griddedSites.getNumGridLocs();
 
-      if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
-      int numPoints = xValues.length;
-      decimalFormat.setMaximumFractionDigits(6);
-      for(int j=0;j<numSites;++j){
-        if(this.showProgressBar) progressClass.updateProgress(j, numSites);
-        site = griddedSites.getSite(j);
-        // make and initialize the haz function
-        ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-        this.initX_Values(hazFunction,xValues);
-        hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
-        String lat = decimalFormat.format(site.getLocation().getLatitude());
-        String lon = decimalFormat.format(site.getLocation().getLongitude());
-
-        hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
-        try{
-          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
-          for(int i=0;i<numPoints;++i){
-            double temp = 1-hazFunction.getY(i);
-            if(temp == 0.0)
-              temp =Double.MIN_VALUE;
-            double rate = -1*(Math.log(temp)/hazusTimePeriod);
-            fr.write(hazFunction.getX(i)+" "+decimalFormat.format(rate)+"\n");
-          }
-          fr.close();
-        }catch(IOException e){
-          e.printStackTrace();
-        }
-      }
     }catch(Exception e){
       e.printStackTrace();
     }
     if(this.showProgressBar) progressClass.dispose();
   }
 
-  /**
-   * set x values in log space for Hazard Function to be passed to IMR
-   * if the selected IMT are SA , PGA or PGV
-   * It accepts 1 parameters
-   *
-   * @param originalFunc :  this is the function with X values set
-   */
-  private void initX_Values(DiscretizedFuncAPI arb, double[]xValues){
-    // take log only if it is PGA, PGV or SA
-    if (this.xLogFlag) {
-      for(int i=0; i<xValues.length; ++i)
-        arb.set(Math.log(xValues[i]),1 );
-    } else
-      throw new RuntimeException("Unsupported IMT");
-  }
 
-  /**
-   * set x values back from the log space to the original linear values
-   * for Hazard Function after completion of the Hazard Calculations
-   * if the selected IMT are SA , PGA or PGV
-   * It accepts 1 parameters
-   *
-   * @param hazFunction :  this is the function with X values set
-   */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
-      ArbitrarilyDiscretizedFunc hazFunc, double [] xValues){
-    int numPoints = hazFunc.getNum();
-    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
-    hazFunc = new ArbitrarilyDiscretizedFunc();
-    // take log only if it is PGA, PGV or SA
-    if (this.xLogFlag) {
-      for(int i=0; i<numPoints; ++i)
-        hazFunc.set(xValues[i], tempFunc.getY(i));
-      return hazFunc;
-    } else
-      throw new RuntimeException("Unsupported IMT");
-  }
 
   /**
   * This allows tuning on or off the showing of a progress bar
