@@ -89,14 +89,14 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 		                                    new Insets(0, 0, 0, 0), 0, 0));
 		  // cancel button
 		  this.getContentPane().add(this.cancelButton,
-		             new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		             new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
 		                                    , GridBagConstraints.CENTER,
 		                                    GridBagConstraints.NONE,
 		                                    new Insets(0, 0, 0, 0), 0, 0));
 		  
 		  //ok button
 		  this.getContentPane().add(this.okButton,
-		             new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+		             new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
 		                                    , GridBagConstraints.CENTER,
 		                                    GridBagConstraints.NONE,
 		                                    new Insets(0, 0, 0, 0), 0, 0));
@@ -113,7 +113,7 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 		  // slip rate estimate
 		   ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
 		   	//aseismic slip factor
-		    this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
+		    this.aSeismicSlipFactorParam = new EstimateParameter(ASEISMIC_SLIP_FACTOR_PARAM_NAME,
 		        ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
 		    if(aseismicSlipEst!=null && aseismicSlipEst.getEstimate()!=null )
 		    	aSeismicSlipFactorParam.setValue(aseismicSlipEst.getEstimate());

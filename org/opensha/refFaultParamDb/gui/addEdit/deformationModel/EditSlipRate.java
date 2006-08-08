@@ -88,14 +88,14 @@ public class EditSlipRate extends JFrame implements ActionListener {
 		                                    new Insets(0, 0, 0, 0), 0, 0));
 		  // cancel button
 		  this.getContentPane().add(this.cancelButton,
-		             new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+		             new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
 		                                    , GridBagConstraints.CENTER,
 		                                    GridBagConstraints.NONE,
 		                                    new Insets(0, 0, 0, 0), 0, 0));
 		  
 		  //ok button
 		  this.getContentPane().add(this.okButton,
-		             new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+		             new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
 		                                    , GridBagConstraints.CENTER,
 		                                    GridBagConstraints.NONE,
 		                                    new Insets(0, 0, 0, 0), 0, 0));
