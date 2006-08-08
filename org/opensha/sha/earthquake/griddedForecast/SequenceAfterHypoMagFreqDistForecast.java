@@ -254,7 +254,7 @@ public class SequenceAfterHypoMagFreqDistForecast
   public void calc_SeqNodeCompletenessMag() {
     CompletenessMagCalc.setMcBest(this.getAfterShocks());
     seqNodeCompletenessMag = CompletenessMagCalc.getMcBest();
-    seqNodeCompletenessMag = seqNodeCompletenessMag + this.addToMc;
+    seqNodeCompletenessMag = seqNodeCompletenessMag + RegionDefaults.addToMc;
   }
 
 

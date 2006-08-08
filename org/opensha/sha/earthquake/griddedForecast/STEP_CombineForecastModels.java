@@ -28,12 +28,14 @@ public class STEP_CombineForecastModels
   public double minForecastMag;
   private double maxForecastMag;
   private double deltaMag;
-  private int numHypoLocation;
-  private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
-  private double[] node_CompletenessMag;
+  //private int numHypoLocation;
+  //private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
+  //private double[] node_CompletenessMag;
   private SimpleFaultData mainshockFault;
   public boolean useFixed_cValue = true;
   private boolean hasExternalFaultModel = false;
+  private boolean useCircularRegion = false;
+  private boolean useSausageRegion = false;
   public double addToMc;
   private double zoneRadius;
   private double gridSpacing;
@@ -41,29 +43,31 @@ public class STEP_CombineForecastModels
   private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
-  private ObsEqkRupList newAftershocksInZone;
-  private RegionDefaults rDefs;
+  //private ObsEqkRupList newAftershocksInZone;
+  //private RegionDefaults rDefs;
   private TimeSpan timeSpan;
   private double daysSinceMainshockStart, daysSinceMainshockEnd;
-  private EvenlyGriddedGeographicRegionAPI backgroundRatesGrid;
+  private BackGroundRatesGrid backgroundRatesGrid;
   private double[] kScaler;
   private GenericAfterHypoMagFreqDistForecast genElement;
   private SequenceAfterHypoMagFreqDistForecast seqElement = null;
   private SpatialAfterHypoMagFreqDistForecast spaElement = null;
-  private STEP_AftershockForecast combinedModel;
-  private double sampleSizeAIC;
+  private STEP_AftershockForecast combinedForecast;
+  //private double sampleSizeAIC;
+  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private boolean existSeqElement = false, existSpaElement = false; 
   
   
   /**
    * STEP_AftershockForecast
    */
   public STEP_CombineForecastModels(ObsEqkRupture mainshock,
-                                 EvenlyGriddedGeographicRegionAPI
-                                 backgroundRatesGrid,
-                                 RegionDefaults rDefs) {
+                                 BackGroundRatesGrid
+                                 backgroundRatesGrid, GregorianCalendar currentTime) {
     this.mainShock = mainshock;
     this.backgroundRatesGrid = backgroundRatesGrid;
-    this.rDefs = rDefs;
+    this.currentTime = currentTime;
+    //this.rDefs = rDefs;
 
     this.set_CurrentTime();
     this.calcTimeSpan();
@@ -74,12 +78,12 @@ public class STEP_CombineForecastModels
      */
     this.set_AftershockZoneRadius();
     this.calcTypeI_AftershockZone();
-    EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
+    //this.aftershockZone = this.getAfterShockZone();
     double[] kScaler = DistDecayFromRupCalc.getDensity(this.mainShock,aftershockZone);
-
+    
     GenericAfterHypoMagFreqDistForecast genElement =
         new GenericAfterHypoMagFreqDistForecast(this.mainShock,aftershockZone,kScaler);
-
+        this.genElement = genElement;
     this.setChildParms(genElement);
   }
 
@@ -101,21 +105,24 @@ public class STEP_CombineForecastModels
    * createSequenceElement
    */
   public void createSequenceElement() {
-	  boolean useSeq = true;
-	  this.set_useSeqAndSpatial(useSeq);
+	  // MUST be a better way to do this???
+	this.existSeqElement = true;
     SequenceAfterHypoMagFreqDistForecast seqElement =
         new SequenceAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.getAfterShocks());
     seqElement.set_kScaler(kScaler);
+    this.setChildParms(seqElement); // IS THIS TOO LATE TO SET THESE?!!!?
+    this.seqElement = seqElement;
   }
 
   /**
    * createSpatialElement
    */
   public void createSpatialElement() {
-	  boolean useSpa = true;
-	  this.set_useSeqAndSpatial(useSpa);
-    SpatialAfterHypoMagFreqDistForecast spatialElement =
+	  this.existSpaElement = true;
+    SpatialAfterHypoMagFreqDistForecast spaElement =
         new SpatialAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.getAfterShocks());
+    this.setChildParms(spaElement);    
+    this.spaElement = spaElement;
   }
   
   /**
@@ -125,8 +132,8 @@ public class STEP_CombineForecastModels
    *
    */
   public void createCombinedForecast(){
-	  IncrementalMagFreqDist[] genDist, seqDist, spaDist, combDist = new IncrementalMagFreqDist[1];
-	  
+	  IncrementalMagFreqDist genDist, seqDist, spaDist, combDist;
+	  //HypoMagFreqDistAtLoc combHypoMagFreqDist;
 	  double genLikelihood, seqLikelihood, spaLikelihood;
 	  double genAIC, seqAIC, spaAIC;
 	  double[] genOmoriVals = new double[3];
@@ -138,9 +145,9 @@ public class STEP_CombineForecastModels
 	  if (this.useSeqAndSpatial) {
 		  int numGridNodes = this.getAfterShockZone().getNumGridLocs();
 		  
-		  // first find the number observed within each grid cell
-		 // int griddedNumObs[] = countObsInGrid();
-		  int griddedNumObs[] = new int[3];
+		  // first find the number observed number within each grid cell for AIC calcs
+		  CountObsInGrid numInGridCalc =  new CountObsInGrid(this.afterShocks,this.aftershockZone);
+		  int[] griddedNumObs = numInGridCalc.getNumObsInGridList();
 		  
 		  // get the generic p and c - the same everywhere
 		  genOmoriVals[2] = this.genElement.get_p_valueGeneric();
@@ -155,12 +162,22 @@ public class STEP_CombineForecastModels
 		   *  then calc the AICc score
 		   */
 		  int gLoop = 0;
-		  while ( gLoop < numGridNodes){
+		  
+		  // is this correct to be iterating over region, an EvenlyGriddedAPI??
+		  ListIterator gridIt = this.region.getGridLocationsIterator();
+		  
+		  while ( gridIt.hasNext() ){
+			  // first find the events that should be associated with this grid cell
+			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
+			  double radius = this.spaElement.getGridSearchRadius();
+			  ObsEqkRupList gridEvents;
+			  CircularGeographicRegion nodeRegion = new CircularGeographicRegion(this.region.getGridLocation(gLoop),radius);
+			  gridEvents = this.afterShocks.getObsEqkRupsInside(nodeRegion);
 			  
 			  // get the smoothed generic k val for the grid node
 		 	  genOmoriVals[0] = this.genElement.get_k_valueGenericAtLoc(gLoop);
 		 	  // 1st calculate the Ogata likelihood of the generic parameters
-		 	  OgataLogLike_Calc genOgataCalc = new OgataLogLike_Calc(genOmoriVals,this.afterShocks);
+		 	  OgataLogLike_Calc genOgataCalc = new OgataLogLike_Calc(genOmoriVals,gridEvents);
 			  genLikelihood = genOgataCalc.get_OgataLogLikelihood();
 			  // get the AIC score for the generic likelihood
 			  AkaikeInformationCriterion genAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.genNumFreeParams,genLikelihood);
@@ -169,7 +186,7 @@ public class STEP_CombineForecastModels
 			  // get the smoothed k val for the sequence model for the grid node
 			  seqOmoriVals[0] = this.seqElement.get_kVal_SequenceAtLoc(gLoop);
 			  // now calculate the likelihood for the sequence parameters
-			  OgataLogLike_Calc seqOgataCalc = new OgataLogLike_Calc(seqOmoriVals,this.afterShocks);
+			  OgataLogLike_Calc seqOgataCalc = new OgataLogLike_Calc(seqOmoriVals,gridEvents);
 			  seqLikelihood = seqOgataCalc.get_OgataLogLikelihood();
 			  // get the AIC score for the sequence likelihood
 			  AkaikeInformationCriterion seqAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.seqNumFreeParams,seqLikelihood);
@@ -180,7 +197,7 @@ public class STEP_CombineForecastModels
 			  spaOmoriVals[1] = this.spaElement.get_Spa_cValueAtLoc(gLoop);
 			  spaOmoriVals[2] = this.spaElement.get_Spa_pValueAtLoc(gLoop);
 			  // now calculate the likelihood for the spatial parameters
-			  OgataLogLike_Calc spaOgataCalc = new OgataLogLike_Calc(spaOmoriVals,this.afterShocks);
+			  OgataLogLike_Calc spaOgataCalc = new OgataLogLike_Calc(spaOmoriVals,gridEvents);
 			  spaLikelihood = spaOgataCalc.get_OgataLogLikelihood();
 			  // get the AIC score for the spatial likelihood
 			  AkaikeInformationCriterion spaAIC_Calc = new AkaikeInformationCriterion(griddedNumObs[gLoop],RegionDefaults.spaNumFreeParams,spaLikelihood);
@@ -194,29 +211,29 @@ public class STEP_CombineForecastModels
 			  double spaWeight = CalcAIC_Weights.getSpaWeight();
 			  
 			  // get the HypoMagFreqDist forecast for this location for each model element
-			  genDist = this.genElement.getHypoMagFreqDistAtLoc(gLoop).getMagFreqDist();
-			  seqDist = this.seqElement.getHypoMagFreqDistAtLoc(gLoop).getMagFreqDist(); 
-			  spaDist = this.spaElement.getHypoMagFreqDistAtLoc(gLoop++).getMagFreqDist();
+			  genDist = this.genElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist();
+			  seqDist = this.seqElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist(); 
+			  spaDist = this.spaElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist();
 			  
 			  
-			 
-			  double numMags = ((genDist[0].getMaxX()-genDist[0].getMinX())/10)+1;
+			  combDist = null;
+			  double numMags = ((genDist.getMaxX()-genDist.getMinX())/10)+1;
 			  
 			  for (int mLoop = 0; mLoop < numMags; mLoop++){
-				  
-				  combDist[mLoop].set(genDist[0].getIncrRate(mLoop)*genWeight +
-				  seqDist[0].getIncrRate(mLoop)*seqWeight + spaDist[0].getIncrRate(mLoop)*spaWeight,mLoop); 
+				  // set the combined rate for each mag in the entire mag range
+				  combDist.set(mLoop,genDist.getIncrRate(mLoop)*genWeight +
+				  seqDist.getIncrRate(mLoop)*seqWeight + spaDist.getIncrRate(mLoop)*spaWeight); 
 			  }
 			  
-			  
-			  
-			  
-
+			  // is this the correct way to instantiate combHypo... or is there a more efficient way?
+			  HypoMagFreqDistAtLoc combHypoMagFreqDist = new HypoMagFreqDistAtLoc(combDist,genElement.getLocInGrid(gLoop));
+			  // this seems like it should be only a HypoMagFreqDistForecast but I don't know how to do that
+			  this.combinedForecast.setGriddedMagFreqDistAtLoc(combHypoMagFreqDist,gLoop++);
 			  
 		  }
 	  }
 	  else{
-		  combinedModel = genElement; //if there is no spatial or seq element just use the generic
+		  this.combinedForecast = genElement; //if there is no spatial or seq element just use the generic
 	  }
 		  
 	  
@@ -225,9 +242,9 @@ public class STEP_CombineForecastModels
   /**
    * setRegionDefaults
    */
-  public void setRegionDefaults(RegionDefaults rDefs) {
-    this.rDefs = rDefs;
-  }
+  //public void setRegionDefaults(RegionDefaults rDefs) {
+  //  this.rDefs = rDefs;
+  //}
 
 
   /**
@@ -343,7 +360,7 @@ public class STEP_CombineForecastModels
     ObsEqkRupture mainshock = this.getMainShock();
     double mainshockMag = mainshock.getMag();
     WC1994_MagLengthRelationship WCRel = new WC1994_MagLengthRelationship();
-    zoneRadius = WCRel.getMedianLength(mainshockMag);
+    this.zoneRadius = WCRel.getMedianLength(mainshockMag);
   }
 
   /**
@@ -357,12 +374,13 @@ public class STEP_CombineForecastModels
     else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
-      EvenlyGriddedCircularGeographicRegion aftershockZone =
+      this.aftershockZone =
           new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
           zoneRadius, gridSpacing);
-      aftershockZone.createRegionLocationsList(backgroundRatesGrid);
-      this.region = aftershockZone;
-
+      this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.region);
+       this.region = this.aftershockZone;
+       this.useCircularRegion = true;
+      
       // make a fault that is only a single point.
       //String faultName = "typeIfault";
       //FaultTrace fault_trace = new FaultTrace(faultName);
@@ -391,8 +409,10 @@ public class STEP_CombineForecastModels
           STEP_TypeIIAftershockZone_Calc(aftershockList, this);
       EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
           get_TypeIIAftershockZone();
-      typeII_Zone.createRegionLocationsList(backGroundRatesGrid);
+      typeII_Zone.createRegionLocationsList(backGroundRatesGrid); 
       this.region = typeII_Zone;
+      this.useSausageRegion = true;
+     
       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();
       String faultName = "typeIIfault";
       // add the synthetic fault to the fault trace
@@ -419,8 +439,12 @@ public class STEP_CombineForecastModels
     int min = curTime.get(Calendar.MINUTE);
     int sec = curTime.get(Calendar.SECOND);
 
-    GregorianCalendar currentTime = new GregorianCalendar(year, month,
+    this.currentTime = new GregorianCalendar(year, month,
         day, hour24, min, sec);
+  }
+  
+  public void set_CurrentTime(GregorianCalendar currentTime){
+	  this.currentTime = currentTime;
   }
 
   /**
@@ -431,14 +455,14 @@ public class STEP_CombineForecastModels
     String timePrecision = "SECONDS";
     TimeSpan timeSpan = new TimeSpan(timePrecision, durationUnits);
 
-    if (rDefs.startForecastAtCurrentTime) {
+    if (RegionDefaults.startForecastAtCurrentTime) {
       set_CurrentTime();
       timeSpan.setStartTime(currentTime);
-      timeSpan.setDuration(rDefs.forecastLengthDays);
+      timeSpan.setDuration(RegionDefaults.forecastLengthDays);
     }
     else {
-      timeSpan.setStartTime(rDefs.forecastStartTime);
-      timeSpan.setDuration(rDefs.forecastLengthDays);
+      timeSpan.setStartTime(RegionDefaults.forecastStartTime);
+      timeSpan.setDuration(RegionDefaults.forecastLengthDays);
     }
     this.setTimeSpan(timeSpan);
   }
@@ -448,8 +472,8 @@ public class STEP_CombineForecastModels
    */
   public void setDaysSinceMainshock() {
     String durationUnits = "DAYS";
-    GregorianCalendar startDate = timeSpan.getStartTimeCalendar();
-    double duration = timeSpan.getDuration(durationUnits);
+    GregorianCalendar startDate = this.timeSpan.getStartTimeCalendar();
+    double duration = this.timeSpan.getDuration(durationUnits);
     ObsEqkRupture mainshock = this.getMainShock();
     GregorianCalendar mainshockDate = mainshock.getOriginTime();
     double startInMils = startDate.getTimeInMillis();
@@ -462,8 +486,14 @@ public class STEP_CombineForecastModels
   /**
    * get_useSeqAndSpatial
    */
-  public void set_useSeqAndSpatial(boolean useSeqAndSpatial) {
-    this.useSeqAndSpatial = useSeqAndSpatial;
+  public void set_useSeqAndSpatial() {
+	CompletenessMagCalc.setMcBest(this.afterShocks);
+	double mComplete = CompletenessMagCalc.getMcBest();
+	ObsEqkRupList compList = this.afterShocks.getObsEqkRupsAboveMag(mComplete);
+	if (compList.size() > 100)
+		this.useSeqAndSpatial = true;
+	else
+		this.useSeqAndSpatial = false;
   }
 
   /**
@@ -615,8 +645,48 @@ public class STEP_CombineForecastModels
    return this.spaElement;
  }
 
+ /**
+  * getHypoMagFreqDistAtLoc
+  * this will return the AIC combined forecast at the location
+  */
  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-     return null;
+	 return combinedForecast.getHypoMagFreqDistAtLoc(ithLocation);
   }
+ 
+ /**
+  * getHypoMagFreqDistAtLoc
+  * this will return the AIC combined forecast at the location
+  */
+ public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(Location loc) {
+	 HypoMagFreqDistAtLoc locDist = combinedForecast.getHypoMagFreqDistAtLoc(loc);
+	 return locDist;
+  }
+ 
+ /**
+  * getGriddedAIC_CombinedForecast
+  * @return return an array of HypoMagFreqDistAtLoc for the gridded
+  * AIC combined forecast
+  */
+ public HypoMagFreqDistAtLoc[] getGriddedAIC_CombinedForecast(){
+	 return combinedForecast.griddedMagFreqDistForecast;
+ }
+ 
+ /**
+  * getExistSeqModel
+  * @return boolean
+  * returns true if the seq model has been created
+  */
+ public boolean getExistSeqElement(){
+	 return this.existSeqElement;
+ }
+ 
+ /**
+  * getExistSpaModel
+  * @return boolean
+  * returns true is the spa model has been created
+  */
+ public boolean getExistSpaElement(){
+	 return this.existSpaElement;
+ }
 
 }

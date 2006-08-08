@@ -22,15 +22,15 @@ public class UpdateSTEP_Forecast {
   private SequenceAfterHypoMagFreqDistForecast forecastModelSeq;
   private SpatialAfterHypoMagFreqDistForecast forecastModelSpa;
   private EvenlyGriddedGeographicRegionAPI backgroundRatesGrid;
-  private STEP_CombineForecastModels combinedModel;
-  private static boolean useSeqAndSpat, gridIsUpdated = false;
+  private STEP_CombineForecastModels sequenceModel;
+  private boolean useSeqAndSpat, gridIsUpdated = false;
   private static int numGridNodes;
   private HypoMagFreqDistAtLoc genForecastAtLoc,seqForecastAtLoc,spaForecastAtLoc;
   private GriddedHypoMagFreqDistForecast genGriddedForecast;
 
 
-  public UpdateSTEP_Forecast(STEP_CombineForecastModels combinedModel) {
-    this.combinedModel = combinedModel;
+  public UpdateSTEP_Forecast(STEP_CombineForecastModels sequenceModel) {
+    this.sequenceModel = sequenceModel;
     initUpdate();
   }
 
@@ -40,7 +40,7 @@ public class UpdateSTEP_Forecast {
    * initUpdate
    */
   private void initUpdate() {
-	  forecastModelGen = combinedModel.getGenElement();
+	  forecastModelGen = this.sequenceModel.getGenElement();
 	  aftershocks = forecastModelGen.getAfterShocks();
 	  
 	  /**
@@ -55,21 +55,35 @@ public class UpdateSTEP_Forecast {
 		  updateGenericModelParms();
 	  }
 	  
-	  if ( combinedModel.get_useSeqAndSpatial()){
-		  forecastModelSeq = combinedModel.getSeqElement();
+	  // check to see if there are enough aftershock above completeness
+	  // to calculate all model elements
+	  //
+	  // There MUST be a better way to do this...
+	  
+	  sequenceModel.set_useSeqAndSpatial();
+	  if ( sequenceModel.get_useSeqAndSpatial()){
+		  // if the sequence specific element does not exist, create it
+		  if (!sequenceModel.getExistSeqElement())
+			  sequenceModel.createSequenceElement();
+		  forecastModelSeq = sequenceModel.getSeqElement();
 		  updateSequenceModelParms();
-		  forecastModelSpa = combinedModel.getSpaElement();
+		  
+		  // if the spatial element does not exist, create it.
+		  if (!sequenceModel.getExistSpaElement())
+			  sequenceModel.createSpatialElement();
+		  forecastModelSpa = sequenceModel.getSpaElement();
 		  updateSpatialModelParms();
 	  }
 	  
-	  combinedModel.calcTimeSpan();  //IS THIS THE BEST PLACE FOR THIS?
-	  
 	  // now calculate the forecasts for each of the elements
 	  this.updateGenericModelForecast();
-	  if ( combinedModel.get_useSeqAndSpatial()){
+	  if ( sequenceModel.get_useSeqAndSpatial()){
 		  this.updateSequenceModelForecast();
 		  this.updateSpatialModelForecast();
 	  }
+	  
+	  // create the AIC combined model forecast
+	  //this.updateAIC_CombinedModelForecast();
 	  
   }
   
@@ -79,10 +93,10 @@ public class UpdateSTEP_Forecast {
   public void updateAftershockZone() {
 	  int numAftershocks = aftershocks.size();
 	  
-	  boolean hasExternalFault = combinedModel.getHasExternalFaultModel();
+	  boolean hasExternalFault = sequenceModel.getHasExternalFaultModel();
 	  
 	  if ((numAftershocks >= 100) && (hasExternalFault = false)) {
-		  combinedModel.calcTypeII_AfterShockZone(aftershocks, backgroundRatesGrid);
+		  sequenceModel.calcTypeII_AfterShockZone(aftershocks, backgroundRatesGrid);
 		  gridIsUpdated = true;
 	  } 
   }
@@ -95,7 +109,7 @@ public class UpdateSTEP_Forecast {
    */
   public void updateGenericModelParms() {
 	  forecastModelGen.setNumGridLocs();
-	  double[] kScaler = DistDecayFromRupCalc.getDensity(combinedModel.getMainShock(),combinedModel.getAfterShockZone());
+	  double[] kScaler = DistDecayFromRupCalc.getDensity(sequenceModel.getMainShock(),sequenceModel.getAfterShockZone());
 	  forecastModelGen.set_kScaler(kScaler);
 	  forecastModelGen.set_Gridded_Gen_bValue();
 	  forecastModelGen.set_Gridded_Gen_cValue();
@@ -107,7 +121,7 @@ public class UpdateSTEP_Forecast {
    * updateSequenceModelParms
    */
   public void updateSequenceModelParms() {
-	  double[] kScaler = DistDecayFromRupCalc.getDensity(combinedModel.getMainShock(),combinedModel.getAfterShockZone());
+	  double[] kScaler = DistDecayFromRupCalc.getDensity(sequenceModel.getMainShock(),sequenceModel.getAfterShockZone());
 	  forecastModelSeq.set_kScaler(kScaler);
 	  forecastModelSeq.calc_SeqNodeCompletenessMag();
 	  forecastModelSeq.set_SequenceRJParms();
@@ -130,7 +144,7 @@ public class UpdateSTEP_Forecast {
 public void updateGenericModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelGen.initNumGridInForecast();
-	int numGridLocs = combinedModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 genForecastAtLoc = forecastModelGen.calcHypoMagFreqDist(gLoop);
@@ -145,7 +159,7 @@ public void updateGenericModelForecast() {
 public void updateSequenceModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelSeq.initNumGridInForecast();
-	int numGridLocs = combinedModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 seqForecastAtLoc = forecastModelSeq. calcHypoMagFreqDistAtLoc(gLoop);
@@ -161,7 +175,7 @@ public void updateSequenceModelForecast() {
 public void updateSpatialModelForecast() {
 	//first initialise the array that will contain the forecast
 	forecastModelSpa.initNumGridInForecast();
-	int numGridLocs = combinedModel.getAfterShockZone().getNumGridLocs();
+	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
 		 spaForecastAtLoc = forecastModelSpa.calcHypoMagFreqDistAtLoc(gLoop);
@@ -169,6 +183,10 @@ public void updateSpatialModelForecast() {
 	}
 	  
   }
+
+public void updateAIC_CombinedModelForecast(){
+	sequenceModel.createCombinedForecast();
+}
   /**
    * setBackGroundGrid
    * if the background needs to be changed - this also recalculates the

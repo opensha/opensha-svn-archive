@@ -55,6 +55,10 @@ public class RegionDefaults {
   public static int genNumFreeParams = 0;
   public static int seqNumFreeParams = 0;
   public static int spaNumFreeParams = 3;  // should be 4 if c is not fixed
+  
+  // the minimum mag to be used when comparing the cummulative of the 
+  // background to that of an individual sequence
+  public static int minCompareMag = 5;
 
 
 

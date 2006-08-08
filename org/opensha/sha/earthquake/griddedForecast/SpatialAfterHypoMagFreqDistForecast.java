@@ -34,6 +34,7 @@ public class SpatialAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
+  private double searchRadius;
 
   public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
                                              EvenlyGriddedGeographicRegionAPI
@@ -60,13 +61,17 @@ public class SpatialAfterHypoMagFreqDistForecast
     if (this.useFixed_cValue) {
       rjcalc = new ReasenbergJonesGriddedParms_Calc(this.aftershockZone,
           this.aftershocks);
+      this.searchRadius = rjcalc.getGridSearchRadius();
+      
     }
     else {
       rjcalc = new ReasenbergJonesGriddedParms_Calc(this.aftershockZone,
           this.aftershocks,
           this.useFixed_cValue);
+      this.searchRadius = rjcalc.getGridSearchRadius();
     }
 
+    rjcalc.set_constantAddToCompleteness(RegionDefaults.addToMc);
     // returns an array list with all parms in it
     rjParms = rjcalc.getAllGriddedVals();
 
@@ -305,6 +310,15 @@ public class SpatialAfterHypoMagFreqDistForecast
    */
   public double getCompletenessMagAtLoc(int ithLocation) {
     return spaNodeCompletenessMag[ithLocation];
+  }
+  
+  /**
+   * getGridSearchRadius
+   * @return double
+   * get the radius that was used in calculating the Reasenberg & Jones params
+   */
+  public double getGridSearchRadius(){
+	  return this.searchRadius;
   }
 
   //public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {

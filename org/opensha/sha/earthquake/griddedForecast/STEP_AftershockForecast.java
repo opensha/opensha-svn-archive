@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.data.region.*;
 import org.opensha.sha.fault.*;
+import org.opensha.data.Location;
 
 /**
  * <p>Title: </p>
@@ -125,6 +126,26 @@ public class STEP_AftershockForecast
   
   public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
 	    return griddedMagFreqDistForecast[ithLocation];
+  }
+  
+  /**
+   * getHypoMagFreqDistAtLoc(Location loc)
+   * @param Location
+   * return the dist at a give Location.  Note that there is no error checking
+   * if the location does not match one in the list, null is returned.
+   */
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(Location loc){
+	  HypoMagFreqDistAtLoc locDist;
+	  int numLocs = this.griddedMagFreqDistForecast.length;
+	  int ithLoc = 0;
+	  while ((loc.equalsLocation(this.griddedMagFreqDistForecast[ithLoc].getLocation()) == false)
+	  	&& (ithLoc < numLocs)) {
+		  ithLoc++;
+	  }
+	  if (ithLoc < numLocs)
+		  return locDist = this.getHypoMagFreqDistAtLoc(ithLoc);
+	  else
+		  return null;
   }
 
 }

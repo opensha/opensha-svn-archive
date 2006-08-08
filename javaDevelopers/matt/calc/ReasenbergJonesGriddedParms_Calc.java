@@ -24,6 +24,7 @@ public class ReasenbergJonesGriddedParms_Calc {
   private static boolean useFixed_cValue = true;
   private double[] grid_pVal,grid_cVal,grid_kVal,grid_aVal,grid_bVal, grid_Mc;
   private double constantAddToMc = .2;
+  private double searchRadius;
 
 
 // the first constructor must be used if a non-fixed c value is to be used and then useFixed_cValue must be set to false
@@ -139,29 +140,34 @@ public class ReasenbergJonesGriddedParms_Calc {
     ListIterator eventIt = eventList.listIterator();
     int numEvents = eventList.size();
     double[] eventDist = new double[numEvents];
-    double searchRadius;
-    double completenessMag;
+    //double searchRadius;
+    double completenessMag, allEventsMc;
     int ind = 0;
-
+    
+    // first find the overall min completeness mag
+    CompletenessMagCalc.setMcBest(eventList);
+    allEventsMc = CompletenessMagCalc.getMcBest() + constantAddToMc;
+    // # of events in total sequence > Mc
+    int totalCompleteEvents = eventList.getObsEqkRupsAboveMag(allEventsMc).size();
     // set the appropriate radius to use for collecting events for the node
-    if (numEvents < 1000) searchRadius = 15;
-    else if (numEvents < 1500) searchRadius = 12;
-    else if (numEvents < 2000) searchRadius = 10;
-    else searchRadius = 7.5;
+    if (totalCompleteEvents < 1000) this.searchRadius = 15;
+    else if (totalCompleteEvents < 1500) this.searchRadius = 12;
+    else if (totalCompleteEvents < 2000) this.searchRadius = 10;
+    else this.searchRadius = 7.5;
 
 
     while (gridIt.hasNext()) {
       CircularGeographicRegion gridRegion =
-          new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
+          new CircularGeographicRegion((Location)gridIt.next(),this.searchRadius);
       ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove
       // events below this mag.
       CompletenessMagCalc.setMcBest(regionList);
       completenessMag = CompletenessMagCalc.getMcBest();
-      grid_Mc[ind] = completenessMag;
+      grid_Mc[ind] = completenessMag + constantAddToMc;
       ObsEqkRupList completeRegionList =
-          regionList.getObsEqkRupsAboveMag(completenessMag+constantAddToMc);
+          regionList.getObsEqkRupsAboveMag(completenessMag + constantAddToMc);
 
       // Calculate the Gutenberg-Richter parms
       MaxLikeGR_Calc.setMags(completeRegionList);
@@ -187,5 +193,14 @@ public class ReasenbergJonesGriddedParms_Calc {
         grid_kVal[ind++] = Double.NaN;
       }
     }
+  }
+  
+  /**
+   * getGridSearchRadius
+   * @return double
+   * get the radius used when calculating the Reasenberg & Jones Params.
+   */
+  public double getGridSearchRadius(){
+	  return this.searchRadius;
   }
 }

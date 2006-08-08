@@ -1,6 +1,7 @@
 package javaDevelopers.matt.calc;
 
 import java.util.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
@@ -8,6 +9,7 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.Location;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import org.opensha.sha.magdist.*;
 
 /**
  * <p>Title: </p>
@@ -23,11 +25,11 @@ import java.io.FileNotFoundException;
  */
 public class STEP_main {
   private RegionDefaults rDefs;
+  private BackGroundRatesGrid bgGrid;
+  private GregorianCalendar currentTime;
 
   public STEP_main() {
-    // get various default values for the region.
-    RegionDefaults rDefs = new RegionDefaults();
-
+   
      calc_STEP();
 
   }
@@ -45,7 +47,7 @@ public class STEP_main {
      */
     ArrayList STEP_AftershockForecastList = null;
     ArrayList New_AftershockForecastList = null;
-
+   
     /**
      * Now obtain all events that have occurred since the last time the code
      * was run:
@@ -53,7 +55,7 @@ public class STEP_main {
      */
     CubeToObsEqkRupture getNewEvents = null;
     try {
-      getNewEvents = new CubeToObsEqkRupture(rDefs.cubeFilePath);
+      getNewEvents = new CubeToObsEqkRupture(RegionDefaults.cubeFilePath);
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
@@ -63,16 +65,32 @@ public class STEP_main {
     }
 
     ObsEqkRupList newObsEqkRuptureList = getNewEvents.getAllObsEqkRupEvents();
+    
+    
+    /**
+     * 
+     * this sets the forecast start time as the current time.
+     */
+    
+      Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
+          "UTC"));
+      int year = curTime.get(Calendar.YEAR);
+      int month = curTime.get(Calendar.MONTH);
+      int day = curTime.get(Calendar.DAY_OF_MONTH);
+      int hour24 = curTime.get(Calendar.HOUR_OF_DAY);
+      int min = curTime.get(Calendar.MINUTE);
+      int sec = curTime.get(Calendar.SECOND);
 
-
+      this.currentTime = new GregorianCalendar(year, month,
+          day, hour24, min, sec);
 
     /**
      * load background rates/grid list
      * BackgroundRatesList
      */
-
-    EvenlyGriddedGeographicRegionAPI backGroundRatesGrid = null;
-
+    
+    bgGrid = new BackGroundRatesGrid();
+    
     /**
      * now loop over all new events and assign them as an aftershock to
      * a previous event if appropriate (loop thru all existing mainshocks)
@@ -85,22 +103,26 @@ public class STEP_main {
     int numMainshocks = STEP_AftershockForecastList.size();
     double maxMag = 0, msMag, newMag;
 
+    // loop over new events
     while (newIt.hasNext()) {
       newEvent = (ObsEqkRupture) newIt.next();
       newMag = newEvent.getMag();
 
+      //loop over existing mainshocks
       for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
         mainshockModel =
             (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
         mainshock = mainshockModel.getMainShock();
         msMag = mainshock.getMag();
+        
+        // update the current time (as defined at the start of STEP_Main)
+        // in this mainshock while we're at it.
+        mainshockModel.set_CurrentTime(currentTime);
 
-        // returns boolean if event is in zone, but does not set anything
+        // returns boolean if event is in aftershockzone, but does not set anything
         IsAftershockToMainshock_Calc seeIfAftershock =
             new IsAftershockToMainshock_Calc(newEvent, mainshockModel);
-        isAftershock = seeIfAftershock.get_isAftershock();
-
-        if (isAftershock) {
+        if (seeIfAftershock.get_isAftershock()) {
           // if the new event is larger than the mainshock, make the mainshock
           // static so that it will no longer accept aftershocks.
           if (newMag >= msMag) {
@@ -122,7 +144,10 @@ public class STEP_main {
             (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
               staticModel.set_isStatic(true);
             }
+            // set the index and mag of the new ms so it can be compared against
+            // Correct?!?!
             maxMagInd = msLoop;
+            maxMag = msMag;
           }
         }
       }
@@ -136,9 +161,9 @@ public class STEP_main {
 
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
-      if (newMag >= rDefs.minMagForMainshock) {
+      if (newMag >= RegionDefaults.minMagForMainshock) {
       STEP_CombineForecastModels newForecastMod =
-           new STEP_CombineForecastModels(newEvent,backGroundRatesGrid,rDefs);
+           new STEP_CombineForecastModels(newEvent,this.bgGrid,this.currentTime);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.  Default is true
@@ -167,12 +192,43 @@ public class STEP_main {
           (STEP_CombineForecastModels)STEP_AftershockForecastList.get(modelLoop);
       // update the combined model
       UpdateSTEP_Forecast updateModel = new UpdateSTEP_Forecast(forecastModel);
+      updateModel.updateAIC_CombinedModelForecast();
       
       /**
        * after the forecasts have been made, compare the forecast to
        *  the background at each location and keep whichever total 
        *  is higher
        */
+      
+      Location bgLoc, seqLoc;
+      HypoMagFreqDistAtLoc seqDistAtLoc,bgDistAtLoc;
+      //IncrementalMagFreqDist seqDist, bgDist;
+      double bgSumOver5, seqSumOver5;
+      
+      ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
+      ListIterator backGroundIt = this.bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
+
+      while (backGroundIt.hasNext()){
+    	  bgLoc = (Location)backGroundIt.next();
+    	  while (seqIt.hasNext()){
+    		  seqLoc = (Location)seqIt.next();
+    		  if (bgLoc.equalsLocation(seqLoc)){
+    			  int nextSeqInd = seqIt.nextIndex()-1;
+    			  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(nextSeqInd);
+    			  int next_bgInd = backGroundIt.nextIndex()-1;
+    			  // will next_bgInd be the correct index??
+    			  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(next_bgInd);
+    			  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
+    			  seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;
+    			  if (seqSumOver5 > bgSumOver5) {
+    				  bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),next_bgInd);
+    			      // record the index of this aftershock sequence in an array in
+    				  // the background so we know to save the sequence (or should it just be archived somehow now?)
+    				  bgGrid.setSeqIndAtNode(next_bgInd,modelLoop);
+    			  }
+    		  }
+    	  }
+      }
     }
 
    

@@ -39,6 +39,8 @@ public class GenericAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
+  private EvenlyGriddedCircularGeographicRegion castCircularRegion;
+  private EvenlyGriddedSausageGeographicRegion castSausageRegion;
 
   public GenericAfterHypoMagFreqDistForecast
       (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
@@ -49,6 +51,12 @@ public class GenericAfterHypoMagFreqDistForecast
      */
     this.setMainShock(mainshock);
     this.region = aftershockZone;
+    if(region instanceof EvenlyGriddedCircularGeographicRegion)
+    	castCircularRegion = (EvenlyGriddedCircularGeographicRegion)this.region;
+    if(region instanceof EvenlyGriddedSausageGeographicRegion)
+    	castSausageRegion = (EvenlyGriddedSausageGeographicRegion)this.region;
+    
+    
     numGridLocs = aftershockZone.getNumGridLocs();
     
     this.calc_GenNodeCompletenessMag();
@@ -157,7 +165,7 @@ public void setNumGridLocs() {
    * calcGenMagForecast
    * this will calculate  the incremental forecast and return it in an arraylist
    */
-  private ArrayList getGenMagForecast() {
+  public ArrayList getGenMagForecast() {
     double[] rjParms = new double[4];
     double[] forecastDays = new double[2];
     int numNodes = grid_Gen_kVal.length;
@@ -230,6 +238,8 @@ public void setNumGridLocs() {
       IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
       dist[0] = GR_Dist;
       Location gridLoc;
+      
+      //IS REGION CORRECT HERE?!?!?!
       gridLoc = this.region.getGridLocation(gridIndex);
       return magDistLoc = new HypoMagFreqDistAtLoc(dist,
           gridLoc);
@@ -298,6 +308,16 @@ public void setNumGridLocs() {
    */
   public double[] getRateForecastGrid() {
     return rateForecastGrid;
+  }
+  
+  public Location getLocInGrid(int ithLocation){
+	  if(region instanceof EvenlyGriddedCircularGeographicRegion)
+	    	return this.castCircularRegion.getGridLocation(ithLocation);
+	  else if(region instanceof EvenlyGriddedSausageGeographicRegion)
+		  	return this.castSausageRegion.getGridLocation(ithLocation);
+	  else
+		  return null; // WHAT SHOULD I DO HERE?
+	  
   }
 
   //public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
