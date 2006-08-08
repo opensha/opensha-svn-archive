@@ -98,12 +98,16 @@ class B_FaultDataTableModel extends AbstractTableModel {
 	 * @param segFaultData
 	 */
 	public void setUnsegmentedSourceList(ArrayList unsegmentedSourceList) {
-		TreeMap map = new TreeMap();
-		for(int i=0; i<unsegmentedSourceList.size(); ++i) {
-			UnsegmentedSource source = (UnsegmentedSource)unsegmentedSourceList.get(i);
-			map.put(source.getFaultSegmentData().getFaultName(), source);
+		if(unsegmentedSourceList==null) {
+			this.unsegmentedSourceList = null;
+		} else {
+			TreeMap map = new TreeMap();
+			for(int i=0; i<unsegmentedSourceList.size(); ++i) {
+				UnsegmentedSource source = (UnsegmentedSource)unsegmentedSourceList.get(i);
+				map.put(source.getFaultSegmentData().getFaultName(), source);
+			}
+			this.unsegmentedSourceList =   new ArrayList(map.values());
 		}
-		this.unsegmentedSourceList =   new ArrayList(map.values());
 	}
 	
 	/**
