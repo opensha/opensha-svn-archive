@@ -58,8 +58,8 @@ public class HazusMapCalculator {
 
 
   private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
- 
-  
+
+
   /**
    * This sets the maximum distance of sources to be considered in the calculation
    * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
@@ -161,7 +161,7 @@ public class HazusMapCalculator {
       }
     }
     newDir = DATASETS_PATH+dirName;
-    boolean success = (new File(DATASETS_PATH+dirName)).mkdir();
+    boolean success = (new File(newDir)).mkdir();
 
     calculate(griddedSites, imr, eqkRupForecast);
   }
@@ -180,10 +180,12 @@ public class HazusMapCalculator {
   private void calculate( SitesInGriddedRectangularRegion griddedSites,
                           AttenuationRelationshipAPI imr,
                           EqkRupForecast eqkRupForecast) {
-    
+
     try{
+      String filePath = newDir+"/";
       for(int retPdIndex =0;retPdIndex<returnPd.length;++retPdIndex){
-    	    FileWriter fw = new FileWriter(this.DATASETS_PATH+newDir+"/"+returnPd[retPdIndex]+".txt");
+
+    	    FileWriter fw = new FileWriter(filePath+returnPd[retPdIndex]+".txt");
     	    fw.write("# Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1\n");
     	    int numSites = griddedSites.getNumGridLocs();
     	    double prob = 1-Math.exp(-(1/returnPd[retPdIndex])*eqkRupForecast.getTimeSpan().getDuration());
