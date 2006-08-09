@@ -164,7 +164,7 @@ public class SegmentDataPanel extends JPanel {
 		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
 		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
 		legend += "Final MRI - Final MRI given MFDs\n";
-		legend += "Stress Drop - Stress drop assuming an infinitely long strike-slip fault"; 
+		legend += "Stress Drop - Stress drop assuming an infinitely long strike-slip fault\n"; 
 		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
 		legend += "Char Slip - meters\n";
 		legend += "Slip Rate - mm/yr\n";
