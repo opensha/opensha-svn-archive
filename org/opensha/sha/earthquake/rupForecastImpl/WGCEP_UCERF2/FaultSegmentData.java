@@ -17,7 +17,7 @@ public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
-	private double[] segArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate; 
+	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate; 
 	private String[] segName, sectionsInSegString;
 	private String faultName;
 	private double[] recurInterval;
@@ -87,6 +87,29 @@ public class FaultSegmentData {
 	public double getSegmentArea(int index) {
 		return segArea[index];
 	}
+	
+	/**
+	 * Get original segment area by index - SI units (note that this is NOT reduce by any 
+	 * aseismicity factors)
+	 * @param index
+	 * @return area in SI units (meters squared) 
+	 */
+	public double getOrigSegmentArea(int index) {
+		return segOrigArea[index];
+	}
+	
+	
+	
+	/**
+	 * Get original segment down-dip-width - SI units (note that this is NOT reduce by any 
+	 * aseismicity factors)
+	 * @param index
+	 * @return area in SI units (meters squared) 
+	 */
+	public double getOrigSegmentDownDipWidth(int index) {
+		return segOrigArea[index]/segLength[index];
+	}
+	
 	
 	/**
 	 * Get segment length by index.  Note that this is not reduced if aseisReducesArea.
@@ -226,6 +249,7 @@ public class FaultSegmentData {
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<sectionToSegmentData.size();seg++) {
 			segArea[seg]=0;
+			segOrigArea[seg]=0;
 			segLength[seg]=0;
 			segMoRate[seg]=0;
 			segMoRateIgnoringAseis[seg]=0;
@@ -243,6 +267,7 @@ public class FaultSegmentData {
 				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
 				segMoRateIgnoringAseis[seg] += FaultMomentCalc.getMoment(area,slipRate); // SI units
+				segOrigArea[seg] +=  area;
 				if(aseisReducesArea) {
 					segArea[seg] += area*alpha;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area*alpha,slipRate); // SI units
