@@ -104,7 +104,7 @@ public class FaultSegmentData {
 	 * Get original segment down-dip-width - SI units (note that this is NOT reduce by any 
 	 * aseismicity factors)
 	 * @param index
-	 * @return area in SI units (meters squared) 
+	 * @return down dip width in SI units (meters) 
 	 */
 	public double getOrigSegmentDownDipWidth(int index) {
 		return segOrigArea[index]/segLength[index];
@@ -241,11 +241,13 @@ public class FaultSegmentData {
 		totalMoRate=0;
 		totalMoRateIgnoringAseis=0;
 		segArea = new double[sectionToSegmentData.size()];
+		segOrigArea=new double[sectionToSegmentData.size()];
 		segLength = new double[sectionToSegmentData.size()];
 		segMoRate = new double[sectionToSegmentData.size()];
 		segMoRateIgnoringAseis = new double[sectionToSegmentData.size()];
 		segSlipRate = new double[sectionToSegmentData.size()];
 		sectionsInSegString = new String[sectionToSegmentData.size()];
+		
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<sectionToSegmentData.size();seg++) {
 			segArea[seg]=0;

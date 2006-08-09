@@ -164,6 +164,7 @@ public class SegmentDataPanel extends JPanel {
 		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
 		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
 		legend += "Final MRI - Final MRI given MFDs\n";
+		legend += "Stress Drop - Stress drop assuming an infinitely long strike-slip fault"; 
 		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
 		legend += "Char Slip - meters\n";
 		legend += "Slip Rate - mm/yr\n";
@@ -291,7 +292,7 @@ class FaultSectionTableModel extends AbstractTableModel {
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	private final static String[] columnNames = { "Seg Name", "Num", "Slip Rate", "Area",
-		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", "Sections In Segment"};
+		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", "Stress Drop", "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
@@ -386,12 +387,27 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 8:
 				return ""+(int)this.finalMRI[rowIndex];
 			case 9:	
-				return ""+ CHAR_SLIP_RATE_FORMAT.format(this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex));
+				return ""+ CHAR_SLIP_RATE_FORMAT.format(getCharSlip(rowIndex));
 			case 10:
+				double ddw = segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3; // ddw in km 
+				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
+				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
+				return ""+(float)segStressDrop;
+			case 11:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
 	}
+
+	/**
+	 * Get Char slip in meter
+	 * @param rowIndex
+	 * @return
+	 */
+	private double getCharSlip(int rowIndex) {
+		return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
+	}
+	
 	
 	private Object getTotalValues(int columnIndex) {
 		switch(columnIndex) {
