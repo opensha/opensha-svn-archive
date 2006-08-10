@@ -19,7 +19,8 @@ import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.calc.nnls.cj.NNLSWrapper;
+
+import cj.math.nnls.NNLSWrapper;
 
 import sun.tools.tree.ThisExpression;
 
