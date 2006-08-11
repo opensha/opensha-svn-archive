@@ -33,5 +33,6 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/Tomcat-4"/>
 	<classpathentry exported="true" kind="lib" path="lib/scec_vdo.jar"/>
 	<classpathentry kind="lib" path="lib/f2jutil.jar"/>
+	<classpathentry kind="lib" path="lib/nnls.jar"/>
 	<classpathentry kind="output" path="classes/"/>
 </classpath>

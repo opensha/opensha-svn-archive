@@ -884,7 +884,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	public static void main(String[] args) {
 		
-	/*	
+		/*
 		double[][] C = {
 		//_ rup  1,2,3,4,5,6,7,8,9,0,1,2,3,4,5
 				{1,0,0,0,0,1,0,0,0,1,0,0,1,0,1},
@@ -893,10 +893,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				{0,0,0,1,0,0,0,1,1,0,1,1,1,1,1},
 				{0,0,0,0,1,0,0,0,1,0,0,1,0,1,1},
 		};
-		final double[] d = {0.725,3.0,1.67,0.5,1.07};  // AKA "b" vector		
+		final double[] d = {1/1.380,1/.333,1/.600,1/2.000,1/.9333333};  // AKA "b" vector		
 		int nRow = 5;
 		int nCol=15;
-*/
+		/*
+		/**/
 		double[][] C = {
 				{0.0372,0.2869},
 			    {0.6861,0.7071},
@@ -906,12 +907,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		final double[] d = {0.8587,0.1781,0.0747,0.8405};  // AKA "b" vector		
 		int nRow = 4;
 		int nCol=2;
+		
 
 		double[] A = new double[nRow*nCol];
 		double[] x = new double[nCol];
 		int i,j,k=0;
-		for(i=0; i<nRow;i++)
-			for(j=0;j<nCol;j++) {
+		for(j=0;j<nCol;j++) 
+			for(i=0; i<nRow;i++)	{
 				A[k]=C[i][j];
 				k+=1;
 			}
