@@ -182,7 +182,7 @@ public class HazusMapCalculator {
        double timeDuration = eqkRupForecast.getTimeSpan().getDuration();
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){
-   	    fw[j] = new FileWriter("final_"+returnPd[j]+".txt");
+   	    fw[j] = new FileWriter(newDir+"/"+ "final_"+returnPd[j]+".dat");
        }
        // set the maximum distance in the attenuation relationship
        // (Note- other types of IMRs may not have this method so we should really check type here)
@@ -216,15 +216,14 @@ public class HazusMapCalculator {
       DiscretizedFuncAPI pgvHazardFunction = hazardFuncs[3];
       
       for(int i=0;i<returnPd.length;++i){
-    	    double prob = 1-Math.exp(-(1/returnPd[i] *duration)); 
+    	    double prob = 1-Math.exp(-1*((1/returnPd[i]) *duration)); 
     	    double pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    double sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
     	    		        (float)pgaIML+","+(float)sa03IML+","+(float)sa1IML+","+(float)pgvIML+"\n");
-      }
-      
+      }   
   }
   
   
