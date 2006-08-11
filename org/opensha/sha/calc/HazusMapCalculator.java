@@ -1,24 +1,20 @@
 package org.opensha.sha.calc;
 
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import java.awt.Rectangle;
-import javax.swing.JOptionPane;
-import javax.swing.JLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+
 import java.text.DecimalFormat;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.data.function.*;
+import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.data.region.*;
+import org.opensha.data.function.*;
 
 
 /**
@@ -42,6 +38,7 @@ public class HazusMapCalculator {
   cases to pass through
   */
   protected double MAX_DISTANCE = 2500;
+  private DecimalFormat format = new DecimalFormat("0.000000##");
 
   // boolean for telling whether to show a progress bar
   boolean showProgressBar = true;
@@ -162,7 +159,6 @@ public class HazusMapCalculator {
     }
     newDir = DATASETS_PATH+dirName;
     boolean success = (new File(newDir)).mkdir();
-
     calculate(griddedSites, imr, eqkRupForecast);
   }
 
@@ -170,56 +166,293 @@ public class HazusMapCalculator {
 
   /**
    * function to compute hazard curves and make the lat/lon files
-   * @param imtLogFlag
-   * @param xValues
    * @param griddedSites
    * @param imr
    * @param eqkRupForecast
-   * @param mapParametersInfo
+   * 
    */
   private void calculate( SitesInGriddedRectangularRegion griddedSites,
                           AttenuationRelationshipAPI imr,
                           EqkRupForecast eqkRupForecast) {
 
     try{
-      String filePath = newDir+"/";
-      for(int retPdIndex =0;retPdIndex<returnPd.length;++retPdIndex){
-
-    	    FileWriter fw = new FileWriter(filePath+returnPd[retPdIndex]+".txt");
-    	    fw.write("# Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1\n");
-    	    int numSites = griddedSites.getNumGridLocs();
-    	    double prob = 1-Math.exp(-(1/returnPd[retPdIndex])*eqkRupForecast.getTimeSpan().getDuration());
-    	    for(int i=0;i<numSites;++i){
-    	    	    Site site = griddedSites.getSite(i);
-    	     	String lat = decimalFormat.format(site.getLocation().getLatitude());
-    	        String lon = decimalFormat.format(site.getLocation().getLongitude());
-    	    		//Going over all IMT's calculates IML value for each site.
-    	    		imr.	setIntensityMeasure(AttenuationRelationship.PGA_NAME);
-    	    		double pga_iml = imr.getIML_AtExceedProb(prob);
-    	    		imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-    	    	    ((DoubleDiscreteParameter)imr.getParameter(AttenuationRelationship.PERIOD_NAME)).setValue(new Double(0.3));
-    	    	    double sa_03_iml = imr.getIML_AtExceedProb(prob);
-    	    	    ((DoubleDiscreteParameter)imr.getParameter(AttenuationRelationship.PERIOD_NAME)).setValue(new Double(1.0));
-    	    	    double sa_1_iml = imr.getIML_AtExceedProb(prob);
-    	    	    imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
-    	    	    double pgv_iml = imr.getIML_AtExceedProb(prob);
-    	    	    fw.write(lat+" , "+lon+" , "+(float)pga_iml+" , "+
-    	    	    		(float)sa_03_iml+" , "+(float)sa_1_iml+" , "+(float)pgv_iml+"\n");
-    	    }
-      }
-
+    	   IMT_Info defaultXVals = new IMT_Info();
+       DiscretizedFuncAPI initialFunction = defaultXVals.getDefaultHazardCurve(AttenuationRelationship.SA_NAME);
+       int numSites = griddedSites.getNumGridLocs();
+       double timeDuration = eqkRupForecast.getTimeSpan().getDuration();
+       FileWriter[] fw = new FileWriter[returnPd.length];
+       for(int j=0;j<returnPd.length;++j){
+   	    fw[j] = new FileWriter("final_"+returnPd[j]+".txt");
+       }
+       // set the maximum distance in the attenuation relationship
+       // (Note- other types of IMRs may not have this method so we should really check type here)
+       imr.setUserMaxDistance(MAX_DISTANCE);
+       //resetting the Parameter change Listeners on the AttenuationRelationship
+       //parameters. This allows the Server version of our application to listen to the
+       //parameter changes.
+       ( (AttenuationRelationship) imr).resetParameterEventListeners();
+       for(int i=0;i<numSites;++i){
+    	      Site site = griddedSites.getSite(i);
+    	      imr.setSite(site);
+    	      
+    	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(initialFunction,site,
+    	    		  imr,eqkRupForecast);
+    	      
+    	      writeToFile(fw,site.getLocation(),timeDuration,hazardFunc);
+       }
+       
+       for(int j=0;j<fw.length;++j)
+      	    fw[j].close();
+          
     }catch(Exception e){
       e.printStackTrace();
     }
-    if(this.showProgressBar) progressClass.dispose();
   }
-
-
-
+  
+  private void writeToFile(FileWriter[] fw, Location loc,double duration, DiscretizedFuncAPI[] hazardFuncs) throws IOException{
+	  DiscretizedFuncAPI pgaHazardFunction = hazardFuncs[0];
+      DiscretizedFuncAPI sa03HazardFunction = hazardFuncs[1];
+      DiscretizedFuncAPI sa1HazardFunction = hazardFuncs[2];
+      DiscretizedFuncAPI pgvHazardFunction = hazardFuncs[3];
+      
+      for(int i=0;i<returnPd.length;++i){
+    	    double prob = 1-Math.exp(-(1/returnPd[i] *duration)); 
+    	    double pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	    double sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
+    	    		        (float)pgaIML+","+(float)sa03IML+","+(float)sa1IML+","+(float)pgvIML+"\n");
+      }
+      
+  }
+  
+  
   /**
-  * This allows tuning on or off the showing of a progress bar
-  * @param show - set as true to show it, or false to not show it
-  */
+   * Converts a Linear Arb. function to a function with X values being the Log scale.
+   * It does not modify the original function, an returns  a new function.
+   * @param linearFunc DiscretizedFuncAPI Linear Arb function
+   * @param val double values to initialize the Y value of the Arb function with.
+   * @return DiscretizedFuncAPI Arb function with X values being the log scale.
+   */
+  private DiscretizedFuncAPI initDiscretizedValuesToLog(DiscretizedFuncAPI linearFunc,double val){
+    DiscretizedFuncAPI toXLogFunc = new ArbitrarilyDiscretizedFunc();
+    if (IMT_Info.isIMT_LogNormalDist(AttenuationRelationship.SA_NAME))
+      for (int i = 0; i < linearFunc.getNum(); ++i)
+        toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
+    return toXLogFunc;
+  }  
+  
+  
+  /**
+   * This function computes a spectrum curve for all SA Period supported
+   * by the IMR and then interpolates the IML value from all the computed curves.
+   * The curve in place in the passed in hazFunction
+   * (with the X-axis values being the IMLs for which exceedance probabilites are desired).
+   * @param specFunction: This function is where the final interplotaed spectrum
+   * for the IML@prob curve is placed.
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public DiscretizedFuncAPI[] getSiteHazardCurve(DiscretizedFuncAPI function,Site site,
+                                           AttenuationRelationshipAPI imr,
+                                           EqkRupForecastAPI eqkRupForecast)  {
+
+
+    /* this determines how the calucations are done (doing it the way it's outlined
+     in the paper SRL gives probs greater than 1 if the total rate of events for the
+     source exceeds 1.0, even if the rates of individual ruptures are << 1).
+     */
+    boolean poissonSource = false;
+    //creates a new Arb function with X value being in Log scale and Y values as 1.0
+    DiscretizedFuncAPI tempSpecFunc =initDiscretizedValuesToLog(function,1.0);
+
+    int numIMTs = 4; //PGA,SA@0.3sec,SA@1secc,PGV for Hazus.
+    DiscretizedFuncAPI[] hazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
+    DiscretizedFuncAPI[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numIMTs];
+
+    for(int i=0;i<numIMTs;++i){
+      hazFunction[i] = tempSpecFunc.deepClone();
+      sourceHazFunc[i] = tempSpecFunc.deepClone();
+    }
+    ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc)
+        tempSpecFunc.deepClone();
+
+    //System.out.println("hazFunction: "+hazFunction.toString());
+
+    // declare some varibles used in the calculation
+    double qkProb, distance;
+    int k;
+
+    // get the number of points
+    int numPoints = tempSpecFunc.getNum();
+
+ 
+    // get total number of sources
+    int numSources = eqkRupForecast.getNumSources();
+    //System.out.println("Number of Sources: "+numSources);
+    //System.out.println("ERF info: "+ eqkRupForecast.getClass().getName());
+    // compute the total number of ruptures for updating the progress bar
+    int totRuptures = 0;
+    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex)
+      totRuptures += eqkRupForecast.getSource(sourceIndex).getNumRuptures();
+
+
+    //System.out.println("Total number of ruptures:"+ totRuptures);
+
+
+    // init the current rupture number (also for progress bar)
+    int currRuptures = 0;
+
+
+    // this boolean will tell us whether a source was actually used
+    // (e.g., all could be outside MAX_DISTANCE)
+    boolean sourceUsed = false;
+
+    if (D)
+      System.out.println(C + ": starting hazard curve calculation");
+
+    // loop over sources
+    for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
+
+      // get the ith source
+      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+
+      // compute the source's distance from the site and skip if it's too far away
+      distance = source.getMinDistance(site);
+      if (distance > MAX_DISTANCE) {
+        //update progress bar for skipped ruptures
+        /*
+                 if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
+                 System.out.println("rejected "+
+                 (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
+         (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+         */
+        currRuptures += source.getNumRuptures();
+        continue;
+      }
+
+      // indicate that a source has been used
+      sourceUsed = true;
+
+      // determine whether it's poissonian
+      poissonSource = source.isSourcePoissonian();
+
+      // initialize the source hazard function to 0.0 if it's a non-poisson source
+      if (!poissonSource)
+        for(int m=0;m<numIMTs;++m)
+          initDiscretizeValues(sourceHazFunc[m], 0.0);
+
+      // get the number of ruptures for the current source
+      int numRuptures = source.getNumRuptures();
+
+      // loop over these ruptures
+      for (int n = 0; n < numRuptures; n++, ++currRuptures) {
+
+        EqkRupture rupture = source.getRupture(n);
+        // get the rupture probability
+        qkProb = ( (ProbEqkRupture) rupture).getProbability();
+
+        // set the EqkRup in the IMR
+        imr.setEqkRupture(rupture);
+
+        //looping over all the SA Periods to get the ExceedProb Val for each.
+        for (int imtIndex = 0; imtIndex < numIMTs; ++imtIndex) {
+        	 if(imtIndex ==0)
+        		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+        	 else if(imtIndex ==1){
+        		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
+        	 }
+        	 else if(imtIndex ==2){
+        		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+        	 }
+        	 else if(imtIndex ==3)
+        		 imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+        	 
+           // get the conditional probability of exceedance from the IMR
+          condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
+              condProbFunc);
+          //System.out.println("CurrentRupture: "+currRuptures);
+          // For poisson source
+          if (poissonSource) {
+            /* First make sure the probability isn't 1.0 (or too close); otherwise rates are
+             infinite and all IMLs will be exceeded (because of ergodic assumption).  This
+             can happen if the number of expected events (over the timespan) exceeds ~37,
+             because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
+             an infinite number of events).  The number 30 used in the check below provides a
+             safe margin */
+            if (Math.log(1.0 - qkProb) < -30.0)
+              throw new RuntimeException(
+                  "Error: The probability for this ProbEqkRupture (" + qkProb +
+                  ") is too high for a Possion source (~infinite number of events)");
+
+            for (k = 0; k < numPoints; k++)
+              hazFunction[imtIndex].set(k,
+                                             hazFunction[imtIndex].getY(k) *
+                                             Math.pow(1 - qkProb, condProbFunc.getY(k)));
+          }
+          // For non-Poissin source
+          else
+            for (k = 0; k < numPoints; k++)
+              sourceHazFunc[imtIndex].set(k,
+                                sourceHazFunc[imtIndex].getY(k) +
+                                qkProb * condProbFunc.getY(k));
+        }
+      }
+      // for non-poisson source:
+      if (!poissonSource)
+        for(int i=0;i<numIMTs;++i)
+          for (k = 0; k < numPoints; k++)
+            hazFunction[i].set(k, hazFunction[i].getY(k) * (1 - sourceHazFunc[i].getY(k)));
+    }
+
+    int i;
+    // finalize the hazard function
+    if (sourceUsed)
+      for(int j=0;j<numIMTs;++j)
+        for (i = 0; i < numPoints; ++i)
+          hazFunction[j].set(i, 1 - hazFunction[j].getY(i));
+    else
+      for(int j=0;j<numIMTs;++j)
+        for (i = 0; i < numPoints; ++i)
+          hazFunction[j].set(i, 0.0);
+
+    //creating the temp functionlist that gets the linear X Value for each SA-Period
+    //spectrum curve.
+    DiscretizedFuncAPI[] tempHazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
+    for(int j=0;j<numIMTs;++j){
+      tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
+      for (i = 0; i < numPoints; ++i) {
+        tempHazFunction[j].set(function.getX(i),hazFunction[j].getY(i));
+      }
+    }
+ 
+    if (D)
+      System.out.println(C + "hazFunction.toString" + hazFunction.toString());
+    return tempHazFunction;
+  }
+  
+  
+  /**
+   * Initialize the prob as 1 for the Hazard function
+   *
+   * @param arb
+   */
+  private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+    int num = arb.getNum();
+    for(int i=0;i<num;++i)
+      arb.set(i,val);
+  }
+  
+  
+  /**
+   * This allows tuning on or off the showing of a progress bar
+   * @param show - set as true to show it, or false to not show it
+   */
   public void showProgressBar(boolean show) {
     this.showProgressBar=show;
   }

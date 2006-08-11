@@ -235,7 +235,6 @@ public class SpectrumCalculator extends UnicastRemoteObject
         for(int i=0;i<numSAPeriods;++i)
           for (k = 0; k < numPoints; k++)
             hazFunction[i].set(k, hazFunction[i].getY(k) * (1 - sourceHazFunc[i].getY(k)));
-
     }
 
     int i;

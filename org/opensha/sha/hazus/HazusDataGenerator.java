@@ -49,7 +49,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     getSiteParamsForRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 3(b) for the finer Grid spacing of 0.05km with Soil Effects with Background:\n"+
+    String metaData = "Hazus Run 3(a) for the finer Grid spacing of 0.05km with Soil Effects without Background:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+

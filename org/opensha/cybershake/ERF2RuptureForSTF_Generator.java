@@ -190,14 +190,14 @@ public class ERF2RuptureForSTF_Generator {
               siteFw.write(sourceIndex+"    "+rupIndex+"    "+ (float)rupture.getProbability()+
                            "    "+(float)rupture.getMag()+"\n");
               //creating the rupture file if it already does not exists else go to the next rupture.
-              String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
+             /* String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
               f = new File(ruptureFileName);
               if(!f.exists() || !f.isFile()){
                 fw = new FileWriter(ruptureFileName);
                 String ruptureString = ruptureString(rupture);
                 fw.write(ruptureString);
                 fw.close();
-              }
+              }*/
               break;
             }
           }
@@ -377,16 +377,16 @@ public class ERF2RuptureForSTF_Generator {
          locList.addLocation(new Location(34.009092 , -118.48939));//SMCA */
 
     //2nd set of sites for Cybershake
-    locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport
+    //locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport
     locList.addLocation(new Location(34.2356, -118.5275)); //Northridge CSUN Campus
-    locList.addLocation(new Location(34.00742,-118.239326 )); //Vernon
+    /*locList.addLocation(new Location(34.00742,-118.239326 )); //Vernon
     locList.addLocation(new Location(33.957493,-118.22975)); //SouthGate
     locList.addLocation(new Location(33.92221,-118.223104 )); //North Compton
     locList.addLocation(new Location(33.866282,-118.211689 )); //Dominquez Hills
     locList.addLocation(new Location(33.98750,-117.46211));//Pedley-1
     locList.addLocation(new Location(34.39545,-118.0801));//Gleason Road
     locList.addLocation(new Location(34.4202,-118.0967 ));//Aliso Canyon
-    locList.addLocation(new Location(34.5895,-117.8481 ));//Lovejoy Buttes
+    locList.addLocation(new Location(34.5895,-117.8481 ));//Lovejoy Buttes*/
 
 
     ListIterator it = locList.listIterator();
@@ -406,8 +406,8 @@ public class ERF2RuptureForSTF_Generator {
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
 
       //calling the function to generate the rupture files with directory name.
-      //calc.getEqkRupturesAsStringNearSite("Temp");
-      RectangularGeographicRegion region = null;
+      calc.getEqkRupturesAsStringNearSite("Temp");
+      /*RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();
@@ -437,7 +437,7 @@ public class ERF2RuptureForSTF_Generator {
       }
       catch (RegionConstraintException ex) {
         ex.printStackTrace();
-      }
+      }*/
       try {
         fw.write("\n\n\n");
       }
