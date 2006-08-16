@@ -222,6 +222,97 @@ public final class IMT_Info {
     return false;
   }
 
+ 
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  public static ArbitrarilyDiscretizedFunc getUSGS_PGA_Function(){
+	ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
+    function.set(.005,1);
+    function.set(.007,1);
+    function.set(.0098,1);
+    function.set(.0137,1);
+    function.set(.0192,1);
+    function.set(.0269,1);
+    function.set(.0376,1);
+    function.set(.0527,1);
+    function.set(.0738,1);
+    function.set(.103,1);
+    function.set(.145,1);
+    function.set(.203,1);
+    function.set(.284,1);
+    function.set(.397,1);
+    function.set(.556,1);
+    function.set(.778,1);
+    function.set(1.09,1);
+    function.set(1.52,1);
+    function.set(2.13,1);
+    return function;
+  }
+
+  
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  public static ArbitrarilyDiscretizedFunc getUSGS_SA_01_AND_02_Function(){
+	ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
+    function.set(.005,1);
+    function.set(.0075,1);
+    function.set(.0113 ,1);
+    function.set(.0169,1);
+    function.set(.0253,1);
+    function.set(.0380,1);
+    function.set(.0570,1);
+    function.set(.0854,1);
+    function.set(.128,1);
+    function.set(.192,1);
+    function.set(.288,1);
+    function.set(.432,1);
+    function.set(.649,1);
+    function.set(.973,1);
+    function.set(1.46,1);
+    function.set(2.19,1);
+    function.set(3.28,1);
+    function.set(4.92,1);
+    function.set(7.38,1);
+    return function;
+    
+  }
+  
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  public static ArbitrarilyDiscretizedFunc getUSGS_SA_AND_PGV_Function(){
+	 ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
+ 
+    function.set(.0025,1);
+    function.set(.00375,1);
+    function.set(.00563 ,1);
+    function.set(.00844,1);
+    function.set(.0127,1);
+    function.set(.0190,1);
+    function.set(.0285,1);
+    function.set(.0427,1);
+    function.set(.0641,1);
+    function.set(.0961,1);
+    function.set(.144,1);
+    function.set(.216,1);
+    function.set(.324,1);
+    function.set(.487,1);
+    function.set(.730,1);
+    function.set(1.09,1);
+    function.set(1.64,1);
+    function.set(2.46,1);
+    function.set(3.69,1);
+    function.set(5.54,1);
+    return function;
+  }
+  
+  
+  
   /**
    *
    * @param imtParam : IMT Parameter

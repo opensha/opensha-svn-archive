@@ -23,6 +23,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   //static Strings for the Different X Vlaues that the user can choose from.
   public final static String PEER_X_VALUES = "PEER Test-Case Values";
   public final static String USGS_PGA_X_VALUES = "USGS-2002 PGA Values";
+  public final static String USGS_SA_01_AND_02_X_VALUES = "USGS-2002 SA Values for 0.1 and 0.2sec";
+  public final static String USGS_SA_AND_PGV_X_VALUES = "USGS-2002 SA and PGV Values";
   public final static String CUSTOM_VALUES = "Custom Values";
   public final static String DEFAULT = "DEFAULT";
   public final static String MIN_MAX_NUM = "Enter Min, Max and Num";
@@ -154,6 +156,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesSelectionCombo.addItem(MIN_MAX_NUM);
     xValuesSelectionCombo.addItem(PEER_X_VALUES);
     xValuesSelectionCombo.addItem(USGS_PGA_X_VALUES);
+    xValuesSelectionCombo.addItem(USGS_SA_01_AND_02_X_VALUES);
+    xValuesSelectionCombo.addItem(USGS_SA_AND_PGV_X_VALUES);
     xValuesSelectionCombo.setSelectedItem(DEFAULT);
   }
 
@@ -213,6 +217,64 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     function.set(2.13,1);
   }
 
+  
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  private void createUSGS_SA_01_AND_02_Function(){
+    function= new ArbitrarilyDiscretizedFunc();
+                   
+    function.set(.005,1);
+    function.set(.0075,1);
+    function.set(.0113 ,1);
+    function.set(.0169,1);
+    function.set(.0253,1);
+    function.set(.0380,1);
+    function.set(.0570,1);
+    function.set(.0854,1);
+    function.set(.128,1);
+    function.set(.192,1);
+    function.set(.288,1);
+    function.set(.432,1);
+    function.set(.649,1);
+    function.set(.973,1);
+    function.set(1.46,1);
+    function.set(2.19,1);
+    function.set(3.28,1);
+    function.set(4.92,1);
+    function.set(7.38,1);
+    
+  }
+  
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  private void createUSGS_SA_AND_PGV_Function(){
+    function= new ArbitrarilyDiscretizedFunc();
+ 
+    function.set(.0025,1);
+    function.set(.00375,1);
+    function.set(.00563 ,1);
+    function.set(.00844,1);
+    function.set(.0127,1);
+    function.set(.0190,1);
+    function.set(.0285,1);
+    function.set(.0427,1);
+    function.set(.0641,1);
+    function.set(.0961,1);
+    function.set(.144,1);
+    function.set(.216,1);
+    function.set(.324,1);
+    function.set(.487,1);
+    function.set(.730,1);
+    function.set(1.09,1);
+    function.set(1.64,1);
+    function.set(2.46,1);
+    function.set(3.69,1);
+    function.set(5.54,1);
+  }
 
   /**
    * initialises the function with the x and y values if the user has chosen the Min Max Num Vals.
@@ -363,7 +425,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   void xValuesSelectionCombo_actionPerformed(ActionEvent e) {
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
     if(selectedItem.equals(PEER_X_VALUES) || selectedItem.equals(USGS_PGA_X_VALUES) ||
-       selectedItem.equals(this.CUSTOM_VALUES)){
+       selectedItem.equals(this.CUSTOM_VALUES) || selectedItem.equals(this.USGS_SA_01_AND_02_X_VALUES) ||
+       selectedItem.equals(this.USGS_SA_AND_PGV_X_VALUES)){
       maxLabel.setVisible(false);
       minLabel.setVisible(false);
       numLabel.setVisible(false);
@@ -413,6 +476,14 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       createUSGS_PGA_Function();
       setX_Values();
     }
+    else if(selectedItem.equals(this.USGS_SA_01_AND_02_X_VALUES)){
+        this.createUSGS_SA_01_AND_02_Function();
+        setX_Values();
+      }
+    else if(selectedItem.equals(this.USGS_SA_AND_PGV_X_VALUES)){
+    	this.createUSGS_SA_AND_PGV_Function();
+        setX_Values();
+      }
     else if(selectedItem.equals(this.DEFAULT)){
       //gets the selected IMT from application , is the user was working with custom
       //and then chooses the default then the IMT should be the latest one  selcetd in the application.

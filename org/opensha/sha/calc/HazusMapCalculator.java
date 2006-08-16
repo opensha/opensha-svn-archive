@@ -177,7 +177,7 @@ public class HazusMapCalculator {
 
     try{
     	   IMT_Info defaultXVals = new IMT_Info();
-       DiscretizedFuncAPI initialFunction = defaultXVals.getDefaultHazardCurve(AttenuationRelationship.SA_NAME);
+       DiscretizedFuncAPI initialFunction = defaultXVals.getDefaultHazardCurve(AttenuationRelationship.PGV_NAME);
        int numSites = griddedSites.getNumGridLocs();
        double timeDuration = eqkRupForecast.getTimeSpan().getDuration();
        FileWriter[] fw = new FileWriter[returnPd.length];
@@ -195,7 +195,7 @@ public class HazusMapCalculator {
     	      Site site = griddedSites.getSite(i);
     	      imr.setSite(site);
     	      
-    	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(initialFunction,site,
+    	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(site,
     	    		  imr,eqkRupForecast);
     	      
     	      writeToFile(fw,site.getLocation(),timeDuration,hazardFunc);
@@ -222,7 +222,7 @@ public class HazusMapCalculator {
     	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
     	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
-    	    		        (float)pgaIML+","+(float)sa03IML+","+(float)sa1IML+","+(float)pgvIML+"\n");
+    	    		format.format(pgaIML)+","+format.format(sa03IML)+","+format.format(sa1IML)+","+format.format(pgvIML)+"\n");
       }   
   }
   
@@ -255,7 +255,7 @@ public class HazusMapCalculator {
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public DiscretizedFuncAPI[] getSiteHazardCurve(DiscretizedFuncAPI function,Site site,
+  public DiscretizedFuncAPI[] getSiteHazardCurve(Site site,
                                            AttenuationRelationshipAPI imr,
                                            EqkRupForecastAPI eqkRupForecast)  {
 
@@ -265,19 +265,27 @@ public class HazusMapCalculator {
      source exceeds 1.0, even if the rates of individual ruptures are << 1).
      */
     boolean poissonSource = false;
-    //creates a new Arb function with X value being in Log scale and Y values as 1.0
-    DiscretizedFuncAPI tempSpecFunc =initDiscretizedValuesToLog(function,1.0);
+    
 
     int numIMTs = 4; //PGA,SA@0.3sec,SA@1secc,PGV for Hazus.
     DiscretizedFuncAPI[] hazFunction = new ArbitrarilyDiscretizedFunc[numIMTs];
     DiscretizedFuncAPI[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numIMTs];
-
-    for(int i=0;i<numIMTs;++i){
-      hazFunction[i] = tempSpecFunc.deepClone();
-      sourceHazFunc[i] = tempSpecFunc.deepClone();
+    
+    hazFunction[0] = IMT_Info.getUSGS_PGA_Function(); //PGA
+    hazFunction[1] = IMT_Info.getUSGS_SA_AND_PGV_Function(); //SA@0.3sec
+    hazFunction[2] = hazFunction[1].deepClone(); //SA@1.0sec
+    hazFunction[3] = hazFunction[1].deepClone(); //PGV
+    
+    sourceHazFunc[0] = hazFunction[0].deepClone();
+    sourceHazFunc[1] = hazFunction[1].deepClone();
+    sourceHazFunc[2] = hazFunction[1].deepClone();
+    sourceHazFunc[3] = hazFunction[1].deepClone();
+    for(int m=0;m<numIMTs;++m){
+    	  this.initDiscretizedValuesToLog(hazFunction[m],1.0);
+    	  this.initDiscretizedValuesToLog(sourceHazFunc[m],1.0);
     }
-    ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc)
-        tempSpecFunc.deepClone();
+    
+    DiscretizedFuncAPI condProbFunc = null;
 
     //System.out.println("hazFunction: "+hazFunction.toString());
 
@@ -285,9 +293,7 @@ public class HazusMapCalculator {
     double qkProb, distance;
     int k;
 
-    // get the number of points
-    int numPoints = tempSpecFunc.getNum();
-
+ 
  
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
@@ -312,7 +318,7 @@ public class HazusMapCalculator {
 
     if (D)
       System.out.println(C + ": starting hazard curve calculation");
-
+	int numPoints =0;
     // loop over sources
     for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
 
@@ -359,19 +365,28 @@ public class HazusMapCalculator {
 
         //looping over all the SA Periods to get the ExceedProb Val for each.
         for (int imtIndex = 0; imtIndex < numIMTs; ++imtIndex) {
-        	 if(imtIndex ==0)
+        	
+        
+        	 if(imtIndex ==0){
+        		 condProbFunc = hazFunction[0].deepClone();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+        		 
+        	 }
         	 else if(imtIndex ==1){
+        		 condProbFunc = hazFunction[1].deepClone();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
         	 }
         	 else if(imtIndex ==2){
+        		 condProbFunc = hazFunction[2].deepClone();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
         	 }
-        	 else if(imtIndex ==3)
+        	 else if(imtIndex ==3){
+        		 condProbFunc = hazFunction[3].deepClone();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
-        	 
+        	 }
+        	 numPoints = condProbFunc.getNum();
            // get the conditional probability of exceedance from the IMR
           condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
               condProbFunc);
@@ -426,7 +441,10 @@ public class HazusMapCalculator {
     for(int j=0;j<numIMTs;++j){
       tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
       for (i = 0; i < numPoints; ++i) {
-        tempHazFunction[j].set(function.getX(i),hazFunction[j].getY(i));
+        tempHazFunction[0].set(IMT_Info.getUSGS_PGA_Function().getX(i),hazFunction[j].getY(i));
+        tempHazFunction[1].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),hazFunction[j].getY(i));
+        tempHazFunction[2].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),hazFunction[j].getY(i));
+        tempHazFunction[3].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),hazFunction[j].getY(i));
       }
     }
  
