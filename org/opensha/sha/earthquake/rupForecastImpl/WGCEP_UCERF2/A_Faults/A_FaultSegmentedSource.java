@@ -88,6 +88,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	private double totalMoRateFromSegments, totalMoRateFromRups;
 	
 	private ValueWeight[] aPrioriRupRates;
+	
+	// NNLS inversion solver - static to save time and memory
+	private static NNLSWrapper nnls = new NNLSWrapper();
 
 	
 	/**
@@ -353,7 +356,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		rupMoRate = new double[num_rup];
 		totRupRate = new double[num_rup];  // if rupture given an MFD
 		
-		NNLSWrapper nnls = new NNLSWrapper();
+		// NNLSWrapper nnls = new NNLSWrapper();
 		// we need to solve Xf=d, where f is the rupture rate vector
 		
 		// first compute the rupture mags and slips
@@ -880,11 +883,40 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	
+	/**
+	 * This gets the non-negative least squares solution more the matrix C
+	 * and data vector d.
+	 * @param C
+	 * @param d
+	 * @return
+	 */
+	private static double[] getNNLS_solution(double[][] C, double[] d) {
+
+		int nRow = C.length;
+		int nCol = C[0].length;
+		
+		double[] A = new double[nRow*nCol];
+		double[] x = new double[nCol];
+		
+		int i,j,k=0;
+		for(j=0;j<nCol;j++) 
+			for(i=0; i<nRow;i++)	{
+				A[k]=C[i][j];
+				k+=1;
+			}
+		
+		nnls.update(A,nRow,nCol);
+		nnls.solve(d,x);
+//		for(i=0; i<x.length;i++)
+//			System.out.println(i+"  "+x[i]);
+		return x;
+
+	}
 	
 	
 	public static void main(String[] args) {
 		
-		/*
+		/**/
 		double[][] C = {
 		//_ rup  1,2,3,4,5,6,7,8,9,0,1,2,3,4,5
 				{1,0,0,0,0,1,0,0,0,1,0,0,1,0,1},
@@ -893,11 +925,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				{0,0,0,1,0,0,0,1,1,0,1,1,1,1,1},
 				{0,0,0,0,1,0,0,0,1,0,0,1,0,1,1},
 		};
-		final double[] d = {1/1.380,1/.333,1/.600,1/2.000,1/.9333333};  // AKA "b" vector		
-		int nRow = 5;
-		int nCol=15;
+		final double[] d = {1/1.380,1/.250,1/.600,1/2.000,1/.9333333};  // AKA "b" vector		
+
 		/*
-		/**/
 		double[][] C = {
 				{0.0372,0.2869},
 			    {0.6861,0.7071},
@@ -905,21 +935,14 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			    {0.6344,0.6170},
 			    };
 		final double[] d = {0.8587,0.1781,0.0747,0.8405};  // AKA "b" vector		
-		int nRow = 4;
-		int nCol=2;
-		
+		*/
 
-		double[] A = new double[nRow*nCol];
-		double[] x = new double[nCol];
-		int i,j,k=0;
-		for(j=0;j<nCol;j++) 
-			for(i=0; i<nRow;i++)	{
-				A[k]=C[i][j];
-				k+=1;
-			}
-		NNLSWrapper nnls = new NNLSWrapper(A,nRow,nCol);
-		nnls.solve(d,x);
-		for(i=0; i<x.length;i++)
+		System.out.println("num rows  "+C.length);
+		System.out.println("num cols  "+C[0].length);
+
+		double[] x = getNNLS_solution(C,d);
+		
+		for(int i=0; i<x.length;i++)
 			System.out.println(i+"  "+x[i]);
 		
 		
