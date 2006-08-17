@@ -15,6 +15,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.data.region.*;
 import org.opensha.data.function.*;
+import org.opensha.exceptions.InvalidRangeException;
 
 
 /**
@@ -218,10 +219,20 @@ public class HazusMapCalculator {
 
       for(int i=0;i<returnPd.length;++i){
     	    double rate = 1/returnPd[i] ;
-    	    double pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    double sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    double pgaIML =0.0,sa03IML=0.0,sa1IML=0.0,pgvIML=0.0;
+    	    try{
+    	       pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    }catch(InvalidRangeException e){}
+    	    try{
+    	        sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    }catch(InvalidRangeException e){}
+    	    try{
+    	        sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    }catch(InvalidRangeException e){}
+    	    try{
+    	        pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    }catch(InvalidRangeException e){}
+    	    
     	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
     	    		format.format(pgaIML)+","+format.format(sa03IML)+","+format.format(sa1IML)+","+format.format(pgvIML)+"\n");
       }

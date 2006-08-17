@@ -72,13 +72,13 @@ public class HazusDataSetCalcApp extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
-  public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
-  public final static String RMI_STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
-  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
-  public final static String RMI_WG02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
-  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
-  public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
+  public final static String FRANKEL96_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
+  public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  public final static String STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
+  public final static String WG02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
+  public final static String FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
+  public final static String WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -338,13 +338,13 @@ public class HazusDataSetCalcApp extends JApplet
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
-   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_WG02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
+   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(FRANKEL96_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_ALASKAN_FORECAST_CLASS_NAME);
+   erf_Classes.add(WG02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(WGCEP_UCERF1_ERF_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -450,7 +450,7 @@ public class HazusDataSetCalcApp extends JApplet
   * @param e
   */
  void addButton_actionPerformed(ActionEvent e) {
-   calcProgress = new CalcProgressBar("HazardMap Application","Initializing Calculation ...");
+   calcProgress = new CalcProgressBar("Hazus Application","Initializing Calculation ...");
    // check that user has entered a valid email address
    String email = emailText.getText();
    if(email.trim().equalsIgnoreCase("")) {
