@@ -9,13 +9,12 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.*;
-import org.opensha.util.*;
+
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.data.function.*;
+
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
@@ -33,13 +32,11 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 34.823168;
   private final double MIN_LON = -118.943793 ;
   private final double MAX_LON= -117.644716;
-  private final double GRID_SPACING= 0.05;
+  private final double GRID_SPACING= 0.1;
 
   private Frankel02_AdjustableEqkRupForecast forecast;
   private USGS_Combined_2004_AttenRel attenRel;
   private SitesInGriddedRectangularRegion region;
-
-  private IMT_Info defaultXVals = new IMT_Info();
 
   public HazusDataGenerator() throws RegionConstraintException {
 
@@ -49,7 +46,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     getSiteParamsForRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 3(a) for the finer Grid spacing of 0.05km with Soil Effects without Background:\n"+
+    String metaData = "Hazus Run 1(a) for the finer Grid spacing of 0.1km without Soil Effects with Background:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
@@ -81,7 +78,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private void getSiteParamsForRegion() {
     region.addSiteParams(attenRel.getSiteParamsIterator());
     //getting Wills Site Class
-    region.setSiteParamsForRegionFromServlet(true);
+    //region.setSiteParamsForRegionFromServlet(true);
     //getting the Attenuation Site Parameters Liat
     ListIterator it = attenRel.getSiteParamsIterator();
     //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -104,15 +101,15 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
 	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
 	   forecast.getTimeSpan().setDuration(50.0);
-	   forecast.getAdjustableParameterList().getParameter(
-               WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
-                                        BACK_SEIS_EXCLUDE);
 	   /*forecast.getAdjustableParameterList().getParameter(
-	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
+               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
+                                        BACK_SEIS_EXCLUDE);*/
+	   forecast.getAdjustableParameterList().getParameter(
+	                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
 	                                         BACK_SEIS_INCLUDE);
 	   forecast.getAdjustableParameterList().getParameter(
-	                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-	                    WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);*/
+	                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
+	                    Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
 	   forecast.updateForecast();
   }
 

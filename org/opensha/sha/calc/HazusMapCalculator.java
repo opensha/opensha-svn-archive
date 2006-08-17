@@ -53,6 +53,8 @@ public class HazusMapCalculator {
   // name of the new directory for this data set
   private String newDir;
 
+  //EqkRupForecast TimePd
+  private double duration;
 
   private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
 
@@ -176,10 +178,9 @@ public class HazusMapCalculator {
                           EqkRupForecast eqkRupForecast) {
 
     try{
-    	   IMT_Info defaultXVals = new IMT_Info();
-       DiscretizedFuncAPI initialFunction = defaultXVals.getDefaultHazardCurve(AttenuationRelationship.PGV_NAME);
+
        int numSites = griddedSites.getNumGridLocs();
-       double timeDuration = eqkRupForecast.getTimeSpan().getDuration();
+       duration = eqkRupForecast.getTimeSpan().getDuration();
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){
    	    fw[j] = new FileWriter(newDir+"/"+ "final_"+returnPd[j]+".dat");
@@ -198,7 +199,7 @@ public class HazusMapCalculator {
     	      DiscretizedFuncAPI[] hazardFunc = getSiteHazardCurve(site,
     	    		  imr,eqkRupForecast);
 
-    	      writeToFile(fw,site.getLocation(),timeDuration,hazardFunc);
+    	      writeToFile(fw,site.getLocation(),hazardFunc);
        }
 
        for(int j=0;j<fw.length;++j)
@@ -209,18 +210,18 @@ public class HazusMapCalculator {
     }
   }
 
-  private void writeToFile(FileWriter[] fw, Location loc,double duration, DiscretizedFuncAPI[] hazardFuncs) throws IOException{
+  private void writeToFile(FileWriter[] fw, Location loc, DiscretizedFuncAPI[] hazardFuncs) throws IOException{
 	  DiscretizedFuncAPI pgaHazardFunction = hazardFuncs[0];
       DiscretizedFuncAPI sa03HazardFunction = hazardFuncs[1];
       DiscretizedFuncAPI sa1HazardFunction = hazardFuncs[2];
       DiscretizedFuncAPI pgvHazardFunction = hazardFuncs[3];
 
       for(int i=0;i<returnPd.length;++i){
-    	    double prob = 1-Math.exp(-1*((1/returnPd[i]) *duration));
-    	    double pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-    	    double sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-    	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-    	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	    double rate = 1/returnPd[i] ;
+    	    double pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    double sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    double sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
+    	    double pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
     	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
     	    		format.format(pgaIML)+","+format.format(sa03IML)+","+format.format(sa1IML)+","+format.format(pgvIML)+"\n");
       }
@@ -446,25 +447,31 @@ public class HazusMapCalculator {
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[0].set(IMT_Info.getUSGS_PGA_Function().getX(i),
-                             hazFunction[0].getY(i));
+                             convertToRate(hazFunction[0].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[1].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
-                             hazFunction[1].getY(i));
+                             convertToRate(hazFunction[1].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[2].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
-                             hazFunction[2].getY(i));
+                             convertToRate(hazFunction[2].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[3].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
-                             hazFunction[3].getY(i));
-
-
-
+                             convertToRate(hazFunction[3].getY(i)));
     if (D)
       System.out.println(C + "hazFunction.toString" + hazFunction.toString());
     return tempHazFunction;
+  }
+
+
+  private double convertToRate(double prob){
+    double temp = 1-prob;
+    if(temp == 0)
+      temp = Double.MIN_VALUE;
+    double val= -(Math.log(temp))/duration;
+    return val;
   }
 
 

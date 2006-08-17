@@ -194,7 +194,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     /** Returns the x value of a point given the index */
     public int getXIndex(double x){ return points.getIndex( new DataPoint2D(x, 0.0 ) ); }
 
- 
+
     /** Either adds a new DataPoint, or replaces an existing one, within tolerance */
     public void set(DataPoint2D point) throws DataPoint2DException{ points.put(point); }
 
@@ -357,7 +357,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       for(i=0;i<max-1;++i) {
         y1=getY(i);
         y2=getY(i+1);
-        if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+        if((y<=y1 && y>=y2) || (y>=y1 && y<=y2)) {
           found = true;
           break;
         }
