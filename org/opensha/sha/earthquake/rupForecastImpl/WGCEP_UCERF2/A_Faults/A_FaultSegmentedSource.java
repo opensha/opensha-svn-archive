@@ -369,7 +369,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		models.add(CHAR_SLIP_MODEL);
 		models.add(UNIFORM_SLIP_MODEL);
 		models.add(WG02_SLIP_MODEL);
-		models.add(TAPERED_SLIP_MODEL);
+//		models.add(TAPERED_SLIP_MODEL);
 
 		return models;
 	}

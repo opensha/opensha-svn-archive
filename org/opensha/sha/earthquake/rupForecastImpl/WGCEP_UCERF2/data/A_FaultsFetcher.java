@@ -51,8 +51,11 @@ public class A_FaultsFetcher {
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
 	private String selectedFaultModel=null;
 	private int deformationModelId=-1;
+	private int prevDeformationModelId=-1;
+	private boolean prevIsAseisReducesArea;
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
+	ArrayList faultSegDataList = null;
 	
 	
 	public A_FaultsFetcher() {
@@ -112,10 +115,18 @@ public class A_FaultsFetcher {
 	 * @return
 	 */
 	public ArrayList getFaultSegmentDataList(int deformationModelId, boolean isAseisReducesArea) {
-		ArrayList faultList = new ArrayList();
-		for(int i=0; i< faultModelNames.size(); ++i)
-			faultList.add(getFaultSegmentData((String)faultModelNames.get(i), deformationModelId, isAseisReducesArea));
-		return faultList;
+		// only make list if something has changed
+		if(faultSegDataList==null || prevIsAseisReducesArea != isAseisReducesArea ||
+				prevDeformationModelId!=deformationModelId)  {
+		
+			prevIsAseisReducesArea = isAseisReducesArea;
+			prevDeformationModelId = deformationModelId;
+			faultSegDataList = new ArrayList();
+			for(int i=0; i< faultModelNames.size(); ++i)
+				faultSegDataList.add(getFaultSegmentData((String)faultModelNames.get(i), deformationModelId, isAseisReducesArea));
+		}
+		
+		return faultSegDataList;
 	}
 	
 	
