@@ -8,6 +8,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import java.io.FileWriter;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
@@ -125,9 +126,9 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
    // include background sources as point sources
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME,
-                               new Double(1.0));
+                               new Double(10.0));
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME,
-                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME,
                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.FAULT_MODEL_NAME,
@@ -139,7 +140,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    eqkRupForecast.updateForecast();
    try {
      // region to view the rates
-     EvenlyGriddedRELM_Region evenlyGriddedRegion  = new EvenlyGriddedRELM_Region();
+     EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
      // min mag, maxMag, These are Centers of first and last bin
      double minMag=5.0, maxMag=9.00;
      int numMag = 41; // number of Mag bins
