@@ -57,8 +57,8 @@ public class HazusMapCalculator {
   //EqkRupForecast TimePd
   private double duration;
 
-  private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
-
+  //private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
+  private double[] returnPd = {100};
 
   /**
    * This sets the maximum distance of sources to be considered in the calculation
@@ -293,8 +293,8 @@ public class HazusMapCalculator {
     sourceHazFunc[2] = hazFunction[1].deepClone();
     sourceHazFunc[3] = hazFunction[1].deepClone();
     for(int m=0;m<numIMTs;++m){
-    	  this.initDiscretizedValuesToLog(hazFunction[m],1.0);
-    	  this.initDiscretizedValuesToLog(sourceHazFunc[m],1.0);
+    	  this.initDiscretizeValues(hazFunction[m],1.0);
+    	  this.initDiscretizeValues(sourceHazFunc[m],1.0);
     }
 
     DiscretizedFuncAPI condProbFunc = null;
@@ -380,25 +380,27 @@ public class HazusMapCalculator {
 
 
         	 if(imtIndex ==0){
-        		 condProbFunc = hazFunction[0].deepClone();
+        		 condProbFunc = IMT_Info.getUSGS_PGA_Function();;
         		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
         	 }
         	 else if(imtIndex ==1){
-        		 condProbFunc = hazFunction[1].deepClone();
+        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
+        		 
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
         	 }
         	 else if(imtIndex ==2){
-        		 condProbFunc = hazFunction[2].deepClone();
+        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
-        		 condProbFunc = hazFunction[3].deepClone();
+        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
         	 }
         	 numPoints = condProbFunc.getNum();
+        	 initDiscretizedValuesToLog(condProbFunc,1.0);
            // get the conditional probability of exceedance from the IMR
           condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
               condProbFunc);
@@ -431,9 +433,11 @@ public class HazusMapCalculator {
       }
       // for non-poisson source:
       if (!poissonSource)
-        for(int i=0;i<numIMTs;++i)
+        for(int i=0;i<numIMTs;++i){
+        	  numPoints = hazFunction[i].getNum();
           for (k = 0; k < numPoints; k++)
             hazFunction[i].set(k, hazFunction[i].getY(k) * (1 - sourceHazFunc[i].getY(k)));
+        }
     }
 
     int i;
@@ -457,19 +461,19 @@ public class HazusMapCalculator {
       tempHazFunction[j] = new ArbitrarilyDiscretizedFunc();
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
-      tempHazFunction[0].set(IMT_Info.getUSGS_PGA_Function().getX(i),
+      tempHazFunction[0].set(hazFunction[0].getX(i),
                              convertToRate(hazFunction[0].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
-      tempHazFunction[1].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
+      tempHazFunction[1].set(hazFunction[1].getX(i),
                              convertToRate(hazFunction[1].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
-      tempHazFunction[2].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
+      tempHazFunction[2].set(hazFunction[2].getX(i),
                              convertToRate(hazFunction[2].getY(i)));
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
-      tempHazFunction[3].set(IMT_Info.getUSGS_SA_AND_PGV_Function().getX(i),
+      tempHazFunction[3].set(hazFunction[3].getX(i),
                              convertToRate(hazFunction[3].getY(i)));
     if (D)
       System.out.println(C + "hazFunction.toString" + hazFunction.toString());
