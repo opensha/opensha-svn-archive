@@ -26,9 +26,7 @@ import org.opensha.data.TimeSpan;
 import org.opensha.data.ValueWeight;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.exceptions.FaultException;
-import org.opensha.param.BooleanParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.StringParameter;
+import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
@@ -920,11 +918,51 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 	}
 	
+	/**
+	 * This generates text to console that can be pasted into a Matlab *.m file and then
+	 * executed in Matlab to compare the Java NNSL solutions to those in Matlab (script
+	 * writes the max absolute difference).  Make sure the MATLAB_TEST in A_FaultSegmentedSource
+	 * is set as true before running this.
+	 * 
+	 * Everything here compares well (except the case below).  That is, the max abs diff
+	 * was generally less that 1e-10, got as low as 1e-7 on Elsinore, and 1e-5 on S. SAF.
+	 * 
+	 *  The following case did not converge in Matlab:
+	 *
+	 *  % Hanks & Bakun (2002) Mag-Area Rel.
+	 *  % Min Rate Model
+	 *  % WGCEP-2002 model (Dsr prop to Vs)
+	 *  CASE_2_0_2
+	 *  S._San_Andreas
+	 *  
+	 *  By dividing the right and left sides of the equation by 10, the Matlab solution 
+	 *  converged with a max absolute-value difference from that here of 1.3243e-04
+	 *  (the rates of 5 ruptures differed by 1e-4 when rounded to nearest 1e-4).
+	 */
+	private void makeMatlabNNLS_testScript() {
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		for(int imag=0; imag<magAreaOptions.size();imag++)
+			for(int irup=0; irup<rupModelOptions.size();irup++)
+				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						rupModelParam.setValue(rupModelOptions.get(irup));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						System.out.println("% "+magAreaOptions.get(imag)+
+								"\n% " + rupModelOptions.get(irup) +
+								"\n% " + slipModelOptions.get(islip));
+						System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
+						mkA_FaultSegmentedSources();
+					}
+	}
 	
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		erRateModel2_ERF.makeTotalRelativeGriddedRates();
+		erRateModel2_ERF.makeMatlabNNLS_testScript();
+		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		
 	}
 }

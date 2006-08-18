@@ -48,7 +48,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	//for Debug purposes
 	private static String C = new String("A_FaultSource");
 	private final static boolean D = false;
-	private final static boolean MATLAB_TEST = true;
+	private final static boolean MATLAB_TEST = false;
 	
 	//name for this classs
 	protected String NAME = "Type-A Fault Source";
@@ -471,6 +471,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				for(int rup = 0; rup < num_rup; rup += 1)
 					System.out.print(rupInSeg[seg][rup]+"  ");
 			}
+			System.out.print("\n");
 		}
 		
 		return rupInSeg;
