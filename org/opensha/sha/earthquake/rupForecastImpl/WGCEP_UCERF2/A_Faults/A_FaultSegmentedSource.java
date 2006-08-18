@@ -74,7 +74,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
-	public final static String TAPERED_SLIP_MODEL = "Tapered Ends (????)";
+	public final static String TAPERED_SLIP_MODEL = "Tapered Ends (elliptical)";
+	
+	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
 	// for rounding magnitudes
 	private final static double ROUND_MAG_TO = 0.01;
@@ -369,7 +371,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		models.add(CHAR_SLIP_MODEL);
 		models.add(UNIFORM_SLIP_MODEL);
 		models.add(WG02_SLIP_MODEL);
-//		models.add(TAPERED_SLIP_MODEL);
+		models.add(TAPERED_SLIP_MODEL);
 
 		return models;
 	}
@@ -465,6 +467,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		
 		// check result
+		/*
 		if(D) {
 			for(int seg = 0; seg < num_seg; seg+=1) {
 				System.out.print("\n");
@@ -473,6 +476,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			}
 			System.out.print("\n");
 		}
+		*/
 		
 		return rupInSeg;
 	}
@@ -493,6 +497,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			  	};
 		
 		// check result
+		/*
 		if(D) {
 			for(int seg = 0; seg < num_seg; seg+=1) {
 				System.out.print("\n");
@@ -500,6 +505,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					System.out.print(sjfRupInSeg[seg][rup]+"  ");
 			}
 		}
+		*/
 		
 		return sjfRupInSeg;
 	}
@@ -716,7 +722,36 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			}
 		}
 		else if (slipModelType.equals(TAPERED_SLIP_MODEL)) {
-			throw new RuntimeException(TAPERED_SLIP_MODEL + " is not yet supported");
+			mkTaperedSlipFuncs();
+			for(int rup=0; rup<num_rup; ++rup) {
+				double aveSlip = MomentMagCalc.getMoment(rupMeanMag[rup])/(rupArea[rup]*FaultMomentCalc.SHEAR_MODULUS);
+				double totRupLength = 0;
+				for(int seg=0; seg<num_seg; seg++) {
+					if(rupInSeg[seg][rup]==1) {
+						totRupLength += segmentData.getSegmentLength(seg);
+					}
+				}
+				double normBegin=0, normEnd, scaleFactor;
+				for(int seg=0; seg<num_seg; seg++) {
+					if(rupInSeg[seg][rup]==1) {
+						normEnd = normBegin + segmentData.getSegmentLength(seg)/totRupLength;
+						// fix normEnd values that are just past 1.0
+						if(normEnd > 1 && normEnd < 1.00001) normEnd = 1.0;
+						scaleFactor = taperedSlipCDF.getInterpolatedY(normEnd)-taperedSlipCDF.getInterpolatedY(normBegin);
+						scaleFactor /= (normEnd-normBegin);
+						segSlipInRup[seg][rup] = aveSlip*scaleFactor;
+						normBegin = normEnd;
+					}
+				}
+				if(D) { // check results
+					double d_aveTest=0;
+					for(int seg=0; seg<num_seg; seg++)
+						d_aveTest += segSlipInRup[seg][rup]*segmentData.getSegmentLength(seg)/totRupLength;
+					System.out.println("AveSlipCheck: " + (float) d_aveTest+";  "+
+							(float) aveSlip+";  "+
+							d_aveTest/aveSlip);
+				}
+			}
 		}
 		else throw new RuntimeException("slip model not supported");
 	}
@@ -1063,8 +1098,33 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	
+	private static void mkTaperedSlipFuncs() {
+		taperedSlipCDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
+		taperedSlipPDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
+		double x,y, sum=0;
+		int num = taperedSlipPDF.getNum();
+		for(int i=0; i<num;i++) {
+			x = taperedSlipPDF.getX(i);
+			y = Math.sqrt(1-(x-0.5)*(x-0.5)/0.25);
+			taperedSlipPDF.set(i,y);
+			sum += y;
+		}
+
+		// now make final PDF & CDF
+		y=0;
+		for(int i=0; i<num;i++) {
+				y += taperedSlipPDF.getY(i);
+				taperedSlipCDF.set(i,y/sum);
+				taperedSlipPDF.set(i,num*taperedSlipPDF.getY(i)/sum);
+//				System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
+		}
+	}
+	
 	public static void main(String[] args) {
 		
+		mkTaperedSlipFuncs();
+		
+		/*
 //		System.out.println("Starting - loading data");
 		A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 		// Defomration model D2.1 ID =  42
@@ -1079,7 +1139,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 //		System.out.println("now creating source");
 		A_FaultSegmentedSource src = new A_FaultSegmentedSource(segData, magAreaRel,
 				A_FaultSegmentedSource.WG02_SLIP_MODEL, aPrioriRates, 0.12, 2);
-		
+		*/
 		
 		/*
 		double[][] C = {
