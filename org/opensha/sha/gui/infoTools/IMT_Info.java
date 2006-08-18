@@ -282,10 +282,10 @@ public final class IMT_Info {
   }
   
   /**
-   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
-   * the y values are modified with the values entered by the user
+   * initialises the function with the x and y values if the user has chosen the USGS SA 0.3,0.4,0.5 and 1.0sec
+   *  X Vals ,the y values are modified with the values entered by the user
    */
-  public static ArbitrarilyDiscretizedFunc getUSGS_SA_AND_PGV_Function(){
+  public static ArbitrarilyDiscretizedFunc getUSGS_SA_Function(){
 	 ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
  
     function.set(.0025,1);
@@ -310,7 +310,7 @@ public final class IMT_Info {
     function.set(5.54,1);
     return function;
   }
-  
+   
   
   
   /**

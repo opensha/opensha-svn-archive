@@ -24,7 +24,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   public final static String PEER_X_VALUES = "PEER Test-Case Values";
   public final static String USGS_PGA_X_VALUES = "USGS-2002 PGA Values";
   public final static String USGS_SA_01_AND_02_X_VALUES = "USGS-2002 SA Values for 0.1 and 0.2sec";
-  public final static String USGS_SA_AND_PGV_X_VALUES = "USGS-2002 SA and PGV Values";
+  public final static String USGS_SA_X_VALUES = "USGS-2002 SA 0.3,0.4,0.5 and 1.0 Values";
   public final static String CUSTOM_VALUES = "Custom Values";
   public final static String DEFAULT = "DEFAULT";
   public final static String MIN_MAX_NUM = "Enter Min, Max and Num";
@@ -157,7 +157,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesSelectionCombo.addItem(PEER_X_VALUES);
     xValuesSelectionCombo.addItem(USGS_PGA_X_VALUES);
     xValuesSelectionCombo.addItem(USGS_SA_01_AND_02_X_VALUES);
-    xValuesSelectionCombo.addItem(USGS_SA_AND_PGV_X_VALUES);
+    xValuesSelectionCombo.addItem(USGS_SA_X_VALUES);
     xValuesSelectionCombo.setSelectedItem(DEFAULT);
   }
 
@@ -251,7 +251,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
    * the y values are modified with the values entered by the user
    */
-  private void createUSGS_SA_AND_PGV_Function(){
+  private void createUSGS_SA_Function(){
     function= new ArbitrarilyDiscretizedFunc();
  
     function.set(.0025,1);
@@ -426,7 +426,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
     if(selectedItem.equals(PEER_X_VALUES) || selectedItem.equals(USGS_PGA_X_VALUES) ||
        selectedItem.equals(this.CUSTOM_VALUES) || selectedItem.equals(this.USGS_SA_01_AND_02_X_VALUES) ||
-       selectedItem.equals(this.USGS_SA_AND_PGV_X_VALUES)){
+       selectedItem.equals(this.USGS_SA_X_VALUES)){
       maxLabel.setVisible(false);
       minLabel.setVisible(false);
       numLabel.setVisible(false);
@@ -480,8 +480,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
         this.createUSGS_SA_01_AND_02_Function();
         setX_Values();
       }
-    else if(selectedItem.equals(this.USGS_SA_AND_PGV_X_VALUES)){
-    	this.createUSGS_SA_AND_PGV_Function();
+    else if(selectedItem.equals(this.USGS_SA_X_VALUES)){
+    	this.createUSGS_SA_Function();
         setX_Values();
       }
     else if(selectedItem.equals(this.DEFAULT)){

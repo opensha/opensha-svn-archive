@@ -46,7 +46,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     getSiteParamsForRegion();
     HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "Hazus Run 1(a) for the finer Grid spacing of 0.1km without Soil Effects with Background:\n"+
+    String metaData = "Hazus Run 1(a) for the finer Grid spacing of 0.1km without Soil Effects without Background:\n"+
     	                "\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
@@ -101,15 +101,15 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
 	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
 	   forecast.getTimeSpan().setDuration(50.0);
-	   /*forecast.getAdjustableParameterList().getParameter(
-               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                        BACK_SEIS_EXCLUDE);*/
 	   forecast.getAdjustableParameterList().getParameter(
+               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
+                                        BACK_SEIS_EXCLUDE);
+	   /*forecast.getAdjustableParameterList().getParameter(
 	                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
 	                                         BACK_SEIS_INCLUDE);
 	   forecast.getAdjustableParameterList().getParameter(
 	                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-	                    Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+	                    Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);*/
 	   forecast.updateForecast();
   }
 
@@ -117,7 +117,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private void createAttenRel_Instance(){
 	  attenRel = new USGS_Combined_2004_AttenRel(this);
           attenRel.setParamDefaults();
-	  //attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
+	  attenRel.getParameter(attenRel.VS30_NAME).setValue(new Double(760));
 	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
 	  setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
 	  attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).

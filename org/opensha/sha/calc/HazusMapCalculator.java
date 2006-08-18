@@ -16,7 +16,7 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.data.region.*;
 import org.opensha.data.function.*;
 import org.opensha.exceptions.InvalidRangeException;
-
+import org.opensha.sha.imr.*;
 
 /**
  * <p>Title: HazardMapCalculator </p>
@@ -57,8 +57,8 @@ public class HazusMapCalculator {
   //EqkRupForecast TimePd
   private double duration;
 
-  //private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
-  private double[] returnPd = {100};
+  private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
+  //private double[] returnPd = {100};
 
   /**
    * This sets the maximum distance of sources to be considered in the calculation
@@ -100,7 +100,7 @@ public class HazusMapCalculator {
     else {
       if(mainDir.list()!=null) { // if there are various data sets in directory
         int numDataSets = mainDir.list().length;
-        newDir=  DATASETS_PATH+"Set-"+(numDataSets+1);
+        newDir=  DATASETS_PATH+"Set-"+(numDataSets);
       } else {// if main directory is there but it is empty
         newDir=  DATASETS_PATH+"Set-1";
       }
@@ -161,6 +161,14 @@ public class HazusMapCalculator {
       }
     }
     newDir = DATASETS_PATH+dirName;
+    File f = new File(newDir);
+    if(f.exists()){
+    	  int counter =2;
+    	  while(f.exists()){
+    	     newDir = DATASETS_PATH+dirName+"_"+counter;
+    	     f = new File(newDir);
+    	  }
+    }
     boolean success = (new File(newDir)).mkdir();
     calculate(griddedSites, imr, eqkRupForecast);
   }
@@ -219,22 +227,20 @@ public class HazusMapCalculator {
 
       for(int i=0;i<returnPd.length;++i){
     	    double rate = 1/returnPd[i] ;
+    	    double prob = 1-Math.exp(-1*rate*duration);
     	    double pgaIML =0.0,sa03IML=0.0,sa1IML=0.0,pgvIML=0.0;
-    	    try{
-    	       pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    }catch(InvalidRangeException e){}
-    	    try{
-    	        sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    }catch(InvalidRangeException e){}
-    	    try{
-    	        sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    }catch(InvalidRangeException e){}
-    	    try{
-    	        pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(rate);
-    	    }catch(InvalidRangeException e){}
     	    
+    	    
+        pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    
+        sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    
+        sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+        
+        pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+ 	    
     	    fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
-    	    		format.format(pgaIML)+","+format.format(sa03IML)+","+format.format(sa1IML)+","+format.format(pgvIML)+"\n");
+    	    		format.format(pgaIML)+","+format.format(pgvIML/2.5)+","+format.format(sa03IML)+","+format.format(sa1IML)+"\n");
       }
   }
 
@@ -248,7 +254,6 @@ public class HazusMapCalculator {
    */
   private DiscretizedFuncAPI initDiscretizedValuesToLog(DiscretizedFuncAPI linearFunc,double val){
     DiscretizedFuncAPI toXLogFunc = new ArbitrarilyDiscretizedFunc();
-    if (IMT_Info.isIMT_LogNormalDist(AttenuationRelationship.SA_NAME))
       for (int i = 0; i < linearFunc.getNum(); ++i)
         toXLogFunc.set(Math.log(linearFunc.getX(i)), val);
     return toXLogFunc;
@@ -284,9 +289,12 @@ public class HazusMapCalculator {
     DiscretizedFuncAPI[] sourceHazFunc = new ArbitrarilyDiscretizedFunc[numIMTs];
 
     hazFunction[0] = IMT_Info.getUSGS_PGA_Function(); //PGA
-    hazFunction[1] = IMT_Info.getUSGS_SA_AND_PGV_Function(); //SA@0.3sec
+    hazFunction[1] = IMT_Info.getUSGS_SA_Function(); //SA@0.3sec
     hazFunction[2] = hazFunction[1].deepClone(); //SA@1.0sec
-    hazFunction[3] = hazFunction[1].deepClone(); //PGV
+    IMT_Info imtInfo = new IMT_Info();
+    DiscretizedFuncAPI pgvFunction = imtInfo.getDefaultHazardCurve(AttenuationRelationship.PGV_NAME);
+    hazFunction[3] = pgvFunction.deepClone();; //PGV
+ 
 
     sourceHazFunc[0] = hazFunction[0].deepClone();
     sourceHazFunc[1] = hazFunction[1].deepClone();
@@ -340,13 +348,6 @@ public class HazusMapCalculator {
       // compute the source's distance from the site and skip if it's too far away
       distance = source.getMinDistance(site);
       if (distance > MAX_DISTANCE) {
-        //update progress bar for skipped ruptures
-        /*
-                 if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
-                 System.out.println("rejected "+
-                 (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
-         (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
-         */
         currRuptures += source.getNumRuptures();
         continue;
       }
@@ -380,27 +381,25 @@ public class HazusMapCalculator {
 
 
         	 if(imtIndex ==0){
-        		 condProbFunc = IMT_Info.getUSGS_PGA_Function();;
+        		 condProbFunc = IMT_Info.getUSGS_PGA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
-
         	 }
         	 else if(imtIndex ==1){
-        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
-        		 
+        		 condProbFunc = IMT_Info.getUSGS_SA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
         	 }
         	 else if(imtIndex ==2){
-        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
+        		 condProbFunc = IMT_Info.getUSGS_SA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
               imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
-        		 condProbFunc = IMT_Info.getUSGS_SA_AND_PGV_Function();
+        		 condProbFunc = pgvFunction.deepClone();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
         	 }
         	 numPoints = condProbFunc.getNum();
-        	 initDiscretizedValuesToLog(condProbFunc,1.0);
+        	 condProbFunc = initDiscretizedValuesToLog(condProbFunc,1.0);
            // get the conditional probability of exceedance from the IMR
           condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
               condProbFunc);
@@ -462,32 +461,34 @@ public class HazusMapCalculator {
     numPoints = hazFunction[0].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[0].set(hazFunction[0].getX(i),
-                             convertToRate(hazFunction[0].getY(i)));
-    numPoints = hazFunction[0].getNum();
+                            hazFunction[0].getY(i));
+    
+    numPoints = hazFunction[1].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[1].set(hazFunction[1].getX(i),
-                             convertToRate(hazFunction[1].getY(i)));
-    numPoints = hazFunction[0].getNum();
+                             hazFunction[1].getY(i));
+    
+    numPoints = hazFunction[2].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[2].set(hazFunction[2].getX(i),
-                             convertToRate(hazFunction[2].getY(i)));
-    numPoints = hazFunction[0].getNum();
+                             hazFunction[2].getY(i));
+    numPoints = hazFunction[3].getNum();
     for (i = 0; i < numPoints; ++i)
       tempHazFunction[3].set(hazFunction[3].getX(i),
-                             convertToRate(hazFunction[3].getY(i)));
+                             hazFunction[3].getY(i));
     if (D)
       System.out.println(C + "hazFunction.toString" + hazFunction.toString());
     return tempHazFunction;
   }
 
 
-  private double convertToRate(double prob){
+  /*private double convertToRate(double prob){
     double temp = 1-prob;
     if(temp == 0)
       temp = Double.MIN_VALUE;
-    double val= -(Math.log(temp))/duration;
+    double val= -1*(Math.log(temp))/duration;
     return val;
-  }
+  }*/
 
 
   /**

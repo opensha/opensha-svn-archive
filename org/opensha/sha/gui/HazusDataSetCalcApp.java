@@ -5,23 +5,21 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
-import java.io.*;
-import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.Timer;
 
 
+import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
 import org.opensha.param.event.*;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.exceptions.ParameterException;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.util.FileUtils;
+import org.opensha.sha.calc.HazusMapCalculator;
+
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
@@ -50,10 +48,6 @@ public class HazusDataSetCalcApp extends JApplet
   protected final static String C = "HazusDataSetCalcApplet";
   // for debug purpose
   protected final static boolean D = false;
-  public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapCalcServlet";
-  public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
-
-
 
   //variables that determine the width and height of the frame
   private static final int W=600;
@@ -62,12 +56,10 @@ public class HazusDataSetCalcApp extends JApplet
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
-  //store the site values for each site in the griddded region
-  private SitesInGriddedRectangularRegion griddedRegionSites;
-
-  //gets the instance of the selected AttenuationRelationship
+   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
 
+  private boolean isStandalone;
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -97,7 +89,6 @@ public class HazusDataSetCalcApp extends JApplet
   private IMR_GuiBean imrGuiBean;
   private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
 
-  private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
   private Border border1;
   private JSplitPane mainSplitPane = new JSplitPane();
@@ -114,16 +105,10 @@ public class HazusDataSetCalcApp extends JApplet
 
   BorderLayout borderLayout1 = new BorderLayout();
 
-  //holds the ArbitrarilyDiscretizedFunc
-  private ArbitrarilyDiscretizedFunc function;
- 
 
   //images for the OpenSHA
-  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
-  //static string for the OPENSHA website
-  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
 
   //keeps track of the step in the application to update the user of the progress.
@@ -140,9 +125,7 @@ public class HazusDataSetCalcApp extends JApplet
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private BorderLayout borderLayout3 = new BorderLayout();
   private JTextField datasetIdText = new JTextField();
-  private JLabel emailLabel = new JLabel();
   private JLabel datasetLabel = new JLabel();
-  private JTextField emailText = new JTextField();
 
 
   //Maximum source site Distance
@@ -154,16 +137,6 @@ public class HazusDataSetCalcApp extends JApplet
   public HazusDataSetCalcApp() {}
   //Initialize the applet
   public void init() {
-
-    //Checking for the Authentic user
-    //This pops up a user login window and only authentic user will be able
-    //to use HazardMap Calculation application.
-    UserAuthorizationCheckWindow loginWin = new UserAuthorizationCheckWindow();
-    while (!loginWin.isLoginSuccess()) {
-      if (!loginWin.isVisible())
-        loginWin.setVisible(true);
-    }
-    loginWin.dispose();
     try {
       // initialize the control pick list
       initControlList();
@@ -232,9 +205,7 @@ public class HazusDataSetCalcApp extends JApplet
         controlComboBox_actionPerformed(e);
       }
     });
-    emailLabel.setText("Email:");
     datasetLabel.setText("Dataset Id:");
-    emailText.setText("");
     dataPanel.setMinimumSize(new Dimension(548, 150));
     dataPanel.setPreferredSize(new Dimension(549, 150));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -242,18 +213,16 @@ public class HazusDataSetCalcApp extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(datasetIdText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(34, 19, 81, 0), 162, 7));
-    dataPanel.add(datasetLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(34, 7, 81, 0), 28, 10));
-    dataPanel.add(emailText,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(43, 19, 0, 0), 162, 7));
-    dataPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(43, 48, 0, 24), 35, 2));
-    dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(43, 7, 0, 15), 43, 12));
-    dataPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 51, 81, 24), 79, 12));
+    dataPanel.add(datasetIdText,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30,-10, 0,200), 100, 7));
+ 
+    dataPanel.add(datasetLabel,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(30, 19, 0, 0), 28, 10));
+    
+    dataPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30, 7, 0, 15), 35, 2));
+    dataPanel.add(addButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 20, 20, 100), 79, 12));
     buttonPanel.add(imgPanel, BorderLayout.SOUTH);
     imgPanel.add(imgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 235, 3, 246), 57, 28));
@@ -264,12 +233,6 @@ public class HazusDataSetCalcApp extends JApplet
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
     mainSplitPane.setDividerLocation(550);
-    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });
-
   }
 
   //Main method
@@ -297,9 +260,6 @@ public class HazusDataSetCalcApp extends JApplet
     catch(Exception e) {
     }
   }
-
-
-
 
   /**
    * Initialise the Gridded Region sites gui bean
@@ -439,8 +399,6 @@ public class HazusDataSetCalcApp extends JApplet
     
     else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
-    //else if(selectedControl.equalsIgnoreCase(this.MAP_CALC_CONTROL))
-      //initMapCalculationModeControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -451,23 +409,9 @@ public class HazusDataSetCalcApp extends JApplet
   */
  void addButton_actionPerformed(ActionEvent e) {
    calcProgress = new CalcProgressBar("Hazus Application","Initializing Calculation ...");
-   // check that user has entered a valid email address
-   String email = emailText.getText();
-   if(email.trim().equalsIgnoreCase("")) {
-     JOptionPane.showMessageDialog(this, "Please Enter email Address");
-     return;
-   }
-   if(email.indexOf("@") ==-1 || email.indexOf(".") ==-1) {
-     JOptionPane.showMessageDialog(this, "Please Enter valid email Address");
-     return;
-   }
-     timer = new Timer(100, new ActionListener() {
+   timer = new Timer(100, new ActionListener() {
        public void actionPerformed(ActionEvent evt) {
-         if(step ==1)
-           calcProgress.setProgressMessage("Checking if calculation have been done earlier ...");
-         else if(step ==2)
-           calcProgress.setProgressMessage("Setting ERF on server ...");
-         else if(step == 3)
+         if(step !=0)
            calcProgress.setProgressMessage("Submitting Calculations , Please wait ...");
          else if(step ==0){
            addButton.setEnabled(true);
@@ -488,38 +432,20 @@ public class HazusDataSetCalcApp extends JApplet
    timer.start();
    try{
      step =1;
-     //this connects to the servlet on web server to check if dataset name already exists
-     //or computation have already been for these parameter settings.
      if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
      else maxDistance = new Double(distanceControlPanel.getDistance());
-     Object obj= checkForHazardMapComputation();
-     if(obj instanceof String){
-       JOptionPane.showMessageDialog(this, (String)obj);
-       step =0;
-       return;
-     }
-     else if(obj instanceof Boolean){ // if it is the instance of boolean which return true always
-       //meaning it is safe to proceeed with the calculation and the name of the dataset that user
-       //has specified.
-       // get the selected IMR
-       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-       step =2;
-       //gets the instance of the selected ERF
-       String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
-       
-       SitesInGriddedRectangularRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-       step =3;
-       sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
-       step =0;
-     }
-   }catch(ParameterException ee){
-     ee.printStackTrace();
+     //starting the Hazus calculation in the new thread, make the call to the HazusMapCalculator Object.
+     HazusMapCalculator hazusCalc = new HazusMapCalculator();
+     hazusCalc.setMaxSourceDistance(maxDistance);
+     String dirName = datasetIdText.getText().trim();
+     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     SitesInGriddedRectangularRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
+     EqkRupForecast eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
      step =0;
-     JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-     return;
-   }
-   catch(Exception ee){
+     hazusCalc.getHazardMapCurves(dirName,griddedSites,imr,eqkRupForecast,this.getParametersInfo());
+   }catch(Exception ee){
      ee.printStackTrace();
+     timer.stop();
      step =0;
      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
      return;
@@ -527,126 +453,9 @@ public class HazusDataSetCalcApp extends JApplet
 
  }
 
- /**
-  * this connects to the servlet on web server to check if dataset name already exists
-  * or computation have already been for these parameter settings.
-  * @return
-  */
- private Object checkForHazardMapComputation(){
-
-   try{
-     if(D) System.out.println("starting to make connection with servlet");
-     URL hazardMapServlet = new URL(DATASET_CHECK_SERVLET_URL);
 
 
-     URLConnection servletConnection = hazardMapServlet.openConnection();
-     if(D) System.out.println("connection established");
 
-     // inform the connection that we will send output and accept input
-     servletConnection.setDoInput(true);
-     servletConnection.setDoOutput(true);
-
-     // Don't use a cached version of URL connection.
-     servletConnection.setUseCaches (false);
-     servletConnection.setDefaultUseCaches (false);
-     // Specify the content type that we will send binary data
-     servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
-
-     ObjectOutputStream toServlet = new
-                                    ObjectOutputStream(servletConnection.getOutputStream());
-
-     //sending the parameters info. to the servlet
-     toServlet.writeObject(getParametersInfo());
-
-     //sending the dataset id to the servlet
-     toServlet.writeObject(datasetIdText.getText());
-
-
-     toServlet.flush();
-     toServlet.close();
-
-     // Receive the datasetnumber from the servlet after it has received all the data
-     ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
-     Object obj=fromServlet.readObject();
-     //if(D) System.out.println("Receiving the Input from the Servlet:"+success);
-     fromServlet.close();
-     return obj;
-
-   }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-     bugWindow.setVisible(true);
-     bugWindow.pack();
-
-   }
-   return null;
- }
-
- /**
-  * sets up the connection with the servlet on the server (gravity.usc.edu)
-  */
- private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
-                                       AttenuationRelationshipAPI imr,
-                                       String eqkRupForecastLocation) {
-
-   try{
-     if(D) System.out.println("starting to make connection with servlet");
-     URL hazardMapServlet = new URL(SERVLET_URL);
-
-
-     URLConnection servletConnection = hazardMapServlet.openConnection();
-     if(D) System.out.println("connection established");
-
-     // inform the connection that we will send output and accept input
-     servletConnection.setDoInput(true);
-     servletConnection.setDoOutput(true);
-
-     // Don't use a cached version of URL connection.
-     servletConnection.setUseCaches (false);
-     servletConnection.setDefaultUseCaches (false);
-     // Specify the content type that we will send binary data
-     servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
-
-     ObjectOutputStream toServlet = new
-         ObjectOutputStream(servletConnection.getOutputStream());
-
-     //sending the object of the gridded region sites to the servlet
-     toServlet.writeObject(regionSites);
-     //sending the IMR object to the servlet
-     toServlet.writeObject(imr);
-     //sending the EQK forecast object to the servlet
-     toServlet.writeObject(eqkRupForecastLocation);
-     //send the X values in a arraylist
-     ArrayList list = new ArrayList();
-     for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
-     toServlet.writeObject(list);
-     // send the MAX DISTANCE
-     toServlet.writeObject(maxDistance);
-
-     //sending email address to the servlet
-     toServlet.writeObject(emailText.getText());
-     //sending the parameters info. to the servlet
-     toServlet.writeObject(getParametersInfo());
-
-     //sending the dataset id to the servlet
-     toServlet.writeObject(datasetIdText.getText());
-
-
-     toServlet.flush();
-     toServlet.close();
-
-     // Receive the datasetnumber from the servlet after it has received all the data
-     ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
-     String dataset=fromServlet.readObject().toString();
-     JOptionPane.showMessageDialog(this, dataset);
-     if(D) System.out.println("Receiving the Input from the Servlet:"+dataset);
-     fromServlet.close();
-
-   }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-     bugWindow.setVisible(true);
-     bugWindow.pack();
-   }
- }
 
  /**
   * Returns the metadata associated with this calculation
@@ -676,30 +485,9 @@ public class HazusDataSetCalcApp extends JApplet
        systemSpecificLineSeparator + "Miscellaneous Metadata:"+
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator+
-       "Maximum Site Source Distance = "+maxDistance+systemSpecificLineSeparator+
-       systemSpecificLineSeparator+
-       "X Values = ";
+       "Maximum Site Source Distance = "+maxDistance;
 
-   //getting the X values used to generate the metadata.
-   ListIterator it = function.getXValuesIterator();
-   String xVals="";
-   while(it.hasNext())
-     xVals +=(Double)it.next()+" , ";
-   xVals = xVals.substring(0,xVals.lastIndexOf(","));
-
-   //adding the X Vals used to the Metadata.
-   metadata +=xVals;
+ 
    return metadata;
  }
-
- void imgLabel_mouseClicked(MouseEvent e) {
-   try{
-     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
-   }catch(java.net.MalformedURLException ee){
-     JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                   "Error Connecting to Internet",JOptionPane.OK_OPTION);
-
-   }
- }
-
 }
