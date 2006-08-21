@@ -67,6 +67,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	private final static int NUM_MAG = EqkRateModel2_ERF.NUM_MAG;
 	
 	private double magSigma, magTruncLevel;
+	
+	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
+	private double aveSlipCorr;
+
 
 	
 	// OLD: slip model: 0 = Characteristic; 1 = Uniform/Boxcar; 2 = WGCEP-2002
@@ -216,7 +220,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * 
 	 * @param segmentData - SegmentedFaultData, where it is assumed that these are in proper order such 
 	 * that concatenating the FaultTraces will produce a total FaultTrace with locations in the proper order.
-	 * This constructor is a work in progress - for the full blown inversion model.
+	 * 
 	 * @param magAreaRel - any MagAreaRelationship
 	 * @
 	 */
@@ -226,6 +230,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
 		this.aPrioriRupRates = aPrioriRupRates;
+		this.magSigma = magSigma;
+		this.magTruncLevel = magTruncLevel;
 		
 		this.isPoissonian = true;
 		
@@ -255,6 +261,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// (which might be different from what's in FaultSegmentData) 
 		// this one is used to compute char mags
 		computeSegRatesFromAprioriRates();
+		
+		// compute aveSlipCorr
+		setAveSlipCorrection();
 
 		// compute rupture mean mags
 		if(slipModelType.equals(CHAR_SLIP_MODEL))
@@ -391,9 +400,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	private void getRupMeanMagsAssumingCharSlip() {
 		rupMeanMag = new double[num_rup];
-		//double[] testSegRates = new double[num_seg];
 		double[] rupMo = new double[num_rup];
-		// first compute the total moment for each rupture
 		double area, slip;
 		for(int rup=0; rup<num_rup; rup++){
 			for(int seg=0; seg < num_seg; seg++) {
@@ -401,46 +408,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					area = segmentData.getSegmentArea(seg);
 					slip = segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg];
 					rupMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
-					//testSegRates[seg] += aPrioriRupRates[rup].getValue();
-//if(this.segmentData.getFaultName().equals("N. San Andreas"))
-//	System.out.println(rup+"  "+seg+"  "+area+"  "+slip+"  "+segmentData.getSegmentSlipRate(seg)+"  "+segmentData.getRecurInterval(seg));
 				}
 			}
-			rupMeanMag[rup] = MomentMagCalc.getMag(rupMo[rup]);
-//if(this.segmentData.getFaultName().equals("Garlock"))
-//	System.out.println(rup+"  "+rupMo[rup]+"  "+rupMeanMag[rup]);
-
+			// reduce moment by aveSlipCorr to reduce mag, so that ave slip in final MFD is correct
+			rupMeanMag[rup] = MomentMagCalc.getMag(rupMo[rup]);	//
 		}
-		/*if(this.segmentData.getFaultName().equals("N. San Andreas"))
-			for(int seg=0; seg < num_seg; seg++) {
-				System.out.println(testSegRates[seg]+"  ,  "+1/testSegRates[seg]);
-			}*/
-/*
-		// now convert moment to mag
-		for(int rup=0; rup<num_rup; rup++){
-			// compute magnitude (rounded to nearest MFD x-axis point if magSigma=0)
-			//if(magSigma == 0)
-				rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/DELTA_MAG) * DELTA_MAG;
-			//else
-				//rupMeanMag[rup] = Math.round(MomentMagCalc.getMag(rupMo[rup])/ROUND_MAG_TO) * ROUND_MAG_TO;
-		}
-*/
-	}
-	
-	
-	private void getRupRates() {
-		
-		// solve for the following:
-		rupMoRate = new double[num_rup];
-		totRupRate = new double[num_rup];  // if rupture given an MFD
-		
-		// NNLSWrapper nnls = new NNLSWrapper();
-		// we need to solve Xf=d, where f is the rupture rate vector
-		
-		// first compute the rupture mags and slips
-		// slipModelType: 0 = Characteristic; 1 = Uniform/Boxcar; 2 = WGCEP-2002
-		// rupModelSolutionType: 0 = Min Rate; 1 = Max Rate; 2 = Equal Rate; 3 = Geol. Insight
-	
 	}
 	
 	
@@ -1120,9 +1092,24 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 	}
 	
+	/**
+	 * Set the aveSlipCorr based on current magSigma and magTruncLevel.  
+	 * aveSlipCorr is the ratio of the average slip for the MFD divided by the slip of the average magnitude.
+	 * double aveSlipCorr
+	 *
+	 */
+	private void setAveSlipCorrection() {
+		double anyMag=7.0;
+		GaussianMagFreqDist magFreqDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, anyMag, magSigma, 1.0, magTruncLevel, 2);
+		aveSlipCorr = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MomentMagCalc.getMoment(anyMag));
+		System.out.println("ratio: "+ aveSlipCorr + "  "+magSigma+"  "+magTruncLevel);
+	}
+	
 	public static void main(String[] args) {
 		
-		mkTaperedSlipFuncs();
+		// setAveSlipCorrection();
+		
+		//mkTaperedSlipFuncs();
 		
 		/*
 //		System.out.println("Starting - loading data");
