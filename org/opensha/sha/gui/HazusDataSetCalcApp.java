@@ -213,16 +213,16 @@ public class HazusDataSetCalcApp extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(datasetIdText,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30,-10, 0,200), 100, 7));
+    dataPanel.add(datasetIdText,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30,80, 0,0), 0, 0));
  
     dataPanel.add(datasetLabel,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(30, 19, 0, 0), 28, 10));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(30, 0, 0, 40), 0, 0));
     
     dataPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30, 7, 0, 15), 35, 2));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(30, 7, 0, 15), 25, 2));
     dataPanel.add(addButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 20, 20, 100), 79, 12));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 10, 20, 140), 79, 12));
     buttonPanel.add(imgPanel, BorderLayout.SOUTH);
     imgPanel.add(imgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 235, 3, 246), 57, 28));
@@ -241,7 +241,7 @@ public class HazusDataSetCalcApp extends JApplet
     application.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
-    frame.setDefaultCloseOperation(3);
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setTitle("HazardMapDataCalc App ");//getAppVersion()+" )");
     frame.getContentPane().add(application, BorderLayout.CENTER);
     application.init();

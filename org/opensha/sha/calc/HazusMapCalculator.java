@@ -146,12 +146,24 @@ public class HazusMapCalculator {
     File mainDir = new File(this.DATASETS_PATH);
     if(!mainDir.isDirectory()) { // if main directory does not exist
       boolean success = (new File(DATASETS_PATH)).mkdir();
+    
+      newDir = DATASETS_PATH+dirName;
+      File f = new File(newDir);
+      if(f.exists()){
+      	  int counter =2;
+      	  while(f.exists()){
+      	     newDir = DATASETS_PATH+dirName+"_"+counter;
+      	     f = new File(newDir);
+      	  }
+      }
+      success = (new File(newDir)).mkdir();
+      
       // make the metadata.data and sites.data files
       try{
-        FileWriter fr = new FileWriter(mainDir+"/metadata.dat");
+        FileWriter fr = new FileWriter(newDir+"/metadata.dat");
         fr.write(mapParametersInfo+"\n");
         fr.close();
-        fr=new FileWriter(mainDir+"/sites.dat");
+        fr=new FileWriter(newDir+"/sites.dat");
         fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
                  griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
                  griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
@@ -160,16 +172,7 @@ public class HazusMapCalculator {
         ee.printStackTrace();
       }
     }
-    newDir = DATASETS_PATH+dirName;
-    File f = new File(newDir);
-    if(f.exists()){
-    	  int counter =2;
-    	  while(f.exists()){
-    	     newDir = DATASETS_PATH+dirName+"_"+counter;
-    	     f = new File(newDir);
-    	  }
-    }
-    boolean success = (new File(newDir)).mkdir();
+    
     calculate(griddedSites, imr, eqkRupForecast);
   }
 
