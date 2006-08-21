@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +13,12 @@ import java.util.StringTokenizer;
 
 import javax.swing.JOptionPane;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
@@ -958,9 +965,178 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					}
 	}
 	
+	
+	/**
+	 * Generate Excel sheet for each fault.
+	 * Each sheet will have all Rup solution Types
+	 * 
+	 */
+	private void generateExcelSheets(String outputFileName) {
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		
+		int numA_Faults = 8;	
+//		 Create Excel Workbook and sheets if they do not exist already
+		
+		HSSFWorkbook wb  = new HSSFWorkbook();
+		HSSFCellStyle cellStyle = wb.createCellStyle();
+		HSSFFont font = wb.createFont();
+		font.setColor(HSSFFont.COLOR_RED);
+		cellStyle.setFont(font);
+		//currRow = new int[aFaultSources.size()];
+		// create sheets
+		for(int i=0; i<numA_Faults; ++i) {
+			wb.createSheet();
+			//currRow[i]=0;
+		}
+		
+		int currRow[] = new int[numA_Faults];
+		for(int irup=0; irup<rupModelOptions.size();irup++) {
+			int rupStartRow[] = new int[numA_Faults];
+			for(int imag=0; imag<magAreaOptions.size();imag++) {
+				//int numSlipModels = slipModelOptions.size();
+				//double magRate[][] = new double[numSlipModels][2];
+				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+			
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						rupModelParam.setValue(rupModelOptions.get(irup));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						mkA_FaultSegmentedSources();
+						
+						// Write header for each Rup Solution Types
+						if(imag==0 && islip==0) {
+							// do for each fault
+							for(int i=0; i<this.aFaultSources.size(); ++i) {
+								 HSSFSheet sheet = wb.getSheetAt(i);
+								 String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
+								 wb.setSheetName(i, sheetName);
+								 //System.out.println(currRow[i]);
+								 HSSFRow row = sheet.createRow((short)currRow[i]++);
+								 // Write Rup solution Type
+								 HSSFCell cell = row.createCell((short)0);
+								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellStyle(cellStyle);
+								 row = sheet.createRow((short)currRow[i]++);
+								 int col=4;
+								 
+								 // Write All Mag Areas in appropriate columns
+								 for(int j=0; j<magAreaOptions.size(); ++j, col+=slipModelOptions.size()) {
+									 cell = row.createCell((short)col);
+									 cell.setCellValue((String)magAreaOptions.get(j));
+									 cell.setCellStyle(cellStyle);
+								 }
+								 // write the headers
+								 row = sheet.createRow((short)currRow[i]++);
+								 col=0;
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Rup_Name");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("A-Priori Rate");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Char Mag");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Char Rate");
+								 cell.setCellStyle(cellStyle);
+								 for(int j=0; j<magAreaOptions.size(); ++j) {
+									 cell = row.createCell((short)col++);
+									 cell.setCellValue("Mag");
+									 cell.setCellStyle(cellStyle);
+									 for(int k=0; k<slipModelOptions.size(); ++k) {
+										 String slipModel = (String)slipModelOptions.get(k);
+										 if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+											 cell = row.createCell((short)col++);
+											 cell.setCellValue((String)slipModelOptions.get(k));
+											 cell.setCellStyle(cellStyle);
+										 }
+									 }
+								 }								 
+								 // write Rup Names and Apriori Rates
+								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+								 rupStartRow[i] = currRow[i];
+								 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+									 row = sheet.createRow((short)currRow[i]++);
+									 row.createCell((short)0).setCellValue(source.getLongRupName(rup));
+									 row.createCell((short)1).setCellValue(source.getAPrioriRupRate(rup));
+								 }
+								 // write totals
+								 row = sheet.createRow((short)currRow[i]++);
+								 row.createCell((short)0).setCellValue("Totals");
+								 
+								 // a priori rate total
+								 cell = row.createCell((short)1);
+								 String colStr="B";
+								 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+								 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
+								 
+								 // Char rate total
+								 cell = row.createCell((short)3);
+								 colStr="D";
+								 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+								 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
+
+								 // totals for other rates
+								 for(int k=0; k<slipModelOptions.size(); ++k) {
+									 if(slipModelOptions.get(k).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) continue;
+									 for(int j=0; j<magAreaOptions.size(); ++j) {
+										 int totCol = 4 + j*slipModelOptions.size()+k;
+										 cell = row.createCell((short)totCol);
+										 colStr=""+(char)('A'+totCol);
+										 //System.out.println(colStr);
+										 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+										 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
+
+									 }
+								 }
+							}
+						}
+						   
+						   
+						
+						// write the rup Mag and rates
+						for(int i=0; i<this.aFaultSources.size(); ++i) {
+							 HSSFSheet sheet = wb.getSheetAt(i);
+							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+							 int magCol, rateCol;
+							 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+								 magCol = 2; 
+								 rateCol = 3;
+							 } else {
+								 magCol = 4 + imag*slipModelOptions.size();
+								 rateCol = magCol + islip;
+							 }
+							 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+								 sheet.getRow(rup+rupStartRow[i]).createCell((short)magCol).setCellValue(source.getRupMeanMag(rup));
+								 sheet.getRow(rup+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getRupRate(rup));
+							 }
+						}
+					}
+			}
+			// 
+			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+				HSSFSheet sheet = wb.getSheetAt(i);
+				sheet.createRow((short)currRow[i]++);
+				sheet.createRow((short)currRow[i]++);
+			}
+			
+		}
+		try {
+			FileOutputStream fileOut = new FileOutputStream(outputFileName);
+			wb.write(fileOut);
+			fileOut.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
+		//erRateModel2_ERF.generateExcelSheets("test.xls");
 		erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		

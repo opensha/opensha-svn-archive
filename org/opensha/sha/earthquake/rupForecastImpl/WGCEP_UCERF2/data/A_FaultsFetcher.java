@@ -55,7 +55,7 @@ public class A_FaultsFetcher {
 	private boolean prevIsAseisReducesArea;
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
-	ArrayList faultSegDataList = null;
+	private ArrayList faultSegDataList = null;
 	
 	
 	public A_FaultsFetcher() {

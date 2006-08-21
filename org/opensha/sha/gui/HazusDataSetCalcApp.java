@@ -436,7 +436,7 @@ public class HazusDataSetCalcApp extends JApplet
      else maxDistance = new Double(distanceControlPanel.getDistance());
      //starting the Hazus calculation in the new thread, make the call to the HazusMapCalculator Object.
      HazusMapCalculator hazusCalc = new HazusMapCalculator();
-     hazusCalc.setMaxSourceDistance(maxDistance);
+     hazusCalc.setMaxSourceDistance(maxDistance.doubleValue());
      String dirName = datasetIdText.getText().trim();
      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      SitesInGriddedRectangularRegion griddedSites = sitesGuiBean.getGriddedRegionSite();
