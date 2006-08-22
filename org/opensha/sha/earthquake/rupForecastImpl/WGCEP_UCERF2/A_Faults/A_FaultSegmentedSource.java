@@ -119,7 +119,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, ValueWeight[] aPrioriRupRates,
 			double magSigma, double magTruncLevel) {
 		
-		throw new RuntimeException("Fix this before using!");
+		System.out.println("*********FIX THIS BEFORE USING***********!");
 		
 		
 		this.aPrioriRupRates = aPrioriRupRates;
