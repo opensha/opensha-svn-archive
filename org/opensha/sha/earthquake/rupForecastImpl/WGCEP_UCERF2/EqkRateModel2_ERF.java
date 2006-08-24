@@ -722,7 +722,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
 					magSigma, magTruncLevel, 
-					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction);
+					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction, Double.NaN, Double.NaN);
 			aFaultSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
@@ -756,7 +756,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
 					magSigma, magTruncLevel, 
-					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction);
+					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction, fixMag, fixRate);
 			bFaultSources.add(source);
 			bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getCharMagFreqDist());
 			if(source.getGR_MagFreqDist() != null)  // will be null if char mag is lower than mag lower of GR

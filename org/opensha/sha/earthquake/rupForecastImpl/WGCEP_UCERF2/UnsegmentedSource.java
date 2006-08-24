@@ -60,6 +60,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	// inputs:
 	private FaultSegmentData segmentData;
 	private MagAreaRelationship magAreaRel;
+	private double fixMag, fixRate;
 	
 	
 	
@@ -140,12 +141,15 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
-			double mag_lowerGR, double b_valueGR, double moRateReduction) {
+			double mag_lowerGR, double b_valueGR, double moRateReduction, double fixMag,
+			double fixRate) {
 		
 		this.isPoissonian = true;
 		
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
+		this.fixMag = fixMag;
+		this.fixRate = fixRate;
 		
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		
@@ -156,15 +160,28 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
-					sourceMag, charMagSigma, moRate, charMagTruncLevel, 2);
+			if(Double.isNaN(fixMag)) // if it is not a B Fault Fix
+				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate, charMagTruncLevel, 2);
+			else { // if it is a B Fault Fix
+				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag,
+						fixMag, charMagSigma, 1.0, charMagTruncLevel, 2);
+				charMFD.scaleToCumRate(0, fixRate);
+				
+			}
 			sourceMFD = charMFD;
 		}
 		else {
 			sourceMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
-//			make char dist 
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
-					sourceMag, charMagSigma, moRate*fractCharVsGR, charMagTruncLevel, 2);
+			//	make char dist 
+			if(Double.isNaN(fixMag)) // if it is not a B Fault Fix
+				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate*fractCharVsGR, charMagTruncLevel, 2);
+			else { // if it is a B Fault Fix
+				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag,
+						fixMag, charMagSigma, 1.0, charMagTruncLevel, 2);
+				charMFD.scaleToCumRate(0, fixRate);		
+			}
 			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
 			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR, sourceMag, moRate*(1-fractCharVsGR), b_valueGR);
@@ -225,6 +242,21 @@ public class UnsegmentedSource extends ProbEqkSource {
 		return sourceMag;
 	}
 	
+	/**
+	 * Get B Fault Mag Fix (Some B faults have Mag fix which is specified in a text file)
+	 * @return
+	 */
+	public double getFixMag() {
+		return this.fixMag;
+	}
+	
+	/**
+	 * Get B Fault Rate Fix (Some B faults have Rate fix which is specified in a text file)
+	 * @return
+	 */
+	public double getFixRate() {
+		return this.fixRate;
+	}
 	
 	/**
 	 * Get fault segment data
