@@ -929,7 +929,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * This generates text to console that can be pasted into a Matlab *.m file and then
 	 * executed in Matlab to compare the Java NNSL solutions to those in Matlab (script
 	 * writes the max absolute difference).  Make sure the MATLAB_TEST in A_FaultSegmentedSource
-	 * is set as true before running this.
+	 * is set as true before running this.  Paste the results into a name.m file, put this where
+	 * Matlab can find it, and then type "name" in Matlab.
 	 * 
 	 * Everything here compares well (except the case below).  That is, the max abs diff
 	 * was generally less that 1e-10, got as low as 1e-7 on Elsinore, and 1e-5 on S. SAF.
