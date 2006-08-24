@@ -183,7 +183,9 @@ public class FaultSegmentData {
 	 * @return total moment rate in SI units
 	 */
 	public double getTotalAveAseismicityFactor() {
-		return totalMoRate/totalMoRateIgnoringAseis;
+		double aseisFactor =  1- totalMoRate/totalMoRateIgnoringAseis;
+		if(aseisFactor<0) aseisFactor=0;
+		return aseisFactor;
 	}
 
 	/**

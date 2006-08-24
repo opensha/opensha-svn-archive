@@ -39,7 +39,7 @@ public class DeformationModelCalc {
 		double x,y, rtLateralSlipComp;
 		for(int i=0; i<faultSectionPrefDataList.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)faultSectionPrefDataList.get(i);
-			System.out.println(faultSectionPrefData.getSectionName());
+			//System.out.println(faultSectionPrefData.getSectionName());
 			// find whether this fault section cuts the cross section
 			Location intesectionLocation = lineInterSection.getIntersectionPoint(eastLoc, westLoc, faultSectionPrefData.getFaultTrace());
 			// if this fault section does not cut the cross section
@@ -50,10 +50,14 @@ public class DeformationModelCalc {
 				System.out.println(faultSectionPrefData.getSectionName()+" intersects but its slip is 0");
 				continue;
 			}
-			System.out.println("*********"+faultSectionPrefData.getSectionName()+" intersects**************");
+			System.out.println("*********"+faultSectionPrefData.getSectionName()+" intersects************** at "+intesectionLocation);
+			System.out.println(rtLateralSlipComp +","+faultSectionPrefData.getAveRake()+","+lineInterSection.getStrike());
 			x= Math.ceil(lineInterSection.getDistance()/delta)*delta; 
 			y = evenlyDiscFunc.getY(x);
+			System.out.println(x+","+y);
 			evenlyDiscFunc.set(x, y+rtLateralSlipComp*Math.cos(Math.toRadians(lineInterSection.getStrike())));
+			y = evenlyDiscFunc.getY(x);
+			System.out.println(x+","+y);
 		}
 		EvenlyDiscretizedFunc cumFunc = getCumFunc(evenlyDiscFunc);
 		return cumFunc;
@@ -93,7 +97,7 @@ public class DeformationModelCalc {
 	
 	public static void main(String args[]) {
 		Location loc1 = new Location(34, -118);
-		Location loc2 = new Location(35, -116);
+		Location loc2 = new Location(34, -117);
 		DeformationModelCalc calc = new DeformationModelCalc();
 		DiscretizedFuncAPI func = calc.getDistanceSlipFunc(loc1, loc2);
 		System.out.println(func);

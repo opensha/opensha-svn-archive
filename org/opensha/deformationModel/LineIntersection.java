@@ -39,7 +39,7 @@ public class LineIntersection {
 		if(eastLocation.getLongitude()>westLocation.getLongitude())
 			throw new RuntimeException("East Location should be first Locqtion");
 		Line2D line = this.getLine2DFromLocations(eastLocation, westLocation);
-		return getIntersectionPoint(line,faultTrace );
+		return getIntersectionPoint(line,faultTrace, RelativeLocation.getAzimuth(eastLocation,westLocation));
 	}
 	
 	/**
@@ -48,7 +48,7 @@ public class LineIntersection {
 	 * @param faultTrace
 	 * @return
 	 */
-	private  Location getIntersectionPoint(Line2D line, FaultTrace faultTrace) {
+	private  Location getIntersectionPoint(Line2D line, FaultTrace faultTrace, double crossSectionStrike) {
 		Location closestLoc = null;
 		minDistance = Double.MAX_VALUE;
 		strike = Double.NaN;
@@ -61,7 +61,7 @@ public class LineIntersection {
 			if(distance<minDistance) {
 				closestLoc = loc;
 				minDistance = distance;
-				strike = RelativeLocation.getAzimuth(faultTrace.getLocationAt(i-1),faultTrace.getLocationAt(i));
+				strike = crossSectionStrike+90-RelativeLocation.getAzimuth(faultTrace.getLocationAt(i),faultTrace.getLocationAt(i-1));
 			}
 		}
 		return closestLoc;
