@@ -219,24 +219,32 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public final static String B_FAULTS_B_VAL_PARAM_NAME = "B-Faults b-value";
 	public final static String B_FAULTS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to B-Faults";
-	public final static double B_FAULT_GR_B_DEFAULT= 1.0;
+	public final static Double B_FAULT_GR_B_DEFAULT= new Double(1.0);
 	public final static Double B_VAL_MIN = new Double(-1);
 	public final static Double B_VAL_MAX = new Double(2);
-	public DoubleParameter bFaultB_ValParam;
+	private DoubleParameter bFaultB_ValParam;
 	
 	public final static String REGION_B_VAL_PARAM_NAME = "Regional b-value";
 	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the entire region";
-	public final static double REGIONAL_B_DEFAULT = 1.0;
+	public final static Double REGIONAL_B_DEFAULT = new Double(1.0);
 	// min and max same as for bFaultB_ValParam
-	public DoubleParameter regionB_ValParam;
+	private DoubleParameter regionB_ValParam;
 	
 	
-	
+	// fraction to put into background
+	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "A & B MoRate Reduction";
+	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
+	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
+	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0);
+	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate on A & B Faults put into smaller or off-Fault events";
+	private DoubleParameter aAndB_MoRateReducParam;
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher();
 	private ArrayList aFaultSources, bFaultSources;
+	
+	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 	
 	/*
 	 // fault file parameter for testing
@@ -367,10 +375,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				TRUNC_LEVEL_PARAM_UNITS, TRUNC_LEVEL_DEFAULT);
 		truncLevelParam.setInfo(TRUNC_LEVEL_INFO);
 		
-		bFaultB_ValParam = new DoubleParameter(this.B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.B_FAULT_GR_B_DEFAULT));
+		bFaultB_ValParam = new DoubleParameter(this.B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.B_FAULT_GR_B_DEFAULT);
 		bFaultB_ValParam.setInfo(B_FAULTS_B_VAL_PARAM_INFO);
-		regionB_ValParam = new DoubleParameter(this.REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, new Double(this.REGIONAL_B_DEFAULT));
+		regionB_ValParam = new DoubleParameter(this.REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.REGIONAL_B_DEFAULT);
 		regionB_ValParam.setInfo(REGION_B_VAL_PARAM_INFO);
+		
+		aAndB_MoRateReducParam = new DoubleParameter(A_AND_B_MO_RATE_REDUCTION_PARAM_NAME, 
+				A_AND_B_MO_RATE_REDUCTION_MIN, A_AND_B_MO_RATE_REDUCTION_MAX, 
+				A_AND_B_MO_RATE_REDUCTION_DEFAULT);
+		
+		aAndB_MoRateReducParam.setInfo(A_AND_B_MO_RATE_REDUCTION_INFO);
 		
 		//	 add adjustable parameters to the list
 //		adjustableParams.addParameter(faultModelParam);		not needed for now
@@ -388,6 +402,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(regionB_ValParam);
 		adjustableParams.addParameter(backSeisMaxMagParam);
+		adjustableParams.addParameter(aAndB_MoRateReducParam);
 	}
 	
 	
@@ -666,6 +681,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String slipModel = (String)slipModelParam.getValue();
 		int deformationModelId = this.getSelectedDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
+		double  moRateReduction = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		aFaultSources = new ArrayList();
@@ -675,7 +691,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
 			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
-					magTruncLevel);
+					magTruncLevel, moRateReduction);
 			aFaultSources.add(aFaultSource);
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 		}
@@ -695,6 +711,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		int deformationModelId = this.getSelectedDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
+		double  moRateReduction = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
+
 		ArrayList aFaultSegmentData = this.aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		aFaultSources = new ArrayList();
@@ -704,7 +722,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
 					magSigma, magTruncLevel, 
-					B_FAULT_GR_MAG_LOWER, bValue);
+					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction);
 			aFaultSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
@@ -717,6 +735,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 		int deformationModelId = this.getSelectedDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
+		double  moRateReduction = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
+
 		ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
@@ -725,12 +745,18 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultSources = new ArrayList();
+		double fixMag, fixRate;
 		for(int i=0; i<bFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
+			fixMag = bFaultFixes.getMag(segmentData.getFaultName());
+			fixRate = bFaultFixes.getRate(segmentData.getFaultName());
+			//if(!Double.isNaN(fixMag)) {
+			//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
+			//}
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
 					magSigma, magTruncLevel, 
-					B_FAULT_GR_MAG_LOWER, bValue);
+					B_FAULT_GR_MAG_LOWER, bValue, moRateReduction);
 			bFaultSources.add(source);
 			bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getCharMagFreqDist());
 			if(source.getGR_MagFreqDist() != null)  // will be null if char mag is lower than mag lower of GR
@@ -1137,8 +1163,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		//erRateModel2_ERF.generateExcelSheets("test.xls");
-		erRateModel2_ERF.makeMatlabNNLS_testScript();
+		erRateModel2_ERF.generateExcelSheets("EqkRateModel2.xls");
+		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		
 	}

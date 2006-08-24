@@ -381,12 +381,14 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 5:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 6:
-				return ""+(int)segFaultData.getRecurInterval(rowIndex);
+				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
 			case 7:
-				return ""+(int)this.predMRI[rowIndex];
+				return ""+Math.round(this.predMRI[rowIndex]);
 			case 8:
-				return ""+(int)this.finalMRI[rowIndex];
+				return ""+Math.round(this.finalMRI[rowIndex]);
 			case 9:	
+				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
+				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
 				return ""+ CHAR_SLIP_RATE_FORMAT.format(getCharSlip(rowIndex));
 			case 10:
 				double ddw = segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3; // ddw in km 

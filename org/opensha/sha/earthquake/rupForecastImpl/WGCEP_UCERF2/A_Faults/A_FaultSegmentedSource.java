@@ -100,121 +100,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	private double totalMoRateFromSegments, totalMoRateFromRups;
 	
 	private ValueWeight[] aPrioriRupRates;
+	private double moRateReduction;
 	
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
 
 	
-	/**
-	 * 
-	 * THIS IS OUTDATE AND SHOULD BE REVAMPED BEFORE USING (E.G., HANDLING OF THE RATE CHANGES DUE TO NON-ZERO MAG SIGMA)
-	 * 
-	 * This constructor is for a model that assumed characteristic slip for computing mags and
-	 * applies the rates of each rupture given in aPrioriRupRates (ignoring the weights since they are
-	 * useless here). Note that the segment MRIs implied by the a-priori rates may not be consistent
-	 * with those in the FaultSegmentData; the former are used.
-	 * If sigma is ~zero, then the magnitude in the MFD is rounded to the nearest discrete mag value 
-	 * (moment is preserved; and the mag returned by getRupMeanMag is not rounded).
-	 */
-	public A_FaultSegmentedSource(FaultSegmentData segmentData, ValueWeight[] aPrioriRupRates,
-			double magSigma, double magTruncLevel) {
-		
-		System.out.println("*********FIX THIS BEFORE USING***********!");
-		
-		
-		this.aPrioriRupRates = aPrioriRupRates;
-		this.segmentData = segmentData;
-		this.isPoissonian = true;
-		this.magSigma = magSigma;
-		this.magTruncLevel = magTruncLevel;
-		
-		num_seg = segmentData.getNumSegments();
-		
-		// get the RupInSeg Matrix for the given number of segments
-		if(segmentData.getFaultName().equals("San Jacinto")) {
-			rupInSeg = getSanJacintoRupInSeg();	// special case for this branching fault
-			num_rup = 25;
-		}
-		else {
-			rupInSeg = getRupInSegMatrix(num_seg);
-			num_rup = getNumRuptures(segmentData);
-		}
-	
-		// do some checks
-		if(num_rup != aPrioriRupRates.length)
-			throw new RuntimeException("Error: number of ruptures is incompatible with number of elements in aPrioriRupRates");
-		
-		// make the name strings
-		rupNameShort = getAllShortRuptureNames(segmentData);
-		rupNameLong = getAllLongRuptureNames(segmentData);
-		
-		getRupAreas();
-		
-		// get rates on each segment implied by a-priori rates
-		// (which might be different from what's in FaultSegmentData) 
-		// this one is used to compute char mags
-		computeSegRatesFromAprioriRates();
 
-		getRupMeanMagsAssumingCharSlip();
-		
-		// Make MFD for each rupture & the total sum
-		totRupRate = new double[num_rup];
-		rupMoRate = new double[num_rup];
-		totalMoRateFromRups = 0.0;
-		summedMagFreqDist = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		// this boolean tells us if there is only one non-zero mag in the MFD
-		boolean singleMag = (magSigma*magTruncLevel < DELTA_MAG/2);
-		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
-		double mag;
-		for(int i=0; i<num_rup; ++i) {
-			// we conserve moment rate (final rupture rates will differ from a-priori
-			// rates due to finite mag sigma or rounding if that sigma=0)
-			rupMoRate[i] = aPrioriRupRates[i].getValue() * MomentMagCalc.getMoment(rupMeanMag[i]);
-			totalMoRateFromRups+=rupMoRate[i];
-			// round the magnitude if need be
-			if(singleMag)
-				mag = Math.round(rupMeanMag[i]/DELTA_MAG) * DELTA_MAG;
-			else
-				mag = rupMeanMag[i];
-			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
-					mag, magSigma, rupMoRate[i], magTruncLevel, 2);
-			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
-			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
-//if(this.segmentData.getFaultName().equals("N. San Andreas"))
-//				System.out.println(i+"  "+mag+"  "+MomentMagCalc.getMoment(rupMeanMag[i])+"  "+
-//						aPrioriRupRates[i].getValue()+"  "+rupMoRate[i]+"  "+this.getLongRupName(i));
-
-		}
-
-		
-		// add info to the summed dist
-		/**/
-		String summed_info = "\n\nMoment Rate: "+(float) getTotalMoRateFromSummedMFD() +
-		"\n\nTotal Rate: "+(float)summedMagFreqDist.getCumRate(0);
-		summedMagFreqDist.setInfo(summed_info);
-		
-		
-		// get final rate of events on each segment (this takes into account mag rounding of MFDs)
-		computeFinalSegRates();		
-
-		// find the slip distribution for each rupture (rupSlipDist{})
-		computeRupSlipDist();
-		
-		// find the slip distribution of each segment
-		//computeSegSlipDist(rupSlipDist, magAreaRel, segRupSlipFactor);
-		/*
-		if(D) {
-			// print the slip distribution of each segment
-			for(int i=0; i<num_seg; ++i) {
-				System.out.println("Slip for segment "+i+":");
-				System.out.println(segSlipDist[i]);
-			}
-		}
-		*/
-	}
-	
-	
-	
 	
 	/**
 	 * Description:
@@ -236,14 +128,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @
 	 */
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
-			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, double magTruncLevel) {
+			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
+			double magTruncLevel, double moRateReduction) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
 		this.aPrioriRupRates = aPrioriRupRates;
 		this.magSigma = magSigma;
 		this.magTruncLevel = magTruncLevel;
-		
+		this.moRateReduction = moRateReduction;
 		this.isPoissonian = true;
 		
 		num_seg = segmentData.getNumSegments();
@@ -299,7 +192,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// first fill in the slip-rate constraints with wt
 		// I'm dividing by wt on second set because only this approach converges in Matlab
 		for(int row = 0; row < num_seg; row ++) {
-			d[row] = segmentData.getSegmentSlipRate(row);
+			d[row] = segmentData.getSegmentSlipRate(row)*(1-this.moRateReduction);
 			for(int col=0; col<num_rup; col++)
 				C[row][col] = segSlipInRup[row][col];
 		}
@@ -332,8 +225,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				tempSlipRate = 0;
 				for(int rup=0; rup < num_rup; rup++)
 					tempSlipRate += rupRate[rup]*segSlipInRup[seg][rup];
-				double absFractDiff = Math.abs(tempSlipRate/segmentData.getSegmentSlipRate(seg) - 1.0);
-				System.out.println("SlipRateCheck:  "+(float) (tempSlipRate/segmentData.getSegmentSlipRate(seg)));
+				double absFractDiff = Math.abs(tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)) - 1.0);
+				System.out.println("SlipRateCheck:  "+(float) (tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction))));
 				if(absFractDiff > 0.001)
 					throw new RuntimeException("ERROR - slip rates differ!!!!!!!!!!!!");
 			}
@@ -421,7 +314,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			for(int seg=0; seg < num_seg; seg++) {
 				if(rupInSeg[seg][rup]==1) { // if this rupture is included in this segment	
 					area = segmentData.getSegmentArea(seg);
-					slip = segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg];
+					slip = (segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg])*(1-this.moRateReduction);
 					rupMeanMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
 				}
 			}
@@ -674,7 +567,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
 			for(int seg=0; seg<num_seg; seg++) {
-				double segCharSlip = segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg];
+				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)/segRateFromApriori[seg];
 				for(int rup=0; rup<num_rup; ++rup) {
 					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
 				}

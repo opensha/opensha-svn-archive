@@ -214,7 +214,7 @@ public class A_FloatingSourceApp extends JFrame implements ParameterChangeListen
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = getAseisReducesArea();
 		IncrementalMagFreqDist floatingRup_PDF = getFloatingRup_PDF();
-		UnsegmentedSource faultSource = new UnsegmentedSource( this.segmetedFaultData,  magAreaRel, floatingRup_PDF);
+		UnsegmentedSource faultSource = new UnsegmentedSource( this.segmetedFaultData,  magAreaRel, floatingRup_PDF,0.0);
 		A_FloatingSourceOuput outputWindow  =  new A_FloatingSourceOuput(faultSource, segmetedFaultData, getMetadata());
 		
 	}

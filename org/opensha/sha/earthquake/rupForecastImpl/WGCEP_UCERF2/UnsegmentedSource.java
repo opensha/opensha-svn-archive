@@ -68,7 +68,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
-			IncrementalMagFreqDist sourceMagPDF) {
+			IncrementalMagFreqDist sourceMagPDF, double moRateReduction) {
 		
 		this.isPoissonian = true;
 		
@@ -84,7 +84,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 		// get the source MFD
 		sourceMFD = (IncrementalMagFreqDist)sourceMagPDF.deepClone();
-		double sourceMoRate = segmentData.getTotalMomentRate();
+		double sourceMoRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
 		sourceMFD.scaleToTotalMomentRate(sourceMoRate);
 		
 		// get the impled MFD for "visible" ruptures (those that are large 
@@ -140,7 +140,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
-			double mag_lowerGR, double b_valueGR) {
+			double mag_lowerGR, double b_valueGR, double moRateReduction) {
 		
 		this.isPoissonian = true;
 		
@@ -152,7 +152,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double moRate;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
-		moRate = segmentData.getTotalMomentRate();
+		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
 		
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
