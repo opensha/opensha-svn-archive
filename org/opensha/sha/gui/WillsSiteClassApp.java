@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
  * @version 1.0
  */
 
-public class WillsSiteClassApp extends JFrame{
+public class WillsSiteClassApp extends JApplet{
  
 
   private JScrollPane locListScrollPane = new JScrollPane();
@@ -31,9 +31,26 @@ public class WillsSiteClassApp extends JFrame{
   private JLabel exampleLocs = new JLabel();
 
   private JButton getWillsSiteClassButton = new JButton();
+  private boolean isStandalone = false;
 
  
-  private void init(){
+  //Start the applet
+  public void start() {
+	  super.start();
+  }
+
+  //Stop the applet
+  public void stop() {
+	  super.stop();
+  }
+
+  //Destroy the applet
+  public void destroy() {
+	  super.destroy();
+  }
+  
+  
+  public void init(){
 	  try{
 		 jbInit(); 
 	  }catch(Exception e){
@@ -42,8 +59,6 @@ public class WillsSiteClassApp extends JFrame{
   }
   private void jbInit() throws Exception {
  
-    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    this.setTitle("Wills Site Class Application");
     this.setLayout(new BorderLayout());
     this.getContentPane().setLayout(new GridBagLayout());
     
@@ -79,11 +94,7 @@ public class WillsSiteClassApp extends JFrame{
     String info = new String("This uses both the CGS Preliminary Site "+
             "Conditions Map of CA (Wills et al., 2000) ");
     getWillsSiteClassButton.setToolTipText(info);
-    // set the size
-    this.setSize(new Dimension(300, 400));
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setLocation((dim.width - this.getSize().width) / 2, 0);
-  }
+   }
 
 
   /**
@@ -189,9 +200,18 @@ public class WillsSiteClassApp extends JFrame{
    * @param args
    */
   public static void main(String[] args) {
-	  WillsSiteClassApp applet = new WillsSiteClassApp();
-      applet.setVisible(true);
-      applet.init();
+	  WillsSiteClassApp application = new WillsSiteClassApp();
+	  application.isStandalone = true;
+    JFrame frame = new JFrame();
+    //EXIT_ON_CLOSE == 3
+    frame.setDefaultCloseOperation(3);
+    frame.setTitle("Wills Site Class Application");
+    frame.getContentPane().add(application, BorderLayout.CENTER);
+    application.init();
+    frame.setSize(300, 400);
+    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
+    frame.setVisible(true);
   }
  
   //static initializer for setting look & feel
