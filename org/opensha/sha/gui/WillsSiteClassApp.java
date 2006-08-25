@@ -36,17 +36,14 @@ public class WillsSiteClassApp extends JApplet{
  
   //Start the applet
   public void start() {
-	  super.start();
   }
 
   //Stop the applet
   public void stop() {
-	  super.stop();
   }
 
   //Destroy the applet
   public void destroy() {
-	  super.destroy();
   }
   
   
