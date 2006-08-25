@@ -80,7 +80,7 @@ public class WillsSiteClassApp extends JFrame{
             "Conditions Map of CA (Wills et al., 2000) ");
     getWillsSiteClassButton.setToolTipText(info);
     // set the size
-    this.setSize(new Dimension(250, 300));
+    this.setSize(new Dimension(300, 400));
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation((dim.width - this.getSize().width) / 2, 0);
   }
@@ -136,7 +136,7 @@ public class WillsSiteClassApp extends JFrame{
 	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 214, 15));
 	    
 	  willsSiteValsScroll.getViewport().add(willsSiteValsText, null);
-	  willSiteClassFrame.setSize(200,300);
+	  willSiteClassFrame.setSize(200,360);
 	  // show the window at center of the parent component
 	  willSiteClassFrame.setLocation(this.getX()+this.getWidth()/2,
                        this.getY()+this.getHeight()/2);
@@ -193,6 +193,16 @@ public class WillsSiteClassApp extends JFrame{
       applet.setVisible(true);
       applet.init();
   }
-  
+ 
+  //static initializer for setting look & feel
+  static {
+    String osName = System.getProperty("os.name");
+    try {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+    catch(Exception e) {
+    }
+  }
+
   
 }
