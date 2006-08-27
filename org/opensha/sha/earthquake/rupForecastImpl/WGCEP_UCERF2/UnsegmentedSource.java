@@ -149,8 +149,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
 		this.fixMag = fixMag;
-		this.fixRate = fixRate;
-		
+		this.fixRate = fixRate*(1-moRateReduction);
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		
 		double moRate;
@@ -166,7 +165,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			else { // if it is a B Fault Fix
 				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag,
 						fixMag, charMagSigma, 1.0, charMagTruncLevel, 2);
-				charMFD.scaleToCumRate(0, fixRate);
+				charMFD.scaleToCumRate(0, this.fixRate);
 				
 			}
 			sourceMFD = charMFD;
@@ -180,7 +179,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			else { // if it is a B Fault Fix
 				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag,
 						fixMag, charMagSigma, 1.0, charMagTruncLevel, 2);
-				charMFD.scaleToCumRate(0, fixRate);		
+				charMFD.scaleToCumRate(0, this.fixRate);		
 			}
 			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
 			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,

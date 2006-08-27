@@ -19,6 +19,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.opensha.calc.FaultMomentCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
@@ -31,6 +32,7 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.ValueWeight;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.exceptions.FaultException;
 import org.opensha.param.*;
@@ -92,8 +94,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// various summed MFDs
 	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
-	private IncrementalMagFreqDist totBackgroundMFD;
-	private GutenbergRichterMagFreqDist targetRegionalMFD;
+	private GutenbergRichterMagFreqDist totBackgroundMFD;
 	
 	/*
 	 * Static variables for input files
@@ -151,8 +152,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
-	public final static Double TOT_MAG_RATE_DEFAULT = new Double(7.5);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 4.0 for no aftershocks, or 7.5 including aftershocks)";
+	public final static Double TOT_MAG_RATE_DEFAULT = new Double(8.4);
+	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.3 for no aftershocks, or 8.4 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
 	//choose mag area relationship
@@ -233,7 +234,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "A & B MoRate Reduction";
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0);
+	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.15);
 	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate on A & B Faults put into smaller or off-Fault events";
 	private DoubleParameter aAndB_MoRateReducParam;
 	
@@ -624,27 +625,32 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	
-	private void makeTargetRegionalMFD() {
-		double totCumRate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
-		double bValue = ((Double)this.regionB_ValParam.getValue()).doubleValue();
-		targetRegionalMFD = new GutenbergRichterMagFreqDist(bValue, totCumRate,
-				MIN_MAG, MAX_MAG, NUM_MAG);
-	}
-	
+
 	
 	private void  makeBackgroundGridSources() {
 		
 		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 		
 		// get the total rate of M³5 events
-		//double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
-		double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
+		double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
+		double  frac = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
+		double bValue = ((Double)this.regionB_ValParam.getValue()).doubleValue();
+		//double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
 		
 		// now subtract the A, B, & C fault/zone rates
 		//rate -= this.bFaultCharSummedMFD.getTotalIncrRate();
 		//rate -= this.bFaultGR_SummedMFD.getTotalIncrRate();
 		//	rate -= this.aFaultSummedMFD.getTotalIncrRate();
-		
+		double totMoRateABC = this.aFaultSummedMFD.getTotalMomentRate()+this.bFaultCharSummedMFD.getTotalMomentRate()+
+				this.bFaultGR_SummedMFD.getTotalMomentRate()+this.cZoneSummedMFD.getTotalMomentRate();
+		double totRateABC = this.aFaultSummedMFD.getTotalIncrRate()+this.bFaultCharSummedMFD.getTotalIncrRate()+
+				this.bFaultGR_SummedMFD.getTotalIncrRate()+this.cZoneSummedMFD.getTotalIncrRate();
+		double totBackRate = rate-totRateABC;
+		double totBackMoRate = frac*totMoRateABC/(1-frac);
+		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		if(frac > 0)
+			totBackgroundMFD.setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+/*
 		totBackgroundMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		IncrementalMagFreqDist cumTotBackgroundMFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		double backRate, targetRate, aRate, bRateGR, bRateChar, cRate, mag;
@@ -666,10 +672,33 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			totBackgroundMFD.set(i, cumTotBackgroundMFD.getY(i) - cumTotBackgroundMFD.getY(i+1) );
 		}
 		totBackgroundMFD.set(i, cumTotBackgroundMFD.getY(i));
+*/
 	}
 	
 	private void makeC_ZoneSources() {
+		
+		double  frac = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
+		
+		String []names = { "Foothills Fault System", "Mohawk-Honey Lake Zone",
+				"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
+				"Eastern California Shear Zone S", "Imperial Valley", "San Gorgonio Knot"};
+		
+		double[] slipRates = { 0.05, 2.0, 4.0, 4.0, 5.0, 8.0, 14.0, 5.0}; // mm/yr
+		double[] depthTop = { 0, 0, 0, 0, 0, 0, 0, 0}; // km
+		double[] depthBottom = { 12, 15, 15, 15, 14, 15.5, 12.6, 18.3}; //km
+		double[] strike = { 325, 335, 315, 315, 320, 320, 310, 290};
+		double[] length = { 360, 88, 230, 245, 180, 88, 58, 100 }; // km
+		double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
+		double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3};
+		double bValue = 0.8;
 		this.cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		double moRate;
+		for(int i=0; i<names.length; ++i) {
+			moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRates[i]/1000.0)*(1-frac);
+			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+			grMFD.setAllButTotCumRate(magLower[i], magUpper[i], moRate, bValue);
+			cZoneSummedMFD.addIncrementalMagFreqDist(grMFD);
+		}
 	}
 	
 	private void mkA_FaultSegmentedSources() {
@@ -804,10 +833,42 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	
-	
-	public IncrementalMagFreqDist getTargetRegionalMFD() {
-		return this.targetRegionalMFD;
+	/**
+	 * This returns an EvenlyDiscretizedFunc that is a cumulative 
+	 * MFD for Karen Felzer's best-fit to the observed MFD (from Table 1 in her appendix)
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getObsBestFitCumMFD() {
+		EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] incrRates = {5.68, 1.79, 0.57, 0.18, 0.06, 0.018};
+		double sum=0;
+		for(int i=5; i>=0; i--) {
+			sum += incrRates[i];
+			obsBestFitCumMFD.set(i, sum);
+		}
+		obsBestFitCumMFD.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog (from Table 1 in her appendix)");
+		return obsBestFitCumMFD;
 	}
+	
+	
+	/**
+	 * This returns an EvenlyDiscretizedFunc that is a cumulative 
+	 * MFD for Karen Felzer's observed MFD (from Table 1 in her appendix)
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getObsCumMFD() {
+		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] incrRates = {4.27, 2.02, 0.49, 0.14, 0.055, 0.0191};
+		double sum=0;
+		for(int i=5; i>=0; i--) {
+			sum += incrRates[i];
+			obsCumMFD.set(i, sum);
+		}
+		obsCumMFD.setInfo("Cumulative MFD for observed catalog (from Table 1 of Karen Felzer's appendix)");
+		return obsCumMFD;
+	}
+	
+	
 	
 	public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
 		return this.bFaultCharSummedMFD;
@@ -845,8 +906,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 **/
 	
 	public void updateForecast() {
-		
-		makeTargetRegionalMFD();
 		
 		String rupModel = (String)this.rupModelParam.getValue();
 		System.out.println("Creating A Fault sources");

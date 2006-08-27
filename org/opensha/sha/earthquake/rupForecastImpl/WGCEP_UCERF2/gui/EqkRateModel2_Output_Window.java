@@ -63,6 +63,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		      Color.BLACK, 5);
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.RED, 2);
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_DIAMONDS,
+		      Color.RED, 5);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
 	private EqkRateModel2_ERF eqkRateModelERF;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
@@ -288,8 +290,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		cumDist.setInfo("Total  Mag Freq Dist");
 		funcs.add(cumDist);
 		
+		// historical best fit cum dist
+		funcs.add(this.eqkRateModelERF.getObsBestFitCumMFD());
+		
 		// historical cum dist
-		funcs.add(this.eqkRateModelERF.getTargetRegionalMFD().getCumRateDist());
+		funcs.add(this.eqkRateModelERF.getObsCumMFD());
 	}
 
 	/* (non-Javadoc)
@@ -339,6 +344,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		 list.add(this.PLOT_CHAR5);
 		 list.add(this.PLOT_CHAR6);
 		 list.add(this.PLOT_CHAR7);
+		 list.add(this.PLOT_CHAR8);
 		 return list;
 	}
 	

@@ -38,6 +38,7 @@ public class GutenbergRichterMagFreqDist
   public GutenbergRichterMagFreqDist(double min, int num, double delta) throws
       InvalidRangeException {
     super(min, num, delta);
+    this.magLower = min;
   }
 
   /**
@@ -51,7 +52,7 @@ public class GutenbergRichterMagFreqDist
   public GutenbergRichterMagFreqDist(double min, double max, int num) throws
       DiscretizedFuncException, InvalidRangeException {
     super(min, max, num);
-
+    
   }
 
   /**
