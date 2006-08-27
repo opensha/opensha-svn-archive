@@ -607,7 +607,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			for(int rup=0; rup<num_rup; ++rup) {
 				double aveSlip = rupMeanMo[rup]/(rupArea[rup]*FaultMomentCalc.SHEAR_MODULUS);    // inlcudes aveSlipCorr
 				double totRupArea = 0;
-				// compute total rupture length
+				// compute total rupture area
 				for(int seg=0; seg<num_seg; seg++) {
 					if(rupInSeg[seg][rup]==1) {
 						totRupArea += segmentData.getSegmentArea(seg);
@@ -979,6 +979,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	
 	private static void mkTaperedSlipFuncs() {
+		
+		// only do if another instance has not already done this
+		if(taperedSlipCDF != null) return;
+		
 		taperedSlipCDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
 		taperedSlipPDF = new EvenlyDiscretizedFunc(0, 51, 0.02);
 		double x,y, sum=0;

@@ -103,8 +103,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	private ArrayList allSources;
 	
-	private MagAreaRelationship magAreaRel;
-	
 	// fault-model parameter stuff
 	// public final static String FAULT_MODEL_NAME = new String ("Fault Model");
 	// public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
