@@ -218,14 +218,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public final static String B_FAULTS_B_VAL_PARAM_NAME = "B-Faults b-value";
 	public final static String B_FAULTS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to B-Faults";
-	public final static Double B_FAULT_GR_B_DEFAULT= new Double(1.0);
+	public final static Double B_FAULT_GR_B_DEFAULT= new Double(0.8);
 	public final static Double B_VAL_MIN = new Double(-1);
 	public final static Double B_VAL_MAX = new Double(2);
 	private DoubleParameter bFaultB_ValParam;
 	
 	public final static String REGION_B_VAL_PARAM_NAME = "Background Seis b-value";
 	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
-	public final static Double REGIONAL_B_DEFAULT = new Double(1.2);
+	public final static Double REGIONAL_B_DEFAULT = new Double(1.1);
 	// min and max same as for bFaultB_ValParam
 	private DoubleParameter regionB_ValParam;
 	
@@ -234,7 +234,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.14);
+	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.18);
 	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
 	private DoubleParameter aAndB_MoRateReducParam;
 	
@@ -332,7 +332,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaNamesList = new ArrayList();
 		for(int i=0; i<magAreaRelationships.size(); ++i)
 			magAreaNamesList.add(((MagAreaRelationship)magAreaRelationships.get(i)).getName());
-		magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaNamesList, (String)magAreaNamesList.get(3));
+		magAreaRelParam = new StringParameter(MAG_AREA_RELS_PARAM_NAME, magAreaNamesList, (String)magAreaNamesList.get(1));
 		magAreaRelParam.setInfo(MAG_AREA_RELS_PARAM_INFO);
 		
 		
@@ -361,7 +361,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// A-fault slip type
 		slipModelParam = new StringParameter(SLIP_MODEL_TYPE_NAME, 
 				A_FaultSegmentedSource.getSupportedSlipModels(), 
-				A_FaultSegmentedSource.CHAR_SLIP_MODEL);
+				A_FaultSegmentedSource.WG02_SLIP_MODEL);
 		slipModelParam.setInfo(SLIP_MODEL_TYPE_INFO);
 		
 		// mag Sigma Param
