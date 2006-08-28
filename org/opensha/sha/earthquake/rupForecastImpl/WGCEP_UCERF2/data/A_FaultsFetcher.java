@@ -35,7 +35,7 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher {
-	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/A_FaultsSegmentData_v7.xls";
+	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/A_FaultsSegmentData_v8.xls";
 	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/SegmentModels.txt";
 	private HashMap faultModels = new HashMap();
 	// DAO to access the fault section database

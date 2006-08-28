@@ -1107,7 +1107,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						rupModelParam.setValue(rupModelOptions.get(irup));
 						slipModelParam.setValue(slipModelOptions.get(islip));
-						updateForecast();
+						try {
+							updateForecast();
+						}catch(Exception e) {
+							System.out.println(e.getMessage()+" , "+magAreaOptions.get(imag)+
+									" , " + rupModelOptions.get(irup) +
+									" , " + slipModelOptions.get(islip));
+							continue;
+						}
 						// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
 						double predCumRate = getTotalMFD().getCumRate(6.5);
 						
@@ -1293,7 +1300,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		//erRateModel2_ERF.generateExcelSheets("EqkRateModel2.xls");
+		//erRateModel2_ERF.generateExcelSheets("EqkRateModel2_v2.xls");
 		erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
