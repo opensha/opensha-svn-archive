@@ -267,7 +267,7 @@ public class FaultSegmentData {
 				//set the area & moRate
 				segLength[seg]+= sectData.getLength()*1e3;  // converted to meters
 				double ddw = sectData.getDownDipWidth()*1e3; // converted to meters
-				double area = ddw*segLength[seg]; // converted to meters-squared
+				double area = ddw*sectData.getLength()*1e3; // converted to meters-squared
 				double slipRate = sectData.getAveLongTermSlipRate()*1e-3;  // converted to m/sec
 				double alpha = 1.0 - sectData.getAseismicSlipFactor();  // reduction factor
 				segMoRateIgnoringAseis[seg] += FaultMomentCalc.getMoment(area,slipRate); // SI units

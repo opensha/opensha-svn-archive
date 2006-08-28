@@ -886,20 +886,30 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	/**
-	 * This returns an EvenlyDiscretizedFunc that is a cumulative 
-	 * MFD for Karen Felzer's observed MFD (from Table 1 in her appendix)
+	 * This returns an ArrayList of EvenlyDiscretizedFunc that have  cumulative 
+	 * MFD for Karen Felzer's observed MFD (from Table 2 in her appendix) and upper and lower confidence MFDs
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getObsCumMFD() {
+	public ArrayList getObsCumMFD() {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
-		double[] incrRates = {4.27, 2.02, 0.49, 0.14, 0.055, 0.0191};
-		double sum=0;
+		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] incrRates = {7.55, 2.71, 0.71, 0.20, 0.062, 0.0191};
+		double[] incrRatesLow = {6.86, 2.35, 0.56, 0.13, 0.026, 0.0};
+		double[] incrRatesHigh = {8.26, 3.09, 0.87, 0.28, 0.11, 0.0466};
 		for(int i=5; i>=0; i--) {
-			sum += incrRates[i];
-			obsCumMFD.set(i, sum);
+			obsCumMFD.set(i, incrRates[i]);
+			obsCumLowMFD.set(i, incrRatesLow[i]);
+			obsCumHighMFD.set(i, incrRatesHigh[i]);
 		}
-		obsCumMFD.setInfo("Cumulative MFD for observed catalog (from Table 1 of Karen Felzer's appendix)");
-		return obsCumMFD;
+		obsCumMFD.setInfo("Cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
+		obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
+		obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
+		ArrayList obsCumList = new ArrayList();
+		obsCumList.add(obsCumMFD);
+		obsCumList.add(obsCumLowMFD);
+		obsCumList.add(obsCumHighMFD);
+		return obsCumList;
 	}
 	
 	

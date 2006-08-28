@@ -346,7 +346,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 	      double magLower = this.mean - this.truncLevel *this.stdDev;
 	      int index = Math.round((float)((magLower-this.minX)/this.delta));
 	      // Make this the first non-zero rate by the <index in the next loop
-	      for(int i=0;i<index;i++)
+	      for(int i=0;i<index && i<num;i++)
 	        super.set(i,0);
 	    }
 	}
