@@ -101,6 +101,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	private ValueWeight[] aPrioriRupRates;
 	private double moRateReduction;
+	private double meanMagCorrection;
 	
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
@@ -129,7 +130,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
-			double magTruncLevel, double moRateReduction) {
+			double magTruncLevel, double moRateReduction, double meanMagCorrection) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
@@ -138,6 +139,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		this.magTruncLevel = magTruncLevel;
 		this.moRateReduction = moRateReduction;
 		this.isPoissonian = true;
+		this.meanMagCorrection = meanMagCorrection;
 		
 		num_seg = segmentData.getNumSegments();
 		
@@ -177,7 +179,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			rupMeanMag = new double[num_rup];
 			rupMeanMo = new double[num_rup];
 			for(int rup=0; rup <num_rup; rup++) {
-				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6);
+				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6)+this.meanMagCorrection;
 				rupMeanMo[rup] = aveSlipCorr*MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
 			}
 		}
@@ -319,7 +321,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				}
 			}
 			// reduce moment by aveSlipCorr to reduce mag, so that ave slip in final MFD is correct
-			rupMeanMag[rup] = MomentMagCalc.getMag(rupMeanMo[rup]/aveSlipCorr);	//
+			rupMeanMag[rup] = MomentMagCalc.getMag(rupMeanMo[rup]/aveSlipCorr)+this.meanMagCorrection;	//
 		}
 	}
 	

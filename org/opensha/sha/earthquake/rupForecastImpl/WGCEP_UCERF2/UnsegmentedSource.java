@@ -142,7 +142,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
 			double mag_lowerGR, double b_valueGR, double moRateReduction, double fixMag,
-			double fixRate) {
+			double fixRate, double meanMagCorrection) {
 		
 		this.isPoissonian = true;
 		
@@ -153,7 +153,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		
 		double moRate;
-		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
 		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
 		
