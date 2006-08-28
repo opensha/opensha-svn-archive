@@ -857,7 +857,23 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getObsBestFitCumMFD() {
-		EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double rate  = ((Double)totalMagRateParam.getValue()).doubleValue();
+		double bVal;
+		// set b-value based on rate (guess whether aftershocks included)
+		if(rate > 5.85) bVal = 1.0;
+		else bVal = 0.8;
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
+				this.MIN_MAG, 8.0, 1.0, bVal);
+		gr.scaleToCumRate(0,rate);
+		EvenlyDiscretizedFunc func = gr.getCumRateDist();
+		EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(MIN_MAG, 7.5, (int)Math.round((7.5-MIN_MAG)/DELTA_MAG)+1);
+		for(int i=0; i<newFunc.getNum(); ++i) {
+			newFunc.set(i, func.getY(i));
+		}
+		
+		newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog (from Table 1 in her appendix)");
+		return newFunc;
+		/*EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG);
 		double[] incrRates = {5.68, 1.79, 0.57, 0.18, 0.06, 0.018};
 		double sum=0;
 		for(int i=5; i>=0; i--) {
@@ -865,7 +881,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			obsBestFitCumMFD.set(i, sum);
 		}
 		obsBestFitCumMFD.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog (from Table 1 in her appendix)");
-		return obsBestFitCumMFD;
+		return obsBestFitCumMFD;*/
 	}
 	
 	

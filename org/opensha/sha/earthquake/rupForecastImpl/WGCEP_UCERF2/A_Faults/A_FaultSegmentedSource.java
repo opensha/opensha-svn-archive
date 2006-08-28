@@ -321,7 +321,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				}
 			}
 			// reduce moment by aveSlipCorr to reduce mag, so that ave slip in final MFD is correct
-			rupMeanMag[rup] = MomentMagCalc.getMag(rupMeanMo[rup]/aveSlipCorr)+this.meanMagCorrection;	//
+			rupMeanMag[rup] = MomentMagCalc.getMag(rupMeanMo[rup]/aveSlipCorr);	//
 		}
 	}
 	
