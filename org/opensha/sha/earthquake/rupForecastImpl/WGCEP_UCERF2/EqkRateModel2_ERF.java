@@ -223,19 +223,19 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static Double B_VAL_MAX = new Double(2);
 	private DoubleParameter bFaultB_ValParam;
 	
-	public final static String REGION_B_VAL_PARAM_NAME = "Regional b-value";
-	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the entire region";
-	public final static Double REGIONAL_B_DEFAULT = new Double(1.0);
+	public final static String REGION_B_VAL_PARAM_NAME = "Background Seis b-value";
+	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
+	public final static Double REGIONAL_B_DEFAULT = new Double(1.2);
 	// min and max same as for bFaultB_ValParam
 	private DoubleParameter regionB_ValParam;
 	
 	
 	// fraction to put into background
-	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "A & B MoRate Reduction";
+	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.15);
-	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate on A & B Faults put into smaller or off-Fault events";
+	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.14);
+	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
 	private DoubleParameter aAndB_MoRateReducParam;
 	
 	// A and B faults fetcher
@@ -400,7 +400,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //		adjustableParams.addParameter(backSeisParam);		not needed for now
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(regionB_ValParam);
-		adjustableParams.addParameter(backSeisMaxMagParam);
+//		adjustableParams.addParameter(backSeisMaxMagParam);
 		adjustableParams.addParameter(aAndB_MoRateReducParam);
 	}
 	
@@ -908,26 +908,26 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public void updateForecast() {
 		
 		String rupModel = (String)this.rupModelParam.getValue();
-		System.out.println("Creating A Fault sources");
+		//System.out.println("Creating A Fault sources");
 		long time1 = System.currentTimeMillis();
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) 
 			mkA_FaultUnsegmentedSources();
 		else 
 			mkA_FaultSegmentedSources();
 		long time2 = System.currentTimeMillis();
-		System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
+		//System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
 		this.mkB_FaultSources();
 		long time3 = System.currentTimeMillis();
-		System.out.println("Creating C Zone Fault sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
+		//System.out.println("Creating C Zone Fault sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
 //		Make C Zone MFD
 		makeC_ZoneSources();
 		long time4 = System.currentTimeMillis();
-		System.out.println("Creating Background sources. Time Spent in creating C Zone Sources="+(time4-time3)/1000+" sec");
+		//System.out.println("Creating Background sources. Time Spent in creating C Zone Sources="+(time4-time3)/1000+" sec");
 		
 		// makeTotalRelativeGriddedRates();
 		makeBackgroundGridSources();
 		long time5 = System.currentTimeMillis();
-		System.out.println("Done. Time Spent in creating background Sources="+(time5-time4)/1000+" sec");
+		//System.out.println("Done. Time Spent in creating background Sources="+(time5-time4)/1000+" sec");
 		
 		/* OLD STUFF BELOW
 		 // make sure something has changed
@@ -1048,6 +1048,35 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						mkA_FaultSegmentedSources();
 					}
 	}
+	
+	
+	
+	
+	private void printMag6_5_discrepancies() {
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		double obVal = this.getObsBestFitCumMFD().getY(6.5);
+		for(int imag=0; imag<magAreaOptions.size();imag++)
+			for(int irup=0; irup<rupModelOptions.size();irup++)
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						rupModelParam.setValue(rupModelOptions.get(irup));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						updateForecast();
+						// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
+						double predCumRate = getTotalMFD().getCumRate(6.5);
+						
+						System.out.println((float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
+								" , " + rupModelOptions.get(irup) +
+								" , " + slipModelOptions.get(islip));
+						//System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
+
+					}
+	}
+	
+	
+	
 	
 	
 	/**
@@ -1220,7 +1249,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		erRateModel2_ERF.generateExcelSheets("EqkRateModel2.xls");
+		//erRateModel2_ERF.generateExcelSheets("EqkRateModel2.xls");
+		erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		
