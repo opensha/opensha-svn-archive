@@ -15,4 +15,3 @@ So Emerson-Copper Mtn,  6.9, 0.0002
 Johnson Valley (No),  6.7, 0.0002
 Eureka Peak,  6.4,  0.0002
 Burnt Mtn, 6.5, 0.0002
-Honey Lake, 6.9, 0.00067
