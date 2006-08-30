@@ -179,11 +179,11 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 			HSSFSheet sheet = wb.getSheetAt(i);
 			String sheetName = wb.getSheetName(i);
 			int lastIndex = sheet.getLastRowNum();
-			int r = 4;
+			int r = 3;
 			int count=0;
 			// read data for each row
 			for(; r<=lastIndex; ++r) {
-				double j=-1.0;
+				int j=-1;
 				String modelType = models[count++];
 				ArrayList funcList = new ArrayList();
 				for(int k=0; k<14; ++k) {
@@ -198,7 +198,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 					// rup name
 					String rupName = cell.getStringCellValue().trim();
 					if(rupName.equalsIgnoreCase("Totals")) {
-						r= r+6;
+						r= r+5;
 						GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
 						graphWindow.setPlotLabel(PLOT_LABEL);
 						graphWindow.plotGraphUsingPlotPreferences();
@@ -207,21 +207,21 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 						graphWindow.setVisible(true);
 						break;
 					}
-					System.out.println(r);
-					((ArbitrarilyDiscretizedFunc)funcList.get(0)).set(j, row.getCell( (short) 1).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(1)).set(j, row.getCell( (short) 3).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(2)).set(j, row.getCell( (short) 5).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(3)).set(j, row.getCell( (short) 6).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(4)).set(j, row.getCell( (short) 7).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(5)).set(j, row.getCell( (short) 9).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(6)).set(j, row.getCell( (short) 10).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(7)).set(j, row.getCell( (short) 11).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(8)).set(j, row.getCell( (short) 13).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(9)).set(j, row.getCell( (short) 14).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(10)).set(j, row.getCell( (short) 15).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(11)).set(j, row.getCell( (short) 17).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(12)).set(j, row.getCell( (short) 18).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(13)).set(j, row.getCell( (short) 19).getNumericCellValue());
+					//System.out.println(r);
+					((ArbitrarilyDiscretizedFunc)funcList.get(0)).set((double)j, row.getCell( (short) 1).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(1)).set((double)j, row.getCell( (short) 3).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(2)).set((double)j, row.getCell( (short) 5).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(3)).set((double)j, row.getCell( (short) 6).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(4)).set((double)j, row.getCell( (short) 7).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(5)).set((double)j, row.getCell( (short) 9).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(6)).set((double)j, row.getCell( (short) 10).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(7)).set((double)j, row.getCell( (short) 11).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(8)).set((double)j, row.getCell( (short) 13).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(9)).set((double)j, row.getCell( (short) 14).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(10)).set((double)j, row.getCell( (short) 15).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(11)).set((double)j, row.getCell( (short) 17).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(12)).set((double)j, row.getCell( (short) 18).getNumericCellValue());
+					((ArbitrarilyDiscretizedFunc)funcList.get(13)).set((double)j, row.getCell( (short) 19).getNumericCellValue());
 					++r;
 				}
 				
