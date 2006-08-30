@@ -574,15 +574,10 @@ public class ERF2GriddedSeisRatesCalc {
 
     try {
      EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
-     ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.0, frankelForecast,
+     ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.5, frankelForecast,
           region);
-            // int size = rates.length;
-        try {
-             FileWriter fw = new FileWriter("magRates.txt");
-               fw.write(func.toString()+ "\n");
-             fw.close();
-         } catch (IOException ex2) {
-         }
+     ArbitrarilyDiscretizedFunc func1 = func.getMagFreqBasedCumDist();
+     System.out.println(func1.toString());
             /* try {
                FileWriter fw = new FileWriter("magRates_With_BG.txt");
                for(int i=0;i<size;++i){

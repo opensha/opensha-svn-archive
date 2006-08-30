@@ -251,7 +251,25 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
       }
       return cumDist;
     }
-
+     
+    /**
+     * This returns the ArbitrarilyDiscretizedFunc representing the cumulative
+     * distribution as specified in the Cumulative MagFreqDist.
+     * First X value is the sum of all the values at that index and above it.
+     * @return
+     */
+    public ArbitrarilyDiscretizedFunc getMagFreqBasedCumDist(){
+    	ArbitrarilyDiscretizedFunc cumDist = getCumDist();
+    	int numPoints = cumDist.getNum();
+    	ArbitrarilyDiscretizedFunc cumMagDist = new ArbitrarilyDiscretizedFunc();
+		cumMagDist.set(cumDist.getX(0),cumDist.getY(numPoints -1));
+    	for(int i=1;i<numPoints;++i){
+    		double sum = cumDist.getY(numPoints -1) - cumDist.getY(i-1);
+    		cumMagDist.set(cumDist.getX(i),sum);
+    	}
+    	return cumMagDist;
+    }
+    
 
     /**
      * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
