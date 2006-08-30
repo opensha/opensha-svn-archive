@@ -242,7 +242,7 @@ public class HazusDataSetCalcApp extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    frame.setTitle("HazardMapDataCalc App ");//getAppVersion()+" )");
+    frame.setTitle("HazusMapDataCalc App ");//getAppVersion()+" )");
     frame.getContentPane().add(application, BorderLayout.CENTER);
     application.init();
     frame.setSize(W,H);
