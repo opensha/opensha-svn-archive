@@ -565,7 +565,7 @@ public class ERF2GriddedSeisRatesCalc {
                                  BACK_SEIS_INCLUDE);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
@@ -573,13 +573,17 @@ public class ERF2GriddedSeisRatesCalc {
     frankelForecast.updateForecast();
 
     try {
-      EvenlyGriddedRectangularGeographicRegion region =
-          new EvenlyGriddedRectangularGeographicRegion(32.00, 38.30, -123.00,
-          -115.00, 0.1);
-      double[] rates = erf2griddedseisratescalc.getTotalSeisRateAtEachLocationInRegion(5.0, frankelForecast,
+     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+     ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.0, frankelForecast,
           region);
-             int size = rates.length;
-             try {
+            // int size = rates.length;
+        try {
+             FileWriter fw = new FileWriter("magRates.txt");
+               fw.write(func.toString()+ "\n");
+             fw.close();
+         } catch (IOException ex2) {
+         }
+            /* try {
                FileWriter fw = new FileWriter("magRates_With_BG.txt");
                for(int i=0;i<size;++i){
                  Location loc = region.getGridLocation(i);
@@ -591,7 +595,7 @@ public class ERF2GriddedSeisRatesCalc {
                fw.close();
              }
              catch (IOException ex2) {
-             }
+             }*/
       /*ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.0, frankelForecast,
               region);
          try {
@@ -600,8 +604,8 @@ public class ERF2GriddedSeisRatesCalc {
               fw.close();
          } catch (IOException ex2) {
           }*/
-    }
-    catch (RegionConstraintException ex1) {
+    }catch(Exception e){
+    	e.printStackTrace();
     }
   }
 }
