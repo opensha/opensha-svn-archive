@@ -30,19 +30,33 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	private ArrayList funcs;
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2);
+		      new Color(0,0,0), 2); // black
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.DARK_GRAY, 2);
+			new Color(192,192,192), 2); // silver grey
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2);
+			new Color(128,0,0), 2); // maroon
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2);
+			new Color(255,0,0), 2); //red
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2);
+			new Color(128,0,128), 2); // purple
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2);
+			new Color(255,0,255), 2); // fuchisia
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
+			new Color(0,128,0), 2); //geen
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(0,255,0), 2); //lime
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(128,128,0), 2); //olive
+	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(255,255,0), 2); //yellow
+	private final PlotCurveCharacterstics PLOT_CHAR11 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(0,0,128), 2); //navy
+	private final PlotCurveCharacterstics PLOT_CHAR12 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(0,0,255), 2); // blue
+	private final PlotCurveCharacterstics PLOT_CHAR13 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(0,128,128), 2); //teal
+ 	private final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+			new Color(0,255,255), 2); //aqua
 	//private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		//      Color.RED, 5);
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
@@ -100,13 +114,13 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		 list.add(this.PLOT_CHAR5);
 		 list.add(this.PLOT_CHAR6);
 		 list.add(this.PLOT_CHAR7);
-		 list.add(this.PLOT_CHAR1);
-		 list.add(this.PLOT_CHAR2);
-		 list.add(this.PLOT_CHAR3);
-		 list.add(this.PLOT_CHAR4);
-		 list.add(this.PLOT_CHAR5);
-		 list.add(this.PLOT_CHAR6);
-		 list.add(this.PLOT_CHAR7);
+		 list.add(this.PLOT_CHAR8);
+		 list.add(this.PLOT_CHAR9);
+		 list.add(this.PLOT_CHAR10);
+		 list.add(this.PLOT_CHAR11);
+		 list.add(this.PLOT_CHAR12);
+		 list.add(this.PLOT_CHAR13);
+		 list.add(this.PLOT_CHAR14);
 		 return list;
 	}
 	
