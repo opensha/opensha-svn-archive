@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
@@ -172,6 +173,13 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 				"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
 				"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
 				"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
+		// directory to save the PDF files. Directory will be created if it does not exist already
+		String dirName = "magRatePlots/";
+		File file = new File(dirName);
+		if(!file.isDirectory()) { // create directory if it does not exist already
+			file.mkdir();
+		}
+		// read the mag rates file
 		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("EqkRateModel2_v2.xls"));
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
 		String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
@@ -205,6 +213,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 						graphWindow.setTitle(sheetName+" "+modelType);
 						graphWindow.pack();
 						graphWindow.setVisible(true);
+						graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
 						break;
 					}
 					//System.out.println(r);
