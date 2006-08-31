@@ -294,11 +294,16 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		cumDist.setInfo("Total  Mag Freq Dist");
 		funcs.add(cumDist);
 		
+		
+		double rate = ((Double)eqkRateModelERF.getParameter(eqkRateModelERF.TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
+		boolean includeAfterShocks;
+		if(rate > 5.85) includeAfterShocks = true;
+		else includeAfterShocks = false;
 		// historical best fit cum dist
-		funcs.add(this.eqkRateModelERF.getObsBestFitCumMFD());
+		funcs.add(this.eqkRateModelERF.getObsBestFitCumMFD(includeAfterShocks));
 		
 		// historical cum dist
-		funcs.addAll(this.eqkRateModelERF.getObsCumMFD());
+		funcs.addAll(this.eqkRateModelERF.getObsCumMFD(includeAfterShocks));
 	}
 
 	/* (non-Javadoc)

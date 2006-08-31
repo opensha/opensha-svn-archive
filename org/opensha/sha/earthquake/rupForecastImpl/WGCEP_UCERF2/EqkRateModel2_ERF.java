@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -49,6 +50,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultP
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.B_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.SegmentRecurIntv;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -149,7 +151,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter rupOffset_Param;
 	
 	// rate for M>=5
-	private final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
+	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(8.4);
@@ -856,12 +858,18 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * MFD for Karen Felzer's best-fit to the observed MFD (from Table 1 in her appendix)
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getObsBestFitCumMFD() {
-		double rate  = ((Double)totalMagRateParam.getValue()).doubleValue();
+	public EvenlyDiscretizedFunc getObsBestFitCumMFD(boolean includeAftershocks) {
+		double rate;
 		double bVal;
 		// set b-value based on rate (guess whether aftershocks included)
-		if(rate > 5.85) bVal = 1.0;
-		else bVal = 0.8;
+		if(includeAftershocks)  {
+			bVal = 1.0;
+			rate = 8.4;
+		}
+		else {
+			bVal = 0.8;
+			rate = 3.3;
+		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
 				this.MIN_MAG, 8.0, 1.0, bVal);
 		gr.scaleToCumRate(0,rate);
@@ -871,7 +879,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			newFunc.set(i, func.getY(i));
 		}
 		
-		newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog (from Table 1 in her appendix)");
+		if(includeAftershocks)
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(M³5)=8.4; b= 1.0)");
+		else
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(M³5)=3.3; b= 0.8)");
+		
 		return newFunc;
 		/*EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG);
 		double[] incrRates = {5.68, 1.79, 0.57, 0.18, 0.06, 0.018};
@@ -890,21 +902,39 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * MFD for Karen Felzer's observed MFD (from Table 2 in her appendix) and upper and lower confidence MFDs
 	 * @return
 	 */
-	public ArrayList getObsCumMFD() {
+	public ArrayList getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
-		double[] incrRates = {7.55, 2.71, 0.71, 0.20, 0.062, 0.0191};
-		double[] incrRatesLow = {6.86, 2.35, 0.56, 0.13, 0.026, 0.0};
-		double[] incrRatesHigh = {8.26, 3.09, 0.87, 0.28, 0.11, 0.0466};
+		double[] incrRatesWith = {7.55, 2.71, 0.71, 0.20, 0.062, 0.0191};
+		double[] incrRatesLowWith = {6.86, 2.35, 0.56, 0.13, 0.026, 0.0};
+		double[] incrRatesHighWith = {8.26, 3.09, 0.87, 0.28, 0.11, 0.0466};
+		double[] incrRates = {3.12, 1.27, 0.53, 0.176, 0.062, 0.0191};
+		double[] incrRatesLow = {2.68, 1.01, 0.39, 0.1, 0.026, 0.0};
+		double[] incrRatesHigh = {3.55, 1.52, 0.67, 0.26, 0.11, 0.0446};
+		
+		if(includeAftershocks) {
+			incrRates = incrRatesWith;
+			incrRatesLow = incrRatesLowWith;
+			incrRatesHigh = incrRatesHighWith;
+		}
+	
 		for(int i=5; i>=0; i--) {
 			obsCumMFD.set(i, incrRates[i]);
 			obsCumLowMFD.set(i, incrRatesLow[i]);
 			obsCumHighMFD.set(i, incrRatesHigh[i]);
 		}
-		obsCumMFD.setInfo("Cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
-		obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
-		obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog (from Table 2 of Karen Felzer's appendix)");
+		if(includeAftershocks) {
+			obsCumMFD.setInfo("Cumulative MFD for observed catalog including aftershocks (from Table 2 of Karen Felzer's appendix)");
+			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog including aftershocks (from Table 2 of Karen Felzer's appendix)");
+			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (from Table 2 of Karen Felzer's appendix)");
+		}
+		else {
+			obsCumMFD.setInfo("Cumulative MFD for observed catalog excluding aftershocks (from Table 2 of Karen Felzer's appendix)");
+			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Table 2 of Karen Felzer's appendix)");
+			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Table 2 of Karen Felzer's appendix)");
+		}
+		
 		ArrayList obsCumList = new ArrayList();
 		obsCumList.add(obsCumMFD);
 		obsCumList.add(obsCumLowMFD);
@@ -1100,7 +1130,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		double obVal = this.getObsBestFitCumMFD().getY(6.5);
+		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
 		for(int imag=0; imag<magAreaOptions.size();imag++)
 			for(int irup=0; irup<rupModelOptions.size();irup++)
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
@@ -1134,7 +1164,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		double obVal = this.getObsBestFitCumMFD().getY(6.5);
+		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
 		double minRatio = 10, ratio;
 		String str="", minStr="";
 		try {
@@ -1194,7 +1224,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		
+		HashMap recurIntvMap = this.aFaultsFetcher.getHighLowMeanRecurIntv();
 		int numA_Faults = 8;	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
@@ -1271,9 +1301,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 // write Seg Names and mean Recur Intv
 								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 								 rupStartRow[i] = currRow[i];
+								 SegmentRecurIntv segRecurIntv = (SegmentRecurIntv)recurIntvMap.get(source.getFaultSegmentData().getFaultName());
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
+									 
 									 //row.createCell((short)1).setCellValue(source.getS(rup));
 								 }
 							}

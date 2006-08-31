@@ -280,7 +280,88 @@ public class A_FaultsFetcher {
 	public HashMap getHighLowMeanRecurIntv() {
 		HashMap highLowMeanRecurIntv=new HashMap();
 		String RI_AVE = "RI Ave";
-		
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			for(int sheetIndex=1; sheetIndex<wb.getNumberOfSheets(); ++sheetIndex) {
+				HSSFSheet sheet = wb.getSheetAt(sheetIndex);
+				String faultName = wb.getSheetName(sheetIndex);
+				SegmentRecurIntv segRecurIntv= new SegmentRecurIntv(faultName);
+				highLowMeanRecurIntv.put(faultName, segRecurIntv);
+				int lastRowIndex = sheet.getLastRowNum();
+				
+				// read data for each row and find the place where recurreence intervals are given in the sheet
+				boolean found = false;
+				int r=3;
+				int col=0;
+				for(; r<=lastRowIndex && !found; ++r) {	
+					HSSFRow row = sheet.getRow(r);
+					col = 0;
+					while(col<10) {
+						HSSFCell cell = row.getCell( (short) col);
+						if(cell.getCellType()== HSSFCell.CELL_TYPE_STRING && cell.getStringCellValue().trim().equalsIgnoreCase(RI_AVE)) {
+							found = true;
+							break;
+						}
+						++col;
+					}
+				}
+				
+				// now we have the row and col where mean recurrence interval starts
+				for(; r<=lastRowIndex && !found; ++r) {	
+					HSSFRow row = sheet.getRow(r);
+					
+					// mean recur intv 
+					HSSFCell cell = row.getCell( (short) col);
+					if(cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
+					else if(cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+						try {
+							Double d = new Double(cell.getStringCellValue());
+							segRecurIntv.addMeanRecurIntv(d.doubleValue());
+						}catch(NumberFormatException e) {
+							segRecurIntv.addMeanRecurIntv(Double.NaN);
+						}
+					}
+					else if(cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+						segRecurIntv.addMeanRecurIntv(cell.getNumericCellValue());
+					}
+					
+					
+					// low recur intv
+					HSSFCell lowCell = row.getCell( (short) (col+1));
+					if(lowCell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
+					else if(lowCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+						try {
+							Double d = new Double(lowCell.getStringCellValue());
+							segRecurIntv.addLowRecurIntv(d.doubleValue());
+						}catch(NumberFormatException e) {
+							segRecurIntv.addLowRecurIntv(Double.NaN);
+						}
+					}
+					else if(lowCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+						segRecurIntv.addLowRecurIntv(lowCell.getNumericCellValue());
+					}
+					
+					// high recur intv
+					HSSFCell highCell = row.getCell( (short) (col+2));
+					if(highCell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
+					else if(highCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+						try {
+							Double d = new Double(highCell.getStringCellValue());
+							segRecurIntv.addHighRecurIntv(d.doubleValue());
+						}catch(NumberFormatException e) {
+							segRecurIntv.addHighRecurIntv(Double.NaN);
+						}
+					}
+					else if(highCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
+						segRecurIntv.addHighRecurIntv(highCell.getNumericCellValue());
+					}
+				}
+				
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		return highLowMeanRecurIntv;
 	}
