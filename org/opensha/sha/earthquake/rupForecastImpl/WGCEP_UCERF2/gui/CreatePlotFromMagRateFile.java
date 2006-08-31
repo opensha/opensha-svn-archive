@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
 
 import java.awt.Color;
 import java.io.FileInputStream;

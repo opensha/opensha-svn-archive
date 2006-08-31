@@ -1185,13 +1185,140 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	
+	/**
+	 * Generate Excel sheet for each fault.
+	 * Each sheet will have all Rup solution Types
+	 * 
+	 */
+	private void generateExcelSheetForSegRecurIntv(String outputFileName) {
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		
+		int numA_Faults = 8;	
+//		 Create Excel Workbook and sheets if they do not exist already
+		
+		HSSFWorkbook wb  = new HSSFWorkbook();
+		HSSFCellStyle cellStyle = wb.createCellStyle();
+		HSSFFont font = wb.createFont();
+		font.setColor(HSSFFont.COLOR_RED);
+		cellStyle.setFont(font);
+		
+		// create sheets
+		for(int i=0; i<numA_Faults; ++i) {
+			wb.createSheet();
+		}
+		
+		int currRow[] = new int[numA_Faults];
+		for(int irup=0; irup<rupModelOptions.size();irup++) {
+			int rupStartRow[] = new int[numA_Faults];
+			for(int imag=0; imag<magAreaOptions.size();imag++) {
+				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+			
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						rupModelParam.setValue(rupModelOptions.get(irup));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						mkA_FaultSegmentedSources();
+						
+						// Write header for each Rup Solution Types
+						if(imag==0 && islip==0) {
+							// do for each fault
+							for(int i=0; i<this.aFaultSources.size(); ++i) {
+								 HSSFSheet sheet = wb.getSheetAt(i);
+								 String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
+								 wb.setSheetName(i, sheetName);
+								 //System.out.println(currRow[i]);
+								 HSSFRow row = sheet.createRow((short)currRow[i]++);
+								 // Write Rup solution Type
+								 HSSFCell cell = row.createCell((short)0);
+								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellStyle(cellStyle);
+								 row = sheet.createRow((short)currRow[i]++);
+								 int col=4;
+								 
+								 // Write All Mag Areas in appropriate columns
+								 for(int j=0; j<magAreaOptions.size(); ++j, col+=slipModelOptions.size()) {
+									 cell = row.createCell((short)col);
+									 cell.setCellValue((String)magAreaOptions.get(j));
+									 cell.setCellStyle(cellStyle);
+								 }
+								 // write the headers
+								 row = sheet.createRow((short)currRow[i]++);
+								 col=0;
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Segment_Name");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Mean Recur Intv");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Min Recur Intv");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Max Recur Intv");
+								 cell.setCellStyle(cellStyle);
+								 for(int j=0; j<magAreaOptions.size(); ++j) {
+									 for(int k=0; k<slipModelOptions.size(); ++k) {
+										 //String slipModel = (String)slipModelOptions.get(k);
+										 //if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+											 cell = row.createCell((short)col++);
+											 cell.setCellValue((String)slipModelOptions.get(k));
+											 cell.setCellStyle(cellStyle);
+										 //}
+									 }
+								 }								 
+								 // write Seg Names and mean Recur Intv
+								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+								 rupStartRow[i] = currRow[i];
+								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
+									 row = sheet.createRow((short)currRow[i]++);
+									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
+									 //row.createCell((short)1).setCellValue(source.getS(rup));
+								 }
+							}
+						}
+						   
+						   
+						
+						// write the rup Mag and rates
+						for(int i=0; i<this.aFaultSources.size(); ++i) {
+							 HSSFSheet sheet = wb.getSheetAt(i);
+							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+							 int rateCol;
+							 //if(!slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+								  rateCol = 4 + imag*slipModelOptions.size() + islip;
+								 //rateCol = magCol + islip;
+								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
+									 sheet.getRow(seg+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getFinalSegRecurInt(seg));
+								 }
+							 //}
+						}
+					}
+			}
+			// 
+			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+				HSSFSheet sheet = wb.getSheetAt(i);
+				sheet.createRow((short)currRow[i]++);
+				sheet.createRow((short)currRow[i]++);
+			}
+			
+		}
+		try {
+			FileOutputStream fileOut = new FileOutputStream(outputFileName);
+			wb.write(fileOut);
+			fileOut.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Generate Excel sheet for each fault.
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	private void generateExcelSheets(String outputFileName) {
+	private void generateExcelSheetsForRupMagRates(String outputFileName) {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
@@ -1356,8 +1483,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		erRateModel2_ERF.findMinBulge();
-		//erRateModel2_ERF.generateExcelSheets("EqkRateModel2_v2.xls");
+		//erRateModel2_ERF.findMinBulge();
+		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
+		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();

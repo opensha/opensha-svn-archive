@@ -297,6 +297,16 @@ public class GraphWindow
   public void save() throws IOException {
     graphPanel.save();
   }
+  
+  /**
+   * Save the chart in pdf format
+   * 
+   * @param fileName
+   * @throws IOException
+   */
+  public void saveAsPDF(String fileName) throws IOException {
+	  graphPanel.saveAsPDF(fileName);
+  }
 
   /**
    * Creates a print job for the chart.

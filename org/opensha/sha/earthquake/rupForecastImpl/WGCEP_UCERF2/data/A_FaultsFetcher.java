@@ -24,7 +24,6 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.RupSegRates;
 import org.opensha.util.FileUtils;
 
 /**
