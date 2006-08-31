@@ -274,6 +274,18 @@ public class A_FaultsFetcher {
 	}
 	
 	/**
+	 * Read the high low and mean recur intervals from the excel sheet
+	 * @return
+	 */
+	public HashMap getHighLowMeanRecurIntv() {
+		HashMap highLowMeanRecurIntv=new HashMap();
+		String RI_AVE = "RI Ave";
+		
+		
+		return highLowMeanRecurIntv;
+	}
+	
+	/**
 	 * Get a list of all segment names
 	 * @return
 	 */

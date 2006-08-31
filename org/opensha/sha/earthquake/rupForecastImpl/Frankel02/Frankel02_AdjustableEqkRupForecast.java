@@ -19,8 +19,11 @@ import org.opensha.sha.magdist.*;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.TimeSpan;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
 import org.opensha.param.event.ParameterChangeEvent;
@@ -344,7 +347,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
     // read the lines of the 1st input file into a list
     ArrayList inputFaultFileLines1=null;
-    try{ inputFaultFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    try{ inputFaultFileLines1 = FileUtils.loadJarFile(IN_FILE_PATH + fileName1 ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
     if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
@@ -352,7 +355,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     // read second file's lines if necessary
     ArrayList inputFaultFileLines2=null;
     if(fileName2 != null) {
-      try{ inputFaultFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      try{ inputFaultFileLines2 = FileUtils.loadJarFile(IN_FILE_PATH + fileName2 ); }
       catch( FileNotFoundException e){ System.out.println(e.toString()); }
       catch( IOException e){ System.out.println(e.toString());}
       if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
@@ -604,7 +607,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
             // Do Gaussian dist w/ aleatory and epistemic uncertainty first
             if(minMag >= 5.8 && aleStdDev != 0.0) {
-System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties  --- mag="+mag+"; magLower="+magLower+"; minMag="+minMag+" --- "+sourceName+" --- "+fileName1);
+//System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties  --- mag="+mag+"; magLower="+magLower+"; minMag="+minMag+" --- "+sourceName+" --- "+fileName1);
 
               // get mLow and mHigh for distribution
               if (fileName2 != null) {
@@ -859,7 +862,7 @@ System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties 
 
     // read the lines of the 1st input file into a list
     ArrayList inputGridFileLines1=null;
-    try{ inputGridFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    try{ inputGridFileLines1 = FileUtils.loadJarFile(IN_FILE_PATH + fileName1 ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
     if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
@@ -867,7 +870,7 @@ System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties 
     // read second file's lines if necessary
     ArrayList inputGridFileLines2=null;
     if(fileName2 != null) {
-      try{ inputGridFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      try{ inputGridFileLines2 = FileUtils.loadJarFile(IN_FILE_PATH + fileName2 ); }
       catch( FileNotFoundException e){ System.out.println(e.toString()); }
       catch( IOException e){ System.out.println(e.toString());}
       if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
@@ -1157,7 +1160,83 @@ System.out.println("TYPE3 - SingleMag-GR as Gaussian w/ ale & epi uncertainties 
    public static void main(String[] args) {
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
+     frankCast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME, Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+     frankCast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME, Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
      frankCast.updateForecast();
+     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+     
+     double minMag = 4.0, maxMag=9.0; 
+     int num=101;
+     
+     SummedMagFreqDist charSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+     SummedMagFreqDist grSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+     SummedMagFreqDist backSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+     SummedMagFreqDist totalSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+     double duration = frankCast.getTimeSpan().getDuration();
+     
+     System.out.println("Char Sources:");
+     int totalRupPoints, pointsInsideRegion;
+     for(int i=0; i < frankCast.charFaultSources.size(); i++) {
+    	 ProbEqkSource source = (ProbEqkSource) frankCast.charFaultSources.get(i);
+    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+    		 ProbEqkRupture rupture = source.getRupture(rup);
+    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
+    		 totalRupPoints=0;
+    		 pointsInsideRegion=0;
+    		 while(it.hasNext()) {
+    			 ++totalRupPoints;
+    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+    		 }
+    		 charSummedMFD.addResampledMagRate(rupture.getMag(), (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
+    	 }
+     }
+     
+     System.out.println("GR Sources:");
+     for(int i=0; i < frankCast.grFaultSources.size(); i++) {
+    	 ProbEqkSource source = (ProbEqkSource) frankCast.grFaultSources.get(i);
+    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+    		 ProbEqkRupture rupture = source.getRupture(rup);
+    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
+    		 totalRupPoints=0;
+    		 pointsInsideRegion=0;
+    		 while(it.hasNext()) {
+    			 ++totalRupPoints;
+    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+    		 }
+    		 grSummedMFD.addResampledMagRate(rupture.getMag(),  (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
+    	 }
+     }
+     
+     System.out.println("Background Sources:");
+     for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
+    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
+    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+    		 ProbEqkRupture rupture = source.getRupture(rup);
+    		 if (region.isLocationInside(rupture.getRuptureSurface().getLocation(0, 0)))
+    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -Math.log(1-rupture.getProbability())/duration, true);
+    	 }
+     }
+ 
+     totalSummedMFD.addIncrementalMagFreqDist(charSummedMFD);
+     totalSummedMFD.addIncrementalMagFreqDist(grSummedMFD);
+     totalSummedMFD.addIncrementalMagFreqDist(backSummedMFD);
+     
+     System.out.println("Char Sources:");
+     System.out.println(charSummedMFD.getCumRateDist().toString());
+     System.out.println("GR Sources:");
+     System.out.println(grSummedMFD.getCumRateDist().toString());
+     System.out.println("Back Sources:");
+     System.out.println(backSummedMFD.getCumRateDist().toString());
+     System.out.println("Total:");
+     System.out.println(totalSummedMFD.getCumRateDist().toString());
+     
+     ArrayList funcs = new ArrayList();
+     funcs.add(charSummedMFD.getCumRateDist());
+     funcs.add(grSummedMFD.getCumRateDist());
+     funcs.add(backSummedMFD.getCumRateDist());
+     funcs.add(totalSummedMFD.getCumRateDist());
+     WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
+     
      /*
      try {
        frankCast.writeRuptureTraces();

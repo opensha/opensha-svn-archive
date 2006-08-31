@@ -2,7 +2,9 @@ package org.opensha.sha.magdist;
 
 import java.util.ArrayList;
 
+import org.opensha.calc.MomentMagCalc;
 import org.opensha.data.DataPoint2D;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.exceptions.*;
 
@@ -37,7 +39,6 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    public SummedMagFreqDist(double min,int num,double delta) throws InvalidRangeException{
      super(min,num,delta);
    }
-
 
 
 
@@ -130,6 +131,51 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
        savedMagFreqDists.add(magFreqDist);
     else if(saveAllInfo)         // if only info is desired to be saved
        savedInfoList.add(magFreqDist.getInfo());
+   }
+   
+   /**
+    * This asusmes the function passed in as a MFD, and adds the rate for each x-axis value
+    * to the closest x-axis value in this MFD (ignoring magnitudes that are above and below the
+    * range here).  If the preserveRates boolean is false, then the moment rate of each point
+    * is preserved (although the total moment rates of the two functions may differ if any
+    * endpoints were ignored).  Otherwise total rates are preserved (assuming no endpoints are
+    * ignored)
+    * @param func the new Magnitude Frequency distribution to be added
+    * @param preserveRates specifies whether to preserve rates or moment rates
+    */
+
+   public void addResampledMagFreqDist(DiscretizedFuncAPI func, boolean preserveRates) {
+
+     for (int i=0;i<func.getNum();++i) {     // add the y values from this new distribution
+    	 addResampledMagRate(func.getX(i), func.getY(i), preserveRates);
+     }
+
+    if(saveMagFreqDists)         // save this distribution in the list
+       savedMagFreqDists.add(func);
+    else if(saveAllInfo)         // if only info is desired to be saved
+       savedInfoList.add(func.getInfo());
+   }
+   
+   
+   /**
+    * This and adds the rate & mag passed in to the MFD after rounding to the nearest x-axis
+    * value (ignoring those out of range).  If the preserveRates boolean is false, then the moment 
+    * rate of the point is preserved (assuming it's in range).  Otherwise the rate of that point 
+    * is preserved.
+    * @param mag & rate to be added
+    * @param preserveRates specifies whether to preserve rates or moment rates
+    */
+
+   public void addResampledMagRate(double mag, double rate, boolean preserveRates) {
+
+     	 int index = (int)Math.round((mag-minX)/delta);
+    	 if(index<0 || index>num) return;
+    	 if(preserveRates)
+    		 super.set(index,this.getY(index)+ rate);
+    	 else {
+    		 double newRate = rate*MomentMagCalc.getMoment(mag)/MomentMagCalc.getMoment(this.getX(index));
+    		 super.set(index,this.getY(index)+ newRate);
+    	 }
    }
 
    /**
