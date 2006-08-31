@@ -12,11 +12,11 @@ import org.opensha.data.Location;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.exceptions.*;
-import java.io.FileWriter;
 import java.io.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 /**
@@ -565,7 +565,7 @@ public class ERF2GriddedSeisRatesCalc {
                                  BACK_SEIS_INCLUDE);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
@@ -576,8 +576,10 @@ public class ERF2GriddedSeisRatesCalc {
      EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
      ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.5, frankelForecast,
           region);
-     ArbitrarilyDiscretizedFunc func1 = func.getMagFreqBasedCumDist();
-     System.out.println(func1.toString());
+     SummedMagFreqDist mfd = new SummedMagFreqDist(4.0, 9.0, 101);
+     mfd.addResampledMagFreqDist(func, true);
+     //ArbitrarilyDiscretizedFunc func1 = func.getMagFreqBasedCumDist();
+     System.out.println(mfd.getCumRateDist().toString());
             /* try {
                FileWriter fw = new FileWriter("magRates_With_BG.txt");
                for(int i=0;i<size;++i){
