@@ -911,6 +911,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double[] incrRatesHighWith = {8.26, 3.09, 0.87, 0.28, 0.11, 0.0466};
 		double[] incrRates = {3.12, 1.27, 0.53, 0.176, 0.062, 0.0191};
 		double[] incrRatesLow = {2.68, 1.01, 0.39, 0.1, 0.026, 0.0};
+		
 		double[] incrRatesHigh = {3.55, 1.52, 0.67, 0.26, 0.11, 0.0446};
 		
 		if(includeAftershocks) {

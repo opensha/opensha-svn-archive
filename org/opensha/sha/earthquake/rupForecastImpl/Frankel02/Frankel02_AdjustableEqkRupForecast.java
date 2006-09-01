@@ -20,9 +20,11 @@ import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
@@ -1208,12 +1210,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      }
      
      System.out.println("Background Sources:");
+     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
      for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
     	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
     	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
     		 ProbEqkRupture rupture = source.getRupture(rup);
     		 if (region.isLocationInside(rupture.getRuptureSurface().getLocation(0, 0)))
-    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -Math.log(1-rupture.getProbability())/duration, true);
+    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -backCorr*Math.log(1-rupture.getProbability())/duration, true);
     	 }
      }
  
@@ -1231,10 +1234,22 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      System.out.println(totalSummedMFD.getCumRateDist().toString());
      
      ArrayList funcs = new ArrayList();
-     funcs.add(charSummedMFD.getCumRateDist());
-     funcs.add(grSummedMFD.getCumRateDist());
-     funcs.add(backSummedMFD.getCumRateDist());
-     funcs.add(totalSummedMFD.getCumRateDist());
+     EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
+     func.setInfo("NSHMP-2002 Total Cum MFD for all characteristic events on A & B faults");
+     funcs.add(func);
+     func = grSummedMFD.getCumRateDist();
+     func.setInfo("NSHMP-2002 Total Cum MFD for all GR events on B faults");
+     funcs.add(func);
+     func = backSummedMFD.getCumRateDist();
+     func.setInfo("NSHMP-2002 Total Cum MFD for background & C-zone events");
+     funcs.add(func);
+     func = totalSummedMFD.getCumRateDist();
+     func.setInfo("NSHMP-2002 Total Cum MFD for all events");
+     funcs.add(func);
+     EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
+     funcs.addAll(eqkRateModel2.getObsCumMFD(false));
+     funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
+     
      WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
      
      /*
