@@ -32,8 +32,8 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	private final static String PLOT_LABEL = "Segment Recurrence Intervals";
 	private ArrayList funcs;
 	
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,0,0), 2); // black
+	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+		      new Color(0,0,0), 10); // black
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(192,192,192), 2); // silver grey
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -211,11 +211,12 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 					HSSFCell cell = null;
 					String rupName ="";
 					if(row!=null)  cell = row.getCell( (short) 0);
+					
 					// segment name
 					if(cell!=null) rupName = cell.getStringCellValue().trim();
 					if(row==null || cell==null || 
 							cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || rupName.equalsIgnoreCase("")) {
-						r= r+5;
+						r= r+4;
 						GraphWindow graphWindow= new GraphWindow(new CreatePlotFromSegRecurIntvFile(funcList));
 						graphWindow.setPlotLabel(PLOT_LABEL);
 						graphWindow.plotGraphUsingPlotPreferences();
@@ -226,8 +227,11 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 						break;
 					}
 					//System.out.println(r);
-					for(int col=1; col<=16; ++col)
-						((ArbitrarilyDiscretizedFunc)funcList.get(col-1)).set((double)j, row.getCell( (short) col).getNumericCellValue());
+					for(int col=1; col<=16; ++col) {
+						cell = row.getCell( (short) col);
+						if(cell!=null)
+							((ArbitrarilyDiscretizedFunc)funcList.get(col-1)).set((double)j, cell.getNumericCellValue());
+					}
 					++r;
 				}
 				
