@@ -1266,10 +1266,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 cell.setCellValue((String)rupModelOptions.get(irup));
 								 cell.setCellStyle(cellStyle);
 								 row = sheet.createRow((short)currRow[i]++);
-								 int col=4;
+								 int col=5;
 								 
 								 // Write All Mag Areas in appropriate columns
-								 for(int j=0; j<magAreaOptions.size(); ++j, col+=slipModelOptions.size()) {
+								 for(int j=0; j<magAreaOptions.size(); ++j, col+=(slipModelOptions.size()-1)) {
 									 cell = row.createCell((short)col);
 									 cell.setCellValue((String)magAreaOptions.get(j));
 									 cell.setCellStyle(cellStyle);
@@ -1289,14 +1289,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 cell = row.createCell((short)col++);
 								 cell.setCellValue("Max Recur Intv");
 								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Characteristic Model Recur Intv");
+								 cell.setCellStyle(cellStyle);
 								 for(int j=0; j<magAreaOptions.size(); ++j) {
 									 for(int k=0; k<slipModelOptions.size(); ++k) {
-										 //String slipModel = (String)slipModelOptions.get(k);
-										 //if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+										 String slipModel = (String)slipModelOptions.get(k);
+										 if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
 											 cell = row.createCell((short)col++);
-											 cell.setCellValue((String)slipModelOptions.get(k));
+											 cell.setCellValue(slipModel);
 											 cell.setCellStyle(cellStyle);
-										 //}
+										 }
 									 }
 								 }								 
 								 // write Seg Names and mean Recur Intv
@@ -1306,7 +1309,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
-									 
+									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
+									 if(!Double.isNaN(segRecurIntv.getMeanRecurIntv(seg))) row.createCell((short)1).setCellValue((int)Math.round(segRecurIntv.getMeanRecurIntv(seg)));
+									 if(!Double.isNaN(segRecurIntv.getLowRecurIntv(seg))) row.createCell((short)2).setCellValue((int)Math.round(segRecurIntv.getLowRecurIntv(seg)));
+									 if(!Double.isNaN(segRecurIntv.getHighRecurIntv(seg))) row.createCell((short)3).setCellValue((int)Math.round(segRecurIntv.getHighRecurIntv(seg)));
+
 									 //row.createCell((short)1).setCellValue(source.getS(rup));
 								 }
 							}
@@ -1319,13 +1326,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 							 HSSFSheet sheet = wb.getSheetAt(i);
 							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 							 int rateCol;
-							 //if(!slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
-								  rateCol = 4 + imag*slipModelOptions.size() + islip;
-								 //rateCol = magCol + islip;
-								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
-									 sheet.getRow(seg+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getFinalSegRecurInt(seg));
-								 }
-							 //}
+							 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+								 rateCol = 4;
+							 } else rateCol = 4 + imag*(slipModelOptions.size()-1) + islip;
+							 //rateCol = magCol + islip;
+							 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
+								 sheet.getRow(seg+rupStartRow[i]).createCell((short)rateCol).setCellValue((int)Math.round(source.getFinalSegRecurInt(seg)));
+							 }
 						}
 					}
 			}
