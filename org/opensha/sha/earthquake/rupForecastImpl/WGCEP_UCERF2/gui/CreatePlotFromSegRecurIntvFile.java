@@ -19,15 +19,17 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
+
 /**
+ * Create the plots from segment recurrence interval file
+ * 
  * @author vipingupta
  *
  */
-public class CreatePlotFromMagRateFile implements GraphWindowAPI {
-	
+public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	private final static String X_AXIS_LABEL = "Index";
-	private final static String Y_AXIS_LABEL = "Rate";
-	private final static String PLOT_LABEL = "Rates";
+	private final static String Y_AXIS_LABEL = "Recurrence Interval";
+	private final static String PLOT_LABEL = "Segment Recurrence Intervals";
 	private ArrayList funcs;
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -64,7 +66,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		//      Color.RED, 5);
 
 	
-	public CreatePlotFromMagRateFile(ArrayList funcList) {
+	public CreatePlotFromSegRecurIntvFile(ArrayList funcList) {
 		funcs = funcList;
 	}
 	
@@ -108,6 +110,8 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	 */
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
+		 list.add(this.PLOT_CHAR1);
+		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR2);
 		 list.add(this.PLOT_CHAR3);
@@ -168,19 +172,21 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	
 	public static void main(String args[]) {
 	try {
-		String[] names = {"A-Priori Rates", "Char Rate", 
+		String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
+				"Max Recurrence Interval", 
+				"Characteristic", 
 				"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
 				"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
 				"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
 				"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 		// directory to save the PDF files. Directory will be created if it does not exist already
-		String dirName = "magRatePlots/";
+		String dirName = "segRecurPlots/";
 		File file = new File(dirName);
 		if(!file.isDirectory()) { // create directory if it does not exist already
 			file.mkdir();
 		}
 		// read the mag rates file
-		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("EqkRateModel2_v2.xls"));
+		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("SegRecurIntv.xls"));
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
 		String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
 		for(int i=0; i<wb.getNumberOfSheets(); ++i) {
@@ -194,7 +200,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 				int j=-1;
 				String modelType = models[count++];
 				ArrayList funcList = new ArrayList();
-				for(int k=0; k<14; ++k) {
+				for(int k=0; k<16; ++k) {
 					ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 					func.setName(names[k]);
 					funcList.add(func);
@@ -202,12 +208,15 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 				while(true) {
 					++j;
 					HSSFRow row = sheet.getRow(r);
-					HSSFCell cell = row.getCell( (short) 0);
-					// rup name
-					String rupName = cell.getStringCellValue().trim();
-					if(rupName.equalsIgnoreCase("Totals")) {
+					HSSFCell cell = null;
+					String rupName ="";
+					if(row!=null)  cell = row.getCell( (short) 0);
+					// segment name
+					if(cell!=null) rupName = cell.getStringCellValue().trim();
+					if(row==null || cell==null || 
+							cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || rupName.equalsIgnoreCase("")) {
 						r= r+5;
-						GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
+						GraphWindow graphWindow= new GraphWindow(new CreatePlotFromSegRecurIntvFile(funcList));
 						graphWindow.setPlotLabel(PLOT_LABEL);
 						graphWindow.plotGraphUsingPlotPreferences();
 						graphWindow.setTitle(sheetName+" "+modelType);
@@ -217,20 +226,8 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 						break;
 					}
 					//System.out.println(r);
-					((ArbitrarilyDiscretizedFunc)funcList.get(0)).set((double)j, row.getCell( (short) 1).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(1)).set((double)j, row.getCell( (short) 3).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(2)).set((double)j, row.getCell( (short) 5).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(3)).set((double)j, row.getCell( (short) 6).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(4)).set((double)j, row.getCell( (short) 7).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(5)).set((double)j, row.getCell( (short) 9).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(6)).set((double)j, row.getCell( (short) 10).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(7)).set((double)j, row.getCell( (short) 11).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(8)).set((double)j, row.getCell( (short) 13).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(9)).set((double)j, row.getCell( (short) 14).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(10)).set((double)j, row.getCell( (short) 15).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(11)).set((double)j, row.getCell( (short) 17).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(12)).set((double)j, row.getCell( (short) 18).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(13)).set((double)j, row.getCell( (short) 19).getNumericCellValue());
+					for(int col=1; col<=16; ++col)
+						((ArbitrarilyDiscretizedFunc)funcList.get(col-1)).set((double)j, row.getCell( (short) col).getNumericCellValue());
 					++r;
 				}
 				
