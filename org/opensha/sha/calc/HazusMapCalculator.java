@@ -58,6 +58,9 @@ public class HazusMapCalculator {
   private double duration;
 
   private double[] returnPd = {100, 250,500,750,1000,1500,2000,2500};
+  
+  private String hazusMapMetadata;
+  
   //private double[] returnPd = {100};
 
   /**
@@ -92,7 +95,7 @@ public class HazusMapCalculator {
 
     // get the number of data sets presently in directory
     File mainDir = new File(this.DATASETS_PATH);
-
+    this.hazusMapMetadata = mapParametersInfo;
     if(!mainDir.isDirectory()) { // if main directory does not exist
       boolean success = (new File(DATASETS_PATH)).mkdir();
       newDir=  DATASETS_PATH+"Set-1";
@@ -144,6 +147,7 @@ public class HazusMapCalculator {
                                  String mapParametersInfo) {
 
     File mainDir = new File(this.DATASETS_PATH);
+    this.hazusMapMetadata = mapParametersInfo;
 	if(!mainDir.isDirectory()){  // if main directory does not exist
 	  boolean success = (new File(DATASETS_PATH)).mkdir();
 	}
@@ -197,6 +201,8 @@ public class HazusMapCalculator {
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){
    	    fw[j] = new FileWriter(newDir+"/"+ "final_"+returnPd[j]+".dat");
+   	    fw[j].write("#Please refer to metadata.dat for parameters used to generate this Hazus data.\n");
+   	    fw[j].write("##Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1\n");
        }
        // set the maximum distance in the attenuation relationship
        // (Note- other types of IMRs may not have this method so we should really check type here)
