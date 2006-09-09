@@ -865,7 +865,7 @@ public class HazardCurveServerModeApplication extends JFrame
               if(!isEqkList){
                 int totRupture = calc.getTotRuptures();
                 int currRupture = calc.getCurrRuptures();
-                if(currRupture!=-1)
+                if(!isHazardCalcDone)
                   progressClass.updateProgress(currRupture, totRupture);
               }
               else{

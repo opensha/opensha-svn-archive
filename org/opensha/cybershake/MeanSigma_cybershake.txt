@@ -16,7 +16,7 @@ false
 5
 #
 # Fourth line specifies number N of Attenuation Relations
-1 
+2 
 # One the next N lines, identify the N attenuation 
 # relationships from the following options:
 # "AS_1997_AttenRel"
@@ -30,6 +30,7 @@ false
 # "USGS_Combined_2004_AttenRel"
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
+AS_1997_AttenRel
 Field_2000_AttenRel
 #
 # Next, first choose the number of Intensity Measure Types to consider 

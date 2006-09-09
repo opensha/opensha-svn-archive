@@ -105,7 +105,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
       jbInit();
 
       //show the bin data only if it is not  null
-      if(binDataString !=null || !binDataString.trim().equals("")){
+      if(binDataString !=null && !binDataString.trim().equals("")){
         binnedDataScrollPane = new JScrollPane();
         binnedDataPane = new JTextPane();
         //adding the text pane for the bin data
@@ -117,7 +117,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
       }
 
       //show the source list metadata only if it not null
-      if(sourceDataString !=null || !sourceDataString.trim().equals("")){
+      if(sourceDataString !=null && !sourceDataString.trim().equals("")){
         sourceListDataScrollPane = new JScrollPane();
         sourceListDataPane = new JTextPane();
         //adding the text pane for the source list data

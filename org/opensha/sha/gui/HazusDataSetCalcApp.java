@@ -464,27 +464,17 @@ public class HazusDataSetCalcApp extends JApplet
   */
  public String getParametersInfo() {
    String systemSpecificLineSeparator = org.opensha.util.SystemPropertiesUtils.getSystemLineSeparator();
-   String metadata = "IMR Param List:" + systemSpecificLineSeparator +
-       "---------------" + systemSpecificLineSeparator +
+   String metadata = 
        this.imrGuiBean.getVisibleParametersCloned().
        getParameterListMetadataString() + systemSpecificLineSeparator +
        systemSpecificLineSeparator +
-       "Region Param List: " + systemSpecificLineSeparator +
-       "----------------" + systemSpecificLineSeparator +
        sitesGuiBean.getVisibleParametersCloned().
        getParameterListMetadataString() + systemSpecificLineSeparator +
-       systemSpecificLineSeparator + "Forecast Param List: " +
        systemSpecificLineSeparator +
-       "--------------------" + systemSpecificLineSeparator +
        erfGuiBean.getERFParameterList().getParameterListMetadataString() +
        systemSpecificLineSeparator +
-       systemSpecificLineSeparator + "TimeSpan Param List: " +
-       systemSpecificLineSeparator +
-       "--------------------" + systemSpecificLineSeparator +
        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + systemSpecificLineSeparator+
-       systemSpecificLineSeparator + "Miscellaneous Metadata:"+
        systemSpecificLineSeparator +
-       "--------------------" + systemSpecificLineSeparator+
        "Maximum Site Source Distance = "+maxDistance;
 
  

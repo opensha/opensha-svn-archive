@@ -46,6 +46,7 @@ public class MedianCalc_Cybershake
     implements ParameterChangeWarningListener {
 
   protected ArrayList willsSiteClassVals;
+  protected ArrayList basinDepthVals;
   protected LocationList locList;
 
 
@@ -61,13 +62,13 @@ public class MedianCalc_Cybershake
   protected ArrayList supportedIMTs;
 
   protected double sourceCutOffDistance;
-  protected final static double MIN_DIST = 100;
+  protected final static double MIN_DIST = 200;
   protected Site siteForSourceCutOff;
 
   // site translator
   private SiteTranslator siteTranslator = new SiteTranslator();
 
-  private DecimalFormat format = new DecimalFormat("0.000##");
+  protected DecimalFormat format = new DecimalFormat("0.000##");
 
   protected String inputFileName = "MeanSigmaCalc_InputFile.txt";
   protected String dirName = "MeanSigma";
@@ -77,7 +78,7 @@ public class MedianCalc_Cybershake
     dirName = outDir ;
   }
 
-  private void parseFile() throws FileNotFoundException,IOException{
+  protected void parseFile() throws FileNotFoundException,IOException{
 
       ArrayList fileLines = null;
 
@@ -138,7 +139,7 @@ public class MedianCalc_Cybershake
    * Gets the list of locations with their Wills Site Class values
    * @param line String
    */
-  private void setSite(String line){
+  protected void setSite(String line){
     if(locList == null)
       locList = new LocationList();
     StringTokenizer st = new StringTokenizer(line);
@@ -151,6 +152,7 @@ public class MedianCalc_Cybershake
     Location loc = new Location(lat,lon);
     locList.addLocation(loc);
     String willsClass="";
+    Double basinDepth =  null;
     if(tokens == 3){
       double vs30 = Double.parseDouble(st.nextToken().trim());
       willsClass = SiteTranslator.getWillsSiteClassForVs30(vs30);
@@ -161,12 +163,21 @@ public class MedianCalc_Cybershake
       try{
         willsClass = (String) ConnectToCVM.getWillsSiteTypeFromCVM(
             siteLocListForWillsSiteClass).get(0);
+        basinDepth = (Double)ConnectToCVM.getBasinDepthFromCVM(siteLocListForWillsSiteClass).get(0);
+        
       }catch(Exception e){
         throw new RuntimeException(e);
       }
     }
     if(willsSiteClassVals == null)
       willsSiteClassVals = new ArrayList();
+    if(basinDepthVals == null)
+    	basinDepthVals = new ArrayList();
+    //System.out.println("WillsSiteClass :"+willsClass +" BasinDepth = "+basinDepth);
+    if(basinDepth == null)	
+       basinDepthVals.add(new Double(Double.NaN));
+    else
+       basinDepthVals.add(basinDepth);
     willsSiteClassVals.add(willsClass);
   }
 
@@ -174,7 +185,7 @@ public class MedianCalc_Cybershake
    * Gets the suported IMTs as String
    * @param line String
    */
-  private void setIMT(String line){
+  protected void setIMT(String line){
     if(supportedIMTs == null)
       supportedIMTs = new ArrayList();
     this.supportedIMTs.add(line.trim());
@@ -185,7 +196,7 @@ public class MedianCalc_Cybershake
    * Creates the IMR instances and adds to the list of supported IMRs
    * @param str String
    */
-  private void setIMR(String str) {
+  protected void setIMR(String str) {
     if(supportedAttenuationsList == null)
       supportedAttenuationsList = new ArrayList();
     createIMRClassInstance(str.trim());
@@ -223,8 +234,8 @@ public class MedianCalc_Cybershake
       /*attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).
           setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
       attenRel.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).
-          setValue(new Double(3.0));
-      */
+          setValue(new Double(3.0));*/
+      
 
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
@@ -250,7 +261,7 @@ public class MedianCalc_Cybershake
     }
   }
 
-  private void getERF(String line){
+  protected void getERF(String line){
     if(line.trim().equals(Frankel02_AdjustableEqkRupForecast.NAME))
       createFrankel02Forecast();
     else
@@ -287,7 +298,7 @@ public class MedianCalc_Cybershake
 
   }
 
-  private void toApplyBackGroud(boolean toApply){
+  protected void toApplyBackGroud(boolean toApply){
     if(toApply){
       if(forecast instanceof Frankel02_AdjustableEqkRupForecast){
         forecast.getAdjustableParameterList().getParameter(
@@ -319,7 +330,7 @@ public class MedianCalc_Cybershake
     }
   }
 
-  private void setRupOffset(double rupOffset){
+  protected void setRupOffset(double rupOffset){
     if (forecast instanceof Frankel02_AdjustableEqkRupForecast){
       forecast.getAdjustableParameterList().getParameter(
           Frankel02_AdjustableEqkRupForecast.
@@ -340,18 +351,18 @@ public class MedianCalc_Cybershake
    * Starting with the Mean and Sigma calculation.
    * Creates the directory to put the mean and sigma files.
    */
-  private void getMedian() {
+  protected void getMedian() {
 
     int numIMRs = supportedAttenuationsList.size();
     File file = new File(dirName);
     file.mkdirs();
-    this.generateSrcRupMetadataFile(forecast,
+    /*this.generateSrcRupMetadataFile(forecast,
                                     dirName +
                                     SystemPropertiesUtils.
                                     getSystemFileSeparator());
     this.generateRupSiteDistFile(forecast,
                                  dirName +
-                                 SystemPropertiesUtils.getSystemFileSeparator());
+                                 SystemPropertiesUtils.getSystemFileSeparator());*/
 
     int numIMTs = supportedIMTs.size();
     for (int i = 0; i < numIMRs; ++i) {
@@ -377,8 +388,8 @@ public class MedianCalc_Cybershake
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
-                                  String willsClass) {
+  protected void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+                                  String willsClass, Double basinDepth) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while (it.hasNext()) {
@@ -386,7 +397,7 @@ public class MedianCalc_Cybershake
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam, willsClass,
-          Double.NaN);
+          basinDepth.doubleValue());
 
       if (!flag) {
         String message = "cannot set the site parameter \"" + tempParam.getName() +
@@ -401,7 +412,7 @@ public class MedianCalc_Cybershake
    * Creates a location using the given locations to find source cut-off disance.
    * @return
    */
-  private void createSiteList() {
+  protected void createSiteList() {
      //gets the min lat, lon and max lat, lon from given set of locations.
     double minLon = Double.MAX_VALUE;
     double maxLon = Double.NEGATIVE_INFINITY;
@@ -439,7 +450,7 @@ public class MedianCalc_Cybershake
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  private void generateMedian(AttenuationRelationshipAPI imr,
+  protected void generateMedian(AttenuationRelationshipAPI imr,
                                           String imtLine,
                                           String dirName) {
 
@@ -487,8 +498,8 @@ public class MedianCalc_Cybershake
         double sourceDistFromSite = source.getMinDistance(siteForSourceCutOff);
         if (sourceDistFromSite > sourceCutOffDistance)
           continue;
-        if(!(source instanceof FaultRuptureSource))
-     	   continue;
+        //if(!(source instanceof FaultRuptureSource))
+     	  // continue;
 
         // get the number of ruptures for the current source
         int numRuptures = source.getNumRuptures();
@@ -497,9 +508,9 @@ public class MedianCalc_Cybershake
         for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
           EqkRupture rupture = source.getRupture(n);
-          float mag = (float)rupture.getMag();
+          //float mag = (float)rupture.getMag();
         	  //mag = (float)(1.89 + 0.69 * mag);
-          if(mag >=6.0 && mag<=7.0){
+          //if(mag >=6.0 && mag<=7.0){
         	      //rupture.setMag(mag);
 	          // set the EqkRup in the IMR
 	          imr.setEqkRupture(rupture);
@@ -510,7 +521,7 @@ public class MedianCalc_Cybershake
 	
 	          //looping over all the sites for the selected Attenuation Relationship
 	          for (int j = 0; j < numSites; ++j) {
-	            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j));
+	            setSiteParamsInIMR(imr, (String) willsSiteClassVals.get(j),(Double)basinDepthVals.get(j));
 	            //this method added to the Attenuation Relationship allows to set the
 	            //Location in the site of the attenuation relationship
 	            Location loc = (Location)locList.getLocationAt(j);
@@ -523,7 +534,7 @@ public class MedianCalc_Cybershake
 	            medianFile.write((float)rupDist+"  ");	
 	          }
 	          medianFile.write("\n");
-	        }
+	        //}
         }
       }
       medianFile.close();
@@ -538,7 +549,7 @@ public class MedianCalc_Cybershake
 	   * @param eqkRupForecast EqkRupForecastAPI
 	   * @param outFileName String
 	   */
-	  private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
+	  /*private void generateSrcRupMetadataFile(EqkRupForecastAPI eqkRupForecast,
 	                                            String dirName) {
 	    String outFileName = dirName+"src_rup_metadata.txt";
 	    // get total number of sources
@@ -583,7 +594,7 @@ public class MedianCalc_Cybershake
 	    catch (Exception e) {
 		  e.printStackTrace();
 	  }	
-    	}
+    	}*/
 
   /**
    * generate the Rupture Probability file

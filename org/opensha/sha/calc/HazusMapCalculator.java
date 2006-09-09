@@ -201,7 +201,7 @@ public class HazusMapCalculator {
        FileWriter[] fw = new FileWriter[returnPd.length];
        for(int j=0;j<returnPd.length;++j){
    	    fw[j] = new FileWriter(newDir+"/"+ "final_"+returnPd[j]+".dat");
-   	    fw[j].write("#Please refer to metadata.dat for parameters used to generate this Hazus data.\n");
+   	    fw[j].write(this.hazusMapMetadata+"\n");
    	    fw[j].write("##Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1\n");
        }
        // set the maximum distance in the attenuation relationship

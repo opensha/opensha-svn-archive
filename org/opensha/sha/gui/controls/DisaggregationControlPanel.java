@@ -361,7 +361,7 @@ public class DisaggregationControlPanel extends JFrame
    * @return int
    */
   public int getNumSourcesForDisagg(){
-    if(isDisaggregationSelected)
+    if(isDisaggregationSelected && isSourceDisaggregationSelected())
       return ((Integer)numSourcesToShow.getValue()).intValue();
     return 0;
   }
