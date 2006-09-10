@@ -813,7 +813,7 @@ public class HazardCurveServerModeApplication extends JFrame
      * calculations are performed on the user's own machine.
      */
     protected void createCalcInstance(){
-      if(calc == null && isProbCurve)
+      if(isProbCurve)
         calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
       else if(calc == null && !isProbCurve){
         try {
@@ -827,7 +827,6 @@ public class HazardCurveServerModeApplication extends JFrame
         }
       }
       if(disaggregationFlag)
-        if(disaggCalc == null)
           disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
     }
 
@@ -894,9 +893,10 @@ public class HazardCurveServerModeApplication extends JFrame
             try{
               int totalRupture = disaggCalc.getTotRuptures();
               int currRupture = disaggCalc.getCurrRuptures();
-              if(currRupture!=-1)
+              boolean calcDone = disaggCalc.done();
+              if(!calcDone)
                 disaggProgressClass.updateProgress(currRupture, totalRupture);
-              if(disaggCalc.done()){
+              if(calcDone){
                 disaggTimer.stop();
                 disaggProgressClass.dispose();
               }

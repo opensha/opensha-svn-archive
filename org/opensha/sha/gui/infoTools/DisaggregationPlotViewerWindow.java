@@ -369,7 +369,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
     try {
       save();
     }
-    catch (IOException e) {
+    catch (Exception e) {
+      e.printStackTrace();
       JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
                                     JOptionPane.OK_OPTION);
       return;

@@ -162,12 +162,15 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    * @param lat
    * @param willsClass
    * @param basinDepth
+   * ***NOTE: THIS NEEDS TO FIXED TO HANDLE THE SOFT SOIL CASE FOR CHOI AND STEWART MODEL****
+   * ****So try not to set site parameters for ALL IMR's.
    */
   private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, String willsClass, double basinDepth) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
       ParameterAPI tempParam = (ParameterAPI)it.next();
+      System.out.println("Param:"+tempParam.getName());
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
