@@ -213,10 +213,10 @@ public class STEP_main {
     	  while (seqIt.hasNext()){
     		  seqLoc = (Location)seqIt.next();
     		  if (bgLoc.equalsLocation(seqLoc)){
-    			  int nextSeqInd = seqIt.nextIndex()-1;
+    			  int nextSeqInd = seqIt.nextIndex();
     			  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(nextSeqInd);
-    			  int next_bgInd = backGroundIt.nextIndex()-1;
-    			  // will next_bgInd be the correct index??
+    			  int next_bgInd = backGroundIt.nextIndex();
+    			 
     			  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(next_bgInd);
     			  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
     			  seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;

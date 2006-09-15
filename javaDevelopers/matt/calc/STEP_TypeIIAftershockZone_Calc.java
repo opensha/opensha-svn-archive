@@ -58,7 +58,6 @@ public class STEP_TypeIIAftershockZone_Calc {
     /**
      * sort the lat long pairs and ignore the extreme values (.01 and .99)
      */
-    //  I DONT UNDERSTAND THE FOLLOWING - DOESNT round RETURN INT???
     int minInd = (int)Math.round(0.01*numEvents);
     int maxInd = (int)Math.round(0.99*numEvents);
     int numIn = (int)Math.round(.8*numEvents);

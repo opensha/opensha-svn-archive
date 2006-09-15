@@ -3,8 +3,6 @@
  */
 package javaDevelopers.matt.calc;
 
-import java.util.*;
-import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.data.region.EvenlyGriddedCircularGeographicRegion;

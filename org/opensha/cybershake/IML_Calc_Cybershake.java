@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -133,8 +134,19 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	  private void getWillsSiteAndBasinDepth(){
 		  
 		  try{
-			  willsSiteClassVals =ConnectToCVM.getWillsSiteTypeFromCVM(locList);
-			  basinDepthVals = ConnectToCVM.getBasinDepthFromCVM(locList);
+			  ArrayList willsSiteVals =ConnectToCVM.getWillsSiteTypeFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
+			  ArrayList basinVals = ConnectToCVM.getBasinDepthFromCVM(-121, -113.943965, 31.082920, 36.621696, .016667);
+			  EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(31.082920, 36.621696,
+					  -121, -113.943965,.016667);
+			  int numLocs = locList.size();
+			  basinDepthVals = new ArrayList();
+			  willsSiteClassVals = new ArrayList();
+			  for(int i=0;i<numLocs;++i){
+				  int index = region.getNearestLocationIndex(locList.getLocationAt(i));
+				  basinDepthVals.add(basinVals.get(index));
+				  willsSiteClassVals.add(willsSiteVals.get(index));
+			  }
+			  
 		  }catch(Exception e){
 		    throw new RuntimeException(e);
 		  }

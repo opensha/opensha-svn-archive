@@ -1,6 +1,8 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
+
 Mean/sigma calculator at multiple sites (for Nico, Patti, and Cybershake)
 
 Patti comments

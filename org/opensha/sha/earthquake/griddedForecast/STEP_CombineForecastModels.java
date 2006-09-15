@@ -105,12 +105,11 @@ public class STEP_CombineForecastModels
    * createSequenceElement
    */
   public void createSequenceElement() {
-	  // MUST be a better way to do this???
 	this.existSeqElement = true;
     SequenceAfterHypoMagFreqDistForecast seqElement =
         new SequenceAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.getAfterShocks());
     seqElement.set_kScaler(kScaler);
-    this.setChildParms(seqElement); // IS THIS TOO LATE TO SET THESE?!!!?
+    this.setChildParms(seqElement); 
     this.seqElement = seqElement;
   }
 
@@ -215,19 +214,19 @@ public class STEP_CombineForecastModels
 			  seqDist = this.seqElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist(); 
 			  spaDist = this.spaElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist();
 			  
-			  
-			  combDist = null;
-			  double numMags = ((genDist.getMaxX()-genDist.getMinX())/10)+1;
-			  
+			  			  
+			  int numMags = (int)((genDist.getMaxX()-genDist.getMinX())/10)+1;
+			  combDist = new IncrementalMagFreqDist(RegionDefaults.minForecastMag,RegionDefaults.maxForecastMag,
+					  numMags);
 			  for (int mLoop = 0; mLoop < numMags; mLoop++){
 				  // set the combined rate for each mag in the entire mag range
 				  combDist.set(mLoop,genDist.getIncrRate(mLoop)*genWeight +
 				  seqDist.getIncrRate(mLoop)*seqWeight + spaDist.getIncrRate(mLoop)*spaWeight); 
 			  }
 			  
-			  // is this the correct way to instantiate combHypo... or is there a more efficient way?
+
 			  HypoMagFreqDistAtLoc combHypoMagFreqDist = new HypoMagFreqDistAtLoc(combDist,genElement.getLocInGrid(gLoop));
-			  // this seems like it should be only a HypoMagFreqDistForecast but I don't know how to do that
+
 			  this.combinedForecast.setGriddedMagFreqDistAtLoc(combHypoMagFreqDist,gLoop++);
 			  
 		  }
