@@ -223,8 +223,9 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 						graphWindow.setTitle(sheetName+" "+modelType);
 						graphWindow.pack();
 						graphWindow.setVisible(true);
+						//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
 						graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
-						Thread.sleep(100);
+						//Thread.sleep(100);
 						break;
 					}
 					//System.out.println(r);
