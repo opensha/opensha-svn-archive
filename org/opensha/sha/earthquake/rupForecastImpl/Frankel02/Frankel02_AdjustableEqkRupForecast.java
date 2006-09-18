@@ -270,6 +270,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       // makeGridSources("CAmapC_OpenSHA", 1, null, 0.0);
 /**/
     makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
+/**/
     makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
     makeGridSources("WUSmapC_OpenSHA", 0.5, "WUSmapG_OpenSHA", 0.5);
     makeGridSources("brawmap_OpenSHA", 1.0, null, 0.0);
@@ -1210,7 +1211,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      }
      
      System.out.println("Background Sources:");
-     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
+//     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
+     double backCorr = 1.0;  
      for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
     	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
     	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {

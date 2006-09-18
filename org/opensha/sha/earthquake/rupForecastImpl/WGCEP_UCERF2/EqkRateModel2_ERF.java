@@ -871,7 +871,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			rate = 3.3;
 		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
-				this.MIN_MAG, 8.0, 1.0, bVal);
+				this.MIN_MAG, 8.3, 1.0, bVal);
 		gr.scaleToCumRate(0,rate);
 		EvenlyDiscretizedFunc func = gr.getCumRateDist();
 		EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(MIN_MAG, 7.5, (int)Math.round((7.5-MIN_MAG)/DELTA_MAG)+1);
@@ -1524,8 +1524,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		//erRateModel2_ERF.findMinBulge();
-		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
-		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
+		erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
+		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
