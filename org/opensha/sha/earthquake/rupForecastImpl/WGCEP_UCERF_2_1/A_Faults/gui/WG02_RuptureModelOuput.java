@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,7 +20,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.WG_02FaultSource;
 
 /**
  *This class generaates a window to show the ouput of the Rupture Model App

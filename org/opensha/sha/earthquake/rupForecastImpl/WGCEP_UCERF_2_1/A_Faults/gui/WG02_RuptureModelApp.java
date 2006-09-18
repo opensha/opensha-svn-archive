@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.gui;
 
 
 import java.awt.GridBagConstraints;
@@ -49,7 +49,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.WG_02FaultSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.WG_02FaultSource;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -66,7 +66,7 @@ import java.text.DecimalFormat;
  *
  */
 public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListener, ActionListener {
-	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/SegmentModels.txt";
+	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModels.txt";
 
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";	

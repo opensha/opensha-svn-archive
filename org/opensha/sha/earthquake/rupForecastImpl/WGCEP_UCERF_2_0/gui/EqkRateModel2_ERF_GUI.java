@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.gui;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.gui;
 
 
 import java.awt.Color;
@@ -17,7 +17,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphWindow;

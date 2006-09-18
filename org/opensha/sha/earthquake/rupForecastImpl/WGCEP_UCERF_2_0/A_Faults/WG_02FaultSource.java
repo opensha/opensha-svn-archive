@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults;
 
 import java.util.ArrayList;
 import java.util.Iterator;

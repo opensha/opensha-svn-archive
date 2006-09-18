@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,9 +15,9 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.data.A_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;

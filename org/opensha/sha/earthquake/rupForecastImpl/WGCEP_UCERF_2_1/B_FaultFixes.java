@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -14,7 +14,7 @@ import org.opensha.util.FileUtils;
  *
  */
 public class B_FaultFixes {
-	private final static String IN_FILE = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF2/data/B_FaultFixes.txt";
+	private final static String IN_FILE = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultFixes.txt";
 	private final static String DELIMITER=",";
 	private ArrayList sectionNames;
 	private ArrayList rates;
