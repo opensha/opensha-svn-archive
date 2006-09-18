@@ -86,7 +86,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)

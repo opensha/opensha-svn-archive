@@ -1524,8 +1524,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		//erRateModel2_ERF.findMinBulge();
-		erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
-		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
+		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
+		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();

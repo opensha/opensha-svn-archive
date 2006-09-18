@@ -88,7 +88,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -224,6 +224,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 						graphWindow.pack();
 						graphWindow.setVisible(true);
 						graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
+						Thread.sleep(100);
 						break;
 					}
 					//System.out.println(r);
