@@ -24,7 +24,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.EqkRateModel_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF2.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
