@@ -126,6 +126,46 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 	    Location loc = new Location(lat,lon);
 	    locList.addLocation(loc);
 	  }	
+
+	  
+	  /**
+	   * Gets the list of locations with their Wills Site Class values
+	   * @param line String
+	   */
+	  /*private void getWillsSiteAndBasinDepth(){
+
+
+		  if(willsSiteClassVals == null)
+		     willsSiteClassVals = new ArrayList();
+		  if(basinDepthVals == null)
+		     basinDepthVals = new ArrayList();
+		  String willsClass="";
+		  Double basinDepth =  null;
+		    
+		      
+	      int numLocations = locList.size();
+	      for(int i=0;i<numLocations;++i){
+	    	  LocationList siteLocListForWillsSiteClass = new LocationList();
+		      siteLocListForWillsSiteClass.addLocation(locList.getLocationAt(i));
+		      try{
+		        willsClass = (String) ConnectToCVM.getWillsSiteTypeFromCVM(
+		            siteLocListForWillsSiteClass).get(0);
+		        if(willsClass.equals("NA"))
+		        	willsClass = SiteTranslator.WILLS_DE;
+		        basinDepth = (Double)ConnectToCVM.getBasinDepthFromCVM(siteLocListForWillsSiteClass).get(0);
+		        
+		      }catch(Exception e){
+		        e.printStackTrace();
+		      }
+		       //System.out.println("WillsSiteClass :"+willsClass +" BasinDepth = "+basinDepth);
+		      if(basinDepth == null)	
+		        basinDepthVals.add(new Double(Double.NaN));
+		      else
+		         basinDepthVals.add(basinDepth);
+		       willsSiteClassVals.add(willsClass);
+	     }
+	  }*/
+	  
 	  
 	  /**
 	   * Gets the Wills Site Class Vals and Basin Depth values for the Locations in file
@@ -144,7 +184,10 @@ public class IML_Calc_Cybershake extends MedianCalc_Cybershake {
 			  for(int i=0;i<numLocs;++i){
 				  int index = region.getNearestLocationIndex(locList.getLocationAt(i));
 				  basinDepthVals.add(basinVals.get(index));
-				  willsSiteClassVals.add(willsSiteVals.get(index));
+				  String willsVal = (String)willsSiteVals.get(index);
+				  if(willsVal.equals("NA"))
+					  willsVal = SiteTranslator.WILLS_DE;
+				  willsSiteClassVals.add(willsVal);
 			  }
 			  
 		  }catch(Exception e){

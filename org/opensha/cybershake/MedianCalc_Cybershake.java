@@ -163,6 +163,8 @@ public class MedianCalc_Cybershake
       try{
         willsClass = (String) ConnectToCVM.getWillsSiteTypeFromCVM(
             siteLocListForWillsSiteClass).get(0);
+        if(willsClass.equals("NA"))
+        	willsClass = SiteTranslator.WILLS_DE;
         basinDepth = (Double)ConnectToCVM.getBasinDepthFromCVM(siteLocListForWillsSiteClass).get(0);
         
       }catch(Exception e){
