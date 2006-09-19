@@ -3,9 +3,11 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.opensha.calc.RelativeLocation;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
@@ -13,6 +15,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
+import org.opensha.sha.fault.FaultTrace;
 
 /**
  * @author vipingupta
@@ -153,15 +156,43 @@ public class B_FaultsFetcher {
 		// def model ids from 42-49, 61 - 68
 		B_FaultsFetcher b = new B_FaultsFetcher();
 		ArrayList bFaults = b.getFaultSegmentDataList(42, true);
+		ArrayList<FaultSectionPrefData> preFaultSectionDataList = new ArrayList<FaultSectionPrefData>();
+		
 		for(int i=0; i<bFaults.size(); ++i) {
 			FaultSegmentData faultSegmentData = (FaultSegmentData)bFaults.get(i);
-			ArrayList faultSectionsList = faultSegmentData.getPrefFaultSectionDataList();
-			System.out.print(faultSegmentData.getFaultName()+"\t"+faultSegmentData.getNumSegments()+
-					"\t"+faultSectionsList.size()+"\t");
-			for(int k=0; k<faultSectionsList.size(); ++k)
-				System.out.print(((FaultSectionPrefData)faultSectionsList.get(k)).getSectionId()+",");
-			System.out.println("");
+			//ArrayList faultSectionsList = faultSegmentData.getPrefFaultSectionDataList();
+			preFaultSectionDataList.addAll(faultSegmentData.getPrefFaultSectionDataList());
+			//System.out.print(faultSegmentData.getFaultName()+"\t"+faultSegmentData.getNumSegments()+
+			//		"\t"+faultSectionsList.size()+"\t");
+			//for(int k=0; k<faultSectionsList.size(); ++k)
+				//System.out.print(((FaultSectionPrefData)faultSectionsList.get(k)).getSectionId()+",");
+			//System.out.println("");
 		}
-		System.out.println("Number of B faults="+bFaults.size());
+		
+		try {
+			FileWriter fw = new FileWriter("B_FaultDistances.txt");
+			double minDist, distance;
+			for(int i=0; i<preFaultSectionDataList.size(); ++i) {
+				FaultTrace faultTrace1 = preFaultSectionDataList.get(i).getFaultTrace();
+				
+				for(int j=i+1; j<preFaultSectionDataList.size(); ++j) {
+					FaultTrace faultTrace2 = preFaultSectionDataList.get(j).getFaultTrace();
+					minDist = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+					if(distance<minDist) minDist = distance;
+					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+					if(distance<minDist) minDist = distance;
+					distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+					if(distance<minDist) minDist = distance;
+					fw.write(preFaultSectionDataList.get(i).getSectionName()+";"+
+							preFaultSectionDataList.get(j).getSectionName()+";"+
+							minDist+"\n");
+				}
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		//System.out.println("Number of B faults="+bFaults.size());
 	}
 }
