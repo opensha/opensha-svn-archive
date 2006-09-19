@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
@@ -22,8 +23,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
  *
  */
 public class DeformationModelFileWriter implements Runnable {
-	private  PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
-	private DeformationModelDB_DAO deformationModelDAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
@@ -36,7 +36,7 @@ public class DeformationModelFileWriter implements Runnable {
 	public  void writeForDeformationModel(int deformationModelId, File file) {
 		try {
 			currSection=0;
-			ArrayList faultSectionIds = deformationModelDAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+			ArrayList faultSectionIds = deformationModelPrefDAO.getFaultSectionIdsForDeformationModel(deformationModelId);
 			totSections = faultSectionIds.size();
 			// make JProgressBar
 			progressBar = new CalcProgressBar("Writing to file", "Writing Fault sections");
@@ -81,11 +81,7 @@ public class DeformationModelFileWriter implements Runnable {
 	 */
 	public  void writeForDeformationModel(int deformationModelId, int faultSectionId, FileWriter fw) {
 		try{
-			FaultSectionPrefData faultSectionPrefData = faultSectionPrefDAO.getFaultSectionPrefData(faultSectionId);
-			EstimateInstances slipRateEst = deformationModelDAO.getSlipRateEstimate(deformationModelId, faultSectionId);
-			faultSectionPrefData.setAveLongTermSlipRate(FaultSectionData.getPrefForEstimate(slipRateEst));
-			EstimateInstances aseismicSlipEst = deformationModelDAO.getAseismicSlipEstimate(deformationModelId, faultSectionId);
-			faultSectionPrefData.setAseismicSlipFactor(FaultSectionData.getPrefForEstimate(aseismicSlipEst));
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
 			writeForDeformationModel(faultSectionPrefData, fw);
 		}catch(Exception e) {
 			e.printStackTrace();

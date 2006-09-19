@@ -43,6 +43,7 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
@@ -128,7 +129,7 @@ public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListe
 	
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	private DeformationModelDB_DAO deformationModelDB_DAO = new DeformationModelDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
 	
 	private JButton calcButton  = new JButton("Calculate");
 	private final static int W = 800;
@@ -292,11 +293,7 @@ public class WG02_RuptureModelApp extends JFrame implements ParameterChangeListe
 			// iterate over all sections in a segment
 			for(int j=0; j<segment.size(); ++j) {
 				int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
-				FaultSectionData faultSectionData = this.faultSectionDAO.getFaultSection(faultSectionId);
-				// get slip rate and aseimic slip factor from deformation model
-				faultSectionData.setAseismicSlipFactorEst(this.deformationModelDB_DAO.getAseismicSlipEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
-				faultSectionData.setAveLongTermSlipRateEst(this.deformationModelDB_DAO.getSlipRateEstimate(selectdDeformationModelId, faultSectionData.getSectionId()));
-				FaultSectionPrefData faultSectionPrefData = faultSectionData.getFaultSectionPrefData();
+				FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(selectdDeformationModelId, faultSectionId);
 				double length = faultSectionPrefData.getLength();
 				double ddw = faultSectionPrefData.getDownDipWidth();
 				double area = length*ddw;
