@@ -163,7 +163,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		
 		getRupAreas();
 		
-		// get rates on each segment implied by a-priori rates
+		// get rates on each segment implied by a-priori rates (segRateFromApriori[*])
 		// (which might be different from what's in FaultSegmentData if orig not rate balanced) 
 		// this one is used to compute char mags
 		computeSegRatesFromAprioriRates();
@@ -188,8 +188,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		getSegSlipInRupMatrix();
 		
 		// now solve the inverse problem
-		double[][] C = new double[num_seg+num_rup][num_rup];
-		double[] d = new double[num_seg+num_rup];  // the data vector
+		double[][] C = new double[2*num_seg+num_rup][num_rup];
+		double[] d = new double[2*num_seg+num_rup];  // the data vector
 		double wt = 1000;
 		// first fill in the slip-rate constraints with wt
 		// I'm dividing by wt on second set because only this approach converges in Matlab
@@ -203,6 +203,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			d[rup+num_seg] = aPrioriRupRates[rup].getValue()/wt;
 			C[rup+num_seg][rup]=1.0/wt;
 		}
+		// now fill in the segment recurrence interval constraints
+		for(int row = 0; row < num_seg; row ++) {
+			d[row+num_seg+num_rup] = segRateFromApriori[row];
+			for(int col=0; col<num_rup; col++)
+				C[row+num_seg+num_rup][col] = rupInSeg[row][col];
+		}
+		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab
 			StringTokenizer st = new StringTokenizer(segmentData.getFaultName());

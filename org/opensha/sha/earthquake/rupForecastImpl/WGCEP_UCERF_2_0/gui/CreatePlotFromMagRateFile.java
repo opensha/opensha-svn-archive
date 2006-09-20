@@ -174,13 +174,13 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 				"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
 				"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 		// directory to save the PDF files. Directory will be created if it does not exist already
-		String dirName = "magRatePlots/";
+		String dirName = "A_FaultRupRatesPlots_2_0/";
 		File file = new File(dirName);
 		if(!file.isDirectory()) { // create directory if it does not exist already
 			file.mkdir();
 		}
 		// read the mag rates file
-		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("EqkRateModel2_v2.xls"));
+		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("A_FaultRupRates_2_0.xls"));
 		HSSFWorkbook wb = new HSSFWorkbook(fs);
 		String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
 		for(int i=0; i<wb.getNumberOfSheets(); ++i) {

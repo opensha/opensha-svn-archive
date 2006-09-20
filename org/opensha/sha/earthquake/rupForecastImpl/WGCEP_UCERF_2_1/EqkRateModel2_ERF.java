@@ -641,7 +641,31 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		return allSources.size();
 	}
 	
-	
+	/**
+	 * Temproray test
+	 *
+	 */
+	private void  makeBackgroundGridSources_TEST() {
+		
+		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
+		
+		// get the total rate of M³5 events
+		double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
+		double bValue = ((Double)this.regionB_ValParam.getValue()).doubleValue();
+		double magMax = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
+		
+		// now subtract the A, B, & C fault/zone rates
+		//rate -= this.bFaultCharSummedMFD.getTotalIncrRate();
+		//rate -= this.bFaultGR_SummedMFD.getTotalIncrRate();
+		//	rate -= this.aFaultSummedMFD.getTotalIncrRate();
+		double totMoRateBC = this.bFaultCharSummedMFD.getTotalMomentRate()+
+				this.bFaultGR_SummedMFD.getTotalMomentRate()+this.cZoneSummedMFD.getTotalMomentRate();
+		double totRateA = this.aFaultSummedMFD.getTotalIncrRate();
+		double totBackRate = rate-totRateA;
+		double totBackMoRate = totMoRateBC;
+		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totBackgroundMFD.setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+	}
 
 	
 	private void  makeBackgroundGridSources() {
@@ -947,10 +971,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
 		return this.bFaultCharSummedMFD;
+		//return new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	}
 	
 	public IncrementalMagFreqDist getTotal_B_FaultsGR_MFD() {
-		return this.bFaultGR_SummedMFD;  
+		return this.bFaultGR_SummedMFD;
+		//return new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	} 
 	
 	public IncrementalMagFreqDist getTotal_A_FaultsMFD() {
@@ -959,10 +985,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public IncrementalMagFreqDist getTotal_BackgroundMFD() {
 		return this.totBackgroundMFD;
+		
 	}
 	
 	public IncrementalMagFreqDist getTotal_C_ZoneMFD() {
 		return this.cZoneSummedMFD;
+		//return new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	}
 	
 	public IncrementalMagFreqDist getTotalMFD() {
@@ -1524,8 +1552,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		//erRateModel2_ERF.findMinBulge();
-		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("EqkRateModel2_v2.xls");
-		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("SegRecurIntv.xls");
+		erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
+		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
