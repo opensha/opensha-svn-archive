@@ -1261,7 +1261,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	private void generateExcelSheetForSegRecurIntv(String outputFileName) {
+	public void generateExcelSheetForSegRecurIntv(String outputFileName) {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
@@ -1398,7 +1398,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	private void generateExcelSheetsForRupMagRates(String outputFileName) {
+	public void generateExcelSheetsForRupMagRates(String outputFileName) {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
