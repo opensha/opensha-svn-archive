@@ -1,0 +1,81 @@
+# This file contains B fault connections. The line with "-" is the Connection name. 
+# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. 
+# 
+#  Examples:
+# - Test Model
+# 2,7, 51
+# 3, 35, 1, 2
+# The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
+# Segment 1 has fault section Ids 2,7 and 15 
+# Segment 2 has fault sections 3, 35, 1 and 2
+- Salmon
+17
+16
+- Green Valley
+3
+1
+71
+72
+24
+- Palos Verdes
+109
+121
+- Death Valley
+45
+46
+245
+246
+- Greenville
+6
+7
+- Great Valley First
+131
+133
+132
+135
+135
+- Great Valley Second
+136
+137
+151
+138
+139
+140
+142
+141
+- Santa Ynez
+77
+79
+- Landers
+86
+92
+95
+- Sierra Madre
+227
+113
+114
+125
+- Raymond
+152
+108
+226
+220
+- Northridge
+130
+116
+- Newport Inglewood
+123
+122
+235
+-Hunter Mountain
+50
+244
+- Frontal
+82
+83
+- Pitas Point
+212
+215
+- Mono Lake
+39
+40

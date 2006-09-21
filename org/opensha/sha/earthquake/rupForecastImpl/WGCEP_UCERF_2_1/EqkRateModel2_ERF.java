@@ -256,7 +256,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-	private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher();
+	private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_1.txt");
 	private ArrayList aFaultSources, bFaultSources;
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 

@@ -3,6 +3,9 @@
  */
 package org.opensha.refFaultParamDb.vo;
 
+import java.util.ArrayList;
+
+import org.opensha.sha.fault.EqualLengthSubSectionsTrace;
 import org.opensha.sha.fault.FaultTrace;
 
 /**
@@ -26,7 +29,21 @@ public class FaultSectionPrefData {
 	public String getShortName() {
 		return this.shortName;
 	}
-	  
+	 
+	public void setFaultSectionPrefData(FaultSectionPrefData faultSectionPrefData) {
+		sectionId = faultSectionPrefData.getSectionId();
+		sectionName= faultSectionPrefData.getSectionName();
+		shortName= faultSectionPrefData.getShortName();
+		aveLongTermSlipRate= faultSectionPrefData.getAveLongTermSlipRate();
+		aveDip= faultSectionPrefData.getAveDip();
+		aveRake= faultSectionPrefData.getAveRake();
+		aveUpperDepth= faultSectionPrefData.getAveUpperDepth();
+		aveLowerDepth= faultSectionPrefData.getAveLowerDepth();
+		aseismicSlipFactor= faultSectionPrefData.getAseismicSlipFactor();
+		faultTrace= faultSectionPrefData.getFaultTrace();
+		dipDirection= faultSectionPrefData.getDipDirection();
+	}
+	
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
@@ -96,6 +113,25 @@ public class FaultSectionPrefData {
 	}
 	public double getDownDipWidth() {
 		return (getAveLowerDepth()-getAveUpperDepth())/Math.sin(getAveDip()*Math.PI/ 180);
+	}
+	
+	/**
+	 * Get a list of all sub sections
+	 * 
+	 * @param maxSubSectionLen
+	 * @return
+	 */
+	public ArrayList getSubSectionsList(double maxSubSectionLen) {
+		EqualLengthSubSectionsTrace equalLengthSubsTrace = new EqualLengthSubSectionsTrace(this.faultTrace, maxSubSectionLen);
+		int numSubSections = equalLengthSubsTrace.getNumSubSections();
+		ArrayList<FaultSectionPrefData> subSectionList = new ArrayList<FaultSectionPrefData>();
+		for(int i=0; i<numSubSections; ++i) {
+			FaultSectionPrefData subSection = new FaultSectionPrefData();
+			subSection.setFaultSectionPrefData(this);
+			subSection.setFaultTrace(equalLengthSubsTrace.getSubSectionTrace(i));
+			subSectionList.add(subSection);
+		}
+		return subSectionList;
 	}
 
 }

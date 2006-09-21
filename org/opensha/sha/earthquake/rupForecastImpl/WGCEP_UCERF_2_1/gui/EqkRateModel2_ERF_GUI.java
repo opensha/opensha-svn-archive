@@ -11,7 +11,11 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -41,6 +45,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private final static int W = 300;
 	private final static int H = 800;
+	private  JMenuBar menuBar = new JMenuBar();
+	private JMenu analysisMenu = new JMenu("Further Analysis");
+	private JMenuItem rupRatesMenu = new JMenuItem("A-Fault Rup Rates");
+	private JMenuItem segRecurIntvMenu = new JMenuItem("A-Fault Segment Recur Interval");
+	private final static String A_FAULT_RUP_RATES_FILENAME = "A_FaultRupRates_2_1.xls";
+	private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
 	
 	public static void main(String[] args) {
 		new EqkRateModel2_ERF_GUI();
@@ -85,7 +95,62 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		container.add(this.calcButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
+		 menuBar.add(analysisMenu);
+		 analysisMenu.add(rupRatesMenu);
+		 analysisMenu.add(segRecurIntvMenu);
+		 setJMenuBar(menuBar);	
+		 // when Rup rates menu is selected
+		 rupRatesMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 rupRatesMenu_actionPerformed(e);
+			 }
+		 });
+		 // when segment recur Interval menu is selected
+		 segRecurIntvMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 segRecurIntvMenu_actionPerformed(e);
+			 }
+		 });
 	}
+	
+	 /**
+	   * Rup Rates for A-Faults
+	   *
+	   * @param actionEvent ActionEvent
+	   */
+	  private  void rupRatesMenu_actionPerformed(ActionEvent actionEvent) {
+		  String dirName = getDirectoryName();
+		  if(dirName==null) return;
+		  String excelSheetName = dirName+"/"+A_FAULT_RUP_RATES_FILENAME;
+		  this.eqkRateModelERF.generateExcelSheetsForRupMagRates(excelSheetName);
+		  CreatePlotFromMagRateFile.createPlots(dirName, excelSheetName);
+	  }
+	  
+	  /**
+	   * Segment recurrece interval for A-Faults
+	   * 
+	   * @param actionEvent
+	   */
+	  private void segRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
+		  String dirName = getDirectoryName();
+		  if(dirName==null) return;
+		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
+		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
+		  CreatePlotFromSegRecurIntvFile.createPlots(dirName, excelSheetName);
+	  }
+	  
+	  
+	  private String getDirectoryName() {
+		String dirName = null;
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Choose directory to save files");
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+	    	dirName = fileChooser.getSelectedFile().getAbsolutePath();
+	    }
+		return dirName;
+	  }
+	  
 	
 	/**
 	 * When Calc button is clicked

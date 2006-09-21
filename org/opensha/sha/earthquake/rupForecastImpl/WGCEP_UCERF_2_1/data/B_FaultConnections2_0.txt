@@ -1,0 +1,17 @@
+# This file contains B fault connections. The line with "-" is the Connection name. 
+# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. 
+# 
+#  Examples:
+# - Test Model
+# 2,7, 51
+# 3, 35, 1, 2
+# The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
+# Segment 1 has fault section Ids 2,7 and 15 
+# Segment 2 has fault sections 3, 35, 1 and 2
+- Green Valley
+1
+71
+3
+- Greenville
+6
+7

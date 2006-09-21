@@ -165,80 +165,88 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 	
+	/**
+	 * It creates plots and saves PDFs in A_FaultRupRatesPlots_2_1 subdirectory in masterDirectory
+	 * @param masterDirName MasterDirectoty where A_FaultRupRatesPlots_2_1 will be created
+	 * @param excelSheetName Absolute pathname to excel file
+	 */
+	public static void createPlots(String masterDirName, String excelSheetName) {
+		try {
+			String[] names = {"A-Priori Rates", "Char Rate", 
+					"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
+					"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
+					"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
+					"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
+			// directory to save the PDF files. Directory will be created if it does not exist already
+			String dirName = masterDirName+"/A_FaultRupRatesPlots_2_1/";
+			File file = new File(dirName);
+			if(!file.isDirectory()) { // create directory if it does not exist already
+				file.mkdir();
+			}
+			// read the mag rates file
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelSheetName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
+			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+				HSSFSheet sheet = wb.getSheetAt(i);
+				String sheetName = wb.getSheetName(i);
+				int lastIndex = sheet.getLastRowNum();
+				int r = 3;
+				int count=0;
+				// read data for each row
+				for(; r<=lastIndex; ++r) {
+					int j=-1;
+					String modelType = models[count++];
+					ArrayList funcList = new ArrayList();
+					for(int k=0; k<14; ++k) {
+						ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+						func.setName(names[k]);
+						funcList.add(func);
+					}
+					while(true) {
+						++j;
+						HSSFRow row = sheet.getRow(r);
+						HSSFCell cell = row.getCell( (short) 0);
+						// rup name
+						String rupName = cell.getStringCellValue().trim();
+						if(rupName.equalsIgnoreCase("Totals")) {
+							r= r+5;
+							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
+							graphWindow.setPlotLabel(PLOT_LABEL);
+							graphWindow.plotGraphUsingPlotPreferences();
+							graphWindow.setTitle(sheetName+" "+modelType);
+							graphWindow.pack();
+							graphWindow.setVisible(true);
+							graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
+							break;
+						}
+						//System.out.println(r);
+						((ArbitrarilyDiscretizedFunc)funcList.get(0)).set((double)j, row.getCell( (short) 1).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(1)).set((double)j, row.getCell( (short) 3).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(2)).set((double)j, row.getCell( (short) 5).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(3)).set((double)j, row.getCell( (short) 6).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(4)).set((double)j, row.getCell( (short) 7).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(5)).set((double)j, row.getCell( (short) 9).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(6)).set((double)j, row.getCell( (short) 10).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(7)).set((double)j, row.getCell( (short) 11).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(8)).set((double)j, row.getCell( (short) 13).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(9)).set((double)j, row.getCell( (short) 14).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(10)).set((double)j, row.getCell( (short) 15).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(11)).set((double)j, row.getCell( (short) 17).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(12)).set((double)j, row.getCell( (short) 18).getNumericCellValue());
+						((ArbitrarilyDiscretizedFunc)funcList.get(13)).set((double)j, row.getCell( (short) 19).getNumericCellValue());
+						++r;
+					}
+					
+					
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static void main(String args[]) {
-	try {
-		String[] names = {"A-Priori Rates", "Char Rate", 
-				"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
-				"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
-				"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
-				"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
-		// directory to save the PDF files. Directory will be created if it does not exist already
-		String dirName = "A_FaultRupRatesPlots_2_1/";
-		File file = new File(dirName);
-		if(!file.isDirectory()) { // create directory if it does not exist already
-			file.mkdir();
-		}
-		// read the mag rates file
-		POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("A_FaultRupRates_2_1.xls"));
-		HSSFWorkbook wb = new HSSFWorkbook(fs);
-		String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
-		for(int i=0; i<wb.getNumberOfSheets(); ++i) {
-			HSSFSheet sheet = wb.getSheetAt(i);
-			String sheetName = wb.getSheetName(i);
-			int lastIndex = sheet.getLastRowNum();
-			int r = 3;
-			int count=0;
-			// read data for each row
-			for(; r<=lastIndex; ++r) {
-				int j=-1;
-				String modelType = models[count++];
-				ArrayList funcList = new ArrayList();
-				for(int k=0; k<14; ++k) {
-					ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-					func.setName(names[k]);
-					funcList.add(func);
-				}
-				while(true) {
-					++j;
-					HSSFRow row = sheet.getRow(r);
-					HSSFCell cell = row.getCell( (short) 0);
-					// rup name
-					String rupName = cell.getStringCellValue().trim();
-					if(rupName.equalsIgnoreCase("Totals")) {
-						r= r+5;
-						GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(funcList));
-						graphWindow.setPlotLabel(PLOT_LABEL);
-						graphWindow.plotGraphUsingPlotPreferences();
-						graphWindow.setTitle(sheetName+" "+modelType);
-						graphWindow.pack();
-						graphWindow.setVisible(true);
-						//graphWindow.saveAsPDF(dirName+sheetName+" "+modelType+".pdf");
-						break;
-					}
-					//System.out.println(r);
-					((ArbitrarilyDiscretizedFunc)funcList.get(0)).set((double)j, row.getCell( (short) 1).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(1)).set((double)j, row.getCell( (short) 3).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(2)).set((double)j, row.getCell( (short) 5).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(3)).set((double)j, row.getCell( (short) 6).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(4)).set((double)j, row.getCell( (short) 7).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(5)).set((double)j, row.getCell( (short) 9).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(6)).set((double)j, row.getCell( (short) 10).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(7)).set((double)j, row.getCell( (short) 11).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(8)).set((double)j, row.getCell( (short) 13).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(9)).set((double)j, row.getCell( (short) 14).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(10)).set((double)j, row.getCell( (short) 15).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(11)).set((double)j, row.getCell( (short) 17).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(12)).set((double)j, row.getCell( (short) 18).getNumericCellValue());
-					((ArbitrarilyDiscretizedFunc)funcList.get(13)).set((double)j, row.getCell( (short) 19).getNumericCellValue());
-					++r;
-				}
-				
-				
-			}
-		}
-	}catch(Exception e) {
-		e.printStackTrace();
-	}
+	
 	}
 }
