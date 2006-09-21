@@ -639,7 +639,7 @@ public class A_FaultSourceApp extends JFrame implements ParameterChangeListener,
 		makeAPrioriRupRatesParams(shortRupNames, longRupNames);
 		ValueWeight[] aprioriRupRates = getAprioriRupRates(selectedSegmentModel);
 		A_FaultSegmentedSource segmentedFaultSource = new A_FaultSegmentedSource(segmetedFaultData, this.getMagAreaRelationship(),
-				A_FaultSegmentedSource.CHAR_SLIP_MODEL, aprioriRupRates, 0.12, 2, 0.0, 0.0);
+				A_FaultSegmentedSource.CHAR_SLIP_MODEL, aprioriRupRates, 0.12, 2, 0.0, 0.0, true);
 		this.rupTableModel.setFaultSegmentedSource(segmentedFaultSource);
 		rupTableModel.fireTableDataChanged();
 	}

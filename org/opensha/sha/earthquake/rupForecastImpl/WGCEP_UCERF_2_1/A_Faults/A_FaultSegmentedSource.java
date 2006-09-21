@@ -70,6 +70,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
 	private double aveSlipCorr;
+	
+	private boolean constrainMRIs;
 
 
 	
@@ -130,7 +132,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
-			double magTruncLevel, double moRateReduction, double meanMagCorrection) {
+			double magTruncLevel, double moRateReduction, double meanMagCorrection,
+			boolean constrainMRIs) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
@@ -140,6 +143,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		this.moRateReduction = moRateReduction;
 		this.isPoissonian = true;
 		this.meanMagCorrection = meanMagCorrection;
+		this.constrainMRIs = constrainMRIs;
 		
 		num_seg = segmentData.getNumSegments();
 		
@@ -187,9 +191,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// compute matrix of Dsr (slip on each segment in each rupture)
 		getSegSlipInRupMatrix();
 		
+		
 		// now solve the inverse problem
-		double[][] C = new double[2*num_seg+num_rup][num_rup];
-		double[] d = new double[2*num_seg+num_rup];  // the data vector
+		int totNumRows;
+		if(constrainMRIs)
+			totNumRows = 2*num_seg+num_rup;
+		else
+			totNumRows = num_seg+num_rup;
+		double[][] C = new double[totNumRows][num_rup];
+		double[] d = new double[totNumRows];  // the data vector
 		double wt = 1000;
 		// first fill in the slip-rate constraints with wt
 		// I'm dividing by wt on second set because only this approach converges in Matlab
@@ -203,12 +213,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			d[rup+num_seg] = aPrioriRupRates[rup].getValue()/wt;
 			C[rup+num_seg][rup]=1.0/wt;
 		}
-		// now fill in the segment recurrence interval constraints
-		for(int row = 0; row < num_seg; row ++) {
-			d[row+num_seg+num_rup] = segRateFromApriori[row];
-			for(int col=0; col<num_rup; col++)
-				C[row+num_seg+num_rup][col] = rupInSeg[row][col];
-		}
+		// now fill in the segment recurrence interval constraints if requested
+		if(constrainMRIs)
+			for(int row = 0; row < num_seg; row ++) {
+				d[row+num_seg+num_rup] = segRateFromApriori[row];
+				for(int col=0; col<num_rup; col++)
+					C[row+num_seg+num_rup][col] = rupInSeg[row][col];
+			}
 		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab

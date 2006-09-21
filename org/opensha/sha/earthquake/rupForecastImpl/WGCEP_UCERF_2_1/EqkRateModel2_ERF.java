@@ -176,6 +176,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces slip rate";
 	private BooleanParameter aseisFactorInterParam; 
 	
+	
+	// constrain A-fault segment rates boolean
+	public final static String CONSTRAIN_A_SEG_RATES_PARAM_NAME = "Constrain Segment Rates?";
+	private final static String CONSTRAIN_A_SEG_RATES_PARAM_INFO = "Constrain A-fault segments rates (add equations to inversion)";
+	private BooleanParameter constrainA_SegRatesParam; 
+
 	//	 rupture model type
 	public final static String RUP_MODEL_TYPE_NAME = "A-Fault Solution Type";
 	public final static String RUP_MODEL_TYPE_INFO = "The type of solution to apply for all A-Fault Sources";
@@ -331,6 +337,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
 		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		
+		// constrainA_SegRatesParam
+		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
+		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
+		
 		//		 make objects of Mag Area Relationships
 		magAreaRelationships = new ArrayList();
 		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
@@ -408,6 +418,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(rupModelParam);
+		adjustableParams.addParameter(constrainA_SegRatesParam);
 		adjustableParams.addParameter(slipModelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
@@ -743,6 +754,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	private void mkA_FaultSegmentedSources() {
+		boolean constrainA_SegRates = ((Boolean)constrainA_SegRatesParam.getValue()).booleanValue();
 		double magSigma  = ((Double)this.magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
 		String rupModel = (String)this.rupModelParam.getValue();
@@ -760,7 +772,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
 			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
-					magTruncLevel, moRateReduction, meanMagCorrection);
+					magTruncLevel, moRateReduction, meanMagCorrection, constrainA_SegRates);
 			aFaultSources.add(aFaultSource);
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 		}
