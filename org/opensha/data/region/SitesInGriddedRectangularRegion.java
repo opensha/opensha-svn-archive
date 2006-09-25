@@ -170,15 +170,17 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
          System.out.println(site.getLocation().toString()+"\t"+willsSiteClassList.get(index)+
                             "\t\t"+((Double)basinDepth.get(index)).doubleValue());
        }
-       while(it.hasNext()){
+       boolean setSite = true;
+       while(it.hasNext() && setSite){
          ParameterAPI tempParam = (ParameterAPI)it.next();
-
-         //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-         boolean flag = siteTranslator.setParameterValue(tempParam,(String)willsSiteClassList.get(index),
+         
+         if(setSite)
+           //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+           setSite = siteTranslator.setParameterValue(tempParam,(String)willsSiteClassList.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());
          //If the value was outside the bounds of CVM
          //and site has no value from CVM then set its value to the default Site Params shown in the application.
-         if(!flag){
+         if(!setSite){
            //iterating over the default site parameters to set the Site Param if
            //no value has been obtained from the CVM for that site.
            Iterator it1 = defaultSiteParams.iterator();

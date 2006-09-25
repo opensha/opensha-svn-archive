@@ -154,8 +154,8 @@ public class MedianCalc_Cybershake
     String willsClass="";
     Double basinDepth =  null;
     if(tokens == 3){
-      double vs30 = Double.parseDouble(st.nextToken().trim());
-      willsClass = SiteTranslator.getWillsSiteClassForVs30(vs30);
+      willsClass = st.nextToken().trim();
+      //willsClass = SiteTranslator.getWillsSiteClassForVs30(vs30);
     }
     else if(tokens ==2){
       LocationList siteLocListForWillsSiteClass = new LocationList();

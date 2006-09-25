@@ -281,6 +281,14 @@ public class SiteTranslator
         return false;
       }
     }
+    //CS_2005.SOFT_SOIL_CASE
+    else if(param.getName().equals(CS_2005_AttenRel.SOFT_SOIL_NAME)){
+    	if (wc.equals(WILLS_E))
+    		param.setValue(new Boolean(true));
+    	else
+    		param.setValue(new Boolean(false));
+        return true;
+    }
 
     // site type not found
     else {
@@ -289,29 +297,6 @@ public class SiteTranslator
     }
   }
 
-
-
-  /**
-   * Returns the Correponding Wills Site Class value for the given Vs30 value
-   * @param vs30 double
-   * @return String
-   */
-  public static String getWillsSiteClassForVs30(double vs30){
-    if(vs30 <= 180)
-      return "DE";
-    else if(vs30 >= 180 && vs30 <= 270)
-      return "D";
-    else if(vs30>=270 && vs30 <= 360)
-      return "CD";
-    else if(vs30>=360  && vs30 <= 560)
-      return "C";
-    else if(vs30 >=560 && vs30 <= 760)
-      return "BC";
-    else if(vs30 > 1000)
-      return "B";
-    else
-      return "E";
-  }
 
 
   /**

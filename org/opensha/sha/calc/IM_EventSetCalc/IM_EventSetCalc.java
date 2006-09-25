@@ -152,8 +152,7 @@ public class IM_EventSetCalc
     locList.addLocation(loc);
     String willsClass="";
     if(tokens == 3){
-      double vs30 = Double.parseDouble(st.nextToken().trim());
-      willsClass = SiteTranslator.getWillsSiteClassForVs30(vs30);
+      willsClass = st.nextToken().trim();
     }
     else if(tokens ==2){
       LocationList siteLocListForWillsSiteClass = new LocationList();
