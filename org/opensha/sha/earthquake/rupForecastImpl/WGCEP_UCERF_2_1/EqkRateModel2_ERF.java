@@ -181,6 +181,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String CONSTRAIN_A_SEG_RATES_PARAM_NAME = "Constrain Segment Rates?";
 	private final static String CONSTRAIN_A_SEG_RATES_PARAM_INFO = "Constrain A-fault segments rates (add equations to inversion)";
 	private BooleanParameter constrainA_SegRatesParam; 
+	
+	// connect more B-Faults boolean
+	public final static String CONNECT_B_FAULTS_PARAM_NAME = "Connect More B Faults?";
+	private final static String CONNECT_B_FAULTS_PARAM_INFO = "Connect nearby B-Faults";
+	private BooleanParameter connectMoreB_FaultsParam;
 
 	//	 rupture model type
 	public final static String RUP_MODEL_TYPE_NAME = "A-Fault Solution Type";
@@ -256,7 +261,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-	private B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_1.txt");
+	private B_FaultsFetcher bFaultsFetcher ;
+	private final static String B_CONNECT_FILENAME1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_0.txt";
+	private final static String B_CONNECT_FILENAME2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_1.txt";
+	
 	private ArrayList aFaultSources, bFaultSources;
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
@@ -341,6 +349,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
 		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
 		
+		// connect more B Faults
+		connectMoreB_FaultsParam = new BooleanParameter(CONNECT_B_FAULTS_PARAM_NAME);
+		connectMoreB_FaultsParam.setInfo(CONNECT_B_FAULTS_PARAM_INFO);
+		
 		//		 make objects of Mag Area Relationships
 		magAreaRelationships = new ArrayList();
 		magAreaRelationships.add(new Ellsworth_A_WG02_MagAreaRel() );
@@ -394,9 +406,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				TRUNC_LEVEL_PARAM_UNITS, TRUNC_LEVEL_DEFAULT);
 		truncLevelParam.setInfo(TRUNC_LEVEL_INFO);
 		
-		bFaultB_ValParam = new DoubleParameter(this.B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.B_FAULT_GR_B_DEFAULT);
+		bFaultB_ValParam = new DoubleParameter(B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.B_FAULT_GR_B_DEFAULT);
 		bFaultB_ValParam.setInfo(B_FAULTS_B_VAL_PARAM_INFO);
-		regionB_ValParam = new DoubleParameter(this.REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.REGIONAL_B_DEFAULT);
+		regionB_ValParam = new DoubleParameter(REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.REGIONAL_B_DEFAULT);
 		regionB_ValParam.setInfo(REGION_B_VAL_PARAM_INFO);
 		
 		aAndB_MoRateReducParam = new DoubleParameter(A_AND_B_MO_RATE_REDUCTION_PARAM_NAME, 
@@ -424,6 +436,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(truncLevelParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
+		adjustableParams.addParameter(connectMoreB_FaultsParam);
 //		adjustableParams.addParameter(backSeisParam);		not needed for now
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(regionB_ValParam);
@@ -819,7 +832,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 		double  moRateReduction = ((Double)aAndB_MoRateReducParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-
+		boolean isConnectMoreB_Faults = ((Boolean)this.connectMoreB_FaultsParam.getValue()).booleanValue();
+		
+		String fileName = B_CONNECT_FILENAME1;
+		if(isConnectMoreB_Faults) fileName = B_CONNECT_FILENAME2;
+		
+		if(bFaultsFetcher==null) {
+			bFaultsFetcher = new B_FaultsFetcher(fileName);
+		} else bFaultsFetcher.setConnectionFileName(fileName);
+		
 		ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();

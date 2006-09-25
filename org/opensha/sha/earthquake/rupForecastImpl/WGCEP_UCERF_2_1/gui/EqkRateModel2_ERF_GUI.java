@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -49,8 +51,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	private JMenu analysisMenu = new JMenu("Further Analysis");
 	private JMenuItem rupRatesMenu = new JMenuItem("A-Fault Rup Rates");
 	private JMenuItem segRecurIntvMenu = new JMenuItem("A-Fault Segment Recur Interval");
+	private JMenuItem ratioRecurIntvMenu = new JMenuItem("A-Fault Ratio of Segment Recur Intervals");
+	private JMenuItem segRatioMenu = new JMenuItem("Ratio of Segment Recur Intervals for a Particular Segment");
+	
 	private final static String A_FAULT_RUP_RATES_FILENAME = "A_FaultRupRates_2_1.xls";
 	private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
+	private String dirName=null; 
 	
 	public static void main(String[] args) {
 		new EqkRateModel2_ERF_GUI();
@@ -98,6 +104,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		 menuBar.add(analysisMenu);
 		 analysisMenu.add(rupRatesMenu);
 		 analysisMenu.add(segRecurIntvMenu);
+		 analysisMenu.add(ratioRecurIntvMenu);
+		 analysisMenu.add(segRatioMenu);
 		 setJMenuBar(menuBar);	
 		 // when Rup rates menu is selected
 		 rupRatesMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -111,7 +119,49 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 				 segRecurIntvMenu_actionPerformed(e);
 			 }
 		 });
+		 // when ratio of segment recurrence intervals is selected
+		 ratioRecurIntvMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 ratioSegRecurIntvMenu_actionPerformed(e);
+			 }
+		 });
+		 // ratio of recurrence intervals for a specified segment
+		 segRatioMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 segRatioMenu_actionPerformed(e);
+			 }
+		 });
 	}
+	
+	
+	/**
+	   * Segment recurrence intervals ratio for a specific segment
+	   *
+	   * @param actionEvent ActionEvent
+	   */
+	  private  void segRatioMenu_actionPerformed(ActionEvent actionEvent) {
+		  String dirName = getDirectoryName();
+		  if(dirName==null) return;
+		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
+		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
+		  // show a Window asking for segment name
+		  String segmentName = JOptionPane.showInputDialog(this, "Enter Segment Name (Eg: ");
+		  if(segmentName==null) return;
+		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, segmentName);
+	  }
+	  
+	 /**
+	   * Segment recurrence intervals ratio for all segments
+	   *
+	   * @param actionEvent ActionEvent
+	   */
+	  private  void ratioSegRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
+		  String dirName = getDirectoryName();
+		  if(dirName==null) return;
+		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
+		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
+		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, null);
+	  }
 	
 	 /**
 	   * Rup Rates for A-Faults
@@ -141,13 +191,13 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	  
 	  
 	  private String getDirectoryName() {
-		String dirName = null;
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Choose directory to save files");
+		if(dirName!=null) fileChooser.setSelectedFile(new File(dirName));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
 	    	dirName = fileChooser.getSelectedFile().getAbsolutePath();
-	    }
+	    } else dirName=null;
 		return dirName;
 	  }
 	  

@@ -23,6 +23,11 @@ import org.opensha.data.*;
  * and the delta spacing between x values. This is enough to calculate any x-value by
  * index.<p>
  *
+ * This function can be used to generate histograms. To do that, tolerance should be set greater than delta.
+ * add methods should then be used to add to Y values for histograms. 
+ * The  x value is the mid-point of the histogram interval<p>
+ * 
+ * 
  * Note: If speed was more of an issue that memory saving, the internal storage could
  * be changed from an array of y-values to an ArrayList of DataPoint2D. Since this storage
  * structure is encapsulated ( hidden ) this change could be made without affecting any
@@ -284,6 +289,19 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         int index = getXIndex( x );
         points[index] = y;
     }
+    
+    /**
+     * This method can be used for generating histograms if tolerance is set greater than delta.
+     * Adds to the y-value at a specified index. The x-value index is first
+     * calculated, then the y-value is added in it's array.  
+     * The specified x value is the mid-point of the histogram interval.
+     * 
+     * DataPoint2DException is thrown if the x value is not an x-axis point.
+     */
+    public void add(double x, double y) throws DataPoint2DException {
+        int index = getXIndex( x );
+        points[index] = y+points[index];
+    }
 
     /**
      * this function will throw an exception if the index is not
@@ -295,6 +313,21 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         }
         points[index] = y;
     }
+    
+    /**
+     * This method can be used for generating histograms if tolerance is set greater than delta.
+     * Adds to the y-value at a specified index. The specified x value is the mid-point of the histogram interval.
+     * 
+     * this function will throw an exception if the index is not
+     * within the range of 0 to num -1
+     */
+    public void add(int index, double y) throws DataPoint2DException {
+        if( index < 0 || index > ( num -1 ) ) {
+            throw new DataPoint2DException(C + ": set(): The specified index doesn't match this function domain.");
+        }
+        points[index] = y+points[index];
+    }
+    
 
     /**
      * This function may be slow if there are many points in the list. It has to
@@ -662,5 +695,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
           return -1;
        }
     }
+     
+     public static void main(String args[]) {
+    	 EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.0, 3.0, 31);
+    	 func.setTolerance(func.getDelta()/2);
+    	 System.out.println(func.getXIndex(1.05));
+     }
 
 }

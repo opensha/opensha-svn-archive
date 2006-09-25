@@ -14,6 +14,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -31,6 +32,13 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	private final static String Y_AXIS_LABEL = "Recurrence Interval";
 	private final static String PLOT_LABEL = "Segment Recurrence Intervals";
 	private ArrayList funcs;
+	private final static  String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
+		"Max Recurrence Interval", 
+		"Characteristic", 
+		"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
+		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
+		"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
+		"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 10); // black
@@ -60,6 +68,8 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 			new Color(0,128,128), 2); //teal
  	private final PlotCurveCharacterstics PLOT_CHAR14 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(0,255,255), 2); //aqua
+ 	
+ 	
 	//private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		//      Color.RED, 5);
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
@@ -88,7 +98,8 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return true;
+		return true;	
+		
 	}
 
 	/* (non-Javadoc)
@@ -105,11 +116,13 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 		return Y_AXIS_LABEL;
 	}
 
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
+
 		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR1);
@@ -126,6 +139,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 		 list.add(this.PLOT_CHAR12);
 		 list.add(this.PLOT_CHAR13);
 		 list.add(this.PLOT_CHAR14);
+		 
 		 return list;
 	}
 	
@@ -169,6 +183,9 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 	
+	
+	
+	
 	/**
 	 * It creates plots and saves PDFs in A_FaultSegRecurIntvPlots_2_1 subdirectory in masterDirectory
 	 * @param masterDirName MasterDirectoty where A_FaultSegRecurIntvPlots_2_1 will be created
@@ -176,14 +193,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	 */
 	public static void createPlots(String masterDirName, String excelSheetName) {
 		try {
-			String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
-					"Max Recurrence Interval", 
-					"Characteristic", 
-					"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
-					"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
-					"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
-					"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
-			// directory to save the PDF files. Directory will be created if it does not exist already
+						// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/A_FaultSegRecurIntvPlots_2_1/";
 			File file = new File(dirName);
 			if(!file.isDirectory()) { // create directory if it does not exist already
@@ -248,8 +258,5 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String args[]) {
-	
-	}
+
 }

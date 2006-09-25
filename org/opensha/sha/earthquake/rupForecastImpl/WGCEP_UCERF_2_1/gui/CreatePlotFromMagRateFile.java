@@ -29,6 +29,11 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	private final static String Y_AXIS_LABEL = "Rate";
 	private final static String PLOT_LABEL = "Rates";
 	private ArrayList funcs;
+	private final static String[] names = {"A-Priori Rates", "Char Rate", 
+		"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
+		"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
+		"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
+		"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      new Color(0,0,0), 2); // black
@@ -165,6 +170,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		throw new UnsupportedOperationException("Method not implemented yet");
 	}
 	
+	
 	/**
 	 * It creates plots and saves PDFs in A_FaultRupRatesPlots_2_1 subdirectory in masterDirectory
 	 * @param masterDirName MasterDirectoty where A_FaultRupRatesPlots_2_1 will be created
@@ -172,11 +178,6 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	 */
 	public static void createPlots(String masterDirName, String excelSheetName) {
 		try {
-			String[] names = {"A-Priori Rates", "Char Rate", 
-					"Ellsworth-A_Uniform/Boxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
-					"Ellsworth-B_Uniform/Boxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
-					"Hanks & Bakun (2002)_Uniform/Boxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
-					"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 			// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/A_FaultRupRatesPlots_2_1/";
 			File file = new File(dirName);
@@ -245,6 +246,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	public static void main(String args[]) {
 	

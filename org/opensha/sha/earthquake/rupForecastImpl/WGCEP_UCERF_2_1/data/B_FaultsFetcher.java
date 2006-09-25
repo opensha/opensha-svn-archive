@@ -24,6 +24,8 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	
 	// This holds the special, multi-section B Faults
 	private ArrayList allSpecialFaultIds;
+	
+	private String connectB_FaultsFileName;
 		
 	/**
 	 * default constructor
@@ -31,9 +33,23 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 */
 	public B_FaultsFetcher(String bFilesConnectFileName) {
 		super(bFilesConnectFileName);
+		this.connectB_FaultsFileName = bFilesConnectFileName;
 		aFaultsFetcher = new A_FaultsFetcher();
 		// make special fault info
 		allSpecialFaultIds = getAllFaultSectionsIdList();
+	}
+	
+	/**
+	 * Set the connection file name
+	 * @param fileName
+	 */
+	public void setConnectionFileName(String fileName) {
+		if(!connectB_FaultsFileName.equals(fileName)) {
+			this.loadSegmentModels(fileName);
+			allSpecialFaultIds = getAllFaultSectionsIdList();
+			connectB_FaultsFileName = fileName;
+			deformationModelId=-1;
+		}
 	}
 	
 	/**
@@ -123,7 +139,12 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 					null);
 		} else {
 			 // if it is a part of connecting B-faults
-			return super.getFaultSegmentData(faultModel, deformationModelId, isAseisReducesArea);
+			FaultSegmentData faultSegmentData =  super.getFaultSegmentData(faultModel, deformationModelId, isAseisReducesArea);
+			/*ArrayList sectionList = faultSegmentData.getPrefFaultSectionDataList();
+			for(int i=0; i<sectionList.size(); ++i) 
+				System.out.println(((FaultSectionPrefData)sectionList.get(i)).getSectionName());
+			System.out.println("\n");*/
+			return faultSegmentData;
 		}
 		
 	}
@@ -145,7 +166,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 			//System.out.println("");
 		}
 		
-		try {
+		/*try {
 			FileWriter fw = new FileWriter("B_FaultDistances.txt");
 			double minDist, distance;
 			for(int i=0; i<preFaultSectionDataList.size(); ++i) {
@@ -168,7 +189,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		//System.out.println("Number of B faults="+bFaults.size());
 	}
 }
