@@ -156,6 +156,11 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
 
   /**
    * Gets the site at specified index.
+   * 
+   * NOTE (IMP) : This class translates the willsSiteClass values to the site parameters of the AttenuationsRelationships.
+   * If it fails to translate any site parameters , either becuase there is no Wills class value for a given site or any other 
+   * reason, it then uses the default value provided by the user for that parameter or any other site parameter for that 
+   * AttenuationRelationship.
    * @param index
    * @returns site at the index
    */
