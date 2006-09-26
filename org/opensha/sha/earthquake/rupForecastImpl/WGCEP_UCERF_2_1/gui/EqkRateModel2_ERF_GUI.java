@@ -144,11 +144,9 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
-		  // show a Window asking for segment name
-		  String segmentName = JOptionPane.showInputDialog(this, "Enter Segment Name (Eg: ");
-		  if(segmentName==null) return;
-		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, segmentName);
+		  new FaultSegmentSelector(this.eqkRateModelERF.get_A_FaultSources(), dirName, excelSheetName);
 	  }
+	  
 	  
 	 /**
 	   * Segment recurrence intervals ratio for all segments
@@ -160,7 +158,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
-		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, null);
+		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, null, null);
 	  }
 	
 	 /**

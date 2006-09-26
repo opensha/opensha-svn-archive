@@ -137,7 +137,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 	 * @param masterDirName MasterDirectoty where A_FaultRupRatesPlots_2_1 will be created
 	 * @param excelSheetName Absolute pathname to excel file
 	 */
-	public static void createHistogramPlots(String masterDirName, String excelSheetName, String segName) {
+	public static void createHistogramPlots(String masterDirName, String excelSheetName, String faultName, String segName) {
 		try {
 			// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/A_FaultSegRecurIntvHistograms_2_1/";
@@ -161,6 +161,9 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 			int xIndex;
 			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
 				HSSFSheet sheet = wb.getSheetAt(i);
+				// do for selected fault only
+				String sheetName = wb.getSheetName(i);
+				if(faultName!=null && !faultName.equalsIgnoreCase(sheetName)) continue;
 				int lastIndex = sheet.getLastRowNum();
 				int r = 3;
 				// read data for each row
@@ -169,7 +172,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 					HSSFCell cell = null;
 					String rupName ="";
 					if(row!=null)  cell = row.getCell( (short) 0);
-					// segment name
+					// segment name. Do for selected segment
 					if(cell!=null) rupName = cell.getStringCellValue().trim();
 					if(segName!=null && !rupName.equalsIgnoreCase(segName)) continue;
 					if(row==null || cell==null || 
