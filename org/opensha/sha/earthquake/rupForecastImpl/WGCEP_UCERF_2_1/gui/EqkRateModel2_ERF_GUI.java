@@ -142,9 +142,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	  private  void segRatioMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
-		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
+		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
-		  new FaultSegmentSelector(this.eqkRateModelERF.get_A_FaultSources(), dirName, excelSheetName);
+		  FaultSegmentSelector faultSegmentSelector = new FaultSegmentSelector(this.eqkRateModelERF.get_A_FaultSources(), dirName, excelSheetName);
+		  faultSegmentSelector.deleteExcelSheet(true);
 	  }
 	  
 	  
@@ -156,9 +157,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	  private  void ratioSegRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
-		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
+		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
 		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, null, null);
+		  new File(excelSheetName).delete();
 	  }
 	
 	 /**
@@ -193,7 +195,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		fileChooser.setDialogTitle("Choose directory to save files");
 		if(dirName!=null) fileChooser.setSelectedFile(new File(dirName));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+	    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
 	    	dirName = fileChooser.getSelectedFile().getAbsolutePath();
 	    } else dirName=null;
 		return dirName;
@@ -213,7 +215,4 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		outputWindow.setLocationRelativeTo(this);
 		progressBar.showProgress(false);
 	}
-	
-	
-	
 }

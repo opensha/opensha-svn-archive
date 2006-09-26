@@ -38,7 +38,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 
 	private final PlotCurveCharacterstics PLOT_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
 		      new Color(0,0,0), 2); // black
-
+	
 	
 	public CreateHistogramsFromSegRecurIntvFile(ArrayList funcList) {
 		funcs = funcList;
@@ -137,7 +137,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 	 * @param masterDirName MasterDirectoty where A_FaultRupRatesPlots_2_1 will be created
 	 * @param excelSheetName Absolute pathname to excel file
 	 */
-	public static void createHistogramPlots(String masterDirName, String excelSheetName, String faultName, String segName) {
+	public static void createHistogramPlots(String masterDirName, String excelSheetName) {
 		try {
 			// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/A_FaultSegRecurIntvHistograms_2_1/";
@@ -153,6 +153,82 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 				func.setName(names[k]);
 				funcList.add(func);
 			}
+			
+			// read the recurrence interval file
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelSheetName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			double ratio;
+			int xIndex;
+			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+				HSSFSheet sheet = wb.getSheetAt(i);
+				// do for selected fault only
+				String sheetName = wb.getSheetName(i);
+				int lastIndex = sheet.getLastRowNum();
+				int r = 3;
+				// read data for each row
+				for(; r<=lastIndex; ++r) {
+					HSSFRow row = sheet.getRow(r);
+					HSSFCell cell = null;
+					String rupName ="";
+					if(row!=null)  cell = row.getCell( (short) 0);
+					// segment name. Do for selected segment
+					if(cell!=null) rupName = cell.getStringCellValue().trim();
+					if(row==null || cell==null || 
+							cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || rupName.equalsIgnoreCase("")) {
+						r=r+4;
+						continue;
+					}
+					double mean = Double.NaN;
+					cell = row.getCell((short)1);
+					if(cell == null) continue;
+					else mean = cell.getNumericCellValue();
+					for(int col=4; col<=16; ++col) {
+						ratio = row.getCell( (short) col).getNumericCellValue()/mean;	
+						//System.out.println(rupName+","+mean+","+ratio);
+						EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)funcList.get(col-4);
+						xIndex = func.getXIndex(ratio);
+						func.add(xIndex, 1.0);
+					}
+				}
+			}
+			for(int k=3, i=0; k<names.length; ++k, ++i) {
+				ArrayList list = new ArrayList();
+				list.add(funcList.get(i));
+				CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+				GraphWindow graphWindow= new GraphWindow(plot);
+				graphWindow.setPlotLabel(PLOT_LABEL);
+				graphWindow.plotGraphUsingPlotPreferences();
+				graphWindow.setTitle(names[k]);
+				graphWindow.pack();
+				graphWindow.setVisible(true);
+				//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
+				graphWindow.saveAsPDF(dirName+"/"+names[k]+".pdf");
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Create the histograms from segment recurrence interval file. 
+	 * It creates a plot for each slip Model and Mag Area Relationship combination.
+	 * Plot can be created for 1 segment or for all segments.
+	 * It creates plots and saves PDFs in A_FaultRupRatesPlots_2_1 subdirectory in masterDirectory
+	 * @param masterDirName MasterDirectoty where A_FaultRupRatesPlots_2_1 will be created
+	 * @param excelSheetName Absolute pathname to excel file
+	 */
+	public static void createHistogramPlots(String masterDirName, String excelSheetName, String faultName, String segName) {
+		try {
+			// directory to save the PDF files. Directory will be created if it does not exist already
+			String dirName = masterDirName+"/"+faultName+"_"+segName+"/";
+			File file = new File(dirName);
+			if(!file.isDirectory()) { // create directory if it does not exist already
+				file.mkdir();
+			}
+			
+			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.20, 2.5, 24);
+			func.setTolerance(func.getDelta());
+			func.setName(faultName+"_"+segName);
 			
 			// read the recurrence interval file
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelSheetName));
@@ -186,26 +262,23 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 					else mean = cell.getNumericCellValue();
 					for(int col=4; col<=16; ++col) {
 						ratio = row.getCell( (short) col).getNumericCellValue()/mean;	
-						//System.out.println(rupName+","+mean+","+ratio);
-						EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)funcList.get(col-4);
 						xIndex = func.getXIndex(ratio);
 						func.add(xIndex, 1.0);
 					}
 				}
 			}
-			for(int k=3, i=0; k<names.length; ++k, ++i) {
-				ArrayList list = new ArrayList();
-				list.add(funcList.get(i));
-				CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
-				GraphWindow graphWindow= new GraphWindow(plot);
-				graphWindow.setPlotLabel(PLOT_LABEL);
-				graphWindow.plotGraphUsingPlotPreferences();
-				graphWindow.setTitle(names[k]);
-				graphWindow.pack();
-				graphWindow.setVisible(true);
-				//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
-				graphWindow.saveAsPDF(dirName+"/"+names[k]+".pdf");
-			}
+			
+			ArrayList list = new ArrayList();
+			list.add(func);
+			CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+			GraphWindow graphWindow= new GraphWindow(plot);
+			graphWindow.setPlotLabel(PLOT_LABEL);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setTitle(segName);
+			graphWindow.pack();
+			graphWindow.setVisible(true);
+			//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
+			graphWindow.saveAsPDF(dirName+"/"+segName+".pdf");
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

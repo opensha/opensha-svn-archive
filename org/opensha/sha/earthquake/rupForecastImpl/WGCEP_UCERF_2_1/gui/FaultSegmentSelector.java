@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,9 +41,11 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 	private ConstrainedStringParameterEditor segmentNameParameterEditor;
 	private String dirName, excelSheetName;
 	private final static String TITLE = "Select Segment";
+	private boolean isDeleteExcelSheet= false;
 	
 	/**
 	 * Get a List of A-Fault sources and get the fault name and segment name from this list
+	 * 
 	 * @param aFaultSourceList
 	 */
 	public FaultSegmentSelector(ArrayList aFaultSourceList, String dirName, String excelSheetName) {
@@ -63,6 +66,15 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 		pack();
 		show();
 		
+	}
+	
+	/**
+	 * Whether to delete the excel sheet after making plots
+	 * 
+	 * @param isDelete
+	 */
+	public void deleteExcelSheet(boolean isDelete) {
+		this.isDeleteExcelSheet = isDelete;
 	}
 	
 	/**
@@ -127,6 +139,8 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 		String faultName = (String)this.faultNameParameter.getValue();
 		String segName = (String)this.segmentNameParameter.getValue();
 		CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, faultName, segName);
+		if(isDeleteExcelSheet) new File(excelSheetName).delete();
+		this.dispose();
 	}
 
 }
