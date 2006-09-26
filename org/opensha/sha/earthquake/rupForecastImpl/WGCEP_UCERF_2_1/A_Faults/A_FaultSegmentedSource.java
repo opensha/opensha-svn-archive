@@ -172,6 +172,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// this one is used to compute char mags
 		computeSegRatesFromAprioriRates();
 		
+		// THIS IS TEMPORARY:
+		convertA_prioriToRateBalanced();
+		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if mag PDF sigma non zero)
 		setAveSlipCorrection();
 
@@ -1115,6 +1118,53 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		A_FaultSegmentedSource.getRupInSegMatrix(8);
 		*/
 		
+	}
+	
+	/**
+	 * This is used to get the non rate-balanced a-priori rates from the geologists
+	 * to rate balanced models
+	 */
+	private void convertA_prioriToRateBalanced() {
+		
+		// now solve the inverse problem
+		int totNumRows = num_seg+num_rup;
+		double[][] C = new double[totNumRows][num_rup];
+		double[] d = new double[totNumRows];  // the data vector
+		double wt = 1000;
+		// fill in the a-priori rates
+		for(int rup=0; rup < num_rup; rup++) {
+			d[rup] = aPrioriRupRates[rup].getValue()/wt;
+			C[rup][rup]=1.0/wt;
+		}
+		// now fill in the segment recurrence interval constraints
+		for(int row = 0; row < num_seg; row ++) {
+			d[row+num_seg+num_rup] = 1.0/segmentData.getRecurInterval(row);
+			for(int col=0; col<num_rup; col++)
+				C[row+num_seg+num_rup][col] = rupInSeg[row][col];
+		}
+		double[] newRupRates = getNNLS_solution(C, d);
+		
+		
+		// WRITE OUT RESULTS *****************
+		System.out.println("******* "+segmentData.getFaultName()+" *******");
+		// show before and after rates
+		System.out.println("Before and after rup rates:");
+		for(int rup=0; rup < num_rup; rup++) {
+			System.out.println(aPrioriRupRates[rup].getValue()+"   "+newRupRates[rup]);
+		}
+		// compute new implied segment rates as check
+		double[] newSegRate = new double[num_seg];
+		for(int seg=0; seg<num_seg; ++seg) {
+			newSegRate[seg]=0.0;
+			// Sum the rates of all ruptures which are part of a segment
+			for(int rup=0; rup<num_rup; rup++) 
+				if(rupInSeg[seg][rup]==1) newSegRate[seg]+=newRupRates[rup];
+		}
+		// show before and after seg rates
+		System.out.println("Before and after seg rates:");
+		for(int seg=0; seg < num_seg; seg++) {
+			System.out.println((1.0/segmentData.getRecurInterval(seg))+"   "+newSegRate[seg]);
+		}
 	}
 }
 
