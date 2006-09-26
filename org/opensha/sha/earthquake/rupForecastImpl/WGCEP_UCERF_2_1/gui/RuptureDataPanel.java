@@ -22,7 +22,6 @@ import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -312,7 +311,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			cumRateDist.setInfo("Cumulative Mag Freq Dist");
 			funcs.add(magFreqDist);
 			funcs.add(cumRateDist);
-			new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
+			new GraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
 		} else if(eventSource == this.magAreaPlotButton) {
 			this.createFuncListColorCodingByRupRates();
 			GraphWindow graphWindow= new GraphWindow(this);

@@ -21,13 +21,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;

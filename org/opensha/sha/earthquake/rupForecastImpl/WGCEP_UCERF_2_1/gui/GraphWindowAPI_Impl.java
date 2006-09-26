@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.gui;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author vipingupta
  *
  */
-public class WG02_RuptureModelsGraphWindowAPI_Impl implements GraphWindowAPI {
+public class GraphWindowAPI_Impl implements GraphWindowAPI {
 	protected ArrayList funcs;
 	private String xAxisLabel, yAxisLabel;
 	
@@ -79,7 +79,7 @@ public class WG02_RuptureModelsGraphWindowAPI_Impl implements GraphWindowAPI {
 	/**
 	 * ArrayList of ArbitrarilyDiscretizedFunctions
 	 */
-	public WG02_RuptureModelsGraphWindowAPI_Impl(ArrayList funcs, String xAxisLabel, String yAxisLabel, String plotLabel) {
+	public GraphWindowAPI_Impl(ArrayList funcs, String xAxisLabel, String yAxisLabel, String plotLabel) {
 		this.funcs = funcs;
 		this.xAxisLabel = xAxisLabel;
 		this.yAxisLabel = yAxisLabel;
