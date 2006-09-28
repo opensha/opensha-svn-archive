@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.util.GlobalConstants;
 import java.net.URL;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
@@ -21,7 +22,9 @@ import java.net.URLConnection;
  */
 
 public class HazardDataMinerServletMode implements HazardDataMinerAPI {
-  private final static String SERVLET_PATH = "http://gldwork.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	private final static String SERVLET_PATH = GlobalConstants.getServletPath();
+  //private final static String SERVLET_PATH = "http://gldweb.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+  //private final static String SERVLET_PATH = "http://gldjanus.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
   public final static String COMPUTE_EXCEED_PROB = "computeExceedProb";
   public final static String COMPUTE_RETURN_PERIOD = "computeReturnPeriod";
   public final static String COMPUTE_HAZARD_CURVE = "computeHazardCurve";
@@ -99,6 +102,9 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      String hazCurveType) throws
      ZipCodeErrorException {
    ArrayList objectList = new ArrayList();
+	 System.out.println("Getting data for...\n\tZip: " + zipCode + "\n\t" +
+	 	"Region: " + geographicRegion + "\n\tEdition: " + dataEdition +
+		"\n\tCurveType: " + hazCurveType);
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(zipCode);
@@ -392,6 +398,9 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
 
      // Specify the content type that we will send binary data
      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+	  // Modify the funcName to notify server that you have current version
+	  funcName = funcName + "_V6";
 
      // send the student object to the servlet using serialization
      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());

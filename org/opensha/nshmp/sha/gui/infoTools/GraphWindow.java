@@ -342,6 +342,9 @@ public class GraphWindow
     //getting the list of the curves that we need to plot
     String selectedDataToPlot = (String) graphListCombo.getSelectedItem();
 
+		//show correct graph titles
+		plotTitle = selectedDataToPlot;
+
     ArrayList functionsToPlot = (ArrayList) map.get(selectedDataToPlot);
     ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)
         functionsToPlot.get(0);

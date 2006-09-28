@@ -19,6 +19,9 @@ public class NEHRP_Record
   //Record Length
   public static final int recordLength = 4 + 4 + 4 + 4 + 4 + 4;
 
+	public NEHRP_Record() {
+		}
+
   public void getRecord(String fileName, long recordNum) {
     //SA values
     values = new float[2];
@@ -27,11 +30,11 @@ public class NEHRP_Record
       fin = new RandomAccessFile(fileName, "r");
       fin.seek( (recordNum - 1) * recordLength);
       recordNumber = ByteSwapUtil.swap(fin.readInt());
-      latitude = ByteSwapUtil.swap(fin.readFloat());
-      longitude = ByteSwapUtil.swap(fin.readFloat());
+      latitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
+      longitude = ByteSwapUtil.swapIntToFloat(fin.readInt());
       numValues = ByteSwapUtil.swap(fin.readShort());
       for (int i = 0; i < numValues; ++i) {
-        values[i] = ByteSwapUtil.swap(fin.readFloat());
+        values[i] = ByteSwapUtil.swapIntToFloat(fin.readInt());
         values[i] /= GlobalConstants.DIVIDING_FACTOR_HUNDRED;
       }
       fin.close();

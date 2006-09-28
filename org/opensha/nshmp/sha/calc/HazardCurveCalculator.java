@@ -26,8 +26,8 @@ public class HazardCurveCalculator {
   private DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
   public final static String EXCEED_PROB_TEXT =
-      "The Frequency of Exceedance value " +
-      "for this calculation is less than 10E-4. These results should be used with caution";
+      "Frequency of Exceedance values " +
+      "less than\n10E-4 should be used with caution.";
   private final static String PGA_TEXT = "Ground Motion";
   private final static String PROB_TEXT = "Frequency of Exceedance";
 

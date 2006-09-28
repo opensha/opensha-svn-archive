@@ -60,7 +60,7 @@ public class DataUtil {
      LineNumberReader lnr = new LineNumberReader (sr);
      String nextLine;
      int pageHeight = pjob.getPageDimension().height - margin;
-     Font helv = new Font("Helvetica", Font.PLAIN, 12);
+     Font helv = new Font("Monaco", Font.PLAIN, 12);
      //have to set the font to get any output
      pg.setFont (helv);
      FontMetrics fm = pg.getFontMetrics(helv);

@@ -29,7 +29,7 @@ public class SsS1Calculator {
    * Some static String for the data printing
    */
   protected static final String SsS1_TITLE =
-      "Spectral Response Accelerations Ss and S1\n\n";
+      "Spectral Response Accelerations Ss and S1";
   protected static final String SsS1_SubTitle =
       "Ss and S1 = Mapped Spectral Acceleration Values";
 
@@ -69,8 +69,8 @@ public class SsS1Calculator {
     String info = "";
     info += SsS1_TITLE + "\n";
 
-    info += "Latitude = " + latLonFormat.format(latitude) + "\n";
-    info += "Longitude = " + latLonFormat.format(longitude) + "\n";
+    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
+    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
@@ -112,8 +112,8 @@ public class SsS1Calculator {
     String info = "";
     info += SsS1_TITLE + "\n";
 
-    info += "Latitude = " + latLonFormat.format(latitude) + "\n";
-    info += "Longitude = " + latLonFormat.format(longitude) + "\n";
+    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
+    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
@@ -239,17 +239,17 @@ public class SsS1Calculator {
           //adding the info for each function
           String info = "";
           info += SsS1_TITLE + "\n";
-          info += "Zip Code - " + zipCode + "\n";
-          info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
-          info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
+          //info += "Zip Code - " + zipCode + "\n";
+          //info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
+          //info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
           info +=
               DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
               GlobalConstants.SITE_CLASS_B,
               Fa, Fv);
           info += "Data are based on a " + gridSpacing + " deg grid spacing";
-          info +=
-              DataDisplayFormatter.createFunctionInfoString(function, SA,
-              Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
+          //info +=
+          //    DataDisplayFormatter.createFunctionInfoString(function, SA,
+          //    Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
           info +=
               DataDisplayFormatter.createFunctionInfoString(func1, CENTROID_SA,
               Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
@@ -294,9 +294,9 @@ public class SsS1Calculator {
     //adding the info for each function
     String info = "";
     info += SsS1_TITLE + "\n";
-    info += "Zip Code - " + zipCode + "\n";
-    info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
-    info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
+    //info += "Zip Code - " + zipCode + "\n";
+    //info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
+    //info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,

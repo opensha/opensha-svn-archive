@@ -19,7 +19,8 @@ public final class MapUtil {
   public static ArrayList mapFiles;
 
   //link to the directory where all the map files are located
-  public static final String mapURL_Path = "http://gldwork.cr.usgs.gov/GroundMotionTool/dataFiles/";
+  public static final String mapURL_Path =
+	"http://earthquake.usgs.gov/research/hazmaps/pdfs/";
 
 
   /**
@@ -35,7 +36,7 @@ public final class MapUtil {
     mapFiles = new ArrayList();
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) &&
         selectedDataEdition.equals(GlobalConstants.data_1996)) {
-      //adding teh Map Info to be shown to the user
+      //adding the Map Info to be shown to the user
       mapInfo.add("MAP 131A(1996 Conterminous US) - Peak Horizontal Acceleration with 10% Prob. of Exceedance in 50 years.");
       mapInfo.add("MAP 131B(1996 Conterminous US) - Peak Horizontal Acceleration with 5% Prob. of Exceedance in 50 years.");
       mapInfo.add("MAP 131C(1996 Conterminous US) - Peak Horizontal Acceleration with 2% Prob. of Exceedance in 50 years.");
@@ -213,28 +214,28 @@ public final class MapUtil {
       mapFiles.add(mapURL_Path + "ASCE7-1998-2002-Figure-9-4-1-1ij-PRGU.pdf");
     }
     else if(selectedDataEdition.equals(GlobalConstants.ASCE_2005)){
-      mapInfo.add("Figure 22-1 MCE Ground Motion for the Conterminous US of 0.2sec Spectral Response Acceleration.");
-      mapInfo.add("Figure 22-2 MCE Ground Motion for the Conterminous US of 1.0sec Spectral Response Acceleration.");
+      mapInfo.add("Figure 22-1 MCE Ground Motion for the Conterminous US of 0.2sec Spectral Response Acceleration");
+      mapInfo.add("Figure 22-2 MCE Ground Motion for the Conterminous US of 1.0sec Spectral Response Acceleration");
       mapInfo.add("Figure 22-3 MCE Ground Motion for the Region 1(California/Western Nevada) of 0.2sec "+
-                  "Spectral Response Acceleration.");
+                  "Spectral Response Acceleration");
       mapInfo.add("Figure 22-4 MCE Ground Motion for the Region 1(California/Western Nevada) of 1.0sec "+
-                  "Spectral Response Acceleration.");
+                  "Spectral Response Acceleration");
       mapInfo.add("Figure 22-5 MCE Ground Motion for the Region 2(Salt Lake City/Intermountain Area) of 0.2sec "+
-                  "Spectral Response Acceleration.");
+                  "Spectral Response Acceleration");
       mapInfo.add("Figure 22-6 MCE Ground Motion for the Region 2(Salt Lake City/Intermountain Area) of 1.0sec "+
-                  "Spectral Response Acceleration.");
+                  "Spectral Response Acceleration");
       mapInfo.add("Figure 22-7 MCE Ground Motion for the Region 3(New Madrid Area) of 0.2sec "+
-                        "Spectral Response Acceleration.");
+                        "Spectral Response Acceleration");
       mapInfo.add("Figure 22-8 MCE Ground Motion for the Region 3(New Madrid Area) of 1.0sec "+
-                  "Spectral Response Acceleration.");
-      mapInfo.add("Figure 22-9 MCE Ground Motion for the Region 4(Charleston, SC Area) of 0.2sec "+
+                  "Spectral Response Acceleration");
+      mapInfo.add("Figure 22-9 MCE Ground Motion for the Region 4(Charleston, SC Area) of 0.2sec and 1.0sec "+
                         "Spectral Response Acceleration.");
-      mapInfo.add("Figure 22-10 MCE Ground Motion for the Region 4(Charleston, SC Area) of 1.0sec "+
-                  "Spectral Response Acceleration.");
-      mapInfo.add("Figure 22-11 MCE Ground Motion for Hawaii of 0.2sec and 1.0sec Spectral Response Acceleration");
+      mapInfo.add("Figure 22-10 MCE Ground Motion for Hawaii of 0.2sec and 1.0sec Spectral Response Acceleration");
+      mapInfo.add("Figure 22-11 MCE Ground Motion for Alaska of 0.2sec Spectral Response Acceleration");
       mapInfo.add("Figure 22-12 MCE Ground Motion for Alaska of 1.0sec Spectral Response Acceleration");
-      mapInfo.add("Figure 22-13 MCE Ground Motion for Alaska of 0.2sec Spectral Response Acceleration");
-      mapInfo.add("Figure 22-11 MCE Ground Motion for Guam and Tutuila of 0.2sec and 1.0sec Spectral Response Acceleration");
+      mapInfo.add("Figure 22-13 MCE Ground Motion for Puerto Rico, Culebra, Vieques, St. Thomas, St. John, and St. Croix of 0.2sec and 1.0sec " +
+								"Spectral Response Acceleration");
+      mapInfo.add("Figure 22-14 MCE Ground Motion for Guam and Tutuila of 0.2sec and 1.0sec Spectral Response Acceleration");
 
 
       mapFiles.add(mapURL_Path + "ASCE7-2005-Figure22-01.pdf");
@@ -357,7 +358,7 @@ public final class MapUtil {
       mapFiles.add(mapURL_Path+"IRC-2006-Figure-R301-2-2-48states.pdf");
       mapFiles.add(mapURL_Path+"IRC-2006-Figure-R301-2-2-AK.pdf");
       mapFiles.add(mapURL_Path+"IRC-2006-Figure-R301-2-2-HI.pdf");
-      mapFiles.add(mapURL_Path+"IRC-2006-Figure-R301-2-2-PVRI.pdf");
+      mapFiles.add(mapURL_Path+"IRC-2006-Figure-R301-2-2-PRVI.pdf");
     }
     else if(selectedDataEdition.equals(GlobalConstants.NEHRP_1997)||
         selectedDataEdition.equals(GlobalConstants.NEHRP_2000)){

@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import org.opensha.util.ImageUtils;
 import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.Versioner;
 
 /**
  * <p>Title: ProbabilisticHazardGui</p>
@@ -30,22 +31,43 @@ public class ProbabilisticHazardGui
   JLabel jLabel1 = new JLabel();
   JLabel jLabel2 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
+  JDialog revisions;
 
+  //Objects for the 'file' and 'help' menus in welcome pop-up.
+  JMenuBar applicationMenu = new JMenuBar();
+  JMenu fileMenu = new JMenu();
+  JMenu helpMenu = new JMenu();
+  JMenuItem fileExitMenu = new JMenuItem();
+  //JMenuItem filePrintMenu = new JMenuItem();
+  //JMenuItem fileSaveMenu = new JMenuItem();
+  //JMenuItem fileAddProjNameMenu = new JMenuItem();
+  //JMenuItem helpAnalysisOptionExplainationMenu = new JMenuItem();
+  JMenuItem helpAbout = new JMenuItem();
 
+	private static Versioner versioner;
+	private static final String DOWNLOAD_PAGE = "http://earthquake.usgs.gov/research/hazmaps/design/";
 
   private JLabel imgLabel = new JLabel(GlobalConstants.USGS_LOGO_ICON);
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 
-  public ProbabilisticHazardGui() {
+  public ProbabilisticHazardGui(boolean isCurrent) {
     try {
-      jbInit();
+      jbInit(isCurrent);
     }
     catch (Exception exception) {
       exception.printStackTrace();
     }
   }
 
+  public ProbabilisticHazardGui() {
+    try {
+      jbInit(true);
+    }
+    catch (Exception exception) {
+      exception.printStackTrace();
+	}
+  }
   //static initializer for setting look & feel
   static {
     try {
@@ -55,87 +77,142 @@ public class ProbabilisticHazardGui
     }
   }
 
-  private void jbInit() throws Exception {
+  private void jbInit(boolean isCurrent) throws Exception {
     getContentPane().setLayout(borderLayout1);
     screenPanel.setLayout(gridBagLayout2);
     applicationInfoText.setBackground(UIManager.getColor("Panel.background"));
     applicationInfoText.setFont(new java.awt.Font("Arial", 0, 13));
     applicationInfoText.setEditable(false);
-    exitButton.setText("Exit");
-    exitButton.addActionListener(new java.awt.event.ActionListener() {
+
+//    exitButton.setText("Exit");
+    /*exitButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         exitButton_actionPerformed(e);
       }
-    });
-    okButton.setText("OK");
-    okButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        okButton_actionPerformed(e);
-      }
-    });
+    });*/
+
+    if (isCurrent) {
+	 	okButton.setText("Okay");
+    	okButton.addActionListener(new java.awt.event.ActionListener() {
+      	public void actionPerformed(ActionEvent e) {
+        	okButton_actionPerformed(e);
+      	}
+    	});
+	  } else {
+	  	 okButton.setText("Download");
+		 okButton.addActionListener(new java.awt.event.ActionListener() {
+		 	public void actionPerformed(ActionEvent e) {
+				okButton_notCurrent(e);
+			}
+		});
+	  }
+
+    fileMenu.setText("File");
+    helpMenu.setText("Help");
+    fileExitMenu.setText("Exit");
+    //fileSaveMenu.setText("Save");
+    //filePrintMenu.setText("Print");
+    //fileAddProjNameMenu.setText("Add Name & Date");
+    helpAbout.setText("About");
+
+    fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	  fileExitMenu_actionPerformed(e);
+	  }
+	});
+
+    helpAbout.addActionListener(new java.awt.event.ActionListener() {
+	public void actionPerformed(ActionEvent e) {
+	  helpAbout_actionPerformed(e);
+	  }
+	});
+
+    applicationMenu.add(fileMenu);
+    applicationMenu.add(helpMenu);
+    fileMenu.add(fileExitMenu);
+    helpMenu.add(helpAbout);
 
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 20));
     jLabel1.setForeground(Color.red);
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel1.setText(
-        "Seismic Hazard Curves, Response Parameters");
+    if (isCurrent) {
+	 	jLabel1.setText("Seismic Hazard Curves, Response Parameters");
+    	jLabel2.setText("and Design Parameters");
+	  } else {
+	 	jLabel1.setText("New Version Available  (" + versioner.getServerVersionNumber() + ")");
+    	jLabel2.setText("Please Update Your Version of the Application");
+	 } 
+
     jLabel2.setFont(new java.awt.Font("Dialog", 1, 20));
     jLabel2.setForeground(Color.red);
     jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel2.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel2.setText("and Design Parameters           ");
     applicationInfoText.setBorder(null);
-    screenPanel.setMaximumSize(new Dimension(600, 500));
+    screenPanel.setMaximumSize(new Dimension(600, 600));
     imgLabel.setMaximumSize(new Dimension(200, 75));
     imgLabel.setMinimumSize(new Dimension(200, 75));
     imgLabel.setPreferredSize(new Dimension(200, 75));
+    setJMenuBar(applicationMenu);
     screenPanel.add(applicationInfoText,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 12, 0, 6), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 10, 0, 6), 0, 0));
     screenPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 38, 0, 25), 0,0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 6), 0, 0));
     screenPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 123, 0, 101), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 6), 0, 0));
     screenPanel.add(imgLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 166, 2, 41), 0, 0));
-    screenPanel.add(okButton,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 327, 0, 0), 0, 0));
-    screenPanel.add(exitButton,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 17, 0, 72), 0, 0));
+            ,GridBagConstraints.SOUTHWEST, GridBagConstraints.NONE, new Insets(0, 0, 3, 3), 0, 0));
+    screenPanel.add(okButton,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(0, 475, 3, 0), 0, 0));
+    //screenPanel.add(exitButton,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+    //         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 17, 0, 72), 0, 0));
     this.getContentPane().add(screenPanel, BorderLayout.CENTER);
-
-    applicationInfoText.setText(
-        "This application allows user for obtaining hazard " +
-        "curves, uniform hazard response spectra " +
-        "and design parameters for the design parameters for "+
-        "sites in 50 states of the United States, Puerto Rico and the "+
-        "U.S. Virgin Islands. Additionally, design "+
-        "parameters are available for Guam and American Samoa. "+
-        "Ground motion maps are also included in PDF format.\n\n" +
-        "Maps are also included for obtaining values of " +
-        "spectral acceleration at selected periods." +
-        "Data for uniform hazard response spectra and hazard curves may be obtained by use of " +
-        "latitude and longitude or zip code to locate a site.\n\n "+
-        "Correct application of the " +
-        "data obtained from the use of this program and/or maps is the responsibility of the user. "+
-          "This software is not a substitute for technical knowledge of seismic design and/or analysis.");
-    this.setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
-    this.setSize(new Dimension(576, 378));
+		this.getRootPane().setDefaultButton(okButton);
+    applicationInfoText.setContentType("text/html");
+    if (isCurrent) {
+	 	applicationInfoText.setText(
+        "This application allows the user to obtain hazard curves, " +
+			"uniform hazard response spectra, and design parameters for " +
+			"sites in the 50 United States, Puerto Rico and the U.S. Virgin " +
+			"Islands.  Additionally, design parameters are available for Guam " +
+			"and American Samoa.  Ground motion maps are also included in " +
+			"PDF format.<pre>\r\n</pre>Detailed explanation of the analyses available is " +
+			"included in the help menu.  Click on Okay to begin " +
+			"calculation.<pre>\r\n</pre><i>Correct application of the data obtained " +
+			"from the use of this program and/or the maps is the " +
+			"responsibility of the user.  This software is not a " +
+			"substitute for technical knowledge of seismic design and/or " +
+			"analysis.</i>");
+	} else {
+		applicationInfoText.setText(versioner.getUpdateMessage());
+	}
+    this.setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra - v" + versioner.getClientVersionNumber());
+    this.setSize(new Dimension(576, 450));
     //screenPanel.setSize(new Dimension(600, 500));
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation( (d.width - this.getSize().width) / 2,
                      (d.height - this.getSize().height) / 2);
-   setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
-  }
+   setIconImage(GlobalConstants.USGS_LOGO_ONLY_ICON.getImage());
+}
 
-  public static void main(String[] args) {
-    ProbabilisticHazardGui app = new ProbabilisticHazardGui();
-    app.setVisible(true);
-  }
+	public static void main(String[] args) {
+	 	ProbabilisticHazardGui app;
+		versioner = new Versioner();
+		if ( versioner.check() ) {
+    		app = new ProbabilisticHazardGui(versioner.versionCheck());
+			app.setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(null, "Could not establish a connection to the server.\n" +
+				"Our server may be temporarily down, please try again later.\n" +
+				"If the problem persists, contact emartinez@usgs.gov", "Connection Failure", 
+				JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
+	}
 
-  private void exitButton_actionPerformed(ActionEvent actionEvent) {
+/*  private void exitButton_actionPerformed(ActionEvent actionEvent) {
     System.exit(0);
-  }
+  }*/
 
   private void okButton_actionPerformed(ActionEvent actionEvent) {
     this.dispose();
@@ -144,13 +221,90 @@ public class ProbabilisticHazardGui
 
   }
 
-  //static initializer for setting look & feel
-  static {
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch (Exception e) {
-    }
+	private void okButton_notCurrent(ActionEvent actionEvent) {
+		this.dispose();
+		try {
+			org.opensha.util.BrowserLauncher.openURL(DOWNLOAD_PAGE);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "Could not open the download page.  Please visit:\n\n\t" +
+				DOWNLOAD_PAGE + "\n\nto update your version" +
+				" of this application.", "Failed to Open Page", JOptionPane.INFORMATION_MESSAGE);
+		} finally {
+			System.exit(0);
+		}
+	}
+
+  /**
+   *File | Exit action performed
+   *
+   *@param actionEvent ActionEvent
+   *
+   */
+  private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+	closeWindow();
   }
 
+  private void closeWindow() {
+	int option = JOptionPane.showConfirmDialog(this,
+						"Do you really want to exit the application?\n" +
+						"You will lose any unsaved data",
+						"Closing Application",
+						JOptionPane.OK_CANCEL_OPTION);
+	if (option == JOptionPane.OK_OPTION) {
+	  System.exit(0);
+	}
+	return;
+  }
+
+  /**
+   *Help | About
+   *
+   *@param actionEvent ActionEvent
+   *
+   */
+  private void helpAbout_actionPerformed(ActionEvent actionEvent) {
+	//Ask E.V. for the help files so we can implement in some version of this application.
+		Object [] options = { "Okay", "Revision History" };
+		String title = "Earthquake Ground Motion Tool";
+		String message = GlobalConstants.getAbout();
+		int optionType = JOptionPane.DEFAULT_OPTION;
+		int msgType = JOptionPane.INFORMATION_MESSAGE;
+
+		int answer = JOptionPane.showOptionDialog(this, message, title, optionType,
+																msgType, null, options, options[0]);
+		if (answer == 1) { // Details was clicked
+
+			if ( revisions == null ) {
+				// Create the text pane
+				JTextPane details = new JTextPane();
+				details.setContentType("text/html");
+				details.setEditable(false);
+				details.setText(versioner.getAllUpdates());
+	
+				// Create the scroll pane
+				JScrollPane revScrollPane = new JScrollPane();
+				revScrollPane.getViewport().add(details, null);
+				details.setCaretPosition(0);
+	
+				// Create the Dialog window
+				Container parent = this;
+				while ( !(parent instanceof JFrame) && parent != null) {
+					parent = parent.getParent();
+				}
+				revisions = new JDialog( (JFrame) parent);
+				revisions.setModal(true);
+				revisions.setSize(400, 200);
+				revisions.getContentPane().setLayout(new GridBagLayout());
+				revisions.getContentPane().add(revScrollPane, new GridBagConstraints(
+					0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+					new Insets(4, 4, 4, 4), 0, 0));
+				revisions.setLocation(this.getLocation());
+				revisions.setTitle(title);
+			}
+			revisions.setVisible(true);
+		}
+  }
+
+  
+  
 }

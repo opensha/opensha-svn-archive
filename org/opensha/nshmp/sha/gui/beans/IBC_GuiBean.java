@@ -33,10 +33,10 @@ public class IBC_GuiBean
 
     ArrayList supportedEditionList = new ArrayList();
 
-    supportedEditionList.add(GlobalConstants.IBC_2000);
-    supportedEditionList.add(GlobalConstants.IBC_2003);
-    supportedEditionList.add(GlobalConstants.IBC_2004);
     supportedEditionList.add(GlobalConstants.IBC_2006);
+    supportedEditionList.add(GlobalConstants.IBC_2004);
+    supportedEditionList.add(GlobalConstants.IBC_2003);
+    supportedEditionList.add(GlobalConstants.IBC_2000);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
     selectedEdition = datasetGui.getSelectedDataSetEdition();
@@ -67,7 +67,8 @@ public class IBC_GuiBean
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII)) {
+        selectedRegion.equals(GlobalConstants.HAWAII) ||
+		  selectedEdition.equals(GlobalConstants.IBC_2006)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
     }

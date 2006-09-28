@@ -2,6 +2,7 @@ package org.opensha.nshmp.sha.calc.servlet;
 
 import java.util.ArrayList;
 import org.opensha.nshmp.sha.calc.HazardDataCalc;
+import org.opensha.data.function.*;
 import java.lang.reflect.Method;
 
 /**
@@ -15,15 +16,57 @@ import java.lang.reflect.Method;
  */
 public class HazardDataCalcServletHelper {
   public Object getResult(String methodName, ArrayList objectsList) {
-    try {
+    boolean isCurrent = false;
+	 try {
       HazardDataCalc hazardDataCalc = new HazardDataCalc();
+
+	// Cycle these comments as you release new versions
+		//if (methodName.endsWith("_V4") ) {
+		//if (methodName.endsWith("_V5") ) {
+		if (methodName.endsWith("_V6") ) {
+		//if (methodName.endsWith("_V7") ) {
+		//if (methodName.endsWith("_V8") ) {
+		//if (methodName.endsWith("_V9") ) {
+			methodName = methodName.substring(0, methodName.length() - 3);
+			isCurrent = true;
+		}
+
       Method method = hazardDataCalc.getClass().getMethod(methodName,
           getClasses(objectsList));
-      return method.invoke(hazardDataCalc, getObjects(objectsList));
-    }catch(Exception e) {
+
+		if (isCurrent) {
+      	return method.invoke(hazardDataCalc, getObjects(objectsList));
+		} else {
+      	Object o =  method.invoke(hazardDataCalc, getObjects(objectsList));
+			if (o instanceof ArbitrarilyDiscretizedFunc) {
+				ArbitrarilyDiscretizedFunc rtn = (ArbitrarilyDiscretizedFunc) o;
+				rtn.setInfo("\n\n************************************************************\n" +
+					"************************************************************\n" +
+					"YOU ARE USING AN OLD VERSION OF THIS APPLICATION.\nPLEASE VISIT:\n\n" +
+					"     http://earthquake.usgs.gov/research/hazmaps/design/\n\n" +
+					"TO DOWNLOAD THE MOST RECENT VERSION OF THIS APPLICATION\n" +
+					"************************************************************\n" +
+					"************************************************************\n");
+				return rtn;
+			} else if (o instanceof DiscretizedFuncList) {
+				DiscretizedFuncList rtn = (DiscretizedFuncList) o;
+				rtn.setInfo("\n\n************************************************************\n" +
+					"************************************************************\n" +
+					"YOU ARE USING AN OLD VERSION OF THIS APPLICATION.\nPLEASE VISIT:\n\n" +
+					"     http://earthquake.usgs.gov/research/hazmaps/design/\n\n" +
+					"TO DOWNLOAD THE MOST RECENT VERSION OF THIS APPLICATION\n" +
+					"************************************************************\n" +
+					"************************************************************\n");
+				return rtn;
+			} else {
+				return null;
+			}
+		}
+
+    } catch (Exception e) {
       e.printStackTrace();
-    }
-    return null;
+    	return null;
+    } 
   }
 
   /**

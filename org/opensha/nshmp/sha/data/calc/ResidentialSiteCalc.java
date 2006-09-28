@@ -61,7 +61,8 @@ public class ResidentialSiteCalc {
         return RESIDENTIAL_SDC_E;
       }
     }
-    else if (selectedEdition.equals(GlobalConstants.IRC_2004)) {
+    else if (selectedEdition.equals(GlobalConstants.IRC_2004) ||
+						 selectedEdition.equals(GlobalConstants.IRC_2006)) {
       if (rsv >= 0.5 && rsv <= 0.67) {
         return RESIDENTIAL_SDC_D0;
       }

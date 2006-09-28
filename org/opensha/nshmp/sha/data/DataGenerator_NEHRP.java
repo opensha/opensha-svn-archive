@@ -22,6 +22,7 @@ public class DataGenerator_NEHRP
   protected String geographicRegion;
   //gets the selected edition
   protected String dataEdition;
+	protected String zipCode, lat, lon = "";
 
   protected ArbitrarilyDiscretizedFunc saFunction;
 
@@ -54,6 +55,9 @@ public class DataGenerator_NEHRP
    */
   public void clearData() {
     dataInfo = "";
+		zipCode = "";
+		lat = "";
+		lon = "";
   }
 
   /**
@@ -67,9 +71,23 @@ public class DataGenerator_NEHRP
   protected void addDataInfo(String data) {
     dataInfo += geographicRegion + "\n";
     dataInfo += dataEdition + "\n";
+
+	if ( zipCode != null && lat != null && lon != null ) {	
+		if (!zipCode.equals(""))
+			dataInfo += "Zip Code = " + zipCode + "\n";
+		if (!lat.equals("") && !lon.equals(""))
+			dataInfo += "Latitude = " + lat +
+									"\nLongitude = " + lon + "\n";
+	} else {
+		dataInfo += geographicRegion + " - " + dataEdition + "\n";
+	}
     dataInfo += data + "\n\n";
   }
 
+	/**
+	 * Returns the grid spacing of the current location's data file.
+	 *
+	 * @return float gridSpacing - The grid spacing of the datafile.
   /**
    * Returns the SA at .2sec
    * @return double
@@ -92,22 +110,39 @@ public class DataGenerator_NEHRP
    * for the location or if it is GAUM and TAUTILLA.
    */
   public void calculateSsS1() throws RemoteException {
+	getCalculateSsS1Function();
+	addDataInfo(saFunction.getInfo());
 
-    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+
+    /*
+	HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
     String location = "Spectral values are constant for the region";
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
     saFunction = function;
+	*/
 
   }
-
+  
+  public void getCalculateSsS1Function() throws RemoteException {
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
+    String location = "Spectral values are constant for the region";
+    createMetadataForPlots(location);
+	saFunction = function;
+  }
+  
+  
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
   public void calculateSsS1(double lat, double lon) throws RemoteException {
+	getCalculateSsS1Function(lat, lon);
+	addDataInfo(saFunction.getInfo());
 
+	/*
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
@@ -116,8 +151,28 @@ public class DataGenerator_NEHRP
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
     saFunction = function;
+	*/
 
   }
+  
+  public void getCalculateSsS1Function(double lat, double lon) throws RemoteException {
+
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
+        dataEdition,
+        lat, lon);
+	if ( function == null ) {
+		System.out.println("Server returned Null function");
+	}
+		this.lat = "" + lat; //newline
+		this.lon = "" + lon; //newline
+		this.zipCode = "";
+    String location = "Lat - " + lat + "\nLon - " + lon;
+    createMetadataForPlots(location);
+    saFunction = function;
+
+  }
+  
 
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
@@ -125,7 +180,10 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
       RemoteException {
+	getCalculateSsS1Function(zipCode);
+	addDataInfo(saFunction.getInfo());
 
+	/*
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
@@ -134,7 +192,30 @@ public class DataGenerator_NEHRP
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
     saFunction = function;
+	*/
   }
+
+	public void setNoLocation() {
+		zipCode = "";
+		lat = "";
+		lon = "";
+ 	}
+
+ public void getCalculateSsS1Function(String zipCode) throws ZipCodeErrorException,
+      RemoteException {
+		this.zipCode = zipCode; //newline
+		this.lat = "";
+		this.lon = "";
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
+        dataEdition,
+        zipCode);
+    String location = "Zipcode - " + zipCode;
+    createMetadataForPlots(location);
+    saFunction = function;
+  }
+
+
 
   protected void createMetadataForPlots(String location) {
     metadataForPlots = GlobalConstants.SA_DAMPING + "\n";
@@ -147,23 +228,48 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateSMSsS1() throws RemoteException {
+	
+	addDataInfo(getCalculateSMSsS1Function().getInfo());
 
-    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+	/*
+	HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(function.getInfo());
+	*/
   }
 
+  public ArbitrarilyDiscretizedFunc getCalculateSMSsS1Function() throws RemoteException {
+	
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+    ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction, faVal,
+        fvVal, siteClass);
+		
+	return(function);
+  }
+  
   /**
    *
    *
    */
   public void calculatedSDSsS1() throws RemoteException {
+	addDataInfo(getCalculatedSDSsS1Function().getInfo());
 
+	/*
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(function.getInfo());
+	*/
+  }
+
+  public ArbitrarilyDiscretizedFunc getCalculatedSDSsS1Function() throws RemoteException {
+
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+    ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
+        fvVal, siteClass);
+	
+	return(function);
   }
 
   /**

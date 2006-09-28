@@ -41,7 +41,7 @@ public class SiteInterpolation {
     if ( (latitude == minLat && longitude == minLon) ||
         (latitude == maxLat && longitude == minLon) ||
         (latitude == minLat && longitude == maxLon) ||
-        (latitude == maxLat && longitude == maxLon)) {
+        (latitude == maxLat && longitude == maxLon)) { // Any corner
       lat = (float) latitude;
       lon = (float) longitude;
       int recNum = getRecordNumber(lat, lon);
@@ -121,6 +121,12 @@ public class SiteInterpolation {
     numPeriods = regionBounds.getNumPeriods();
   }
 
+	public void printRegionBounds(DataRecord record, String fileName) {
+		getRegionBounds(record, fileName);
+		System.out.println("(minLat, minLon) = (" + minLat + ", " + minLon + ")");
+		System.out.println("(maxLat, maxLon) = (" + maxLat + ", " + maxLon + ")");
+	}
+		
   /**
    *
    * @param latitude double

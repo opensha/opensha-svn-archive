@@ -19,6 +19,7 @@ import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
+import org.opensha.exceptions.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.nshmp.param.EditableStringConstraint;
@@ -46,7 +47,7 @@ public class ProbHazCurvesGuiBean
   JPanel singleHazardValPanel = new JPanel();
   Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
   TitledBorder responseSpecBorder = new TitledBorder(border9,
-      "Single Hazard curve");
+      "Single Hazard Curve Value");
 
   TitledBorder basicParamBorder = new TitledBorder(border9,
       "Basic Hazard Curve");
@@ -57,6 +58,7 @@ public class ProbHazCurvesGuiBean
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
+	private boolean calcButtonClicked = false;
   private boolean locationVisible;
   private JButton hazCurveCalcButton = new JButton();
   private JButton viewCurveButton = new JButton();
@@ -65,6 +67,18 @@ public class ProbHazCurvesGuiBean
   private JRadioButton exceedProbAndExpTimeButton = new JRadioButton();
   private BorderLayout borderLayout1 = new BorderLayout();
   private ButtonGroup buttonGroup = new ButtonGroup();
+
+	//Some tooltip text for these buttons
+	private String hazCurveCalcToolTip = "Calculate the seismic hazard curve " +
+																				"for the B/C boundary.";
+	private String viewCurveToolTip = "View the graph for seismic hazard " +
+																			"for the B/C boundary.";
+	private String singleHazardCurveValToolTip = "Calculate the values of the " +
+																				"selected parameter for the speci" +
+																				"fied measure of probability as a " +
+																				"return period of frequency of " +
+																				"exceedance in a specified " +
+																				"exposure time.";
 
   //creating the Hazard curve selection parameter
   StringParameter hazardCurveIMTPeriodSelectionParam;
@@ -156,6 +170,8 @@ public class ProbHazCurvesGuiBean
     hazardCurveIMTPeriodSelectionParam.addParameterChangeListener(this);
     hazardCurveIMTPeriodSelectionParamEditor = new
         ConstrainedStringParameterEditor(hazardCurveIMTPeriodSelectionParam);
+		hazardCurveIMTPeriodSelectionParamEditor.getValueEditor().setToolTipText(
+			"Select the parameter of interest from the list.");
     hazardCurveIMTPeriodSelectionParamEditor.refreshParamEditor();
     imt = (String) hazardCurveIMTPeriodSelectionParam.getValue();
 
@@ -216,13 +232,13 @@ public class ProbHazCurvesGuiBean
                                      new GridBagConstraints(0, 0, 1, 1, 1.0,
           1.0
           , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-          new Insets(1,1,1,1), 0, 0));
+          new Insets(0,0,0,0), 0, 0));
 
       singleHazardValEditorPanel.add(expTimeEditor,
                                      new GridBagConstraints(1, 0, 1, 1, 1.0,
           1.0
           , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-          new Insets(1,1,1,1), 0, 0));
+          new Insets(0,0,0,0), 0, 0));
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -237,8 +253,17 @@ public class ProbHazCurvesGuiBean
   private void setParametersForSingleHazardValueVisible() {
 
     exceedProbEditor.setVisible(!returnPdSelected);
+		exceedProbEditor.getValueEditor().setToolTipText(
+				"Select a probability of exceedance from the list, " +
+				"or type in a probability of interest in percent.");
     expTimeEditor.setVisible(!returnPdSelected);
+		expTimeEditor.getValueEditor().setToolTipText(
+				"Select an exposure time in years from the list, " +
+				"or type in an exposure time of interest in years.");
     returnPdEditor.setVisible(returnPdSelected);
+		returnPdEditor.getValueEditor().setToolTipText(
+				"Select a return period in years from the list, " +
+				"or type in a return perioed of interest in years.");
 
     singleHazardValPanel.updateUI();
   }
@@ -258,12 +283,14 @@ public class ProbHazCurvesGuiBean
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
     hazCurveCalcButton.setText("Calculate");
+		hazCurveCalcButton.setToolTipText(hazCurveCalcToolTip);
     hazCurveCalcButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         hazCurveCalcButton_actionPerformed(e);
       }
     });
-    viewCurveButton.setText("View");
+    viewCurveButton.setText("  View  ");
+		viewCurveButton.setToolTipText(viewCurveToolTip);
     viewCurveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         viewCurveButton_actionPerformed(e);
@@ -271,6 +298,7 @@ public class ProbHazCurvesGuiBean
     });
     singleHazardCurveValButton.setText(
         "Calculate");
+		singleHazardCurveValButton.setToolTipText(singleHazardCurveValToolTip);
     singleHazardCurveValButton.addActionListener(new java.awt.event.
                                                  ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -278,7 +306,11 @@ public class ProbHazCurvesGuiBean
       }
     });
     returnPdButton.setText("Return Pd");
+		returnPdButton.setToolTipText("Select to calculate a hazard value using "+
+					"the ground motion return period in years.");
     exceedProbAndExpTimeButton.setText("Prob & Time");
+		exceedProbAndExpTimeButton.setToolTipText("Select to calculate the " +
+				"hazard value using the Probability of Exceedance and Exposure Time.");
     mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
     mainSplitPane.add(buttonsSplitPane, JSplitPane.BOTTOM);
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
@@ -288,15 +320,15 @@ public class ProbHazCurvesGuiBean
 
     this.add(mainSplitPane, BorderLayout.CENTER);
     basicParamsPanel.add(hazCurveCalcButton,
-                         new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.NORTH,
+                         new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 70, 4, 0), 0, 0));
+                                                new Insets(4, 0, 4, 100), 0,0));
     basicParamsPanel.add(viewCurveButton,
                          new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.NORTH,
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 9, 4, 110), 0,0));
+                                                new Insets(4, 100, 4, 0), 0,0));
     singleHazardValPanel.add(singleHazardValEditorPanel,
                              new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -304,16 +336,16 @@ public class ProbHazCurvesGuiBean
     singleHazardValPanel.add(returnPdButton,
                              new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-        new Insets(1,-20, 1, 60), 0,0));
+        new Insets(1, 0, 1, 40), 0,0));
     singleHazardValPanel.add(exceedProbAndExpTimeButton,
                              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.WEST,
         new Insets(1, -20, 1, 60), 0, 0));
 
     singleHazardValPanel.add(singleHazardCurveValButton,
-                             new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(1, 150,1,1), 0, 0));
+                             new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(1, -10,1,1), 0, 0));
 
 
   returnPdButton.addActionListener(new ActionListener() {
@@ -334,8 +366,9 @@ public class ProbHazCurvesGuiBean
     buttonGroup.setSelected(returnPdButton.getModel(), true);
     mainSplitPane.setDividerLocation(260);
     buttonsSplitPane.setDividerLocation(117);
-    singleHazardCurveValButton.setEnabled(false);
-    viewCurveButton.setEnabled(false);
+    singleHazardCurveValButton.setEnabled(true);
+    viewCurveButton.setEnabled(true);
+		calcButtonClicked = false;
     singleHazardValPanel.setMinimumSize(new Dimension(0,0));
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
@@ -346,7 +379,8 @@ public class ProbHazCurvesGuiBean
    */
   public void clearData() {
     dataGenerator.clearData();
-    singleHazardCurveValButton.setEnabled(false);
+    //singleHazardCurveValButton.setEnabled(false);
+		calcButtonClicked = false;
   }
 
   /**
@@ -373,19 +407,22 @@ public class ProbHazCurvesGuiBean
         bugWindow.pack();
       }
       createIMT_PeriodsParameter();
-      viewCurveButton.setEnabled(false);
-      singleHazardCurveValButton.setEnabled(false);
+      //viewCurveButton.setEnabled(false);
+      //singleHazardCurveValButton.setEnabled(false);
+			calcButtonClicked = false;
     }
     else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
-      viewCurveButton.setEnabled(false);
-      singleHazardCurveValButton.setEnabled(false);
+      //viewCurveButton.setEnabled(false);
+      //singleHazardCurveValButton.setEnabled(false);
+			calcButtonClicked = false;
     }
 
     else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME)) {
       imt = (String) hazardCurveIMTPeriodSelectionParam.getValue();
-      viewCurveButton.setEnabled(false);
-      singleHazardCurveValButton.setEnabled(false);
+      //viewCurveButton.setEnabled(false);
+      //singleHazardCurveValButton.setEnabled(false);
+			calcButtonClicked = false;
     }
     else if (paramName.equals(RETURN_PERIOD_PARAM_NAME)) {
       returnPeriod = (String)returnPdEditor.getValue();
@@ -399,8 +436,9 @@ public class ProbHazCurvesGuiBean
     else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
              paramName.equals(locGuiBean.LON_PARAM_NAME) ||
              paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
-      viewCurveButton.setEnabled(false);
-      singleHazardCurveValButton.setEnabled(false);
+      //viewCurveButton.setEnabled(false);
+      //singleHazardCurveValButton.setEnabled(false);
+			calcButtonClicked = false;
     }
 
     this.updateUI();
@@ -540,6 +578,11 @@ public class ProbHazCurvesGuiBean
   }
 
   void viewCurveButton_actionPerformed(ActionEvent e) {
+		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
+		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
+			return;
+		}
+	
     GraphWindow window = new GraphWindow(dataGenerator.getHazardCurveFunction());
     window.setVisible(true);
   }
@@ -568,8 +611,9 @@ public class ProbHazCurvesGuiBean
     }
 
     application.setDataInWindow(getData());
-    viewCurveButton.setEnabled(true);
-    singleHazardCurveValButton.setEnabled(true);
+    //viewCurveButton.setEnabled(true);
+    //singleHazardCurveValButton.setEnabled(true);
+		calcButtonClicked = true;
   }
 
   /**
@@ -577,6 +621,10 @@ public class ProbHazCurvesGuiBean
    * @param e ActionEvent
    */
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
+		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
+		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
+			return;
+		}
 
     boolean isLogInterpolation = true;
     //linear interpolation in case if the selected data edition is 1996 or 1998
@@ -625,7 +673,11 @@ public class ProbHazCurvesGuiBean
                                       JOptionPane.ERROR_MESSAGE);
         return;
       }
-
+			catch (InvalidRangeException ex) {
+							System.out.println(ex.getMessage());
+							ex.printStackTrace();
+					return;
+			}
     }
     application.setDataInWindow(getData());
   }

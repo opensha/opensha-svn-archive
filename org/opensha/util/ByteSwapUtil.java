@@ -40,6 +40,30 @@ public final class ByteSwapUtil {
   }
 
   /**
+   * Swaps the bits of an int and returns the
+   * corresponding float value. This method resolves
+   * issues with big vs. little endian datastorage where
+   * a valid little endian float, when read by a big
+   * endian cpu becomes NaN.  This will preserve the true
+   * little endian value. (And vice-versa).
+   *
+   * @param value The value to swap
+   * @return The corresponding float value
+   */
+  public static float swapIntToFloat(int value) {
+      int b1 = (value >> 0) & 0xff;
+      int b2 = (value >> 8) & 0xff;
+      int b3 = (value >> 16) & 0xff;
+      int b4 = (value >> 24) & 0xff;
+
+      return Float.intBitsToFloat(b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0);
+  }
+
+  
+  
+  
+  
+  /**
    * Byte swap a single short value.
    *
    * @param value  Value to byte swap.

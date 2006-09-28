@@ -56,6 +56,28 @@ public class NEHRP_GuiBean
   JButton sdSpecButton = new JButton();
   JButton viewButton = new JButton();
 
+	//some labels for the tooltips for the buttons.
+	protected String mapSpecToolTip = "Calculate the MCE map spectrum for the "+
+		"reference Site Class B based on Ss and S1.";
+	protected String smSpecToolTip = "Calculate the site-modified specturm " +
+		"for the selected Site Class based on Sms and Sm.1";
+	protected String sdSpecToolTip = "Calculate the design spectrum for the " +
+		"selected Site Class based on Sds and Sd1.";
+	protected String viewToolTip = "View the graphs of the response spectra " +
+		"for the Site Class B, the site-modified values.";
+	protected String ssToolTip = "Calculate spectral accelerations for " +
+		"the values of Ss and S1 for Site Class B.";
+	protected String smSDToolTip = "Calculate the site-modified spectral " +
+		"accelerations Sms and Sm1, and the design spectral accelerations " +
+		"for 0.2 sec and 1.0 sec perioeds.";
+
+	//some booleans to control when buttons have been clicked
+	protected boolean ssButtonClicked = false;
+	protected boolean smSDButtonClicked = false;
+	protected boolean mapSpecButtonClicked = false;
+	protected boolean smSpecButtonClicked = false;
+	protected boolean sdSpecButtonClicked = false;
+
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   GridBagLayout gridBagLayout3 = new GridBagLayout();
@@ -79,11 +101,11 @@ public class NEHRP_GuiBean
   protected ProbabilisticHazardApplicationAPI application;
 
   protected boolean mapSpectrumCalculated, smSpectrumCalculated,
-      sdSpectrumCalculated;
-
+  	sdSpectrumCalculated;
+	
   protected String selectedRegion, selectedEdition, spectraType;
-
   protected boolean siteCoeffWindowShow = false;
+	protected boolean viewSitePopUp = true;
 
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -147,6 +169,8 @@ public class NEHRP_GuiBean
         0));
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
+		groundMotionParamEditor.getValueEditor().setToolTipText(
+			"The parameter shown is the only selectio available for new structures.");
     spectraType = (String) groundMotionParam.getValue();
   }
 
@@ -164,7 +188,8 @@ public class NEHRP_GuiBean
     basicParamsPanel.setLayout(gridBagLayout4);
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
-    ssButton.setText("Calc Ss & S1");
+    ssButton.setText("   Calculate Ss & S1   ");
+		ssButton.setToolTipText(ssToolTip);
     ssButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         ssButton_actionPerformed(actionEvent);
@@ -172,7 +197,8 @@ public class NEHRP_GuiBean
     });
 
 
-    smSDButton.setText("Calc SM & SD");
+    smSDButton.setText("Calculate SM & SD Values");
+		smSDButton.setToolTipText(smSDToolTip);
     smSDButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         smSDButton_actionPerformed(actionEvent);
@@ -182,14 +208,16 @@ public class NEHRP_GuiBean
     responseSpecBorder.setTitleColor(Color.RED);
     responseSpectraButtonPanel.setLayout(gridBagLayout3);
 
-    mapSpecButton.setText("Calc Map spec.");
+    mapSpecButton.setText("      Map Spectrum      ");
+		mapSpecButton.setToolTipText(mapSpecToolTip);
     mapSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         mapSpecButton_actionPerformed(actionEvent);
       }
     });
 
-    smSpecButton.setText("Calc SM spec.");
+    smSpecButton.setText(" Site Modified Spectrum ");
+		smSpecButton.setToolTipText(smSpecToolTip);
     smSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         smSpecButton_actionPerformed(actionEvent);
@@ -197,7 +225,8 @@ public class NEHRP_GuiBean
     });
 
 
-    sdSpecButton.setText("Calc SD spec.");
+    sdSpecButton.setText("    Design Spectrum    ");
+		sdSpecButton.setToolTipText(sdSpecToolTip);
     sdSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         sdSpecButton_actionPerformed(actionEvent);
@@ -205,7 +234,8 @@ public class NEHRP_GuiBean
     });
 
 
-    viewButton.setText("View Spec.");
+    viewButton.setText("       View Spectra       ");
+		viewButton.setToolTipText(viewToolTip);
     viewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewButton_actionPerformed(actionEvent);
@@ -225,21 +255,21 @@ public class NEHRP_GuiBean
 
     responseSpectraButtonPanel.add(viewButton,
                                    new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(10, 2, 20, 8), 0, 0));
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(2, 0, 0, 2), 0, 0));
     responseSpectraButtonPanel.add(mapSpecButton,
                                    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
+        new Insets( 2, 0, 0, 2), 0, 0));
     responseSpectraButtonPanel.add(smSpecButton,
                                    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
+        new Insets( 2, 0, 0, 2), 0, 0));
 
     responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
+        new Insets( 2, 0, 0, 2), 0, 0));
     basicParamsPanel.add(ssButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.EAST, GridBagConstraints.NONE,
         new Insets(2, 2, 2, 2), 0, 0));
@@ -256,18 +286,19 @@ public class NEHRP_GuiBean
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
     responseSpectraButtonPanel.setMinimumSize(new Dimension(0,0));
-    setButtonsEnabled(false);
+    setButtonsEnabled(true);
   }
 
   protected void setButtonsEnabled(boolean enableButtons) {
-    smSDButton.setEnabled(enableButtons);
-    mapSpecButton.setEnabled(enableButtons);
-    smSpecButton.setEnabled(enableButtons);
-    sdSpecButton.setEnabled(enableButtons);
-    viewButton.setEnabled(false);
+    smSDButton.setEnabled(true);  //was (enableButtons) instead of static true
+    mapSpecButton.setEnabled(true);
+    smSpecButton.setEnabled(true);
+    sdSpecButton.setEnabled(true);
+    viewButton.setEnabled(true);  //was hardcoded 'false'
+    siteCoeffWindowShow = false;
+		viewSitePopUp = true;
     if (enableButtons == false) {
       mapSpectrumCalculated = smSpectrumCalculated = sdSpectrumCalculated = false;
-      siteCoeffWindowShow = false;
     }
   }
 
@@ -295,7 +326,16 @@ public class NEHRP_GuiBean
    */
   public void clearData() {
     dataGenerator.clearData();
-    setButtonsEnabled(false);
+		setButtonsEnabled(false);
+		resetButtons();
+  }
+
+	public void resetButtons() {
+	  ssButtonClicked = false;
+		smSDButtonClicked = false;
+		mapSpecButtonClicked = false;
+		smSpecButtonClicked = false;
+		sdSpecButtonClicked = false;
   }
 
   /**
@@ -303,7 +343,8 @@ public class NEHRP_GuiBean
    * @param event ParameterChangeEvent
    */
   public void parameterChange(ParameterChangeEvent event) {
-
+		siteCoefficientWindow = null; //So Fa/Fv/Class are reset when any parameter
+																	//changes
     String paramName = event.getParameterName();
 
     if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
@@ -319,16 +360,61 @@ public class NEHRP_GuiBean
         bugWindow.pack();
 
       }
+
       setButtonsEnabled(false);
+		resetButtons();
+
+		/*if (!locationVisible) {
+			dataGenerator.setNoLocation();
+    		smSDButton.setEnabled(false);  
+    		mapSpecButton.setEnabled(false);
+    		smSpecButton.setEnabled(false);
+    		sdSpecButton.setEnabled(false);
+    		viewButton.setEnabled(false); 
+    		siteCoeffWindowShow = false;
+		}*/
+			
     }
     else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
+			
+      try {
+        createLocation();
+      }
+      catch (RegionConstraintException ex) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+            "Exception occured while initializing the  region parameters in NSHMP application." +
+            "Parameters values have not been set yet.");
+        bugWindow.setVisible(true);
+        bugWindow.pack();
+
+      }
+			resetButtons();
+		/*if (!locationVisible) {
+			dataGenerator.setNoLocation();
+    		smSDButton.setEnabled(false);  
+    		mapSpecButton.setEnabled(false);
+    		smSpecButton.setEnabled(false);
+    		sdSpecButton.setEnabled(false);
+    		viewButton.setEnabled(false); 
+    		siteCoeffWindowShow = false;
+		}*/
     }
     else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
              paramName.equals(locGuiBean.LON_PARAM_NAME) ||
              paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
       setButtonsEnabled(false);
+			resetButtons();
+		/*if (!locationVisible) {
+			dataGenerator.setNoLocation();
+    		smSDButton.setEnabled(false);  
+    		mapSpecButton.setEnabled(false);
+    		smSpecButton.setEnabled(false);
+    		sdSpecButton.setEnabled(false);
+    		viewButton.setEnabled(false); 
+    		siteCoeffWindowShow = false;
+		}*/
     }
 
   }
@@ -421,6 +507,33 @@ public class NEHRP_GuiBean
     selectedRegion = datasetGui.getSelectedGeographicRegion();
   }
 
+	/**
+	 * Creates header information to include with all the datasets.
+	 *
+	 * @return metaData String - Representing the header info for all
+	 * datasets.
+	 */
+	/*public String createMetaDataForPlots() {
+		String metaData = "";
+		metaData += selectedRegion + "\n";
+		metaData += selectedEdition + "\n";
+		try {
+			if (locGuiBean.getLocationMode()) { //meaning Lat-Lon option is seleced.
+				Location curLoc = locGuiBean.getSelectedLocation();
+				metaData += "Latitude = " + curLoc.getLatitude() + "\n" +
+										"Longitude = " + curLoc.getLongitude() + "\n";
+			} else {
+				metaData += "Zip Code = " + locGuiBean.getZipCode() + "\n";
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			return "";
+		}
+		System.out.println(metaData);
+		return metaData;
+	}
+	*/	
+
   /**
    * Gets the SA Period and Values from datafiles
    */
@@ -461,19 +574,58 @@ public class NEHRP_GuiBean
     }
   }
 
+	protected boolean locationReady() {
+		boolean r = locGuiBean.hasLocation();
+    	if (!r) {
+	 		if ( !(selectedRegion.equals(GlobalConstants.CONTER_48_STATES) || //e.g. it is a PRVI area
+				 	 selectedRegion.equals(GlobalConstants.ALASKA) ||
+				 	 selectedRegion.equals(GlobalConstants.HAWAII)) &&  // AND
+					 
+					(selectedEdition.equals(GlobalConstants.NEHRP_1997) || //e.g it is an edtion with constant
+				 	 selectedEdition.equals(GlobalConstants.NEHRP_2000) || //     spectral values
+				 	 selectedEdition.equals(GlobalConstants.ASCE_1998) ||
+				 	 selectedEdition.equals(GlobalConstants.ASCE_2002) ||
+				 	 selectedEdition.equals(GlobalConstants.IBC_2000) ||
+				 	 selectedEdition.equals(GlobalConstants.IBC_2003) ||
+				 	 selectedEdition.equals(GlobalConstants.IBC_2004) ||
+				 	 selectedEdition.equals(GlobalConstants.NFPA_2003)) ) {
+
+				r = true; // location is ready 
+			} else if ( selectedRegion.equals(GlobalConstants.GUAM) || 
+						   selectedRegion.equals(GlobalConstants.TUTUILA)) {
+				r = true; // location is ready
+		   } else {
+				JOptionPane.showMessageDialog(this, "Location not specified!\n" +
+					"Please fill in the location parameter.", "Location Error",
+           	JOptionPane.OK_OPTION);
+			}
+		}
+		return r;
+	}	
+
   protected void ssButton_actionPerformed(ActionEvent actionEvent) {
-    try {
+		ssButtonClicked = false;
+		smSDButtonClicked = false;
+		mapSpecButtonClicked = false;
+		smSpecButtonClicked = false;
+		sdSpecButtonClicked = false;
+		ssButton_doActions();
+	}
+
+	protected boolean ssButton_doActions() {
+		if (ssButtonClicked) { return true; }
+		try {
       getDataForSA_Period();
     }
     catch (ZipCodeErrorException ee) {
       JOptionPane.showMessageDialog(this, ee.getMessage(), "Zip Code Error",
                                     JOptionPane.OK_OPTION);
-      return;
+      return false;
     }
     catch (LocationErrorException ee) {
       JOptionPane.showMessageDialog(this, ee.getMessage(), "Location Error",
                                     JOptionPane.OK_OPTION);
-      return;
+      return false;
     }
     catch (RemoteException ee) {
       JOptionPane.showMessageDialog(this,
@@ -481,10 +633,12 @@ public class NEHRP_GuiBean
                                     "Please check your network connection",
                                     "Server Connection Error",
                                     JOptionPane.ERROR_MESSAGE);
-      return;
+      return false;
     }
     application.setDataInWindow(getData());
-    setButtonsEnabled(true);
+    ssButtonClicked = true;
+		return ssButtonClicked;
+    //setButtonsEnabled(true);
   }
 
   /**
@@ -495,90 +649,176 @@ public class NEHRP_GuiBean
     return dataGenerator.getDataInfo();
   }
 
-
+	/**
+	 * Shows a popup dialog asking user if they would like to change the site
+	 * coefficients before continuing.  On cancel, nothing is done; on yes, the
+	 * site coefficient window is shown.
+	 */
+	protected void showSitePopUp() {	
+		String infoMsg = "The site coefficients have already\n" +
+							"been calculated for this location.\n" +
+							"Would you like to recalculate these now?";
+		int answer = JOptionPane.showConfirmDialog(this, infoMsg, 
+																	"Change Site Coefficients?",
+																	JOptionPane.YES_NO_OPTION);
+		if ( answer == JOptionPane.YES_OPTION ) {
+			 siteCoeffWindowShow = false;
+		} else {
+			 siteCoeffWindowShow = true;
+		}
+	}
+	
   /**
    * This function pops up the site coefficient window and allows user to set
    * Site coefficient for the calculation.
    */
   protected void setSiteCoeff(){
-    if(!siteCoeffWindowShow){
-      //pops up the window that allows the user to set the Site Coefficient
-      if (siteCoefficientWindow == null) {
-        siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.
-            getSs(),
-            dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
-      }
-      siteCoefficientWindow.setVisible(true);
-
-      dataGenerator.setFa(siteCoefficientWindow.getFa());
-      dataGenerator.setFv(siteCoefficientWindow.getFv());
-      dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-      siteCoeffWindowShow = true;
-    }
+		if (ssButton_doActions()) {
+    	if(!viewSitePopUp){showSitePopUp();}
+			viewSitePopUp = false;
+    	if(!siteCoeffWindowShow){
+				//ssButtonClicked = false;
+				smSDButtonClicked = false;
+				mapSpecButtonClicked = false;
+				smSpecButtonClicked = false;
+				sdSpecButtonClicked = false;
+      	//pops up the window that allows the user to set the Site Coefficient
+      	if (siteCoefficientWindow == null) {
+        	siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.
+            	getSs(),
+            	dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
+      	}
+      	siteCoefficientWindow.setVisible(true);
+	
+      	dataGenerator.setFa(siteCoefficientWindow.getFa());
+      	dataGenerator.setFv(siteCoefficientWindow.getFv());
+      	dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
+      	siteCoeffWindowShow = true;
+    	}
+		}
   }
 
 
   protected void smSDButton_actionPerformed(ActionEvent actionEvent) {
-    setSiteCoeff();
-    try {
-      dataGenerator.calculateSMSsS1();
-      dataGenerator.calculatedSDSsS1();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
-                                    e.getMessage() + "\n" +
-                                    "Please check your network connection",
-                                    "Server Connection Error",
-                                    JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-    application.setDataInWindow(getData());
+		smSDButtonClicked = false;
+		mapSpecButtonClicked = false;
+		smSpecButtonClicked = false;
+		sdSpecButtonClicked = false;
+		if (locationReady() ) {
+			setSiteCoeff();
+			smSDButton_doActions();
+		}
+	}
+
+	protected boolean smSDButton_doActions() {
+	  if (smSDButtonClicked) { return true; }
+		if (ssButton_doActions()) {
+    	try {
+      	dataGenerator.calculateSMSsS1();
+      	dataGenerator.calculatedSDSsS1();
+    	}
+    	catch (RemoteException e) {
+      	JOptionPane.showMessageDialog(this,
+                                    	e.getMessage() + "\n" +
+                                    	"Please check your network connection",
+                                    	"Server Connection Error",
+                                    	JOptionPane.ERROR_MESSAGE);
+      	return false;
+    	}
+    	application.setDataInWindow(getData());
+			smSDButtonClicked = true;
+		} else {
+			smSDButtonClicked = false;
+		}
+		return smSDButtonClicked;
   }
 
   protected void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try {
-      dataGenerator.calculateMapSpectrum();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
-                                    e.getMessage() + "\n" +
-                                    "Please check your network connection",
-                                    "Server Connection Error",
-                                    JOptionPane.ERROR_MESSAGE);
-      return;
-    }
+		mapSpecButtonClicked = false;
+		smSpecButtonClicked = false;
+		sdSpecButtonClicked = false;
+		if (locationReady() ) {
+				setSiteCoeff();
+				mapSpecButton_doActions();
+		}
+	}
 
-    application.setDataInWindow(getData());
-    if (!viewButton.isEnabled()) {
-      viewButton.setEnabled(true);
-    }
-    mapSpectrumCalculated = true;
+	protected boolean mapSpecButton_doActions() {
+	  if (mapSpecButtonClicked) { return true; }
+		if (smSDButton_doActions() ) {
+			
+			try {
+      	dataGenerator.calculateMapSpectrum();
+    	}
+    	catch (RemoteException e) {
+      	JOptionPane.showMessageDialog(this,
+                                    	e.getMessage() + "\n" +
+                                    	"Please check your network connection",
+                                    	"Server Connection Error",
+                                    	JOptionPane.ERROR_MESSAGE);
+      	return false;
+    	}
+	
+    	application.setDataInWindow(getData());
+    	if (!viewButton.isEnabled()) {
+      	viewButton.setEnabled(true);
+    	}
+    	mapSpectrumCalculated = true;
+			mapSpecButtonClicked = true;
+		} else {
+			mapSpecButtonClicked = false;
+		}
+		return mapSpecButtonClicked;
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-    setSiteCoeff();
-    try {
-      dataGenerator.calculateSMSpectrum();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
+		smSpecButtonClicked = false;
+		sdSpecButtonClicked = false;
+		if (locationReady()) {
+			setSiteCoeff();
+			smSpecButton_doActions();
+		}
+	}
+
+	protected boolean smSpecButton_doActions() {
+	  if (smSpecButtonClicked) { return true; }
+		if (mapSpecButton_doActions()) { 
+			try {
+      	dataGenerator.calculateSMSpectrum();
+    	}
+    	catch (RemoteException e) {
+      	JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
                                     "Server Connection Error",
                                     JOptionPane.ERROR_MESSAGE);
-      return;
-    }
+      	return false;
+    	}
 
-    application.setDataInWindow(getData());
-    if (!viewButton.isEnabled()) {
-      viewButton.setEnabled(true);
-    }
-    smSpectrumCalculated = true;
+    	application.setDataInWindow(getData());
+    	if (!viewButton.isEnabled()) {
+      	viewButton.setEnabled(true);
+    	}
+    	smSpectrumCalculated = true;
+			smSpecButtonClicked = true;
+		} else { 
+			smSpecButtonClicked = false;
+		}
+		return smSpecButtonClicked;
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
-    setSiteCoeff();
-    try {
+		sdSpecButtonClicked = false;
+		if (locationReady()) {
+			setSiteCoeff();
+			sdSpecButton_doActions();
+		}
+	}
+	
+	protected boolean sdSpecButton_doActions() {
+		if (sdSpecButtonClicked) { return true; }
+    if (smSpecButton_doActions()) {
+		try {
       dataGenerator.calculateSDSpectrum();
     }
     catch (RemoteException e) {
@@ -587,7 +827,7 @@ public class NEHRP_GuiBean
                                     "Please check your network connection",
                                     "Server Connection Error",
                                     JOptionPane.ERROR_MESSAGE);
-      return;
+      return false;
     }
 
     application.setDataInWindow(getData());
@@ -595,13 +835,23 @@ public class NEHRP_GuiBean
       viewButton.setEnabled(true);
     }
     sdSpectrumCalculated = true;
+		sdSpecButtonClicked = true;
+		} else {
+			sdSpecButtonClicked = false;
+		}
+		return sdSpecButtonClicked;
   }
 
   protected void viewButton_actionPerformed(ActionEvent actionEvent) {
-    ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
-        mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
-    GraphWindow window = new GraphWindow(functions);
-    window.setVisible(true);
+		if (locationReady()) {
+			setSiteCoeff();
+			if (sdSpecButton_doActions()) {
+			ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
+      	mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
+    		GraphWindow window = new GraphWindow(functions);
+    		window.setVisible(true);
+			}
+		}
   }
 
 }

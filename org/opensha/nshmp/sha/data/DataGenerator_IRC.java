@@ -35,7 +35,7 @@ public class DataGenerator_IRC
       "RESIDENTIAL DESIGN INFORMATION";
   private static final String SOIL_FACTOR_STRING = "Soil factor for " + Site_D;
   private static final String RESIDENTIAL_SITE_VAL =
-      "Residential Site Value = 2/3 * Fa * Ss = ";
+      "Residential Site Value = 2/3 x Fa x Ss = ";
   private static final String RESIDENTIAL_SEIS_DESIGN_VAL =
       "Residential Seismic Design Category = ";
 
@@ -87,8 +87,8 @@ public class DataGenerator_IRC
    * for the location or if it is GAUM and TAUTILLA.
    */
   public void calculateSsS1() throws RemoteException {
-    super.calculateSsS1();
-    clearData();
+    super.getCalculateSsS1Function();
+    //clearData();
     setFaFv();
     setResidentialSiteValues();
     addDataInfo(createInfoString());
@@ -99,8 +99,8 @@ public class DataGenerator_IRC
    * specifies Lat-Lon for the location.
    */
   public void calculateSsS1(double lat, double lon) throws RemoteException {
-    super.calculateSsS1(lat, lon);
-    clearData();
+    super.getCalculateSsS1Function(lat, lon);
+    //clearData();
     setFaFv();
     setResidentialSiteValues();
     addDataInfo(createInfoString());
@@ -112,8 +112,8 @@ public class DataGenerator_IRC
    */
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
       RemoteException {
-    super.calculateSsS1(zipCode);
-    clearData();
+    super.getCalculateSsS1Function(zipCode);
+    //clearData();
     setFaFv();
     setResidentialSiteValues();
     addDataInfo(createInfoString());

@@ -27,8 +27,7 @@ public final class RegionUtil {
     if (selectedAnalysisOption.equals(GlobalConstants.NEHRP) ||
         selectedAnalysisOption.equals(GlobalConstants.ASCE_7) ||
         selectedAnalysisOption.equals(GlobalConstants.NFPA) ||
-        selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE) ||
-        selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
+        selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
       supportedRegionList.add(GlobalConstants.ALASKA);
       supportedRegionList.add(GlobalConstants.HAWAII);
@@ -42,7 +41,8 @@ public final class RegionUtil {
       supportedRegionList.add(GlobalConstants.GUAM);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES) ||
-             selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
+             selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES) ||
+				 selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
       supportedRegionList.add(GlobalConstants.ALASKA);
       supportedRegionList.add(GlobalConstants.HAWAII);
@@ -52,7 +52,7 @@ public final class RegionUtil {
       supportedRegionList.add(GlobalConstants.ST_JOHN);
       supportedRegionList.add(GlobalConstants.ST_THOMAS);
       supportedRegionList.add(GlobalConstants.VIEQUES);
-    }
+    } 	
     /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
       supportedRegionList.add(GlobalConstants.ALASKA);
@@ -75,7 +75,7 @@ public final class RegionUtil {
       selectedGeographicRegion) throws RegionConstraintException {
 
     if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
-      return new RectangularGeographicRegion(24.6, 50, -125, -65);
+      return new RectangularGeographicRegion(24.7, 50, -125, -65);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ALASKA)) {
       return new RectangularGeographicRegion(48, 72, -200, -125);
@@ -90,7 +90,7 @@ public final class RegionUtil {
       return new RectangularGeographicRegion(18.27, 18.36, -65.39, -65.21);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_CROIX)) {
-      return new RectangularGeographicRegion(17.67, 17.8, -64.93, -65.54);
+      return new RectangularGeographicRegion(17.67, 17.8, -65.54, -64.93);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_JOHN)) {
       return new RectangularGeographicRegion(18.29, 18.38, -64.85, -64.65);
@@ -118,7 +118,7 @@ public final class RegionUtil {
       supportedImtPeriods.add(GlobalConstants.IMT_POINT_ONE_SEC);
       supportedImtPeriods.add(GlobalConstants.IMT_POINT_TWO_SEC);
       supportedImtPeriods.add(GlobalConstants.IMT_POINT_THREE_SEC);
-      supportedImtPeriods.add(GlobalConstants.IMT_POINT_FOUR_SEC);
+      //supportedImtPeriods.add(GlobalConstants.IMT_POINT_FOUR_SEC);
       supportedImtPeriods.add(GlobalConstants.IMT_POINT_FIVE_SEC);
       supportedImtPeriods.add(GlobalConstants.IMT_ONE_SEC);
       supportedImtPeriods.add(GlobalConstants.IMT_TWO_SEC);

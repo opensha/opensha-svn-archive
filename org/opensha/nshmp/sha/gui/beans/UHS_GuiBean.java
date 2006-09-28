@@ -76,6 +76,7 @@ public class UHS_GuiBean
 
   //checks if site coefficient has been set.
   private boolean siteCoeffWindowShow = false;
+	private boolean uhsButtonClicked = false;
 
   public UHS_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -138,6 +139,9 @@ public class UHS_GuiBean
     groundMotionParam.addParameterChangeListener(this);
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
+		groundMotionParamEditor.getValueEditor().setToolTipText(
+			"Select the parameter of interest from the list.");
+
     spectraType = (String) groundMotionParam.getValue();
 
     basicParamsPanel.add(groundMotionParamEditor,
@@ -173,6 +177,8 @@ public class UHS_GuiBean
     basicParamBorder.setTitleColor(Color.RED);
 
     uhsButton.setText("Calculate");
+		uhsButton.setToolTipText("Calculate the uniform hazard spectrum " +
+			"and the values of Ss and S1 for the B/C boundary.");
     uhsButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         uhsButton_actionPerformed(actionEvent);
@@ -180,6 +186,8 @@ public class UHS_GuiBean
     });
 
     viewUHSButton.setText("View UHS");
+		viewUHSButton.setToolTipText("View the graphs of the uniform hazard " +
+			"response spectra.");
     viewUHSButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewUHSButton_actionPerformed(actionEvent);
@@ -205,7 +213,8 @@ public class UHS_GuiBean
                                                 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(350);
-    setButtonsEnabled(false);
+    setButtonsEnabled(true);
+		uhsButtonClicked = false;
     createGroundMotionParameter();
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
@@ -213,7 +222,8 @@ public class UHS_GuiBean
   }
 
   protected void setButtonsEnabled(boolean enableButtons) {
-    viewUHSButton.setEnabled(enableButtons);
+    //viewUHSButton.setEnabled(enableButtons);
+		viewUHSButton.setEnabled(true);
     if(enableButtons == false)
       siteCoeffWindowShow= false;
   }
@@ -223,7 +233,8 @@ public class UHS_GuiBean
    */
   public void clearData() {
     dataGenerator.clearData();
-    setButtonsEnabled(false);
+    //setButtonsEnabled(false);
+		uhsButtonClicked = false;
   }
 
 
@@ -258,19 +269,23 @@ public class UHS_GuiBean
         createLocation();
       }
       catch (RegionConstraintException ex) {
-        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
-            "Exception occured while initializing the  region parameters in NSHMP application." +
-            "Parameters values have not been set yet.");
-        bugWindow.setVisible(true);
-        bugWindow.pack();
+        //ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+            //"Exception occured while initializing the  region parameters in NSHMP application." +
+            //"Parameters values have not been set yet.");
+        //bugWindow.setVisible(true);
+        //bugWindow.pack();
+		  System.out.println(ex.getMessage());
+		  ex.printStackTrace();
 
       }
-      setButtonsEnabled(false);
+      //setButtonsEnabled(false);
+			uhsButtonClicked = false;
     }
     else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       createGroundMotionParameter();
-      setButtonsEnabled(false);
+      //setButtonsEnabled(false);
+			uhsButtonClicked = false;
     }
     else if (paramName.equals(GROUND_MOTION_PARAM_NAME)) {
       spectraType = (String) groundMotionParam.getValue();
@@ -279,7 +294,8 @@ public class UHS_GuiBean
     else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
              paramName.equals(locGuiBean.LON_PARAM_NAME) ||
              paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
-      setButtonsEnabled(false);
+      //setButtonsEnabled(false);
+			uhsButtonClicked = false;
     }
 
   }
@@ -362,7 +378,7 @@ public class UHS_GuiBean
       AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.NEHRP);
+        getSupportedGeographicalRegions(GlobalConstants.PROB_UNIFORM_HAZ_RES);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);
@@ -417,8 +433,9 @@ public class UHS_GuiBean
     }
 
     application.setDataInWindow(getData());
-    setButtonsEnabled(true);
-    viewUHSButton.setEnabled(true);
+    //setButtonsEnabled(true);
+    //viewUHSButton.setEnabled(true);
+		uhsButtonClicked = true;
     uhsCalculated = true;
   }
 
@@ -455,6 +472,8 @@ public class UHS_GuiBean
    * @param actionEvent ActionEvent
    */
   protected void viewUHSButton_actionPerformed(ActionEvent actionEvent) {
+		if (!uhsButtonClicked) { uhsButton_actionPerformed(actionEvent); }
+		if (!uhsButtonClicked) { return; } //in case uhsButton exits abnormally
     viewCurves();
   }
 

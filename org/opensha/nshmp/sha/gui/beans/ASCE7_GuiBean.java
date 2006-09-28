@@ -31,7 +31,8 @@ public class ASCE7_GuiBean
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII)) {
+        selectedRegion.equals(GlobalConstants.HAWAII) ||
+		  selectedEdition.equals(GlobalConstants.ASCE_2005)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
     }

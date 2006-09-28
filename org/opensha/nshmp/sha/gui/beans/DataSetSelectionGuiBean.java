@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.opensha.param.*;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.nshmp.util.GlobalConstants;
+
 import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -73,7 +75,15 @@ public class DataSetSelectionGuiBean {
    * @return String
    */
   public String getSelectedDataSetEdition() {
-    return (String) editionChoicesParam.getValue();
+	String r = (String) editionChoicesParam.getValue();
+	//if(r.equals(GlobalConstants.NFPA_2003)) {
+	//	r = GlobalConstants.ASCE_2002;
+	//} else if (r.equals(GlobalConstants.NFPA_2006)) {
+	//	r = GlobalConstants.ASCE_2005;
+	//}
+  
+	return r;
+    //return (String) editionChoicesParam.getValue();
   }
 
   /*
@@ -90,10 +100,31 @@ public class DataSetSelectionGuiBean {
       try{
         regionEditor = new ConstrainedStringParameterEditor(
             geographicRegionSelectionParam);
+				regionEditor.getValueEditor().setToolTipText(
+					"Click on the geographic region name to select the region " +
+					"where the site is located.");
       }catch(Exception e){
         e.printStackTrace();
       }
   }
+
+	/**
+	 * Returns the editionEditor
+	 *
+	 * @return ConstrainedStringParameterEditor
+	 */
+	public ConstrainedStringParameterEditor getEditionEditor() {
+		return editionEditor;
+	}			
+
+	/**
+	 * Returns the regionEditor
+	 *
+	 * @return ConstrainedStringParameterEditor
+	 */
+	public ConstrainedStringParameterEditor getRegionEditor() {
+		return regionEditor;
+	}
 
   /**
    *
@@ -125,6 +156,8 @@ public class DataSetSelectionGuiBean {
                                                   0));
     try{
       editionEditor = new ConstrainedStringParameterEditor(editionChoicesParam);
+			editionEditor.getValueEditor().setToolTipText(
+				"Click on the year to select the item of interest.");
     }catch(Exception e){
       e.printStackTrace();
     }

@@ -21,6 +21,11 @@ public interface DataGeneratorAPI_NEHRP {
   public void clearData();
 
   /**
+   * Clears the lat/lon/zip values
+	*/
+  public void setNoLocation();
+
+  /**
    * Returns the Data and all the metadata associated with it in a String.
    * @return String
    */

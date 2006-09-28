@@ -34,7 +34,7 @@ public final class DataDisplayFormatter {
     String dataInfo = "";
     dataInfo += subtitle + "\n";
     dataInfo += siteClass + " - " + " Fa = " + fa +
-        " ,Fv = " + fv + "\n\n";
+        " ,Fv = " + fv + "\n";
     return dataInfo;
   }
 
@@ -52,16 +52,26 @@ public final class DataDisplayFormatter {
                                                 String saString, String text1,
                                                 String text2, String siteClass) {
     String dataInfo = "";
-    dataInfo += "\nPeriod\t" + saString + "\n";
-    dataInfo += "(sec)\t (g)\n";
+		dataInfo += "\n" + pad("Period", 2) + pad(saString,2) + "\n";
+		dataInfo += colPad("(sec)","Period",2) + colPad("(g)", saString, 2) + "\n";
+		/*
+    dataInfo += "\nPeriod     " + saString + "\n";
+    dataInfo += "(sec)       (g)\n";
+*/
 
-    dataInfo += periodFormat.format(function.getX(0)) + "\t" +
+		dataInfo += colPad(periodFormat.format(function.getX(0)),"Period",2) +
+			colPad(saValFormat.format(function.getY(0)),saString,2) +
+			text1 + ", " + siteClass + "\n";
+		dataInfo += colPad(periodFormat.format(function.getX(1)),"Period",2) +
+			colPad(saValFormat.format(function.getY(1)),saString,2) +
+			text2+ ", " + siteClass + "\n";
+    /*dataInfo += periodFormat.format(function.getX(0)) + "     " +
         saValFormat.format(function.getY(0)) + "  " + text1 + "," +
         siteClass + "\n";
-    dataInfo += periodFormat.format(function.getX(1)) + "\t" +
+    dataInfo += periodFormat.format(function.getX(1)) + "     " +
         saValFormat.format(function.getY(1)) + "  " + text2 + "," +
-        siteClass + "\n\n";
-
+        siteClass + "\n";
+*/
     return dataInfo;
   }
 
@@ -81,14 +91,15 @@ public final class DataDisplayFormatter {
       String xAxisUnits, String yAxisUnits,
       String text) {
     String dataInfo = "";
-    dataInfo += text + "\n" + xAxisString + "\t " + yAxisString + "\n";
-    dataInfo += "(" + xAxisUnits + ")\t  (" + yAxisUnits + ")\n";
+		dataInfo += text + "\n" + pad(xAxisString, 2) + pad(yAxisString, 2) + "\n" +
+			colPad("(" + xAxisUnits + ")", xAxisString, 2) + 
+			colPad("(" + yAxisUnits + ")", yAxisString, 2) + "\n";
 
-    for (int i = 0; i < function.getNum(); ++i) {
-      dataInfo += saValFormat.format(function.getX(i)) + "\t" +
-          annualExceedanceFormat.format(function.getY(i)) + "\n";
-    }
-
+		for (int i = 0; i < function.getNum(); ++i) {
+			dataInfo += colPad(saValFormat.format(function.getX(i)),xAxisString,2) +
+				colPad(annualExceedanceFormat.format(function.getY(i)),yAxisString,2) +
+				"\n";
+	  }	
     return dataInfo;
   }
 
@@ -101,20 +112,53 @@ public final class DataDisplayFormatter {
   public static String createFunctionInfoString(DiscretizedFuncList
                                                 functionList, String siteClass) {
     String dataInfo = "";
-    dataInfo += "\nPeriod\t" + "Sa\t" + "Sd" + "\n";
-    dataInfo += "(sec)\t (g)\t (inches)\n";
+		dataInfo += "\n" + colPad("Period", 6, 2) + colPad("Sa", 6, 2) +
+			colPad("Sd", 6, 2) + "\n";
+		dataInfo += colPad("(sec)", 6, 2) + colPad("(g)", 6, 2) +
+			colPad("(inches)", 6, 2) + "\n";
 
     ArbitrarilyDiscretizedFunc function1 = (ArbitrarilyDiscretizedFunc)
         functionList.get(1);
     ArbitrarilyDiscretizedFunc function2 = (ArbitrarilyDiscretizedFunc)
         functionList.get(0);
-    for (int i = 0; i < function1.getNum(); ++i) {
-      dataInfo += saValFormat.format(function1.getX(i)) + "\t" +
-          saValFormat.format(function1.getY(i)) + "\t" +
-          saValFormat.format(function2.getY(i)) + "\n";
+		for (int i = 0; i < function1.getNum(); ++i) {
+			dataInfo += colPad(saValFormat.format(function1.getX(i)),"Period",2) +
+				colPad(saValFormat.format(function1.getY(i)), 6, 2) +
+				colPad(saValFormat.format(function2.getY(i)), 6, 2) + "\n";
     }
 
     return dataInfo;
   }
 
+	public static String center(String str, int width) {
+		int strLen = str.length();
+		if (strLen >= width ) return str;
+	
+		String result = str;
+		int dif = width - strLen;
+		dif = dif / 2;
+		for(int i = 0; i < dif; ++i) {
+			result = " " + result;
+		}
+		while(result.length() < width) {
+			result = result + " ";
+		}
+		return result;
+	}
+
+  public static String pad(String str, int padding) {
+		int width = str.length() + (2*padding);
+		return center(str, width);
+	}
+
+	public static String colPad(String str, String heading, int padding) {
+		int width = heading.length();
+		width += (2*padding);
+		return center(str, width);
+	}
+
+	public static String colPad(String str, int headWidth, int padding) {
+		int width = headWidth + (2*padding);
+		return center(str, width);
+	}
 }

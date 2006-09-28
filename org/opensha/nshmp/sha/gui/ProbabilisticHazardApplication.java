@@ -1,5 +1,4 @@
-package org.opensha.nshmp.sha.gui;
-
+package org.opensha.nshmp.sha.gui; 
 import java.util.*;
 
 import java.awt.*;
@@ -57,6 +56,7 @@ public class ProbabilisticHazardApplication
   JMenuItem siteLocNotesZipCodeCaution = new JMenuItem();
   JMenuItem usTerrPuertoRico = new JMenuItem();
   JMenuItem usTerrGuam = new JMenuItem();
+  JDialog revs;
 
 
   // height and width of the applet
@@ -83,6 +83,12 @@ public class ProbabilisticHazardApplication
   private JTextPane explainationText;
   private JTextPane analysisText;
   private JScrollPane analysisScrollPane;
+  private Versioner versioner;
+
+  //some tooltip text strings for buttons
+	protected String clearDataToolTip = 
+				"Clear the content of the output list box.";
+	protected String viewMapsToolTip = "View Maps.";
 
   private JLabel imgLabel = new JLabel(GlobalConstants.USGS_LOGO_ICON);
 
@@ -109,8 +115,9 @@ public class ProbabilisticHazardApplication
   public ProbabilisticHazardApplication() {
     try {
       setDefaultCloseOperation(EXIT_ON_CLOSE);
+		versioner = new Versioner();
       jbInit();
-      setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
+      setIconImage(GlobalConstants.USGS_LOGO_ONLY_ICON.getImage());
       //setExplainationForSelectedAnalysisOption(previousSelectedAnalysisOption);
       createGuiBeanInstance();
     }
@@ -149,7 +156,7 @@ public class ProbabilisticHazardApplication
     fileSaveMenu.setText("Save");
     filePrintMenu.setText("Print");
     fileAddProjNameMenu.setText("Add Name & Date");
-    helpAnalysisOptionExplainationMenu.setText("Analysis Option Explaination");
+    helpAnalysisOptionExplainationMenu.setText("Analysis Option Explanation");
     helpSiteLocationNotes.setText("Site Location Notes");
     helpUS_TerritoryNotes.setText("U.S. Territory Notes");
     helpAbout.setText("About");
@@ -218,7 +225,7 @@ public class ProbabilisticHazardApplication
       }
     });
 
-    usTerrGuam.addActionListener(new java.awt.event.ActionListener() {
+    /*usTerrGuam.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(ActionEvent e) {
            usTerrGuam_actionPerformed(e);
          }
@@ -229,7 +236,7 @@ public class ProbabilisticHazardApplication
        usTerrGuam_actionPerformed(e);
      }
    });
-
+*/
 
 
     jPanel1.setLayout(gridBagLayout1);
@@ -263,10 +270,14 @@ public class ProbabilisticHazardApplication
     dataSplitPane.setMinimumSize(new Dimension(10,10));
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
+		dataTextArea.setToolTipText("Output for analysis.");
+		dataTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
     buttonPanel.setLayout(gridBagLayout2);
     clearDataButton.setText("Clear Data");
+		clearDataButton.setToolTipText(clearDataToolTip);
     viewMapsButton.setText("View Maps");
+		viewMapsButton.setToolTipText(viewMapsToolTip);
 
     explainButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -310,7 +321,7 @@ public class ProbabilisticHazardApplication
     buttonPanel.setMinimumSize(new Dimension(0,0));
     dataScrollPane.getViewport().add(dataTextArea, null);
 
-    explainButton.setText("Explain");
+    explainButton.setText("Description");
     buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
         new Insets(2, 60, 0, 60), 0, 0));
@@ -346,6 +357,7 @@ public class ProbabilisticHazardApplication
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
     mainSplitPane.setDividerLocation(390);
     dataSplitPane.setDividerLocation(414);
+		analysisOptionSelectionCombo.setSelectedIndex(2);
     buttonPanel.updateUI();
     contentPane.updateUI();
   }
@@ -363,7 +375,7 @@ public class ProbabilisticHazardApplication
   private void closeWindow() {
     int option = JOptionPane.showConfirmDialog(this,
                                                "Do you really want to exit the application?\n" +
-                                               "You will loose any unsaved data",
+                                               "You will lose any unsaved data",
                                                "Closing Application",
                                                JOptionPane.OK_CANCEL_OPTION);
     if (option == JOptionPane.OK_OPTION) {
@@ -421,9 +433,11 @@ public class ProbabilisticHazardApplication
     analysisText = new JTextPane();
     analysisText.setContentType("text/html");
     analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
-    analysisText.setEditable(false);
+	analysisText.setEditable(false);
+	analysisText.setCaretPosition(0);
     analysisScrollPane = new JScrollPane();
     analysisScrollPane.getViewport().add(analysisText, null);
+		analysisScrollPane.scrollRectToVisible(new Rectangle(10,10,1,1));
 
     analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
                                                 new GridBagConstraints(0, 0, 1, 1,
@@ -434,7 +448,7 @@ public class ProbabilisticHazardApplication
                                          analysisOptionExpFrame.getWidth()) / 3,
                                        (getSize().height -
                                         analysisOptionExpFrame.getHeight()) / 3);
-    analysisOptionExpFrame.setTitle("Analysis Options Explaination");
+    analysisOptionExpFrame.setTitle("Analysis Options Explanation");
     analysisOptionExpFrame.setVisible(true);
   }
 
@@ -510,7 +524,7 @@ public class ProbabilisticHazardApplication
       "For those regions where substantial variation in projected ground motion may occur "+
       "across a zip code designers should consider using latitude and longitude as a reference "+
       "for site location when determining ground motion parameters.";
-    showMsgBox(infoMsg,"Zip Code Caution",380,150) ;
+    showMsgBox(infoMsg,"Zip Code Caution",380,225) ;
   }
 
   /**
@@ -520,8 +534,45 @@ public class ProbabilisticHazardApplication
    */
   void helpAbout_actionPerformed(ActionEvent
       actionEvent) {
-
-
+		//Ask E.V. for the help files so we can implement in some version of this application.
+      Object [] options = { "Okay", "Revision History" };
+      String title = "Earthquake Ground Motion Tool";
+      String message = GlobalConstants.getAbout();
+      int optionType = JOptionPane.DEFAULT_OPTION;
+      int msgType = JOptionPane.INFORMATION_MESSAGE;
+  
+      int answer = JOptionPane.showOptionDialog(this, message, title, optionType,
+                                                msgType, null, options, options[0]);
+      if (answer == 1) { // Details was clicked
+			if ( revs == null ) {
+         	// Create the text pane
+         	JTextPane det = new JTextPane();
+         	det.setContentType("text/html");
+         	det.setEditable(false);
+         	det.setText(versioner.getAllUpdates());
+  	
+         	// Create the scroll pane
+         	JScrollPane revPane = new JScrollPane();
+         	revPane.getViewport().add(det, null);
+         	det.setCaretPosition(0);
+    	
+         	// Create the Dialog window
+         	Container parent = this;
+         	while ( !(parent instanceof JFrame) && parent != null) {
+            	parent = parent.getParent();
+         	}
+         	revs = new JDialog( (JFrame) parent);
+         	revs.setModal(true);
+         	revs.setSize(400, 200);
+         	revs.getContentPane().setLayout(new GridBagLayout());
+         	revs.getContentPane().add(revPane, new GridBagConstraints(
+            	0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+            	new Insets(4, 4, 4, 4), 0, 0));
+         	revs.setLocation(this.getLocation());
+         	revs.setTitle(title);
+			}
+         revs.setVisible(true);
+      } 
   }
 
 
@@ -536,11 +587,11 @@ public class ProbabilisticHazardApplication
         "although there are variations within the region, for Editions through 2000. In these "+
         "cases the latitude, longitude and zip code boxes are labeled \"Not Available\". Do not "+
         "enter latitude-longitude or zip code values. Simply click on \"Calculate Ss and S1\" "+
-        "to obtain values in these cases.\n\nLatitude and Longitude values, are registered for "+
+        "to obtain values in these cases.\n\nLatitude and Longitude values are registered for "+
         "Puerto Rico and the U.S.Virgin Islands beginning with the 2003 Edition. In these cases the "+
         "latitude and longitude boxes are empty and site locations must be entered to obtain site values. "+
         "Values are not yet available for Zip Codes.";
-    showMsgBox(infoMsg,"PRVI Region Message",440,150);
+    showMsgBox(infoMsg,"PRVI Region Message",440,250);
 
   }
 
@@ -573,8 +624,8 @@ public class ProbabilisticHazardApplication
     JFileChooser fileChooser = new JFileChooser();
     int option = fileChooser.showSaveDialog(this);
     String fileName = null;
-    if (option == JFileChooser.APPROVE_OPTION) {
-      fileName = fileChooser.getSelectedFile().getAbsolutePath();
+	if (option == JFileChooser.APPROVE_OPTION) {
+	  fileName = fileChooser.getSelectedFile().getAbsolutePath();
       if (!fileName.endsWith(".txt") ) {
         fileName = fileName + ".txt";
       }
@@ -582,7 +633,21 @@ public class ProbabilisticHazardApplication
     else {
       return;
     }
-    DataUtil.save(fileName, guiBeanAPI.getData());
+
+	// Add the project name/date to the file
+	 String data = "";
+
+    if(projectNameWindow !=null){
+      String name = projectNameWindow.getProjectName();
+      String date = projectNameWindow.getDate();
+      if(name !=null && !name.trim().equals(""))
+        data += name + "\n";
+      if(date !=null)
+        data += date + "\n\n";
+    }
+	 data += guiBeanAPI.getData();
+
+    DataUtil.save(fileName, data);
   }
 
   /**
@@ -591,10 +656,26 @@ public class ProbabilisticHazardApplication
   private void print() {
     Properties p = new Properties();
     PrintJob pjob = getToolkit().getPrintJob(this, "Printing", p);
+
+	 // Add project name/date to print job
+	 String data = "";
+
+    if(projectNameWindow !=null){
+      String name = projectNameWindow.getProjectName();
+      String date = projectNameWindow.getDate();
+      if(name !=null && !name.trim().equals(""))
+        data +="Project Name = "+name+"\n";
+      if(date !=null)
+        data +="Date = "+date +"\n\n";
+    }
+
+	 data += guiBeanAPI.getData();
+
+	 // Create the print job
     if (pjob != null) {
       Graphics pg = pjob.getGraphics();
       if (pg != null) {
-        DataUtil.print(pjob, pg, guiBeanAPI.getData());
+        DataUtil.print(pjob, pg, data);
         pg.dispose();
       }
       pjob.end();
@@ -630,10 +711,10 @@ public class ProbabilisticHazardApplication
       guiBeanAPI = new UHS_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
-      guiBeanAPI = new NEHRP_GuiBean(this);
+			guiBeanAPI = new NEHRP_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.NFPA)) {
-      guiBeanAPI = new NFPA_GuiBean(this);
+      guiBeanAPI = new NFPA_GuiBean_Wrapper(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
       guiBeanAPI = new IBC_GuiBean(this);
@@ -663,9 +744,9 @@ public class ProbabilisticHazardApplication
       String name = projectNameWindow.getProjectName();
       String date = projectNameWindow.getDate();
       if(name !=null && !name.trim().equals(""))
-        data +="Project Name = "+name+"\n";
+        data += name + "\n";
       if(date !=null)
-        data +="Date = "+date +"\n\n";
+        data += date + "\n\n";
     }
 
     dataTextArea.setText(data+dataInfo);
@@ -701,6 +782,15 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   private void viewMapsButton_actionPerformed(ActionEvent actionEvent) {
+		/*try {
+			org.opensha.util.BrowserLauncher.openURL(
+				"http://earthquake.usgs.gov/research/hazmaps/pdfs/");
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Failed to open page.", "Error",
+				JOptionPane.ERROR_MESSAGE);
+		}*/
+	//}
     String selectedRegion = guiBeanAPI.getSelectedRegion();
     String selectedEdition = guiBeanAPI.getSelectedDataEdition();
     MapUtil.createMapList(selectedRegion,selectedEdition);
@@ -720,6 +810,7 @@ public class ProbabilisticHazardApplication
       mapViewFrame.setVisible(true);
     }
   }
+
 
   /**
    *
@@ -757,6 +848,7 @@ public class ProbabilisticHazardApplication
 
     if(explainationText == null){
       explainationText = new JTextPane();
+      explainationText.setContentType("text/html");
       explainationText.setEditable(false);
     }
     explainationText.setText(GlobalConstants.

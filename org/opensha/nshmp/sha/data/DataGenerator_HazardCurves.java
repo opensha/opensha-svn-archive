@@ -9,6 +9,7 @@ import org.opensha.nshmp.exceptions.*;
 import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.nshmp.sha.calc.HazardCurveCalculator;
+import org.opensha.exceptions.InvalidRangeException;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
@@ -121,12 +122,36 @@ public class DataGenerator_HazardCurves
     double fex = 1 / returnPeriod;
     double exceedProb = miner.getExceedProb(fex, EXP_TIME);
     double saVal = 0.0;
-    if (logInterpolation) {
-      saVal = hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
-    }
-    else {
-      saVal = hazardCurveFunction.getFirstInterpolatedX(fex);
-    }
+    try {
+			if (logInterpolation) {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
+    	}
+    	else {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX(fex);
+    	}
+		} catch (InvalidRangeException ex) {
+				double minY = hazardCurveFunction.getY(0);
+				int minRtnPeriod = (int) (1.0 / minY);
+
+				String warnMsg = "\nThe return period entered ("+returnPeriod+") " +
+					"is out of range.\nThe nearest return period within the range " +
+					"("+minRtnPeriod+") is was used instead.";
+
+				dataInfo += warnMsg;
+				fex = minY;
+				returnPeriod = minRtnPeriod;
+				//fex = 1 / returnPeriod;
+				exceedProb = miner.getExceedProb(fex, EXP_TIME);
+				saVal = 0.0;
+
+			if (logInterpolation) {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
+    	}
+    	else {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX(fex);
+			}
+		}
+		
     addDataFromSingleHazardCurveValue(fex, returnPeriod, exceedProb, EXP_TIME,
                                       saVal);
   }
@@ -137,12 +162,37 @@ public class DataGenerator_HazardCurves
     double returnPd = miner.getReturnPeriod(probExceed, expTime);
     double fex = 1 / returnPd;
     double saVal = 0.0;
-    if (logInterpolation) {
+    try {
+			if (logInterpolation) {
       saVal = hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
     }
     else {
       saVal = hazardCurveFunction.getFirstInterpolatedX(fex);
     }
+		} catch (InvalidRangeException ex) {
+				double minY = hazardCurveFunction.getY(0);
+				int minRtnPeriod = (int) (1.0 / minY);
+
+				String warnMsg = "\nThe calculated return period ("+returnPd+") " +
+					"based on the\nentered probability ("+probExceed+") and time (" +
+					expTime+"), is out of range.\nThe nearest valid return period " +
+					"("+minRtnPeriod+") was used instead.";
+				/*String warnMsg = "\nThe return period entered ("+returnPd+") " +
+					"is out of range.\nThe nearest return period within the range " +
+					"("+minRtnPeriod+") is was used instead.";
+				*/
+				dataInfo += warnMsg;
+				fex = minY;
+				returnPd = minRtnPeriod;
+
+			if (logInterpolation) {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
+    	}
+    	else {
+      	saVal = hazardCurveFunction.getFirstInterpolatedX(fex);
+			}
+
+		}
     addDataFromSingleHazardCurveValue(fex, returnPd, probExceed, expTime, saVal);
   }
 
@@ -150,18 +200,59 @@ public class DataGenerator_HazardCurves
                                                  double probExceed,
                                                  double expTime,
                                                  double groundMotion) {
-    dataInfo += "\n\n";
-    dataInfo +=
-        "Ground Motion \t Freq. of Exceed. \t Return Pd. \t P.E. \t Exp.time \n";
-    dataInfo += "(g)\t\t(per year)\t\t(years)\t%\t(years)\n";
-    dataInfo += saValFormat.format(groundMotion) + "\t\t" +
-        annualExceedanceFormat.format(fex) +
-        "\t\t" + returnPd + "\t" + percentageFormat.format(probExceed) + "\t" +
-        expTime + "\n";
+				
+		String gmMain = "Ground Motion";
+		String gmSub = "(g)";
+		String gmDat = "" + saValFormat.format(groundMotion);
+
+		String sFexMain = "Freq. of Exceed.";
+		String sFexSub = "(per year)";
+		String sFexDat = "" + annualExceedanceFormat.format(fex);
+
+		String rPdMain = "Return Pd.";
+		String rPdSub = "(years)";
+		String rPdDat = "" + returnPd;
+
+		String pExMain = "P.E.";
+		String pExSub = "%";
+		String pExDat = "" + percentageFormat.format(probExceed);
+
+		String eTimeMain = "Exp. Time";
+		String eTimeSub = "(years)";
+		String eTimeDat = "" + expTime;
+
+
+		String line1 = center(gmMain, 15) + center(sFexMain, 20) +
+			center(rPdMain, 14) + center(pExMain, 10) + center(eTimeMain, 11) + "\n";
+		
+		String line2 = center(gmSub, 15) + center(sFexSub, 20) +
+			center(rPdSub, 14) + center(pExSub, 10) + center(eTimeSub, 11) + "\n";
+
+		String line3 = center(gmDat, 15) + center(sFexDat, 20) +
+			center(rPdDat, 14) + center(pExDat, 10) + center(eTimeDat, 11) + "\n";
+			
+    dataInfo += "\n\n" + line1 + line2 + line3;
+
     if(fex<FREQ_OF_EXCEED_WARNING)
       dataInfo+="\n"+HazardCurveCalculator.EXCEED_PROB_TEXT+"\n";
   }
 
+  private static String center(String str, int width) {
+		int strLen = str.length();
+		if (strLen >= width ) return str;
+
+		String result = str;
+		int dif = width - strLen;
+		dif = dif / 2;
+		for(int i = 0; i < dif; ++i) {
+			result = " " + result;
+		}
+		while(result.length() < width) {
+			result = result + " ";
+		}
+		return result;
+	}
+																																	
   /**
    * Removes all the calculated data.
    *

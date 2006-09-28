@@ -14,7 +14,10 @@ import org.opensha.util.ImageUtils;
  * @version 1.0
  */
 public final class GlobalConstants {
-
+	public static final String VERSION = "Version: 5.0.6 - 06/29/2006";
+	//public static final String SERVLET_PATH = "http://gldweb.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	public static final String SERVLET_PATH = "http://geohazards.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://gldjanus.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
   //data files path
   //public final static String DATA_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
   //public final static String DATA_FILE_PATH = "/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
@@ -22,9 +25,11 @@ public final class GlobalConstants {
   public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
-  private final static String USGS_LOGO = "usgslogo.JPG";
+  private final static String USGS_LOGO = "usgslogo.gif";
+	private final static String USGS_LOGO_ONLY = "usgs_logoonly.gif";
   public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
-
+	public final static ImageIcon USGS_LOGO_ONLY_ICON = new
+		ImageIcon(ImageUtils.loadImage(USGS_LOGO_ONLY));
 
   //static declaration for the supported geographic regions
   public static final String CONTER_48_STATES = "Conterminous 48 States";
@@ -51,12 +56,12 @@ public final class GlobalConstants {
   public static final String NEHRP_2003 =
       "2003 NEHRP Seismic Design Provisions";
   public static final String ASCE_1998 = "1998 ASCE 7 Standard";
-  public static final String ASCE_2002 = "2002 ASCE 7 Stanadard";
+  public static final String ASCE_2002 = "2002 ASCE 7 Standard";
   public static final String ASCE_2005 = "2005 ASCE 7 Standard";
   public static final String IBC_2000 = "2000 International Building Code";
   public static final String IBC_2003 = "2003 International Building Code";
   public static final String IBC_2004 = "2004 International Building Code - Supplement";
-  public static final String IBC_2006 = "2006 International Building Code - Proposed";
+  public static final String IBC_2006 = "2006 International Building Code";
   public static final String IRC_2000 = "2000 International Residential Code";
   public static final String IRC_2003 = "2003 International Residential Code";
   public static final String IRC_2004 = "2004 International Residential Code";
@@ -70,12 +75,13 @@ public final class GlobalConstants {
   public static final String ASCE_PRESTANDARD = "ASCE PreStandard";
   public static final String IEBC_2003 =
       "2003 International Existing Building Code";
-
+  public static final String NFPA_2003 = "2003 NFPA 5000 - References the 2002 ASCE 7 Standard";
+  public static final String NFPA_2006 = "2006 NFPA 5000 - References the 2005 ASCE 7 Standard";
   //static declaration for the analysis choices
   public static final String PROB_HAZ_CURVES = "Probabilistic hazard curves";
   public static final String PROB_UNIFORM_HAZ_RES =
       "Probabilistic Uniform Hazard Response Spectra";
-  public static final String NEHRP = "NEHRP Recommended Provisions for Seismic Regulations for New Buildings and Other Structure";
+  public static final String NEHRP = "NEHRP Recommended Provisions for Seismic Regulations for New Buildings and Other Structures";
   //public static final String FEMA_273 =
   //  "FEMA 273,MCE Guidelines for the Seismic Rehabilitation of Buildings";
   //public static final String FEMA_356 = "FEMA 356,Prestandard and Commentary for the Seismic Rehabilitation of Buildings";
@@ -131,7 +137,7 @@ public final class GlobalConstants {
       "for Site Class A through E.";
   public static final String INTL_BUILDING_CODE_INFO =
       "<b>International Building Code </b> - This " +
-      "option may be used for the 2000 and 2003 " +
+      "option may be used for the 2000, 2003, 2004 (supplement), and 2006 " +
       "editions of the  International Building Code.  " +
       "The user may calculate seismic design parameters " +
       "and response spectra (both for period and displacement), " +
@@ -163,7 +169,7 @@ public final class GlobalConstants {
 
 
   public static final String NFPA_INFO = "<b>NFPA 5000 Building Construction and Safety Code -</b> " +
-          "This option may be used for the 2000 edition " +
+          "This option may be used for the 2003 and 2006 editions " +
           "of the  NFPA 5000 Building Construction and " +
           "Safety Code.  The user may calculate seismic " +
           "design parameters and response spectra (both " +
@@ -173,14 +179,14 @@ public final class GlobalConstants {
   public static final String INTL_RESIDENTIAL_CODE_INFO =
       "<b>International Residential Code - </b>" +
       "This option may be used for the 2000, " +
-      "2003, and 2004 editions of the  " +
+      "2003, 2004 (supplement), and 2006 editions of the  " +
       "International Residential Code.  The " +
       "user may determine the Seismic Design " +
       "Categories for the default Site Class D.";
   public static final String ASCE_7_INFO =
           "<b>ASCE 7 Standard, Minimum Design Loads for " +
           "Buildings and Other Structures </b> - This option " +
-          "may be used for the 1998 and 2002 editions " +
+          "may be used for the 1998, 2002, and 2005 editions " +
           "of the ASCE 7 Standard,  Minimum Design Loads " +
           "for Buildings and Other Structures.  " +
           "The user may calculate seismic design " +
@@ -306,7 +312,7 @@ public final class GlobalConstants {
 
   public final static String ANNUAL_FREQ_EXCEED_UNITS = "per year";
   public final static String BASIC_HAZARD_CURVE = "Basic Hazard Curve";
-  public final static String HAZARD_CURVE_X_AXIS_NAME = "Accelaration";
+  public final static String HAZARD_CURVE_X_AXIS_NAME = "Acceleration";
   public final static String HAZARD_CURVE_Y_AXIS_NAME =
       "Annual Frequency of Exceedance";
 
@@ -452,11 +458,11 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(PROB_HAZ_CURVES);
     supportedAnalysisOption.add(PROB_UNIFORM_HAZ_RES);
     supportedAnalysisOption.add(NEHRP);
-    supportedAnalysisOption.add(INTL_BUILDING_CODE);
+    supportedAnalysisOption.add(ASCE_7);
+	supportedAnalysisOption.add(INTL_BUILDING_CODE);
     supportedAnalysisOption.add(INTL_RESIDENTIAL_CODE);
     //supportedAnalysisOption.add(INTL_EXIST_CODE);
     supportedAnalysisOption.add(NFPA);
-    supportedAnalysisOption.add(ASCE_7);
     return supportedAnalysisOption;
   }
 
@@ -526,13 +532,50 @@ public final class GlobalConstants {
    * @return String
    */
   public static String getAllExplainationsForAnalysisOption(){
-    return  "<html>"+SUMMARY_INFO +"<p>"+"<ul><b>List of options based on "+
-       "Probabilistic Calculations.</b>"+"<li>"+PROB_HAZ_CURVES_INFO+
+    return  "<html>"+SUMMARY_INFO +"<p>"+"<b>List of options based on "+
+       "Probabilistic Calculations.</b><ul>"+"<li>"+PROB_HAZ_CURVES_INFO+
        "<li>"+PROB_UNIFORM_HAZ_RES_INFO+"</ul><b>List of options based on design "+
        "documents for new buildings.</b>"+"<p>"+"<ul>"+
-       "<li>"+NEHRP_INFO+"<li>"+NFPA_INFO+"<li>"+INTL_BUILDING_CODE_INFO+"<li>"+
-       INTL_RESIDENTIAL_CODE_INFO+"<li>"+ASCE_7_INFO+"</ul></html>";
+       "<li>"+NEHRP_INFO+"<li>"+ASCE_7_INFO+"<li>"+INTL_BUILDING_CODE_INFO+"<li>"+
+       INTL_RESIDENTIAL_CODE_INFO+"<li>"+NFPA_INFO+"</ul></html>";
   }
+  
+  //#####################################################################
+  //                        Versions
+  //#####################################################################
 
+	public static String getCurrentVersion() {
+		return VERSION;
+	}
+
+	public static String getAbout() {
+		String about = "Earthquake Ground Motion Parameters\n" + VERSION;
+		return about;
+	}
+
+	public static String getServletPath() {
+		try {
+			String OS = System.getProperty("os.name").toLowerCase();
+
+			if (OS.equals("mac os x")) {
+				Runtime r = Runtime.getRuntime();
+				Process p = r.exec("env");
+				Properties envVars = new Properties();
+				envVars.load(p.getInputStream());
+				if ( envVars.getProperty("GMTSERVER") != null ) {
+					return envVars.getProperty("GMTSERVER");
+				} else {
+					return SERVLET_PATH;
+				}
+			} else {
+				return SERVLET_PATH;
+			}
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+			return "";
+		}
+
+	} // End of getServletPath()
+	
 }
 

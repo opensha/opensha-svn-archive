@@ -132,6 +132,10 @@ public class IRC_GuiBean
         0));
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
+		groundMotionParamEditor.getValueEditor().setToolTipText(
+			"The parameter shown is the only selection available for " +
+			"new structures.");
+
     spectraType = (String) groundMotionParam.getValue();
   }
 
@@ -151,7 +155,11 @@ public class IRC_GuiBean
     basicParamBorder.setTitleColor(Color.RED);
 
     residentialSiteCategoryButton.setText(
-        "Calc site coeff.");
+		"Seismic Design Category");
+		residentialSiteCategoryButton.setToolTipText(
+			"View the graphs of the response spectra for the Site Class B, " +
+			"the site-modified values, and the design values.");
+        //"Calc site coeff.");
     residentialSiteCategoryButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         residentialSiteCategoryButton_actionPerformed(actionEvent);
@@ -210,13 +218,23 @@ public class IRC_GuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+	if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createEditionSelectionParameter();
       try {
         createLocation();
+      } catch (RegionConstraintException ex) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+            "Exception occured while initializing the  region parameters in NSHMP application." +
+            "Parameters values have not been set yet.");
+        bugWindow.setVisible(true);
+        bugWindow.pack();
       }
-      catch (RegionConstraintException ex) {
+	} else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+      selectedEdition = datasetGui.getSelectedDataSetEdition();
+      try {
+        createLocation();
+      } catch (RegionConstraintException ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
@@ -224,11 +242,10 @@ public class IRC_GuiBean
         bugWindow.pack();
 
       }
-
     }
-    else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
-      selectedEdition = datasetGui.getSelectedDataSetEdition();
-    }
+	if (!locationVisible) {
+		dataGenerator.setNoLocation();
+	}
   }
 
   /**
@@ -275,7 +292,8 @@ public class IRC_GuiBean
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII)) {
+        selectedRegion.equals(GlobalConstants.HAWAII) ||
+		  selectedEdition.equals(GlobalConstants.IRC_2006)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
     }
@@ -291,13 +309,22 @@ public class IRC_GuiBean
 
     ArrayList supportedEditionList = new ArrayList();
 
-    supportedEditionList.add(GlobalConstants.IRC_2003);
-    supportedEditionList.add(GlobalConstants.IRC_2000);
-    if (!selectedRegion.equals(GlobalConstants.ALASKA) &&
+/*	if (!selectedRegion.equals(GlobalConstants.ALASKA) &&
         !selectedRegion.equals(GlobalConstants.HAWAII)) {
-      supportedEditionList.add(GlobalConstants.IRC_2004);
       supportedEditionList.add(GlobalConstants.IRC_2006);
-    }
+      supportedEditionList.add(GlobalConstants.IRC_2004);
+   } */
+	if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
+			selectedRegion.equals(GlobalConstants.ALASKA) ||
+	 	  	selectedRegion.equals(GlobalConstants.HAWAII)) {
+		supportedEditionList.add(GlobalConstants.IRC_2006);
+		supportedEditionList.add(GlobalConstants.IRC_2004);
+  		supportedEditionList.add(GlobalConstants.IRC_2003);
+  		supportedEditionList.add(GlobalConstants.IRC_2000);
+	} else {
+    supportedEditionList.add(GlobalConstants.IRC_2006);
+	}
+
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
     selectedEdition = datasetGui.getSelectedDataSetEdition();

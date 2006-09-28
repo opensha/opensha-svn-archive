@@ -33,7 +33,7 @@ public class SMSsS1Calculator {
     String text1 = "SMs";
     String text2 = "SM1";
     String info = "";
-    info += title;
+    info += title + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(subTitle, siteClass, fa, fv);
     info +=

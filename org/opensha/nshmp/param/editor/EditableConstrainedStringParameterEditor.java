@@ -38,6 +38,7 @@ public class EditableConstrainedStringParameterEditor extends ConstrainedStringP
    */
   protected void addWidget() {
     super.addWidget();
+		this.valueEditor.setSize(1000,50);
     if(this.valueEditor instanceof JComboBox) {
       JComboBox pickList = (JComboBox)valueEditor;
       pickList.setEditable(true);

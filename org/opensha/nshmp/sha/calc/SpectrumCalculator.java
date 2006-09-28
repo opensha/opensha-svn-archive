@@ -173,7 +173,7 @@ public class SpectrumCalculator {
     info += title + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
-                                                  faVal, fvVal);
+                                                  fa, fv);
 
     info +=
         DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);

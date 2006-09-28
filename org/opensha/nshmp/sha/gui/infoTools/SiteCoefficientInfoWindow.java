@@ -334,9 +334,9 @@ public class SiteCoefficientInfoWindow
       //System.out.println("value="+value);
       FaFvCalc calc = new FaFvCalc();
       try {
-        String faString = "" + calc.getFa(value, ss);
+        String faString = "" + saFormat.format(calc.getFa(value, ss));
         this.faText.setText(faString);
-        String fvString = "" + calc.getFv(value, s1);
+        String fvString = "" + saFormat.format(calc.getFv(value, s1));
         this.fvText.setText(fvString);
         fa = Float.parseFloat(faText.getText());
         fv = Float.parseFloat(fvText.getText());

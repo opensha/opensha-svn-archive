@@ -49,11 +49,14 @@ public class LocationGuiBean
   private StringParameterEditor zipCodeEditor;
   private ConstrainedDoubleParameterEditor latEditor;
   private ConstrainedDoubleParameterEditor lonEditor;
-  private JLabel noLocationSupportedLabel = new JLabel("Location not supported") ;
+  //private JLabel noLocationSupportedLabel = new JLabel("Calculations are constant across this region\nso no specific location needs to be specified.\nClick the calculate button below to view the data for this region.") ;
+  private JTextArea noLocationSupportedText = new JTextArea("Spectral values are constant for this region.\n\nClick the button below to view data for all\nlocations within this region.");
 
   private JPanel locationPanel = new JPanel();
   private JPanel noLocationPanel = new JPanel();
 
+	private String latLonToolTip = "Click to locate site by latitude-longitude";
+	private String zipCodeToolTip = "Click to locate site by Zip Code";
   private JRadioButton latLonButton = new JRadioButton("Lat-Lon (Recommended)");
   private JRadioButton zipCodeButton = new JRadioButton("Zip-Code");
 
@@ -112,6 +115,22 @@ public class LocationGuiBean
     return latLonSelected;
   }
 
+
+	public boolean hasLocation() {
+		boolean r = true;
+		try {
+			if (getLocationMode()) {
+				getSelectedLocation();
+			} else {
+					getZipCode();
+			}
+		} catch (Exception e) {
+			r = false;
+		} 
+
+		return r;
+	}
+	
   /**
    * Returns zip code
    * @return String
@@ -138,10 +157,10 @@ public class LocationGuiBean
   public  void createNoLocationGUI(){
     this.removeAll();
     this.add(noLocationPanel,
-             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+             new GridBagConstraints(0, 0, 2, 2, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.BOTH,
-                                    new Insets(2, 2, 2, 2), 0, 0));
+                                    new Insets(0, 0, 0, 0), 0, 0));
     this.updateUI();
   }
 
@@ -345,11 +364,19 @@ public class LocationGuiBean
                                     GridBagConstraints.BOTH,
                                     new Insets(4, 4, 4, 4), 0, 0));
     noLocationPanel.setLayout(gridBagLayout1);
-    noLocationPanel.add(noLocationSupportedLabel,
-                        new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-                                               , GridBagConstraints.CENTER,
-                                               GridBagConstraints.BOTH,
-                                               new Insets(4, 80, 4, 80), 0, 0));
+    //noLocationPanel.add(noLocationSupportedLabel,
+                        //new GridBagConstraints(0, 0, 2, 2, 1.0, 1.0
+                                               //, GridBagConstraints.CENTER,
+                                               //GridBagConstraints.BOTH,
+                                               //new Insets(0, 0, 0, 0), 0, 0));
+	noLocationPanel.add(noLocationSupportedText,
+							new GridBagConstraints(0, 0, 2, 2, 1.0, 1.0,
+														GridBagConstraints.CENTER,
+														GridBagConstraints.BOTH,
+														new Insets(0, 0, 0, 0), 0, 0));
+	
+	noLocationSupportedText.setBackground(new Color(240, 240, 240));
+	noLocationSupportedText.setEditable(false);
 
     locationPanel.add(latLonButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.WEST,
@@ -358,13 +385,14 @@ public class LocationGuiBean
                       new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
                                              , GridBagConstraints.NORTH, GridBagConstraints.WEST,
                                              new Insets(1, -10, 1, 25), 0, 0));
-
+		
+		latLonButton.setToolTipText(latLonToolTip);
     latLonButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         latLonButton_actionPerformed(actionEvent);
       }
     });
-
+		zipCodeButton.setToolTipText(zipCodeToolTip);
     zipCodeButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         zipCodeButton_actionPerformed(actionEvent);

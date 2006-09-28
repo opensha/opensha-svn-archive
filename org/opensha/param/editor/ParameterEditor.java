@@ -296,7 +296,14 @@ public class ParameterEditor
  /** Sets the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public void setFocusEnabled( boolean newFocusEnabled ) { focusEnabled = newFocusEnabled; }
 
-
+    /**
+     * Exposes the underlying value editor
+     * @return The JComponent of this Editor class
+     */
+    public JComponent getValueEditor() {
+    	return valueEditor;
+    }
+    
     /** Proxy call to the internal parameter to return it's value.  */
     public Object getValue() {
         return model.getValue();
