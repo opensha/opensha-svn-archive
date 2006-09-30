@@ -6,6 +6,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import oracle.spatial.geometry.JGeometry;
 
@@ -41,6 +42,7 @@ public class PrefFaultSectionDataDB_DAO {
 	public final static String PREF_ASEISMIC_SLIP= "Pref_Aseismic_Slip";
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	private DB_AccessAPI dbAccess;
+	private static HashMap cachedSections = new HashMap();
 	
 	public PrefFaultSectionDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
@@ -171,6 +173,9 @@ public class PrefFaultSectionDataDB_DAO {
 	 */
 	public FaultSectionPrefData getFaultSectionPrefData(int faultSectionId) {
 		String condition = " where "+SECTION_ID+"="+faultSectionId;
+		if(this.cachedSections.containsKey(new Integer(faultSectionId))) {
+			return (FaultSectionPrefData)cachedSections.get(new Integer(faultSectionId));
+		}
 		ArrayList faultSectionsList = query(condition);	
 		FaultSectionPrefData faultSectionPrefData = null;		
 		if(faultSectionsList.size()>0) faultSectionPrefData = (FaultSectionPrefData)faultSectionsList.get(0);
@@ -250,6 +255,7 @@ public class PrefFaultSectionDataDB_DAO {
 				faultSectionPrefData.setFaultTrace(faultTrace);
 				      
 				faultSectionsList.add(faultSectionPrefData);
+				cachedSections.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);
 			  }
 			  rs.close();
 		  } catch(SQLException e) { throw new QueryException(e.getMessage()); }

@@ -1277,6 +1277,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	
+	
 	/**
 	 * Generate Excel sheet for each fault.
 	 * Each sheet will have all Rup solution Types

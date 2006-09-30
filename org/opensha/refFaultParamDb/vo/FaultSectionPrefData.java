@@ -87,6 +87,7 @@ public class FaultSectionPrefData {
 	public float getDipDirection() {
 		return dipDirection;
 	}
+	
 	public void setDipDirection(float dipDirection) {
 		this.dipDirection = dipDirection;
 	}

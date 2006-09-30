@@ -159,7 +159,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
-		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, null, null);
+		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName);
 		  new File(excelSheetName).delete();
 	  }
 	
