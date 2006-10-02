@@ -31,6 +31,7 @@ import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.data.estimate.Estimate;
@@ -84,10 +85,13 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 	private InfoLabel sectionAreaLabel = new InfoLabel();
 	private GridBagLayout gridBagLayout = new GridBagLayout();
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
 	private JButton editButton = new JButton("Edit");
 	private JButton removeButton = new JButton("Remove");
 	private JButton saveButton = new JButton("Save All to File");
+	private JButton saveSubSections = new JButton("Save Subsections");
 	private final static String SAVE_BUTTON_TOOL_TIP = "Save All Fault Sections to a txt file";
+	private final static String SAVE_SUBSECTIONS_BUTTON_TOOL_TIP = "Save All Sub Sections to a txt file";
 	private JButton addButton = new JButton("Add");
 	private final static String MSG_REMOVE_CONFIRM = "Do you want to delete this fault Section from the database?\n"+
 		"All PaleoSites associated with this Fault Section will be removed.";
@@ -208,6 +212,12 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		        new Insets(0, 0, 0, 0), 0, 0));
 		saveButton.addActionListener(this);
 		saveButton.setToolTipText(SAVE_BUTTON_TOOL_TIP);
+		// save subsections to a file
+		panel.add(this.saveSubSections, new GridBagConstraints(4, 0, 1, 1, 1.0, 1.0
+		        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+		        new Insets(0, 0, 0, 0), 0, 0));
+		saveSubSections.addActionListener(this);
+		saveSubSections.setToolTipText(SAVE_SUBSECTIONS_BUTTON_TOOL_TIP);
 		return panel;
 	}
 	
@@ -222,13 +232,64 @@ public class ViewFaultSection extends JPanel implements ParameterChangeListener,
 		} else if(source == this.addButton) { // add a new fault section
 			EditFaultSection editFaultSection = new EditFaultSection(null, this);
 		} else if(source == this.saveButton) { // save all fault sections to a file
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.showSaveDialog(this);
-			File file = fileChooser.getSelectedFile();
+			File file = getOutFile();
 			if(file!=null) writeSectionsToFile(file);
+		} else if(source==this.saveSubSections) { // svae subsections ot a file
+			String str = JOptionPane.showInputDialog(this, 
+					"Enter Maximum Length (in km) of a subsection", "10");
+			try {
+				double subSecLen = Double.parseDouble(str);
+				File file = getOutFile();
+				if(file!=null) writeSubSectionsToFile(file,subSecLen);
+			}catch(NumberFormatException ex) {
+				JOptionPane.showMessageDialog(this, "Invalid subsection length");
+			}
+			
 		}
 	}
+	
+	/**
+	 * Get output filename
+	 * @return
+	 */
+	private File getOutFile() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.showSaveDialog(this);
+		File file = fileChooser.getSelectedFile();
+		return file;
+	}
 
+	/**
+	 * Write fault sub sections to a file
+	 * @param file
+	 */
+	private void writeSubSectionsToFile(File file, double subSecLen) {
+		ArrayList faultSectionPrefDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();
+		SectionInfoFileWriter sectionWriter = new SectionInfoFileWriter();
+		FileWriter fw;
+		try {
+			fw = new FileWriter(file);
+
+			fw.write(sectionWriter.getFormatStringForFaultModel());
+			//for(int i=0; i<1; ++i) {
+			int totalSubSections =0;
+			for(int i=0; i<faultSectionPrefDataList.size(); ++i) {
+				FaultSectionPrefData faultSecPrefData = (FaultSectionPrefData)faultSectionPrefDataList.get(i);
+				ArrayList<FaultSectionPrefData> subSecList = faultSecPrefData.getSubSectionsList(subSecLen);
+				totalSubSections+=subSecList.size();
+				for(int j=0; j<subSecList.size(); ++j) {
+					sectionWriter.writeForFaultModel(subSecList.get(j), fw);
+				}
+			}
+			System.out.println("Total Subsections="+totalSubSections);
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+		
+	
 	/**
 	 * Write fault sections to a file
 	 * @param file

@@ -131,6 +131,7 @@ public class FaultSectionPrefData {
 			subSection.setFaultSectionPrefData(this);
 			subSection.setFaultTrace(equalLengthSubsTrace.getSubSectionTrace(i));
 			subSectionList.add(subSection);
+			subSection.setSectionName(this.sectionName+" Subsection:"+(i+1));
 		}
 		return subSectionList;
 	}

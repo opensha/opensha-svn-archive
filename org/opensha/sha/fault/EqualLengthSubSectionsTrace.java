@@ -35,32 +35,33 @@ public class EqualLengthSubSectionsTrace {
 		double numSubSec= faultTrace.getTraceLength()/maxSubSectionLen;
 		if(Math.floor(numSubSec)!=numSubSec) numSubSections=(int)Math.floor(numSubSec)+1;
 		else numSubSections=(int)numSubSec;
-		
 		// find the length of each sub section
-		double subSecLength = faultTrace.getTraceLength()/numSubSec;
-		double distance = 0;
+		double subSecLength = faultTrace.getTraceLength()/numSubSections;
+		double distance = 0, distLocs=0;;
 		int numLocs = faultTrace.getNumLocations();
 		int index=0;
 		subSectionTraceList = new ArrayList<FaultTrace>();
 		Location prevLoc = faultTrace.getLocationAt(index);
-		while(index<numLocs) {
+		while(index<numLocs && subSectionTraceList.size()<numSubSections) {
 			FaultTrace subSectionTrace = new FaultTrace(faultTrace.getName()+" "+(subSectionTraceList.size()+1));
 			subSectionTraceList.add(subSectionTrace);
 			subSectionTrace.addLocation(prevLoc);
 			++index;
 			distance = 0;
-			while(true) {
+			while(true && index<faultTrace.getNumLocations()) {
 				Location nextLoc = faultTrace.getLocationAt(index);
-				distance+=RelativeLocation.getApproxHorzDistance(prevLoc, nextLoc);
+				distLocs = RelativeLocation.getApproxHorzDistance(prevLoc, nextLoc);
+				distance+= distLocs;
 				if(distance<subSecLength) { // if sub section length is greater than distance, then get next point on trace
 					prevLoc = nextLoc;
 					subSectionTrace.addLocation(prevLoc);
 					++index;
 				} else {
 					Direction direction = RelativeLocation.getDirection(prevLoc, nextLoc);
-					direction.setHorzDistance(distance-subSecLength);
+					direction.setHorzDistance(subSecLength-(distance-distLocs));
 					prevLoc = RelativeLocation.getLocation(prevLoc, direction);
 					subSectionTrace.addLocation(prevLoc);
+					--index;
 					break;
 				}
 			}
@@ -73,7 +74,7 @@ public class EqualLengthSubSectionsTrace {
 	 * @return
 	 */
 	public int getNumSubSections() {
-		return this.numSubSections;
+		return subSectionTraceList.size();
 	}
 	
 	/**
