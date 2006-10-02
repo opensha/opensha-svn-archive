@@ -141,7 +141,9 @@ public class DeformationModelPrefDataDB_DAO {
 	 */
 	public double getSlipRate(int deformationModelId, int faultSectionId) {
 		if(this.selectedDefModelId!=deformationModelId) this.cacheSlipRateAndAseismicSlip(deformationModelId);
-		return ((Double)slipRateMap.get(new Integer(deformationModelId))).doubleValue();
+		Double slipRate =  (Double)slipRateMap.get(new Integer(faultSectionId));
+		if(slipRate==null) return Double.NaN;
+		else return slipRate.doubleValue();
 	}	
 	
 	/**
@@ -154,7 +156,7 @@ public class DeformationModelPrefDataDB_DAO {
 	 */
 	public double getAseismicSlipFactor(int deformationModelId, int faultSectionId) {
 		if(this.selectedDefModelId!=deformationModelId) this.cacheSlipRateAndAseismicSlip(deformationModelId);
-		return ((Double)this.aseismicSlipMap.get(new Integer(deformationModelId))).doubleValue();
+		return ((Double)this.aseismicSlipMap.get(new Integer(faultSectionId))).doubleValue();
 	}
 	
 	
