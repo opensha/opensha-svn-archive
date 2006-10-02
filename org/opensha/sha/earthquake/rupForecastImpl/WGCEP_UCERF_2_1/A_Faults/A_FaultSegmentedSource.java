@@ -173,7 +173,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		computeSegRatesFromAprioriRates();
 		
 		// THIS IS TEMPORARY:
-		convertA_prioriToRateBalanced();
+		// convertA_prioriToRateBalanced();
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if mag PDF sigma non zero)
 		setAveSlipCorrection();
@@ -1126,10 +1126,19 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	private void convertA_prioriToRateBalanced() {
 		
-		// now solve the inverse problem
+		// find minimum value
+		double minRate = Double.POSITIVE_INFINITY;
+		for(int rup=0; rup < num_rup; rup++)
+			if(minRate > aPrioriRupRates[rup].getValue())
+				minRate = aPrioriRupRates[rup].getValue();
+
 		int totNumRows = num_seg+num_rup;
+
+		
+		// now solve the inverse problem
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
+		double[] Cmin = new double[totNumRows];  // the data vector
 		double wt = 1000;
 		// fill in the a-priori rates
 		for(int rup=0; rup < num_rup; rup++) {
@@ -1138,19 +1147,31 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		// now fill in the segment recurrence interval constraints
 		for(int row = 0; row < num_seg; row ++) {
-			d[row+num_seg+num_rup] = 1.0/segmentData.getRecurInterval(row);
+			d[row+num_rup] = 1.0/segmentData.getRecurInterval(row);
 			for(int col=0; col<num_rup; col++)
-				C[row+num_seg+num_rup][col] = rupInSeg[row][col];
+				C[row+num_rup][col] = rupInSeg[row][col];
 		}
+		
+		// Compute min-rate data correction
+		for(int row=0; row <totNumRows; row++) {
+			for(int col=0; col < num_rup; col++)
+				Cmin[row]+=minRate*C[row][col];
+			d[row] -= Cmin[row];
+		}
+
 		double[] newRupRates = getNNLS_solution(C, d);
+		
+		// correct final results
+		for(int rup=0; rup<num_rup;rup++)
+			newRupRates[rup] += minRate;
 		
 		
 		// WRITE OUT RESULTS *****************
 		System.out.println("******* "+segmentData.getFaultName()+" *******");
 		// show before and after rates
-		System.out.println("Before and after rup rates:");
+		System.out.println("Ratio, and Before and after rup rates:");
 		for(int rup=0; rup < num_rup; rup++) {
-			System.out.println(aPrioriRupRates[rup].getValue()+"   "+newRupRates[rup]);
+			System.out.println((float)(float)(aPrioriRupRates[rup].getValue()/newRupRates[rup])+"   "+aPrioriRupRates[rup].getValue()+"   "+(float)newRupRates[rup]);
 		}
 		// compute new implied segment rates as check
 		double[] newSegRate = new double[num_seg];
@@ -1161,9 +1182,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				if(rupInSeg[seg][rup]==1) newSegRate[seg]+=newRupRates[rup];
 		}
 		// show before and after seg rates
-		System.out.println("Before and after seg rates:");
+		System.out.println("Ratio, and before and after seg rates:");
 		for(int seg=0; seg < num_seg; seg++) {
-			System.out.println((1.0/segmentData.getRecurInterval(seg))+"   "+newSegRate[seg]);
+			System.out.println((float)(newSegRate[seg]*segmentData.getRecurInterval(seg))+"   "+(float)(1.0/segmentData.getRecurInterval(seg))+"   "+(float)newSegRate[seg]);
 		}
 	}
 }
