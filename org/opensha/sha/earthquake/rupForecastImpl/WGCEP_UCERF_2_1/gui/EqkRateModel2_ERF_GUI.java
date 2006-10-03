@@ -97,7 +97,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		editor.setTitle(TITLE);
 		container.add(this.editor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		container.invalidate();
+		container.validate();
 		container.repaint();
 	}
 	
