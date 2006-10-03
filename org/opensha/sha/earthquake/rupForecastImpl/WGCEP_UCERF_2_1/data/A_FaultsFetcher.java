@@ -35,7 +35,7 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher extends FaultsFetcher{
-	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v8.xls";
+	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v9.xls";
 	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModels.txt";
 	private HashMap segmentIntvAndRupRates = new HashMap();
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
