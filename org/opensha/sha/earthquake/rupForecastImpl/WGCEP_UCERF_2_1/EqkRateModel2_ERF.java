@@ -139,8 +139,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String BACK_SEIS_MAG_INFO = "Maximum Magnitude for background seismicity";
 	private DoubleParameter backSeisMaxMagParam ;
 	
-	
-	
 	// For rupture offset lenth along fault parameter
 	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
 	private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
@@ -242,6 +240,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// min and max same as for bFaultB_ValParam
 	private DoubleParameter regionB_ValParam;
 	
+	// B-Fault Min Mag
+	private final static String B_FAULTS_MIN_MAG = "B-Faults Min Mag";
+	private final static Double B_FAULTS_MIN_MAG_DEFAULT = new Double(6.5);
+	private final static String B_FAULTS_MIN_MAG_INFO = "Min Mag to apply to B-Faults GR-distribution";
+	private DoubleParameter bFaultsMinMagParam;
+	
+
+	// whether to inlcude C-zones
+	private final static String INCLUDE_C_ZONES  = "Include C Zones?";
+	private final static Boolean INCLUDE_C_ZONES_DEFAULT = new Boolean(true);
+	private BooleanParameter includeC_ZonesParam;
 	
 	// fraction to put into background
 	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
@@ -258,6 +267,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static Double MEAN_MAG_CORRECTION_DEFAULT = new Double(0.0);
 	private final static String MEAN_MAG_CORRECTION_INFO = "Increment added to mean mag as additional epistemic uncertainity";
 	private DoubleParameter meanMagCorrectionParam;
+	
+	// set for background
+	private final static String SET_FOR_BCK_PARAM_NAME = "Set for Background";
+	private final static String FRAC_MO_RATE = "Frac Mo Rate";
+	private final static String BCK_MAX_MAG = "Max Mag";
+	private StringParameter setForBckParam;
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
@@ -423,6 +438,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				MEAN_MAG_CORRECTION_DEFAULT);
 		meanMagCorrectionParam.setInfo(MEAN_MAG_CORRECTION_INFO);
 		
+//		 B-Fault Min Mag
+		bFaultsMinMagParam = new DoubleParameter(B_FAULTS_MIN_MAG, 5.0, 8.0, B_FAULTS_MIN_MAG_DEFAULT);
+		bFaultsMinMagParam.setInfo(B_FAULTS_MIN_MAG_INFO);
+		
+		
+		// whether to inlcude C-zones
+		includeC_ZonesParam = new BooleanParameter(INCLUDE_C_ZONES, INCLUDE_C_ZONES_DEFAULT);
+		
+		// set for background
+		ArrayList<String> options = new ArrayList<String>();
+		options.add(FRAC_MO_RATE);
+		options.add(BCK_MAX_MAG);
+		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, options.get(0));
+		setForBckParam.addParameterChangeListener(this);
+			
+		
 		//	 add adjustable parameters to the list
 //		adjustableParams.addParameter(faultModelParam);		not needed for now
 //		adjustableParams.addParameter(rupOffset_Param);		not needed for now
@@ -436,13 +467,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(truncLevelParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
+		adjustableParams.addParameter(bFaultsMinMagParam);
 		adjustableParams.addParameter(connectMoreB_FaultsParam);
 //		adjustableParams.addParameter(backSeisParam);		not needed for now
 		adjustableParams.addParameter(totalMagRateParam);
+		adjustableParams.addParameter(includeC_ZonesParam);
 		adjustableParams.addParameter(regionB_ValParam);
-//		adjustableParams.addParameter(backSeisMaxMagParam);
-		adjustableParams.addParameter(aAndB_MoRateReducParam);
 		adjustableParams.addParameter(meanMagCorrectionParam);
+		adjustableParams.addParameter(setForBckParam);
+		adjustableParams.addParameter(aAndB_MoRateReducParam);
+		
 	}
 	
 	
@@ -1117,31 +1151,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		super.parameterChange(event);
 		String paramName = event.getParameterName();
 		
-		/**
-		 * If change is made to the Back Seis param then
-		 * remove/add the backSeisParam from the list of
-		 * adjustable parameters and send that event to
-		 * listening class for the changes in the
-		 * parameter list.
-		 */
-		if(paramName.equals(BACK_SEIS_NAME)){
+		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME)) {
 			String paramValue = (String)event.getNewValue();
-			if(paramValue.equals(BACK_SEIS_EXCLUDE)){
-				if(adjustableParams.containsParameter(backSeisRupParam))
-					adjustableParams.removeParameter(backSeisRupParam);
-				if(adjustableParams.containsParameter(this.backSeisMaxMagParam))
-					adjustableParams.removeParameter(backSeisMaxMagParam);
+			if(paramValue.equalsIgnoreCase(FRAC_MO_RATE)) { // if Fract Mo Rate needs to be set
+				adjustableParams.removeParameter(backSeisMaxMagParam);
+				adjustableParams.addParameter(this.aAndB_MoRateReducParam);
+			} else if(paramValue.equalsIgnoreCase(BCK_MAX_MAG)){ // if Max Mag needs to be set
+				adjustableParams.removeParameter(aAndB_MoRateReducParam);
+				adjustableParams.addParameter(backSeisMaxMagParam);
 			}
-			else{
-				//only add the parameter in the parameter list if it does not already exists
-				if(!adjustableParams.containsParameter(backSeisRupParam)){
-					adjustableParams.addParameter(backSeisRupParam);
-					if(!adjustableParams.containsParameter(this.backSeisMaxMagParam))
-						adjustableParams.addParameter(backSeisMaxMagParam);
-				}
-			}
-			
 		}
+		
 	}
 	
 	/**

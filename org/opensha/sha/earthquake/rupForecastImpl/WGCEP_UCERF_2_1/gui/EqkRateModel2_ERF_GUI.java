@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -21,8 +22,11 @@ import javax.swing.JOptionPane;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -38,7 +42,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
+public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, ParameterChangeListener{
 	
 	private EqkRateModel2_ERF eqkRateModelERF= new EqkRateModel2_ERF(); // erf to get the adjustable params
 	private ParameterListEditor editor; // editor
@@ -63,10 +67,15 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	}
 	
 	public EqkRateModel2_ERF_GUI() {
-		// make parameter list editor
+		
+		// listen to all parameters
 		ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
-		editor = new ParameterListEditor(paramList);
-		editor.setTitle(TITLE);
+		Iterator it = paramList.getParametersIterator();
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			param.addParameterChangeListener(this);
+		}
+		
 		//createHistoricalMFD();
 		createGUI();
 		calcButton.addActionListener(this);
@@ -77,6 +86,20 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		show();
 	}
 	
+	public void parameterChange(ParameterChangeEvent event) {
+		addParameterListEditor();
+	}
+	
+	private void addParameterListEditor() {
+		Container container = this.getContentPane();
+		if(editor!=null) container.remove(editor);
+		editor = new ParameterListEditor(eqkRateModelERF.getAdjustableParameterList());
+		editor.setTitle(TITLE);
+		container.add(this.editor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		container.invalidate();
+		container.repaint();
+	}
 	
 	/*private void createHistoricalMFD() {
 		historicalMFD = new ArbitrarilyDiscretizedFunc();
@@ -96,8 +119,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	private void createGUI() {
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
-		container.add(this.editor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		this.addParameterListEditor();
 		container.add(this.calcButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
