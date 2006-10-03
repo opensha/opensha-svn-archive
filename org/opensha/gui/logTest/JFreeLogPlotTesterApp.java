@@ -11,11 +11,16 @@ import java.util.Iterator;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.*;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
 import org.jfree.data.*;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 import org.jfree.chart.labels.*;
 
 import org.opensha.gui.*;
+
 
 /**
 
@@ -399,7 +404,7 @@ public class JFreeLogPlotTesterApp extends JApplet  {
     if ( D ) System.out.println( S + "Starting" );
     clearPlot();
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
-      functions.addSeries(dataWindow.getXYDataSet());
+      functions.addSeries(dataWindow.getDataSet());
       autoScale = true;
     }
     else
@@ -444,7 +449,7 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
 
 
-    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+    int type = StandardXYItemRenderer.LINES;
 
     StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
 
@@ -474,7 +479,7 @@ public class JFreeLogPlotTesterApp extends JApplet  {
     plot.setDomainCrosshairVisible(false);
     plot.setRangeCrosshairLockedOnData(false);
     plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(0, 0, 0, 15));
+    plot.setInsets(new RectangleInsets(0, 0, 0, 15));
 
     JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
     chart.setBackgroundPaint( lightBlue );
@@ -801,10 +806,10 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
   private void setLog10AsCaretFlag(){
     if(log10CaretCheck.isSelected()){
-      ((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
-      ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(true);
-      ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(true);
+      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag(true);
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag(true);
     }
   }
 
@@ -817,12 +822,12 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      ((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
-      ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(false);
-      ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(false);
-      ((JFreeLogarithmicAxis)xAxis).setExpTickLabelsFlag(true);
-      ((JFreeLogarithmicAxis)yAxis).setExpTickLabelsFlag(true);
+      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag(false);
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag(false);
+      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag(true);
+      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag(true);
     }
   }
 
@@ -832,8 +837,8 @@ public class JFreeLogPlotTesterApp extends JApplet  {
   private void setAxis(){
     String axisOption = (String)axisCombo.getSelectedItem();
     if(axisOption.equals(LOG)){
-      xAxis = new JFreeLogarithmicAxis("X-Axis");
-      yAxis = new JFreeLogarithmicAxis("Y-Axis");
+      xAxis = new LogarithmicAxis("X-Axis");
+      yAxis = new LogarithmicAxis("Y-Axis");
       log10AsECheck.setVisible(true);
       log10CaretCheck.setVisible(true);
     }

@@ -5,6 +5,10 @@ import javax.swing.*;
 import java.util.*;
 
 import org.jfree.data.*;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import java.awt.event.*;
 
 
@@ -93,7 +97,7 @@ public class XYDataWindow extends JFrame {
    *
    * @returns the XY Data set that user entered.
    */
-  private void getDataSet() throws NumberFormatException, NullPointerException{
+  public XYSeries getDataSet() throws NumberFormatException, NullPointerException{
     series = new XYSeries("Random Data");
     try{
       String data = xyText.getText();
@@ -107,6 +111,7 @@ public class XYDataWindow extends JFrame {
     }catch(NullPointerException ee){
       throw new RuntimeException("Must enter data in X Y format");
     }
+    return series;
   }
 
   public XYSeries getXYDataSet() {

@@ -9,8 +9,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
@@ -255,7 +254,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
     xyItemRenderer.setPaint(Color.black);
     xyItemRenderer.setStroke(new BasicStroke((float)2.0));
     if(index==0) plot.setRenderer(xyItemRenderer);
-    else plot.setSecondaryRenderer(index-1, xyItemRenderer);
+    else plot.setRenderer(index-1, xyItemRenderer);
   }
 
 
@@ -356,7 +355,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       griddedSurface.setLocation(0, i, locList.getLocationAt(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
     if(index==0) plot.setDataset(griddedDataSet);
-    else plot.setSecondaryDataset(index-1, griddedDataSet);
+    else plot.setDataset(index-1, griddedDataSet);
   }
 
   /**

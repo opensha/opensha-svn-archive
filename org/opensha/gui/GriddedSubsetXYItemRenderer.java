@@ -14,15 +14,18 @@ import java.awt.image.ImageObserver;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import org.jfree.data.XYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.util.ShapeUtilities;
 
 /**
  * <p>Title: GriddedSubsetXYItemRenderer</p>
@@ -97,7 +100,7 @@ public class GriddedSubsetXYItemRenderer
     public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
                          XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
                          XYDataset data, int datasetIndex, int series, int item,
-                         CrosshairInfo crosshairInfo) {
+                         CrosshairState crosshairInfo) {
 
         // setup for collecting optional entity info...
         Shape entityArea = null;
@@ -115,8 +118,8 @@ public class GriddedSubsetXYItemRenderer
         Number x1 = data.getXValue(series, item);
         Number y1 = data.getYValue(series, item);
         if (y1!=null) {
-            double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea,RectangleEdge.TOP);
-            double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea, RectangleEdge.LEFT);
+            double transX1 = horizontalAxis.valueToJava2D(x1.doubleValue(), dataArea,RectangleEdge.TOP);
+            double transY1 = verticalAxis.valueToJava2D(y1.doubleValue(), dataArea, RectangleEdge.LEFT);
 
             Paint paint = getItemPaint(series, item);
             if (paint != null) {
@@ -130,8 +133,8 @@ public class GriddedSubsetXYItemRenderer
                     Number x0 = data.getXValue(series, item-1);
                     Number y0 = data.getYValue(series, item-1);
                     if (y0!=null) {
-                        double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea,RectangleEdge.TOP);
-                        double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea,RectangleEdge.LEFT);
+                        double transX0 = horizontalAxis.valueToJava2D(x0.doubleValue(), dataArea,RectangleEdge.TOP);
+                        double transY0 = verticalAxis.valueToJava2D(y0.doubleValue(), dataArea,RectangleEdge.LEFT);
 
                         line.setLine(transX0, transY0, transX1, transY1);
                         if (line.intersects(dataArea)) {
@@ -140,11 +143,12 @@ public class GriddedSubsetXYItemRenderer
                     }
                 }
             }
-
-            if (getPlotShapes()) {
+            
+            if (getPlotImages()) {
 
               Shape shape = getItemShape(series, item);
-              shape = createTransformedShape(shape, transX1, transY1);
+              shape = ShapeUtilities.createTranslatedShape(shape, transY1, 
+                      transX1);
               if (isShapeFilled(plot, series, item, transX1, transY1)) {
                 if (shape.intersects(dataArea)) g2.fill(shape);
               } else {
@@ -171,11 +175,11 @@ public class GriddedSubsetXYItemRenderer
                 entityArea = new Rectangle2D.Double(transX1-2, transY1-2, 4, 4);
               }
               String tip = "";
-              if (getToolTipGenerator()!=null) {
-                tip = getToolTipGenerator().generateToolTip(data, series, item);
+              if (this.getToolTipGenerator(series,item)!=null) {
+                tip = getToolTipGenerator(series,item).generateToolTip(data, series, item);
                 }
-                XYItemEntity entity = new XYItemEntity(entityArea, tip, series, item);
-                entities.addEntity(entity);
+                XYItemEntity entity = new XYItemEntity(entityArea,data, item, series, tip,null);
+                entities.add(entity);
             }
 
             // do we need to update the crosshair values?
@@ -183,7 +187,7 @@ public class GriddedSubsetXYItemRenderer
             if (plot.isDomainCrosshairLockedOnData()) {
               if (plot.isRangeCrosshairLockedOnData()) {
                 // both axes
-                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue(),transX1,transY1);
+                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue(),transX1,transY1,PlotOrientation.HORIZONTAL);
                 }
                 else {
                   // just the horizontal axis...

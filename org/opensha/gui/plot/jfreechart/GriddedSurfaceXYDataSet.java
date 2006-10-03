@@ -4,6 +4,9 @@ import java.text.*;
 import java.util.*;
 
 import org.jfree.data.*;
+import org.jfree.data.general.DatasetChangeListener;
+import org.jfree.data.general.DatasetGroup;
+import org.jfree.data.xy.DefaultXYDataset;
 import org.opensha.data.*;
 import org.opensha.sha.surface.*;
 
@@ -31,7 +34,7 @@ import org.opensha.sha.surface.*;
  * @version 1.0
  */
 
-public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
+public class GriddedSurfaceXYDataSet extends DefaultXYDataset implements  NamedObjectAPI {
 
     /** Class name used for debug statements */
     protected final static String C = "GriddedSurfaceXYDataSet";
@@ -138,16 +141,15 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
      * @param  item    The item (zero-based index).
      * @return         The x-value for an item within a series.
      */
-    public Number getXValue( int series, int item ) {
+    public double getXValue( int series, int item ) {
 
         if ( checkSurface() && series < surface.getNumRows() ) {
 
             Location loc = surface.getLocation( series, item );
-            Double lon = new Double( loc.getLongitude() );
-            return ( Number ) lon;
+            return loc.getLongitude();
 
         }
-        else return null;
+        else return Double.NaN;
 
     }
 
@@ -159,16 +161,15 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
      * @param  item    The item (zero-based index).
      * @return         The y-value for an item within a series.
      */
-    public Number getYValue( int series, int item ) {
+    public double getYValue( int series, int item ) {
 
         if ( checkSurface() && series < surface.getNumRows() ) {
 
             Location loc = surface.getLocation( series, item );
-            Double lat = new Double( loc.getLatitude() );
-            return ( Number ) lat;
+            return loc.getLatitude();
 
         }
-        else return null;
+        else return Double.NaN;
     }
 
 

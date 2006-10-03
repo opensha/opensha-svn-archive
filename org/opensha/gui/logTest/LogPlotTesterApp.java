@@ -9,14 +9,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.renderer.*;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.*;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 import org.jfree.chart.labels.*;
 
 import org.opensha.gui.*;
 import org.opensha.gui.plot.jfreechart.MyTickUnits;
-
+import org.opensha.gui.plot.jfreechart.JFreeLogarithmicAxis;
 /**
 
  * <p>Title: LogPlotTesterApp</p>
@@ -399,7 +404,7 @@ public class LogPlotTesterApp extends JApplet  {
    * @param  e  The feature to be added to the Button_mouseClicked attribute
    */
   void addButton_actionPerformed(ActionEvent e){
-    if(xAxis instanceof LogarithmicAxis)
+    if(xAxis instanceof JFreeLogarithmicAxis)
       System.out.println("xAxis is Log");
     else if(xAxis instanceof NumberAxis)
       System.out.println("xAxis is Linear");
@@ -412,7 +417,7 @@ public class LogPlotTesterApp extends JApplet  {
     clearPlot();
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
       try{
-        functions.addSeries(dataWindow.getXYDataSet());
+        functions.addSeries(dataWindow.getDataSet());
       }catch(Exception e){
         JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
         return;
@@ -460,7 +465,7 @@ public class LogPlotTesterApp extends JApplet  {
     }
 
 
-    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+    int type = StandardXYItemRenderer.LINES;
 
     StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
 
@@ -491,7 +496,7 @@ public class LogPlotTesterApp extends JApplet  {
       plot.setDomainCrosshairVisible(false);
       plot.setRangeCrosshairLockedOnData(false);
       plot.setRangeCrosshairVisible(false);
-      plot.setInsets(new Insets(0, 0, 0, 20));
+      plot.setInsets(new RectangleInsets(0, 0, 0, 20));
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
       chart.setBackgroundPaint( lightBlue );
@@ -821,8 +826,8 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsPowerFlag(){
     if(log10PowerCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
+      ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
+      ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
     }
   }
 
@@ -833,8 +838,8 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
+      ((JFreeLogarithmicAxis)xAxis).setExpTickLabelsFlag();
+      ((JFreeLogarithmicAxis)yAxis).setExpTickLabelsFlag();
     }
   }
 
@@ -845,20 +850,21 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setMinorAxisFlag(){
     if(minorAxisCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(true);
-      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(true);
+      ((JFreeLogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(true);
+      ((JFreeLogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(true);
     }
     else{
-      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(false);
-      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(false);
+      ((JFreeLogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(false);
+      ((JFreeLogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(false);
     }
   }
 
   private void setAxis(){
     String axisOption = (String)axisCombo.getSelectedItem();
     if(axisOption.equals(LOG)){
-      xAxis = new LogarithmicAxis("X-Axis");
-      yAxis = new LogarithmicAxis("Y-Axis");
+      xAxis = new JFreeLogarithmicAxis("X-Axis");
+      yAxis = new JFreeLogarithmicAxis("Y-Axis");
+      
       log10AsECheck.setVisible(true);
       log10PowerCheck.setVisible(true);
       if(this.log10PowerCheck.isSelected())

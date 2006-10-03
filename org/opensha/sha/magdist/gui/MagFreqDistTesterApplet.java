@@ -14,6 +14,7 @@ import org.jfree.chart.axis.*;
 
 import org.jfree.data.*;
 import org.jfree.chart.labels.*;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
 import org.opensha.gui.*;
 
@@ -867,10 +868,10 @@ public class MagFreqDistTesterApplet extends JApplet
          moYAxis.setTickMarksVisible(false);
 
 
-         int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+         int type = StandardXYItemRenderer.LINES;
 
-         org.jfree.chart.renderer.StandardXYItemRenderer renderer =
-             new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+         StandardXYItemRenderer renderer =
+             new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
          if(this.incrCustomAxis) {

@@ -17,6 +17,7 @@ import java.io.*;
 
 import org.jfree.chart.*;
 import org.jfree.chart.renderer.*;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.axis.*;
 
 import org.jfree.data.*;
@@ -620,7 +621,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
-      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+      int type = StandardXYItemRenderer.LINES;
 
 
       StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator());

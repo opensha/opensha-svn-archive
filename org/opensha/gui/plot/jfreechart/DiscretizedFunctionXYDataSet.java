@@ -3,6 +3,11 @@ package org.opensha.gui.plot.jfreechart;
 import java.util.*;
 
 import org.jfree.data.*;
+import org.jfree.data.general.DatasetChangeListener;
+import org.jfree.data.general.DatasetGroup;
+import org.jfree.data.xy.AbstractXYDataset;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.opensha.data.*;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -46,7 +51,7 @@ import org.opensha.data.function.DiscretizedFuncList;
  * @version    1.2
  */
 
-public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, IntervalXYDataset {
+public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements NamedObjectAPI, IntervalXYDataset  {
 
     /** Class name used for debug statements */
     protected final static String C = "DiscretizedFunctionXYDataSet";
@@ -84,6 +89,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
 
     /** The group that the dataset belongs to. */
     private DatasetGroup group;
+    
+    private int series,item;
 
     /** no arg constructor -  */
     public DiscretizedFunctionXYDataSet() {
@@ -156,7 +163,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
      * @param  item    The item (zero-based index).
      * @return         The x-value for an item within a series.
      */
-    public Number getXValue( int series, int item ) {
+    public double getXValue( int series, int item ) {
 
         if ( series < functions.size() ) {
             Object obj = functions.get( series );
@@ -168,11 +175,11 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
                 // get the value
                 double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
 
-                // return if not NaN
-                if( x != Double.NaN ) return (Number)(new Double(x));
+                
+                return x;
             }
         }
-        return null;
+        return Double.NaN;
 
     }
 
@@ -186,7 +193,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
      * @param  item    The item (zero-based index).
      * @return         The y-value for an item within a series.
      */
-    public Number getYValue( int series, int item ) {
+    public double getYValue( int series, int item ) {
 
         if ( series < functions.size() ) {
             Object obj = functions.get( series );
@@ -199,14 +206,14 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
 
                 if(convertZeroToMin && y<=minVal && yLog)
-                     return (Number)(new Double(minVal));
-                // return if not NaN
-                if( y != Double.NaN ) return (Number)(new Double(y));
+                     return minVal;
+                
+                return y;
 
 
             }
         }
-        return null;
+        return Double.NaN;
     }
 
     /**
@@ -245,6 +252,16 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
         else return false;
     }
 
+    /**
+     * 
+     * Sets the current series and item in the 2-D object array
+     * @param series  the series (zero-based index).
+     * @param item  the item within a series (zero-based index).
+     */
+    public void setSeriesAndItem(int series, int item){
+    	this.series = series;
+    	this.item = item;
+    }
 
     /**
      * Returns a copy of this list, therefore any changes to the copy cannot
@@ -326,12 +343,12 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
     *
     * @return the starting X value for the specified series and item.
     */
-   public Number getStartXValue(int series, int item) {
+   public double getStartXValue(int series, int item) {
      double x = ((Double)getXValue(series,item)).doubleValue();
      Object obj = functions.get( series );
      if( obj != null && obj instanceof EvenlyDiscretizedFunc)
        x = x - ((EvenlyDiscretizedFunc)obj).getDelta()/2;
-     return new Double(x);
+     return x;
 
    }
 
@@ -344,12 +361,12 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
     *
     * @return the ending X value for the specified series and item.
     */
-   public Number getEndXValue(int series, int item) {
+   public double getEndXValue(int series, int item) {
      double x = ((Double)getXValue(series,item)).doubleValue();
      Object obj = functions.get( series );
      if( obj != null && obj instanceof EvenlyDiscretizedFunc)
        x = x + ((EvenlyDiscretizedFunc)obj).getDelta()/2;
-     return new Double(x);
+     return x;
    }
 
    /**
@@ -361,7 +378,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
     *
     * @return starting Y value for the specified series and item.
     */
-   public Number getStartYValue(int series, int item) {
+   public double getStartYValue(int series, int item) {
      return getYValue(series, item);
    }
 
@@ -374,11 +391,110 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, 
     *
     * @return the ending Y value for the specified series and item.
     */
-   public Number getEndYValue(int series, int item) {
+   public double getEndYValue(int series, int item) {
      return getYValue(series, item);
    }
-
-
+   
+   
+   /**
+    * Returns the ending X value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the ending X value for the specified series and item.
+    */
+	public Number getEndX(int series, int item) {
+		return new Double(getEndXValue(series,item));
+	}
+	
+   /**
+    * Returns the ending Y value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the ending Y value for the specified series and item.
+    */
+	public Number getEndY(int series, int item) {
+		return new Double(getEndYValue(series,item));
+	}
+	
+   /**
+    * Returns the starting X value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the starting X value for the specified series and item.
+    */
+	public Number getStartX(int series, int item) {
+		return new Double(getStartXValue(series,item));
+	}
+	
+   /**
+    * Returns the starting Y value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the starting Y value for the specified series and item.
+    */
+	public Number getStartY(int series, int item) {
+		return new Double(getStartYValue(series,item));
+	}
+	
+	
+	 /**
+     * XYDatasetAPI - Returns the x-value for an item within a series. <P>
+     *
+     * The implementation is responsible for ensuring that the x-values are
+     * presented in ascending order.
+     *
+     * Note: If xlog is choosen, and first x point is zero the index is incresed
+     * to return the second point.
+     *
+     * @param  series  The series (zero-based index).
+     * @param  item    The item (zero-based index).
+     * @return         The x-value for an item within a series.
+     */
+	public Number getX(int series, int item) {
+		return new Double(this.getXValue(series, item));
+	}
+	
+	 /**
+     * XYDatasetAPI - Returns the y-value for an item within a series. <P>
+     *
+     * The implementation is responsible for ensuring that the x-values are
+     * presented in ascending order.
+     *
+     * Note: If ylog is choosen, and first y point is zero the index is incresed
+     * to return the second point.
+     *
+     * @param  series  The series (zero-based index).
+     * @param  item    The item (zero-based index).
+     * @return         The y-value for an item within a series.
+     */
+	public Number getY(int series, int item) {
+		return new Double(this.getYValue(series, item));
+	}
+	
+	
+	/**
+     * Returns the key for a series (this being the info String of the Series, which is unique for each series)
+     *
+     * @param series  the series index (in the range <code>0</code> to 
+     *     <code>getSeriesCount() - 1</code>).
+     *
+     * @return The key for the series.
+     */
+	public Comparable getSeriesKey(int series) {
+		return new String(this.getSeriesName(series));
+	}
 }
 
 
