@@ -173,7 +173,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		computeSegRatesFromAprioriRates();
 		
 		// THIS IS TEMPORARY:
-		// convertA_prioriToRateBalanced();
+		convertA_prioriToRateBalanced();
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if mag PDF sigma non zero)
 		setAveSlipCorrection();
@@ -1168,10 +1168,18 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		
 		// WRITE OUT RESULTS *****************
 		System.out.println("******* "+segmentData.getFaultName()+" *******");
+		// print out revised rates
+		System.out.println("Final rup rates:");
+		for(int rup=0; rup < num_rup; rup++) {
+			System.out.println((float)newRupRates[rup]);
+		}
 		// show before and after rates
+		double ratio;
 		System.out.println("Ratio, and Before and after rup rates:");
 		for(int rup=0; rup < num_rup; rup++) {
-			System.out.println((float)(float)(aPrioriRupRates[rup].getValue()/newRupRates[rup])+"   "+aPrioriRupRates[rup].getValue()+"   "+(float)newRupRates[rup]);
+			ratio = aPrioriRupRates[rup].getValue()/newRupRates[rup];
+			if(newRupRates[rup] ==0.0 && aPrioriRupRates[rup].getValue() == 0.0) ratio = 1.0;
+			System.out.println((float)ratio+"   "+(float)aPrioriRupRates[rup].getValue()+"   "+(float)newRupRates[rup]);
 		}
 		// compute new implied segment rates as check
 		double[] newSegRate = new double[num_seg];
@@ -1184,7 +1192,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// show before and after seg rates
 		System.out.println("Ratio, and before and after seg rates:");
 		for(int seg=0; seg < num_seg; seg++) {
-			System.out.println((float)(newSegRate[seg]*segmentData.getRecurInterval(seg))+"   "+(float)(1.0/segmentData.getRecurInterval(seg))+"   "+(float)newSegRate[seg]);
+			System.out.println((float)(1.0/(newSegRate[seg]*segmentData.getRecurInterval(seg)))+"   "+(float)(1.0/segmentData.getRecurInterval(seg))+"   "+(float)newSegRate[seg]);
 		}
 	}
 }

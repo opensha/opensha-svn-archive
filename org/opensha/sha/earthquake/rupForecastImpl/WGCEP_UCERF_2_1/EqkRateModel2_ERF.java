@@ -955,7 +955,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	/**
-	 * This returns an ArrayList of EvenlyDiscretizedFunc that have  cumulative 
+	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD (from Table 2 in her appendix) and upper and lower confidence MFDs
 	 * @return
 	 */
