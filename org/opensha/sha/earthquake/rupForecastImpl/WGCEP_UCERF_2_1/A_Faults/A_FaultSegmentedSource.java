@@ -173,7 +173,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		computeSegRatesFromAprioriRates();
 		
 		// THIS IS TEMPORARY:
-		convertA_prioriToRateBalanced();
+		//convertA_prioriToRateBalanced();
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if mag PDF sigma non zero)
 		setAveSlipCorrection();
