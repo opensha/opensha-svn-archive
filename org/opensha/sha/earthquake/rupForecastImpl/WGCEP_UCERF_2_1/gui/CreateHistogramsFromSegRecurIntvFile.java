@@ -148,7 +148,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 			//System.out.println(excelSheetName);
 			ArrayList funcList = new ArrayList();
 			for(int k=3; k<names.length; ++k) {
-				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.20, 2.5, 24);
+				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.20, 2.6, 25);
 				func.setTolerance(func.getDelta());
 				func.setName(names[k]);
 				funcList.add(func);
@@ -187,6 +187,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 						//System.out.println(rupName+","+mean+","+ratio);
 						EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)funcList.get(col-4);
 						xIndex = func.getXIndex(ratio);
+						System.out.println(ratio);
 						func.add(xIndex, 1.0);
 					}
 				}
