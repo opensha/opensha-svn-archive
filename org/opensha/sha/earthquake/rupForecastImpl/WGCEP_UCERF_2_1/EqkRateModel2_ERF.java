@@ -155,7 +155,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
-	public final static Double TOT_MAG_RATE_DEFAULT = new Double(7.1);
+	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.1);
 	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.3 for no aftershocks, or 8.4 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
@@ -239,7 +239,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public final static String REGION_B_VAL_PARAM_NAME = "Background Seis b-value";
 	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
-	public final static Double REGIONAL_B_DEFAULT = new Double(1.1);
+	public final static Double REGIONAL_B_DEFAULT = new Double(0.9);
 	// min and max same as for bFaultB_ValParam
 	private DoubleParameter regionB_ValParam;
 	
@@ -454,7 +454,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList<String> options = new ArrayList<String>();
 		options.add(SET_FOR_BCK_PARAM_FRAC_MO_RATE);
 		options.add(SET_FOR_BCK_PARAM_BCK_MAX_MAG);
-		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, options.get(0));
+		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, SET_FOR_BCK_PARAM_BCK_MAX_MAG);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
 			
@@ -464,12 +464,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //		adjustableParams.addParameter(rupOffset_Param);		not needed for now
 		adjustableParams.addParameter(deformationModelsParam);
 		adjustableParams.addParameter(aseisFactorInterParam);
-		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(rupModelParam);
-		adjustableParams.addParameter(constrainA_SegRatesParam);
 		adjustableParams.addParameter(slipModelParam);
+		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
+		adjustableParams.addParameter(constrainA_SegRatesParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
 		adjustableParams.addParameter(bFaultsMinMagParam);
@@ -480,7 +480,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(regionB_ValParam);
 		adjustableParams.addParameter(setForBckParam);
-		adjustableParams.addParameter(moRateFracToBackgroundParam);
+		adjustableParams.addParameter(backSeisMaxMagParam);
 		
 	}
 	
@@ -976,7 +976,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			rate = 7.1;
 		}
 		else {
-			bVal = 0.93;
+			bVal = 0.8;
 			rate = 3.1;
 		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
