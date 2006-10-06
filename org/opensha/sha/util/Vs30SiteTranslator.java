@@ -61,6 +61,10 @@ import org.opensha.sha.imr.AttenuationRelationship;
 
  ShakeMap (2003)
  ---------------
+Unfortunately Wills et al. (2000) do not give a unique mapping between Vs30 and their classification.
+The following is based on the average value for each class. If it's not exactly one of these, NA is returned.
+Note that we couldn't just use mid points because Vs30 for BC is greater than for B.
+
 
  E                      if Vs30 = 163
  DE                     if Vs30 = 298
@@ -215,7 +219,14 @@ public class Vs30SiteTranslator implements java.io.Serializable{
           throw new RuntimeException(" That Vs30 is not allowed for "+ShakeMap_2003_AttenRel.WILLS_SITE_NAME);
         }
       }
-
+//      CS_2005.SOFT_SOIL_CASE
+       else if(tempParam.getName().equals(CS_2005_AttenRel.SOFT_SOIL_NAME)){
+            if (vs30 < 180 || vs30 > 1000)
+        		tempParam.setValue(new Boolean(true));
+        	else
+        		tempParam.setValue(new Boolean(false));
+            return true;
+        }
       else {
         throw new RuntimeException(C+" does not support the site type: "+tempParam.getName());
       }
