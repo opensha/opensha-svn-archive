@@ -8,26 +8,77 @@
 # The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
-- Salmon
-17
-16
-- Green Valley
-3
-1
-71
-72
-24
 - Palos Verdes
 109
 121
+- Newport Inglewood
+123
+122
+235
+ - Raymond
+111
+219
+226
+108
+152
+- Malibu Coast
+220
+221
+- Channel Islands
+212
+129
+- Oak Ridge
+218
+203
+116
+- Pitas Point
+217
+215
+- Santa Ana
+78
+80
+228
+- Santa Ynez
+77
+79
+- Sierra Madre
+227
+113
+114
+125
+- Frontal
+82
+83
+- San Gabriel
+247
+248
+- Landers
+86
+92
 - Death Valley
 45
 46
 245
 246
-- Greenville
-6
-7
+-Hunter Mountain
+50
+244
+- Sierra Nevada
+65
+210
+- Mono Lake
+38
+39
+40
+41
+42
+- White Wolf
+253
+254
+209
+- Hosgri
+30
+208
 - Great Valley First
 131
 133
@@ -43,39 +94,14 @@
 140
 142
 141
-- Santa Ynez
-77
-79
-- Landers
-86
-92
-95
-- Sierra Madre
-227
-113
-114
-125
-- Raymond
-152
-108
-226
-220
-- Northridge
-130
-116
-- Newport Inglewood
-123
-122
-235
--Hunter Mountain
-50
-244
-- Frontal
-82
-83
-- Pitas Point
-212
-215
-- Mono Lake
-39
-40
+- Green Valley
+7
+2
+3
+1
+71
+72
+24
+- Salmon
+17
+16

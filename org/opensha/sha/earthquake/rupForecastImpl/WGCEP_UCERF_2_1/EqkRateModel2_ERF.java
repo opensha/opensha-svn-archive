@@ -832,6 +832,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				isAseisReducesArea);
 		aFaultSources = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
@@ -840,6 +841,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					magTruncLevel, moRateFracToBackground, meanMagCorrection, constrainA_SegRates);
 			aFaultSources.add(aFaultSource);
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
+			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
 		}
 	}
 	

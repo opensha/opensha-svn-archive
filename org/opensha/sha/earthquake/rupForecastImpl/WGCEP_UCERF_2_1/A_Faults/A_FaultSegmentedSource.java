@@ -248,8 +248,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				tempSlipRate = 0;
 				for(int rup=0; rup < num_rup; rup++)
 					tempSlipRate += rupRate[rup]*segSlipInRup[seg][rup];
-				double absFractDiff = Math.abs(tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)) - 1.0);
-				System.out.println("SlipRateCheck:  "+(float) (tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction))));
+				double absFractDiff = Math.abs(tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)) - 1.0);				System.out.println("SlipRateCheck:  "+(float) (tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction))));
 				if(absFractDiff > 0.001)
 					throw new RuntimeException("ERROR - slip rates differ!!!!!!!!!!!!");
 			}

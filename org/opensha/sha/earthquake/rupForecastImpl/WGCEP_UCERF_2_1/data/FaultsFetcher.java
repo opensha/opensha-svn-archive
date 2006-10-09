@@ -169,6 +169,10 @@ public abstract class FaultsFetcher {
 				for(int j=0; j<sectionList.size(); ++j) {
 					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 					FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
+					if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
+						//System.out.println(faultSectionPrefData.getSectionName());
+						continue;
+					}
 					faultSectionList.add(faultSectionPrefData);
 					newSegment.add(faultSectionPrefData);		
 				}

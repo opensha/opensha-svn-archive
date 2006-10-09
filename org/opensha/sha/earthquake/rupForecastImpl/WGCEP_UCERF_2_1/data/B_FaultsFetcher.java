@@ -20,6 +20,7 @@ import org.opensha.sha.fault.FaultTrace;
 public  class B_FaultsFetcher extends FaultsFetcher {
 	private A_FaultsFetcher aFaultsFetcher=null;
 	private ArrayList bFaultNames; 
+	private ArrayList bFaultIds;
 	private HashMap faultSegmentMap;
 	
 	// This holds the special, multi-section B Faults
@@ -36,7 +37,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		this.connectB_FaultsFileName = bFilesConnectFileName;
 		aFaultsFetcher = new A_FaultsFetcher();
 		// make special fault info
-		allSpecialFaultIds = getAllFaultSectionsIdList();
+		allSpecialFaultIds = super.getAllFaultSectionsIdList();
 	}
 	
 	/**
@@ -46,7 +47,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	public void setConnectionFileName(String fileName) {
 		if(!connectB_FaultsFileName.equals(fileName)) {
 			this.loadSegmentModels(fileName);
-			allSpecialFaultIds = getAllFaultSectionsIdList();
+			allSpecialFaultIds = super.getAllFaultSectionsIdList();
 			connectB_FaultsFileName = fileName;
 			deformationModelId=-1;
 		}
@@ -63,6 +64,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 			faultSegmentMap = new HashMap();
 			this.deformationModelId = deformationModelId;
 			bFaultNames = new ArrayList();
+			bFaultIds = new ArrayList();
 			ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
 			ArrayList aFaultsList = this.aFaultsFetcher.getAllFaultSectionsIdList(); 
 			for(int i=0; i<faultSectionsInDefModel.size(); ++i) {
@@ -77,7 +79,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 				// add to B type faults only if slip is not 0 and not NaN
 				if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
 				bFaultNames.add(faultSectionPrefData.getSectionName());
-				
+				bFaultIds.add(new Integer(faultSectionPrefData.getSectionId()));
 				// Arraylist of segments of list of sections
 				ArrayList sectionList = new ArrayList();
 				sectionList.add(faultSectionPrefData);
@@ -86,8 +88,25 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 				faultSegmentMap.put(faultSectionPrefData.getSectionName(), segmentList);
 			}
 			bFaultNames.addAll(this.getAllFaultNames()); // add connecting fault names
+			bFaultIds.addAll(super.getAllFaultSectionsIdList());
 		}
 		
+	}
+	
+	/**
+	 * Return a list of ids of all fault sections in any of faults defined in text file.
+	 * @return
+	 */
+	public ArrayList getAllFaultSectionsIdList(int deformationModelId) {
+		this.generateBFaults(deformationModelId);
+		return bFaultIds;
+	}
+	
+	/**
+	 * Return a list of Ids of connected B-Type fault sections
+	 */
+	public ArrayList getConnectedFaultSectionsIdList() {
+		return super.getAllFaultSectionsIdList();
 	}
 	
 	/**
