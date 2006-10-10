@@ -221,7 +221,7 @@ public class Vs30SiteTranslator implements java.io.Serializable{
       }
 //      CS_2005.SOFT_SOIL_CASE
        else if(tempParam.getName().equals(CS_2005_AttenRel.SOFT_SOIL_NAME)){
-            if (vs30 < 180 || vs30 > 1000)
+            if (vs30 < 180)
         		tempParam.setValue(new Boolean(true));
         	else
         		tempParam.setValue(new Boolean(false));
