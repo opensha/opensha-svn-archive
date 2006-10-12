@@ -163,7 +163,7 @@ public class SiteSpecific_2006_AttenRel
     initSupportedIntensityMeasureParams();
     initEqkRuptureParams();
     initPropagationEffectParams();
-    initSiteParams();
+    initSiteParams();		// do only in constructor
     initOtherParams();
 
     initIndependentParamLists(); // Do this after the above
