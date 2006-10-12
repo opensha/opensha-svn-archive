@@ -167,14 +167,10 @@ public class SiteSpecific_2006_AttenRel
     initOtherParams();
 
     initIndependentParamLists(); // Do this after the above
-    /*
-            TreeSet set = new TreeSet();
-            Enumeration keys = horzCoeffs.keys(); // same as for vertCoeffs
-            while ( keys.hasMoreElements() ) {
-              SS_2006_AttenRelCoefficients c = ( SS_2006_AttenRelCoefficients ) horzCoeffs.get( keys.nextElement() );
-              System.out.println(c.period+"\t"+c.b1+"\t"+c.vRef+"\t"+c.c+"\t"+c.b2+"\t"+c.tau+"\t"+c.e1+"\t"+c.e3);
-            }
-     */
+  }
+  
+  protected void setRockAttenAndParamLists() {
+	  
   }
 
   /**
