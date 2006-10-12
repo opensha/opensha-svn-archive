@@ -12,11 +12,9 @@ import org.opensha.sha.imr.*;
 /**
  * <b>Title:</b> SiteSpecific_2006_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Bazzuro and Cornell(2004), Baturay and Stewart(2003),
- * "Nonlinear Site Amplification as a Function
- * of 30 m Shear Wave Velocity", Earthquake Spectre, v. 21, pp. 1-30).  This applies
- * an alternative site-response correction to the Abrahamson & Silva (1997) relationship. <p>
+ * <b>Description:</b> This implements the site effect models
+ * developed by Bazzuro and Cornell(2004), Baturay and Stewart(2003), applied
+ * to the Abrahamson & Silva (1997) rock-site predictions. <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -118,7 +116,7 @@ public class SiteSpecific_2006_AttenRel
   
   //Site Effect correction to apply
   private StringParameter siteEffectCorrectionParam;
-  public final static String SITE_EFFECT_PARAM_NAME = "Site Effect Correction Model";
+  public final static String SITE_EFFECT_PARAM_NAME = "Site Effect Model";
   public final static String SITE_EFFECT_PARAM_INFO = "Select which model to apply for" +
   		" site effect correction";
   private final static String BATURAY_STEWART_MODEL = "Baturay and Stewart (2003)";
@@ -247,24 +245,10 @@ public class SiteSpecific_2006_AttenRel
    */
   public double getMean() throws IMRException {
 
-    double vs30, asRockSA, lnAF;
+    double asRockSA, lnAF;
 
-    // set vs30 from the parameters
-    if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
-      vs30 = 174;
-    }
-    else {
-      try {
-        vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-      }
-      catch (NullPointerException e) {
-        throw new IMRException(C + ": getMean(): " + ERR);
-      }
-    }
-
-    // get AS-1997 PGA for SA
-    as_1997_attenRel.setIntensityMeasure(SA_NAME);
-    as_1997_attenRel.setIntensityMeasure(im);
+    // get AS-1997 SA for rock
+     as_1997_attenRel.setIntensityMeasure(im);
     asRockSA = as_1997_attenRel.getMean();
     
     // get the amp factor
@@ -286,7 +270,12 @@ public class SiteSpecific_2006_AttenRel
 	  if(siteCorrectionModelUsed.equals(this.BAZZURO_CORNELL_MODEL))
 		  return getStdDevForBC();
 	  else{
-		  float periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
+		  float periodParamVal;
+		  if(im.getName().equals(this.SA_NAME))
+			  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
+		  else
+			  periodParamVal = 0;
+		  
 		  if(periodParamVal < 0.75)
 			  return getStdDevForBS();
 		  else if(periodParamVal > 1.5)
@@ -315,7 +304,6 @@ public class SiteSpecific_2006_AttenRel
   private double getStdDevForBC(){
 	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
-	  as_1997_attenRel.setIntensityMeasure(SA_NAME);
 	  as_1997_attenRel.setIntensityMeasure(im);
 	  double asRockStdDev = as_1997_attenRel.getStdDev();
 	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
