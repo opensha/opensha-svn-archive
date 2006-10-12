@@ -266,33 +266,42 @@ public class SiteSpecific_2006_AttenRel
    * Returns the Std Dev.
    */
   public double getStdDev(){
-	  String siteCorrectionModelUsed = (String)siteEffectCorrectionParam.getValue();
-	  if(siteCorrectionModelUsed.equals(this.BAZZURO_CORNELL_MODEL))
-		  return getStdDevForBC();
-	  else{
-		  float periodParamVal;
-		  if(im.getName().equals(this.SA_NAME))
-			  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
-		  else
-			  periodParamVal = 0;
+	  
+	  String stdDevType = stdDevTypeParam.getValue().toString();
+	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
+		  return 0;
+	  }
+	  else {
 		  
-		  if(periodParamVal < 0.75)
-			  return getStdDevForBS();
-		  else if(periodParamVal > 1.5)
-		     return getStdDevForCS();
+		  
+		  String siteCorrectionModelUsed = (String)siteEffectCorrectionParam.getValue();
+		  if(siteCorrectionModelUsed.equals(this.BAZZURO_CORNELL_MODEL))
+			  return getStdDevForBC();
 		  else{
-			  //getting the Std Dev for Period of 0.75
-			  periodParam.setValue(new Double(0.75));
-			  double stdDev_BS = getStdDevForBS();
-			  //getting the Std Dev. for period param 1.5
-			  periodParam.setValue(new Double(1.5));
-			  double stdDev_CS = getStdDevForCS();
-			  //setting the period to period selected by the user
-			  periodParam.setValue(new Double(periodParamVal));
-			  //linear interpolation to get the Std Dev.
-			  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
-			  (stdDev_CS - stdDev_BS) + stdDev_BS;
-			  return stdDev;
+			  float periodParamVal;
+			  if(im.getName().equals(this.SA_NAME))
+				  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
+			  else
+				  periodParamVal = 0;
+			  
+			  if(periodParamVal < 0.75)
+				  return getStdDevForBS();
+			  else if(periodParamVal > 1.5)
+				  return getStdDevForCS();
+			  else{
+				  //getting the Std Dev for Period of 0.75
+				  periodParam.setValue(new Double(0.75));
+				  double stdDev_BS = getStdDevForBS();
+				  //getting the Std Dev. for period param 1.5
+				  periodParam.setValue(new Double(1.5));
+				  double stdDev_CS = getStdDevForCS();
+				  //setting the period to period selected by the user
+				  periodParam.setValue(new Double(periodParamVal));
+				  //linear interpolation to get the Std Dev.
+				  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
+				  (stdDev_CS - stdDev_BS) + stdDev_BS;
+				  return stdDev;
+			  }
 		  }
 	  }
   }
@@ -330,13 +339,7 @@ public class SiteSpecific_2006_AttenRel
   /**
    * @return    The stdDev value for Choi and Stewart (2005) model
    */
-  public double getStdDevForCS() throws IMRException {
-
-    String stdDevType = stdDevTypeParam.getValue().toString();
-    if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
-      return 0;
-    }
-    else {
+  private double getStdDevForCS() throws IMRException {
 
       double vs30, sigmaV, sigmaAS;
 
@@ -374,7 +377,7 @@ public class SiteSpecific_2006_AttenRel
       }
 
       return Math.sqrt(sigmaV * sigmaV + coeffs.tau * coeffs.tau);
-    }
+   
   }
 
   
