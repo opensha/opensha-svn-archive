@@ -295,13 +295,13 @@ public class SiteSpecific_2006_AttenRel
 			  //getting the Std Dev for Period of 0.75
 			  periodParam.setValue(new Double(0.75));
 			  double stdDev_BS = getStdDevForBS();
-			  //getting the Std Dev. for period param 1.25
-			  periodParam.setValue(new Double(1.25));
+			  //getting the Std Dev. for period param 1.5
+			  periodParam.setValue(new Double(1.5));
 			  double stdDev_CS = getStdDevForCS();
 			  //setting the period to period selected by the user
 			  periodParam.setValue(new Double(periodParamVal));
 			  //linear interpolation to get the Std Dev.
-			  double stdDev = ((periodParamVal - 0.75)/(1.25 -0.75))*
+			  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
 			  (stdDev_CS - stdDev_BS) + stdDev_BS;
 			  return stdDev;
 		  }
