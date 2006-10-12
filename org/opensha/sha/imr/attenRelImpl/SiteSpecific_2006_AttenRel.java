@@ -118,7 +118,7 @@ public class SiteSpecific_2006_AttenRel
   
   //Site Effect correction to apply
   private StringParameter siteEffectCorrectionParam;
-  public final static String SITE_EFFECT_PARAM_NAME = "Site Effect Correction";
+  public final static String SITE_EFFECT_PARAM_NAME = "Site Effect Correction Model";
   public final static String SITE_EFFECT_PARAM_INFO = "Select which model to apply for" +
   		" site effect correction";
   private final static String BATURAY_STEWART_MODEL = "Baturay and Stewart (2003)";
@@ -524,8 +524,6 @@ public class SiteSpecific_2006_AttenRel
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_AddRefAccParam);
-    siteParams.addParameter(siteEffectCorrectionParam);
-    siteParams.addParameter(siteEffectCorrectionParam);
     siteParams.addParameter(vs30Param);
     siteParams.addParameter(softSoilParam);
 
