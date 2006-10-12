@@ -1,5 +1,6 @@
 package org.opensha.sha.imr.attenRelImpl;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import org.opensha.data.*;
@@ -292,7 +293,8 @@ public class SiteSpecific_2006_AttenRel
 				  periodParam.setValue(new Double(1.5));
 				  double stdDev_CS = getStdDevForCS();
 				  //setting the period to period selected by the user
-				  periodParam.setValue(new Double(periodParamVal));
+				  DecimalFormat format = new DecimalFormat("##.###");
+				  periodParam.setValue(new Double(format.format(periodParamVal)));
 				  //linear interpolation to get the Std Dev.
 				  double stdDev = ((periodParamVal - 0.75)/(1.5 -0.75))*
 				  (stdDev_CS - stdDev_BS) + stdDev_BS;
@@ -321,10 +323,11 @@ public class SiteSpecific_2006_AttenRel
   private double getStdDevForBS(){
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
 	  int numRuns = ((Integer)this.numRunsParam.getValue()).intValue();
+	  boolean softSoilCase = ((Boolean)this.softSoilParam.getValue()).booleanValue();
 	  double stdError = stdDevAF/(Math.sqrt(numRuns));
 	  double stdDev_gNet;
 	  double vs30 = ((Double)vs30Param.getValue()).doubleValue();
-	  if(vs30 <= 180)
+	  if(vs30 <= 180 || softSoilCase)
 		  stdDev_gNet = 0.38;
 	  else
 		  stdDev_gNet = 0.56;
