@@ -80,14 +80,8 @@ public class SegmentDataPanel extends JPanel {
 	 */
 	public void setFaultSegmentData(A_FaultSegmentedSource segmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
 		FaultSegmentData faultSegmentData = segmentedSource.getFaultSegmentData();
-		double[] predMRI = new double[faultSegmentData.getNumSegments()];
-		double[] finalMRI = new double[predMRI.length];
-		for(int i=0; i<finalMRI.length; ++i) {
-			predMRI[i] = 1.0/segmentedSource.getSegRateFromAprioriRates(i);
-			finalMRI[i] = segmentedSource.getFinalSegRecurInt(i);
-		}
 		// update the segment table model
-		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, predMRI, finalMRI);
+		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, segmentedSource);
 	}
 	
 	
@@ -99,14 +93,8 @@ public class SegmentDataPanel extends JPanel {
 	 */
 	public void setFaultSegmentData(UnsegmentedSource unsegmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
 		FaultSegmentData faultSegmentData = unsegmentedSource.getFaultSegmentData();
-		double[] predMRI = new double[faultSegmentData.getNumSegments()];
-		double[] finalMRI = new double[predMRI.length];
-		for(int i=0; i<finalMRI.length; ++i) {
-			predMRI[i] = Double.NaN;
-			finalMRI[i] = Double.NaN;
-		}
 		// update the segment table model
-		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, predMRI, finalMRI);
+		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, null);
 	}
 
 
@@ -119,9 +107,9 @@ public class SegmentDataPanel extends JPanel {
 	 * @param finalMRI
 	 */
 	private void updateSegTableModel(boolean isAseisReducesArea, ArrayList magAreaRelationships, FaultSegmentData faultSegmentData, 
-			double[] predMRI, double[] finalMRI) {
+			A_FaultSegmentedSource segmentedSource) {
 		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships);
-		segmentTableModel.setSegmentedFaultData(faultSegmentData, predMRI, finalMRI);
+		segmentTableModel.setSegmentedFaultData(faultSegmentData,  segmentedSource);
 		segmentTableModel.fireTableDataChanged();
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
 		else faultSectionTableModel.setFaultSectionData(null);
@@ -291,14 +279,16 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Seg Name", "Num", "Slip Rate", "Area",
-		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", "Stress Drop", "Sections In Segment"};
+	private final static String[] columnNames = { "Seg Name", "Num", "Orig Slip Rate", 
+		"Final Slip Rate","Area",
+		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", 
+		 "Stress Drop", "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
-	private double[] predMRI, finalMRI;
+	private A_FaultSegmentedSource segmentedSource;
 	
 	
 	/**
@@ -306,25 +296,24 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 *
 	 */
 	public SegmentDataTableModel() {
-		this(null, null, null);
+		this(null, null);
 	}
 	
 	/**
 	 * Segmented Fault data
 	 * @param segFaultData
 	 */
-	public SegmentDataTableModel( FaultSegmentData segFaultData, double[] predMRI, double[] finalMRI) {
-		setSegmentedFaultData(segFaultData, predMRI, finalMRI);
+	public SegmentDataTableModel( FaultSegmentData segFaultData, A_FaultSegmentedSource segmentedSource) {
+		setSegmentedFaultData(segFaultData, segmentedSource);
 	}
 	
 	/**
 	 * Set the segmented fault data
 	 * @param segFaultData
 	 */
-	public void setSegmentedFaultData(FaultSegmentData segFaultData, double[] predMRI, double[] finalMRI) {
+	public void setSegmentedFaultData(FaultSegmentData segFaultData, A_FaultSegmentedSource segmentedSource) {
 		this.segFaultData =   segFaultData;
-		this.predMRI = predMRI;
-		this.finalMRI = finalMRI;
+		this.segmentedSource = segmentedSource;
 	}
 	
 	/**
@@ -373,29 +362,31 @@ class SegmentDataTableModel extends AbstractTableModel {
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
 			case 3:
+				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+			case 4:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
-			case 4:
+			case 5:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
-			case 5:
-				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 6:
-				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
+				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 7:
-				return ""+Math.round(this.predMRI[rowIndex]);
+				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
 			case 8:
-				return ""+Math.round(this.finalMRI[rowIndex]);
-			case 9:	
+				return ""+Math.round(1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex));
+			case 9:
+				return ""+Math.round(segmentedSource.getFinalSegRecurInt(rowIndex));
+			case 10:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
 				return ""+ CHAR_SLIP_RATE_FORMAT.format(getCharSlip(rowIndex));
-			case 10:
+			case 11:
 				double ddw = segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3; // ddw in km 
 				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
 				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
 				return ""+(float)segStressDrop;
-			case 11:
+			case 12:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
@@ -407,7 +398,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * @return
 	 */
 	private double getCharSlip(int rowIndex) {
-		return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
+		return (1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex))*segFaultData.getSegmentSlipRate(rowIndex);
 	}
 	
 	
@@ -418,17 +409,15 @@ class SegmentDataTableModel extends AbstractTableModel {
 		case 1: 
 			// convert to mm/yr
 			return "";
-		case 3:
+		case 4:
 			// convert to sq km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
-		case 4:
+		case 5:
 			// convert to km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
-		case 5:
+		case 6:
 			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
-		case 8:
-			return "";
-	}
+		}
 	return "";
 	}
 }

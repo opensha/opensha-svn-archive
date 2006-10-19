@@ -92,7 +92,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist;  // segment slip dist
 	private ArbitrarilyDiscretizedFunc[] rupSlipDist;
 	
-	private double[] finalSegRate, segRateFromApriori;
+	private double[] finalSegRate, segRateFromApriori, finalSegSlipRate;
 	
 	private String[] rupNameShort, rupNameLong;
 	private double[] rupArea, rupMeanMag, rupMeanMo, rupMoRate, totRupRate; // rupture mean mag
@@ -284,7 +284,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		"\n\nTotal Rate: "+(float)summedMagFreqDist.getCumRate(0);
 		summedMagFreqDist.setInfo(summed_info);
 		
-				
+		// Computer final segment slip rate
+		computeFinalSegSlipRate();
+		
 		// get final rate of events on each segment (this takes into account mag rounding of MFDs)
 		computeFinalSegRates();		
 
@@ -292,7 +294,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		computeRupSlipDist();
 		
 		// find the slip distribution of each segment
-		//computeSegSlipDist(rupSlipDist, magAreaRel, segRupSlipFactor);
+		//computeSegSlipDist(segRupSlipFactor);
 		/*
 		if(D) {
 			// print the slip distribution of each segment
@@ -303,6 +305,22 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		*/
 	}
+	
+	
+	
+	/**
+	 * Computer Final Slip Rate for each segment
+	 *
+	 */
+	private void computeFinalSegSlipRate() {
+		this.finalSegSlipRate = new double[num_seg];
+		for(int seg=0; seg < num_seg; seg++) {
+			finalSegSlipRate[seg] = 0;
+			for(int rup=0; rup < num_rup; rup++)
+				finalSegSlipRate[seg] += totRupRate[rup]*segSlipInRup[seg][rup];
+		}
+	}
+	
 	
 	
 	public final static ArrayList getSupportedSlipModels() {
@@ -470,12 +488,19 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	/**
 	 * This returns the final, implied slip rate for each segment
 	 */
-	public double getFinalAveSegSlipRate(int ithSegment) {
+	/*public double getFinalAveSegSlipRate(int ithSegment) {
 		ArbDiscrEmpiricalDistFunc segmenstSlipDist = getSegmentSlipDist(ithSegment);
 		double slipRate=0;
 		for(int i=0; i<segmenstSlipDist.getNum(); ++i)
 			slipRate+=segmenstSlipDist.getX(i)*segmenstSlipDist.getY(i);
 		return slipRate;
+	}*/
+	
+	/**
+	 * This returns the final implied slip rate for each segment
+	 */
+	public double getFinalSegSlipRate(int ithSegment) {
+		return this.finalSegSlipRate[ithSegment];
 	}
 	
 	/**
