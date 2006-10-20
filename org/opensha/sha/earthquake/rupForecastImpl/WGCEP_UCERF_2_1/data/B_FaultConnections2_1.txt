@@ -25,15 +25,15 @@
 220
 221
 - Channel Islands
-212
+214
 129
 - Oak Ridge
-218
 203
+218
 116
 - Pitas Point
 217
-215
+117
 - Santa Ana
 78
 80
@@ -66,6 +66,7 @@
 - Sierra Nevada
 65
 210
+63
 - Mono Lake
 38
 39
