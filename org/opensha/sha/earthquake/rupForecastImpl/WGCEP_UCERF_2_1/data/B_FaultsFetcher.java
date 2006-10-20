@@ -159,10 +159,10 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		} else {
 			 // if it is a part of connecting B-faults
 			FaultSegmentData faultSegmentData =  super.getFaultSegmentData(faultModel, deformationModelId, isAseisReducesArea);
-			/*ArrayList sectionList = faultSegmentData.getPrefFaultSectionDataList();
+			ArrayList sectionList = faultSegmentData.getPrefFaultSectionDataList();
 			for(int i=0; i<sectionList.size(); ++i) 
-				System.out.println(((FaultSectionPrefData)sectionList.get(i)).getSectionName());
-			System.out.println("\n");*/
+				System.out.print(((FaultSectionPrefData)sectionList.get(i)).getSectionName()+",");
+			System.out.println("\n");
 			return faultSegmentData;
 		}
 		
