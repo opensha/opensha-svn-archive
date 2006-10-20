@@ -1423,6 +1423,134 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 	}
 	
+	
+	/**
+	 * Generate Excel sheet for each fault.
+	 * Each sheet will have all Rup solution Types
+	 * 
+	 */
+	public void generateExcelSheetForSegSlipRate(String outputFileName) {
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		HashMap recurIntvMap = this.aFaultsFetcher.getHighLowMeanRecurIntv();
+		int numA_Faults = 8;	
+//		 Create Excel Workbook and sheets if they do not exist already
+		
+		HSSFWorkbook wb  = new HSSFWorkbook();
+		HSSFCellStyle cellStyle = wb.createCellStyle();
+		HSSFFont font = wb.createFont();
+		font.setColor(HSSFFont.COLOR_RED);
+		cellStyle.setFont(font);
+		
+		// create sheets
+		for(int i=0; i<numA_Faults; ++i) {
+			wb.createSheet();
+		}
+		
+		int currRow[] = new int[numA_Faults];
+		for(int irup=0; irup<rupModelOptions.size();irup++) {
+			int rupStartRow[] = new int[numA_Faults];
+			for(int imag=0; imag<magAreaOptions.size();imag++) {
+				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+			
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						rupModelParam.setValue(rupModelOptions.get(irup));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						mkA_FaultSegmentedSources();
+						
+						// Write header for each Rup Solution Types
+						if(imag==0 && islip==0) {
+							// do for each fault
+							for(int i=0; i<this.aFaultSources.size(); ++i) {
+								 HSSFSheet sheet = wb.getSheetAt(i);
+								 String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
+								 wb.setSheetName(i, sheetName);
+								 //System.out.println(currRow[i]);
+								 HSSFRow row = sheet.createRow((short)currRow[i]++);
+								 // Write Rup solution Type
+								 HSSFCell cell = row.createCell((short)0);
+								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellStyle(cellStyle);
+								 row = sheet.createRow((short)currRow[i]++);
+								 int col=3;
+								 
+								 // Write All Mag Areas in appropriate columns
+								 for(int j=0; j<magAreaOptions.size(); ++j, col+=(slipModelOptions.size()-1)) {
+									 cell = row.createCell((short)col);
+									 cell.setCellValue((String)magAreaOptions.get(j));
+									 cell.setCellStyle(cellStyle);
+								 }
+								 // write the headers
+								 row = sheet.createRow((short)currRow[i]++);
+								 col=0;
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Segment_Name");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Original Slip Rate");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Characteristic Model Recur Intv");
+								 cell.setCellStyle(cellStyle);
+								 for(int j=0; j<magAreaOptions.size(); ++j) {
+									 for(int k=0; k<slipModelOptions.size(); ++k) {
+										 String slipModel = (String)slipModelOptions.get(k);
+										 if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+											 cell = row.createCell((short)col++);
+											 cell.setCellValue(slipModel);
+											 cell.setCellStyle(cellStyle);
+										 }
+									 }
+								 }								 
+								 // write Seg Names and original Slip Rate
+								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+								 rupStartRow[i] = currRow[i];
+								 SegmentRecurIntv segRecurIntv = (SegmentRecurIntv)recurIntvMap.get(source.getFaultSegmentData().getFaultName());
+								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
+									 row = sheet.createRow((short)currRow[i]++);
+									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
+									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
+									 row.createCell((short)1).setCellValue(source.getFaultSegmentData().getSegmentSlipRate(seg)*1e3);
+								 }
+							}
+						}
+						   
+						   
+						
+						// write the rup Mag and rates
+						for(int i=0; i<this.aFaultSources.size(); ++i) {
+							 HSSFSheet sheet = wb.getSheetAt(i);
+							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+							 int rateCol;
+							 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+								 rateCol = 2;
+							 } else rateCol = 2 + imag*(slipModelOptions.size()-1) + islip;
+							 //rateCol = magCol + islip;
+							 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
+								 sheet.getRow(seg+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getFinalSegSlipRate(seg)*1e3);
+							 }
+						}
+					}
+			}
+			// 
+			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+				HSSFSheet sheet = wb.getSheetAt(i);
+				sheet.createRow((short)currRow[i]++);
+				sheet.createRow((short)currRow[i]++);
+			}
+			
+		}
+		try {
+			FileOutputStream fileOut = new FileOutputStream(outputFileName);
+			wb.write(fileOut);
+			fileOut.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Generate Excel sheet for each fault.
 	 * Each sheet will have all Rup solution Types

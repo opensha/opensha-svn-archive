@@ -23,13 +23,12 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author vipingupta
  *
  */
-public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
-	private final static String X_AXIS_LABEL = "Ratio of Mean Recur Intv and Calculated Recur Intv";
+public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
+	private final static String X_AXIS_LABEL = "Ratio of Original and Calculated Slip Rate";
 	private final static String Y_AXIS_LABEL = "Count";
-	private final static String PLOT_LABEL = "Recurrence Interval Ratio";
+	private final static String PLOT_LABEL = "Slip Rate Ratio";
 	private ArrayList funcs;
-	private final static  String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
-		"Max Recurrence Interval", 
+	private final static  String[] names = {"Original Slip Rate",
 		"Characteristic", 
 		"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
 		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
@@ -40,7 +39,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 		      new Color(0,0,0), 2); // black
 	
 	
-	public CreateHistogramsFromSegRecurIntvFile(ArrayList funcList) {
+	public CreateHistogramsFromSegSlipRateFile(ArrayList funcList) {
 		funcs = funcList;
 	}
 	
@@ -140,15 +139,15 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 	public static void createHistogramPlots(String masterDirName, String excelSheetName) {
 		try {
 			// directory to save the PDF files. Directory will be created if it does not exist already
-			String dirName = masterDirName+"/A_FaultSegRecurIntvHistograms_2_1/";
+			String dirName = masterDirName+"/A_FaultSegSlipRateHistograms_2_1/";
 			File file = new File(dirName);
 			if(!file.isDirectory()) { // create directory if it does not exist already
 				file.mkdir();
 			}
 			//System.out.println(excelSheetName);
 			ArrayList funcList = new ArrayList();
-			for(int k=3; k<names.length; ++k) {
-				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.20, 2.6, 25);
+			for(int k=1; k<names.length; ++k) {
+				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
 				func.setTolerance(func.getDelta());
 				func.setName(names[k]);
 				funcList.add(func);
@@ -182,20 +181,20 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 					cell = row.getCell((short)1);
 					if(cell == null) continue;
 					else mean = cell.getNumericCellValue();
-					for(int col=4; col<=16; ++col) {
+					for(int col=2; col<=14; ++col) {
 						ratio = row.getCell( (short) col).getNumericCellValue()/mean;	
 						//System.out.println(rupName+","+mean+","+ratio);
-						EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)funcList.get(col-4);
+						EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)funcList.get(col-2);
 						xIndex = func.getXIndex(ratio);
 						//System.out.println(ratio);
 						func.add(xIndex, 1.0);
 					}
 				}
 			}
-			for(int k=3, i=0; k<names.length; ++k, ++i) {
+			for(int k=1, i=0; k<names.length; ++k, ++i) {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
-				CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list);
 				GraphWindow graphWindow= new GraphWindow(plot);
 				graphWindow.setPlotLabel(PLOT_LABEL);
 				graphWindow.plotGraphUsingPlotPreferences();
@@ -227,7 +226,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 				file.mkdir();
 			}
 			
-			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.20, 2.5, 24);
+			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
 			func.setTolerance(func.getDelta());
 			func.setName(faultName+"_"+segName);
 			
@@ -261,7 +260,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 					cell = row.getCell((short)1);
 					if(cell == null) continue;
 					else mean = cell.getNumericCellValue();
-					for(int col=4; col<=16; ++col) {
+					for(int col=2; col<=14; ++col) {
 						ratio = row.getCell( (short) col).getNumericCellValue()/mean;	
 						xIndex = func.getXIndex(ratio);
 						func.add(xIndex, 1.0);
@@ -271,7 +270,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 			
 			ArrayList list = new ArrayList();
 			list.add(func);
-			CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list);
 			GraphWindow graphWindow= new GraphWindow(plot);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();

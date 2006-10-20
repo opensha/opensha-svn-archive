@@ -42,14 +42,16 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 	private String dirName, excelSheetName;
 	private final static String TITLE = "Select Segment";
 	private boolean isDeleteExcelSheet= false;
+	private boolean isRecurIntvPlots = true;
 	
 	/**
 	 * Get a List of A-Fault sources and get the fault name and segment name from this list
 	 * 
 	 * @param aFaultSourceList
 	 */
-	public FaultSegmentSelector(ArrayList aFaultSourceList, String dirName, String excelSheetName) {
+	public FaultSegmentSelector(ArrayList aFaultSourceList, String dirName, String excelSheetName, boolean isRecurIntvPlots) {
 		this.dirName = dirName;
+		this.isRecurIntvPlots = isRecurIntvPlots;
 		this.excelSheetName = excelSheetName;
 		// get FaultSegmentData from A_FaultSourceList
 		faultSegmentDataList = new HashMap<String, FaultSegmentData>();
@@ -138,7 +140,9 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 	public void actionPerformed(ActionEvent event) {
 		String faultName = (String)this.faultNameParameter.getValue();
 		String segName = (String)this.segmentNameParameter.getValue();
-		CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, faultName, segName);
+		if(this.isRecurIntvPlots)
+			CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName, faultName, segName);
+		else CreateHistogramsFromSegSlipRateFile.createHistogramPlots(dirName, excelSheetName, faultName, segName);
 		if(isDeleteExcelSheet) new File(excelSheetName).delete();
 		this.dispose();
 	}

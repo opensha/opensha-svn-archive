@@ -14,7 +14,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -27,13 +26,12 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author vipingupta
  *
  */
-public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
+public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 	private final static String X_AXIS_LABEL = "Index";
-	private final static String Y_AXIS_LABEL = "Recurrence Interval";
-	private final static String PLOT_LABEL = "Segment Recurrence Intervals";
+	private final static String Y_AXIS_LABEL = "Slip Rate";
+	private final static String PLOT_LABEL = "Segment Slip Rates";
 	private ArrayList funcs;
-	private final static  String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
-		"Max Recurrence Interval", 
+	private final static  String[] names = {"Original Slip Rate", 
 		"Characteristic", 
 		"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
 		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
@@ -76,7 +74,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 		//      Color.RED, 5);
 
 	
-	public CreatePlotFromSegRecurIntvFile(ArrayList funcList) {
+	public CreatePlotFromSegSlipRateFile(ArrayList funcList) {
 		funcs = funcList;
 	}
 	
@@ -123,8 +121,6 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
 
-		 list.add(this.PLOT_CHAR1);
-		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR2);
 		 list.add(this.PLOT_CHAR3);
@@ -194,7 +190,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 	public static void createPlots(String masterDirName, String excelSheetName) {
 		try {
 						// directory to save the PDF files. Directory will be created if it does not exist already
-			String dirName = masterDirName+"/A_FaultSegRecurIntvPlots_2_1/";
+			String dirName = masterDirName+"/A_FaultSegSlipRatesPlots_2_1/";
 			File file = new File(dirName);
 			if(!file.isDirectory()) { // create directory if it does not exist already
 				file.mkdir();
@@ -214,7 +210,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 					int j=-1;
 					String modelType = models[count++];
 					ArrayList funcList = new ArrayList();
-					for(int k=0; k<16; ++k) {
+					for(int k=0; k<14; ++k) {
 						ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 						func.setName(names[k]);
 						funcList.add(func);
@@ -223,15 +219,15 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 						++j;
 						HSSFRow row = sheet.getRow(r);
 						HSSFCell cell = null;
-						String rupName ="";
+						String segName ="";
 						if(row!=null)  cell = row.getCell( (short) 0);
 						
 						// segment name
-						if(cell!=null) rupName = cell.getStringCellValue().trim();
+						if(cell!=null) segName = cell.getStringCellValue().trim();
 						if(row==null || cell==null || 
-								cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || rupName.equalsIgnoreCase("")) {
+								cell.getCellType()==HSSFCell.CELL_TYPE_BLANK || segName.equalsIgnoreCase("")) {
 							r= r+4;
-							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromSegRecurIntvFile(funcList));
+							GraphWindow graphWindow= new GraphWindow(new CreatePlotFromSegSlipRateFile(funcList));
 							graphWindow.setPlotLabel(PLOT_LABEL);
 							graphWindow.plotGraphUsingPlotPreferences();
 							graphWindow.setTitle(sheetName+" "+modelType);
@@ -243,7 +239,7 @@ public class CreatePlotFromSegRecurIntvFile  implements GraphWindowAPI{
 							break;
 						}
 						//System.out.println(r);
-						for(int col=1; col<=names.length; ++col) {
+						for(int col=1; col<=14; ++col) {
 							cell = row.getCell( (short) col);
 							if(cell!=null)
 								((ArbitrarilyDiscretizedFunc)funcList.get(col-1)).set((double)j, cell.getNumericCellValue());
