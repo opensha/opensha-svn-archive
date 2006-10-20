@@ -39,7 +39,7 @@ import org.opensha.exceptions.RegionConstraintException;
  */
 
 public class HazusDataSetCalcApp extends JApplet
-    implements ParameterChangeListener, Runnable {
+    implements ParameterChangeListener, IMR_GuiBeanAPI,Runnable {
 
 
   /**
@@ -282,7 +282,7 @@ public class HazusDataSetCalcApp extends JApplet
    */
   private void initIMRGuiBean() {
 
-     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean = new IMR_GuiBean(this);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
      // show this IMRgui bean the Panel
@@ -480,4 +480,14 @@ public class HazusDataSetCalcApp extends JApplet
  
    return metadata;
  }
+  
+
+ /**
+  * This method does nothting in the case of Hazus Data set calculator
+  *
+  */
+ public void updateIM() {
+ }
+
+
 }

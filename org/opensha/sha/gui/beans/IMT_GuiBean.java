@@ -28,29 +28,34 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
   private ArrayList imtParam;
 
   // imr for which IMT is to be displayed
-  AttenuationRelationshipAPI imr;
+  private AttenuationRelationshipAPI imr;
 
   /**
-   * constructor: It accepts the imr object and displays the IMTs supported by this IMR
-   * @param imr
+   * constructor: accepts AttenuationRelationshipAPI and supprtedIntensity Measure type
+   * @param imr Choosen AttenuationRelationship
+   * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
    */
- public IMT_GuiBean(AttenuationRelationshipAPI imr) {
-   setIMR(imr);
+ public IMT_GuiBean(AttenuationRelationshipAPI imr,Iterator supportedIntensityMeasureIt) {
+   setIM(imr,supportedIntensityMeasureIt );
+ }
+ 
+ /**
+  * 
+  * This function accepts AttenuationRelationshipAPI and supprtedIntensity Measure type
+  *
+  * @param imr Choosen AttenuationRelationship
+  * @param supportedIntensityMeasureIt Supported Intensity Measure Iterator
+  */
+ public void setIM(AttenuationRelationshipAPI imr,Iterator supportedIntensityMeasureIt){
+	 this.imr = imr;
+	 init_imtParamListAndEditor(supportedIntensityMeasureIt);
  }
 
- /**
-  * This function accepts AttenuationRelationshipAPI and sets up IMT based on that
-  * @param imr
-  */
- public void setIMR(AttenuationRelationshipAPI imr) {
-   this.imr = imr;
-   init_imtParamListAndEditor();
- }
 
   /**
    *  Create a list of all the IMTs
    */
-  private void init_imtParamListAndEditor() {
+  private void init_imtParamListAndEditor(Iterator it) {
 
     parameterList = new ParameterList();
 
@@ -59,7 +64,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
     imtParam = new ArrayList();
 
 
-    Iterator it = imr.getSupportedIntensityMeasuresIterator();
+    
 
     //loop over each IMT and get their independent parameters
     while ( it.hasNext() ) {

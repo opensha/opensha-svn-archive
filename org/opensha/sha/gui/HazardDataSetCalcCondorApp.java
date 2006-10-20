@@ -43,7 +43,7 @@ import org.opensha.exceptions.RegionConstraintException;
  */
 
 public class HazardDataSetCalcCondorApp extends JApplet
-    implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, Runnable {
+    implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanAPI,Runnable {
 
 
   /**
@@ -393,7 +393,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      */
 
     // create the IMT Gui Bean object
-    imtGuiBean = new IMT_GuiBean(attenRel);
+    imtGuiBean = new IMT_GuiBean(attenRel,attenRel.getSupportedIntensityMeasuresIterator());
 
     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -404,7 +404,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
    */
   private void initIMRGuiBean() {
 
-     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean = new IMR_GuiBean(this);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
      // show this IMRgui bean the Panel
@@ -459,7 +459,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
-      imtGuiBean.setIMR(attenRel);
+      imtGuiBean.setIM(attenRel,attenRel.getSupportedIntensityMeasuresIterator());
       imtGuiBean.validate();
       imtGuiBean.repaint();
       sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
@@ -852,6 +852,19 @@ public class HazardDataSetCalcCondorApp extends JApplet
                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
 
    }
+ }
+ 
+ 
+ /**
+  * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.
+  * This method is called from the IMR_GuiBean to update the application with the Attenuation's
+  * supported IMs.
+  *
+  */
+ public void updateIM() {
+   //get the selected IMR
+	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
  }
 
 }

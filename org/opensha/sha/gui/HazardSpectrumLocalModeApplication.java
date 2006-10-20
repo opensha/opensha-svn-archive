@@ -131,7 +131,7 @@ public class HazardSpectrumLocalModeApplication
    */
   protected void initIMR_GuiBean() {
 
-     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean = new IMR_GuiBean(this);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      //sets the Intensity measure for the IMR
      imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);

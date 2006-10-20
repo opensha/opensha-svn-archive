@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.rmi.RemoteException;
 
 
@@ -28,6 +29,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
@@ -109,7 +111,7 @@ public class HazardCurveServerModeApplication extends JFrame
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
     ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI,
-    CyberShakePlotControlPanelAPI{
+    CyberShakePlotControlPanelAPI, IMR_GuiBeanAPI{
 
   /**
    * Name of the class
@@ -1042,7 +1044,7 @@ public class HazardCurveServerModeApplication extends JFrame
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-      imtGuiBean.setIMR(imr);
+      imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator());
       imtGuiBean.validate();
       imtGuiBean.repaint();
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
@@ -1586,7 +1588,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   protected void initIMR_GuiBean() {
 
-     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean = new IMR_GuiBean(this);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -1602,7 +1604,7 @@ public class HazardCurveServerModeApplication extends JFrame
      // get the selected IMR
      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the IMT Gui Bean object
-     imtGuiBean = new IMT_GuiBean(imr);
+     imtGuiBean = new IMT_GuiBean(imr,imr.getSupportedIntensityMeasuresIterator());
      imtPanel.setLayout(gridBagLayout8);
      imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
                                                      GridBagConstraints.CENTER,
@@ -2531,5 +2533,17 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   public IMT_GuiBean getIMTGuiBeanInstance() {
     return imtGuiBean;
+  }
+ 
+  /**
+   * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.
+   * This method is called from the IMR_GuiBean to update the application with the Attenuation's
+   * supported IMs.
+   *
+   */
+  public void updateIM() {
+    //get the selected IMR
+	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
   }
 }

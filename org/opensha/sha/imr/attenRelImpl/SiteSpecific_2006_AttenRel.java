@@ -1,14 +1,20 @@
 package org.opensha.sha.imr.attenRelImpl;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.*;
 
 import org.opensha.data.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.param.DistanceJBParameter;
+import org.opensha.sha.param.DistanceRupParameter;
+import org.opensha.sha.util.Vs30SiteTranslator;
 
 /**
  * <b>Title:</b> SiteSpecific_2006_AttenRel<p>
@@ -40,7 +46,7 @@ import org.opensha.sha.imr.*;
 
 
 public class SiteSpecific_2006_AttenRel
-    extends AttenuationRelationship implements AttenuationRelationshipAPI,
+    extends AttenuationRelationship implements AttenuationRelationshipAPI,ParameterChangeListener,
     NamedObjectAPI {
 
   // debugging stuff:
@@ -49,6 +55,60 @@ public class SiteSpecific_2006_AttenRel
   public final static String NAME = "Site Specfic AttenuationRelationship (2006)";
   public final static String SHORT_NAME = "SS2006";
 
+  
+  
+  // period
+  private double[] period = {
+		  0.0,0.01,0.02,0.03,0.04,0.05,0.06,0.075,0.09,0.1,0.12,0.15,0.17,0.2,0.24,0.3,0.36,0.4,0.46,0.5,0.60,0.75,0.85,
+		  1,1.5,2,3,4,5 };
+  //coefficients
+  private double[] b1 = {-0.64,-0.64,-0.63,-0.62,-0.61,-0.64,-0.64,-0.64,-0.64,-0.6,-0.56,-0.53,-0.53,
+		  -0.52,-0.52,-0.52,-0.51,-0.51,-0.5,-0.5,-0.49,-0.47,-0.46,-0.44,-0.4,-0.38,-0.34,-0.31,-0.3
+  };
+  private double[] vRef = {418,418,490,324,233,192,181,196,239,257,299,357,406,453,493,532,535,535,
+		  535,535,535,535,535,535,535,535,535,535,535
+  };
+  private double[] c ={-0.36,-0.36,-0.34,-0.33,-0.31,-0.29,-0.25,-0.23,-0.23,-0.25,-0.26,-0.28,
+		  -0.29,-0.31,-0.38,-0.44,-0.48,-0.5,-0.55,-0.6,-0.66,-0.69,-0.69,-0.7,-0.72,-0.73,-0.74,-0.75,-0.75
+  };
+  private double[] b2 ={-0.14,-0.14,-0.12,-0.11,-0.11,-0.11,-0.11,-0.11,-0.12,-0.13,-0.14,
+		  -0.18,-0.19,-0.19,-0.16,-0.14,-0.11,-0.1,-0.08,-0.06,-0.03,0,0,0,0,0,0,0,0
+  };
+  private double[] tau ={
+		  0.27,0.27,0.26,0.26,0.26,0.25,0.25,0.24,0.23,0.23,0.24,0.25,0.26,0.27,0.29,0.35,0.38,0.4,
+		  0.42,0.42,0.42,0.42,0.42,0.42,0.42,0.43,0.45,0.47,0.49
+  };
+  private double[] e1 ={0.44,0.44,0.45,0.46,0.47,0.47,0.48,0.48,0.49,0.49,0.49,0.49,0.48,0.47,0.47,
+		  0.46,0.46,0.46,0.45,0.45,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44,0.44
+  };
+  private double[] e3 ={0.5,0.5,0.51,0.51,0.51,0.52,0.52,0.52,0.52,0.53,0.53,0.54,0.55,0.56,0.56,0.57,
+		  0.57,0.57,0.58,0.59,0.6,0.63,0.63,0.64,0.67,0.69,0.71,0.73,0.75
+  };
+  
+  private ArbitrarilyDiscretizedFunc funcb1 = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc funcvRef = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc funcc = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc funcb2 = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc functau = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc funce1 = new ArbitrarilyDiscretizedFunc();
+  private ArbitrarilyDiscretizedFunc funce3 = new ArbitrarilyDiscretizedFunc();
+
+  
+  
+  /**
+   *  The object class names for all the supported attenuation ralations (IMRs)
+   *  Temp until figure out way to dynamically load classes during runtime
+   */
+  public final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  public final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  public final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
+  
+  
+  //arrayList to store the supported AttenRel objects
+  private ArrayList attenRelObjects = new ArrayList();
+
+  
 
   // warning constraint fields:
   protected final static Double VS30_WARN_MIN = new Double(50.0);
@@ -63,11 +123,6 @@ public class SiteSpecific_2006_AttenRel
       "PI > 20, water content > 40%, and thickness of clay exceeds 3 m.";
   public final static Boolean SOFT_SOIL_DEFAULT = new Boolean(false);
 
-  private AS_1997_AttenRel as_1997_attenRel;
-  /**
-   * The current set of coefficients based on the selected intensityMeasure
-   */
-  private SS_2006_AttenRelCoefficients coeffs = null;
   
   
   //Intercept param
@@ -123,13 +178,22 @@ public class SiteSpecific_2006_AttenRel
   private final static String BATURAY_STEWART_MODEL = "Baturay and Stewart (2003)";
   private final static String BAZZURO_CORNELL_MODEL = "Bazzuro and Cornell(2004)";
   
-  /**
-   *  Hashtable of coefficients for the supported intensityMeasures
-   */
-  protected Hashtable horzCoeffs = new Hashtable();
+  
+  //Rock AttenuationRelationship selector parameter
+  private StringParameter rockAttenRelSelectorParam;
+  public final static String ROCK_ATTEN_REL_SELECT_PARAM_NAME = "Rock AttenuationRelationship";
+  public final static String ROCK_ATTEN_REL_SELECT_PARAM_INFO = "Select from the "+
+	  "given Rock AttenuationRelationships ";
+  
 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
+  
+  //Rock AttenuationRealtiobnships instances
+  private AttenuationRelationshipAPI attenRel;
+  
+  private Vs30SiteTranslator vs30Trans = new Vs30SiteTranslator();
+  
 
   /**
    *  No-Arg constructor. This initializes several ParameterList objects.
@@ -137,30 +201,11 @@ public class SiteSpecific_2006_AttenRel
   public SiteSpecific_2006_AttenRel(ParameterChangeWarningListener warningListener) {
 
     super();
-
+    
     this.warningListener = warningListener;
-
-    as_1997_attenRel = new AS_1997_AttenRel(warningListener);
-    // set the site type to rock
-    as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
-        as_1997_attenRel.SITE_TYPE_ROCK);
-    // set the component to ave horz
-    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-        as_1997_attenRel.COMPONENT_AVE_HORZ);
-
-    // overide local params with those in as_1997_attenRel
-    this.sigmaTruncTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
-    this.sigmaTruncLevelParam = (DoubleParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
-    this.exceedProbParam = (DoubleParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.EXCEED_PROB_NAME);
-    this.stdDevTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.STD_DEV_TYPE_NAME);
-    this.periodParam = (DoubleDiscreteParameter) as_1997_attenRel.getParameter(
-        PERIOD_NAME);
-
-    initCoefficients();
+    initCoeffFunctionlist();
+    initRockAttenuationRealtionships();
+    initRockAttenuationRelationshipSelectorParam();
     initSupportedIntensityMeasureParams();
     initEqkRuptureParams();
     initPropagationEffectParams();
@@ -170,8 +215,197 @@ public class SiteSpecific_2006_AttenRel
     initIndependentParamLists(); // Do this after the above
   }
   
-  protected void setRockAttenAndParamLists() {
+  /**
+   * Adds the Coefficients to the ArbitraryDiscretizedFunctions
+   *
+   */
+  private void initCoeffFunctionlist(){
+	  int numPeriods = this.period.length;
+	  for(int i=0;i<numPeriods;++i){
+		  funcb1.set(period[i], b1[i]);
+		  funcvRef.set(period[i], vRef[i]);
+		  funcc.set(period[i], c[i]);
+		  funcb2.set(period[i], b2[i]);
+		  functau.set(period[i], tau[i]);
+		  funce1.set(period[i], e1[i]);
+		  funce3.set(period[i], e3[i]);
+	  }
+  }
+  
+  
+  private void initRockAttenuationRealtionships(){
+	  //arrayList to store the supported AttenRel Class Names with their full package structure.
+	   ArrayList supportedAttenRelClasses = new ArrayList();
+
+       //adds all the AttenRel classes to the ArrayList
+	    supportedAttenRelClasses.add(BJF_CLASS_NAME);
+	    supportedAttenRelClasses.add(AS_CLASS_NAME);
+	    supportedAttenRelClasses.add(C_CLASS_NAME);
+	    supportedAttenRelClasses.add(SCEMY_CLASS_NAME);
+	    
+	    createIMRClassInstance(supportedAttenRelClasses);
+  }
+  
+  
+  /**
+   * Creates a class instance from a string of the full class name including packages.
+   * This is how you dynamically make objects at runtime if you don't know which\
+   * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
+   * it the normal way:<P>
+   *
+   * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
+   *
+   * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
+   * instead to create the same class by:<P>
+   *
+   * <code>BJF_1997_AttenRel imr =
+   * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.opensha.sha.imt.attenRelImpl.BJF_1997_AttenRel");
+   * </code><p>
+   *
+   */
+
+   private void createIMRClassInstance(ArrayList  supportedAttenRelClasses){
+     
+     String S = C + ": createIMRClassInstance(): ";
+     int size = supportedAttenRelClasses.size();
+     for(int i=0;i< size;++i){
+       try {
+         Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
+         Object[] paramObjects = new Object[]{ warningListener };
+         Class[] params = new Class[]{ listenerClass };
+         Class imrClass = Class.forName((String)supportedAttenRelClasses.get(i));
+         Constructor con = imrClass.getConstructor( params );
+         Object attenRel = con.newInstance( paramObjects );
+         this.attenRelObjects.add(attenRel);
+       } catch ( ClassCastException e ) {
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       } catch ( ClassNotFoundException e ) {
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       } catch ( NoSuchMethodException e ) {
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       } catch ( InvocationTargetException e ) {
+         e.printStackTrace();
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       } catch ( IllegalAccessException e ) {
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       } catch ( InstantiationException e ) {
+         System.out.println(S + e.toString());
+         throw new RuntimeException( S + e.toString() );
+       }
+     }
+     return ;
+   }
+
+  
+  /**
+   * Adds the Rock supported AttenuationRelationships in attenuation selection
+   * parameter.
+   *
+   */
+  private void initRockAttenuationRelationshipSelectorParam(){
+	  ArrayList rockAttenRelList = new ArrayList();
+	  int size = this.attenRelObjects.size();
+	  for(int i=0;i<size;++i)
+		  rockAttenRelList.add(((AttenuationRelationship)attenRelObjects.get(i)).getName());
 	  
+	  rockAttenRelSelectorParam = new StringParameter(ROCK_ATTEN_REL_SELECT_PARAM_NAME,
+			  rockAttenRelList,(String)rockAttenRelList.get(0));	
+	  rockAttenRelSelectorParam.setInfo(ROCK_ATTEN_REL_SELECT_PARAM_INFO);
+	  rockAttenRelSelectorParam.addParameterChangeListener(this);
+	  attenRel = (AttenuationRelationship)attenRelObjects.get(0);
+	  setRockAttenRelAndParamLists();
+  }
+  
+  /**
+   * Sets the paramters for selected Rock AttenuationRelationship
+   * @param attenRel
+   */
+  private void setRockAttenRelAndParamLists() {
+	  
+	  String attenRelName = attenRel.getName();
+	  if(attenRelName.equals(AS_1997_AttenRel.NAME)){
+		  
+		  ParameterAPI siteParam = ((AS_1997_AttenRel)attenRel).getParameter
+		                            (AS_1997_AttenRel.SITE_TYPE_NAME);
+		  //set the site parameter to rock
+		  vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		    // set the component to ave horz
+		  attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
+				  AttenuationRelationship.COMPONENT_AVE_HORZ);
+		    // overide local params with those in as_1997_attenRel
+		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
+		    		AS_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
+		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
+		    		AS_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
+		    		AS_1997_AttenRel.EXCEED_PROB_NAME);
+		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
+		    		AS_1997_AttenRel.STD_DEV_TYPE_NAME);
+		    
+	  }
+	  else if(attenRelName.equals(BJF_1997_AttenRel.NAME)){
+		  
+		   ParameterAPI siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
+                                   (BJF_1997_AttenRel.VS30_NAME);
+           //set the site parameter to rock
+           vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		   // set the component to ave horz
+		   attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
+				   AttenuationRelationship.COMPONENT_AVE_HORZ);
+		    // overide local params with those in as_1997_attenRel
+		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
+		    		BJF_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
+		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
+		    		BJF_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
+		    		BJF_1997_AttenRel.EXCEED_PROB_NAME);
+		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
+		    		BJF_1997_AttenRel.STD_DEV_TYPE_NAME);
+	  }
+	  else 	if(attenRelName.equals(Campbell_1997_AttenRel.NAME)){
+		  
+		    ParameterAPI siteParam = ((Campbell_1997_AttenRel)attenRel).getParameter
+                                    (Campbell_1997_AttenRel.SITE_TYPE_NAME);
+		    //set the site parameter to rock
+		    vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		    // set the component to ave horz
+		    attenRel.getParameter(Campbell_1997_AttenRel.COMPONENT_NAME).setValue(
+			    	  Campbell_1997_AttenRel.COMPONENT_AVE_HORZ);
+		    // overide local params with those in as_1997_attenRel
+		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
+		    		Campbell_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
+		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
+		    		Campbell_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
+		    		Campbell_1997_AttenRel.EXCEED_PROB_NAME);
+		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
+		    		Campbell_1997_AttenRel.STD_DEV_TYPE_NAME);
+	  }
+	  else if(attenRelName.equals(SadighEtAl_1997_AttenRel.NAME)){
+		  
+		    // set the site type to rock
+		  attenRel.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(
+				  SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
+		    // set the component to ave horz
+		  attenRel.getParameter(SadighEtAl_1997_AttenRel.COMPONENT_NAME).setValue(
+				  SadighEtAl_1997_AttenRel.COMPONENT_AVE_HORZ);
+		    // overide local params with those in as_1997_attenRel
+		    this.sigmaTruncTypeParam = (StringParameter) attenRel.getParameter(
+		    		SadighEtAl_1997_AttenRel.SIGMA_TRUNC_TYPE_NAME);
+		    this.sigmaTruncLevelParam = (DoubleParameter) attenRel.getParameter(
+		    		SadighEtAl_1997_AttenRel.SIGMA_TRUNC_LEVEL_NAME);
+		    this.exceedProbParam = (DoubleParameter) attenRel.getParameter(
+		    		SadighEtAl_1997_AttenRel.EXCEED_PROB_NAME);
+		    this.stdDevTypeParam = (StringParameter) attenRel.getParameter(
+		    		SadighEtAl_1997_AttenRel.STD_DEV_TYPE_NAME);
+	  }
+	  this.periodParam = (DoubleDiscreteParameter) attenRel.getParameter(
+		        PERIOD_NAME);
   }
 
   /**
@@ -179,8 +413,45 @@ public class SiteSpecific_2006_AttenRel
    */
   protected void setPropagationEffectParams() {
 
-  }
+	  
+  }  
 
+  /**
+   * This listens for parameter changes and updates the primitive parameters accordingly
+   * @param e ParameterChangeEvent
+   */
+  public void parameterChange(ParameterChangeEvent e) {
+	
+    String pName = e.getParameterName();
+    Object val = e.getNewValue();
+    if(pName.equals(ROCK_ATTEN_REL_SELECT_PARAM_NAME)){
+    	attenRel = getSelectedIMR_Instance((String)this.rockAttenRelSelectorParam.getValue());
+    	setRockAttenRelAndParamLists();
+    	initSupportedIntensityMeasureParams();
+    	initEqkRuptureParams();
+    	initPropagationEffectParams();
+    	initOtherParams();
+    }
+  }  
+  
+
+  
+  /**
+   * This method will return the instance of selected IMR
+   * @return : Selected IMR instance
+   */
+  public AttenuationRelationshipAPI getSelectedIMR_Instance(String selectedIMR) {
+    AttenuationRelationshipAPI imr = null;
+    int size = this.attenRelObjects.size();
+    for(int i=0; i<size ; ++i) {
+      imr = (AttenuationRelationshipAPI)attenRelObjects.get(i);
+      if(imr.getName().equalsIgnoreCase(selectedIMR))
+        break;
+    }
+    return imr;
+  }
+ 
+  
   /**
    *  This sets the eqkRupture related parameters.
    *
@@ -188,7 +459,7 @@ public class SiteSpecific_2006_AttenRel
    * @throws InvalidRangeException thrown if rake is out of bounds
    */
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-    this.as_1997_attenRel.setEqkRupture(eqkRupture);
+    attenRel.setEqkRupture(eqkRupture);
     this.eqkRupture = eqkRupture;
   }
 
@@ -206,35 +477,10 @@ public class SiteSpecific_2006_AttenRel
     softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
     this.site = site;
     // set the location in as_1997_attenRel
-    as_1997_attenRel.setSiteLocation(site.getLocation());
+    attenRel.setSiteLocation(site.getLocation());
   }
 
-  /**
-   * This function determines which set of coefficients in the HashMap
-   * are to be used given the current intensityMeasure (im) Parameter.
-   */
-  protected void updateCoefficients() throws ParameterException {
-    // Check that parameter exists
-    if (im == null) {
-      throw new ParameterException(C +
-                                   ": updateCoefficients(): " +
-                                   "The Intensity Measusre Parameter has not been set yet, unable to process."
-          );
-    }
 
-    StringBuffer key = new StringBuffer(im.getName());
-    if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      key.append("/" + periodParam.getValue());
-    }
-    if (horzCoeffs.containsKey(key.toString())) {
-      coeffs = (SS_2006_AttenRelCoefficients) horzCoeffs.get(key.toString());
-    }
-    else {
-      throw new ParameterException(C + ": setIntensityMeasureType(): " +
-                                   "Unable to locate coefficients with key = " +
-                                   key);
-    }
-  }
 
   /**
    * Calculates the mean
@@ -245,17 +491,16 @@ public class SiteSpecific_2006_AttenRel
     double asRockSA, lnAF;
 
     // get AS-1997 SA for rock
-     as_1997_attenRel.setIntensityMeasure(im);
-    asRockSA = as_1997_attenRel.getMean();
-    
+    attenRel.setIntensityMeasure(im);
+    asRockSA = attenRel.getMean();
     // get the amp factor
     double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
     double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
     lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal);   
-
+    
     // return the result
-    return lnAF + as_1997_attenRel.getMean();
+    return lnAF + attenRel.getMean();
   }
 
 
@@ -263,14 +508,11 @@ public class SiteSpecific_2006_AttenRel
    * Returns the Std Dev.
    */
   public double getStdDev(){
-	  
 	  String stdDevType = stdDevTypeParam.getValue().toString();
 	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
 	  else {
-		  
-		  
 		  String siteCorrectionModelUsed = (String)siteEffectCorrectionParam.getValue();
 		  if(siteCorrectionModelUsed.equals(this.BAZZURO_CORNELL_MODEL))
 			  return getStdDevForBC();
@@ -311,8 +553,8 @@ public class SiteSpecific_2006_AttenRel
   private double getStdDevForBC(){
 	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
-	  as_1997_attenRel.setIntensityMeasure(im);
-	  double asRockStdDev = as_1997_attenRel.getStdDev();
+	  attenRel.setIntensityMeasure(im);
+	  double asRockStdDev = attenRel.getStdDev();
 	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
 	  return Math.sqrt(stdDev);
   }
@@ -342,10 +584,8 @@ public class SiteSpecific_2006_AttenRel
 
       double vs30, sigmaV, sigmaAS;
 
-      // get As-1997 stdDev
-//      as_1997_attenRel.setIntensityMeasure(im);
-//      sigmaAS = as_1997_attenRel.getStdDev();
-
+      double periodParamVal = ((Double)this.periodParam.getValue()).doubleValue();
+            
       // set vs30 from the parameters
       if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
         vs30 = 174;
@@ -359,23 +599,20 @@ public class SiteSpecific_2006_AttenRel
         }
       }
 
-      // this is inefficient if the im has not been changed in any way
-      updateCoefficients();
-
       // set sigmaV
       if (vs30 < 260) {
-        sigmaV = coeffs.e1;
+        sigmaV = funce1.getInterpolatedY(periodParamVal);
       }
       else if (vs30 < 360) {
-        sigmaV = coeffs.e1 +
-            ( (coeffs.e3 - coeffs.e1) / Math.log(360 / 260)) *
+        sigmaV = funce1.getInterpolatedY(periodParamVal) +
+            ((funce3.getInterpolatedY(periodParamVal) - funce1.getInterpolatedY(periodParamVal)) / Math.log(360 / 260)) *
             Math.log(vs30 / 260);
       }
       else {
-        sigmaV = coeffs.e3;
+        sigmaV = funce3.getInterpolatedY(periodParamVal);
       }
 
-      return Math.sqrt(sigmaV * sigmaV + coeffs.tau * coeffs.tau);
+      return Math.sqrt(sigmaV * sigmaV + functau.getInterpolatedY(periodParamVal) * functau.getInterpolatedY(periodParamVal));
    
   }
 
@@ -385,12 +622,8 @@ public class SiteSpecific_2006_AttenRel
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     vs30Param.setValue(VS30_DEFAULT);
     softSoilParam.setValue(new Boolean(false));
-    as_1997_attenRel.setParamDefaults();
-    // re-set the site type to rock and component to ave horz
-    as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
-        as_1997_attenRel.SITE_TYPE_ROCK);
-    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-        as_1997_attenRel.COMPONENT_AVE_HORZ);
+    attenRel.setParamDefaults();
+    this.initRockAttenuationRealtionships();
   }
 
   /**
@@ -404,15 +637,29 @@ public class SiteSpecific_2006_AttenRel
 
     // params that the mean depends upon
     meanIndependentParams.clear();
-    ListIterator it = as_1997_attenRel.getMeanIndependentParamsIterator();
-    String ignoreStr1 = as_1997_attenRel.SITE_TYPE_NAME;
-    String ignoreStr2 = as_1997_attenRel.COMPONENT_NAME;
+    ListIterator it = attenRel.getMeanIndependentParamsIterator();
+    ArrayList siteParamNames = new ArrayList();
+    ListIterator siteTypeParamIterator = attenRel.getSiteParamsIterator();
+    
+    while(siteTypeParamIterator.hasNext()){
+  	  ParameterAPI siteParam = (ParameterAPI)siteTypeParamIterator.next();
+  	  siteParamNames.add(siteParam.getName());
+    }
+    int numSiteParams = siteParamNames.size();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
-        meanIndependentParams.addParameter(param);
-      }
+	  if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+		  boolean isSiteTypeParam = false;
+		  for(int i=0;i<numSiteParams;++i){
+			 String siteParamName = (String)siteParamNames.get(i);
+			 if(param.getName().equals(siteParamName)){
+				 isSiteTypeParam = true;
+				 break;
+			 }
+			 if(!isSiteTypeParam)
+		        meanIndependentParams.addParameter(param);
+		  }
+	  }
     }
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(softSoilParam);
@@ -423,28 +670,44 @@ public class SiteSpecific_2006_AttenRel
     stdDevIndependentParams.addParameter(vs30Param);
     stdDevIndependentParams.addParameter(softSoilParam);
     stdDevIndependentParams.addParameter(componentParam);
-    it = as_1997_attenRel.getStdDevIndependentParamsIterator();
+    it = attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
-        stdDevIndependentParams.addParameter(param);
-      }
-    }
+        Parameter param = (Parameter) it.next();
+  	  	if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+  		  boolean isSiteTypeParam = false;
+  		  for(int i=0;i<numSiteParams;++i){
+  			 String siteParamName = (String)siteParamNames.get(i);
+  			 if(param.getName().equals(siteParamName)){
+  				 isSiteTypeParam = true;
+  				 break;
+  			 }
+  			 if(!isSiteTypeParam)
+  			   stdDevIndependentParams.addParameter(param);
+  		  }
+  	  	}
+     }
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     exceedProbIndependentParams.addParameter(vs30Param);
     exceedProbIndependentParams.addParameter(softSoilParam);
     exceedProbIndependentParams.addParameter(componentParam);
-    it = as_1997_attenRel.getExceedProbIndependentParamsIterator();
+    it = attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
-      Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
-        exceedProbIndependentParams.addParameter(param);
-      }
-    }
+        Parameter param = (Parameter) it.next();
+  	  	if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
+  		  boolean isSiteTypeParam = false;
+  		  for(int i=0;i<numSiteParams;++i){
+  			 String siteParamName = (String)siteParamNames.get(i);
+  			 if(param.getName().equals(siteParamName)){
+  				 isSiteTypeParam = true;
+  				 break;
+  			 }
+  			 if(!isSiteTypeParam)
+  				exceedProbIndependentParams.addParameter(param);
+  		  }
+  	  	}
+     }
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -530,7 +793,7 @@ public class SiteSpecific_2006_AttenRel
     super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
-    ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();
+    ListIterator it = attenRel.getEqkRuptureParamsIterator();
     while (it.hasNext()) {
       eqkRuptureParams.addParameter( (Parameter) it.next());
     }
@@ -542,7 +805,7 @@ public class SiteSpecific_2006_AttenRel
    */
   protected void initPropagationEffectParams() {
     propagationEffectParams.clear();
-    ListIterator it = as_1997_attenRel.getPropagationEffectParamsIterator();
+    ListIterator it = attenRel.getPropagationEffectParamsIterator();
     while (it.hasNext()) {
       propagationEffectParams.addParameter( (Parameter) it.next());
     }
@@ -557,9 +820,11 @@ public class SiteSpecific_2006_AttenRel
   protected void initSupportedIntensityMeasureParams() {
 
     supportedIMParams.clear();
-    Iterator it = as_1997_attenRel.getSupportedIntensityMeasuresIterator();
+    Iterator it = attenRel.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
-      supportedIMParams.addParameter( (Parameter) it.next());
+      ParameterAPI imParam = (ParameterAPI)it.next();
+      if(imParam.getName().equals(AttenuationRelationship.SA_NAME))
+         supportedIMParams.addParameter( imParam);
     }
   }
 
@@ -582,8 +847,9 @@ public class SiteSpecific_2006_AttenRel
     componentParam.setNonEditable();
     // add this to the list
     otherParams.clear();
+    otherParams.addParameter(rockAttenRelSelectorParam);
     otherParams.addParameter(componentParam);
-    Iterator it = as_1997_attenRel.getOtherParamsIterator();
+    Iterator it = attenRel.getOtherParamsIterator();
     Parameter param;
     while (it.hasNext()) {
       param = (Parameter) it.next();
@@ -609,225 +875,5 @@ public class SiteSpecific_2006_AttenRel
   public String getShortName() {
     return SHORT_NAME;
   }
-
-  /**
-   *  This creates the hashtable of coefficients for the supported
-   *  intensityMeasures (im).  The key is the im parameter name, plus the
-   *  period value for SA (separated by "/").  For example, the key for SA
-   *  at 1.0 second period is "SA/1.0".
-   */
-  protected void initCoefficients() {
-
-    String S = C + ": initCoefficients():";
-    if (D) {
-      System.out.println(S + "Starting");
-    }
-
-    horzCoeffs.clear();
-
-    SS_2006_AttenRelCoefficients coeff = new SS_2006_AttenRelCoefficients(
-        PGA_NAME,
-        0.0, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
-
-    SS_2006_AttenRelCoefficients coeff0 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.01")).doubleValue(),
-        0.01, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
-    SS_2006_AttenRelCoefficients coeff1 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.02")).doubleValue(),
-        0.02, -0.63, 490, -0.34, -0.12, 0.26, 0.45, 0.51);
-    SS_2006_AttenRelCoefficients coeff2 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.03")).doubleValue(),
-        0.03, -0.62, 324, -0.33, -0.11, 0.26, 0.46, 0.51);
-    SS_2006_AttenRelCoefficients coeff3 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.04")).doubleValue(),
-        0.04, -0.61, 233, -0.31, -0.11, 0.26, 0.47, 0.51);
-    SS_2006_AttenRelCoefficients coeff4 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.05")).doubleValue(),
-        0.05, -0.64, 192, -0.29, -0.11, 0.25, 0.47, 0.52);
-    SS_2006_AttenRelCoefficients coeff5 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.06")).doubleValue(),
-        0.06, -0.64, 181, -0.25, -0.11, 0.25, 0.48, 0.52);
-    SS_2006_AttenRelCoefficients coeff6 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.075")).doubleValue(),
-        0.075, -0.64, 196, -0.23, -0.11, 0.24, 0.48, 0.52);
-    SS_2006_AttenRelCoefficients coeff7 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.09")).doubleValue(),
-        0.09, -0.64, 239, -0.23, -0.12, 0.23, 0.49, 0.52);
-    SS_2006_AttenRelCoefficients coeff8 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.10")).doubleValue(),
-        0.10, -0.60, 257, -0.25, -0.13, 0.23, 0.49, 0.53);
-    SS_2006_AttenRelCoefficients coeff9 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.12")).doubleValue(),
-        0.12, -0.56, 299, -0.26, -0.14, 0.24, 0.49, 0.53);
-    SS_2006_AttenRelCoefficients coeff10 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.15")).doubleValue(),
-        0.15, -0.53, 357, -0.28, -0.18, 0.25, 0.49, 0.54);
-    SS_2006_AttenRelCoefficients coeff11 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.17")).doubleValue(),
-        0.17, -0.53, 406, -0.29, -0.19, 0.26, 0.48, 0.55);
-    SS_2006_AttenRelCoefficients coeff12 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.20")).doubleValue(),
-        0.20, -0.52, 453, -0.31, -0.19, 0.27, 0.47, 0.56);
-    SS_2006_AttenRelCoefficients coeff13 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.24")).doubleValue(),
-        0.24, -0.52, 493, -0.38, -0.16, 0.29, 0.47, 0.56);
-    SS_2006_AttenRelCoefficients coeff14 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.30")).doubleValue(),
-        0.30, -0.52, 532, -0.44, -0.14, 0.35, 0.46, 0.57);
-    SS_2006_AttenRelCoefficients coeff15 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.36")).doubleValue(),
-        0.36, -0.51, 535, -0.48, -0.11, 0.38, 0.46, 0.57);
-    SS_2006_AttenRelCoefficients coeff16 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.40")).doubleValue(),
-        0.40, -0.51, 535, -0.50, -0.10, 0.40, 0.46, 0.57);
-    SS_2006_AttenRelCoefficients coeff17 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.46")).doubleValue(),
-        0.46, -0.50, 535, -0.55, -0.08, 0.42, 0.45, 0.58);
-    SS_2006_AttenRelCoefficients coeff18 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.50")).doubleValue(),
-        0.50, -0.50, 535, -0.60, -0.06, 0.42, 0.45, 0.59);
-    SS_2006_AttenRelCoefficients coeff19 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.60")).doubleValue(),
-        0.60, -0.49, 535, -0.66, -0.03, 0.42, 0.44, 0.60);
-    SS_2006_AttenRelCoefficients coeff20 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.75")).doubleValue(),
-        0.75, -0.47, 535, -0.69, 0.00, 0.42, 0.44, 0.63);
-    SS_2006_AttenRelCoefficients coeff21 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.85")).doubleValue(),
-        0.85, -0.46, 535, -0.69, 0.00, 0.42, 0.44, 0.63);
-    SS_2006_AttenRelCoefficients coeff22 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.00")).doubleValue(),
-        1.00, -0.44, 535, -0.70, 0.00, 0.42, 0.44, 0.64);
-    SS_2006_AttenRelCoefficients coeff23 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.50")).doubleValue(),
-        1.50, -0.40, 535, -0.72, 0.00, 0.42, 0.44, 0.67);
-    SS_2006_AttenRelCoefficients coeff24 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("2.00")).doubleValue(),
-        2.00, -0.38, 535, -0.73, 0.00, 0.43, 0.44, 0.69);
-    SS_2006_AttenRelCoefficients coeff25 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("3.00")).doubleValue(),
-        3.00, -0.34, 535, -0.74, 0.00, 0.45, 0.44, 0.71);
-    SS_2006_AttenRelCoefficients coeff26 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("4.00")).doubleValue(),
-        4.00, -0.31, 535, -0.75, 0.00, 0.47, 0.44, 0.73);
-    SS_2006_AttenRelCoefficients coeff27 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("5.00")).doubleValue(),
-        5.00, -0.30, 535, -0.75, 0.00, 0.49, 0.44, 0.75);
-    // add zero-period case; same as 0.01 sec.
-    SS_2006_AttenRelCoefficients coeff28 = new SS_2006_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.0")).doubleValue(),
-        0.0, -0.64, 418, -0.36, -0.14, 0.27, 0.44, 0.50);
-
-    horzCoeffs.put(coeff.getName(), coeff);
-    horzCoeffs.put(coeff0.getName(), coeff0);
-    horzCoeffs.put(coeff1.getName(), coeff1);
-    horzCoeffs.put(coeff2.getName(), coeff2);
-    horzCoeffs.put(coeff3.getName(), coeff3);
-    horzCoeffs.put(coeff4.getName(), coeff4);
-    horzCoeffs.put(coeff5.getName(), coeff5);
-    horzCoeffs.put(coeff6.getName(), coeff6);
-    horzCoeffs.put(coeff7.getName(), coeff7);
-    horzCoeffs.put(coeff8.getName(), coeff8);
-    horzCoeffs.put(coeff9.getName(), coeff9);
-
-    horzCoeffs.put(coeff10.getName(), coeff10);
-    horzCoeffs.put(coeff11.getName(), coeff11);
-    horzCoeffs.put(coeff12.getName(), coeff12);
-    horzCoeffs.put(coeff13.getName(), coeff13);
-    horzCoeffs.put(coeff14.getName(), coeff14);
-    horzCoeffs.put(coeff15.getName(), coeff15);
-    horzCoeffs.put(coeff16.getName(), coeff16);
-    horzCoeffs.put(coeff17.getName(), coeff17);
-    horzCoeffs.put(coeff18.getName(), coeff18);
-    horzCoeffs.put(coeff19.getName(), coeff19);
-
-    horzCoeffs.put(coeff20.getName(), coeff20);
-    horzCoeffs.put(coeff21.getName(), coeff21);
-    horzCoeffs.put(coeff22.getName(), coeff22);
-    horzCoeffs.put(coeff23.getName(), coeff23);
-    horzCoeffs.put(coeff24.getName(), coeff24);
-    horzCoeffs.put(coeff25.getName(), coeff25);
-    horzCoeffs.put(coeff26.getName(), coeff26);
-    horzCoeffs.put(coeff27.getName(), coeff27);
-    horzCoeffs.put(coeff28.getName(), coeff28);
-  }
-
-  /**
-   *  <b>Title:</b> SS_2006_AttenRelCoefficients<br>
-   *  <b>Description:</b> This class encapsulates all the
-   *  coefficients needed for the calculation.<br>
-   *  <b>Copyright:</b> Copyright (c) 2001 <br>
-   *  <b>Company:</b> <br>
-   */
-
-  class SS_2006_AttenRelCoefficients
-      implements NamedObjectAPI {
-
-    protected final static String C = "SS_2006_AttenRelCoefficients";
-    protected final static boolean D = false;
-    /** For serialization. */
-    private static final long serialVersionUID = 1234567890987654399L;
-
-    protected String name;
-    protected double period = -1;
-    protected double b1;
-    protected double vRef;
-    protected double c;
-    protected double b2;
-    protected double tau;
-    protected double e1;
-    protected double e3;
-
-    /**
-     *  Constructor for the SS_2006_AttenRelCoefficients object that sets all values at once
-     *
-     * @param  name  Description of the Parameter
-     */
-    public SS_2006_AttenRelCoefficients(String name, double period,
-                                        double b1, double vRef, double c,
-                                        double b2, double tau,
-                                        double e1, double e3) {
-
-      this.name = name;
-      this.period = period;
-      this.b1 = b1;
-      this.vRef = vRef;
-      this.c = c;
-      this.b2 = b2;
-      this.tau = tau;
-      this.e1 = e1;
-      this.e3 = e3;
-    }
-
-    /**
-     *  Gets the name attribute
-     *
-     * @return    The name value
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     *  Debugging - prints out all cefficient names and values
-     *
-     * @return    Description of the Return Value
-     */
-    public String toString() {
-
-      StringBuffer b = new StringBuffer();
-      b.append(C);
-      b.append("\n  Period = " + period);
-      b.append("\n  b1 = " + b1);
-      b.append("\n  vRef = " + vRef);
-      b.append("\n  c = " + c);
-      b.append("\n  b2 = " + b2);
-      b.append("\n  tau = " + tau);
-      b.append("\n  e1 = " + e1);
-      b.append("\n e3 = " + e3);
-      return b.toString();
-    }
-  }
-
 
 }

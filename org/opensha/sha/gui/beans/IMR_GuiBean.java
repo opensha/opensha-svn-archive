@@ -44,21 +44,25 @@ public class IMR_GuiBean extends ParameterListEditor
   private boolean inParameterChangeWarning = false;
 
   //instance of the class to create the objects of the AttenuationRelationships dynamically.
-  AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
-
-
+  private AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
+  
+  //instance of the application using IMR_GuiBean
+  private IMR_GuiBeanAPI application;
+  
+  
  /**
   * class default constructor
   * @param classNames
   */
- public IMR_GuiBean() {
+ public IMR_GuiBean(IMR_GuiBeanAPI api) {
+   application  = api;
    supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
    parameterList = new ParameterList();
    init_imrParamListAndEditor();
  }
 
 
- /**
+  /**
    *  Create a list of all the IMRs
    */
   private void init_imrParamListAndEditor() {
@@ -124,6 +128,7 @@ public class IMR_GuiBean extends ParameterListEditor
       //adding the parameter to the parameterList.
       tempParam.addParameterChangeListener(this);
       parameterList.addParameter(tempParam);
+      tempParam.addParameterChangeListener(this);
     }
 
     this.editorPanel.removeAll();
@@ -175,9 +180,11 @@ public class IMR_GuiBean extends ParameterListEditor
        toggleSigmaLevelBasedOnTypeValue(value);
      }
      // if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
-     if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
+     //if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
        init_imrParamListAndEditor();
-     }
+       //update the IM for the selected AttenutionRelationship, so similar can be shown by the application
+       application.updateIM();
+     //}
 
 
    }

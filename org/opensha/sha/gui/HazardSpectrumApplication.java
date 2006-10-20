@@ -47,7 +47,7 @@ import org.opensha.data.Site;
 public class HazardSpectrumApplication extends JApplet
     implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI,X_ValuesInCurveControlPanelAPI,
-    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI{
+    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI, IMR_GuiBeanAPI{
 
   /**
    * Name of the class
@@ -1270,7 +1270,7 @@ public class HazardSpectrumApplication extends JApplet
    */
   private void initIMR_GuiBean() {
 
-     imrGuiBean = new IMR_GuiBean();
+     imrGuiBean = new IMR_GuiBean(this);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -1687,6 +1687,14 @@ public class HazardSpectrumApplication extends JApplet
 
   void peelOffButton_actionPerformed(ActionEvent e) {
     peelOffCurves();
+  }
+
+  /**
+   * This method does nothing in the Hazard Spectrum application
+   *
+   */
+  public void updateIM(){
+   
   }
 
 }

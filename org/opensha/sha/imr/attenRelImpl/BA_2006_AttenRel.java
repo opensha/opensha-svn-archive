@@ -257,7 +257,6 @@ public class BA_2006_AttenRel
     if (intensityMeasureChanged) {
       setCoeffIndex();
     }
-
     return getStdDev(iper, stdDevType);
   }
 
