@@ -14,17 +14,17 @@ import java.util.Iterator;
  */
 public class Tree {
 	// mapping of subsections name and their corresponding treemap
-	public HashMap<String,TreeBranch> treeBranchMap = new HashMap<String,TreeBranch>();
+	public HashMap<Integer,TreeBranch> treeBranchMap = new HashMap<Integer,TreeBranch>();
 	// mapping to mantain which branches have been traversed already
 	public HashMap<String, Boolean> traversedBranchMap;
 	public ArrayList<MultipleSectionRup> rupList;
-	public void connectInTree(String subSection1, String subSection2, int subSectionId1, int subSectionId2) {		
+	public void connectInTree(int subSectionId1, int subSectionId2) {		
 		// This statement is needed to avoid cycles
 		if(subSectionId1 > subSectionId2) {
-			updateTreeBranch(subSection1, subSection2);
+			updateTreeBranch(subSectionId1, subSectionId2);
 		}
 		else if(subSectionId1 < subSectionId2) {
-			updateTreeBranch(subSection2, subSection1);
+			updateTreeBranch(subSectionId2, subSectionId1);
 		}
 		else return;
 		
@@ -36,7 +36,7 @@ public class Tree {
 	 * @param subSection1
 	 * @param subSection2
 	 */
-	private void updateTreeBranch(String subSection1, String subSection2) {
+	private void updateTreeBranch(int subSection1, int subSection2) {
 		TreeBranch treeBranch;
 		treeBranch = treeBranchMap.get(subSection1);
 		if(treeBranch==null) {
@@ -51,10 +51,10 @@ public class Tree {
 	 *
 	 */
 	public void writeInfo() {
-		Iterator<String> it  = treeBranchMap.keySet().iterator();
+		Iterator<Integer> it  = treeBranchMap.keySet().iterator();
 		while(it.hasNext()) {
 			TreeBranch treeBranch = treeBranchMap.get(it.next());
-			System.out.println("Adjacent nodes for "+treeBranch.getSubSectionName());
+			System.out.println("Adjacent nodes for "+treeBranch.getSubSectionId());
 			for(int i=0; i<treeBranch.getNumAdjacentSubsections(); ++i)
 				System.out.println(treeBranch.getAdjacentSubSection(i));
 		}
@@ -68,9 +68,9 @@ public class Tree {
 		  //traversedBranchMap = new HashMap<String, Boolean>();
 		  
 		  rupList = new ArrayList<MultipleSectionRup>() ;
-		  Iterator<String> it = this.treeBranchMap.keySet().iterator();
+		  Iterator<Integer> it = this.treeBranchMap.keySet().iterator();
 		  while(it.hasNext()) {
-			  String subSecName = it.next();
+			  int subSecName = it.next();
 			  ArrayList rupture= new ArrayList();
 			  // if(isTraversed(subSecName)) continue;
 			  traverse(subSecName, rupture);
@@ -83,14 +83,14 @@ public class Tree {
 	 * @param subSecName
 	 * @param subSecList
 	 */
-	private void traverse(String subSecName, ArrayList subSecList) {
-		if(subSecList.contains(subSecName)) return;
-		subSecList.add(subSecName);
+	private void traverse(int subSecId, ArrayList subSecList) {
+		if(subSecList.contains(subSecId)) return;
+		subSecList.add(subSecId);
 		MultipleSectionRup rup = new MultipleSectionRup(subSecList);
 		if(!this.rupList.contains(rup)) rupList.add(rup);
 		//traversedBranchMap.put(subSecName, new Boolean(true));
 		//if(isTraversed(subSecName)) return;
-		TreeBranch branch = treeBranchMap.get(subSecName);
+		TreeBranch branch = treeBranchMap.get(subSecId);
 		for(int i=0; branch!=null && i<branch.getNumAdjacentSubsections(); ++i) {
 			traverse(branch.getAdjacentSubSection(i), subSecList);
 		}

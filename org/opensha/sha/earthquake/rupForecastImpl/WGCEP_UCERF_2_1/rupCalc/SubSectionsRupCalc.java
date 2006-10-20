@@ -29,6 +29,7 @@ public class SubSectionsRupCalc {
 	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList subSectionList;
 	private ArrayList doneList;
+	private ArrayList<Tree> clusterList;
 
 	  public SubSectionsRupCalc() {
 	  }
@@ -71,24 +72,43 @@ public class SubSectionsRupCalc {
 	  private void createTreesForFaultSections() throws
 	      InvalidRangeException {
 		  
-	    ArrayList treeList = new ArrayList();
-	    // create trees 
-	     doneList = new ArrayList();
-	    for(int i=0; i<subSectionList.size(); ++i) {
+		 clusterList = new ArrayList<Tree>();
+		 // create trees 
+		 doneList = new ArrayList();
+		 for(int i=0; i<subSectionList.size(); ++i) {
 	    	FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)subSectionList.get(i);
 	    	if(doneList.contains(faultSectionPrefData.getSectionName())) continue;
 	    	Tree tree = new Tree();
 	    	getAdjacentFaultSectionNodes(tree, i);
-	    	treeList.add(tree);
-	    	System.out.println("***********TREE "+treeList.size()+" ***********\n");
+	    	clusterList.add(tree);
+	    	System.out.println("***********TREE "+clusterList.size()+" ***********\n");
 	    	tree.writeInfo();
 	    	ArrayList treeRupList = tree.getRuptures();
 	    	rupList.addAll(treeRupList);
 	    	//System.exit(0);
 	    }
 	    System.out.println("Total Subsections ="+subSectionList.size());
-	    System.out.println("Total Trees ="+treeList.size());
+	    System.out.println("Total Clusters ="+clusterList.size());
 	    
+	  }
+	  
+	  
+	  /**
+	   * Retunr the number of clusters
+	   * @return
+	   */
+	  public int getNumClusters() {
+		  return this.clusterList.size();
+	  }
+	  
+	  
+	  /**
+	   * Get the cluster at specified index
+	   * @param index
+	   * @return
+	   */
+	  public Tree getCluster(int index) {
+		  return this.clusterList.get(index);
 	  }
 
 
@@ -107,7 +127,7 @@ public class SubSectionsRupCalc {
 			  if(i==subSectionIndex) continue;
 			  FaultSectionPrefData faultSectionPrefData1 = (FaultSectionPrefData)subSectionList.get(i);
 			  if(!isWithinCutOffDist(faultSectionPrefData, faultSectionPrefData1)) continue;
-			  tree.connectInTree(faultSectionPrefData.getSectionName(), faultSectionPrefData1.getSectionName(), subSectionIndex, i);
+			  tree.connectInTree(faultSectionPrefData.getSectionId(), faultSectionPrefData1.getSectionId());
 			  if(doneList.contains(faultSectionPrefData1.getSectionName())) continue;
 			  //System.out.println("Connected "+faultSectionPrefData.getSectionName()+ " AND "+ faultSectionPrefData1.getSectionName());
 			  if(i>subSectionIndex) getAdjacentFaultSectionNodes(tree, i);

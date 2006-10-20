@@ -13,10 +13,10 @@ import java.util.ArrayList;
  */
 public class MultipleSectionRup {
 	
-	public ArrayList<String> subSectionNamesList;
+	public ArrayList<Integer> subSectionNamesList;
 	
-	public  MultipleSectionRup(ArrayList<String> subSectionList) {
-		subSectionNamesList = (ArrayList<String>) subSectionList.clone();
+	public  MultipleSectionRup(ArrayList<Integer> subSectionList) {
+		subSectionNamesList = (ArrayList<Integer>) subSectionList.clone();
 	}
 	
 	/**
@@ -33,7 +33,7 @@ public class MultipleSectionRup {
 	 * @param index
 	 * @return
 	 */
-	public String getSubSection(int index) {
+	public int getSubSection(int index) {
 		return subSectionNamesList.get(index);
 	}
 	
@@ -54,13 +54,13 @@ public class MultipleSectionRup {
 	    if(rup.getNumSubSections()!=this.getNumSubSections()) return false;
 	    
 	    // check that first and last subsections are same
-	    String firstSubSec1 = this.getSubSection(0);
-	    String lastSubSec1 = this.getSubSection(this.getNumSubSections()-1);
-	    String firstSubSec2 = rup.getSubSection(0);
-	    String lastSubSec2 = rup.getSubSection(rup.getNumSubSections()-1);
+	    int firstSubSec1 = this.getSubSection(0);
+	    int lastSubSec1 = this.getSubSection(this.getNumSubSections()-1);
+	    int firstSubSec2 = rup.getSubSection(0);
+	    int lastSubSec2 = rup.getSubSection(rup.getNumSubSections()-1);
 	    
-	    if((firstSubSec1.equalsIgnoreCase(firstSubSec2) ||  firstSubSec1.equalsIgnoreCase(lastSubSec2)) &&
-	    		(lastSubSec1.equalsIgnoreCase(firstSubSec2) ||  lastSubSec1.equalsIgnoreCase(lastSubSec2))) {
+	    if((firstSubSec1==firstSubSec2 ||  firstSubSec1==lastSubSec2) &&
+	    		(lastSubSec1==firstSubSec2 ||  lastSubSec1==lastSubSec2)) {
 	    	return true;
 	    }
 	    return false;

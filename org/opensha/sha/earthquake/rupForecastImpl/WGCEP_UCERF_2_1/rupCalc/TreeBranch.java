@@ -12,19 +12,19 @@ import java.util.ArrayList;
  */
 
 public class TreeBranch {
-  private String subSectionName;
-  private ArrayList<String> adjacentSubSections = new ArrayList<String>();
+  private int subSectionId;
+  private ArrayList<Integer> adjacentSubSections = new ArrayList<Integer>();
 
-  public TreeBranch(String subSectionName) {
-	  this.subSectionName = subSectionName;
+  public TreeBranch(int subSectionId) {
+	  this.subSectionId = subSectionId;
   }
 
   /**
-   * Get sub-section name
+   * Get sub-section id
    * @return
    */
-  public String getSubSectionName() {
-    return subSectionName;
+  public int getSubSectionId() {
+    return subSectionId;
   }
 
   /**
@@ -41,7 +41,7 @@ public class TreeBranch {
    * @param index
    * @return
    */
-  public String getAdjacentSubSection(int index) {
+  public int getAdjacentSubSection(int index) {
 	  return adjacentSubSections.get(index);
   }
   
@@ -49,19 +49,19 @@ public class TreeBranch {
    * Add adjacent sub section (if it does not exist already)
    * @param subSectionName
    */
-  public void addAdjacentSubSection(String subSectionName) {
-	  if(!adjacentSubSections.contains(subSectionName))
-		  adjacentSubSections.add(subSectionName);
+  public void addAdjacentSubSection(int subSectionId) {
+	  if(!adjacentSubSections.contains(subSectionId))
+		  adjacentSubSections.add(subSectionId);
   }
   
   /**
-   * Is the specified sub section name adjacent ?
+   * Is the specified sub section  adjacent to this sub section?
    * 
    * @param subSectionName
    * @return
    */
-  public boolean isAdjacentSubSection(String subSectionName) {
-	  return adjacentSubSections.contains(subSectionName);
+  public boolean isAdjacentSubSection(int subSectionId) {
+	  return adjacentSubSections.contains(subSectionId);
   }
 
 }
