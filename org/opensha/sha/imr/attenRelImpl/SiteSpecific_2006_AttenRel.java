@@ -502,7 +502,7 @@ public class SiteSpecific_2006_AttenRel
 
     double asRockSA, lnAF;
 
-    // get AS-1997 SA for rock
+    // get selected rock  attenuation relationship SA for rock
     attenRel.setIntensityMeasure(im);
     asRockSA = attenRel.getMean();
     // get the amp factor
