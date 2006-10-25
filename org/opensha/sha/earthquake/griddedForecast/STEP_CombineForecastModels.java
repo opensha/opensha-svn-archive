@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import java.util.*;
-import javaDevelopers.matt.calc.*;
+import scratchJavaDevelopers.matt.calc.*;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.data.*;

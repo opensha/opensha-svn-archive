@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
-import javaDevelopers.matt.calc.*;
+import scratchJavaDevelopers.matt.calc.*;
 
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;

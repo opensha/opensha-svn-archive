@@ -1304,9 +1304,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   }
 
   public void writeRuptureTraces() throws IOException {
-    String filename1 = "javaDevelopers/ned/NSHMP02_CA_Traces_SS.txt";
-    String filename2 = "javaDevelopers/ned/NSHMP02_CA_Traces_N.txt";
-    String filename3 = "javaDevelopers/ned/NSHMP02_CA_Traces_RV.txt";
+    String filename1 = "scratchJavaDevelopers/ned/NSHMP02_CA_Traces_SS.txt";
+    String filename2 = "scratchJavaDevelopers/ned/NSHMP02_CA_Traces_N.txt";
+    String filename3 = "scratchJavaDevelopers/ned/NSHMP02_CA_Traces_RV.txt";
     FileWriter fw1 = new FileWriter(filename1);
     FileWriter fw2 = new FileWriter(filename2);
     FileWriter fw3 = new FileWriter(filename3);

@@ -61,7 +61,7 @@ public class ServerDB_Access
    * @param sql String
    * @return int
    * @throws SQLException
-   * @todo Implement this javaDevelopers.vipin.dao.db.DB_AccessAPI method
+   * @todo Implement this scratchJavaDevelopers.vipin.dao.db.DB_AccessAPI method
    */
   public int insertUpdateOrDeleteData(String sql) throws SQLException {
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
@@ -101,7 +101,7 @@ public class ServerDB_Access
    * @param sql String
    * @return CachedRowSetImpl
    * @throws SQLException
-   * @todo Implement this javaDevelopers.vipin.dao.db.DB_AccessAPI method
+   * @todo Implement this scratchJavaDevelopers.vipin.dao.db.DB_AccessAPI method
    */
   public CachedRowSetImpl queryData(String sql) throws SQLException {
 
