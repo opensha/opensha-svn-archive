@@ -607,7 +607,7 @@ public class SiteSpecific_2006_AttenRel
           vs30 = ( (Double) vs30Param.getValue()).doubleValue();
         }
         catch (NullPointerException e) {
-          throw new IMRException(C + ": getMean(): " + ERR);
+          throw new IMRException(C + ": getStdDev(): " + ERR);
         }
       }
 
