@@ -184,6 +184,9 @@ public class IMR_GuiBean extends ParameterListEditor
        init_imrParamListAndEditor();
        //update the IM for the selected AttenutionRelationship, so similar can be shown by the application
        application.updateIM();
+       //update the Site Params for the selected AttenutionRelationship, so the similar can be shown by the application and shown by 
+       //siteGuiBean
+       application.updateSiteParams();
      //}
 
 

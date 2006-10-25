@@ -16,4 +16,10 @@ public interface  IMR_GuiBeanAPI {
 	 * IM in the IMT Gui.
 	 */
 	public void updateIM();
+	
+    /**
+     * Update the Site Params for the selected AttenutionRelationship, so the similar can be shown by the application and shown by 
+     * siteGuiBean.
+     */	
+    public void updateSiteParams();
 }

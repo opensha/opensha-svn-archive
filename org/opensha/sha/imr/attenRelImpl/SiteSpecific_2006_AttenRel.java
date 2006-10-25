@@ -432,6 +432,18 @@ public class SiteSpecific_2006_AttenRel
     	initPropagationEffectParams();
     	initOtherParams();
     }
+    else if(pName.equals(SITE_EFFECT_PARAM_NAME)){
+    	if(val.equals(this.BAZZURO_CORNELL_MODEL)){
+    		siteParams.removeParameter(this.VS30_NAME);
+    		siteParams.removeParameter(this.SOFT_SOIL_NAME);
+    		siteParams.removeParameter(this.NUM_RUNS_PARAM_NAME);
+    	}
+    	else{
+    		siteParams.addParameter(this.vs30Param);
+    		siteParams.addParameter(this.softSoilParam);
+    		siteParams.addParameter(this.numRunsParam);
+    	}
+    }
   }  
   
 
@@ -762,23 +774,15 @@ public class SiteSpecific_2006_AttenRel
     		this.numRunsConstraint,this.NUM_RUNS_PARAM_DEFAULT);
     numRunsParam.setInfo(this.NUM_RUNS_PARAM_INFO);
     
-    //create the Site Effect correction parameter
-    ArrayList siteEffectCorrectionModelList = new ArrayList();
-    siteEffectCorrectionModelList.add(this.BATURAY_STEWART_MODEL);
-    siteEffectCorrectionModelList.add(this.BAZZURO_CORNELL_MODEL);
-    StringConstraint siteEffectCorrectionConstraint = new StringConstraint(siteEffectCorrectionModelList);
-    this.siteEffectCorrectionParam = new StringParameter(this.SITE_EFFECT_PARAM_NAME,
-    		siteEffectCorrectionConstraint,(String)siteEffectCorrectionModelList.get(0));
-    siteEffectCorrectionParam.setInfo(this.SITE_EFFECT_PARAM_INFO);
-
+    
     // add it to the siteParams list:
     siteParams.clear();
-    siteParams.addParameter(siteEffectCorrectionParam);
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_AddRefAccParam);
     siteParams.addParameter(vs30Param);
     siteParams.addParameter(softSoilParam);
+    siteParams.addParameter(numRunsParam);
 
   }
 
@@ -848,6 +852,16 @@ public class SiteSpecific_2006_AttenRel
     // add this to the list
     otherParams.clear();
     otherParams.addParameter(rockAttenRelSelectorParam);
+//  create the Site Effect correction parameter
+    ArrayList siteEffectCorrectionModelList = new ArrayList();
+    siteEffectCorrectionModelList.add(this.BATURAY_STEWART_MODEL);
+    siteEffectCorrectionModelList.add(this.BAZZURO_CORNELL_MODEL);
+    StringConstraint siteEffectCorrectionConstraint = new StringConstraint(siteEffectCorrectionModelList);
+    this.siteEffectCorrectionParam = new StringParameter(this.SITE_EFFECT_PARAM_NAME,
+    		siteEffectCorrectionConstraint,(String)siteEffectCorrectionModelList.get(0));
+    siteEffectCorrectionParam.setInfo(this.SITE_EFFECT_PARAM_INFO);
+    siteEffectCorrectionParam.addParameterChangeListener(this);
+    otherParams.addParameter(siteEffectCorrectionParam);
     otherParams.addParameter(componentParam);
     Iterator it = attenRel.getOtherParamsIterator();
     Parameter param;
@@ -857,6 +871,7 @@ public class SiteSpecific_2006_AttenRel
         otherParams.addParameter(param);
       }
     }
+
   }
 
   /**

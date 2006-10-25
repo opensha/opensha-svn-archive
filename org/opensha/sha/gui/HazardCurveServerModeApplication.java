@@ -2546,4 +2546,18 @@ public class HazardCurveServerModeApplication extends JFrame
 	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 	imtGuiBean.setIM(imr,imr.getSupportedIntensityMeasuresIterator()) ;
   }
+  
+  /**
+   * Updates the Site_GuiBean to reflect the chnaged SiteParams for the selected AttenuationRelationship.
+   * This method is called from the IMR_GuiBean to update the application with the Attenuation's
+   * Site Params.
+   *
+   */
+  public void updateSiteParams() {
+    //get the selected IMR
+	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+	siteGuiBean.validate();
+    siteGuiBean.repaint();
+  }
 }

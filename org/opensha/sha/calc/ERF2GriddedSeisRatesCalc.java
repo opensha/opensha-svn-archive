@@ -562,24 +562,41 @@ public class ERF2GriddedSeisRatesCalc {
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                 BACK_SEIS_INCLUDE);
-    frankelForecast.getAdjustableParameterList().getParameter(
+                                 BACK_SEIS_EXCLUDE);
+    /*frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);*/
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
     frankelForecast.getTimeSpan().setDuration(50.0);
     frankelForecast.updateForecast();
-
+    int numSources = frankelForecast.getNumSources();
     try {
-     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+    	
+    	FileWriter fw = new FileWriter("Source_Rupture.txt");
+    	fw.write("SrcIndex   RupIndex   Mag  Prob.   SourceName\n");
+    	for(int i=0;i<numSources;++i){
+    		ProbEqkSource source = frankelForecast.getSource(i);
+    		int numRups = source.getNumRuptures();
+    		for(int j=0;j<numRups;++j){
+    			ProbEqkRupture rup = source.getRupture(j);
+    			float magnitude = (float)rup.getMag();
+    			if(magnitude >= 7.5){
+    				fw.write(i+"  "+j+"   "+magnitude+"     "+(float)rup.getProbability()+"      "+source.getName()+"\n");
+    			}
+    		}
+    	}
+    	fw.close();
+    
+    
+    /* EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
      ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.5, frankelForecast,
           region);
      SummedMagFreqDist mfd = new SummedMagFreqDist(4.0, 9.0, 101);
      mfd.addResampledMagFreqDist(func, true);
      //ArbitrarilyDiscretizedFunc func1 = func.getMagFreqBasedCumDist();
-     System.out.println(mfd.getCumRateDist().toString());
+     System.out.println(mfd.getCumRateDist().toString());*/
             /* try {
                FileWriter fw = new FileWriter("magRates_With_BG.txt");
                for(int i=0;i<size;++i){
