@@ -27,7 +27,7 @@ public class ReadFrankel02_FaultSurface {
 
   public ReadFrankel02_FaultSurface(){
     createFrankel02Forecast();
-  }
+  } 
 
   /**
    * Creating the instance of the Frankel02 forecast
