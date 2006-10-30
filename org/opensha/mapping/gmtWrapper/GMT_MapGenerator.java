@@ -101,6 +101,7 @@ public class GMT_MapGenerator implements Serializable{
   private final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
   private final static String CPT_FILE_STEP = "STEP.cpt";
   private final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
+  private final static String CPT_FILE_RELM = "relm_color_map.cpt";
   StringParameter cptFileParam;
 
   public final static String COAST_PARAM_NAME = "Coast";
@@ -201,6 +202,7 @@ public class GMT_MapGenerator implements Serializable{
     cptFileConstraint.addString( CPT_FILE_MAX_SPECTRUM );
     cptFileConstraint.addString( CPT_FILE_STEP );
     cptFileConstraint.addString( CPT_FILE_SHAKEMAP );
+    cptFileConstraint.addString(CPT_FILE_RELM);
     cptFileParam = new StringParameter( CPT_FILE_PARAM_NAME, cptFileConstraint, CPT_FILE_PARAM_DEFAULT );
     cptFileParam.setInfo( CPT_FILE_PARAM_INFO );
 
