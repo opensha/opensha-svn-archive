@@ -75,13 +75,15 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME, new Double(region.getMinGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
-    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(true));
+    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
     mapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, GMT_MapGenerator.COAST_DRAW);
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+    mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_RELM);
+
     //manual color scale
-    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-   // mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(-4.0));
-   // mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(-2.0));
+    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(0.0));
+    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(0.05));
 
     try {
       String metadata = "Rate Above magnitude " + mag;
@@ -191,7 +193,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
         // minMag, maxMag, numMag);
 
      GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("helmstetter_et_al.hkj.forecast", evenlyGriddedRegion,
+          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("ward.geodetic81.forecast", evenlyGriddedRegion,
           minMag, maxMag, numMag);
       
 

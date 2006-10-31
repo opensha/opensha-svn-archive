@@ -98,10 +98,10 @@ public class GMT_MapGenerator implements Serializable{
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
   private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
   private final static String CPT_FILE_PARAM_INFO = "Color scheme for the scale";
-  private final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
-  private final static String CPT_FILE_STEP = "STEP.cpt";
-  private final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
-  private final static String CPT_FILE_RELM = "relm_color_map.cpt";
+  public final static String CPT_FILE_MAX_SPECTRUM = "MaxSpectrum.cpt";
+  public final static String CPT_FILE_STEP = "STEP.cpt";
+  public final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
+  public final static String CPT_FILE_RELM = "relm_color_map.cpt";
   StringParameter cptFileParam;
 
   public final static String COAST_PARAM_NAME = "Coast";
