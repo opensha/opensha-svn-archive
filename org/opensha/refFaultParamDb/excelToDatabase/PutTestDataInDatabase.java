@@ -24,7 +24,12 @@ public class PutTestDataInDatabase {
     //new ReadSitesFile(); // put sites data in the database
     //new PutFaultSectionsIntoDatabase();
     //new PutCombinedInfoIntoDatabase_Qfault_Bird();
-    new PutCombinedInfoIntoDatabase_FAD();
+    
+    
+    
+    //new PutPetrrizzoBirdDataIntoDatabase();
+    //new PutCombinedInfoIntoDatabase_Qfault();
+    //new PutCombinedInfoIntoDatabase_FAD();
     System.exit(0);
   }
 

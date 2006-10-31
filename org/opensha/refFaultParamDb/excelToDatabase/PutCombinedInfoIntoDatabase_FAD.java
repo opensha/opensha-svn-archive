@@ -188,6 +188,8 @@ public class PutCombinedInfoIntoDatabase_FAD {
   private PaleoSite getPaleoSite(PaleoSitePublication paleoSitePub) throws Exception {
 	  PaleoSite paleoSite = (PaleoSite)this.insertedFAD_SiteIntoDB.get(new Integer(this.fadSiteId));
 	  PaleoSite fadPaleoSite = (PaleoSite)this.fadSites.get(new Integer(this.fadSiteId));
+	  if(fadPaleoSite.getSiteName().equalsIgnoreCase("per"))
+		  fadPaleoSite.setSiteName("Per "+paleoSitePub.getReference().getSummary());
 	  if(paleoSite==null) {
 		  // check whether a site exists in database with the same qfault Id
 		  if(fadPaleoSite.getOldSiteId()==null || this.paleoSiteDAO.getPaleoSiteByQfaultId(fadPaleoSite.getOldSiteId())==null) {
@@ -196,6 +198,9 @@ public class PutCombinedInfoIntoDatabase_FAD {
 				pubList.add(paleoSitePub);
 				fadPaleoSite.setPaleoSitePubList(pubList);
 				if(Float.isNaN(fadPaleoSite.getSiteLat1())) {
+					FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary(fadPaleoSite.getFaultSectionId());
+					fadPaleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+
 					FaultSectionData faultSection = this.faultSectionDAO.getFaultSection(fadPaleoSite.getFaultSectionId());
 					Location loc1 = faultSection.getFaultTrace().getLocationAt(0);
 					Location loc2 = faultSection.getFaultTrace().getLocationAt(faultSection.getFaultTrace().getNumLocations()-1);
@@ -205,6 +210,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
 					fadPaleoSite.setSiteLon2((float)loc2.getLongitude());
 					fadPaleoSite.setGeneralComments(fadPaleoSite.getGeneralComments()+"\n"+
 							"No site location available.   Site is associated with a WG fault section.");
+					System.out.println(fadPaleoSite.getSiteName()+";"+fadPaleoSite.getFaultSectionId()+";"+fadPaleoSite.getFaultSectionName());
 					ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
 					siteTypeNames.clear();
 					siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
@@ -306,9 +312,8 @@ public class PutCombinedInfoIntoDatabase_FAD {
 		            }
 		          }
 			  if(paleoSite.getSiteName()==null || paleoSite.getSiteName().equalsIgnoreCase("")) {
-				    if(!Float.isNaN(paleoSite.getSiteLat1()))
-	    	          paleoSite.setSiteName(GUI_Utils.latFormat.format(paleoSite.getSiteLat1())+","+GUI_Utils.lonFormat.format(paleoSite.getSiteLon1()));
-				    else paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
+				    
+	    	          paleoSite.setSiteName("per");
 			  } 
 			  if(paleoSite.getGeneralComments()==null) paleoSite.setGeneralComments("");
 			  this.fadSites.put(new Integer(fadSiteId), paleoSite);
@@ -355,8 +360,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
     	  break;
       case 5: // WG Fault section Id
     	  PaleoSite paleoSite = (PaleoSite)this.fadSites.get(new Integer(fadSiteId));
-    	  FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary((int)Double.parseDouble(value.trim()));
-    	  paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+    	  paleoSite.setFaultSectionNameId("temp", (int)Double.parseDouble(value.trim()));
     	  break;
       case 6: // compiler
     	  String compilerComment = "Compiler="+value;

@@ -193,42 +193,5 @@ public abstract  class GriddedHypoMagFreqDistForecast
     }
   }
 
-  /**
-   * For each location, return the rate above the specified magnitude
-   *
-   * It returns the XYZ data above a specific magnitude
-   * It returns a list of XYZ values where each X,Y,Z are lat,lon and rate respectively.
-   * The rate is the rate above the given magnitude
-   *
-   * @return
-   */
-  public  XYZ_DataSetAPI getXYZ_DataAboveMag(double mag) {
-    ArbDiscretizedXYZ_DataSet xyzDataSet = new ArbDiscretizedXYZ_DataSet();
-    ArrayList xVals = new ArrayList();
-    ArrayList yVals = new ArrayList();
-    ArrayList zVals = new ArrayList();
-    // iterate over all locations.
-    double rateAboveMag=0.0, totalIncrRate;
-    int numLocs = this.getNumHypoLocs();
-    for(int i=0; i<numLocs; ++i) {
-      HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc = this.getHypoMagFreqDistAtLoc(i);
-      Location loc = hypoMagFreqDistAtLoc.getLocation();
-      xVals.add(new Double(loc.getLatitude()));
-      yVals.add(new Double(loc.getLongitude()));
-      IncrementalMagFreqDist magFreqDist = hypoMagFreqDistAtLoc.getMagFreqDist()[0];
-      // rate above magnitude
-      try {
-        rateAboveMag = magFreqDist.getCumRate(mag);
-      }catch(DataPoint2DException dataPointException) {
-        // if magnitude is less than least magnitude in this Mag-Freq dist
-        if(mag<magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
-        // if this mag is above highest mag in this MagFreqDist
-        else if(mag>magFreqDist.getMaxX()) rateAboveMag = 0.0;
-        else dataPointException.printStackTrace();
-      }
-      zVals.add(new Double(rateAboveMag));
-    }
-    xyzDataSet.setXYZ_DataSet(xVals, yVals, zVals);
-    return xyzDataSet;
-  }
+  
 }

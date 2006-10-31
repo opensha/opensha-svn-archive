@@ -1,12 +1,19 @@
 package org.opensha.refFaultParamDb.dao.db;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+
+import org.opensha.data.Location;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
+
 import org.opensha.refFaultParamDb.dao.*;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -19,6 +26,7 @@ import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
+import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -34,7 +42,7 @@ public class PaleoSiteDB_DAO  {
   private final static String SEQUENCE_NAME = "Paleo_Site_Sequence";
   private final static String TABLE_NAME="Paleo_Site";
   private final static String SITE_ID="Site_Id";
-  private final static String FAULT_SECTION_ID="Fault_Section_Id";
+  //private final static String FAULT_SECTION_ID="Fault_Section_Id";
   private final static String ENTRY_DATE="Entry_Date";
   private final static String SITE_NAME="Site_Name";
   private final static String SITE_LOCATION1="Site_Location1";
@@ -52,7 +60,9 @@ public class PaleoSiteDB_DAO  {
   private PaleoSitePublicationsDB_DAO paleoSitePublicationDAO;
   // fault DAO
   private FaultSectionVer2_DB_DAO faultSectionDAO;
-
+  
+  private static PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+  private static ArrayList prefFaultSectionDataList = prefFaultSectionDAO.getAllFaultSectionPrefData();
 
 
   public PaleoSiteDB_DAO(DB_AccessAPI dbAccess) {
@@ -130,10 +140,10 @@ public class PaleoSiteDB_DAO  {
     	colVals+="?,";
     }
     
-    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_SECTION_ID+","+
+    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+
         ENTRY_DATE+","+SITE_NAME+","+SITE_LOCATION1+","+colNames+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
-        " values ("+paleoSiteId+","+paleoSite.getFaultSectionId()+",'"+systemDate+
+        " values ("+paleoSiteId+",'"+systemDate+
         "','"+paleoSite.getSiteName()+"',?,"+colVals+"'"+paleoSite.getGeneralComments()+"','"+
         paleoSite.getOldSiteId()+"')";
     try {	
@@ -285,12 +295,12 @@ public class PaleoSiteDB_DAO  {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
-    String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    String sqlWithSpatialColumnNames =  "select "+SITE_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
         ","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+
         DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+
         " from "+TABLE_NAME+condition;
-    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_SECTION_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
     ","+SITE_NAME+","+
     DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+
     " from "+TABLE_NAME+condition;
@@ -306,24 +316,46 @@ public class PaleoSiteDB_DAO  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
         paleoSite.setEntryDate(rs.getString(ENTRY_DATE));
-        FaultSectionSummary faultSectionSummary =  faultSectionDAO.getFaultSectionSummary(rs.getInt(FAULT_SECTION_ID));
-        paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+       
 
         paleoSite.setSiteName(rs.getString(SITE_NAME));
-        // location 1
-        ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
-        setPaleoSiteLocations(paleoSite, geometries);
+        
         int dipEstId = rs.getInt(DIP_EST_ID);
         if(!rs.wasNull()) paleoSite.setDipEstimate(this.estimateInstancesDAO.getEstimateInstance(dipEstId));
         
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         paleoSite.setPaleoSitePubList(this.paleoSitePublicationDAO.getPaleoSitePublicationInfo(rs.getInt(SITE_ID)));
+        
+        ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+        setPaleoSiteLocations(paleoSite, geometries);
+        
         paleoSiteList.add(paleoSite);
       }
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return paleoSiteList;
+  }
+  
+  /**
+   * Get closest fault section
+   * 
+   * @param loc
+   * @return
+   */
+  private  FaultSectionPrefData getClosestFaultSection(Location loc) {
+	  double minDist = Double.MAX_VALUE, dist;
+	  FaultSectionPrefData closestFaultSection=null;
+	  for(int i=0; i<prefFaultSectionDataList.size(); ++i) {
+		  FaultSectionPrefData  prefFaultSectionData = (FaultSectionPrefData)prefFaultSectionDataList.get(i);
+		  dist  = prefFaultSectionData.getFaultTrace().getMinHorzDistToLine(loc);
+		  //System.out.println(prefFaultSectionData.getSectionId()+":"+dist);
+		  if(dist<minDist) {
+			  minDist = dist;
+			  closestFaultSection = prefFaultSectionData;
+		  }
+	  }
+	  return closestFaultSection;
   }
 
   /**
@@ -344,7 +376,8 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
 	if(point1.length>2)
 	  paleoSite.setSiteElevation1((float)point1[2]);
 	else paleoSite.setSiteElevation1(Float.NaN);
-	
+	FaultSectionPrefData faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1()));
+	paleoSite.setFaultSectionNameId(faultSectionPrefData.getSectionName(), faultSectionPrefData.getSectionId());
 	// check whether second locations exists or not
 	if(location2!=null) {
 		double []point2 = location2.getPoint();
@@ -354,7 +387,72 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
 		if(point2.length>2)
 			paleoSite.setSiteElevation2((float)point2[2]);
 		else paleoSite.setSiteElevation2(Float.NaN);
+		faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat2(), paleoSite.getSiteLon2()));
+		paleoSite.setGeneralComments(paleoSite.getGeneralComments()+"; Other associated fault section Id="+faultSectionPrefData.getSectionId());
 	}
 }
+
+ 	public static void main(String args[]) {
+ 		/*
+ 		// FOR OBTAINING QFAULT ID for Peter Bird's DATA 
+ 		ArrayList lines=null;
+		try {
+			lines = FileUtils.loadFile("WG_QFault.txt");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 		PaleoSiteDB_DAO dao = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+ 		for(int i=0;i<lines.size(); ++i) {
+ 			int id = Integer.parseInt((String)lines.get(i))+260;
+ 			//System.out.println(id);
+ 			PaleoSite site= dao.getPaleoSite(id);
+ 			String qFaultId;
+ 			if(site==null) qFaultId="null";
+ 			else qFaultId = site.getOldSiteId();
+ 			//if(qFaultId==null || qFaultId.equalsIgnoreCase("null")) qFaultId="";
+ 			System.out.println(qFaultId);
+ 		}*/
+ 		
+ 		// FOR OBTAINING REF CATEGORY FOR PETER BIRD DATA
+ 		/*ArrayList lines2=null, lines1=null;
+ 		try {
+ 			lines1 = FileUtils.loadFile("RefCat1.txt"); // file with ref categories
+ 			lines2 = FileUtils.loadFile("RefCat2.txt"); 
+ 			boolean found = false;
+ 			for(int i=0; i<lines2.size(); ++i) {
+ 				String line2 = (String)lines2.get(i);
+ 				StringTokenizer tokenizer2 = new StringTokenizer(line2,"|");
+ 				String faultId2 = tokenizer2.nextToken().trim();
+ 				String citation2 = tokenizer2.nextToken().trim();
+ 				//System.out.println(faultId2+"\t"+citation2);
+ 				found = false;
+ 				for(int j=0; j<lines1.size(); ++j) {
+ 					String line1 = (String)lines1.get(j);
+ 	 				StringTokenizer tokenizer1 = new StringTokenizer(line1,"|");
+ 	 				String faultId1 = tokenizer1.nextToken().trim();
+ 	 				String citation1 = tokenizer1.nextToken().trim();
+ 	 				String refType = tokenizer1.nextToken().trim();
+ 	 				if(faultId1.equalsIgnoreCase(faultId2) &&
+ 	 					citation1.equalsIgnoreCase(citation2)) {
+ 	 					System.out.println(refType);
+ 	 					found=true;
+ 	 					break;
+ 	 				}
+ 	 				
+ 				}
+ 				if(!found) System.out.println("****Not found****"+faultId2+","+citation2);
+ 				
+ 			}
+ 			
+ 			
+ 	
+ 		}catch(Exception e) {
+ 			e.printStackTrace();
+ 		}*/
+ 	}
 
 }

@@ -7,7 +7,7 @@ package org.opensha.data.region;
  *
  */
 public class EvenlyGriddedRELM_TestingRegion extends EvenlyGriddedGeographicRegion {
-	 private final static double GRID_SPACING = 0.1;
+	 private final static double GRID_SPACING = 0.10;
 
 	  public EvenlyGriddedRELM_TestingRegion() {
 		RELM_TestingRegion relmTestingRegion = new RELM_TestingRegion();

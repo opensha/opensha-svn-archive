@@ -1,6 +1,7 @@
 package scratchJavaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
+import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
@@ -15,6 +16,8 @@ import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.exceptions.DataPoint2DException;
+
 import java.util.ArrayList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.param.ParameterList;
@@ -61,7 +64,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    * @param mag
    */
   public void makeMap(double mag) {
-    XYZ_DataSetAPI xyzData = griddedHypoMFD.getXYZ_DataAboveMag(mag);
+    XYZ_DataSetAPI xyzData = getRELM_XYZ_DataAboveMag(mag);
     EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
     // make GMT_MapGenerator to make the map
     GMT_MapGenerator mapGenerator = new GMT_MapGenerator();
@@ -77,8 +80,8 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
     //manual color scale
     //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(-6.0));
-    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(-2.0));
+   // mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(-4.0));
+   // mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(-2.0));
 
     try {
       String metadata = "Rate Above magnitude " + mag;
@@ -91,6 +94,44 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     }
   }
 
+  /**
+   * For each location, return the rate above the specified magnitude
+   *
+   * It returns the XYZ data above a specific magnitude
+   * It returns a list of XYZ values where each X,Y,Z are lat,lon and rate respectively.
+   * The rate is the rate above the given magnitude
+   *
+   * @return
+   */
+  public  XYZ_DataSetAPI getRELM_XYZ_DataAboveMag(double mag) {
+    ArbDiscretizedXYZ_DataSet xyzDataSet = new ArbDiscretizedXYZ_DataSet();
+    ArrayList xVals = new ArrayList();
+    ArrayList yVals = new ArrayList();
+    ArrayList zVals = new ArrayList();
+    // iterate over all locations.
+    double rateAboveMag=0.0, totalIncrRate;
+    int numLocs = griddedHypoMFD.getNumHypoLocs();
+    for(int i=0; i<numLocs; ++i) {
+      HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc = griddedHypoMFD.getHypoMagFreqDistAtLoc(i);
+      Location loc = hypoMagFreqDistAtLoc.getLocation();
+      xVals.add(new Double(loc.getLatitude()-0.05)); 
+      yVals.add(new Double(loc.getLongitude()-0.05));
+      IncrementalMagFreqDist magFreqDist = hypoMagFreqDistAtLoc.getMagFreqDist()[0];
+      // rate above magnitude
+      try {
+        rateAboveMag = magFreqDist.getCumRate(mag);
+      }catch(DataPoint2DException dataPointException) {
+        // if magnitude is less than least magnitude in this Mag-Freq dist
+        if(mag<magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
+        // if this mag is above highest mag in this MagFreqDist
+        else if(mag>magFreqDist.getMaxX()) rateAboveMag = 0.0;
+        else dataPointException.printStackTrace();
+      }
+      zVals.add(new Double(rateAboveMag));
+    }
+    xyzDataSet.setXYZ_DataSet(xVals, yVals, zVals);
+    return xyzDataSet;
+  }
 
   /**
    * This test will make Frankel02 ERF, convert it into GriddedHypoMagFreqDistForecast and
@@ -123,7 +164,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
     */
-   EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
+  /* EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
    // include background sources as point sources
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME,
                                new Double(10.0));
@@ -137,7 +178,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
                                new Boolean(true));
    eqkRupForecast.getTimeSpan().setDuration(5.0);
 
-   eqkRupForecast.updateForecast();
+   eqkRupForecast.updateForecast();*/
    try {
      // region to view the rates
      EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
@@ -145,14 +186,14 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
      double minMag=5.0, maxMag=9.00;
      int numMag = 41; // number of Mag bins
      // make GriddedHypoMFD Forecast from the EqkRupForecast
-     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-         new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
-         minMag, maxMag, numMag);
+     //GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+      //   new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
+        // minMag, maxMag, numMag);
 
-     /*GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("alm.forecast", evenlyGriddedRegion,
+     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("helmstetter_et_al.hkj.forecast", evenlyGriddedRegion,
           minMag, maxMag, numMag);
-      */
+      
 
      // Make GMT map of rates
      GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
@@ -168,7 +209,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       fw.close();*/
 
      // write into RELM formatted file
-     WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+    /* WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
      String version="1.0 (";
      // write the adjustable params
      ParameterList paramList = eqkRupForecast.getAdjustableParameterList();
@@ -190,7 +231,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setForecastStartDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setDuration(5, "years");
-      writeRELM_File.makeFileInRELM_Format("UCERF1.0_AnnualRates.txt");
+      writeRELM_File.makeFileInRELM_Format("UCERF1.0_AnnualRates.txt");*/
 
     }catch(Exception e) {
       e.printStackTrace();

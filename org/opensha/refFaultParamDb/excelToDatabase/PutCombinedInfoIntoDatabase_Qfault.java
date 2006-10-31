@@ -43,11 +43,11 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
  * @version 1.0
  */
 
-public class PutCombinedInfoIntoDatabase_Qfault_Bird {
-  private final static String FILE_NAME = "QFaults_Bird_MMPref_SR_CumDispl.v3.xls";
+public class PutCombinedInfoIntoDatabase_Qfault {
+  private final static String FILE_NAME = "QFaults.xls";
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
   private final static int MIN_ROW = 1;
-  private final static int MAX_ROW = 296;
+  private final static int MAX_ROW = 90;
   //private final static int MIN_ROW = 74;
   //private final static int MAX_ROW = 74;
   // columns in this excel file
@@ -78,9 +78,9 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
    * row has a combined event info. 
    * 
    */
-  private HashMap doneSitesMap = new HashMap(); 
+  //private HashMap doneSitesMap = new HashMap(); 
 
-  public PutCombinedInfoIntoDatabase_Qfault_Bird() {
+  public PutCombinedInfoIntoDatabase_Qfault() {
     try {
       // read the excel file
       POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(FILE_NAME));
@@ -165,12 +165,12 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
         if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
 
         // site in DB
-        PaleoSite siteInDB = isSiteInCache(paleoSite.getSiteName(), paleoSite.getOldSiteId(), combinedEventsInfo.getNeokinemaFaultNumber());
+        PaleoSite siteInDB = isSiteInDB(paleoSite.getSiteName());
       
         //boolean isSiteInDB
         if(siteInDB==null) { // site does not exist in database
           paleoSiteDAO.addPaleoSite(paleoSite);
-          putSiteInCache(paleoSite, combinedEventsInfo.getNeokinemaFaultNumber());
+          //putSiteInCache(paleoSite, combinedEventsInfo.getNeokinemaFaultNumber());
           siteInDB = paleoSite;
           Thread.sleep(1000);
           //siteInDB = paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
@@ -191,21 +191,26 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
     }
   }
   
+  private PaleoSite isSiteInDB(String siteName) {
+	  return this.paleoSiteDAO.getPaleoSite(siteName);
+  }
+  
+  
   /**
    * Check whether we have already put the PaleoSite data fr this site into PaleoSite table
    * @param paleoSite
    * @return
    */
-  private PaleoSite isSiteInCache(String siteName, String qFaultSiteIdtSiteId,  String neoKinemaFaultNumber) {
+  /*private PaleoSite isSiteInCache(String siteName, String qFaultSiteIdtSiteId,  String neoKinemaFaultNumber) {
 	  String key=null;
 	  if(qFaultSiteIdtSiteId!=null) key = qFaultSiteIdtSiteId;
 	  else if(siteName!=null) key = siteName;
 	  else key = neoKinemaFaultNumber;
 	  PaleoSite paleoSite1  = (PaleoSite)this.doneSitesMap.get(key);
 	  return paleoSite1;
-  }
+  }*.
   
-  private void putSiteInCache(PaleoSite paleoSite, String neoKinemaFaultNumber) {
+  /*private void putSiteInCache(PaleoSite paleoSite, String neoKinemaFaultNumber) {
 	  String qFaultSiteIdtSiteId = paleoSite.getOldSiteId();
 	  String siteName = paleoSite.getSiteName();
 	  String key = null;
@@ -213,7 +218,7 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
 	  else if(siteName!=null) key = siteName;
 	  else key = neoKinemaFaultNumber;
 	  doneSitesMap.put(key, paleoSite);
-  }
+  }*/
   
 
   /**
@@ -246,14 +251,14 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
       case 4: // Peter Bird Reference category
         break;
       case 5: // WG Fault section Id
-      	FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary((int)Double.parseDouble(value));
-        paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+      	//FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary((int)Double.parseDouble(value));
+        //paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
         break;
       case 6: // other WG fault sectionIds
     	  String comments = paleoSite.getGeneralComments();
     	  if(comments==null) comments="";
-    	  if(value!=null)
-    		  comments+="Other WG Fault Section Ids = "+value+"\n";
+    	 // if(value!=null)
+    		//  comments+="Other WG Fault Section Ids = "+value+"\n";
     	  paleoSite.setGeneralComments(comments);
       case 7: // fault name
               // no need to migrate as names here differ somewhat from database names
@@ -306,6 +311,8 @@ public class PutCombinedInfoIntoDatabase_Qfault_Bird {
     	  
       case 15: // reference summary
         refSummary = value;
+        if(paleoSite.getSiteName().equalsIgnoreCase("") || paleoSite.getSiteName().equalsIgnoreCase("per"))
+        		paleoSite.setSiteName("per "+refSummary);
         break;
       case 16: // reference Id in qfaults
         if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));

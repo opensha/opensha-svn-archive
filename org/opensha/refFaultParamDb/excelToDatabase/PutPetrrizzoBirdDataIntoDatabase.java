@@ -9,12 +9,14 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.data.Location;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeAPI;
@@ -28,6 +30,7 @@ import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
@@ -38,11 +41,11 @@ import org.opensha.refFaultParamDb.vo.Reference;
  * @author vipingupta
  *
  */
-public class PutPetrrizzoBirdIDataIntoDatabase {
-	 private final static String FILE_NAME = "Petrizzo_ingest_4_Vipin.xls";
+public class PutPetrrizzoBirdDataIntoDatabase {
+	 private final static String FILE_NAME = "rev_Petrizzo_ingest_4_Vipin.xls";
 	  // rows (number of records) in this excel file. First 3 rows are neglected as they have header info
-	  private final static int MIN_ROW = 2;
-	  private final static int MAX_ROW = 198;
+	  private final static int MIN_ROW = 3;
+	  private final static int MAX_ROW = 194;
 	  //private final static int MIN_ROW = 74;
 	  //private final static int MAX_ROW = 74;
 	  // columns in this excel file
@@ -68,6 +71,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	  private final static String NO = "no";
 	  private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
 	  
+	  
 	  /*
 	   * This hashmap is needed to keep track of already done sites. The excel spreadsheet has multiple rows where each 
 	   * row has a combined event info. 
@@ -75,7 +79,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	   */
 	  private HashMap doneSitesMap = new HashMap(); 
 
-	  public PutPetrrizzoBirdIDataIntoDatabase() {
+	  public PutPetrrizzoBirdDataIntoDatabase() {
 	    try {
 	      // read the excel file
 	      POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(FILE_NAME));
@@ -132,7 +136,8 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	          continue;
 	        }catch(RuntimeException ex) {
 	          ex.printStackTrace();
-	          continue;
+	          //continue;
+	          System.exit(0);
 	        }
 
 	        // set the start and end time
@@ -227,20 +232,23 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	    	  if(value!=null && value.equalsIgnoreCase(NO)) throw new InvalidRowException("No need to put into database as ingest=no");
 	    	  break;
 	      case 3: //  NEO-KINEMA FAULT ID
-	        if(value!=null && !value.equalsIgnoreCase("")) {
-	        	combinedEventsInfo.setNeokinemaFaultNumber(value);
-	        	combinedEventsInfo.setDataSource("Peter Bird");
-	        } else {
-	        	combinedEventsInfo.setDataSource("Qfaults");
-	        }
-	        break;
+	    	  
+	    	  combinedEventsInfo.setNeokinemaFaultNumber(value);
+	    	  combinedEventsInfo.setDataSource("Peter Bird"); 
+	    	  break;
+	      case 5:
+	    	  // combine the neo-kinema fault Id and reference type
+	    	  combinedEventsInfo.setNeokinemaFaultNumber(combinedEventsInfo.getNeokinemaFaultNumber()+"-"+value);
+	    	  break;
 	      case 6: // WG Fault section Id
-	      	FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary((int)Double.parseDouble(value));
-	        paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
+	    	  	//int faultSectionId = (int)Double.parseDouble(value);
+	      	//FaultSectionSummary faultSectionSummary= faultSectionDAO.getFaultSectionSummary(faultSectionId);
+	        //System.out.println(faultSectionId);
+	      	//paleoSite.setFaultSectionNameId(faultSectionSummary.getSectionName(), faultSectionSummary.getSectionId());
 	        break;
-	      /*case 8: // qfault Site-Id
+	      case 9: // qfault Site-Id
 	        paleoSite.setOldSiteId(value);
-	        break;*/
+	        break;
 	      case 12: // site name
 	        // if site name starts with "per", then we will set its name as lat,lon
 	        if(value==null || value.startsWith("per")) value="";
@@ -257,17 +265,18 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        paleoSite.setSiteLat2(Float.NaN);
 	        break;
 	      case 16: // site Elevation 1
-	    	  if(value!=null) paleoSite.setSiteElevation1(Float.parseFloat(value)); 
+	    	  if(value!=null && !value.equals("")) paleoSite.setSiteElevation1(Float.parseFloat(value)); 
+	    	  break;
 	      case 17: // Site longitude 2
-	    	  if(value!=null)  paleoSite.setSiteLon2(Float.parseFloat(value));
+	    	  if(value!=null && !value.equals(""))  paleoSite.setSiteLon2(Float.parseFloat(value));
 	          break;
 	          
 	      case 18:
-	    	  if(value!=null)   { // Site Lat2
+	    	  if(value!=null && !value.equals(""))   { // Site Lat2
 	    		  paleoSite.setSiteLat2(Float.parseFloat(value));
 	    		  ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
-				  siteTypeNames.clear();
-				  siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
+	    		  siteTypeNames.clear();
+	    		  siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);
 	    		  /*if(paleoSite.getSiteName().equalsIgnoreCase(""))
 	    	          paleoSite.setSiteName(GUI_Utils.latFormat.format(paleoSite.getSiteLat1())+","+
 	    	        		  GUI_Utils.lonFormat.format(paleoSite.getSiteLon1())+";"+
@@ -282,7 +291,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	          break;
 	      case 19: 
 	    	   // site elevation 2
-	    	  if(value!=null) {
+	    	  if(value!=null && !value.equals("")) {
 	    		  int index = value.indexOf("+");
 	    		  if(index>0) value = value.substring(0, index);
 	    		  paleoSite.setSiteElevation2(Float.parseFloat(value));
@@ -296,12 +305,14 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	    	  
 	      case 25: // reference summary
 	        this.refShortCitation = value;
+	        if(paleoSite.getSiteName().equalsIgnoreCase(""));
+	        	paleoSite.setSiteName("Per "+refShortCitation);
 	        break;
 	      case 26: // reference full citation
 	    	  this.refFullCitation = value;
 	    	  break;
 	      case 27: // reference Id in qfaults
-	        if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));
+	        if(value!=null && !value.equals("")) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));
 	        else {
 	        	// get reference from database.
 	        	Reference ref = this.getReference(refShortCitation, refFullCitation);
@@ -324,7 +335,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        paleoSitePub.setRepresentativeStrandName(value);
 	        break;
 	      case 31: // measured component
-	        if(value==null) value=UNKNOWN;
+	        if(value==null || value.equals("")) value=UNKNOWN;
 	        if(value.equalsIgnoreCase("A")) measuredComponent="Total";
 			else if(value.equalsIgnoreCase("B")) measuredComponent="Vertical";
 			else if(value.equalsIgnoreCase("C")) measuredComponent="Horizontal,Trace-Parallel";
@@ -341,7 +352,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	         }
 	         break;*/
 	      case 33: // preferred displacement
-	        if(value==null) this.pref = Double.NaN;
+	        if(value==null || value.equals("")) this.pref = Double.NaN;
 	        else {
 	          this.isDisp = true;
 	          this.pref = Double.parseDouble(value);
@@ -350,14 +361,14 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	      case 34: // No need to migrate (offset error)
 	        break;
 	      case 35: // min displacement
-	        if(value==null) this.min = Double.NaN;
+	        if(value==null || value.equals("")) this.min = Double.NaN;
 	        else {
 	          this.isDisp = true;
 	          this.min = Double.parseDouble(value);
 	        }
 	        break;
 	      case 36: // max displacement
-	        if(value==null) this.max = Double.NaN;
+	        if(value==null || value.equals("")) this.max = Double.NaN;
 	        else {
 	          this.isDisp = true;
 	          this.max = Double.parseDouble(value);
@@ -368,25 +379,25 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        }
 	        break;
 	      case 37: // diplacement comments
-	        if(value==null) value="";
+	        if(value==null || value.equals("")) value="";
 	        combinedDispInfo.setDisplacementComments(value);
 	        break;
 	      case 38 : // preferred num events
-	        if(value==null) this.pref = Double.NaN;
+	        if(value==null || value.equals("")) this.pref = Double.NaN;
 	        else {
 	          this.isNumEvents = true;
 	          this.pref = Double.parseDouble(value);
 	        }
 	        break;
 	      case 39 : //min num events
-	        if(value==null) this.min = Double.NaN;
+	        if(value==null || value.equals("")) this.min = Double.NaN;
 	        else {
 	          this.isNumEvents = true;
 	          this.min = Double.parseDouble(value);
 	        }
 	        break;
 	      case 40: // max num events
-	        if(value==null) this.max = Double.NaN;
+	        if(value==null || value.equals("")) this.max = Double.NaN;
 	        else {
 	          this.isNumEvents = true;
 	          this.max = Double.parseDouble(value);
@@ -397,29 +408,29 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        }
 	        break;
 	      case 41: // num events comments
-	        if(value==null) value="";
+	        if(value==null || value.equals("")) value="";
 	        this.combinedNumEventsInfo.setNumEventsComments(value);
 	        break;
 	      case 42: // timespan comments
-	        if(value==null) value="";
+	        if(value==null || value.equals("")) value="";
 	        combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
 	        break;
 	      case 43: // preferred start time
-	        if(value==null) this.pref = Double.NaN;
+	        if(value==null || value.equals("")) this.pref = Double.NaN;
 	        else pref = Double.parseDouble(value);
 	        break;
 	      case 44:  // start time units
-	        if(value!=null) startTimeUnits = value;
+	        if(value!=null && !value.equals("")) startTimeUnits = value;
 	        else startTimeUnits="";
 	        break;
 	      case 45: // No need to migrate (start time error)
 	        break;
 	      case 46: // max start time
-	        if(value==null) this.max = Double.NaN;
+	        if(value==null || value.equals("")) this.max = Double.NaN;
 	        else max = Double.parseDouble(value);
 	        break;
 	      case 47: // min start time
-	        if(value==null) this.min = Double.NaN;
+	        if(value==null || value.equals("")) this.min = Double.NaN;
 	        else min = Double.parseDouble(value);
 	        if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref)) {
 	        	startTime = null;
@@ -434,11 +445,11 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	          startTimeUnits = KA;
 	        }
 	        // swap min/max in case of AD/BC
-	        if(!startTimeUnits.equalsIgnoreCase(KA)) {
+	       /* if(!startTimeUnits.equalsIgnoreCase(KA)) {
 	          double temp = min;
 	          min=max;
 	          max=temp;
-	        }
+	        }*/
 
 	        // set the start time
 	        Estimate est = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
@@ -453,15 +464,15 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        startTime.setReferencesList(refList);
 	        break;
 	      case 48: // max end time
-	        if(value==null) this.max = Double.NaN;
+	        if(value==null || value.equals("")) this.max = Double.NaN;
 	        else max = Double.parseDouble(value);
 	        break;
 	      case 49: // pref end time
-	        if(value==null) this.pref = Double.NaN;
+	        if(value==null || value.equals("")) this.pref = Double.NaN;
 	        else pref = Double.parseDouble(value);
 	        break;
 	      case 50: // min end time
-	        if(value==null) this.min = Double.NaN;
+	        if(value==null || value.equals("")) this.min = Double.NaN;
 	        else min  = Double.parseDouble(value);
 	        break;
 	      case 51: // end time units
@@ -484,11 +495,11 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	          }
 	          //System.out.println(min+","+max+","+pref+","+endTimeUnits+","+this.startTimeUnits);
 	          // swap min/max in case of AD/BC
-	          if(!endTimeUnits.equalsIgnoreCase(KA)) {
+	          /*if(!endTimeUnits.equalsIgnoreCase(KA)) {
 	            double temp = min;
 	            min=max;
 	            max=temp;
-	          }
+	          }*/
 	          //System.out.println(min+","+max+","+pref);
 
 	          // set the end time
@@ -504,19 +515,19 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	        endTime.setReferencesList(refList1);
 	        break;
 	      case 52: // dated feature comments
-	        if(value==null) value ="";
+	        if(value==null || value.equals("")) value ="";
 	        combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
 	        break;
 	      case 53:   // MIN aseismic slip factor for Slip Rate
-	    	  if(value==null) this.min = Double.NaN;
+	    	  if(value==null || value.equals("")) this.min = Double.NaN;
 	    	  else this.min = Double.parseDouble(value);
 	    	  break;
 	      case 54:   // MAX aseismic slip factor for Slip Rate
-	    	  if(value==null) this.max = Double.NaN;
+	    	  if(value==null || value.equals("")) this.max = Double.NaN;
 	    	  else this.max = Double.parseDouble(value);
 	    	  break;
 	      case 55:   // PREF aseismic slip factor for Slip Rate
-	    	  if(value==null) this.pref = Double.NaN;
+	    	  if(value==null || value.equals("")) this.pref = Double.NaN;
 	    	  else this.pref = Double.parseDouble(value);
 	    	  if(!Double.isNaN(min) || !Double.isNaN(max) || !Double.isNaN(pref)) {
 	    		  Estimate estimate = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
@@ -524,7 +535,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	    	  }
 	    	  break;
 	      case 56: // preferred slip rate
-	        if(value==null) this.pref = Double.NaN;
+	        if(value==null || value.equals("")) this.pref = Double.NaN;
 	        else {
 	          this.isSlipRate = true;
 	          this.pref = Double.parseDouble(value);
@@ -533,14 +544,14 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	      case 57: // no need to migrate (slip rate error)
 	        break;
 	      case 58: // min slip rate
-	        if(value==null) this.min = Double.NaN;
+	        if(value==null || value.equals("")) this.min = Double.NaN;
 	        else {
 	          this.isSlipRate = true;
 	          this.min = Double.parseDouble(value);
 	        }
 	        break;
 	      case 59: // max slip rate
-	        if(value==null) this.max = Double.NaN;
+	        if(value==null || value.equals("")) this.max = Double.NaN;
 	        else {
 	          this.isSlipRate = true;
 	          this.max = Double.parseDouble(value);
@@ -551,7 +562,7 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	       }
 	        break;
 	      case 60: // slip rate comments
-	        if(value==null) value="";
+	        if(value==null || value.equals("")) value="";
 	        this.combinedSlipRateInfo.setSlipRateComments(value);
 	        break;
 	      case 61:
@@ -584,4 +595,8 @@ public class PutPetrrizzoBirdIDataIntoDatabase {
 	    ref.setFullBiblioReference(refFullCitation);
 		return ref;
 	}
+	
+	
 }
+
+ 

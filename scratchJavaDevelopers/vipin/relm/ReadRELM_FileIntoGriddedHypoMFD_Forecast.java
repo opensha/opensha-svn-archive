@@ -2,6 +2,7 @@ package scratchJavaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import java.io.FileReader;
@@ -89,16 +90,15 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         mag2 =  Double.parseDouble(tokenizer.nextToken());
         rate = Double.parseDouble(tokenizer.nextToken()); // rate
         // calculate the midpoint of lon bin
-        lon = (lon1+lon2)/2;
+        lon = (lon1+lon2)/2+0.05; // this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
         // midpoint of the lat bin
-        lat = (lat1+lat2)/2;
+        lat = (lat1+lat2)/2+0.05; // this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
         // calculate midpoint of mag bin
         mag = (mag1+mag2)/2;
         locIndex = this.region.getNearestLocationIndex(new Location(lat,lon));
         //continue if location not in the region
         if (locIndex >= 0)  {
-          IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[
-              locIndex].getMagFreqDist()[0];
+          IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];
           try {
             int index = incrMagFreqDist.getXIndex(mag);
             incrMagFreqDist.set(mag, incrMagFreqDist.getY(index) + rate);
