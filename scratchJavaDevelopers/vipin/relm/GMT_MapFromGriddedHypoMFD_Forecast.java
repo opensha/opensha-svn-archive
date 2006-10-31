@@ -78,7 +78,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
     mapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, GMT_MapGenerator.COAST_DRAW);
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-    mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_RELM);
+    mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_MAX_SPECTRUM);
 
     //manual color scale
     mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
@@ -192,8 +192,24 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       //   new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
         // minMag, maxMag, numMag);
 
+     /* Following names can be used for RELM files:
+      * ward.geodetic81.forecast
+      * helmstetter_et_al.hkj.forecast
+      * helmstetter_et_al.hkj.aftershock.forecast
+      * ward.simulation.forecast
+      * ward.combo81.forecast
+      * ward.geologic81.forecast
+      * ward.geodetic85.forecast
+      * ward.seismic81.forecast
+      * wiemer_schorlemmer.alm.forecast
+      * bird_liu.neokiname.forecast
+      * ebel.mainshock.forecast
+      * ebel.aftershock.forecast
+      * holliday.pi.forecast
+      * 
+      */
      GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("ward.geodetic81.forecast", evenlyGriddedRegion,
+          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("holliday.pi.forecast", evenlyGriddedRegion,
           minMag, maxMag, numMag);
       
 
