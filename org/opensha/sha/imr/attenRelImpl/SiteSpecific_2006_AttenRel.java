@@ -431,19 +431,27 @@ public class SiteSpecific_2006_AttenRel
     	initEqkRuptureParams();
     	initPropagationEffectParams();
     	initOtherParams();
+    	attenRel.setParamDefaults();
     }
     else if(pName.equals(SITE_EFFECT_PARAM_NAME)){
     	if(val.equals(this.BAZZURO_CORNELL_MODEL)){
-    		siteParams.removeParameter(this.VS30_NAME);
-    		siteParams.removeParameter(this.SOFT_SOIL_NAME);
-    		siteParams.removeParameter(this.NUM_RUNS_PARAM_NAME);
+    		if(siteParams.containsParameter(vs30Param))
+    			siteParams.removeParameter(this.VS30_NAME);
+    		if(siteParams.containsParameter(SOFT_SOIL_NAME))
+    			siteParams.removeParameter(this.SOFT_SOIL_NAME);
+    		if(siteParams.containsParameter(NUM_RUNS_PARAM_NAME))
+    			siteParams.removeParameter(this.NUM_RUNS_PARAM_NAME);
     	}
     	else{
-    		siteParams.addParameter(this.vs30Param);
-    		siteParams.addParameter(this.softSoilParam);
-    		siteParams.addParameter(this.numRunsParam);
+    		if(!siteParams.containsParameter(vs30Param))
+    			siteParams.addParameter(this.vs30Param);
+    		if(!siteParams.containsParameter(softSoilParam))
+    			siteParams.addParameter(this.softSoilParam);
+    		if(!siteParams.containsParameter(numRunsParam))
+    			siteParams.addParameter(this.numRunsParam);
     	}
     }
+    initIndependentParamLists();
   }  
   
 
@@ -485,8 +493,18 @@ public class SiteSpecific_2006_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
-    softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
+	
+    AF_InterceptParam.setValue(site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
+    AF_AddRefAccParam.setValue(site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
+    AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
+    AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
+    String modelType = (String)siteEffectCorrectionParam.getValue();
+    if(modelType.equals(this.BATURAY_STEWART_MODEL)){
+    	vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+    	softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
+    	numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
+    }
+    
     this.site = site;
     // set the location in as_1997_attenRel
     attenRel.setSiteLocation(site.getLocation());
@@ -502,7 +520,7 @@ public class SiteSpecific_2006_AttenRel
 
     double asRockSA, lnAF;
 
-    // get selected rock  attenuation relationship SA for rock
+     // get selected rock  attenuation relationship SA for rock
     attenRel.setIntensityMeasure(im);
     asRockSA = attenRel.getMean();
     // get the amp factor
@@ -512,7 +530,7 @@ public class SiteSpecific_2006_AttenRel
     lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal);   
     
     // return the result
-    return lnAF + attenRel.getMean();
+    return lnAF +asRockSA;
   }
 
 
@@ -634,6 +652,14 @@ public class SiteSpecific_2006_AttenRel
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
     vs30Param.setValue(VS30_DEFAULT);
     softSoilParam.setValue(new Boolean(false));
+    String rockAttenDefaultVal = (String)rockAttenRelSelectorParam.getAllowedStrings().get(0);
+    rockAttenRelSelectorParam.setValue(rockAttenDefaultVal);
+    siteEffectCorrectionParam.setValue(BATURAY_STEWART_MODEL);
+    this.AF_AddRefAccParam.setValue(new Double(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT));
+    this.AF_InterceptParam.setValue(new Double(this.AF_INTERCEPT_PARAM_DEFAULT));
+    this.AF_SlopeParam.setValue(new Double(this.AF_SLOPE_PARAM_DEFAULT));
+    this.AF_StdDevParam.setValue(new Double(this.AF_STD_DEV_DEFAULT));
+    this.numRunsParam.setValue(new Integer(this.NUM_RUNS_PARAM_DEFAULT));
     attenRel.setParamDefaults();
     this.initRockAttenuationRealtionships();
   }
@@ -651,7 +677,7 @@ public class SiteSpecific_2006_AttenRel
     meanIndependentParams.clear();
     ListIterator it = attenRel.getMeanIndependentParamsIterator();
     ArrayList siteParamNames = new ArrayList();
-    ListIterator siteTypeParamIterator = attenRel.getSiteParamsIterator();
+    ListIterator siteTypeParamIterator = this.siteParams.getParametersIterator();
     
     while(siteTypeParamIterator.hasNext()){
   	  ParameterAPI siteParam = (ParameterAPI)siteTypeParamIterator.next();
@@ -664,25 +690,20 @@ public class SiteSpecific_2006_AttenRel
 		  boolean isSiteTypeParam = false;
 		  for(int i=0;i<numSiteParams;++i){
 			 String siteParamName = (String)siteParamNames.get(i);
+			 
 			 if(param.getName().equals(siteParamName)){
 				 isSiteTypeParam = true;
 				 break;
 			 }
-			 if(!isSiteTypeParam)
-		        meanIndependentParams.addParameter(param);
 		  }
+		  if(!isSiteTypeParam && !meanIndependentParams.containsParameter(param))
+		        meanIndependentParams.addParameter(param);
 	  }
     }
-    meanIndependentParams.addParameter(vs30Param);
-    meanIndependentParams.addParameter(softSoilParam);
-    meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
-    stdDevIndependentParams.addParameter(vs30Param);
-    stdDevIndependentParams.addParameter(softSoilParam);
-    stdDevIndependentParams.addParameter(componentParam);
-    it = attenRel.getStdDevIndependentParamsIterator();
+     it = attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
         Parameter param = (Parameter) it.next();
   	  	if (!(param.getName().equals(AttenuationRelationship.COMPONENT_NAME)))  {
@@ -693,17 +714,15 @@ public class SiteSpecific_2006_AttenRel
   				 isSiteTypeParam = true;
   				 break;
   			 }
-  			 if(!isSiteTypeParam)
-  			   stdDevIndependentParams.addParameter(param);
   		  }
+    	 if(!isSiteTypeParam && !stdDevIndependentParams.containsParameter(param))
+			   stdDevIndependentParams.addParameter(param);
+
   	  	}
      }
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    exceedProbIndependentParams.addParameter(vs30Param);
-    exceedProbIndependentParams.addParameter(softSoilParam);
-    exceedProbIndependentParams.addParameter(componentParam);
     it = attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
         Parameter param = (Parameter) it.next();
@@ -715,12 +734,49 @@ public class SiteSpecific_2006_AttenRel
   				 isSiteTypeParam = true;
   				 break;
   			 }
-  			 if(!isSiteTypeParam)
-  				exceedProbIndependentParams.addParameter(param);
   		  }
+		 if(!isSiteTypeParam && !exceedProbIndependentParams.containsParameter(param))
+	  		exceedProbIndependentParams.addParameter(param);
+
   	  	}
      }
 
+    //  adding the other params like Component , SiteCorrectionModel etc to the mean, std Dev and exceepProb paramlist.
+    	meanIndependentParams.addParameter(componentParam);
+    	meanIndependentParams.addParameter(rockAttenRelSelectorParam);
+    	meanIndependentParams.addParameter(siteEffectCorrectionParam);
+    	stdDevIndependentParams.addParameter(componentParam);
+    	stdDevIndependentParams.addParameter(rockAttenRelSelectorParam);
+    	stdDevIndependentParams.addParameter(siteEffectCorrectionParam);
+    	exceedProbIndependentParams.addParameter(componentParam);
+    	exceedProbIndependentParams.addParameter(rockAttenRelSelectorParam);
+    	exceedProbIndependentParams.addParameter(siteEffectCorrectionParam);
+
+    
+    //adding the site related parameters to the mean, std Dev and exceepProb paramlist.
+    String siteCorrectionModel = (String)siteEffectCorrectionParam.getValue();
+    ListIterator lit = siteParams.getParametersIterator();
+    if(siteCorrectionModel.equals(this.BATURAY_STEWART_MODEL)){
+	    while(lit.hasNext()){
+	    	ParameterAPI param = (ParameterAPI)lit.next();
+	    	meanIndependentParams.addParameter(param);
+	    	stdDevIndependentParams.addParameter(param);
+	    	exceedProbIndependentParams.addParameter(param);
+	    }
+    }
+    else{
+    	while(lit.hasNext()){
+	    	ParameterAPI param = (ParameterAPI)lit.next();
+	    	if(!param.getName().equals(this.VS30_NAME) && 
+	    		!param.getName().equals(this.NUM_RUNS_PARAM_NAME)	&&
+	    		!param.getName().equals(this.softSoilParam.getName())){
+		    	meanIndependentParams.addParameter(param);
+		    	stdDevIndependentParams.addParameter(param);
+		    	exceedProbIndependentParams.addParameter(param);
+	    	}
+	    }
+    }
+    imlAtExceedProbIndependentParams.clear();
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
         exceedProbIndependentParams);
@@ -764,7 +820,7 @@ public class SiteSpecific_2006_AttenRel
     AF_AddRefAccParam.setInfo(this.AF_ADDITIVE_REF_ACCELERATION_PARAM_INFO);
     
     //make the AF Std. Dev.
-    this.AF_StdDevParam = new DoubleParameter(this.AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME,
+    this.AF_StdDevParam = new DoubleParameter(this.AF_STD_DEV_PARAM_NAME,
     		this.AF_StdDevParamConstraint,this.AF_STD_DEV_DEFAULT);
     
     AF_StdDevParam.setInfo(this.AF_STD_DEV_PARAM_INFO);
@@ -780,6 +836,7 @@ public class SiteSpecific_2006_AttenRel
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_AddRefAccParam);
+    siteParams.addParameter(AF_StdDevParam);
     siteParams.addParameter(vs30Param);
     siteParams.addParameter(softSoilParam);
     siteParams.addParameter(numRunsParam);
