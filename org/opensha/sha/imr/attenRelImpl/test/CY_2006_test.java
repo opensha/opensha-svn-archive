@@ -15,7 +15,7 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 	
 	  private CY_2006_AttenRel cy_2006 = null;
 	
-	  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/";
 	  private static final String CY_2006_RESULTS = RESULT_SET_PATH +"CY2006_NGA.txt";
 	
 	  //Tolerence to check if the results fall within the range.
