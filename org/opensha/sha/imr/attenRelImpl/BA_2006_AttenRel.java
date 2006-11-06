@@ -558,7 +558,7 @@ public class BA_2006_AttenRel
                         double pga4nl) {
 
     // remember that pga4ln term uses coeff index 0
-    double Fm, Fd, Fs,Flin,Fnl;
+    double Fm, Fd, Fs;
     int U =0, S=0, N=0, R=0;
     String fltType = (String)fltTypeParam.getValue();
     if(fltType.equals(FLT_TYPE_UNKNOWN))
@@ -582,27 +582,32 @@ public class BA_2006_AttenRel
     Fd = (c01[iper] + c02[iper] * (mag - mref[iper]))
         * Math.log(r / rref[iper]) + (c03[iper] + c04[iper] * (mag - mref[iper]))* (r - rref[iper]);
 
-    double bnl = 0;
-    if (vs30 <= v1[iper]) {
-      bnl = b1[iper];
+    if(pga4nl ==0.0)
+    	Fs =0;
+    else{
+	    double bnl = 0;
+	    if (vs30 <= v1[iper]) {
+	      bnl = b1[iper];
+	    }
+	    else if (vs30 <= v2[iper] && vs30 > v1[iper]) {
+	      bnl = (b1[iper] - b2[iper]) * Math.log(vs30 / v2[iper]) /
+	          Math.log(v1[iper] / v2[iper]) + b2[iper];
+	    }
+	    else if (vs30 <= vref[iper] && vs30 > v2[iper]) {
+	      bnl = b2[iper] * Math.log(vs30 / vref[iper]) /
+	          Math.log(v2[iper] / vref[iper]);
+	    }
+	    else if (vs30 > vref[iper]) {
+	      bnl = 0.0;
+	    }   
+		double Flin = blin[iper]*Math.log(vs30/vref[iper]);	
+		double Fnl;
+	    if(pga4nl <= pga_low[iper])
+	    	Fnl = bnl*Math.log(pga_low[iper]/0.1);
+	    else
+	        Fnl = bnl*Math.log(pga4nl/0.1);
+	    Fs= Flin+Fnl;
     }
-    else if (vs30 <= v2[iper] && vs30 > v1[iper]) {
-      bnl = (b1[iper] - b2[iper]) * Math.log(vs30 / v2[iper]) /
-          Math.log(v1[iper] / v2[iper]) + b2[iper];
-    }
-    else if (vs30 <= vref[iper] && vs30 > v2[iper]) {
-      bnl = b2[iper] * Math.log(vs30 / vref[iper]) /
-          Math.log(v2[iper] / vref[iper]);
-    }
-    else if (vs30 > vref[iper]) {
-      bnl = 0.0;
-    }   
-	Flin = blin[iper]*Math.log(vs30/vref[iper]);	
-    if(pga4nl <= pga_low[iper])
-    	Fnl = bnl*Math.log(pga_low[iper]/0.1);
-    else
-        Fnl = bnl*Math.log(pga4nl/0.1);
-    Fs= Flin+Fnl;
     return (Fm + Fd + Fs);
   }
 
