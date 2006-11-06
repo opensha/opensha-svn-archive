@@ -201,14 +201,12 @@ public class AttenuationRelationshipApplet extends JFrame
      *  loader to load these
      */
     static {
-      /*imNames.add(AS_2005_prelim_AttenRel.NAME);
-      attenRelClasses.add(AS_2005_CLASS_NAME);
       imNames.add(CY_2006_AttenRel.NAME);
       attenRelClasses.add(CY_2006_CLASS_NAME);
       imNames.add(CB_2006_AttenRel.NAME);
       attenRelClasses.add(CB_2006_CLASS_NAME);
       imNames.add(BA_2006_AttenRel.NAME);
-      attenRelClasses.add(BOORE_2006_CLASS_NAME);*/
+      attenRelClasses.add(BOORE_2006_CLASS_NAME);
       imNames.add(CS_2005_AttenRel.NAME);
       attenRelClasses.add(CS_CLASS_NAME);
       imNames.add(BJF_1997_AttenRel.NAME);
