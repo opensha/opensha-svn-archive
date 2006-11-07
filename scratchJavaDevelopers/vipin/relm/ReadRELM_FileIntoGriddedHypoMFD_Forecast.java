@@ -77,6 +77,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
       double lon1, lon2, lon;
       double mag1, mag2, mag;
       double rate;
+      int mask;
       int locIndex;
       while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.END_FORECAST)) {
         StringTokenizer tokenizer = new StringTokenizer(line);
@@ -89,6 +90,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         mag1= Double.parseDouble(tokenizer.nextToken());
         mag2 =  Double.parseDouble(tokenizer.nextToken());
         rate = Double.parseDouble(tokenizer.nextToken()); // rate
+        mask = (int)Double.parseDouble(tokenizer.nextToken());
         // calculate the midpoint of lon bin
         lon = (lon1+lon2)/2+0.05; // this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
         // midpoint of the lat bin
@@ -97,7 +99,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         mag = (mag1+mag2)/2;
         locIndex = this.region.getNearestLocationIndex(new Location(lat,lon));
         //continue if location not in the region
-        if (locIndex >= 0)  {
+        if (locIndex >= 0 /*&& mask==1*/)  {
           IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];
           try {
             int index = incrMagFreqDist.getXIndex(mag);

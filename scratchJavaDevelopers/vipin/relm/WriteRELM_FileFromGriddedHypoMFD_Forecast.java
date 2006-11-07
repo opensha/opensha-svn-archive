@@ -165,10 +165,10 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
      for(int i=0; i<numLocs; ++i ) {
        HypoMagFreqDistAtLoc hypoMFD_AtLoc = griddedHypoMFD.getHypoMagFreqDistAtLoc(i);
        Location loc = hypoMFD_AtLoc.getLocation();
-       lat1 = loc.getLatitude()-gridSpacing/2;
-       lat2 = loc.getLatitude()+gridSpacing/2;
-       lon1 = loc.getLongitude()-gridSpacing/2;
-       lon2 = loc.getLongitude()+gridSpacing/2;
+       lat1 = loc.getLatitude();
+       lat2 = loc.getLatitude()+gridSpacing;
+       lon1 = loc.getLongitude()-gridSpacing;
+       lon2 = loc.getLongitude();
        // write magnitude frequency distribution for each location
        IncrementalMagFreqDist incrementalMFD = hypoMFD_AtLoc.getMagFreqDist()[0];
        for(int j=0; j<incrementalMFD.getNum(); ++j) {

@@ -1,6 +1,16 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+GMT Map Generator
+-----------------
+1. Change to 72 dpi
+2. Add -F option to xyz2grd
+3. Add following Params:
+   DPI (default = 72)
+   Apply GMT Smoothing (default = yes) - If value is "yes", apply -T option to grdimage
+4. For log plots, write NaNs instead of using 10e-16
+
+
 Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
 
 Mean/sigma calculator at multiple sites (for Nico, Patti, and Cybershake)

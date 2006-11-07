@@ -63,7 +63,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    *
    * @param mag
    */
-  public void makeMap(double mag) {
+  public void makeMap(double mag, String dirName) {
     XYZ_DataSetAPI xyzData = getRELM_XYZ_DataAboveMag(mag);
     EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
     // make GMT_MapGenerator to make the map
@@ -75,20 +75,20 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME, new Double(region.getMinGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
-    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
+    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(true));
     mapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, GMT_MapGenerator.COAST_DRAW);
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-    mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_RELM);
+    mapGenerator.setParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME, GMT_MapGenerator.CPT_FILE_MAX_SPECTRUM);
 
     //manual color scale
     mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(0.0));
-    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(0.05));
+    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(-5.0));
+    mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(-1.0));
 
     try {
       String metadata = "Rate Above magnitude " + mag;
       String imageFileName = mapGenerator.makeMapUsingServlet(xyzData, "Rates",
-                                         metadata, null);
+                                         metadata, dirName);
       new ImageViewerWindow(imageFileName, metadata, true);
 
     }catch(Exception e) {
@@ -157,21 +157,22 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
    * @param args
    */
   public static void main(String[] args) {
-    /*EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
+   /* EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,
-                                new Double(1.0));
+                                new Double(10.0));
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+    eqkRupForecast.getTimeSpan().setDuration(1.0);
     */
-  /* EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
+   /*EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
    // include background sources as point sources
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME,
                                new Double(10.0));
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME,
-                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
+                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME,
                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
    eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.FAULT_MODEL_NAME,
@@ -180,8 +181,8 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
                                new Boolean(true));
    eqkRupForecast.getTimeSpan().setDuration(5.0);
 
-   eqkRupForecast.updateForecast();*/
-   try {
+   eqkRupForecast.updateForecast();
+   */try {
      // region to view the rates
      EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
      // min mag, maxMag, These are Centers of first and last bin
@@ -189,8 +190,8 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
      int numMag = 41; // number of Mag bins
      // make GriddedHypoMFD Forecast from the EqkRupForecast
      //GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-      //   new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
-        // minMag, maxMag, numMag);
+      //  new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
+       // minMag, maxMag, numMag);
 
      /* Following names can be used for RELM files:
       * ward.geodetic81.forecast
@@ -206,16 +207,49 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       * ebel.mainshock.forecast
       * ebel.aftershock.forecast
       * holliday.pi.forecast
-      * 
+      * UCERF1.0_AnnualRates.txt
+      * NSHMP2002_AnnualRates.txt
+      * shen_et_al.geodetic.forecast
+      * shen_et_al.geodetic.aftershock
       */
-     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("ward.combo81.forecast", evenlyGriddedRegion,
-          minMag, maxMag, numMag);
+     ArrayList<String> relmFileNames = new ArrayList<String>();
+     relmFileNames.add("ward.geodetic81.forecast");
+     relmFileNames.add("helmstetter_et_al.hkj.forecast");
+     relmFileNames.add("helmstetter_et_al.hkj.aftershock.forecast");
+     relmFileNames.add("ward.simulation.forecast");
+     relmFileNames.add("ward.combo81.forecast");
+     relmFileNames.add("ward.geologic81.forecast");
+     relmFileNames.add("ward.seismic81.forecast");
+     relmFileNames.add("wiemer_schorlemmer.alm.forecast");
+     relmFileNames.add("bird_liu.neokiname.forecast");
+     relmFileNames.add("ebel.mainshock.forecast");
+     relmFileNames.add("ebel.aftershock.forecast");
+     relmFileNames.add("holliday.pi.forecast");
+     relmFileNames.add("UCERF1.forecast");
+     relmFileNames.add("NSHMP2002.forecast");
+     relmFileNames.add("shen_et_al.geodetic.forecast");
+     relmFileNames.add("shen_et_al.geodetic.aftershock");
+     relmFileNames.add("kagan_et_al.mainshock.forecast");
+     relmFileNames.add("kagan_et_al.aftershock.forecast");
+   
+    /* for(int i=0; i<relmFileNames.size(); ++i) {
+     
+    	 GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+    		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast(relmFileNames.get(i), evenlyGriddedRegion,
+    				 minMag, maxMag, numMag);
       
-
-     // Make GMT map of rates
-     GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-     viewRates.makeMap(5.0);
+    	 // Make GMT map of rates
+    	 GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+    	 viewRates.makeMap(5.0,relmFileNames.get(i));
+     } */
+     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast("ebel.mainshock.forecast", evenlyGriddedRegion,
+				 minMag, maxMag, numMag);
+  
+	 // Make GMT map of rates
+	 GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+	 viewRates.makeMap(5.0,"ebel.mainshock.forecast");
+     
      /*XYZ_DataSetAPI xyzData = griddedHypoMagFeqDistForecast.getXYZ_DataAboveMag(5.0);
       FileWriter fw = new FileWriter("FG_GriddedHypoFrankel02.txt");
       ArrayList xVals = xyzData.getX_DataSet();
@@ -227,7 +261,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       fw.close();*/
 
      // write into RELM formatted file
-    /* WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+     /*WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
      String version="1.0 (";
      // write the adjustable params
      ParameterList paramList = eqkRupForecast.getAdjustableParameterList();
@@ -245,12 +279,12 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       }
       version=version+")";
       //for(int i=0; i<paramList
-      writeRELM_File.setModelVersionAuthor("UCERF", version, "Ned Field");
+      writeRELM_File.setModelVersionAuthor("UCERF1.0", version, "Ned Field");
       writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setForecastStartDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setDuration(5, "years");
-      writeRELM_File.makeFileInRELM_Format("UCERF1.0_AnnualRates.txt");*/
-
+      writeRELM_File.makeFileInRELM_Format("UCERF1.0_AnnualRates.txt");
+*/
     }catch(Exception e) {
       e.printStackTrace();
     }
