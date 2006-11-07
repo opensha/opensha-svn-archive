@@ -31,8 +31,19 @@ import org.opensha.sha.surface.*;
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL><p>
+ * </UL></p>
+ *<p>
  *
+ * Validation :This model has been tested with the data provided by Chiou and Young in their NGA report Table 6.
+ * I took values as provided in the file and created a text file where each line has following info:<br>
+ * Period (sec) 	M 	RRUP	 VS30	 RJB 	Width (km) 	FRV	 FNM	 ZTOR 	DIP	SA1130 (g) 	SA (g) <br>
+ * Each element of the line is seperated by space. I read this file and provide the input parameters in
+ * OpenSHA with these values. Then I compare the OpenSHA result with that given by Chiou and Young NGA report.
+ * I am using JUnit testing to validate the implementation of the Chiou and Young model. One can run the JUnit test
+ * and compare the OpenSHA results with the Chiou and Young NGA model. If any of the result show discrepancy then
+ * JUnit test will fail. When it fails it will also show for which input parameters the test failed.
+ * 
+ *</p>
  * @author     Edward H. Field
  * @created    April, 2002
  * @version    1.0

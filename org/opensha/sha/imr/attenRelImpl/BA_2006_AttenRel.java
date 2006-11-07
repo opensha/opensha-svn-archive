@@ -31,7 +31,15 @@ import org.opensha.util.FaultUtils;
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL><p>
+ * </UL></p>
+ *
+ *<p>
+ *
+ * Validation :I just tested this model with the earlier model (BJF1997).I ran both models in AttenuationRelationship
+ * application and checked if  they produce the similar results.
+ * 
+ *</p>
+ *
  *
  * @author     Edward H. Field
  * @created    April, 2002

@@ -26,12 +26,21 @@ import org.opensha.sha.surface.*;
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <LI>siteTypeParam - "Rock/Shallow-Soil" versus "Deep-Soil"
+ * <li>distanceJBParam 
+ * <LI>vs30Param 
  * <LI>fltTypeParam - Style of faulting
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL><p>
+ * <li>depthTo2pt5kmPerSecParam
+ * <li>
+ * </UL></p>
+ * <p>
+ * Validation :This model has been tested with the data provided by Campbell in his NGA report.
+ * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
+ * NGA report Table 3. I ran all the test cases with X-axis being the "Individual Value".
+ * Then I spot check the values (manually) that I got from OpenSHA with that given in Campbell's report.
+ * </p>
  *
  * @author     Edward H. Field
  * @created    April, 2002
