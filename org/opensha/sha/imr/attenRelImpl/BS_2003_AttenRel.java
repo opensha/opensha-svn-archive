@@ -273,6 +273,8 @@ public class BS_2003_AttenRel
 				  periodParamVal = (float)((Double) periodParam.getValue()).doubleValue();
 			  else
 				  periodParamVal = 0;
+			   // this is inefficient if the im has not been changed in any way
+		      updateCoefficients();
 			  if(periodParamVal < 0.75)
 				  return getStdDevForBS();
 			  else if(periodParamVal > 1.5)
@@ -338,9 +340,7 @@ public class BS_2003_AttenRel
         }
       }
 
-      // this is inefficient if the im has not been changed in any way
-      updateCoefficients();
-
+ 
       // set sigmaV
       if (vs30 < 260) {
         sigmaV = coeffs.e1;

@@ -246,7 +246,7 @@ public class BC_2004_AttenRel
 	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
-	  
+	  updateCoefficients();
 	  return getStdDevForBC();
   }
   
