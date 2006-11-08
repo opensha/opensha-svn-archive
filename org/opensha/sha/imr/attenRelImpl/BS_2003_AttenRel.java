@@ -310,7 +310,7 @@ public class BS_2003_AttenRel
 		  stdDev_gNet = 0.38;
 	  else
 		  stdDev_gNet = 0.56;
-	  double stdDev = Math.pow(stdDev_gNet,2)+Math.pow(stdError, 2);
+	  double stdDev = Math.pow(stdDev_gNet,2)+Math.pow(stdError, 2)+coeffs.tau * coeffs.tau;
 	  return Math.sqrt(stdDev);
   }
 
