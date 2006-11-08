@@ -321,7 +321,7 @@ public class CB_2006_AttenRel
     }
 
     
-      double pgar = Math.exp(getMean(0, 1100, rRup, rJB,
+      double pgar = Math.exp(getMean(1, 1100, rRup, rJB,
                                          rake, mag,
                                          depthTop, depthTo2pt5kmPerSec,
                                          magSaturation,
