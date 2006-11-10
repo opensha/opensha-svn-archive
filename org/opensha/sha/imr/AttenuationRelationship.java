@@ -258,6 +258,25 @@ public abstract class AttenuationRelationship
   protected final static Double PGV_WARN_MIN = new Double(Math.log(Double.
       MIN_VALUE));
   protected final static Double PGV_WARN_MAX = new Double(Math.log(500));
+  
+  
+  
+  /**
+   * PGD parameter, reserved for the natural log of the "Peak Ground displacement" Intensity-
+   * Measure Parameter that most subclasses will support; all of the "PGD_*"
+   * class variables relate to this Parameter.This parameter is not instantiated
+   * here due to limited use.
+   */
+  protected WarningDoubleParameter pgdParam = null;
+  public final static String PGD_NAME = "PGV";
+  public final static String PGD_UNITS = "cm";
+  protected final static Double PGD_DEFAULT = new Double(Math.log(0.01));
+  public final static String PGD_INFO = "Peak Ground Displacement";
+  protected final static Double PGD_MIN = new Double(Math.log(Double.MIN_VALUE));
+  protected final static Double PGD_MAX = new Double(Double.MAX_VALUE);
+  protected final static Double PGD_WARN_MIN = new Double(Math.log(Double.
+      MIN_VALUE));
+  protected final static Double PGD_WARN_MAX = new Double(Math.log(500));
 
   /**
    * SA parameter, reserved for the the natural log of "Spectral Acceleration"
