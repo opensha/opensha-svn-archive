@@ -128,6 +128,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * <i>There are no units for Component</i><br>
  * COMPONENT_DEFAULT = "Average Horizontal"<br>
  * COMPONENT_AVE_HORZ = "Average Horizontal"<br>
+ * COMPONENT_OI_AVE_HORZ = "Orient. Ind. Ave. Horz."<br>
  * COMPONENT_RANDOM_HORZ = "Random Horizontal"<br>
  * COMPONENT_VERT = "Vertical";<br>
  * COMPONENT_INFO = "Component of shaking"<br>
@@ -396,6 +397,7 @@ public abstract class AttenuationRelationship
   // not units for Component
   public final static String COMPONENT_DEFAULT = "Average Horizontal";
   public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
+  public final static String COMPONENT_OI_AVE_HORZ = "Orient. Ind. Ave. Horz.";
   public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
   public final static String COMPONENT_VERT = "Vertical";
   public final static String COMPONENT_INFO = "Component of shaking";
