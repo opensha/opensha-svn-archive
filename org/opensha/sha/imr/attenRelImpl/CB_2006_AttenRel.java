@@ -63,81 +63,29 @@ public class CB_2006_AttenRel
   public final static String NAME = "Campbell & Bozorgnia (2006)";
 
   // coefficients:
-  //Index 0 is PGV and index 1 is PGA as well as for SA @0.1sec, rest all are for SA periods
-  private double[] per ={	-1,0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.75,1,1.5,	2,3,	4,5,	7.5,10};
-  private double[]c0 ={
-		  0.954,-1.715	,-1.68,	-1.552,	-1.209,	-0.657,	-0.314,	-0.133,	-0.486,	-0.89,	-1.171,	-1.466,	-2.569,	-4.844,	-6.406,	-8.692,
-		  -9.701,	-10.556,	-11.212,	-11.684,	-12.505,	-13.087
-  };
-  private double[] c1	={
-		  0.696,0.5,0.5,0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.656,	0.972,	1.196,	1.513,	1.6,	1.6,	1.6,	1.6,	1.6,	1.6
-		  };
-  private double[] c2 = {
-		  -0.309,-0.53,	-0.53,	-0.53,	-0.53,	-0.53,	-0.53,	-0.53,	-0.446,	-0.362,	-0.294,	-0.186,	-0.304,	-0.578,	-0.772,	-1.046,
-		  -0.978,	-0.638,	-0.316,	-0.07,	-0.07,	-0.07
-  };
-  private double[] c3 = {
-		  -0.019,-0.262,	-0.262,	-0.262,	-0.267,	-0.302,	-0.324,	-0.339,	-0.398,	-0.458,	-0.511,	-0.592,	-0.536,	-0.406,	-0.314,	-0.185,
-		  -0.236,	-0.491,	-0.77,	-0.986,	-0.656,	-0.422
-  };
-  private double[] c4 =	{
-		  -2.016,-2.118,	-2.123,	-2.145,	-2.199,	-2.277,	-2.318,	-2.309,	-2.22,	-2.146,	-2.095,	-2.066,	-2.041,
-		  -2	,-2,	-2,	-2,	-2,	-2,	-2,	-2,	-2
-  };
-  private double[] c5 ={
-		  0.17,0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,
-		  0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17,	0.17	
-  };
-  private double[] c6 ={
-		  4,5.6,	5.6,	5.6,	5.74,	7.09,	8.05,	8.79,	7.6,	6.58,	6.04,	5.3,	4.73,	4,	4,	4,	4,	4,	4,	4,	4,	4
-  };
-  private double[] c7 ={
-		  0.245,0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.28,	0.255,
-		  0.161,	0.094,	0,	0,	0,	0,	0
-  };
-  private double[] c8 ={
-		  0,-0.12,	-0.12,	-0.12,	-0.12,	-0.12,	-0.099,	-0.048,	-0.012,	0,	
-		  0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0
-  };
-  private double[] c9 ={
-		  0.358,0.49,	0.49	,0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,	0.49,
-		  0.49,	0.371,	0.154,	0,	0,	0,	0
-  };
-  private double[] c10={
-		  1.694,1.058,	1.102,	1.174,	1.272,	1.438,	1.604,	1.928,	2.194,	2.351,	2.46	,2.587,	2.544,	2.133,	1.571,
-		  0.406,	-0.456,	-0.82,	-0.82,	-0.82,	-0.82,	-0.82
-  };
-  private double[] c11={
-		  0.092,0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.04,	0.077,
-		  0.15,	0.253,	0.3,	0.3,	0.3,	0.3,	0.3	,0.3
-  };
-  private double[] c12={
-		  1,0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.61,	0.883,
-		  1	,1	,1	,1	,1	,1	,1	,1	,1	
-  };
-  private double[] k1 ={
-			401,865,865,	908,	1054,	1086,	1032,	878,	748,	654,	587,	503,	457,	410,	401,	402,	402,	402,	402,	402,	402,	402
-  };
-  private double[] k2	= {
-		  -1.955,-1.186,	-1.219,	-1.273,	-1.346,	-1.471,	-1.624,	-1.931,	-2.188,	-2.381,	-2.518,	-2.657,	-2.669,	-2.401,	-1.955,
-		  -1.025,	-0.299,	0.004,	0.004,	0.004,	0.004,	0.004
-  };
-  private double[] k3={
-		  1.929,1.839,	1.84,	1.841,	1.843,	1.845,	1.847,	1.852,	1.856,	1.861,	1.865,	1.874,	1.883,	1.906,
-		  1.929,	1.974,	2.019,	2.11	,2.2,	2.291,	2.517,	2.744
-  };
-  private double[] sig={
-		  0.484,0.478,	0.48,	0.489,	0.51	,0.52,	0.531,	0.532,	0.534,	0.534,0.544,	0.541,	0.55,	0.568,	0.568,
-		  0.564,	0.571,	0.558,	0.576,	0.601,	0.628,	0.667
-  };
-  private double[] tau={
-		  0.203,0.219,	0.219,	0.235,	0.258,	0.292,	0.286,	0.28,	0.249,	0.24,	0.215,	0.217,	0.214,	0.227,	0.255,
-		  0.296, 0.296,	0.326,	0.297,	0.359,	0.428,	0.485
-  };
-  private double[] sigt={
-		  0.525,0.526, 0.528,	0.543,	0.572,	0.596,	0.603,	0.601,	0.589,	0.585,	0.585,	0.583,	0.59,	0.612,	0.623,	0.637,	0.643,	0.646,	0.648,	0.7,	0.76,
-		  	0.825
-  };
+  //Index 0 is PGD, index 1 is PGV  and index 2 is PGA, rest all are for SA periods
+  double[] per = {-2,-1,0,0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.75,1,1.5,2,3,4,5,7.5,10};
+  double[] c0 = {-5.27,0.954,-1.715,-1.715,-1.68,-1.552,-1.209,-0.657,-0.314,-0.133,-0.486,-0.89,-1.171,-1.466,-2.569,-4.844,-6.406,-8.692,-9.701,-10.556,-11.212,-11.684,-12.505,-13.087};
+  double[] c1 ={1.6,0.696,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.656,0.972,1.196,1.513,1.6,1.6,1.6,1.6,1.6,1.6};
+  double[] c2={-0.07,-0.309,-0.53,-0.53,-0.53,-0.53,-0.53,-0.53,-0.53,-0.53,-0.446,-0.362,-0.294,-0.186,-0.304,-0.578,-0.772,-1.046,-0.978,-0.638,-0.316,-0.07,-0.07,-0.07};
+  double[] c3={0,-0.019,-0.262,-0.262,-0.262,-0.262,-0.267,-0.302,-0.324,-0.339,-0.398,-0.458,-0.511,-0.592,-0.536,-0.406,-0.314,-0.185,-0.236,-0.491,-0.77,-0.986,-0.656,-0.422};
+  double[] c4 ={-2,-2.016,-2.118,-2.118,-2.123,-2.145,-2.199,-2.277,-2.318,-2.309,-2.22,-2.146,-2.095,-2.066,-2.041,-2,-2,-2,-2,-2,-2,-2,-2,-2};
+  double[] c5={0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17,0.17};
+  double[] c6={4,4,5.6,5.6,5.6,5.6,5.74,7.09,8.05,8.79,7.6,6.58,6.04,5.3,4.73,4,4,4,4,4,4,4,4,4};
+  double[] c7={0,0.245,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.28,0.255,0.161,0.094,0,0,0,0,0};
+  double[] c8={0,0,-0.12,-0.12,-0.12,-0.12,-0.12,-0.12,-0.099,-0.048,-0.012,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  double[] c9={0,0.358,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.49,0.371,0.154,0,0,0,0};
+  double[] c10={-0.82,1.694,1.058,1.058,1.102,1.174,1.272,1.438,1.604,1.928,2.194,2.351,2.46,2.587,2.544,2.133,1.571,0.406,-0.456,-0.82,-0.82,-0.82,-0.82,-0.82};
+  double[] c11={0.3,0.092,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.077,0.15,0.253,0.3,0.3,0.3,0.3,0.3,0.3};
+  double[] c12={1,1,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.61,0.883,1,1,1,1,1,1,1,1,1};
+  double[] k1={400,400,865,865,865,908,1054,1086,1032,878,748,654,587,503,457,410,400,400,400,400,400,400,400,400};
+  double[] k2={0,-1.955,-1.186,-1.186,-1.219,-1.273,-1.346,-1.471,-1.624,-1.931,-2.188,-2.381,-2.518,-2.657,-2.669,-2.401,-1.955,-1.025,-0.299,0,0,0,0,0};
+  double[] k3={2.744,1.929,1.839,1.839,1.84,1.841,1.843,1.845,1.847,1.852,1.856,1.861,1.865,1.874,1.883,1.906,1.929,1.974,2.019,2.11,2.2,2.291,2.517,2.744};
+  double[] s_lny={0.667,0.484,0.478,0.478,0.48,0.489,0.51,0.52,0.531,0.532,0.534,0.534,0.544,0.541,0.55,0.568,0.568,0.564,0.571,0.558,0.576,0.601,0.628,0.667};
+  double[] t_lny={0.485,0.203,0.219,0.219,0.219,0.235,0.258,0.292,0.286,0.28,0.249,0.24,0.215,0.217,0.214,0.227,0.255,0.296,0.296,0.326,0.297,0.359,0.428,0.485};
+  double[] c_lny={0.309,0.206,0.181,0.181,0.181,0.181,0.179,0.177,0.19,0.201,0.207,0.208,0.216,0.224,0.223,0.236,0.24,0.237,0.241,0.244,0.252,0.253,0.288,0.309};
+  double[] rho_s={0.174,0.691,1,1,0.999,0.989,0.963,0.922,0.898,0.89,0.871,0.852,0.831,0.785,0.735,0.628,0.534,0.411,0.331,0.289,0.261,0.2,0.174,0.174};
+  double[] rho_t={0.29,0.538,1,1,0.994,0.979,0.927,0.88,0.871,0.885,0.913,0.873,0.848,0.756,0.631,0.442,0.29,0.29,0.29,0.29,0.29,0.29,0.29,0.29};
   private HashMap indexFromPerHashMap;
 
   private int iper;
@@ -321,15 +269,13 @@ public class CB_2006_AttenRel
     }
 
     
-      double pgar = Math.exp(getMean(1, 1100, rRup, rJB,
-                                         rake, mag,
-                                         depthTop, depthTo2pt5kmPerSec,
-                                         magSaturation,
-                                         0));
-      return getMean(iper, vs30, rRup, rJB, rake, mag,
-                         depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
-
-    
+	  double pgar = Math.exp(getMean(2, 1100, rRup, rJB,
+	                                     rake, mag,
+	                                     depthTop, depthTo2pt5kmPerSec,
+	                                     magSaturation,
+	                                     0));
+	  return getMean(iper, vs30, rRup, rJB, rake, mag,
+	                     depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);    
   }
 
 
@@ -341,8 +287,7 @@ public class CB_2006_AttenRel
     if (intensityMeasureChanged) {
       setCoeffIndex();
     }
-
-      return getStdDev(iper, stdDevType);
+    return getStdDev(iper, stdDevType);
 
   }
 
@@ -363,6 +308,8 @@ public class CB_2006_AttenRel
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
     pgaParam.setValue(PGA_DEFAULT);
+    pgvParam.setValue(PGV_DEFAULT);
+    pgdParam.setValue(PGD_DEFAULT);
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     depthTo2pt5kmPerSecParam.setValue(this.DEPTH_2pt5_DEFAULT);
@@ -537,12 +484,33 @@ public class CB_2006_AttenRel
     // Add the warning listeners:
     saParam.addParameterChangeWarningListener(warningListener);
     pgaParam.addParameterChangeWarningListener(warningListener);
-
+    
+    //  Create PGV Parameter (pgvParam):
+    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
+    pgvConstraint.setNonEditable();
+    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
+    pgvParam.setInfo(PGV_INFO);
+    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
+    warn.setNonEditable();
+    pgvParam.setWarningConstraint(warn);
+    pgvParam.setNonEditable();
+    
+    //  Create PGD Parameter (pgdParam):
+    DoubleConstraint pgdConstraint = new DoubleConstraint(PGD_MIN, PGD_MAX);
+    pgdConstraint.setNonEditable();
+    pgdParam = new WarningDoubleParameter(PGD_NAME, pgdConstraint, PGD_UNITS);
+    pgdParam.setInfo(PGD_INFO);
+    DoubleConstraint pgdWarn = new DoubleConstraint(PGD_WARN_MIN, PGD_WARN_MAX);
+    pgdWarn.setNonEditable();
+    pgdParam.setWarningConstraint(pgdWarn);
+    pgdParam.setNonEditable();
+    
     // Put parameters in the supportedIMParams list:
     supportedIMParams.clear();
     supportedIMParams.addParameter(saParam);
     supportedIMParams.addParameter(pgaParam);
-
+    supportedIMParams.addParameter(pgvParam);
+    supportedIMParams.addParameter(pgdParam);
   }
 
   /**
@@ -557,6 +525,7 @@ public class CB_2006_AttenRel
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
     constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(COMPONENT_OI_AVE_HORZ);
     constraint.setNonEditable();
     componentParam = new StringParameter(COMPONENT_NAME, constraint,
                                          COMPONENT_DEFAULT);
@@ -697,22 +666,29 @@ public class CB_2006_AttenRel
   }
 
  
-  public double getStdDev(int iper, String stdDevType) {
+  private double getStdDev(int iper, String stdDevType) {
 
-    double s = sig[iper];
-    double t = tau[iper];
+    double s = s_lny[iper];
+    double t = t_lny[iper];
+    double c = c_lny[iper];
 
     if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
       return 0;
     }
     else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
-      return t;
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
       return s;
     }
+    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
+      return t;
+    }
     else { // it's total sigma
-      return Math.sqrt(t * t + s * s);
+    	String componentValue = (String)componentParam.getValue();
+    	double k;
+    	if(componentValue.equals(this.COMPONENT_OI_AVE_HORZ))
+    		k =0;
+    	else
+    		k=1;
+      return Math.sqrt(t * t + s * s+k*c*c);
     }
   }
 

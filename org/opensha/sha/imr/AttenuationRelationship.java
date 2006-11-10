@@ -269,7 +269,7 @@ public abstract class AttenuationRelationship
    * here due to limited use.
    */
   protected WarningDoubleParameter pgdParam = null;
-  public final static String PGD_NAME = "PGV";
+  public final static String PGD_NAME = "PGD";
   public final static String PGD_UNITS = "cm";
   protected final static Double PGD_DEFAULT = new Double(Math.log(0.01));
   public final static String PGD_INFO = "Peak Ground Displacement";
