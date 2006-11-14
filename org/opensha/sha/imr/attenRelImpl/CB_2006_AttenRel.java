@@ -141,7 +141,7 @@ public class CB_2006_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for (int i = 1; i < per.length; i++) {
+    for (int i = 3; i < per.length; i++) {
       indexFromPerHashMap.put(new Double(per[i]), new Integer(i));
     }
 
@@ -236,10 +236,13 @@ public class CB_2006_AttenRel
           intValue();
     }
     else if (im.getName().equalsIgnoreCase(PGV_NAME)) {
-        iper = 0;
+        iper = 1;
       }
     else if (im.getName().equalsIgnoreCase(PGA_NAME)) {
-    		iper = 1;
+    		iper = 2;
+    }
+    else if (im.getName().equalsIgnoreCase(PGD_NAME)) {
+		iper = 0;
     }
     parameterChange = true;
     intensityMeasureChanged = false;
@@ -462,7 +465,7 @@ public class CB_2006_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 1; i < per.length; i++) {
+    for (int i = 3; i < per.length; i++) {
       periodConstraint.addDouble(new Double(per[i]));
     }
     periodConstraint.setNonEditable();
