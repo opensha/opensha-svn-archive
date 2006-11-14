@@ -259,7 +259,7 @@ public class BC_2004_AttenRel
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
 	  as_1997_attenRel.setIntensityMeasure(im);
 	  double asRockStdDev = as_1997_attenRel.getStdDev();
-	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2)+coeffs.tau * coeffs.tau;
+	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
 	  return Math.sqrt(stdDev);
   }
 
