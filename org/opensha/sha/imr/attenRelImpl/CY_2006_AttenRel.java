@@ -473,7 +473,7 @@ public class CY_2006_AttenRel
    */
   public double getMean() {
     if (intensityMeasureChanged) {
-      setCoeffIndex();
+      setCoeffIndex();// intensityMeasureChanged is set to false in this method
     }
 
     // check if distance is beyond the user specified max
@@ -492,7 +492,7 @@ public class CY_2006_AttenRel
    */
   public double getStdDev() {
     if (intensityMeasureChanged) {
-      setCoeffIndex();
+      setCoeffIndex();// intensityMeasureChanged is set to false in this method
     }
 
     return getStdDev(iper, stdDevType);
@@ -865,8 +865,8 @@ public class CY_2006_AttenRel
     else if(pName.equals(this.RUP_WIDTH_NAME)){
     	this.ruptureWidth = ((Double)val).doubleValue();
     }
-    else if (pName.equals(this.PERIOD_NAME) && intensityMeasureChanged) {
-      setCoeffIndex();
+    else if (pName.equals(this.PERIOD_NAME) ) {
+    	intensityMeasureChanged = true;
     }
   }
 
