@@ -95,19 +95,25 @@ public class CB_2006_AttenRel
   private boolean magSaturation;
   private boolean parameterChange;
 
-  // ?????????????????????????????????????
+  // values for warning parameters
   protected final static Double MAG_WARN_MIN = new Double(4.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
-  protected final static Double VS30_WARN_MIN = new Double(120.0);
-  protected final static Double VS30_WARN_MAX = new Double(2000.0);
+  protected final static Double VS30_WARN_MIN = new Double(180.0);
+  protected final static Double VS30_WARN_MAX = new Double(1500.0);
   protected final static Double DEPTH_2pt5_WARN_MIN = new Double(0);
   protected final static Double DEPTH_2pt5_WARN_MAX = new Double(6);
+  protected final static Double DIP_WARN_MIN = new Double(15);
+  protected final static Double DIP_WARN_MAX = new Double(90);
+  protected final static Double RUP_TOP_WARN_MIN = new Double(0);
+  protected final static Double RUP_TOP_WARN_MAX = new Double(20);
 
 
+  // change component default from that of parent
+  String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
 
 
   /**
@@ -122,9 +128,6 @@ public class CB_2006_AttenRel
    */
   private DistanceJBParameter distanceJBParam = null;
   private final static Double DISTANCE_JB_DEFAULT = new Double(0);
-
-  // No waring constraint needed for this
-
 
 
   // for issuing warnings:
@@ -254,8 +257,9 @@ public class CB_2006_AttenRel
    * @return    The mean value
    */
   public double getMean() {
+	  
     if (intensityMeasureChanged) {
-      setCoeffIndex();
+      setCoeffIndex();  // intensityMeasureChanged is set to false in this method
     }
 
     // check if distance is beyond the user specified max
@@ -288,7 +292,7 @@ public class CB_2006_AttenRel
    */
   public double getStdDev() {
     if (intensityMeasureChanged) {
-      setCoeffIndex();
+      setCoeffIndex();  // intensityMeasureChanged is set to false in this method
     }
     return getStdDev(iper, stdDevType);
 
@@ -417,6 +421,18 @@ public class CB_2006_AttenRel
     magParam.addParameterChangeWarningListener(warningListener);
     magParam.setNonEditable();
     
+    DoubleConstraint warn1 = new DoubleConstraint(DIP_MIN, DIP_MAX);
+    warn.setNonEditable();
+    dipParam.setWarningConstraint(warn1);
+    dipParam.addParameterChangeWarningListener(warningListener);
+    dipParam.setNonEditable();
+
+    DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
+    warn.setNonEditable();
+    rupTopDepthParam.setWarningConstraint(warn2);
+    rupTopDepthParam.addParameterChangeWarningListener(warningListener);
+    rupTopDepthParam.setNonEditable();
+
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
@@ -527,8 +543,8 @@ public class CB_2006_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.addString(COMPONENT_OI_AVE_HORZ);
+    constraint.addString(COMPONENT_GMRotI50);
+    constraint.addString(COMPONENT_RANDOM_HORZ);
     constraint.setNonEditable();
     componentParam = new StringParameter(COMPONENT_NAME, constraint,
                                          COMPONENT_DEFAULT);
@@ -687,7 +703,7 @@ public class CB_2006_AttenRel
     else { // it's total sigma
     	String componentValue = (String)componentParam.getValue();
     	double k;
-    	if(componentValue.equals(this.COMPONENT_OI_AVE_HORZ))
+    	if(componentValue.equals(this.COMPONENT_GMRotI50))
     		k =0;
     	else
     		k=1;
@@ -732,10 +748,10 @@ public class CB_2006_AttenRel
       stdDevType = (String) val;
     }
     else if (pName.equals(this.DIP_NAME)) {
-        dip = ( (Double) val).doubleValue();
+      dip = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.PERIOD_NAME) && intensityMeasureChanged) {
-      setCoeffIndex();
+    else if (pName.equals(this.PERIOD_NAME)) {
+    	intensityMeasureChanged = true;
     }
   }
 
