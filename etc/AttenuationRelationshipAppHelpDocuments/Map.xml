@@ -3,7 +3,7 @@
 <map version="2.0">
 	<mapID target="Attenuation_UserInfo" url ="http://www.opensha.org/documentation/applications/AttenRelPlotterManual.html" />
 	<mapID target="Attenuation_Application" url ="http://www.opensha.org/applications/attenRelApp/index.html" />
-	<mapID target="OpenSHA_Development" url ="http://www.opensha.org/mission.html" />
+	<mapID target="OpenSHA_Home" url ="http://www.opensha.org" />
 	<mapID target="SHA_Overview" url ="http://www.opensha.org/documentation/overview.html" />
 	<mapID target="Applications" url ="http://www.opensha.org/applications/index.html" />
 	<mapID target="Glossary" url ="http://www.opensha.org/documentation/glossary/index.html" />

@@ -8,7 +8,7 @@
 
   <!-- maps -->
   <maps>
-     <homeID>top</homeID>
+     <homeID>Attenuation_UserInfo</homeID>
      <mapref location="Map.xml"/>
   </maps>
 
@@ -43,7 +43,7 @@
      <name>main window</name>
      <size width="850" height="700" />
      <location x="250" y="100" />
-     <title>AttenuationRelationship Application - Online Help</title>
+     <title>Attenuation Relationship Plotter - Online Help</title>
      <image>toplevelfolder</image>
      <toolbar>
 	<helpaction>javax.help.BackAction</helpaction>
@@ -59,6 +59,6 @@
      <name>main</name>
      <size width="850" height="700" />
      <location x="200" y="200" />
-     <title>AttenuationRelationship Application - Online Help</title>
+     <title>Attenuation Relationship Plotter - Online Help</title>
   </presentation>
 </helpset>
