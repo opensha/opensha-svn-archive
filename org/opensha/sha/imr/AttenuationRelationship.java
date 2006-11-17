@@ -366,7 +366,7 @@ public abstract class AttenuationRelationship
    * rupture.  This parameter is created in the initEqkRuptureParams() method
    * here.
    */
-  protected DoubleParameter dipParam = null;
+  protected WarningDoubleParameter dipParam = null;
   public final static String DIP_NAME = "Dip";
   public final static String DIP_UNITS = "degrees";
   public final static String DIP_INFO = "Average dip of earthquake rupture";
@@ -378,7 +378,7 @@ public abstract class AttenuationRelationship
    * rupTopDepth parameter - Depth to top of rupture.  This is created in the
    * initEqkRuptureParams method.
    */
-  protected DoubleParameter rupTopDepthParam = null;
+  protected WarningDoubleParameter rupTopDepthParam = null;
   public final static String RUP_TOP_NAME = "Rupture Top Depth";
   public final static String RUP_TOP_UNITS = "km";
   public final static String RUP_TOP_INFO =
@@ -397,7 +397,7 @@ public abstract class AttenuationRelationship
   // not units for Component
   public final static String COMPONENT_DEFAULT = "Average Horizontal";
   public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
-  public final static String COMPONENT_OI_AVE_HORZ = "Orient. Ind. Ave. Horz.";
+  public final static String COMPONENT_GMRotI50 = "Average Horizontal (GMRotI50)";
   public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
   public final static String COMPONENT_VERT = "Vertical";
   public final static String COMPONENT_INFO = "Component of shaking";
@@ -1075,7 +1075,7 @@ public abstract class AttenuationRelationship
     // Dip Parameter:
     DoubleConstraint dipConstraint = new DoubleConstraint(DIP_MIN, DIP_MAX);
     dipConstraint.setNonEditable();
-    dipParam = new DoubleParameter(DIP_NAME, dipConstraint);
+    dipParam = new WarningDoubleParameter(DIP_NAME, dipConstraint);
     dipParam.setInfo(DIP_INFO);
 
     // Rake Parameter:
@@ -1086,7 +1086,7 @@ public abstract class AttenuationRelationship
 
     // create RupTopDepthParam
     DoubleConstraint c = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
-    rupTopDepthParam = new DoubleParameter(this.RUP_TOP_NAME, c,
+    rupTopDepthParam = new WarningDoubleParameter(this.RUP_TOP_NAME, c,
                                            this.RUP_TOP_UNITS);
     rupTopDepthParam.setInfo(RUP_TOP_INFO);
 
