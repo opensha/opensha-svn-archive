@@ -15,26 +15,33 @@ import org.opensha.sha.surface.*;
  * <b>Title:</b> CB_2006_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Campbell & Bozorgnia (2005) <p>
+ * developed by Campbell & Bozorgnia (2006, http://peer.berkeley.edu/lifelines/nga_docs/nov_13_06/Campbell-Bozorgnia_NGA_11-13-06.html) <p>
  *
- * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
+ * Supported Intensity-Measure Parameters:<p>
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
+ * <LI>pgvParam - Peak Ground Velocity
+ * <LI>pgdParam - Peak Ground Displacement
  * <LI>saParam - Response Spectral Acceleration
  * </UL><p>
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>magParam - moment Magnitude
+ * <LI>rakeParam - for style of faulting
+ * <LI>rupTopDepthParam - depth to top of rupture
+ * <LI>dipParam - rupture surface dip
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <li>distRupMinusJB_OverRupParam 
+ * <li>distRupMinusJB_OverRupParam - used as a proxy for hanging wall effect
  * <LI>vs30Param 
- * <LI>fltTypeParam - Style of faulting
- * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
- * <LI>componentParam - Component of shaking (only one)
- * <LI>stdDevTypeParam - The type of standard deviation
  * <li>depthTo2pt5kmPerSecParam
+ * <LI>componentParam - Component of shaking
+ * <LI>stdDevTypeParam - The type of standard deviation
  * <li>
  * </UL></p>
+ * <p>
+ * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
+ * should not be held constant when distanceRupParameter is changed (e.g., in the 
+ * AttenuationRelationshipApplet).
  * <p>
  * Validation :This model has been tested with the data provided by Campbell in his NGA report.
  * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
@@ -42,8 +49,8 @@ import org.opensha.sha.surface.*;
  * Then I spot check the values (manually) that I got from OpenSHA with that given in Campbell's report.
  * </p>
  *
- * @author     Edward H. Field
- * @created    April, 2002
+ * @author     Ned Field & Vipin Gupta
+ * @created    Nov., 2006
  * @version    1.0
  */
 
@@ -280,14 +287,19 @@ public class CB_2006_AttenRel
 	  }
 	  
 	  
-	  double pgar = Math.exp(getMean(2, 1100, rRup, rJB,
-			  rake, mag,
-			  depthTop, depthTo2pt5kmPerSec,
-			  magSaturation,
-			  0));
+	  double pgar = Math.exp(getMean(2, 1100, rRup, rJB, rake, mag,
+			  depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
 	  
-	  return getMean(iper, vs30, rRup, rJB, rake, mag,
-			  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);    
+	  double mean = getMean(iper, vs30, rRup, rJB, rake, mag,
+			  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
+	  
+	  if(iper != 4)
+		  return mean;
+	  else { // make sure 0.2-sec SA mean is not less than that of PGA
+		  double mean2 = getMean(2, vs30, rRup, rJB, rake, mag,
+				  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar); // mean for PGA
+		  return Math.max(mean,mean2);
+	  }
   }
 
 
