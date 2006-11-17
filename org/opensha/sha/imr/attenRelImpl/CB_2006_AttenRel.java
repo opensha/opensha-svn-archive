@@ -41,7 +41,9 @@ import org.opensha.sha.surface.*;
  * <p>
  * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
  * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).
+ * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec SA should 
+ * not be less than that of PGA (the latter being given if so).  We also use a rake parameter rather
+ * having their separate (but dependent) F_RV and F_NM parameters.
  * <p>
  * Validation :This model has been tested with the data provided by Campbell in his NGA report.
  * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
