@@ -1,5 +1,7 @@
 package org.opensha.sha.imr;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.opensha.data.*;
@@ -223,5 +225,12 @@ public interface AttenuationRelationshipAPI
    * @return String
    */
   public String getShortName();
+  
+  /**
+   * 
+   * @throws MalformedURLException if returned URL is not a valid URL.
+   * @returns the URL to the AttenuationRelationship document on the Web.
+   */
+  public URL getAttenuationRelationshipURL() throws MalformedURLException;
 
 }

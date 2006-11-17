@@ -1,7 +1,8 @@
 package org.opensha.sha.imr.attenRelImpl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
-import java.util.Iterator;
 
 import org.opensha.calc.*;
 import org.opensha.data.*;
@@ -1281,4 +1282,14 @@ public class Abrahamson_2000_AttenRel
       return b.toString();
     }
   }
+  
+  /**
+   * 
+   * @throws MalformedURLException if returned URL is not a valid URL.
+   * @returns the URL to the AttenuationRelationship document on the Web.
+   */
+  public URL getAttenuationRelationshipURL() throws MalformedURLException{
+	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/Abrahamson_2000.html");
+  }
+  
 }

@@ -1,7 +1,8 @@
 package org.opensha.sha.imr.attenRelImpl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
-import java.util.Iterator;
 
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
@@ -798,5 +799,14 @@ public class Field_2000_AttenRel
       b.append("\n  intra_mag_ind = " + intra_mag_ind);
       return b.toString();
     }
+  }
+  
+  /**
+   * 
+   * @throws MalformedURLException if returned URL is not a valid URL.
+   * @returns the URL to the AttenuationRelationship document on the Web.
+   */
+  public URL getAttenuationRelationshipURL() throws MalformedURLException{
+	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/Field_2000.html");
   }
 }

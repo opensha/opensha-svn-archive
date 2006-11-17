@@ -3,6 +3,8 @@ package org.opensha.sha.imr.attenRelImpl.gui;
 
 import java.lang.reflect.*;
 import java.math.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.opensha.exceptions.*;
@@ -165,6 +167,17 @@ public class AttenuationRelationshipGuiBean
     }
 
 
+    /**
+     * 
+     * @throws MalformedURLException if returned URL is not a valid URL.
+     * @returns the URL to the selected AttenuationRelationship document on the Web.
+     * If AttenuationRelationship specific URL does not exist then it returns
+     * generic AttenuationRelationship URL.
+     */
+    public URL getAttenuationRelationshipURL() throws MalformedURLException{
+    	return attenRel.getAttenuationRelationshipURL();
+    }
+    
     /**
      * Creates a class instance from a string of the full class name including packages.
      * This is how you dynamically make objects at runtime if you don't know which\

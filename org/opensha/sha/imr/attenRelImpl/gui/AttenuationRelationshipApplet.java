@@ -379,7 +379,7 @@ public class AttenuationRelationshipApplet extends JFrame
      * @return    The appletInfo value
      */
     public String getAppInfo() {
-        return "Attenuation Relationship Application";
+        return "Attenuation Relationship Plotter";
     }
 
 
