@@ -277,7 +277,7 @@ public abstract class AttenuationRelationship
   protected final static Double PGD_MAX = new Double(Double.MAX_VALUE);
   protected final static Double PGD_WARN_MIN = new Double(Math.log(Double.
       MIN_VALUE));
-  protected final static Double PGD_WARN_MAX = new Double(Math.log(2000));
+  protected final static Double PGD_WARN_MAX = new Double(Math.log(2500));
 
   /**
    * SA parameter, reserved for the the natural log of "Spectral Acceleration"
