@@ -26,16 +26,22 @@ import org.opensha.sha.surface.*;
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>magParam - moment Magnitude
+ * <LI>rakeParam - for style of faulting
+ * <LI>rupTopDepthParam - depth to top of rupture
+ * <LI>dipParam - rupture surface dip
+ * <LI>rupWidthParam - down dip width of rupture
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <LI>siteTypeParam - "Rock/Shallow-Soil" versus "Deep-Soil"
- * <LI>fltTypeParam - Style of faulting
- * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
- * <LI>componentParam - Component of shaking (only one)
+ * <li>distRupMinusJB_OverRupParam - used as a proxy for hanging wall effect
+ * <LI>vs30Param 
+ * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL></p>
  *<p>
- *
- * Validation :This model has been tested with the data provided by Chiou and Young in their NGA report Table 6.
+ * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
+ * should not be held constant when distanceRupParameter is changed (e.g., in the 
+ * AttenuationRelationshipApplet).
+ * <p>
+ * Verification :This model has been tested with the data provided by Chiou and Young in their NGA report Table 6.
  * I took values as provided in the file and created a text file where each line has following info:<br>
  * Period (sec) 	M 	RRUP	 VS30	 RJB 	Width (km) 	FRV	 FNM	 ZTOR 	DIP	SA1130 (g) 	SA (g) <br>
  * Each element of the line is seperated by space. I read this file and provide the input parameters in
@@ -421,7 +427,7 @@ public class CY_2006_AttenRel
     if ( (this.site != null) && (this.eqkRupture != null)) {
 
       distanceRupParam.setValue(eqkRupture, site);
-      distanceRupParam.setValue(eqkRupture, site);
+      distRupMinusJB_OverRupParam.setValue(eqkRupture, site);
 
     }
   }
@@ -494,7 +500,7 @@ public class CY_2006_AttenRel
 	  // compute rJB
 	  distanceJB = rRup - distRupMinusJB_OverRup*rRup;
 	  
-		  return getMean(iper, vs30, rRup, distanceJB, ruptureWidth, dip, rake, mag, depthTop);
+	  return getMean(iper, vs30, rRup, distanceJB, ruptureWidth, dip, rake, mag, depthTop);
   }
 
   /**

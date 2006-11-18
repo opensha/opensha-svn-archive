@@ -386,7 +386,7 @@ public abstract class AttenuationRelationship
       "The depth to the shallowest point on the earthquake rupture surface";
   public final static Double RUP_TOP_DEFAULT = new Double(0);
   protected final static Double RUP_TOP_MIN = new Double(0);
-  protected final static Double RUP_TOP_MAX = new Double(20);
+  protected final static Double RUP_TOP_MAX = new Double(30);
 
   /**
    * Component Parameter, reserved for representing the component of shaking

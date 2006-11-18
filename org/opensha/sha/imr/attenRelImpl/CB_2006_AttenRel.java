@@ -45,7 +45,7 @@ import org.opensha.sha.surface.*;
  * not be less than that of PGA (the latter being given if so).  We also use a rake parameter rather
  * having their separate (but dependent) F_RV and F_NM parameters.
  * <p>
- * Validation :This model has been tested with the data provided by Campbell in his NGA report.
+ * Verification :This model has been tested with the data provided by Campbell in his NGA report.
  * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
  * NGA report Table 3. I ran all the test cases with X-axis being the "Individual Value".
  * Then I spot check the values (manually) that I got from OpenSHA with that given in Campbell's report.
