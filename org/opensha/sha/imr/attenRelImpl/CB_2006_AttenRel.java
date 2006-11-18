@@ -51,7 +51,7 @@ import org.opensha.sha.surface.*;
  * Then I spot check the values (manually) that I got from OpenSHA with that given in Campbell's report.
  * </p>
  *
- * @author     Ned Field & Vipin Gupta
+ * @author     Ned Field & Nitin Gupta
  * @created    Nov., 2006
  * @version    1.0
  */
@@ -73,6 +73,7 @@ public class CB_2006_AttenRel
 
   // coefficients:
   //Index 0 is PGD, index 1 is PGV  and index 2 is PGA, rest all are for SA periods
+  // index        0  1  2  3    4    5    6    7    8    9   10
   double[] per = {-2,-1,0,0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,0.5,0.75,1,1.5,2,3,4,5,7.5,10};
   double[] c0 = {-5.27,0.954,-1.715,-1.715,-1.68,-1.552,-1.209,-0.657,-0.314,-0.133,-0.486,-0.89,-1.171,-1.466,-2.569,-4.844,-6.406,-8.692,-9.701,-10.556,-11.212,-11.684,-12.505,-13.087};
   double[] c1 ={1.6,0.696,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.656,0.972,1.196,1.513,1.6,1.6,1.6,1.6,1.6,1.6};
@@ -147,7 +148,7 @@ public class CB_2006_AttenRel
   public CB_2006_AttenRel(ParameterChangeWarningListener warningListener) {
 
     super();
-
+    
     this.warningListener = warningListener;
 
     initSupportedIntensityMeasureParams();
@@ -295,12 +296,12 @@ public class CB_2006_AttenRel
 	  double mean = getMean(iper, vs30, rRup, rJB, rake, mag,
 			  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
 	  
-	  if(iper != 4)
+	  if(iper < 4 && iper > 9 ) // not SA period between 0.02 and 0.1
 		  return mean;
-	  else { // make sure 0.2-sec SA mean is not less than that of PGA
-		  double mean2 = getMean(2, vs30, rRup, rJB, rake, mag,
+	  else { // make sure 0.2-sec SA mean is not less than that of PGA (bottom of pg 11 of their report)
+		  double pga_mean = getMean(2, vs30, rRup, rJB, rake, mag,
 				  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar); // mean for PGA
-		  return Math.max(mean,mean2);
+		  return Math.max(mean,pga_mean);
 	  }
   }
 
@@ -328,7 +329,7 @@ public class CB_2006_AttenRel
 
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_DEFAULT);
+    distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
     saParam.setValue(SA_DEFAULT);
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
@@ -337,7 +338,7 @@ public class CB_2006_AttenRel
     pgdParam.setValue(PGD_DEFAULT);
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
-    depthTo2pt5kmPerSecParam.setValue(this.DEPTH_2pt5_DEFAULT);
+    depthTo2pt5kmPerSecParam.setValue(DEPTH_2pt5_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
     vs30 = ( (Double) vs30Param.getValue()).doubleValue();
     distRupMinusJB_OverRup = ( (Double) distRupMinusJB_OverRupParam.getValue()).
@@ -726,9 +727,9 @@ public class CB_2006_AttenRel
 	  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
 		  return Math.sqrt(t*t + s*s + k*c*c);
 	  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
-		  return Math.sqrt(t*t + s*s + k*c*c);
+		  return Math.sqrt(s*s + k*c*c);
 	  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
-		  return Math.sqrt(t*t + s*s + k*c*c);
+		  return Math.sqrt(t*t + k*c*c);
 	  else if (stdDevType.equals(STD_DEV_TYPE_NONE))
 		  return 0;
 	  else
@@ -750,34 +751,34 @@ public class CB_2006_AttenRel
 	  else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
 		  distRupMinusJB_OverRup = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.VS30_NAME)) {
+	  else if (pName.equals(VS30_NAME)) {
 		  vs30 = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.DEPTH_2pt5_NAME)) {
+	  else if (pName.equals(DEPTH_2pt5_NAME)) {
 		  if(val == null)
 			  depthTo2pt5kmPerSec = Double.NaN;  // can't set the defauly here because vs30 could still change
 		  else
 			  depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.MAG_NAME)) {
+	  else if (pName.equals(MAG_NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.RAKE_NAME)) {
+	  else if (pName.equals(RAKE_NAME)) {
 		  rake = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.RUP_TOP_NAME)) {
+	  else if (pName.equals(RUP_TOP_NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
+	  else if (pName.equals(STD_DEV_TYPE_NAME)) {
 		  stdDevType = (String) val;
 	  }
-	  else if (pName.equals(this.DIP_NAME)) {
+	  else if (pName.equals(DIP_NAME)) {
 		  dip = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(this.COMPONENT_NAME)) {
+	  else if (pName.equals(COMPONENT_NAME)) {
 		  component = (String)componentParam.getValue();
 	  }
-	  else if (pName.equals(this.PERIOD_NAME)) {
+	  else if (pName.equals(PERIOD_NAME)) {
 		  intensityMeasureChanged = true;
 	  }
   }

@@ -15,7 +15,8 @@ import org.opensha.sha.surface.*;
  * <b>Title:</b> CY_2006_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Chiou & Youngs (2005) <p>
+ * developed by Chiou & Youngs (2006).  Their documentation is available at
+ * http://peer.berkeley.edu/lifelines/nga_docs/nov_13_06/Chiou_Youngs_NGA_2006.html <p>
  *
  * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
  * <UL>
@@ -290,17 +291,25 @@ public class CY_2006_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rRup, distanceJB, rake, dip, mag, depthTop,ruptureWidth;
+  private double vs30, rRup, distanceJB, distRupMinusJB_OverRup, rake, dip, mag, depthTop,ruptureWidth;
   private String stdDevType;
   private boolean parameterChange;
 
-  // ?????????????????????????????????????
-  protected final static Double MAG_WARN_MIN = new Double(4.5);
+  // from page 66 of their report
+  protected final static Double MAG_WARN_MIN = new Double(4.);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
-  protected final static Double VS30_WARN_MIN = new Double(120.0);
-  protected final static Double VS30_WARN_MAX = new Double(2000.0);
+  protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
+  protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
+  protected final static Double VS30_WARN_MIN = new Double(150.0);
+  protected final static Double VS30_WARN_MAX = new Double(1500.0);
+  protected final static Double RUP_TOP_WARN_MIN = new Double(0);
+  protected final static Double RUP_TOP_WARN_MAX = new Double(20);
+  
+
+  // change component default from that of parent
+  String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -308,14 +317,12 @@ public class CY_2006_AttenRel
   private DistanceRupParameter distanceRupParam = null;
   private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
  
-
   /**
-   * Joyner-Boore Distance parameter
+   * this is used to compute JB Distance value, used as a proxy for computing their
+   * hanging-wall term.
    */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
-  protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
+  private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
+  private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
 
   /**
    * RuptureWidth parameter - Width of rupture.  This is created in the
@@ -436,8 +443,10 @@ public class CY_2006_AttenRel
     vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+    
+    throw new RuntimeException("method not yet implemented");
 
-    propEffect.setParamValue(distanceJBParam);
+    //propEffect.setParamValue(distanceJBParam);
 
   }
   
@@ -472,19 +481,20 @@ public class CY_2006_AttenRel
    * @return    The mean value
    */
   public double getMean() {
-    if (intensityMeasureChanged) {
-      setCoeffIndex();// intensityMeasureChanged is set to false in this method
-    }
-
-    // check if distance is beyond the user specified max
-    if (rRup > USER_MAX_DISTANCE) {
-      return VERY_SMALL_MEAN;
-    }
-    if (parameterChange) {
-      return getMean(iper, vs30, rRup,dip, rake, mag,
-                     depthTop);
-    }
-    return 0;
+	  
+	  // check if distance is beyond the user specified max
+	  if (rRup > USER_MAX_DISTANCE) {
+		  return VERY_SMALL_MEAN;
+	  }
+	  
+	  if (intensityMeasureChanged) {
+		  setCoeffIndex();// intensityMeasureChanged is set to false in this method
+	  }
+	  
+	  // compute rJB
+	  distanceJB = rRup - distRupMinusJB_OverRup*rRup;
+	  
+		  return getMean(iper, vs30, rRup, distanceJB, ruptureWidth, dip, rake, mag, depthTop);
   }
 
   /**
@@ -510,7 +520,7 @@ public class CY_2006_AttenRel
     dipParam.setValue(DIP_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
     saParam.setValue(SA_DEFAULT);
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
@@ -520,8 +530,8 @@ public class CY_2006_AttenRel
     rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
 
     vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-    distanceJB = ( (Double) distanceJBParam.getValue()).
-        doubleValue();
+    distRupMinusJB_OverRup = ( (Double) distRupMinusJB_OverRupParam.getValue()).
+    doubleValue();
     rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
     rake = ( (Double) rakeParam.getValue()).doubleValue();
     mag = ( (Double) magParam.getValue()).doubleValue();
@@ -543,7 +553,7 @@ public class CY_2006_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     meanIndependentParams.addParameter(distanceRupParam);
-    meanIndependentParams.addParameter(distanceJBParam);
+    meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(rakeParam);
@@ -608,10 +618,16 @@ public class CY_2006_AttenRel
     magParam.addParameterChangeWarningListener(warningListener);
     magParam.setNonEditable();
 
-//  create RupTopDepthParam
+    	// set warning on rupTopDepthParam
+    DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_WARN_MIN, RUP_TOP_WARN_MAX);
+    warn2.setNonEditable();
+    rupTopDepthParam.setWarningConstraint(warn2);
+    rupTopDepthParam.addParameterChangeWarningListener(warningListener);
+    rupTopDepthParam.setNonEditable();
+
+//  create RupWidthParam
     DoubleConstraint c = new DoubleConstraint(RUP_WIDTH_MIN, RUP_WIDTH_MAX);
-    rupWidthParam = new DoubleParameter(this.RUP_WIDTH_NAME, c,
-                                           this.RUP_WIDTH_UNITS);
+    rupWidthParam = new DoubleParameter(RUP_WIDTH_NAME, c, RUP_WIDTH_UNITS);
     rupWidthParam.setInfo(RUP_WIDTH_INFO);
     
     eqkRuptureParams.clear();
@@ -636,16 +652,16 @@ public class CY_2006_AttenRel
     distanceRupParam.setWarningConstraint(warn);
     distanceRupParam.setNonEditable();
 
-    //create distJBParam
-    distanceJBParam = new DistanceJBParameter();
-    distanceJBParam.addParameterChangeWarningListener(warningListener);
-    DoubleConstraint warnJB = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
-            DISTANCE_JB_WARN_MAX);
+    //create distRupMinusJB_OverRupParam
+    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
+    DoubleConstraint warn2 = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
+    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
     warn.setNonEditable();
-    distanceJBParam.setWarningConstraint(warnJB);
-    distanceJBParam.setNonEditable();
+    distRupMinusJB_OverRupParam.setWarningConstraint(warn2);
+    distRupMinusJB_OverRupParam.setNonEditable();
+    
     propagationEffectParams.addParameter(distanceRupParam);
-    propagationEffectParams.addParameter(distanceJBParam);
+    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
 
   }
 
@@ -702,7 +718,7 @@ public class CY_2006_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(COMPONENT_GMRotI50);
     constraint.setNonEditable();
     componentParam = new StringParameter(COMPONENT_NAME, constraint,
                                          COMPONENT_DEFAULT);
@@ -746,8 +762,8 @@ public class CY_2006_AttenRel
   }
 
 
-  public double getMean(int iper, double vs30, double rRup,
-          double dip, double rake, double mag, double depthTop) {
+  public double getMean(int iper, double vs30, double rRup, double distanceJB,
+          double ruptureWidth, double dip, double rake, double mag, double depthTop) {
  
     //  Faulting     Mechanism
     double Frv,Fnm;
@@ -773,7 +789,7 @@ public class CY_2006_AttenRel
 
     //Magnitude scaling
 
-    double r1 = c1[iper] + c2[iper] * (mag-6.0) + (c2[iper]-c3[iper])/cn[iper] * Math.log(1.0 + Math.exp(-cn[iper]*(mag-cM[iper])));
+    double r1 = c1[iper] + c2[iper] * (mag-6.0) + ((c2[iper]-c3[iper])/cn[iper]) * Math.log(1.0 + Math.exp(-cn[iper]*(mag-cM[iper])));
 
    //Near-field magnitude and distance scaling
 
@@ -781,7 +797,7 @@ public class CY_2006_AttenRel
 
     // Distance scaling at large distance
 
-    double r3 = (c4a[iper]-c4[iper])/2.0 * Math.log( rRup*rRup +cRB[iper]*cRB[iper] ) + rRup * gamma;
+    double r3 = ((c4a[iper]-c4[iper])/2.0) * Math.log( rRup*rRup +cRB[iper]*cRB[iper] ) + rRup * gamma;
 
    // More source scaling
 
@@ -814,19 +830,17 @@ public class CY_2006_AttenRel
   
 
   public double getStdDev(int iper, String stdDevType) {
-
-    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
-      return 0;
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
-      return tau[iper];
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
-      return sigma[iper];
-    }
-    else { // it's total sigma
-      return Math.sqrt(tau[iper] * tau[iper] + sigma[iper] * sigma[iper]);
-    }
+	  
+	  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
+		  return Math.sqrt(tau[iper] * tau[iper] + sigma[iper] * sigma[iper]);
+	  else if (stdDevType.equals(STD_DEV_TYPE_NONE))
+		  return 0;
+	  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+		  return sigma[iper];
+	  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+		  return tau[iper];
+	  else 
+		  return Double.NaN;
   }
 
   /**
@@ -834,40 +848,40 @@ public class CY_2006_AttenRel
    * @param e ParameterChangeEvent
    */
   public void parameterChange(ParameterChangeEvent e) {
-
-    String pName = e.getParameterName();
-    Object val = e.getNewValue();
-    parameterChange = true;
-    if (pName.equals(DistanceRupParameter.NAME)) {
-      rRup = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(DistanceJBParameter.NAME)) {
-      distanceJB = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.VS30_NAME)) {
-      vs30 = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.DIP_NAME)) {
-      dip = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.MAG_NAME)) {
-      mag = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.RAKE_NAME)) {
-      rake = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.RUP_TOP_NAME)) {
-      depthTop = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
-      stdDevType = (String) val;
-    }
-    else if(pName.equals(this.RUP_WIDTH_NAME)){
-    	this.ruptureWidth = ((Double)val).doubleValue();
-    }
-    else if (pName.equals(this.PERIOD_NAME) ) {
-    	intensityMeasureChanged = true;
-    }
+	  
+	  String pName = e.getParameterName();
+	  Object val = e.getNewValue();
+	  parameterChange = true;
+	  if (pName.equals(DistanceRupParameter.NAME)) {
+		  rRup = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
+		  distRupMinusJB_OverRup = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(VS30_NAME)) {
+		  vs30 = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(DIP_NAME)) {
+		  dip = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(MAG_NAME)) {
+		  mag = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(RAKE_NAME)) {
+		  rake = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(RUP_TOP_NAME)) {
+		  depthTop = ( (Double) val).doubleValue();
+	  }
+	  else if (pName.equals(STD_DEV_TYPE_NAME)) {
+		  stdDevType = (String) val;
+	  }
+	  else if(pName.equals(RUP_WIDTH_NAME)){
+		  ruptureWidth = ((Double)val).doubleValue();
+	  }
+	  else if (pName.equals(PERIOD_NAME) ) {
+		  intensityMeasureChanged = true;
+	  }
   }
 
   /**
@@ -875,7 +889,7 @@ public class CY_2006_AttenRel
    */
   public void resetParameterEventListeners(){
     distanceRupParam.removeParameterChangeListener(this);
-    distanceJBParam.removeParameterChangeListener(this);
+    distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
     vs30Param.removeParameterChangeListener(this);
     dipParam.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
@@ -894,7 +908,7 @@ public class CY_2006_AttenRel
   protected void initParameterEventListeners() {
 
     distanceRupParam.addParameterChangeListener(this);
-    distanceJBParam.addParameterChangeListener(this);
+    distRupMinusJB_OverRupParam.addParameterChangeListener(this);
     vs30Param.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
