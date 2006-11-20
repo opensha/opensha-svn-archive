@@ -30,7 +30,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
  *
  */
 public class FileForDeformationModelers {
-	private final static String OUT_FILE_NAME = "ForDeformationModelersv2.xls";
+	private final static String OUT_FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FileForDeformationModelersv3.xls";
 	// DAO to get information from the database
 	private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
 	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
