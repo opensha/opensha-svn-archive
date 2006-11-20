@@ -1156,7 +1156,7 @@ public abstract class AttenuationRelationship
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
   public URL getAttenuationRelationshipURL() throws MalformedURLException{
-	  return new URL("http://www.opensha.org/documentation/glossary/AttenuationRelationship.html");
+	  return null;
   }
   
 }

@@ -22,6 +22,7 @@ import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import javax.help.*;
+import javax.help.CSH.DisplayHelpFromSource;
 
 /**
  *  <b>Title:</b> AttenuationRelationshipApplet<br>
@@ -92,6 +93,11 @@ public class AttenuationRelationshipApplet extends JFrame
 
     //static string for the OPENSHA website
     private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
+    
+    //Java Help Broker Object
+    protected HelpBroker hb;
+    protected DisplayHelpFromSource displaySource;
+    private JButton attenRelInfobutton = new JButton("  Get Info  ");
 
 
     /**
@@ -127,7 +133,7 @@ public class AttenuationRelationshipApplet extends JFrame
     Insets defaultInsets = new Insets( 4, 4, 4, 4 );
     Insets emptyInsets = new Insets( 0, 0, 0, 0 );
 
-    protected final static int W = 860;
+    protected final static int W = 900;
     protected final static int H = 730;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
     protected final static Font TITLE_FONT = new java.awt.Font( "Dialog", Font.BOLD, 12 );
@@ -510,7 +516,9 @@ public class AttenuationRelationshipApplet extends JFrame
         controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
         outerControlPanel.setLayout(GBL);
 
-
+        attenRelInfobutton.setToolTipText("Gets the information for the selected AttenuationRelationship model");
+        
+        
         clearButton.setText( "Clear Plot" );
 
         clearButton.addActionListener(
@@ -598,6 +606,9 @@ public class AttenuationRelationshipApplet extends JFrame
 
         titlePanel.add( this.attenRelComboBox, new GridBagConstraints( 1, 0 , 1, 1, 1.0, 0.0
             , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
+        
+        titlePanel.add(attenRelInfobutton, new GridBagConstraints( 2, 0 , 1, 1, 1.0, 0.0
+                , GridBagConstraints.EAST, GridBagConstraints.NONE, emptyInsets, 4, 0 ) );
 
 
         mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
@@ -620,7 +631,11 @@ public class AttenuationRelationshipApplet extends JFrame
         plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
 
-
+        attenRelInfobutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            attenRelInfobutton_actionPerformed(e);
+            }
+          });
 
 
         //object for the ButtonControl Panel
@@ -641,7 +656,7 @@ public class AttenuationRelationshipApplet extends JFrame
 
         mainSplitPane.setBottomComponent( outerControlPanel );
         mainSplitPane.setTopComponent(plotPanel );
-        mainSplitPane.setDividerLocation(600 );
+        mainSplitPane.setDividerLocation(630 );
 
         //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentAttenuationRelationshipName() + ']' );
         setTitle( this.getAppInfo() + " (Version:"+version+")");
@@ -722,7 +737,7 @@ public class AttenuationRelationshipApplet extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         updateChoosenAttenuationRelationship();
         createHelpMenu();
-
+        attenRelInfobutton.addActionListener(displaySource);
         // Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
         // inputsPanel
 
@@ -731,8 +746,9 @@ public class AttenuationRelationshipApplet extends JFrame
 
     private void createHelpMenu(){
 	    LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
-	    HelpBroker hb = helpMenu.createHelpMenu("etc/AttenuationRelationshipAppHelpDocuments/shaHelp.xml");
-	    helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
+	    hb = helpMenu.createHelpMenu("etc/AttenuationRelationshipAppHelpDocuments/shaHelp.xml");
+	    displaySource = new javax.help.CSH.DisplayHelpFromSource(hb);
+	    helpLaunchMenu.addActionListener(displaySource);
     }
 
 
@@ -1518,4 +1534,20 @@ public class AttenuationRelationshipApplet extends JFrame
   void peelOffButton_actionPerformed(ActionEvent e) {
     peelOffCurves();
   }
+  
+  void attenRelInfobutton_actionPerformed(ActionEvent e) {
+	    try {
+	    	URL url = attenRel.getAttenuationRelationshipURL();
+	    	if(url == null){
+	    		hb.setDisplayed(false);
+	    		JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");
+	    		return;
+	    	}
+			hb.setCurrentURL(url);
+		} catch (MalformedURLException e1) {
+			hb.setDisplayed(false);
+			JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");
+    		return;
+		}
+  }  
 }
