@@ -44,7 +44,7 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
  */
 
 public class PutCombinedInfoIntoDatabase_Qfault {
-  private final static String FILE_NAME = "QFaults.xls";
+  private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/QFaults.xls";
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
   private final static int MIN_ROW = 1;
   private final static int MAX_ROW = 90;

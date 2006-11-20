@@ -44,7 +44,7 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
  */
 
 public class PutCombinedInfoIntoDatabase_FAD {
-  private final static String FILE_NAME = "FromFAD.v2.xls";
+  private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FromFAD.v2.xls";
   // rows (number of records) in this excel file. First 2 rows are neglected as they have header info
   // rows containing the data related to a site for a particular timespan
   private final static int MIN_ROW_TIMESPAN = 2;

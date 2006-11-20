@@ -42,7 +42,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
  *
  */
 public class PutPetrrizzoBirdDataIntoDatabase {
-	 private final static String FILE_NAME = "rev_Petrizzo_ingest_4_Vipin.xls";
+	 private final static String FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/rev_Petrizzo_ingest_4_Vipin.xls";
 	  // rows (number of records) in this excel file. First 3 rows are neglected as they have header info
 	  private final static int MIN_ROW = 3;
 	  private final static int MAX_ROW = 194;
