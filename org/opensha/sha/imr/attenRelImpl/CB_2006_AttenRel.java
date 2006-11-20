@@ -27,7 +27,7 @@ import org.opensha.sha.surface.*;
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>magParam - moment Magnitude
- * <LI>rakeParam - for style of faulting
+ * <LI>fltTypeParam - Style of faulting
  * <LI>rupTopDepthParam - depth to top of rupture
  * <LI>dipParam - rupture surface dip
  * <LI>distanceRupParam - closest distance to surface projection of fault
@@ -42,8 +42,7 @@ import org.opensha.sha.surface.*;
  * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
  * should not be held constant when distanceRupParameter is changed (e.g., in the 
  * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec SA should 
- * not be less than that of PGA (the latter being given if so).  We also use a rake parameter rather
- * having their separate (but dependent) F_RV and F_NM parameters.
+ * not be less than that of PGA (the latter being given if so).
  * <p>
  * Verification :This model has been tested with the data provided by Campbell in his NGA report.
  * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
@@ -99,7 +98,7 @@ public class CB_2006_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rJB, rRup, distRupMinusJB_OverRup, rake, mag, depthTop, depthTo2pt5kmPerSec,dip;
+  private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo2pt5kmPerSec,dip;
   private String stdDevType, component;
   private boolean magSaturation;
   private boolean parameterChange;
@@ -119,7 +118,12 @@ public class CB_2006_AttenRel
   protected final static Double DIP_WARN_MAX = new Double(90);
   protected final static Double RUP_TOP_WARN_MIN = new Double(0);
   protected final static Double RUP_TOP_WARN_MAX = new Double(20);
-
+  
+  // style of faulting options
+  public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
+  public final static String FLT_TYPE_REVERSE = "Reverse";
+  public final static String FLT_TYPE_NORMAL = "Normal";
+  public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
   // change component default from that of parent
   String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
@@ -166,7 +170,7 @@ public class CB_2006_AttenRel
     initParameterEventListeners(); //add the change listeners to the parameters
 
   }
-
+  
   /**
    *  This sets the eqkRupture related parameters (magParam
    *  and fltTypeParam) based on the eqkRupture passed in.
@@ -177,18 +181,36 @@ public class CB_2006_AttenRel
    * @throws InvalidRangeException thrown if rake is out of bounds
    */
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-    rakeParam.setValue(eqkRupture.getAveRake());
-    EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-    double depth = surface.getLocation(0, 0).getDepth();
-    rupTopDepthParam.setValue(depth);
-    dipParam.setValue(surface.getAveDip());
-
-//    setFaultTypeFromRake(eqkRupture.getAveRake());
-    this.eqkRupture = eqkRupture;
-    setPropagationEffectParams();
-
+	  
+	  magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+	  
+	  double rake = eqkRupture.getAveRake();
+	  if(rake >30 && rake <150) {
+		  f_rv = 1;
+		  f_nm = 0;
+		  fltTypeParam.setValue(FLT_TYPE_REVERSE);
+	  }
+	  else if(rake >-150 && rake<-30) {
+		  f_nm = 1;	
+		  f_rv = 0;
+		  fltTypeParam.setValue(FLT_TYPE_NORMAL);
+	  }
+	  else { // strike slip
+		  f_rv = 0;
+		  f_nm=0;
+		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
+	  }
+	  
+	  EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+	  double depth = surface.getLocation(0, 0).getDepth();
+	  rupTopDepthParam.setValue(depth);
+	  
+	  dipParam.setValue(surface.getAveDip());
+	  
+//	  setFaultTypeFromRake(eqkRupture.getAveRake());
+	  this.eqkRupture = eqkRupture;
+	  setPropagationEffectParams();
+	  
   }
 
   /**
@@ -290,16 +312,16 @@ public class CB_2006_AttenRel
 	  }
 	  
 	  
-	  double pgar = Math.exp(getMean(2, 1100, rRup, rJB, rake, mag,
+	  double pgar = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,
 			  depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
 	  
-	  double mean = getMean(iper, vs30, rRup, rJB, rake, mag,
+	  double mean = getMean(iper, vs30, rRup, rJB, f_rv, f_nm, mag,
 			  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
 	  
 	  if(iper < 4 && iper > 9 ) // not SA period between 0.02 and 0.1
 		  return mean;
 	  else { // make sure 0.2-sec SA mean is not less than that of PGA (bottom of pg 11 of their report)
-		  double pga_mean = getMean(2, vs30, rRup, rJB, rake, mag,
+		  double pga_mean = getMean(2, vs30, rRup, rJB, f_rv, f_nm, mag,
 				  depthTop, depthTo2pt5kmPerSec, magSaturation, pgar); // mean for PGA
 		  return Math.max(mean,pga_mean);
 	  }
@@ -325,8 +347,7 @@ public class CB_2006_AttenRel
 
     vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
-    rakeParam.setValue(RAKE_DEFAULT);
-
+    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
@@ -340,18 +361,7 @@ public class CB_2006_AttenRel
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     depthTo2pt5kmPerSecParam.setValue(DEPTH_2pt5_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
-    vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-    distRupMinusJB_OverRup = ( (Double) distRupMinusJB_OverRupParam.getValue()).
-        doubleValue();
-    rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
-    rake = ( (Double) rakeParam.getValue()).doubleValue();
-    mag = ( (Double) magParam.getValue()).doubleValue();
-    depthTop = ( (Double) rupTopDepthParam.getValue()).doubleValue();
-    stdDevType = (String) stdDevTypeParam.getValue();
-    component = (String)componentParam.getValue();
-    depthTo2pt5kmPerSec = ( (Double) depthTo2pt5kmPerSecParam.getValue()).
-        doubleValue();
-    dip = ( (Double) dipParam.getValue()).doubleValue();
+    
   }
 
   /**
@@ -370,7 +380,7 @@ public class CB_2006_AttenRel
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(depthTo2pt5kmPerSecParam);
     meanIndependentParams.addParameter(magParam);
-    meanIndependentParams.addParameter(rakeParam);
+    meanIndependentParams.addParameter(fltTypeParam);
     meanIndependentParams.addParameter(rupTopDepthParam);
     meanIndependentParams.addParameter(dipParam);
     meanIndependentParams.addParameter(componentParam);
@@ -452,11 +462,21 @@ public class CB_2006_AttenRel
     rupTopDepthParam.setWarningConstraint(warn2);
     rupTopDepthParam.addParameterChangeWarningListener(warningListener);
     rupTopDepthParam.setNonEditable();
+    
+    StringConstraint constraint = new StringConstraint();
+    constraint.addString(FLT_TYPE_STRIKE_SLIP);
+    constraint.addString(FLT_TYPE_NORMAL);
+    constraint.addString(FLT_TYPE_REVERSE);
+    constraint.setNonEditable();
+    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
+    fltTypeParam.setInfo(FLT_TYPE_INFO);
+    fltTypeParam.setNonEditable();
+
 
 
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
-    eqkRuptureParams.addParameter(rakeParam);
+    eqkRuptureParams.addParameter(fltTypeParam);
     eqkRuptureParams.addParameter(dipParam);
     eqkRuptureParams.addParameter(rupTopDepthParam);
   }
@@ -614,10 +634,24 @@ public class CB_2006_AttenRel
   }
 
   
-  
+  /**
+   * 
+   * @param iper
+   * @param vs30
+   * @param rRup
+   * @param distJB
+   * @param f_rv
+   * @param f_nm
+   * @param mag
+   * @param depthTop
+   * @param depthTo2pt5kmPerSec
+   * @param magSaturation
+   * @param pgar
+   * @return
+   */
   public double getMean(int iper, double vs30, double rRup,
-                            double distJB,
-                            double rake, double mag, double depthTop,
+                            double distJB,double f_rv,
+                            double f_nm, double mag, double depthTop,
                             double depthTo2pt5kmPerSec,
                             boolean magSaturation, double pgar) {
 
@@ -644,17 +678,8 @@ public class CB_2006_AttenRel
     else
     	 ffltz = 1;
 
-    double Frv; // indicator variable representing reverse and reverse-oblique faulting
-    if(rake >30 && rake <150)
-    	 Frv = 1;
-    else
-    	 Frv = 0;
-    double Fnm ;//indicator varible representing normal and normal-oblique faulting
-    if(rake >-150 && rake<-30)
-    	  Fnm = 1;
-    else
-    	 Fnm=0;
-    fflt = c7[iper]*Frv*ffltz+c8[iper]*Fnm;
+    // fault-style term
+    fflt = c7[iper]*f_rv*ffltz+c8[iper]*f_nm;
     
     //hanging wall effects
     double fhngr;
@@ -708,7 +733,13 @@ public class CB_2006_AttenRel
     return fmag+fdis+fflt+fhng+fsite+fsed;
   }
 
- 
+ /**
+  * 
+  * @param iper
+  * @param stdDevType
+  * @param component
+  * @return
+  */
   public double getStdDev(int iper, String stdDevType, String component) {
 	  
 	  double s = s_lny[iper];
@@ -763,8 +794,20 @@ public class CB_2006_AttenRel
 	  else if (pName.equals(MAG_NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(RAKE_NAME)) {
-		  rake = ( (Double) val).doubleValue();
+	  else if (pName.equals(FLT_TYPE_NAME)) {
+		  String fltType = (String)fltTypeParam.getValue();
+		  if (fltType.equals(FLT_TYPE_NORMAL)) {
+			  f_rv = 0 ;
+			  f_nm = 1;
+		  }
+		  else if (fltType.equals(FLT_TYPE_REVERSE)) {
+			  f_rv = 1;
+			  f_nm = 0;
+		  }
+		  else {
+			  f_rv =0 ;
+			  f_nm = 0;
+		  }
 	  }
 	  else if (pName.equals(RUP_TOP_NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
@@ -792,7 +835,7 @@ public class CB_2006_AttenRel
     vs30Param.removeParameterChangeListener(this);
     depthTo2pt5kmPerSecParam.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
-    rakeParam.removeParameterChangeListener(this);
+    fltTypeParam.removeParameterChangeListener(this);
     rupTopDepthParam.removeParameterChangeListener(this);
     dipParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
@@ -812,7 +855,7 @@ public class CB_2006_AttenRel
     vs30Param.addParameterChangeListener(this);
     depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
-    rakeParam.addParameterChangeListener(this);
+    fltTypeParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);

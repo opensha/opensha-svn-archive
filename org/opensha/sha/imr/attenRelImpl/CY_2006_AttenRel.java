@@ -26,7 +26,7 @@ import org.opensha.sha.surface.*;
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>magParam - moment Magnitude
- * <LI>rakeParam - for style of faulting
+ * <LI>fltTypeParam - Style of faulting
  * <LI>rupTopDepthParam - depth to top of rupture
  * <LI>dipParam - rupture surface dip
  * <LI>rupWidthParam - down dip width of rupture
@@ -297,7 +297,7 @@ public class CY_2006_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rRup, distanceJB, distRupMinusJB_OverRup, rake, dip, mag, depthTop,ruptureWidth;
+  private double vs30, rRup, distanceJB, distRupMinusJB_OverRup, dip, mag, f_rv, f_nm, depthTop,ruptureWidth;
   private String stdDevType;
   private boolean parameterChange;
 
@@ -313,9 +313,14 @@ public class CY_2006_AttenRel
   protected final static Double RUP_TOP_WARN_MIN = new Double(0);
   protected final static Double RUP_TOP_WARN_MAX = new Double(20);
   
+  // style of faulting options
+  public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
+  public final static String FLT_TYPE_REVERSE = "Reverse";
+  public final static String FLT_TYPE_NORMAL = "Normal";
+  public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
   // change component default from that of parent
-  String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
+  String COMPONENT_DEFAULT = COMPONENT_GMRotI50;
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -381,18 +386,35 @@ public class CY_2006_AttenRel
    * @throws InvalidRangeException thrown if rake is out of bounds
    */
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-
-    magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-    rakeParam.setValue(eqkRupture.getAveRake());
-    EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-    dipParam.setValue(surface.getAveDip());
-    double depth = surface.getLocation(0, 0).getDepth();
-    rupTopDepthParam.setValue(depth);
-    rupWidthParam.setValue(eqkRupture.getRuptureSurface().getSurfaceWidth());
-//    setFaultTypeFromRake(eqkRupture.getAveRake());
-    this.eqkRupture = eqkRupture;
-    setPropagationEffectParams();
-
+	  
+	  magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+	  
+	  double rake = eqkRupture.getAveRake();
+	  if(rake >30 && rake <150) {
+		  f_rv = 1;
+		  f_nm = 0;
+		  fltTypeParam.setValue(FLT_TYPE_REVERSE);
+	  }
+	  else if(rake >-120 && rake<-60) {
+		  f_nm = 1;		
+		  f_rv = 0;
+		  fltTypeParam.setValue(FLT_TYPE_NORMAL);
+	  }
+	  else { // strike slip
+		  f_rv = 0;
+		  f_nm=0;
+		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
+	  }    
+	  
+	  EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+	  dipParam.setValue(surface.getAveDip());
+	  double depth = surface.getLocation(0, 0).getDepth();
+	  rupTopDepthParam.setValue(depth);
+	  rupWidthParam.setValue(eqkRupture.getRuptureSurface().getSurfaceWidth());
+//	  setFaultTypeFromRake(eqkRupture.getAveRake());
+	  this.eqkRupture = eqkRupture;
+	  setPropagationEffectParams();
+	  
   }
 
   /**
@@ -500,7 +522,7 @@ public class CY_2006_AttenRel
 	  // compute rJB
 	  distanceJB = rRup - distRupMinusJB_OverRup*rRup;
 	  
-	  return getMean(iper, vs30, rRup, distanceJB, ruptureWidth, dip, rake, mag, depthTop);
+	  return getMean(iper, vs30, f_rv, f_nm, rRup, distanceJB, ruptureWidth, dip, mag, depthTop);
   }
 
   /**
@@ -522,7 +544,7 @@ public class CY_2006_AttenRel
 
     vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
-    rakeParam.setValue(RAKE_DEFAULT);
+    fltTypeParam.setValue(FLT_TYPE_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
@@ -535,16 +557,6 @@ public class CY_2006_AttenRel
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
 
-    vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-    distRupMinusJB_OverRup = ( (Double) distRupMinusJB_OverRupParam.getValue()).
-    doubleValue();
-    rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
-    rake = ( (Double) rakeParam.getValue()).doubleValue();
-    mag = ( (Double) magParam.getValue()).doubleValue();
-    ruptureWidth = ((Double)rupWidthParam.getValue()).doubleValue();
-    depthTop = ( (Double) rupTopDepthParam.getValue()).doubleValue();
-    stdDevType = (String) stdDevTypeParam.getValue();
-    dip = ( (Double) dipParam.getValue()).doubleValue();
   }
 
   /**
@@ -562,7 +574,7 @@ public class CY_2006_AttenRel
     meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(magParam);
-    meanIndependentParams.addParameter(rakeParam);
+    meanIndependentParams.addParameter(fltTypeParam);
     meanIndependentParams.addParameter(dipParam);
     meanIndependentParams.addParameter(rupTopDepthParam);
     meanIndependentParams.addParameter(rupWidthParam);
@@ -636,10 +648,20 @@ public class CY_2006_AttenRel
     rupWidthParam = new DoubleParameter(RUP_WIDTH_NAME, c, RUP_WIDTH_UNITS);
     rupWidthParam.setInfo(RUP_WIDTH_INFO);
     
+    StringConstraint constraint = new StringConstraint();
+    constraint.addString(FLT_TYPE_STRIKE_SLIP);
+    constraint.addString(FLT_TYPE_NORMAL);
+    constraint.addString(FLT_TYPE_REVERSE);
+    constraint.setNonEditable();
+    fltTypeParam = new StringParameter(FLT_TYPE_NAME, constraint, null);
+    fltTypeParam.setInfo(FLT_TYPE_INFO);
+    fltTypeParam.setNonEditable();
+
+    
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
     eqkRuptureParams.addParameter(dipParam);
-    eqkRuptureParams.addParameter(rakeParam);
+    eqkRuptureParams.addParameter(fltTypeParam);
     eqkRuptureParams.addParameter(rupTopDepthParam);
     eqkRuptureParams.addParameter(rupWidthParam);
   }
@@ -767,74 +789,73 @@ public class CY_2006_AttenRel
     return SHORT_NAME;
   }
 
-
-  public double getMean(int iper, double vs30, double rRup, double distanceJB,
-          double ruptureWidth, double dip, double rake, double mag, double depthTop) {
- 
-    //  Faulting     Mechanism
-    double Frv,Fnm;
-    if (rake >= 30 && rake <= 150) {
-    	   Frv = 1.0;
-    }
-    else {
-       Frv = 0.0;
-    }
-    if (rake >= -120 && rake <= -60) {
- 	   Fnm = 1.0;
-    }
-    else {
-    	   Fnm = 0.0;
-    }
-    double cc = c5[iper]* Math.cosh(c6[iper] * Math.max(mag-cHM[iper],0));
-
-    double gamma = gamma1[iper] + gamma2[iper]/Math.cosh(Math.max(mag-gM[iper],0));
-
-    	double pi = Math.atan(1.0)*4;
-    	double d2r = pi/180;
-    double cosDELTA = Math.cos(dip*d2r);
-
-    //Magnitude scaling
-
-    double r1 = c1[iper] + c2[iper] * (mag-6.0) + ((c2[iper]-c3[iper])/cn[iper]) * Math.log(1.0 + Math.exp(-cn[iper]*(mag-cM[iper])));
-
-   //Near-field magnitude and distance scaling
-
-    double r2 = c4[iper] * Math.log(rRup + cc);
-
-    // Distance scaling at large distance
-
-    double r3 = ((c4a[iper]-c4[iper])/2.0) * Math.log( rRup*rRup +cRB[iper]*cRB[iper] ) + rRup * gamma;
-
-   // More source scaling
-
-    double r4 = c1a[iper]*Frv +c1b[iper]*Fnm +c7[iper]*(depthTop - 4);
-    	
-    //HW effect
-    double hw = c9[iper] * cosDELTA*cosDELTA * (1.0 -distanceJB/(rRup + 0.001)) *
-    Math.atan(ruptureWidth*0.5*cosDELTA/(depthTop+1))/(pi/2.0) * Math.tanh(0.5*rRup);
-
-
-    //  Predicted median Sa on reference condition (Vs=1130 m/sec)
-    double psa_ref = r1+r2+r3+r4+hw;
-
-    // Linear soil amplification
-    double a = phi1[iper] * Math.min(Math.log(vs30/1130), 0);
-
-
-    //Nonlinear soil amplification
-
-    double b = phi2[iper] *(Math.exp(phi3[iper]*(Math.min(vs30,1130)-360)) - Math.exp(phi3[iper]*(1130-360)));
-
-    double c = phi4[iper];
-
-    //Sa on soil condition
-    double psa = psa_ref + (a + b * Math.log((Math.exp(psa_ref)+c)/c));
- 
-    return psa;
+  /**
+   * 
+   * @param iper
+   * @param vs30
+   * @param f_rv
+   * @param f_nm
+   * @param distanceJB
+   * @param ruptureWidth
+   * @param dip
+   * @param rake
+   * @param mag
+   * @param depthTop
+   * @return
+   */
+  public double getMean(int iper, double vs30, double f_rv, double f_nm, double rRup, double distanceJB,
+		  double ruptureWidth, double dip, double mag, double depthTop) {
+	  	  
+	  double cc = c5[iper]* Math.cosh(c6[iper] * Math.max(mag-cHM[iper],0));
+	  
+	  double gamma = gamma1[iper] + gamma2[iper]/Math.cosh(Math.max(mag-gM[iper],0));
+	  
+	  double pi = Math.atan(1.0)*4;
+	  double d2r = pi/180;
+	  double cosDELTA = Math.cos(dip*d2r);
+	  
+	  //Magnitude scaling
+	  
+	  double r1 = c1[iper] + c2[iper] * (mag-6.0) + ((c2[iper]-c3[iper])/cn[iper]) * Math.log(1.0 + Math.exp(-cn[iper]*(mag-cM[iper])));
+	  
+	  //Near-field magnitude and distance scaling
+	  
+	  double r2 = c4[iper] * Math.log(rRup + cc);
+	  
+	  // Distance scaling at large distance
+	  
+	  double r3 = ((c4a[iper]-c4[iper])/2.0) * Math.log( rRup*rRup +cRB[iper]*cRB[iper] ) + rRup * gamma;
+	  
+	  // More source scaling
+	  
+	  double r4 = c1a[iper]*f_rv +c1b[iper]*f_nm +c7[iper]*(depthTop - 4);
+	  
+	  //HW effect
+	  double hw = c9[iper] * cosDELTA*cosDELTA * (1.0 -distanceJB/(rRup + 0.001)) *
+	  Math.atan(ruptureWidth*0.5*cosDELTA/(depthTop+1))/(pi/2.0) * Math.tanh(0.5*rRup);
+	  
+	  
+	  //  Predicted median Sa on reference condition (Vs=1130 m/sec)
+	  double psa_ref = r1+r2+r3+r4+hw;
+	  
+	  // Linear soil amplification
+	  double a = phi1[iper] * Math.min(Math.log(vs30/1130), 0);
+	  
+	  
+	  //Nonlinear soil amplification
+	  
+	  double b = phi2[iper] *(Math.exp(phi3[iper]*(Math.min(vs30,1130)-360)) - Math.exp(phi3[iper]*(1130-360)));
+	  
+	  double c = phi4[iper];
+	  
+	  //Sa on soil condition
+	  double psa = psa_ref + (a + b * Math.log((Math.exp(psa_ref)+c)/c));
+	  
+	  return psa;
   }
-
   
-
+  
+  
   public double getStdDev(int iper, String stdDevType) {
 	  
 	  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
@@ -873,8 +894,20 @@ public class CY_2006_AttenRel
 	  else if (pName.equals(MAG_NAME)) {
 		  mag = ( (Double) val).doubleValue();
 	  }
-	  else if (pName.equals(RAKE_NAME)) {
-		  rake = ( (Double) val).doubleValue();
+	  else if (pName.equals(FLT_TYPE_NAME)) {
+		  String fltType = (String)fltTypeParam.getValue();
+		  if (fltType.equals(FLT_TYPE_NORMAL)) {
+			  f_rv = 0 ;
+			  f_nm = 1;
+		  }
+		  else if (fltType.equals(FLT_TYPE_REVERSE)) {
+			  f_rv = 1;
+			  f_nm = 0;
+		  }
+		  else {
+			  f_rv =0 ;
+			  f_nm = 0;
+		  }
 	  }
 	  else if (pName.equals(RUP_TOP_NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
@@ -900,7 +933,7 @@ public class CY_2006_AttenRel
     dipParam.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
     rupWidthParam.removeParameterChangeListener(this);
-    rakeParam.removeParameterChangeListener(this);
+    fltTypeParam.removeParameterChangeListener(this);
     rupTopDepthParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
     periodParam.removeParameterChangeListener(this);
@@ -919,7 +952,7 @@ public class CY_2006_AttenRel
     dipParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     rupWidthParam.addParameterChangeListener(this);
-    rakeParam.addParameterChangeListener(this);
+    fltTypeParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);

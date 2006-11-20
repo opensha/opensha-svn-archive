@@ -15,9 +15,10 @@ import org.opensha.util.FaultUtils;
  * <b>Title:</b> BA_2006_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Boore (2005) <p>
+ * developed by Boore (2006), as described at
+ * http://peer.berkeley.edu/lifelines/nga_docs/nov_13_06/Boore-Atkinson-NGA_11-13-06.html <p>
  *
- * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
+ * Supported Intensity-Measure Parameters:<p>
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>saParam - Response Spectral Acceleration
@@ -25,24 +26,23 @@ import org.opensha.util.FaultUtils;
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>magParam - moment Magnitude
- * <LI>distanceRupParam - closest distance to surface projection of fault
- * <LI>siteTypeParam - "Rock/Shallow-Soil" versus "Deep-Soil"
+ * <LI>distanceJBParam - closest distance to surface projection of fault
+ * <LI>vs30Param - 30-meter shear wave velocity
  * <LI>fltTypeParam - Style of faulting
- * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL></p>
- *
+ * 
  *<p>
  *
- * Validation :I just tested this model with the earlier model (BJF1997).I ran both models in AttenuationRelationship
+ * Verification:I just tested this model with the earlier model (BJF1997).I ran both models in AttenuationRelationship
  * application and checked if  they produce the similar results.
  * 
  *</p>
  *
  *
- * @author     Edward H. Field
- * @created    April, 2002
+ * @author     Edward H. Field & Nitin Gupta
+ * @created    November, 2006
  * @version    1.0
  */
 
@@ -90,6 +90,7 @@ public class BA_2006_AttenRel
   double[] a1={0,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03};
   double[] pga_low={0,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06};
   double[] a2={0,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09};
+  // sig1 = intra; sig2 = inter; sigt = total (where "u" is focal mech unspecified)
   double[] sig1={0,0.513,0.502,0.576,0.53,0.523,0.546,0.555,0.573,0.58,0.566,0.583,0.603};
   double[] sig2u={0,0.286,0.262,0.368,0.325,0.286,0.269,0.262,0.313,0.396,0.41,0.389,0.414};
   double[] sigtu={0,0.587,0.566,0.684,0.622,0.596,0.608,0.612,0.654,0.702,0.7,0.702,0.732};
@@ -101,7 +102,7 @@ public class BA_2006_AttenRel
 
   private int iper;
   private double vs30, rjb, mag;
-  private String stdDevType;
+  private String stdDevType, fltType;
   private boolean parameterChange;
 
   // ?????????????????????????????????????
@@ -120,7 +121,8 @@ public class BA_2006_AttenRel
   public final static String FLT_TYPE_NORMAL = "Normal";
   public final static String FLT_TYPE_DEFAULT = "Unknown";
 
-  
+  // change component default from that of parent
+  String COMPONENT_DEFAULT = COMPONENT_GMRotI50;
   
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -245,20 +247,19 @@ public class BA_2006_AttenRel
    * @return    The mean value
    */
   public double getMean() {
-    if (intensityMeasureChanged) {
-      setCoeffIndex(); // intensityMeasureChanged is set to false in this method
-    }
-
-    // check if distance is beyond the user specified max
-    if (rjb > USER_MAX_DISTANCE) {
-      return VERY_SMALL_MEAN;
-    }
-    if (parameterChange) {
-      // remember that pga4nl term uses coeff index 0
-      double pga4nl = Math.exp(getMean(0, vs30, rjb, mag, 0.0));
-      return getMean(iper, vs30, rjb, mag, pga4nl);
-    }
-    return 0;
+	  
+	  // check if distance is beyond the user specified max
+	  if (rjb > USER_MAX_DISTANCE) {
+		  return VERY_SMALL_MEAN;
+	  }
+	  
+	  if (intensityMeasureChanged) {
+		  setCoeffIndex(); // intensityMeasureChanged is set to false in this method
+	  }
+	  
+	  // remember that pga4nl term uses coeff index 0
+	  double pga4nl = Math.exp(getMean(0, vs30, rjb, mag, fltType, 0.0));
+	  return getMean(iper, vs30, rjb, mag, fltType, pga4nl);
   }
 
   /**
@@ -268,34 +269,26 @@ public class BA_2006_AttenRel
     if (intensityMeasureChanged) {
       setCoeffIndex();// intensityMeasureChanged is set to false in this method
     }
-    return getStdDev(iper, stdDevType);
+    return getStdDev(iper, stdDevType, fltType);
   }
 
   /**
-   * Determines the style of faulting from the rake angle (which
-   * comes from the eqkRupture object) and fills in the
-   * value of the fltTypeParam.  Options are "Reverse" if 150>rake>30,
-   * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Unkown"
-   * otherwise (which means normal-faulting events are assigned as "Unkown";
-   * confirmed by David Boore via email as being correct).
+   * Determines the style of faulting from the rake angle.
    *
    * @param rake                      in degrees
    * @throws InvalidRangeException    If not valid rake angle
    */
   protected void setFaultTypeFromRake(double rake) throws InvalidRangeException {
-    FaultUtils.assertValidRake(rake);
-    if (Math.abs(Math.sin(rake * Math.PI / 180)) <= 0.5) {
-      fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP); // 0.5 = sin(30)
-    }
-    else if (rake >= 30 && rake <= 150) {
-      fltTypeParam.setValue(FLT_TYPE_REVERSE);
-    }
-    else if (rake >= -150 && rake <= -30) {
-        fltTypeParam.setValue(FLT_TYPE_NORMAL);
-      }
-    else {
-      fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
-    }
+	  if (rake<=30 && rake>=-30)
+		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
+	  else if (rake<=-150 || rake>=150)
+		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
+	  else if (rake > 30 && rake < 150)
+		  fltTypeParam.setValue(FLT_TYPE_REVERSE);
+	  else if (rake > -150 && rake < -30)
+		  fltTypeParam.setValue(FLT_TYPE_NORMAL);
+	  else
+		  fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
   } 
   
   
@@ -320,6 +313,7 @@ public class BA_2006_AttenRel
     vs30 = ( (Double) vs30Param.getValue()).doubleValue();
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
     mag = ( (Double) magParam.getValue()).doubleValue();
+    fltType = (String) fltTypeParam.getValue();
     stdDevType = (String) stdDevTypeParam.getValue();
   }
 
@@ -348,7 +342,6 @@ public class BA_2006_AttenRel
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     exceedProbIndependentParams.addParameterList(meanIndependentParams);
-    
     exceedProbIndependentParams.addParameter(stdDevTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -519,7 +512,7 @@ public class BA_2006_AttenRel
 
     // the Component Parameter
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(COMPONENT_GMRotI50);
     constraint.setNonEditable();
     componentParam = new StringParameter(COMPONENT_NAME, constraint,
                                          COMPONENT_DEFAULT);
@@ -563,12 +556,11 @@ public class BA_2006_AttenRel
   }
 
   public double getMean(int iper, double vs30, double rjb, double mag,
-                        double pga4nl) {
+                        String fltType, double pga4nl) {
 
     // remember that pga4ln term uses coeff index 0
     double Fm, Fd, Fs;
     int U =0, S=0, N=0, R=0;
-    String fltType = (String)fltTypeParam.getValue();
     if(fltType.equals(FLT_TYPE_UNKNOWN))
     	  U=1;
     else if(fltType.equals(FLT_TYPE_NORMAL))
@@ -578,22 +570,28 @@ public class BA_2006_AttenRel
     else
     	 R=1;
     if (mag <= mh[iper]) {
-      Fm = e01[iper]*U + e02[iper] *S +
-          e03[iper]*N+e04[iper]*R+e05[iper]* (mag - mh[iper]) +e06[iper] * Math.pow( (mag - mh[iper]), 2);
+      Fm = e01[iper]*U + e02[iper]*S + e03[iper]*N + e04[iper]*R + 
+      	   e05[iper]*(mag - mh[iper]) +
+      	   e06[iper]*Math.pow((mag-mh[iper]),2);
     }
     else {
-      Fm = e01[iper]*U +e02[iper]*S+e03[iper]*N+ e04[iper]*R+
-      	e07[iper] * (mag - mh[iper])+ e08[iper] *Math.pow((mag - mh[iper]),2);
+      Fm = e01[iper]*U + e02[iper]*S + e03[iper]*N + e04[iper]*R +
+      		e07[iper]*(mag-mh[iper]) + 
+      		e08[iper]*Math.pow((mag-mh[iper]),2);
     }
 
     double r = Math.sqrt(rjb * rjb + h[iper] * h[iper]);
-    Fd = (c01[iper] + c02[iper] * (mag - mref[iper]))
-        * Math.log(r / rref[iper]) + (c03[iper] + c04[iper] * (mag - mref[iper]))* (r - rref[iper]);
+    Fd = (c01[iper] + c02[iper]*(mag-mref[iper]))*Math.log(r/rref[iper]) +
+         (c03[iper] + c04[iper]*(mag-mref[iper]))*(r-rref[iper]);
 
+    // site response term
     if(pga4nl ==0.0)
-    	Fs =0;
+    		Fs =0; 
     else{
-	    double bnl = 0;
+		double Flin = blin[iper]*Math.log(vs30/vref[iper]);	
+
+		// compute bnl
+		double bnl = 0;
 	    if (vs30 <= v1[iper]) {
 	      bnl = b1[iper];
 	    }
@@ -608,31 +606,57 @@ public class BA_2006_AttenRel
 	    else if (vs30 > vref[iper]) {
 	      bnl = 0.0;
 	    }   
-		double Flin = blin[iper]*Math.log(vs30/vref[iper]);	
+	    
+	    // compute c & d
+	    double c, d, dX, dY;
+	    dX = Math.log(a2[iper]/a1[iper]);
+	    dY = bnl*Math.log(a2[iper]/pga_low[iper]);
+	    c = (3*dY-bnl*dX)/(dX*dX);
+	    d = -(2*dY-bnl*dX)/(dX*dX*dX);
+	    
+		
 		double Fnl;
-	    if(pga4nl <= pga_low[iper])
-	    	Fnl = bnl*Math.log(pga_low[iper]/0.1);
+	    if(pga4nl <= a1[iper])
+	    		Fnl = bnl*Math.log(pga_low[iper]/0.1);
+	    else if (pga4nl <= a2[iper] & pga4nl > a1[iper])
+	    		Fnl = bnl*Math.log(pga_low[iper]/0.1) + 
+	    			c*Math.pow(Math.log(pga4nl/a1[iper]),2) +
+	    			d*Math.pow(Math.log(pga4nl/a1[iper]),3);
 	    else
 	        Fnl = bnl*Math.log(pga4nl/0.1);
+	    
 	    Fs= Flin+Fnl;
     }
     return (Fm + Fd + Fs);
   }
 
-  public double getStdDev(int iper, String stdDevType) {
-
-    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
-      return 0;
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
-      return sig2u[iper];
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
-      return sig1[iper];
-    }
-    else { // it's total sigma
-      return Math.sqrt(sig1[iper] * sig1[iper] + sig2u[iper] * sig2u[iper]);
-    }
+  public double getStdDev(int iper, String stdDevType, String fltType) {
+//	  sig1 = intra; sig2 = inter; sigt = total (where "u" is focal mech unspecified)
+	  
+	  if(fltType.equals(FLT_TYPE_UNKNOWN)) {
+		  if(stdDevType.equals(STD_DEV_TYPE_TOTAL))
+			  return sigtu[iper];
+		  else if (stdDevType.equals(STD_DEV_TYPE_NONE))
+			  return 0;
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+			  return sig2u[iper];
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+			  return sig1[iper];
+		  else 
+			  return Double.NaN;
+	  }
+	  else {
+		  if(stdDevType.equals(STD_DEV_TYPE_TOTAL))
+			  return sigtm[iper];
+		  else if (stdDevType.equals(STD_DEV_TYPE_NONE))
+			  return 0;
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+			  return sig2m[iper];
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+			  return sig1[iper];
+		  else 
+			  return Double.NaN; 
+	  }
   }
 
   /**
@@ -647,16 +671,19 @@ public class BA_2006_AttenRel
     if (pName.equals(DistanceJBParameter.NAME)) {
       rjb = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.VS30_NAME)) {
+    else if (pName.equals(VS30_NAME)) {
       vs30 = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.MAG_NAME)) {
+    else if (pName.equals(MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
+    else if (pName.equals(FLT_TYPE_NAME)) {
+        fltType = (String)fltTypeParam.getValue();
+    }
+    else if (pName.equals(STD_DEV_TYPE_NAME)) {
       stdDevType = (String) val;
     }
-    else if (pName.equals(this.PERIOD_NAME) ) {
+    else if (pName.equals(PERIOD_NAME) ) {
     	intensityMeasureChanged = true;
     }
   }
@@ -668,6 +695,7 @@ public class BA_2006_AttenRel
     distanceJBParam.removeParameterChangeListener(this);
     vs30Param.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
+    fltTypeParam.addParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
     periodParam.removeParameterChangeListener(this);
 
@@ -683,6 +711,7 @@ public class BA_2006_AttenRel
     distanceJBParam.addParameterChangeListener(this);
     vs30Param.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
+    fltTypeParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);
   }
