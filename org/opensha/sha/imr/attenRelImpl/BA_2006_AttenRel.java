@@ -273,7 +273,9 @@ public class BA_2006_AttenRel
   }
 
   /**
-   * Determines the style of faulting from the rake angle.
+   * Determines the style of faulting from the rake angle.  Their report is not explicit,
+   * so these ranges come from an email that told us to decide, but that within 30-degrees
+   * of horz for SS was how the NGA data were defined.
    *
    * @param rake                      in degrees
    * @throws InvalidRangeException    If not valid rake angle
