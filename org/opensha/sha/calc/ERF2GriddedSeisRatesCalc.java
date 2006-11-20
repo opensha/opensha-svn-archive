@@ -95,7 +95,8 @@ public class ERF2GriddedSeisRatesCalc {
    */
   public ArrayList calcMFD_ForGriddedRegion(double minMag, double maxMag,
                                             int numMagBins, EqkRupForecastAPI eqkRupForecast,
-                                            EvenlyGriddedGeographicRegionAPI region) {
+                                            EvenlyGriddedGeographicRegionAPI region,
+                                            double duration) {
     double delta = (maxMag-minMag)/(numMagBins-1);
     ArrayList cumMFDList  = calcCumMFD_ForGriddedRegion(minMag-delta, eqkRupForecast, region);
     // number of locations in this region
@@ -117,7 +118,7 @@ public class ERF2GriddedSeisRatesCalc {
         // get interpolated rate for the mag
         cumRate2 = getRateForMag(cumFunc, mag + delta/2);
         // set the rate in Incremental Mag Freq Dist
-        magFreqDist.set(mag, cumRate1-cumRate2);
+        magFreqDist.set(mag, (cumRate1-cumRate2)*duration);
       }
       //if(i==0) System.out.println("Mag Freq Dist::::\n"+magFreqDist.getMetadataString());
       
@@ -144,7 +145,7 @@ public class ERF2GriddedSeisRatesCalc {
   private double getRateForMag(ArbitrarilyDiscretizedFunc func, double mag) {
     if(mag<func.getMinX()) return func.getY(0);
     if(mag>func.getMaxX()) return 0.0;
-    return func.getInterpolatedY(mag);
+    return func.getInterpolatedY_inLogXLogYDomain(mag);
   }
 
   /**

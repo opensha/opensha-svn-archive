@@ -1309,7 +1309,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int i=0; i<numA_Faults; ++i) {
 			wb.createSheet();
 		}
-		
 		int currRow[] = new int[numA_Faults];
 		for(int irup=0; irup<rupModelOptions.size();irup++) {
 			int rupStartRow[] = new int[numA_Faults];

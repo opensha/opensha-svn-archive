@@ -46,6 +46,14 @@ public class TreeBranch {
   }
   
   /**
+   * Get a list of all adjacent subsections
+   * @return
+   */
+  public ArrayList<Integer> getAdjacentSubSectionsList() {
+	  return this.adjacentSubSections;
+  }
+  
+  /**
    * Add adjacent sub section (if it does not exist already)
    * @param subSectionName
    */

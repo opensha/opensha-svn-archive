@@ -1,5 +1,9 @@
 package org.opensha.data.region;
 
+import java.io.FileWriter;
+
+import org.opensha.data.Location;
+
 
 /**
  * This represents the smaller RELM Region

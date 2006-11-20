@@ -5,6 +5,8 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.StringTokenizer;
@@ -40,7 +42,9 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
                                                  EvenlyGriddedGeographicRegionAPI griddedRegion,
                                                  double minMag,
                                                  double maxMag,
-                                                 int numMagBins) {
+                                                 int numMagBins,
+                                                 boolean useMask,
+                                                 boolean adjustLatLon) {
     this.region = griddedRegion;
     this.inputFileName = inputFileName;
    // make HypoMagFreqDist for each location in the region
@@ -53,17 +57,19 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
      magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
    }
    // read the file and calculate HypoMagFreqDist at each location
-   calculateHypoMagFreqDistForEachLocation();
+   calculateHypoMagFreqDistForEachLocation(useMask, adjustLatLon);
  }
 
  /*
   * computes the Mag-Rate distribution for each location within the provided region.
   */
-  private void calculateHypoMagFreqDistForEachLocation() {
+  private void calculateHypoMagFreqDistForEachLocation(boolean useMask, boolean adjustLatLon) {
     try {
       FileReader fr = new FileReader(this.inputFileName);
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine();
+     // SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0, 9.0, 41);
+      //summedMFD.setTolerance(summedMFD.getDelta()/2);
       // go upto the line which says "begin_forecast"
       while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.BEGIN_FORECAST)) {
         line = br.readLine();
@@ -79,6 +85,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
       double rate;
       int mask;
       int locIndex;
+      double totRate5=0, totRate6_5=0, totRate8=0, totRate8_05=0, filteredRate=0, tempRate=0;
       while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.END_FORECAST)) {
         StringTokenizer tokenizer = new StringTokenizer(line);
         lon1= Double.parseDouble(tokenizer.nextToken());
@@ -91,15 +98,35 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
         mag2 =  Double.parseDouble(tokenizer.nextToken());
         rate = Double.parseDouble(tokenizer.nextToken()); // rate
         mask = (int)Double.parseDouble(tokenizer.nextToken());
+        if(useMask && mask!=1) {
+        	line = br.readLine();
+        	continue; // do not consider the masked locations
+        }
         // calculate the midpoint of lon bin
-        lon = (lon1+lon2)/2+0.05; // this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
+        lon = (lon1+lon2)/2; 
         // midpoint of the lat bin
-        lat = (lat1+lat2)/2+0.05; // this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
+        lat = (lat1+lat2)/2; 
+        if(adjustLatLon) {// this is added so that location can match the location in EvenlyGriddedRELM_TestingRegion
+        	lon+=0.05;
+        	lat+=0.05;
+        }
         // calculate midpoint of mag bin
         mag = (mag1+mag2)/2;
+        if(mag1>=8 || mag2>=8) {
+        	//if(rate==0) System.out.println(lat1+","+lat2+","+lon1+","+lon2);
+        	tempRate+=rate;
+        }
+        if(mag>9) mag=9.0;
+        //System.out.println(mag);
+        //summedMFD.add(mag,rate);
+       
+        if(mag>5 || (5-mag<0.005)) totRate5+=rate;
+        if(mag>6.5 || (6.5-mag<0.005)) totRate6_5+=rate;
+        if(mag>8 || (8-mag<0.005)) totRate8+=rate;
+        if(mag>8.05 || (8.05-mag<0.005)) totRate8_05+=rate;
         locIndex = this.region.getNearestLocationIndex(new Location(lat,lon));
         //continue if location not in the region
-        if (locIndex >= 0 /*&& mask==1*/)  {
+        if (locIndex >= 0)  {
           IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[locIndex].getMagFreqDist()[0];
           try {
             int index = incrMagFreqDist.getXIndex(mag);
@@ -108,11 +135,17 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
           catch (DataPoint2DException dataPointException) {
             // do not do anything if this mag is not allowed
           }
+        } else {
+        	//System.out.println(lat+","+lon);
+        	filteredRate+=rate;
         }
         line = br.readLine();
       }
       br.close();
       fr.close();
+      System.out.println("Total Rates="+totRate5+","+totRate6_5+","+totRate8 +","+totRate8_05+",filteredRate="+filteredRate);
+      System.out.println(tempRate);
+      //System.out.println(summedMFD.getCumRateDist());
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -130,10 +163,5 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
    return magFreqDistForLocations[ithLocation];
  }
-
-
-  public static void main(String[] args) {
-    //ReadRELM_FileIntoGriddedHypoMFD_Forecast readRELM_FileIntoGriddedHypoMFD_Forecast1 = new ReadRELM_FileIntoGriddedHypoMFD_Forecast();
-  }
 
 }

@@ -39,7 +39,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDistForecast {
+public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDistForecast {
   private EqkRupForecast eqkRupForecast;
   private HypoMagFreqDistAtLoc magFreqDistForLocations[];
 
@@ -55,22 +55,24 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
    *
    *
    */
-  public ERF_ToGriddedHypoMagFreqDistForecast(EqkRupForecast eqkRupForecast,
+  public RELM_ERF_ToGriddedHypoMagFreqDistForecast(EqkRupForecast eqkRupForecast,
                                               EvenlyGriddedGeographicRegionAPI griddedRegion,
                                               double minMag,
                                               double maxMag,
-                                              int numMagBins) {
+                                              int numMagBins,
+                                              double duration) {
     this.eqkRupForecast = eqkRupForecast;
     this.region = griddedRegion;
 
     ERF2GriddedSeisRatesCalc erfToGriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc();
     ArrayList incrementalMFD_List  = erfToGriddedSeisRatesCalc.calcMFD_ForGriddedRegion(minMag, maxMag, numMagBins,
-        eqkRupForecast, region);
+        eqkRupForecast, region, duration);
     // make HypoMagFreqDist for each location in the region
     magFreqDistForLocations = new HypoMagFreqDistAtLoc[this.getNumHypoLocs()];
     for(int i=0; i<magFreqDistForLocations.length; ++i ) {
       IncrementalMagFreqDist[] magFreqDistArray = new IncrementalMagFreqDist[1];
       magFreqDistArray[0] = (IncrementalMagFreqDist)incrementalMFD_List.get(i);
+      magFreqDistArray[0].set(0, magFreqDistArray[0].getIncrRate(1)*1.2); //Ned conveyed this in an email dated Nov 14, 2006 at 7:13 AM
       magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
     }
   }
@@ -87,4 +89,5 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
   public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
     return magFreqDistForLocations[ithLocation];
   }
+  
 }

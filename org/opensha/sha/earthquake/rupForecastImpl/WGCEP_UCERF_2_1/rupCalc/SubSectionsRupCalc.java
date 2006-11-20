@@ -22,7 +22,7 @@ import org.opensha.sha.fault.FaultTrace;
  */
 public class SubSectionsRupCalc {
 	private final static double SUBSECTIONS_CUTOFF_DIST = 10; 
-	private final static double MAX_SUBSECTION_LEN = 10;
+	private  double maxSubSectionLength = 10;
 	private final static Location LOCATION = new Location(31.5, -115.0);
 	private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 	private ArrayList rupList;
@@ -32,6 +32,12 @@ public class SubSectionsRupCalc {
 	private ArrayList<Tree> clusterList;
 
 	  public SubSectionsRupCalc() {
+		  doProcessing();
+	  }
+	  
+	  public SubSectionsRupCalc(double maxSubSectionLength) {
+		  this.maxSubSectionLength = maxSubSectionLength;
+		  this.doProcessing();
 	  }
 
 	  public void doProcessing()  {
@@ -57,7 +63,7 @@ public class SubSectionsRupCalc {
 			ArrayList<FaultSectionPrefData> subSecList = new ArrayList<FaultSectionPrefData>();
 			for(int i=0; i<faultSectionPrefList.size(); ++i) {
 				FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)faultSectionPrefList.get(i);
-				subSecList.addAll(faultSectionPrefData.getSubSectionsList(MAX_SUBSECTION_LEN));
+				subSecList.addAll(faultSectionPrefData.getSubSectionsList(maxSubSectionLength));
 			}
 			return subSecList;
 	  }
@@ -130,7 +136,7 @@ public class SubSectionsRupCalc {
 			  tree.connectInTree(faultSectionPrefData.getSectionId(), faultSectionPrefData1.getSectionId());
 			  if(doneList.contains(faultSectionPrefData1.getSectionName())) continue;
 			  //System.out.println("Connected "+faultSectionPrefData.getSectionName()+ " AND "+ faultSectionPrefData1.getSectionName());
-			  if(i>subSectionIndex) getAdjacentFaultSectionNodes(tree, i);
+			  /*if(i>subSectionIndex)*/ getAdjacentFaultSectionNodes(tree, i);
 		  }
 	  }
 	  
@@ -159,6 +165,5 @@ public class SubSectionsRupCalc {
 
 	  public static void main(String args[]) {
 		  SubSectionsRupCalc rupCalc = new SubSectionsRupCalc();
-		  rupCalc.doProcessing();
 	  }
 }

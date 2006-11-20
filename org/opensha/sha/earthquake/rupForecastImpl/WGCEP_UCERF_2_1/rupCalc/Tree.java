@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.rupCalc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -27,8 +28,6 @@ public class Tree {
 			updateTreeBranch(subSectionId2, subSectionId1);
 		}
 		else return;
-		
-		
 	}
 
 	/**
@@ -110,6 +109,21 @@ public class Tree {
 		return false;
 	}
 	
+	/**
+	 * List of all subsections within this cluster
+	 */
+	public ArrayList<Integer> getAllSubSectionsIdList() {
+		HashSet<Integer> subSectionIdSet = new HashSet<Integer>();
+		Iterator<Integer> it = treeBranchMap.keySet().iterator();
+		while(it.hasNext()) {
+			int subSectionId = it.next();
+			subSectionIdSet.add(subSectionId);
+			subSectionIdSet.addAll(treeBranchMap.get(subSectionId).getAdjacentSubSectionsList());
+		}
+		ArrayList<Integer> subSectionIdList = new ArrayList<Integer>();
+		subSectionIdList.addAll(subSectionIdSet);
+		return subSectionIdList;
+	}
 
 	
 }

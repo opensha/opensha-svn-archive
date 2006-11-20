@@ -697,9 +697,9 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     }
      
      public static void main(String args[]) {
-    	 EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.0, 3.0, 31);
+    	 EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(5.0,9.0, 41);
     	 func.setTolerance(func.getDelta()/2);
-    	 System.out.println(func.getXIndex(1.05));
+    	 System.out.println(func.getXIndex(8.899999999999999));
      }
 
 }

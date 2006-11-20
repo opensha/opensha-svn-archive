@@ -19,7 +19,7 @@ public class RELM_TestingRegion extends GeographicRegion {
 	}
 	
 	/**
-	   * Location list which formas the outline of the ploygon for RELM region
+	   * Location list which forms the outline of the ploygon for RELM region
 	   * 
 	   */
 	  private LocationList getLocationList() {

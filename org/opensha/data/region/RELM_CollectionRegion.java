@@ -10,10 +10,11 @@ import org.opensha.data.LocationList;
  * @author vipingupta
  *
  */
-public class RELM_CollectionRegion extends GeographicRegion {
-
+public class RELM_CollectionRegion extends EvenlyGriddedGeographicRegion {
+	 private final static double GRID_SPACING = 0.10;
 	public RELM_CollectionRegion() {
-		createGeographicRegion(getLocationList());
+		 // make polygon from the location list
+	    createEvenlyGriddedGeographicRegion(getLocationList(), GRID_SPACING);	
 	}
 	
 	/**
