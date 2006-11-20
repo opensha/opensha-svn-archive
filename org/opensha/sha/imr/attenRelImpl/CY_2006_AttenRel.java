@@ -391,18 +391,12 @@ public class CY_2006_AttenRel
 	  
 	  double rake = eqkRupture.getAveRake();
 	  if(rake >30 && rake <150) {
-		  f_rv = 1;
-		  f_nm = 0;
 		  fltTypeParam.setValue(FLT_TYPE_REVERSE);
 	  }
 	  else if(rake >-120 && rake<-60) {
-		  f_nm = 1;		
-		  f_rv = 0;
 		  fltTypeParam.setValue(FLT_TYPE_NORMAL);
 	  }
 	  else { // strike slip
-		  f_rv = 0;
-		  f_nm=0;
 		  fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);
 	  }    
 	  
