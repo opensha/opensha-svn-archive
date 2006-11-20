@@ -46,7 +46,6 @@ public class GMT_MapGenerator implements Serializable{
 
 
   protected String SCALE_LABEL; // what's used to label the color scale
-  protected int DPI = 70;
 
   // paths to needed code
   protected String GMT_PATH;
@@ -130,6 +129,21 @@ public class GMT_MapGenerator implements Serializable{
   private final static String COLOR_SCALE_MAX_PARAM_INFO = "Upper limit on color scale (values above are the same color)";
   DoubleParameter colorScaleMaxParam;
   DoubleParameter colorScaleMinParam;
+  
+  // DPI
+  public final static String DPI_PARAM_NAME = "DPI";
+  private final static String DPI_PARAM_INFO = "Dots per inch for PS file";
+  private final static Integer DPI_DEFAULT = new Integer(72);
+  private final static Integer DPI_MIN = new Integer(0);
+  private final static Integer DPI_MAX = new Integer(Integer.MAX_VALUE);
+  private IntegerParameter dpiParam;
+  
+  // Apply GMT smoothing
+  public final static String GMT_SMOOTHING_PARAM_NAME = "Apply GMT Smoothing?";
+  private final static String GMT_SMOOTHING_PARAM_INFO = "Apply GMT Smoothing?";
+  private final static boolean GMT_SMOOTHING_DEFAULT = true;
+  private BooleanParameter gmtSmoothingParam; 
+  
 
   // shaded relief resolution
   public final static String TOPO_RESOLUTION_PARAM_NAME = "Topo Resolution";
@@ -255,7 +269,16 @@ public class GMT_MapGenerator implements Serializable{
 
     scaleLabelParam = new StringParameter(SCALE_LABEL_PARAM_NAME,"");
     scaleLabelParam.setInfo(SCALE_LABEL_PARAM_INFO);
-
+    
+    // DPI param
+    this.dpiParam = new IntegerParameter(DPI_PARAM_NAME, DPI_MIN, DPI_MAX, DPI_DEFAULT);
+    dpiParam.setInfo(DPI_PARAM_INFO);
+    
+    // whether to apply GMT smoothing
+    this.gmtSmoothingParam = new BooleanParameter(GMT_SMOOTHING_PARAM_NAME, GMT_SMOOTHING_DEFAULT);
+    gmtSmoothingParam.setInfo(GMT_SMOOTHING_PARAM_INFO);
+    
+    
     // create adjustable parameter list
     adjustableParams = new ParameterList();
 
@@ -274,6 +297,8 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(imageWidthParam);
     adjustableParams.addParameter(customScaleLabelCheckParam);
     adjustableParams.addParameter(scaleLabelParam);
+    adjustableParams.addParameter(gmtSmoothingParam);
+    adjustableParams.addParameter(dpiParam);
     adjustableParams.addParameter(gmtFromServer);
     adjustableParams.addParameter(logPlotParam);
 
@@ -474,7 +499,8 @@ public class GMT_MapGenerator implements Serializable{
     if(xyzDataSet.checkXYZ_NumVals()){
       int size = xVals.size();
       for(int i=0;i<size;++i)
-        lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i));
+    	 if(!Double.isNaN(((Double)zVals.get(i)).doubleValue()))
+    		 lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i));
     }
     else
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
@@ -823,7 +849,7 @@ public class GMT_MapGenerator implements Serializable{
     xOff = " -X1.0i ";
 
     // command line to convert xyz file to grd file
-    commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0 -F";
     gmtCommandLines.add(commandLine+"\n");
 
     // get color scale limits
@@ -837,6 +863,7 @@ public class GMT_MapGenerator implements Serializable{
     else {
       colorScaleMin = xyzDataSet.getMinZ();
       colorScaleMax = xyzDataSet.getMaxZ();
+      System.out.println(colorScaleMin+","+colorScaleMax);
       if (colorScaleMin == colorScaleMax)
         throw new RuntimeException("Can't make the image plot because all Z values in the XYZ dataset have the same value ");
     }
@@ -850,9 +877,12 @@ public class GMT_MapGenerator implements Serializable{
     commandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
     gmtCommandLines.add(commandLine+"\n");
 
+    int dpi = (Integer)this.dpiParam.getValue();
+    String gmtSmoothOption="";
+    if((Boolean)this.gmtSmoothingParam.getValue()) gmtSmoothOption=" -T ";
     // generate the image depending on whether topo relief is desired
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt -K -E"+DPI+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else {
@@ -872,7 +902,7 @@ public class GMT_MapGenerator implements Serializable{
       commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
       gmtCommandLines.add(commandLine+"\n");
       commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd " + xOff + yOff + projWdth +
-                  " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E"+DPI+ region + " > " + PS_FILE_NAME;
+                  " -I"+fileName+"Inten.grd -C"+fileName+".cpt "+ gmtSmoothOption +"-K -E"+dpi+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
 
@@ -884,11 +914,11 @@ public class GMT_MapGenerator implements Serializable{
 
     // add coast and fill if desired
     if(coast.equals(COAST_FILL)) {
-      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -N2 >> " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else if(coast.equals(COAST_DRAW)) {
-      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O  -W4/0/0/0 -P -Dh -N2>> " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
 
@@ -911,16 +941,16 @@ public class GMT_MapGenerator implements Serializable{
       scaleLabel = (String)scaleLabelParam.getValue();
     else
       scaleLabel = SCALE_LABEL;
-    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
+    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -O -K -N70 >> " + PS_FILE_NAME;
     gmtCommandLines.add(commandLine+"\n");
 
     // add the basemap
     double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
     double kmScaleXoffset = plotWdth/2;
     double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
-    commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-                " -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
-    gmtCommandLines.add(commandLine+"\n");
+    commandLine=GMT_PATH+"psbasemap -B2.5/2.5eWNs " + projWdth +region+
+                "  -O >> " + PS_FILE_NAME;
+     gmtCommandLines.add(commandLine+"\n");
 
     // add a command line to convert the ps file to a jpg file - using convert
 //    gmtCommandLines.add(CONVERT_PATH+" " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
@@ -929,14 +959,14 @@ public class GMT_MapGenerator implements Serializable{
     // this looks a bit better than that above (which sometimes shows some horz lines).
     gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp1.jpg -\n");
 
-    int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) DPI);
+    int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
     commandLine = CONVERT_PATH+" -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
     gmtCommandLines.add(commandLine+"\n");
 
     //resize the image if desired
     double imageWidth = ((Double)imageWidthParam.getValue()).doubleValue();
     if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
-      int wdth = (int)(imageWidth*(double)DPI);
+      int wdth = (int)(imageWidth*(double)dpi);
       commandLine = CONVERT_PATH+" -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
@@ -996,10 +1026,9 @@ public class GMT_MapGenerator implements Serializable{
       int size = zLinearVals.size();
       for(int i=0;i<size;++i){
         double zVal = ((Double)zLinearVals.get(i)).doubleValue();
-        if(zVal == 0)
-          zVal = StrictMath.pow(10,-16);
+        if(zVal == 0) zLinearVals.set(i,new Double(Double.NaN));
         //converting the Z linear Vals to the Log space.
-        zLinearVals.set(i,new Double(0.4343 * StrictMath.log(zVal)));
+        else zLinearVals.set(i,new Double(0.4343 * StrictMath.log(zVal)));
       }
       SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
     }

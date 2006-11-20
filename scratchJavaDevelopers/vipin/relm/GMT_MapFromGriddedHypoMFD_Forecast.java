@@ -259,12 +259,12 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
      } */
 
     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast("UCERF1.0Rates.txt", evenlyGriddedRegion,
+		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast("kagan_et_al.mainshock.forecast", evenlyGriddedRegion,
 				 minMag, maxMag, numMag, true, true);
  
 	 // Make GMT map of rates
 	GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-	viewRates.makeMap(5.0, "UCERF1.0.current", true, 0.05);
+	viewRates.makeMap(5.0, "kagan_et_al.mainshock.forecast", true, 0.05);
     
      //	 make GriddedHypoMFD Forecast from the EqkRupForecast
      /*EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();

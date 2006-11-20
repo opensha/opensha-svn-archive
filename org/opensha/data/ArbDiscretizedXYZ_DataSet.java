@@ -141,9 +141,10 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
    */
   private double getMin(ArrayList xyz){
     int size = xyz.size();
-    double min =((Double)xyz.get(0)).doubleValue();
+    double min = Double.POSITIVE_INFINITY;
     for(int i=1;i<size;++i){
       double val = ((Double)xyz.get(i)).doubleValue();
+      if(Double.isNaN(val)) continue;
       if(val < min)
         min = val;
     }
@@ -157,9 +158,10 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
    */
   private double getMax(ArrayList xyz){
     int size = xyz.size();
-    double max =((Double)xyz.get(size-1)).doubleValue();
+    double max = Double.NEGATIVE_INFINITY;
     for(int i=1;i<size;++i){
       double val = ((Double)xyz.get(i)).doubleValue();
+      if(Double.isNaN(val)) continue;
       if(val > max)
         max = val;
     }
