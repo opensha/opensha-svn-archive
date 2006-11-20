@@ -259,34 +259,30 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
      } */
 
     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
-		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast("kagan_et_al.mainshock.forecast", evenlyGriddedRegion,
+		 new ReadRELM_FileIntoGriddedHypoMFD_Forecast("NSHMP2002Rates.txt", evenlyGriddedRegion,
 				 minMag, maxMag, numMag, true, true);
  
 	 // Make GMT map of rates
 	GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-	viewRates.makeMap(5.0, "kagan_et_al.mainshock.forecast", true, 0.05);
+	viewRates.makeMap(5.0, "NSHMP_For_RELM", true, 0.05);
     
      //	 make GriddedHypoMFD Forecast from the EqkRupForecast
-     /*EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
-	   // include background sources as point sources
-	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME,
-	                               new Double(10.0));
-	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME,
-	                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
-	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME,
-	                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
-	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.FAULT_MODEL_NAME,
-	                               Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
-	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.TIME_DEPENDENT_PARAM_NAME,
-	                               new Boolean(true));
-	   eqkRupForecast.getTimeSpan().setDuration(5.0);
-	   eqkRupForecast.updateForecast();
-	   GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+     /*EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
+     // include background sources as point sources
+     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,
+    		 new Double(10.0));
+     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
+    		 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
+    		 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+     eqkRupForecast.getTimeSpan().setDuration(5.0);
+     eqkRupForecast.updateForecast();
+     GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
 		   new RELM_ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
 				   minMag, maxMag, numMag,5.0); // 5 year rates
 	 // Make GMT map of rates
-	GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-	viewRates.makeMap(5.0, "UCERF1.0.prev", false, 0.05);*/
+     GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+     viewRates.makeMap(5.0, "NSHMP2002_Original", false, 0.05);*/
     }catch(Exception e) {
       e.printStackTrace();
     }
