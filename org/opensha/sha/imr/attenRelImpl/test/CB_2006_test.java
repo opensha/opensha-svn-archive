@@ -120,6 +120,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
             double stdVal = cb_2006.getStdDev();
 			double targetStdDev = Double.parseDouble(st.nextToken().trim());
 			double stdFromOpenSHA = Double.parseDouble(format.format(stdVal));	
+			targetStdDev = Double.parseDouble(format.format(targetStdDev));
 			//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			results = compareResults(stdFromOpenSHA,targetStdDev);
 			//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
@@ -127,7 +128,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
               * If any test for the CY-2006 failed
               */
 			
-            /*if(results == false){
+            if(results == false){
             	String failedResultMetadata = "Results failed for Std Dev calculation for " +
             			                        "CB-2006 attenuation with the following parameter settings:"+
             									"  Period ="+period+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
@@ -145,7 +146,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
             //if the all the succeeds and their is no fail for any test
             else {
               this.assertTrue("CY-2006 Test succeeded for all the test cases",results);
-            }*/
+            }
 		}
 	}
 

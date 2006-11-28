@@ -7,6 +7,7 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
+
 import java.text.*;
 import junit.framework.TestCase;
 
@@ -60,17 +61,18 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 			double vs30 = Double.parseDouble(st.nextToken().trim());
 			cy_2006.getParameter(cy_2006.VS30_NAME).setValue(new Double(vs30));
 			double rjb = Double.parseDouble(st.nextToken().trim());
-			cy_2006.getParameter(DistanceJBParameter.NAME).setValue(new Double(rjb));
+			double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
+			cy_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME).setValue(new Double(distRupMinusJB_OverRup));
 			double rupWidth =  Double.parseDouble(st.nextToken().trim());
 			cy_2006.getParameter(cy_2006.RUP_WIDTH_NAME).setValue(new Double(rupWidth));
 			int frv =  Integer.parseInt(st.nextToken().trim());
 			int fnm = Integer.parseInt(st.nextToken().trim());
-			double rake =0;
+			cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_STRIKE_SLIP);
 			if(frv ==1 && fnm==0)
-				rake = 50;
+			   cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_REVERSE);
 			else if(frv ==0 && fnm ==1)
-				rake = -50;
-			cy_2006.getParameter(cy_2006.RAKE_NAME).setValue(new Double(rake));
+			   cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_NORMAL);
+			
 			double depthTop =  Double.parseDouble(st.nextToken().trim());
 			cy_2006.getParameter(cy_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
 			double dip =  Double.parseDouble(st.nextToken().trim());
@@ -89,7 +91,8 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
             if(results == false){
             	 String failedResultMetadata = "Results failed for CY-2006 attenuation with the following parameter settings:"+
             	          "IMT ="+cy_2006.SA_NAME+" with Period ="+period+"\nMag ="+(float)mag+" rRup = "+rrup+
-            	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n   rupWidth = "+rupWidth+"   rake = "+rake+
+            	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n   rupWidth = "+rupWidth+"   Frv = "+frv+
+            	          "   Fnm = "+fnm+
             	          "   depthTop = "+depthTop+"\n   dip = "+dip;
             	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
             	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
