@@ -171,7 +171,7 @@ public abstract class FaultsFetcher {
 					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 					FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
 					if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
-						//System.out.println(faultSectionPrefData.getSectionName());
+						System.out.println(faultSectionPrefData.getSectionName());
 						continue;
 					}
 					//System.out.println(faultSectionPrefData.getSectionName());
@@ -204,6 +204,7 @@ public abstract class FaultsFetcher {
 	 * @return
 	 */
 	public abstract double[] getRecurIntv(String selectedSegmentModel);
+	
 	
 	/**
 	 * Get the Segment model name

@@ -9,7 +9,7 @@
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
 - Elsinore
-236:Whittier, alt 1
+236:Whittier, alt 2
 296:Elsinore (Glen Ivy) rev; 297:Elsinore (Glen Ivy stepover)
 299:Elsinore (Temecula) rev; 298:Elsinore (Temecula stepover)
 102:Elsinore (Julian)
