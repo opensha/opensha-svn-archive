@@ -9,100 +9,100 @@
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
 - Palos Verdes
-109
-121
+109:Palos Verdes
+121:Coronado Bank
 - Newport Inglewood
-123
-122
-235
+123:Rose Canyon
+122:Newport-Inglewood (Offshore)
+235:Newport-Inglewood, alt 1
  - Raymond
-111
-219
-226
-108
-152
+111:Santa Cruz Island
+219:Anacapa-Dume, alt 1
+226:Santa Monica, alt 1
+108:Hollywood
+152:Raymond
 - Malibu Coast
-220
-221
+220:Malibu Coast, alt 1
+221:Malibu Coast (Extension), alt 1
 - Channel Islands
-214
-129
+214:Channel Islands Western Deep Ramp
+129:Channel Islands Thrust
 - Oak Ridge
-203
-218
-116
+203:Oak Ridge (Offshore), west extension
+218:Oak Ridge (Offshore)
+116:Oak Ridge (Onshore)
 - Pitas Point
-217
-117
+217:Pitas Point (Upper)
+117:Ventura-Pitas Point
 - Santa Ana
-78
-80
-228
+78:Mission Ridge-Arroyo Parida-Santa Ana
+80:San Cayetano
+228:Holser, alt 1
 - Santa Ynez
-77
-79
+77:Santa Ynez (West)
+79:Santa Ynez (East)
 - Sierra Madre
-227
-113
-114
-125
+227:Santa Susana, alt 1
+113:Sierra Madre (San Fernando)
+114:Sierra Madre
+125:Cucamonga
 - Frontal
-82
-83
+82:North Frontal  (West)
+83:North Frontal  (East)
 - San Gabriel
-247
-248
+247:San Gabriel
+248:San Gabriel (Extension)
 - Landers
-86
-92
+86:Gravel Hills-Harper Lk
+92:Landers
 - Death Valley
-45
-46
-245
-246
+45:Death Valley (No of Cucamongo)
+46:Death Valley (No)
+245:Death Valley (Black Mtns Frontal)
+246:Death Valley (So)
 -Hunter Mountain
-50
-244
+50:Hunter Mountain-Saline Valley
+244:Panamint Valley
 - Sierra Nevada
-65
-210
-63
+65:Independence
+210:Sierra Nevada  (No Extension)
+63:So Sierra Nevada
 - Mono Lake
-38
-39
-40
-41
-42
+38:Robinson Creek
+39:Mono Lake
+40:Hartley Springs
+41:Hilton Creek
+42:Round Valley
 - White Wolf
-253
-254
-209
+253:White Wolf
+254:White Wolf (Extension)
+209:Scodie Lineament
 - Hosgri
-30
-208
+30:Hosgri
+208:Hosgri (Extension)
 - Great Valley First
-131
-133
-132
-134
-135
+131:Great Valley 1
+133:Great Valley 2
+132:Great Valley 3, Mysterious Ridge
+134:Great Valley 4a, Trout Creek
+135:Great Valley 5, Pittsburg Kirby Hills
 - Great Valley Second
-136
-137
-151
-138
-139
-140
-142
-141
+136:Great Valley 7
+137:Great Valley 8
+151:Great Valley 9
+138:Great Valley 10
+139:Great Valley 11
+140:Great Valley 12
+142:Great Valley 13 (Coalinga)
+141:Great Valley 14 (Kettleman Hills)
 - Green Valley
-7
-2
-3
-1
-71
-72
-24
+7:Greenville (So)
+2:Mount Diablo Thrust
+3:Concord
+1:Green Valley (So)
+71:Green Valley (No)
+72:Hunting Creek-Berryessa
+24:Bartlett Springs
 - Salmon
-17
-16
+17:Little Salmon (Onshore)
+16:Little Salmon (Offshore)

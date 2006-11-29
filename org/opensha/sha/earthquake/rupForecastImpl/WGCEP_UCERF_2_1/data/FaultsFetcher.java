@@ -174,6 +174,7 @@ public abstract class FaultsFetcher {
 						//System.out.println(faultSectionPrefData.getSectionName());
 						continue;
 					}
+					//System.out.println(faultSectionPrefData.getSectionName());
 					faultSectionList.add(faultSectionPrefData);
 					newSegment.add(faultSectionPrefData);		
 				}
@@ -220,9 +221,12 @@ public abstract class FaultsFetcher {
 	 */ 
 	private ArrayList getSegment(String line) {
 		ArrayList faultSectionsIdList = new ArrayList();
-		StringTokenizer tokenizer = new StringTokenizer(line,"\n,");
-		while(tokenizer.hasMoreTokens()) 
-			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer.nextToken().trim())));
+		StringTokenizer tokenizer = new StringTokenizer(line,"\n;");
+		while(tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken().trim();
+			StringTokenizer tokenizer2 = new StringTokenizer(token, ":");
+			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer2.nextToken().trim())));
+		}
 		return faultSectionsIdList;
 	}
 }

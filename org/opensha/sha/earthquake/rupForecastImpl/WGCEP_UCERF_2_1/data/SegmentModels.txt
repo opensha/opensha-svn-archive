@@ -9,47 +9,47 @@
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
 - Elsinore
-236
-296, 297
-299, 298
-102
-103
+236:Whittier, alt 1
+296:Elsinore (Glen Ivy) rev; 297:Elsinore (Glen Ivy stepover)
+299:Elsinore (Temecula) rev; 298:Elsinore (Temecula stepover)
+102:Elsinore (Julian)
+103:Elsinore (Coyote Mountain)
 - Garlock
-48
-341
-49
+48:Garlock (East)
+341:Garlock (Central)
+49:Garlock (West)
 - San Jacinto
-119 
-289, 290
-291, 293 
-292
-101
-99
-28
+119:San Jacinto (San Bernardino)
+289:San Jacinto (San Jacinto Valley) rev; 290:San Jacinto (San Jacinto Valley, stepover)
+291:San Jacinto (Anza, stepover); 293:San Jacinto (Anza) rev 
+292:San Jacinto (Clark) rev
+101:San Jacinto (Coyote Creek)
+99:San Jacinto (Borrego)
+28:Superstition Mtn
 - N. San Andreas
-26
-27
-67
-56
+26:San Andreas (Offshore)
+27:San Andreas (North Coast)
+67:San Andreas (Peninsula)
+56:San Andreas (Santa Cruz Mtn)
 - S. San Andreas
-32 
-285
-300
-287
-286
-301
-282
-283
-284
-295
+32:San Andreas (Parkfield)
+285:San Andreas (Cholame) rev
+300:San Andreas (Carrizo) rev
+287:San Andreas (Big Bend)
+286:San Andreas (Mojave N)
+301:San Andreas (Mojave S)
+282:San Andreas (San Bernardino N)
+283:San Andreas (San Bernardino S)
+284:San Andreas (San Gorgonio Pass-Garnet HIll)
+295:San Andreas (Coachella) rev
 - Hayward-Rogers Creek
-25
-68
-69
+25:Rodgers Creek
+68:Hayward (No)
+69:Hayward (So)
 - Calaveras
-4
-5
-55
+4:Calaveras (No)
+5:Calaveras (Central)
+55:Calaveras (So)
 - San Gregorio
-12
-29
+12:San Gregorio (No)
+29:San Gregorio (So)

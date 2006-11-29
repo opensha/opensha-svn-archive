@@ -9,9 +9,9 @@
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
 - Green Valley
-1
-71
-3
+1:Green Valley (So)
+71:Green Valley (No)
+3:Concord
 - Greenville
-6
-7
+6:Greenville (No)
+7:Greenville (So) 
