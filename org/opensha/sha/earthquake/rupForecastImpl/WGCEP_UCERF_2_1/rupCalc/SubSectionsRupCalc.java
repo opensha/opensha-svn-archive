@@ -25,7 +25,7 @@ public class SubSectionsRupCalc {
 	private  double maxSubSectionLength = 10;
 	private final static Location LOCATION = new Location(31.5, -115.0);
 	private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
-	private ArrayList rupList;
+	private ArrayList<MultipleSectionRup> rupList;
 	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList subSectionList;
 	private ArrayList doneList;
@@ -41,9 +41,7 @@ public class SubSectionsRupCalc {
 	  }
 
 	  public void doProcessing()  {
-	    try {
-	
-	      rupList = new ArrayList();
+	    try {      
 	      subSectionList = getAllSubSections(); // get all the fault sections
 	      createTreesForFaultSections(); // discretize the section in 5km
 	      System.out.println("Total ruptures="+rupList.size());
@@ -79,6 +77,7 @@ public class SubSectionsRupCalc {
 	      InvalidRangeException {
 		  
 		 clusterList = new ArrayList<Tree>();
+		 rupList = new ArrayList<MultipleSectionRup>();
 		 // create trees 
 		 doneList = new ArrayList();
 		 for(int i=0; i<subSectionList.size(); ++i) {
@@ -87,11 +86,10 @@ public class SubSectionsRupCalc {
 	    	Tree tree = new Tree();
 	    	getAdjacentFaultSectionNodes(tree, i);
 	    	clusterList.add(tree);
-	    	System.out.println("***********TREE "+clusterList.size()+" ***********\n");
-	    	tree.writeInfo();
+	    	//System.out.println("***********TREE "+clusterList.size()+" ***********\n");
+	    	//tree.writeInfo();
 	    	ArrayList treeRupList = tree.getRuptures();
 	    	rupList.addAll(treeRupList);
-	    	//System.exit(0);
 	    }
 	    System.out.println("Total Subsections ="+subSectionList.size());
 	    System.out.println("Total Clusters ="+clusterList.size());
@@ -116,8 +114,33 @@ public class SubSectionsRupCalc {
 	  public Tree getCluster(int index) {
 		  return this.clusterList.get(index);
 	  }
+	  
+	  /**
+	   * Get the number of ruptures
+	   * 
+	   * @return
+	   */
+	  public int getNumRuptures() {
+		  return this.rupList.size();
+	  }
 
-
+	  /**
+	   * Get the rupture at the specified index
+	   * 
+	   * @param rupIndex
+	   * @return
+	   */
+	  public MultipleSectionRup getRupture(int rupIndex) {
+		  return rupList.get(rupIndex);
+	  }
+	  
+	  /**
+	   * Return a list of all ruptures
+	   * @return
+	   */
+	  public ArrayList<MultipleSectionRup> getRupList() {
+		  return this.rupList;
+	  }
 
 	  /**
 	   * Get all the faults within interFaultCutOffDistance kms of the location loc

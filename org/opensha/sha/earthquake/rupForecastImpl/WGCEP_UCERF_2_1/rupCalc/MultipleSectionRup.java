@@ -13,10 +13,10 @@ import java.util.ArrayList;
  */
 public class MultipleSectionRup {
 	
-	public ArrayList<Integer> subSectionNamesList;
+	public ArrayList<Integer> subSectionIdsList;
 	
 	public  MultipleSectionRup(ArrayList<Integer> subSectionList) {
-		subSectionNamesList = (ArrayList<Integer>) subSectionList.clone();
+		subSectionIdsList = (ArrayList<Integer>) subSectionList.clone();
 	}
 	
 	/**
@@ -24,7 +24,7 @@ public class MultipleSectionRup {
 	 * @return
 	 */
 	public int getNumSubSections() {
-		return this.subSectionNamesList.size();
+		return this.subSectionIdsList.size();
 	}
 	
 	/**
@@ -34,7 +34,7 @@ public class MultipleSectionRup {
 	 * @return
 	 */
 	public int getSubSection(int index) {
-		return subSectionNamesList.get(index);
+		return subSectionIdsList.get(index);
 	}
 	
 	

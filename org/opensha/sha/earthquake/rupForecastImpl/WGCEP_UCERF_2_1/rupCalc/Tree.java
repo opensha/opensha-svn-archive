@@ -69,10 +69,10 @@ public class Tree {
 		  rupList = new ArrayList<MultipleSectionRup>() ;
 		  Iterator<Integer> it = this.treeBranchMap.keySet().iterator();
 		  while(it.hasNext()) {
-			  int subSecName = it.next();
+			  int subSecId = it.next();
 			  ArrayList rupture= new ArrayList();
 			  // if(isTraversed(subSecName)) continue;
-			  traverse(subSecName, rupture);
+			  traverse(subSecId, rupture);
 		  }
 		  return this.rupList;
 	}
