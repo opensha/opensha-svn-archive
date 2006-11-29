@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -15,11 +16,13 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.data.Location;
 import org.opensha.data.ValueWeight;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -35,9 +38,10 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher extends FaultsFetcher{
-	private final static String RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v10.xls";
+	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v10.xls";
+	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/Rev_Poisson_table_2.xls";
 	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModels.txt";
-	private HashMap segmentIntvAndRupRates = new HashMap();
+	private HashMap<String,RupSegRates> segmentIntvAndRupRates = new HashMap<String,RupSegRates>();
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
@@ -58,7 +62,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 */
 	private void readRupAndSegRatesFromExcelFile() {
 		try {
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RUP_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastIndex = sheet.getLastRowNum();
@@ -69,7 +73,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				// segment name
 				String faultName = cell.getStringCellValue().trim();
 				RupSegRates rupSegRates = new RupSegRates(faultName);
-				ArrayList segmentNames = new ArrayList();
+				ArrayList rupNames = new ArrayList();
 				r=r+2;
 				while(true) {
 					row = sheet.getRow(r++);
@@ -77,141 +81,111 @@ public class A_FaultsFetcher extends FaultsFetcher{
 					String name = cell.getStringCellValue().trim();
 					if(name.equalsIgnoreCase("Total"))
 						break;
-					else segmentNames.add(name);
+					else rupNames.add(name);
 					// rup rate for the 3 models
 					double prefRate = row.getCell((short)1).getNumericCellValue();
 					double minRate = row.getCell((short)2).getNumericCellValue();
 					double maxRate = row.getCell((short)3).getNumericCellValue();
 					rupSegRates.addRupRate(prefRate, minRate, maxRate);
-					// if segment rate is available
+					/*// if segment rate is available
 					cell = row.getCell( (short) 5);
 					//System.out.println("***** ==" +cell.getNumericCellValue());
 					if(cell != null &&
 							! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) 
-						rupSegRates.addSegRecurInterv(1.0/cell.getNumericCellValue());
+						rupSegRates.addMeanSegRecurInterv(1.0/cell.getNumericCellValue());*/
 				}
 				r=r+1;
 				// convert segment names ArrayLList to String[] 
-				String segNames[] = new String[segmentNames.size()];
-				for(int i=0; i<segmentNames.size(); ++i) segNames[i] = (String) segmentNames.get(i);
+				String ruptureNames[] = new String[rupNames.size()];
+				for(int i=0; i<rupNames.size(); ++i) ruptureNames[i] = (String) rupNames.get(i);
 				this.segmentIntvAndRupRates.put(faultName, rupSegRates);
-				this.segmentNamesMap.put(faultName, segNames);
+				this.segmentNamesMap.put(faultName, ruptureNames);
 			}
+			readSegRates();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	/**
-	 * Read the high low and mean recur intervals from the excel sheet
-	 * @return
+	 * Read the segment recurrence intervals
+	 *
 	 */
-	public HashMap getHighLowMeanRecurIntv() {
-		HashMap highLowMeanRecurIntv=new HashMap();
-		String RI_AVE = "RI Ave";
+	private void readSegRates() {
 		try {
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RATE_FILE_NAME));
+			
+			// set all the recurrence intervals to Double.NaN
+			Iterator<String> it = segmentIntvAndRupRates.keySet().iterator();
+			while(it.hasNext()) {
+				String faultName = it.next();
+				RupSegRates rupSegRates = segmentIntvAndRupRates.get(faultName);
+				ArrayList segmentsList = (ArrayList)this.faultModels.get(faultName);
+				for(int segIndex=0; segIndex<segmentsList.size(); ++segIndex) {
+					rupSegRates.setMeanSegRecurInterv(segIndex, Double.NaN);
+					rupSegRates.setLowSegRecurInterv(segIndex, Double.NaN);
+					rupSegRates.setHighSegRecurInterv(segIndex, Double.NaN);
+				}
+			}
+					
+			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			for(int sheetIndex=1; sheetIndex<wb.getNumberOfSheets(); ++sheetIndex) {
-				HSSFSheet sheet = wb.getSheetAt(sheetIndex);
-				String faultName = wb.getSheetName(sheetIndex);
-				SegmentRecurIntv segRecurIntv= new SegmentRecurIntv(faultName);
-				int lastRowIndex = sheet.getLastRowNum();
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastRowIndex = sheet.getLastRowNum();
+			double lat, lon, rate, sigma;
+			int faultSectionId;
+			for(int r=2; r<=lastRowIndex; ++r) {	
+				HSSFRow row = sheet.getRow(r);
+				if(row==null) continue;
+				HSSFCell cell = row.getCell( (short) 1);
+				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+				lat = cell.getNumericCellValue();
+				lon = row.getCell( (short) 2).getNumericCellValue();
+				rate = row.getCell( (short) 18).getNumericCellValue();
+				sigma =  row.getCell( (short) 19).getNumericCellValue();
 				
-				// read data for each row and find the place where recurreence intervals are given in the sheet
-				boolean found = false;
-				int r=2;
-				int col=0;
-				for(; r<=lastRowIndex && !found; ++r) {	
-					HSSFRow row = sheet.getRow(r);
-					if(row==null) continue;
-					col = 0;
-					while(col<10) {
-						//System.out.println(sheetIndex+","+r+","+col);
-						HSSFCell cell = row.getCell( (short) col);
-						//System.out.println(cell.getCellType()+","+cell.getStringCellValue().trim());
-						if(cell!=null && cell.getCellType() == HSSFCell.CELL_TYPE_STRING && cell.getStringCellValue().trim().equalsIgnoreCase(RI_AVE)) {
-							found = true;
-							break;
-						}
-						++col;
-					}
-				}
+				faultSectionId = PaleoSiteDB_DAO.getClosestFaultSection(new Location(lat,lon)).getSectionId();
+				//System.out.println(lat+","+lon+","+faultSectionId);
+				setRecurIntv(faultSectionId, rate, sigma);
 				
-				int count=1;
-				// now we have the row and col where mean recurrence interval starts
-				for(; r<=lastRowIndex; ++r, ++count) {
-					
-					// skip SJV model B
-					if(count==3 && faultName.equalsIgnoreCase("San Jacinto")) continue; 
-					
-					HSSFRow row = sheet.getRow(r);
-					if(row==null) break;
-					//System.out.println("||||||||"+sheetIndex+","+r+","+col);
-					// mean recur intv 
-					HSSFCell cell = row.getCell( (short) col);
-					if(cell == null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
-					else if(cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC ||
-							cell.getCellType()== HSSFCell.CELL_TYPE_FORMULA) {
-						segRecurIntv.addMeanRecurIntv(cell.getNumericCellValue());
-						//System.out.println("$$$$$$$"+sheetIndex+","+r+","+col);
-					}
-					else {
-						try {
-							//System.out.println(cell.getStringCellValue().trim()+","+sheetIndex+","+r+","+col);
-							Double d = new Double(cell.getStringCellValue().trim());
-							
-							segRecurIntv.addMeanRecurIntv(d.doubleValue());
-							//System.out.println("*******"+sheetIndex+","+r+","+col);
-						}catch(NumberFormatException e) {
-							segRecurIntv.addMeanRecurIntv(Double.NaN);
-							//System.out.println("&&&&&&&&"+sheetIndex+","+r+","+col);
-						}
-					}
-					
-					// low recur intv
-					HSSFCell lowCell = row.getCell( (short) (col+1));
-					if(lowCell==null || lowCell.getCellType()==HSSFCell.CELL_TYPE_BLANK) segRecurIntv.addLowRecurIntv(Double.NaN);
-					else if( lowCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC ||
-							lowCell.getCellType()== HSSFCell.CELL_TYPE_FORMULA) {
-						segRecurIntv.addLowRecurIntv(lowCell.getNumericCellValue());
-					}
-					else  {
-						try {
-							Double d = new Double(lowCell.getStringCellValue());
-							segRecurIntv.addLowRecurIntv(d.doubleValue());
-						}catch(NumberFormatException e) {
-							segRecurIntv.addLowRecurIntv(Double.NaN);
-						}
-					}
-					
-					
-					// high recur intv
-					HSSFCell highCell = row.getCell( (short) (col+2));
-					if(highCell==null || highCell.getCellType()==HSSFCell.CELL_TYPE_BLANK) segRecurIntv.addHighRecurIntv(Double.NaN);
-					else if(highCell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC ||
-							highCell.getCellType()== HSSFCell.CELL_TYPE_FORMULA) {
-						segRecurIntv.addHighRecurIntv(highCell.getNumericCellValue());
-					}
-					else {
-						try {
-							Double d = new Double(highCell.getStringCellValue());
-							segRecurIntv.addHighRecurIntv(d.doubleValue());
-						}catch(NumberFormatException e) {
-							segRecurIntv.addHighRecurIntv(Double.NaN);
-						}
-					}
-					
-				}
-				highLowMeanRecurIntv.put(faultName, segRecurIntv);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		return highLowMeanRecurIntv;
 	}
 	
+	
+	/**
+	 * Set the recurrence intervals for this fault section. First we find the correct segment and then set the recurrence intervals.
+	 * @param faultSectiondId
+	 * @param rate
+	 * @param sigma
+	 */
+	private void setRecurIntv(int faultSectionId, double rate, double sigma) {
+
+		Iterator<String> it = segmentIntvAndRupRates.keySet().iterator();
+		// Iterate over all A-Faults
+		while(it.hasNext()) {
+			String faultName = it.next();
+			RupSegRates rupSegRates = segmentIntvAndRupRates.get(faultName);
+			ArrayList segmentsList = (ArrayList)this.faultModels.get(faultName);
+			// iterate over all segments in this fault
+			for(int i=0; i<segmentsList.size(); ++i) {
+				ArrayList segment = (ArrayList)segmentsList.get(i);
+				// iterate over all sections in a segment
+				for(int segIndex=0; segIndex<segment.size(); ++segIndex) {
+					if(faultSectionId == ((FaultSectionSummary)segment.get(segIndex)).getSectionId()) {
+						rupSegRates.setMeanSegRecurInterv(segIndex, 1/rate);
+						rupSegRates.setLowSegRecurInterv(segIndex, 1/(rate+2*sigma));
+						rupSegRates.setHighSegRecurInterv(segIndex, 1/(rate-2*sigma));
+						return;
+					}
+				}
+			}
+		}
+		
+		throw new RuntimeException ("The location cannot be mapped to a A-Fault segment");
+	}
 	
 	/**
 	 * Get recurrence intervals for selected segment model
@@ -222,10 +196,35 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
 		double[] recurIntv = new double[rupSegRates.getNumSegments()];
 		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
-			recurIntv[i] = rupSegRates.getSegRecurInterv(i);
+			recurIntv[i] = rupSegRates.getMeanSegRecurInterv(i);
 		return recurIntv;
 	}
 	
+	/**
+	 * Get low recurrence intervals for selected segment model
+	 * @param selectedSegmentModel
+	 * @return
+	 */
+	public double[] getLowRecurIntv(String selectedSegmentModel) {
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+		double[] recurIntv = new double[rupSegRates.getNumSegments()];
+		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
+			recurIntv[i] = rupSegRates.getLowSegRecurInterv(i);
+		return recurIntv;
+	}
+	
+	/**
+	 * Get high recurrence intervals for selected segment model
+	 * @param selectedSegmentModel
+	 * @return
+	 */
+	public double[] getHighRecurIntv(String selectedSegmentModel) {
+		RupSegRates rupSegRates = (RupSegRates)this.segmentIntvAndRupRates.get(selectedSegmentModel);
+		double[] recurIntv = new double[rupSegRates.getNumSegments()];
+		for(int i=0; i<rupSegRates.getNumSegments(); ++i)
+			recurIntv[i] = rupSegRates.getHighSegRecurInterv(i);
+		return recurIntv;
+	}
 	
 	/**
 	 * Get apriori rupture rates

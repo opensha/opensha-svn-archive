@@ -12,9 +12,13 @@ import java.util.ArrayList;
  *
  */
 public class RupSegRates {
-	private String segmentName;
+	private String faultName;
 	//segment rates
-	private ArrayList segmentRecurInterval = new ArrayList();
+	private ArrayList meanSegRecurInterval = new ArrayList();
+//	segment rates
+	private ArrayList lowSegRecurInterval = new ArrayList();
+//	segment rates
+	private ArrayList highSegRecurInterval = new ArrayList();
 	// rupture rates for geologic insight model
 	private ArrayList geolInsightRupRate = new ArrayList();
 	// rup rates for min rup model
@@ -26,8 +30,8 @@ public class RupSegRates {
 	 * constructor : Aceepts the segment name
 	 * @param segmentName
 	 */
-	public RupSegRates(String segmentName) {
-		this.segmentName = segmentName;
+	public RupSegRates(String faultName) {
+		this.faultName = faultName;
 	}
 	
 	/**
@@ -35,8 +39,8 @@ public class RupSegRates {
 	 * 
 	 * @return
 	 */
-	public String getSegmentName() {
-		return segmentName;
+	public String getFaultName() {
+		return faultName;
 	}
 	
 	/**
@@ -57,25 +61,69 @@ public class RupSegRates {
 	 * @return
 	 */
 	public int getNumSegments() {
-		return segmentRecurInterval.size();
+		return meanSegRecurInterval.size();
 	}
 	
 	/**
-	 * Get the segment rate
+	 * Get the mean segment recurrence interval
 	 * @param index
 	 * @return
 	 */
-	public double getSegRecurInterv(int index) {
-		return ((Double)segmentRecurInterval.get(index)).doubleValue();
+	public double getMeanSegRecurInterv(int index) {
+		return ((Double)meanSegRecurInterval.get(index)).doubleValue();
 	}
 	
 	/**
-	 * Add segment recurrence interval
+	 * Add mean segment recurrence interval
 	 * 
 	 * @param recurInterval
 	 */
-	public void addSegRecurInterv(double recurInterval) {
-		this.segmentRecurInterval.add(new Double(recurInterval));
+	public void setMeanSegRecurInterv(int segIndex, double recurInterval) {
+		if(segIndex<meanSegRecurInterval.size())
+			this.meanSegRecurInterval.set(segIndex, new Double(recurInterval));
+		else this.meanSegRecurInterval.add(new Double(recurInterval));
+	}
+	
+	
+	/**
+	 * Get the low segment recurrence interval
+	 * @param index
+	 * @return
+	 */
+	public double getLowSegRecurInterv(int index) {
+		return ((Double)lowSegRecurInterval.get(index)).doubleValue();
+	}
+	
+	/**
+	 * Add Low segment recurrence interval
+	 * 
+	 * @param recurInterval
+	 */
+	public void setLowSegRecurInterv(int segIndex, double recurInterval) {
+		if(segIndex<lowSegRecurInterval.size())
+			this.lowSegRecurInterval.set(segIndex, new Double(recurInterval));
+		else this.lowSegRecurInterval.add(new Double(recurInterval));
+	}
+	
+	/**
+	 * Get the High segment recurrence interval
+	 * @param index
+	 * @return
+	 */
+	public double getHighSegRecurInterv(int index) {
+		return ((Double)highSegRecurInterval.get(index)).doubleValue();
+	}
+	
+	/**
+	 * Add High segment recurrence interval
+	 * 
+	 * @param recurInterval
+	 */
+	public void setHighSegRecurInterv(int segIndex, double recurInterval) {
+		if(segIndex<highSegRecurInterval.size())
+			this.highSegRecurInterval.set(segIndex, new Double(recurInterval));
+		else this.highSegRecurInterval.add(new Double(recurInterval));
+			
 	}
 	
 	/**

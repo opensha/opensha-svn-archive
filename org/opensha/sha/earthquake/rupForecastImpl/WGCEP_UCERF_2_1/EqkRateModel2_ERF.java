@@ -1295,7 +1295,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		HashMap recurIntvMap = this.aFaultsFetcher.getHighLowMeanRecurIntv();
 		int numA_Faults = 8;	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
@@ -1374,14 +1373,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 // write Seg Names and mean Recur Intv
 								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 								 rupStartRow[i] = currRow[i];
-								 SegmentRecurIntv segRecurIntv = (SegmentRecurIntv)recurIntvMap.get(source.getFaultSegmentData().getFaultName());
+								 double meanRecurIntv[] = this.aFaultsFetcher.getRecurIntv(source.getFaultSegmentData().getFaultName());
+								 double lowRecurIntv[] = this.aFaultsFetcher.getLowRecurIntv(source.getFaultSegmentData().getFaultName());
+								 double highRecurIntv[] = this.aFaultsFetcher.getHighRecurIntv(source.getFaultSegmentData().getFaultName());
+								 
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
 									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
-									 if(!Double.isNaN(segRecurIntv.getMeanRecurIntv(seg))) row.createCell((short)1).setCellValue((int)Math.round(segRecurIntv.getMeanRecurIntv(seg)));
-									 if(!Double.isNaN(segRecurIntv.getLowRecurIntv(seg))) row.createCell((short)2).setCellValue((int)Math.round(segRecurIntv.getLowRecurIntv(seg)));
-									 if(!Double.isNaN(segRecurIntv.getHighRecurIntv(seg))) row.createCell((short)3).setCellValue((int)Math.round(segRecurIntv.getHighRecurIntv(seg)));
+									 if(!Double.isNaN(meanRecurIntv[seg])) row.createCell((short)1).setCellValue((int)Math.round(meanRecurIntv[seg]));
+									 if(!Double.isNaN(lowRecurIntv[seg])) row.createCell((short)2).setCellValue((int)Math.round(lowRecurIntv[seg]));
+									 if(!Double.isNaN(highRecurIntv[seg])) row.createCell((short)3).setCellValue((int)Math.round(highRecurIntv[seg]));
 
 									 //row.createCell((short)1).setCellValue(source.getS(rup));
 								 }
@@ -1432,7 +1434,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		HashMap recurIntvMap = this.aFaultsFetcher.getHighLowMeanRecurIntv();
 		int numA_Faults = 8;	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
@@ -1506,7 +1507,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 // write Seg Names and original Slip Rate
 								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 								 rupStartRow[i] = currRow[i];
-								 SegmentRecurIntv segRecurIntv = (SegmentRecurIntv)recurIntvMap.get(source.getFaultSegmentData().getFaultName());
+								 
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));

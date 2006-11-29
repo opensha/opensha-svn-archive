@@ -22,7 +22,7 @@ import org.opensha.util.FileUtils;
 * @author vipingupta
 */
 public abstract class FaultsFetcher {
-	private HashMap faultModels;
+	protected HashMap faultModels;
 	// DAO to access the fault section database
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	protected DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
@@ -167,6 +167,7 @@ public abstract class FaultsFetcher {
 				ArrayList newSegment = new ArrayList();
 				// iterate over all sections in a segment
 				for(int j=0; j<sectionList.size(); ++j) {
+					//System.out.println(faultModel+","+j);
 					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 					FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
 					if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
