@@ -343,7 +343,7 @@ public class PaleoSiteDB_DAO  {
    * @param loc
    * @return
    */
-  private  FaultSectionPrefData getClosestFaultSection(Location loc) {
+  public static FaultSectionPrefData getClosestFaultSection(Location loc) {
 	  double minDist = Double.MAX_VALUE, dist;
 	  FaultSectionPrefData closestFaultSection=null;
 	  for(int i=0; i<prefFaultSectionDataList.size(); ++i) {
@@ -393,7 +393,34 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
 }
 
  	public static void main(String args[]) {
- 	
+ 		ArrayList<Location> locList = new ArrayList<Location>();
+ 		locList.add(new Location(37.5104,	-121.8346));
+ 		locList.add(new Location(33.7701,	-117.4909));
+ 		locList.add(new Location(33.2071,	-116.7273));
+ 		locList.add(new Location(33.4100,	-117.0400));
+ 		locList.add(new Location(33.9303,	-117.8437));
+ 		locList.add(new Location(35.4441,	-117.6815));
+ 		locList.add(new Location(34.9868,	-118.5080));
+ 		locList.add(new Location(37.9306,	-122.2977));
+ 		locList.add(new Location(37.5563,	-121.9739));
+ 		locList.add(new Location(38.0320,	-122.7891));
+ 		locList.add(new Location(36.9415,	-121.6729));
+ 		locList.add(new Location(38.5200,	-123.2400));
+ 		locList.add(new Location(37.5207,	-122.5135));
+ 		locList.add(new Location(33.6153,	-116.7091));
+ 		locList.add(new Location(32.9975,	-115.9436));
+ 		locList.add(new Location(33.9730,	-116.8170));
+ 		locList.add(new Location(35.1540,	-119.7000));
+ 		locList.add(new Location(33.7414,	-116.1870));
+ 		locList.add(new Location(34.4556,	-117.8870));
+ 		locList.add(new Location(34.2544,	-117.4340));
+ 		locList.add(new Location(34.1158,	-117.1370));
+ 		locList.add(new Location(33.8200,	-116.3010));
+ 		locList.add(new Location(34.3697,	-117.6680));
+ 		for(int i=0; i<locList.size(); ++i) {
+ 			System.out.println(PaleoSiteDB_DAO.getClosestFaultSection(locList.get(i)).getSectionName());
+ 		}
+ 		
  		/*
  		// FOR OBTAINING QFAULT ID for Peter Bird's DATA 
  		ArrayList lines=null;

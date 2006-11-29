@@ -261,17 +261,24 @@ public class FaultSectionVer2_DB_DAO {
   }
   
   public ArrayList getAllFaultSectionsSummary() {
-	  return getFaultSectionSummary("");
+	  return getSummary("");
   }
   
   public FaultSectionSummary getFaultSectionSummary(int faultSectionId) {
-	  ArrayList faultSectionSummaryList = getFaultSectionSummary(" where "+SECTION_ID+"="+faultSectionId);
+	  ArrayList faultSectionSummaryList = getSummary(" where "+SECTION_ID+"="+faultSectionId);
+	  FaultSectionSummary faultSectionSummary = null;
+	  if (faultSectionSummaryList.size()>0) faultSectionSummary = (FaultSectionSummary)faultSectionSummaryList.get(0);
+	  return faultSectionSummary;
+  }
+  
+  public FaultSectionSummary getFaultSectionSummary(String faultSectionName) {
+	  ArrayList faultSectionSummaryList = getSummary(" where "+SECTION_NAME+"='"+faultSectionName+"'");
 	  FaultSectionSummary faultSectionSummary = null;
 	  if (faultSectionSummaryList.size()>0) faultSectionSummary = (FaultSectionSummary)faultSectionSummaryList.get(0);
 	  return faultSectionSummary;
   }
 
-private ArrayList getFaultSectionSummary(String condition) {
+  private ArrayList getSummary(String condition) {
 	ArrayList faultSectionsSummaryList = new ArrayList();
 	  String sql =  "select "+SECTION_ID+","+SECTION_NAME+" from "+TABLE_NAME+" "+condition+" order by ("+SECTION_NAME+")";
 
