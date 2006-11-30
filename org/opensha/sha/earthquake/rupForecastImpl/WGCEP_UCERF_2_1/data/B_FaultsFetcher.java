@@ -32,20 +32,15 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * default constructor
 	 *
 	 */
-	public B_FaultsFetcher(String bFilesConnectFileName) {
-		super(bFilesConnectFileName);
-		this.connectB_FaultsFileName = bFilesConnectFileName;
-		aFaultsFetcher = new A_FaultsFetcher();
-		// make special fault info
-		allSpecialFaultIds = super.getAllFaultSectionsIdList();
-	}
+	public B_FaultsFetcher() {	}
 	
 	/**
-	 * Set the connection file name
+	 * Set the connection file name. This function needs to be called before any other function can be called.
 	 * @param fileName
 	 */
-	public void setConnectionFileName(String fileName) {
-		if(!connectB_FaultsFileName.equals(fileName)) {
+	public void setConnectionFileName(String fileName, A_FaultsFetcher aFaultsFetcher) {
+		this.aFaultsFetcher = aFaultsFetcher;
+		if(connectB_FaultsFileName==null || !connectB_FaultsFileName.equals(fileName)) {
 			this.loadSegmentModels(fileName);
 			allSpecialFaultIds = super.getAllFaultSectionsIdList();
 			connectB_FaultsFileName = fileName;
@@ -137,7 +132,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public  ArrayList<SegRateConstraint> getSegRateConstraint(String selectedSegmentModel) {
+	public  ArrayList<SegRateConstraint> getSegRateConstraints(String selectedSegmentModel) {
 		return null;
 	}
 	
@@ -170,7 +165,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	
 	public static void main(String[] args) {
 		// def model ids from 42-49, 61 - 68
-		B_FaultsFetcher b = new B_FaultsFetcher("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_1.txt");
+		B_FaultsFetcher b = new B_FaultsFetcher();
 		ArrayList bFaults = b.getFaultSegmentDataList(42, true);
 		ArrayList<FaultSectionPrefData> preFaultSectionDataList = new ArrayList<FaultSectionPrefData>();
 		

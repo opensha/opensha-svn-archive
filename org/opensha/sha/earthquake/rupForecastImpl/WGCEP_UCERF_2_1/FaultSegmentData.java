@@ -157,10 +157,15 @@ public class FaultSegmentData {
 	 * @return recur int in years
 	 */
 	public double getRecurInterval(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = new ArrayList<SegRateConstraint>();
 		for(int i=0; segRates!=null && i<segRates.size(); ++i) {
-			if(segRates.get(i).getSegIndex()==index) return 1.0/segRates.get(i).getMean();
+			if(segRates.get(i).getSegIndex()==index) segmentConstraints.add(segRates.get(i));
 		}
-		return Double.NaN;
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
+			return 1.0/meanSegmentConstraint.getMean();
+		}
 	}
 	
 	/**

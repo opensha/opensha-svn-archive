@@ -3,6 +3,8 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 
+import java.util.ArrayList;
+
 
 /**
  * This class is used to save the segment Rates for the faults
@@ -68,5 +70,32 @@ public class SegRateConstraint {
 	public double getStdDevToMean() {
 		return this.stdDevToMean;
 	}
+	
+	/**
+	   * Get the weight mean and Std Dev
+	   * 
+	   * @param mean1
+	   * @param mean2
+	   * @param sigma1
+	   * @param sigma2
+	   * @return
+	   */
+	  public static SegRateConstraint getWeightMean(ArrayList<SegRateConstraint> segRateConstraintList) {
+		  double total = 0;
+		  double sigmaTotal = 0;
+		  String faultName=null;
+		  int segIndex = -1;
+		  for(int i=0; i<segRateConstraintList.size(); ++i) {
+			  SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
+			  faultName = segRateConstraint.getFaultName();
+			  segIndex = segRateConstraint.getSegIndex();
+			  double sigmaSq = 1/(segRateConstraint.getStdDevToMean()*segRateConstraint.getStdDevToMean());
+			  sigmaTotal+=sigmaSq;
+			  total+=sigmaSq*segRateConstraint.getMean();
+		  }
+		  SegRateConstraint finalSegRateConstraint = new SegRateConstraint(faultName);
+		  finalSegRateConstraint.setSegRate(segIndex, total/sigmaTotal, 1/sigmaTotal);
+		  return finalSegRateConstraint;
+	  }
 	
 }

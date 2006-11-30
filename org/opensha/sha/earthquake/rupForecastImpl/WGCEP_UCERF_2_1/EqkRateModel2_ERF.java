@@ -50,6 +50,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultP
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.B_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegmentRecurIntv;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -170,7 +171,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.8 use Fault Model 2.1, and D2.9 to D2.16 use Fault Model 2.2";
 	private StringParameter deformationModelsParam;
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private ArrayList deformationModelsList;
+	private ArrayList<DeformationModelSummary> deformationModelsList;
 	
 	// aseismic factor interpolated
 	public final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor Reduces Area?";
@@ -280,10 +281,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-	private B_FaultsFetcher bFaultsFetcher ;
-	private final static String B_CONNECT_FILENAME1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_0.txt";
-	private final static String B_CONNECT_FILENAME2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnections2_1.txt";
-	
+	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
+	private final static String B_CONNECT_MINIMAL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsMinimum.txt";
+	private final static String B_CONNECT_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.1.txt";
+	private final static String B_CONNECT_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.2.txt";
+	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.1.txt";
+	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.2.txt";
 	private ArrayList aFaultSources, bFaultSources;
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
@@ -317,7 +320,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		rupOffset_Param.addParameterChangeListener(this);
 		backSeisParam.addParameterChangeListener(this);
 		backSeisRupParam.addParameterChangeListener(this);
-		
+		deformationModelsParam.addParameterChangeListener(this);
+		connectMoreB_FaultsParam.addParameterChangeListener(this);
+		this.setA_FaultFileName();
+		this.setB_FaultConnectionsFileName();
 	}
 	
 	
@@ -399,6 +405,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 		deformationModelsParam = new StringParameter(DEFORMATION_MODEL_PARAM_NAME,deformationModelNames, (String)deformationModelNames.get(0) );
 		deformationModelsParam.setInfo(DEFORMATION_MODEL_PARAM_INFO);
+		
 		
 		// A-Fault model type
 		ArrayList rupModels = new ArrayList();
@@ -482,6 +489,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(setForBckParam);
 		adjustableParams.addParameter(backSeisMaxMagParam);
 		
+		
+		
 	}
 	
 	
@@ -489,15 +498,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * Get the Id of the selected deformation model
 	 * @return
 	 */
-	private int getSelectedDeformationModelId() {
+	private DeformationModelSummary getSelectedDeformationModelSummary() {
 		String selectedDefModel  = (String)this.deformationModelsParam.getValue();
 		for(int i=0; i<this.deformationModelsList.size(); ++i) {
 			DeformationModelSummary deformationModel = (DeformationModelSummary)deformationModelsList.get(i);
 			if(deformationModel.getDeformationModelName().equalsIgnoreCase(selectedDefModel)) {
-				return deformationModel.getDeformationModelId();
+				return deformationModel;
 			}
 		}
-		return -1;
+		return null;
 	}
 	
 	/**
@@ -825,7 +834,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
 		String rupModel = (String)this.rupModelParam.getValue();
 		String slipModel = (String)slipModelParam.getValue();
-		int deformationModelId = this.getSelectedDeformationModelId();
+		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault)
@@ -857,7 +866,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
 		double fractCharVsGR= ((Double)this.percentCharVsGRParam.getValue()).doubleValue()/100.0;
 		MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
-		int deformationModelId = this.getSelectedDeformationModelId();
+		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
@@ -883,19 +892,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
 		double fractCharVsGR= ((Double)this.percentCharVsGRParam.getValue()).doubleValue()/100.0;
 		MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
-		int deformationModelId = this.getSelectedDeformationModelId();
+		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		boolean isConnectMoreB_Faults = ((Boolean)this.connectMoreB_FaultsParam.getValue()).booleanValue();
 		double minMagGR = ((Double)this.bFaultsMinMagParam.getValue()).doubleValue();
-		
-		String fileName = B_CONNECT_FILENAME1;
-		if(isConnectMoreB_Faults) fileName = B_CONNECT_FILENAME2;
-		
-		if(bFaultsFetcher==null) {
-			bFaultsFetcher = new B_FaultsFetcher(fileName);
-		} else bFaultsFetcher.setConnectionFileName(fileName);
-		
 		ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
@@ -1149,8 +1149,50 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				adjustableParams.removeParameter(moRateFracToBackgroundParam);
 				adjustableParams.addParameter(backSeisMaxMagParam);
 			}
+		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
+			setB_FaultConnectionsFileName();
+		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
+			setA_FaultFileName();
+			setB_FaultConnectionsFileName();	
 		}
 		
+	}
+	
+	/**
+	 * Set the B-Fault conenction filname based on whether B-Faults need to be connected and the chosen deformation model
+	 *
+	 */
+	public void setB_FaultConnectionsFileName() {
+		boolean isConnectMoreB_Faults = ((Boolean)this.connectMoreB_FaultsParam.getValue()).booleanValue();
+		String fileName=null;
+		if(!isConnectMoreB_Faults)  { // if we do not have to connect B-Fsults
+			fileName = B_CONNECT_MINIMAL;
+		} else { // if B-Faults need to be connected
+			//find the deformation model
+			DeformationModelSummary defModelSummary = this.getSelectedDeformationModelSummary();
+			String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
+			// get the B-Fault filename based on selected fault model
+			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = B_CONNECT_MODEL1;
+			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = B_CONNECT_MODEL2;
+			else throw new RuntimeException("Unsupported Fault Model");
+		}
+		bFaultsFetcher.setConnectionFileName(fileName, this.aFaultsFetcher);
+	}
+	
+	/**
+	 * Set the A-Fault segments file name based on chosen deformation model
+	 *
+	 */
+	public void setA_FaultFileName() {
+//		find the deformation model
+		String fileName=null;
+		DeformationModelSummary defModelSummary = this.getSelectedDeformationModelSummary();
+		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
+		// get the B-Fault filename based on selected fault model
+		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
+		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
+		else throw new RuntimeException("Unsupported Fault Model");
+		this.aFaultsFetcher.setSegmentModelFileName(fileName);
 	}
 	
 	/**
@@ -1374,17 +1416,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 // write Seg Names and mean Recur Intv
 								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 								 rupStartRow[i] = currRow[i];
-								 double meanRecurIntv[] = this.aFaultsFetcher.getRecurIntv(source.getFaultSegmentData().getFaultName());
-								 double lowRecurIntv[] = this.aFaultsFetcher.getLowRecurIntv(source.getFaultSegmentData().getFaultName());
-								 double highRecurIntv[] = this.aFaultsFetcher.getHighRecurIntv(source.getFaultSegmentData().getFaultName());
-								 
+								 								 
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
+									 ArrayList<SegRateConstraint> segRatesList = aFaultsFetcher.getSegRateConstraints(source.getFaultSegmentData().getFaultName(), seg);
+									 if(segRatesList==null || segRatesList.size()==0) continue;
+									 SegRateConstraint finalSegRateConstraint = SegRateConstraint.getWeightMean(segRatesList);
 									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
-									 if(!Double.isNaN(meanRecurIntv[seg])) row.createCell((short)1).setCellValue((int)Math.round(meanRecurIntv[seg]));
-									 if(!Double.isNaN(lowRecurIntv[seg])) row.createCell((short)2).setCellValue((int)Math.round(lowRecurIntv[seg]));
-									 if(!Double.isNaN(highRecurIntv[seg])) row.createCell((short)3).setCellValue((int)Math.round(highRecurIntv[seg]));
+									 row.createCell((short)1).setCellValue((int)Math.round(1/finalSegRateConstraint.getMean()));
+									 row.createCell((short)2).setCellValue((int)Math.round(1/(finalSegRateConstraint.getMean()+2*finalSegRateConstraint.getStdDevToMean())));
+									 row.createCell((short)3).setCellValue((int)Math.round(1/(finalSegRateConstraint.getMean()-2*finalSegRateConstraint.getStdDevToMean())));
 
 									 //row.createCell((short)1).setCellValue(source.getS(rup));
 								 }

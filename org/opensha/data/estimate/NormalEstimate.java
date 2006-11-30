@@ -273,6 +273,6 @@ public class NormalEstimate extends Estimate {
     EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(min, max, numPoints);
     return func;
   }
-
-
+  
+  
 }

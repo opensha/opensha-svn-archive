@@ -40,22 +40,32 @@ import org.opensha.util.FileUtils;
 public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v10.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/Rev_Poisson_table_3.xls";
-	private final static String SEGMENT_MODELS_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModels.txt";
-	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap = new HashMap<String,A_PrioriRupRates>();
-	private HashMap<String,ArrayList> segRatesMap = new HashMap<String,ArrayList>();
+	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
+	private HashMap<String,ArrayList> segRatesMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
+	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 
 	
-	
+	/**
+	 * 
+	 *
+	 */
 	public A_FaultsFetcher() {
-		super(SEGMENT_MODELS_FILE_NAME);
+	}
+	
+	/**
+	 * Set the file name for the segment models. This function needs to be called before any other function can be called.
+	 * @param fileName
+	 */
+	public void setSegmentModelFileName(String fileName) {
+		aPrioriRupRatesMap = new HashMap<String,A_PrioriRupRates>();
+		segRatesMap = new HashMap<String,ArrayList>();
+		this.loadSegmentModels(fileName);
 		// this may be dependent on deformation model (fix later?):
 		this.readRupAndSegRatesFromExcelFile();
 	}
-	
-
 	
 	/**
 	 * Read rupture rates and segment rates from Excel file
@@ -131,7 +141,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				lon = row.getCell( (short) 2).getNumericCellValue();
 				rate = row.getCell( (short) 18).getNumericCellValue();
 				sigma =  row.getCell( (short) 19).getNumericCellValue();
-				faultSectionId = PaleoSiteDB_DAO.getClosestFaultSection(new Location(lat,lon)).getSectionId();
+				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				//System.out.println(lat+","+lon+","+faultSectionId);
 				setRecurIntv(faultSectionId, rate, sigma);
 				
@@ -139,6 +149,28 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Get closest fault section Id to this location
+	 * 
+	 * @param loc
+	 * @return
+	 */
+	private int getClosestFaultSectionId(Location loc) {
+		ArrayList<Integer> faultSectionIdList = getAllFaultSectionsIdList();
+		double minDist = Double.MAX_VALUE, dist;
+		FaultSectionPrefData closestFaultSection=null;
+		for(int i=0; i<faultSectionIdList.size(); ++i) {
+			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDAO.getFaultSectionPrefData(faultSectionIdList.get(i));
+			dist  = prefFaultSectionData.getFaultTrace().getMinHorzDistToLine(loc);
+			//System.out.println(prefFaultSectionData.getSectionId()+":"+dist);
+			if(dist<minDist) {
+				minDist = dist;
+				closestFaultSection = prefFaultSectionData;
+			}
+		}
+		return closestFaultSection.getSectionId();
 	}
 	
 	
@@ -179,69 +211,27 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public  ArrayList<SegRateConstraint> getSegRateConstraint(String selectedSegmentModel) {
-		return this.segRatesMap.get(selectedSegmentModel);
+	public  ArrayList<SegRateConstraint> getSegRateConstraints(String faultName) {
+		return this.segRatesMap.get(faultName);
 	}
 	
 	/**
-	 * Get recurrence intervals for selected segment model
-	 * @param selectedSegmentModel
+	 * Get segment rate constraints for selected faultName and segment index. Returns an empty list, if there is no rate constraint for this segment
+	 * @param faultModel
+	 * @param segIndex
 	 * @return
 	 */
-	public double[] getRecurIntv(String selectedSegmentModel) {
-		ArrayList<SegRateConstraint> segRateConstraintList = getSegRateConstraint(selectedSegmentModel);
-		ArrayList segmentsList = (ArrayList)this.faultModels.get(selectedSegmentModel);
-		double[] recurIntv = new double[segmentsList.size()];
-		// set all recurrence intervals to NaN
-		for(int i=0; i<recurIntv.length; ++i)
-			recurIntv[i] = Double.NaN;
+	public ArrayList<SegRateConstraint> getSegRateConstraints(String faultName, int segIndex) {
+		ArrayList<SegRateConstraint> segRateConstraintList = getSegRateConstraints(faultName);
+		ArrayList<SegRateConstraint> segmentRates= new ArrayList<SegRateConstraint>();
 		// set the recurrence intervals
 		for(int i=0; i<segRateConstraintList.size(); ++i) {
 			SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
-			recurIntv[segRateConstraint.getSegIndex()] = 1/segRateConstraint.getMean();
+			segmentRates.add(segRateConstraint);
 		}
-		return recurIntv;
+		return segmentRates;
 	}
 	
-	/**
-	 * Get low recurrence intervals for selected segment model
-	 * @param selectedSegmentModel
-	 * @return
-	 */
-	public double[] getLowRecurIntv(String selectedSegmentModel) {
-		ArrayList<SegRateConstraint> segRateConstraintList = getSegRateConstraint(selectedSegmentModel);
-		ArrayList segmentsList = (ArrayList)this.faultModels.get(selectedSegmentModel);
-		double[] recurIntv = new double[segmentsList.size()];
-		// set all recurrence intervals to NaN
-		for(int i=0; i<recurIntv.length; ++i)
-			recurIntv[i] = Double.NaN;
-		// set the recurrence intervals
-		for(int i=0; i<segRateConstraintList.size(); ++i) {
-			SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
-			recurIntv[segRateConstraint.getSegIndex()] = 1/(segRateConstraint.getMean()+2*segRateConstraint.getStdDevToMean());
-		}
-		return recurIntv;
-	}
-	
-	/**
-	 * Get high recurrence intervals for selected segment model
-	 * @param selectedSegmentModel
-	 * @return
-	 */
-	public double[] getHighRecurIntv(String selectedSegmentModel) {
-		ArrayList<SegRateConstraint> segRateConstraintList = getSegRateConstraint(selectedSegmentModel);
-		ArrayList segmentsList = (ArrayList)this.faultModels.get(selectedSegmentModel);
-		double[] recurIntv = new double[segmentsList.size()];
-		// set all recurrence intervals to NaN
-		for(int i=0; i<recurIntv.length; ++i)
-			recurIntv[i] = Double.NaN;
-		// set the recurrence intervals
-		for(int i=0; i<segRateConstraintList.size(); ++i) {
-			SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
-			recurIntv[segRateConstraint.getSegIndex()] = 1/(segRateConstraint.getMean()-2*segRateConstraint.getStdDevToMean());
-		}
-		return recurIntv;
-	}
 	
 	/**
 	 * Get apriori rupture rates

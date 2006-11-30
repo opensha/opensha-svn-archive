@@ -37,6 +37,9 @@ public abstract class FaultsFetcher {
 	private ArrayList faultSectionList=null;
 	private ArrayList faultSegDataList = null;
 	
+	public FaultsFetcher() {
+		
+	}
 	
 	public FaultsFetcher(String fileName) {
 		// make faultModels hashMap:
@@ -116,8 +119,8 @@ public abstract class FaultsFetcher {
 	 * Return a list of ids of all fault sections in any of faults defined in text file.
 	 * @return
 	 */
-	public ArrayList getAllFaultSectionsIdList() {
-		ArrayList faultSectionIdList = new ArrayList();
+	public ArrayList<Integer> getAllFaultSectionsIdList() {
+		ArrayList<Integer> faultSectionIdList = new ArrayList<Integer>();
 		for(int i=0; i< this.faultModelNames.size(); ++i)
 			faultSectionIdList.addAll(getFaultSectionsIdList((String)faultModelNames.get(i)));
 		return faultSectionIdList;
@@ -127,9 +130,9 @@ public abstract class FaultsFetcher {
 	 * Get a list of fault section Ids within the selected segment model
 	 * @return
 	 */
-	private ArrayList getFaultSectionsIdList(String faultModel) {
+	private ArrayList<Integer> getFaultSectionsIdList(String faultModel) {
 		ArrayList segmentsList = (ArrayList)this.faultModels.get(faultModel);
-		ArrayList faultSectionIdList = new ArrayList();
+		ArrayList<Integer>  faultSectionIdList= new ArrayList<Integer>();
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
 			ArrayList segment = (ArrayList)segmentsList.get(i);
@@ -183,7 +186,7 @@ public abstract class FaultsFetcher {
 		}
 		
 		// make SegmentedFaultData 
-		ArrayList<SegRateConstraint> segRates = getSegRateConstraint(faultModel);
+		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultModel);
 		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, (String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel,
 				segRates);
 		return segmetedFaultData;
@@ -203,7 +206,7 @@ public abstract class FaultsFetcher {
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public abstract ArrayList<SegRateConstraint> getSegRateConstraint(String selectedSegmentModel);
+	public abstract ArrayList<SegRateConstraint> getSegRateConstraints(String selectedSegmentModel);
 	
 	
 	/**
