@@ -186,7 +186,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			rupMeanMag = new double[num_rup];
 			rupMeanMo = new double[num_rup];
 			for(int rup=0; rup <num_rup; rup++) {
-				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6)+this.meanMagCorrection;
+				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6) + meanMagCorrection;
 				rupMeanMo[rup] = aveSlipCorr*MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
 			}
 		}
@@ -354,7 +354,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			for(int seg=0; seg < num_seg; seg++) {
 				if(rupInSeg[seg][rup]==1) { // if this rupture is included in this segment	
 					area = segmentData.getSegmentArea(seg);
-					slip = (segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg])*(1-this.moRateReduction);
+					slip = (segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg])*(1-moRateReduction);
 					rupMeanMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
 				}
 			}
@@ -619,7 +619,6 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
 				}
 			}
-
 		}
 		// for case where ave slip computed from mag & area, and is same on all segments 
 		else if (slipModelType.equals(UNIFORM_SLIP_MODEL)) {
@@ -1025,6 +1024,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	
+	/**
+	 * This makes a tapered slip function based on the [Sin(x)]^0.5 fit of 
+	 * Biasi & Weldon (2006, "Estimating Surface Rupture Length and Magnitude 
+	 * of Paleoearthquakes from Point Measurements of Rupture Displacement", 
+	 * Bull. Seism. Soc. Am. 96, 1612-1623, doi: 10.1785/0120040172 E)
+	 *
+	 */
 	private static void mkTaperedSlipFuncs() {
 		
 		// only do if another instance has not already done this
@@ -1036,7 +1042,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		int num = taperedSlipPDF.getNum();
 		for(int i=0; i<num;i++) {
 			x = taperedSlipPDF.getX(i);
-			y = Math.sqrt(1-(x-0.5)*(x-0.5)/0.25);
+			// y = Math.sqrt(1-(x-0.5)*(x-0.5)/0.25);
+			y = Math.pow(Math.sin(x*Math.PI), 0.5);
 			taperedSlipPDF.set(i,y);
 			sum += y;
 		}
@@ -1046,7 +1053,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		for(int i=0; i<num;i++) {
 				y += taperedSlipPDF.getY(i);
 				taperedSlipCDF.set(i,y/sum);
-				taperedSlipPDF.set(i,num*taperedSlipPDF.getY(i)/sum);
+				taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
 //				System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
 		}
 	}
@@ -1058,12 +1065,6 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 *
 	 */
 	private void setAveSlipCorrection() {
-/*		
-		double anyMag=7.0;
-		GaussianMagFreqDist magFreqDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, anyMag, magSigma, 1.0, magTruncLevel, 2);
-		aveSlipCorr = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MomentMagCalc.getMoment(anyMag));
-		System.out.println("ratio: "+ aveSlipCorr + "  "+magSigma+"  "+magTruncLevel);
-*/
 		// compute an average over a range of magitudes spanning DELTA_MAG
 		double sum=0, temp;
 		int num=0;

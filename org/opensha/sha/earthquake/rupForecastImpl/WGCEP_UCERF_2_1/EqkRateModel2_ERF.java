@@ -1111,7 +1111,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			mkA_FaultSegmentedSources();
 		long time2 = System.currentTimeMillis();
 		//System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
-		this.mkB_FaultSources();
+		mkB_FaultSources();
 		long time3 = System.currentTimeMillis();
 		//System.out.println("Creating C Zone Fault sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
 //		Make C Zone MFD
