@@ -46,10 +46,16 @@ import org.opensha.sha.surface.*;
  * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec SA should 
  * not be less than that of PGA (the latter being given if so).
  * <p>
- * Verification :This model has been tested with the data provided by Campbell in his NGA report.
- * I ran the our AttenuationRelationship application and input the parameters as given in Campbell's
- * NGA report Table 3. I ran all the test cases with X-axis being the "Individual Value".
- * Then I spot check the values (manually) that I got from OpenSHA with that given in Campbell's report.
+ * Verification :
+ * This model has been tested with the test data provided by Campbell and Bozorgnia along with ther NGA report.
+ * I took values as provided in the file and created a text file where each line has following info:<br>
+ * Period (sec) 	Mag 	FType	FRV	 FNM   ZTOR	 DIP	Vs30  Z25   Rrup   Rjb   GMP   Sigma   Tau   Chi   SigTot <br>
+ * Each element of the line is seperated by space. I read this file and provide the input parameters in
+ * OpenSHA with these values. Then I compare the OpenSHA result with that given by Campbell and Bozorgnia in the test data file.
+ * I am using JUnit testing to validate the implementation of the Campbell and Bozorgnia model. 
+ * One can run the JUnit test and compare the OpenSHA results with the Campbell and Bozorgnia NGA model.
+ * If any of the result show discrepancy then JUnit test will fail. When it fails it will 
+ * also show for which input parameters the test failed.
  * </p>
  *
  * @author     Ned Field & Nitin Gupta
