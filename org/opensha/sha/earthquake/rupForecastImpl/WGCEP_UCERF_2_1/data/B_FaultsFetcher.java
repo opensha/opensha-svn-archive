@@ -137,7 +137,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public double[] getRecurIntv(String selectedSegmentModel) {
+	public  ArrayList<SegRateConstraint> getSegRateConstraint(String selectedSegmentModel) {
 		return null;
 	}
 	

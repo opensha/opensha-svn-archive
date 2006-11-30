@@ -183,9 +183,9 @@ public abstract class FaultsFetcher {
 		}
 		
 		// make SegmentedFaultData 
-		double[]recurIntv = getRecurIntv(faultModel);
+		ArrayList<SegRateConstraint> segRates = getSegRateConstraint(faultModel);
 		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, (String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel,
-				recurIntv);
+				segRates);
 		return segmetedFaultData;
 		
 	}
@@ -203,7 +203,7 @@ public abstract class FaultsFetcher {
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public abstract double[] getRecurIntv(String selectedSegmentModel);
+	public abstract ArrayList<SegRateConstraint> getSegRateConstraint(String selectedSegmentModel);
 	
 	
 	/**

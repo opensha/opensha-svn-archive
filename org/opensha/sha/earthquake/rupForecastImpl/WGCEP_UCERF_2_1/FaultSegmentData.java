@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 
 /**
  * @author Vipin Gupta and Ned Field
@@ -20,7 +21,7 @@ public class FaultSegmentData {
 	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate; 
 	private String[] segName, sectionsInSegString;
 	private String faultName;
-	private double[] recurInterval;
+	private ArrayList<SegRateConstraint> segRates;
 
 	
 	/**
@@ -41,10 +42,10 @@ public class FaultSegmentData {
   	 * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise it reduces slip rate
   	 * @
   	 */
-	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, String faultName, double[] recurInterval) {
-		if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
-				throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
-		this.recurInterval = recurInterval;
+	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, String faultName, ArrayList<SegRateConstraint> segRates) {
+		//if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
+			//	throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
+		this.segRates = segRates;
 		this.faultName = faultName;
 		this.sectionToSegmentData = sectionToSegmentData;	
 		this.aseisReducesArea = aseisReducesArea;
@@ -150,12 +151,25 @@ public class FaultSegmentData {
 	}
 	
 	/**
-	 * Get segment recur interval.  This simply gives back values given in the constructor.
+	 * Get segment recur interval.  
+	 * 
 	 * @param index
 	 * @return recur int in years
 	 */
 	public double getRecurInterval(int index) {
-		return recurInterval[index];
+		for(int i=0; segRates!=null && i<segRates.size(); ++i) {
+			if(segRates.get(i).getSegIndex()==index) return 1.0/segRates.get(i).getMean();
+		}
+		return Double.NaN;
+	}
+	
+	/**
+	 * Get the segment Rates
+	 * 
+	 * @return
+	 */
+	public ArrayList<SegRateConstraint> getSegRates() {
+		return this.segRates;
 	}
 	
 	/**
