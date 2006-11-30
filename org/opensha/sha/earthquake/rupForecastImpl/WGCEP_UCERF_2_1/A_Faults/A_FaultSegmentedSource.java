@@ -1026,9 +1026,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	/**
 	 * This makes a tapered slip function based on the [Sin(x)]^0.5 fit of 
-	 * Biasi & Weldon (2006, "Estimating Surface Rupture Length and Magnitude 
-	 * of Paleoearthquakes from Point Measurements of Rupture Displacement", 
-	 * Bull. Seism. Soc. Am. 96, 1612-1623, doi: 10.1785/0120040172 E)
+	 * Biasi & Weldon (in prep; pesonal communication), which is based on  
+	 * the data comilation of Biasi & Weldon (2006, "Estimating Surface  
+	 * Rupture Length and Magnitude of Paleoearthquakes from Point 
+	 * Measurements of Rupture Displacement", Bull. Seism. Soc. Am. 96, 
+	 * 1612-1623, doi: 10.1785/0120040172 E)
 	 *
 	 */
 	private static void mkTaperedSlipFuncs() {
