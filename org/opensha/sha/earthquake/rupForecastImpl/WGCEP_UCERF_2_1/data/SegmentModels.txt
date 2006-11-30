@@ -1,17 +1,20 @@
-# This file contains segment models. The line with "-" is the segment model name. 
-# Subsequent lines after that lists the fault sections within a segment where each fault section is separated by a comma. 
+# This file contains A-Fault Segment models. The line with "-" is the total connected fault's name. 
+# Subsequent lines after that list the fault segments, where each segment is composed of one or more sections
+# (separated by commas on that line).  Section IDs are used when reading this file, but names are also provided
+# for convenience after the colon on each line.
 # 
 #  Examples:
 # - Test Model
-# 2,7, 51
-# 3, 35, 1, 2
+# 2, 7, 51:section1 name; section2 name; section3 name
+# 3, 35, 1, 2:section4 name; section5 name; ...
 # The above is an example of segment model whose name is "Test Model" and it has 2 segments. 
 # Segment 1 has fault section Ids 2,7 and 15 
 # Segment 2 has fault sections 3, 35, 1 and 2
+#
 - Elsinore
 236:Whittier, alt 2
-296:Elsinore (Glen Ivy) rev; 297:Elsinore (Glen Ivy stepover)
-299:Elsinore (Temecula) rev; 298:Elsinore (Temecula stepover)
+296,297 :Elsinore (Glen Ivy) rev; Elsinore (Glen Ivy stepover)
+299, 298:Elsinore (Temecula) rev; Elsinore (Temecula stepover)
 102:Elsinore (Julian)
 103:Elsinore (Coyote Mountain)
 - Garlock
@@ -20,8 +23,8 @@
 49:Garlock (West)
 - San Jacinto
 119:San Jacinto (San Bernardino)
-289:San Jacinto (San Jacinto Valley) rev; 290:San Jacinto (San Jacinto Valley, stepover)
-291:San Jacinto (Anza, stepover); 293:San Jacinto (Anza) rev 
+289,290:San Jacinto (San Jacinto Valley) rev; San Jacinto (San Jacinto Valley, stepover)
+291,293:San Jacinto (Anza, stepover); San Jacinto (Anza) rev 
 292:San Jacinto (Clark) rev
 101:San Jacinto (Coyote Creek)
 99:San Jacinto (Borrego)

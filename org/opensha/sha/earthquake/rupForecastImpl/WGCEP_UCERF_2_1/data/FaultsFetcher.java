@@ -171,7 +171,7 @@ public abstract class FaultsFetcher {
 					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
 					FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
 					if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
-						System.out.println(faultSectionPrefData.getSectionName());
+						//System.out.println(faultSectionPrefData.getSectionName());
 						continue;
 					}
 					//System.out.println(faultSectionPrefData.getSectionName());
@@ -221,12 +221,11 @@ public abstract class FaultsFetcher {
 	 * Get a list of fault sections for the current segment 
 	 */ 
 	private ArrayList getSegment(String line) {
+		line = line.substring(0, line.indexOf(':'));
 		ArrayList faultSectionsIdList = new ArrayList();
-		StringTokenizer tokenizer = new StringTokenizer(line,"\n;");
+		StringTokenizer tokenizer = new StringTokenizer(line,"\n,");
 		while(tokenizer.hasMoreTokens()) {
-			String token = tokenizer.nextToken().trim();
-			StringTokenizer tokenizer2 = new StringTokenizer(token, ":");
-			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer2.nextToken().trim())));
+			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer.nextToken().trim())));
 		}
 		return faultSectionsIdList;
 	}
