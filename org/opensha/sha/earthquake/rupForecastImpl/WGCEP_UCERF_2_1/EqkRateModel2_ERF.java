@@ -856,7 +856,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		int deformationModelId =  getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		// this gets a list of FaultSegmentData objects (one for each A fault)
+		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		aFaultSources = new ArrayList();
@@ -1185,7 +1185,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	private void updateFetchersBasedonDefModels() {
 		aFaultsFetcher.setSegmentModel(this.getSelectedDeformationModelSummary());
-		this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+		this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+				this.getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}
 	
 	
