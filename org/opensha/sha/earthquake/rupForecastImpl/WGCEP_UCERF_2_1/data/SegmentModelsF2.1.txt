@@ -53,6 +53,3 @@
 4:Calaveras (No)
 5:Calaveras (Central)
 55:Calaveras (So)
-- San Gregorio
-12:San Gregorio (No)
-29:San Gregorio (So)
