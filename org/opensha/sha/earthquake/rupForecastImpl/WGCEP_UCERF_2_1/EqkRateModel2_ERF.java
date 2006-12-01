@@ -156,8 +156,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
-	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.1);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.3 for no aftershocks, or 8.4 including aftershocks)";
+	public final static Double TOT_MAG_RATE_DEFAULT = new Double(6.69);
+	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.22 for no aftershocks, or 6.69 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
 	//choose mag area relationship
@@ -168,10 +168,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// choose deformation model
 	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
-	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.8 use Fault Model 2.1, and D2.9 to D2.16 use Fault Model 2.2";
+	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.3 use Fault Model 2.1, and D2.4 to D2.6 use Fault Model 2.2";
 	private StringParameter deformationModelsParam;
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
-	private ArrayList<DeformationModelSummary> deformationModelsList;
+	private ArrayList<DeformationModelSummary> deformationModelSummariesList;
 	
 	// aseismic factor interpolated
 	public final static String ASEIS_INTER_PARAM_NAME = "Aseis Factor Reduces Area?";
@@ -322,8 +322,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		backSeisRupParam.addParameterChangeListener(this);
 		deformationModelsParam.addParameterChangeListener(this);
 		connectMoreB_FaultsParam.addParameterChangeListener(this);
-		this.setA_FaultFileName();
-		this.setB_FaultConnectionsFileName();
+		setA_FaultFileName();
+		setB_FaultConnectionsFileName();
 	}
 	
 	
@@ -394,11 +394,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		
 		// deformation model param
-		deformationModelsList = this.deformationModelSummaryDB_DAO.getAllDeformationModels();
+		deformationModelSummariesList = this.deformationModelSummaryDB_DAO.getAllDeformationModels();
 		// make a list of deformation model names
 		ArrayList deformationModelNames = new ArrayList();
-		for(int i=0; i<deformationModelsList.size(); ++i) {
-			deformationModelNames.add(((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName());
+		for(int i=0; i<deformationModelSummariesList.size(); ++i) {
+			deformationModelNames.add(((DeformationModelSummary)deformationModelSummariesList.get(i)).getDeformationModelName());
 //			System.out.println(i+" "+
 //			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelName()+"  "+
 //			((DeformationModelSummary)deformationModelsList.get(i)).getDeformationModelId());
@@ -495,15 +495,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	/**
-	 * Get the Id of the selected deformation model
+	 * Get the info on the selected deformation model
 	 * @return
 	 */
 	private DeformationModelSummary getSelectedDeformationModelSummary() {
-		String selectedDefModel  = (String)this.deformationModelsParam.getValue();
-		for(int i=0; i<this.deformationModelsList.size(); ++i) {
-			DeformationModelSummary deformationModel = (DeformationModelSummary)deformationModelsList.get(i);
-			if(deformationModel.getDeformationModelName().equalsIgnoreCase(selectedDefModel)) {
-				return deformationModel;
+		String selectedDefModel  = (String) deformationModelsParam.getValue();
+		for(int i=0; i<deformationModelSummariesList.size(); ++i) {
+			DeformationModelSummary deformationModelSum = (DeformationModelSummary)deformationModelSummariesList.get(i);
+			if(deformationModelSum.getDeformationModelName().equalsIgnoreCase(selectedDefModel)) {
+				return deformationModelSum;
 			}
 		}
 		return null;
@@ -830,12 +830,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	private void mkA_FaultSegmentedSources() {
 		boolean constrainA_SegRates = ((Boolean)constrainA_SegRatesParam.getValue()).booleanValue();
-		double magSigma  = ((Double)this.magSigmaParam.getValue()).doubleValue();
-		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
-		String rupModel = (String)this.rupModelParam.getValue();
+		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
+		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
+		String rupModel = (String) rupModelParam.getValue();
 		String slipModel = (String)slipModelParam.getValue();
-		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
-		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
+		int deformationModelId =  getSelectedDeformationModelSummary().getDeformationModelId();
+		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
@@ -862,22 +862,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void mkA_FaultUnsegmentedSources() {
-		double magSigma  = ((Double)this.magSigmaParam.getValue()).doubleValue();
-		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
-		double fractCharVsGR= ((Double)this.percentCharVsGRParam.getValue()).doubleValue()/100.0;
-		MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
-		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
-		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
-		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
+		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
+		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
+		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
+		MagAreaRelationship magAreaRel = getMagAreaRelationship();
+		int deformationModelId = getSelectedDeformationModelSummary().getDeformationModelId();
+		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
+		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		double minMagGR = ((Double)this.bFaultsMinMagParam.getValue()).doubleValue();
+		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 
-		ArrayList aFaultSegmentData = this.aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
+		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
 		aFaultSources = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
-			FaultSegmentData segmentData = (FaultSegmentData)aFaultSegmentData.get(i);
+			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
 					magSigma, magTruncLevel, 
@@ -976,11 +976,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// set b-value based on rate (guess whether aftershocks included)
 		if(includeAftershocks)  {
 			bVal = 1.0;
-			rate = 7.1;
+			rate = 6.69;
 		}
 		else {
 			bVal = 0.8;
-			rate = 3.1;
+			rate = 3.22;
 		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
 				this.MIN_MAG, 8.0, 1.0, bVal);
@@ -1011,40 +1011,40 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
-	 * MFD for Karen Felzer's observed MFD (from Table 2 in her appendix) and upper and lower confidence MFDs
+	 * MFD for Karen Felzer's observed MFD (from Table 6 in the doc she sent on Nov 2nd) and upper and lower confidence MFDs
 	 * @return
 	 */
 	public ArrayList getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
-		double[] incrRatesWith = {6.15, 2.09, 0.62, 0.22, 0.07, 0.013};
-		double[] incrRatesLowWith = {4.96, 1.7, 0.45, 0.15, 0.03, 0.0};
-		double[] incrRatesHighWith = {7.4, 2.47, 0.79, 0.3, 0.12, 0.0319};
-		double[] incrRates = {3.11, 1.22, 0.45, 0.2, 0.07, 0.013};
-		double[] incrRatesLow = {2.27, 0.94, 0.31, 0.13, 0.03, 0.0};
-		double[] incrRatesHigh = {4.0, 1.51, 0.59, 0.28, 0.12, 0.032};
+		double[] cumRatesWith = {6.69, 2.11, 0.66, 0.21, 0.06, 0.015};
+		double[] cumRatesLowWith =  {6.69-2.7, 2.11-0.85, 0.66-0.27, 0.21-0.11, 0.06-0.045, 0.015-0.01};
+		double[] cumRatesHighWith = {6.69+2.7, 2.11+0.85, 0.66+0.27, 0.21+0.11, 0.06+0.077, 0.015+0.026};
+		double[] cumRates = {3.22, 1.27, 0.5, 0.19, 0.06, 0.015};
+		double[] cumRatesLow =  {3.22-1,13, 1.27-0.45, 0.5-0.18, 0.19-0.1, 0.06-0.045, 0.015-0.01};
+		double[] cumRatesHigh = {3.22+1,13, 1.27+0.45, 0.5+0.18, 0.19+0.1, 0.06+0.077, 0.015+0.026};
 		
 		if(includeAftershocks) {
-			incrRates = incrRatesWith;
-			incrRatesLow = incrRatesLowWith;
-			incrRatesHigh = incrRatesHighWith;
+			cumRates = cumRatesWith;
+			cumRatesLow = cumRatesLowWith;
+			cumRatesHigh = cumRatesHighWith;
 		}
 	
 		for(int i=5; i>=0; i--) {
-			obsCumMFD.set(i, incrRates[i]);
-			obsCumLowMFD.set(i, incrRatesLow[i]);
-			obsCumHighMFD.set(i, incrRatesHigh[i]);
+			obsCumMFD.set(i, cumRates[i]);
+			obsCumLowMFD.set(i, cumRatesLow[i]);
+			obsCumHighMFD.set(i, cumRatesHigh[i]);
 		}
 		if(includeAftershocks) {
 			obsCumMFD.setInfo("Cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
+			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
+			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
 		}
 		else {
 			obsCumMFD.setInfo("Cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
+			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
+			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
 		}
 		
 		ArrayList obsCumList = new ArrayList();
@@ -1103,7 +1103,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		else
 			moRateFracToBackground = 0;
 		
-		String rupModel = (String)this.rupModelParam.getValue();
+		String rupModel = (String) rupModelParam.getValue();
 		//System.out.println("Creating A Fault sources");
 		long time1 = System.currentTimeMillis();
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) 
@@ -1163,20 +1163,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	public void setB_FaultConnectionsFileName() {
-		boolean isConnectMoreB_Faults = ((Boolean)this.connectMoreB_FaultsParam.getValue()).booleanValue();
+		boolean isConnectMoreB_Faults = ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue();
 		String fileName=null;
 		if(!isConnectMoreB_Faults)  { // if we do not have to connect B-Fsults
 			fileName = B_CONNECT_MINIMAL;
 		} else { // if B-Faults need to be connected
 			//find the deformation model
-			DeformationModelSummary defModelSummary = this.getSelectedDeformationModelSummary();
+			DeformationModelSummary defModelSummary = getSelectedDeformationModelSummary();
 			String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
 			// get the B-Fault filename based on selected fault model
 			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = B_CONNECT_MODEL1;
 			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = B_CONNECT_MODEL2;
 			else throw new RuntimeException("Unsupported Fault Model");
 		}
-		bFaultsFetcher.setConnectionFileName(fileName, this.aFaultsFetcher);
+		bFaultsFetcher.setConnectionFileName(fileName, aFaultsFetcher);  // the aFaultsFetcher needed to find which are B faults
 	}
 	
 	/**
@@ -1186,9 +1186,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public void setA_FaultFileName() {
 //		find the deformation model
 		String fileName=null;
-		DeformationModelSummary defModelSummary = this.getSelectedDeformationModelSummary();
+		DeformationModelSummary defModelSummary = getSelectedDeformationModelSummary();
 		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
-		// get the B-Fault filename based on selected fault model
+		// get the A-Fault filename based on selected fault model
 		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
 		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
 		else throw new RuntimeException("Unsupported Fault Model");
