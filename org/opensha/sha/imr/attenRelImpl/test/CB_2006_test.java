@@ -96,7 +96,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			boolean results = compareResults(medianFromOpenSHA,targetMedian);
 			//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
         	 	/**
-              * If any test for the CY-2006 failed
+              * If any test for the CB-2006 failed
               */
 			
             if(results == false){
