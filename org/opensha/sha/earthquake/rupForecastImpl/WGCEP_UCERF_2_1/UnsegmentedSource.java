@@ -148,8 +148,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
-		this.fixMag = fixMag;
-		this.fixRate = fixRate*(1-moRateReduction);
+		this.fixMag = fixMag; // change this by meanMagCorrection?
+		this.fixRate = fixRate*(1-moRateReduction);  // do we really want to reduce this???
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		
 		double moRate;
@@ -379,46 +379,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		return slipRate;
 	}
 	
-	/**
-	 * Get rate for ith segment
-	 * 
-	 * @param ithSegment
-	 * @return
-	 */
-	public double getSegmentRate(int ithSegment) {
-		return segRate[ithSegment];
-	}
 	
-	/**
-	 * Get recurrence interval for the ith Segment
-	 * 
-	 * @param ithSegment
-	 * @return
-	 */
-	public double getSegmentRecurrenceInterval(int ithSegment) {
-		return 1.0/segRate[ithSegment];
-	}
-	
-	
-	/**
-	 * Get visible rate for ith segment
-	 * 
-	 * @param ithSegment
-	 * @return
-	 */
-	public double getSegmentVisibleRate(int ithSegment) {
-		return segVisibleRate[ithSegment];
-	}
-	
-	/**
-	 * Get visible recurrence interval for the ith Segment
-	 * 
-	 * @param ithSegment
-	 * @return
-	 */
-	public double getSegmentVisibleRecurrenceInterval(int ithSegment) {
-		return 1.0/segVisibleRate[ithSegment];
-	}
 	
 	/**
 	 * Get Slip Distribution for this segment

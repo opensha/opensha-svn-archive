@@ -42,10 +42,11 @@ public class FaultSegmentData {
   	 * @param aseisReducesArea - if true apply asiesmicFactor as reduction of area, otherwise it reduces slip rate
   	 * @
   	 */
-	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, String faultName, ArrayList<SegRateConstraint> segRates) {
+	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, 
+			String faultName, ArrayList<SegRateConstraint> segRateConstraints) {
 		//if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
 			//	throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
-		this.segRates = segRates;
+		this.segRates = segRateConstraints;
 		this.faultName = faultName;
 		this.sectionToSegmentData = sectionToSegmentData;	
 		this.aseisReducesArea = aseisReducesArea;
@@ -173,7 +174,7 @@ public class FaultSegmentData {
 	 * 
 	 * @return
 	 */
-	public ArrayList<SegRateConstraint> getSegRates() {
+	public ArrayList<SegRateConstraint> getSegRateConstraints() {
 		return this.segRates;
 	}
 	

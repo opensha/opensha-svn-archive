@@ -18,6 +18,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -175,7 +176,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// THIS IS TEMPORARY:
 		//convertA_prioriToRateBalanced();
 		
-		// compute aveSlipCorr (ave slip is greater than slip of ave mag if mag PDF sigma non zero)
+		// compute aveSlipCorr (ave slip is greater than slip of ave mag if MFD sigma non zero)
 		setAveSlipCorrection();
 
 		// compute rupture mean mags
@@ -196,9 +197,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		
 		
 		// now solve the inverse problem
+		
+		// get the segment rate constraints
+		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
+		int numRateConstraints = segRateConstraints.size();
 		int totNumRows;
 		if(constrainMRIs)
-			totNumRows = 2*num_seg+num_rup;
+			totNumRows = num_seg+num_rup+numRateConstraints;
 		else
 			totNumRows = num_seg+num_rup;
 		double[][] C = new double[totNumRows][num_rup];
@@ -217,12 +222,16 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			C[rup+num_seg][rup]=1.0/wt;
 		}
 		// now fill in the segment recurrence interval constraints if requested
-		if(constrainMRIs)
-			for(int row = 0; row < num_seg; row ++) {
-				d[row+num_seg+num_rup] = segRateFromApriori[row];
+		if(constrainMRIs) {
+			SegRateConstraint constraint;
+			for(int row = 0; row < numRateConstraints; row ++) {
+				constraint = segRateConstraints.get(row);
+				int seg = constraint.getSegIndex();
+				d[row+num_seg+num_rup] = constraint.getMean(); // this is the average segment rate
 				for(int col=0; col<num_rup; col++)
-					C[row+num_seg+num_rup][col] = rupInSeg[row][col];
+					C[row+num_seg+num_rup][col] = rupInSeg[seg][col];
 			}
+		}
 		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab
