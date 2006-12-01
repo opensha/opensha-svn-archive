@@ -64,7 +64,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * Set the file name for the segment models. This function needs to be called before any other function can be called.
 	 * @param fileName
 	 */
-	public void setSegmentModel(DeformationModelSummary defModelSummary) {
+	public void setDeformationModel(DeformationModelSummary defModelSummary) {
+		deformationModelId = defModelSummary.getDeformationModelId();
 		//	find the deformation model
 		String fileName=null;
 		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();

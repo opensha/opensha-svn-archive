@@ -31,7 +31,6 @@ public abstract class FaultsFetcher {
 	protected HashMap segmentNamesMap = new HashMap();
 	private String selectedFaultModel=null;
 	protected int deformationModelId=-1;
-	private int prevDeformationModelId=-1;
 	private boolean prevIsAseisReducesArea;
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
@@ -56,7 +55,6 @@ public abstract class FaultsFetcher {
 	public void loadSegmentModels(String fileName) {
 		faultModelNames = new ArrayList<String>();
 		faultModels = new HashMap();
-		deformationModelId=-1;
 		// read file 
 		try {
 			// read the text file that defines the sctions in each segment for each fault model
@@ -99,16 +97,13 @@ public abstract class FaultsFetcher {
 	 * @param isAseisReducesArea
 	 * @return
 	 */
-	public ArrayList getFaultSegmentDataList(int deformationModelId, boolean isAseisReducesArea) {
+	public ArrayList getFaultSegmentDataList(boolean isAseisReducesArea) {
 		// only make list if something has changed
-		if(faultSegDataList==null || prevIsAseisReducesArea != isAseisReducesArea ||
-				prevDeformationModelId!=deformationModelId)  {
-		
+		if(faultSegDataList==null || prevIsAseisReducesArea != isAseisReducesArea)  {
 			prevIsAseisReducesArea = isAseisReducesArea;
-			prevDeformationModelId = deformationModelId;
 			faultSegDataList = new ArrayList();
 			for(int i=0; i< faultModelNames.size(); ++i)
-				faultSegDataList.add(getFaultSegmentData((String)faultModelNames.get(i), deformationModelId, isAseisReducesArea));
+				faultSegDataList.add(getFaultSegmentData((String)faultModelNames.get(i), isAseisReducesArea));
 		}
 		
 		return faultSegDataList;
@@ -153,14 +148,11 @@ public abstract class FaultsFetcher {
 	 * @param selectedSegmentName
 	 * @return
 	 */
-	public FaultSegmentData getFaultSegmentData(String faultModel, int deformationModelId,
-			boolean isAseisReducesArea) {
+	public FaultSegmentData getFaultSegmentData(String faultModel, boolean isAseisReducesArea) {
 		
 		// no need to re-fetch data from database if the data alraady exists in cache
-		if(selectedFaultModel==null || !selectedFaultModel.equalsIgnoreCase(faultModel) ||
-				this.deformationModelId!=deformationModelId)  {
+		if(selectedFaultModel==null || !selectedFaultModel.equalsIgnoreCase(faultModel))  {
 			selectedFaultModel = faultModel;
-			this.deformationModelId = deformationModelId;
 			// get the segment array list of section array lists
 			ArrayList segmentsList = (ArrayList)faultModels.get(faultModel);
 			faultDataListInSelectedSegment = new ArrayList();

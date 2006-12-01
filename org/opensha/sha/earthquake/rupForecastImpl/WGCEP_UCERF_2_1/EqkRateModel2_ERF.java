@@ -857,8 +857,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
-		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
-				isAseisReducesArea);
+		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSources = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
@@ -890,9 +889,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
-
-		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
-				isAseisReducesArea);
+//		 this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
+		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSources = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
@@ -916,8 +914,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
-		ArrayList bFaultSegmentData = bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
-				isAseisReducesArea);
+//		 this gets a list of FaultSegmentData objects (one for each B fault, and for the deformation model previously set)
+		ArrayList bFaultSegmentData = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 //		ArrayList B_faultCharMFDs = new ArrayList();
 //		ArrayList B_faultGR_MFDs = new ArrayList();
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
@@ -1169,7 +1167,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				adjustableParams.addParameter(backSeisMaxMagParam);
 			}
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
-			this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+			this.bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
 			
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
 			updateFetchersBasedonDefModels();
@@ -1184,8 +1182,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void updateFetchersBasedonDefModels() {
-		aFaultsFetcher.setSegmentModel(this.getSelectedDeformationModelSummary());
-		this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+		aFaultsFetcher.setDeformationModel(this.getSelectedDeformationModelSummary());
+		this.bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				this.getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}
 	

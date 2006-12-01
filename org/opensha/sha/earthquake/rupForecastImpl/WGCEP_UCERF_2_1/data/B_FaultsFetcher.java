@@ -3,15 +3,12 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.opensha.calc.RelativeLocation;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
-import org.opensha.sha.fault.FaultTrace;
 
 /**
  * @author vipingupta
@@ -26,8 +23,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	
 	// This holds the special, multi-section B Faults
 	private ArrayList allSpecialFaultIds;
-	
-	private String connectB_FaultsFileName;
+
 	private final static String B_CONNECT_MINIMAL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsMinimum.txt";
 	private final static String B_CONNECT_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.1.txt";
 	private final static String B_CONNECT_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.2.txt";
@@ -39,10 +35,11 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	public B_FaultsFetcher() {	}
 	
 	/**
-	 * Set the connection file name. This function needs to be called before any other function can be called.
+	 * Set the deformation model. This function needs to be called before any other function can be called.
 	 * @param fileName
 	 */
-	public void setConnectedB_Faults(boolean isConnected, DeformationModelSummary defModelSummary, A_FaultsFetcher aFaultsFetcher) {
+	public void setDeformationModel(boolean isConnected, DeformationModelSummary defModelSummary, A_FaultsFetcher aFaultsFetcher) {
+		deformationModelId = defModelSummary.getDeformationModelId();
 		String fileName=null;
 		if(!isConnected)  { // if we do not have to connect B-Fsults
 			fileName = B_CONNECT_MINIMAL;
@@ -56,8 +53,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		this.aFaultsFetcher = aFaultsFetcher;	
 		this.loadSegmentModels(fileName);
 		allSpecialFaultIds = super.getAllFaultSectionsIdList();
-		connectB_FaultsFileName = fileName;
-		deformationModelId=-1;
+		generateBFaults();
 		
 	}
 	
@@ -66,14 +62,13 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param deformationModelId
 	 * @return
 	 */
-	private void generateBFaults(int deformationModelId) {
+	private void generateBFaults() {
 		
-		if(deformationModelId!=this.deformationModelId) {
+		
 			faultSegmentMap = new HashMap();
-			this.deformationModelId = deformationModelId;
 			bFaultNames = new ArrayList();
 			bFaultIds = new ArrayList();
-			ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+			ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(this.deformationModelId);
 			ArrayList aFaultsList = this.aFaultsFetcher.getAllFaultSectionsIdList(); 
 			for(int i=0; i<faultSectionsInDefModel.size(); ++i) {
 				// if this is A type fault or a special fault, then do not process it
@@ -83,7 +78,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 					continue;
 				}
 				int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
-				FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
+				FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
 				// add to B type faults only if slip is not 0 and not NaN
 				if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
 				bFaultNames.add(faultSectionPrefData.getSectionName());
@@ -97,7 +92,6 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 			}
 			bFaultNames.addAll(this.getAllFaultNames()); // add connecting fault names
 			bFaultIds.addAll(super.getAllFaultSectionsIdList());
-		}
 		
 	}
 	
@@ -105,8 +99,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * Return a list of ids of all fault sections in any of faults defined in text file.
 	 * @return
 	 */
-	public ArrayList getAllFaultSectionsIdList(int deformationModelId) {
-		this.generateBFaults(deformationModelId);
+	public ArrayList getAllFaultSectionsIdList() {
 		return bFaultIds;
 	}
 	
@@ -121,8 +114,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * Get a list of all segment names
 	 * @return
 	 */
-	public ArrayList getAllFaultNames(int deformationModelId) {
-		this.generateBFaults(deformationModelId);
+	public ArrayList<String> getAllFaultNames() {
 		return this.bFaultNames;
 	}
 	
@@ -132,8 +124,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param isAseisReducesArea
 	 * @return
 	 */
-	public ArrayList getFaultSegmentDataList(int deformationModelId, boolean isAseisReducesArea) {
-		this.generateBFaults(deformationModelId);
+	public ArrayList getFaultSegmentDataList(boolean isAseisReducesArea) {
 		ArrayList faultList = new ArrayList();
 		for(int i=0; i< bFaultNames.size(); ++i)
 			faultList.add(getFaultSegmentData((String)bFaultNames.get(i), deformationModelId, isAseisReducesArea));
@@ -158,15 +149,14 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 */
 	public FaultSegmentData getFaultSegmentData(String faultModel, int deformationModelId,
 			boolean isAseisReducesArea) {
-		//System.out.println("4444 "+faultModel);
-		this.generateBFaults(deformationModelId);
+		
 		ArrayList segmentList = (ArrayList) this.faultSegmentMap.get(faultModel);
 		if(segmentList!=null) {
 			return  new FaultSegmentData(segmentList, null, isAseisReducesArea, faultModel,
 					null);
 		} else {
 			 // if it is a part of connecting B-faults
-			FaultSegmentData faultSegmentData =  super.getFaultSegmentData(faultModel, deformationModelId, isAseisReducesArea);
+			FaultSegmentData faultSegmentData =  super.getFaultSegmentData(faultModel, isAseisReducesArea);
 			/*ArrayList sectionList = faultSegmentData.getPrefFaultSectionDataList();
 			for(int i=0; i<sectionList.size(); ++i) 
 				System.out.print(((FaultSectionPrefData)sectionList.get(i)).getSectionName()+",");
@@ -179,7 +169,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	public static void main(String[] args) {
 		// def model ids from 42-49, 61 - 68
 		B_FaultsFetcher b = new B_FaultsFetcher();
-		ArrayList bFaults = b.getFaultSegmentDataList(42, true);
+		ArrayList bFaults = b.getFaultSegmentDataList( true);
 		ArrayList<FaultSectionPrefData> preFaultSectionDataList = new ArrayList<FaultSectionPrefData>();
 		
 		for(int i=0; i<bFaults.size(); ++i) {
