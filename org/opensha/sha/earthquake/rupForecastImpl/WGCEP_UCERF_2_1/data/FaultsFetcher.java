@@ -27,7 +27,7 @@ public abstract class FaultsFetcher {
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	protected DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String FAULT_MODEL_NAME_PREFIX = "-";
-	private ArrayList faultModelNames;
+	protected ArrayList<String> faultModelNames = new ArrayList<String>();
 	protected HashMap segmentNamesMap = new HashMap();
 	private String selectedFaultModel=null;
 	protected int deformationModelId=-1;
@@ -36,6 +36,7 @@ public abstract class FaultsFetcher {
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
 	private ArrayList faultSegDataList = null;
+	
 	
 	public FaultsFetcher() {
 		
@@ -53,7 +54,7 @@ public abstract class FaultsFetcher {
 	 *
 	 */
 	public void loadSegmentModels(String fileName) {
-		faultModelNames = new ArrayList();
+		faultModelNames = new ArrayList<String>();
 		faultModels = new HashMap();
 		deformationModelId=-1;
 		// read file 
@@ -197,7 +198,7 @@ public abstract class FaultsFetcher {
 	 * Get a list of all segment names
 	 * @return
 	 */
-	public ArrayList getAllFaultNames() {
+	public ArrayList<String> getAllFaultNames() {
 		return this.faultModelNames;
 	}
 	

@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class is used to hold the segment rates and ruptures rates after reading
@@ -13,12 +14,7 @@ import java.util.ArrayList;
  */
 public class A_PrioriRupRates {
 	private String faultName;
-	// rupture rates for geologic insight model
-	private ArrayList geolInsightRupRate = new ArrayList();
-	// rup rates for min rup model
-	private ArrayList minRupRate = new ArrayList();
-	// rup rates for max rup model
-	private ArrayList maxRupRate = new ArrayList();
+	private HashMap<String, ArrayList> aPrioriRatesMap = new HashMap<String, ArrayList>();
 	
 	/**
 	 * constructor : Aceepts the segment name
@@ -38,54 +34,33 @@ public class A_PrioriRupRates {
 	}
 	
 	/**
-	 * Add the rup rate in the 3 models  to the list
-	 * @param prefRate 
-	 * @param minRate
-	 * @param maxRate
+	 * Add the rup rate for specified model
 	 */
-	public void addRupRate(double prefRate, double minRate, double maxRate) {
-		this.geolInsightRupRate.add(new Double(prefRate));
-		this.minRupRate.add(new Double(minRate));
-		this.maxRupRate.add(new Double(maxRate));
+	public void putRupRate(String modelName, double rate) { 
+		ArrayList<Double> ratesList = aPrioriRatesMap.get(modelName);
+		if(ratesList==null) {
+			ratesList = new ArrayList<Double>();
+			aPrioriRatesMap.put(modelName, ratesList);
+		}
+		ratesList.add(rate);
 	}
 	
 	/**
-	 * Get the number of ruptures
-	 * 
+	 * Get a list of all supported model names (Eg. Geologic, Min, max)
 	 * @return
 	 */
-	public int getNumRups() {
-		return geolInsightRupRate.size();
+	public ArrayList<String> getSupportedModelNames() {
+		ArrayList<String> modelNames  = new ArrayList<String>();
+		modelNames.addAll(this.aPrioriRatesMap.keySet());
+		return modelNames;
 	}
 	
 	/**
-	 * Get rupture rate for geologic insight model
-	 * 
-	 * @param rupIndex
+	 * Get the A priori rates for the solution type
+	 * @param modelName
 	 * @return
 	 */
-	public double getPrefModelRupRate(int rupIndex) {
-		return ((Double)geolInsightRupRate.get(rupIndex)).doubleValue();
+	public ArrayList<Double> getA_PrioriRates(String modelName) {
+		return this.aPrioriRatesMap.get(modelName);
 	}
-	
-	/**
-	 * Get rupture rate for min rup Rate model
-	 * 
-	 * @param rupIndex
-	 * @return
-	 */
-	public double getMinModelRupRate(int rupIndex) {
-		return ((Double)minRupRate.get(rupIndex)).doubleValue();
-	}
-	
-	/**
-	 * Get rupture rate for max rup Rate model
-	 * 
-	 * @param rupIndex
-	 * @return
-	 */
-	public double getMaxModelRupRate(int rupIndex) {
-		return ((Double)maxRupRate.get(rupIndex)).doubleValue();
-	}
-	
 }

@@ -24,6 +24,7 @@ import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
+import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
@@ -38,7 +39,7 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher extends FaultsFetcher{
-	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v10.xls";
+	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_test.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/Rev_Poisson_table_3.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segRatesMap;
@@ -46,6 +47,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
 	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.1.txt";
+	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.2.txt";
 
 	
 	/**
@@ -53,25 +56,32 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 *
 	 */
 	public A_FaultsFetcher() {
+		aPrioriRupRatesMap = new HashMap<String,A_PrioriRupRates>();
+		this.readA_PrioriRupRates();
 	}
 	
 	/**
 	 * Set the file name for the segment models. This function needs to be called before any other function can be called.
 	 * @param fileName
 	 */
-	public void setSegmentModelFileName(String fileName) {
-		aPrioriRupRatesMap = new HashMap<String,A_PrioriRupRates>();
-		segRatesMap = new HashMap<String,ArrayList>();
+	public void setSegmentModel(DeformationModelSummary defModelSummary) {
+		//	find the deformation model
+		String fileName=null;
+		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
+		// get the B-Fault filename based on selected fault model
+		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
+		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
+		else throw new RuntimeException("Unsupported Fault Model");
 		this.loadSegmentModels(fileName);
-		// this may be dependent on deformation model (fix later?):
-		this.readRupAndSegRatesFromExcelFile();
+		segRatesMap = new HashMap<String,ArrayList>();
+		readSegRates();
 	}
 	
 	/**
 	 * Read rupture rates and segment rates from Excel file
 	 *
 	 */
-	private void readRupAndSegRatesFromExcelFile() {
+	private void readA_PrioriRupRates() {
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RUP_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -83,9 +93,20 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				HSSFCell cell = row.getCell( (short) 0);
 				// segment name
 				String faultName = cell.getStringCellValue().trim();
+				faultModelNames.add(faultName);
 				A_PrioriRupRates aPrioriRupRates = new A_PrioriRupRates(faultName);
 				ArrayList rupNames = new ArrayList();
-				r=r+2;
+				++r;
+				row = sheet.getRow(r);
+				// Get the supported rup model types
+				int lastColIndex=0 ;
+				ArrayList<String> rupModelTypes = new ArrayList<String>();;
+				for(int i=1;true; ++i, ++lastColIndex) {
+					cell = row.getCell((short)i);
+					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
+					rupModelTypes.add(row.getCell((short)i).getStringCellValue()); 
+				}
+				++r;
 				while(true) {
 					row = sheet.getRow(r++);
 					cell = row.getCell( (short) 0);
@@ -93,27 +114,19 @@ public class A_FaultsFetcher extends FaultsFetcher{
 					if(name.equalsIgnoreCase("Total"))
 						break;
 					else rupNames.add(name);
-					// rup rate for the 3 models
-					double prefRate = row.getCell((short)1).getNumericCellValue();
-					double minRate = row.getCell((short)2).getNumericCellValue();
-					double maxRate = row.getCell((short)3).getNumericCellValue();
-					aPrioriRupRates.addRupRate(prefRate, minRate, maxRate);
-					/*// if segment rate is available
-					cell = row.getCell( (short) 5);
-					//System.out.println("***** ==" +cell.getNumericCellValue());
-					if(cell != null &&
-							! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) 
-						rupSegRates.addMeanSegRecurInterv(1.0/cell.getNumericCellValue());*/
+					// get apriori rates
+					for(int i=1;i<=lastColIndex; ++i) {
+						aPrioriRupRates.putRupRate(rupModelTypes.get(i-1), row.getCell((short)i).getNumericCellValue());
+					}
 				}
 				r=r+1;
 				// convert segment names ArrayLList to String[] 
 				String ruptureNames[] = new String[rupNames.size()];
 				for(int i=0; i<rupNames.size(); ++i) ruptureNames[i] = (String) rupNames.get(i);
 				this.aPrioriRupRatesMap.put(faultName, aPrioriRupRates);
-				this.segRatesMap.put(faultName,new  ArrayList());
 				this.segmentNamesMap.put(faultName, ruptureNames);
 			}
-			readSegRates();
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -125,6 +138,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 *
 	 */
 	private void readSegRates() {
+		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
+		while(it.hasNext()) this.segRatesMap.put(it.next(),new  ArrayList());
 		try {				
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -142,7 +157,6 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				rate = row.getCell( (short) 18).getNumericCellValue();
 				sigma =  row.getCell( (short) 19).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
-				//System.out.println(lat+","+lon+","+faultSectionId);
 				setRecurIntv(faultSectionId, rate, sigma);
 				
 			}
@@ -238,28 +252,21 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * @param selectedSegmentModel
 	 * @return
 	 */
-	public ValueWeight[] getAprioriRupRates(String faultModel, String rupModelType) {
-		  
-		A_PrioriRupRates rupSegRates = (A_PrioriRupRates)this.aPrioriRupRatesMap.get(faultModel);
-		ValueWeight[] rupRates = new ValueWeight[rupSegRates.getNumRups()];
-		// geol insight rup model
-		if(rupModelType.equalsIgnoreCase(GEOL_INSIGHT_RUP_MODEL)) {
-			for(int i=0; i<rupSegRates.getNumRups(); ++i)
-				rupRates[i] = new ValueWeight(rupSegRates.getPrefModelRupRate(i), 1.0);
-		}
-		// min rup model
-		else if(rupModelType.equalsIgnoreCase(MIN_RATE_RUP_MODEL)) {
-			for(int i=0; i<rupSegRates.getNumRups(); ++i)
-				rupRates[i] = new ValueWeight(rupSegRates.getMinModelRupRate(i), 1.0);
-	
-		}
-		// max rup model
-		else if (rupModelType.equalsIgnoreCase(MAX_RATE_RUP_MODEL)) {
-			for(int i=0; i<rupSegRates.getNumRups(); ++i)
-				rupRates[i] = new ValueWeight(rupSegRates.getMaxModelRupRate(i), 1.0);
-	
-		} else rupRates = null;
-		
+	public ValueWeight[] getAprioriRupRates(String faultName, String rupModelType) {
+		A_PrioriRupRates aPrioriRatesList = this.aPrioriRupRatesMap.get(faultName);
+		ArrayList<Double> aPrioriRates = aPrioriRatesList.getA_PrioriRates(rupModelType);
+		ValueWeight[] rupRates = new ValueWeight[aPrioriRates.size()];
+		for(int i=0; i<aPrioriRates.size(); ++i)
+				rupRates[i] = new ValueWeight(aPrioriRates.get(i), 1.0);
 		return rupRates;
+	}
+	
+	/**
+	 * Get a list of rup models(Eg. Min, Max, Geological Insight) for selected faultName
+	 * @param faultModel
+	 * @return
+	 */
+	public ArrayList<String> getRupModels(String faultName) {
+		return aPrioriRupRatesMap.get(faultName).getSupportedModelNames(); 
 	}
 }

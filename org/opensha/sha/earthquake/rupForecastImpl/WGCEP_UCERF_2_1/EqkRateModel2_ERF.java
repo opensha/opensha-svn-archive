@@ -193,7 +193,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String RUP_MODEL_TYPE_NAME = "A-Fault Solution Type";
 	public final static String RUP_MODEL_TYPE_INFO = "The type of solution to apply for all A-Fault Sources";
 	public final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented Model";
+	public final static String SEGMENTED_A_FAULT_MODEL = "Segmented Model";
 	private StringParameter rupModelParam;
+	
+	//	 rupture model type
+	public final static String SEGMENTED_RUP_MODEL_TYPE_NAME = "Segmented A-Fault Solution Type";
+	public final static String SEGMENTED_RUP_MODEL_TYPE_INFO = "The type of solution to apply for Segmented A-Fault Sources";
+	private ParameterListParameter segmentedRupModelParam;
 	
 	//	 A-fault slip-model type
 	public final static String SLIP_MODEL_TYPE_NAME = "A-Fault Slip Model";
@@ -282,11 +288,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
-	private final static String B_CONNECT_MINIMAL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsMinimum.txt";
-	private final static String B_CONNECT_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.1.txt";
-	private final static String B_CONNECT_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.2.txt";
-	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.1.txt";
-	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.2.txt";
+
 	private ArrayList aFaultSources, bFaultSources;
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
@@ -321,9 +323,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		backSeisParam.addParameterChangeListener(this);
 		backSeisRupParam.addParameterChangeListener(this);
 		deformationModelsParam.addParameterChangeListener(this);
+		rupModelParam.addParameterChangeListener(this);
 		connectMoreB_FaultsParam.addParameterChangeListener(this);
-		setA_FaultFileName();
-		setB_FaultConnectionsFileName();
+		updateFetchersBasedonDefModels();
 	}
 	
 	
@@ -408,13 +410,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		
 		// A-Fault model type
-		ArrayList rupModels = new ArrayList();
-		rupModels.add(A_FaultsFetcher.MIN_RATE_RUP_MODEL);
-		rupModels.add(A_FaultsFetcher.MAX_RATE_RUP_MODEL);
-		rupModels.add(A_FaultsFetcher.GEOL_INSIGHT_RUP_MODEL);
+		ArrayList<String> rupModels = new ArrayList<String>();
+		rupModels.add(SEGMENTED_A_FAULT_MODEL);
 		rupModels.add(UNSEGMENTED_A_FAULT_MODEL);
-		rupModelParam = new StringParameter(RUP_MODEL_TYPE_NAME, rupModels, A_FaultsFetcher.GEOL_INSIGHT_RUP_MODEL);
+		rupModelParam = new StringParameter(RUP_MODEL_TYPE_NAME, rupModels, rupModels.get(0));
 		rupModelParam.setInfo(RUP_MODEL_TYPE_INFO);
+		
+		// segmented fault model param
+		makeSegmentedA_FaultParam();
 		
 		// A-fault slip type
 		slipModelParam = new StringParameter(SLIP_MODEL_TYPE_NAME, 
@@ -472,6 +475,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(deformationModelsParam);
 		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
+		adjustableParams.addParameter(segmentedRupModelParam);
 		adjustableParams.addParameter(slipModelParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
@@ -493,6 +497,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 	}
 	
+	/**
+	 * Rup Model options for each A-fault in case of segmented 
+	 *
+	 */
+	private void makeSegmentedA_FaultParam() {
+		ParameterList paramList = new ParameterList();
+		ArrayList<String> faultNames = this.aFaultsFetcher.getAllFaultNames();
+		for(int i=0; i<faultNames.size(); ++i) {
+			ArrayList<String> supportedRupModels = this.aFaultsFetcher.getRupModels(faultNames.get(i));
+			StringParameter rupModelParam = new StringParameter(faultNames.get(i), supportedRupModels, supportedRupModels.get(0));
+			paramList.addParameter(rupModelParam);
+		}
+		segmentedRupModelParam = new ParameterListParameter(this.SEGMENTED_RUP_MODEL_TYPE_NAME, paramList);
+		segmentedRupModelParam.setInfo(this.SEGMENTED_RUP_MODEL_TYPE_INFO);
+	}
 	
 	/**
 	 * Get the info on the selected deformation model
@@ -832,7 +851,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		boolean constrainA_SegRates = ((Boolean)constrainA_SegRatesParam.getValue()).booleanValue();
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
-		String rupModel = (String) rupModelParam.getValue();
+		ParameterList rupModels = (ParameterList) this.segmentedRupModelParam.getValue();
 		String slipModel = (String)slipModelParam.getValue();
 		int deformationModelId =  getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
@@ -845,7 +864,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
-			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), rupModel);
+			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
 			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
 					magTruncLevel, moRateFracToBackground, meanMagCorrection, constrainA_SegRates);
@@ -1150,50 +1169,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				adjustableParams.addParameter(backSeisMaxMagParam);
 			}
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
-			setB_FaultConnectionsFileName();
+			this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+			
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
-			setA_FaultFileName();
-			setB_FaultConnectionsFileName();	
+			updateFetchersBasedonDefModels();
+		} else if(paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) { // if deformation model changes, update the files to be read
+			
 		}
 		
 	}
-	
+
 	/**
-	 * Set the B-Fault conenction filname based on whether B-Faults need to be connected and the chosen deformation model
+	 * Update fetchers based on selected deformation model
 	 *
 	 */
-	public void setB_FaultConnectionsFileName() {
-		boolean isConnectMoreB_Faults = ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue();
-		String fileName=null;
-		if(!isConnectMoreB_Faults)  { // if we do not have to connect B-Fsults
-			fileName = B_CONNECT_MINIMAL;
-		} else { // if B-Faults need to be connected
-			//find the deformation model
-			DeformationModelSummary defModelSummary = getSelectedDeformationModelSummary();
-			String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
-			// get the B-Fault filename based on selected fault model
-			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = B_CONNECT_MODEL1;
-			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = B_CONNECT_MODEL2;
-			else throw new RuntimeException("Unsupported Fault Model");
-		}
-		bFaultsFetcher.setConnectionFileName(fileName, aFaultsFetcher);  // the aFaultsFetcher needed to find which are B faults
+	private void updateFetchersBasedonDefModels() {
+		aFaultsFetcher.setSegmentModel(this.getSelectedDeformationModelSummary());
+		this.bFaultsFetcher.setConnectedB_Faults( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}
 	
-	/**
-	 * Set the A-Fault segments file name based on chosen deformation model
-	 *
-	 */
-	public void setA_FaultFileName() {
-//		find the deformation model
-		String fileName=null;
-		DeformationModelSummary defModelSummary = getSelectedDeformationModelSummary();
-		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
-		// get the A-Fault filename based on selected fault model
-		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
-		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
-		else throw new RuntimeException("Unsupported Fault Model");
-		this.aFaultsFetcher.setSegmentModelFileName(fileName);
-	}
 	
 	/**
 	 * This generates text to console that can be pasted into a Matlab *.m file and then
@@ -1218,7 +1212,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *  (the rates of 5 ruptures differed by 1e-4 when rounded to nearest 1e-4).
 	 */
 	private void makeMatlabNNLS_testScript() {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		for(int imag=0; imag<magAreaOptions.size();imag++)
@@ -1233,14 +1228,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								"\n% " + slipModelOptions.get(islip));
 						System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
 						mkA_FaultSegmentedSources();
-					}
+					}*/
 	}
 	
 	
 	
 	
 	private void printMag6_5_discrepancies() {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
@@ -1266,7 +1262,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								" , " + slipModelOptions.get(islip));
 						//System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
 
-					}
+					}*/
 	}
 	
 	/**
@@ -1274,7 +1270,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void findMinBulge() {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
@@ -1324,7 +1321,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(minRatio+"------"+minStr);
+		System.out.println(minRatio+"------"+minStr);*/
 	}
 	
 	
@@ -1335,7 +1332,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetForSegRecurIntv(String outputFileName) {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		int numA_Faults = 8;	
@@ -1464,7 +1462,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	
@@ -1474,7 +1472,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetForSegSlipRate(String outputFileName) {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		int numA_Faults = 8;	
@@ -1591,7 +1590,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	/**
@@ -1600,7 +1599,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetsForRupMagRates(String outputFileName) {
-		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		throw new RuntimeException ("Method unsupported exception");
+		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		
@@ -1758,7 +1758,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	// this is temporary for testing purposes

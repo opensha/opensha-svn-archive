@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.opensha.calc.RelativeLocation;
+import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.fault.FaultTrace;
@@ -27,6 +28,9 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	private ArrayList allSpecialFaultIds;
 	
 	private String connectB_FaultsFileName;
+	private final static String B_CONNECT_MINIMAL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsMinimum.txt";
+	private final static String B_CONNECT_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.1.txt";
+	private final static String B_CONNECT_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/B_FaultConnectionsF2.2.txt";
 		
 	/**
 	 * default constructor
@@ -38,14 +42,23 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * Set the connection file name. This function needs to be called before any other function can be called.
 	 * @param fileName
 	 */
-	public void setConnectionFileName(String fileName, A_FaultsFetcher aFaultsFetcher) {
-		this.aFaultsFetcher = aFaultsFetcher;
-		if(connectB_FaultsFileName==null || !connectB_FaultsFileName.equals(fileName)) {
-			this.loadSegmentModels(fileName);
-			allSpecialFaultIds = super.getAllFaultSectionsIdList();
-			connectB_FaultsFileName = fileName;
-			deformationModelId=-1;
+	public void setConnectedB_Faults(boolean isConnected, DeformationModelSummary defModelSummary, A_FaultsFetcher aFaultsFetcher) {
+		String fileName=null;
+		if(!isConnected)  { // if we do not have to connect B-Fsults
+			fileName = B_CONNECT_MINIMAL;
+		} else { // if B-Faults need to be connected
+			String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
+			// get the B-Fault filename based on selected fault model
+			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = B_CONNECT_MODEL1;
+			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = B_CONNECT_MODEL2;
+			else throw new RuntimeException("Unsupported Fault Model");
 		}
+		this.aFaultsFetcher = aFaultsFetcher;	
+		this.loadSegmentModels(fileName);
+		allSpecialFaultIds = super.getAllFaultSectionsIdList();
+		connectB_FaultsFileName = fileName;
+		deformationModelId=-1;
+		
 	}
 	
 	/**
