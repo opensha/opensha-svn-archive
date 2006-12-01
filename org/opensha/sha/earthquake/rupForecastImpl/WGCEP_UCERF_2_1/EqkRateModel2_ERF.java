@@ -238,9 +238,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static Double B_VAL_MAX = new Double(2);
 	private DoubleParameter bFaultB_ValParam;
 	
-	public final static String REGION_B_VAL_PARAM_NAME = "Background Seis b-value";
-	public final static String REGION_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
-	public final static Double REGIONAL_B_DEFAULT = new Double(0.9);
+	public final static String BACK_SEIS_B_VAL_PARAM_NAME = "Background Seis b-value";
+	public final static String BACK_SEIS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
+	public final static Double BACK_SEIS_B_DEFAULT = new Double(0.9);
 	// min and max same as for bFaultB_ValParam
 	private DoubleParameter regionB_ValParam;
 	
@@ -434,8 +434,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		bFaultB_ValParam = new DoubleParameter(B_FAULTS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.B_FAULT_GR_B_DEFAULT);
 		bFaultB_ValParam.setInfo(B_FAULTS_B_VAL_PARAM_INFO);
-		regionB_ValParam = new DoubleParameter(REGION_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.REGIONAL_B_DEFAULT);
-		regionB_ValParam.setInfo(REGION_B_VAL_PARAM_INFO);
+		regionB_ValParam = new DoubleParameter(BACK_SEIS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.BACK_SEIS_B_DEFAULT);
+		regionB_ValParam.setInfo(BACK_SEIS_B_VAL_PARAM_INFO);
 		
 		moRateFracToBackgroundParam = new DoubleParameter(A_AND_B_MO_RATE_REDUCTION_PARAM_NAME, 
 				A_AND_B_MO_RATE_REDUCTION_MIN, A_AND_B_MO_RATE_REDUCTION_MAX, 
@@ -722,8 +722,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 		
 		// get the total rate of M³5 events
-		double rate = ((Double)this.totalMagRateParam.getValue()).doubleValue();
-		double bValue = ((Double)this.regionB_ValParam.getValue()).doubleValue();
+		double rate = ((Double) totalMagRateParam.getValue()).doubleValue();
+		double bValue = ((Double) regionB_ValParam.getValue()).doubleValue();
 		double magMax = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		
 		// now subtract the A, B, & C fault/zone rates
@@ -757,9 +757,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 
 		String backgroundTreatment = (String) setForBckParam.getValue();
-		if(backgroundTreatment.equals(this.SET_FOR_BCK_PARAM_FRAC_MO_RATE)) {
-			double totMoRateABC = this.aFaultSummedMFD.getTotalMomentRate()+this.bFaultCharSummedMFD.getTotalMomentRate()+
-				this.bFaultGR_SummedMFD.getTotalMomentRate()+this.cZoneSummedMFD.getTotalMomentRate();
+		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE)) {
+			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
+				bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate();
 			double totBackMoRate = moRateFracToBackground*totMoRateABC/(1-moRateFracToBackground);
 			System.out.println(moRateFracToBackground+","+totBackRate+","+bValue);
 			if(moRateFracToBackground > 0)
@@ -802,7 +802,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	private void makeC_ZoneSources() {
-		this.cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		
 		if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
  			
@@ -888,17 +888,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	private void mkB_FaultSources() {
-		double magSigma  = ((Double)this.magSigmaParam.getValue()).doubleValue();
-		double magTruncLevel = ((Double)this.truncLevelParam.getValue()).doubleValue();
-		double fractCharVsGR= ((Double)this.percentCharVsGRParam.getValue()).doubleValue()/100.0;
-		MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
-		int deformationModelId = this.getSelectedDeformationModelSummary().getDeformationModelId();
-		boolean isAseisReducesArea = ((Boolean)this.aseisFactorInterParam.getValue()).booleanValue();
+		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
+		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
+		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
+		MagAreaRelationship magAreaRel = getMagAreaRelationship();
+		int deformationModelId = getSelectedDeformationModelSummary().getDeformationModelId();
+		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		double minMagGR = ((Double)this.bFaultsMinMagParam.getValue()).doubleValue();
-		ArrayList bFaultSegmentData = this.bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
+		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
+		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
+		ArrayList bFaultSegmentData = bFaultsFetcher.getFaultSegmentDataList(deformationModelId, 
 				isAseisReducesArea);
-		double bValue = ((Double)this.bFaultB_ValParam.getValue()).doubleValue();
 //		ArrayList B_faultCharMFDs = new ArrayList();
 //		ArrayList B_faultGR_MFDs = new ArrayList();
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
