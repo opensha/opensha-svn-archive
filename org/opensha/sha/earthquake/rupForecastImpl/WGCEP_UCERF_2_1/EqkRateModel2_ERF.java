@@ -467,15 +467,24 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, SET_FOR_BCK_PARAM_BCK_MAX_MAG);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
-			
-		
+		// put parameters in the parameter List object	
+		createParamList();
+	
+	}
+	
+	/**
+	 * Put parameters in theParameterList
+	 */
+	private void createParamList() {
+		adjustableParams = new ParameterList();
 		//	 add adjustable parameters to the list
 //		adjustableParams.addParameter(faultModelParam);		not needed for now
 //		adjustableParams.addParameter(rupOffset_Param);		not needed for now
 		adjustableParams.addParameter(deformationModelsParam);
 		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
-		adjustableParams.addParameter(segmentedRupModelParam);
+		String rupModel = (String)rupModelParam.getValue();
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(segmentedRupModelParam);
 		adjustableParams.addParameter(slipModelParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
@@ -491,10 +500,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(regionB_ValParam);
 		adjustableParams.addParameter(setForBckParam);
-		adjustableParams.addParameter(backSeisMaxMagParam);
-		
-		
-		
+		String setForBackground = (String)setForBckParam.getValue();
+		if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE)) 
+			adjustableParams.addParameter(moRateFracToBackgroundParam);
+		else if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG))
+			adjustableParams.addParameter(backSeisMaxMagParam);
 	}
 	
 	/**
@@ -1157,24 +1167,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		super.parameterChange(event);
 		String paramName = event.getParameterName();
 		
-		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME)) {
-			String paramValue = (String)event.getNewValue();
-			if(paramValue.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE)) { // if Fract Mo Rate needs to be set
-				adjustableParams.removeParameter(backSeisMaxMagParam);
-				adjustableParams.addParameter(this.moRateFracToBackgroundParam);
-			} else if(paramValue.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG)){ // if Max Mag needs to be set
-				adjustableParams.removeParameter(moRateFracToBackgroundParam);
-				adjustableParams.addParameter(backSeisMaxMagParam);
-			}
+		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) || paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
+			createParamList();
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
 			this.bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
-			
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
 			updateFetchersBasedonDefModels();
-		} else if(paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) { // if deformation model changes, update the files to be read
-			
-		}
-		
+		} 
 	}
 
 	/**
