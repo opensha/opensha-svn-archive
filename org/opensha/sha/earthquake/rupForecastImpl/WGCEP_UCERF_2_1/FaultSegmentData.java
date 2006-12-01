@@ -18,7 +18,7 @@ public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
-	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate; 
+	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate, segSlipStdDev; 
 	private String[] segName, sectionsInSegString;
 	private String faultName;
 	private ArrayList<SegRateConstraint> segRates;
@@ -139,6 +139,15 @@ public class FaultSegmentData {
 	 */
 	public double getSegmentSlipRate(int index) {
 		return segSlipRate[index];
+	}
+	
+	/**
+	 * Get Standard deviation for the slip rate by index
+	 * @param index
+	 * @return
+	 */
+	public double getSegSlipStdDev(int index) {
+		return this.segSlipStdDev[index];
 	}
 	
 	/**
@@ -268,6 +277,7 @@ public class FaultSegmentData {
 		segMoRate = new double[sectionToSegmentData.size()];
 		segMoRateIgnoringAseis = new double[sectionToSegmentData.size()];
 		segSlipRate = new double[sectionToSegmentData.size()];
+		segSlipStdDev = new double[sectionToSegmentData.size()];
 		sectionsInSegString = new String[sectionToSegmentData.size()];
 		
 		// fill in segName, segArea and segMoRate
@@ -277,6 +287,7 @@ public class FaultSegmentData {
 			segLength[seg]=0;
 			segMoRate[seg]=0;
 			segMoRateIgnoringAseis[seg]=0;
+			double stdDevTotal = 0;
 			ArrayList segmentDatum = (ArrayList) sectionToSegmentData.get(seg);
 			Iterator it = segmentDatum.iterator();
 			sectionsInSegString[seg]="";
@@ -294,16 +305,18 @@ public class FaultSegmentData {
 				segOrigArea[seg] +=  area;
 				if(aseisReducesArea) {
 					segArea[seg] += area*alpha;
+					stdDevTotal += (sectData.getSlipRateStdDev()/sectData.getAveLongTermSlipRate())*area*alpha;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area*alpha,slipRate); // SI units
 				}
 				else {
 					segArea[seg] +=  area;// meters-squared
+					stdDevTotal += (sectData.getSlipRateStdDev()/sectData.getAveLongTermSlipRate())*area;
 					segMoRate[seg] += FaultMomentCalc.getMoment(area,slipRate*alpha); // SI units
 				}
-				
 			}
 			// segment slip rate is an average weighted by the section areas
 			segSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
+			this.segSlipStdDev[seg] = (stdDevTotal/segArea[seg])*segSlipRate[seg];
 			totalArea+=segArea[seg];
 			totalMoRate+=segMoRate[seg];
 			totalMoRateIgnoringAseis+=segMoRateIgnoringAseis[seg];

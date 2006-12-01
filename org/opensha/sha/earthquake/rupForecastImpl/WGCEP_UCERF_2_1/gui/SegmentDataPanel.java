@@ -171,7 +171,7 @@ public class SegmentDataPanel extends JPanel {
  */
 class FaultSectionTableModel extends AbstractTableModel {
 //	 column names
-	private final static String[] columnNames = { "Section Name", "Slip Rate (mm/yr)", 
+	private final static String[] columnNames = { "Section Name", "Slip Rate (mm/yr)", "Slip Std Dev",
 		"Aseismic Factor","Length (km)","Down Dip Width (km)", "Area (sq-km)",
 		"Upper Depth (km)", "Lower Depth (km)", "Ave Dip (degrees)"};
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
@@ -247,23 +247,25 @@ class FaultSectionTableModel extends AbstractTableModel {
 				return faultSectionPrefData.getSectionName();
 			case 1: // convert to mm/yr
 				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getAveLongTermSlipRate());
-			case 2:
-				return ASEISMSIC__FORMAT.format(faultSectionPrefData.getAseismicSlipFactor());
+			case 2: 
+				return SLIP_RATE_FORMAT.format(faultSectionPrefData.getSlipRateStdDev());
 			case 3:
+				return ASEISMSIC__FORMAT.format(faultSectionPrefData.getAseismicSlipFactor());
+			case 4:
 				// km
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getLength());
-			case 4:
+			case 5:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth());
-			case 5:
+			case 6:
 				// sq km
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getDownDipWidth() *
 						faultSectionPrefData.getLength());
-			case 6:
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveUpperDepth());
 			case 7:
-				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveLowerDepth());
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveUpperDepth());
 			case 8:
+				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveLowerDepth());
+			case 9:
 				return AREA_LENGTH_FORMAT.format(faultSectionPrefData.getAveDip());
 		}
 		return "";

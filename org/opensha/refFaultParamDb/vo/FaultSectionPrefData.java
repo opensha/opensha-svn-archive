@@ -18,6 +18,7 @@ public class FaultSectionPrefData {
 	private String sectionName;
 	private String shortName;
 	private double aveLongTermSlipRate;
+	private double slipRateStdDev;
 	private double aveDip;
 	private double aveRake;
 	private double aveUpperDepth;
@@ -135,6 +136,14 @@ public class FaultSectionPrefData {
 			subSection.setSectionName(this.sectionName+" Subsection:"+(i+1));
 		}
 		return subSectionList;
+	}
+
+	public double getSlipRateStdDev() {
+		return slipRateStdDev;
+	}
+
+	public void setSlipRateStdDev(double slipRateStdDev) {
+		this.slipRateStdDev = slipRateStdDev;
 	}
 
 }

@@ -410,6 +410,7 @@ CREATE TABLE Pref_Deformation_Model_Data (
  Section_Id INTEGER  NOT NULL,
  Pref_Long_Term_Slip_Rate FLOAT NULL,
  Pref_Aseismic_Slip FLOAT  NOT NULL,
+ Slip_Std_Dev FLOAT   NULL,
  PRIMARY KEY(Deformation_Model_Id, Section_Id),
  FOREIGN KEY(Deformation_Model_Id, Section_Id)
      REFERENCES  Deformation_Model(Deformation_Model_Id, Section_Id) ON DELETE CASCADE

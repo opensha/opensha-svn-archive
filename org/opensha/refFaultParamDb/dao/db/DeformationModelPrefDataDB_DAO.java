@@ -8,11 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.opensha.data.estimate.Estimate;
+import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
@@ -29,9 +32,11 @@ public class DeformationModelPrefDataDB_DAO {
 	private final static String DEFORMATION_MODEL_ID = "Deformation_Model_Id";
 	private final static String SECTION_ID = "Section_Id";
 	private final static String PREF_LONG_TERM_SLIP_RATE = "Pref_Long_Term_Slip_Rate";
+	private final static String SLIP_STD_DEV = "Slip_Std_Dev";
 	private final static String PREF_ASEISMIC_SLIP = "Pref_Aseismic_Slip";
 	private static HashMap slipRateMap;
 	private static HashMap aseismicSlipMap;
+	private static HashMap stdDevMap;
 	private static int selectedDefModelId = -1;
 	private DB_AccessAPI dbAccess;
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO;
@@ -73,12 +78,19 @@ public class DeformationModelPrefDataDB_DAO {
 			for(int j=0; j<faultSectionIdList.size(); ++j) {
 				faultSectionId = ((Integer)faultSectionIdList.get(j)).intValue();
 				aseismicSlipFactor = FaultSectionData.getPrefForEstimate(deformationModelDB_DAO.getAseismicSlipEstimate(deformationModelId, faultSectionId));
-				if(aseismicSlipFactor==1) {
+				/*if(aseismicSlipFactor==1) {
 					System.out.println(deformationModelId+","+faultSectionId+","+deformationModelDB_DAO.getAseismicSlipEstimate(deformationModelId, faultSectionId));
 					System.exit(0);
+				}*/
+				EstimateInstances estimateInstance = deformationModelDB_DAO.getSlipRateEstimate(deformationModelId, faultSectionId);
+				slipRate = FaultSectionData.getPrefForEstimate(estimateInstance);
+				double slipRateStdDev = Double.NaN;
+				//System.out.println(faultSectionId);
+				if(!Double.isNaN(slipRate)) {
+					if(estimateInstance.getEstimate() instanceof NormalEstimate)
+						slipRateStdDev = ((NormalEstimate)estimateInstance.getEstimate()).getStdDev();
 				}
-				slipRate = FaultSectionData.getPrefForEstimate(deformationModelDB_DAO.getSlipRateEstimate(deformationModelId, faultSectionId));
-				addToTable(deformationModelId, faultSectionId, aseismicSlipFactor, slipRate);
+				addToTable(deformationModelId, faultSectionId, aseismicSlipFactor, slipRate, slipRateStdDev);
 			}
 		}
 	}
@@ -92,12 +104,16 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @param slipRate
 	 */
 	private void addToTable(int deformationModelId, int faultSectionId, 
-			double aseismicSlipFactor, double slipRate) {
+			double aseismicSlipFactor, double slipRate, double slipRateStdDev) {
 		String columnNames = "";
 		String colVals = "";
 		if(!Double.isNaN(slipRate)) {
 			columnNames +=PREF_LONG_TERM_SLIP_RATE+",";
 			colVals +=slipRate+",";
+		}
+		if(!Double.isNaN(slipRateStdDev)) {
+			columnNames +=SLIP_STD_DEV+",";
+			colVals +=slipRateStdDev+",";
 		}
 		String sql = "insert into "+TABLE_NAME+" ("+DEFORMATION_MODEL_ID+","+
 			SECTION_ID+","+columnNames+PREF_ASEISMIC_SLIP+") values ("+
@@ -132,6 +148,7 @@ public class DeformationModelPrefDataDB_DAO {
 		// get slip rate and aseimic slip factor from deformation model
 		faultSectionPrefData.setAseismicSlipFactor(this.getAseismicSlipFactor(deformationModelId, faultSectionId));
 		faultSectionPrefData.setAveLongTermSlipRate(this.getSlipRate(deformationModelId, faultSectionId));
+		faultSectionPrefData.setSlipRateStdDev(this.getSlipStdDev(deformationModelId, faultSectionId));
 		return faultSectionPrefData;
 	}
 	
@@ -144,10 +161,25 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public double getSlipRate(int deformationModelId, int faultSectionId) {
-		if(this.selectedDefModelId!=deformationModelId) this.cacheSlipRateAndAseismicSlip(deformationModelId);
+		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		Double slipRate =  (Double)slipRateMap.get(new Integer(faultSectionId));
 		if(slipRate==null) return Double.NaN;
 		else return slipRate.doubleValue();
+	}	
+	
+	/**
+	 * Get the Std Dev for Slip Rate value for selected Deformation Model and Fault Section
+	 * Returns NaN if Std Dev is not  available
+	 * 
+	 * @param deformationModelId
+	 * @param faultSectionId
+	 * @return
+	 */
+	public double getSlipStdDev(int deformationModelId, int faultSectionId) {
+		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
+		Double stdDev =  (Double)stdDevMap.get(new Integer(faultSectionId));
+		if(stdDev==null) return Double.NaN;
+		else return stdDev.doubleValue();
 	}	
 	
 	/**
@@ -159,21 +191,23 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public double getAseismicSlipFactor(int deformationModelId, int faultSectionId) {
-		if(this.selectedDefModelId!=deformationModelId) this.cacheSlipRateAndAseismicSlip(deformationModelId);
+		if(this.selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
 		Double aseismicSlip = (Double)aseismicSlipMap.get(new Integer(faultSectionId));
 		if(aseismicSlip == null) return Double.NaN;
 		else return aseismicSlip.doubleValue();
 	}
 	
 	
-	private void cacheSlipRateAndAseismicSlip(int defModelId) {
+	private void cache(int defModelId) {
 		slipRateMap = new HashMap();
 		aseismicSlipMap = new HashMap();
+		stdDevMap = new HashMap();
 		String sql= "select "+SECTION_ID+"," +
 		" ("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+","+
+		" ("+SLIP_STD_DEV+"+0) "+SLIP_STD_DEV+","+
 		" ("+PREF_LONG_TERM_SLIP_RATE+"+0) "+PREF_LONG_TERM_SLIP_RATE+
 		" from "+TABLE_NAME+" where " + DEFORMATION_MODEL_ID+"="+defModelId;
-		double aseismicSlipFactor=Double.NaN,slip=Double.NaN;
+		double aseismicSlipFactor=Double.NaN,slip=Double.NaN, stdDev=Double.NaN;
 		int sectionId;
 		try {
 			ResultSet rs  = this.dbAccess.queryData(sql);
@@ -182,9 +216,12 @@ public class DeformationModelPrefDataDB_DAO {
 				if(rs.wasNull()) aseismicSlipFactor = Double.NaN;
 				slip = rs.getFloat(PREF_LONG_TERM_SLIP_RATE);
 				if(rs.wasNull()) slip = Double.NaN;
+				stdDev = rs.getFloat(SLIP_STD_DEV);
+				if(rs.wasNull()) stdDev = Double.NaN;
 				sectionId = rs.getInt(SECTION_ID);
 				slipRateMap.put(new Integer(sectionId), new Double(slip)) ;
 				aseismicSlipMap.put(new Integer(sectionId), new Double(aseismicSlipFactor));
+				stdDevMap.put(new Integer(sectionId), new Double(stdDev));
 			}
 		} catch (SQLException e) {
 			throw new QueryException(e.getMessage());
