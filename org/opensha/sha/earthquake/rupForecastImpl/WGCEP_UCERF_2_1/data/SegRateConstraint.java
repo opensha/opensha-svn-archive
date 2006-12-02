@@ -89,12 +89,12 @@ public class SegRateConstraint {
 			  SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
 			  faultName = segRateConstraint.getFaultName();
 			  segIndex = segRateConstraint.getSegIndex();
-			  double sigmaSq = 1/(segRateConstraint.getStdDevToMean()*segRateConstraint.getStdDevToMean());
+			  double sigmaSq = 1.0/(segRateConstraint.getStdDevToMean()*segRateConstraint.getStdDevToMean());
 			  sigmaTotal+=sigmaSq;
 			  total+=sigmaSq*segRateConstraint.getMean();
 		  }
 		  SegRateConstraint finalSegRateConstraint = new SegRateConstraint(faultName);
-		  finalSegRateConstraint.setSegRate(segIndex, total/sigmaTotal, 1/sigmaTotal);
+		  finalSegRateConstraint.setSegRate(segIndex, total/sigmaTotal, Math.sqrt(1.0/sigmaTotal));
 		  return finalSegRateConstraint;
 	  }
 	

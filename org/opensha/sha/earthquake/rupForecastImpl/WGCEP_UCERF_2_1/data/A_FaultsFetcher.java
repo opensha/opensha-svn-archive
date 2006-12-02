@@ -210,7 +210,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				for(int segIndex=0; segIndex<segment.size(); ++segIndex) {
 					if(faultSectionId == ((FaultSectionSummary)segment.get(segIndex)).getSectionId()) {
 						SegRateConstraint segRateConstraint = new SegRateConstraint(faultName);
-						segRateConstraint.setSegRate(segIndex, rate, sigma);
+						segRateConstraint.setSegRate(i, rate, sigma);
 						segRatesList.add(segRateConstraint);
 						return;
 					}
