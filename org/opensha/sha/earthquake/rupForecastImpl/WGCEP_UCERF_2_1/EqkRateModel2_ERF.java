@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -1330,11 +1331,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetForSegRecurIntv(String outputFileName) {
-		throw new RuntimeException ("Method unsupported exception");
-		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		int numA_Faults = 8;	
+		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
 		HSSFWorkbook wb  = new HSSFWorkbook();
@@ -1348,15 +1347,23 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			wb.createSheet();
 		}
 		int currRow[] = new int[numA_Faults];
-		for(int irup=0; irup<rupModelOptions.size();irup++) {
+		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+		for(int irup=0; irup<3;irup++) { // various rupture model types
 			int rupStartRow[] = new int[numA_Faults];
+			Iterator it = this.segmentedRupModelParam.getParametersIterator();
+			while(it.hasNext()) { // set the specfiied rup model in each A fault
+				StringParameter param = (StringParameter)it.next();
+				ArrayList<String> allowedVals = param.getAllowedStrings();
+				param.setValue(allowedVals.get(irup));
+			}
+			
 			for(int imag=0; imag<magAreaOptions.size();imag++) {
-				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
 			
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
 						slipModelParam.setValue(slipModelOptions.get(islip));
+						
+						
 						mkA_FaultSegmentedSources();
 						
 						// Write header for each Rup Solution Types
@@ -1370,7 +1377,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 HSSFRow row = sheet.createRow((short)currRow[i]++);
 								 // Write Rup solution Type
 								 HSSFCell cell = row.createCell((short)0);
-								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellValue(models[irup]);
 								 cell.setCellStyle(cellStyle);
 								 row = sheet.createRow((short)currRow[i]++);
 								 int col=5;
@@ -1460,7 +1467,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	
@@ -1470,11 +1477,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetForSegSlipRate(String outputFileName) {
-		throw new RuntimeException ("Method unsupported exception");
-		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		int numA_Faults = 8;	
+		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
 		HSSFWorkbook wb  = new HSSFWorkbook();
@@ -1487,16 +1492,23 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int i=0; i<numA_Faults; ++i) {
 			wb.createSheet();
 		}
-		
+		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		int currRow[] = new int[numA_Faults];
-		for(int irup=0; irup<rupModelOptions.size();irup++) {
+		for(int irup=0; irup<3;irup++) {
 			int rupStartRow[] = new int[numA_Faults];
+			
+			Iterator it = this.segmentedRupModelParam.getParametersIterator();
+			while(it.hasNext()) { // set the specfiied rup model in each A fault
+				StringParameter param = (StringParameter)it.next();
+				ArrayList<String> allowedVals = param.getAllowedStrings();
+				param.setValue(allowedVals.get(irup));
+			}
+			
 			for(int imag=0; imag<magAreaOptions.size();imag++) {
-				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+				
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
 			
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						mkA_FaultSegmentedSources();
 						
@@ -1511,7 +1523,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 HSSFRow row = sheet.createRow((short)currRow[i]++);
 								 // Write Rup solution Type
 								 HSSFCell cell = row.createCell((short)0);
-								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellValue(models[irup]);
 								 cell.setCellStyle(cellStyle);
 								 row = sheet.createRow((short)currRow[i]++);
 								 int col=3;
@@ -1588,7 +1600,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	/**
@@ -1597,12 +1609,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 */
 	public void generateExcelSheetsForRupMagRates(String outputFileName) {
-		throw new RuntimeException ("Method unsupported exception");
-		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		
-		int numA_Faults = 8;	
+		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
 		
 		HSSFWorkbook wb  = new HSSFWorkbook();
@@ -1616,18 +1627,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			wb.createSheet();
 			//currRow[i]=0;
 		}
-		
+		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		int currRow[] = new int[numA_Faults];
-		for(int irup=0; irup<rupModelOptions.size();irup++) {
+		for(int irup=0; irup<3;irup++) {
 			int rupStartRow[] = new int[numA_Faults];
+			
+			Iterator it = this.segmentedRupModelParam.getParametersIterator();
+			while(it.hasNext()) { // set the specfiied rup model in each A fault
+				StringParameter param = (StringParameter)it.next();
+				ArrayList<String> allowedVals = param.getAllowedStrings();
+				param.setValue(allowedVals.get(irup));
+			}
+			
 			for(int imag=0; imag<magAreaOptions.size();imag++) {
 				//int numSlipModels = slipModelOptions.size();
 				//double magRate[][] = new double[numSlipModels][2];
-				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
-					for(int islip=0; islip<slipModelOptions.size();islip++) {
+				for(int islip=0; islip<slipModelOptions.size();islip++) {
 			
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
+						
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						mkA_FaultSegmentedSources();
 						
@@ -1642,7 +1660,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 HSSFRow row = sheet.createRow((short)currRow[i]++);
 								 // Write Rup solution Type
 								 HSSFCell cell = row.createCell((short)0);
-								 cell.setCellValue((String)rupModelOptions.get(irup));
+								 cell.setCellValue(models[irup]);
 								 cell.setCellStyle(cellStyle);
 								 row = sheet.createRow((short)currRow[i]++);
 								 int col=4;
@@ -1756,7 +1774,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	// this is temporary for testing purposes

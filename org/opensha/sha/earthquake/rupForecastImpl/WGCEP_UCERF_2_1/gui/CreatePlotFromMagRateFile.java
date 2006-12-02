@@ -187,7 +187,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 			// read the mag rates file
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelSheetName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			String[] models = { "Min Rate", "Max Rate", "Geological Insight"};
+			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
 				HSSFSheet sheet = wb.getSheetAt(i);
 				String sheetName = wb.getSheetName(i);
