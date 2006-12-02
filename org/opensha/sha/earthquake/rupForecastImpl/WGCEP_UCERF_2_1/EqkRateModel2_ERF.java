@@ -1438,7 +1438,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						   
 						   
 						
-						// write the rup Mag and rates
+						// 
 						for(int i=0; i<this.aFaultSources.size(); ++i) {
 							 HSSFSheet sheet = wb.getSheetAt(i);
 							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);

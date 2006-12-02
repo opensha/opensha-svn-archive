@@ -242,7 +242,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		// set the recurrence intervals
 		for(int i=0; i<segRateConstraintList.size(); ++i) {
 			SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
-			segmentRates.add(segRateConstraint);
+			if(segRateConstraint.getSegIndex() == segIndex)
+				segmentRates.add(segRateConstraint);
 		}
 		return segmentRates;
 	}
