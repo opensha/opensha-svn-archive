@@ -161,23 +161,49 @@ public class FaultSegmentData {
 	}
 	
 	/**
-	 * Get segment recur interval.  
+	 * Get segment recur interval for the specified segment index.  
 	 * 
 	 * @param index
 	 * @return recur int in years
 	 */
-	public double getRecurInterval(int index) {
-		ArrayList<SegRateConstraint> segmentConstraints = new ArrayList<SegRateConstraint>();
-		for(int i=0; segRates!=null && i<segRates.size(); ++i) {
-			if(segRates.get(i).getSegIndex()==index) segmentConstraints.add(segRates.get(i));
-		}
+	public double getRecurInterval(int segIndex) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(segIndex);
 		if(segmentConstraints.size()==0) return Double.NaN;
 		else {
 			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
 			return 1.0/meanSegmentConstraint.getMean();
 		}
 	}
+
+	/**
+	 * Get the  rates for the sepcified segment index. Returns an empty arrayList in case there
+	 * are no rates for this segment.
+	 *  
+	 * @param index
+	 * @return
+	 */
+	public ArrayList<SegRateConstraint> getSegRateConstraints(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = new ArrayList<SegRateConstraint>();
+		for(int i=0; segRates!=null && i<segRates.size(); ++i) {
+			if(segRates.get(i).getSegIndex()==index) segmentConstraints.add(segRates.get(i));
+		}
+		return segmentConstraints;
+	}
 	
+	/**
+	 * Get segment recur interval.  
+	 * 
+	 * @param index
+	 * @return recur int in years
+	 */
+	public double getRecurIntervalSigma(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(index);
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
+			return meanSegmentConstraint.getStdDevToMean()/Math.pow(meanSegmentConstraint.getMean(),2);
+		}
+	}
 	/**
 	 * Get the segment Rates
 	 * 

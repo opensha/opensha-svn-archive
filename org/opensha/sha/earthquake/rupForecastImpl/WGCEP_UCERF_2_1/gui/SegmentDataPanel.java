@@ -28,6 +28,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 
 /**
  * Panel to show the Segments and Fault sections data 
@@ -144,9 +145,30 @@ public class SegmentDataPanel extends JPanel {
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;
 		if(isAseisReducesArea) text = MSG_ASEIS_REDUCES_AREA;
-		magAreasTextArea.setText(getLegend()+"\n\n"+text+"\n\n"+summaryString);
+		magAreasTextArea.setText(getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
 	}
+	
+	/**
+	 * Get rate constraints for the segments
+	 * 
+	 * @param segmetedFaultData
+	 */
+	private String getRateConstraints(FaultSegmentData segmetedFaultData) {
+		String rateConstraintStr = "Rate Constraints for the Segments \n"+
+									"---------------------------------\n\n";
+		rateConstraintStr+="Seg\tRate\t\tSigma\n";
+		int numSegs = segmetedFaultData.getNumSegments();
+		for(int segIndex=0; segIndex<numSegs; ++segIndex) {
+			ArrayList<SegRateConstraint> segConstraintList = segmetedFaultData.getSegRateConstraints(segIndex);
+			for(int i=0; i<segConstraintList.size(); ++i)
+				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+"\t\t"+(float)segConstraintList.get(i).getStdDevToMean()+"\n";
+		}
+
+		
+		return rateConstraintStr;
+	}
+	
 	
 	private String getLegend() {
 		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
@@ -155,7 +177,7 @@ public class SegmentDataPanel extends JPanel {
 		legend += "Stress Drop - Stress drop assuming an infinitely long strike-slip fault\n"; 
 		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
 		legend += "Char Slip - meters\n";
-		legend += "Slip Rate - mm/yr\n";
+		legend += "SR - Slip Rate (mm/yr)\n";
 		legend += "Area - sq km\n";
 		legend += "Length - km\n";
 		return legend;
@@ -281,10 +303,10 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Seg Name", "Num", "Orig Slip Rate", 
-		"Final Slip Rate","Area",
-		"Length", "Mo Rate", "Orig MRI", "Pred MRI", "Final MRI", "Char Slip", 
-		 "Stress Drop", "Sections In Segment"};
+	private final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
+		"Final SR","Area",
+		"Length", "Mo Rate", "Data MRI", "MRI Sigma", "Pred MRI", "Final MRI", "Char Slip", 
+		 "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
@@ -363,32 +385,37 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 2: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
-			case 3:
-				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+			case 3: 
+				// convert to mm/yr
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipStdDev(rowIndex)*1e3);
 			case 4:
+				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+			case 5:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
-			case 5:
+			case 6:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
-			case 6:
-				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 7:
-				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
+				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 8:
-				return ""+Math.round(1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex));
+				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
 			case 9:
+				return ""+Math.round(segFaultData.getRecurIntervalSigma(rowIndex));
+			case 10:
+				return ""+Math.round(1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex));
+			case 11:
 				return ""+Math.round(segmentedSource.getFinalSegRecurInt(rowIndex));
-			case 10:	
+			case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
 				return ""+ CHAR_SLIP_RATE_FORMAT.format(getCharSlip(rowIndex));
-			case 11:
+			/*case 11: // FOR STRESS DROP
 				double ddw = segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3; // ddw in km 
 				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
 				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
-				return ""+(float)segStressDrop;
-			case 12:
+				return ""+(float)segStressDrop;*/
+			case 13:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
@@ -411,13 +438,13 @@ class SegmentDataTableModel extends AbstractTableModel {
 		case 1: 
 			// convert to mm/yr
 			return "";
-		case 4:
+		case 5:
 			// convert to sq km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
-		case 5:
+		case 6:
 			// convert to km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
-		case 6:
+		case 7:
 			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
 		}
 	return "";

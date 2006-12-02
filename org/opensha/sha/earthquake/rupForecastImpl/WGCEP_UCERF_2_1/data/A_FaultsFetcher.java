@@ -178,6 +178,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		FaultSectionPrefData closestFaultSection=null;
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
 			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDAO.getFaultSectionPrefData(faultSectionIdList.get(i));
+			//System.out.println(faultSectionIdList.get(i));
 			dist  = prefFaultSectionData.getFaultTrace().getMinHorzDistToLine(loc);
 			//System.out.println(prefFaultSectionData.getSectionId()+":"+dist);
 			if(dist<minDist) {
