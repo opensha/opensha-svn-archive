@@ -198,8 +198,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private StringParameter rupModelParam;
 	
 	//	 rupture model type
-	public final static String SEGMENTED_RUP_MODEL_TYPE_NAME = "Segmented A-Fault Solution Type";
-	public final static String SEGMENTED_RUP_MODEL_TYPE_INFO = "The type of solution to apply for Segmented A-Fault Sources";
+	public final static String SEGMENTED_RUP_MODEL_TYPE_NAME = "Segmented A-Fault Solution Types";
+	public final static String SEGMENTED_RUP_MODEL_TYPE_INFO = "To set the a-prior solution for each type-A Fault Source";
 	private ParameterListParameter segmentedRupModelParam;
 	
 	//	 A-fault slip-model type
@@ -465,7 +465,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList<String> options = new ArrayList<String>();
 		options.add(SET_FOR_BCK_PARAM_FRAC_MO_RATE);
 		options.add(SET_FOR_BCK_PARAM_BCK_MAX_MAG);
-		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, SET_FOR_BCK_PARAM_BCK_MAX_MAG);
+		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, SET_FOR_BCK_PARAM_FRAC_MO_RATE);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
 		// put parameters in the parameter List object	
@@ -486,7 +486,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(rupModelParam);
 		String rupModel = (String)rupModelParam.getValue();
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(segmentedRupModelParam);
-		adjustableParams.addParameter(slipModelParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(slipModelParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
@@ -840,13 +840,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
 					"Eastern California Shear Zone S", "Imperial Valley", "San Gorgonio Knot"};
 			
-			double[] slipRates = { 0.05, 2.0, 4.0, 4.0, 5.0, 8.0, 14.0, 5.0}; // mm/yr
+			double[] slipRates = { 0.05, 2.0, 4.0, 4.0, 7.0, 10.0, 14.0, 2.0}; // mm/yr
 			double[] depthTop = { 0, 0, 0, 0, 0, 0, 0, 0}; // km
 			double[] depthBottom = { 12, 15, 15, 15, 14, 15.5, 12.6, 18.3}; //km
 			double[] strike = { 325, 335, 315, 315, 320, 320, 310, 290};
 			double[] length = { 360, 88, 230, 245, 180, 88, 58, 100 }; // km
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
-			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3};
+			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.6, 7.6, 7.3, 7.3};
 			double bValue = 0.8;
 			double moRate;
 			for(int i=0; i<names.length; ++i) {
@@ -1171,7 +1171,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) || paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
 			createParamList();
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
-			this.bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
 			updateFetchersBasedonDefModels();
 		} 
