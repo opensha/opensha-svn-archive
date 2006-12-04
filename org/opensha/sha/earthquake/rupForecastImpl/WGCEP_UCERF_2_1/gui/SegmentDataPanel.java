@@ -171,15 +171,16 @@ public class SegmentDataPanel extends JPanel {
 	
 	
 	private String getLegend() {
-		String legend = "Orig MRI - Mean Recur Int (years) from database\n";
-		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
-		legend += "Final MRI - Final MRI given MFDs\n";
-		legend += "Stress Drop - Stress drop assuming an infinitely long strike-slip fault\n"; 
-		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
-		legend += "Char Slip - meters\n";
-		legend += "SR - Slip Rate (mm/yr)\n";
+		String legend = "Orig SR - segment slip rate (mm/yr)\n";
+		legend += "SR Sigma - standard deviation of Orig SR\n";
+		legend += "Final SR - Post-inversion segment slip rate\n";
 		legend += "Area - sq km\n";
 		legend += "Length - km\n";
+		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
+		legend += "Data MRI - Ave Mean Recur Int (years) from Parsons/Dawson table\n";
+		legend += "MRI Sigma - Standard deviation of Data MRI\n";
+		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
+		legend += "Final MRI - Final MRI given MFDs\n";
 		return legend;
 	}
 }

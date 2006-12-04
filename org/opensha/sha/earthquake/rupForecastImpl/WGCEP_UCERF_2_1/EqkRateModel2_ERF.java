@@ -1064,7 +1064,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * MFD for Karen Felzer's observed MFD (from Table 6 in the doc she sent on Nov 2nd) and upper and lower confidence MFDs
 	 * @return
 	 */
-	public ArrayList getObsCumMFD(boolean includeAftershocks) {
+	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);

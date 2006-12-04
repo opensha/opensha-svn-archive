@@ -81,7 +81,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
 	public final static String WG02_SLIP_MODEL = "WGCEP-2002 model (Dsr prop to Vs)";
-	public final static String TAPERED_SLIP_MODEL = "Tapered Ends (elliptical)";
+	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	

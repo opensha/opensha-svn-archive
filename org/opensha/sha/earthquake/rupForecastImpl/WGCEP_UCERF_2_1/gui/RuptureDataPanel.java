@@ -3,6 +3,7 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,6 +14,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -39,6 +41,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton mfdButton = new JButton("Plot Selected Fault MFDs");
 	private JButton magAreaPlotButton = new JButton("Mag Area Plot (Color coded by Relative Rup Rates)");
 	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
+	private JButton aveSlipDataButton= new JButton("Show Ave Slip Data");
+	
 	private A_FaultSegmentedSource source;
 	
 	//	Filled Circles for rupture from each plot
@@ -104,9 +108,13 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(magAreaPlotButton2,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(aveSlipDataButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		aveSlipDataButton.setToolTipText("Show Average Slip for each segment for each rupture");
 		mfdButton.addActionListener(this);
 		magAreaPlotButton.addActionListener(this);
 		magAreaPlotButton2.addActionListener(this);
+		aveSlipDataButton.addActionListener(this);
 	}
 	
 	/**
@@ -328,6 +336,14 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		    graphWindow.setLocationRelativeTo(this);
 		    //graphWindow.pack();
 		    graphWindow.setVisible(true);;
+		} else if (eventSource == this.aveSlipDataButton) {
+			RupAveSlipTableModel tableModel = new RupAveSlipTableModel(this.source.getSegSlipInRupMatrix());
+			JTable table = new JTable(tableModel);
+			JFrame frame = new JFrame(source.getFaultSegmentData().getFaultName());
+			frame.getContentPane().setLayout(new BorderLayout());
+			frame.getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
+			frame.pack();
+			frame.setVisible(true);
 		}
 	}
 	
@@ -424,9 +440,65 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 }
 
 
+/**
+* Rupture Ave Slip Table Model
+* 
+* @author vipingupta
+*
+*/
+class RupAveSlipTableModel extends AbstractTableModel {
+	//	 column names
+	private double [][] segSlipInRupMatrix;
+	
+	/**
+	 * default constructor
+	 *
+	 */
+	public RupAveSlipTableModel(double [][]segSlipInRupMatrix) {
+		this.segSlipInRupMatrix = segSlipInRupMatrix;
+	}
+	
+	/**
+	 * Get number of columns
+	 */
+	public int getColumnCount() {
+		return segSlipInRupMatrix[0].length+1;
+	}
+	
+	
+	/**
+	 * Get column name
+	 */
+	public String getColumnName(int index) {
+		if(index==0) return "";
+		else return "Rup "+index;
+	}
+	
+	/*
+	 * Get number of rows
+	 * (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+		return segSlipInRupMatrix.length;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public Object getValueAt (int rowIndex, int columnIndex) {
+		if(columnIndex==0) { // Show the segment index in the first column
+			return "Seg "+(rowIndex+1);
+		} else { // show the slip rates
+			return (float)segSlipInRupMatrix[rowIndex][columnIndex-1];
+		}
+	}
+}
+
 
 /**
-* Fault Section Table Model
+* Rupture Table Model
 * 
 * @author vipingupta
 *
