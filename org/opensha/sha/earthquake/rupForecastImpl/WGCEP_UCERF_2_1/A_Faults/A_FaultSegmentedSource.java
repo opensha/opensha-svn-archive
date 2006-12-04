@@ -193,7 +193,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		
 		// compute matrix of Dsr (slip on each segment in each rupture)
-		getSegSlipInRupMatrix();
+		computeSegSlipInRupMatrix();
 		
 		
 		// now solve the inverse problem
@@ -613,11 +613,17 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	/**
+	 * This returns a "segSlipInRup[seg][rup]" matrix giving the average slip on each segment for each rupture
+	 * @return
+	 */
+	public double[][] getSegSlipInRupMatrix() { return segSlipInRup; }
+	
+	/**
 	 * This creates the segSlipInRup (Dsr) matrix based on the value of slipModelType.
 	 * This slips are in meters.
 	 *
 	 */
-	private void getSegSlipInRupMatrix() {
+	private void computeSegSlipInRupMatrix() {
 		segSlipInRup = new double[num_seg][num_rup];
 		
 		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
