@@ -6,6 +6,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
@@ -32,7 +34,11 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * default constructor
 	 *
 	 */
-	public B_FaultsFetcher() {	}
+	public B_FaultsFetcher() {
+		// cache the PrefFaultSectionData
+		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+		 faultSectionPrefDAO.getAllFaultSectionPrefData();
+	}
 	
 	/**
 	 * Set the deformation model. This function needs to be called before any other function can be called.
