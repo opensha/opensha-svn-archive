@@ -94,7 +94,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 			segmentList.add(sectionList);
 			faultSegmentMap.put(faultSectionPrefData.getSectionName(), segmentList);
 		}
-		bFaultNames.addAll(this.getAllFaultNames()); // add connecting fault names
+		bFaultNames.addAll(super.getAllFaultNames()); // add connecting fault names
 		bFaultIds.addAll(super.getAllFaultSectionsIdList());
 		
 	}
