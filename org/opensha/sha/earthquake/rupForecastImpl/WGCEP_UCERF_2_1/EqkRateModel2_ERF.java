@@ -886,7 +886,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		ParameterList rupModels = (ParameterList) this.segmentedRupModelParam.getValue();
 		String slipModel = (String)slipModelParam.getValue();
-		int deformationModelId =  getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
@@ -917,7 +916,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
-		int deformationModelId = getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
@@ -942,7 +940,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
-		int deformationModelId = getSelectedDeformationModelSummary().getDeformationModelId();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();

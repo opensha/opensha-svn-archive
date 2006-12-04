@@ -29,12 +29,9 @@ public abstract class FaultsFetcher {
 	private final static String FAULT_MODEL_NAME_PREFIX = "-";
 	protected ArrayList<String> faultModelNames = new ArrayList<String>();
 	protected HashMap segmentNamesMap = new HashMap();
-	private String selectedFaultModel=null;
 	protected int deformationModelId=-1;
-	private boolean prevIsAseisReducesArea;
 	private ArrayList faultDataListInSelectedSegment=null;
 	private ArrayList faultSectionList=null;
-	private ArrayList faultSegDataList = null;
 	
 	
 	public FaultsFetcher() {
@@ -98,14 +95,9 @@ public abstract class FaultsFetcher {
 	 * @return
 	 */
 	public ArrayList getFaultSegmentDataList(boolean isAseisReducesArea) {
-		// only make list if something has changed
-		if(faultSegDataList==null || prevIsAseisReducesArea != isAseisReducesArea)  {
-			prevIsAseisReducesArea = isAseisReducesArea;
-			faultSegDataList = new ArrayList();
-			for(int i=0; i< faultModelNames.size(); ++i)
-				faultSegDataList.add(getFaultSegmentData((String)faultModelNames.get(i), isAseisReducesArea));
-		}
-		
+		ArrayList<FaultSegmentData> faultSegDataList = new ArrayList<FaultSegmentData>();
+		for(int i=0; i< faultModelNames.size(); ++i)
+			faultSegDataList.add(getFaultSegmentData((String)faultModelNames.get(i), isAseisReducesArea));
 		return faultSegDataList;
 	}
 	
@@ -149,41 +141,35 @@ public abstract class FaultsFetcher {
 	 * @return
 	 */
 	public FaultSegmentData getFaultSegmentData(String faultModel, boolean isAseisReducesArea) {
-		
-		// no need to re-fetch data from database if the data alraady exists in cache
-		if(selectedFaultModel==null || !selectedFaultModel.equalsIgnoreCase(faultModel))  {
-			selectedFaultModel = faultModel;
-			// get the segment array list of section array lists
-			ArrayList segmentsList = (ArrayList)faultModels.get(faultModel);
-			faultDataListInSelectedSegment = new ArrayList();
-			faultSectionList = new ArrayList();
-			// iterate over all segment
-			for(int i=0; i<segmentsList.size(); ++i) {
-				ArrayList sectionList = (ArrayList)segmentsList.get(i);
-				ArrayList newSegment = new ArrayList();
-				// iterate over all sections in a segment
-				for(int j=0; j<sectionList.size(); ++j) {
-					//System.out.println(faultModel+","+j);
-					int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
-					FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
-					if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
-						//System.out.println(faultSectionPrefData.getSectionName());
-						continue;
-					}
+		// get the segment array list of section array lists
+		ArrayList segmentsList = (ArrayList)faultModels.get(faultModel);
+		faultDataListInSelectedSegment = new ArrayList();
+		faultSectionList = new ArrayList();
+		// iterate over all segment
+		for(int i=0; i<segmentsList.size(); ++i) {
+			ArrayList sectionList = (ArrayList)segmentsList.get(i);
+			ArrayList newSegment = new ArrayList();
+			// iterate over all sections in a segment
+			for(int j=0; j<sectionList.size(); ++j) {
+				//System.out.println(faultModel+","+j);
+				int faultSectionId = ((FaultSectionSummary)sectionList.get(j)).getSectionId();
+				FaultSectionPrefData faultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
+				if(Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) {
 					//System.out.println(faultSectionPrefData.getSectionName());
-					faultSectionList.add(faultSectionPrefData);
-					newSegment.add(faultSectionPrefData);		
+					continue;
 				}
-				faultDataListInSelectedSegment.add(newSegment);
+				//System.out.println(faultSectionPrefData.getSectionName());
+				faultSectionList.add(faultSectionPrefData);
+				newSegment.add(faultSectionPrefData);		
 			}
+				faultDataListInSelectedSegment.add(newSegment);
 		}
 		
 		// make SegmentedFaultData 
 		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultModel);
 		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, (String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel,
 				segRates);
-		return segmetedFaultData;
-		
+		return segmetedFaultData;		
 	}
 	
 	/**

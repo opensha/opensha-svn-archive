@@ -62,36 +62,34 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param deformationModelId
 	 * @return
 	 */
-	private void generateBFaults() {
-		
-		
-			faultSegmentMap = new HashMap();
-			bFaultNames = new ArrayList();
-			bFaultIds = new ArrayList();
-			ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(this.deformationModelId);
-			ArrayList aFaultsList = this.aFaultsFetcher.getAllFaultSectionsIdList(); 
-			for(int i=0; i<faultSectionsInDefModel.size(); ++i) {
-				// if this is A type fault or a special fault, then do not process it
-				if(aFaultsList.contains(faultSectionsInDefModel.get(i)) ||
+	private void generateBFaults() {	
+		faultSegmentMap = new HashMap();
+		bFaultNames = new ArrayList();
+		bFaultIds = new ArrayList();
+		ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(this.deformationModelId);
+		ArrayList aFaultsList = this.aFaultsFetcher.getAllFaultSectionsIdList(); 
+		for(int i=0; i<faultSectionsInDefModel.size(); ++i) {
+			// if this is A type fault or a special fault, then do not process it
+			if(aFaultsList.contains(faultSectionsInDefModel.get(i)) ||
 					allSpecialFaultIds.contains(faultSectionsInDefModel.get(i))	) {
-					//System.out.println(faultSectionId+" is A type fault");
-					continue;
-				}
-				int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
-				FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
-				// add to B type faults only if slip is not 0 and not NaN
-				if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
-				bFaultNames.add(faultSectionPrefData.getSectionName());
-				bFaultIds.add(new Integer(faultSectionPrefData.getSectionId()));
-				// Arraylist of segments of list of sections
-				ArrayList sectionList = new ArrayList();
-				sectionList.add(faultSectionPrefData);
-				ArrayList segmentList = new ArrayList();
-				segmentList.add(sectionList);
-				faultSegmentMap.put(faultSectionPrefData.getSectionName(), segmentList);
+				//System.out.println(faultSectionId+" is A type fault");
+				continue;
 			}
-			bFaultNames.addAll(this.getAllFaultNames()); // add connecting fault names
-			bFaultIds.addAll(super.getAllFaultSectionsIdList());
+			int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
+			// add to B type faults only if slip is not 0 and not NaN
+			if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
+			bFaultNames.add(faultSectionPrefData.getSectionName());
+			bFaultIds.add(new Integer(faultSectionPrefData.getSectionId()));
+			// Arraylist of segments of list of sections
+			ArrayList sectionList = new ArrayList();
+			sectionList.add(faultSectionPrefData);
+			ArrayList segmentList = new ArrayList();
+			segmentList.add(sectionList);
+			faultSegmentMap.put(faultSectionPrefData.getSectionName(), segmentList);
+		}
+		bFaultNames.addAll(this.getAllFaultNames()); // add connecting fault names
+		bFaultIds.addAll(super.getAllFaultSectionsIdList());
 		
 	}
 	
@@ -127,7 +125,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	public ArrayList getFaultSegmentDataList(boolean isAseisReducesArea) {
 		ArrayList faultList = new ArrayList();
 		for(int i=0; i< bFaultNames.size(); ++i)
-			faultList.add(getFaultSegmentData((String)bFaultNames.get(i), deformationModelId, isAseisReducesArea));
+			faultList.add(getFaultSegmentData((String)bFaultNames.get(i), isAseisReducesArea));
 		return faultList;
 	}
 	
@@ -147,7 +145,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * @param isAseisReducesArea
 	 * @return
 	 */
-	public FaultSegmentData getFaultSegmentData(String faultModel, int deformationModelId,
+	public FaultSegmentData getFaultSegmentData(String faultModel,
 			boolean isAseisReducesArea) {
 		
 		ArrayList segmentList = (ArrayList) this.faultSegmentMap.get(faultModel);
