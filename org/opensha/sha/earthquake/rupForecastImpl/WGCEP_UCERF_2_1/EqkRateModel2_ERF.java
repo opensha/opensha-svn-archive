@@ -65,6 +65,8 @@ import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
+import sun.tools.tree.ThisExpression;
+
 /**
  * @author vipingupta
  *
@@ -201,6 +203,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String SEGMENTED_RUP_MODEL_TYPE_NAME = "Segmented A-Fault Solution Types";
 	public final static String SEGMENTED_RUP_MODEL_TYPE_INFO = "To set the a-prior solution for each type-A Fault Source";
 	private ParameterListParameter segmentedRupModelParam;
+	
+	// preserve minimum A-fault rates param
+	public final static String PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME = "Preserve Min A Fault Rates?";
+	private final static String PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO = "This will prevent rates from being lower than the minimum in the a-priori model";
+	private BooleanParameter preserveMinAFaultRateParam;
+
+	// weighted inversion param
+	public final static String WEIGHTED_INVERSION_PARAM_NAME = "Weighted Inversion?";
+	private final static String WEIGHTED_INVERSION_PARAM_INFO = "Use segment rate and slip rate uncertainties to weight the inversion";
+	private BooleanParameter weightedInversionParam;
 	
 	//	 A-fault slip-model type
 	public final static String SLIP_MODEL_TYPE_NAME = "A-Fault Slip Model";
@@ -377,6 +389,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
 		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
 		
+		// preserveMinAFaultRateParam
+		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME);
+		preserveMinAFaultRateParam.setInfo(PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO);
+		
+		// weightedInversionParam
+		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_INFO);
+		weightedInversionParam.setInfo(WEIGHTED_INVERSION_PARAM_INFO);
+		
 		// connect more B Faults
 		connectMoreB_FaultsParam = new BooleanParameter(CONNECT_B_FAULTS_PARAM_NAME);
 		connectMoreB_FaultsParam.setInfo(CONNECT_B_FAULTS_PARAM_INFO);
@@ -487,10 +507,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String rupModel = (String)rupModelParam.getValue();
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(segmentedRupModelParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(slipModelParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(constrainA_SegRatesParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(weightedInversionParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(preserveMinAFaultRateParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
-		adjustableParams.addParameter(constrainA_SegRatesParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
 		adjustableParams.addParameter(bFaultsMinMagParam);
