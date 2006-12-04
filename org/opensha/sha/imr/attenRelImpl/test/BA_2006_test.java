@@ -23,7 +23,8 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 	  //Tolerence to check if the results fall within the range.
 	  private static double tolerence = .01; //default value for the tolerence
 
-	  private DecimalFormat format = new DecimalFormat("0.####");
+	  private DecimalFormat medianformat;
+	  private DecimalFormat sigmaformat = new DecimalFormat("0.###");
 	private ArrayList testDataLines;
 	public static void main(String[] args) {
 	  junit.swingui.TestRunner.run(BA_2006_test.class);
@@ -85,8 +86,19 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 			double meanVal = ba_2006.getMean();
 			
 			double targetMedian = Double.parseDouble(st.nextToken().trim());
-			targetMedian = Double.parseDouble(format.format(targetMedian));
-			double medianFromOpenSHA = Double.parseDouble(format.format(Math.exp(meanVal)));	
+			String targetMedianString = ""+targetMedian;
+			int numDecimal = targetMedianString.substring(targetMedianString.indexOf(".")+1).length();
+			if(numDecimal > 5)
+				medianformat = new DecimalFormat(".#####");
+			else{
+			    String numformat = ".";
+			    for(int k=0;k<numDecimal;++k)
+				    numformat +="#";
+			    medianformat = new DecimalFormat(numformat);
+			}
+			//targetMedian = Double.parseDouble(medianformat.format(targetMedian));
+			double medianFromOpenSHA = Double.parseDouble(medianformat.format(Math.exp(meanVal)));	
+			targetMedian = Double.parseDouble(medianformat.format(targetMedian));	
 			//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			boolean results = compareResults(medianFromOpenSHA,targetMedian);
 			//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
@@ -105,25 +117,27 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
             	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
               this.assertNull(failedResultMetadata,failedResultMetadata);
             }
-           /* st.nextToken();
+            st.nextToken();
+            st.nextToken();
+            st.nextToken();
             double stdVal = Math.exp(ba_2006.getStdDev());
-            double meanSig = (medianFromOpenSHA*981)/stdVal;
-            meanSig = Double.parseDouble(format.format(meanSig));
-            double targetMeanSig = Double.parseDouble(st.nextToken().trim());
-            targetMeanSig = Double.parseDouble(format.format(targetMeanSig));
+            
+            stdVal = Double.parseDouble(sigmaformat.format(stdVal));
+            double targetSig = Double.parseDouble(st.nextToken().trim());
+            targetSig = Double.parseDouble(sigmaformat.format(targetSig));
 //          System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
-			results = compareResults(meanSig,targetMeanSig);
+			results = compareResults(stdVal,targetSig);
 			if(results == false){
-           	 String failedResultMetadata = "Results failed for Mean/Sig calculation for" +
+           	 String failedResultMetadata = "Results failed for Sig calculation for" +
            	 		"BA-2006 attenuation with the following parameter settings:"+
            	          "IMT ="+ba_2006.SA_NAME+" with Period ="+period+"\nMag ="+(float)mag+
            	          "  vs30 = "+vs30+"  rjb = "+(float)rjb+"   FaultType = "+faultType+"\n"+
-           	          " Median/Sig is "+meanSig+"  where as it should be "+targetMeanSig;
+           	          " Sig is "+stdVal+"  where as it should be "+targetSig;
            	          
            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
              this.assertNull(failedResultMetadata,failedResultMetadata);
-           }*/
+           }
             //if the all the succeeds and their is no fail for any test
             else {
               this.assertTrue("CY-2006 Test succeeded for all the test cases",results);
