@@ -171,16 +171,20 @@ public class SegmentDataPanel extends JPanel {
 	
 	
 	private String getLegend() {
-		String legend = "Orig SR - segment slip rate (mm/yr)\n";
-		legend += "SR Sigma - standard deviation of Orig SR\n";
-		legend += "Final SR - Post-inversion segment slip rate\n";
-		legend += "Area - sq km\n";
-		legend += "Length - km\n";
-		legend += "Mo Rate - Moment Rate (Newton-Meters/yr)\n";
-		legend += "Data MRI - Ave Mean Recur Int (years) from Parsons/Dawson table\n";
-		legend += "MRI Sigma - Standard deviation of Data MRI\n";
-		legend += "Pred MRI - MRI predicated from A Priori Rates\n";
-		legend += "Final MRI - Final MRI given MFDs\n";
+		String legend = "Orig SR \t- segment slip rate (mm/yr)\n";
+		legend += "\t (possibly reduced by aseis factor, but not by fract ABC removed)\n";
+		legend += "SR Sigma\t- standard deviation of Orig SR\n";
+		legend += "Final SR\t- Post-inversion segment slip rate\n";
+		legend += "\t (reduced by aseis factor & fract ABC removed)\n";
+		legend += "Area\t- sq km\n";
+		legend += "\t (possibly reduced by aseis factor, but not by fract ABC removed)\n";
+		legend += "Length\t- km\n";
+		legend += "Mo Rate\t- Moment Rate (Newton-Meters/yr)\n";
+		legend += "\t (reduced by aseis factor, but not by fract ABC removed)\n";
+		legend += "Data MRI\t- Ave Mean Recur Int (years) from Parsons/Dawson table\n";
+		legend += "MRI Sigma\t- Standard deviation of Data MRI\n";
+		legend += "Pred MRI\t- MRI predicated from A Priori Rates\n";
+		legend += "Final MRI\t- Final MRI given MFDs\n";
 		return legend;
 	}
 }
