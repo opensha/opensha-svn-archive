@@ -121,23 +121,34 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		textArea.setText("");
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
-		IncrementalMagFreqDist magFreqDist = this.eqkRateModelERF.getTotalMFD();
-		textArea.append("Total Rate (M>=5) = "+(float)magFreqDist.getTotalIncrRate()+"\n");
-		textArea.append("Total Moment Rate = "+(float)magFreqDist.getTotalMomentRate()+"\n\n");
-		textArea.append("\tRate (M>=5)\tMoment Rate\n");
-		textArea.append("---------------------------------------\n");
+		
+		IncrementalMagFreqDist totalMFD = this.eqkRateModelERF.getTotalMFD();
+		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
+		boolean includeAfterShocks = this.areAfterShocksIncluded();
+		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.eqkRateModelERF.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
+		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n\n");
+		textArea.append("\tRate (M>=5)\tRate (M>=6.5)\tMoment Rate\n");
+		
+		
+		textArea.append("------------------------------------------------\n");
 		textArea.append("A Faults\t"+(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalIncrRate()+"\t"+
+				(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getCumRate(6.5)+"\t"+
 				(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalMomentRate()+"\n");
 		textArea.append("B Char\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getTotalIncrRate()+"\t"+
+				(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getCumRate(6.5)+"\t"+
 				(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getTotalMomentRate()+"\n");
 		textArea.append("B GR\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getTotalIncrRate()+"\t"+
+				(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getCumRate(6.5)+"\t"+
 				(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
 		textArea.append("C Zone\t"+(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getTotalIncrRate()+"\t"+
+				(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getCumRate(6.5)+"\t"+
 				(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");
 		textArea.append("Background\t"+(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getTotalIncrRate()+"\t"+
+				(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getCumRate(6.5)+"\t"+
 				(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getTotalMomentRate()+"\n");
-		textArea.append("Total\t"+(float)this.eqkRateModelERF.getTotalMFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotalMFD().getTotalMomentRate()+"\n\n");
+		textArea.append("Total\t"+(float)totalMFD.getTotalIncrRate()+"\t"+
+				(float)totalMFD.getCumRate(6.5)+"\t"+
+				(float)totalMFD.getTotalMomentRate()+"\n\n");
 		textArea.append("Adjustable Params Metadata:\n");
 		textArea.append(eqkRateModelERF.getAdjustableParameterList().getParameterListMetadataString("\n"));
 		panel.add(new JScrollPane(textArea),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -295,10 +306,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		funcs.add(cumDist);
 		
 		
-		double rate = ((Double)eqkRateModelERF.getParameter(eqkRateModelERF.TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
-		boolean includeAfterShocks;
-		if(rate > 5.85) includeAfterShocks = true;
-		else includeAfterShocks = false;
+		boolean includeAfterShocks = areAfterShocksIncluded();
 		// historical best fit cum dist
 		funcs.add(this.eqkRateModelERF.getObsBestFitCumMFD(includeAfterShocks));
 		
@@ -306,6 +314,23 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		funcs.addAll(this.eqkRateModelERF.getObsCumMFD(includeAfterShocks));
 	}
 
+	/**
+	 * Whether to include the aftershocks
+	 * 
+	 * @return
+	 */
+	private boolean areAfterShocksIncluded() {
+		double rate = ((Double)eqkRateModelERF.getParameter(eqkRateModelERF.TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
+		boolean includeAfterShocks;
+		if(rate > 5.85) includeAfterShocks = true;
+		else includeAfterShocks = false;
+		return includeAfterShocks;
+	}
+	
+	
+
+	
+	
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */

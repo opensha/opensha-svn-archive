@@ -305,7 +305,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	private final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
 		"Final SR","Area",
-		"Length", "Mo Rate", "Data MRI", "MRI Sigma", "Pred MRI", "Final MRI", "Char Slip", 
+		"Length", "Mo Rate", "Data MRI", "MRI Sigma", "Pred MRI", "Final MRI", /*"Char Slip",*/ 
 		 "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
@@ -406,16 +406,16 @@ class SegmentDataTableModel extends AbstractTableModel {
 				return ""+Math.round(1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 11:
 				return ""+Math.round(segmentedSource.getFinalSegRecurInt(rowIndex));
-			case 12:	
+			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
 				return ""+ CHAR_SLIP_RATE_FORMAT.format(getCharSlip(rowIndex));
-			/*case 11: // FOR STRESS DROP
+			case 11: // FOR STRESS DROP
 				double ddw = segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3; // ddw in km 
 				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
 				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
 				return ""+(float)segStressDrop;*/
-			case 13:
+			case 12:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
