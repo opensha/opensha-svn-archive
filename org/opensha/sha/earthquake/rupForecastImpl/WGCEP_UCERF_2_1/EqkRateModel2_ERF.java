@@ -394,7 +394,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		preserveMinAFaultRateParam.setInfo(PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO);
 		
 		// weightedInversionParam
-		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_INFO);
+		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_NAME);
 		weightedInversionParam.setInfo(WEIGHTED_INVERSION_PARAM_INFO);
 		
 		// connect more B Faults
