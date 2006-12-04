@@ -352,7 +352,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * event will be observed at the ground surface.  This is based
 	 * on equation 4 of Youngs et al. [2003, A Methodology for Probabilistic Fault
 	 * Displacement Hazard Analysis (PFDHA), Earthquake Spectra 19, 191-219] using 
-	 * the coefficients they list in their appendix for "Data from Wills and 
+	 * the coefficients they list in their appendix for "Data from Wells and 
 	 * Coppersmith (1993) 276 worldwide earthquakes".
 	 * @return
 	 */

@@ -1020,7 +1020,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public EvenlyDiscretizedFunc getObsBestFitCumMFD(boolean includeAftershocks) {
 		double rate;
 		double bVal;
-		// set b-value based on rate (guess whether aftershocks included)
+
 		if(includeAftershocks)  {
 			bVal = 1.0;
 			rate = 6.69;
@@ -1039,9 +1039,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 		
 		if(includeAftershocks)
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(M³5)=7.1; b= 1.0)");
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(M³5)=6.69; b= 1.0)");
 		else
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(M³5)=3.1; b= 0.93)");
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(M³5)=3.22; b= 0.8)");
 		
 		return newFunc;
 		/*EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG);
@@ -1069,8 +1069,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double[] cumRatesLowWith =  {6.69-2.7, 2.11-0.85, 0.66-0.27, 0.21-0.11, 0.06-0.045, 0.015-0.01};
 		double[] cumRatesHighWith = {6.69+2.7, 2.11+0.85, 0.66+0.27, 0.21+0.11, 0.06+0.077, 0.015+0.026};
 		double[] cumRates = {3.22, 1.27, 0.5, 0.19, 0.06, 0.015};
-		double[] cumRatesLow =  {3.22-1,13, 1.27-0.45, 0.5-0.18, 0.19-0.1, 0.06-0.045, 0.015-0.01};
-		double[] cumRatesHigh = {3.22+1,13, 1.27+0.45, 0.5+0.18, 0.19+0.1, 0.06+0.077, 0.015+0.026};
+		double[] cumRatesLow =  {3.22-1.13, 1.27-0.45, 0.5-0.18, 0.19-0.1, 0.06-0.045, 0.015-0.01};
+		double[] cumRatesHigh = {3.22+1.13, 1.27+0.45, 0.5+0.18, 0.19+0.1, 0.06+0.077, 0.015+0.026};
 		
 		if(includeAftershocks) {
 			cumRates = cumRatesWith;
