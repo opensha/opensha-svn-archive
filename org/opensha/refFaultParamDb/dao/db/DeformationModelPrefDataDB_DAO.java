@@ -41,6 +41,7 @@ public class DeformationModelPrefDataDB_DAO {
 	private DB_AccessAPI dbAccess;
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO;
 	private DeformationModelDB_DAO deformationModelDB_DAO;
+	private ArrayList faultSectionIdList;
 	
 	public DeformationModelPrefDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
@@ -133,7 +134,8 @@ public class DeformationModelPrefDataDB_DAO {
 	 * @return
 	 */
 	public ArrayList getFaultSectionIdsForDeformationModel(int deformationModelId) {
-		return this.deformationModelDB_DAO.getFaultSectionIdsForDeformationModel(deformationModelId);
+		if(selectedDefModelId!=deformationModelId) this.cache(deformationModelId);
+		return faultSectionIdList;
 	}
 	
 	/**
@@ -202,13 +204,14 @@ public class DeformationModelPrefDataDB_DAO {
 		slipRateMap = new HashMap();
 		aseismicSlipMap = new HashMap();
 		stdDevMap = new HashMap();
+		faultSectionIdList = new ArrayList();
 		String sql= "select "+SECTION_ID+"," +
 		" ("+PREF_ASEISMIC_SLIP+"+0) "+PREF_ASEISMIC_SLIP+","+
 		" ("+SLIP_STD_DEV+"+0) "+SLIP_STD_DEV+","+
 		" ("+PREF_LONG_TERM_SLIP_RATE+"+0) "+PREF_LONG_TERM_SLIP_RATE+
 		" from "+TABLE_NAME+" where " + DEFORMATION_MODEL_ID+"="+defModelId;
 		double aseismicSlipFactor=Double.NaN,slip=Double.NaN, stdDev=Double.NaN;
-		int sectionId;
+		Integer sectionId;
 		try {
 			ResultSet rs  = this.dbAccess.queryData(sql);
 			while(rs.next()) {
@@ -218,10 +221,11 @@ public class DeformationModelPrefDataDB_DAO {
 				if(rs.wasNull()) slip = Double.NaN;
 				stdDev = rs.getFloat(SLIP_STD_DEV);
 				if(rs.wasNull()) stdDev = Double.NaN;
-				sectionId = rs.getInt(SECTION_ID);
-				slipRateMap.put(new Integer(sectionId), new Double(slip)) ;
-				aseismicSlipMap.put(new Integer(sectionId), new Double(aseismicSlipFactor));
-				stdDevMap.put(new Integer(sectionId), new Double(stdDev));
+				sectionId = new Integer(rs.getInt(SECTION_ID));
+				this.faultSectionIdList.add(sectionId);
+				slipRateMap.put(sectionId, new Double(slip)) ;
+				aseismicSlipMap.put(sectionId, new Double(aseismicSlipFactor));
+				stdDevMap.put(sectionId, new Double(stdDev));
 			}
 		} catch (SQLException e) {
 			throw new QueryException(e.getMessage());
