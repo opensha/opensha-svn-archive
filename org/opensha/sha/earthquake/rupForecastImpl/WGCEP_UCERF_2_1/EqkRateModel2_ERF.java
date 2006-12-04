@@ -1444,14 +1444,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 								 
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
-									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
-									 ArrayList<SegRateConstraint> segRatesList = aFaultsFetcher.getSegRateConstraints(source.getFaultSegmentData().getFaultName(), seg);
-									 if(segRatesList==null || segRatesList.size()==0) continue;
-									 SegRateConstraint finalSegRateConstraint = SegRateConstraint.getWeightMean(segRatesList);
+									 double recurIntv = source.getFaultSegmentData().getRecurInterval(seg);
+									 if(Double.isNaN(recurIntv)) continue;
+									 double recurIntvStdDev = source.getFaultSegmentData().getRecurIntervalSigma(seg);
 									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
-									 row.createCell((short)1).setCellValue((int)Math.round(1/finalSegRateConstraint.getMean()));
-									 row.createCell((short)2).setCellValue((int)Math.round(1/(finalSegRateConstraint.getMean()+2*finalSegRateConstraint.getStdDevToMean())));
-									 row.createCell((short)3).setCellValue((int)Math.round(1/(finalSegRateConstraint.getMean()-2*finalSegRateConstraint.getStdDevToMean())));
+									 row.createCell((short)1).setCellValue((int)Math.round(recurIntv));
+									 row.createCell((short)2).setCellValue((int)Math.round(recurIntv-2*recurIntvStdDev));
+									 row.createCell((short)3).setCellValue((int)Math.round(recurIntv+2*recurIntvStdDev));
 
 									 //row.createCell((short)1).setCellValue(source.getS(rup));
 								 }
