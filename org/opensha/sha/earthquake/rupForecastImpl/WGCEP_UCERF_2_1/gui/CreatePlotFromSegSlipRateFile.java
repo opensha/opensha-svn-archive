@@ -31,7 +31,7 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 	private final static String Y_AXIS_LABEL = "Slip Rate";
 	private final static String PLOT_LABEL = "Segment Slip Rates";
 	private ArrayList funcs;
-	private final static  String[] names = {"Original Slip Rate", 
+	private final static  String[] names = {"Original Slip Rate", "Min Slip Rate", "Max Slip Rate",
 		"Characteristic", 
 		"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
 		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
@@ -122,6 +122,8 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 		 ArrayList list = new ArrayList();
 
 		 list.add(this.PLOT_CHAR1);
+		 list.add(this.PLOT_CHAR1);
+		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR2);
 		 list.add(this.PLOT_CHAR3);
 		 list.add(this.PLOT_CHAR4);
@@ -210,7 +212,7 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 					int j=-1;
 					String modelType = models[count++];
 					ArrayList funcList = new ArrayList();
-					for(int k=0; k<14; ++k) {
+					for(int k=0; k<16; ++k) {
 						ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 						func.setName(names[k]);
 						funcList.add(func);
@@ -239,7 +241,7 @@ public class CreatePlotFromSegSlipRateFile  implements GraphWindowAPI{
 							break;
 						}
 						//System.out.println(r);
-						for(int col=1; col<=14; ++col) {
+						for(int col=1; col<=names.length; ++col) {
 							cell = row.getCell( (short) col);
 							if(cell!=null)
 								((ArbitrarilyDiscretizedFunc)funcList.get(col-1)).set((double)j, cell.getNumericCellValue());
