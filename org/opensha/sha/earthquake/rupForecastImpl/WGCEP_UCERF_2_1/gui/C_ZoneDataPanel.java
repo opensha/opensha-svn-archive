@@ -8,16 +8,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
-import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -117,7 +113,7 @@ class C_ZonesDataTableModel extends AbstractTableModel {
 			case 2:
 				return RATE_FORMAT.format(mfd.getCumRate(6.5));
 			case 3:
-				return this.MOMENT_FORMAT.format(mfd.getTotalMomentRate());
+				return MOMENT_FORMAT.format(mfd.getTotalMomentRate());
 		}
 		return "";
 	}
