@@ -1236,12 +1236,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      System.out.println(totalSummedMFD.getCumRateDist().toString());
      */
      
+     /*
      // TEMP write out for UCERF 2.1
      for(int i=0; i<21;i++) {
     	 	double mag = 5 + (double)i*0.1;
     	 	double interpRate = (backSummedMFD.getY(mag-0.05)+backSummedMFD.getY(mag+0.05))/2;
     	 	System.out.println("nshmp02_CAmap_MFD.set("+mag+", "+interpRate+");");
      }
+     */
      
      ArrayList funcs = new ArrayList();
      EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
