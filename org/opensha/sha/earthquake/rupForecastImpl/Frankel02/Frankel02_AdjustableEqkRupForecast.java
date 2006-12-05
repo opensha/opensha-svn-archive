@@ -24,7 +24,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
@@ -268,9 +268,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
       // test 22
       // makeGridSources("CAmapC_OpenSHA", 1, null, 0.0);
-/**/
+
     makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
-/**/
+    
     makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
     makeGridSources("WUSmapC_OpenSHA", 0.5, "WUSmapG_OpenSHA", 0.5);
     makeGridSources("brawmap_OpenSHA", 1.0, null, 0.0);
@@ -280,7 +280,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     makeGridSources("shear2_OpenSHA", 1.0, null, 0.0);
     makeGridSources("shear3_OpenSHA", 1.0, null, 0.0);
     makeGridSources("shear4_OpenSHA", 1.0, null, 0.0);
-
+    /**/
   }
 
 
@@ -1225,7 +1225,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      totalSummedMFD.addIncrementalMagFreqDist(charSummedMFD);
      totalSummedMFD.addIncrementalMagFreqDist(grSummedMFD);
      totalSummedMFD.addIncrementalMagFreqDist(backSummedMFD);
-     
+     /*
      System.out.println("Char Sources:");
      System.out.println(charSummedMFD.getCumRateDist().toString());
      System.out.println("GR Sources:");
@@ -1234,6 +1234,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      System.out.println(backSummedMFD.getCumRateDist().toString());
      System.out.println("Total:");
      System.out.println(totalSummedMFD.getCumRateDist().toString());
+     */
+     
+     // TEMP write out for UCERF 2.1
+     for(int i=0; i<21;i++) {
+    	 	double mag = 5 + (double)i*0.1;
+    	 	double interpRate = (backSummedMFD.getY(mag-0.05)+backSummedMFD.getY(mag+0.05))/2;
+    	 	System.out.println("nshmp02_CAmap_MFD.set("+mag+", "+interpRate+");");
+     }
      
      ArrayList funcs = new ArrayList();
      EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();

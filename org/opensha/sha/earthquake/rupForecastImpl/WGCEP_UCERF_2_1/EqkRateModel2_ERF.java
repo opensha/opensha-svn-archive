@@ -103,7 +103,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// various summed MFDs
 	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
-	private GutenbergRichterMagFreqDist totBackgroundMFD;
+	private IncrementalMagFreqDist totBackgroundMFD;
 	
 	/*
 	 * Static variables for input files
@@ -295,6 +295,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String SET_FOR_BCK_PARAM_NAME = "Set for Background";
 	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE = "Frac Mo Rate From ABC sources";
 	private final static String SET_FOR_BCK_PARAM_BCK_MAX_MAG = "Max Mag";
+	private final static String SET_FOR_BCK_PARAM_NSHMP02 = "NSHMP02 MFD";
 	private final static String SET_FOR_BCK_PARAM_INFO = "This sets background moment rate as fraction of A, B, and C sources, or sets the background max mag";
 	private StringParameter setForBckParam;
 	
@@ -485,6 +486,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList<String> options = new ArrayList<String>();
 		options.add(SET_FOR_BCK_PARAM_FRAC_MO_RATE);
 		options.add(SET_FOR_BCK_PARAM_BCK_MAX_MAG);
+		options.add(SET_FOR_BCK_PARAM_NSHMP02);
 		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, SET_FOR_BCK_PARAM_FRAC_MO_RATE);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
@@ -528,6 +530,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			adjustableParams.addParameter(moRateFracToBackgroundParam);
 		else if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG))
 			adjustableParams.addParameter(backSeisMaxMagParam);
+		// the else case (SET_FOR_BCK_PARAM_NSHMP02) adds nothing here
 	}
 	
 	/**
@@ -788,11 +791,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double totBackRate = rate-totRateA;
 		double totBackMoRate = totMoRateBC;
 		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		totBackgroundMFD.setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+		((GutenbergRichterMagFreqDist)totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
 	}
 
 	
 	private void  makeBackgroundGridSources() {
+		
 		
 		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 		
@@ -802,8 +806,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		double totRateABC = this.aFaultSummedMFD.getTotalIncrRate()+this.bFaultCharSummedMFD.getTotalIncrRate()+
 			this.bFaultGR_SummedMFD.getTotalIncrRate()+this.cZoneSummedMFD.getTotalIncrRate();
-		System.out.println(this.aFaultSummedMFD.getTotalIncrRate()+","+this.bFaultCharSummedMFD.getTotalIncrRate()+
-				","+this.bFaultGR_SummedMFD.getTotalIncrRate()+","+this.cZoneSummedMFD.getTotalIncrRate());
+//		System.out.println(this.aFaultSummedMFD.getTotalIncrRate()+","+this.bFaultCharSummedMFD.getTotalIncrRate()+
+//				","+this.bFaultGR_SummedMFD.getTotalIncrRate()+","+this.cZoneSummedMFD.getTotalIncrRate());
 		double totBackRate = rate-totRateABC;
 		
 		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
@@ -813,14 +817,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
 				bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate();
 			double totBackMoRate = moRateFracToBackground*totMoRateABC/(1-moRateFracToBackground);
-			System.out.println(moRateFracToBackground+","+totBackRate+","+bValue);
+//			System.out.println(moRateFracToBackground+","+totBackRate+","+bValue);
 			if(moRateFracToBackground > 0)
-				totBackgroundMFD.setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+				((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
 		}
-		else {
+		else if(backgroundTreatment.equals(this.SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
 			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue(); 
-			totBackgroundMFD.setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
+			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
+		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
+			totBackgroundMFD = getNSHMP02_CAmap_MFD();
+			totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
+		}
+		
+		
 
 		//
 		
@@ -851,6 +861,36 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 		totBackgroundMFD.set(i, cumTotBackgroundMFD.getY(i));
 */
+	}
+	
+	/**
+	 * This returns the total MFD for the two NSHMP02 CAmap? background seis input files
+	 * @return
+	 */
+	private IncrementalMagFreqDist getNSHMP02_CAmap_MFD() {
+		IncrementalMagFreqDist nshmp02_CAmap_MFD = new IncrementalMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		nshmp02_CAmap_MFD.set(5.0, 0.16698005174155264);
+		nshmp02_CAmap_MFD.set(5.1, 0.3058680092770254);
+		nshmp02_CAmap_MFD.set(5.2, 0.2544099288559251);
+		nshmp02_CAmap_MFD.set(5.3, 0.2116089618311663);
+		nshmp02_CAmap_MFD.set(5.4, 0.17600866809181212);
+		nshmp02_CAmap_MFD.set(5.5, 0.14639763351880405);
+		nshmp02_CAmap_MFD.set(5.6, 0.12176824773610705);
+		nshmp02_CAmap_MFD.set(5.7, 0.10128241693754861);
+		nshmp02_CAmap_MFD.set(5.8, 0.08419511268253424);
+		nshmp02_CAmap_MFD.set(5.9, 0.06998251205740466);
+		nshmp02_CAmap_MFD.set(6.0, 0.05808698785127969);
+		nshmp02_CAmap_MFD.set(6.1, 0.048192721778350184);
+		nshmp02_CAmap_MFD.set(6.2, 0.03995083223814626);
+		nshmp02_CAmap_MFD.set(6.3, 0.03304396747741058);
+		nshmp02_CAmap_MFD.set(6.4, 0.027317668655642918);
+		nshmp02_CAmap_MFD.set(6.5, 0.021448389512954837);
+		nshmp02_CAmap_MFD.set(6.6, 0.01655280428196882);
+		nshmp02_CAmap_MFD.set(6.7, 0.013495202518441145);
+		nshmp02_CAmap_MFD.set(6.8, 0.010890259946258175);
+		nshmp02_CAmap_MFD.set(6.9, 0.008774086217621335);
+		nshmp02_CAmap_MFD.set(7.0, 0.0039333546797175895);
+		return nshmp02_CAmap_MFD;
 	}
 	
 	private void makeC_ZoneSources() {
