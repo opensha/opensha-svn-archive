@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class A_PrioriRupRates {
 	private String faultName;
 	private HashMap<String, ArrayList> aPrioriRatesMap = new HashMap<String, ArrayList>();
-	
+	private ArrayList<String> modelNames = new ArrayList<String>();
 	/**
 	 * constructor : Aceepts the segment name
 	 * @param segmentName
@@ -41,6 +41,7 @@ public class A_PrioriRupRates {
 		if(ratesList==null) {
 			ratesList = new ArrayList<Double>();
 			aPrioriRatesMap.put(modelName, ratesList);
+			modelNames.add(modelName);
 		}
 		ratesList.add(rate);
 	}
@@ -50,8 +51,6 @@ public class A_PrioriRupRates {
 	 * @return
 	 */
 	public ArrayList<String> getSupportedModelNames() {
-		ArrayList<String> modelNames  = new ArrayList<String>();
-		modelNames.addAll(this.aPrioriRatesMap.keySet());
 		return modelNames;
 	}
 	
