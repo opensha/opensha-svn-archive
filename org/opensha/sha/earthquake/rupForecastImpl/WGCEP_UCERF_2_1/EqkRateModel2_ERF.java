@@ -996,8 +996,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		bFaultSources = new ArrayList();
 		double fixMag, fixRate;
 		try{
-			FileWriter fw1 = new FileWriter("B_Char_Temp.txt");
-			FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
+			//FileWriter fw1 = new FileWriter("B_Char_Temp.txt");
+			//FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
 			for(int i=0; i<bFaultSegmentData.size(); ++i) {
 				FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
 				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
@@ -1011,16 +1011,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						bValue, moRateFracToBackground, fixMag, fixRate, meanMagCorrection);
 				bFaultSources.add(source);
 				IncrementalMagFreqDist charMagFreqDist = source.getCharMagFreqDist();
-				fw1.write(segmentData.getFaultName()+";"+(float)charMagFreqDist.getCumRate(6.5)+"\n");
+				//fw1.write(segmentData.getFaultName()+";"+(float)charMagFreqDist.getCumRate(6.5)+"\n");
 				bFaultCharSummedMFD.addIncrementalMagFreqDist(charMagFreqDist);
 				IncrementalMagFreqDist grMagFreqDist = source.getGR_MagFreqDist();
 				if(source.getGR_MagFreqDist() != null)  {// will be null if char mag is lower than mag lower of GR
 					bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMagFreqDist);
-					fw2.write(segmentData.getFaultName()+";"+(float)grMagFreqDist.getCumRate(6.5)+"\n");
+					//fw2.write(segmentData.getFaultName()+";"+(float)grMagFreqDist.getCumRate(6.5)+"\n");
 				}
 			}
-			fw1.close();
-			fw2.close();
+			//fw1.close();
+			//fw2.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -102,6 +102,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
 		tabbedPane.addTab("A Fault Summary", getA_FaultSummaryGUI());
 		tabbedPane.addTab("B Fault Summary", getB_FaultSummaryGUI());
+		tabbedPane.addTab("C Zones Summary", getC_ZonesSummaryGUI());
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
 		container.add(tabbedPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -227,6 +228,21 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
 		bFaultDataPanel.setB_FaultSources(bFaultSources);
 		panel.add(bFaultDataPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		return panel;
+	}
+	
+	
+	/**
+	 * C Zones
+	 * @return
+	 */
+	private JPanel getC_ZonesSummaryGUI() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		ArrayList<IncrementalMagFreqDist> cZonesMFDs = this.eqkRateModelERF.getC_ZoneMFD_List();
+		C_ZoneDataPanel cZonesDataPanel = new C_ZoneDataPanel();
+		cZonesDataPanel.setC_ZonesMFD_List(cZonesMFDs);
+		panel.add(cZonesDataPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		return panel;
 	}
