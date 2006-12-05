@@ -104,6 +104,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// various summed MFDs
 	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD;
+	private ArrayList<IncrementalMagFreqDist>  cZonesMFD_List;
 	
 	/*
 	 * Static variables for input files
@@ -895,7 +896,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	private void makeC_ZoneSources() {
 		cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-		
+		cZonesMFD_List = new ArrayList<IncrementalMagFreqDist> ();
 		if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
  			
 			String []names = { "Foothills Fault System", "Mohawk-Honey Lake Zone",
@@ -915,6 +916,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRates[i]/1000.0)*(1-moRateFracToBackground);
 				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 				grMFD.setAllButTotCumRate(magLower[i], magUpper[i], moRate, bValue);
+				grMFD.setName(names[i]);
+				cZonesMFD_List.add(grMFD);
 				cZoneSummedMFD.addIncrementalMagFreqDist(grMFD);
 			}
 		}
@@ -992,21 +995,34 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultSources = new ArrayList();
 		double fixMag, fixRate;
-		for(int i=0; i<bFaultSegmentData.size(); ++i) {
-			FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
-			fixMag = bFaultFixes.getMag(segmentData.getFaultName());
-			fixRate = bFaultFixes.getRate(segmentData.getFaultName());
-			//if(!Double.isNaN(fixMag)) {
-			//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
-			//}
-			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
-					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
-					magSigma, magTruncLevel,minMagGR, 
-					bValue, moRateFracToBackground, fixMag, fixRate, meanMagCorrection);
-			bFaultSources.add(source);
-			bFaultCharSummedMFD.addIncrementalMagFreqDist(source.getCharMagFreqDist());
-			if(source.getGR_MagFreqDist() != null)  // will be null if char mag is lower than mag lower of GR
-				bFaultGR_SummedMFD.addIncrementalMagFreqDist(source.getGR_MagFreqDist());
+		try{
+			FileWriter fw1 = new FileWriter("B_Char_Temp.txt");
+			FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
+			for(int i=0; i<bFaultSegmentData.size(); ++i) {
+				FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
+				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
+				fixRate = bFaultFixes.getRate(segmentData.getFaultName());
+				//if(!Double.isNaN(fixMag)) {
+				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
+				//}
+				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
+						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
+						magSigma, magTruncLevel,minMagGR, 
+						bValue, moRateFracToBackground, fixMag, fixRate, meanMagCorrection);
+				bFaultSources.add(source);
+				IncrementalMagFreqDist charMagFreqDist = source.getCharMagFreqDist();
+				fw1.write(segmentData.getFaultName()+";"+(float)charMagFreqDist.getCumRate(6.5)+"\n");
+				bFaultCharSummedMFD.addIncrementalMagFreqDist(charMagFreqDist);
+				IncrementalMagFreqDist grMagFreqDist = source.getGR_MagFreqDist();
+				if(source.getGR_MagFreqDist() != null)  {// will be null if char mag is lower than mag lower of GR
+					bFaultGR_SummedMFD.addIncrementalMagFreqDist(grMagFreqDist);
+					fw2.write(segmentData.getFaultName()+";"+(float)grMagFreqDist.getCumRate(6.5)+"\n");
+				}
+			}
+			fw1.close();
+			fw2.close();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -1165,6 +1181,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public IncrementalMagFreqDist getTotal_C_ZoneMFD() {
 		return this.cZoneSummedMFD;
 		//return new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+	}
+	
+	/**
+	 * Return a list of MFDs, one for each C zone
+	 * @return
+	 */
+	public ArrayList<IncrementalMagFreqDist> getC_ZoneMFD_List() {
+		return this.cZonesMFD_List;
 	}
 	
 	public IncrementalMagFreqDist getTotalMFD() {
@@ -1481,6 +1505,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 								 
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
+									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
 									 double recurIntv = source.getFaultSegmentData().getRecurInterval(seg);
 									 if(Double.isNaN(recurIntv)) continue;
 									 double recurIntvStdDev = source.getFaultSegmentData().getRecurIntervalSigma(seg);
@@ -1584,7 +1609,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 cell.setCellValue(models[irup]);
 								 cell.setCellStyle(cellStyle);
 								 row = sheet.createRow((short)currRow[i]++);
-								 int col=3;
+								 int col=5;
 								 
 								 // Write All Mag Areas in appropriate columns
 								 for(int j=0; j<magAreaOptions.size(); ++j, col+=(slipModelOptions.size()-1)) {
@@ -1602,7 +1627,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 cell.setCellValue("Original Slip Rate");
 								 cell.setCellStyle(cellStyle);
 								 cell = row.createCell((short)col++);
-								 cell.setCellValue("Characteristic Model Recur Intv");
+								 cell.setCellValue("Min Slip Rate");
+								 cell.setCellStyle(cellStyle);
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Max Slip Rate");
+								 cell.setCellStyle(cellStyle);
+
+								 cell = row.createCell((short)col++);
+								 cell.setCellValue("Characteristic Model Slip Rate");
 								 cell.setCellStyle(cellStyle);
 								 for(int j=0; j<magAreaOptions.size(); ++j) {
 									 for(int k=0; k<slipModelOptions.size(); ++k) {
@@ -1621,8 +1653,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
+									 double slipRate = source.getFaultSegmentData().getSegmentSlipRate(seg);
+									 double stdDev = source.getFaultSegmentData().getSegSlipStdDev(seg);
 									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
-									 row.createCell((short)1).setCellValue(source.getFaultSegmentData().getSegmentSlipRate(seg)*1e3);
+									 row.createCell((short)1).setCellValue(slipRate*1e3);
+									 row.createCell((short)2).setCellValue((slipRate-2*stdDev)*1e3);
+									 row.createCell((short)3).setCellValue((slipRate+2*stdDev)*1e3);
 								 }
 							}
 						}
@@ -1635,8 +1671,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 							 int rateCol;
 							 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
-								 rateCol = 2;
-							 } else rateCol = 2 + imag*(slipModelOptions.size()-1) + islip;
+								 rateCol = 4;
+							 } else rateCol = 4 + imag*(slipModelOptions.size()-1) + islip;
 							 //rateCol = magCol + islip;
 							 for(int seg=0; seg<source.getFaultSegmentData().getNumSegments(); ++seg) {
 								 sheet.getRow(seg+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getFinalSegSlipRate(seg)*1e3);
