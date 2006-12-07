@@ -23,6 +23,8 @@
     <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
   	<pathelement location="${Required.Libraries.home}/jh.jar"/>
     <pathelement location="${Required.Libraries.home}/jpedal.jar"/>
+    <pathelement location="${Required.Libraries.home}/jcommon-1.0.5.jar"/>
+    <pathelement location="${Required.Libraries.home}/jfreechart-1.0.2.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
@@ -77,22 +79,12 @@
     </javac>
   </target>
   <target name="resource">
-    <copy todir="${dest}/img" overwrite="true">
-      <fileset dir="${src}/img"/>
+    <copy todir="${dest}/etc/img" overwrite="true">
+      <fileset dir="${src}/etc/img"/>
     </copy>
   	<copy todir="${dest}/etc/AttenuationRelationshipAppHelpDocuments" overwrite="true">
   	      <fileset dir="${src}/etc/AttenuationRelationshipAppHelpDocuments"/>
   	    </copy>
-    <copy todir="${dest}/org/jfree/chart" overwrite="true">
-      <fileset dir="${src}/org/jfree/chart">
-        <include name="**/*.properties"/>
-      </fileset>
-    </copy>
-    <copy todir="${dest}/org/jfree/chart/plot" overwrite="true">
-      <fileset dir="${src}/org/jfree/chart/plot">
-        <include name="**/*.properties"/>
-      </fileset>
-    </copy>
   </target>
   <target depends="javacompile" name="compile"/>
   <target depends="compile" name="make" />
@@ -104,11 +96,12 @@
   <target name="unjarfiles">
     <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
   	<unjar src="${Required.Libraries.home}/jh.jar" dest="${dest}" />
+  	<unjar src="${Required.Libraries.home}/jcommon-1.0.5.jar" dest="${dest}" />
+  	<unjar src="${Required.Libraries.home}/jfreechart-1.0.2.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
-    <jar destfile="AttenuationRelationshipApp.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
+    <jar destfile="AttenuationRelationshipApp_NGA.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
       <include name="org/**"/>
-      <include name="img/**"/>
     	 <include name="javax/**"/>
     	<include name="etc/**"/>
       <include name="com/**"/>
