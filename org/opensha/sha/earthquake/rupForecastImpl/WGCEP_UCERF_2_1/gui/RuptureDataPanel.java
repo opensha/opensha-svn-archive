@@ -42,6 +42,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton magAreaPlotButton = new JButton("Mag Area Plot (Color coded by Relative Rup Rates)");
 	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
 	private JButton aveSlipDataButton= new JButton("Show Ave Slip Data");
+	private JButton rupRatesButton= new JButton("Plot A-Priori and final rates");
 	
 	private A_FaultSegmentedSource source;
 	
@@ -110,11 +111,14 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(aveSlipDataButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(rupRatesButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		aveSlipDataButton.setToolTipText("Show Average Slip for each segment for each rupture");
 		mfdButton.addActionListener(this);
 		magAreaPlotButton.addActionListener(this);
 		magAreaPlotButton2.addActionListener(this);
 		aveSlipDataButton.addActionListener(this);
+		rupRatesButton.addActionListener(this);
 	}
 	
 	/**
@@ -344,6 +348,25 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			frame.getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 			frame.pack();
 			frame.setVisible(true);
+		} else if(eventSource == rupRatesButton) { // plot A-Priori rupture rates vs Final Rup Rates
+			ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+			ArbitrarilyDiscretizedFunc aPrioriRatesFunc = new ArbitrarilyDiscretizedFunc();
+			aPrioriRatesFunc.setName("A-Priori Rupture Rates");
+			ArbitrarilyDiscretizedFunc finalRupRatesFunc = new ArbitrarilyDiscretizedFunc();
+			finalRupRatesFunc.setName("Final Rupture Rates");
+			int numRups = source.getNumRuptures();
+			for(int i=0; i<numRups; ++i) {
+				aPrioriRatesFunc.set((double)i, source.getAPrioriRupRate(i));
+				finalRupRatesFunc.set((double)i, source.getRupRate(i));
+			}
+			plottingFuncList.add(aPrioriRatesFunc);
+			plottingFuncList.add(finalRupRatesFunc);
+			GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(plottingFuncList));
+			graphWindow.setPlotLabel("Rupture Rates");
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
+			graphWindow.pack();
+			graphWindow.setVisible(true);
 		}
 	}
 	

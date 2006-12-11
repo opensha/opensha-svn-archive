@@ -37,11 +37,11 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      new Color(0,0,0), 2); // black
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(192,192,192), 2); // silver grey
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(128,0,0), 2); // maroon
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(255,0,0), 2); //red
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(128,0,128), 2); // purple
@@ -113,20 +113,21 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	 */
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
-		 list.add(this.PLOT_CHAR1);
-		 list.add(this.PLOT_CHAR2);
-		 list.add(this.PLOT_CHAR3);
-		 list.add(this.PLOT_CHAR4);
-		 list.add(this.PLOT_CHAR5);
-		 list.add(this.PLOT_CHAR6);
-		 list.add(this.PLOT_CHAR7);
-		 list.add(this.PLOT_CHAR8);
-		 list.add(this.PLOT_CHAR9);
-		 list.add(this.PLOT_CHAR10);
-		 list.add(this.PLOT_CHAR11);
-		 list.add(this.PLOT_CHAR12);
-		 list.add(this.PLOT_CHAR13);
-		 list.add(this.PLOT_CHAR14);
+		 int numFuncs = funcs.size();
+		 if(numFuncs>0) list.add(this.PLOT_CHAR1);
+		 if(numFuncs>1) list.add(this.PLOT_CHAR2);
+		 if(numFuncs>2) list.add(this.PLOT_CHAR3);
+		 if(numFuncs>3) list.add(this.PLOT_CHAR4);
+		 if(numFuncs>4) list.add(this.PLOT_CHAR5);
+		 if(numFuncs>5) list.add(this.PLOT_CHAR6);
+		 if(numFuncs>6) list.add(this.PLOT_CHAR7);
+		 if(numFuncs>7) list.add(this.PLOT_CHAR8);
+		 if(numFuncs>8) list.add(this.PLOT_CHAR9);
+		 if(numFuncs>9) list.add(this.PLOT_CHAR10);
+		 if(numFuncs>10) list.add(this.PLOT_CHAR11);
+		 if(numFuncs>11) list.add(this.PLOT_CHAR12);
+		 if(numFuncs>12) list.add(this.PLOT_CHAR13);
+		 if(numFuncs>13) list.add(this.PLOT_CHAR14);
 		 return list;
 	}
 	
@@ -247,8 +248,4 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		}
 	}
 	
-	
-	public static void main(String args[]) {
-	
-	}
 }
