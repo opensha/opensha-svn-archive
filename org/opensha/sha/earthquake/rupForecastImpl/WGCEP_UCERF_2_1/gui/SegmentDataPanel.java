@@ -3,12 +3,16 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -24,34 +28,68 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_M
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * Panel to show the Segments and Fault sections data 
  * @author vipingupta
  *
  */
-public class SegmentDataPanel extends JPanel {
+public class SegmentDataPanel extends JPanel implements ActionListener, GraphWindowAPI {
 	private SegmentDataTableModel segmentTableModel = new SegmentDataTableModel();
 	private FaultSectionTableModel faultSectionTableModel = new FaultSectionTableModel();
 	private final static String MSG_ASEIS_REDUCES_AREA = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of area (as requested) in the table above; this will also influence the segment slip rates for any segments composed of more than one section (because the slip rates are weight-averaged according to section areas)";
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private JTextArea magAreasTextArea = new JTextArea();
-	
+	private JButton slipRateButton = new JButton("Plot Slip Rate for Segments");
+	private JButton mriButton = new JButton("Plot Recurrence Intervals");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
+	private ArrayList<ArbitrarilyDiscretizedFunc>slipRatesList;
+	private ArrayList<ArbitrarilyDiscretizedFunc>recurIntvList;
+	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+		      new Color(255,0,0), 10); // RED Cross symbols
+	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      new Color(0,0,0), 2); 
+	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      new Color(0,255,0), 2); 
+	private String xAxisLabel, yAxisLabel;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, recurIntvPlottingFeatures;
+	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	
 	public SegmentDataPanel() {
 		setLayout(new GridBagLayout());
 		createGUI();
+		slipRateButton.addActionListener(this);
+		mriButton.addActionListener(this);
+		this.makePlottingFeaturesList();
 	}
-
 	
+	private void makePlottingFeaturesList() {
+		// slip rate plotting features
+		slipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR3);
+		// recur Intv Plotting features
+		recurIntvPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
+		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
+		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
+		recurIntvPlottingFeatures.add(this.PLOT_CHAR2);
+		recurIntvPlottingFeatures.add(this.PLOT_CHAR3);
+	}
 	
 	private void createGUI() {
 		magAreasTextArea.setEditable(false);
@@ -71,7 +109,12 @@ public class SegmentDataPanel extends JPanel {
 		sectionDataSplitPane.setDividerLocation(200);
 		add(rightSplitPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(slipRateButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(mriButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 	}
+	
 	
 	/**
 	 * Update the data in the tables with the selected fault 
@@ -115,8 +158,114 @@ public class SegmentDataPanel extends JPanel {
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
 		else faultSectionTableModel.setFaultSectionData(null);
 		faultSectionTableModel.fireTableDataChanged();
+		
+		if(segmentedSource==null) { // for unsegmented source
+			this.mriButton.setVisible(false);
+			this.slipRateButton.setVisible(false);
+		} else { // Segmented source
+			this.mriButton.setVisible(true);
+			this.slipRateButton.setVisible(true);
+			generateSlipRateFuncList(segmentedSource, faultSegmentData);
+			generateMRI_FuncList(segmentedSource, faultSegmentData);
+		}
+		
 	}
 	
+	/**
+	 * When a plotting button is clicked
+	 */
+	public void actionPerformed(ActionEvent event) {
+		Object src = event.getSource();
+		if(src==this.slipRateButton) {
+			xAxisLabel = "Segment Index";
+			yAxisLabel = "Slip Rate (mm/yr)";
+			// plotting features
+			plottingFeatures = slipRatePlottingFeatures;
+			// plotting Func List
+			plottingFuncList = this.slipRatesList;
+		} else {
+			xAxisLabel = "Segment Index";
+			yAxisLabel = "Recurrence Interval (years)";
+			// plotting features
+			plottingFeatures = recurIntvPlottingFeatures;
+			plottingFuncList = this.recurIntvList;
+		}
+		GraphWindow graphWindow= new GraphWindow(this);
+		graphWindow.setPlotLabel(yAxisLabel);
+		graphWindow.plotGraphUsingPlotPreferences();
+		graphWindow.pack();
+		graphWindow.setVisible(true);
+	}
+	
+	
+	/**
+	 * Generate function list for slip rates
+	 * 
+	 * @param segmentedSource
+	 */
+	private void generateSlipRateFuncList(A_FaultSegmentedSource segmentedSource, 
+			FaultSegmentData faultSegmentData) {
+		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		origSlipRateFunc.setName("Orig Slip Rate");
+		ArbitrarilyDiscretizedFunc minSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		minSlipRateFunc.setName("Min Slip Rate");
+		ArbitrarilyDiscretizedFunc maxSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		maxSlipRateFunc.setName("Max Slip Rate");
+		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		finalSlipRateFunc.setName("Final Slip Rate");
+		double origSlipRate, slipStdDev, finalSlipRate;
+		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
+			origSlipRate = faultSegmentData.getSegmentSlipRate(seg);
+			slipStdDev = faultSegmentData.getSegSlipStdDev(seg);
+			finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
+			origSlipRateFunc.set((double)seg, origSlipRate*1e3);
+			minSlipRateFunc.set((double)seg, (origSlipRate-2*slipStdDev)*1e3);
+			maxSlipRateFunc.set((double)seg, (origSlipRate+2*slipStdDev)*1e3);
+			finalSlipRateFunc.set((double)seg, finalSlipRate*1e3);
+		 }
+		slipRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		slipRatesList.add(origSlipRateFunc);
+		slipRatesList.add(minSlipRateFunc);
+		slipRatesList.add(maxSlipRateFunc);
+		slipRatesList.add(finalSlipRateFunc);
+	}
+	
+	/**
+	 * Generate function list for recurrence intervals
+	 * 
+	 * @param segmentedSource
+	 */
+	private void generateMRI_FuncList(A_FaultSegmentedSource segmentedSource, 
+			FaultSegmentData faultSegmentData) {
+		ArbitrarilyDiscretizedFunc origRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
+		origRecurIntvFunc.setName("Data Recurrence Interval");
+		ArbitrarilyDiscretizedFunc minRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
+		minRecurIntvFunc.setName("Min Recurrence Interval");
+		ArbitrarilyDiscretizedFunc maxRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
+		maxRecurIntvFunc.setName("Max Recurrence Interval");
+		ArbitrarilyDiscretizedFunc finalRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
+		finalRecurIntvFunc.setName("Final Recurrence Interval");
+		ArbitrarilyDiscretizedFunc predRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
+		predRecurIntvFunc.setName("Predicted Recurrence Interval from Apriori Rupture Rates");
+		double origRecurIntv, stdDevRecurIntv, predRecurIntv, finalRecurIntv;
+		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
+			origRecurIntv = faultSegmentData.getRecurInterval(seg);
+			stdDevRecurIntv = faultSegmentData.getRecurIntervalSigma(seg);
+			finalRecurIntv  = segmentedSource.getFinalSegRecurInt(seg);
+			predRecurIntv = 1.0/segmentedSource.getSegRateFromAprioriRates(seg);
+			origRecurIntvFunc.set((double)seg, origRecurIntv);
+			minRecurIntvFunc.set((double)seg, origRecurIntv-2*stdDevRecurIntv);
+			maxRecurIntvFunc.set((double)seg, origRecurIntv+2*stdDevRecurIntv);
+			predRecurIntvFunc.set((double)seg, predRecurIntv);
+			finalRecurIntvFunc.set((double)seg, finalRecurIntv);
+		 }
+		this.recurIntvList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		recurIntvList.add(origRecurIntvFunc);
+		recurIntvList.add(minRecurIntvFunc);
+		recurIntvList.add(maxRecurIntvFunc);
+		recurIntvList.add(predRecurIntvFunc);
+		recurIntvList.add(finalRecurIntvFunc);
+	}
 	
 	
 	/**
@@ -187,6 +336,92 @@ public class SegmentDataPanel extends JPanel {
 		legend += "Final MRI\t- Final MRI given MFDs\n";
 		return legend;
 	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
+	 */
+	public ArrayList getCurveFunctionList() {
+		return plottingFuncList;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
+	 */
+	public boolean getXLog() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
+	 */
+	public boolean getYLog() {
+		return true;	
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
+	 */
+	public String getXAxisLabel() {
+		return xAxisLabel;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
+	 */
+	public String getYAxisLabel() {
+		return yAxisLabel;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
+	 */
+	public ArrayList getPlottingFeatures() {
+		return plottingFeatures;
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
+	 */
+	public boolean isCustomAxis() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
+	 */
+	public double getMinX() {
+		//return 5.0;
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
+	 */
+	public double getMaxX() {
+		//return 9.255;
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
+	 */
+	public double getMinY() {
+		//return 1e-4;
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
+	 */
+	public double getMaxY() {
+		//return 10;
+		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+	
 }
 
 
