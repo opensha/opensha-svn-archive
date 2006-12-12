@@ -70,6 +70,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		//      Color.RED, 5);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
+	private JButton slipRateButton = new JButton("Plot the ratio of Final to Orig Slip Rates");
+	private JButton dataMRIButton = new JButton("Plot the ratio of Final to Data MRI");
+	private JButton predMRIButton = new JButton("Plot the ratio of Final to Pred MRI");
 	private EqkRateModel2_ERF eqkRateModelERF;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
@@ -156,8 +159,17 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(plotMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(slipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(predMRIButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(dataMRIButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		textArea.setEditable(false);
 		plotMFDsButton.addActionListener(this);
+		this.slipRateButton.addActionListener(this);
+		this.predMRIButton.addActionListener(this);
+		this.dataMRIButton.addActionListener(this);
 		return panel;
 	}
 	
@@ -173,8 +185,18 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		
 		// whether this is segmented or unsegmented
 		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
-		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) this.isUnsegmented = true;
-		else this.isUnsegmented = false;
+		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) {
+			this.isUnsegmented = true;
+			this.slipRateButton.setVisible(false);
+			this.predMRIButton.setVisible(false);
+			this.dataMRIButton.setVisible(false);
+		}
+		else {
+			this.isUnsegmented = false;
+			this.slipRateButton.setVisible(true);
+			this.predMRIButton.setVisible(true);
+			this.dataMRIButton.setVisible(true);
+		}
 		
 		if(aFaultSources==null) return panel;
 		segmentDataPanel = new SegmentDataPanel();
@@ -286,7 +308,109 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			graphWindow.pack();
 			graphWindow.setLocationRelativeTo(this);
 			graphWindow.setVisible(true);
+		} else if(src == this.slipRateButton) { // ratio of slip rates
+			plotSlipRatesRatio();
+		}else if(src == this.dataMRIButton) { // ratio of final MRIs and data MRI
+			plotDataMRIRatio();
+		}else if(src == this.predMRIButton) { // ratio of final MRI and pred MRI
+			plotPredMRIRatio();
 		}
+	}
+
+	/**
+	 * Plot the ratio of slip rates
+	 *
+	 */
+	private void plotSlipRatesRatio() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
+		func.setTolerance(func.getDelta());
+		func.setName("Ratio of final Slip Rates to Original Slip Rates");
+		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		double ratio;
+		int xIndex;
+		// iterate over all sources
+		for(int i=0; i<sourceList.size(); ++i) {
+			A_FaultSegmentedSource source = sourceList.get(i);
+			int numSegments = source.getFaultSegmentData().getNumSegments();
+			// iterate over all segments
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+				ratio = source.getFinalSegSlipRate(segIndex)/source.getFaultSegmentData().getSegmentSlipRate(segIndex);
+				xIndex = func.getXIndex(ratio);
+				func.add(xIndex, 1.0);
+			}
+		}
+		String plotLabel = "Slip Rates Ratio";
+		showHistograms(func, plotLabel);
+	}
+	
+	/**
+	 * Plot the ratio of MRIs
+	 *
+	 */
+	private void plotDataMRIRatio() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
+		func.setTolerance(func.getDelta());
+		func.setName("Ratio of final MRI to Data MRI");
+		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		double ratio;
+		int xIndex;
+		// iterate over all sources
+		for(int i=0; i<sourceList.size(); ++i) {
+			A_FaultSegmentedSource source = sourceList.get(i);
+			int numSegments = source.getFaultSegmentData().getNumSegments();
+			// iterate over all segments
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+				if(Double.isNaN(source.getFaultSegmentData().getRecurInterval(segIndex))) continue;
+				ratio = source.getFinalSegRecurInt(segIndex)/source.getFaultSegmentData().getRecurInterval(segIndex);
+				
+				xIndex = func.getXIndex(ratio);
+				func.add(xIndex, 1.0);
+			}
+		}
+		String plotLabel = "Final and Data MRI Ratio";
+		showHistograms(func, plotLabel);
+	}
+	
+	/**
+	 * Plot the ratio of MRIs
+	 *
+	 */
+	private void plotPredMRIRatio() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 6.5, 64);
+		func.setTolerance(func.getDelta());
+		func.setName("Ratio of final MRI to Pred MRI");
+		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		double ratio;
+		int xIndex;
+		// iterate over all sources
+		for(int i=0; i<sourceList.size(); ++i) {
+			A_FaultSegmentedSource source = sourceList.get(i);
+			int numSegments = source.getFaultSegmentData().getNumSegments();
+			// iterate over all segments
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+				ratio = source.getFinalSegRecurInt(segIndex)*source.getSegRateFromAprioriRates(segIndex);
+				//System.out.println(ratio);
+				xIndex = func.getXIndex(ratio);
+				func.add(xIndex, 1.0);
+			}
+		}
+		String plotLabel = "Final and Pred MRI Ratio";
+		showHistograms(func, plotLabel);
+	}
+
+	/**
+	 * Show histograms
+	 * @param func
+	 * @param plotLabel
+	 */
+	private void showHistograms(EvenlyDiscretizedFunc func, String plotLabel) {
+		ArrayList funcs = new ArrayList();
+		funcs.add(func);
+		GraphWindow graphWindow= new GraphWindow(new CreateHistogramsFromSegSlipRateFile(funcs));
+		graphWindow.setPlotLabel(plotLabel);
+		graphWindow.plotGraphUsingPlotPreferences();
+		graphWindow.pack();
+		graphWindow.setVisible(true);
 	}
 	
 	/**

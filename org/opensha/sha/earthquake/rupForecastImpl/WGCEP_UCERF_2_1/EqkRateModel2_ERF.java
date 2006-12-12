@@ -1150,6 +1150,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
 		}
 		
+		/*
+		 * Convert into incremental and find the moment rate
+		 * 
+		 IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(5, 7.5, 6);
+		for(int i=0; i<mfd.getNum(); ++i) {
+			if(i==mfd.getNum()-1)
+				mfd.set(i, obsCumMFD.getInterpolatedY(mfd.getX(i)));
+			else 	
+				mfd.set(i, obsCumMFD.getInterpolatedY(mfd.getX(i)) - obsCumMFD.getInterpolatedY(mfd.getX(i+1)));
+		}
+		System.out.println(mfd.toString());
+		System.out.println("IncludeAftershocks="+includeAftershocks+", moRate="+mfd.getTotalMomentRate());
+		
+		*/
+		
 		ArrayList obsCumList = new ArrayList();
 		obsCumList.add(obsCumMFD);
 		obsCumList.add(obsCumLowMFD);
@@ -1352,9 +1367,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void findMinBulge() {
-		throw new RuntimeException ("Method unsupported exception");
-		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
 		double minRatio = 10, ratio;
@@ -1363,14 +1376,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		FileWriter fw = new FileWriter("Bulge.txt");
 		int imag=1;
 		//for(int imag=0; imag<magAreaOptions.size();imag++)
-			for(int irup=0; irup<rupModelOptions.size();irup++)
-					for(int islip=0; islip<slipModelOptions.size();islip++) 
-						for(double per=50.0; per<=80; per+=10) // % char vs GR
+		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+			for(int irup=0; irup<1;irup++) {
+				Iterator it = this.segmentedRupModelParam.getParametersIterator();
+				while(it.hasNext()) { // set the specfiied rup model in each A fault
+					StringParameter param = (StringParameter)it.next();
+					ArrayList<String> allowedVals = param.getAllowedStrings();
+					param.setValue(allowedVals.get(irup));
+				}
+					for(int islip=2; islip<slipModelOptions.size();islip++) 
+						for(double per=0.0; per<=80; per+=10) // % char vs GR
 							for(double bVal1=0.8; bVal1<=1.2; bVal1+=0.1)  // b faults B val
 								for(double bVal2=0.8; bVal2<=1.2; bVal2+=0.1) // bacgrd B val
 									for(double frac=0.1; frac<0.3; frac+=0.05){ // moment rate reduction
 										magAreaRelParam.setValue(magAreaOptions.get(imag));
-										rupModelParam.setValue(rupModelOptions.get(irup));
+										
 										slipModelParam.setValue(slipModelOptions.get(islip));
 										this.moRateFracToBackgroundParam.setValue(frac);
 										this.bFaultB_ValParam.setValue(bVal1);
@@ -1380,7 +1400,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 											updateForecast();
 										}catch(Exception e) {
 											System.out.println(e.getMessage()+" , "+magAreaOptions.get(imag)+
-													" , " + rupModelOptions.get(irup) +
+													" , " + models[irup] +
 													" , " + slipModelOptions.get(islip));
 											continue;
 										}
@@ -1388,7 +1408,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 										double predCumRate = getTotalMFD().getCumRate(6.5);
 										ratio = (predCumRate/obVal);
 										str = (float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
-											" , " + rupModelOptions.get(irup) +
+											" , " + models[irup] +
 											" , " + slipModelOptions.get(islip)+","+per+","+bVal1+","+
 											bVal2+","+frac;
 										System.out.println(str);
@@ -1399,11 +1419,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 										}
 										
 					}
+			}
 		fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(minRatio+"------"+minStr);*/
+		System.out.println(minRatio+"------"+minStr);
 	}
 	
 	
@@ -1874,9 +1895,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
+		erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
-		erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
-		erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
+		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
+		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
