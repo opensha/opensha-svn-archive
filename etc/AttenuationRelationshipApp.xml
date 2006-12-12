@@ -100,7 +100,7 @@
   	<unjar src="${Required.Libraries.home}/jfreechart-1.0.2.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
-    <jar destfile="AttenuationRelationshipApp_NGA.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
+    <jar destfile="AttenuationRelationshipApp.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
       <include name="org/**"/>
     	 <include name="javax/**"/>
     	<include name="etc/**"/>
