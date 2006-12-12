@@ -74,8 +74,20 @@ public class DisaggregationControlPanel extends JFrame
   private DoubleParameter minDistParam = new DoubleParameter(MIN_DIST_PARAM_NAME,new Double(5));
   private IntegerParameter numDistParam = new IntegerParameter(NUM_DIST_PARAM_NAME,new Integer(11));
   private DoubleParameter deltaDistParam = new DoubleParameter(DELTA_DIST_PARAM_NAME,new Double(10));
-
-
+  
+  //If the manual range for the Z-Axis Max is selected, then user can set the value in this parameter 
+  private static final String Z_AXIS_MAX_NAME = "Z-Axis Max";
+  private static final String Z_AXIS_MAX_INFO ="Set the max. range for the Z -Axis in percentage";
+  private DoubleParameter zMaxParam = new DoubleParameter(Z_AXIS_MAX_NAME,0,100,new Double(50));
+  
+  //Parameter to allow to select if the Z-Axis max to be set manually or from data
+  private StringParameter zMaxChoiceParam;
+  private static final String Z_AXIS_MAX_CHOICE_NAME = "Set Z-Axis Max. from";
+  private static final String Z_AXIS_MAX_CHOICE_INFO ="Allows to set the Z-Axis max either from data or manually";
+  private static final String Z_AXIS_MAX_CHOICE_MANUALLY = "Manually";
+  private static final String Z_AXIS_MAX_CHOICE_FROM_DATA = "From Data";
+  
+ 
 
   private ParameterListEditor paramListEditor;
 
@@ -103,6 +115,9 @@ public class DisaggregationControlPanel extends JFrame
                                      " of their contribution to the hazard");
 
     numSourcesToShow.setInfo("The number of sources to show in the list");
+    
+    zMaxParam.setInfo(Z_AXIS_MAX_INFO);
+     
 
     try {
 
@@ -115,10 +130,23 @@ public class DisaggregationControlPanel extends JFrame
 
       disaggregationParameter = new StringParameter(DISAGGREGATION_PARAM_NAME,disaggregateList,
           (String)disaggregateList.get(0));
+      
+      
       disaggregationParameter.addParameterChangeListener(this);
       disaggregationProbParam.addParameterChangeFailListener(this);
       disaggregationIMLParam.addParameterChangeFailListener(this);
       sourceDisaggregationParam.addParameterChangeListener(this);
+      
+      
+      ArrayList zAxisChoiceList = new ArrayList();
+      zAxisChoiceList.add(Z_AXIS_MAX_CHOICE_FROM_DATA);
+      zAxisChoiceList.add(Z_AXIS_MAX_CHOICE_MANUALLY);
+      
+      
+      zMaxChoiceParam = new StringParameter(Z_AXIS_MAX_CHOICE_NAME,zAxisChoiceList,
+              (String)zAxisChoiceList.get(0));
+      zMaxChoiceParam.setInfo(Z_AXIS_MAX_CHOICE_INFO);
+      zMaxChoiceParam.addParameterChangeListener(this);
 
       ParameterList paramList = new ParameterList();
       paramList.addParameter(disaggregationParameter);
@@ -133,14 +161,18 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(minDistParam);
       paramList.addParameter(numDistParam);
       paramList.addParameter(deltaDistParam);
+      paramList.addParameter(zMaxChoiceParam);
+      paramList.addParameter(zMaxParam);
 
-
+ 
       paramListEditor = new ParameterListEditor(paramList);
       setParamsVisible((String)disaggregationParameter.getValue());
+      this.showZMaxAxisParam(false);
       jbInit();
       // show the window at center of the parent component
       this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,0);
       parent.setDisaggregationSelected(isDisaggregationSelected);
+      
 
     }
     catch(Exception e) {
@@ -203,7 +235,14 @@ public class DisaggregationControlPanel extends JFrame
     paramListEditor.getParameterEditor(NUM_SOURCE_PARAM_NAME).setVisible(paramToShow);
   }
 
-
+  /**
+   * Makes ZAxisMax Parameter to be visible in case
+   * argument is true, else makes it invisible
+   * @param paramToShow boolean
+   */
+  private void showZMaxAxisParam(boolean paramToShow){
+    paramListEditor.getParameterEditor(this.Z_AXIS_MAX_NAME).setVisible(paramToShow);
+  }
 
   /**
    *
@@ -215,6 +254,14 @@ public class DisaggregationControlPanel extends JFrame
       setParamsVisible((String)disaggregationParameter.getValue());
     if(paramName.equals(SOURCE_DISAGGR_PARAM_NAME))
       showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
+    if(paramName.equals(this.Z_AXIS_MAX_CHOICE_NAME)){
+    	String zAxisChoiceVal =  (String)this.zMaxChoiceParam.getValue();
+    	if(zAxisChoiceVal.equals(this.Z_AXIS_MAX_CHOICE_FROM_DATA))
+    		showZMaxAxisParam(false);
+    	else
+    		showZMaxAxisParam(true);
+    }
+    	
   }
 
 
@@ -265,6 +312,18 @@ public class DisaggregationControlPanel extends JFrame
   public double getdeltaDist(){
     return ((Double)deltaDistParam.getValue()).doubleValue();
   }
+  
+  
+  /**
+   * Returns the Z Axis max if parameter visible
+   * @return
+   */
+  public double getZAxisMax(){
+	  boolean isVisible = paramListEditor.getParameterEditor(this.Z_AXIS_MAX_NAME).isVisible();
+	  if(isVisible)
+		  return ((Double)this.zMaxParam.getValue()).doubleValue();
+	  return Double.NaN;  
+  }
 
   /**
    * Makes the parameters visible based on the choice of the user for Disaggregation
@@ -285,6 +344,7 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(SHOW_DISAGGR_BIN_RATE_PARAM_NAME).setVisible(false);
       showNumSourcesParam(false);
+      this.showZMaxAxisParam(false);
       this.setSize(300,200);
     }
     else{

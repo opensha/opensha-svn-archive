@@ -31,6 +31,14 @@ public interface DisaggregationCalculatorAPI extends Remote{
       RemoteException;
 
   /**
+   * Sets the Max Z Axis Range value fro the plotting purposes
+   * @param zMax
+   * @throws java.rmi.RemoteException
+   */
+  public void setMaxZAxisForPlot(double zMax) throws
+      java.rmi.RemoteException ; 
+  
+  /**
    * this function performs the disaggregation.
    * Returns true if it was succesfully able to disaggregate above
    * a given IML else return false

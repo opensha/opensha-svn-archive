@@ -69,6 +69,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private int NUM_E = 8;
   private double[][][] pdf3D;
   private double maxContrEpsilonForDisaggrPlot;
+  private double maxContrEpsilonForGMT_Plot;
 
 
   private int iMag, iDist, iEpsilon;
@@ -514,6 +515,19 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     this.deltaDist = deltaDist;
     MAX_DIST = MIN_DIST + (NUM_DIST-1) * deltaDist;
   }
+  
+  /**
+   * Sets the Max Z Axis Range value fro the plotting purposes
+   * @param zMax
+   * @throws java.rmi.RemoteException
+   */
+  public void setMaxZAxisForPlot(double zMax) throws
+      java.rmi.RemoteException {
+    if(!Double.isNaN(zMax))
+    	maxContrEpsilonForGMT_Plot = zMax;
+    else
+    	maxContrEpsilonForGMT_Plot = this.maxContrEpsilonForDisaggrPlot;
+  }
 
   /**
    * gets the number of current rupture being processed
@@ -704,7 +718,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     int numTicksToDrawForZAxis = 5;
     // compute z-axis tick spacing & max z value
-    double z_tick = Math.ceil(maxContrEpsilonForDisaggrPlot/numTicksToDrawForZAxis);
+    double z_tick = Math.ceil(this.maxContrEpsilonForGMT_Plot/numTicksToDrawForZAxis);
     double maxZVal = z_tick * numTicksToDrawForZAxis;
     ArrayList gmtScriptLines = new ArrayList();
 //System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);

@@ -1272,6 +1272,7 @@ public class HazardCurveServerModeApplication extends JFrame
       int numDist = disaggregationControlPanel.getNumDist();
       int numSourcesForDisag = disaggregationControlPanel.
           getNumSourcesForDisagg();
+      double maxZAxis = disaggregationControlPanel.getZAxisMax();
       double imlVal=0,probVal=0;
       try {
         if (distanceControlPanel != null)
@@ -1279,6 +1280,7 @@ public class HazardCurveServerModeApplication extends JFrame
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.setNumSourcestoShow(numSourcesForDisag);
+        disaggCalc.setMaxZAxisForPlot(maxZAxis);
       }
       catch (Exception e) {
         setButtonsEnable(true);
