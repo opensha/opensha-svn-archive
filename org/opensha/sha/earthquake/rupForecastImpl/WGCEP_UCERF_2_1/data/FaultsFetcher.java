@@ -167,8 +167,8 @@ public abstract class FaultsFetcher {
 		
 		// make SegmentedFaultData 
 		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultModel);
-		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, (String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel,
-				segRates);
+		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, 
+				(String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel, segRates);
 		return segmetedFaultData;		
 	}
 	

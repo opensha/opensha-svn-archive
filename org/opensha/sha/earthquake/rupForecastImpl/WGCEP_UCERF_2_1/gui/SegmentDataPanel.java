@@ -216,7 +216,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		double origSlipRate, slipStdDev, finalSlipRate;
 		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
 			origSlipRate = faultSegmentData.getSegmentSlipRate(seg);
-			slipStdDev = faultSegmentData.getSegSlipStdDev(seg);
+			slipStdDev = faultSegmentData.getSegSlipRateStdDev(seg);
 			finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
 			origSlipRateFunc.set((double)seg, origSlipRate*1e3);
 			minSlipRateFunc.set((double)seg, (origSlipRate-2*slipStdDev)*1e3);
@@ -311,7 +311,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		for(int segIndex=0; segIndex<numSegs; ++segIndex) {
 			ArrayList<SegRateConstraint> segConstraintList = segmetedFaultData.getSegRateConstraints(segIndex);
 			for(int i=0; i<segConstraintList.size(); ++i)
-				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+"\t\t"+(float)segConstraintList.get(i).getStdDevToMean()+"\n";
+				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+"\t\t"+(float)segConstraintList.get(i).getStdDevOfMean()+"\n";
 		}
 
 		
@@ -627,7 +627,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
 			case 3: 
 				// convert to mm/yr
-				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipStdDev(rowIndex)*1e3);
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipRateStdDev(rowIndex)*1e3);
 			case 4:
 				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
 			case 5:

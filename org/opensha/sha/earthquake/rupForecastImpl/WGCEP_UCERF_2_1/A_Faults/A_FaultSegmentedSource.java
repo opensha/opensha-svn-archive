@@ -30,9 +30,8 @@ import sun.tools.tree.ThisExpression;
 
 /**
  * <p>Title: A_FaultSource </p>
- * <p>Description: This has been verified as follows: 1) The constructor for non-characteristic slip
- * (the general, inverse solution) gives the same results as the constructor for char slip; 2) the final
- * segment slip rates are matched for all solution types; 3) the correct mag-areas are obtained where a
+ * <p>Description: This has been verified as follows: 1) the final
+ * segment slip rates are matched for all solution types; 2) the correct mag-areas are obtained where a
  * mag-area relationship is used (seen in a GUI).
  * 
  * To Do: Matlab inversion tests
@@ -69,14 +68,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	private double magSigma, magTruncLevel;
 	
-	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
-	private double aveSlipCorr;
-	
-	private boolean constrainMRIs;
+	private boolean constrainMRIs;		// constrain segment recurrence intervals (from data)
+	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
+	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
 
-
-	
-	// OLD: slip model: 0 = Characteristic; 1 = Uniform/Boxcar; 2 = WGCEP-2002
+	// slip model:
 	private String slipModelType;
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
 	public final static String UNIFORM_SLIP_MODEL = "Uniform/Boxcar (Dsr=Dr)";
@@ -103,7 +99,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	private double totalMoRateFromSegments, totalMoRateFromRups;
 	
 	private ValueWeight[] aPrioriRupRates;
-	private double moRateReduction;
+	
+	// the following is the total moment-rate reduction, including that which goes to the  
+	// background, that which goes to aftershocks and foreshocks, and that which goes to aftersip
+	private double moRateReduction;  
+	
+	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
+	private double aveSlipCorr;
 	private double meanMagCorrection;
 	
 	// NNLS inversion solver - static to save time and memory
@@ -134,17 +136,19 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
 			double magTruncLevel, double moRateReduction, double meanMagCorrection,
-			boolean constrainMRIs) {
+			boolean constrainMRIs, boolean preserveMinAFaultRate, boolean wtedInversion) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
 		this.aPrioriRupRates = aPrioriRupRates;
 		this.magSigma = magSigma;
 		this.magTruncLevel = magTruncLevel;
-		this.moRateReduction = moRateReduction;
+		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		this.isPoissonian = true;
 		this.meanMagCorrection = meanMagCorrection;
 		this.constrainMRIs = constrainMRIs;
+		this.preserveMinAFaultRate = preserveMinAFaultRate;
+		this.wtedInversion = wtedInversion;
 		
 		num_seg = segmentData.getNumSegments();
 		
@@ -209,8 +213,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
 		double wt = 1000;
+		
 		// first fill in the slip-rate constraints with wt
 		// I'm dividing by wt on second set because only this approach converges in Matlab
+		
+		// CREATE THE MODEL AND DATA MATRICES
 		for(int row = 0; row < num_seg; row ++) {
 			d[row] = segmentData.getSegmentSlipRate(row)*(1-this.moRateReduction);
 			for(int col=0; col<num_rup; col++)
@@ -233,6 +240,47 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			}
 		}
 		
+		// CORRECT IF MINIMUM RATE CONSTRAINT DESIRED
+		double minRate=0;
+		if(preserveMinAFaultRate) {
+			minRate = Double.POSITIVE_INFINITY;
+			for(int rup=0; rup < num_rup; rup++)
+				if(minRate > aPrioriRupRates[rup].getValue())
+					minRate = aPrioriRupRates[rup].getValue();
+			
+			double[] Cmin = new double[totNumRows];  // the data vector
+			
+			// Compute min-rate data correction
+			for(int row=0; row <totNumRows; row++) {
+				for(int col=0; col < num_rup; col++)
+					Cmin[row]+=minRate*C[row][col];
+				d[row] -= Cmin[row];
+			}
+		}
+
+		// WEIGHT INVERSION IF DESIRED
+		if(wtedInversion) {
+			double data_wt;
+			for(int row = 0; row < num_seg; row ++) {
+				data_wt = Math.pow((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row), -2);
+				d[row] *= data_wt;
+				for(int col=0; col<num_rup; col++)
+					C[row][col] *= data_wt;
+			}
+			// now fill in the segment recurrence interval constraints if requested
+			if(constrainMRIs) {
+				SegRateConstraint constraint;
+				for(int row = 0; row < numRateConstraints; row ++) {
+					constraint = segRateConstraints.get(row);
+					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
+					d[row+num_seg+num_rup] *= data_wt; // this is the average segment rate
+					for(int col=0; col<num_rup; col++)
+						C[row+num_seg+num_rup][col] *= data_wt;
+				}
+			}
+		}
+
+		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab
 			StringTokenizer st = new StringTokenizer(segmentData.getFaultName());
@@ -241,14 +289,24 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				tempName += "_"+st.nextToken();
 			System.out.println("display "+tempName);
 		}
+		
+		
+		// SOLVE THE INVERSE PROBLEM
 		double[] rupRate = getNNLS_solution(C, d);
+		
+		
+		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
+		if(preserveMinAFaultRate) {
+			for(int rup=0; rup<num_rup;rup++)
+				rupRate[rup] += minRate;
+		}
 		
 		
 //		System.out.println("NNLS rates:");
 //		for(int rup=0; rup < rupRate.length; rup++)
 //			System.out.println((float) rupRate[rup]);
 		
-		
+/*		
 		if(D) {
 //			 check slip rates to make sure they match exactly
 			double tempSlipRate;
@@ -262,6 +320,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					throw new RuntimeException("ERROR - slip rates differ!!!!!!!!!!!!");
 			}
 		}
+*/
 		
 		// Make MFD for each rupture & the total sum
 		totRupRate = new double[num_rup];
@@ -988,7 +1047,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	
 	/**
-	 * This gets the non-negative least squares solution more the matrix C
+	 * This gets the non-negative least squares solution for the matrix C
 	 * and data vector d.
 	 * @param C
 	 * @param d

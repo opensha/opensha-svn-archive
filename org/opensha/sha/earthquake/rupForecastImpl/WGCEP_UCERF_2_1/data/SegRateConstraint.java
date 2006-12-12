@@ -67,7 +67,7 @@ public class SegRateConstraint {
 	 * Get StdDev to mean for the rate
 	 * @return
 	 */
-	public double getStdDevToMean() {
+	public double getStdDevOfMean() {
 		return this.stdDevToMean;
 	}
 	
@@ -89,7 +89,7 @@ public class SegRateConstraint {
 			  SegRateConstraint segRateConstraint = segRateConstraintList.get(i);
 			  faultName = segRateConstraint.getFaultName();
 			  segIndex = segRateConstraint.getSegIndex();
-			  double sigmaSq = 1.0/(segRateConstraint.getStdDevToMean()*segRateConstraint.getStdDevToMean());
+			  double sigmaSq = 1.0/(segRateConstraint.getStdDevOfMean()*segRateConstraint.getStdDevOfMean());
 			  sigmaTotal+=sigmaSq;
 			  total+=sigmaSq*segRateConstraint.getMean();
 		  }

@@ -95,7 +95,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static double BACK_SEIS_DEPTH = 5.0;
 	
 	// this is the moment rate taken from A, B, and C sources and put into background seismicity
-	private double moRateFracToBackground;
+	private double totMoRateReduction;
 	
 	// various summed MFDs
 	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
@@ -159,6 +159,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(6.69);
 	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.22 for no aftershocks, or 6.69 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
+	
+	// Aftershock/Foreshock Fraction
+	public final static String AFTERSHOCK_FRACTION_PARAM_NAME = "Aftershock/Foreshock Fraction";
+	public final static Double AFTERSHOCK_FRACTION_MIN = new Double(0.0);
+	public final static Double AFTERSHOCK_FRACTION_MAX = new Double(1.0);
+	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.09);
+	private final static String AFTERSHOCK_FRACTION_INFO = "Fraction of moment rate released in foreshocks and aftershocks";
+	private DoubleParameter aftershockFractionParam ;
+
+	// Coupling Coefficient
+	public final static String COUPLING_COEFF_PARAM_NAME = "Coupling Coefficient";
+	public final static Double COUPLING_COEFF_MIN = new Double(0.0);
+	public final static Double COUPLING_COEFF_MAX = new Double(1.0);
+	public final static Double COUPLING_COEFF_DEFAULT = new Double(0.85);
+	private final static String COUPLING_COEFF_INFO = "Fraction of moment rate on A & B faults released via seismogenic processes (e.g., excluding afterslip)";
+	private DoubleParameter couplingCoeffParam ;
 	
 	//choose mag area relationship
 	private final static String MAG_AREA_RELS_PARAM_NAME = "Mag-Area Relationship";
@@ -374,6 +390,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				TOT_MAG_RATE_MAX, TOT_MAG_RATE_DEFAULT);
 		totalMagRateParam.setInfo(TOT_MAG_RATE_INFO);
 		
+		// Aftershock/Foreshock fraction
+		aftershockFractionParam = new DoubleParameter(AFTERSHOCK_FRACTION_PARAM_NAME, AFTERSHOCK_FRACTION_MIN,
+				AFTERSHOCK_FRACTION_MAX, AFTERSHOCK_FRACTION_DEFAULT);
+		aftershockFractionParam.setInfo(AFTERSHOCK_FRACTION_INFO);
+
+		// Coupling coeff
+		couplingCoeffParam = new DoubleParameter(COUPLING_COEFF_PARAM_NAME, COUPLING_COEFF_MIN,
+				COUPLING_COEFF_MAX, COUPLING_COEFF_DEFAULT);
+		couplingCoeffParam.setInfo(COUPLING_COEFF_INFO);
+
+		
 		// % char vs GR param
 		percentCharVsGRParam = new DoubleParameter(CHAR_VS_GR_PARAM_NAME, CHAR_VS_GR_MIN,
 				CHAR_VS_GR_MAX, CHAR_VS_GR_DEFAULT);
@@ -501,6 +528,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //		adjustableParams.addParameter(faultModelParam);		not needed for now
 //		adjustableParams.addParameter(rupOffset_Param);		not needed for now
 		adjustableParams.addParameter(deformationModelsParam);
+		adjustableParams.addParameter(aftershockFractionParam);
+		adjustableParams.addParameter(couplingCoeffParam);
 		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
 		String rupModel = (String)rupModelParam.getValue();
@@ -536,9 +565,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	private void makeSegmentedA_FaultParam() {
 		ParameterList paramList = new ParameterList();
-		ArrayList<String> faultNames = this.aFaultsFetcher.getAllFaultNames();
+		ArrayList<String> faultNames = aFaultsFetcher.getAllFaultNames();
 		for(int i=0; i<faultNames.size(); ++i) {
-			ArrayList<String> supportedRupModels = this.aFaultsFetcher.getRupModels(faultNames.get(i));
+			ArrayList<String> supportedRupModels = aFaultsFetcher.getRupModels(faultNames.get(i));
 			StringParameter rupModelParam = new StringParameter(faultNames.get(i), supportedRupModels, supportedRupModels.get(0));
 			paramList.addParameter(rupModelParam);
 		}
@@ -811,10 +840,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE)) {
 			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
 				bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate();
-			double totBackMoRate = moRateFracToBackground*totMoRateABC/(1-moRateFracToBackground);
+			//restore the original, total moment rate:
+			totMoRateABC /= (1-totMoRateReduction);
+			// now get background component:
+			double totBackMoRate = totMoRateABC * ((Double)moRateFracToBackgroundParam.getValue()).doubleValue();
 //			System.out.println(moRateFracToBackground+","+totBackRate+","+bValue);
 			totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			if(moRateFracToBackground > 0)
+			if(totMoRateReduction > 0)
 				((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
 		}
 		else if(backgroundTreatment.equals(this.SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
@@ -907,9 +939,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
 			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.6, 7.6, 7.3, 7.3};
 			double bValue = 0.8;
-			double moRate;
+			double moRate, slipRate;
 			for(int i=0; i<names.length; ++i) {
-				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRates[i]/1000.0)*(1-moRateFracToBackground);
+				// reduce slip rate by total moment rate reduction
+				slipRate = (1-totMoRateReduction)*slipRates[i]/1000.0;
+				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRate)*(1-totMoRateReduction);
 				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 				grMFD.setAllButTotCumRate(magLower[i], magUpper[i], moRate, bValue);
 				grMFD.setName(names[i]);
@@ -927,6 +961,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String slipModel = (String)slipModelParam.getValue();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
+		boolean preserveMinAFaultRate = ((Boolean) preserveMinAFaultRateParam.getValue()).booleanValue();
+		boolean wtedInversion = ((Boolean) weightedInversionParam.getValue()).booleanValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSources = new ArrayList();
@@ -937,7 +973,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
 			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
-					magTruncLevel, moRateFracToBackground, meanMagCorrection, constrainA_SegRates);
+					magTruncLevel, totMoRateReduction, meanMagCorrection, constrainA_SegRates,
+					preserveMinAFaultRate, wtedInversion);
 			aFaultSources.add(aFaultSource);
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
@@ -966,9 +1003,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
-					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
-					magSigma, magTruncLevel, 
-					minMagGR, bValue, moRateFracToBackground, Double.NaN, Double.NaN, meanMagCorrection);
+					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
+					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
 			aFaultSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
@@ -1002,9 +1038,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
-						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, 
-						magSigma, magTruncLevel,minMagGR, 
-						bValue, moRateFracToBackground, fixMag, fixRate, meanMagCorrection);
+						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
+						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
 				bFaultSources.add(source);
 				IncrementalMagFreqDist charMagFreqDist = source.getCharMagFreqDist();
 				//fw1.write(segmentData.getFaultName()+";"+(float)charMagFreqDist.getCumRate(6.5)+"\n");
@@ -1219,33 +1254,29 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	public void updateForecast() {
 		
+		// compute total moment rate reduction for A/B faults (fraction to reduce by)
+		totMoRateReduction = ((Double) aftershockFractionParam.getValue()).doubleValue();
+		totMoRateReduction += (1 - ((Double)couplingCoeffParam.getValue()).doubleValue());
 		String backgroundTreatment = (String) setForBckParam.getValue();
-		if(backgroundTreatment.equals(this.SET_FOR_BCK_PARAM_FRAC_MO_RATE))
-			moRateFracToBackground = ((Double) moRateFracToBackgroundParam.getValue()).doubleValue();
-		else
-			moRateFracToBackground = 0;
+		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE))
+			totMoRateReduction += ((Double) moRateFracToBackgroundParam.getValue()).doubleValue();
 		
 		String rupModel = (String) rupModelParam.getValue();
+		
 		//System.out.println("Creating A Fault sources");
-		long time1 = System.currentTimeMillis();
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) 
 			mkA_FaultUnsegmentedSources();
 		else 
 			mkA_FaultSegmentedSources();
-		long time2 = System.currentTimeMillis();
-		//System.out.println("Creating B Fault sources. Time Spent in creating A Fault Sources="+(time2-time1)/1000+" sec");
+
+		//System.out.println("Creating B Fault sources");
 		mkB_FaultSources();
-		long time3 = System.currentTimeMillis();
-		//System.out.println("Creating C Zone Fault sources. Time Spent in creating B Fault Sources="+(time3-time2)/1000+" sec");
-//		Make C Zone MFD
+
+		//System.out.println("Creating C Zone Fault sources");
 		makeC_ZoneSources();
-		long time4 = System.currentTimeMillis();
-		//System.out.println("Creating Background sources. Time Spent in creating C Zone Sources="+(time4-time3)/1000+" sec");
-		
-		// makeTotalRelativeGriddedRates();
+
+		//System.out.println("Creating Background sources");
 		makeBackgroundGridSources();
-		long time5 = System.currentTimeMillis();
-		//System.out.println("Done. Time Spent in creating background Sources="+(time5-time4)/1000+" sec");
 	}
 	
 	
@@ -1265,7 +1296,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) || paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
 			createParamList();
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
-			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+					getSelectedDeformationModelSummary(), aFaultsFetcher);
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
 			updateFetchersBasedonDefModels();
 		} 
@@ -1276,9 +1308,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void updateFetchersBasedonDefModels() {
-		aFaultsFetcher.setDeformationModel(this.getSelectedDeformationModelSummary());
-		this.bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
-				this.getSelectedDeformationModelSummary(), aFaultsFetcher);
+		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary());
+		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+				getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}
 	
 	
@@ -1671,7 +1703,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getFaultSegmentData().getSegmentName(seg));
 									 double slipRate = source.getFaultSegmentData().getSegmentSlipRate(seg);
-									 double stdDev = source.getFaultSegmentData().getSegSlipStdDev(seg);
+									 double stdDev = source.getFaultSegmentData().getSegSlipRateStdDev(seg);
 									 //System.out.println(seg+","+source.getFaultSegmentData().getSegmentName(seg));
 									 row.createCell((short)1).setCellValue(slipRate*1e3);
 									 row.createCell((short)2).setCellValue((slipRate-2*stdDev)*1e3);

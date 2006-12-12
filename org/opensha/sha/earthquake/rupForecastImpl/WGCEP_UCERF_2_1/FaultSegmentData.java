@@ -18,7 +18,7 @@ public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
-	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate, segSlipStdDev; 
+	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate, segSlipRateStdDev; 
 	private String[] segName, sectionsInSegString;
 	private String faultName;
 	private ArrayList<SegRateConstraint> segRates;
@@ -146,8 +146,8 @@ public class FaultSegmentData {
 	 * @param index
 	 * @return
 	 */
-	public double getSegSlipStdDev(int index) {
-		return this.segSlipStdDev[index];
+	public double getSegSlipRateStdDev(int index) {
+		return this.segSlipRateStdDev[index];
 	}
 	
 	/**
@@ -201,7 +201,7 @@ public class FaultSegmentData {
 		if(segmentConstraints.size()==0) return Double.NaN;
 		else {
 			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
-			return meanSegmentConstraint.getStdDevToMean()/Math.pow(meanSegmentConstraint.getMean(),2);
+			return meanSegmentConstraint.getStdDevOfMean()/Math.pow(meanSegmentConstraint.getMean(),2);
 		}
 	}
 	/**
@@ -303,7 +303,7 @@ public class FaultSegmentData {
 		segMoRate = new double[sectionToSegmentData.size()];
 		segMoRateIgnoringAseis = new double[sectionToSegmentData.size()];
 		segSlipRate = new double[sectionToSegmentData.size()];
-		segSlipStdDev = new double[sectionToSegmentData.size()];
+		segSlipRateStdDev = new double[sectionToSegmentData.size()];
 		sectionsInSegString = new String[sectionToSegmentData.size()];
 		
 		// fill in segName, segArea and segMoRate
@@ -342,7 +342,7 @@ public class FaultSegmentData {
 			}
 			// segment slip rate is an average weighted by the section areas
 			segSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
-			this.segSlipStdDev[seg] = (stdDevTotal/segArea[seg])*segSlipRate[seg];
+			this.segSlipRateStdDev[seg] = (stdDevTotal/segArea[seg])*segSlipRate[seg];
 			totalArea+=segArea[seg];
 			totalMoRate+=segMoRate[seg];
 			totalMoRateIgnoringAseis+=segMoRateIgnoringAseis[seg];
