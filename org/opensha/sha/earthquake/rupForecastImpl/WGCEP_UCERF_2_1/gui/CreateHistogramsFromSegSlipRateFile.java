@@ -203,7 +203,6 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 				graphWindow.setPlotLabel(plotLabel);
 				graphWindow.plotGraphUsingPlotPreferences();
 				graphWindow.setTitle(names[k]);
-				graphWindow.pack();
 				graphWindow.setVisible(true);
 				//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
 				graphWindow.saveAsPDF(dirName+"/"+names[k]+".pdf");
@@ -289,7 +288,6 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 			graphWindow.setPlotLabel(plotLabel);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(segName);
-			graphWindow.pack();
 			graphWindow.setVisible(true);
 			//graphWindow.setAxisRange(-0.5,graphWindow.getMaxX() , graphWindow.getMinY(), graphWindow.getMaxY());
 			graphWindow.saveAsPDF(dirName+"/"+segName+".pdf");

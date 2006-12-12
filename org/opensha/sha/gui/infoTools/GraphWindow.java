@@ -224,7 +224,7 @@ public class GraphWindow
     this.getContentPane().add(chartSplitPane, BorderLayout.CENTER);
     chartSplitPane.add(chartPane, JSplitPane.TOP);
     chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    chartSplitPane.setDividerLocation(580);
+    chartSplitPane.setDividerLocation(560);
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
     buttonPanel.add(buttonControlPanel, null);

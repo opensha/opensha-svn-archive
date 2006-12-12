@@ -97,7 +97,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		createGUI();
 		this.pack();
 		setSize(W,H);
-		setLocationRelativeTo(null);
 		this.show();
 	}
 	
@@ -309,8 +308,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			GraphWindow graphWindow= new GraphWindow(this);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
-			graphWindow.pack();
-			graphWindow.setLocationRelativeTo(this);
 			graphWindow.setVisible(true);
 		} else if(src == this.modSlipRateButton) { // ratio of modified slip rates
 			plotModSlipRatesRatio();
@@ -444,7 +441,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		GraphWindow graphWindow= new GraphWindow(new CreateHistogramsFromSegSlipRateFile(funcs, plotLabel, yAxisLabel));
 		graphWindow.setPlotLabel(plotLabel);
 		graphWindow.plotGraphUsingPlotPreferences();
-		graphWindow.pack();
 		graphWindow.setVisible(true);
 	}
 	
