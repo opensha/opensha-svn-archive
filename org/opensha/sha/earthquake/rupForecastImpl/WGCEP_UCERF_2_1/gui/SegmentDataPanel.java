@@ -63,6 +63,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		      new Color(0,0,0), 2); 
 	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      new Color(0,255,0), 2); 
+	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+		      new Color(0,0,0), 10); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
 	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, recurIntvPlottingFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
@@ -81,6 +83,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
+		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR3);
 		// recur Intv Plotting features
 		recurIntvPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
@@ -207,26 +212,42 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			FaultSegmentData faultSegmentData) {
 		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		origSlipRateFunc.setName("Orig Slip Rate");
-		ArbitrarilyDiscretizedFunc minSlipRateFunc = new ArbitrarilyDiscretizedFunc();
-		minSlipRateFunc.setName("Min Slip Rate");
-		ArbitrarilyDiscretizedFunc maxSlipRateFunc = new ArbitrarilyDiscretizedFunc();
-		maxSlipRateFunc.setName("Max Slip Rate");
+		ArbitrarilyDiscretizedFunc origMinSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		origMinSlipRateFunc.setName("Min Orig Slip Rate");
+		ArbitrarilyDiscretizedFunc origMaxSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		origMaxSlipRateFunc.setName("Max Orig Slip Rate");
+		ArbitrarilyDiscretizedFunc modSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		modSlipRateFunc.setName("Modified Slip Rate");
+		ArbitrarilyDiscretizedFunc modMinSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		modMinSlipRateFunc.setName("Min Modified Slip Rate");
+		ArbitrarilyDiscretizedFunc modMaxSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		modMaxSlipRateFunc.setName("Max Modified Slip Rate");
 		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		finalSlipRateFunc.setName("Final Slip Rate");
-		double origSlipRate, slipStdDev, finalSlipRate;
+		double origSlipRate, origSlipRateStdDev, finalSlipRate, fraction;
 		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
-			origSlipRate = faultSegmentData.getSegmentSlipRate(seg);
-			slipStdDev = faultSegmentData.getSegSlipRateStdDev(seg);
+			 // Original Slip Rates
+			origSlipRate = faultSegmentData.getSegmentSlipRate(seg)*1e3;
+			origSlipRateStdDev = faultSegmentData.getSegSlipRateStdDev(seg)*1e3;
+			origSlipRateFunc.set((double)seg, origSlipRate);
+			origMinSlipRateFunc.set((double)seg, origSlipRate-2*origSlipRateStdDev);
+			origMaxSlipRateFunc.set((double)seg, origSlipRate+2*origSlipRateStdDev);
+			// Modified Slip Rates
+			fraction = 1-segmentedSource.getMoRateReduction();
+			modSlipRateFunc.set((double)seg, origSlipRate*fraction);
+			modMinSlipRateFunc.set((double)seg, (origSlipRate-2*origSlipRateStdDev)*fraction);
+			modMaxSlipRateFunc.set((double)seg, (origSlipRate+2*origSlipRateStdDev)*fraction);
+			// Final slip Rate
 			finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
-			origSlipRateFunc.set((double)seg, origSlipRate*1e3);
-			minSlipRateFunc.set((double)seg, (origSlipRate-2*slipStdDev)*1e3);
-			maxSlipRateFunc.set((double)seg, (origSlipRate+2*slipStdDev)*1e3);
 			finalSlipRateFunc.set((double)seg, finalSlipRate*1e3);
 		 }
 		slipRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		slipRatesList.add(origSlipRateFunc);
-		slipRatesList.add(minSlipRateFunc);
-		slipRatesList.add(maxSlipRateFunc);
+		slipRatesList.add(origMinSlipRateFunc);
+		slipRatesList.add(origMaxSlipRateFunc);
+		slipRatesList.add(modSlipRateFunc);
+		slipRatesList.add(modMinSlipRateFunc);
+		slipRatesList.add(modMaxSlipRateFunc);
 		slipRatesList.add(finalSlipRateFunc);
 	}
 	

@@ -411,6 +411,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	/**
+	 * Moment rate reduction
+	 * 
+	 * @return
+	 */
+	public double getMoRateReduction() {
+		return this.moRateReduction;
+	}
+	
+	/**
 	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship)
 	 *
 	 */

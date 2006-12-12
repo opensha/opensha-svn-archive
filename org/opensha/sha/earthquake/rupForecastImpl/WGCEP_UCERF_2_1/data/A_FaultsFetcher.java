@@ -40,7 +40,7 @@ import org.opensha.util.FileUtils;
  */
 public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/A_FaultsSegmentData_v11a.xls";
-	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/Rev_Poisson_table_3.xls";
+	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/BPT_rates2.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segRatesMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
@@ -155,8 +155,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
 				lat = cell.getNumericCellValue();
 				lon = row.getCell( (short) 2).getNumericCellValue();
-				rate = row.getCell( (short) 18).getNumericCellValue();
-				sigma =  row.getCell( (short) 19).getNumericCellValue();
+				rate = row.getCell( (short) 19).getNumericCellValue();
+				sigma =  row.getCell( (short) 20).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				setRecurIntv(faultSectionId, rate, sigma);
 				
