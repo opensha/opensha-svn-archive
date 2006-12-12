@@ -54,11 +54,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.B_FaultsF
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegmentRecurIntv;
 import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.magdist.GaussianMagFreqDist;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SingleMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.magdist.*;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.surface.FrankelGriddedSurface;
@@ -811,20 +807,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //				","+this.bFaultGR_SummedMFD.getTotalIncrRate()+","+this.cZoneSummedMFD.getTotalIncrRate());
 		double totBackRate = rate-totRateABC;
 		
-		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-
 		String backgroundTreatment = (String) setForBckParam.getValue();
 		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE)) {
 			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
 				bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate();
 			double totBackMoRate = moRateFracToBackground*totMoRateABC/(1-moRateFracToBackground);
 //			System.out.println(moRateFracToBackground+","+totBackRate+","+bValue);
+			totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			if(moRateFracToBackground > 0)
 				((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
 		}
 		else if(backgroundTreatment.equals(this.SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
-			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue(); 
-			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
+			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
+			totBackgroundMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
 			totBackgroundMFD = getNSHMP02_CAmap_MFD();
