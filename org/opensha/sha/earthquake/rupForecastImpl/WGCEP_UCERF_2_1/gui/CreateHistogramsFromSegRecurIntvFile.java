@@ -23,11 +23,10 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * @author vipingupta
  *
  */
-public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
+public class CreateHistogramsFromSegRecurIntvFile  {
 	private final static String X_AXIS_LABEL = "Ratio of Mean Recur Intv and Calculated Recur Intv";
 	private final static String Y_AXIS_LABEL = "Count";
 	private final static String PLOT_LABEL = "Recurrence Interval Ratio";
-	private ArrayList funcs;
 	private final static  String[] names = {"Mean Recurrence Interval", "Min Recurrence Interval", 
 		"Max Recurrence Interval", 
 		"Characteristic", 
@@ -35,99 +34,6 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
 		"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
 		"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
-
-	private final PlotCurveCharacterstics PLOT_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
-		      new Color(0,0,0), 2); // black
-	
-	
-	public CreateHistogramsFromSegRecurIntvFile(ArrayList funcList) {
-		funcs = funcList;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
-	 */
-	public ArrayList getCurveFunctionList() {
-		return funcs;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
-	 */
-	public boolean getXLog() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
-	 */
-	public boolean getYLog() {
-		 return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
-	 */
-	public String getXAxisLabel() {
-		return X_AXIS_LABEL;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
-	 */
-	public String getYAxisLabel() {
-		return Y_AXIS_LABEL;
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
-	 */
-	public ArrayList getPlottingFeatures() {
-		 ArrayList list = new ArrayList();
-		 list.add(this.PLOT_HISTOGRAM);
-		 return list;
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
-	 */
-	public boolean isCustomAxis() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
-	 */
-	public double getMinX() {
-		//return 5.0;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
-	 */
-	public double getMaxX() {
-		//return 9.255;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
-	 */
-	public double getMinY() {
-		//return 1e-4;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
-	 */
-	public double getMaxY() {
-		//return 10;
-		throw new UnsupportedOperationException("Method not implemented yet");
-	}
 	
 	/**
 	 * Create the histograms from segment recurrence interval file. 
@@ -196,7 +102,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 			for(int k=3, i=0; k<names.length; ++k, ++i) {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
-				CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list,  X_AXIS_LABEL, Y_AXIS_LABEL);
 				GraphWindow graphWindow= new GraphWindow(plot);
 				graphWindow.setPlotLabel(PLOT_LABEL);
 				graphWindow.plotGraphUsingPlotPreferences();
@@ -272,7 +178,7 @@ public class CreateHistogramsFromSegRecurIntvFile implements GraphWindowAPI {
 			
 			ArrayList list = new ArrayList();
 			list.add(func);
-			CreateHistogramsFromSegRecurIntvFile plot = new CreateHistogramsFromSegRecurIntvFile(list);
+			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list,  X_AXIS_LABEL, Y_AXIS_LABEL);
 			GraphWindow graphWindow= new GraphWindow(plot);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();

@@ -70,7 +70,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		//      Color.RED, 5);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
-	private JButton slipRateButton = new JButton("Plot the ratio of Final to Orig Slip Rates");
+	private JButton origSlipRateButton = new JButton("Plot the ratio of Final to Orig Slip Rates");
+	private JButton modSlipRateButton = new JButton("Plot the ratio of Final to Modified Slip Rates");
 	private JButton dataMRIButton = new JButton("Plot the ratio of Final to Data MRI");
 	private JButton predMRIButton = new JButton("Plot the ratio of Final to Pred MRI");
 	private EqkRateModel2_ERF eqkRateModelERF;
@@ -159,15 +160,18 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(plotMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(slipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		panel.add(origSlipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(predMRIButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(dataMRIButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+		panel.add(predMRIButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(dataMRIButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		textArea.setEditable(false);
 		plotMFDsButton.addActionListener(this);
-		this.slipRateButton.addActionListener(this);
+		this.origSlipRateButton.addActionListener(this);
+		this.modSlipRateButton.addActionListener(this);
 		this.predMRIButton.addActionListener(this);
 		this.dataMRIButton.addActionListener(this);
 		return panel;
@@ -187,13 +191,13 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
 		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) {
 			this.isUnsegmented = true;
-			this.slipRateButton.setVisible(false);
+			this.origSlipRateButton.setVisible(false);
 			this.predMRIButton.setVisible(false);
 			this.dataMRIButton.setVisible(false);
 		}
 		else {
 			this.isUnsegmented = false;
-			this.slipRateButton.setVisible(true);
+			this.origSlipRateButton.setVisible(true);
 			this.predMRIButton.setVisible(true);
 			this.dataMRIButton.setVisible(true);
 		}
@@ -308,8 +312,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			graphWindow.pack();
 			graphWindow.setLocationRelativeTo(this);
 			graphWindow.setVisible(true);
-		} else if(src == this.slipRateButton) { // ratio of slip rates
-			plotSlipRatesRatio();
+		} else if(src == this.modSlipRateButton) { // ratio of modified slip rates
+			plotModSlipRatesRatio();
+		}
+		else if(src == this.origSlipRateButton) { // ratio of original slip rates
+			plotOrigSlipRatesRatio();
 		}else if(src == this.dataMRIButton) { // ratio of final MRIs and data MRI
 			plotDataMRIRatio();
 		}else if(src == this.predMRIButton) { // ratio of final MRI and pred MRI
@@ -321,7 +328,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * Plot the ratio of slip rates
 	 *
 	 */
-	private void plotSlipRatesRatio() {
+	private void plotOrigSlipRatesRatio() {
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
 		func.setTolerance(func.getDelta());
 		func.setName("Ratio of final Slip Rates to Original Slip Rates");
@@ -339,7 +346,34 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 				func.add(xIndex, 1.0);
 			}
 		}
-		String plotLabel = "Slip Rates Ratio";
+		String plotLabel = "Original Slip Rates Ratio";
+		showHistograms(func, plotLabel);
+	}
+	
+	/**
+	 * Plot  ratio of modified slip rates
+	 *
+	 */
+	private void plotModSlipRatesRatio() {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
+		func.setTolerance(func.getDelta());
+		func.setName("Ratio of final Slip Rates to Modified Slip Rates");
+		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		double ratio, reduction;
+		int xIndex;
+		// iterate over all sources
+		for(int i=0; i<sourceList.size(); ++i) {
+			A_FaultSegmentedSource source = sourceList.get(i);
+			int numSegments = source.getFaultSegmentData().getNumSegments();
+			// iterate over all segments
+			reduction = 1-source.getMoRateReduction();
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+				ratio = source.getFinalSegSlipRate(segIndex)/(source.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction);
+				xIndex = func.getXIndex(ratio);
+				func.add(xIndex, 1.0);
+			}
+		}
+		String plotLabel = "Modified Slip Rates Ratio";
 		showHistograms(func, plotLabel);
 	}
 	
@@ -406,7 +440,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private void showHistograms(EvenlyDiscretizedFunc func, String plotLabel) {
 		ArrayList funcs = new ArrayList();
 		funcs.add(func);
-		GraphWindow graphWindow= new GraphWindow(new CreateHistogramsFromSegSlipRateFile(funcs));
+		String yAxisLabel = "Count";
+		GraphWindow graphWindow= new GraphWindow(new CreateHistogramsFromSegSlipRateFile(funcs, plotLabel, yAxisLabel));
 		graphWindow.setPlotLabel(plotLabel);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.pack();

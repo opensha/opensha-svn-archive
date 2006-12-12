@@ -24,23 +24,17 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  *
  */
 public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
-	private final static String X_AXIS_LABEL = "Ratio of Original and Calculated Slip Rate";
-	private final static String Y_AXIS_LABEL = "Count";
-	private final static String PLOT_LABEL = "Slip Rate Ratio";
-	private ArrayList funcs;
-	private final static  String[] names = {"Original Slip Rate",
-		"Characteristic", 
-		"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
-		"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
-		"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
-		"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
+
 
 	private final PlotCurveCharacterstics PLOT_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
 		      new Color(0,0,0), 2); // black
+	private ArrayList funcs;
+	private String xAxisLabel, yAxisLabel;
 	
-	
-	public CreateHistogramsFromSegSlipRateFile(ArrayList funcList) {
+	public CreateHistogramsFromSegSlipRateFile(ArrayList funcList, String xAxisLabel, String yAxisLabel) {
 		funcs = funcList;
+		this.xAxisLabel = xAxisLabel;
+		this.yAxisLabel = yAxisLabel;
 	}
 	
 	/* (non-Javadoc)
@@ -68,23 +62,23 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
 	 */
 	public String getXAxisLabel() {
-		return X_AXIS_LABEL;
+		return this.xAxisLabel;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
 	 */
 	public String getYAxisLabel() {
-		return Y_AXIS_LABEL;
+		return this.yAxisLabel;
 	}
 	
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
-	public ArrayList getPlottingFeatures() {
-		 ArrayList list = new ArrayList();
-		 list.add(this.PLOT_HISTOGRAM);
+	public ArrayList<PlotCurveCharacterstics> getPlottingFeatures() {
+		 ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
+		 list.add(PLOT_HISTOGRAM);
 		 return list;
 	}
 	
@@ -137,6 +131,16 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 	 * @param excelSheetName Absolute pathname to excel file
 	 */
 	public static void createHistogramPlots(String masterDirName, String excelSheetName) {
+		String xAxisLabel = "Ratio of Original and Calculated Slip Rate";
+		String yAxisLabel = "Count";
+		String plotLabel = "Slip Rate Ratio";
+		
+		String[] names = {"Original Slip Rate",
+			"Characteristic", 
+			"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
+			"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
+			"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
+			"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 		try {
 			// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/A_FaultSegSlipRateHistograms_2_1/";
@@ -194,9 +198,9 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 			for(int k=1, i=0; k<names.length; ++k, ++i) {
 				ArrayList list = new ArrayList();
 				list.add(funcList.get(i));
-				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list);
+				CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
 				GraphWindow graphWindow= new GraphWindow(plot);
-				graphWindow.setPlotLabel(PLOT_LABEL);
+				graphWindow.setPlotLabel(plotLabel);
 				graphWindow.plotGraphUsingPlotPreferences();
 				graphWindow.setTitle(names[k]);
 				graphWindow.pack();
@@ -218,6 +222,16 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 	 * @param excelSheetName Absolute pathname to excel file
 	 */
 	public static void createHistogramPlots(String masterDirName, String excelSheetName, String faultName, String segName) {
+		String xAxisLabel = "Ratio of Original and Calculated Slip Rate";
+		String yAxisLabel = "Count";
+		String plotLabel = "Slip Rate Ratio";
+		
+		String[] names = {"Original Slip Rate",
+			"Characteristic", 
+			"Ellsworth-A_UniformBoxcar", "Ellsworth-A_WGCEP-2002", "Ellsworth-A_Tapered",
+			"Ellsworth-B_UniformBoxcar", "Ellsworth-B_WGCEP-2002", "Ellsworth-B_Tapered",
+			"Hanks & Bakun (2002)_UniformBoxcar", "Hanks & Bakun (2002)_WGCEP-2002", "Hanks & Bakun (2002)_Tapered",
+			"Somerville (2006)_UniformBoxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 		try {
 			// directory to save the PDF files. Directory will be created if it does not exist already
 			String dirName = masterDirName+"/"+faultName+"_"+segName+"/";
@@ -270,9 +284,9 @@ public class CreateHistogramsFromSegSlipRateFile implements GraphWindowAPI {
 			
 			ArrayList list = new ArrayList();
 			list.add(func);
-			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list);
+			CreateHistogramsFromSegSlipRateFile plot = new CreateHistogramsFromSegSlipRateFile(list, xAxisLabel, yAxisLabel);
 			GraphWindow graphWindow= new GraphWindow(plot);
-			graphWindow.setPlotLabel(PLOT_LABEL);
+			graphWindow.setPlotLabel(plotLabel);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(segName);
 			graphWindow.pack();

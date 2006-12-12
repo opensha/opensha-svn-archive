@@ -19,6 +19,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -71,6 +72,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
 	private final static String A_FAULT_SEG_SLIP_RATE_FILENAME = "A_FaultSegSlipRate_2_1.xls";
 	private String dirName=null; 
+	private JScrollPane scrollPane = new JScrollPane();
 	
 	public static void main(String[] args) {
 		new EqkRateModel2_ERF_GUI();
@@ -90,6 +92,11 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		createGUI();
 		calcButton.addActionListener(this);
 		pack();
+		Container container = this.getContentPane();
+		container.add(this.scrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		container.validate();
+		container.repaint();
 		setSize(W, H);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -101,14 +108,11 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	}
 	
 	private void addParameterListEditor() {
-		Container container = this.getContentPane();
-		if(editor!=null) container.remove(editor);
+		int val = scrollPane.getVerticalScrollBar().getValue();
 		editor = new ParameterListEditor(eqkRateModelERF.getAdjustableParameterList());
 		editor.setTitle(TITLE);
-		container.add(this.editor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		container.validate();
-		container.repaint();
+		scrollPane.setViewportView(editor);
+		scrollPane.getVerticalScrollBar().setValue(val);
 	}
 	
 	/*private void createHistoricalMFD() {
