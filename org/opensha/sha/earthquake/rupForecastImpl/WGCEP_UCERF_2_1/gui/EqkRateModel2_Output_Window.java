@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -326,25 +327,18 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 *
 	 */
 	private void plotOrigSlipRatesRatio() {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
-		func.setTolerance(func.getDelta());
-		func.setName("Ratio of final Slip Rates to Original Slip Rates");
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		double ratio;
-		int xIndex;
+		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				ratio = source.getFinalSegSlipRate(segIndex)/source.getFaultSegmentData().getSegmentSlipRate(segIndex);
-				xIndex = func.getXIndex(ratio);
-				func.add(xIndex, 1.0);
-			}
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
+				ratioList.add(source.getFinalSegSlipRate(segIndex)/source.getFaultSegmentData().getSegmentSlipRate(segIndex));
 		}
 		String plotLabel = "Original Slip Rates Ratio";
-		showHistograms(func, plotLabel);
+		showHistograms(ratioList, plotLabel, "Ratio of final Slip Rates to Original Slip Rates");
 	}
 	
 	/**
@@ -352,26 +346,20 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 *
 	 */
 	private void plotModSlipRatesRatio() {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
-		func.setTolerance(func.getDelta());
-		func.setName("Ratio of final Slip Rates to Modified Slip Rates");
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		double ratio, reduction;
-		int xIndex;
+		double  reduction;
+		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
 			reduction = 1-source.getMoRateReduction();
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				ratio = source.getFinalSegSlipRate(segIndex)/(source.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction);
-				xIndex = func.getXIndex(ratio);
-				func.add(xIndex, 1.0);
-			}
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
+				ratioList.add(source.getFinalSegSlipRate(segIndex)/(source.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction));
 		}
 		String plotLabel = "Modified Slip Rates Ratio";
-		showHistograms(func, plotLabel);
+		showHistograms(ratioList, plotLabel, "Ratio of final Slip Rates to Modified Slip Rates");
 	}
 	
 	/**
@@ -379,12 +367,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 *
 	 */
 	private void plotDataMRIRatio() {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 2.5, 24);
-		func.setTolerance(func.getDelta());
-		func.setName("Ratio of final MRI to Data MRI");
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		double ratio;
-		int xIndex;
+		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
@@ -392,14 +376,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			// iterate over all segments
 			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
 				if(Double.isNaN(source.getFaultSegmentData().getRecurInterval(segIndex))) continue;
-				ratio = source.getFinalSegRecurInt(segIndex)/source.getFaultSegmentData().getRecurInterval(segIndex);
-				
-				xIndex = func.getXIndex(ratio);
-				func.add(xIndex, 1.0);
-			}
+				ratioList.add(source.getFinalSegRecurInt(segIndex)/source.getFaultSegmentData().getRecurInterval(segIndex));
+				}
 		}
 		String plotLabel = "Final and Data MRI Ratio";
-		showHistograms(func, plotLabel);
+		showHistograms(ratioList, plotLabel, "Ratio of final MRI to Data MRI");
 	}
 	
 	/**
@@ -407,26 +388,18 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 *
 	 */
 	private void plotPredMRIRatio() {
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(0.2, 6.5, 64);
-		func.setTolerance(func.getDelta());
-		func.setName("Ratio of final MRI to Pred MRI");
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		double ratio;
-		int xIndex;
+		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				ratio = source.getFinalSegRecurInt(segIndex)*source.getSegRateFromAprioriRates(segIndex);
-				//System.out.println(ratio);
-				xIndex = func.getXIndex(ratio);
-				func.add(xIndex, 1.0);
-			}
+			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
+				ratioList.add(source.getFinalSegRecurInt(segIndex)*source.getSegRateFromAprioriRates(segIndex));
 		}
 		String plotLabel = "Final and Pred MRI Ratio";
-		showHistograms(func, plotLabel);
+		showHistograms(ratioList, plotLabel, "Ratio of final MRI to Pred MRI");
 	}
 
 	/**
@@ -434,7 +407,17 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * @param func
 	 * @param plotLabel
 	 */
-	private void showHistograms(EvenlyDiscretizedFunc func, String plotLabel) {
+	private void showHistograms(ArrayList<Double> ratioList, String plotLabel, String funcName) {
+		double min = Math.floor(Collections.min(ratioList));
+		double max = Math.ceil(Collections.max(ratioList));
+		double delta = 0.1;
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(min, (int)Math.round((max-min)/delta)+1, delta);
+		func.setTolerance(func.getDelta());
+		int xIndex;
+		for(int i=0; i<ratioList.size(); ++i) {
+			xIndex = func.getXIndex(ratioList.get(i));
+			func.add(xIndex, 1.0);
+		}
 		ArrayList funcs = new ArrayList();
 		funcs.add(func);
 		String yAxisLabel = "Count";
