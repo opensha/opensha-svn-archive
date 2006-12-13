@@ -191,7 +191,7 @@ public class AttenuationRelationshipApplet extends JFrame
     //protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
     protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
     protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
-    
+    protected final static String GOULET_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
     /**
      *  ArrayList that maps picklist attenRel string names to the real fully qualified
      *  class names
@@ -233,6 +233,8 @@ public class AttenuationRelationshipApplet extends JFrame
       attenRelClasses.add(BS_2003_CLASS_NAME);
       imNames.add(BC_2004_AttenRel.NAME);
       attenRelClasses.add(BC_2004_CLASS_NAME);
+      imNames.add(GouletEtAl_2006_AttenRel.NAME);
+      attenRelClasses.add(GOULET_2006_CLASS_NAME);
       imNames.add(ShakeMap_2003_AttenRel.NAME);
       attenRelClasses.add(SM_CLASS_NAME);
       imNames.add(SEA_1999_AttenRel.NAME);

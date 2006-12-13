@@ -14,7 +14,7 @@ import org.opensha.sha.imr.*;
  * <b>Title:</b> SiteSpecific_2006_AttenRel<p>
  *
  * <b>Description:</b> This implements the site effect models
- * developed by Bazzuro and Cornell(2004), Baturay and Stewart(2003), applied
+ * developed by Bazzuro and Cornell(2004) , applied
  * to the Abrahamson & Silva (1997) rock-site predictions. <p>
  *
  * Supported Intensity-Measure Parameters:<p>
@@ -55,11 +55,11 @@ public class BC_2004_AttenRel
   protected final static Double VS30_WARN_MAX = new Double(760.0);
 
  
-  private AS_1997_AttenRel as_1997_attenRel;
+  protected AS_1997_AttenRel as_1997_attenRel;
   /**
    * The current set of coefficients based on the selected intensityMeasure
    */
-  private BC_2004_AttenRelCoefficients coeffs = null;
+  protected BC_2004_AttenRelCoefficients coeffs = null;
   
   
   //Intercept param
@@ -71,7 +71,7 @@ public class BC_2004_AttenRel
   public final static double AF_INTERCEPT_PARAM_DEFAULT = 0;
   
   //Slope Param
-  private DoubleParameter AF_SlopeParam;
+  protected DoubleParameter AF_SlopeParam;
   public final static String AF_SLOPE_PARAM_NAME = "AF Slope";
   public final static String AF_SLOPE_PARAM_INFO = 
 	  "Slope of the median regression model for the ground response analyses";
@@ -79,7 +79,7 @@ public class BC_2004_AttenRel
   public final static double AF_SLOPE_PARAM_DEFAULT = 0;
   
   //Additive refeerence acceleration param
-  private DoubleParameter AF_AddRefAccParam;
+  protected DoubleParameter AF_AddRefAccParam;
   public final static String AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME = "AF Add. Ref. Acceleration";
   public final static String AF_ADDITIVE_REF_ACCELERATION_PARAM_INFO = 
 	  "Additive reference acceleration of the median regression model for the ground response " +
@@ -90,7 +90,7 @@ public class BC_2004_AttenRel
   
   
   //Std. Dev AF param
-  private DoubleParameter AF_StdDevParam;
+  protected DoubleParameter AF_StdDevParam;
   public final static String AF_STD_DEV_PARAM_NAME = "Std. Dev. AF";
   public final static String AF_STD_DEV_PARAM_INFO = 
 	  "Standard Deviation of the amplification factor from the ground response analyses" +
@@ -107,10 +107,7 @@ public class BC_2004_AttenRel
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
 
-  /**
-   *  No-Arg constructor. This initializes several ParameterList objects.
-   */
-  public BC_2004_AttenRel(ParameterChangeWarningListener warningListener) {
+   public BC_2004_AttenRel(ParameterChangeWarningListener warningListener) {
 
     super();
 
