@@ -21,10 +21,8 @@ import org.opensha.sha.fault.FaultTrace;
  *
  */
 public class SubSectionsRupCalc {
-	private final static double SUBSECTIONS_CUTOFF_DIST = 10; 
+	private double subSectionsCutoffDist = 10; 
 	private  double maxSubSectionLength = 10;
-	private final static Location LOCATION = new Location(31.5, -115.0);
-	private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 	private ArrayList<MultipleSectionRup> rupList;
 	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList subSectionList;
@@ -39,7 +37,19 @@ public class SubSectionsRupCalc {
 		  this.maxSubSectionLength = maxSubSectionLength;
 		  this.doProcessing();
 	  }
+	  
+	  /**
+	   * Cutoff distance - It is the distance within which the nearby sections are connected
+	   * @param distance
+	   */
+	  public void setCutoffDistance(double distance) {
+		  this.subSectionsCutoffDist = distance;
+	  }
 
+	  /**
+	   * Find the various subsections, clusters and ruptures
+	   *
+	   */
 	  public void doProcessing()  {
 	    try {      
 	      subSectionList = getAllSubSections(); // get all the fault sections
@@ -175,13 +185,13 @@ public class SubSectionsRupCalc {
 		  int endIndex1 = trace1.getNumLocations()-1;
 		  FaultTrace trace2 = faultSectionPrefData2.getFaultTrace();
 		  int endIndex2 = trace2.getNumLocations()-1;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(0), trace2.getLocationAt(0))<=SUBSECTIONS_CUTOFF_DIST) 
+		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(0), trace2.getLocationAt(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(0), trace2.getLocationAt(endIndex2))<=SUBSECTIONS_CUTOFF_DIST) 
+		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(0), trace2.getLocationAt(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(endIndex1), trace2.getLocationAt(0))<=SUBSECTIONS_CUTOFF_DIST) 
+		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(endIndex1), trace2.getLocationAt(0))<=subSectionsCutoffDist) 
 			  return true;
-		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(endIndex1), trace2.getLocationAt(endIndex2))<=SUBSECTIONS_CUTOFF_DIST) 
+		  if(RelativeLocation.getApproxHorzDistance(trace1.getLocationAt(endIndex1), trace2.getLocationAt(endIndex2))<=subSectionsCutoffDist) 
 			  return true;
 		  return false;
 	  }
