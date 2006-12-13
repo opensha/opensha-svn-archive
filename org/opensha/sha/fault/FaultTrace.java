@@ -56,6 +56,26 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       }
       return totLength;
     }
+    
+    /**
+     * This returns the average strike (weight average by length)
+     * @return
+     */
+    public double getAveStrike() {
+      double totLength = 0, length=0;
+      ListIterator it = this.listIterator();
+      Location lastLoc = (Location)it.next();
+      Location loc = null;
+      double aveStrike=0;
+      while( it.hasNext() ){
+        loc = (Location)it.next();
+        length = RelativeLocation.getHorzDistance(lastLoc, loc);
+        aveStrike += RelativeLocation.getAzimuth(lastLoc, loc) * length;
+        totLength += length;
+        lastLoc = loc;
+      }
+      return aveStrike/totLength;
+    }
 
 
     private final static String TAB = "  ";

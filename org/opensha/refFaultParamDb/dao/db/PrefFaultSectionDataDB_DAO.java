@@ -164,8 +164,8 @@ public class PrefFaultSectionDataDB_DAO {
 	 * @return
 	 */
 	public ArrayList getAllFaultSectionPrefData() {
-		if(faultSectionsList==null)
-			return query(" ");
+		if(faultSectionsList==null) 
+			this.faultSectionsList = query("");
 		return faultSectionsList;
 	}
 	
@@ -191,7 +191,7 @@ public class PrefFaultSectionDataDB_DAO {
 	 * @return
 	 */
 	private ArrayList query(String condition) {
-		if(condition.equalsIgnoreCase("")) faultSectionsList = new ArrayList();
+		ArrayList faultSectionsList = new ArrayList();
 		// this awkward sql is needed else we get "Invalid scale exception"
 		String sqlWithSpatialColumnNames =  "select "+SECTION_ID+
 		", ("+PREF_SLIP_RATE+"+0) "+PREF_SLIP_RATE+
@@ -256,7 +256,7 @@ public class PrefFaultSectionDataDB_DAO {
 				ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
 				FaultTrace faultTrace = FaultSectionVer2_DB_DAO.getFaultTrace(sectionName, faultSectionPrefData.getAveUpperDepth(), geometries);	
 				faultSectionPrefData.setFaultTrace(faultTrace);
-				if(condition.equalsIgnoreCase(""))   faultSectionsList.add(faultSectionPrefData);
+				faultSectionsList.add(faultSectionPrefData);
 				cachedSections.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);
 			  }
 			  rs.close();

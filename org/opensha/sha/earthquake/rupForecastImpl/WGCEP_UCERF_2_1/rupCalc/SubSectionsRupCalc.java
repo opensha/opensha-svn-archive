@@ -33,18 +33,12 @@ public class SubSectionsRupCalc {
 		  doProcessing();
 	  }
 	  
-	  public SubSectionsRupCalc(double maxSubSectionLength) {
+	  public SubSectionsRupCalc(double maxSubSectionLength, double cutOffDistance) {
 		  this.maxSubSectionLength = maxSubSectionLength;
+		  this.subSectionsCutoffDist = cutOffDistance;
 		  this.doProcessing();
 	  }
-	  
-	  /**
-	   * Cutoff distance - It is the distance within which the nearby sections are connected
-	   * @param distance
-	   */
-	  public void setCutoffDistance(double distance) {
-		  this.subSectionsCutoffDist = distance;
-	  }
+	 
 
 	  /**
 	   * Find the various subsections, clusters and ruptures
