@@ -75,6 +75,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private JButton modSlipRateButton = new JButton("Plot the ratio of Final to Modified Slip Rates");
 	private JButton dataMRIButton = new JButton("Plot the ratio of Final to Data MRI");
 	private JButton predMRIButton = new JButton("Plot the ratio of Final to Pred MRI");
+	private JButton rupRatesRatioButton = new JButton("Plot the ratio of Final rup Rates to A-Priori Rates");
 	private EqkRateModel2_ERF eqkRateModelERF;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
@@ -168,12 +169,15 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(dataMRIButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		textArea.setEditable(false);
 		plotMFDsButton.addActionListener(this);
 		this.origSlipRateButton.addActionListener(this);
 		this.modSlipRateButton.addActionListener(this);
 		this.predMRIButton.addActionListener(this);
 		this.dataMRIButton.addActionListener(this);
+		rupRatesRatioButton.addActionListener(this);
 		return panel;
 	}
 	
@@ -319,9 +323,30 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			plotDataMRIRatio();
 		}else if(src == this.predMRIButton) { // ratio of final MRI and pred MRI
 			plotPredMRIRatio();
+		} else if(src == this.rupRatesRatioButton) { // ratio of final rates to A-Priori Rates
+			plotRupRatesRatio();
 		}
 	}
 
+	/**
+	 * Plot the ratio of slip rates
+	 *
+	 */
+	private void plotRupRatesRatio() {
+		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		ArrayList<Double> ratioList = new ArrayList<Double>();
+		// iterate over all sources
+		for(int i=0; i<sourceList.size(); ++i) {
+			A_FaultSegmentedSource source = sourceList.get(i);
+			int numRuptures = source.getNumRuptures();
+			// iterate over all ruptures
+			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) 
+				ratioList.add(source.getRupRate(rupIndex)/source.getAPrioriRupRate(rupIndex));
+		}
+		String plotLabel = "Rupture Rates Ratio";
+		showHistograms(ratioList, plotLabel, "Ratio of final Rup Rates to A-Priori Rates");
+	}
+	
 	/**
 	 * Plot the ratio of slip rates
 	 *
