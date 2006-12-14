@@ -18,7 +18,7 @@ public class TaperedGR_MagFreqDist
   public static String NAME = new String("Tapered GR Dist"); // for showing messages
 
   //for Debug purposes
-  private boolean D = false;
+  private boolean D = true;
 
   private double magLower; // lowest magnitude that has non zero rate
   private double magCorner; // the taper magnitude
@@ -126,29 +126,77 @@ public class TaperedGR_MagFreqDist
   }
 
   /**
-   * Set All but magCorner
+   * Set All but magCorner.  This finds the corner magnitude iteratively, such that the final 
+   * corner magnitude is guaranteed to be within 0.0001 of the "true" corner magnitude (and
+   * accordingly, there is a slight discrepancy in the final moment rate as well - typically
+   * orig/final moment rate = 1.0001).  This throws a runtime exception if it cannot find a corner
+   * magnitude between magLower and maxX+0.0001 that satisfies the totMoRate.
+   * TO DO: FIX EXCEPTION THROWING TO BE CONSISTENT WITH OTHER METHODS AND THE MFD PARAMETER CLASS
    * @param magLower      : lowest magnitude that has non zero rate
    * @param totMoRate     : total moment rate
    * @param totCumRate    : total cumulative rate
    * @param bValue        : b value
-   * @param relaxCumRate  : It is "true" or "false". It accounts for tha fact
-   * that due to magnitude discretization, the specified totCumRate and totMoRate
-   * cannot both be satisfied simultaneously. if it is true, it means that match
-   * totMoRate exactly else it matches totCumRate exactly
    */
-  public void setAllButmagCorner(double magLower, double totMoRate,
-		  double totCumRate,
-		  double bValue) throws
+  public void setAllButCornerMag(double magLower, double totMoRate,
+		  double totCumRate, double bValue) throws
 		  MagFreqDistException, DiscretizedFuncException,
 		  DataPoint2DException {
 	  
-	  if (D) System.out.println("magLower = " + magLower);
-	  if (D) System.out.println("totMoRate = " + totMoRate);
-	  if (D) System.out.println("totCumRate = " + totCumRate);
-	  if (D) System.out.println("bValue = " + bValue);
+	  this.magLower = magLower;
+	  this.bValue = bValue;
 	  
-	  throw new MagFreqDistException("Not yet implemented");
+	  // find magCorner iteratively
+	  double deltaMag = 1;
+	  double magStart = magLower;
+	  for(int loop=0; loop<5; loop++) {
+		  System.out.println("loop #"+loop);
+		  for(double mag=magStart; mag <= maxX+deltaMag; mag+= deltaMag) {
+			  System.out.println("mag = "+mag);
+			  setAllButTotMoRate(magLower, mag, totCumRate, bValue);
+			  System.out.println("    totMoRate = "+getTotalMomentRate());
+			  if(getTotalMomentRate() > totMoRate) {
+				  System.out.println("got in if statement");
+				  magStart = mag-deltaMag;
+				  if(magStart < magLower)
+					  throw new RuntimeException(this.NAME+": Error - could not find corner magnitude that satisfies the moment rate (magLower too high?).");
+				  deltaMag /= 10.0;
+				  break;
+			  }
+		  }
+	  }
+	  
+	  //make sure the moment rate for final magnitude is below the target
+	  magCorner = magStart;
+	  setAllButTotMoRate(magLower, magCorner, totCumRate, bValue);
+	  double moRateBelow = getTotalMomentRate();
+	  
+	  // now get the final (mag just above) distribution
+	  magCorner = magStart+0.0001; 
+	  setAllButTotMoRate(magLower, magCorner, totCumRate, bValue);
+	  
+	  // make sure the two cases bracked the target moment rate
+	  boolean success = (getTotalMomentRate() >= totMoRate && moRateBelow < totMoRate);
+	  if(!success)
+		  throw new RuntimeException(this.NAME+": Error - could not find corner magnitude that satisfies the moment rate (maxX too low?).");
+	  
+	  if(D) {
+	  System.out.println("magLower = " + magLower);
+	  System.out.println("magCorner = " + magCorner);
+	  System.out.println("Orig totMoRate = " + totMoRate);
+	  System.out.println("Final totMoRate = " + getTotalMomentRate());
+	  System.out.println("Final/Orig totMoRate = " + getTotalMomentRate()/totMoRate+" (should be just greater than one)");
+	  System.out.println("totCumRate = " + getTotCumRate());
+	  System.out.println("bValue = " + bValue);
+	  }
+	  
   }
+  
+	public static void main(String[] args) {
+		TaperedGR_MagFreqDist tgr = new TaperedGR_MagFreqDist(0.0,201,0.05);
+		tgr.setAllButCornerMag(5, 1e19, 5, 1.0);
+//		System.out.println(tgr.toString());
+	}
+
 
   /**
    * Throws the exception if the set functions are called from outside the class
