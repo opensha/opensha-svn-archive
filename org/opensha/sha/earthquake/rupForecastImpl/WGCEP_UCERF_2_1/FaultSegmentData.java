@@ -161,7 +161,7 @@ public class FaultSegmentData {
 	}
 	
 	/**
-	 * Get segment recur interval for the specified segment index.  
+	 * Computes the mean recur interval for a segment (as 1/getSegRateMean(segIndex)). 
 	 * 
 	 * @param index
 	 * @return recur int in years
@@ -191,7 +191,40 @@ public class FaultSegmentData {
 	}
 	
 	/**
-	 * Get segment recur interval.  
+	 * This returns the standard deviation of the mean segment rate (wt averaged if more than
+	 * one constraint on the segment).  
+	 * 
+	 * @param index
+	 * @return recur int in years
+	 */
+	public double getSegRateStdDevOfMean(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(index);
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
+			return meanSegmentConstraint.getStdDevOfMean();
+		}
+	}
+	
+	/**
+	 * This returns the mean segment rate (wt averaged if more than
+	 * one constraint on the segment).  
+	 * 
+	 * @param index
+	 * @return recur int in years
+	 */
+	public double getSegRateMean(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(index);
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			SegRateConstraint meanSegmentConstraint = SegRateConstraint.getWeightMean(segmentConstraints);
+			return meanSegmentConstraint.getMean();
+		}
+	}
+	
+	/**
+	 * Computes the standard deviation of the mean recur interval for a segment 
+	 * (using standard error propagation from getSegRateStdDevOfMean and getSegRateMean).  
 	 * 
 	 * @param index
 	 * @return recur int in years

@@ -351,10 +351,10 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		legend += "Length\t- km\n";
 		legend += "Mo Rate\t- Moment Rate (Newton-Meters/yr)\n";
 		legend += "\t (reduced by aseis factor, but not by fract ABC removed)\n";
-		legend += "Data MRI\t- Ave Mean Recur Int (years) from Parsons/Dawson table\n";
-		legend += "MRI Sigma\t- Standard deviation of Data MRI\n";
-		legend += "Pred MRI\t- MRI predicated from A Priori Rates\n";
-		legend += "Final MRI\t- Final MRI given MFDs\n";
+		legend += "Data ER\t- Mean Event Rate for segment (1/years) from Parsons/Dawson table\n";
+		legend += "ER Sigma\t- Standard deviation of Mean Event Rate for segment (1/years) from Parsons/Dawson table\n";
+		legend += "Pred ER\t- Segment mean Event Rate predicted from A Priori Rates\n";
+		legend += "Final ER\t- Final (post inversion) segment mean Event Rate\n";
 		return legend;
 	}
 	
@@ -566,7 +566,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	private final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
 		"Final SR","Area",
-		"Length", "Mo Rate", "Data MRI", "MRI Sigma", "Pred MRI", "Final MRI", /*"Char Slip",*/ 
+		"Length", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
 		 "Sections In Segment"};
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
