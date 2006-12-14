@@ -61,7 +61,7 @@ public class SimpleFaultData {
         this.faultTrace = faultTrace;
     }
     public FaultTrace getFaultTrace() { return faultTrace; }
-
+    
 
     private final static String TAB = "  ";
     public String toString(){

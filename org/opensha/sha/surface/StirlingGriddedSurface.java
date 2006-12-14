@@ -38,6 +38,26 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
       createEvenlyGriddedSurface();
     }
 
+    /**
+     * Stitch Together the fault sections. It assumes:
+     * 1. Sections are in correct order
+     * 2. Distance between end points of section in correct order is less than the distance to opposite end of section
+     * Upper seismogenic depth, sip aand lower seimogenic depth are area weighted.
+     * 
+     * @param simpleFaultData
+     * @param gridSpacing
+     * @throws FaultException
+     */
+    public StirlingGriddedSurface(SimpleFaultData[] simpleFaultData,
+            double gridSpacing) throws FaultException {
+    	
+    	super(simpleFaultData, gridSpacing);
+    	aveDipDir = this.faultTrace.getAveStrike() + 90;
+    	//createEvenlyGriddedSurface();
+    }
+
+    
+    
     public StirlingGriddedSurface(FaultTrace faultTrace,
                                   double aveDip,
                                   double upperSeismogenicDepth,
@@ -69,7 +89,7 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
         this.aveDipDir = aveDipDir;
-        createEvenlyGriddedSurface();
+        createEvenlyGriddedSurface(); 
     }
 
 

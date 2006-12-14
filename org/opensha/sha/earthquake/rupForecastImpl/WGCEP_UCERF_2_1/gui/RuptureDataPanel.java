@@ -356,8 +356,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			finalRupRatesFunc.setName("Final Rupture Rates");
 			int numRups = source.getNumRuptures();
 			for(int i=0; i<numRups; ++i) {
-				aPrioriRatesFunc.set((double)i, source.getAPrioriRupRate(i));
-				finalRupRatesFunc.set((double)i, source.getRupRate(i));
+				aPrioriRatesFunc.set((double)i+1, source.getAPrioriRupRate(i));
+				finalRupRatesFunc.set((double)i+1, source.getRupRate(i));
 			}
 			plottingFuncList.add(aPrioriRatesFunc);
 			plottingFuncList.add(finalRupRatesFunc);

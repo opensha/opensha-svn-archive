@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.vo;
 
 import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.fault.SimpleFaultData;
 
 /**
  * <p>Title: FaultSection2002.java </p>
@@ -99,5 +100,10 @@ public class FaultSection2002 {
   public void setSectionName(String sectionName) {
     this.sectionName = sectionName;
   }
-
+  
+  public SimpleFaultData getSimpleFaultData() {
+		SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerSeisDepth(),
+				getAveUpperSeisDepth(), getFaultTrace());
+		return simpleFaultData;
+	}
 }

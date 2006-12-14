@@ -73,9 +73,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
 	private JButton origSlipRateButton = new JButton("Plot the ratio of Final to Orig Slip Rates");
 	private JButton modSlipRateButton = new JButton("Plot the ratio of Final to Modified Slip Rates");
-	private JButton dataMRIButton = new JButton("Plot the ratio of Final to Data MRI");
-	private JButton predMRIButton = new JButton("Plot the ratio of Final to Pred MRI");
-	private JButton rupRatesRatioButton = new JButton("Plot the ratio of Final rup Rates to A-Priori Rates");
+	private JButton dataERButton = new JButton("Plot the ratio of Final to Data Segment Event Rate");
+	private JButton predERButton = new JButton("Plot the ratio of Final to Pred Segment Event Rate");
+	private JButton rupRatesRatioButton = new JButton("Plot the ratio of Final Rup Rates to A-Priori Rates");
 	private EqkRateModel2_ERF eqkRateModelERF;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
@@ -165,9 +165,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(predMRIButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+		panel.add(predERButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(dataMRIButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+		panel.add(dataERButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
@@ -175,8 +175,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		plotMFDsButton.addActionListener(this);
 		this.origSlipRateButton.addActionListener(this);
 		this.modSlipRateButton.addActionListener(this);
-		this.predMRIButton.addActionListener(this);
-		this.dataMRIButton.addActionListener(this);
+		this.predERButton.addActionListener(this);
+		this.dataERButton.addActionListener(this);
 		rupRatesRatioButton.addActionListener(this);
 		return panel;
 	}
@@ -196,14 +196,14 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) {
 			this.isUnsegmented = true;
 			this.origSlipRateButton.setVisible(false);
-			this.predMRIButton.setVisible(false);
-			this.dataMRIButton.setVisible(false);
+			this.predERButton.setVisible(false);
+			this.dataERButton.setVisible(false);
 		}
 		else {
 			this.isUnsegmented = false;
 			this.origSlipRateButton.setVisible(true);
-			this.predMRIButton.setVisible(true);
-			this.dataMRIButton.setVisible(true);
+			this.predERButton.setVisible(true);
+			this.dataERButton.setVisible(true);
 		}
 		
 		if(aFaultSources==null) return panel;
@@ -319,10 +319,10 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		}
 		else if(src == this.origSlipRateButton) { // ratio of original slip rates
 			plotOrigSlipRatesRatio();
-		}else if(src == this.dataMRIButton) { // ratio of final MRIs and data MRI
-			plotDataMRIRatio();
-		}else if(src == this.predMRIButton) { // ratio of final MRI and pred MRI
-			plotPredMRIRatio();
+		}else if(src == this.dataERButton) { // ratio of final Event rate and data Event rate
+			plotDataERRatio();
+		}else if(src == this.predERButton) { // ratio of final event rate and pred Event rate
+			plotPredERRatio();
 		} else if(src == this.rupRatesRatioButton) { // ratio of final rates to A-Priori Rates
 			plotRupRatesRatio();
 		}
@@ -343,8 +343,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) 
 				ratioList.add(source.getRupRate(rupIndex)/source.getAPrioriRupRate(rupIndex));
 		}
-		String plotLabel = "Rupture Rates Ratio";
-		showHistograms(ratioList, plotLabel, "Ratio of final Rup Rates to A-Priori Rates");
+		String plotLabel = "Final vs A-Priori Rupture Rates Ratio";
+		showHistograms(ratioList, plotLabel, "Ratio of Final Rup Rates to A-Priori Rates");
 	}
 	
 	/**
@@ -391,7 +391,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * Plot the ratio of MRIs
 	 *
 	 */
-	private void plotDataMRIRatio() {
+	private void plotDataERRatio() {
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
 		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
@@ -400,19 +400,19 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
 			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				if(Double.isNaN(source.getFaultSegmentData().getRecurInterval(segIndex))) continue;
-				ratioList.add(source.getFinalSegRecurInt(segIndex)/source.getFaultSegmentData().getRecurInterval(segIndex));
+				if(Double.isNaN(source.getFaultSegmentData().getSegRateMean(segIndex))) continue;
+				ratioList.add(source.getFinalSegmentRate(segIndex)/source.getFaultSegmentData().getSegRateMean(segIndex));
 				}
 		}
-		String plotLabel = "Final and Data MRI Ratio";
-		showHistograms(ratioList, plotLabel, "Ratio of final MRI to Data MRI");
+		String plotLabel = "Final vs Data Segment Event Ratio";
+		showHistograms(ratioList, plotLabel, "Ratio of final Event Ratio to Data Event Ratio");
 	}
 	
 	/**
 	 * Plot the ratio of MRIs
 	 *
 	 */
-	private void plotPredMRIRatio() {
+	private void plotPredERRatio() {
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
 		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
@@ -421,10 +421,10 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
 			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
-				ratioList.add(source.getFinalSegRecurInt(segIndex)*source.getSegRateFromAprioriRates(segIndex));
+				ratioList.add(source.getFinalSegmentRate(segIndex)/source.getSegRateFromAprioriRates(segIndex));
 		}
-		String plotLabel = "Final and Pred MRI Ratio";
-		showHistograms(ratioList, plotLabel, "Ratio of final MRI to Pred MRI");
+		String plotLabel = "Final vs Pred Event Rate Ratio";
+		showHistograms(ratioList, plotLabel, "Ratio of final Event Ratio to Pred Event Ratio");
 	}
 
 	/**

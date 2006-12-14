@@ -2,13 +2,11 @@
 package scratchJavaDevelopers.interns;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.*;
 
@@ -24,11 +22,10 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	private final PrefFaultSectionDataDB_DAO faultSectionPrefDataDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-	private static HashMap faultSectionPrefDataMap=null;
 	private static ArrayList faultSectionsSummary=null;
 	
 	public FaultSectionVer2Surfaces() {
-		if(faultSectionPrefDataMap==null) {
+		if(faultSectionsSummary==null) {
 			cacheFaultSectionPrefData();
 		}
 	}
@@ -38,14 +35,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 *
 	 */
 	private void cacheFaultSectionPrefData() {
-		faultSectionPrefDataMap  =new HashMap();
-		faultSectionsSummary = new ArrayList();
-		ArrayList faultSectionPrefList = faultSectionPrefDataDAO.getAllFaultSectionPrefData();
-		for(int i=0; i<faultSectionPrefList.size(); ++i) {
-			FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)faultSectionPrefList.get(i);
-			faultSectionPrefDataMap.put(new Integer(faultSectionPrefData.getSectionId()), faultSectionPrefData);
-			faultSectionsSummary.add(new FaultSectionSummary(faultSectionPrefData.getSectionId(), faultSectionPrefData.getSectionName()));
-		}
+		faultSectionsSummary = this.faultSectionDAO.getAllFaultSectionsSummary();
 	}
 
 	/**
@@ -65,8 +55,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
-		FaultSectionPrefData faultSection = getFaultSection(faultSectionId);
-		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData();
 		//frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
@@ -77,9 +66,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
-		FaultSectionPrefData faultSection = getFaultSection(faultSectionId);
-		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
-		// stirling fault factory
+		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData();
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
 
@@ -89,9 +76,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @param faultSectionId
 	 */
 	public void reloadFaultSectionFromDatabase(int faultSectionId) {
-		faultSectionPrefDataDAO.rePopulatePrefDataTable(faultSectionId);
-		faultSectionPrefDataMap.put(new Integer(faultSectionId),
-				this.faultSectionPrefDataDAO.getFaultSectionPrefData(faultSectionId));
+		throw new RuntimeException ("Method not implemented");
 	}
 	
 	/**
@@ -109,22 +94,10 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	private FaultSectionPrefData getFaultSection(int faultSectionId) {
-		return (FaultSectionPrefData)this.faultSectionPrefDataMap.get(new Integer(faultSectionId));		
+		return this.faultSectionPrefDataDAO.getFaultSectionPrefData(faultSectionId);		
 	}
 
-	/**
-	 * Make simple fault data from faulSection. It assumes that all estimates are Min/Max/Pref Estimates. so, we just
-	 * get Preffered values from these estimates
-	 *
-	 * @param faultSection
-	 * @return
-	 */
-	private SimpleFaultData getSimpleFaultData(FaultSectionPrefData faultSectionPrefData) {
-		SimpleFaultData simpleFaultData = new SimpleFaultData(faultSectionPrefData.getAveDip(),
-				faultSectionPrefData.getAveLowerDepth(), faultSectionPrefData.getAveUpperDepth(), 
-				faultSectionPrefData.getFaultTrace());
-		return simpleFaultData;
-	}
+	
 	
 	/**
 	 * Get the Minimum value for slip rate 

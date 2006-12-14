@@ -119,7 +119,7 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 	 */
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
-		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		SimpleFaultData simpleFaultData = faultSection.getSimpleFaultData();
 //		 frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
@@ -129,17 +129,11 @@ public class FaultSectionVer1Surfaces implements FaultSectionSurfaces{
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
 		FaultSection2002 faultSection = (FaultSection2002)faultSectionsMap.get(new Integer(faultSectionId));
-		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		SimpleFaultData simpleFaultData = faultSection.getSimpleFaultData();
 		// stirling fault factory
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
 
-
-	private SimpleFaultData getSimpleFaultData(FaultSection2002 faultSection) {
-		SimpleFaultData simpleFaultData = new SimpleFaultData(faultSection.getAveDip(), faultSection.getAveLowerSeisDepth(),
-				faultSection.getAveUpperSeisDepth(), faultSection.getFaultTrace());
-		return simpleFaultData;
-	}
 	
 	/**
 	 * Get the Minimum value for slip rate 

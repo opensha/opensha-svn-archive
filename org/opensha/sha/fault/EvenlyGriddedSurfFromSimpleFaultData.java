@@ -5,6 +5,7 @@ import java.util.ListIterator;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import org.opensha.util.FaultUtils;
+import org.opensha.calc.RelativeLocation;
 import org.opensha.data.Location;
 import java.io.IOException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -57,6 +58,87 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
       this.upperSeismogenicDepth = upperSeismogenicDepth;
       this.lowerSeismogenicDepth =lowerSeismogenicDepth;
       this.gridSpacing = gridSpacing;
+    }
+    
+    
+    /**
+     * Stitch Together the fault sections. It assumes:
+     * 1. Sections are in correct order
+     * 2. Distance between end points of section in correct order is less than the distance to opposite end of section
+     * Upper seismogenic depth, sip aand lower seimogenic depth are area weighted.
+     * 
+     * @param simpleFaultData
+     * @param gridSpacing
+     * @throws FaultException
+     */
+    protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData[] simpleFaultData, double gridSpacing) {
+    	// correctly order the first fault section
+    	FaultTrace faultTrace1 = simpleFaultData[0].getFaultTrace();
+    	FaultTrace faultTrace2 = simpleFaultData[1].getFaultTrace();
+    	double minDist = Double.MAX_VALUE, distance;
+    	boolean reverse = false;;
+    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=true;
+    	}
+    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=true;  
+    	}
+    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=false;
+    	}
+    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=false;
+    	}
+    	if(reverse) {
+    		faultTrace1.reverse();
+    		simpleFaultData[0].setAveDip(-simpleFaultData[0].getAveDip());
+    	}
+    	
+    	// Calculate Upper Seis Depth, Lower Seis Depth and Dip
+    	double combinedDip=0, combinedUpperSeisDepth=0, totArea=0, totLength=0;
+    	FaultTrace combinedFaultTrace = new FaultTrace("Combined Fault Sections");
+    	for(int i=0; i<simpleFaultData.length; ++i) {
+    		FaultTrace faultTrace = simpleFaultData[i].getFaultTrace();
+    		if(i>0) { // check the ordering of point in this fault trace
+    			FaultTrace prevFaultTrace = simpleFaultData[i-1].getFaultTrace();
+    			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
+    			double distance1 = RelativeLocation.getApproxHorzDistance(lastLoc, faultTrace.getLocationAt(0));
+    			double distance2 = RelativeLocation.getApproxHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
+    			if(distance2<distance1) { // reverse this fault trace
+    				faultTrace.reverse();
+    				simpleFaultData[i].setAveDip(-simpleFaultData[i].getAveDip());
+    			}
+    		}
+    		double length = faultTrace.getTraceLength();
+    		double dip = simpleFaultData[i].getAveDip();
+    		double area = length*(simpleFaultData[i].getLowerSeismogenicDepth()-simpleFaultData[i].getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180);
+    		totLength+=length;
+    		totArea+=area;
+    		combinedUpperSeisDepth+=(area*simpleFaultData[i].getUpperSeismogenicDepth());
+    		combinedDip+=(area*dip);
+    		int numLocations = faultTrace.getNumLocations();
+    		// add the fault Trace locations to combined trace
+    		for(int locIndex=0; locIndex<numLocations; ++locIndex) combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
+    			
+    	}
+//    	 if Dip<0, reverse the trace points to follow Aki and Richards convention
+    	if(combinedDip<0) {
+    		combinedDip=-combinedDip;
+    		combinedFaultTrace.reverse();
+    	}
+    	upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
+    	this.aveDip = combinedDip/totArea;
+    	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(combinedDip*Math.PI/180)+combinedUpperSeisDepth;
+    	this.faultTrace = combinedFaultTrace;
+    	this.gridSpacing = gridSpacing;
     }
 
     // ***************************************************************

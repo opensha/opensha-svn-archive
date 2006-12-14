@@ -1341,6 +1341,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary());
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
+		//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 	}
 	
 	

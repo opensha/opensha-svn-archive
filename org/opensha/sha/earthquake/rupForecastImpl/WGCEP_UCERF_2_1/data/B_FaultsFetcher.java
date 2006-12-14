@@ -3,14 +3,21 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
+import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
+import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 
 /**
  * @author vipingupta
@@ -145,6 +152,41 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	}
 	
 	/**
+	 * This is used to generate a file after combining B-Faults. This file can then be viewed in SCEC-VDO
+	 *
+	 */
+	public void test_writeFileAfterCombiningB_Faults() {
+		try {
+			
+			FileWriter fwTrace = new FileWriter("Combined_Conn_B-Faults.txt");
+			fwTrace.write("#SectionName,AvgUppeSeisDepth, AvgLowerSeisDepth, AveDip\n");
+			for(int index=0; index< bFaultNames.size(); ++index) {
+				FaultSegmentData faultSegmentData = getFaultSegmentData((String)bFaultNames.get(index), false);
+				ArrayList<FaultSectionPrefData> faultSectionPredDataList = faultSegmentData.getPrefFaultSectionDataList();
+				if(faultSectionPredDataList.size()<2) continue;
+				SimpleFaultData simpleFaultData[] = new SimpleFaultData[faultSectionPredDataList.size()];
+				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
+					simpleFaultData[i] = faultSectionPredDataList.get(i).getSimpleFaultData();
+				}
+				StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, 1);
+				// write to a file for connecting sections so that we can view them in SCEC-VDO
+				fwTrace.write("#"+(String)bFaultNames.get(index)+","+surface.getUpperSeismogenicDepth()+","+
+						surface.getLowerSeismogenicDepth()+","+surface.getAveDip()+"\n");
+				FaultTrace faultTrace = surface.getFaultTrace();
+				int numFaultTraceLocations = faultTrace.getNumLocations();
+				double upperSeisDepth = surface.getUpperSeismogenicDepth();
+				for(int j=0; j<numFaultTraceLocations; ++j) {
+					Location loc = faultTrace.getLocationAt(j);
+					fwTrace.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
+				}
+			}
+			fwTrace.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * 
 	 * @param faultModel
 	 * @param deformationModelId
@@ -156,7 +198,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		
 		ArrayList segmentList = (ArrayList) this.faultSegmentMap.get(faultModel);
 		if(segmentList!=null) {
-			return  new FaultSegmentData(segmentList, null, isAseisReducesArea, faultModel,
+			return new FaultSegmentData(segmentList, null, isAseisReducesArea, faultModel,
 					null);
 		} else {
 			 // if it is a part of connecting B-faults

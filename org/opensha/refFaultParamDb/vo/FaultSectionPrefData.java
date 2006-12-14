@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.opensha.sha.fault.EqualLengthSubSectionsTrace;
 import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.fault.SimpleFaultData;
 
 /**
  * This class saves th preferred values (rather than the estimate) from the FaultSectionData
@@ -144,6 +145,17 @@ public class FaultSectionPrefData {
 
 	public void setSlipRateStdDev(double slipRateStdDev) {
 		this.slipRateStdDev = slipRateStdDev;
+	}
+	
+	/**
+	 * Make simple fault data 
+	 *
+	 * @param faultSection
+	 * @return
+	 */
+	public SimpleFaultData getSimpleFaultData() {
+		SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), getAveUpperDepth(), getFaultTrace());
+		return simpleFaultData;
 	}
 
 }

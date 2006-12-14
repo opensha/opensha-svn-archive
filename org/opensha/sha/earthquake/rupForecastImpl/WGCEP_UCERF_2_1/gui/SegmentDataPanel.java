@@ -51,12 +51,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static String MSG_ASEIS_REDUCES_SLIPRATE = "IMPORTANT NOTE - Section Aseismicity Factors have been applied as a reduction of slip rate (as requested); keep this in mind when interpreting the segment slip rates (which for any segments composed of more than one section are a weight average by section areas)";
 	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private JTextArea magAreasTextArea = new JTextArea();
-	private JButton slipRateButton = new JButton("Plot Slip Rate for Segments");
-	private JButton mriButton = new JButton("Plot Recurrence Intervals");
+	private JButton slipRateButton = new JButton("Plot Segment Slip Rates");
+	private JButton eventRateButton = new JButton("Plot Segment Event Rates");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	private ArrayList<ArbitrarilyDiscretizedFunc>slipRatesList;
-	private ArrayList<ArbitrarilyDiscretizedFunc>recurIntvList;
+	private ArrayList<ArbitrarilyDiscretizedFunc>eventRatesList;
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(255,0,0), 10); // RED Cross symbols
 	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -66,14 +66,14 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 10); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, recurIntvPlottingFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	
 	public SegmentDataPanel() {
 		setLayout(new GridBagLayout());
 		createGUI();
 		slipRateButton.addActionListener(this);
-		mriButton.addActionListener(this);
+		eventRateButton.addActionListener(this);
 		this.makePlottingFeaturesList();
 	}
 	
@@ -88,12 +88,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR3);
 		// recur Intv Plotting features
-		recurIntvPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
-		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
-		recurIntvPlottingFeatures.add(this.PLOT_CHAR1);
-		recurIntvPlottingFeatures.add(this.PLOT_CHAR2);
-		recurIntvPlottingFeatures.add(this.PLOT_CHAR3);
+		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(this.PLOT_CHAR2);
+		eventRatesPlottingFeatures.add(this.PLOT_CHAR3);
 	}
 	
 	private void createGUI() {
@@ -116,7 +116,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(slipRateButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(mriButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		add(this.eventRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 	}
 	
@@ -165,13 +165,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		faultSectionTableModel.fireTableDataChanged();
 		
 		if(segmentedSource==null) { // for unsegmented source
-			this.mriButton.setVisible(false);
+			this.eventRateButton.setVisible(false);
 			this.slipRateButton.setVisible(false);
 		} else { // Segmented source
-			this.mriButton.setVisible(true);
+			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, faultSegmentData);
-			generateMRI_FuncList(segmentedSource, faultSegmentData);
+			generateEventRateFuncList(segmentedSource, faultSegmentData);
 		}
 		
 	}
@@ -190,10 +190,10 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFuncList = this.slipRatesList;
 		} else {
 			xAxisLabel = "Segment Index";
-			yAxisLabel = "Recurrence Interval (years)";
+			yAxisLabel = "Event Rates (1/years)";
 			// plotting features
-			plottingFeatures = recurIntvPlottingFeatures;
-			plottingFuncList = this.recurIntvList;
+			plottingFeatures = this.eventRatesPlottingFeatures;
+			plottingFuncList = this.eventRatesList;
 		}
 		GraphWindow graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(yAxisLabel);
@@ -229,17 +229,17 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			 // Original Slip Rates
 			origSlipRate = faultSegmentData.getSegmentSlipRate(seg)*1e3;
 			origSlipRateStdDev = faultSegmentData.getSegSlipRateStdDev(seg)*1e3;
-			origSlipRateFunc.set((double)seg, origSlipRate);
-			origMinSlipRateFunc.set((double)seg, origSlipRate-2*origSlipRateStdDev);
-			origMaxSlipRateFunc.set((double)seg, origSlipRate+2*origSlipRateStdDev);
+			origSlipRateFunc.set((double)seg+1, origSlipRate);
+			origMinSlipRateFunc.set((double)seg+1, origSlipRate-2*origSlipRateStdDev);
+			origMaxSlipRateFunc.set((double)seg+1, origSlipRate+2*origSlipRateStdDev);
 			// Modified Slip Rates
 			fraction = 1-segmentedSource.getMoRateReduction();
-			modSlipRateFunc.set((double)seg, origSlipRate*fraction);
-			modMinSlipRateFunc.set((double)seg, (origSlipRate-2*origSlipRateStdDev)*fraction);
-			modMaxSlipRateFunc.set((double)seg, (origSlipRate+2*origSlipRateStdDev)*fraction);
+			modSlipRateFunc.set((double)seg+1, origSlipRate*fraction);
+			modMinSlipRateFunc.set((double)seg+1, (origSlipRate-2*origSlipRateStdDev)*fraction);
+			modMaxSlipRateFunc.set((double)seg+1, (origSlipRate+2*origSlipRateStdDev)*fraction);
 			// Final slip Rate
 			finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
-			finalSlipRateFunc.set((double)seg, finalSlipRate*1e3);
+			finalSlipRateFunc.set((double)seg+1, finalSlipRate*1e3);
 		 }
 		slipRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		slipRatesList.add(origSlipRateFunc);
@@ -256,36 +256,36 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateMRI_FuncList(A_FaultSegmentedSource segmentedSource, 
+	private void generateEventRateFuncList(A_FaultSegmentedSource segmentedSource, 
 			FaultSegmentData faultSegmentData) {
-		ArbitrarilyDiscretizedFunc origRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
-		origRecurIntvFunc.setName("Data Recurrence Interval");
-		ArbitrarilyDiscretizedFunc minRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
-		minRecurIntvFunc.setName("Min Recurrence Interval");
-		ArbitrarilyDiscretizedFunc maxRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
-		maxRecurIntvFunc.setName("Max Recurrence Interval");
-		ArbitrarilyDiscretizedFunc finalRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
-		finalRecurIntvFunc.setName("Final Recurrence Interval");
-		ArbitrarilyDiscretizedFunc predRecurIntvFunc = new ArbitrarilyDiscretizedFunc();
-		predRecurIntvFunc.setName("Predicted Recurrence Interval from Apriori Rupture Rates");
-		double origRecurIntv, stdDevRecurIntv, predRecurIntv, finalRecurIntv;
+		ArbitrarilyDiscretizedFunc origEventRateFunc = new ArbitrarilyDiscretizedFunc();
+		origEventRateFunc.setName("Data Event Rate");
+		ArbitrarilyDiscretizedFunc minEventRateFunc = new ArbitrarilyDiscretizedFunc();
+		minEventRateFunc.setName("Min Event Rate");
+		ArbitrarilyDiscretizedFunc maxEventRateFunc = new ArbitrarilyDiscretizedFunc();
+		maxEventRateFunc.setName("Max Event Rate");
+		ArbitrarilyDiscretizedFunc finalEventRateFunc = new ArbitrarilyDiscretizedFunc();
+		finalEventRateFunc.setName("Final (Post-Inversion) Event Rate");
+		ArbitrarilyDiscretizedFunc predEventRateFunc = new ArbitrarilyDiscretizedFunc();
+		predEventRateFunc.setName("Predicted Event Rate from Apriori Rupture Rates");
+		double origEventRate, stdDevEventRate, predEventRate, finalEventRate;
 		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
-			origRecurIntv = faultSegmentData.getRecurInterval(seg);
-			stdDevRecurIntv = faultSegmentData.getRecurIntervalSigma(seg);
-			finalRecurIntv  = segmentedSource.getFinalSegRecurInt(seg);
-			predRecurIntv = 1.0/segmentedSource.getSegRateFromAprioriRates(seg);
-			origRecurIntvFunc.set((double)seg, origRecurIntv);
-			minRecurIntvFunc.set((double)seg, origRecurIntv-2*stdDevRecurIntv);
-			maxRecurIntvFunc.set((double)seg, origRecurIntv+2*stdDevRecurIntv);
-			predRecurIntvFunc.set((double)seg, predRecurIntv);
-			finalRecurIntvFunc.set((double)seg, finalRecurIntv);
+			origEventRate = faultSegmentData.getSegRateMean(seg);
+			stdDevEventRate = faultSegmentData.getSegRateStdDevOfMean(seg);
+			finalEventRate  = segmentedSource.getFinalSegmentRate(seg);
+			predEventRate = segmentedSource.getSegRateFromAprioriRates(seg);
+			origEventRateFunc.set((double)seg+1, origEventRate);
+			minEventRateFunc.set((double)seg+1, origEventRate-2*stdDevEventRate);
+			maxEventRateFunc.set((double)seg+1, origEventRate+2*stdDevEventRate);
+			predEventRateFunc.set((double)seg+1, predEventRate);
+			finalEventRateFunc.set((double)seg+1, finalEventRate);
 		 }
-		this.recurIntvList = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		recurIntvList.add(origRecurIntvFunc);
-		recurIntvList.add(minRecurIntvFunc);
-		recurIntvList.add(maxRecurIntvFunc);
-		recurIntvList.add(predRecurIntvFunc);
-		recurIntvList.add(finalRecurIntvFunc);
+		this.eventRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		eventRatesList.add(origEventRateFunc);
+		eventRatesList.add(minEventRateFunc);
+		eventRatesList.add(maxEventRateFunc);
+		eventRatesList.add(predEventRateFunc);
+		eventRatesList.add(finalEventRateFunc);
 	}
 	
 	
@@ -660,13 +660,13 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 7:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 8:
-				return ""+Math.round(segFaultData.getRecurInterval(rowIndex));
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegRateMean(rowIndex));
 			case 9:
-				return ""+Math.round(segFaultData.getRecurIntervalSigma(rowIndex));
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegRateStdDevOfMean(rowIndex));
 			case 10:
-				return ""+Math.round(1.0/segmentedSource.getSegRateFromAprioriRates(rowIndex));
+				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 11:
-				return ""+Math.round(segmentedSource.getFinalSegRecurInt(rowIndex));
+				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
