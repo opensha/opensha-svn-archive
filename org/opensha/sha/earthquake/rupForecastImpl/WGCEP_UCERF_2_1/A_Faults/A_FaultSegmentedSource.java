@@ -68,10 +68,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	private double magSigma, magTruncLevel;
 	
-	private boolean constrainMRIs;		// constrain segment recurrence intervals (from data)
 	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
-
+	private double relativeSegRate_wt, relativeA_Priori_wt;
+	
+	
 	// slip model:
 	private String slipModelType;
 	public final static String CHAR_SLIP_MODEL = "Characteristic (Dsr=Ds)";
@@ -130,13 +131,25 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * the average mag.  This correction assumes ave mag equals an integer times DELTA_MAG; this latter assumption can
 	 * lead to rate discrepancies of up to ~1.5%
 	 * 
+	 * @param segmentData - 
 	 * @param magAreaRel - any MagAreaRelationship
-	 * @
+	 * @param slipModelType - 
+	 * @param aPrioriRupRates - 
+	 * @param magSigma - 
+	 * @param magTruncLevel - 
+	 * @param moRateReduction - 
+	 * @param meanMagCorrection - 
+	 * @param preserveMinAFaultRate - 
+	 * @param wtedInversion - determines whether data standard deviations are applied as weights
+	 * @param relativeSegRate_wt - the amount to weight all segment rates relative to segment slip rates
+	 * @param relativeA_Priori_wt - the amount to weight the a-priori rates relative to the slip rates
 	 */
+
 	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
 			double magTruncLevel, double moRateReduction, double meanMagCorrection,
-			boolean constrainMRIs, boolean preserveMinAFaultRate, boolean wtedInversion) {
+			boolean preserveMinAFaultRate, boolean wtedInversion, double relativeSegRate_wt,
+			double relativeA_Priori_wt) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
@@ -146,9 +159,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		this.isPoissonian = true;
 		this.meanMagCorrection = meanMagCorrection;
-		this.constrainMRIs = constrainMRIs;
 		this.preserveMinAFaultRate = preserveMinAFaultRate;
 		this.wtedInversion = wtedInversion;
+		this.relativeSegRate_wt = relativeSegRate_wt;
+		this.relativeA_Priori_wt = relativeA_Priori_wt;
 		
 		num_seg = segmentData.getNumSegments();
 		
@@ -205,31 +219,31 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		// get the segment rate constraints
 		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
 		int numRateConstraints = segRateConstraints.size();
+		
 		int totNumRows;
-		if(constrainMRIs)
+		if(relativeSegRate_wt > 0.0)		// check whether any wt given to segment rate data
 			totNumRows = num_seg+num_rup+numRateConstraints;
 		else
 			totNumRows = num_seg+num_rup;
+		
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
-		double wt = 1000;
-		
-		// first fill in the slip-rate constraints with wt
-		// I'm dividing by wt on second set because only this approach converges in Matlab
+//		double wt = 1000;
 		
 		// CREATE THE MODEL AND DATA MATRICES
+		// first fill in the slip-rate constraints
 		for(int row = 0; row < num_seg; row ++) {
-			d[row] = segmentData.getSegmentSlipRate(row)*(1-this.moRateReduction);
+			d[row] = segmentData.getSegmentSlipRate(row)*(1-moRateReduction);
 			for(int col=0; col<num_rup; col++)
 				C[row][col] = segSlipInRup[row][col];
 		}
 		// now fill in the a-priori rates
 		for(int rup=0; rup < num_rup; rup++) {
-			d[rup+num_seg] = aPrioriRupRates[rup].getValue()/wt;
-			C[rup+num_seg][rup]=1.0/wt;
+			d[rup+num_seg] = aPrioriRupRates[rup].getValue();
+			C[rup+num_seg][rup]=1.0;
 		}
 		// now fill in the segment recurrence interval constraints if requested
-		if(constrainMRIs) {
+		if(relativeSegRate_wt > 0.0) {
 			SegRateConstraint constraint;
 			for(int row = 0; row < numRateConstraints; row ++) {
 				constraint = segRateConstraints.get(row);
@@ -250,7 +264,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			
 			double[] Cmin = new double[totNumRows];  // the data vector
 			
-			// Compute min-rate data correction
+			// correct the data vector
 			for(int row=0; row <totNumRows; row++) {
 				for(int col=0; col < num_rup; col++)
 					Cmin[row]+=minRate*C[row][col];
@@ -258,7 +272,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			}
 		}
 
-		// WEIGHT INVERSION IF DESIRED
+		// APPLY DATA WEIGHTS IF DESIRED
 		if(wtedInversion) {
 			double data_wt;
 			for(int row = 0; row < num_seg; row ++) {
@@ -268,7 +282,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					C[row][col] *= data_wt;
 			}
 			// now fill in the segment recurrence interval constraints if requested
-			if(constrainMRIs) {
+			if(relativeSegRate_wt > 0.0) {
 				SegRateConstraint constraint;
 				for(int row = 0; row < numRateConstraints; row ++) {
 					constraint = segRateConstraints.get(row);
@@ -277,6 +291,21 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 					for(int col=0; col<num_rup; col++)
 						C[row+num_seg+num_rup][col] *= data_wt;
 				}
+			}
+		}
+		
+		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
+		// for the a-priori rates:
+		for(int rup=0; rup < num_rup; rup++) {
+			d[rup+num_seg] *= relativeA_Priori_wt;
+			C[rup+num_seg][rup] *= relativeA_Priori_wt;
+		}
+		// for the segment recurrence interval constraints if requested:
+		if(relativeSegRate_wt > 0.0) {
+			for(int row = 0; row < numRateConstraints; row ++) {
+				d[row+num_seg+num_rup] *= relativeSegRate_wt;
+				for(int col=0; col<num_rup; col++)
+					C[row+num_seg+num_rup][col] *= relativeSegRate_wt;
 			}
 		}
 

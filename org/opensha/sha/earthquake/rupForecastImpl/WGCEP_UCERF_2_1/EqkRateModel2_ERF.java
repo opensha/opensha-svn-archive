@@ -194,12 +194,28 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String ASEIS_INTER_PARAM_INFO = "Otherwise it reduces slip rate";
 	private BooleanParameter aseisFactorInterParam; 
 	
-	
+/*	
 	// constrain A-fault segment rates boolean
 	public final static String CONSTRAIN_A_SEG_RATES_PARAM_NAME = "Constrain Segment Rates?";
 	private final static String CONSTRAIN_A_SEG_RATES_PARAM_INFO = "Constrain A-fault segments rates (add equations to inversion)";
 	private BooleanParameter constrainA_SegRatesParam; 
-	
+*/
+	// relative a-priori weights
+	private final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
+	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(Double.MIN_VALUE);
+	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
+	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(0.001);
+	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
+	private DoubleParameter relativeA_PrioriWeightParam; 
+
+	// relative segment rate weights
+	private final static String REL_SEG_RATE_WT_PARAM_NAME = "Wt On Segment Rates";
+	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0.0);
+	private final static Double REL_SEG_RATE_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
+	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(1.0);
+	private final static String REL_SEG_RATE_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
+	private DoubleParameter relativeSegRateWeightParam; 
+
 	// connect more B-Faults boolean
 	public final static String CONNECT_B_FAULTS_PARAM_NAME = "Connect More B Faults?";
 	private final static String CONNECT_B_FAULTS_PARAM_INFO = "Connect nearby B-Faults";
@@ -410,9 +426,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aseisFactorInterParam = new BooleanParameter(ASEIS_INTER_PARAM_NAME, new Boolean(true));
 		aseisFactorInterParam.setInfo(ASEIS_INTER_PARAM_INFO);
 		
+		// relativeA_PrioriWeightParam
+		relativeA_PrioriWeightParam = new DoubleParameter(REL_A_PRIORI_WT_PARAM_NAME, REL_A_PRIORI_WT_PARAM_MIN,
+				REL_A_PRIORI_WT_PARAM_MAX, REL_A_PRIORI_WT_PARAM_DEFAULT);
+		relativeA_PrioriWeightParam.setInfo(REL_A_PRIORI_WT_PARAM_INFO);
+		
+		//
+		relativeSegRateWeightParam = new DoubleParameter(REL_SEG_RATE_WT_PARAM_NAME, REL_SEG_RATE_WT_PARAM_MIN,
+				REL_SEG_RATE_WT_PARAM_MAX, REL_SEG_RATE_WT_PARAM_DEFAULT);
+		relativeSegRateWeightParam.setInfo(REL_SEG_RATE_WT_PARAM_INFO);
+/*		
 		// constrainA_SegRatesParam
 		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
 		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
+*/
+		
 		
 		// preserveMinAFaultRateParam
 		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME);
@@ -468,7 +496,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// A-fault slip type
 		slipModelParam = new StringParameter(SLIP_MODEL_TYPE_NAME, 
 				A_FaultSegmentedSource.getSupportedSlipModels(), 
-				A_FaultSegmentedSource.WG02_SLIP_MODEL);
+				A_FaultSegmentedSource.TAPERED_SLIP_MODEL);
 		slipModelParam.setInfo(SLIP_MODEL_TYPE_INFO);
 		
 		// mag Sigma Param
@@ -535,7 +563,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String rupModel = (String)rupModelParam.getValue();
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(segmentedRupModelParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(slipModelParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(constrainA_SegRatesParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(relativeA_PrioriWeightParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(relativeSegRateWeightParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(weightedInversionParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(preserveMinAFaultRateParam);
 		adjustableParams.addParameter(magAreaRelParam);
@@ -954,7 +983,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	private void mkA_FaultSegmentedSources() {
-		boolean constrainA_SegRates = ((Boolean)constrainA_SegRatesParam.getValue()).booleanValue();
+		double relativeA_PrioriWeight = ((Double)relativeA_PrioriWeightParam.getValue()).doubleValue();
+		double relativeSegRateWeight = ((Double)relativeSegRateWeightParam.getValue()).doubleValue();
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		ParameterList rupModels = (ParameterList) this.segmentedRupModelParam.getValue();
@@ -973,8 +1003,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
 			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
-					magTruncLevel, totMoRateReduction, meanMagCorrection, constrainA_SegRates,
-					preserveMinAFaultRate, wtedInversion);
+					magTruncLevel, totMoRateReduction, meanMagCorrection,preserveMinAFaultRate, 
+					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
 			aFaultSources.add(aFaultSource);
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());

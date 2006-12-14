@@ -18,7 +18,7 @@ public class TaperedGR_MagFreqDist
   public static String NAME = new String("Tapered GR Dist"); // for showing messages
 
   //for Debug purposes
-  private boolean D = true;
+  private boolean D = false;
 
   private double magLower; // lowest magnitude that has non zero rate
   private double magCorner; // the taper magnitude
@@ -149,13 +149,13 @@ public class TaperedGR_MagFreqDist
 	  double deltaMag = 1;
 	  double magStart = magLower;
 	  for(int loop=0; loop<5; loop++) {
-		  System.out.println("loop #"+loop);
+//		  System.out.println("loop #"+loop);
 		  for(double mag=magStart; mag <= maxX+deltaMag; mag+= deltaMag) {
-			  System.out.println("mag = "+mag);
+//			  System.out.println("mag = "+mag);
 			  setAllButTotMoRate(magLower, mag, totCumRate, bValue);
-			  System.out.println("    totMoRate = "+getTotalMomentRate());
+//			  System.out.println("    totMoRate = "+getTotalMomentRate());
 			  if(getTotalMomentRate() > totMoRate) {
-				  System.out.println("got in if statement");
+//				  System.out.println("got in if statement");
 				  magStart = mag-deltaMag;
 				  if(magStart < magLower)
 					  throw new RuntimeException(this.NAME+": Error - could not find corner magnitude that satisfies the moment rate (magLower too high?).");
