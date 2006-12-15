@@ -43,6 +43,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
 	private JButton aveSlipDataButton= new JButton("Show Ave Slip Data");
 	private JButton rupRatesButton= new JButton("Plot A-Priori and final rates");
+	private JButton rupRatesRatioButton = new JButton("Plot Final vs A-Priori Rates Ratio");
 	
 	private A_FaultSegmentedSource source;
 	
@@ -113,12 +114,15 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(rupRatesButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		aveSlipDataButton.setToolTipText("Show Average Slip for each segment for each rupture");
 		mfdButton.addActionListener(this);
 		magAreaPlotButton.addActionListener(this);
 		magAreaPlotButton2.addActionListener(this);
 		aveSlipDataButton.addActionListener(this);
 		rupRatesButton.addActionListener(this);
+		rupRatesRatioButton.addActionListener(this);
 	}
 	
 	/**
@@ -363,6 +367,22 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFuncList.add(finalRupRatesFunc);
 			GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(plottingFuncList));
 			graphWindow.setPlotLabel("Rupture Rates");
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
+			graphWindow.pack();
+			graphWindow.setVisible(true);
+		} else if(eventSource == this.rupRatesRatioButton) {
+			// ratio of final rupture rates to A-Priori rupture rates
+			ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+			ArbitrarilyDiscretizedFunc ratioFunc = new ArbitrarilyDiscretizedFunc();
+			ratioFunc.setName("Ratio of Final Ruptures Rates to A-Priori Rupture Rates");
+			int numRups = source.getNumRuptures();
+			for(int i=0; i<numRups; ++i) {
+				ratioFunc.set((double)i+1, source.getRupRate(i)/source.getAPrioriRupRate(i));
+			}
+			plottingFuncList.add(ratioFunc);
+			GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(plottingFuncList));
+			graphWindow.setPlotLabel("Ratio of Final vs A-Priori Rupture Rates");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
 			graphWindow.pack();
