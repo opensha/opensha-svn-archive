@@ -1280,7 +1280,7 @@ public class HazardCurveServerModeApplication extends JFrame
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.setNumSourcestoShow(numSourcesForDisag);
-        disaggCalc.setMaxZAxisForPlot(maxZAxis);
+        
       }
       catch (Exception e) {
         setButtonsEnable(true);
@@ -1331,6 +1331,7 @@ public class HazardCurveServerModeApplication extends JFrame
         }
         disaggSuccessFlag = disaggCalc.disaggregate(Math.log(
             imlVal), site, imr, (EqkRupForecast) forecast);
+        disaggCalc.setMaxZAxisForPlot(maxZAxis);
         disaggregationString = disaggCalc.getMeanAndModeInfo();
       }
       catch (Exception e) {
