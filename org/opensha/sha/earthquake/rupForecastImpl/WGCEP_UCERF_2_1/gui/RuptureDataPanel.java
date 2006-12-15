@@ -334,7 +334,6 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		    graphWindow.setPlotLabel("Mag Area Plot");
 		    graphWindow.plotGraphUsingPlotPreferences();
 		    graphWindow.setLocationRelativeTo(this);
-		    //graphWindow.pack();
 		    graphWindow.setVisible(true);;
 		}else if(eventSource == this.magAreaPlotButton2) {
 			this.setColorCodingbyFaultNames();
@@ -342,7 +341,6 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		    graphWindow.setPlotLabel("Mag Area Plot");
 		    graphWindow.plotGraphUsingPlotPreferences();
 		    graphWindow.setLocationRelativeTo(this);
-		    //graphWindow.pack();
 		    graphWindow.setVisible(true);;
 		} else if (eventSource == this.aveSlipDataButton) {
 			RupAveSlipTableModel tableModel = new RupAveSlipTableModel(this.source.getSegSlipInRupMatrix());
@@ -369,7 +367,6 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			graphWindow.setPlotLabel("Rupture Rates");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
-			graphWindow.pack();
 			graphWindow.setVisible(true);
 		} else if(eventSource == this.rupRatesRatioButton) {
 			// ratio of final rupture rates to A-Priori rupture rates
@@ -385,7 +382,6 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			graphWindow.setPlotLabel("Ratio of Final vs A-Priori Rupture Rates");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
-			graphWindow.pack();
 			graphWindow.setVisible(true);
 		}
 	}
