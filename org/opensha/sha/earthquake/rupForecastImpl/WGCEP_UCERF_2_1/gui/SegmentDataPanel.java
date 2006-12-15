@@ -53,10 +53,11 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private JTextArea magAreasTextArea = new JTextArea();
 	private JButton slipRateButton = new JButton("Plot Segment Slip Rates");
 	private JButton eventRateButton = new JButton("Plot Segment Event Rates");
+	private JButton eventRateRatioButton = new JButton("Plot Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
-	private ArrayList<ArbitrarilyDiscretizedFunc>slipRatesList;
-	private ArrayList<ArbitrarilyDiscretizedFunc>eventRatesList;
+	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList;
+	
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(255,0,0), 10); // RED Cross symbols
 	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -66,14 +67,16 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 10); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
+	private boolean yLog = true ;
 	
 	public SegmentDataPanel() {
 		setLayout(new GridBagLayout());
 		createGUI();
 		slipRateButton.addActionListener(this);
 		eventRateButton.addActionListener(this);
+		eventRateRatioButton.addActionListener(this);
 		this.makePlottingFeaturesList();
 	}
 	
@@ -87,13 +90,16 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
 		slipRatePlottingFeatures.add(this.PLOT_CHAR3);
-		// recur Intv Plotting features
+		// event rates Plotting features
 		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR2);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR3);
+		// ratio of event rates plotting features
+		eventRateRatioPlotFeatures = new ArrayList<PlotCurveCharacterstics>();
+		eventRateRatioPlotFeatures.add(PLOT_CHAR1);
 	}
 	
 	private void createGUI() {
@@ -118,6 +124,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(this.eventRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(this.eventRateRatioButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		
 	}
 	
 	
@@ -172,6 +181,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			this.slipRateButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, faultSegmentData);
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
+			generateEventRateRatioFuncList(segmentedSource, faultSegmentData);
 		}
 		
 	}
@@ -188,17 +198,25 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFeatures = slipRatePlottingFeatures;
 			// plotting Func List
 			plottingFuncList = this.slipRatesList;
-		} else {
+			yLog = true;
+		} else if(src==this.eventRateButton){
 			xAxisLabel = "Segment Index";
 			yAxisLabel = "Event Rates (1/years)";
 			// plotting features
 			plottingFeatures = this.eventRatesPlottingFeatures;
 			plottingFuncList = this.eventRatesList;
+			yLog = true;
+		} else if(src == this.eventRateRatioButton) {
+			xAxisLabel = "Segment Index";
+			yAxisLabel = " Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma";
+			// plotting features
+			plottingFeatures = this.eventRateRatioPlotFeatures;
+			plottingFuncList = this.eventRatesRatioList;
+			yLog = false;
 		}
 		GraphWindow graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(yAxisLabel);
 		graphWindow.plotGraphUsingPlotPreferences();
-		graphWindow.pack();
 		graphWindow.setVisible(true);
 	}
 	
@@ -252,7 +270,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	}
 	
 	/**
-	 * Generate function list for recurrence intervals
+	 * Generate function list for event rates
 	 * 
 	 * @param segmentedSource
 	 */
@@ -286,6 +304,24 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		eventRatesList.add(maxEventRateFunc);
 		eventRatesList.add(predEventRateFunc);
 		eventRatesList.add(finalEventRateFunc);
+	}
+	
+	/**
+	 * Generate function list for recurrence intervals
+	 * 
+	 * @param segmentedSource
+	 */
+	private void generateEventRateRatioFuncList(A_FaultSegmentedSource segmentedSource, 
+			FaultSegmentData faultSegmentData) {
+		ArbitrarilyDiscretizedFunc eventRateRatioFunc = new ArbitrarilyDiscretizedFunc();
+		eventRateRatioFunc.setName("Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
+		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
+			if(Double.isNaN(faultSegmentData.getSegRateMean(seg))) continue;
+			double normResid = (segmentedSource.getFinalSegmentRate(seg)-faultSegmentData.getSegRateMean(seg))/faultSegmentData.getSegRateStdDevOfMean(seg);
+			eventRateRatioFunc.set((double)seg+1, normResid);
+		 }
+		this.eventRatesRatioList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		eventRatesRatioList.add(eventRateRatioFunc);
 	}
 	
 	
@@ -377,7 +413,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return true;	
+		return yLog;	
 		
 	}
 
