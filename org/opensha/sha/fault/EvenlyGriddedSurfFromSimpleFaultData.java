@@ -119,12 +119,13 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     		}
     		double length = faultTrace.getTraceLength();
     		double dip = simpleFaultData[i].getAveDip();
-    		double area = length*(simpleFaultData[i].getLowerSeismogenicDepth()-simpleFaultData[i].getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180);
+    		double area = Math.abs(length*(simpleFaultData[i].getLowerSeismogenicDepth()-simpleFaultData[i].getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
     		totLength+=length;
     		totArea+=area;
     		combinedUpperSeisDepth+=(area*simpleFaultData[i].getUpperSeismogenicDepth());
     		combinedDip+=(area*dip);
     		int numLocations = faultTrace.getNumLocations();
+    		//System.out.println(i+":"+dip+","+area+","+combinedDip);
     		// add the fault Trace locations to combined trace
     		for(int locIndex=0; locIndex<numLocations; ++locIndex) combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
     			
@@ -136,7 +137,7 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     	}
     	upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
     	this.aveDip = combinedDip/totArea;
-    	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(combinedDip*Math.PI/180)+combinedUpperSeisDepth;
+    	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(aveDip*Math.PI/180)+upperSeismogenicDepth;
     	this.faultTrace = combinedFaultTrace;
     	this.gridSpacing = gridSpacing;
     }
