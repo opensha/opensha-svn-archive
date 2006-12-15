@@ -156,7 +156,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
-	public final static Double TOT_MAG_RATE_DEFAULT = new Double(6.69);
+	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.22);
 	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.22 for no aftershocks, or 6.69 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
@@ -308,7 +308,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
 	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.18);
+	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.14);
 	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
 	private DoubleParameter moRateFracToBackgroundParam;
 	
@@ -444,15 +444,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		
 		// preserveMinAFaultRateParam
-		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME);
+		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME, true);
 		preserveMinAFaultRateParam.setInfo(PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO);
 		
 		// weightedInversionParam
-		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_NAME);
+		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_NAME, true);
 		weightedInversionParam.setInfo(WEIGHTED_INVERSION_PARAM_INFO);
 		
 		// connect more B Faults
-		connectMoreB_FaultsParam = new BooleanParameter(CONNECT_B_FAULTS_PARAM_NAME);
+		connectMoreB_FaultsParam = new BooleanParameter(CONNECT_B_FAULTS_PARAM_NAME, true);
 		connectMoreB_FaultsParam.setInfo(CONNECT_B_FAULTS_PARAM_INFO);
 		
 		//		 make objects of Mag Area Relationships
