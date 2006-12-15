@@ -52,11 +52,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private JTextArea magAreasTextArea = new JTextArea();
 	private JButton slipRateButton = new JButton("Plot Segment Slip Rates");
+	private JButton slipRateRatioButton = new JButton("Plot Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
 	private JButton eventRateButton = new JButton("Plot Segment Event Rates");
 	private JButton eventRateRatioButton = new JButton("Plot Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
-	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList;
+	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
 	
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(255,0,0), 10); // RED Cross symbols
@@ -67,7 +68,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 10); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	private boolean yLog = true ;
 	
@@ -77,6 +78,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRateButton.addActionListener(this);
 		eventRateButton.addActionListener(this);
 		eventRateRatioButton.addActionListener(this);
+		slipRateRatioButton.addActionListener(this);
 		this.makePlottingFeaturesList();
 	}
 	
@@ -97,9 +99,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR2);
 		eventRatesPlottingFeatures.add(this.PLOT_CHAR3);
-		// ratio of event rates plotting features
+		// normalized event rates residuals
 		eventRateRatioPlotFeatures = new ArrayList<PlotCurveCharacterstics>();
 		eventRateRatioPlotFeatures.add(PLOT_CHAR1);
+		// normalized slip rate residuals
+		slipRateRatioPlotFeatures = new ArrayList<PlotCurveCharacterstics>();
+		slipRateRatioPlotFeatures.add(PLOT_CHAR1);
 	}
 	
 	private void createGUI() {
@@ -122,11 +127,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(slipRateButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(this.eventRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		add(this.slipRateRatioButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(this.eventRateRatioButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+		add(this.eventRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		
+		add(this.eventRateRatioButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 	}
 	
 	
@@ -180,6 +186,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, faultSegmentData);
+			generateSlipRateRatioFuncList(segmentedSource, faultSegmentData);
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
 			generateEventRateRatioFuncList(segmentedSource, faultSegmentData);
 		}
@@ -213,6 +220,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			plottingFeatures = this.eventRateRatioPlotFeatures;
 			plottingFuncList = this.eventRatesRatioList;
 			yLog = false;
+		} else if(src == this.slipRateRatioButton) {
+			xAxisLabel = "Segment Index";
+			yAxisLabel = " Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma";
+			// plotting features
+			plottingFeatures = this.slipRateRatioPlotFeatures;
+			plottingFuncList = this.slipRatesRatioList;
+			yLog = false;
 		}
 		GraphWindow graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(yAxisLabel);
@@ -220,6 +234,26 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		graphWindow.setVisible(true);
 	}
 	
+	
+	/**
+	 * Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma
+	 * 
+	 * @param segmentedSource
+	 */
+	private void generateSlipRateRatioFuncList(A_FaultSegmentedSource segmentedSource, 
+			FaultSegmentData faultSegmentData) {
+		ArbitrarilyDiscretizedFunc slipRateRatioFunc = new ArbitrarilyDiscretizedFunc();
+		slipRateRatioFunc.setName("Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
+		double reduction;
+		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
+			reduction = 1-segmentedSource.getMoRateReduction();
+			double normResid = segmentedSource.getFinalSegSlipRate(seg)-faultSegmentData.getSegmentSlipRate(seg)*reduction;
+			normResid /= (faultSegmentData.getSegSlipRateStdDev(seg)*reduction);
+			slipRateRatioFunc.set((double)seg+1, normResid);
+		 }
+		this.slipRatesRatioList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		slipRatesRatioList.add(slipRateRatioFunc);
+	}
 	
 	/**
 	 * Generate function list for slip rates
