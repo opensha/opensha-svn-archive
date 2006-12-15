@@ -67,7 +67,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		//      Color.RED, 5);
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		//      Color.RED, 5);
-
+ 	private boolean yLog = false;
 	
 	public CreatePlotFromMagRateFile(ArrayList funcList) {
 		funcs = funcList;
@@ -87,11 +87,15 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		return false;
 	}
 
+	public void setYLog(boolean yLog) {
+		this.yLog = yLog;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return false;
+		return yLog;
 	}
 
 	/* (non-Javadoc)

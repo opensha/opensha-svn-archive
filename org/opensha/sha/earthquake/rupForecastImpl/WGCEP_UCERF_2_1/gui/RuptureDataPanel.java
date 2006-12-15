@@ -378,7 +378,9 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 				ratioFunc.set((double)i+1, source.getRupRate(i)/source.getAPrioriRupRate(i));
 			}
 			plottingFuncList.add(ratioFunc);
-			GraphWindow graphWindow= new GraphWindow(new CreatePlotFromMagRateFile(plottingFuncList));
+			CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(plottingFuncList);
+			plot.setYLog(true);
+			GraphWindow graphWindow= new GraphWindow(plot);
 			graphWindow.setPlotLabel("Ratio of Final vs A-Priori Rupture Rates");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
