@@ -1366,6 +1366,24 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		return normResids;
 	}
+	
+	/**
+	 * This returns the generalizeded prediction error as defined on page 54 of Menke's
+	 * 1984 Book "Geophysical Data Analysis: Discrete Inverse Theory".
+	 * Note that this assumes the wieghts on the a-prior models are effectively zero.
+	 * @return
+	 */
+	public double getGeneralizedPredictionError() {
+		double totError=0;
+		double[] errors = getNormModSlipRateResids();
+		for(int i=0;i<errors.length;i++)
+			totError += errors[i]*errors[i];
+		errors = getNormDataER_Resids();
+		for(int i=0;i<errors.length;i++)
+			totError += errors[i]*errors[i];
+		
+		return totError;
+	}
 
 }
 
