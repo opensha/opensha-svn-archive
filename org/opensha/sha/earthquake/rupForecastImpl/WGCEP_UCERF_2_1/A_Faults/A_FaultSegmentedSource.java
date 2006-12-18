@@ -1380,7 +1380,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			totError += errors[i]*errors[i];
 		errors = getNormDataER_Resids();
 		for(int i=0;i<errors.length;i++)
-			totError += errors[i]*errors[i];
+			if(!Double.isNaN(errors[i])) totError += errors[i]*errors[i];
 		
 		return totError;
 	}

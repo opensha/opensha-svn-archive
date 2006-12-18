@@ -172,7 +172,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 */
 	private void updateSegTableModel(boolean isAseisReducesArea, ArrayList magAreaRelationships, FaultSegmentData faultSegmentData, 
 			A_FaultSegmentedSource segmentedSource) {
-		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships);
+		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships, segmentedSource);
 		segmentTableModel.setSegmentedFaultData(faultSegmentData,  segmentedSource);
 		segmentTableModel.fireTableDataChanged();
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
@@ -360,7 +360,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param isAseisReducesArea
 	 * @param magAreaRelationships
 	 */
-	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea, ArrayList magAreaRelationships ) {
+	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea, ArrayList magAreaRelationships, A_FaultSegmentedSource segmentedSource ) {
 		magAreasTextArea.setText("");
 		if(segmetedFaultData==null) return ;
 		int numSegs = segmetedFaultData.getNumSegments();
@@ -380,7 +380,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;
 		if(isAseisReducesArea) text = MSG_ASEIS_REDUCES_AREA;
-		magAreasTextArea.setText(getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
+		String predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n\n";
+		magAreasTextArea.setText(predError+getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
 	}
 	
@@ -406,7 +407,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	
 	
 	private String getLegend() {
-		String legend = "Orig SR \t- segment slip rate (mm/yr)\n";
+		String legend = "Legend:";
+		legend+="-------";
+		legend+="Orig SR \t- segment slip rate (mm/yr)\n";
 		legend += "\t (possibly reduced by aseis factor, but not by fract ABC removed)\n";
 		legend += "SR Sigma\t- standard deviation of Orig SR\n";
 		legend += "Final SR\t- Post-inversion segment slip rate\n";

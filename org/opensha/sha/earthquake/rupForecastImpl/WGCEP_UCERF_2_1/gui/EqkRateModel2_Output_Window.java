@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -103,8 +104,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	
 	
 	private void createGUI() {
+		JPanel aFaultSummaryPanel = getA_FaultSummaryGUI();
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
-		tabbedPane.addTab("A Fault Summary", getA_FaultSummaryGUI());
+		tabbedPane.addTab("A Fault Summary", aFaultSummaryPanel);
 		tabbedPane.addTab("B Fault Summary", getB_FaultSummaryGUI());
 		tabbedPane.addTab("C Zones Summary", getC_ZonesSummaryGUI());
 		Container container = this.getContentPane();
@@ -131,10 +133,21 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
 		boolean includeAfterShocks = this.areAfterShocksIncluded();
 		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.eqkRateModelERF.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
-		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n\n");
+		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n");
+		
+		// Display the general prediction error in case of Segmented A-Faults
+		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
+			double aFaultGenPredErr = 0;
+			Iterator it = aFaultSourceMap.values().iterator();
+			while(it.hasNext()) {
+				A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+				aFaultGenPredErr += source.getGeneralizedPredictionError();
+			}
+			textArea.append("Total A-Fault Gen Pred Error = "+(float)aFaultGenPredErr+"\n\n");
+		}
+		
+		
 		textArea.append("\tRate (M>=5)\tRate (M>=6.5)\tMoment Rate\n");
-		
-		
 		textArea.append("------------------------------------------------\n");
 		textArea.append("A Faults\t"+(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalIncrRate()+"\t"+
 				(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getCumRate(6.5)+"\t"+
