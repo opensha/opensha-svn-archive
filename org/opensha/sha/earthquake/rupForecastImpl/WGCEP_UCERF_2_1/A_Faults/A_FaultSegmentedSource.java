@@ -1334,5 +1334,38 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			System.out.println((float)(1.0/(newSegRate[seg]*segmentData.getRecurInterval(seg)))+"   "+(float)(1.0/segmentData.getRecurInterval(seg))+"   "+(float)newSegRate[seg]);
 		}
 	}
+	
+	/**
+	 * Compute Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)
+	 *
+	 */
+	public double[] getNormModSlipRateResids() {
+		int numSegments = this.getFaultSegmentData().getNumSegments();
+		double[] normResids = new double[numSegments];
+		// iterate over all segments
+		double reduction = 1-this.getMoRateReduction();
+		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+			normResids[segIndex] = this.getFinalSegSlipRate(segIndex)-this.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
+			normResids[segIndex] /= (this.getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
+		}
+
+	return normResids;
+	}
+	
+
+	/**
+	 * Compute Normalized Event-Rate Residuals
+	 *
+	 */
+	public double[] getNormDataER_Resids() {
+		int numSegments = this.getFaultSegmentData().getNumSegments();
+		double[] normResids = new double[numSegments];
+		// iterate over all segments
+		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+			normResids[segIndex] = (this.getFinalSegmentRate(segIndex)-this.getFaultSegmentData().getSegRateMean(segIndex))/this.getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
+		}
+		return normResids;
+	}
+
 }
 
