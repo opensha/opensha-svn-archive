@@ -71,7 +71,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		//      Color.RED, 5);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
-	private JButton origSlipRateButton = new JButton("Remove this Option !!!!!");
 	private JButton modSlipRateButton = new JButton("Plot Histogram of Normalized Slip-Rate Residuals ((Final_SR-Orig_SR)/SR_Sigma)");
 	private JButton dataERButton = new JButton("Plot Histogram of Normalized Segment Event-Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private JButton predERButton = new JButton("Plot the ratio of Final to Pred Segment Event Rate");
@@ -161,19 +160,16 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(plotMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(origSlipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+		panel.add(predERButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(predERButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+		panel.add(dataERButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(dataERButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
-	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
+		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		textArea.setEditable(false);
 		plotMFDsButton.addActionListener(this);
-		this.origSlipRateButton.addActionListener(this);
 		this.modSlipRateButton.addActionListener(this);
 		this.predERButton.addActionListener(this);
 		this.dataERButton.addActionListener(this);
@@ -195,13 +191,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
 		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) {
 			this.isUnsegmented = true;
-			this.origSlipRateButton.setVisible(false);
 			this.predERButton.setVisible(false);
 			this.dataERButton.setVisible(false);
 		}
 		else {
 			this.isUnsegmented = false;
-			this.origSlipRateButton.setVisible(true);
 			this.predERButton.setVisible(true);
 			this.dataERButton.setVisible(true);
 		}
@@ -316,9 +310,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			graphWindow.setVisible(true);
 		} else if(src == this.modSlipRateButton) { // ratio of modified slip rates
 			plotNormModSlipRateResids();
-		}
-		else if(src == this.origSlipRateButton) { // ratio of original slip rates
-			plotOrigSlipRatesRatio();
 		}else if(src == this.dataERButton) { // ratio of final Event rate and data Event rate
 			plotNormDataER_Resids();
 		}else if(src == this.predERButton) { // ratio of final event rate and pred Event rate
@@ -349,45 +340,20 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		showHistograms(ratioList, plotLabel, "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
 	}
 	
-	/**
-	 * Plot the ratio of final to original (non-reduced) slip rates - THIS IS NO LONGER USED,
-	 * AND SHOULD BE MODIFIED TO PLOT RESIDUALS LIKE THE REDUCED CASE BELOW IF WE WANT THIS)
-	 *
-	 */
-	private void plotOrigSlipRatesRatio() {
-		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		ArrayList<Double> ratioList = new ArrayList<Double>();
-		// iterate over all sources
-		for(int i=0; i<sourceList.size(); ++i) {
-			A_FaultSegmentedSource source = sourceList.get(i);
-			int numSegments = source.getFaultSegmentData().getNumSegments();
-			// iterate over all segments
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
-				ratioList.add(source.getFinalSegSlipRate(segIndex)/source.getFaultSegmentData().getSegmentSlipRate(segIndex));
-		}
-		String plotLabel = "Original Slip Rates Ratio";
-		showHistograms(ratioList, plotLabel, "Ratio of final Slip Rates to Original Slip Rates");
-	}
+
 	
 	/**
 	 * Plot Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)
 	 *
 	 */
 	private void plotNormModSlipRateResids() {
-		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		double  reduction;
+		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
 		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
-			int numSegments = source.getFaultSegmentData().getNumSegments();
-			// iterate over all segments
-			reduction = 1-source.getMoRateReduction();
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				double normResid = source.getFinalSegSlipRate(segIndex)-source.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
-				normResid /= (source.getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
-				ratioList.add(normResid);
-			}
+			double normModResids[] = source.getNormModSlipRateResids();
+			for(int segIndex = 0; segIndex<normModResids.length; ++segIndex) ratioList.add(new Double(normModResids[segIndex]));
 		}
 		String plotLabel = "Normalized Segment Slip-Rate Residuals\n((Final_SR-Orig_SR)/SR_Sigma)";
 		showHistograms(ratioList, plotLabel, "Normalized Segment Slip-Rate Residuals");
@@ -398,18 +364,14 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 *
 	 */
 	private void plotNormDataER_Resids() {
-		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
 		ArrayList<Double> ratioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
-			int numSegments = source.getFaultSegmentData().getNumSegments();
-			// iterate over all segments
-			for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-				if(Double.isNaN(source.getFaultSegmentData().getSegRateMean(segIndex))) continue;
-				double normResid = (source.getFinalSegmentRate(segIndex)-source.getFaultSegmentData().getSegRateMean(segIndex))/source.getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
-				ratioList.add(normResid);
-				}
+			double normDataER_Resids[] = source.getNormDataER_Resids();
+			for(int segIndex = 0; segIndex<normDataER_Resids.length; ++segIndex) 
+				if(!Double.isNaN(normDataER_Resids[segIndex])) ratioList.add(new Double(normDataER_Resids[segIndex]));
 		}
 		String plotLabel = "Normalized Segment Event-Rate Residuals\n((Final_ER-Data_ER)/ER_Sigma)";
 		showHistograms(ratioList, plotLabel, "Normalized Segment Event-Rate Residuals");

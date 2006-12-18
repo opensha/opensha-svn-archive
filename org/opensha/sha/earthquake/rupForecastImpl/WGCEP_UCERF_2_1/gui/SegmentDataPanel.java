@@ -186,9 +186,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, faultSegmentData);
-			generateSlipRateRatioFuncList(segmentedSource, faultSegmentData);
+			generateSlipRateRatioFuncList(segmentedSource);
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
-			generateEventRateRatioFuncList(segmentedSource, faultSegmentData);
+			generateEventRateRatioFuncList(segmentedSource);
 		}
 		
 	}
@@ -240,16 +240,12 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateSlipRateRatioFuncList(A_FaultSegmentedSource segmentedSource, 
-			FaultSegmentData faultSegmentData) {
+	private void generateSlipRateRatioFuncList(A_FaultSegmentedSource segmentedSource) {
 		ArbitrarilyDiscretizedFunc slipRateRatioFunc = new ArbitrarilyDiscretizedFunc();
 		slipRateRatioFunc.setName("Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
-		double reduction;
-		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
-			reduction = 1-segmentedSource.getMoRateReduction();
-			double normResid = segmentedSource.getFinalSegSlipRate(seg)-faultSegmentData.getSegmentSlipRate(seg)*reduction;
-			normResid /= (faultSegmentData.getSegSlipRateStdDev(seg)*reduction);
-			slipRateRatioFunc.set((double)seg+1, normResid);
+		double normModResids[] = segmentedSource.getNormModSlipRateResids();
+		for(int seg=0; seg<normModResids.length; ++seg) {
+			slipRateRatioFunc.set((double)seg+1, normModResids[seg]);
 		 }
 		this.slipRatesRatioList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		slipRatesRatioList.add(slipRateRatioFunc);
@@ -345,14 +341,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateEventRateRatioFuncList(A_FaultSegmentedSource segmentedSource, 
-			FaultSegmentData faultSegmentData) {
+	private void generateEventRateRatioFuncList(A_FaultSegmentedSource segmentedSource) {
 		ArbitrarilyDiscretizedFunc eventRateRatioFunc = new ArbitrarilyDiscretizedFunc();
 		eventRateRatioFunc.setName("Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
-		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
-			if(Double.isNaN(faultSegmentData.getSegRateMean(seg))) continue;
-			double normResid = (segmentedSource.getFinalSegmentRate(seg)-faultSegmentData.getSegRateMean(seg))/faultSegmentData.getSegRateStdDevOfMean(seg);
-			eventRateRatioFunc.set((double)seg+1, normResid);
+		double normResids[] = segmentedSource.getNormDataER_Resids();
+		for(int seg=0; seg<normResids.length; ++seg) {
+			if(Double.isNaN(normResids[seg])) continue;
+			eventRateRatioFunc.set((double)seg+1, normResids[seg]);
 		 }
 		this.eventRatesRatioList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		eventRatesRatioList.add(eventRateRatioFunc);
