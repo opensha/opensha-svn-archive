@@ -1338,8 +1338,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
 			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 					getSelectedDeformationModelSummary(), aFaultsFetcher);
+			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
 			updateFetchersBasedonDefModels();
+			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 		} 
 	}
 
@@ -1351,7 +1353,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary());
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
-		//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 	}
 	
 	
@@ -1811,6 +1812,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			wb.createSheet();
 			//currRow[i]=0;
 		}
+		HSSFSheet genPredErrSheet = wb.createSheet(); // Sheet for displaying the General Prediction error
+		wb.setSheetName(wb.getNumberOfSheets()-1, "Gen. Pred. Err");
 		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		int currRow[] = new int[numA_Faults];
 		for(int irup=0; irup<3;irup++) {
@@ -1832,7 +1835,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						mkA_FaultSegmentedSources();
-						
+						generateGenPredErrorSheet( genPredErrSheet,imag, islip,irup, cellStyle);
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
 							// do for each fault
@@ -1945,7 +1948,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					}
 			}
 			// 
-			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+			for(int i=0; i<(wb.getNumberOfSheets()-1); ++i) {
 				HSSFSheet sheet = wb.getSheetAt(i);
 				sheet.createRow((short)currRow[i]++);
 				sheet.createRow((short)currRow[i]++);
@@ -1959,6 +1962,97 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Generate the excel sheet to save the general prediction error
+	 * @param sheet
+	 */
+	private void generateGenPredErrorSheet(HSSFSheet sheet, int imag, int islip, int irup, HSSFCellStyle cellStyle) {
+		
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
+		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
+		//Create Excel Workbook and sheets if they do not exist already
+		
+		
+		//currRow = new int[aFaultSources.size()];
+		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+		// Write header for each Rup Solution Types
+		int currRow  = irup*(numA_Faults+6);
+		
+		int faultNamesStartRow = currRow+3;
+		
+		if(imag==0 && islip==0) { // Write the headers and fault names for the first time	
+			HSSFRow row = sheet.createRow((short)currRow++);
+			// Write Rup solution Type
+			HSSFCell cell = row.createCell((short)0);
+			cell.setCellValue(models[irup]);
+			cell.setCellStyle(cellStyle);
+			row = sheet.createRow((short)currRow++);
+			int col=2;
+			// Write All Mag Areas in appropriate columns
+			for(int j=0; j<magAreaOptions.size(); ++j, col+=(slipModelOptions.size()-1)/* Not to be done for Char */) {
+				cell = row.createCell((short)col);
+				cell.setCellValue((String)magAreaOptions.get(j));
+				cell.setCellStyle(cellStyle);
+			}
+			// write the headers
+			row = sheet.createRow((short)currRow++);
+			col=0;
+			cell = row.createCell((short)col++);
+			cell.setCellValue("Fault Name");
+			cell.setCellStyle(cellStyle);
+			cell = row.createCell((short)col++);
+			cell.setCellValue("Characteristic");
+			cell.setCellStyle(cellStyle);
+			for(int j=0; j<magAreaOptions.size(); ++j) {
+				for(int k=0; k<slipModelOptions.size(); ++k) {
+					String slipModel = (String)slipModelOptions.get(k);
+					if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+						cell = row.createCell((short)col++);
+						cell.setCellValue((String)slipModelOptions.get(k));
+						cell.setCellStyle(cellStyle);
+					}
+				}
+			}	
+			
+			// write Source Names
+			for(int iSource=0; iSource<aFaultSources.size(); ++iSource) {
+				row = sheet.createRow((short)(faultNamesStartRow+iSource));
+				row.createCell((short)0).setCellValue(((A_FaultSegmentedSource)aFaultSources.get(iSource)).getFaultSegmentData().getFaultName());
+			}
+			currRow+=aFaultSources.size();
+			// write totals
+			row = sheet.createRow((short)currRow++);
+			row.createCell((short)0).setCellValue("Totals");
+			cell = row.createCell((short)1); // totals for Char
+			String colStr="B";
+			cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+			cell.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));							
+			// totals for other rates
+			int totalOptions = (slipModelOptions.size()-1)*magAreaOptions.size()+1;
+			
+			for(int k=0; k<totalOptions; ++k) {
+				cell = row.createCell((short)(k+1));
+				colStr=""+(char)('B'+k);
+				//System.out.println(colStr);
+				cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+				cell.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));
+			}
+		}
+		
+		
+		int col;
+		if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL))  col = 1; 
+		else col = 1 + (imag*(slipModelOptions.size()-1))+islip;				
+		// write the Gen. Pred. Error
+		for(int i=0; i<this.aFaultSources.size(); ++i) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+			sheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
+
+		}			
+	
 	}
 	
 	// this is temporary for testing purposes

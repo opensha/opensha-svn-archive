@@ -193,7 +193,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(excelSheetName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-			for(int i=0; i<wb.getNumberOfSheets(); ++i) {
+			for(int i=0; i<(wb.getNumberOfSheets()-1); ++i) { // do not plot the general prediction error
 				HSSFSheet sheet = wb.getSheetAt(i);
 				String sheetName = wb.getSheetName(i);
 				int lastIndex = sheet.getLastRowNum();

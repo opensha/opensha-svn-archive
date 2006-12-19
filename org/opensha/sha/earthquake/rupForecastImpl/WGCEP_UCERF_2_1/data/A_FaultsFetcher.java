@@ -158,6 +158,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				rate = row.getCell( (short) 19).getNumericCellValue();
 				sigma =  row.getCell( (short) 20).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
+				if(faultSectionId==-1) continue; // closeest fault section is at a distance of more than 2 km
 				setRecurIntv(faultSectionId, rate, sigma);
 				
 			}
@@ -167,7 +168,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	}
 	
 	/**
-	 * Get closest fault section Id to this location
+	 * Get closest fault section Id to this location. The fault section should be within 2 km distance of the location else it returns null
 	 * 
 	 * @param loc
 	 * @return
@@ -186,6 +187,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				closestFaultSection = prefFaultSectionData;
 			}
 		}
+		if(minDist>2) return -1;
 		return closestFaultSection.getSectionId();
 	}
 	
