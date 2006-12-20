@@ -305,11 +305,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private BooleanParameter includeC_ZonesParam;
 	
 	// fraction to put into background
-	public final static String A_AND_B_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
-	public final static Double A_AND_B_MO_RATE_REDUCTION_MIN = new Double(0);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double A_AND_B_MO_RATE_REDUCTION_DEFAULT = new Double(0.14);
-	public final static String A_AND_B_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
+	public final static String ABC_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
+	public final static Double ABC_MO_RATE_REDUCTION_MIN = new Double(0);
+	public final static Double ABC_MO_RATE_REDUCTION_MAX = new Double(1);
+	public final static Double ABC_MO_RATE_REDUCTION_DEFAULT = new Double(0.1);
+	public final static String ABC_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
 	private DoubleParameter moRateFracToBackgroundParam;
 	
 	// Mean Mag Correction
@@ -321,12 +321,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter meanMagCorrectionParam;
 	
 	// set for background
-	private final static String SET_FOR_BCK_PARAM_NAME = "Set for Background";
-	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR = "Frac MoRate From ABC srcs - Trunc. GR";
-	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR = "Frac MoRate From ABC srcs - Tapered GR";
-	private final static String SET_FOR_BCK_PARAM_BCK_MAX_MAG = "Max Mag";
+	private final static String SET_FOR_BCK_PARAM_NAME = "MFD for Background";
+	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR = "Trunc. GR (Mmax from fraction)";
+	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR = "Tapered GR (Mcorner from fraction)";
+	private final static String SET_FOR_BCK_PARAM_BCK_MAX_MAG = "Trunc. GR (w/ set Mmax)";
 	private final static String SET_FOR_BCK_PARAM_NSHMP02 = "NSHMP02 MFD";
-	private final static String SET_FOR_BCK_PARAM_INFO = "This sets background moment rate as fraction of A, B, and C sources, or sets the background max mag";
+	private final static String SET_FOR_BCK_PARAM_INFO = "This specifies the type of magnitude-frequency dist. to use for the background";
 	private StringParameter setForBckParam;
 	
 	// A and B faults fetcher
@@ -515,10 +515,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		regionB_ValParam = new DoubleParameter(BACK_SEIS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.BACK_SEIS_B_DEFAULT);
 		regionB_ValParam.setInfo(BACK_SEIS_B_VAL_PARAM_INFO);
 		
-		moRateFracToBackgroundParam = new DoubleParameter(A_AND_B_MO_RATE_REDUCTION_PARAM_NAME, 
-				A_AND_B_MO_RATE_REDUCTION_MIN, A_AND_B_MO_RATE_REDUCTION_MAX, 
-				A_AND_B_MO_RATE_REDUCTION_DEFAULT);
-		moRateFracToBackgroundParam.setInfo(A_AND_B_MO_RATE_REDUCTION_INFO);
+		moRateFracToBackgroundParam = new DoubleParameter(ABC_MO_RATE_REDUCTION_PARAM_NAME, 
+				ABC_MO_RATE_REDUCTION_MIN, ABC_MO_RATE_REDUCTION_MAX, 
+				ABC_MO_RATE_REDUCTION_DEFAULT);
+		moRateFracToBackgroundParam.setInfo(ABC_MO_RATE_REDUCTION_INFO);
 		
 		
 		// Mean Mag Correction
@@ -581,14 +581,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(includeC_ZonesParam);
 		adjustableParams.addParameter(meanMagCorrectionParam);
 		adjustableParams.addParameter(totalMagRateParam);
-		adjustableParams.addParameter(regionB_ValParam);
+		adjustableParams.addParameter(moRateFracToBackgroundParam);
 		adjustableParams.addParameter(setForBckParam);
 		String setForBackground = (String)setForBckParam.getValue();
-		if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) ||
-				setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) 
-			adjustableParams.addParameter(moRateFracToBackgroundParam);
-		else if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG))
+		if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) || setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) 
+			adjustableParams.addParameter(regionB_ValParam);
+		else if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
+			adjustableParams.addParameter(regionB_ValParam);
 			adjustableParams.addParameter(backSeisMaxMagParam);
+		}
 		// the else case (SET_FOR_BCK_PARAM_NSHMP02) adds nothing here
 	}
 	
@@ -873,23 +874,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			//restore the original, total moment rate:
 			totMoRateABC /= (1-totMoRateReduction);
 			// now get background component:
-			double totBackMoRate = totMoRateABC * ((Double)moRateFracToBackgroundParam.getValue()).doubleValue();
-// System.out.println(totBackMoRate+","+totBackRate+","+bValue);
+			double moRateFracToBackground = ((Double)moRateFracToBackgroundParam.getValue()).doubleValue();
+			double totBackMoRate = totMoRateABC*moRateFracToBackground;
 			if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR)) {
 				totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				if(totMoRateReduction > 0)
+				if(moRateFracToBackground > 0)
 					((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
+					// NOTE that momentRate is not exactly conserved here due to mag discretization
 			}
 			else {
 				totBackgroundMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-				if(totMoRateReduction > 0)
+				if(moRateFracToBackground > 0)
 					((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButCornerMag(MIN_MAG, totBackMoRate, totBackRate, bValue);
 			}
+//			System.out.println(totBackMoRate+", "+totBackRate+", "+bValue+", "+totBackgroundMFD.getTotalMomentRate());
 		}
 		else if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
 			double magMax = ((Double)backSeisMaxMagParam.getValue()).doubleValue();
-			totBackgroundMFD = new TaperedGR_MagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-			((TaperedGR_MagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
+			totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
 			totBackgroundMFD = getNSHMP02_CAmap_MFD();
@@ -1292,14 +1295,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 **/
 	
 	public void updateForecast() {
-		
+		double totToKeep = 1;
 		// compute total moment rate reduction for A/B faults (fraction to reduce by)
-		totMoRateReduction = ((Double) aftershockFractionParam.getValue()).doubleValue();
-		totMoRateReduction += (1 - ((Double)couplingCoeffParam.getValue()).doubleValue());
-		String backgroundTreatment = (String) setForBckParam.getValue();
-		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) ||
-				backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR))
-			totMoRateReduction += ((Double) moRateFracToBackgroundParam.getValue()).doubleValue();
+		// 1st remove that which goes to the background
+		totToKeep *= 1.0-((Double) moRateFracToBackgroundParam.getValue()).doubleValue();
+		// now remove that which goes to aseismicity
+		totToKeep *= ((Double)couplingCoeffParam.getValue()).doubleValue();
+		// finally, remove that which goes to aftershocks
+		totToKeep *= 1-((Double) aftershockFractionParam.getValue()).doubleValue();
+		totMoRateReduction = 1.0-totToKeep;
+		
+// System.out.println("totMoRateReduction="+totMoRateReduction);
 		
 		String rupModel = (String) rupModelParam.getValue();
 		
