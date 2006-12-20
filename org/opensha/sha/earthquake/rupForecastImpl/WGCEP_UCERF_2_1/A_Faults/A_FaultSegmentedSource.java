@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -1374,16 +1375,48 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @return
 	 */
 	public double getGeneralizedPredictionError() {
-		double totError=0;
+		return getNormModSlipRateError() + getNormDataER_Error();
+	}
+	
+	/**
+	 * Get the normalized slip rate error
+	 * @return
+	 */
+	public double getNormModSlipRateError() {
+		double totError = 0;
 		double[] errors = getNormModSlipRateResids();
 		for(int i=0;i<errors.length;i++)
 			totError += errors[i]*errors[i];
-		errors = getNormDataER_Resids();
-		for(int i=0;i<errors.length;i++)
-			if(!Double.isNaN(errors[i])) totError += errors[i]*errors[i];
-		
 		return totError;
 	}
-
+	
+	/**
+	 * Get normalized data Event rate error
+	 * @return
+	 */
+	public double getNormDataER_Error() {
+		double totError=0;
+		double[] errors = getNormDataER_Resids();
+		for(int i=0;i<errors.length;i++)
+			if(!Double.isNaN(errors[i])) totError += errors[i]*errors[i];
+		return totError;
+	}
+	
+	/**
+	 * Get A-Priori model error
+	 * @return
+	 */
+	public double getA_PrioriModelError() {
+		double totError=0;
+		double finalRupRate, aPrioriRate, error;
+		for(int i=0; i<this.num_rup; ++i) {
+			finalRupRate = this.getRupRate(i);
+			aPrioriRate = this.getAPrioriRupRate(i);
+			error = finalRupRate-aPrioriRate;
+			if(error==0) continue;
+			totError+=error/Math.max(finalRupRate, aPrioriRate);
+		}
+		return totError;
+	}
 }
 
