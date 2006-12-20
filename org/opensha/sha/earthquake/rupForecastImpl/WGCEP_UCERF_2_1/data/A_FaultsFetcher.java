@@ -149,6 +149,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			double lat, lon, rate, sigma;
 			int faultSectionId;
 			for(int r=2; r<=lastRowIndex; ++r) {	
+				if(r==9) continue; // Ignore the Hayward North
 				HSSFRow row = sheet.getRow(r);
 				if(row==null) continue;
 				HSSFCell cell = row.getCell( (short) 1);
