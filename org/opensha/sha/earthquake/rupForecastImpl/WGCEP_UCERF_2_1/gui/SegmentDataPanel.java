@@ -380,7 +380,10 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;
 		if(isAseisReducesArea) text = MSG_ASEIS_REDUCES_AREA;
-		String predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n\n";
+		String predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n";
+		predError += "Norm Mod Slip Rate Error = "+(float)segmentedSource.getNormModSlipRateError()+"\n";
+		predError += "Data Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
+		predError += "A-Priori Model Error = "+(float)segmentedSource.getA_PrioriModelError()+"\n\n";
 		magAreasTextArea.setText(predError+getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
 	}
@@ -407,8 +410,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	
 	
 	private String getLegend() {
-		String legend = "Legend:";
-		legend+="-------";
+		String legend = "Legend:\n";
+		legend+="-------\n";
 		legend+="Orig SR \t- segment slip rate (mm/yr)\n";
 		legend += "\t (possibly reduced by aseis factor, but not by fract ABC removed)\n";
 		legend += "SR Sigma\t- standard deviation of Orig SR\n";

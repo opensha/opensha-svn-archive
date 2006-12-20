@@ -137,13 +137,19 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		
 		// Display the general prediction error in case of Segmented A-Faults
 		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
-			double aFaultGenPredErr = 0;
+			double genPredErr = 0,  modSlipRateError=0, dataER_Error=0, aPrioriRateError=0;
 			Iterator it = aFaultSourceMap.values().iterator();
 			while(it.hasNext()) {
 				A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-				aFaultGenPredErr += source.getGeneralizedPredictionError();
+				genPredErr += source.getGeneralizedPredictionError();
+				modSlipRateError+=source.getNormModSlipRateError();
+				dataER_Error+=source.getNormDataER_Error();
+				aPrioriRateError+=source.getA_PrioriModelError();
 			}
-			textArea.append("Total A-Fault Gen Pred Error = "+(float)aFaultGenPredErr+"\n\n");
+			textArea.append("Total A-Fault Gen Pred Error = "+(float)genPredErr+"\n");
+			textArea.append("A-Fault Mod Slip Rate Error = "+(float)modSlipRateError+"\n");
+			textArea.append("A-Fault Data Event Rate Error = "+(float)dataER_Error+"\n");
+			textArea.append("A-Fault A-Priori Rates Error = "+(float)aPrioriRateError+"\n\n");
 		}
 		
 		
