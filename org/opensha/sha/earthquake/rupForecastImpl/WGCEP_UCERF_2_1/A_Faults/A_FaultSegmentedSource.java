@@ -25,7 +25,8 @@ import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
-import cj.math.nnls.NNLSWrapper;
+//import cj.math.nnls.NNLSWrapper;
+import nnls.NNLSWrapper;
 
 import sun.tools.tree.ThisExpression;
 
@@ -1123,8 +1124,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				k+=1;
 			}
 		nnls.update(A,nRow,nCol);
+		
 		boolean converged = nnls.solve(d,x);
-System.out.println("TEST="+converged);
+		System.out.println("TEST="+converged);
 		
 		if(MATLAB_TEST) {
 			System.out.println("x = [");
