@@ -1123,7 +1123,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				k+=1;
 			}
 		nnls.update(A,nRow,nCol);
-		nnls.solve(d,x);
+		boolean converged = nnls.solve(d,x);
+System.out.println("TEST="+converged);
 		
 		if(MATLAB_TEST) {
 			System.out.println("x = [");
@@ -1413,9 +1414,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			finalRupRate = this.getRupRate(i);
 			aPrioriRate = this.getAPrioriRupRate(i);
 			error = finalRupRate-aPrioriRate;
-			if(error==0) continue;
+//			if(error==0) continue;
 //			error = error/Math.max(finalRupRate, aPrioriRate);
-			totError+=error*error;
+			totError+=error*error*relativeA_Priori_wt;
 		}
 		return totError;
 	}
