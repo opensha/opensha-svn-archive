@@ -1385,23 +1385,23 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *  (the rates of 5 ruptures differed by 1e-4 when rounded to nearest 1e-4).
 	 */
 	private void makeMatlabNNLS_testScript() {
-		throw new RuntimeException ("Method unsupported exception");
-		/*ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
-		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
+//		throw new RuntimeException ("Method unsupported exception");
+		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
+//		ArrayList rupModelOptions = ((StringConstraint)rupModelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		for(int imag=0; imag<magAreaOptions.size();imag++)
-			for(int irup=0; irup<rupModelOptions.size();irup++)
-				if(!((String)rupModelOptions.get(irup)).equals(UNSEGMENTED_A_FAULT_MODEL))
+//			for(int irup=0; irup<rupModelOptions.size();irup++)
 					for(int islip=0; islip<slipModelOptions.size();islip++) {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
-						rupModelParam.setValue(rupModelOptions.get(irup));
+//						rupModelParam.setValue(rupModelOptions.get(irup));
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						System.out.println("% "+magAreaOptions.get(imag)+
-								"\n% " + rupModelOptions.get(irup) +
+//								"\n% " + rupModelOptions.get(irup) +
 								"\n% " + slipModelOptions.get(islip));
-						System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
+						System.out.println("display CASE_"+imag+"_"+islip);
+//						System.out.println("display CASE_"+imag+"_"+irup+"_"+islip);
 						mkA_FaultSegmentedSources();
-					}*/
+					}
 	}
 	
 	
@@ -2064,12 +2064,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		erRateModel2_ERF.findMinBulge();
+		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
 		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
-		//erRateModel2_ERF.makeMatlabNNLS_testScript();
+		erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		
 	}

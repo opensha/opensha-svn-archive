@@ -1414,7 +1414,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			aPrioriRate = this.getAPrioriRupRate(i);
 			error = finalRupRate-aPrioriRate;
 			if(error==0) continue;
-			error = error/Math.max(finalRupRate, aPrioriRate);
+//			error = error/Math.max(finalRupRate, aPrioriRate);
 			totError+=error*error;
 		}
 		return totError;
