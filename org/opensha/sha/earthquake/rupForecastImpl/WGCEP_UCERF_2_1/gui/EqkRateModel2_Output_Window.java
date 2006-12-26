@@ -146,7 +146,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 				dataER_Error+=source.getNormDataER_Error();
 				aPrioriRateError+=source.getA_PrioriModelError();
 			}
-			textArea.append("Total A-Fault Gen Pred Error = "+(float)genPredErr+"\n");
+			textArea.append("\nTotal A-Fault Gen Pred Error = "+(float)genPredErr+"\n");
 			textArea.append("A-Fault Mod Slip Rate Error = "+(float)modSlipRateError+"\n");
 			textArea.append("A-Fault Data Event Rate Error = "+(float)dataER_Error+"\n");
 			textArea.append("A-Fault A-Priori Rates Error = "+(float)aPrioriRateError+"\n\n");

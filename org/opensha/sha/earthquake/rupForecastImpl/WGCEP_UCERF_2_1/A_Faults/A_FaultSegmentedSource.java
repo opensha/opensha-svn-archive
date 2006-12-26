@@ -257,6 +257,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		
 		// CORRECT IF MINIMUM RATE CONSTRAINT DESIRED
+		// find the minimum rate
 		double minRate=0;
 		if(preserveMinAFaultRate) {
 			minRate = Double.POSITIVE_INFINITY;
@@ -1107,13 +1108,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 			System.out.println("C = [");
 			for(i=0; i<nRow;i++) {
 				for(j=0;j<nCol;j++) 
-					System.out.print((float)C[i][j]+"   ");
+					System.out.print(C[i][j]+"   ");
 				System.out.print("\n");
 			}
 			System.out.println("];");
 			System.out.println("d = [");
 			for(i=0; i<nRow;i++)
-				System.out.println((float) d[i]);
+				System.out.println(d[i]);
 			System.out.println("];");
 		}
 /////////////////////////////////////
@@ -1126,7 +1127,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		nnls.update(A,nRow,nCol);
 		
 		boolean converged = nnls.solve(d,x);
-		System.out.println("TEST="+converged);
+		if(!converged)
+			throw new RuntimeException("ERROR:  NNLS Inversion Failed");
 		
 		if(MATLAB_TEST) {
 			System.out.println("x = [");
@@ -1374,11 +1376,10 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	/**
 	 * This returns the generalizeded prediction error as defined on page 54 of Menke's
 	 * 1984 Book "Geophysical Data Analysis: Discrete Inverse Theory".
-	 * Note that this assumes the wieghts on the a-prior models are effectively zero.
 	 * @return
 	 */
 	public double getGeneralizedPredictionError() {
-		return getNormModSlipRateError() + getNormDataER_Error();
+		return getNormModSlipRateError() + getNormDataER_Error() + getA_PrioriModelError();
 	}
 	
 	/**

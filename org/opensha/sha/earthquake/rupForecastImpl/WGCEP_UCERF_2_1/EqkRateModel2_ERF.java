@@ -204,7 +204,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
 	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(Double.MIN_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1.0);
+	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(100);
 	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
@@ -972,7 +972,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
 					"Eastern California Shear Zone S", "Imperial Valley", "San Gorgonio Knot"};
 			
-			double[] slipRates = { 0.05, 2.0, 4.0, 4.0, 7.0, 10.0, 14.0, 2.0}; // mm/yr
+			double[] slipRates = { 0.1, 4.0, 8.0, 8.0, 7.0, 10.0, 14.0, 2.0}; // mm/yr
 			double[] depthTop = { 0, 0, 0, 0, 0, 0, 0, 0}; // km
 			double[] depthBottom = { 12, 15, 15, 15, 14, 15.5, 12.6, 18.3}; //km
 			double[] strike = { 325, 335, 315, 315, 320, 320, 310, 290};
