@@ -1544,7 +1544,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						
 						
-						mkA_FaultSegmentedSources();
+						this.updateForecast();
 						
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
@@ -1690,7 +1690,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						slipModelParam.setValue(slipModelOptions.get(islip));
-						mkA_FaultSegmentedSources();
+						this.updateForecast();
 						
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
@@ -1840,7 +1840,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
-						mkA_FaultSegmentedSources();
+						this.updateForecast();
 						generateGenPredErrorSheet( genPredErrSheet,imag, islip,irup, cellStyle);
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
