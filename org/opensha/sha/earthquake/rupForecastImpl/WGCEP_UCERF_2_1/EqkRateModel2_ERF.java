@@ -1801,6 +1801,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public void generateExcelSheetsForRupMagRates(String outputFileName) {
 		
+System.out.println(outputFileName);
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		
@@ -2061,6 +2062,43 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	}
 	
+	/**
+	 * This generates some excel spreadsheet test results.  I should save the default parameters
+	 *
+	 */
+	public void mkExcelSheetTests() {
+		
+		// Test 1 versus 2 - turn preserved min rates off in latter
+		// Test #a versus #b - moment removed versus none removed, respectively
+		
+		
+		// generate file for default parameters
+		generateExcelSheetsForRupMagRates("Test1a_A_FaultRupRates_2_1.xls");
+		
+		// turn off preserve min rate (assuming default was true!!)
+		preserveMinAFaultRateParam.setValue(false);
+		generateExcelSheetsForRupMagRates("Test2a_A_FaultRupRates_2_1.xls");
+		// turn it back on
+		preserveMinAFaultRateParam.setValue(true);
+		
+		// change the moment removed to zero
+		moRateFracToBackgroundParam.setValue(0.0);
+		// now remove that which goes to aseismicity
+		couplingCoeffParam.setValue(1.0);
+		// finally, remove that which goes to aftershocks
+		aftershockFractionParam.setValue(0.0);
+		generateExcelSheetsForRupMagRates("Test1b_A_FaultRupRates_2_1.xls");
+		
+		// turn off preserve min rate
+		preserveMinAFaultRateParam.setValue(false);
+		generateExcelSheetsForRupMagRates("Test2b_A_FaultRupRates_2_1.xls");
+		// turn it back on
+		preserveMinAFaultRateParam.setValue(true);
+
+
+
+	}
+	
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
@@ -2069,8 +2107,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
 		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
-		erRateModel2_ERF.makeMatlabNNLS_testScript();
+		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
+		erRateModel2_ERF.mkExcelSheetTests();
 		
 	}
 }
