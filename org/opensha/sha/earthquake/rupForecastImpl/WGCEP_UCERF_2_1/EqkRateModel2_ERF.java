@@ -1801,7 +1801,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public void generateExcelSheetsForRupMagRates(String outputFileName) {
 		
-System.out.println(outputFileName);
+		System.out.println(outputFileName);
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		
@@ -1821,6 +1821,8 @@ System.out.println(outputFileName);
 		}
 		HSSFSheet genPredErrSheet = wb.createSheet(); // Sheet for displaying the General Prediction error
 		wb.setSheetName(wb.getNumberOfSheets()-1, "Gen. Pred. Err");
+		HSSFSheet totalRatesSheet = wb.createSheet(); // Sheet for displaying the Total Rates
+		wb.setSheetName(wb.getNumberOfSheets()-1, "Total Rates");
 		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		int currRow[] = new int[numA_Faults];
 		for(int irup=0; irup<3;irup++) {
@@ -1842,7 +1844,7 @@ System.out.println(outputFileName);
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						this.updateForecast();
-						generateGenPredErrorSheet( genPredErrSheet,imag, islip,irup, cellStyle);
+						this.genPredErrAndTotRateSheet( genPredErrSheet, totalRatesSheet, imag, islip,irup, cellStyle);
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
 							// do for each fault
@@ -1955,7 +1957,7 @@ System.out.println(outputFileName);
 					}
 			}
 			// 
-			for(int i=0; i<(wb.getNumberOfSheets()-1); ++i) {
+			for(int i=0; i<(wb.getNumberOfSheets()-2); ++i) { // do not do for Gen Pred Error and Tot rates
 				HSSFSheet sheet = wb.getSheetAt(i);
 				sheet.createRow((short)currRow[i]++);
 				sheet.createRow((short)currRow[i]++);
@@ -1963,6 +1965,17 @@ System.out.println(outputFileName);
 			
 		}
 		try {
+			HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
+			wb.setSheetName(wb.getNumberOfSheets()-1, "Metadata");
+			Iterator it = this.adjustableParams.getParametersIterator();
+			int row = 0;
+			while(it.hasNext()) {
+				ParameterAPI param = (ParameterAPI)it.next();
+				if(param.getName().equals(MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(SLIP_MODEL_TYPE_NAME) ||
+						param.getName().equals(RUP_MODEL_TYPE_NAME)) continue;
+				metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
+			}
+			
 			FileOutputStream fileOut = new FileOutputStream(outputFileName);
 			wb.write(fileOut);
 			fileOut.close();
@@ -1975,77 +1988,97 @@ System.out.println(outputFileName);
 	 * Generate the excel sheet to save the general prediction error
 	 * @param sheet
 	 */
-	private void generateGenPredErrorSheet(HSSFSheet sheet, int imag, int islip, int irup, HSSFCellStyle cellStyle) {
+	private void genPredErrAndTotRateSheet(HSSFSheet predErrSheet, HSSFSheet totRateSheet, int imag, int islip, int irup, HSSFCellStyle cellStyle) {
 		
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 		//Create Excel Workbook and sheets if they do not exist already
-		
+		double totRate=0;
 		
 		//currRow = new int[aFaultSources.size()];
 		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		// Write header for each Rup Solution Types
 		int currRow  = irup*(numA_Faults+6);
-		
 		int faultNamesStartRow = currRow+3;
-		
 		if(imag==0 && islip==0) { // Write the headers and fault names for the first time	
-			HSSFRow row = sheet.createRow((short)currRow++);
+			HSSFRow row1 = predErrSheet.createRow((short)currRow);
+			HSSFRow row2 = totRateSheet.createRow((short)currRow++);
 			// Write Rup solution Type
-			HSSFCell cell = row.createCell((short)0);
-			cell.setCellValue(models[irup]);
-			cell.setCellStyle(cellStyle);
-			row = sheet.createRow((short)currRow++);
+			HSSFCell cell1 = row1.createCell((short)0);
+			HSSFCell cell2 = row2.createCell((short)0);
+			cell1.setCellValue(models[irup]);
+			cell2.setCellValue(models[irup]);
+			cell1.setCellStyle(cellStyle);
+			cell2.setCellStyle(cellStyle);
+			row1 = predErrSheet.createRow((short)currRow);
+			row2 = totRateSheet.createRow((short)currRow++);
 			int col=2;
 			// Write All Mag Areas in appropriate columns
 			for(int j=0; j<magAreaOptions.size(); ++j, col+=(slipModelOptions.size()-1)/* Not to be done for Char */) {
-				cell = row.createCell((short)col);
-				cell.setCellValue((String)magAreaOptions.get(j));
-				cell.setCellStyle(cellStyle);
+				cell1 = row1.createCell((short)col);
+				cell1.setCellValue((String)magAreaOptions.get(j));
+				cell1.setCellStyle(cellStyle);
+				cell2 = row2.createCell((short)col);
+				cell2.setCellValue((String)magAreaOptions.get(j));
+				cell2.setCellStyle(cellStyle);
 			}
 			// write the headers
-			row = sheet.createRow((short)currRow++);
+			row1 = predErrSheet.createRow((short)currRow);
+			row2 = totRateSheet.createRow((short)currRow++);
 			col=0;
-			cell = row.createCell((short)col++);
-			cell.setCellValue("Fault Name");
-			cell.setCellStyle(cellStyle);
-			cell = row.createCell((short)col++);
-			cell.setCellValue("Characteristic");
-			cell.setCellStyle(cellStyle);
+			cell1 = row1.createCell((short)col);
+			cell2 = row2.createCell((short)col++);
+			cell1.setCellValue("Fault Name");
+			cell2.setCellValue("Total Rate");
+			cell1.setCellStyle(cellStyle);
+			cell2.setCellStyle(cellStyle);
+			cell1 = row1.createCell((short)col);
+			cell2 = row2.createCell((short)col++);
+			cell1.setCellValue("Characteristic");
+			cell2.setCellValue("Characteristic");
+			cell1.setCellStyle(cellStyle);
+			cell2.setCellStyle(cellStyle);
 			for(int j=0; j<magAreaOptions.size(); ++j) {
 				for(int k=0; k<slipModelOptions.size(); ++k) {
 					String slipModel = (String)slipModelOptions.get(k);
 					if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
-						cell = row.createCell((short)col++);
-						cell.setCellValue((String)slipModelOptions.get(k));
-						cell.setCellStyle(cellStyle);
+						cell1 = row1.createCell((short)col);
+						cell1.setCellValue((String)slipModelOptions.get(k));
+						cell1.setCellStyle(cellStyle);
+						cell2 = row2.createCell((short)col++);
+						cell2.setCellValue((String)slipModelOptions.get(k));
+						cell2.setCellStyle(cellStyle);
 					}
 				}
 			}	
 			
 			// write Source Names
 			for(int iSource=0; iSource<aFaultSources.size(); ++iSource) {
-				row = sheet.createRow((short)(faultNamesStartRow+iSource));
-				row.createCell((short)0).setCellValue(((A_FaultSegmentedSource)aFaultSources.get(iSource)).getFaultSegmentData().getFaultName());
+				row1 = predErrSheet.createRow((short)(faultNamesStartRow+iSource));
+				A_FaultSegmentedSource src = (A_FaultSegmentedSource)aFaultSources.get(iSource);
+				row1.createCell((short)0).setCellValue(src.getFaultSegmentData().getFaultName());
 			}
+			
+			totRateSheet.createRow(faultNamesStartRow).createCell((short)0).setCellValue("Total Rate");
+			
 			currRow+=aFaultSources.size();
 			// write totals
-			row = sheet.createRow((short)currRow++);
-			row.createCell((short)0).setCellValue("Totals");
-			cell = row.createCell((short)1); // totals for Char
+			row1 = predErrSheet.createRow((short)currRow++);
+			row1.createCell((short)0).setCellValue("Totals");
+			cell1 = row1.createCell((short)1); // totals for Char
 			String colStr="B";
-			cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
-			cell.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));							
+			cell1.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+			cell1.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));							
 			// totals for other rates
 			int totalOptions = (slipModelOptions.size()-1)*magAreaOptions.size()+1;
 			
 			for(int k=0; k<totalOptions; ++k) {
-				cell = row.createCell((short)(k+1));
+				cell1 = row1.createCell((short)(k+1));
 				colStr=""+(char)('B'+k);
 				//System.out.println(colStr);
-				cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
-				cell.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));
+				cell1.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+				cell1.setCellFormula("SUM("+colStr+faultNamesStartRow+":"+colStr+(faultNamesStartRow+numA_Faults+")"));
 			}
 		}
 		
@@ -2056,10 +2089,11 @@ System.out.println(outputFileName);
 		// write the Gen. Pred. Error
 		for(int i=0; i<this.aFaultSources.size(); ++i) {
 			A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
-			sheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
+			for(int rupIndex=0; rupIndex<source.getNumRuptures(); ++rupIndex) totRate+=source.getRupRate(rupIndex);
 
+			predErrSheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
 		}			
-	
+		totRateSheet.getRow(faultNamesStartRow).createCell((short)col).setCellValue(totRate);
 	}
 	
 	/**
