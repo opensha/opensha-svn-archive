@@ -200,7 +200,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 				int r = 3;
 				int count=0;
 				// read data for each row
-				for(; r<=lastIndex; ++r) {
+				for(; r<=lastIndex && count<3; ++r) {
 					int j=-1;
 					String modelType = models[count++];
 					ArrayList funcList = new ArrayList();

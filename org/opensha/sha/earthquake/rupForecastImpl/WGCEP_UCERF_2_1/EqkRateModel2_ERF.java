@@ -1905,20 +1905,56 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 								 }
 								 // write totals
 								 row = sheet.createRow((short)currRow[i]++);
-								 row.createCell((short)0).setCellValue("Totals");
+								 int totRow1=currRow[i];
+								 int totRow2 = 2*totRow1+2;
+								 int totRow3 = 3*totRow1+4;
+								 int ratioRowIndex1 = totRow3+2;
+								 int ratioRowIndex2 = ratioRowIndex1+1;
+								 int ratioRowIndex3 = ratioRowIndex1+2;
+								 HSSFRow ratioRow1=null, ratioRow2=null, ratioRow3=null;
 								 
+								 row.createCell((short)0).setCellValue("Totals");							 
 								 // a priori rate total
 								 cell = row.createCell((short)1);
 								 String colStr="B";
 								 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
 								 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
-								 
 								 // Char rate total
 								 cell = row.createCell((short)3);
 								 colStr="D";
 								 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
 								 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
-
+								 if(irup==0){
+									 ratioRow1 = sheet.createRow((short)ratioRowIndex1);
+									 ratioRow2 = sheet.createRow((short)ratioRowIndex2);
+									 ratioRow3 = sheet.createRow((short)ratioRowIndex3);				 
+									 ratioRow1.createCell((short)0).setCellValue("min/geol");	
+									 ratioRow2.createCell((short)0).setCellValue("max/geol");	
+									 ratioRow3.createCell((short)0).setCellValue("max/min");	
+									 // a priori rate ratio
+									 colStr="B";
+									 cell = ratioRow1.createCell((short)1);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow2+"/"+colStr+totRow1);
+									 cell = ratioRow2.createCell((short)1);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow1);
+									 cell = ratioRow3.createCell((short)1);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow2);
+									 // Char rate ratio
+									 colStr="D";
+									 cell = ratioRow1.createCell((short)3);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow2+"/"+colStr+totRow1);
+									 cell = ratioRow2.createCell((short)3);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow1);
+									 cell = ratioRow3.createCell((short)3);
+									 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+									 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow2);
+								 }
+								 
 								 // totals for other rates
 								 for(int k=0; k<slipModelOptions.size(); ++k) {
 									 if(slipModelOptions.get(k).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) continue;
@@ -1929,7 +1965,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 										 //System.out.println(colStr);
 										 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
 										 cell.setCellFormula("SUM("+colStr+rupStartRow[i]+":"+colStr+(rupStartRow[i]+source.getNumRuptures()+")"));
-
+										 if(irup==0){
+											 cell = ratioRow1.createCell((short)totCol);
+											 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+											 cell.setCellFormula(colStr+totRow2+"/"+colStr+totRow1);
+											 cell = ratioRow2.createCell((short)totCol);
+											 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+											 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow1);
+											 cell = ratioRow3.createCell((short)totCol);
+											 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+											 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow2);
+										 }
 									 }
 								 }
 							}
