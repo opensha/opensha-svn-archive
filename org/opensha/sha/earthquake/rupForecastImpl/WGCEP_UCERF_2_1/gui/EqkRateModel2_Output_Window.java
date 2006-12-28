@@ -87,7 +87,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private StringParameter aFaultParam;
 	private final static String A_FAULT_PARAM_NAME = "A Fault";
 	private boolean isUnsegmented;
-	
+	private ArrayList<Double> normModlSlipRateRatioList;
+	private ArrayList<Double> normDataER_RatioList;
+	private ArrayList<Double> predER_RatioList;
+	private ArrayList<Double> normRupRatesRatioList;
+	private  boolean isAseisReducesArea;
 	/**
 	 * 
 	 * @param eqkRateModelERF
@@ -104,11 +108,16 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	
 	
 	private void createGUI() {
+		isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
 		JPanel aFaultSummaryPanel = getA_FaultSummaryGUI();
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
 		tabbedPane.addTab("A Fault Summary", aFaultSummaryPanel);
 		tabbedPane.addTab("B Fault Summary", getB_FaultSummaryGUI());
 		tabbedPane.addTab("C Zones Summary", getC_ZonesSummaryGUI());
+		calculateNormModSlipRateResids();
+		calculateNormDataER_Resids();
+		calculatePredERRatio();
+		calculateNormRupRatesDiff();
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
 		container.add(tabbedPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -306,7 +315,6 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private void updateA_FaultTableData() {
 		String selectedFault = (String)aFaultParam.getValue();
 		Object source =   aFaultSourceMap.get(selectedFault);
-		boolean isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
 		if(!this.isUnsegmented)  {
 			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
 			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
@@ -328,13 +336,17 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
 		} else if(src == this.modSlipRateButton) { // ratio of modified slip rates
-			plotNormModSlipRateResids();
+			String plotLabel = "Normalized Segment Slip-Rate Residuals\n((Final_SR-Orig_SR)/SR_Sigma)";
+			showHistograms(normModlSlipRateRatioList, plotLabel, "Normalized Segment Slip-Rate Residuals");
 		}else if(src == this.dataERButton) { // ratio of final Event rate and data Event rate
-			plotNormDataER_Resids();
+			String plotLabel = "Normalized Segment Event-Rate Residuals\n((Final_ER-Data_ER)/ER_Sigma)";
+			showHistograms(normDataER_RatioList, plotLabel, "Normalized Segment Event-Rate Residuals");
 		}else if(src == this.predERButton) { // ratio of final event rate and pred Event rate
-			plotPredERRatio();
+			String plotLabel = "Final vs Pred Segment Event Rate Ratios";
+			showHistograms(predER_RatioList, plotLabel, "Ratio of final Event Ratio to Pred Event Ratio");
 		} else if(src == this.rupRatesRatioButton) { // ratio of final rates to A-Priori Rates
-			plotNormRupRatesDiff();
+			String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate";
+			showHistograms(normRupRatesRatioList, plotLabel, "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
 		}
 	}
 
@@ -342,9 +354,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * Plot Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate
 	 *
 	 */
-	private void plotNormRupRatesDiff() {
+	private void calculateNormRupRatesDiff() {
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		ArrayList<Double> ratioList = new ArrayList<Double>();
+		normRupRatesRatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
@@ -352,11 +364,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			// iterate over all ruptures
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) {
 				double normResid = (source.getRupRate(rupIndex)-source.getAPrioriRupRate(rupIndex))/source.getAPrioriRupRate(rupIndex);
-				ratioList.add(normResid);
+				normRupRatesRatioList.add(normResid);
 			}
 		}
-		String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate";
-		showHistograms(ratioList, plotLabel, "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
 	}
 	
 
@@ -365,54 +375,48 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 * Plot Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)
 	 *
 	 */
-	private void plotNormModSlipRateResids() {
+	private void calculateNormModSlipRateResids() {
 		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
-		ArrayList<Double> ratioList = new ArrayList<Double>();
+		normModlSlipRateRatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			double normModResids[] = source.getNormModSlipRateResids();
-			for(int segIndex = 0; segIndex<normModResids.length; ++segIndex) ratioList.add(new Double(normModResids[segIndex]));
+			for(int segIndex = 0; segIndex<normModResids.length; ++segIndex) normModlSlipRateRatioList.add(new Double(normModResids[segIndex]));
 		}
-		String plotLabel = "Normalized Segment Slip-Rate Residuals\n((Final_SR-Orig_SR)/SR_Sigma)";
-		showHistograms(ratioList, plotLabel, "Normalized Segment Slip-Rate Residuals");
 	}
 	
 	/**
 	 * Plot Normalized Event-Rate Residuals
 	 *
 	 */
-	private void plotNormDataER_Resids() {
+	private void calculateNormDataER_Resids() {
 		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
-		ArrayList<Double> ratioList = new ArrayList<Double>();
+		normDataER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			double normDataER_Resids[] = source.getNormDataER_Resids();
 			for(int segIndex = 0; segIndex<normDataER_Resids.length; ++segIndex) 
-				if(!Double.isNaN(normDataER_Resids[segIndex])) ratioList.add(new Double(normDataER_Resids[segIndex]));
+				if(!Double.isNaN(normDataER_Resids[segIndex])) normDataER_RatioList.add(new Double(normDataER_Resids[segIndex]));
 		}
-		String plotLabel = "Normalized Segment Event-Rate Residuals\n((Final_ER-Data_ER)/ER_Sigma)";
-		showHistograms(ratioList, plotLabel, "Normalized Segment Event-Rate Residuals");
 	}
 	
 	/**
 	 * Plot the ratio of Event Rates
 	 *
 	 */
-	private void plotPredERRatio() {
+	private void calculatePredERRatio() {
 		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
-		ArrayList<Double> ratioList = new ArrayList<Double>();
+		predER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceList.size(); ++i) {
 			A_FaultSegmentedSource source = sourceList.get(i);
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
 			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 
-				ratioList.add(source.getFinalSegmentRate(segIndex)/source.getSegRateFromAprioriRates(segIndex));
+				predER_RatioList.add(source.getFinalSegmentRate(segIndex)/source.getSegRateFromAprioriRates(segIndex));
 		}
-		String plotLabel = "Final vs Pred Segment Event Rate Ratios";
-		showHistograms(ratioList, plotLabel, "Ratio of final Event Ratio to Pred Event Ratio");
 	}
 
 	/**
