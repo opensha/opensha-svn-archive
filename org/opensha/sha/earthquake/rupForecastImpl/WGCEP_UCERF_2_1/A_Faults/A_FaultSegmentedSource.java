@@ -452,7 +452,9 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	}
 	
 	/**
-	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship)
+	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship).
+	 * This also only uses segRateFromApriori (not segmentData.getSegRateConstraints()) to compute 
+	 * characteristic displacements.
 	 *
 	 */
 	private void getRupMeanMagsAssumingCharSlip() {
