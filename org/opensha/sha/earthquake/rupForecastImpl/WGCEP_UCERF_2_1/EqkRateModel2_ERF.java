@@ -1814,7 +1814,38 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		font.setColor(HSSFFont.COLOR_RED);
 		cellStyle.setFont(font);
 		//currRow = new int[aFaultSources.size()];
-		// create sheets
+		{
+		// METADATA SHEET
+		HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
+		wb.setSheetName(0, "README");
+		Iterator it = this.adjustableParams.getParametersIterator();
+		String str = "This file contains final (post-inversion) rupture rates for the four " +
+				"different magnitude-area relationships, the four slip models, " +
+				"and the three solution types (min rate, max rate, and geologic insight).  " +
+				"All other parameters were set as listed below.  The sheet for each fault lists" +
+				" the following for each solution type: rupture name; the a-prior rate; " +
+				"the characteristic magnitude and characteristic rate resulting from the " +
+				"characteristic-slip model (which does not use a magnitude-area relationship); " +
+				"and the rates for the other three slip models for each magnitude-area relationship" +
+				" (twelve columns).  Listed at the bottom of the sheet for each fault are the " +
+				"following total-rate ratios: min/geol, max/geol, and max/min " +
+				"(useful for seeing the extent to which the different a-priori models " +
+				"converge to the same final rates).  The \"Total Rates\" sheet lists the " +
+				"total rates (summed over all faults) for each case.  The \"Gen. Pred. Err\" sheet" +
+				" lists the generalized prediction errors for each case (smaller values mean " +
+				"a better overall fit to the slip-rate and total segment event-rate data)." ;
+		metadataSheet.createRow(0).createCell((short)0).setCellValue(str);
+		
+		int row = 1;
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			if(param.getName().equals(MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(SLIP_MODEL_TYPE_NAME) ||
+					param.getName().equals(SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
+			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
+		}
+		}
+		
+		// SHEETS FOR EACH A-FAULT
 		for(int i=0; i<numA_Faults; ++i) {
 			wb.createSheet();
 			//currRow[i]=0;
@@ -1849,9 +1880,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						if(imag==0 && islip==0) {
 							// do for each fault
 							for(int i=0; i<this.aFaultSources.size(); ++i) {
-								 HSSFSheet sheet = wb.getSheetAt(i);
+								 HSSFSheet sheet = wb.getSheetAt(i+1); // first sheet is metadata sheet
 								 String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
-								 wb.setSheetName(i, sheetName);
+								 wb.setSheetName(i+1, sheetName);
 								 //System.out.println(currRow[i]);
 								 HSSFRow row = sheet.createRow((short)currRow[i]++);
 								 // Write Rup solution Type
@@ -1985,7 +2016,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						
 						// write the rup Mag and rates
 						for(int i=0; i<this.aFaultSources.size(); ++i) {
-							 HSSFSheet sheet = wb.getSheetAt(i);
+							 HSSFSheet sheet = wb.getSheetAt(i+1);// first sheet is metadata
 							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 							 int magCol, rateCol;
 							 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
@@ -2003,25 +2034,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					}
 			}
 			// 
-			for(int i=0; i<(wb.getNumberOfSheets()-2); ++i) { // do not do for Gen Pred Error and Tot rates
+			for(int i=1; i<(wb.getNumberOfSheets()-2); ++i) { // do not do for Gen Pred Error and Tot rates
 				HSSFSheet sheet = wb.getSheetAt(i);
-				sheet.createRow((short)currRow[i]++);
-				sheet.createRow((short)currRow[i]++);
+				sheet.createRow((short)currRow[i-1]++);
+				sheet.createRow((short)currRow[i-1]++);
 			}
 			
 		}
 		try {
-			HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
-			wb.setSheetName(wb.getNumberOfSheets()-1, "Metadata");
-			Iterator it = this.adjustableParams.getParametersIterator();
-			int row = 0;
-			while(it.hasNext()) {
-				ParameterAPI param = (ParameterAPI)it.next();
-				if(param.getName().equals(MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(SLIP_MODEL_TYPE_NAME) ||
-						param.getName().equals(SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
-				metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
-			}
-			
 			FileOutputStream fileOut = new FileOutputStream(outputFileName);
 			wb.write(fileOut);
 			fileOut.close();
@@ -2047,6 +2067,38 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// Write header for each Rup Solution Types
 		int currRow  = irup*(numA_Faults+6);
 		int faultNamesStartRow = currRow+3;
+		
+		if(irup==0) { // ratios in total rate sheet
+		 HSSFRow ratioRow1, ratioRow2, ratioRow3;
+		 
+		 int ratioRowIndex1 = 2*(numA_Faults+6)+3+3;
+		 ratioRow1 = totRateSheet.createRow((short)ratioRowIndex1);
+		 ratioRow2 = totRateSheet.createRow((short)(ratioRowIndex1+1));
+		 ratioRow3 = totRateSheet.createRow((short)(ratioRowIndex1+2));				 
+		 ratioRow1.createCell((short)0).setCellValue("min/geol");	
+		 ratioRow2.createCell((short)0).setCellValue("max/geol");	
+		 ratioRow3.createCell((short)0).setCellValue("max/min");
+		 int totCols=magAreaOptions.size()*(slipModelOptions.size()-1)+2;
+		 String colStr;
+		 HSSFCell cell;
+		 int totRow1 = faultNamesStartRow+1; 
+		 int totRow2  = (numA_Faults+6)+3+1;
+		 int totRow3  = 2*(numA_Faults+6)+3+1;
+		 for(int j=1; j<=totCols; ++j) {
+			 colStr=""+(char)('A'+j);	
+			 cell = ratioRow1.createCell((short)j);
+			 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+			 cell.setCellFormula(colStr+totRow2+"/"+colStr+totRow1);
+			 cell = ratioRow2.createCell((short)j);
+			 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+			 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow1);
+			 cell = ratioRow3.createCell((short)j);
+			 cell.setCellType(HSSFCell.CELL_TYPE_FORMULA);
+			 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow2);
+		 }	
+		
+		}
+		
 		if(imag==0 && islip==0) { // Write the headers and fault names for the first time	
 			HSSFRow row1 = predErrSheet.createRow((short)currRow);
 			HSSFRow row2 = totRateSheet.createRow((short)currRow++);
