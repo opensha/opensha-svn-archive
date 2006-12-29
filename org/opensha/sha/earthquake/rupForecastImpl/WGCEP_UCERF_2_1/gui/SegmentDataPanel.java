@@ -635,10 +635,12 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	public final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
-		"Final SR","Area",
-		"Length", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
+	public final static String[] columnNames = { "Seg Name", "Num", "DDW", "Length", "Aseis","Area",
+		"Orig SR", "SR Sigma",
+		"Final SR", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
 		 "Sections In Segment"};
+	
+	//Seg Name, Num, DDW, Legth, Aseis, Area, Orig SR, SR Sigma, Mo Rate, ... (as the rest appear).
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
@@ -705,42 +707,42 @@ class SegmentDataTableModel extends AbstractTableModel {
 		if(segFaultData==null) return "";
 		if(rowIndex == segFaultData.getNumSegments()) return getTotalValues(columnIndex);
 		
-		
-		//"Seg Name", "Num", "Slip Rate (mm/yr)", "Area (sq-km)",
-		//"Length (km)", "Moment Rate", "Orig MRI", "Pred MRI", "final MRI", "Char Slip", "Sections In Segment"
-		
 		switch(columnIndex) {
 			case 0:
 				return segFaultData.getSegmentName(rowIndex);
 			case 1:
 				return ""+(rowIndex+1);
-			case 2: 
-				// convert to mm/yr
-				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
-			case 3: 
-				// convert to mm/yr
-				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipRateStdDev(rowIndex)*1e3);
+			case 2:// convert to km
+				return AREA_LENGTH_FORMAT.format(segFaultData.getOrigSegmentDownDipWidth(rowIndex)/1e3);
+			case 3:
+				// convert to km
+				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
 			case 4:
-				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+				return ""+segFaultData.getAveSegAseisFactor(rowIndex);
 			case 5:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);
-			case 6:
-				// convert to km
-				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
-			case 7:
-				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
+			case 6: 
+				// convert to mm/yr
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegmentSlipRate(rowIndex)*1e3);
+			case 7: 
+				// convert to mm/yr
+				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipRateStdDev(rowIndex)*1e3);
 			case 8:
+				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+			case 9:
+				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
+			case 10:
 				double segRateMean = segFaultData.getSegRateMean(rowIndex);
 				if(Double.isNaN(segRateMean)) return "";
 				return SLIP_RATE_FORMAT.format(segRateMean);
-			case 9:
+			case 11:
 				double stdDev = segFaultData.getSegRateStdDevOfMean(rowIndex);
 				if(Double.isNaN(stdDev)) return "";
 				return SLIP_RATE_FORMAT.format(stdDev);
-			case 10:
+			case 12:
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
-			case 11:
+			case 13:
 				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
@@ -751,7 +753,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
 				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
 				return ""+(float)segStressDrop;*/
-			case 12:
+			case 14:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";
@@ -771,16 +773,13 @@ class SegmentDataTableModel extends AbstractTableModel {
 		switch(columnIndex) {
 		case 0:
 			return "Total";
-		case 1: 
-			// convert to mm/yr
-			return "";
+		case 3:
+			// convert to km
+			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
 		case 5:
 			// convert to sq km
 			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalArea()/1e6);
-		case 6:
-			// convert to km
-			return AREA_LENGTH_FORMAT.format(segFaultData.getTotalLength()/1000);
-		case 7:
+		case 9:
 			return MOMENT_FORMAT.format(segFaultData.getTotalMomentRate());
 		}
 	return "";
