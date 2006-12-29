@@ -546,7 +546,7 @@ class RupAveSlipTableModel extends AbstractTableModel {
 */
 class RuptureTableModel extends AbstractTableModel {
 //	 column names
-	private final static String[] columnNames = { "Rup Index", "Area (sq km)", "Mean Mag", 
+	public final static String[] columnNames = { "Rup Index", "Area (sq km)", "Mean Mag", 
 		"Final Rate", "A Priori Rate", "Moment Rate",  "Short Name", "Long Name"};
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");

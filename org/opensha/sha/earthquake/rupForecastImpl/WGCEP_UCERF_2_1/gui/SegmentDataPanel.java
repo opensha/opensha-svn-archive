@@ -635,7 +635,7 @@ class FaultSectionTableModel extends AbstractTableModel {
  */
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
+	public final static String[] columnNames = { "Seg Name", "Num", "Orig SR", "SR Sigma",
 		"Final SR","Area",
 		"Length", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
 		 "Sections In Segment"};
