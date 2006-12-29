@@ -52,26 +52,26 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private final static int W = 300;
 	private final static int H = 800;
-	private  JMenuBar menuBar = new JMenuBar();
-	private JMenu analysisMenu = new JMenu("Further Analysis");
+	//private  JMenuBar menuBar = new JMenuBar();
+	//private JMenu analysisMenu = new JMenu("Further Analysis");
 	// rupture rates
-	private JMenuItem rupRatesMenu = new JMenuItem("A-Fault Rup Rates");
+	//private JMenuItem rupRatesMenu = new JMenuItem("A-Fault Rup Rates");
 	// Segment recurrence interval
-	private JMenu recurIntvMenu = new JMenu("Recurrence Intervals");
-	private JMenuItem segRecurIntvMenu = new JMenuItem("A-Fault Segment Recur Interval");
-	private JMenuItem ratioRecurIntvMenu = new JMenuItem("A-Fault Ratio of Segment Recur Intervals");
-	private JMenuItem segRatioRecurIntvMenu = new JMenuItem("Ratio of Segment Recur Intervals for a Particular Segment");
+	//private JMenu recurIntvMenu = new JMenu("Recurrence Intervals");
+	//private JMenuItem segRecurIntvMenu = new JMenuItem("A-Fault Segment Recur Interval");
+	//private JMenuItem ratioRecurIntvMenu = new JMenuItem("A-Fault Ratio of Segment Recur Intervals");
+	//private JMenuItem segRatioRecurIntvMenu = new JMenuItem("Ratio of Segment Recur Intervals for a Particular Segment");
 	// Segment Slip Rates
-	private JMenu slipRateMenu = new JMenu("Slip Rates");
-	private JMenuItem segSlipRateMenu = new JMenuItem("A-Fault Segment Slip Rates");
-	private JMenuItem ratioSlipRateMenu = new JMenuItem("A-Fault Ratio of Segment Slip Rates");
-	private JMenuItem segRatioSlipRateMenu = new JMenuItem("Ratio of Segment Slip Rates for a Particular Segment");
+//	private JMenu slipRateMenu = new JMenu("Slip Rates");
+//	private JMenuItem segSlipRateMenu = new JMenuItem("A-Fault Segment Slip Rates");
+//	private JMenuItem ratioSlipRateMenu = new JMenuItem("A-Fault Ratio of Segment Slip Rates");
+//	private JMenuItem segRatioSlipRateMenu = new JMenuItem("Ratio of Segment Slip Rates for a Particular Segment");
 
 	
-	private final static String A_FAULT_RUP_RATES_FILENAME = "A_FaultRupRates_2_1.xls";
-	private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
-	private final static String A_FAULT_SEG_SLIP_RATE_FILENAME = "A_FaultSegSlipRate_2_1.xls";
-	private String dirName=null; 
+	//private final static String A_FAULT_RUP_RATES_FILENAME = "A_FaultRupRates_2_1.xls";
+	//private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
+	//private final static String A_FAULT_SEG_SLIP_RATE_FILENAME = "A_FaultSegSlipRate_2_1.xls";
+	//private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
 	
 	public static void main(String[] args) {
@@ -137,7 +137,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		container.add(this.calcButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
-		 menuBar.add(analysisMenu);
+		/* menuBar.add(analysisMenu);
 		 analysisMenu.add(rupRatesMenu);
 		 analysisMenu.add(recurIntvMenu);
 		 analysisMenu.add(slipRateMenu);
@@ -194,7 +194,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 public void actionPerformed(ActionEvent e) {
 				 segRatioSlipRateMenu_actionPerformed(e);
 			 }
-		 });
+		 });*/
 	}
 	
 	
@@ -203,28 +203,28 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	   *
 	   * @param actionEvent ActionEvent
 	   */
-	  private  void segRatioRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
+	 /* private  void segRatioRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
 		  FaultSegmentSelector faultSegmentSelector = new FaultSegmentSelector(this.eqkRateModelERF.get_A_FaultSources(), dirName, excelSheetName, true);
 		  faultSegmentSelector.deleteExcelSheet(true);
-	  }
+	  }*/
 	  
 	  /**
 	   * Segment slip rate ratio  for a specific segment
 	   *
 	   * @param actionEvent ActionEvent
 	   */
-	  private  void segRatioSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private  void segRatioSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegSlipRate(excelSheetName);
 		  FaultSegmentSelector faultSegmentSelector = new FaultSegmentSelector(this.eqkRateModelERF.get_A_FaultSources(), dirName, excelSheetName, false);
 		  faultSegmentSelector.deleteExcelSheet(true);
-	  }
+	  }*/
 	  
 	  
 	 /**
@@ -232,70 +232,70 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	   *
 	   * @param actionEvent ActionEvent
 	   */
-	  private  void ratioSegRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private  void ratioSegRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
 		  CreateHistogramsFromSegRecurIntvFile.createHistogramPlots(dirName, excelSheetName);
 		  new File(excelSheetName).delete();
-	  }
+	  }*/
 	  
 	  /**
 	   * Segment slip Rate ratio for all segments
 	   *
 	   * @param actionEvent ActionEvent
 	   */
-	  private  void ratioSegSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private  void ratioSegSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/temp.xls";
 		  this.eqkRateModelERF.generateExcelSheetForSegSlipRate(excelSheetName);
 		  CreateHistogramsFromSegSlipRateFile.createHistogramPlots(dirName, excelSheetName);
 		  new File(excelSheetName).delete();
-	  }
+	  }*/
 	
 	 /**
 	   * Rup Rates for A-Faults
 	   *
 	   * @param actionEvent ActionEvent
 	   */
-	  private  void rupRatesMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private  void rupRatesMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/"+A_FAULT_RUP_RATES_FILENAME;
 		  this.eqkRateModelERF.generateExcelSheetsForRupMagRates(excelSheetName);
 		  CreatePlotFromMagRateFile.createPlots(dirName, excelSheetName);
-	  }
+	  }*/
 	  
 	  /**
 	   * Segment recurrece interval for A-Faults
 	   * 
 	   * @param actionEvent
 	   */
-	  private void segRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private void segRecurIntvMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/"+A_FAULT_SEG_RECUR_INTV_FILENAME;
 		  this.eqkRateModelERF.generateExcelSheetForSegRecurIntv(excelSheetName);
 		  CreatePlotFromSegRecurIntvFile.createPlots(dirName, excelSheetName);
-	  }
+	  }*/
 	  
 	  /**
 	   * Slip Rates for A-Faults
 	   * 
 	   * @param actionEvent
 	   */
-	  private void segSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
+	  /*private void segSlipRateMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
 		  String excelSheetName = dirName+"/"+A_FAULT_SEG_SLIP_RATE_FILENAME;
 		  this.eqkRateModelERF.generateExcelSheetForSegSlipRate(excelSheetName);
 		  CreatePlotFromSegSlipRateFile.createPlots(dirName, excelSheetName);
-	  }
+	  }*/
 	  
 	  
-	  private String getDirectoryName() {
+	 /* private String getDirectoryName() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Choose directory to save files");
 		if(dirName!=null) fileChooser.setSelectedFile(new File(dirName));
@@ -304,7 +304,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	    	dirName = fileChooser.getSelectedFile().getAbsolutePath();
 	    } else dirName=null;
 		return dirName;
-	  }
+	  }*/
 	  
 	
 	/**
