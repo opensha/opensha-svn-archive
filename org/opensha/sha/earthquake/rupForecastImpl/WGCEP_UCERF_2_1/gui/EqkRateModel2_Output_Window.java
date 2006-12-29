@@ -227,7 +227,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		int totalRows=faultNames.size();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
 			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
-			totalRows+=source.getFaultSegmentData().getNumSegments();
+			totalRows+=source.getFaultSegmentData().getNumSegments()+1;// include totals
 		} 
 		int totalCols = SegmentDataTableModel.columnNames.length;
 		Object[][] rowData = new Object[totalRows][totalCols];
@@ -240,7 +240,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
 			++rowIndex;
 			segTableModel.setSegmentedFaultData(faultSegmentData, source);
-			for(int segIndex=0; segIndex<faultSegmentData.getNumSegments(); ++segIndex, ++rowIndex) {
+			for(int segIndex=0; segIndex<=faultSegmentData.getNumSegments(); ++segIndex, ++rowIndex) {
 				for(int colIndex=0; colIndex<totalCols;++colIndex)
 					rowData[rowIndex][colIndex]=segTableModel.getValueAt(segIndex, colIndex);
 			}
@@ -258,7 +258,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		int totalRows=faultNames.size();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
 			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
-			totalRows+=source.getNumRuptures();
+			totalRows+=source.getNumRuptures()+1; // also include totals
 		} 
 		int totalCols = RuptureTableModel.columnNames.length;
 		Object[][] rowData = new Object[totalRows][totalCols];
@@ -271,7 +271,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
 			++rowIndex;
 			rupTableModel.setFaultSegmentedSource(source);
-			for(int rupIndex=0; rupIndex<source.getNumRuptures(); ++rupIndex, ++rowIndex) {
+			for(int rupIndex=0; rupIndex<=source.getNumRuptures(); ++rupIndex, ++rowIndex) {
 				for(int colIndex=0; colIndex<totalCols;++colIndex)
 					rowData[rowIndex][colIndex]=rupTableModel.getValueAt(rupIndex, colIndex);
 			}
