@@ -2018,7 +2018,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			while(it.hasNext()) {
 				ParameterAPI param = (ParameterAPI)it.next();
 				if(param.getName().equals(MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(SLIP_MODEL_TYPE_NAME) ||
-						param.getName().equals(RUP_MODEL_TYPE_NAME)) continue;
+						param.getName().equals(SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
 				metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
 			}
 			
@@ -2065,7 +2065,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				cell1 = row1.createCell((short)col);
 				cell1.setCellValue((String)magAreaOptions.get(j));
 				cell1.setCellStyle(cellStyle);
-				cell2 = row2.createCell((short)col);
+				cell2 = row2.createCell((short)(col+1)); // leave column to sum a-priori rates
 				cell2.setCellValue((String)magAreaOptions.get(j));
 				cell2.setCellStyle(cellStyle);
 			}
@@ -2080,11 +2080,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			cell1.setCellStyle(cellStyle);
 			cell2.setCellStyle(cellStyle);
 			cell1 = row1.createCell((short)col);
-			cell2 = row2.createCell((short)col++);
+			cell2 = row2.createCell((short)col);
 			cell1.setCellValue("Characteristic");
-			cell2.setCellValue("Characteristic");
+			cell2.setCellValue("A-Priori Rates");
 			cell1.setCellStyle(cellStyle);
 			cell2.setCellStyle(cellStyle);
+			cell2 = row2.createCell((short)(col+1));
+			cell2.setCellValue("Characteristic");
+			cell2.setCellStyle(cellStyle);
+			++col;
 			for(int j=0; j<magAreaOptions.size(); ++j) {
 				for(int k=0; k<slipModelOptions.size(); ++k) {
 					String slipModel = (String)slipModelOptions.get(k);
@@ -2092,7 +2096,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						cell1 = row1.createCell((short)col);
 						cell1.setCellValue((String)slipModelOptions.get(k));
 						cell1.setCellStyle(cellStyle);
-						cell2 = row2.createCell((short)col++);
+						cell2 = row2.createCell((short)(++col));
 						cell2.setCellValue((String)slipModelOptions.get(k));
 						cell2.setCellStyle(cellStyle);
 					}
@@ -2100,13 +2104,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			}	
 			
 			// write Source Names
+			totRate=0;
 			for(int iSource=0; iSource<aFaultSources.size(); ++iSource) {
 				row1 = predErrSheet.createRow((short)(faultNamesStartRow+iSource));
 				A_FaultSegmentedSource src = (A_FaultSegmentedSource)aFaultSources.get(iSource);
+				for(int rupIndex=0; rupIndex<src.getNumRuptures(); ++rupIndex) totRate+=src.getAPrioriRupRate(rupIndex);
+
 				row1.createCell((short)0).setCellValue(src.getFaultSegmentData().getFaultName());
 			}
 			
 			totRateSheet.createRow(faultNamesStartRow).createCell((short)0).setCellValue("Total Rate");
+			totRateSheet.getRow(faultNamesStartRow).createCell((short)1).setCellValue(totRate);
 			
 			currRow+=aFaultSources.size();
 			// write totals
@@ -2133,13 +2141,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL))  col = 1; 
 		else col = 1 + (imag*(slipModelOptions.size()-1))+islip;				
 		// write the Gen. Pred. Error
+		totRate=0;
 		for(int i=0; i<this.aFaultSources.size(); ++i) {
 			A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
 			for(int rupIndex=0; rupIndex<source.getNumRuptures(); ++rupIndex) totRate+=source.getRupRate(rupIndex);
 
 			predErrSheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
 		}			
-		totRateSheet.getRow(faultNamesStartRow).createCell((short)col).setCellValue(totRate);
+		totRateSheet.getRow(faultNamesStartRow).createCell((short)(col+1)).setCellValue(totRate);
 	}
 	
 	/**
