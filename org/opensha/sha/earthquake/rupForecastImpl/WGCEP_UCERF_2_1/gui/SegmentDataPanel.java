@@ -731,9 +731,13 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 7:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 8:
-				return SLIP_RATE_FORMAT.format(segFaultData.getSegRateMean(rowIndex));
+				double segRateMean = segFaultData.getSegRateMean(rowIndex);
+				if(Double.isNaN(segRateMean)) return "";
+				return SLIP_RATE_FORMAT.format(segRateMean);
 			case 9:
-				return SLIP_RATE_FORMAT.format(segFaultData.getSegRateStdDevOfMean(rowIndex));
+				double stdDev = segFaultData.getSegRateStdDevOfMean(rowIndex);
+				if(Double.isNaN(stdDev)) return "";
+				return SLIP_RATE_FORMAT.format(stdDev);
 			case 10:
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 11:
