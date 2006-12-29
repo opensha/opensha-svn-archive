@@ -2189,7 +2189,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
+		//erRateModel2_ERF.mkExcelSheetTests();
 		
 	}
 }
