@@ -58,7 +58,7 @@ public class GenerateTestExcelSheets {
 		System.out.println(outputFileName);
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
-		
+		String[] columnHeaders = { "Rup_Name", "A-Priori Rate", "Char Mag", "Char Rate"};
 		HSSFWorkbook wb  = new HSSFWorkbook();
 		HSSFCellStyle cellStyle = wb.createCellStyle();
 		HSSFFont font = wb.createFont();
@@ -134,7 +134,7 @@ public class GenerateTestExcelSheets {
 								String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
 								wb.setSheetName(i+1, sheetName);
 								HSSFRow row;
-								generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet);		
+								generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet, columnHeaders);		
 								currRow[i]+=3;
 								 // write Rup Names and Apriori Rates
 								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
@@ -197,7 +197,7 @@ public class GenerateTestExcelSheets {
 		System.out.println(outputFileName);
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
-		
+		String[] columnHeaders = { "Segment Name", "A-Priori Rate", "Char Mag", "Char Rate"};
 		HSSFWorkbook wb  = new HSSFWorkbook();
 		HSSFCellStyle cellStyle = wb.createCellStyle();
 		HSSFFont font = wb.createFont();
@@ -273,7 +273,7 @@ public class GenerateTestExcelSheets {
 
 								 // for  Slip Rates
 								 sheet.createRow((short)currRow[i]++).createCell((short)0).setCellValue("Normalized Residual Slip Rate");
-								 generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet);		
+								 generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet, columnHeaders);		
 								 currRow[i]+=3;
 								 segSRStartRow[i] = currRow[i];
 								 for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
@@ -284,7 +284,7 @@ public class GenerateTestExcelSheets {
 								 // for  Event Rates
 								 currRow[i]+=3;
 								 sheet.createRow((short)currRow[i]++).createCell((short)0).setCellValue("Normalized Residual Event Rates");
-								 generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet);		
+								 generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet, columnHeaders);		
 								 currRow[i]+=3;
 								 segERStartRow[i] = currRow[i];
 								 for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
@@ -445,7 +445,7 @@ public class GenerateTestExcelSheets {
 	 * @param sheet
 	 */
 	private void generateExcelSheetHeader(HSSFCellStyle cellStyle, 
-			int rowIndex, int irup,  HSSFSheet sheet) {
+			int rowIndex, int irup,  HSSFSheet sheet, String columLabels[]) {
 		
 		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
 		
@@ -499,6 +499,8 @@ public class GenerateTestExcelSheets {
 	 * @param sheet
 	 */
 	private void genPredErrAndTotRateSheet(HSSFSheet predErrSheet, HSSFSheet totRateSheet, int imag, int islip, int irup, HSSFCellStyle cellStyle) {
+		String[] columnHeaders1 = { "Fault Name", "A-Priori Rate", "Char Mag", "Char Rate"};
+		String[] columnHeaders2 = { "Total", "A-Priori Rate", "Char Mag", "Char Rate"};
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 		//Create Excel Workbook and sheets if they do not exist already
 		double totRate=0;
@@ -516,8 +518,8 @@ public class GenerateTestExcelSheets {
 		}
 		
 		if(imag==0 && islip==0) { // Write the headers and fault names for the first time	
-			generateExcelSheetHeader(cellStyle, currRow, irup, predErrSheet);	
-			generateExcelSheetHeader(cellStyle, currRow, irup, totRateSheet);	
+			generateExcelSheetHeader(cellStyle, currRow, irup, predErrSheet, columnHeaders1);	
+			generateExcelSheetHeader(cellStyle, currRow, irup, totRateSheet, columnHeaders2);	
 			currRow+=3;	
 			// write Source Names
 			totRate=0;
