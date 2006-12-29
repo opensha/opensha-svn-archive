@@ -2143,38 +2143,67 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	/**
-	 * This generates some excel spreadsheet test results.  I should save the default parameters
+	 * This generates some excel spreadsheet test results, where each file has results for all mag-area
+	 * relationships, slip models, and solution types.
 	 *
 	 */
 	public void mkExcelSheetTests() {
 		
-		// Test 1 versus 2 - turn preserved min rates off in latter
-		// Test #a versus #b - moment removed versus none removed, respectively
-		
-		
-		// generate file for default parameters
+		// Test#a versus Test#b - moment removed versus none removed, respectively.
+
+		// TEST 1 - DEFAULT VALUES
+		// Test 1a
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
 		generateExcelSheetsForRupMagRates("Test1a_A_FaultRupRates_2_1.xls");
-		
-		// turn off preserve min rate (assuming default was true!!)
-		preserveMinAFaultRateParam.setValue(false);
-		generateExcelSheetsForRupMagRates("Test2a_A_FaultRupRates_2_1.xls");
-		// turn it back on
-		preserveMinAFaultRateParam.setValue(true);
-		
-		// change the moment removed to zero
+		// Test 1b
 		moRateFracToBackgroundParam.setValue(0.0);
-		// now remove that which goes to aseismicity
 		couplingCoeffParam.setValue(1.0);
-		// finally, remove that which goes to aftershocks
 		aftershockFractionParam.setValue(0.0);
 		generateExcelSheetsForRupMagRates("Test1b_A_FaultRupRates_2_1.xls");
+
 		
-		// turn off preserve min rate
+		// TEST 2 - TURN PRESERVE MIN RATE  OFF (ASSUMING DEFAULT IS TRUE)
 		preserveMinAFaultRateParam.setValue(false);
+		// Test 2a
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
+		generateExcelSheetsForRupMagRates("Test2a_A_FaultRupRates_2_1.xls");
+		// Test 2b
+		moRateFracToBackgroundParam.setValue(0.0);
+		couplingCoeffParam.setValue(1.0);
+		aftershockFractionParam.setValue(0.0);
 		generateExcelSheetsForRupMagRates("Test2b_A_FaultRupRates_2_1.xls");
-		// turn it back on
 		preserveMinAFaultRateParam.setValue(true);
 
+		
+		// TEST 3 (MEAN-MAG CORRECTION = +0.1)
+		meanMagCorrectionParam.setValue(new Double(0.1));
+		// Test 3a
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
+		generateExcelSheetsForRupMagRates("Test3a_A_FaultRupRates_2_1.xls");
+		// Test 3b
+		moRateFracToBackgroundParam.setValue(0.0);
+		couplingCoeffParam.setValue(1.0);
+		aftershockFractionParam.setValue(0.0);
+		generateExcelSheetsForRupMagRates("Test3b_A_FaultRupRates_2_1.xls");
+
+		// TEST 4 (MEAN-MAG CORRECTION = -0.1)
+		meanMagCorrectionParam.setValue(new Double(-0.1));
+		// Test 4a
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
+		generateExcelSheetsForRupMagRates("Test4a_A_FaultRupRates_2_1.xls");
+		// Test 4b
+		moRateFracToBackgroundParam.setValue(0.0);
+		couplingCoeffParam.setValue(1.0);
+		aftershockFractionParam.setValue(0.0);
+		generateExcelSheetsForRupMagRates("Test4b_A_FaultRupRates_2_1.xls");
 
 
 	}
@@ -2189,7 +2218,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		//erRateModel2_ERF.mkExcelSheetTests();
+		erRateModel2_ERF.mkExcelSheetTests();
 		
 	}
 }
