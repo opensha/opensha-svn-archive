@@ -321,6 +321,12 @@ public class FaultSegmentData {
 		return faultSectionList;
 	}
 	
+	/**
+	 * 
+	 */
+	public double getAveSegAseisFactor(int index) {
+		return segMoRate[index]/segMoRateIgnoringAseis[index];
+	}
 	
 	/**
 	 * Calculate  Stuff
