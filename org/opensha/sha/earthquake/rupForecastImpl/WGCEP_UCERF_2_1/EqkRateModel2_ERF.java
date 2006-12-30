@@ -450,7 +450,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		magAreaRelationships.add(new Ellsworth_B_WG02_MagAreaRel());
 		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
 		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
-//		magAreaRelationships.add(new WC1994_MagAreaRelationship());
+		//magAreaRelationships.add(new WC1994_MagAreaRelationship());
 		// array List of Mag Area Rel names
 		ArrayList magAreaNamesList = new ArrayList();
 		for(int i=0; i<magAreaRelationships.size(); ++i)

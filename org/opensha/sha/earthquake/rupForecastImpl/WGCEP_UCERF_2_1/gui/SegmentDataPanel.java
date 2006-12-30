@@ -643,6 +643,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	//Seg Name, Num, DDW, Legth, Aseis, Area, Orig SR, SR Sigma, Mo Rate, ... (as the rest appear).
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
+	private final static DecimalFormat ASEIS_FORMAT = new DecimalFormat("0.##");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
@@ -718,7 +719,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentLength(rowIndex)/1e3);
 			case 4:
-				return ""+segFaultData.getAveSegAseisFactor(rowIndex);
+				return ASEIS_FORMAT.format(segFaultData.getAveSegAseisFactor(rowIndex));
 			case 5:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(segFaultData.getSegmentArea(rowIndex)/1e6);

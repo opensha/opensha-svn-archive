@@ -21,7 +21,7 @@ import org.opensha.data.*;
 public class WC1994_MagAreaRelationship extends MagAreaRelationship {
 
     final static String C = "WC1994_MagAreaRelationship";
-    public final static String NAME = "W&C 1994 Mag-Area Rel.";
+    public final static String NAME = "Wells & Coppersmith (1994)";
 
 
     /**

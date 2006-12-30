@@ -17,7 +17,7 @@ import org.opensha.calc.magScalingRelations.*;
 public class Ellsworth_B_WG02_MagAreaRel extends MagAreaRelationship {
 
     final static String C = "Ellsworth_B_WG02_MagAreaRel";
-    public final static String NAME = "Ellsworth-B Mag-Area Rel.";
+    public final static String NAME = "Ellsworth-B (WGCEP, 2002, Eq 4.5b)";
 
     /**
      * Computes the median magnitude from rupture area.

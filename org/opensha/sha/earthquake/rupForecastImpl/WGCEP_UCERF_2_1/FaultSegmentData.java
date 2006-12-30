@@ -123,6 +123,15 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * This returns the average aseismcity factor for the ith segment
+	 * @param index
+	 * @return
+	 */
+	public double getAveSegAseisFactor(int index) {
+		return 1.0 - segMoRate[index]/segMoRateIgnoringAseis[index];
+	}
+	
+	/**
 	 * Get total length of all segments combined.    Note that this is not reduced if aseisReducesArea.
 	 * 
 	 * @return length in SI units (meters)

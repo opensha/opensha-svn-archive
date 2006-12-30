@@ -15,7 +15,7 @@ import org.opensha.calc.magScalingRelations.*;
 public class Somerville_2006_MagAreaRel extends MagAreaRelationship {
 
     final static String C = "Somerville_2006_MagAreaRel";
-    public final static String NAME = "Somerville (2006) Mag-Area Rel.";
+    public final static String NAME = "Somerville (2006)";
 
     /**
      * Computes the median magnitude from rupture area.

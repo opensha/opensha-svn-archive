@@ -18,7 +18,7 @@ import org.opensha.calc.magScalingRelations.*;
 public class HanksBakun2002_MagAreaRel extends MagAreaRelationship {
 
     final static String C = "HanksBakun2002_MagAreaRel";
-    public final static String NAME = "Hanks & Bakun (2002) Mag-Area Rel.";
+    public final static String NAME = "Hanks & Bakun (2002)";
     
     final static double mag_cut = 3.98 + Math.log(537)*lnToLog;
 
