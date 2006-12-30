@@ -322,13 +322,6 @@ public class FaultSegmentData {
 	}
 	
 	/**
-	 * 
-	 */
-	public double getAveSegAseisFactor(int index) {
-		return segMoRate[index]/segMoRateIgnoringAseis[index];
-	}
-	
-	/**
 	 * Calculate  Stuff
 	 * @return
 	 */
