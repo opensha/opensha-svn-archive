@@ -69,8 +69,7 @@ public class GenerateTestExcelSheets {
 		// METADATA SHEET
 		HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
 		wb.setSheetName(0, "README");
-		Iterator it = this.adjustableParams.getParametersIterator();
-		String str = "This file contains final (post-inversion) rupture rates for the four " +
+		String metadataStr = "This file contains final (post-inversion) rupture rates for the four " +
 				"different magnitude-area relationships, the four slip models, " +
 				"and the three solution types (min rate, max rate, and geologic insight).  " +
 				"All other parameters were set as listed below.  The sheet for each fault lists" +
@@ -85,15 +84,8 @@ public class GenerateTestExcelSheets {
 				"total rates (summed over all faults) for each case.  The \"Gen. Pred. Err\" sheet" +
 				" lists the generalized prediction errors for each case (smaller values mean " +
 				"a better overall fit to the slip-rate and total segment event-rate data)." ;
-		metadataSheet.createRow(0).createCell((short)0).setCellValue(str);
 		
-		int row = 1;
-		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
-			if(param.getName().equals(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME) ||
-					param.getName().equals(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
-			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
-		}
+		writeMetadata(wb, cellStyle, metadataSheet, metadataStr);
 		}
 		
 		// SHEETS FOR EACH A-FAULT
@@ -208,31 +200,9 @@ public class GenerateTestExcelSheets {
 		// METADATA SHEET
 		HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
 		wb.setSheetName(0, "README");
-		Iterator it = this.adjustableParams.getParametersIterator();
-		String str = "This file contains final (post-inversion) slip rates and event rates for the four " +
-				"different magnitude-area relationships, the four slip models, " +
-				"and the three solution types (min rate, max rate, and geologic insight).  " +
-				"All other parameters were set as listed below.  The sheet for each fault lists" +
-				" the following for each solution type: rupture name; the a-prior rate; " +
-				"the characteristic magnitude and characteristic rate resulting from the " +
-				"characteristic-slip model (which does not use a magnitude-area relationship); " +
-				"and the rates for the other three slip models for each magnitude-area relationship" +
-				" (twelve columns).  Listed at the bottom of the sheet for each fault are the " +
-				"following total-rate ratios: min/geol, max/geol, and max/min " +
-				"(useful for seeing the extent to which the different a-priori models " +
-				"converge to the same final rates).  The \"Total Rates\" sheet lists the " +
-				"total rates (summed over all faults) for each case.  The \"Gen. Pred. Err\" sheet" +
-				" lists the generalized prediction errors for each case (smaller values mean " +
-				"a better overall fit to the slip-rate and total segment event-rate data)." ;
-		metadataSheet.createRow(0).createCell((short)0).setCellValue(str);
-		
-		int row = 1;
-		while(it.hasNext()) {
-			ParameterAPI param = (ParameterAPI)it.next();
-			if(param.getName().equals(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME) ||
-					param.getName().equals(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
-			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
-		}
+		String metadataStr = "This file contains normalized residuals for each segment and for each " +
+				"combination of parameters." ;
+		writeMetadata(wb, cellStyle, metadataSheet, metadataStr);
 		}
 		
 		// SHEETS FOR EACH A-FAULT
@@ -324,6 +294,25 @@ public class GenerateTestExcelSheets {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+
+	private void writeMetadata(HSSFWorkbook wb, HSSFCellStyle cellStyle, HSSFSheet metadataSheet, String metadataStr) {
+		metadataSheet.setColumnWidth((short)0,(short) (32000)); // 256 * number of desired characters
+		metadataSheet.createRow(0).createCell((short)0).setCellValue(metadataStr);
+		HSSFCellStyle wrapCellStyle = wb.createCellStyle();
+		wrapCellStyle.setWrapText(true);
+		metadataSheet.getRow(0).getCell((short)0).setCellStyle(wrapCellStyle);
+		metadataSheet.createRow(2).createCell((short)0).setCellValue("Parameter Settings");
+		metadataSheet.getRow(2).getCell((short)0).setCellStyle(cellStyle);
+		int row = 3;
+		Iterator it = this.adjustableParams.getParametersIterator();
+		while(it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next();
+			if(param.getName().equals(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME) ||
+					param.getName().equals(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
+			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
 		}
 	}
 
