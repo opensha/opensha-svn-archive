@@ -1021,10 +1021,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private void mkA_FaultUnsegmentedSources() {
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
-		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
+//		double fractCharVsGR= ((Double) percentCharVsGRParam.getValue()).doubleValue()/100.0;
+		double fractCharVsGR= 0.0;
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
-		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
+//		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
+		double bValue = 0.0;
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 //		 this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
@@ -1063,8 +1065,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			//FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
 			for(int i=0; i<bFaultSegmentData.size(); ++i) {
 				FaultSegmentData segmentData = (FaultSegmentData)bFaultSegmentData.get(i);
-				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
-				fixRate = bFaultFixes.getRate(segmentData.getFaultName());
+// Fixes no longer used
+//				fixMag = bFaultFixes.getMag(segmentData.getFaultName());
+//				fixRate = bFaultFixes.getRate(segmentData.getFaultName());
+				fixMag = Double.NaN;
+				fixRate = Double.NaN;
 				//if(!Double.isNaN(fixMag)) {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
