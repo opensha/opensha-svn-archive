@@ -1502,62 +1502,54 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public void mkExcelSheetTests() {
 		
-		// Test#a versus Test#b - moment removed versus none removed, respectively.
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
-		// TEST 1 - DEFAULT VALUES
-		// Test 1a
-		moRateFracToBackgroundParam.setValue(0.1);
-		couplingCoeffParam.setValue(0.85);
-		aftershockFractionParam.setValue(0.09);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1a_A_FaultRupRates_2_1.xls");
-		// Test 1b
-		moRateFracToBackgroundParam.setValue(0.0);
-		couplingCoeffParam.setValue(1.0);
-		aftershockFractionParam.setValue(0.0);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1b_A_FaultRupRates_2_1.xls");
-
 		
-		// TEST 2 - TURN PRESERVE MIN RATE  OFF (ASSUMING DEFAULT IS TRUE)
-		preserveMinAFaultRateParam.setValue(false);
-		// Test 2a
+		// TEST 1 - DEFAULT VALUES
 		moRateFracToBackgroundParam.setValue(0.1);
 		couplingCoeffParam.setValue(0.85);
 		aftershockFractionParam.setValue(0.09);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2a_A_FaultRupRates_2_1.xls");
-		// Test 2b
-		moRateFracToBackgroundParam.setValue(0.0);
-		couplingCoeffParam.setValue(1.0);
-		aftershockFractionParam.setValue(0.0);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2b_A_FaultRupRates_2_1.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
+
+		// TEST 2 - TURN PRESERVE MIN RATE OFF (ASSUMING DEFAULT IS TRUE)
+		preserveMinAFaultRateParam.setValue(false);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
+		// reset that parameter
 		preserveMinAFaultRateParam.setValue(true);
 
-		
-		// TEST 3 (MEAN-MAG CORRECTION = +0.1)
+		// TEST 3 Zero slip rate reduction
+		moRateFracToBackgroundParam.setValue(0.0);
+		couplingCoeffParam.setValue(1.0);
+		aftershockFractionParam.setValue(0.0);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");
+		// reset those parameters
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
+
+		// TEST 4 (MEAN-MAG CORRECTION = +0.1)
 		meanMagCorrectionParam.setValue(new Double(0.1));
-		// Test 3a
-		moRateFracToBackgroundParam.setValue(0.1);
-		couplingCoeffParam.setValue(0.85);
-		aftershockFractionParam.setValue(0.09);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3a_A_FaultRupRates_2_1.xls");
-		// Test 3b
-		moRateFracToBackgroundParam.setValue(0.0);
-		couplingCoeffParam.setValue(1.0);
-		aftershockFractionParam.setValue(0.0);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3b_A_FaultRupRates_2_1.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
 
-		// TEST 4 (MEAN-MAG CORRECTION = -0.1)
+		// TEST 5 (MEAN-MAG CORRECTION = -0.1)
 		meanMagCorrectionParam.setValue(new Double(-0.1));
-		// Test 4a
-		moRateFracToBackgroundParam.setValue(0.1);
-		couplingCoeffParam.setValue(0.85);
-		aftershockFractionParam.setValue(0.09);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4a_A_FaultRupRates_2_1.xls");
-		// Test 4b
-		moRateFracToBackgroundParam.setValue(0.0);
-		couplingCoeffParam.setValue(1.0);
-		aftershockFractionParam.setValue(0.0);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4b_A_FaultRupRates_2_1.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
+		// reset that parameter
+		meanMagCorrectionParam.setValue(new Double(0.0));
+		
+		// TEST 6 Deformation Model D2.2
+		this.deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
 
+		// TEST 7 Deformation Model D2.3
+		this.deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");		
 
 	}
 	
