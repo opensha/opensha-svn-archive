@@ -1503,7 +1503,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public void mkExcelSheetTests() {
 		
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
-		
+	
 		// TEST 1 - DEFAULT VALUES
 		moRateFracToBackgroundParam.setValue(0.1);
 		couplingCoeffParam.setValue(0.85);
@@ -1542,14 +1542,23 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		meanMagCorrectionParam.setValue(new Double(0.0));
 		
 		// TEST 6 Deformation Model D2.2
-		this.deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
 
 		// TEST 7 Deformation Model D2.3
-		this.deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");		
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");	
+		// revert
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(0)).getDeformationModelName());
+
+		// TEST 8 No weight on segment rates
+		relativeSegRateWeightParam.setValue(new Double(0.0));
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test8_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test8_A_FaultNormResids.xls");
+		// revert
+		relativeSegRateWeightParam.setValue(new Double(1.0));		
 
 	}
 	
