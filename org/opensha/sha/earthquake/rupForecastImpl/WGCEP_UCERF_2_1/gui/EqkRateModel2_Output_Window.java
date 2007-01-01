@@ -118,12 +118,21 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		tabbedPane.addTab("A Fault Summary", aFaultSummaryPanel);
 		tabbedPane.addTab("B Fault Summary", getB_FaultSummaryGUI());
 		tabbedPane.addTab("C Zones Summary", getC_ZonesSummaryGUI());
-		calcNormModSlipRateResids();
-		calcNormDataER_Resids();
-		calcPredERRatio();
-		calcNormRupRatesDiff();
-		calcA_FaultRupData();
-		calcA_FaultSegData();
+		if(!this.isUnsegmented) {
+			calcNormModSlipRateResids();
+			calcNormDataER_Resids();
+			calcPredERRatio();
+			calcNormRupRatesDiff();
+			calcA_FaultRupData();
+			calcA_FaultSegData();
+		} else {
+			this.modSlipRateButton.setVisible(false);
+			this.predERButton.setVisible(false);
+			this.dataERButton.setVisible(false);
+			rupRatesRatioButton.setVisible(false);
+			this.aFaultsRupDataButton.setVisible(false);
+			this.aFaultsSegDataButton.setVisible(false);
+		}
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
 		container.add(tabbedPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0

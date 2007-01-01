@@ -182,9 +182,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		if(segmentedSource==null) { // for unsegmented source
 			this.eventRateButton.setVisible(false);
 			this.slipRateButton.setVisible(false);
+			this.slipRateRatioButton.setVisible(false);
+			this.eventRateRatioButton.setVisible(false);
 		} else { // Segmented source
 			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
+			this.slipRateRatioButton.setVisible(true);
+			this.eventRateRatioButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, faultSegmentData);
 			generateSlipRateRatioFuncList(segmentedSource);
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
@@ -380,10 +384,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		}
 		String text = MSG_ASEIS_REDUCES_SLIPRATE;
 		if(isAseisReducesArea) text = MSG_ASEIS_REDUCES_AREA;
-		String predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n";
-		predError += "Norm Mod Slip Rate Error = "+(float)segmentedSource.getNormModSlipRateError()+"\n";
-		predError += "Data Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
-		predError += "A-Priori Model Error = "+(float)segmentedSource.getA_PrioriModelError()+"\n\n";
+		String predError="";
+		if(segmentedSource!=null) {
+			predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n";
+			predError += "Norm Mod Slip Rate Error = "+(float)segmentedSource.getNormModSlipRateError()+"\n";
+			predError += "Data Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
+			predError += "A-Priori Model Error = "+(float)segmentedSource.getA_PrioriModelError()+"\n\n";
+		}
 		magAreasTextArea.setText(predError+getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
 	}
@@ -730,6 +737,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipRateStdDev(rowIndex)*1e3);
 			case 8:
+				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
 			case 9:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
@@ -742,8 +750,10 @@ class SegmentDataTableModel extends AbstractTableModel {
 				if(Double.isNaN(stdDev)) return "";
 				return SLIP_RATE_FORMAT.format(stdDev);
 			case 12:
+				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 13:
+				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
