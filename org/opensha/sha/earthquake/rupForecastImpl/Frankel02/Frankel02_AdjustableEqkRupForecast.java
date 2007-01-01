@@ -22,6 +22,7 @@ import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
@@ -850,6 +851,15 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   public ArrayList getAllGR_FaultSources(){
     return grFaultSources;
   }
+ 
+  /**
+   * Returns the Grid Sources from the Frankel-02 ERF
+   * @return ArrayList
+   */
+  public ArrayList getAllGridSources() {
+	  return frankelBackgrSeisSources;
+  }
+  
 
   /**
    *  This assumes the second file differs only in the max mag (third column)
@@ -1155,12 +1165,70 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   }
 
 
-
+   /**
+    * this returns the total MFD inside the RELM region (not including the Type-C (shear) zones)
+    */ 
+   public IncrementalMagFreqDist getTotalBackgroundMFD_InsideRELM_region() {
+	   setParameter(BACK_SEIS_RUP_NAME, BACK_SEIS_RUP_POINT);
+	   
+	   // make desired point sources
+	   frankelBackgrSeisSources = new ArrayList();
+	   makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
+	   makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
+	   makeGridSources("WUSmapC_OpenSHA", 0.5, "WUSmapG_OpenSHA", 0.5);
+	   makeGridSources("brawmap_OpenSHA", 1.0, null, 0.0);
+	   makeGridSources("cadeepAB_OpenSHA", 1.0, null, 0.0); // this file is identical to cadeepY_OpenSHA"
+	   makeGridSources("creepmap_OpenSHA", 1.0, null, 0.0);
+//	   makeGridSources("shear1_OpenSHA", 1.0, null, 0.0);
+//	   makeGridSources("shear2_OpenSHA", 1.0, null, 0.0);
+//	   makeGridSources("shear3_OpenSHA", 1.0, null, 0.0);
+//	   makeGridSources("shear4_OpenSHA", 1.0, null, 0.0);
+	   
+//	   RELM_TestingRegion relmRegion = new RELM_TestingRegion();
+	   EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
+	   Point2Vert_SS_FaultPoisSource ptSrc;
+	   SummedMagFreqDist summedDist = new SummedMagFreqDist(5.05,31,0.1);
+	   ListIterator it = frankelBackgrSeisSources.listIterator();
+	   double duration = timeSpan.getDuration();
+	   while(it.hasNext()) {
+		   ptSrc = (Point2Vert_SS_FaultPoisSource)it.next();
+		   // check whether point source is inside region (from rup surf since loc not saved)
+		   if (relmRegion.isLocationInside(ptSrc.getRupture(0).getRuptureSurface().getLocation(0, 0)))
+			   for(int rup=0; rup<ptSrc.getNumRuptures(); ++rup) {
+				   ProbEqkRupture rupture = ptSrc.getRupture(rup);
+				   summedDist.add(rupture.getMag(), -Math.log(1-rupture.getProbability())/duration);
+			   }
+	   }
+	   return summedDist;
+   }
 
 
 
    // this is temporary for testing purposes
    public static void main(String[] args) {
+
+	   
+	 // THIS GENERATES THE BACKGROUND MFD WITHOUT THE TYPE-C ZONES, AND SHIFTS THE MFD BY 0.05 MAG UNITS
+	 // THIS WAS FOR WGCEP Earthquake Rate Model 2.1
+	 Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
+	 IncrementalMagFreqDist totBackgroundMFD = frankCast.getTotalBackgroundMFD_InsideRELM_region();
+	 //System.out.println(totBackgroundMFD.toString());
+	 // translate mags by 0.05 units
+	 // get rate at 5.0 from rate at 5.05 using bValue=0.8
+	 double rate = totBackgroundMFD.getY(0) * Math.pow(10,0.8*0.05);
+	 double mag = 5;
+	 System.out.println("nshmp02_Backgr_MFD.set("+(float)mag+", "+(float)rate+");");
+	 //System.out.println("5.0\t"+(float)rate);
+	 for(int i=0;i<totBackgroundMFD.getNum()-1;i++) {
+		rate = Math.sqrt(totBackgroundMFD.getY(i)*totBackgroundMFD.getY(i+1));
+	 	mag = totBackgroundMFD.getX(i)+0.05;
+	 	System.out.println("nshmp02_Backgr_MFD.set("+(float)mag+", "+(float)rate+");");
+	 	//System.out.println((float)mag+"\t"+(float)rate);
+	 }
+	 
+	   
+	 /*
+	 // **********  This computes and plots MFD for the different souce types ******************
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME, Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
@@ -1225,25 +1293,16 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      totalSummedMFD.addIncrementalMagFreqDist(charSummedMFD);
      totalSummedMFD.addIncrementalMagFreqDist(grSummedMFD);
      totalSummedMFD.addIncrementalMagFreqDist(backSummedMFD);
-     /*
-     System.out.println("Char Sources:");
-     System.out.println(charSummedMFD.getCumRateDist().toString());
-     System.out.println("GR Sources:");
-     System.out.println(grSummedMFD.getCumRateDist().toString());
-     System.out.println("Back Sources:");
-     System.out.println(backSummedMFD.getCumRateDist().toString());
-     System.out.println("Total:");
-     System.out.println(totalSummedMFD.getCumRateDist().toString());
-     */
      
-     /*
-     // TEMP write out for UCERF 2.1
-     for(int i=0; i<21;i++) {
-    	 	double mag = 5 + (double)i*0.1;
-    	 	double interpRate = (backSummedMFD.getY(mag-0.05)+backSummedMFD.getY(mag+0.05))/2;
-    	 	System.out.println("nshmp02_CAmap_MFD.set("+mag+", "+interpRate+");");
-     }
-     */
+//     System.out.println("Char Sources:");
+//     System.out.println(charSummedMFD.getCumRateDist().toString());
+//     System.out.println("GR Sources:");
+//     System.out.println(grSummedMFD.getCumRateDist().toString());
+//     System.out.println("Back Sources:");
+//     System.out.println(backSummedMFD.getCumRateDist().toString());
+//     System.out.println("Total:");
+//     System.out.println(totalSummedMFD.getCumRateDist().toString());
+     
      
      ArrayList funcs = new ArrayList();
      EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
@@ -1264,6 +1323,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      
      WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
      
+     // ************************************************************
+     
+     */
      /*
      try {
        frankCast.writeRuptureTraces();
