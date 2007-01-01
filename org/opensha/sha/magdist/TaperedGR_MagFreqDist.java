@@ -250,14 +250,21 @@ public class TaperedGR_MagFreqDist
     int indexLow = getXIndex(magLower); // find the index of magLower
 
     int i;
-
-    for (i = 0; i < indexLow; ++i) // set all rates below magLower to 0
-      super.set(i, 0.0);
-
-    for (i = indexLow; i < this.getNum(); ++i) { // assign correct values to rates between magLower and magCorner
-    		double rate = Math.pow(10, -bValue * getX(i)) * Math.exp(-Math.pow(10, 1.5 * (getX(i)-magCorner)));
-    		super.set(i, rate);
+    
+    //make an array with the cumulative distribution values (offset by delta/2, with one additional point)
+    double[] cumRate = new double[num+1];
+    for (i = 0; i < cumRate.length; ++i) {
+    		double mag = i*delta + minX - delta/2.0;
+		cumRate[i] = Math.pow(10, -bValue * mag) * Math.exp(-Math.pow(10, 1.5 * (mag-magCorner)));
     }
+
+    	// now set the incremental rates
+    for (i = 0; i < cumRate.length-1; ++i) {
+    		super.set(i, cumRate[i]-cumRate[i+1]);
+    }
+    
+    for (i = 0; i < indexLow; ++i) // set all rates below magLower to 0
+        super.set(i, 0.0);
 
   }
 
