@@ -4,7 +4,9 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1;
 
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import java.util.StringTokenizer;
 
