@@ -532,7 +532,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		options.add(SET_FOR_BCK_PARAM_BCK_MAX_MAG);
 		options.add(SET_FOR_BCK_PARAM_NSHMP02);
 		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, 
-				SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR);
+				SET_FOR_BCK_PARAM_NSHMP02);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
 		// put parameters in the parameter List object	
@@ -1469,7 +1469,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 *
 	 */
-	/*private void findMinBulge() {
+	private void findMinBulge() {
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
@@ -1528,9 +1528,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			e.printStackTrace();
 		}
 		System.out.println(minRatio+"------"+minStr);
-	}*/
+	}
 	
-	
+
 	
 	
 	/**
