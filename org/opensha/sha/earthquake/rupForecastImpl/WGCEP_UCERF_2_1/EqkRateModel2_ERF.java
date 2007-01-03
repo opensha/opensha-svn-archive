@@ -1472,60 +1472,75 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void findMinBulge() {
+		// use this
+		this.relativeSegRateWeightParam.setValue(1.0);
+		String filename = "Bulge_1.txt";
+		// or this
+//		this.relativeSegRateWeightParam.setValue(0.0);
+//		String filename = "Bulge_0.txt";
+		
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
-		double obVal = this.getObsBestFitCumMFD(true).getY(6.5);
+		// set the following two and use moRateFracToBackgroundParam as proxy for all
+		this.aftershockFractionParam.setValue(new Double(0));
+		this.couplingCoeffParam.setValue(new Double(1));
+		double obVal = this.getObsCumMFD(false).get(0).getY(6.5);
 		double minRatio = 10, ratio;
 		String str="", minStr="";
 		try {
-		FileWriter fw = new FileWriter("Bulge.txt");
-		int imag=1;
-		//for(int imag=0; imag<magAreaOptions.size();imag++)
-		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-			for(int irup=0; irup<1;irup++) {
-				Iterator it = this.segmentedRupModelParam.getParametersIterator();
-				while(it.hasNext()) { // set the specfiied rup model in each A fault
-					StringParameter param = (StringParameter)it.next();
-					ArrayList<String> allowedVals = param.getAllowedStrings();
-					param.setValue(allowedVals.get(irup));
-				}
-					for(int islip=2; islip<slipModelOptions.size();islip++) 
-						for(double per=0.0; per<=80; per+=10) // % char vs GR
-							for(double bVal1=0.8; bVal1<=1.2; bVal1+=0.1)  // b faults B val
-								for(double bVal2=0.8; bVal2<=1.2; bVal2+=0.1) // bacgrd B val
-									for(double frac=0.1; frac<0.3; frac+=0.05){ // moment rate reduction
-										magAreaRelParam.setValue(magAreaOptions.get(imag));
-										
-										slipModelParam.setValue(slipModelOptions.get(islip));
-										this.moRateFracToBackgroundParam.setValue(frac);
-										this.bFaultB_ValParam.setValue(bVal1);
-										this.percentCharVsGRParam.setValue(per);
-										this.regionB_ValParam.setValue(bVal2);
-										try {
-											updateForecast();
-										}catch(Exception e) {
-											System.out.println(e.getMessage()+" , "+magAreaOptions.get(imag)+
-													" , " + models[irup] +
-													" , " + slipModelOptions.get(islip));
-											continue;
-										}
-										// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
-										double predCumRate = getTotalMFD().getCumRate(6.5);
-										ratio = (predCumRate/obVal);
-										str = (float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
-											" , " + models[irup] +
-											" , " + slipModelOptions.get(islip)+","+per+","+bVal1+","+
-											bVal2+","+frac;
-										System.out.println(str);
-										fw.write(str+"\n");
-										if(ratio<minRatio) {
-											minRatio = ratio;
-											minStr = str;
-										}
-										
+			FileWriter fw = new FileWriter(filename);
+			//int imag=1;
+			String bVal1 = "default";
+			String bVal2 = "default";
+			for(int imag=0; imag<magAreaOptions.size();imag++) {
+				String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+				for(int irup=0; irup<3;irup++) {
+					Iterator it = this.segmentedRupModelParam.getParametersIterator();
+					while(it.hasNext()) { // set the specfiied rup model in each A fault
+						StringParameter param = (StringParameter)it.next();
+						ArrayList<String> allowedVals = param.getAllowedStrings();
+						param.setValue(allowedVals.get(irup));
 					}
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+						for(double per=0.0; per<=100; per+=33.3) { // % char vs GR
+//							for(double bVal1=0.8; bVal1<=1.2; bVal1+=0.1)  // b faults B val
+//							for(double bVal2=0.8; bVal2<=1.2; bVal2+=0.1) // bacgrd B val
+							for(double frac=0.0; frac<=0.5; frac+=0.15){ // moment rate reduction
+								magAreaRelParam.setValue(magAreaOptions.get(imag));
+								slipModelParam.setValue(slipModelOptions.get(islip));
+								this.moRateFracToBackgroundParam.setValue(frac);
+//								this.bFaultB_ValParam.setValue(bVal1);
+								this.percentCharVsGRParam.setValue(per);
+//								this.regionB_ValParam.setValue(bVal2);
+								try {
+									updateForecast();
+								}catch(Exception e) {
+									System.out.println(e.getMessage()+" , "+magAreaOptions.get(imag)+
+											" , " + models[irup] +
+											" , " + slipModelOptions.get(islip));
+									continue;
+								}
+								// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
+								double predCumRate = getTotalMFD().getCumRate(6.5);
+								ratio = (predCumRate/obVal);
+								str = (float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
+								" , " + models[irup] +
+								" , " + slipModelOptions.get(islip)+","+per+","+bVal1+","+
+								bVal2+","+frac;
+								//System.out.println(str);
+								fw.write(str+"\n");
+								if(ratio<minRatio) {
+									minRatio = ratio;
+									minStr = str;
+								}
+								
+							}
+						}
+						System.out.println(str);
+					}
+				}
 			}
-		fw.close();
+			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -1605,14 +1620,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		//erRateModel2_ERF.findMinBulge();
+		erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
 		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
+		//erRateModel2_ERF.mkExcelSheetTests();
 		
 	}
 }
