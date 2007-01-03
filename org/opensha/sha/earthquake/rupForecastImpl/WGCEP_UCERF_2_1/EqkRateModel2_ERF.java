@@ -1473,11 +1473,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	private void findMinBulge() {
 		// use this
-		this.relativeSegRateWeightParam.setValue(1.0);
-		String filename = "Bulge_1.txt";
+//		this.relativeSegRateWeightParam.setValue(1.0);
+//		String filename = "Bulge_1.txt";
 		// or this
-//		this.relativeSegRateWeightParam.setValue(0.0);
-//		String filename = "Bulge_0.txt";
+		this.relativeSegRateWeightParam.setValue(0.0);
+		String filename = "Bulge_0.txt";
 		
 		ArrayList magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		ArrayList slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
