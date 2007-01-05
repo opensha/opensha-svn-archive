@@ -26,6 +26,8 @@ import org.opensha.gui.plot.jfreechart.*;
  * Creating the PDF files for the storing the curves and metadata.
  */
 import com.lowagie.text.pdf.PdfWriter;
+
+import java.io.File;
 import java.io.FileOutputStream;
 
 import com.lowagie.text.Document;
@@ -965,7 +967,17 @@ public class GraphPanel extends JPanel {
     else
       DataUtil.save(fileName, pointsTextArea.getText());
   }
-
+  
+  /**
+   * Allows the user to save the chart as PNG.
+   * @param fileName
+   * @throws IOException
+   */
+  public void saveAsPNG(String fileName) throws IOException {
+	  ChartUtilities.saveChartAsPNG(new File(fileName),chartPanel.getChart() , 
+			  chartPanel.getWidth(), chartPanel.getHeight());
+  }
+  
   /**
    * Allows the user to save the chart contents and metadata as PDF.
    * This allows to preserve the color coding of the metadata.
@@ -976,7 +988,6 @@ public class GraphPanel extends JPanel {
     int height = chartPanel.getHeight();
     int textLength = metadataText.getStyledDocument().getLength();
     int totalLength = textLength + height;
-
     // step 1
     Document metadataDocument = new Document(new com.lowagie.text.Rectangle(
       width, height));

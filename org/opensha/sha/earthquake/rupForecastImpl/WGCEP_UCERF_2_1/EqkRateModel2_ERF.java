@@ -168,7 +168,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private ArrayList magAreaRelationships;
 	
 	// choose deformation model
-	private final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
+	public final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
 	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.3 use Fault Model 2.1, and D2.4 to D2.6 use Fault Model 2.2";
 	private StringParameter deformationModelsParam;
 	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
@@ -186,7 +186,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private BooleanParameter constrainA_SegRatesParam; 
 */
 	// relative a-priori weights
-	private final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
+	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
 	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(Double.MIN_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1);
@@ -194,10 +194,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
 	// relative segment rate weights
-	private final static String REL_SEG_RATE_WT_PARAM_NAME = "Wt On Segment Rates";
-	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0.0);
+	public final static String REL_SEG_RATE_WT_PARAM_NAME = "Wt On Segment Rates";
+	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0);
 	private final static Double REL_SEG_RATE_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(1.0);
+	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(1);
 	private final static String REL_SEG_RATE_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
 	private DoubleParameter relativeSegRateWeightParam; 
 
@@ -234,7 +234,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private StringParameter slipModelParam;
 	
 	// % char vs GR param
-	private final static String CHAR_VS_GR_PARAM_NAME = "% Char vs GR";
+	public final static String CHAR_VS_GR_PARAM_NAME = "% Char vs GR";
 	private final static Double CHAR_VS_GR_MIN = new Double(.0);
 	private final static Double CHAR_VS_GR_MAX = new Double(100.0);
 	private final static Double CHAR_VS_GR_DEFAULT = new Double(67.0);
@@ -247,7 +247,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	// char mag sigma >=0 and <=1
-	private final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
+	public final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
 	private final static Double MAG_SIGMA_MIN = new Double(0.0);
 	private final static Double MAG_SIGMA_MAX = new Double(1.0);
 	private final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
@@ -256,7 +256,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	// Char mag trunc level (units is number of sigmas) >=0 and <=6
 	// Mag truncation level
-	private final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
+	public final static String TRUNC_LEVEL_PARAM_NAME = "Truncation Level";
 	private final static String TRUNC_LEVEL_PARAM_UNITS = "Number of sigmas";
 	private final static Double TRUNC_LEVEL_MIN = new Double(0.0);
 	private final static Double TRUNC_LEVEL_MAX = new Double(6.0);
@@ -278,14 +278,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter regionB_ValParam;
 	
 	// B-Fault Min Mag
-	private final static String B_FAULTS_MIN_MAG = "B-Faults Min Mag";
+	public final static String B_FAULTS_MIN_MAG = "B-Faults Min Mag";
 	private final static Double B_FAULTS_MIN_MAG_DEFAULT = new Double(6.5);
 	private final static String B_FAULTS_MIN_MAG_INFO = "Min Mag to apply to B-Faults GR-distribution";
 	private DoubleParameter bFaultsMinMagParam;
 	
 
 	// whether to inlcude C-zones
-	private final static String INCLUDE_C_ZONES  = "Include C Zones?";
+	public final static String INCLUDE_C_ZONES  = "Include C Zones?";
 	private final static Boolean INCLUDE_C_ZONES_DEFAULT = new Boolean(true);
 	private BooleanParameter includeC_ZonesParam;
 	
@@ -298,7 +298,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter moRateFracToBackgroundParam;
 	
 	// Mean Mag Correction
-	private final static String MEAN_MAG_CORRECTION = "Mean Mag Correction";
+	public final static String MEAN_MAG_CORRECTION = "Mean Mag Correction";
 	private final static Double MEAN_MAG_CORRECTION_MIN = new Double(-0.5);
 	private final static Double MEAN_MAG_CORRECTION_MAX = new Double(0.5);
 	private final static Double MEAN_MAG_CORRECTION_DEFAULT = new Double(0.0);
@@ -306,7 +306,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter meanMagCorrectionParam;
 	
 	// set for background
-	private final static String SET_FOR_BCK_PARAM_NAME = "MFD for Background";
+	public final static String SET_FOR_BCK_PARAM_NAME = "MFD for Background";
 	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR = "Trunc. GR (Mmax from fraction)";
 	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR = "Tapered GR (Mcorner from fraction)";
 	private final static String SET_FOR_BCK_PARAM_BCK_MAX_MAG = "Trunc. GR (w/ set Mmax)";
@@ -541,6 +541,83 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		createParamList();
 	
 	}
+	
+	
+	// Set default value for parameters
+	public void setParamDefaults() {
+		backSeisParam.setValue(BACK_SEIS_INCLUDE);
+		// backgroud treated as point sources/finite soource
+		backSeisRupParam.setValue(BACK_SEIS_RUP_POINT);
+		// back seis Mmax
+		backSeisMaxMagParam.setValue(BACK_SEIS_MAG_DEFAULT);
+		// rup offset
+		rupOffset_Param.setValue(DEFAULT_RUP_OFFSET_VAL);
+		// total M>-5 rate
+		totalMagRateParam.setValue(TOT_MAG_RATE_DEFAULT);
+		// Aftershock/Foreshock fraction
+		aftershockFractionParam.setValue(AFTERSHOCK_FRACTION_DEFAULT);
+		// Coupling coeff
+		couplingCoeffParam.setValue(COUPLING_COEFF_DEFAULT);
+		// % char vs GR param
+		percentCharVsGRParam.setValue(CHAR_VS_GR_DEFAULT);
+		// aseis factor param
+		aseisFactorInterParam.setValue(true);
+		// relativeA_PrioriWeightParam
+		relativeA_PrioriWeightParam.setValue(REL_A_PRIORI_WT_PARAM_DEFAULT);
+		//
+		relativeSegRateWeightParam.setValue(REL_SEG_RATE_WT_PARAM_DEFAULT);		
+		// preserveMinAFaultRateParam
+		preserveMinAFaultRateParam.setValue(true);
+		// weightedInversionParam
+		weightedInversionParam.setValue(true);	
+		// connect more B Faults
+		connectMoreB_FaultsParam.setValue(true);
+		connectMoreB_FaultsParam.setInfo(CONNECT_B_FAULTS_PARAM_INFO);
+		//Mag Area Relationships
+		magAreaRelParam.setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
+		// deformation model
+		deformationModelsParam.setValue(deformationModelSummariesList.get(0).getDeformationModelName() );
+		rupModelParam.setValue(SEGMENTED_A_FAULT_MODEL);
+		// segmented fault model param	
+		Iterator it = this.segmentedRupModelParam.getParametersIterator();
+		while(it.hasNext()) { // set the specfiied rup model in each A fault
+			StringParameter param = (StringParameter)it.next();
+			ArrayList<String> allowedVals = param.getAllowedStrings();
+			param.setValue(allowedVals.get(0));
+		}
+		// A-fault slip type
+		slipModelParam.setValue(A_FaultSegmentedSource.TAPERED_SLIP_MODEL);
+		// mag Sigma Param
+		magSigmaParam.setValue(MAG_SIGMA_DEFAULT);
+		// trunc level
+		truncLevelParam.setValue(TRUNC_LEVEL_DEFAULT);
+		// B-Fault B-Value
+		bFaultB_ValParam.setValue(B_FAULT_GR_B_DEFAULT);
+		// Regional B-Value
+		regionB_ValParam.setValue(BACK_SEIS_B_DEFAULT);
+		moRateFracToBackgroundParam.setValue(ABC_MO_RATE_REDUCTION_DEFAULT);
+		// Mean Mag Correction
+		meanMagCorrectionParam.setValue(MEAN_MAG_CORRECTION_DEFAULT);
+		//		 B-Fault Min Mag
+		bFaultsMinMagParam.setValue(B_FAULTS_MIN_MAG_DEFAULT);
+		// whether to inlcude C-zones
+		includeC_ZonesParam.setValue(INCLUDE_C_ZONES_DEFAULT);
+		// set for background
+		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP02);
+	}
+	
+	/**
+	 * Whether to include the aftershocks
+	 * 
+	 * @return
+	 */
+	public boolean areAfterShocksIncluded() {
+		double rate = ((Double)getParameter(TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
+		boolean includeAfterShocks;
+		if(rate > 5.85) includeAfterShocks = true;
+		else includeAfterShocks = false;
+		return includeAfterShocks;
+	}	
 	
 	/**
 	 * Put parameters in theParameterList

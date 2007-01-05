@@ -4,10 +4,12 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
+import org.jfree.chart.ChartUtilities;
 import org.jfree.data.Range;
 import org.opensha.util.ImageUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -306,6 +308,15 @@ public class GraphWindow
    */
   public void saveAsPDF(String fileName) throws IOException {
 	  graphPanel.saveAsPDF(fileName);
+  }
+  
+  /**
+   * Allows the user to save the chart as PNG.
+   * @param fileName
+   * @throws IOException
+   */
+  public void saveAsPNG(String fileName) throws IOException {
+	  graphPanel.saveAsPNG(fileName);
   }
 
   /**

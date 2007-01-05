@@ -21,13 +21,19 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
+import org.opensha.param.ParameterListParameter;
+import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -49,6 +55,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private ParameterListEditor editor; // editor
 	private final static String TITLE = "Eqk Rate Model2 Params";
 	private JButton calcButton = new JButton("Calculate");
+	private JButton analysisFiguresButton = new JButton("Generate Figures for Analysis");
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private final static int W = 300;
 	private final static int H = 800;
@@ -71,7 +78,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	//private final static String A_FAULT_RUP_RATES_FILENAME = "A_FaultRupRates_2_1.xls";
 	//private final static String A_FAULT_SEG_RECUR_INTV_FILENAME = "A_FaultSegRecurIntv_2_1.xls";
 	//private final static String A_FAULT_SEG_SLIP_RATE_FILENAME = "A_FaultSegSlipRate_2_1.xls";
-	//private String dirName=null; 
+	private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
 	
 	public static void main(String[] args) {
@@ -91,6 +98,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		//createHistoricalMFD();
 		createGUI();
 		calcButton.addActionListener(this);
+		analysisFiguresButton.addActionListener(this);
 		pack();
 		Container container = this.getContentPane();
 		container.add(this.scrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -135,6 +143,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		container.setLayout(new GridBagLayout());
 		this.addParameterListEditor();
 		container.add(this.calcButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		container.add(this.analysisFiguresButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
 		/* menuBar.add(analysisMenu);
@@ -295,7 +305,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  }*/
 	  
 	  
-	 /* private String getDirectoryName() {
+	 private String getDirectoryName() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Choose directory to save files");
 		if(dirName!=null) fileChooser.setSelectedFile(new File(dirName));
@@ -304,20 +314,228 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	    	dirName = fileChooser.getSelectedFile().getAbsolutePath();
 	    } else dirName=null;
 		return dirName;
-	  }*/
+	  }
 	  
+	 /**
+	  * Generate figures for analysis
+	  * @param dirName
+	  */
+	 private void generateAnalysisFigures(String dirName) {
+		 
+		 // remove parameter listeners
+		 ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
+		 Iterator it = paramList.getParametersIterator();
+		 while(it.hasNext()) {
+			 ParameterAPI param = (ParameterAPI)it.next();
+			 param.removeParameterChangeListener(this);
+		 }
+		 
+		 this.dirName=dirName;
+		 this.eqkRateModelERF.setParamDefaults();
+		 // figure 1 with defaults
+		 int fig=1;
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 // figure 2
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.AFTERSHOCK_FRACTION_PARAM_NAME).setValue(0.0);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME).setValue(1.0);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME).setValue(0.0);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 3
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		  it = ((ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).getParametersIterator();
+		 while(it.hasNext()) { // set the specfiied rup model in each A fault
+			 StringParameter param = (StringParameter)it.next();
+			 ArrayList<String> allowedVals = param.getAllowedStrings();
+			 param.setValue(allowedVals.get(1));
+		 }
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 4
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 it = ((ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).getParametersIterator();
+		 while(it.hasNext()) { // set the specfiied rup model in each A fault
+			 StringParameter param = (StringParameter)it.next();
+			 ArrayList<String> allowedVals = param.getAllowedStrings();
+			 param.setValue(allowedVals.get(1));
+		 }
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 5
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 it = ((ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).getParametersIterator();
+		 while(it.hasNext()) { // set the specfiied rup model in each A fault
+			 StringParameter param = (StringParameter)it.next();
+			 ArrayList<String> allowedVals = param.getAllowedStrings();
+			 param.setValue(allowedVals.get(2));
+		 }
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 6
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).setValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 7
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 8
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 9
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 10
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_A_WG02_MagAreaRel.NAME);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 11
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 12
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(Somerville_2006_MagAreaRel.NAME);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 13
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 14
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.B_FAULTS_MIN_MAG).setValue(new Double(5.0));
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 15
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(false);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 16
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 17
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 18
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.2");
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 19
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.3");
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 20
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME).setValue(new Double(0.67));
+		 it = ((ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).getParametersIterator();
+		 while(it.hasNext()) { // set the specfiied rup model in each A fault
+			 StringParameter param = (StringParameter)it.next();
+			 ArrayList<String> allowedVals = param.getAllowedStrings();
+			 param.setValue(allowedVals.get(1));
+		 }
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 //		 figure 21
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME).setValue(new Double(0.75));
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(85));
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.updateForecast();
+		 makeMFDsPlot(""+fig);
+		 
+		 eqkRateModelERF.setParamDefaults();
+		 
+		 // add back parameter listeners
+		 paramList = eqkRateModelERF.getAdjustableParameterList();
+		 it = paramList.getParametersIterator();
+		 while(it.hasNext()) {
+			 ParameterAPI param = (ParameterAPI)it.next();
+			 param.addParameterChangeListener(this);
+		 }
+		 
+		 
+	 }
+	 
+	 /**
+	  * Plot MFDs
+	  * @param fileName
+	  */
+	 private void makeMFDsPlot(String fileName) {
+		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF);
+		 GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
+		 graphWindow.setPlotLabel("Eqk Rates");
+		 graphWindow.plotGraphUsingPlotPreferences();
+		 graphWindow.setVisible(true);
+		 try {
+			 graphWindow.saveAsPNG(dirName+"/"+fileName+".png");
+		 }catch(Exception e) {
+			 e.printStackTrace();
+		 }
+	 }
 	
 	/**
 	 * When Calc button is clicked
 	 * @param event
 	 */
 	public void actionPerformed(ActionEvent event) {
-		CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
-		progressBar.setLocationRelativeTo(this);
-		eqkRateModelERF.updateForecast(); // update forecast
-		// show the output
-		EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(eqkRateModelERF);
-		outputWindow.setLocationRelativeTo(this);
-		progressBar.showProgress(false);
+		Object source  = event.getSource();
+		if(source==this.calcButton) {
+			CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
+			progressBar.setLocationRelativeTo(this);
+			eqkRateModelERF.updateForecast(); // update forecast
+			// show the output
+			EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(eqkRateModelERF);
+			outputWindow.setLocationRelativeTo(this);
+			progressBar.showProgress(false);
+		} else if(source==this.analysisFiguresButton){
+			String dirName = getDirectoryName();
+			if(dirName==null) return;
+			generateAnalysisFigures(dirName);
+		}
 	}
 }

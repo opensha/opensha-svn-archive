@@ -46,32 +46,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAPI, ActionListener, ParameterChangeListener{
-	private final static String X_AXIS_LABEL = "Magnitude";
-	private final static String Y_AXIS_LABEL = "Rate";
+public class EqkRateModel2_Output_Window extends JFrame implements ActionListener, ParameterChangeListener{
 	private final static String PLOT_LABEL = "Eqk Rates";
-	private ArrayList funcs;
-	
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.DARK_GRAY, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 5);
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      Color.RED, 5);
-	//private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		//      Color.RED, 5);
-	//private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		//      Color.RED, 5);
 	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
 	private JButton modSlipRateButton = new JButton("Plot Histogram of Normalized Slip-Rate Residuals ((Final_SR-Orig_SR)/SR_Sigma)");
 	private JButton dataERButton = new JButton("Plot Histogram of Normalized Segment Event-Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
@@ -96,6 +72,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	private ArrayList<Double> normRupRatesRatioList;
 	private  boolean isAseisReducesArea;
 	private JTable aFaultsSegData, aFaultsRupData;
+	private EqkRateModel2_MFDsPlotter mfdsPlotter;
 	/**
 	 * 
 	 * @param eqkRateModelERF
@@ -147,7 +124,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	 */
 	private JPanel getTotalModelSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
-		this.createFunctionList();
+		mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF);
 		JTextArea textArea = new JTextArea();
 		textArea.setText("");
 		textArea.setLineWrap(true);
@@ -155,7 +132,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		
 		IncrementalMagFreqDist totalMFD = this.eqkRateModelERF.getTotalMFD();
 		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
-		boolean includeAfterShocks = this.areAfterShocksIncluded();
+		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
 		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.eqkRateModelERF.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
 		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n");
 		
@@ -415,7 +392,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 	public void actionPerformed(ActionEvent event) {
 		Object src = event.getSource();
 		if(src == this.plotMFDsButton) {
-			GraphWindow graphWindow= new GraphWindow(this);
+			GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
@@ -541,158 +518,5 @@ public class EqkRateModel2_Output_Window extends JFrame implements GraphWindowAP
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);
 	}
-	
-	/**
-	 * Create Function List
-	 *
-	 */
-	private void createFunctionList() {
-		funcs = new ArrayList();
-		
-		// Type A faults cum Dist
-		EvenlyDiscretizedFunc cumDist = eqkRateModelERF.getTotal_A_FaultsMFD().getCumRateDist();
-		cumDist.setInfo("Type A-Faults Total Mag Freq Dist");
-		funcs.add(cumDist);
-		 // Type B faults Char cum Dist
-		cumDist = eqkRateModelERF.getTotal_B_FaultsCharMFD().getCumRateDist();
-		cumDist.setInfo("Type B-Faults Total Char Mag Freq Dist");
-		funcs.add(cumDist);
-		//	Type B faults GR cum Dist
-		cumDist = eqkRateModelERF.getTotal_B_FaultsGR_MFD().getCumRateDist();
-		cumDist.setInfo("Type B-Faults Total GR Mag Freq Dist");
-		funcs.add(cumDist);
-		//	Background cum Dist
-		cumDist = eqkRateModelERF.getTotal_BackgroundMFD().getCumRateDist();
-		cumDist.setInfo("BackGround Total  Mag Freq Dist");
-		funcs.add(cumDist);
-		//	C zone cum Dist
-		cumDist = eqkRateModelERF.getTotal_C_ZoneMFD().getCumRateDist();
-		cumDist.setInfo("C Zone Total  Mag Freq Dist");
-		funcs.add(cumDist);
-		//	Total cum Dist
-		cumDist = eqkRateModelERF.getTotalMFD().getCumRateDist();
-		cumDist.setInfo("Total  Mag Freq Dist");
-		funcs.add(cumDist);
-		
-		
-		boolean includeAfterShocks = areAfterShocksIncluded();
-		// historical best fit cum dist
-		funcs.add(this.eqkRateModelERF.getObsBestFitCumMFD(includeAfterShocks));
-		
-		// historical cum dist
-		funcs.addAll(this.eqkRateModelERF.getObsCumMFD(includeAfterShocks));
-	}
-
-	/**
-	 * Whether to include the aftershocks
-	 * 
-	 * @return
-	 */
-	private boolean areAfterShocksIncluded() {
-		double rate = ((Double)eqkRateModelERF.getParameter(eqkRateModelERF.TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
-		boolean includeAfterShocks;
-		if(rate > 5.85) includeAfterShocks = true;
-		else includeAfterShocks = false;
-		return includeAfterShocks;
-	}
-	
-	
-
-	
-	
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
-	 */
-	public ArrayList getCurveFunctionList() {
-		return funcs;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
-	 */
-	public boolean getXLog() {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
-	 */
-	public boolean getYLog() {
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
-	 */
-	public String getXAxisLabel() {
-		return X_AXIS_LABEL;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
-	 */
-	public String getYAxisLabel() {
-		return Y_AXIS_LABEL;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
-	 */
-	public ArrayList getPlottingFeatures() {
-		 ArrayList list = new ArrayList();
-		 list.add(this.PLOT_CHAR1);
-		 list.add(this.PLOT_CHAR2);
-		 list.add(this.PLOT_CHAR3);
-		 list.add(this.PLOT_CHAR4);
-		 list.add(this.PLOT_CHAR5);
-		 list.add(this.PLOT_CHAR6);
-		 list.add(this.PLOT_CHAR7);
-		 list.add(this.PLOT_CHAR8);
-		 list.add(this.PLOT_CHAR8);
-		 list.add(this.PLOT_CHAR8);
-		 return list;
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
-	 */
-	public boolean isCustomAxis() {
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
-	 */
-	public double getMinX() {
-		return 5.0;
-		//throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
-	 */
-	public double getMaxX() {
-		return 9.255;
-		//throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
-	 */
-	public double getMinY() {
-		return 1e-4;
-		//throw new UnsupportedOperationException("Method not implemented yet");
-	}
-
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
-	 */
-	public double getMaxY() {
-		return 10;
-		//throw new UnsupportedOperationException("Method not implemented yet");
-	}
-	
-	
 
 }
