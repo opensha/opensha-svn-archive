@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -21,6 +22,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
@@ -321,21 +327,46 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  * @param dirName
 	  */
 	 private void generateAnalysisFigures(String dirName) {
+		
 		 
+		 ArrayList<String> paramNames = new ArrayList<String>();
 		 // remove parameter listeners
 		 ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
 		 Iterator it = paramList.getParametersIterator();
 		 while(it.hasNext()) {
 			 ParameterAPI param = (ParameterAPI)it.next();
 			 param.removeParameterChangeListener(this);
+			 paramNames.add(param.getName());
 		 }
+		 
+		 HSSFWorkbook wb  = new HSSFWorkbook();
+		 HSSFSheet sheet = wb.createSheet();
+		 HSSFRow row;
+		 // add row for each parameter name. Also add a initial blank row for writing figure names
+		 for(int i=0; i<=paramNames.size(); ++i) {
+			 row = sheet.createRow(i); 
+			 if(i>0) row.createCell((short)0).setCellValue(paramNames.get(i-1));
+		 }
+		 // add a row for predicted and observed ratio
+		 sheet.createRow(paramNames.size()+1).createCell((short)0).setCellValue("M 6.5 pred/obs");
+		 
 		 
 		 this.dirName=dirName;
 		 this.eqkRateModelERF.setParamDefaults();
+		 
 		 // figure 1 with defaults
 		 int fig=1;
 		 eqkRateModelERF.updateForecast();
 		 makeMFDsPlot(""+fig);
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 for(int i=0; i<paramNames.size(); ++i) {
+			 if(paramNames.get(i).equalsIgnoreCase(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME))
+				 sheet.getRow(i+1).createCell((short)fig).setCellValue("Geological Insight");
+			 else	 sheet.getRow(i+1).createCell((short)fig).setCellValue(paramList.getValue(paramNames.get(i)).toString());			 
+		 }
+		 double obsVal = this.eqkRateModelERF.getObsCumMFD(eqkRateModelERF.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+
 		 // figure 2
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -344,6 +375,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME).setValue(0.0);
 		 eqkRateModelERF.updateForecast();
 		 makeMFDsPlot(""+fig);
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.AFTERSHOCK_FRACTION_PARAM_NAME)).createCell((short)fig).setCellValue(0);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(1);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME)).createCell((short)fig).setCellValue(0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+
 		 //		 figure 3
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -354,7 +391,11 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 param.setValue(allowedVals.get(1));
 		 }
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		
 		 //		 figure 4
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -366,7 +407,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 }
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 5
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -378,91 +424,152 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 }
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Maximum Rate");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 6
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).setValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 7
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 8
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 9
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 10
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_A_WG02_MagAreaRel.NAME);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(Ellsworth_A_WG02_MagAreaRel.NAME);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 11
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 12
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(Somerville_2006_MagAreaRel.NAME);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(Somerville_2006_MagAreaRel.NAME);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 13
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 14
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.B_FAULTS_MIN_MAG).setValue(new Double(5.0));
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.B_FAULTS_MIN_MAG)).createCell((short)fig).setCellValue(5.0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 15
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(false);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 16
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 17
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 18
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.2");
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.2");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 19
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.3");
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.3");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 20
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -478,7 +585,16 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(0.67);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
 		 //		 figure 21
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
@@ -486,7 +602,23 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(85));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
 		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(0.75);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(85);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot(""+fig);
+		 
+		 // wrap cell style
+		 HSSFCellStyle wrapCellStyle = wb.createCellStyle();
+		 wrapCellStyle.setWrapText(true);
+		 for(int rowCount=0; rowCount<=sheet.getLastRowNum(); ++rowCount) {
+			 for(int colCount=0; colCount<=fig; ++colCount) {
+				 HSSFCell cell = sheet.getRow(rowCount).getCell((short)colCount);
+				 if(cell==null) continue;
+				 cell.setCellStyle(wrapCellStyle);
+			 }
+		 }
 		 
 		 eqkRateModelERF.setParamDefaults();
 		 
@@ -498,7 +630,13 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 param.addParameterChangeListener(this);
 		 }
 		 
-		 
+		 try {
+				FileOutputStream fileOut = new FileOutputStream(dirName+"/Table_For_Figures.xls");
+				wb.write(fileOut);
+				fileOut.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
 	 }
 	 
 	 /**

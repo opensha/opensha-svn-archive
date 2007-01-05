@@ -6,6 +6,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -49,6 +51,7 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 	 *
 	 */
 	private void createFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
+	
 		funcs = new ArrayList();
 		
 		// Type A faults cum Dist
