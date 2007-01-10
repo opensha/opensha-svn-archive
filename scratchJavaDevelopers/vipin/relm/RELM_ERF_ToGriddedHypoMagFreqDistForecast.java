@@ -107,13 +107,14 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
 		  FileWriter fwPred6_5 = new FileWriter(fileNamePrefix+"_Pred6_5.txt"); // predicted rates at Mag 6.5
 		  FileWriter fwExtrap6_5 = new FileWriter(fileNamePrefix+"_Extrap6_5.txt"); // Extrapolated rates at Mag 6.5
 		  FileWriter fwRatio = new FileWriter(fileNamePrefix+"_PredExp6_5Ratio.txt"); // Ratio of Pred and Extrapolated Rates at 6.5
-		  
+		  double totRate = 0;
 		  // Do for each location
 		  double pred5, pred6_5, extrap6_5, ratio;
 		  double multiFactor = Math.pow(10, -0.8*(6.5-5));
 		  for(int i=0; i<magFreqDistForLocations.length; ++i) {
 			  Location loc = magFreqDistForLocations[i].getLocation();
 			  EvenlyDiscretizedFunc cumDist  = magFreqDistForLocations[i].getFirstMagFreqDist().getCumRateDist();
+			  totRate+=cumDist.getY(0);
 			  pred5 = cumDist.getInterpolatedY(5.0);
 			  pred6_5 = cumDist.getInterpolatedY(6.5);
 			  extrap6_5 = pred5 * multiFactor;
@@ -125,6 +126,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
 			  fwExtrap6_5.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)extrap6_5+"\n");
 			  fwRatio.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)ratio+"\n");
 		  }
+		  System.out.println("Total Rate:"+totRate);
 		  // close files
 		  fwPred5.close();
 		  fwPred6_5.close();
