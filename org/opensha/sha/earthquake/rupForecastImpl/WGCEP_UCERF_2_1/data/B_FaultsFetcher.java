@@ -164,9 +164,9 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 				FaultSegmentData faultSegmentData = getFaultSegmentData((String)bFaultNames.get(index), false);
 				ArrayList<FaultSectionPrefData> faultSectionPredDataList = faultSegmentData.getPrefFaultSectionDataList();
 				if(faultSectionPredDataList.size()<2) continue;
-				SimpleFaultData simpleFaultData[] = new SimpleFaultData[faultSectionPredDataList.size()];
+				ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData> ();
 				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
-					simpleFaultData[i] = faultSectionPredDataList.get(i).getSimpleFaultData();
+					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultData());
 				}
 				StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, 1);
 				// write to a file for connecting sections so that we can view them in SCEC-VDO

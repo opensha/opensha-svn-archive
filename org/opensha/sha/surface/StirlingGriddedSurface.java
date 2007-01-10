@@ -48,12 +48,12 @@ public class StirlingGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData
      * @param gridSpacing
      * @throws FaultException
      */
-    public StirlingGriddedSurface(SimpleFaultData[] simpleFaultData,
+    public StirlingGriddedSurface(ArrayList<SimpleFaultData> simpleFaultData,
             double gridSpacing) throws FaultException {
     	
     	super(simpleFaultData, gridSpacing);
     	aveDipDir = this.faultTrace.getAveStrike() + 90;
-    	//createEvenlyGriddedSurface();
+    	createEvenlyGriddedSurface();
     }
 
     

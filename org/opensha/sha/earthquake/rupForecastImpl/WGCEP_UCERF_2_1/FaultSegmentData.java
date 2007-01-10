@@ -9,6 +9,8 @@ import java.util.Iterator;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
+import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 
 /**
  * @author Vipin Gupta and Ned Field
@@ -16,6 +18,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateCo
  */
 public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
+	
+	 /* ArrayList of ArrrayList of SimpleFaultData. 
+	This is same as sectionToSegmentData except the fact that this contains ArrayList of SimpleFaultData instead of FaultSectionPrefData*/
+	private ArrayList simpleFaultDataList;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
 	private double[] segArea, segOrigArea, segLength, segMoRate, segMoRateIgnoringAseis, segSlipRate, segSlipRateStdDev; 
@@ -312,7 +318,6 @@ public class FaultSegmentData {
 	}
 	
 	
-	
 	/**
 	 * Get a list of FaultSectionPrefData for selected fault model 
 	 * (Not sure if this is the best place for this because the info 
@@ -331,6 +336,44 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * Get StirlingGriddedSurface for selected Segment indices. It stitches together the segments and returns the resulting surface
+	 *  
+	 * @param segIndex List of Segment index to be included in the surface. The indices can have value from 0 to (getNumSegments()-1)
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing) {
+		ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
+		int lastSegmentIndex = getNumSegments()-1;
+		for(int i=0; i<segIndex.length; ++i) {
+			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
+			simpleFaultData.addAll((ArrayList)this.simpleFaultDataList.get(segIndex[i]));
+		}
+		return  new StirlingGriddedSurface(simpleFaultData, gridSpacing);
+	}
+	
+	/**
+	 * Get Ave rake for the selected Segments. Rake is weighted by area of the segments
+	 * 
+	 * @param segIndex List of Segment index to be included for caluclating Avg rake. The indices can have value from 0 to (getNumSegments()-1)
+	 * @return
+	 */
+	public double getAveRake(int []segIndex) {
+		int lastSegmentIndex = getNumSegments()-1;
+		double totRake=0, totArea=0, area;
+		for(int i=0; i<segIndex.length; ++i) {
+			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
+			ArrayList<FaultSectionPrefData> faultSectionPrefDataList =  (ArrayList)this.sectionToSegmentData.get(segIndex[i]);
+			for(int j=0; j<faultSectionPrefDataList.size(); ++j) {
+				area = faultSectionPrefDataList.get(j).getLength()*faultSectionPrefDataList.get(j).getDownDipWidth();
+				totArea+=area;
+				totRake+=(area*faultSectionPrefDataList.get(j).getAveRake()); // weight the rake by section area
+			}
+		}
+		return totRake/totArea;
+	}
+	
+	
+	/**
 	 * Calculate  Stuff
 	 * @return
 	 */
@@ -346,7 +389,7 @@ public class FaultSegmentData {
 		segSlipRate = new double[sectionToSegmentData.size()];
 		segSlipRateStdDev = new double[sectionToSegmentData.size()];
 		sectionsInSegString = new String[sectionToSegmentData.size()];
-		
+		simpleFaultDataList = new ArrayList();
 		// fill in segName, segArea and segMoRate
 		for(int seg=0;seg<sectionToSegmentData.size();seg++) {
 			segArea[seg]=0;
@@ -358,8 +401,10 @@ public class FaultSegmentData {
 			ArrayList segmentDatum = (ArrayList) sectionToSegmentData.get(seg);
 			Iterator it = segmentDatum.iterator();
 			sectionsInSegString[seg]="";
+			ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 			while(it.hasNext()) {
 				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
+				simpleFaultData.add(sectData.getSimpleFaultData());
 				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
 				else sectionsInSegString[seg]+=sectData.getSectionName();
 				//set the area & moRate
@@ -381,6 +426,7 @@ public class FaultSegmentData {
 					segMoRate[seg] += FaultMomentCalc.getMoment(area,slipRate*alpha); // SI units
 				}
 			}
+			simpleFaultDataList.add(simpleFaultData);
 			// segment slip rate is an average weighted by the section areas
 			segSlipRate[seg] = FaultMomentCalc.getSlip(segArea[seg], segMoRate[seg]);
 			this.segSlipRateStdDev[seg] = (stdDevTotal/segArea[seg])*segSlipRate[seg];

@@ -1,6 +1,8 @@
 package org.opensha.sha.fault;
 
 import org.opensha.exceptions.FaultException;
+
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
@@ -75,10 +77,10 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
      * @param gridSpacing
      * @throws FaultException
      */
-    protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData[] simpleFaultData, double gridSpacing) {
+    protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultData, double gridSpacing) {
     	// correctly order the first fault section
-    	FaultTrace faultTrace1 = simpleFaultData[0].getFaultTrace();
-    	FaultTrace faultTrace2 = simpleFaultData[1].getFaultTrace();
+    	FaultTrace faultTrace1 = simpleFaultData.get(0).getFaultTrace();
+    	FaultTrace faultTrace2 =  simpleFaultData.get(1).getFaultTrace();
     	double minDist = Double.MAX_VALUE, distance;
     	boolean reverse = false;
     	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
@@ -103,30 +105,31 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     	}
     	if(reverse) {
     		faultTrace1.reverse();
-    		if(simpleFaultData[0].getAveDip()!=90) simpleFaultData[0].setAveDip(-simpleFaultData[0].getAveDip());
+    		if( simpleFaultData.get(0).getAveDip()!=90)  simpleFaultData.get(0).setAveDip(- simpleFaultData.get(0).getAveDip());
     	}
     	
     	// Calculate Upper Seis Depth, Lower Seis Depth and Dip
     	double combinedDip=0, combinedUpperSeisDepth=0, totArea=0, totLength=0;
     	FaultTrace combinedFaultTrace = new FaultTrace("Combined Fault Sections");
-    	for(int i=0; i<simpleFaultData.length; ++i) {
-    		FaultTrace faultTrace = simpleFaultData[i].getFaultTrace();
+    	int num = simpleFaultData.size();
+    	for(int i=0; i<num; ++i) {
+    		FaultTrace faultTrace = simpleFaultData.get(i).getFaultTrace();
     		if(i>0) { // check the ordering of point in this fault trace
-    			FaultTrace prevFaultTrace = simpleFaultData[i-1].getFaultTrace();
+    			FaultTrace prevFaultTrace = simpleFaultData.get(i-1).getFaultTrace();
     			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
     			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(0));
     			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
     			if(distance2<distance1) { // reverse this fault trace
     				faultTrace.reverse();
-    				if(simpleFaultData[i].getAveDip()!=90) simpleFaultData[i].setAveDip(-simpleFaultData[i].getAveDip());
+    				if(simpleFaultData.get(i).getAveDip()!=90) simpleFaultData.get(i).setAveDip(-simpleFaultData.get(i).getAveDip());
     			}
     		}
     		double length = faultTrace.getTraceLength();
-    		double dip = simpleFaultData[i].getAveDip();
-    		double area = Math.abs(length*(simpleFaultData[i].getLowerSeismogenicDepth()-simpleFaultData[i].getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
+    		double dip = simpleFaultData.get(i).getAveDip();
+    		double area = Math.abs(length*(simpleFaultData.get(i).getLowerSeismogenicDepth()-simpleFaultData.get(i).getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
     		totLength+=length;
     		totArea+=area;
-    		combinedUpperSeisDepth+=(area*simpleFaultData[i].getUpperSeismogenicDepth());
+    		combinedUpperSeisDepth+=(area*simpleFaultData.get(i).getUpperSeismogenicDepth());
     		combinedDip+=(area*dip);
     		
     		int numLocations = faultTrace.getNumLocations();
@@ -147,8 +150,8 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(aveDip*Math.PI/180)+upperSeismogenicDepth;
     	this.faultTrace = combinedFaultTrace;
     	this.gridSpacing = gridSpacing;
-    	System.out.println(faultTrace.toString());
-    	System.out.println(simpleFaultData[0].getFaultTrace().getName()+","+ aveDip);
+    	//System.out.println(faultTrace.toString());
+    	//System.out.println(simpleFaultData[0].getFaultTrace().getName()+","+ aveDip);
     }
 
     // ***************************************************************

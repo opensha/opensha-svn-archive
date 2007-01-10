@@ -1,6 +1,7 @@
 package org.opensha.sha.surface;
 
 import java.util.*;
+
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.fault.*;
@@ -58,7 +59,7 @@ public class FrankelGriddedSurface extends EvenlyGriddedSurfFromSimpleFaultData 
      * @param gridSpacing
      * @throws FaultException
      */
-    public FrankelGriddedSurface(SimpleFaultData[] simpleFaultData,
+    public FrankelGriddedSurface(ArrayList<SimpleFaultData> simpleFaultData,
             double gridSpacing) throws FaultException {
     	super(simpleFaultData, gridSpacing);
     	createEvenlyGriddedSurface();
