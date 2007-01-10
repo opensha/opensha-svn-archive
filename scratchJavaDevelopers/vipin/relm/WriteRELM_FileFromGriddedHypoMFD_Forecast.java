@@ -290,12 +290,14 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	   double minMag=5.0, maxMag=9.00;
 	   int numMag = 41; // number of Mag bins
 	   //	 make GriddedHypoMFD Forecast from the EqkRupForecast
-	   GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+	   RELM_ERF_ToGriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
 		   new RELM_ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
 				   minMag, maxMag, numMag,5.0); // 5 year rates
 	   
+	   griddedHypoMagFeqDistForecast.generateFiles("NSHMP2002");
+	   
 	   // write into RELM formatted file
-	    WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+	   /* WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
 	     String version="1.0 (";
 	     // write the adjustable params
 	     ParameterList paramList = eqkRupForecast.getAdjustableParameterList();
@@ -317,6 +319,6 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	      writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
 	      writeRELM_File.setForecastStartDate(2006, 0,0,0,0,0,0);
 	      writeRELM_File.setDuration(5, "years");
-	      writeRELM_File.makeFileInRELM_Format("NSHMP2002Rates.txt");
+	      writeRELM_File.makeFileInRELM_Format("NSHMP2002Rates.txt");*/
   }
 }

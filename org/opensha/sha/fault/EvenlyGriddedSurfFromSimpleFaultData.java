@@ -76,30 +76,30 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     	FaultTrace faultTrace1 = simpleFaultData[0].getFaultTrace();
     	FaultTrace faultTrace2 = simpleFaultData[1].getFaultTrace();
     	double minDist = Double.MAX_VALUE, distance;
-    	boolean reverse = false;;
-    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+    	boolean reverse = false;
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;
     	}
-    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=true;  
     	}
-    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
     	}
-    	distance = RelativeLocation.getApproxHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
     	if(distance<minDist) {
     		minDist = distance;
     		reverse=false;
     	}
     	if(reverse) {
     		faultTrace1.reverse();
-    		simpleFaultData[0].setAveDip(-simpleFaultData[0].getAveDip());
+    		if(simpleFaultData[0].getAveDip()!=90) simpleFaultData[0].setAveDip(-simpleFaultData[0].getAveDip());
     	}
     	
     	// Calculate Upper Seis Depth, Lower Seis Depth and Dip
@@ -110,11 +110,11 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     		if(i>0) { // check the ordering of point in this fault trace
     			FaultTrace prevFaultTrace = simpleFaultData[i-1].getFaultTrace();
     			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
-    			double distance1 = RelativeLocation.getApproxHorzDistance(lastLoc, faultTrace.getLocationAt(0));
-    			double distance2 = RelativeLocation.getApproxHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
+    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(0));
+    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
     			if(distance2<distance1) { // reverse this fault trace
     				faultTrace.reverse();
-    				simpleFaultData[i].setAveDip(-simpleFaultData[i].getAveDip());
+    				if(simpleFaultData[i].getAveDip()!=90) simpleFaultData[i].setAveDip(-simpleFaultData[i].getAveDip());
     			}
     		}
     		double length = faultTrace.getTraceLength();
@@ -124,6 +124,7 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     		totArea+=area;
     		combinedUpperSeisDepth+=(area*simpleFaultData[i].getUpperSeismogenicDepth());
     		combinedDip+=(area*dip);
+    		
     		int numLocations = faultTrace.getNumLocations();
     		//System.out.println(i+":"+dip+","+area+","+combinedDip);
     		// add the fault Trace locations to combined trace
@@ -135,11 +136,15 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     		combinedDip=-combinedDip;
     		combinedFaultTrace.reverse();
     	}
+    	
     	upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
     	this.aveDip = combinedDip/totArea;
+    	
     	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(aveDip*Math.PI/180)+upperSeismogenicDepth;
     	this.faultTrace = combinedFaultTrace;
     	this.gridSpacing = gridSpacing;
+    	System.out.println(faultTrace.toString());
+    	System.out.println(simpleFaultData[0].getFaultTrace().getName()+","+ aveDip);
     }
 
     // ***************************************************************
