@@ -175,7 +175,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 		else {
 			rupInSeg = getRupInSegMatrix(num_seg);
-			num_rup = getNumRuptures(segmentData);
+			num_rup = getNumRuptureSurfaces(segmentData);
 		}
 	
 
@@ -884,7 +884,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public final static String[] getAllShortRuptureNames(FaultSegmentData segmentData) {
 		int nSeg = segmentData.getNumSegments();
-		int nRup = getNumRuptures(segmentData);
+		int nRup = getNumRuptureSurfaces(segmentData);
 		int[][] rupInSeg;
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto"))
@@ -917,7 +917,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 */
 	public final static String[] getAllLongRuptureNames(FaultSegmentData segmentData) {
 		int nSeg = segmentData.getNumSegments();
-		int nRup = getNumRuptures(segmentData);
+		int nRup = getNumRuptureSurfaces(segmentData);
 		int[][] rupInSeg;
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto"))
@@ -1015,7 +1015,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	 * @param segmentData
 	 * @return
 	 */
-	public final static int getNumRuptures(FaultSegmentData segmentData) {
+	public final static int getNumRuptureSurfaces(FaultSegmentData segmentData) {
 		int nSeg = segmentData.getNumSegments();
 		if(segmentData.getFaultName().equals("San Jacinto"))
 			return 25;

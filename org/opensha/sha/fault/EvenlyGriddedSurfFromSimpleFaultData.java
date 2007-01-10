@@ -63,9 +63,13 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
     
     /**
      * Stitch Together the fault sections. It assumes:
-     * 1. Sections are in correct order
-     * 2. Distance between end points of section in correct order is less than the distance to opposite end of section
-     * Upper seismogenic depth, sip aand lower seimogenic depth are area weighted.
+     * 1. Sections are in correct order (in how they are to be stitched together)
+     * 2. Distance between adjacent points on neighboring sections (in correct order) 
+     * is less than distance to opposite ends of the sections.  In other words no sections
+     * overlap by more than half the section length.
+     * Each of the following are average over the sections (weight averaged by area): 
+     * upper and lower seismogenic depth, slip.  Total area of surface is maintained, 
+     * plus an addition area implied by gaps between neighboring sections.
      * 
      * @param simpleFaultData
      * @param gridSpacing

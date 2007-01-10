@@ -34,7 +34,7 @@
 46:Death Valley (No)
 245:Death Valley (Black Mtns Frontal)
 246:Death Valley (So)
--Hunter Mountain
+- Panamint Valley
 50:Hunter Mountain-Saline Valley
 244:Panamint Valley
 -Greenville
@@ -44,6 +44,6 @@
 3:Concord
 1:Green Valley (So)
 71:Green Valley (No)
-- Salmon
+- Little Salmon
 17:Little Salmon (Onshore)
 16:Little Salmon (Offshore)

@@ -1,0 +1,768 @@
+4.000275 , 0.7600522 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.4461162 , 0.6547621 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.9129345 , 0.55345756 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.402117 , 0.45640224 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.4442694 , 0.6544112 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.9735115 , 0.56496716 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.5237308 , 0.47950885 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.096314 , 0.39829966 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.8882637 , 0.5487701 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.5009067 , 0.47517228 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.1345267 , 0.4055601 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.790511 , 0.3401971 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.3322582 , 0.44312906 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.028302 , 0.38537738 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.745323 , 0.33161137 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.484708 , 0.2820945 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.0173354 , 0.76329374 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.4326031 , 0.6521946 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.8686132 , 0.5450365 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.3229496 , 0.44136044 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.46133 , 0.6576527 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.9599984 , 0.5623997 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.4794092 , 0.47108778 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.0171466 , 0.38325787 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.9053245 , 0.5520116 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.4873936 , 0.4726048 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.0902054 , 0.39713904 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.7113435 , 0.32515526 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.3493187 , 0.44637057 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.0147889 , 0.3828099 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.7010015 , 0.3231903 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.4055405 , 0.26705268 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.998905 , 0.7597919 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.4227927 , 0.6503306 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.8631535 , 0.54399914 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.3185105 , 0.440517 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.4428992 , 0.65415084 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.950188 , 0.5605357 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.4739494 , 0.47005042 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.0127075 , 0.38241443 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.8868937 , 0.5485098 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.4775832 , 0.4707408 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.0847456 , 0.39610168 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.7069045 , 0.32431185 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.330888 , 0.44286874 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.0049784 , 0.3809459 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.6955417 , 0.32215294 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.4011015 , 0.26620927 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.11208 , 0.78129524 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.50982 , 0.66686577 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.9288704 , 0.5564854 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.3714867 , 0.45058247 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.5560746 , 0.6756542 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.0372152 , 0.5770709 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.5396667 , 0.48253664 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.0656836 , 0.3924799 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.0000691 , 0.57001317 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.5646105 , 0.487276 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.1504626 , 0.4085879 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.7598807 , 0.33437732 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.4440637 , 0.46437207 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.0920057 , 0.39748108 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.7612588 , 0.33463916 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.4540776 , 0.27627474 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.8878837 , 0.7386979 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.3375661 , 0.6341376 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.8126657 , 0.5344065 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.3109856 , 0.43908727 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.331878 , 0.6330568 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.8649614 , 0.54434264 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.423462 , 0.46045774 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.0051825 , 0.3809847 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.7758725 , 0.52741575 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.3923566 , 0.45454776 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.034258 , 0.386509 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.6993796 , 0.32288212 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.219867 , 0.42177472 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+1.9197519 , 0.36475286 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.6450541 , 0.31256026 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.3935765 , 0.26477954 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.9334028 , 0.7473465 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.3515425 , 0.6367931 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.7944846 , 0.5309521 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.2657816 , 0.4304985 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.3773973 , 0.6417055 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.8789377 , 0.54699814 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.4052806 , 0.45700333 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+1.9599785 , 0.37239593 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.8213918 , 0.53606445 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.406333 , 0.45720327 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.0160768 , 0.38305458 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.6541754 , 0.31429332 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.265386 , 0.43042338 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+1.9337282 , 0.36740837 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.6268729 , 0.30910584 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.3483723 , 0.25619075 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.878511 , 0.7369171 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.308157 , 0.6285498 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.7624536 , 0.52486616 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.2449563 , 0.4265417 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.3225055 , 0.631276 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.8355522 , 0.53875494 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.3732498 , 0.45091745 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+1.9391531 , 0.3684391 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.7664998 , 0.525635 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.3629477 , 0.44896004 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+1.9840459 , 0.3769687 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.63335 , 0.3103365 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.2104943 , 0.4199939 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+1.8903428 , 0.35916513 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.594842 , 0.30301997 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.327547 , 0.25223392 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.027965 , 0.7653134 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.4336534 , 0.6523941 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.8660717 , 0.54455364 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.3235354 , 0.44147176 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.4719596 , 0.6596723 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+2.9610486 , 0.56259924 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.476868 , 0.4706049 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.0177324 , 0.38336918 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+2.915954 , 0.55403125 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.4884439 , 0.4728043 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.087664 , 0.39665616 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.7119294 , 0.3252666 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.3599484 , 0.44839022 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.015839 , 0.3830094 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.6984601 , 0.3227074 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.4061264 , 0.26716402 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+4.315122 , 0.81987315 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.7541497 , 0.7132884 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+3.213654 , 0.6105943 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.689691 , 0.51104134 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.7591164 , 0.7142321 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.281545 , 0.62349355 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.8244503 , 0.53664553 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.383888 , 0.45293874 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+3.203111 , 0.6085911 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.8089402 , 0.5336986 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.4352462 , 0.4626968 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+2.078085 , 0.39483616 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.6471052 , 0.50295 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.3363354 , 0.44390374 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+2.0460424 , 0.38874805 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.772282 , 0.33673358 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.3603806 , 0.8284723 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.7770574 , 0.7176409 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+3.2083633 , 0.60958904 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.653013 , 0.5040725 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.804375 , 0.72283125 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+3.3044527 , 0.627846 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.8191593 , 0.5356403 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.34721 , 0.44596988 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+3.2483695 , 0.6171902 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.831848 , 0.5380511 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.4299555 , 0.46169153 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+2.0414069 , 0.3878673 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.6923637 , 0.5115491 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.3592432 , 0.4482562 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+2.0407515 , 0.3877428 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.7356038 , 0.32976472 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+4.3551636 , 0.8274811 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.7707927 , 0.71645063 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+3.2035596 , 0.6086763 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.6476934 , 0.5030617 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.799158 , 0.72184 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+3.298188 , 0.6266557 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.8143559 , 0.5347276 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.3418903 , 0.44495916 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+3.2431524 , 0.61619896 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.8255832 , 0.5368608 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.4251518 , 0.46077886 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+2.0360873 , 0.3868566 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.687147 , 0.5105579 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.3529785 , 0.44706592 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+2.035948 , 0.38683012 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.7302841 , 0.32875398 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.395696 , 0.83518225 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.8088598 , 0.72368336 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+3.2344327 , 0.61454225 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.662277 , 0.5058326 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.8396904 , 0.7295412 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.336255 , 0.6338885 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.845229 , 0.5405935 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.356474 , 0.44773006 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.2836847 , 0.6239001 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.8636503 , 0.54409355 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.456025 , 0.46664473 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+2.0506709 , 0.3896275 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.7276793 , 0.51825905 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.3910456 , 0.45429868 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+2.066821 , 0.392696 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.7448678 , 0.33152488 , Ellsworth-A (WGCEP, 2002, Eq 4.5a) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.629329 , 0.6895725 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.1308122 , 0.5948543 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.6532724 , 0.5041218 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.1980968 , 0.4176384 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.122013 , 0.5931825 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.6995935 , 0.51292276 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.2981513 , 0.43664876 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.3
+1.9190731 , 0.3646239 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.6146972 , 0.49679247 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.2683752 , 0.43099126 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.15
+1.9430302 , 0.36917573 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.6400493 , 0.3116094 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.1073813 , 0.40040246 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+1.8371565 , 0.34905976 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.5879091 , 0.30170274 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.3610257 , 0.25859487 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.5776107 , 0.67974603 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.0488873 , 0.5792886 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.5481591 , 0.48415023 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.0644271 , 0.39224115 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.0702949 , 0.583356 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.6176689 , 0.49735707 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.193038 , 0.4166772 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+1.7854034 , 0.33922663 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.562979 , 0.486966 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.1864502 , 0.41542557 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+1.8379169 , 0.34920418 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.5063796 , 0.28621212 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.055663 , 0.390576 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+1.7552319 , 0.33349404 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.4827957 , 0.2817312 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.2273558 , 0.23319761 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.568437 , 0.6780031 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.0390983 , 0.57742864 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.5446186 , 0.48347753 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.0639412 , 0.39214885 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.0611212 , 0.58161306 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.6078796 , 0.49549714 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.1894975 , 0.41600454 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+1.7849175 , 0.33913434 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.5538054 , 0.48522303 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.1766613 , 0.41356564 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+1.8343765 , 0.3485315 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.5058938 , 0.28611982 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.0464895 , 0.38883302 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+1.7454426 , 0.3316341 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.4792553 , 0.28105852 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.2268701 , 0.23310532 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+3.6425805 , 0.6920903 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.1045222 , 0.58985925 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.5919962 , 0.49247926 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.0955698 , 0.39815828 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.1352646 , 0.59570026 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+2.6733036 , 0.5079277 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.236875 , 0.42500627 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+1.8165461 , 0.34514377 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+2.6279488 , 0.49931026 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.2420852 , 0.42599618 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+1.8817539 , 0.35753325 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.5375224 , 0.29212925 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.120633 , 0.40292022 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+1.8108667 , 0.34406468 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.5266328 , 0.29006022 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.2584987 , 0.23911475 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.5169377 , 0.66821814 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.022262 , 0.5742298 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.5530035 , 0.48507068 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.1069653 , 0.40032342 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.0096219 , 0.5718281 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.5910435 , 0.49229828 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.1978824 , 0.41759768 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+1.8279417 , 0.3473089 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.502306 , 0.47543812 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.159825 , 0.41036674 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+1.8427614 , 0.35012466 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.5489179 , 0.2942944 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+1.99499 , 0.3790481 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+1.7286066 , 0.32843524 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.4876403 , 0.28265163 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.2698941 , 0.24127989 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.497487 , 0.6645225 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+2.9796567 , 0.56613475 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.4914958 , 0.4733842 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.0285928 , 0.38543266 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+2.9901712 , 0.5681325 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.548438 , 0.48420325 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.1363747 , 0.4059112 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+1.7495692 , 0.33241814 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.4828553 , 0.4717425 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.1172197 , 0.40227175 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+1.7812536 , 0.33843818 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.4705454 , 0.27940363 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+1.9755394 , 0.3753525 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+1.6860012 , 0.32034022 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.4261324 , 0.27096516 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.1915218 , 0.22638912 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.4570518 , 0.65683985 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+2.949642 , 0.56043196 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.4684248 , 0.4690007 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.0102851 , 0.3819542 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+2.9497359 , 0.56044984 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.5184233 , 0.47850043 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.1133037 , 0.40152767 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+1.7312614 , 0.32893968 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.44242 , 0.4640598 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.087205 , 0.39656892 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+1.7581825 , 0.33405468 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.4522377 , 0.27592516 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+1.9351041 , 0.36766976 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+1.6559863 , 0.31463742 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.4030614 , 0.26658165 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.173214 , 0.22291066 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+3.5716677 , 0.6786168 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.0418744 , 0.57795614 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.5468118 , 0.48389426 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.0662477 , 0.39258707 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.0643518 , 0.5822268 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+2.610656 , 0.49602464 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.191691 , 0.41642126 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+1.7872239 , 0.33957255 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+2.557036 , 0.4858368 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.1794374 , 0.4140931 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+1.8365697 , 0.34894824 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.5082003 , 0.28655803 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.04972 , 0.3894468 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+1.748219 , 0.3321616 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.4814485 , 0.28147525 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.2291765 , 0.23354353 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.944176 , 0.74939346 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.4388456 , 0.6533807 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.953992 , 0.5612585 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.4856708 , 0.47227746 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.43686 , 0.6530034 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.0076272 , 0.57144916 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.5988708 , 0.49378544 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.2066472 , 0.41926298 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.9295442 , 0.5566134 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.5764086 , 0.48951763 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.2437496 , 0.42631245 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.9276234 , 0.36624846 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.4222283 , 0.46022338 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.1451902 , 0.40758613 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.8886286 , 0.35883942 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.6485997 , 0.31323394 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.9235897 , 0.7454821 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.3891208 , 0.64393294 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.8726718 , 0.54580766 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.3641028 , 0.44917953 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.4162738 , 0.649092 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.9579024 , 0.56200147 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.5175507 , 0.47833464 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.0850792 , 0.39616504 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.908958 , 0.552702 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.5266838 , 0.48006994 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.1624296 , 0.41086164 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.8060554 , 0.34315053 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.401642 , 0.456312 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.0954654 , 0.3981384 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.8073086 , 0.34338862 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.5270317 , 0.290136 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.9146957 , 0.7437922 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.379975 , 0.6421952 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.865795 , 0.54450107 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.3631063 , 0.4489902 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.4073799 , 0.64740217 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.9487565 , 0.56026375 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.5106738 , 0.47702804 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.0840826 , 0.39597568 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.900064 , 0.55101216 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.517538 , 0.47833222 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.1555529 , 0.40955502 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.8050588 , 0.34296116 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.392748 , 0.45462212 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.0863194 , 0.3964007 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.8004316 , 0.34208202 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.5260351 , 0.28994668 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+3.9544246 , 0.7513407 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.407283 , 0.6473838 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.8789477 , 0.54700005 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.3645337 , 0.44926137 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.4471087 , 0.6549507 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+2.9760647 , 0.5654523 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.5238266 , 0.47952706 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.0855098 , 0.39624688 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+2.9397929 , 0.55856067 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.544846 , 0.48352078 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.1687055 , 0.41205403 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.8064861 , 0.34323236 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.432477 , 0.46217063 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.1136277 , 0.40158924 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.8135843 , 0.34458104 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.5274624 , 0.29021785 , Ellsworth-B (WGCEP, 2002, Eq 4.5b) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.9467216 , 0.7498771 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.400596 , 0.6461132 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.8754473 , 0.546335 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.3726628 , 0.45080593 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.4379725 , 0.65321475 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.9681592 , 0.56395024 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.5193229 , 0.47867137 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.092851 , 0.39764166 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.9292235 , 0.55655247 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.5357223 , 0.48178726 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.1631987 , 0.41100773 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.8130388 , 0.3444774 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.4204743 , 0.45989013 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.1032856 , 0.39962426 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.8070742 , 0.3433441 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.5332268 , 0.29131308 , Hanks & Bakun (2002) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.9166677 , 0.74416685 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.349367 , 0.6363797 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.8087115 , 0.5336552 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.280616 , 0.43331707 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.4079187 , 0.64750457 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.9169302 , 0.55421674 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.4525871 , 0.4659916 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.0008042 , 0.3801528 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.8991694 , 0.5508422 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.4844935 , 0.47205374 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.096463 , 0.39832795 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.7209921 , 0.3269885 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.3904204 , 0.45417988 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.0520566 , 0.38989076 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.7403384 , 0.3306643 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.4411801 , 0.27382421 , Hanks & Bakun (2002) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.9049382 , 0.74193823 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.3441606 , 0.6353905 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.808663 , 0.5336459 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.2829778 , 0.4337658 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.396189 , 0.6452759 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.9117239 , 0.55322754 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.4525385 , 0.46598232 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.0031657 , 0.3806015 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.88744 , 0.5486136 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.4792871 , 0.47106454 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.096414 , 0.39831868 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.7233537 , 0.32743722 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.3786907 , 0.45195127 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.0468502 , 0.38890156 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.7402897 , 0.33065504 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.4435418 , 0.27427295 , Hanks & Bakun (2002) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.0319157 , 0.7660639 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.433061 , 0.6522816 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.8665912 , 0.54465234 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.3292062 , 0.4425492 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.5231664 , 0.6694016 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.0006242 , 0.5701186 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.5104668 , 0.4769887 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.0493944 , 0.38938493 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.0144172 , 0.57273924 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.5681875 , 0.48795563 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.1543424 , 0.40932506 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.7695823 , 0.33622065 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.5056682 , 0.47607693 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.1357508 , 0.40579265 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.798218 , 0.34166142 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.4897703 , 0.28305635 , Hanks & Bakun (2002) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+3.8343303 , 0.7285228 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.2920458 , 0.6254887 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+2.7751784 , 0.5272839 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.2815313 , 0.43349096 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.3255813 , 0.63186044 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+2.8596091 , 0.5433257 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.419054 , 0.45962027 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.0017192 , 0.3803267 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+2.816832 , 0.5351981 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.4271724 , 0.46116275 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.0629296 , 0.39195666 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.7219074 , 0.32716238 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.308083 , 0.43853578 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+1.9947356 , 0.37899977 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.7068053 , 0.32429302 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.4420953 , 0.2739981 , Hanks & Bakun (2002) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+3.8231263 , 0.726394 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.2612123 , 0.61963034 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+2.7249224 , 0.51773524 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.215265 , 0.42090034 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.3143773 , 0.6297317 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+2.8287756 , 0.53746736 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.368798 , 0.45007163 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+1.9354529 , 0.36773604 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+2.8056283 , 0.5330694 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.396339 , 0.45530438 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.0126736 , 0.382408 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.655641 , 0.31457177 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.296879 , 0.43640703 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+1.9639021 , 0.3731414 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.6565493 , 0.31474435 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.3758289 , 0.2614075 , Hanks & Bakun (2002) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+3.7762463 , 0.7174868 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.2212527 , 0.612038 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+2.693216 , 0.51171106 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.192473 , 0.4165699 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.267497 , 0.62082446 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+2.788816 , 0.52987504 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.3370917 , 0.44404742 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+1.9126611 , 0.3634056 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+2.758748 , 0.5241621 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.356379 , 0.44771203 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+1.9809674 , 0.3763838 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.632849 , 0.3102413 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.249999 , 0.4274998 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+1.9239424 , 0.36554906 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.624843 , 0.30872017 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.353037 , 0.25707704 , Hanks & Bakun (2002) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+3.9559994 , 0.7516399 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.3647974 , 0.6393115 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+2.815045 , 0.5348585 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.2896519 , 0.43503386 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.4472504 , 0.65497756 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+2.9323606 , 0.5571485 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.4589207 , 0.4671949 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.0098398 , 0.38186958 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+2.9385011 , 0.5583152 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.499924 , 0.47498554 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.1027963 , 0.3995313 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+1.7300279 , 0.32870528 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.429752 , 0.4616529 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.0674872 , 0.39282256 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+1.7466719 , 0.33186767 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.4502158 , 0.275541 , Hanks & Bakun (2002) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+4.2615685 , 0.80969805 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.7086294 , 0.7046396 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+3.1761668 , 0.6034717 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.6602368 , 0.505445 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.7528195 , 0.7130357 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.2761927 , 0.62247664 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.8200424 , 0.5358081 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.380425 , 0.45228073 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+3.2440705 , 0.6163734 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.843756 , 0.5403136 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.463918 , 0.46814442 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+2.1006129 , 0.39911646 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.7353213 , 0.5197111 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.4113193 , 0.45815066 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+2.1077936 , 0.4004808 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.8208009 , 0.34595215 , Hanks & Bakun (2002) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.2496657 , 0.8074365 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.6935217 , 0.7017691 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+3.1594882 , 0.60030276 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.629536 , 0.4996118 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.740917 , 0.7107742 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+3.261085 , 0.61960614 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.803364 , 0.53263915 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.3497238 , 0.44644752 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+3.2321677 , 0.6141119 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.8286483 , 0.53744316 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.4472396 , 0.4649755 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+2.0699117 , 0.39328325 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.7234187 , 0.51744956 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.3962116 , 0.45528018 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+2.0911152 , 0.3973119 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.7900999 , 0.34011897 , Hanks & Bakun (2002) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+4.254127 , 0.80828416 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.6948097 , 0.70201385 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+3.1612785 , 0.6006429 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.6319199 , 0.5000648 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.745378 , 0.7116218 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+3.2623727 , 0.6198508 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.805154 , 0.53297925 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.352108 , 0.44690052 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+3.236629 , 0.61495954 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.829936 , 0.53768784 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.4490297 , 0.46531564 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+2.072296 , 0.3937362 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.72788 , 0.5182972 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.3974993 , 0.4555249 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+2.0929053 , 0.397652 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.7924839 , 0.34057194 , Hanks & Bakun (2002) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.2791915 , 0.8130464 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.70949 , 0.7048031 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+3.1690338 , 0.6021164 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.6434743 , 0.50226015 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+3.7704425 , 0.7163841 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.2770534 , 0.62264013 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.8129094 , 0.5344528 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.3636622 , 0.44909585 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.2616935 , 0.6197218 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.8446167 , 0.54047716 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.456785 , 0.46678916 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+2.0838504 , 0.39593157 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.7529445 , 0.5230594 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.41218 , 0.45831418 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+2.1006606 , 0.39912552 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.8040383 , 0.34276727 , Hanks & Bakun (2002) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+4.4923024 , 0.85353744 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.8643394 , 0.7342245 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.15
+3.2573538 , 0.6188972 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.672732 , 0.5078191 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.88952 , 0.7390088 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.3519742 , 0.63687515 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.835406 , 0.53872716 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.3412018 , 0.44482836 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+3.2867374 , 0.6244801 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.8396094 , 0.53952575 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.4134583 , 0.4585571 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.3
+2.0096714 , 0.38183758 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.683955 , 0.5099515 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.3272443 , 0.4421764 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.9915107 , 0.37838703 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.6781412 , 0.31884682 , Somerville (2006) , Geological Insight , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.616896 , 0.87721026 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.9446979 , 0.7494926 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+3.2974126 , 0.6265084 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.6724634 , 0.50776803 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+4.0141134 , 0.76268154 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+3.432333 , 0.65214324 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.8754652 , 0.5463384 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.340933 , 0.44477728 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+3.4113312 , 0.6481529 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.919968 , 0.5547939 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.4535174 , 0.46616828 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+2.0094028 , 0.38178653 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.8085487 , 0.53362423 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.4076028 , 0.45744452 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+2.0315697 , 0.38599825 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.6778724 , 0.31879577 , Somerville (2006) , Geological Insight , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+4.578083 , 0.86983573 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.9159474 , 0.74403 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+3.2807124 , 0.62333536 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.6675825 , 0.5068407 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.9753003 , 0.7553071 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+3.4035826 , 0.64668065 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.8587646 , 0.54316527 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.3360522 , 0.44384992 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+3.372518 , 0.6407784 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.8912175 , 0.5493313 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.436817 , 0.46299523 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+2.0045218 , 0.38085917 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.7697356 , 0.52624977 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.3788524 , 0.45198193 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+2.0148692 , 0.38282517 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.6729916 , 0.3178684 , Somerville (2006) , Geological Insight , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.7395754 , 0.9005193 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+4.0493426 , 0.769375 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+3.389312 , 0.64396924 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.7417336 , 0.52092934 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+4.136793 , 0.78599066 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.5369773 , 0.6720257 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.9673643 , 0.5637992 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.4102032 , 0.45793858 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.5340104 , 0.671462 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+3.0246122 , 0.57467633 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.5454166 , 0.48362914 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+2.078673 , 0.39494783 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.9312282 , 0.55693334 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.5122473 , 0.477327 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+2.1234689 , 0.40345907 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.7471424 , 0.33195707 , Somerville (2006) , Geological Insight , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+4.379911 , 0.83218306 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+3.7557893 , 0.7136 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+3.157085 , 0.5998461 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.5816007 , 0.49050415 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+3.7771287 , 0.7176544 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.2434244 , 0.61625063 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+2.7351372 , 0.5196761 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.2500703 , 0.42751336 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+3.1743462 , 0.60312575 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+2.7310593 , 0.5189013 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.3131895 , 0.43950602 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+1.91854 , 0.3645226 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.5715637 , 0.48859712 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.2186942 , 0.4215519 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+1.8912419 , 0.35933596 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.5870097 , 0.30153185 , Somerville (2006) , Min Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.53137 , 0.86096036 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+3.8608558 , 0.73356265 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+3.2173147 , 0.6112898 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+2.5987413 , 0.49376085 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+3.928588 , 0.7464317 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+3.348491 , 0.63621324 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+2.795367 , 0.53111976 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.267211 , 0.43077007 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+3.3258054 , 0.63190305 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+2.8361259 , 0.5388639 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.3734193 , 0.45094967 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+1.9356806 , 0.3677793 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+2.723023 , 0.5173744 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.3237607 , 0.44151455 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+1.9514717 , 0.3707796 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+1.6041503 , 0.30478856 , Somerville (2006) , Min Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+4.4621453 , 0.84780765 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+3.8003936 , 0.72207475 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+3.1687388 , 0.6020604 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.5638149 , 0.48712483 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+3.859363 , 0.733279 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+3.2880285 , 0.6247254 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+2.7467911 , 0.52189034 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.2322845 , 0.42413405 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+3.2565806 , 0.61875033 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+2.7756634 , 0.52737606 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.3248434 , 0.44172025 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+1.9007542 , 0.3611433 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+2.6537983 , 0.5042217 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.2632983 , 0.43002668 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+1.9028957 , 0.36155018 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+1.5692239 , 0.29815254 , Somerville (2006) , Min Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.661722 , 0.8857272 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+3.970018 , 0.7543034 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+3.3110874 , 0.6291066 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+2.6755488 , 0.5083543 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+4.05894 , 0.7711986 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.4576528 , 0.65695405 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+2.8891397 , 0.54893655 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.3440185 , 0.44536352 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.4561574 , 0.6566699 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+2.945288 , 0.5596047 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.467192 , 0.46876645 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+2.0124881 , 0.38237277 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+2.853375 , 0.54214126 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.4329228 , 0.46225533 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+2.0452442 , 0.38859642 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+1.6809579 , 0.319382 , Somerville (2006) , Min Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996
+4.8071494 , 0.9133584 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.0
+4.172373 , 0.79275084 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.15
+3.5580733 , 0.6760339 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.3
+2.9603062 , 0.56245816 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),0.0,default,default,0.44999999999999996
+4.2043667 , 0.79882973 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.0
+3.660008 , 0.6954015 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.15
+3.1361256 , 0.5958639 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.3
+2.6287758 , 0.49946743 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),33.3,default,default,0.44999999999999996
+3.6015844 , 0.6843011 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.0
+3.1476429 , 0.59805214 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.15
+2.7141778 , 0.5156938 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.3
+2.2972455 , 0.43647665 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),66.6,default,default,0.44999999999999996
+2.9988022 , 0.5697724 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.0
+2.6352777 , 0.5007028 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.15
+2.2922301 , 0.43552375 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.3
+1.9657153 , 0.3734859 , Somerville (2006) , Max Rate , Characteristic (Dsr=Ds),99.89999999999999,default,default,0.44999999999999996
+4.9237366 , 0.93551 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.0
+4.2613764 , 0.80966145 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.15
+3.6230795 , 0.68838507 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.3
+3.001671 , 0.5703175 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),0.0,default,default,0.44999999999999996
+4.3209543 , 0.8209813 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.0
+3.749011 , 0.7123121 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.15
+3.2011318 , 0.60821503 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.3
+2.6701407 , 0.5073268 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),33.3,default,default,0.44999999999999996
+3.7181718 , 0.70645267 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.0
+3.2366462 , 0.61496276 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.15
+2.779184 , 0.52804494 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.3
+2.3386104 , 0.444336 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),66.6,default,default,0.44999999999999996
+3.1153893 , 0.591924 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.0
+2.724281 , 0.5176134 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.15
+2.3572364 , 0.4478749 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.3
+2.00708 , 0.38134524 , Somerville (2006) , Max Rate , Uniform/Boxcar (Dsr=Dr),99.89999999999999,default,default,0.44999999999999996
+4.9195676 , 0.9347179 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.0
+4.257316 , 0.8088901 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.15
+3.6221476 , 0.68820804 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.3
+2.9989595 , 0.5698023 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),0.0,default,default,0.44999999999999996
+4.3167853 , 0.82018924 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.0
+3.744951 , 0.7115407 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.15
+3.2001998 , 0.60803795 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.3
+2.6674292 , 0.50681156 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),33.3,default,default,0.44999999999999996
+3.7140028 , 0.7056606 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.0
+3.2325861 , 0.61419135 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.15
+2.7782521 , 0.5278679 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.3
+2.3358989 , 0.44382077 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),66.6,default,default,0.44999999999999996
+3.1112206 , 0.5911319 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.0
+2.720221 , 0.516842 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.15
+2.3563044 , 0.44769785 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.3
+2.0043685 , 0.38083002 , Somerville (2006) , Max Rate , WGCEP-2002 model (Dsr prop to Vs),99.89999999999999,default,default,0.44999999999999996
+4.9747233 , 0.9451974 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.0
+4.297497 , 0.8165244 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.15
+3.651689 , 0.69382095 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.3
+3.0274024 , 0.57520646 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),0.0,default,default,0.44999999999999996
+4.3719406 , 0.83066875 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.0
+3.7851317 , 0.71917504 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.15
+3.2297413 , 0.61365086 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.3
+2.695872 , 0.5122157 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),33.3,default,default,0.44999999999999996
+3.7691584 , 0.7161401 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.0
+3.2727666 , 0.6218257 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.15
+2.8077939 , 0.5334808 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.3
+2.3643417 , 0.44922492 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),66.6,default,default,0.44999999999999996
+3.1663759 , 0.60161144 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.0
+2.7604017 , 0.5244763 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.15
+2.3858461 , 0.45331076 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.3
+2.0328114 , 0.38623416 , Somerville (2006) , Max Rate , Tapered Ends ([Sin(x)]^0.5),99.89999999999999,default,default,0.44999999999999996

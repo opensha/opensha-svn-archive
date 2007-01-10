@@ -1075,7 +1075,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			
 			double[] slipRates = { 0.1, 4.0, 8.0, 8.0, 7.0, 10.0, 14.0, 2.0}; // mm/yr
 			double[] depthTop = { 0, 0, 0, 0, 0, 0, 0, 0}; // km
-			double[] depthBottom = { 12, 15, 15, 15, 14, 15.5, 12.6, 18.3}; //km
+			double[] depthBottom = { 12, 15, 15, 15, 14, 15.5, 12.6, 7}; //km
 			double[] strike = { 325, 335, 315, 315, 320, 320, 310, 290};
 			double[] length = { 360, 88, 230, 245, 180, 88, 58, 100 }; // km
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
