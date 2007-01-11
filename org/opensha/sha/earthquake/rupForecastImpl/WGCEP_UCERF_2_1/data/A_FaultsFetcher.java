@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.data.ValueWeight;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
@@ -49,7 +50,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.1.txt";
 	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.2.txt";
-
+	private LocationList eventRatesLocList; // Location list where event rates are available
 	
 	/**
 	 * 
@@ -141,6 +142,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private void readSegRates() {
 		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
 		while(it.hasNext()) this.segRatesMap.put(it.next(),new  ArrayList());
+		eventRatesLocList = new LocationList();
 		try {				
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -160,12 +162,22 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				sigma =  row.getCell( (short) 20).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				if(faultSectionId==-1) continue; // closeest fault section is at a distance of more than 2 km
+				eventRatesLocList.addLocation(new Location(lat,lon));
 				setRecurIntv(faultSectionId, rate, sigma);
-				
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * It gets the list of all locations where event rates are available.
+	 * It gets the locations from Tom Parson's excel sheet
+	 * 
+	 * @return
+	 */
+	public LocationList getEventRatesLocList() {
+		return this.eventRatesLocList;
 	}
 	
 	/**
@@ -188,6 +200,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				closestFaultSection = prefFaultSectionData;
 			}
 		}
+		System.out.println(minDist);
 		if(minDist>2) return -1;
 		return closestFaultSection.getSectionId();
 	}
