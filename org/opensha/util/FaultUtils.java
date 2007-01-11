@@ -39,6 +39,7 @@ public final class FaultUtils {
     private static final String S2 = C + ": assertValidDip(): ";
     /** debugging string */
     private static final String S3 = C + ": assertValidRake(): ";
+    private final static double TOLERANCE = 1e-6;
 
 
     /**
@@ -67,10 +68,11 @@ public final class FaultUtils {
     public static void assertValidDip( double dip)
         throws InvalidRangeException
     {
+   
         if( dip < 0 ) throw new InvalidRangeException( S2 +
             "Dip angle cannot be less than zero"
         );
-        if( dip > 90 ) throw new InvalidRangeException( S2 +
+        if( dip-90 > TOLERANCE ) throw new InvalidRangeException( S2 +
             "Dip angle cannot be greater than 90"
         );
     }
@@ -111,12 +113,15 @@ public final class FaultUtils {
     public static void assertValidRake( double rake)
         throws InvalidRangeException
     {
-        if( rake < -180 ) throw new InvalidRangeException( S3 +
+    	if(Math.abs(rake)-180 > TOLERANCE)
+    		throw new InvalidRangeException( S3 +
+    		"Strike angle should be between -180 and 180");
+       /* if( rake < -180 ) throw new InvalidRangeException( S3 +
             "Strike angle cannot be less than -180"
         );
         if( rake > 180 ) throw new InvalidRangeException( S3 +
             "Strike angle cannot be greater than 180"
-        );
+        );*/
     }
 
 }

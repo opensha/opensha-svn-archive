@@ -1416,8 +1416,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String rupModel = (String) rupModelParam.getValue();
 		
 		//System.out.println("Creating A Fault sources");
-		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) 
+		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
 			mkA_FaultUnsegmentedSources();
+			
+			// Find event rates for locations provided by Tom Parson's excel sheet
+			/*LocationList locList = this.aFaultsFetcher.getEventRatesLocList();
+			int numSources = this.aFaultSources.size();
+			for(int locIndex=0; locIndex<locList.size(); ++locIndex) {
+				Location loc = locList.getLocationAt(locIndex);		
+				System.out.print(loc.getLatitude()+","+loc.getLongitude()+",");
+				for(int iSource=0; iSource<numSources; ++iSource) {
+					UnsegmentedSource source = (UnsegmentedSource)aFaultSources.get(iSource);
+					System.out.print(source.getEventRate(loc)+",");
+				}
+				System.out.println("");
+			}*/
+		}
 		else 
 			mkA_FaultSegmentedSources();
 

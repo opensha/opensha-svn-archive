@@ -200,7 +200,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				closestFaultSection = prefFaultSectionData;
 			}
 		}
-		System.out.println(minDist);
+		//System.out.println(minDist);
 		if(minDist>2) return -1;
 		return closestFaultSection.getSectionId();
 	}

@@ -38,8 +38,9 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
 
 
     protected EvenlyGriddedSurfFromSimpleFaultData(SimpleFaultData simpleFaultData,
-                                                double gridSpacing) throws
-        FaultException {
+    		double gridSpacing) throws
+    		FaultException {
+ 
       this(simpleFaultData.getFaultTrace(),
            simpleFaultData.getAveDip(),
            simpleFaultData.getUpperSeismogenicDepth(),
@@ -47,19 +48,26 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
            gridSpacing);
 
     }
-
-
+    
     protected EvenlyGriddedSurfFromSimpleFaultData(FaultTrace faultTrace,
                                                 double aveDip,
                                                 double upperSeismogenicDepth,
                                                 double lowerSeismogenicDepth,
                                                 double gridSpacing) throws
         FaultException {
-      this.faultTrace =faultTrace;
-      this.aveDip =aveDip;
-      this.upperSeismogenicDepth = upperSeismogenicDepth;
-      this.lowerSeismogenicDepth =lowerSeismogenicDepth;
-      this.gridSpacing = gridSpacing;
+    	set(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+    }
+    
+    private void set(FaultTrace faultTrace,
+    		double aveDip,
+    		double upperSeismogenicDepth,
+    		double lowerSeismogenicDepth,
+    		double gridSpacing)	{
+    	this.faultTrace =faultTrace;
+    	this.aveDip =aveDip;
+    	this.upperSeismogenicDepth = upperSeismogenicDepth;
+    	this.lowerSeismogenicDepth =lowerSeismogenicDepth;
+    	this.gridSpacing = gridSpacing;
     }
     
     
@@ -78,6 +86,15 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
      * @throws FaultException
      */
     protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultData, double gridSpacing) {
+    	if(simpleFaultData.size()==1) {
+    		SimpleFaultData faultData = simpleFaultData.get(0);
+    		set(faultData.getFaultTrace(),
+    				faultData.getAveDip(),
+    				faultData.getUpperSeismogenicDepth(),
+    				faultData.getLowerSeismogenicDepth(),
+    				gridSpacing);
+    		return;
+    	}
     	// correctly order the first fault section
     	FaultTrace faultTrace1 = simpleFaultData.get(0).getFaultTrace();
     	FaultTrace faultTrace2 =  simpleFaultData.get(1).getFaultTrace();

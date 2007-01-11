@@ -57,10 +57,10 @@ public class ProbEqkRupture extends EqkRupture{
   public void setProbability(double p) { probability = p; }
 
   /**
-   * This is a function of probability and timespan
+   * This is a function of probability and duration
    */
-  public double getMeanAnnualRate(){
-       return 0;
+  public double getMeanAnnualRate(double duration){
+	  return -Math.log(1 - probability)/duration;
    }
 
 

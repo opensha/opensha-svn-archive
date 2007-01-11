@@ -365,8 +365,7 @@ public class ERF2GriddedSeisRatesCalc {
    */
   private double getRupturePtRate(EqkRupForecastAPI eqkRupForecast,
                                   ProbEqkRupture rupture, long numPts) {
-    return ( -Math.log(1 - rupture.getProbability()) /
-            eqkRupForecast.getTimeSpan().getDuration()) / numPts;
+    return rupture.getMeanAnnualRate(eqkRupForecast.getTimeSpan().getDuration()) / numPts;
   }
 
   /*

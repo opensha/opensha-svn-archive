@@ -544,7 +544,7 @@ public class IM_EventSetCalc
           for (int n = 0; n < numRuptures; n++, ++currRuptures) {
 
             ProbEqkRupture rupture = (ProbEqkRupture) source.getRupture(n);
-            double rate = -Math.log(1 - rupture.getProbability())/duration;
+            double rate = rupture.getMeanAnnualRate(duration);
             fwRup.write(sourceIndex+"  "+n + " " + (float)rate+"  "+(float)rupture.getMag()+"  "+source.getName() + "\n");
           }
         }

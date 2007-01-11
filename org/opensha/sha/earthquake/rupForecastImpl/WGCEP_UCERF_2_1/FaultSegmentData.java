@@ -335,6 +335,7 @@ public class FaultSegmentData {
 		return faultSectionList;
 	}
 	
+	
 	/**
 	 * Get StirlingGriddedSurface for selected Segment indices. It stitches together the segments and returns the resulting surface
 	 *  
