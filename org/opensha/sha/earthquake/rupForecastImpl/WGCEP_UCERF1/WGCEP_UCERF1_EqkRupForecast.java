@@ -1142,7 +1142,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 	   srcList.add(hrc_sources);
 	   srcList.add(calaveras_sources);
 	   
-	   String[] faultNames = {"SJF", "Elsinore", "N. SAF", "S.SAF", "HRC", "Calaveras" };
+	   String[] faultNames = {"SJF", "Elsinore", "N-SAF", "S-SAF", "HRC", "Calaveras" };
 	   int index, rup;
 	   double duration = timeSpan.getDuration();
 	   ProbEqkSource probSrc;
