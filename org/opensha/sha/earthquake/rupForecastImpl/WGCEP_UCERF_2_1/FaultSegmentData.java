@@ -335,6 +335,18 @@ public class FaultSegmentData {
 		return faultSectionList;
 	}
 	
+	/**
+	 * Get StirlingGriddedSurface for ALL Segments. 
+	 * It stitches together the segments and returns the resulting surface
+	 *  
+	 * 
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing) {
+		int segIndices[] = new int[this.getNumSegments()];
+		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
+		return getCombinedGriddedSurface(segIndices, gridSpacing);
+	}
 	
 	/**
 	 * Get StirlingGriddedSurface for selected Segment indices. It stitches together the segments and returns the resulting surface
@@ -350,6 +362,18 @@ public class FaultSegmentData {
 			simpleFaultData.addAll((ArrayList)this.simpleFaultDataList.get(segIndex[i]));
 		}
 		return  new StirlingGriddedSurface(simpleFaultData, gridSpacing);
+	}
+	
+	/**
+	 * Get Ave rake for the ALL Segments
+	 * 
+	 * 
+	 * @return
+	 */
+	public double getAveRake() {
+		int segIndices[] = new int[this.getNumSegments()];
+		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
+		return getAveRake(segIndices);
 	}
 	
 	/**
