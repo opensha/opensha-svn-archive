@@ -13,7 +13,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_GR_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -33,7 +33,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
  * @version 1.0
  */
 
-public class UnsegmentedSource extends ProbEqkSource {
+public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	
 	//for Debug purposes
 	private static String C = new String("UnsegmentedSource");
@@ -64,8 +64,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 	private FaultSegmentData segmentData;
 	private MagAreaRelationship magAreaRel;
 	private double fixMag, fixRate;
-	private Frankel02_GR_EqkSource grSource;
-	
 	
 	
 	/**
@@ -98,8 +96,14 @@ public class UnsegmentedSource extends ProbEqkSource {
 		for(int i =0; i<sourceMFD.getNum(); i++)
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 		
-		makeGR_Source(segmentData);
-		
+		// create the source
+		setAll(sourceMFD,
+				segmentData.getCombinedGriddedSurface(DEFAULT_GRID_SPACING),
+				DEFAULT_RUP_OFFSET,
+				segmentData.getAveRake(),
+				duration,
+				segmentData.getFaultName());
+			
 		// get the rate of ruptures on each segment (segSourceMFD[seg])
 		getSegSourceMFD();
 		
@@ -138,22 +142,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 	}
 
 
-	/**
-	 * Make GR Source
-	 * @param segmentData
-	 */
-
-	private void makeGR_Source(FaultSegmentData segmentData) {
-		int []segIndices = new int[num_seg];
-		for(int i=0; i<num_seg; ++i) segIndices[i] = i;
-		grSource = new Frankel02_GR_EqkSource(visibleSourceMFD,
-				segmentData.getCombinedGriddedSurface(segIndices, DEFAULT_GRID_SPACING),
-				DEFAULT_RUP_OFFSET,
-				segmentData.getAveRake(segIndices),
-				duration,
-				segmentData.getFaultName());
-	}
-	
 	
 	
 	
@@ -218,7 +206,15 @@ public class UnsegmentedSource extends ProbEqkSource {
 		for(int i =0; i<sourceMFD.getNum(); i++)
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 		
-		makeGR_Source(segmentData);
+		// create the source
+		setAll(sourceMFD,
+				segmentData.getCombinedGriddedSurface(DEFAULT_GRID_SPACING),
+				DEFAULT_RUP_OFFSET,
+				segmentData.getAveRake(),
+				duration,
+				segmentData.getFaultName());
+	
+
 		
 		// get the rate of ruptures on each segment (segSourceMFD[seg])
 		getSegSourceMFD();
@@ -489,68 +485,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	}
 	
 	
-	
-	/**
-	 * Returns the Source Surface.
-	 * @return GriddedSurfaceAPI
-	 */
-	/*public EvenlyGriddedSurfaceAPI getSourceSurface() {
-		return null;
-	}*/
-	
-	/**
-	 * It returns a list of all the locations which make up the surface for this
-	 * source.
-	 *
-	 * @return LocationList - List of all the locations which constitute the surface
-	 * of this source
-	 */
-	public LocationList getAllSourceLocs() {
-		return this.grSource.getAllSourceLocs();
-		/*LocationList locList = new LocationList();
-		Iterator it = ( (EvenlyGriddedSurface) getSourceSurface()).
-		getAllByRowsIterator();
-		while (it.hasNext()) locList.addLocation( (Location) it.next());
-		return locList;*/
-	}
-	
-	
-	/**
-	 * This changes the duration.
-	 * @param newDuration
-	 */
-	public void setDuration(double newDuration) {
-		/*if (this.isPoissonian != true)
-			throw new RuntimeException(C +
-			" Error - the setDuration method can only be used for the Poisson case");
-		ProbEqkRupture eqkRup;
-		double oldProb, newProb;
-		for (int i = 0; i < ruptureList.size(); i++) {
-			eqkRup = (ProbEqkRupture) ruptureList.get(i);
-			oldProb = eqkRup.getProbability();
-			newProb = 1.0 - Math.pow( (1.0 - oldProb), newDuration / duration);
-			eqkRup.setProbability(newProb);
-		}*/
-		grSource.setDuration(newDuration);
-		duration = newDuration;
-	}
-	
-	/**
-	 * @return the total num of rutures for all magnitudes
-	 */
-	public int getNumRuptures() {
-		return grSource.getNumRuptures();
-	}
-	
-	/**
-	 * This method returns the nth Rupture in the list
-	 */
-	public ProbEqkRupture getRupture(int nthRupture) {
-		return grSource.getRupture(nthRupture);
-		//return (ProbEqkRupture) ruptureList.get(nthRupture);
-	}
-	
-	
+
 	/**
 	 * Get rate at a particular location on the fault surface. 
 	 * It is calculated by adding the rates of all ruptures that include that location.
@@ -563,7 +498,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		int numRups = getNumRuptures();
 		double distanceCutOff = DEFAULT_GRID_SPACING/2;
 		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
-			ProbEqkRupture rupture = this.grSource.getRupture(rupIndex);
+			ProbEqkRupture rupture = this.getRupture(rupIndex);
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
@@ -576,28 +511,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		return rate;
 	}
 	
-	/**
-	 * This returns the shortest dist to either end of the fault trace, or to the
-	 * mid point of the fault trace (done also for the bottom edge of the fault).
-	 * @param site
-	 * @return minimum distance in km
-	 */
-	public double getMinDistance(Site site) {
-		return this.grSource.getMinDistance(site);
-		/*double min = Double.MAX_VALUE;
-		double tempMin;
-		
-		Iterator it = faultCornerLocations.iterator();
-		
-		while (it.hasNext()) {
-			tempMin = RelativeLocation.getHorzDistance(site.getLocation(),
-					(Location) it.next());
-			if (tempMin < min) min = tempMin;
-		}
-//		System.out.println(C+" minDist for source "+this.NAME+" = "+min);
-		return min;*/
-	}
-	
+
 	/**
 	 * This makes the vector of fault corner location used by the getMinDistance(site)
 	 * method.
@@ -616,23 +530,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		
 	}*/
 	
-	/**
-	 * set the name of this class
-	 *
-	 * @return
-	 */
-	public void setName(String name) {
-		NAME = name;
-	}
-	
-	/**
-	 * get the name of this class
-	 *
-	 * @return
-	 */
-	public String getName() {
-		return NAME;
-	}
+
 	
 }
 

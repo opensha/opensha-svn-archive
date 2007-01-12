@@ -17,7 +17,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 /**
- * <p>Title: Frankel02_GR_EqkSource </p>
+ * <p>Title: Frankel02_TypeB_EqkSource </p>
  * <p>Description: This implements Frankel's floating-rupture Gutenberg Richter
  * source used in the 2002 version of his code.  We made this, rather than using
  * the more general FloatingPoissonFaultSource only for enhanced performance (e.g.,
@@ -29,7 +29,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @version 1.0
  */
 
-public class Frankel02_GR_EqkSource extends ProbEqkSource {
+public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
 
   //for Debug purposes
@@ -45,6 +45,15 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
   private EvenlyGriddedSurface surface;
   private ArrayList mags, rates;
 
+  
+  /**
+   * empty constructor
+   *
+   */
+  public Frankel02_TypeB_EqkSource() {}
+
+  
+  
   /**
    * constructor specifying the values needed for the source
    *
@@ -55,32 +64,42 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
    * @param duration - forecast duration (yrs)
    * @param sourceName - source name
    */
-  public Frankel02_GR_EqkSource(IncrementalMagFreqDist magFreqDist,
-                                EvenlyGriddedSurface surface,
-                                double rupOffset,
-                                double rake,
-                                double duration,
-                                String sourceName) {
-
-    this.surface=surface;
-    this.rupOffset = rupOffset;
-    this.rake=rake;
-    this.duration = duration;
-    this.name = sourceName;
-
-    probEqkRupture = new ProbEqkRupture();
-    probEqkRupture.setAveRake(rake);
-
-    // get a list of mags and rates for non-zero rates
-    mags = new ArrayList();
-    rates = new ArrayList();
-    for (int i=0; i<magFreqDist.getNum(); ++i){
-      if(magFreqDist.getY(i) > 0){
-        //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
-        mags.add(new Double(magFreqDist.getX(i)));
-        rates.add(new Double(magFreqDist.getY(i)));
-      }
-    }
+  public Frankel02_TypeB_EqkSource(IncrementalMagFreqDist magFreqDist,
+		  EvenlyGriddedSurface surface,
+		  double rupOffset,
+		  double rake,
+		  double duration,
+		  String sourceName) {
+	  
+	  setAll(magFreqDist, surface, rupOffset, rake, duration, sourceName);
+  }
+    
+  public void setAll(IncrementalMagFreqDist magFreqDist,
+		  EvenlyGriddedSurface surface,
+		  double rupOffset,
+		  double rake,
+		  double duration,
+		  String sourceName) {
+	  
+	  this.surface=surface;
+	  this.rupOffset = rupOffset;
+	  this.rake=rake;
+	  this.duration = duration;
+	  this.name = sourceName;
+	  
+	  probEqkRupture = new ProbEqkRupture();
+	  probEqkRupture.setAveRake(rake);
+	  
+	  // get a list of mags and rates for non-zero rates
+	  mags = new ArrayList();
+	  rates = new ArrayList();
+	  for (int i=0; i<magFreqDist.getNum(); ++i){
+		  if(magFreqDist.getY(i) > 0){
+			  //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+			  mags.add(new Double(magFreqDist.getX(i)));
+			  rates.add(new Double(magFreqDist.getY(i)));
+		  }
+	  }
 
     // Determine number of ruptures
     int numMags = mags.size();
@@ -208,7 +227,7 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
     GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
     System.out.println("cumRate="+(float)gr.getTotCumRate());
 
-    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,surface,
+    Frankel02_TypeB_EqkSource src = new Frankel02_TypeB_EqkSource(gr,surface,
                                                             10.0,0.0,1,"name");
     ProbEqkRupture rup;
     for(int i=0; i< src.getNumRuptures();i++) {

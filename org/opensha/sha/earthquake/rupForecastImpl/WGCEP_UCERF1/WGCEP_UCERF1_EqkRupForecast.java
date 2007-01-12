@@ -824,7 +824,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
         charFaultSources.add(frs);
       }
       else {
-        Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,
+        Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(totalMagFreqDist,
                                                                  surface,
                                                                  rupOffset, rake, duration, sourceName);
         grFaultSources.add(fgrs);

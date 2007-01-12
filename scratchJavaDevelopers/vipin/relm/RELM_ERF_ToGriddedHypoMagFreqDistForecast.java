@@ -101,7 +101,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
    * 4. Lat/Lon/Ratio of Pred(6.5) and Extrapolated(6.5)
    * It assumes a B-value of 0.8 
    */
-  public void generateFiles(String fileNamePrefix) {
+  public void generateNedsBulgeFiles(String fileNamePrefix) {
 	  try {
 		  FileWriter fwPred5 = new FileWriter(fileNamePrefix+"_Pred5.txt"); // predicted rates at Mag 5
 		  FileWriter fwPred6_5 = new FileWriter(fileNamePrefix+"_Pred6_5.txt"); // predicted rates at Mag 6.5

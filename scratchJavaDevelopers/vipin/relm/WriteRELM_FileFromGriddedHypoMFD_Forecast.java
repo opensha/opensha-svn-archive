@@ -294,7 +294,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 		   new RELM_ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
 				   minMag, maxMag, numMag,5.0); // 5 year rates
 	   
-	   griddedHypoMagFeqDistForecast.generateFiles("NSHMP2002");
+	   griddedHypoMagFeqDistForecast.generateNedsBulgeFiles("NSHMP2002");
 	   
 	   // write into RELM formatted file
 	   /* WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);

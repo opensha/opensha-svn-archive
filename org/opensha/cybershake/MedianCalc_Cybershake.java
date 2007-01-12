@@ -5,7 +5,7 @@ import org.opensha.data.LocationList;
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_GR_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;

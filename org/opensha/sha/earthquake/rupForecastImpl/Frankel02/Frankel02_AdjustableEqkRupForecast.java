@@ -824,7 +824,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
         charFaultSources.add(frs);
       }
       else {
-        Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,surface,
+        Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(totalMagFreqDist,surface,
                                                                  rupOffset, rake, duration, sourceName);
         grFaultSources.add(fgrs);
       }
