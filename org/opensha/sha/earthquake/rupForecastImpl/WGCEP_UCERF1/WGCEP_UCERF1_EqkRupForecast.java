@@ -1134,26 +1134,41 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 	   int calaveras_sources[] = {144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,
 			   164,165,166,167,168,392};
 	   
+	   ArrayList<int[]> srcList = new ArrayList<int[]>();
+	   srcList.add(sjf_sources);
+	   srcList.add(elsinore_sources);
+	   srcList.add(nsaf_sources);
+	   srcList.add(ssaf_sources);
+	   srcList.add(hrc_sources);
+	   srcList.add(calaveras_sources);
+	   
+	   String[] faultNames = {"SJF", "Elsinore", "N. SAF", "S.SAF", "HRC", "Calaveras" };
 	   int index, rup;
 	   double duration = timeSpan.getDuration();
 	   ProbEqkSource probSrc;
 	   ProbEqkRupture probRup;
 	   
-	   // SJF MFD
-	   String faultname = "SJF Fault MFD from UCERF 1";
-	   System.out.println(faultname);
-	   SummedMagFreqDist sjf_MFD = new SummedMagFreqDist(5.0,71,.05);
-	   for(index=0; index<sjf_sources.length; index++){
-		   probSrc = getSource(sjf_sources[index]);
-		   // for debugging to make sure correct sources are used
-		   System.out.println(probSrc.getName());
-		   for(rup=0; rup<probSrc.getNumRuptures(); rup++){
-			   probRup = probSrc.getRupture(rup);
-			   sjf_MFD.add(probRup.getMag(), probRup.getMeanAnnualRate(duration));
+	    // Loop over all faults
+	   for(int faultIndex=0; faultIndex<faultNames.length; ++faultIndex) {
+		   // SJF MFD
+		   String faultname = faultNames[faultIndex]+" Fault MFD from UCERF 1";
+		   System.out.println("*******"+faultname+"*********");
+		   SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0,71,.05);
+		   int[] sources = srcList.get(faultIndex);
+		   for(index=0; index<sources.length; index++){
+			   probSrc = getSource(sources[index]);
+			   // for debugging to make sure correct sources are used
+			   System.out.println(probSrc.getName());
+			   for(rup=0; rup<probSrc.getNumRuptures(); rup++){
+				   probRup = probSrc.getRupture(rup);
+				   summedMFD.add(probRup.getMag(), probRup.getMeanAnnualRate(duration));
+			   }
 		   }
+		   // write name and MFD to file
+		   // System.out.println(sjf_MFD.toString());
 	   }
-	   // write name and MFD to file
-	   // System.out.println(sjf_MFD.toString());
+	   
+	  
    }
 
 
