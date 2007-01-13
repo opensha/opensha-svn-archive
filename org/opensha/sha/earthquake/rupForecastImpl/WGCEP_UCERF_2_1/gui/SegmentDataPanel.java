@@ -33,6 +33,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -71,7 +72,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	private boolean yLog = true ;
-	
+	private ArrayList<EventRates> aFaultsFetcherEventRatesList;
 	public SegmentDataPanel() {
 		setLayout(new GridBagLayout());
 		createGUI();
@@ -82,23 +83,32 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		this.makePlottingFeaturesList();
 	}
 	
+	/**
+	 * Event Rates List from Excel file
+	 * 
+	 * @param aFaultsFetcherEventRatesList
+	 */
+	public void setEventRatesList(ArrayList<EventRates> aFaultsFetcherEventRatesList) {
+		this.aFaultsFetcherEventRatesList = aFaultsFetcherEventRatesList;
+	}
+	
 	private void makePlottingFeaturesList() {
 		// slip rate plotting features
 		slipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR1);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR4);
-		slipRatePlottingFeatures.add(this.PLOT_CHAR3);
+		slipRatePlottingFeatures.add(PLOT_CHAR1);
+		slipRatePlottingFeatures.add(PLOT_CHAR1);
+		slipRatePlottingFeatures.add(PLOT_CHAR1);
+		slipRatePlottingFeatures.add(PLOT_CHAR4);
+		slipRatePlottingFeatures.add(PLOT_CHAR4);
+		slipRatePlottingFeatures.add(PLOT_CHAR4);
+		slipRatePlottingFeatures.add(PLOT_CHAR3);
 		// event rates Plotting features
 		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
-		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
-		eventRatesPlottingFeatures.add(this.PLOT_CHAR1);
-		eventRatesPlottingFeatures.add(this.PLOT_CHAR2);
-		eventRatesPlottingFeatures.add(this.PLOT_CHAR3);
+		eventRatesPlottingFeatures.add(PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(PLOT_CHAR1);
+		eventRatesPlottingFeatures.add(PLOT_CHAR2);
+		eventRatesPlottingFeatures.add(PLOT_CHAR3);
 		// normalized event rates residuals
 		eventRateRatioPlotFeatures = new ArrayList<PlotCurveCharacterstics>();
 		eventRateRatioPlotFeatures.add(PLOT_CHAR1);
@@ -142,38 +152,16 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param faultSegmentData
 	 * @param isAseisReducesArea
 	 */
-	public void setFaultSegmentData(A_FaultSegmentedSource segmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
-		FaultSegmentData faultSegmentData = segmentedSource.getFaultSegmentData();
-		// update the segment table model
-		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, segmentedSource);
-	}
-	
-	
-	/**
-	 * Update the data in the tables with the selected fault 
-	 * 
-	 * @param faultSegmentData
-	 * @param isAseisReducesArea
-	 */
-	public void setFaultSegmentData(UnsegmentedSource unsegmentedSource, boolean isAseisReducesArea, ArrayList magAreaRelationships) {
-		FaultSegmentData faultSegmentData = unsegmentedSource.getFaultSegmentData();
-		// update the segment table model
-		updateSegTableModel(isAseisReducesArea, magAreaRelationships, faultSegmentData, null);
-	}
-
-
-	/**
-	 * Update the segment table model
-	 * @param isAseisReducesArea
-	 * @param magAreaRelationships
-	 * @param faultSegmentData
-	 * @param predMRI
-	 * @param finalMRI
-	 */
-	private void updateSegTableModel(boolean isAseisReducesArea, ArrayList magAreaRelationships, FaultSegmentData faultSegmentData, 
-			A_FaultSegmentedSource segmentedSource) {
-		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, magAreaRelationships, segmentedSource);
-		segmentTableModel.setSegmentedFaultData(faultSegmentData,  segmentedSource);
+	public void setFaultSegmentData(A_FaultSegmentedSource segmentedSource, 
+			UnsegmentedSource unsegmentedSource,
+			boolean isAseisReducesArea, 
+			ArrayList magAreaRelationships) {
+		FaultSegmentData faultSegmentData ;
+		if(segmentedSource!=null) faultSegmentData = segmentedSource.getFaultSegmentData();
+		else faultSegmentData = unsegmentedSource.getFaultSegmentData();
+		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, 
+				magAreaRelationships, segmentedSource, unsegmentedSource);
+		segmentTableModel.setFaultData(faultSegmentData, segmentedSource, unsegmentedSource);
 		segmentTableModel.fireTableDataChanged();
 		if(faultSegmentData!=null) faultSectionTableModel.setFaultSectionData(faultSegmentData.getPrefFaultSectionDataList());
 		else faultSectionTableModel.setFaultSectionData(null);
@@ -194,7 +182,6 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
 			generateEventRateRatioFuncList(segmentedSource);
 		}
-		
 	}
 	
 	/**
@@ -364,7 +351,10 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param isAseisReducesArea
 	 * @param magAreaRelationships
 	 */
-	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData, boolean isAseisReducesArea, ArrayList magAreaRelationships, A_FaultSegmentedSource segmentedSource ) {
+	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData,
+			boolean isAseisReducesArea, ArrayList magAreaRelationships, 
+			A_FaultSegmentedSource segmentedSource,
+			UnsegmentedSource unsegmentedSource) {
 		magAreasTextArea.setText("");
 		if(segmetedFaultData==null) return ;
 		int numSegs = segmetedFaultData.getNumSegments();
@@ -391,10 +381,37 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			predError += "Data Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
 			predError += "A-Priori Model Error = "+(float)segmentedSource.getA_PrioriModelError()+"\n\n";
 		}
-		magAreasTextArea.setText(predError+getLegend()+"\n\n"+text+"\n\n"+getRateConstraints(segmetedFaultData)+"\n\n"+summaryString);
+		String rateConstraints;
+		if(segmentedSource!=null) rateConstraints = getRateConstraints(segmetedFaultData);
+		else {
+			rateConstraints = getUnsegmentedEventRates();
+		}
+		magAreasTextArea.setText(predError+getLegend()+"\n\n"+
+				text+"\n\n"+rateConstraints+"\n\n"+summaryString);
 		magAreasTextArea.setCaretPosition(0);
 	}
 	
+	/**
+	 * Show event rates in case of unsegmented model
+	 * @return
+	 */
+	private String getUnsegmentedEventRates() {
+		String rateConstraintStr = "Event Rate Constraints for the Unsegmented Model \n"+
+			"---------------------------------------\n\n";
+		rateConstraintStr+="Latitude\tLongitude\tRate(Obs)\tSigma(Obs)\tRate(Predicted)\tSitename\n";
+		int numEvents = this.aFaultsFetcherEventRatesList.size();
+		for(int eventIndex=0; eventIndex<numEvents; ++eventIndex) {
+			EventRates eventRate = aFaultsFetcherEventRatesList.get(eventIndex);
+			rateConstraintStr+=(float)eventRate.getLatitude()+"\t"+
+			(float)eventRate.getLongitude()+"\t" +
+			(float)eventRate.getObsEventRate()+"\t"+
+			(float)eventRate.getObsSigma()+"\t" +
+			(float)eventRate.getPredictedRate()+"\t" +
+			eventRate.getSiteName()+"\n";
+		}
+		return rateConstraintStr;
+	}
+
 	/**
 	 * Get rate constraints for the segments
 	 * 
@@ -410,8 +427,6 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			for(int i=0; i<segConstraintList.size(); ++i)
 				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+"\t\t"+(float)segConstraintList.get(i).getStdDevOfMean()+"\n";
 		}
-
-		
 		return rateConstraintStr;
 	}
 	
@@ -655,6 +670,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private A_FaultSegmentedSource segmentedSource;
+	private UnsegmentedSource unsegmentedSource;
 	
 	
 	/**
@@ -670,16 +686,19 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * @param segFaultData
 	 */
 	public SegmentDataTableModel( FaultSegmentData segFaultData, A_FaultSegmentedSource segmentedSource) {
-		setSegmentedFaultData(segFaultData, segmentedSource);
+		setFaultData(segFaultData, segmentedSource, null);
 	}
 	
 	/**
 	 * Set the segmented fault data
 	 * @param segFaultData
 	 */
-	public void setSegmentedFaultData(FaultSegmentData segFaultData, A_FaultSegmentedSource segmentedSource) {
+	public void setFaultData(FaultSegmentData segFaultData,
+			A_FaultSegmentedSource segmentedSource,
+			UnsegmentedSource unsegmentedSource) {
 		this.segFaultData =   segFaultData;
 		this.segmentedSource = segmentedSource;
+		this.unsegmentedSource = unsegmentedSource;
 	}
 	
 	/**
@@ -737,8 +756,8 @@ class SegmentDataTableModel extends AbstractTableModel {
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(segFaultData.getSegSlipRateStdDev(rowIndex)*1e3);
 			case 8:
-				if(segmentedSource==null) return "";
-				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+				if(segmentedSource!=null) return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegSlipRate(rowIndex)*1e3);
+				else return SLIP_RATE_FORMAT.format(this.unsegmentedSource.getFinalAveSegSlipRate(rowIndex)*1e3);
 			case 9:
 				return MOMENT_FORMAT.format(segFaultData.getSegmentMomentRate(rowIndex));
 			case 10:
@@ -750,6 +769,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				if(Double.isNaN(stdDev)) return "";
 				return SLIP_RATE_FORMAT.format(stdDev);
 			case 12:
+				// for segmented source
 				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 13:

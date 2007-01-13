@@ -496,7 +496,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getEventRate(Location loc) {
 		double rate = 0;
 		int numRups = getNumRuptures();
-		double distanceCutOff = DEFAULT_GRID_SPACING/2;
+		double distanceCutOff = 2; // Use 2Km as distance Cutoff
 		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
 			ProbEqkRupture rupture = this.getRupture(rupIndex);
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();

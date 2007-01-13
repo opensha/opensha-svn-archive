@@ -431,10 +431,10 @@ public class GraphPanel extends JPanel {
       if(xLog) xAxis = new JFreeLogarithmicAxis(xAxisName);
       else xAxis = new NumberAxis( xAxisName );
 
-      if (!xLog)
-        xAxis.setAutoRangeIncludesZero(true);
-      else
-        xAxis.setAutoRangeIncludesZero( false );
+      //if (!xLog)
+      //  xAxis.setAutoRangeIncludesZero(true);
+     // else
+      xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
       //Axis label font

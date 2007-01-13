@@ -225,7 +225,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			rowData[rowIndex][0]=faultSegmentData.getFaultName();
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
 			++rowIndex;
-			segTableModel.setSegmentedFaultData(faultSegmentData, source);
+			segTableModel.setFaultData(faultSegmentData, source, null);
 			for(int segIndex=0; segIndex<=faultSegmentData.getNumSegments(); ++segIndex, ++rowIndex) {
 				for(int colIndex=0; colIndex<totalCols;++colIndex)
 					rowData[rowIndex][colIndex]=segTableModel.getValueAt(segIndex, colIndex);
@@ -378,9 +378,10 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		Object source =   aFaultSourceMap.get(selectedFault);
 		if(!this.isUnsegmented)  {
 			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
-			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSource)source, null, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
 		} else {
-			this.segmentDataPanel.setFaultSegmentData((UnsegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+			segmentDataPanel.setEventRatesList(this.eqkRateModelERF.getA_FaultsFetcher().getEventRatesList());
+			this.segmentDataPanel.setFaultSegmentData(null, (UnsegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
 		}
 	} 
 

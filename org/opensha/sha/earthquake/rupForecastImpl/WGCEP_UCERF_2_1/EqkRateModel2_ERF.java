@@ -39,6 +39,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.B_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.EventRates;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -1419,18 +1420,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
 			mkA_FaultUnsegmentedSources();
 			
-			// Find event rates for locations provided by Tom Parson's excel sheet
-			/*LocationList locList = this.aFaultsFetcher.getEventRatesLocList();
+			// Find Predicted event rates for locations provided by Tom Parson's excel sheet
+			ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
 			int numSources = this.aFaultSources.size();
-			for(int locIndex=0; locIndex<locList.size(); ++locIndex) {
-				Location loc = locList.getLocationAt(locIndex);		
-				System.out.print(loc.getLatitude()+","+loc.getLongitude()+",");
+			for(int eventIndex=0; eventIndex<eventRatesList.size(); ++eventIndex) {
+				EventRates event = eventRatesList.get(eventIndex);		
+				double rate = 0;
 				for(int iSource=0; iSource<numSources; ++iSource) {
 					UnsegmentedSource source = (UnsegmentedSource)aFaultSources.get(iSource);
-					System.out.print(source.getEventRate(loc)+",");
+					rate+=source.getEventRate(new Location(event.getLatitude(), event.getLongitude()));
 				}
-				System.out.println("");
-			}*/
+				event.setPredictedRate(rate);
+			}
+			
+			
 		}
 		else 
 			mkA_FaultSegmentedSources();

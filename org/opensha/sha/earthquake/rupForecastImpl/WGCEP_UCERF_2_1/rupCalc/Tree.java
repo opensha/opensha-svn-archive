@@ -110,6 +110,22 @@ public class Tree {
 	}
 	
 	/**
+	 * Get the number of subsections in this cluster
+	 * @return
+	 */
+	public int getNumSubSections() {
+		Iterator<Integer> it = treeBranchMap.keySet().iterator();
+		int numSubSections=0;
+		while(it.hasNext()) {
+			int subSectionId = it.next();
+			++numSubSections;
+			numSubSections+=treeBranchMap.get(subSectionId).getAdjacentSubSectionsList().size();
+		}
+		return numSubSections;
+	}
+	
+	
+	/**
 	 * List of all subsections within this cluster
 	 */
 	public ArrayList<Integer> getAllSubSectionsIdList() {
@@ -117,6 +133,7 @@ public class Tree {
 		Iterator<Integer> it = treeBranchMap.keySet().iterator();
 		while(it.hasNext()) {
 			int subSectionId = it.next();
+			
 			subSectionIdSet.add(subSectionId);
 			subSectionIdSet.addAll(treeBranchMap.get(subSectionId).getAdjacentSubSectionsList());
 		}

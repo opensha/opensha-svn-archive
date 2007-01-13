@@ -50,7 +50,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.1.txt";
 	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/SegmentModelsF2.2.txt";
-	private LocationList eventRatesLocList; // Location list where event rates are available
+	private ArrayList<EventRates> eventRatesList; // Location list where event rates are available
 	
 	/**
 	 * 
@@ -142,13 +142,14 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private void readSegRates() {
 		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
 		while(it.hasNext()) this.segRatesMap.put(it.next(),new  ArrayList());
-		eventRatesLocList = new LocationList();
+		eventRatesList = new ArrayList<EventRates>();
 		try {				
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastRowIndex = sheet.getLastRowNum();
 			double lat, lon, rate, sigma;
+			String siteName;
 			int faultSectionId;
 			for(int r=2; r<=lastRowIndex; ++r) {	
 				if(r==9) continue; // Ignore the Hayward North
@@ -157,12 +158,13 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				HSSFCell cell = row.getCell( (short) 1);
 				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
 				lat = cell.getNumericCellValue();
+				siteName = row.getCell( (short) 0).getStringCellValue().trim();
 				lon = row.getCell( (short) 2).getNumericCellValue();
 				rate = row.getCell( (short) 19).getNumericCellValue();
 				sigma =  row.getCell( (short) 20).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
-				if(faultSectionId==-1) continue; // closeest fault section is at a distance of more than 2 km
-				eventRatesLocList.addLocation(new Location(lat,lon));
+				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
+				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma));
 				setRecurIntv(faultSectionId, rate, sigma);
 			}
 		}catch(Exception e) {
@@ -171,13 +173,13 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	}
 	
 	/**
-	 * It gets the list of all locations where event rates are available.
-	 * It gets the locations from Tom Parson's excel sheet
+	 * It gets the list of all event rates.
+	 * It gets them  from Tom Parson's excel sheet
 	 * 
 	 * @return
 	 */
-	public LocationList getEventRatesLocList() {
-		return this.eventRatesLocList;
+	public ArrayList<EventRates> getEventRatesList() {
+		return this.eventRatesList;
 	}
 	
 	/**
