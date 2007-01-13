@@ -28,7 +28,7 @@ import org.opensha.sha.gui.infoTools.HazardMapSubmissionMethods;
 public class HazardMapCalcServlet extends HttpServlet {
   public final static boolean D =false;
   // parent directory where each new calculation will have its own subdirectory
-  public static final String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
+  public static final String PARENT_DIR = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapDatasets/";
   // filenames for IMR, ERF, Region, metadata
   private static final String IMR_FILE_NAME = "imr.obj";
   private static final String ERF_FILE_NAME = "erf.obj";

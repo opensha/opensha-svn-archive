@@ -24,7 +24,7 @@ import org.opensha.util.SystemPropertiesUtils;
 public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
 
   private static final String GMT_URL_PATH="http://gravity.usc.edu/gmtWS/";
-  private final static String FILE_PATH="/opt/install/jakarta-tomcat-4.1.24/webapps/gmtWS/";
+  private final static String FILE_PATH="/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
   private final static String GMT_DATA_DIR ="gmtData/" ;
   private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
 

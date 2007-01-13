@@ -16,7 +16,7 @@ import org.opensha.util.RunScript;
 
 public class GMT_WebServiceServer implements GMT_WebServiceAPI{
 
-  private final static String FILE_PATH="/opt/install/jakarta-tomcat-4.1.24/webapps/gmtWS/";
+  private final static String FILE_PATH="/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
   private final static String GMT_DATA_DIR ="gmtData/" ;
   //private final static String DATA_PATH ="/usr/scec/data/gmt/";
   private final static String GMT_SCRIPT_FILE = "temp_gmtScript.txt";

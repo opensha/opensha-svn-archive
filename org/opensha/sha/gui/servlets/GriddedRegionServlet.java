@@ -26,7 +26,7 @@ public class GriddedRegionServlet extends HttpServlet {
 
 
   //path on the server where all the object will be stored
-  private final static String FILE_PATH="/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/MapCalculationSavedObjects/";
+  private final static String FILE_PATH="/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/MapCalculationSavedObjects/";
   private final static String REGION_DATA_DIR ="regionObjects/" ;
 
 

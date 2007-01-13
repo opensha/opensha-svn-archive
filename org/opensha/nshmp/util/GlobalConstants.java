@@ -19,7 +19,7 @@ public final class GlobalConstants {
 	public static final String SERVLET_PATH = "http://geohazards.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	//public static final String SERVLET_PATH = "http://gldjanus.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
   //data files path
-  //public final static String DATA_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
+  //public final static String DATA_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
   //public final static String DATA_FILE_PATH = "/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
   public final static String DATA_FILE_PATH = "/usr/local/tomcat/webapps/dataFiles/"; // path at gldwork.cr.usgs.gov
   public final static String registrationName =

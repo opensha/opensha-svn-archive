@@ -36,8 +36,8 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
       "Deterministic Curve";
   public static final String GET_HAZARD_DATA = "Read the CyberShake Hazard Data";
   public static final String GET_DETERMINISTIC_DATA = "Read the deterministic data";
-  private static final String CYBERSHAKE_HAZARD_DATASET = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/CyberShake/";
-  private static final String OpenSHA_LIB_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar";
+  private static final String CYBERSHAKE_HAZARD_DATASET = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/CyberShake/";
+  private static final String OpenSHA_LIB_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/lib/ERF.jar";
   private static final String EXECUTABLE_CLASS_NAME = "CalculateDeterministicHazardCurve";
   private static final String hazardDataFilesStartString = "hazcurve_";
   //private static final String

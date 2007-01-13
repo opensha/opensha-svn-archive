@@ -32,7 +32,7 @@ import org.opensha.sha.gui.infoTools.HazardMapSubmissionMethods;
 public class DatasetIdAndMetadataCheckServlet extends HttpServlet {
   public final static boolean D =false;
   // parent directory where each new calculation will have its own subdirectory
-  public static final String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
+  public static final String PARENT_DIR = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapDatasets/";
   public  static final String METADATA_FILE_NAME = "metadata.txt";
 
   //Process the HTTP Get request

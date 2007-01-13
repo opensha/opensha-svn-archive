@@ -32,7 +32,7 @@ public class ScenarioShakeMapCalcServlet
 
   //path on the server where all the object will be stored
   private final static String FILE_PATH =
-      "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/MapCalculationSavedObjects/";
+      "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/MapCalculationSavedObjects/";
   private final static String XYZ_DATA_DIR = "xyzDataObject/";
 
   /**

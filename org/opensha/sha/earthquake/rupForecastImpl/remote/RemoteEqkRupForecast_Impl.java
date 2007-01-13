@@ -97,7 +97,7 @@ public class RemoteEqkRupForecast_Impl
    public String saveForecast() throws
        RemoteException {
      String urlPrefix = "http://gravity.usc.edu/";
-     String parentDir = "/opt/install/jakarta-tomcat-4.1.24/webapps/";
+     String parentDir = "/opt/install/apache-tomcat-5.5.20/webapps/";
      String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
      String fileName = System.currentTimeMillis() + ".javaobject";
      org.opensha.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,

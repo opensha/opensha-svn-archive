@@ -44,7 +44,7 @@ public class HazardMapCalculator {
 
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
-  public static final String DATASETS_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
+  public static final String DATASETS_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapDatasets/";
   // flag to indicate whether this IMT requires X values to be in log
   boolean xLogFlag = true;
   // name of the new directory for this data set

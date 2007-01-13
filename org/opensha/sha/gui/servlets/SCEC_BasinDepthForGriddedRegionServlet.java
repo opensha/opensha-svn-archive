@@ -24,7 +24,7 @@ public class SCEC_BasinDepthForGriddedRegionServlet  extends HttpServlet {
 
 
   //Basin depth file
-  private final String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/basindepth_OpenSHA.txt";
+  private final String BASIN_DEPTH_FILENAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/basindepth_OpenSHA.txt";
 
 
   /**

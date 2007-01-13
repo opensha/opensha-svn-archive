@@ -21,7 +21,7 @@ public class WillsSiteClassForGriddedRegionServlet  extends HttpServlet {
 
 
   //File from which we get the Vs30
-  private final String WILLS_SITE_CLASS_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/usgs_cgs_geology_60s_mod.txt";
+  private final String WILLS_SITE_CLASS_INPUT_FILENAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/usgs_cgs_geology_60s_mod.txt";
 
 
   /**

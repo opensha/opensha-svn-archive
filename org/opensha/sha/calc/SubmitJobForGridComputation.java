@@ -425,7 +425,7 @@ public class SubmitJobForGridComputation {
       String fileName = outputDir + "ActualFilesLog.log";
 
       frFTP.write("find . -name . -o -type d -prune -o -type f -name '*_*.txt' -print0 | xargs -0 ls -l | wc -l > " + fileName + "\n");
-      frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/mail.jar:$CLASSPATH org.opensha.sha.gui.infoTools.HazardMapCalcPostProcessing " +
+      frFTP.write("java -classpath /opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/lib/ERF.jar:/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/lib/mail.jar:$CLASSPATH org.opensha.sha.gui.infoTools.HazardMapCalcPostProcessing " +
                   fileName + " " + expectedNumOfFiles + " " + emailAddr + " "+
                   datasetId+" "+
                   java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_")+"\n");
