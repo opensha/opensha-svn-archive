@@ -69,8 +69,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    //String INPUT_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt";
-    String INPUT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/singleIterationWithModes.OpenSHA.30yr.txt";
+    String INPUT_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt";
+    //String INPUT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/singleIterationWithModes.OpenSHA.30yr.txt";
     ArrayList inputFileLines=null;
 
     // read the lines of the input files into a list

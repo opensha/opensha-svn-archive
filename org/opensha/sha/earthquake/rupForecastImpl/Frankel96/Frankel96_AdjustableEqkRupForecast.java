@@ -66,13 +66,13 @@ public class Frankel96_AdjustableEqkRupForecast
   /**
    * Static variable for input file names
    */
-  private final static String INPUT_FAULT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/Frankel96_CAL_all.txt";
-  private final static String INPUT_BACK_SEIS_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/CAagrid.asc";
+  //private final static String INPUT_FAULT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/Frankel96_CAL_all.txt";
+  //private final static String INPUT_BACK_SEIS_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/CAagrid.asc";
 
-  //private final static String INPUT_FAULT_FILE_NAME =
-    //  "org/opensha/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
-  //private final static String INPUT_BACK_SEIS_FILE_NAME =
-    //  "org/opensha/sha/earthquake/rupForecastImpl/Frankel96/CAagrid.asc";
+  private final static String INPUT_FAULT_FILE_NAME =
+      "org/opensha/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
+  private final static String INPUT_BACK_SEIS_FILE_NAME =
+      "org/opensha/sha/earthquake/rupForecastImpl/Frankel96/CAagrid.asc";
 
   /**
    * Vectors for holding the various sources, separated by type
