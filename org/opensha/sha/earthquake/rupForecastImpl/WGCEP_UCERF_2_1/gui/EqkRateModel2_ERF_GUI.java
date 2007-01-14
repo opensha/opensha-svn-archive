@@ -193,7 +193,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 // figure 1 with defaults
 		 int fig=1;
 		 eqkRateModelERF.updateForecast();
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 for(int i=0; i<paramNames.size(); ++i) {
 			 if(paramNames.get(i).equalsIgnoreCase(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME))
@@ -210,7 +210,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME).setValue(1.0);
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME).setValue(0.0);
 		 eqkRateModelERF.updateForecast();
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.AFTERSHOCK_FRACTION_PARAM_NAME)).createCell((short)fig).setCellValue(0);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(1);
@@ -230,7 +230,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		
 		 //		 figure 4
 		 ++fig;
@@ -247,7 +247,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 5
 		 ++fig;
@@ -264,7 +264,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Maximum Rate");
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 6
 		 ++fig;
@@ -274,7 +274,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 7
 		 ++fig;
@@ -284,7 +284,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 8
 		 ++fig;
@@ -294,7 +294,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 9
 		 ++fig;
@@ -304,7 +304,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 10
 		 ++fig;
@@ -314,7 +314,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(Ellsworth_A_WG02_MagAreaRel.NAME);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 11
 		 ++fig;
@@ -324,7 +324,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 12
 		 ++fig;
@@ -334,7 +334,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(Somerville_2006_MagAreaRel.NAME);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 13
 		 ++fig;
@@ -344,7 +344,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 14
 		 ++fig;
@@ -354,7 +354,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.B_FAULTS_MIN_MAG)).createCell((short)fig).setCellValue(5.0);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 15
 		 ++fig;
@@ -364,7 +364,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("false");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 16
 		 ++fig;
@@ -374,7 +374,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 17
 		 ++fig;
@@ -384,7 +384,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 18
 		 ++fig;
@@ -394,7 +394,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.2");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 19
 		 ++fig;
@@ -404,7 +404,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.3");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 20
 		 ++fig;
@@ -429,7 +429,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 21
 		 ++fig;
@@ -443,7 +443,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(85);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot(""+fig);
+		 makeMFDsPlot("plot"+fig);
 		 
 		 // wrap cell style
 		 HSSFCellStyle wrapCellStyle = wb.createCellStyle();
@@ -482,7 +482,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	 private void makeMFDsPlot(String fileName) {
 		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF);
 		 GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
-		 graphWindow.setPlotLabel("Eqk Rates");
+		 graphWindow.setPlotLabel("Cum Mag Freq Dist");
 		 graphWindow.plotGraphUsingPlotPreferences();
 		 graphWindow.setVisible(true);
 		 try {

@@ -50,7 +50,7 @@ import org.opensha.util.FileUtils;
 
 
 /**
- * @author vipingupta
+ * @author 
  *
  */
 public class EqkRateModel2_ERF extends EqkRupForecast {
@@ -142,8 +142,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
-	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.22);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.22 for no aftershocks, or 6.69 including aftershocks)";
+	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.6);
+	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
 	// Aftershock/Foreshock Fraction
@@ -366,8 +366,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		return this.aFaultsFetcher;
 	}
 	
-//	make the adjustable parameters & the list
+
+	/**
+	 * This intializes the adjustable parameters
+	 */
 	private void initAdjParams() {
+		
+		// NOTE THAT VALUES SET IN THE CONSTRUCTORS ARE OVER RIDDEN BY CALLING THE setParamDefaults()
+		// NETHOD AT THE END
 		
 		//faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
 		// faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
@@ -434,7 +440,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
 		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
 */
-		
 		
 		// preserveMinAFaultRateParam
 		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME, true);
@@ -538,6 +543,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				SET_FOR_BCK_PARAM_NSHMP02);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
+		
+		// set param defaults
+		setParamDefaults();
+		
 		// put parameters in the parameter List object	
 		createParamList();
 	
@@ -565,7 +574,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		aseisFactorInterParam.setValue(true);
 		// relativeA_PrioriWeightParam
 		relativeA_PrioriWeightParam.setValue(REL_A_PRIORI_WT_PARAM_DEFAULT);
-		//
+		// relativeSegRateWeightParam
 		relativeSegRateWeightParam.setValue(REL_SEG_RATE_WT_PARAM_DEFAULT);		
 		// preserveMinAFaultRateParam
 		preserveMinAFaultRateParam.setValue(true);
@@ -866,18 +875,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 	}
 	
-	
-	/**
-	 * This makes the sources for all faults:
-	 */
-	private void makeAllFaultSources() {
-		
-		
-		
-	}
-	
-	
-	
+
 	
 	/**
 	 * Returns the  ith earthquake source
@@ -1186,6 +1184,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				//if(!Double.isNaN(fixMag)) {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
+				if(segmentData.getFaultName().equals("Mendocino")) {
+					System.out.println(segmentData.getFaultName());
+					continue;
+				}
+					
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
 						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
@@ -1250,7 +1253,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	/**
 	 * This returns an EvenlyDiscretizedFunc that is a cumulative 
-	 * MFD for Karen Felzer's best-fit to the observed MFD (from Table 1 in her appendix)
+	 * MFD for Karen Felzer's best-fit to the observed MFD (from Table 11 in Appendix_I_v01.pdf)
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getObsBestFitCumMFD(boolean includeAftershocks) {
@@ -1259,11 +1262,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 
 		if(includeAftershocks)  {
 			bVal = 1.0;
-			rate = 6.69;
+			rate = 7.84;
 		}
 		else {
 			bVal = 0.8;
-			rate = 3.22;
+			rate = 3.6;
 		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
 				this.MIN_MAG, 8.0, 1.0, bVal);
@@ -1294,19 +1297,29 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
-	 * MFD for Karen Felzer's observed MFD (from Table 6 in the doc she sent on Nov 2nd) and upper and lower confidence MFDs
+	 * MFD for Karen Felzer's observed MFD and upper and lower confidence MFDs
+	 * (from Table 11 of Appendix_I_v01.pdf)
 	 * @return
 	 */
 	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] cumRatesWith = {7.84, 2.47, 0.78, 0.24, 0.07, 0.017};
+		double[] cumRatesLowWith =  {7.84-3.6, 2.47-1.14, 0.78-0.36, 0.24-0.11, 0.07-0.05, 0.017-0.013};
+		double[] cumRatesHighWith = {7.84+3.6, 2.47+1.14, 0.78+0.36, 0.24+0.11, 0.07+0.07, 0.017+0.026};
+		double[] cumRates = {3.6, 1.42, 0.56, 0.21, 0.076, 0.022};
+		double[] cumRatesLow =  {3.6-1.37, 1.42-0.55, 0.56-0.22, 0.21-0.09, 0.076-0.06, 0.022-0.021};
+		double[] cumRatesHigh = {3.6+1.37, 1.42+0.55, 0.56+0.22, 0.21+0.13, 0.076+0.074, 0.022+0.017};
+	
+		/* OLD VALUES (from Table 6 in the doc she sent on Nov 2nd) 
 		double[] cumRatesWith = {6.69, 2.11, 0.66, 0.21, 0.06, 0.015};
 		double[] cumRatesLowWith =  {6.69-2.7, 2.11-0.85, 0.66-0.27, 0.21-0.11, 0.06-0.045, 0.015-0.01};
 		double[] cumRatesHighWith = {6.69+2.7, 2.11+0.85, 0.66+0.27, 0.21+0.11, 0.06+0.077, 0.015+0.026};
 		double[] cumRates = {3.22, 1.27, 0.5, 0.19, 0.06, 0.015};
 		double[] cumRatesLow =  {3.22-1.13, 1.27-0.45, 0.5-0.18, 0.19-0.1, 0.06-0.045, 0.015-0.01};
 		double[] cumRatesHigh = {3.22+1.13, 1.27+0.45, 0.5+0.18, 0.19+0.1, 0.06+0.077, 0.015+0.026};
+		*/
 		
 		if(includeAftershocks) {
 			cumRates = cumRatesWith;
