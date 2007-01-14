@@ -351,7 +351,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
     // read the lines of the 1st input file into a list
     ArrayList inputFaultFileLines1=null;
-    try{ inputFaultFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    try{ inputFaultFileLines1 = FileUtils.loadJarFile(IN_FILE_PATH + fileName1 ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
     if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
@@ -359,7 +359,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     // read second file's lines if necessary
     ArrayList inputFaultFileLines2=null;
     if(fileName2 != null) {
-      try{ inputFaultFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      try{ inputFaultFileLines2 = FileUtils.loadJarFile(IN_FILE_PATH + fileName2 ); }
       catch( FileNotFoundException e){ System.out.println(e.toString()); }
       catch( IOException e){ System.out.println(e.toString());}
       if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
@@ -875,7 +875,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
     // read the lines of the 1st input file into a list
     ArrayList inputGridFileLines1=null;
-    try{ inputGridFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    try{ inputGridFileLines1 = FileUtils.loadJarFile(IN_FILE_PATH + fileName1 ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
     if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
@@ -883,7 +883,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     // read second file's lines if necessary
     ArrayList inputGridFileLines2=null;
     if(fileName2 != null) {
-      try{ inputGridFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      try{ inputGridFileLines2 = FileUtils.loadJarFile(IN_FILE_PATH + fileName2 ); }
       catch( FileNotFoundException e){ System.out.println(e.toString()); }
       catch( IOException e){ System.out.println(e.toString());}
       if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);

@@ -144,11 +144,11 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
     backSeisParam.addParameterChangeListener(this);
 
     // read the lines of the input files into a list
-    try{ inputFaultFileLines = FileUtils.loadFile( INPUT_FAULT_FILE_NAME ); }
+    try{ inputFaultFileLines = FileUtils.loadJarFile( INPUT_FAULT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-    try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
+    try{ inputBackSeisFileLines = FileUtils.loadJarFile( INPUT_BACK_SEIS_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 

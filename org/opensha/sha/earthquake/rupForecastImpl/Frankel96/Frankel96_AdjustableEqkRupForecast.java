@@ -147,7 +147,7 @@ public class Frankel96_AdjustableEqkRupForecast
 
     // read the lines of the input files into a list
     try {
-      inputFaultFileLines = FileUtils.loadFile(INPUT_FAULT_FILE_NAME);
+      inputFaultFileLines = FileUtils.loadJarFile(INPUT_FAULT_FILE_NAME);
     }
     catch (FileNotFoundException e) {
       System.out.println(e.toString());
@@ -157,7 +157,7 @@ public class Frankel96_AdjustableEqkRupForecast
     }
 
     try {
-      inputBackSeisFileLines = FileUtils.loadFile(INPUT_BACK_SEIS_FILE_NAME);
+      inputBackSeisFileLines = FileUtils.loadJarFile(INPUT_BACK_SEIS_FILE_NAME);
     }
     catch (FileNotFoundException e) {
       System.out.println(e.toString());

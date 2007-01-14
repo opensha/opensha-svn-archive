@@ -58,6 +58,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton eventRateRatioButton = new JButton("Plot Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
+	private final static DecimalFormat EVENT_RATE_FORMAT = new DecimalFormat("0.00E0");
 	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
 	
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
@@ -398,15 +399,17 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private String getUnsegmentedEventRates() {
 		String rateConstraintStr = "Event Rate Constraints for the Unsegmented Model \n"+
 			"---------------------------------------\n\n";
-		rateConstraintStr+="Latitude\tLongitude\tRate(Obs)\tSigma(Obs)\tRate(Predicted)\tSitename\n";
+		rateConstraintStr+="Latitude\tLongitude\tRate(Obs)\tSigma(Obs)\t" +
+				"Rate(Predicted)\tNorm Resid\tSitename\n";
 		int numEvents = this.aFaultsFetcherEventRatesList.size();
 		for(int eventIndex=0; eventIndex<numEvents; ++eventIndex) {
 			EventRates eventRate = aFaultsFetcherEventRatesList.get(eventIndex);
 			rateConstraintStr+=(float)eventRate.getLatitude()+"\t"+
 			(float)eventRate.getLongitude()+"\t" +
-			(float)eventRate.getObsEventRate()+"\t"+
-			(float)eventRate.getObsSigma()+"\t" +
-			(float)eventRate.getPredictedRate()+"\t" +
+			EVENT_RATE_FORMAT.format(eventRate.getObsEventRate())+"\t"+
+			EVENT_RATE_FORMAT.format(eventRate.getObsSigma())+"\t" +
+			EVENT_RATE_FORMAT.format(eventRate.getPredictedRate())+"\t" +
+			SLIP_FORMAT.format((eventRate.getPredictedRate()-eventRate.getObsEventRate())/eventRate.getObsSigma())+"\t" +
 			eventRate.getSiteName()+"\n";
 		}
 		return rateConstraintStr;
