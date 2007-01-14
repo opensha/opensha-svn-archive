@@ -33,7 +33,7 @@ public class EditAseismicSlipFactor extends JFrame implements ActionListener {
 	  private final static String ASEISMIC_SLIP_FACTOR="Aseismic Slip Factor";
 	  private final static double ASEISMIC_SLIP_FACTOR_MIN=Double.NEGATIVE_INFINITY;
 	  private final static double ASEISMIC_SLIP_FACTOR_MAX=Double.POSITIVE_INFINITY;
-	  public final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
+	  public final static String ASEISMIC_SLIP_FACTOR_UNITS = "";
 	  
 	  private EstimateParameter aSeismicSlipFactorParam;
 	  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;

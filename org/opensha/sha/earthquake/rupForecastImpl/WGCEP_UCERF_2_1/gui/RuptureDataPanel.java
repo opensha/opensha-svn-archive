@@ -25,6 +25,7 @@ import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -48,7 +49,6 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton rupRatesRatioButton = new JButton("Plot Final vs A-Priori Rates Ratio");
 	
 	private A_FaultSegmentedSource source;
-	private final static String UCERF1_RATE_FILE = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/data/UCERF1_MFDs.txt";
 	//	Filled Circles for rupture from each plot
 	public final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
 		      Color.BLUE, 2);
@@ -329,14 +329,8 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			cumRateDist.setInfo("Cumulative Mag Freq Dist");
 			funcs.add(magFreqDist);
 			funcs.add(cumRateDist);
-			ArbitrarilyDiscretizedFunc ucerf1Rate = this.getUCERF1Rate(source.getFaultSegmentData().getFaultName());
-			ArbitrarilyDiscretizedFunc ucerf1CumRate = new ArbitrarilyDiscretizedFunc();
-			double rate=0;
-			for(int i=ucerf1Rate.getNum()-1; i>=0; --i) {
-				rate+=ucerf1Rate.getY(i);
-				ucerf1CumRate.set(ucerf1Rate.getX(i), rate);
-			}
-			ucerf1CumRate.setName("Cumulative Rate from UCERF 1.0");
+			ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(source.getFaultSegmentData().getFaultName());
+			ArbitrarilyDiscretizedFunc ucerf1CumRate = UCERF1MfdReader.getUCERF1CumMFD(source.getFaultSegmentData().getFaultName());
 			funcs.add(ucerf1Rate);
 			funcs.add(ucerf1CumRate);
 			new GraphWindowAPI_Impl(funcs, "Mag", "Rate", "Mag Rate");
@@ -400,38 +394,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		}
 	}
 	
-	/**
-	 * Get the Mag Rate for UCERF 1 for the selected fault
-	 * @param faultName
-	 * @return
-	 */
-	private  ArbitrarilyDiscretizedFunc getUCERF1Rate(String faultName) {
-		try {
-			ArbitrarilyDiscretizedFunc magRateFunc = new ArbitrarilyDiscretizedFunc();
-			ArrayList fileLines = FileUtils.loadFile(UCERF1_RATE_FILE);
-			int numLines = fileLines.size();
-			for(int i=0; i<numLines; ++i) {
-				String fileLine = (String)fileLines.get(i);
-				if(fileLine.trim().equals("") || fileLine.startsWith("#")) continue;
-				if(fileLine.startsWith("-") && 
-						fileLine.substring(1).trim().equalsIgnoreCase(faultName)) {
-					for(int j=i+1; j<numLines; ++j) {
-						fileLine = (String)fileLines.get(j);
-						if(fileLine.startsWith("-")) break;
-						StringTokenizer tokenizer = new StringTokenizer(fileLine);
-						magRateFunc.set(Double.parseDouble(tokenizer.nextToken()),
-								Double.parseDouble(tokenizer.nextToken()));
-					}
-					break;
-				} 
-			}
-			magRateFunc.setName(faultName +" MFD for UCERF 1.0");
-			return magRateFunc;
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 	
 	
 	/**
