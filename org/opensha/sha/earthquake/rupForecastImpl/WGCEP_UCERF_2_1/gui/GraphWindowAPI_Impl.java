@@ -75,7 +75,7 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 		      Color.LIGHT_GRAY, 2);
 	protected final PlotCurveCharacterstics PLOT_CHAR24 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.GRAY, 2);
-	
+	private GraphWindow graphWindow;
 	/**
 	 * ArrayList of ArbitrarilyDiscretizedFunctions
 	 */
@@ -83,7 +83,7 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 		this.funcs = funcs;
 		this.xAxisLabel = xAxisLabel;
 		this.yAxisLabel = yAxisLabel;
-		GraphWindow graphWindow= new GraphWindow(this);
+		graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel(plotLabel);
 	    graphWindow.plotGraphUsingPlotPreferences();
 	    //graphWindow.pack();
@@ -180,6 +180,28 @@ public class GraphWindowAPI_Impl implements GraphWindowAPI {
 	 */
 	public double getMaxY() {
 		throw new UnsupportedOperationException("Method not implemented yet");
+	}
+	
+	/**
+	 * Save the plot as a PNG file
+	 * 
+	 * @param fpngFileName
+	 */
+	public void saveAsPNG(String pngFileName) {
+		try {
+			 graphWindow.saveAsPNG(pngFileName);
+		 }catch(Exception e) {
+			 e.printStackTrace();
+		 }
+	}
+	
+	/**
+	 * Destroy the plot window
+	 *
+	 */
+	public void destroy() {
+		graphWindow.setVisible(false);
+		graphWindow = null;
 	}
 
 }

@@ -39,8 +39,10 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.UnsegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -489,6 +491,38 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 graphWindow.saveAsPNG(dirName+"/"+fileName+".png");
 		 }catch(Exception e) {
 			 e.printStackTrace();
+		 }
+		 
+		 // 
+		 ArrayList aFaultSources = eqkRateModelERF.get_A_FaultSources();
+		 
+		 for(int i=0; i<aFaultSources.size(); ++i) {
+			 IncrementalMagFreqDist magFreqDist;
+			 ArrayList funcs = new ArrayList();
+			 String faultName;
+			 Object obj = aFaultSources.get(i);
+			 if(obj instanceof A_FaultSegmentedSource) {
+				 // segmented source
+				 magFreqDist =( (A_FaultSegmentedSource)obj).getTotalRupMFD();
+				 faultName = ( (A_FaultSegmentedSource)obj).getFaultSegmentData().getFaultName();
+			 } else {
+				 // unsegmented source
+				 magFreqDist =( (UnsegmentedSource)obj).getMagFreqDist();
+				 faultName = ( (UnsegmentedSource)obj).getFaultSegmentData().getFaultName();
+			 }
+			 
+			 magFreqDist.setName(faultName+" Mag Freq Dist");
+			 EvenlyDiscretizedFunc cumRateDist = magFreqDist.getCumRateDist();
+			 cumRateDist.setInfo(faultName+" Cumulative Mag Freq Dist");
+			 funcs.add(magFreqDist);
+			 funcs.add(cumRateDist);
+			 ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
+			 ArbitrarilyDiscretizedFunc ucerf1CumRate = UCERF1MfdReader.getUCERF1CumMFD(faultName);
+			 funcs.add(ucerf1Rate);
+			 funcs.add(ucerf1CumRate);
+			 GraphWindowAPI_Impl faultGraphWindow = new GraphWindowAPI_Impl(funcs, "Mag", "Rate", faultName+" MFD");
+			 faultGraphWindow.saveAsPNG(dirName+"/"+fileName+"_"+faultName+".png");
+			 faultGraphWindow.destroy();
 		 }
 	 }
 	
