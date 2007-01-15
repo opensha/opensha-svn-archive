@@ -1153,7 +1153,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 		   // SJF MFD
 		   String faultname = faultNames[faultIndex]+" Fault MFD from UCERF 1";
 		   System.out.println("*******"+faultname+"*********");
-		   SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0,71,.05);
+		   SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0,31,.1);
 		   int[] sources = srcList.get(faultIndex);
 		   for(index=0; index<sources.length; index++){
 			   probSrc = getSource(sources[index]);
@@ -1161,7 +1161,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 			   System.out.println(probSrc.getName());
 			   for(rup=0; rup<probSrc.getNumRuptures(); rup++){
 				   probRup = probSrc.getRupture(rup);
-				   summedMFD.add(probRup.getMag(), probRup.getMeanAnnualRate(duration));
+				   summedMFD.addResampledMagRate(probRup.getMag(), probRup.getMeanAnnualRate(duration), true);
 			   }
 		   }
 		   // write name and MFD to file
@@ -1178,7 +1178,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
      WGCEP_UCERF1_EqkRupForecast frankCast = new WGCEP_UCERF1_EqkRupForecast();
      frankCast.updateForecast();
      
-     frankCast.timeDependentParam.setValue(new Boolean(true));
+     frankCast.timeDependentParam.setValue(new Boolean(false));
      frankCast.writeA_FaultMFDs();
 /*
      try {

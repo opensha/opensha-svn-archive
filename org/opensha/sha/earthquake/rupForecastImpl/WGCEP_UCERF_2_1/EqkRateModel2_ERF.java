@@ -272,6 +272,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static Double B_VAL_MAX = new Double(2);
 	private DoubleParameter bFaultB_ValParam;
 	
+	public final static String A_FAULTS_B_VAL_PARAM_NAME = "A-Faults b-value";
+	public final static String A_FAULTS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to A-Faults";
+	public final static Double A_FAULT_GR_B_DEFAULT= new Double(0.0);
+	public final static Double A_VAL_MIN = new Double(-1);
+	public final static Double A_VAL_MAX = new Double(2);
+	private DoubleParameter aFaultB_ValParam;
+	
 	public final static String BACK_SEIS_B_VAL_PARAM_NAME = "Background Seis b-value";
 	public final static String BACK_SEIS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to the background seismicity";
 	public final static Double BACK_SEIS_B_DEFAULT = new Double(0.9);
@@ -513,6 +520,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		regionB_ValParam = new DoubleParameter(BACK_SEIS_B_VAL_PARAM_NAME, this.B_VAL_MIN, this.B_VAL_MAX, this.BACK_SEIS_B_DEFAULT);
 		regionB_ValParam.setInfo(BACK_SEIS_B_VAL_PARAM_INFO);
 		
+		aFaultB_ValParam = new DoubleParameter(A_FAULTS_B_VAL_PARAM_NAME, A_VAL_MIN, A_VAL_MAX, A_FAULT_GR_B_DEFAULT);
+		aFaultB_ValParam.setInfo(A_FAULTS_B_VAL_PARAM_INFO);
+		
 		moRateFracToBackgroundParam = new DoubleParameter(ABC_MO_RATE_REDUCTION_PARAM_NAME, 
 				ABC_MO_RATE_REDUCTION_MIN, ABC_MO_RATE_REDUCTION_MAX, 
 				ABC_MO_RATE_REDUCTION_DEFAULT);
@@ -603,6 +613,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		truncLevelParam.setValue(TRUNC_LEVEL_DEFAULT);
 		// B-Fault B-Value
 		bFaultB_ValParam.setValue(B_FAULT_GR_B_DEFAULT);
+		// A-Fault B-Value
+		aFaultB_ValParam.setValue(A_FAULT_GR_B_DEFAULT);
 		// Regional B-Value
 		regionB_ValParam.setValue(BACK_SEIS_B_DEFAULT);
 		moRateFracToBackgroundParam.setValue(ABC_MO_RATE_REDUCTION_DEFAULT);
@@ -649,6 +661,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(relativeSegRateWeightParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(weightedInversionParam);
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(preserveMinAFaultRateParam);
+		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(aFaultB_ValParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
@@ -1137,7 +1150,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 //		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
-		double bValue = 0.0;
+		double bValue = ((Double) aFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 //		 this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
