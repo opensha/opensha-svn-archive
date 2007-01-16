@@ -1153,19 +1153,20 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 		   // SJF MFD
 		   String faultname = faultNames[faultIndex]+" Fault MFD from UCERF 1";
 		   System.out.println("*******"+faultname+"*********");
-		   SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0,31,.1);
+		   SummedMagFreqDist summedMFD = new SummedMagFreqDist(5.0,36,.1);
 		   int[] sources = srcList.get(faultIndex);
 		   for(index=0; index<sources.length; index++){
 			   probSrc = getSource(sources[index]);
 			   // for debugging to make sure correct sources are used
-			   System.out.println(probSrc.getName());
+			   //System.out.println(probSrc.getName());
 			   for(rup=0; rup<probSrc.getNumRuptures(); rup++){
 				   probRup = probSrc.getRupture(rup);
+				   //System.out.println(probRup.getMag());
 				   summedMFD.addResampledMagRate(probRup.getMag(), probRup.getMeanAnnualRate(duration), true);
 			   }
 		   }
 		   // write name and MFD to file
-		   // System.out.println(sjf_MFD.toString());
+		    System.out.println(summedMFD.toString());
 	   }
 	   
 	  
