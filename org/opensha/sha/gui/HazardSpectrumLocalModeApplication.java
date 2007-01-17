@@ -64,7 +64,7 @@ public class HazardSpectrumLocalModeApplication
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
 
-  protected final static String version = "0.0.9";
+  protected final static String version = "0.0.10";
 
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");

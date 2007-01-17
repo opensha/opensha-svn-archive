@@ -42,8 +42,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
   public static String  NAME = new String("STEP Alaskan Pipeline ERF");
 
   // Input file name
-  private final static String INPUT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/PipelineGrid.txt";
-  //private final static String INPUT_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt";
+  //private final static String INPUT_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/PipelineGrid.txt";
+  private final static String INPUT_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt";
 
 
   // ArrayList of input file lines
@@ -72,7 +72,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
   public STEP_AlaskanPipeForecast() {
 
     // read the lines of the input files into a list
-    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+    try{ inputFileLines = FileUtils.loadJarFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 

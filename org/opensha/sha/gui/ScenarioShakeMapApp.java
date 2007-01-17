@@ -70,7 +70,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   protected final static boolean D = false;
 
 
-  protected final static String version = "0.0.7";
+  protected final static String version = "0.0.8";
 
   protected final static String versionURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/scenShakeMapApp/ScenarioShakeMapApp.jar";

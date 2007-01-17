@@ -948,8 +948,8 @@ public class GMT_MapGenerator implements Serializable{
     double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
     double kmScaleXoffset = plotWdth/2;
     double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
-    commandLine=GMT_PATH+"psbasemap -B2.5/2.5eWNs " + projWdth +region+
-                "  -O >> " + PS_FILE_NAME;
+    commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
+                " -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
      gmtCommandLines.add(commandLine+"\n");
 
     // add a command line to convert the ps file to a jpg file - using convert
