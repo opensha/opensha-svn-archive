@@ -849,7 +849,7 @@ public class GMT_MapGenerator implements Serializable{
     xOff = " -X1.0i ";
 
     // command line to convert xyz file to grd file
-    commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0 -F";
+    commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
     gmtCommandLines.add(commandLine+"\n");
 
     // get color scale limits
