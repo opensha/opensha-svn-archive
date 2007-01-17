@@ -879,7 +879,7 @@ public class GMT_MapGenerator implements Serializable{
 
     int dpi = (Integer)this.dpiParam.getValue();
     String gmtSmoothOption="";
-    if((Boolean)this.gmtSmoothingParam.getValue()) gmtSmoothOption=" -T ";
+    if(!(Boolean)this.gmtSmoothingParam.getValue()) gmtSmoothOption=" -T ";
     // generate the image depending on whether topo relief is desired
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
       commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt "+gmtSmoothOption+" -K -E"+dpi+ region + " > " + PS_FILE_NAME;
