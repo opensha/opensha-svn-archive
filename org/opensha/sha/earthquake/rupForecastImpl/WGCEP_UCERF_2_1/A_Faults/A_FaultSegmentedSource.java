@@ -16,6 +16,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
@@ -45,7 +46,7 @@ import sun.tools.tree.ThisExpression;
  */
 
 
-public class A_FaultSegmentedSource extends ProbEqkSource {
+public class A_FaultSegmentedSource {
 	
 	//for Debug purposes
 	private static String C = new String("A_FaultSource");
@@ -54,12 +55,7 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	//name for this classs
 	protected String NAME = "Type-A Fault Source";
-	
-	protected double duration;
-	
-	private ArrayList ruptureList; 
-	private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
-	
+		
 	private int num_seg, num_rup;
 	
 	// x-axis attributes for the MagFreqDists
@@ -114,7 +110,11 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
 
+	// list of sources
+	private ArrayList<FaultRuptureSource> sourceList;
 	
+	private final static double DEFAULT_DURATION = 1.0;
+	private final static double DEFAULT_GRID_SPACING = 1.0;
 
 	
 	/**
@@ -159,14 +159,13 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		this.magSigma = magSigma;
 		this.magTruncLevel = magTruncLevel;
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
-		this.isPoissonian = true;
 		this.meanMagCorrection = meanMagCorrection;
 		this.preserveMinAFaultRate = preserveMinAFaultRate;
 		this.wtedInversion = wtedInversion;
 		this.relativeSegRate_wt = relativeSegRate_wt;
 		this.relativeA_Priori_wt = relativeA_Priori_wt;
-		
 		num_seg = segmentData.getNumSegments();
+		this.sourceList = new ArrayList<FaultRuptureSource>();
 		
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto")) {
@@ -375,6 +374,15 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
 					mag, magSigma, rupMoRate[i], magTruncLevel, 2);
+			
+			// make source from this rupture
+			int[] segmentsInRup = getSegmentsInRup(i);
+			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
+			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
+					this.segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
+					this.segmentData.getAveRake(segmentsInRup),
+					DEFAULT_DURATION));
+			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
 		}
@@ -406,7 +414,31 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		*/
 	}
 	
+	/**
+	 * Get a list of all sources 
+	 * 
+	 * @return
+	 */
+	public ArrayList<FaultRuptureSource> getSources() {
+		return this.sourceList;
+	}
 	
+	/**
+	 * Get segment indices for this particular rupture index
+	 * 
+	 * @param rupIndex
+	 * @return
+	 */
+	private int[] getSegmentsInRup(int rupIndex) {
+		// find the segments participating in this rupture
+		ArrayList<Integer> segs = new ArrayList<Integer>();
+		for(int segIndex=0; segIndex<this.num_seg; ++segIndex) 
+			if(this.rupInSeg[segIndex][rupIndex]==1) segs.add(segIndex);
+		// convert ArrayList to int[]
+		int[] segArray = new int[segs.size()];
+		for(int i=0; i<segArray.length; ++i) segArray[i] = segs.get(i);
+		return segArray;
+	}
 	
 	/**
 	 * Computer Final Slip Rate for each segment
@@ -958,48 +990,16 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		}
 	}
 	
-	
-	/**
-	 * Returns the Source Surface.
-	 * @return GriddedSurfaceAPI
-	 */
-	public EvenlyGriddedSurfaceAPI getSourceSurface() {
-		return null;
-	}
-	
-	/**
-	 * It returns a list of all the locations which make up the surface for this
-	 * source.
-	 *
-	 * @return LocationList - List of all the locations which constitute the surface
-	 * of this source
-	 */
-	public LocationList getAllSourceLocs() {
-		LocationList locList = new LocationList();
-		Iterator it = ( (EvenlyGriddedSurface) getSourceSurface()).
-		getAllByRowsIterator();
-		while (it.hasNext()) locList.addLocation( (Location) it.next());
-		return locList;
-	}
-	
+
 	
 	/**
 	 * This changes the duration.
 	 * @param newDuration
 	 */
 	public void setDuration(double newDuration) {
-		if (this.isPoissonian != true)
-			throw new RuntimeException(C +
-			" Error - the setDuration method can only be used for the Poisson case");
-		ProbEqkRupture eqkRup;
-		double oldProb, newProb;
-		for (int i = 0; i < ruptureList.size(); i++) {
-			eqkRup = (ProbEqkRupture) ruptureList.get(i);
-			oldProb = eqkRup.getProbability();
-			newProb = 1.0 - Math.pow( (1.0 - oldProb), newDuration / duration);
-			eqkRup.setProbability(newProb);
-		}
-		duration = newDuration;
+		int numSources  = sourceList.size();
+		for(int iSource=0; iSource<numSources; ++iSource)
+			this.sourceList.get(iSource).setDuration(newDuration);
 	}
 	
 	/**
@@ -1022,55 +1022,8 @@ public class A_FaultSegmentedSource extends ProbEqkSource {
 		else
 			return nSeg*(nSeg+1)/2;
 	}
-	
-	/**
-	 * This method returns the nth Rupture in the list
-	 */
-	public ProbEqkRupture getRupture(int nthRupture) {
-		return (ProbEqkRupture) ruptureList.get(nthRupture);
-	}
-	
-	/**
-	 * This returns the shortest dist to either end of the fault trace, or to the
-	 * mid point of the fault trace (done also for the bottom edge of the fault).
-	 * @param site
-	 * @return minimum distance in km
-	 */
-	public double getMinDistance(Site site) {
-		
-		double min = Double.MAX_VALUE;
-		double tempMin;
-		
-		Iterator it = faultCornerLocations.iterator();
-		
-		while (it.hasNext()) {
-			tempMin = RelativeLocation.getHorzDistance(site.getLocation(),
-					(Location) it.next());
-			if (tempMin < min) min = tempMin;
-		}
-//		System.out.println(C+" minDist for source "+this.NAME+" = "+min);
-		return min;
-	}
-	
-	/**
-	 * This makes the vector of fault corner location used by the getMinDistance(site)
-	 * method.
-	 * @param faultSurface
-	 */
-	private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
-		
-		int nRows = faultSurface.getNumRows();
-		int nCols = faultSurface.getNumCols();
-		faultCornerLocations.add(faultSurface.get(0, 0));
-		faultCornerLocations.add(faultSurface.get(0, (int) (nCols / 2)));
-		faultCornerLocations.add(faultSurface.get(0, nCols - 1));
-		faultCornerLocations.add(faultSurface.get(nRows - 1, 0));
-		faultCornerLocations.add(faultSurface.get(nRows - 1, (int) (nCols / 2)));
-		faultCornerLocations.add(faultSurface.get(nRows - 1, nCols - 1));
-		
-	}
-	
-	/**
+
+		/**
 	 * set the name of this class
 	 *
 	 * @return
