@@ -278,7 +278,8 @@ public class A_FaultSegmentedSource {
 		if(wtedInversion) {
 			double data_wt;
 			for(int row = 0; row < num_seg; row ++) {
-				data_wt = Math.pow((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row), -2);
+//				data_wt = Math.pow((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row), -2);
+				data_wt = 1/((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row));
 				d[row] *= data_wt;
 				for(int col=0; col<num_rup; col++)
 					C[row][col] *= data_wt;
@@ -288,7 +289,8 @@ public class A_FaultSegmentedSource {
 				SegRateConstraint constraint;
 				for(int row = 0; row < numRateConstraints; row ++) {
 					constraint = segRateConstraints.get(row);
-					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
+//					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
+					data_wt = 1/constraint.getStdDevOfMean();
 					d[row+num_seg+num_rup] *= data_wt; // this is the average segment rate
 					for(int col=0; col<num_rup; col++)
 						C[row+num_seg+num_rup][col] *= data_wt;
