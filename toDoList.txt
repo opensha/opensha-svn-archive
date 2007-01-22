@@ -81,43 +81,6 @@ Warning/Disclaimer message is blank if no intenet access (put html in jar file).
 
 Latest JFreeChart
 
-Type_A_Fault Ruptures Model GUI
-
-	ValueWeight object
-	DoubleValueWeightParameter
-	DoubleValueWeightConstraint
-	DoubleValueWeightParameterEditor (diff one for constrained vs unconstrainted?)
-	
-	ParameterListParameter should be usable with the above?
-	
-	Changes (relative to WG02 GUI)
-	
-		Take Mag Sigma & Tuncation Stuff out (at least for now)
-		
-		Remove Floating Rup PDF (for now)
-		
-		Remove scenario weights
-		
-		Move "Set All Scenario Weights To" option to TreeBranchWeightParamEditor 
-		as a "Set All" option as a JComboBox (where Set All is what you always 
-		see except when you're selecting)
-		
-		Add "Slip Model" StringParam w/ following options: "Char. Slip (Dsr=Ds)", 
-		"WG02 Slip (Dsr prop. to Vs)", "Uniform/Boxcar Slip"
-		
-		Add Rupture Model Type Param w/ following options: "Min Rate Solution", 
-		"Max Rate Solution", "Equal Rate Solution", & "Geol Insight Solution"
-		
-		Add "Segment MRI" ParamListParam of Doubles (defaults as null until we get values)
-
-		Add "Segment Ave Slip Per Event" ParamListParam of Doubles (defaults as null until we get values)
-		
-		Add "A Priori Rupture Rates" as ParamListParam of DoubleWeightParams
-		(num_rups = num_seg*(num_seg+1)/2
-		
-		Remove "Scenarios" stuff from initial info window
-	
-Increase speed of accessing preferred fault data for SCEC VDO and other apps.
 
 EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
 

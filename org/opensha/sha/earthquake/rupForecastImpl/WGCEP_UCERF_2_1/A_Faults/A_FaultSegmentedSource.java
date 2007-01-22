@@ -100,7 +100,7 @@ public class A_FaultSegmentedSource {
 	private ValueWeight[] aPrioriRupRates;
 	
 	// the following is the total moment-rate reduction, including that which goes to the  
-	// background, that which goes to aftershocks and foreshocks, and that which goes to aftersip
+	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
 	private double moRateReduction;  
 	
 	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
@@ -381,8 +381,8 @@ public class A_FaultSegmentedSource {
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
 			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
-					this.segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-					this.segmentData.getAveRake(segmentsInRup),
+					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
+					segmentData.getAveRake(segmentsInRup),
 					DEFAULT_DURATION));
 			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
@@ -765,7 +765,7 @@ public class A_FaultSegmentedSource {
 		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
 			for(int seg=0; seg<num_seg; seg++) {
-				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)/segRateFromApriori[seg];
+				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-moRateReduction)/segRateFromApriori[seg];
 				for(int rup=0; rup<num_rup; ++rup) {
 					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
 				}
