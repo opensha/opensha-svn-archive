@@ -320,7 +320,7 @@ public class A_FaultSegmentedSource {
 					C[row+numRowsBeforeSegRateData][col] *= relativeSegRate_wt;
 			}
 		}
-
+/*
 		// manual check of matrices
 		if(segmentData.getFaultName().equals("Elsinore")) {
 			System.out.println("Elsinore");
@@ -338,6 +338,7 @@ public class A_FaultSegmentedSource {
 				System.out.println(d[i]);
 			System.out.println("];");
 		}
+*/
 		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab

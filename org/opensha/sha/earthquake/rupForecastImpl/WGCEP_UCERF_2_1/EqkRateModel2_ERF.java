@@ -1198,7 +1198,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
 				if(segmentData.getFaultName().equals("Mendocino")) {
-					System.out.println(segmentData.getFaultName());
+//					System.out.println(segmentData.getFaultName());
 					continue;
 				}
 					
