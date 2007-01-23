@@ -385,7 +385,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			}
 			plottingFuncList.add(ratioFunc);
 			CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(plottingFuncList);
-			plot.setYLog(true);
+			plot.setYLog(false);
 			GraphWindow graphWindow= new GraphWindow(plot);
 			graphWindow.setPlotLabel("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 			graphWindow.plotGraphUsingPlotPreferences();

@@ -52,7 +52,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JButton modSlipRateButton = new JButton("Plot Histogram of Normalized Slip-Rate Residuals ((Final_SR-Orig_SR)/SR_Sigma)");
 	private JButton dataERButton = new JButton("Plot Histogram of Normalized Segment Event-Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private JButton predERButton = new JButton("Plot the ratio of Final to Pred Segment Event Rate");
-	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
+	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 	private JButton aFaultsSegDataButton = new JButton("Table of all A-Faults Segment Data");
 	private JButton aFaultsRupDataButton = new JButton("Table of all A-Faults Rupture Data");
 	private EqkRateModel2_ERF eqkRateModelERF;
