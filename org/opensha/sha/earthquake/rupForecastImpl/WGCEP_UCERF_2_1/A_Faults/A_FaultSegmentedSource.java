@@ -221,11 +221,15 @@ public class A_FaultSegmentedSource {
 		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
 		int numRateConstraints = segRateConstraints.size();
 		
-		int totNumRows;
-		if(relativeSegRate_wt > 0.0)		// check whether any wt given to segment rate data
-			totNumRows = num_seg+num_rup+numRateConstraints;
-		else
-			totNumRows = num_seg+num_rup;
+		// set by number of segments 9one for each slip rate)
+		int totNumRows = num_seg;
+		// add segment rate constrains if needed
+		if(relativeSegRate_wt > 0.0)	totNumRows += numRateConstraints;
+		// add a-priori rate constrains if needed
+		if(relativeA_Priori_wt > 0.0)  totNumRows += num_rup;
+		
+		int numRowsBeforeSegRateData = num_seg;
+		if(relativeA_Priori_wt > 0.0) numRowsBeforeSegRateData += num_rup;
 		
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
@@ -238,10 +242,12 @@ public class A_FaultSegmentedSource {
 			for(int col=0; col<num_rup; col++)
 				C[row][col] = segSlipInRup[row][col];
 		}
-		// now fill in the a-priori rates
-		for(int rup=0; rup < num_rup; rup++) {
-			d[rup+num_seg] = aPrioriRupRates[rup].getValue();
-			C[rup+num_seg][rup]=1.0;
+		// now fill in the a-priori rates if needed
+		if(relativeA_Priori_wt > 0.0) {
+			for(int rup=0; rup < num_rup; rup++) {
+				d[rup+num_seg] = aPrioriRupRates[rup].getValue();
+				C[rup+num_seg][rup]=1.0;
+			}
 		}
 		// now fill in the segment recurrence interval constraints if requested
 		if(relativeSegRate_wt > 0.0) {
@@ -249,9 +255,9 @@ public class A_FaultSegmentedSource {
 			for(int row = 0; row < numRateConstraints; row ++) {
 				constraint = segRateConstraints.get(row);
 				int seg = constraint.getSegIndex();
-				d[row+num_seg+num_rup] = constraint.getMean(); // this is the average segment rate
+				d[row+numRowsBeforeSegRateData] = constraint.getMean(); // this is the average segment rate
 				for(int col=0; col<num_rup; col++)
-					C[row+num_seg+num_rup][col] = rupInSeg[seg][col];
+					C[row+numRowsBeforeSegRateData][col] = rupInSeg[seg][col];
 			}
 		}
 		
@@ -291,28 +297,47 @@ public class A_FaultSegmentedSource {
 					constraint = segRateConstraints.get(row);
 //					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
 					data_wt = 1/constraint.getStdDevOfMean();
-					d[row+num_seg+num_rup] *= data_wt; // this is the average segment rate
+					d[row+numRowsBeforeSegRateData] *= data_wt; // this is the average segment rate
 					for(int col=0; col<num_rup; col++)
-						C[row+num_seg+num_rup][col] *= data_wt;
+						C[row+numRowsBeforeSegRateData][col] *= data_wt;
 				}
 			}
 		}
 		
 		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
 		// for the a-priori rates:
-		for(int rup=0; rup < num_rup; rup++) {
-			d[rup+num_seg] *= relativeA_Priori_wt;
-			C[rup+num_seg][rup] *= relativeA_Priori_wt;
+		if(relativeA_Priori_wt > 0.0) {
+			for(int rup=0; rup < num_rup; rup++) {
+				d[rup+num_seg] *= relativeA_Priori_wt;
+				C[rup+num_seg][rup] *= relativeA_Priori_wt;
+			}
 		}
 		// for the segment recurrence interval constraints if requested:
 		if(relativeSegRate_wt > 0.0) {
 			for(int row = 0; row < numRateConstraints; row ++) {
-				d[row+num_seg+num_rup] *= relativeSegRate_wt;
+				d[row+numRowsBeforeSegRateData] *= relativeSegRate_wt;
 				for(int col=0; col<num_rup; col++)
-					C[row+num_seg+num_rup][col] *= relativeSegRate_wt;
+					C[row+numRowsBeforeSegRateData][col] *= relativeSegRate_wt;
 			}
 		}
 
+		// manual check of matrices
+		if(segmentData.getFaultName().equals("Elsinore")) {
+			System.out.println("Elsinore");
+			int nRow = C.length;
+			int nCol = C[0].length;
+			System.out.println("C = [");
+			for(int i=0; i<nRow;i++) {
+				for(int j=0;j<nCol;j++) 
+					System.out.print(C[i][j]+"   ");
+				System.out.print("\n");
+			}
+			System.out.println("];");
+			System.out.println("d = [");
+			for(int i=0; i<nRow;i++)
+				System.out.println(d[i]);
+			System.out.println("];");
+		}
 		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab
@@ -1303,13 +1328,13 @@ public class A_FaultSegmentedSource {
 	 *
 	 */
 	public double[] getNormModSlipRateResids() {
-		int numSegments = this.getFaultSegmentData().getNumSegments();
+		int numSegments = getFaultSegmentData().getNumSegments();
 		double[] normResids = new double[numSegments];
 		// iterate over all segments
-		double reduction = 1-this.getMoRateReduction();
+		double reduction = 1-getMoRateReduction();
 		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-			normResids[segIndex] = this.getFinalSegSlipRate(segIndex)-this.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
-			normResids[segIndex] /= (this.getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
+			normResids[segIndex] = getFinalSegSlipRate(segIndex)-getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
+			normResids[segIndex] /= (getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
 		}
 
 	return normResids;
@@ -1325,7 +1350,7 @@ public class A_FaultSegmentedSource {
 		double[] normResids = new double[numSegments];
 		// iterate over all segments
 		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-			normResids[segIndex] = (this.getFinalSegmentRate(segIndex)-this.getFaultSegmentData().getSegRateMean(segIndex))/this.getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
+			normResids[segIndex] = (getFinalSegmentRate(segIndex)-getFaultSegmentData().getSegRateMean(segIndex))/getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
 		}
 		return normResids;
 	}
@@ -1368,17 +1393,24 @@ public class A_FaultSegmentedSource {
 	 * @return
 	 */
 	public double getA_PrioriModelError() {
+		return getNonNormA_PrioriModelError()*relativeA_Priori_wt*relativeA_Priori_wt; 
+	}
+	
+	
+	/**
+	 * Get non-normalized A-Priori model error
+	 * @return
+	 */
+	public double getNonNormA_PrioriModelError() {
 		double totError=0;
-		double finalRupRate, aPrioriRate, error;
-		for(int i=0; i<this.num_rup; ++i) {
-			finalRupRate = this.getRupRate(i);
-			aPrioriRate = this.getAPrioriRupRate(i);
-			error = finalRupRate-aPrioriRate;
-//			if(error==0) continue;
-//			error = error/Math.max(finalRupRate, aPrioriRate);
-			totError+=error*error*relativeA_Priori_wt;
+		double finalRupRate, aPrioriRate;
+		for(int i=0; i<num_rup; ++i) {
+			finalRupRate = getRupRate(i);
+			aPrioriRate = getAPrioriRupRate(i);
+			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate);
 		}
 		return totError;
 	}
+
 }
 

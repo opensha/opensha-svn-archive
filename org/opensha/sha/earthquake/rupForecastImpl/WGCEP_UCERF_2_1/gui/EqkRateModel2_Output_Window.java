@@ -138,7 +138,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		
 		// Display the general prediction error in case of Segmented A-Faults
 		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
-			double genPredErr = 0,  modSlipRateError=0, dataER_Error=0, aPrioriRateError=0;
+			double genPredErr = 0,  modSlipRateError=0, dataER_Error=0, aPrioriRateError=0, nonNorm_aPrioriRateError=0;
 			Iterator it = aFaultSourceMap.values().iterator();
 			while(it.hasNext()) {
 				A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
@@ -146,11 +146,13 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 				modSlipRateError+=source.getNormModSlipRateError();
 				dataER_Error+=source.getNormDataER_Error();
 				aPrioriRateError+=source.getA_PrioriModelError();
+				nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
 			}
 			textArea.append("\nTotal A-Fault Gen Pred Error = "+(float)genPredErr+"\n");
 			textArea.append("A-Fault Mod Slip Rate Error = "+(float)modSlipRateError+"\n");
 			textArea.append("A-Fault Data Event Rate Error = "+(float)dataER_Error+"\n");
-			textArea.append("A-Fault A-Priori Rates Error = "+(float)aPrioriRateError+"\n\n");
+			textArea.append("A-Fault A-Priori Rates Error = "+(float)aPrioriRateError+"\t");
+			textArea.append("(non-normalized = "+(float)nonNorm_aPrioriRateError+")\n\n");
 		}
 		
 		
@@ -503,7 +505,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private void showHistograms(ArrayList<Double> ratioList, String plotLabel, String funcName) {
 		double min = Math.floor(Collections.min(ratioList));
 		double max = Math.ceil(Collections.max(ratioList));
-		double delta = 0.1;
+		double delta = 0.2;
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(min, (int)Math.round((max-min)/delta)+1, delta);
 		func.setTolerance(func.getDelta());
 		int xIndex;

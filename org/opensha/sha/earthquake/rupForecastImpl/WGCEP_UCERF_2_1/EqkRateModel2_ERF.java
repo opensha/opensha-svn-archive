@@ -188,7 +188,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 */
 	// relative a-priori weights
 	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
-	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(Double.MIN_VALUE);
+	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(0.0);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1);
 	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
