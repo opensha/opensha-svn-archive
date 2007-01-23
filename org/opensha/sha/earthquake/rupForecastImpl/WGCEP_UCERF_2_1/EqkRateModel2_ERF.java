@@ -1424,6 +1424,78 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	/**
+	 * General Prediction Error
+	 * @return
+	 */
+	public double getGeneralPredErr() {
+		double genPredErr = 0;
+		Iterator it = this.aFaultSources.iterator();
+		while(it.hasNext()) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			genPredErr += source.getGeneralizedPredictionError();
+		}
+		return genPredErr;
+	}
+	
+	/**
+	 * Modified Slip Rate error
+	 * @return
+	 */
+	public double getModSlipRateError() {
+		double modSlipRateError=0;
+		Iterator it = this.aFaultSources.iterator();
+		while(it.hasNext()) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			modSlipRateError+=source.getNormModSlipRateError();
+		}
+		return modSlipRateError;
+	}
+	
+	/**
+	 * Get Event Rate error
+	 * @return
+	 */
+	public double getDataER_Err() {
+		double dataER_Error=0;
+		Iterator it = this.aFaultSources.iterator();
+		while(it.hasNext()) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			dataER_Error+=source.getNormDataER_Error();
+		}
+		return dataER_Error;
+	}
+	
+	/**
+	 * Get Normalized A-Priori rate error
+	 * @return
+	 */
+	public double getNormalizedA_PrioriRateErr() {
+		double aPrioriRateError=0;
+		Iterator it = this.aFaultSources.iterator();
+		while(it.hasNext()) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			aPrioriRateError+=source.getA_PrioriModelError();
+		}
+		return aPrioriRateError;
+	}
+	
+	/**
+	 * Get Non-Normzlized A-Priori Rate error
+	 * @return
+	 */
+	public double getNonNormalizedA_PrioriRateErr() {
+		double nonNorm_aPrioriRateError=0;
+		Iterator it = this.aFaultSources.iterator();
+		while(it.hasNext()) {
+			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
+		}
+		return nonNorm_aPrioriRateError;
+	}
+	
+	
+	
+	/**
 	 * update the forecast
 	 **/
 	
