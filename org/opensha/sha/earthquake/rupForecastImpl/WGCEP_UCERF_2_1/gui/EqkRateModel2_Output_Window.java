@@ -138,11 +138,12 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		
 		// Display the general prediction error in case of Segmented A-Faults
 		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
-			textArea.append("\nTotal A-Fault Gen Pred Error = "+(float)eqkRateModelERF.getGeneralPredErr()+"\n");
-			textArea.append("A-Fault Mod Slip Rate Error = "+(float)eqkRateModelERF.getModSlipRateError()+"\n");
-			textArea.append("A-Fault Data Event Rate Error = "+(float)eqkRateModelERF.getDataER_Err()+"\n");
-			textArea.append("A-Fault A-Priori Rates Error = "+(float)eqkRateModelERF.getNormalizedA_PrioriRateErr()+"\t");
-			textArea.append("(non-normalized = "+(float)eqkRateModelERF.getNonNormalizedA_PrioriRateErr()+")\n\n");
+			textArea.append("\nTotal A-Fault Pred Errors:"+"\n");
+			textArea.append("\n\tGen Pred Error = "+(float)eqkRateModelERF.getGeneralPredErr()+"\n");
+			textArea.append("\tSeg Slip Rate Error = "+(float)eqkRateModelERF.getModSlipRateError()+"\n");
+			textArea.append("\tSeg Event Rate Error = "+(float)eqkRateModelERF.getDataER_Err()+"\n");
+			textArea.append("\tA-Priori Rup Rate Error = "+(float)eqkRateModelERF.getNormalizedA_PrioriRateErr()+"  ");
+			textArea.append("(non-normalized = "+(float)eqkRateModelERF.getNonNormalizedA_PrioriRateErr()+")\n\n\n");
 		}
 		
 		

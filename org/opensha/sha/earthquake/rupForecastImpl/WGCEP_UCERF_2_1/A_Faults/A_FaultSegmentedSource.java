@@ -406,10 +406,12 @@ public class A_FaultSegmentedSource {
 			// make source from this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
+/* COMMENTED OUT FOR SPEED
 			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
 					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 					segmentData.getAveRake(segmentsInRup),
 					DEFAULT_DURATION));
+*/
 			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
