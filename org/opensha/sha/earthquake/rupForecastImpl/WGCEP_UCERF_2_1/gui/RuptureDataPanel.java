@@ -46,7 +46,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton magAreaPlotButton2 = new JButton("Mag Area Plot (Color coded by Fault names)");
 	private JButton aveSlipDataButton= new JButton("Show Ave Slip Data");
 	private JButton rupRatesButton= new JButton("Plot A-Priori and final rates");
-	private JButton rupRatesRatioButton = new JButton("Plot Final vs A-Priori Rates Ratio");
+	private JButton rupRatesRatioButton = new JButton("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 	
 	private A_FaultSegmentedSource source;
 	//	Filled Circles for rupture from each plot
@@ -378,16 +378,16 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			// ratio of final rupture rates to A-Priori rupture rates
 			ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 			ArbitrarilyDiscretizedFunc ratioFunc = new ArbitrarilyDiscretizedFunc();
-			ratioFunc.setName("Ratio of Final Ruptures Rates to A-Priori Rupture Rates");
+			ratioFunc.setName("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 			int numRups = source.getNumRuptures();
 			for(int i=0; i<numRups; ++i) {
-				ratioFunc.set((double)i+1, source.getRupRate(i)/source.getAPrioriRupRate(i));
+				ratioFunc.set((double)i+1, source.getRupRateResid(i));
 			}
 			plottingFuncList.add(ratioFunc);
 			CreatePlotFromMagRateFile plot = new CreatePlotFromMagRateFile(plottingFuncList);
 			plot.setYLog(true);
 			GraphWindow graphWindow= new GraphWindow(plot);
-			graphWindow.setPlotLabel("Ratio of Final vs A-Priori Rupture Rates");
+			graphWindow.setPlotLabel("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setTitle(source.getFaultSegmentData().getFaultName());
 			graphWindow.setVisible(true);

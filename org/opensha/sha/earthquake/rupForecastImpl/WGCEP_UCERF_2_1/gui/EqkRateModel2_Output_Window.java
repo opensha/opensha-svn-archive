@@ -409,8 +409,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			String plotLabel = "Final vs Pred Segment Event Rate Ratios";
 			showHistograms(predER_RatioList, plotLabel, "Ratio of final Event Ratio to Pred Event Ratio");
 		} else if(src == this.rupRatesRatioButton) { // ratio of final rates to A-Priori Rates
-			String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate";
-			showHistograms(normRupRatesRatioList, plotLabel, "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
+			String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)";
+			showHistograms(normRupRatesRatioList, plotLabel, plotLabel);
 		} else if(src==this.aFaultsSegDataButton) {
 			JFrame frame = new JFrame();
 			frame.getContentPane().setLayout(new  GridBagLayout());
@@ -441,8 +441,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			int numRuptures = source.getNumRuptures();
 			// iterate over all ruptures
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) {
-				double normResid = (source.getRupRate(rupIndex)-source.getAPrioriRupRate(rupIndex))/source.getAPrioriRupRate(rupIndex);
-				normRupRatesRatioList.add(normResid);
+				normRupRatesRatioList.add(source.getRupRateResid(rupIndex));
 			}
 		}
 	}

@@ -625,6 +625,20 @@ public class A_FaultSegmentedSource {
 		return totRupRate[ithRup];
 	}
 	
+	/**
+	 * Difference in final Rup rate and aPrioriRate.
+	 * It is calculated as (finalRate-AprioriRate)/Max(FinalRate,AprioriRate)
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupRateResid(int ithRup) {
+		// find the max between apriori and final rupture rates
+		double max = totRupRate[ithRup];
+		if(max<aPrioriRupRates[ithRup].getValue()) max = aPrioriRupRates[ithRup].getValue();
+		// if final and apriori rates are 0, return 0
+		if(max==0) return 0;
+		return (totRupRate[ithRup]-aPrioriRupRates[ithRup].getValue())/max;
+	}
 	
 	/**
 	 * Get rupture moment rate of the ith char rupture
