@@ -150,7 +150,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String AFTERSHOCK_FRACTION_PARAM_NAME = "Aftershock/Foreshock Fraction";
 	public final static Double AFTERSHOCK_FRACTION_MIN = new Double(0.0);
 	public final static Double AFTERSHOCK_FRACTION_MAX = new Double(1.0);
-	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.09);
+	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.0);
 	private final static String AFTERSHOCK_FRACTION_INFO = "Fraction of moment rate released in foreshocks and aftershocks";
 	private DoubleParameter aftershockFractionParam ;
 
@@ -158,7 +158,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String COUPLING_COEFF_PARAM_NAME = "Coupling Coefficient";
 	public final static Double COUPLING_COEFF_MIN = new Double(0.0);
 	public final static Double COUPLING_COEFF_MAX = new Double(1.0);
-	public final static Double COUPLING_COEFF_DEFAULT = new Double(0.85);
+	public final static Double COUPLING_COEFF_DEFAULT = new Double(1.0);
 	private final static String COUPLING_COEFF_INFO = "Fraction of moment rate on A & B faults released via seismogenic processes (e.g., excluding afterslip)";
 	private DoubleParameter couplingCoeffParam ;
 	
