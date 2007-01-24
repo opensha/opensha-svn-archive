@@ -16,7 +16,6 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
@@ -46,7 +45,7 @@ import sun.tools.tree.ThisExpression;
  */
 
 
-public class A_FaultSegmentedSource {
+public class A_FaultSegmentedSource extends ProbEqkSource {
 	
 	//for Debug purposes
 	private static String C = new String("A_FaultSource");
@@ -55,7 +54,12 @@ public class A_FaultSegmentedSource {
 	
 	//name for this classs
 	protected String NAME = "Type-A Fault Source";
-		
+	
+	protected double duration;
+	
+	private ArrayList ruptureList; 
+	private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
+	
 	private int num_seg, num_rup;
 	
 	// x-axis attributes for the MagFreqDists
@@ -69,7 +73,6 @@ public class A_FaultSegmentedSource {
 	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
 	private double relativeSegRate_wt, relativeA_Priori_wt;
-	public final static double MIN_A_PRIORI_ERROR = 1e-6;
 	
 	
 	// slip model:
@@ -101,7 +104,7 @@ public class A_FaultSegmentedSource {
 	private ValueWeight[] aPrioriRupRates;
 	
 	// the following is the total moment-rate reduction, including that which goes to the  
-	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
+	// background, that which goes to aftershocks and foreshocks, and that which goes to aftersip
 	private double moRateReduction;  
 	
 	 // The following is the ratio of the average slip for the Gaussian MFD divided by the slip of the average magnitude.
@@ -111,11 +114,7 @@ public class A_FaultSegmentedSource {
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
 
-	// list of sources
-	private ArrayList<FaultRuptureSource> sourceList;
 	
-	private final static double DEFAULT_DURATION = 1.0;
-	private final static double DEFAULT_GRID_SPACING = 1.0;
 
 	
 	/**
@@ -160,13 +159,14 @@ public class A_FaultSegmentedSource {
 		this.magSigma = magSigma;
 		this.magTruncLevel = magTruncLevel;
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
+		this.isPoissonian = true;
 		this.meanMagCorrection = meanMagCorrection;
 		this.preserveMinAFaultRate = preserveMinAFaultRate;
 		this.wtedInversion = wtedInversion;
 		this.relativeSegRate_wt = relativeSegRate_wt;
 		this.relativeA_Priori_wt = relativeA_Priori_wt;
+		
 		num_seg = segmentData.getNumSegments();
-		this.sourceList = new ArrayList<FaultRuptureSource>();
 		
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto")) {
@@ -222,15 +222,11 @@ public class A_FaultSegmentedSource {
 		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
 		int numRateConstraints = segRateConstraints.size();
 		
-		// set by number of segments 9one for each slip rate)
-		int totNumRows = num_seg;
-		// add segment rate constrains if needed
-		if(relativeSegRate_wt > 0.0)	totNumRows += numRateConstraints;
-		// add a-priori rate constrains if needed
-		if(relativeA_Priori_wt > 0.0)  totNumRows += num_rup;
-		
-		int numRowsBeforeSegRateData = num_seg;
-		if(relativeA_Priori_wt > 0.0) numRowsBeforeSegRateData += num_rup;
+		int totNumRows;
+		if(relativeSegRate_wt > 0.0)		// check whether any wt given to segment rate data
+			totNumRows = num_seg+num_rup+numRateConstraints;
+		else
+			totNumRows = num_seg+num_rup;
 		
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
@@ -243,12 +239,10 @@ public class A_FaultSegmentedSource {
 			for(int col=0; col<num_rup; col++)
 				C[row][col] = segSlipInRup[row][col];
 		}
-		// now fill in the a-priori rates if needed
-		if(relativeA_Priori_wt > 0.0) {
-			for(int rup=0; rup < num_rup; rup++) {
-				d[rup+num_seg] = aPrioriRupRates[rup].getValue();
-				C[rup+num_seg][rup]=1.0;
-			}
+		// now fill in the a-priori rates
+		for(int rup=0; rup < num_rup; rup++) {
+			d[rup+num_seg] = aPrioriRupRates[rup].getValue();
+			C[rup+num_seg][rup]=1.0;
 		}
 		// now fill in the segment recurrence interval constraints if requested
 		if(relativeSegRate_wt > 0.0) {
@@ -256,9 +250,9 @@ public class A_FaultSegmentedSource {
 			for(int row = 0; row < numRateConstraints; row ++) {
 				constraint = segRateConstraints.get(row);
 				int seg = constraint.getSegIndex();
-				d[row+numRowsBeforeSegRateData] = constraint.getMean(); // this is the average segment rate
+				d[row+num_seg+num_rup] = constraint.getMean(); // this is the average segment rate
 				for(int col=0; col<num_rup; col++)
-					C[row+numRowsBeforeSegRateData][col] = rupInSeg[seg][col];
+					C[row+num_seg+num_rup][col] = rupInSeg[seg][col];
 			}
 		}
 		
@@ -285,8 +279,7 @@ public class A_FaultSegmentedSource {
 		if(wtedInversion) {
 			double data_wt;
 			for(int row = 0; row < num_seg; row ++) {
-//				data_wt = Math.pow((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row), -2);
-				data_wt = 1/((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row));
+				data_wt = Math.pow((1-moRateReduction)*segmentData.getSegSlipRateStdDev(row), -2);
 				d[row] *= data_wt;
 				for(int col=0; col<num_rup; col++)
 					C[row][col] *= data_wt;
@@ -296,55 +289,29 @@ public class A_FaultSegmentedSource {
 				SegRateConstraint constraint;
 				for(int row = 0; row < numRateConstraints; row ++) {
 					constraint = segRateConstraints.get(row);
-//					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
-					data_wt = 1/constraint.getStdDevOfMean();
-					d[row+numRowsBeforeSegRateData] *= data_wt; // this is the average segment rate
+					data_wt = Math.pow(constraint.getStdDevOfMean(), -2);
+					d[row+num_seg+num_rup] *= data_wt; // this is the average segment rate
 					for(int col=0; col<num_rup; col++)
-						C[row+numRowsBeforeSegRateData][col] *= data_wt;
+						C[row+num_seg+num_rup][col] *= data_wt;
 				}
 			}
 		}
 		
 		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
 		// for the a-priori rates:
-		if(relativeA_Priori_wt > 0.0) {
-			double wt;
-			for(int rup=0; rup < num_rup; rup++) {
-				if(aPrioriRupRates[rup].getValue() > 0)
-					wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
-				else
-					wt = MIN_A_PRIORI_ERROR;
-				d[rup+num_seg] *= wt;
-				C[rup+num_seg][rup] *= wt;
-			}
+		for(int rup=0; rup < num_rup; rup++) {
+			d[rup+num_seg] *= relativeA_Priori_wt;
+			C[rup+num_seg][rup] *= relativeA_Priori_wt;
 		}
 		// for the segment recurrence interval constraints if requested:
 		if(relativeSegRate_wt > 0.0) {
 			for(int row = 0; row < numRateConstraints; row ++) {
-				d[row+numRowsBeforeSegRateData] *= relativeSegRate_wt;
+				d[row+num_seg+num_rup] *= relativeSegRate_wt;
 				for(int col=0; col<num_rup; col++)
-					C[row+numRowsBeforeSegRateData][col] *= relativeSegRate_wt;
+					C[row+num_seg+num_rup][col] *= relativeSegRate_wt;
 			}
 		}
-/*
-		// manual check of matrices
-		if(segmentData.getFaultName().equals("Elsinore")) {
-			System.out.println("Elsinore");
-			int nRow = C.length;
-			int nCol = C[0].length;
-			System.out.println("C = [");
-			for(int i=0; i<nRow;i++) {
-				for(int j=0;j<nCol;j++) 
-					System.out.print(C[i][j]+"   ");
-				System.out.print("\n");
-			}
-			System.out.println("];");
-			System.out.println("d = [");
-			for(int i=0; i<nRow;i++)
-				System.out.println(d[i]);
-			System.out.println("];");
-		}
-*/
+
 		
 		if(MATLAB_TEST) {
 			// remove white space in name for Matlab
@@ -408,17 +375,6 @@ public class A_FaultSegmentedSource {
 				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
 					mag, magSigma, rupMoRate[i], magTruncLevel, 2);
-			
-			// make source from this rupture
-			int[] segmentsInRup = getSegmentsInRup(i);
-			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
-/* COMMENTED OUT FOR SPEED
-			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
-					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-					segmentData.getAveRake(segmentsInRup),
-					DEFAULT_DURATION));
-*/
-			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
 		}
@@ -450,31 +406,7 @@ public class A_FaultSegmentedSource {
 		*/
 	}
 	
-	/**
-	 * Get a list of all sources 
-	 * 
-	 * @return
-	 */
-	public ArrayList<FaultRuptureSource> getSources() {
-		return this.sourceList;
-	}
 	
-	/**
-	 * Get segment indices for this particular rupture index
-	 * 
-	 * @param rupIndex
-	 * @return
-	 */
-	private int[] getSegmentsInRup(int rupIndex) {
-		// find the segments participating in this rupture
-		ArrayList<Integer> segs = new ArrayList<Integer>();
-		for(int segIndex=0; segIndex<this.num_seg; ++segIndex) 
-			if(this.rupInSeg[segIndex][rupIndex]==1) segs.add(segIndex);
-		// convert ArrayList to int[]
-		int[] segArray = new int[segs.size()];
-		for(int i=0; i<segArray.length; ++i) segArray[i] = segs.get(i);
-		return segArray;
-	}
 	
 	/**
 	 * Computer Final Slip Rate for each segment
@@ -633,20 +565,6 @@ public class A_FaultSegmentedSource {
 		return totRupRate[ithRup];
 	}
 	
-	/**
-	 * Difference in final Rup rate and aPrioriRate.
-	 * It is calculated as (finalRate-AprioriRate)/Max(FinalRate,AprioriRate)
-	 * @param ithRup
-	 * @return
-	 */
-	public double getRupRateResid(int ithRup) {
-		// find the max between apriori and final rupture rates
-		double max = totRupRate[ithRup];
-		if(max<aPrioriRupRates[ithRup].getValue()) max = aPrioriRupRates[ithRup].getValue();
-		// if final and apriori rates are 0, return 0
-		if(max==0) return 0;
-		return (totRupRate[ithRup]-aPrioriRupRates[ithRup].getValue())/max;
-	}
 	
 	/**
 	 * Get rupture moment rate of the ith char rupture
@@ -813,7 +731,7 @@ public class A_FaultSegmentedSource {
 		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
 			for(int seg=0; seg<num_seg; seg++) {
-				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-moRateReduction)/segRateFromApriori[seg];
+				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)/segRateFromApriori[seg];
 				for(int rup=0; rup<num_rup; ++rup) {
 					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
 				}
@@ -1040,16 +958,48 @@ public class A_FaultSegmentedSource {
 		}
 	}
 	
-
+	
+	/**
+	 * Returns the Source Surface.
+	 * @return GriddedSurfaceAPI
+	 */
+	public EvenlyGriddedSurfaceAPI getSourceSurface() {
+		return null;
+	}
+	
+	/**
+	 * It returns a list of all the locations which make up the surface for this
+	 * source.
+	 *
+	 * @return LocationList - List of all the locations which constitute the surface
+	 * of this source
+	 */
+	public LocationList getAllSourceLocs() {
+		LocationList locList = new LocationList();
+		Iterator it = ( (EvenlyGriddedSurface) getSourceSurface()).
+		getAllByRowsIterator();
+		while (it.hasNext()) locList.addLocation( (Location) it.next());
+		return locList;
+	}
+	
 	
 	/**
 	 * This changes the duration.
 	 * @param newDuration
 	 */
 	public void setDuration(double newDuration) {
-		int numSources  = sourceList.size();
-		for(int iSource=0; iSource<numSources; ++iSource)
-			this.sourceList.get(iSource).setDuration(newDuration);
+		if (this.isPoissonian != true)
+			throw new RuntimeException(C +
+			" Error - the setDuration method can only be used for the Poisson case");
+		ProbEqkRupture eqkRup;
+		double oldProb, newProb;
+		for (int i = 0; i < ruptureList.size(); i++) {
+			eqkRup = (ProbEqkRupture) ruptureList.get(i);
+			oldProb = eqkRup.getProbability();
+			newProb = 1.0 - Math.pow( (1.0 - oldProb), newDuration / duration);
+			eqkRup.setProbability(newProb);
+		}
+		duration = newDuration;
 	}
 	
 	/**
@@ -1072,8 +1022,55 @@ public class A_FaultSegmentedSource {
 		else
 			return nSeg*(nSeg+1)/2;
 	}
-
-		/**
+	
+	/**
+	 * This method returns the nth Rupture in the list
+	 */
+	public ProbEqkRupture getRupture(int nthRupture) {
+		return (ProbEqkRupture) ruptureList.get(nthRupture);
+	}
+	
+	/**
+	 * This returns the shortest dist to either end of the fault trace, or to the
+	 * mid point of the fault trace (done also for the bottom edge of the fault).
+	 * @param site
+	 * @return minimum distance in km
+	 */
+	public double getMinDistance(Site site) {
+		
+		double min = Double.MAX_VALUE;
+		double tempMin;
+		
+		Iterator it = faultCornerLocations.iterator();
+		
+		while (it.hasNext()) {
+			tempMin = RelativeLocation.getHorzDistance(site.getLocation(),
+					(Location) it.next());
+			if (tempMin < min) min = tempMin;
+		}
+//		System.out.println(C+" minDist for source "+this.NAME+" = "+min);
+		return min;
+	}
+	
+	/**
+	 * This makes the vector of fault corner location used by the getMinDistance(site)
+	 * method.
+	 * @param faultSurface
+	 */
+	private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
+		
+		int nRows = faultSurface.getNumRows();
+		int nCols = faultSurface.getNumCols();
+		faultCornerLocations.add(faultSurface.get(0, 0));
+		faultCornerLocations.add(faultSurface.get(0, (int) (nCols / 2)));
+		faultCornerLocations.add(faultSurface.get(0, nCols - 1));
+		faultCornerLocations.add(faultSurface.get(nRows - 1, 0));
+		faultCornerLocations.add(faultSurface.get(nRows - 1, (int) (nCols / 2)));
+		faultCornerLocations.add(faultSurface.get(nRows - 1, nCols - 1));
+		
+	}
+	
+	/**
 	 * set the name of this class
 	 *
 	 * @return
@@ -1351,13 +1348,13 @@ public class A_FaultSegmentedSource {
 	 *
 	 */
 	public double[] getNormModSlipRateResids() {
-		int numSegments = getFaultSegmentData().getNumSegments();
+		int numSegments = this.getFaultSegmentData().getNumSegments();
 		double[] normResids = new double[numSegments];
 		// iterate over all segments
-		double reduction = 1-getMoRateReduction();
+		double reduction = 1-this.getMoRateReduction();
 		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-			normResids[segIndex] = getFinalSegSlipRate(segIndex)-getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
-			normResids[segIndex] /= (getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
+			normResids[segIndex] = this.getFinalSegSlipRate(segIndex)-this.getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
+			normResids[segIndex] /= (this.getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
 		}
 
 	return normResids;
@@ -1373,7 +1370,7 @@ public class A_FaultSegmentedSource {
 		double[] normResids = new double[numSegments];
 		// iterate over all segments
 		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
-			normResids[segIndex] = (getFinalSegmentRate(segIndex)-getFaultSegmentData().getSegRateMean(segIndex))/getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
+			normResids[segIndex] = (this.getFinalSegmentRate(segIndex)-this.getFaultSegmentData().getSegRateMean(segIndex))/this.getFaultSegmentData().getSegRateStdDevOfMean(segIndex);
 		}
 		return normResids;
 	}
@@ -1416,34 +1413,17 @@ public class A_FaultSegmentedSource {
 	 * @return
 	 */
 	public double getA_PrioriModelError() {
-		double wt, totError=0,finalRupRate, aPrioriRate;
-		for(int rup=0; rup < num_rup; rup++) {
-			// relativeA_Priori_wt = rate/stDev, and wt here should be 1/stDev
-			if(aPrioriRupRates[rup].getValue() > 0)
-				wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
-			else
-				wt = MIN_A_PRIORI_ERROR;
-			finalRupRate = getRupRate(rup);
-			aPrioriRate = getAPrioriRupRate(rup);
-			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate)*wt*wt;
+		double totError=0;
+		double finalRupRate, aPrioriRate, error;
+		for(int i=0; i<this.num_rup; ++i) {
+			finalRupRate = this.getRupRate(i);
+			aPrioriRate = this.getAPrioriRupRate(i);
+			error = finalRupRate-aPrioriRate;
+//			if(error==0) continue;
+//			error = error/Math.max(finalRupRate, aPrioriRate);
+			totError+=error*error*relativeA_Priori_wt;
 		}
 		return totError;
 	}
-	
-	
-	/**
-	 * Get non-normalized A-Priori model error
-	 * @return
-	 */
-	public double getNonNormA_PrioriModelError() {
-		double totError=0,finalRupRate, aPrioriRate;
-		for(int rup=0; rup<num_rup; ++rup) {
-			finalRupRate = getRupRate(rup);
-			aPrioriRate = getAPrioriRupRate(rup);
-			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate);
-		}
-		return totError;
-	}
-
 }
 

@@ -5,7 +5,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1;
 
 
 import java.io.FileWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -151,7 +150,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String AFTERSHOCK_FRACTION_PARAM_NAME = "Aftershock/Foreshock Fraction";
 	public final static Double AFTERSHOCK_FRACTION_MIN = new Double(0.0);
 	public final static Double AFTERSHOCK_FRACTION_MAX = new Double(1.0);
-	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.0);
+	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.09);
 	private final static String AFTERSHOCK_FRACTION_INFO = "Fraction of moment rate released in foreshocks and aftershocks";
 	private DoubleParameter aftershockFractionParam ;
 
@@ -159,7 +158,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String COUPLING_COEFF_PARAM_NAME = "Coupling Coefficient";
 	public final static Double COUPLING_COEFF_MIN = new Double(0.0);
 	public final static Double COUPLING_COEFF_MAX = new Double(1.0);
-	public final static Double COUPLING_COEFF_DEFAULT = new Double(1.0);
+	public final static Double COUPLING_COEFF_DEFAULT = new Double(0.85);
 	private final static String COUPLING_COEFF_INFO = "Fraction of moment rate on A & B faults released via seismogenic processes (e.g., excluding afterslip)";
 	private DoubleParameter couplingCoeffParam ;
 	
@@ -189,7 +188,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 */
 	// relative a-priori weights
 	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
-	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(0.0);
+	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(Double.MIN_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1);
 	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
@@ -1199,7 +1198,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
 				if(segmentData.getFaultName().equals("Mendocino")) {
-//					System.out.println(segmentData.getFaultName());
+					System.out.println(segmentData.getFaultName());
 					continue;
 				}
 					
@@ -1422,78 +1421,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		totalMFD.addIncrementalMagFreqDist(cZoneSummedMFD);
 		return totalMFD;
 	}
-	
-	
-	/**
-	 * General Prediction Error
-	 * @return
-	 */
-	public double getGeneralPredErr() {
-		double genPredErr = 0;
-		Iterator it = this.aFaultSources.iterator();
-		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-			genPredErr += source.getGeneralizedPredictionError();
-		}
-		return genPredErr;
-	}
-	
-	/**
-	 * Modified Slip Rate error
-	 * @return
-	 */
-	public double getModSlipRateError() {
-		double modSlipRateError=0;
-		Iterator it = this.aFaultSources.iterator();
-		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-			modSlipRateError+=source.getNormModSlipRateError();
-		}
-		return modSlipRateError;
-	}
-	
-	/**
-	 * Get Event Rate error
-	 * @return
-	 */
-	public double getDataER_Err() {
-		double dataER_Error=0;
-		Iterator it = this.aFaultSources.iterator();
-		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-			dataER_Error+=source.getNormDataER_Error();
-		}
-		return dataER_Error;
-	}
-	
-	/**
-	 * Get Normalized A-Priori rate error
-	 * @return
-	 */
-	public double getNormalizedA_PrioriRateErr() {
-		double aPrioriRateError=0;
-		Iterator it = this.aFaultSources.iterator();
-		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-			aPrioriRateError+=source.getA_PrioriModelError();
-		}
-		return aPrioriRateError;
-	}
-	
-	/**
-	 * Get Non-Normzlized A-Priori Rate error
-	 * @return
-	 */
-	public double getNonNormalizedA_PrioriRateErr() {
-		double nonNorm_aPrioriRateError=0;
-		Iterator it = this.aFaultSources.iterator();
-		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
-			nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
-		}
-		return nonNorm_aPrioriRateError;
-	}
-	
 	
 	
 	/**
@@ -1753,7 +1680,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 	
 		// TEST 1 - DEFAULT VALUES
-		setParamDefaults();
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
 
@@ -1761,56 +1690,57 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		preserveMinAFaultRateParam.setValue(false);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
+		// reset that parameter
+		preserveMinAFaultRateParam.setValue(true);
 
 		// TEST 3 Zero slip rate reduction
-		setParamDefaults();
 		moRateFracToBackgroundParam.setValue(0.0);
+		couplingCoeffParam.setValue(1.0);
+		aftershockFractionParam.setValue(0.0);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");		
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");
+		// reset those parameters
+		moRateFracToBackgroundParam.setValue(0.1);
+		couplingCoeffParam.setValue(0.85);
+		aftershockFractionParam.setValue(0.09);
 
 		// TEST 4 (MEAN-MAG CORRECTION = +0.1)
-		setParamDefaults();
 		meanMagCorrectionParam.setValue(new Double(0.1));
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
 
 		// TEST 5 (MEAN-MAG CORRECTION = -0.1)
-		setParamDefaults();
 		meanMagCorrectionParam.setValue(new Double(-0.1));
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
+		// reset that parameter
+		meanMagCorrectionParam.setValue(new Double(0.0));
 		
 		// TEST 6 Deformation Model D2.2
-		setParamDefaults();
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
 
 		// TEST 7 Deformation Model D2.3
-		setParamDefaults();
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");	
+		// revert
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(0)).getDeformationModelName());
 
 		// TEST 8 No weight on segment rates
-		setParamDefaults();
 		relativeSegRateWeightParam.setValue(new Double(0.0));
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test8_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test8_A_FaultNormResids.xls");
-
-		// TEST 9 No weight on segment rates
-		setParamDefaults();
-		relativeSegRateWeightParam.setValue(new Double(0.0));
-		preserveMinAFaultRateParam.setValue(false);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test9_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test9_A_FaultNormResids.xls");
+		// revert
+		relativeSegRateWeightParam.setValue(new Double(1.0));		
 
 	}
 	
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		//erRateModel2_ERF.findMinBulge();
+		erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
 		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
@@ -1819,36 +1749,5 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		//erRateModel2_ERF.mkExcelSheetTests();
 		
-		
-/**/
-		// do some tests
-		//erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(0.0));
-		erRateModel2_ERF.setParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME,false);
-		DecimalFormat formatter = new DecimalFormat("0.000E0");
-		System.out.println("A_prior Wt\tTotal Gen Pred Error\tSeg Slip Rate Error\tSeg Event Rate Error\tA-Priori Rup Rate Error (non-normalized)");
-		double aPrioriWt = 0;
-		erRateModel2_ERF.setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-		erRateModel2_ERF.updateForecast();
-		// do the 0.0 case
-		System.out.println((float)aPrioriWt+"\t"+
-				formatter.format(erRateModel2_ERF.getGeneralPredErr())+"\t"+
-				formatter.format(erRateModel2_ERF.getModSlipRateError())+"\t"+
-				formatter.format(erRateModel2_ERF.getDataER_Err())+"\t"+
-				formatter.format(erRateModel2_ERF.getNormalizedA_PrioriRateErr())+"  ("+
-				formatter.format(erRateModel2_ERF.getNonNormalizedA_PrioriRateErr())+
-		")");
-		for(int pow=-20; pow<16;pow++) {
-			aPrioriWt = Math.pow(10,pow);
-			erRateModel2_ERF.setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-			erRateModel2_ERF.updateForecast();
-			System.out.println("1E"+pow+"\t"+
-					formatter.format(erRateModel2_ERF.getGeneralPredErr())+"\t"+
-					formatter.format(erRateModel2_ERF.getModSlipRateError())+"\t"+
-					formatter.format(erRateModel2_ERF.getDataER_Err())+"\t"+
-					formatter.format(erRateModel2_ERF.getNormalizedA_PrioriRateErr())+"  ("+
-					formatter.format(erRateModel2_ERF.getNonNormalizedA_PrioriRateErr())+
-					")");
-		}
-
 	}
 }

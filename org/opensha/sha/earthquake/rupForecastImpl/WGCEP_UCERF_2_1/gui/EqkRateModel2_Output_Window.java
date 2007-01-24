@@ -52,7 +52,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JButton modSlipRateButton = new JButton("Plot Histogram of Normalized Slip-Rate Residuals ((Final_SR-Orig_SR)/SR_Sigma)");
 	private JButton dataERButton = new JButton("Plot Histogram of Normalized Segment Event-Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private JButton predERButton = new JButton("Plot the ratio of Final to Pred Segment Event Rate");
-	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
+	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
 	private JButton aFaultsSegDataButton = new JButton("Table of all A-Faults Segment Data");
 	private JButton aFaultsRupDataButton = new JButton("Table of all A-Faults Rupture Data");
 	private EqkRateModel2_ERF eqkRateModelERF;
@@ -138,12 +138,19 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		
 		// Display the general prediction error in case of Segmented A-Faults
 		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
-			textArea.append("\nTotal A-Fault Pred Errors:"+"\n");
-			textArea.append("\n\tGen Pred Error = "+(float)eqkRateModelERF.getGeneralPredErr()+"\n");
-			textArea.append("\tSeg Slip Rate Error = "+(float)eqkRateModelERF.getModSlipRateError()+"\n");
-			textArea.append("\tSeg Event Rate Error = "+(float)eqkRateModelERF.getDataER_Err()+"\n");
-			textArea.append("\tA-Priori Rup Rate Error = "+(float)eqkRateModelERF.getNormalizedA_PrioriRateErr()+"  ");
-			textArea.append("(non-normalized = "+(float)eqkRateModelERF.getNonNormalizedA_PrioriRateErr()+")\n\n\n");
+			double genPredErr = 0,  modSlipRateError=0, dataER_Error=0, aPrioriRateError=0;
+			Iterator it = aFaultSourceMap.values().iterator();
+			while(it.hasNext()) {
+				A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+				genPredErr += source.getGeneralizedPredictionError();
+				modSlipRateError+=source.getNormModSlipRateError();
+				dataER_Error+=source.getNormDataER_Error();
+				aPrioriRateError+=source.getA_PrioriModelError();
+			}
+			textArea.append("\nTotal A-Fault Gen Pred Error = "+(float)genPredErr+"\n");
+			textArea.append("A-Fault Mod Slip Rate Error = "+(float)modSlipRateError+"\n");
+			textArea.append("A-Fault Data Event Rate Error = "+(float)dataER_Error+"\n");
+			textArea.append("A-Fault A-Priori Rates Error = "+(float)aPrioriRateError+"\n\n");
 		}
 		
 		
@@ -400,8 +407,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			String plotLabel = "Final vs Pred Segment Event Rate Ratios";
 			showHistograms(predER_RatioList, plotLabel, "Ratio of final Event Ratio to Pred Event Ratio");
 		} else if(src == this.rupRatesRatioButton) { // ratio of final rates to A-Priori Rates
-			String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)";
-			showHistograms(normRupRatesRatioList, plotLabel, plotLabel);
+			String plotLabel = "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate";
+			showHistograms(normRupRatesRatioList, plotLabel, "Histogram of (FinalRate-A_PrioriRate)/A_PrioriRate");
 		} else if(src==this.aFaultsSegDataButton) {
 			JFrame frame = new JFrame();
 			frame.getContentPane().setLayout(new  GridBagLayout());
@@ -432,7 +439,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			int numRuptures = source.getNumRuptures();
 			// iterate over all ruptures
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) {
-				normRupRatesRatioList.add(source.getRupRateResid(rupIndex));
+				double normResid = (source.getRupRate(rupIndex)-source.getAPrioriRupRate(rupIndex))/source.getAPrioriRupRate(rupIndex);
+				normRupRatesRatioList.add(normResid);
 			}
 		}
 	}
@@ -495,7 +503,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private void showHistograms(ArrayList<Double> ratioList, String plotLabel, String funcName) {
 		double min = Math.floor(Collections.min(ratioList));
 		double max = Math.ceil(Collections.max(ratioList));
-		double delta = 0.2;
+		double delta = 0.1;
 		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(min, (int)Math.round((max-min)/delta)+1, delta);
 		func.setTolerance(func.getDelta());
 		int xIndex;
