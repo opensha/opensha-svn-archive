@@ -27,6 +27,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
 import org.opensha.sha.gui.controls.PlottingOptionControl;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
@@ -64,7 +65,7 @@ public class HazardSpectrumLocalModeApplication
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
 
-  protected final static String version = "0.0.10";
+  protected final static String version = "0.0.11";
 
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");
@@ -399,6 +400,28 @@ public class HazardSpectrumLocalModeApplication
     controlComboBox.addItem(XY_Values_Control);
   }
 
+  
+  /**
+   * It returns the IMT Gui bean, which allows the Cybershake control panel
+   * to set the same SA period value in the main application
+   * similar to selected for Cybershake.
+   */
+  public IMT_GuiBean getIMTGuiBeanInstance() {
+    return null;
+  }
+ 
+  /**
+   * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.
+   * This method is called from the IMR_GuiBean to update the application with the Attenuation's
+   * supported IMs.
+   *
+   */
+  public void updateIM() {
+    return;
+  }
+  
+  
+  
   /**
    *  Any time a control paramater or independent paramater is changed
    *  by the user in a GUI this function is called, and a paramater change
