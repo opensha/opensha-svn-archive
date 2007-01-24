@@ -2,6 +2,7 @@ package org.opensha.sha.fault;
 
 import java.util.*;
 import org.opensha.util.*;
+import org.opensha.calc.RelativeLocation;
 import org.opensha.data.*;
 
 
@@ -61,6 +62,92 @@ public class SimpleFaultData {
         this.faultTrace = faultTrace;
     }
     public FaultTrace getFaultTrace() { return faultTrace; }
+    
+    /**
+     * Get a single combined simpleFaultData from multiple SimpleFaultData
+     * @param simpleFaultDataList
+     * @return
+     */
+    public static SimpleFaultData getCombinedSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList) {
+    	if(simpleFaultDataList.size()==1) {
+    		return simpleFaultDataList.get(0);
+    	}
+    	// correctly order the first fault section
+    	FaultTrace faultTrace1 = simpleFaultDataList.get(0).getFaultTrace();
+    	FaultTrace faultTrace2 =  simpleFaultDataList.get(1).getFaultTrace();
+    	double minDist = Double.MAX_VALUE, distance;
+    	boolean reverse = false;
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=true;
+    	}
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=true;  
+    	}
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=false;
+    	}
+    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
+    	if(distance<minDist) {
+    		minDist = distance;
+    		reverse=false;
+    	}
+    	if(reverse) {
+    		faultTrace1.reverse();
+    		if( simpleFaultDataList.get(0).getAveDip()!=90)  simpleFaultDataList.get(0).setAveDip(- simpleFaultDataList.get(0).getAveDip());
+    	}
+    	
+    	// Calculate Upper Seis Depth, Lower Seis Depth and Dip
+    	double combinedDip=0, combinedUpperSeisDepth=0, totArea=0, totLength=0;
+    	FaultTrace combinedFaultTrace = new FaultTrace("Combined Fault Sections");
+    	int num = simpleFaultDataList.size();
+    	for(int i=0; i<num; ++i) {
+    		FaultTrace faultTrace = simpleFaultDataList.get(i).getFaultTrace();
+    		if(i>0) { // check the ordering of point in this fault trace
+    			FaultTrace prevFaultTrace = simpleFaultDataList.get(i-1).getFaultTrace();
+    			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
+    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(0));
+    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
+    			if(distance2<distance1) { // reverse this fault trace
+    				faultTrace.reverse();
+    				if(simpleFaultDataList.get(i).getAveDip()!=90) simpleFaultDataList.get(i).setAveDip(-simpleFaultDataList.get(i).getAveDip());
+    			}
+    		}
+    		double length = faultTrace.getTraceLength();
+    		double dip = simpleFaultDataList.get(i).getAveDip();
+    		double area = Math.abs(length*(simpleFaultDataList.get(i).getLowerSeismogenicDepth()-simpleFaultDataList.get(i).getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
+    		totLength+=length;
+    		totArea+=area;
+    		combinedUpperSeisDepth+=(area*simpleFaultDataList.get(i).getUpperSeismogenicDepth());
+    		combinedDip+=(area*dip);
+    		
+    		int numLocations = faultTrace.getNumLocations();
+    		//System.out.println(i+":"+dip+","+area+","+combinedDip);
+    		// add the fault Trace locations to combined trace
+    		for(int locIndex=0; locIndex<numLocations; ++locIndex) combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
+    			
+    	}
+//    	 if Dip<0, reverse the trace points to follow Aki and Richards convention
+    	if(combinedDip<0) {
+    		combinedDip=-combinedDip;
+    		combinedFaultTrace.reverse();
+    	}
+    	
+    	SimpleFaultData simpleFaultData = new SimpleFaultData();
+    	double upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
+    	simpleFaultData.setUpperSeismogenicDepth(upperSeismogenicDepth);
+    	double dip = combinedDip/totArea;
+    	simpleFaultData.setAveDip(dip);
+    	simpleFaultData.setLowerSeismogenicDepth((totArea/totLength)*Math.sin(dip*Math.PI/180)+upperSeismogenicDepth);
+    	simpleFaultData.setFaultTrace(combinedFaultTrace);
+    	return simpleFaultData;
+ 
+    }
     
 
     private final static String TAB = "  ";

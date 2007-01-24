@@ -85,90 +85,14 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
      * @param gridSpacing
      * @throws FaultException
      */
-    protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultData, double gridSpacing) {
-    	if(simpleFaultData.size()==1) {
-    		SimpleFaultData faultData = simpleFaultData.get(0);
-    		set(faultData.getFaultTrace(),
-    				faultData.getAveDip(),
-    				faultData.getUpperSeismogenicDepth(),
-    				faultData.getLowerSeismogenicDepth(),
-    				gridSpacing);
-    		return;
-    	}
-    	// correctly order the first fault section
-    	FaultTrace faultTrace1 = simpleFaultData.get(0).getFaultTrace();
-    	FaultTrace faultTrace2 =  simpleFaultData.get(1).getFaultTrace();
-    	double minDist = Double.MAX_VALUE, distance;
-    	boolean reverse = false;
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
-    	if(distance<minDist) {
-    		minDist = distance;
-    		reverse=true;
-    	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
-    	if(distance<minDist) {
-    		minDist = distance;
-    		reverse=true;  
-    	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(0));
-    	if(distance<minDist) {
-    		minDist = distance;
-    		reverse=false;
-    	}
-    	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(faultTrace1.getNumLocations()-1), faultTrace2.getLocationAt(faultTrace2.getNumLocations()-1));
-    	if(distance<minDist) {
-    		minDist = distance;
-    		reverse=false;
-    	}
-    	if(reverse) {
-    		faultTrace1.reverse();
-    		if( simpleFaultData.get(0).getAveDip()!=90)  simpleFaultData.get(0).setAveDip(- simpleFaultData.get(0).getAveDip());
-    	}
+    protected EvenlyGriddedSurfFromSimpleFaultData(ArrayList<SimpleFaultData> simpleFaultDataList, double gridSpacing) {
+    	SimpleFaultData simpleFaultData = SimpleFaultData.getCombinedSimpleFaultData(simpleFaultDataList);
+    	set(simpleFaultData.getFaultTrace(), 
+    			simpleFaultData.getAveDip(), 
+    			simpleFaultData.getUpperSeismogenicDepth(),
+    			simpleFaultData.getLowerSeismogenicDepth(),
+    			gridSpacing);
     	
-    	// Calculate Upper Seis Depth, Lower Seis Depth and Dip
-    	double combinedDip=0, combinedUpperSeisDepth=0, totArea=0, totLength=0;
-    	FaultTrace combinedFaultTrace = new FaultTrace("Combined Fault Sections");
-    	int num = simpleFaultData.size();
-    	for(int i=0; i<num; ++i) {
-    		FaultTrace faultTrace = simpleFaultData.get(i).getFaultTrace();
-    		if(i>0) { // check the ordering of point in this fault trace
-    			FaultTrace prevFaultTrace = simpleFaultData.get(i-1).getFaultTrace();
-    			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
-    			double distance1 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(0));
-    			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
-    			if(distance2<distance1) { // reverse this fault trace
-    				faultTrace.reverse();
-    				if(simpleFaultData.get(i).getAveDip()!=90) simpleFaultData.get(i).setAveDip(-simpleFaultData.get(i).getAveDip());
-    			}
-    		}
-    		double length = faultTrace.getTraceLength();
-    		double dip = simpleFaultData.get(i).getAveDip();
-    		double area = Math.abs(length*(simpleFaultData.get(i).getLowerSeismogenicDepth()-simpleFaultData.get(i).getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
-    		totLength+=length;
-    		totArea+=area;
-    		combinedUpperSeisDepth+=(area*simpleFaultData.get(i).getUpperSeismogenicDepth());
-    		combinedDip+=(area*dip);
-    		
-    		int numLocations = faultTrace.getNumLocations();
-    		//System.out.println(i+":"+dip+","+area+","+combinedDip);
-    		// add the fault Trace locations to combined trace
-    		for(int locIndex=0; locIndex<numLocations; ++locIndex) combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
-    			
-    	}
-//    	 if Dip<0, reverse the trace points to follow Aki and Richards convention
-    	if(combinedDip<0) {
-    		combinedDip=-combinedDip;
-    		combinedFaultTrace.reverse();
-    	}
-    	
-    	upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
-    	this.aveDip = combinedDip/totArea;
-    	
-    	this.lowerSeismogenicDepth  = (totArea/totLength)*Math.sin(aveDip*Math.PI/180)+upperSeismogenicDepth;
-    	this.faultTrace = combinedFaultTrace;
-    	this.gridSpacing = gridSpacing;
-    	//System.out.println(faultTrace.toString());
-    	//System.out.println(simpleFaultData[0].getFaultTrace().getName()+","+ aveDip);
     }
 
     // ***************************************************************
