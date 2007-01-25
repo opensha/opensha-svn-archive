@@ -322,6 +322,7 @@ public class HazardCurveServerModeApplication extends JFrame
   DisaggregationCalculatorAPI disaggCalc;
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
+  protected CalcProgressBar startAppProgressClass;
   //timer threads to show the progress of calculations
   Timer timer;
   Timer disaggTimer;
@@ -390,8 +391,10 @@ public class HazardCurveServerModeApplication extends JFrame
       //initialise the list to make selection whether to show ERF_GUIBean or ERF_RupSelectorGuiBean
       initProbOrDeterList();
       // initialize the GUI components
+      startAppProgressClass = new CalcProgressBar("Starting Application", "Initializing Application .. Please Wait");
       jbInit();
-
+      
+      
       // initialize the various GUI beans
       initIMR_GuiBean();
       initIMT_GuiBean();
@@ -402,6 +405,7 @@ public class HazardCurveServerModeApplication extends JFrame
         JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                       JOptionPane.OK_OPTION);
         e.printStackTrace();
+        startAppProgressClass.dispose();
         System.exit(0);
       }
     }
@@ -412,7 +416,7 @@ public class HazardCurveServerModeApplication extends JFrame
       bugWindow.pack();
       //e.printStackTrace();
     }
-
+    startAppProgressClass.dispose();
     ((JPanel)getContentPane()).updateUI();
   }
 

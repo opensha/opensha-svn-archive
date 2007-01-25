@@ -151,6 +151,7 @@ public class HazardSpectrumLocalModeApplication
       initControlList();
       //initialise the list to make selection whether to show ERF_GUIBean or ERF_RupSelectorGuiBean
       initProbOrDeterList();
+      startAppProgressClass = new CalcProgressBar("Starting Application", "Initializing Application .. Please Wait");
       // initialize the GUI components
       jbInit();
 
@@ -178,6 +179,7 @@ public class HazardSpectrumLocalModeApplication
       //e.printStackTrace();
     }
     this.setTitle("Hazard Spectrum Application ("+version+")");
+    startAppProgressClass.dispose();
     ( (JPanel) getContentPane()).updateUI();
   }
 
