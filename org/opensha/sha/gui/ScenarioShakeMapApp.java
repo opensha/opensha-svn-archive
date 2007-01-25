@@ -151,6 +151,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   //protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
   protected final static String PUENTE_HILLS_CONTROL =
       "Set Params for Puente Hills Sceanrio";
+  protected final static String SAN_ANDREAS_CONTROL =
+      "Set Params for San Andreas Sceanrio";
   protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
@@ -160,6 +162,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     // objects for control panels
   protected RegionsOfInterestControlPanel regionsOfInterest;
   protected PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
+  protected SanAndreasScenarioControlPanel  sanAndreasControlUsingEqkRupture;
   //protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   protected GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
@@ -873,6 +876,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
+    this.controlComboBox.addItem(SAN_ANDREAS_CONTROL);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
@@ -892,6 +896,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       initHazusScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
       initPuenteHillsScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.SAN_ANDREAS_CONTROL))
+        initSanAndreasScenarioControl();
     //else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
       //initPuenteHillsScenarioControlOld();
     //else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
@@ -960,7 +966,22 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
   }
 
-
+  /**
+   * 
+   * Initialize the parameter settings for San Andreas Scenario
+   */
+  protected void initSanAndreasScenarioControl(){
+	int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
+	        " for a San Andreas scenario?",
+	                                    "San Andreas Control Panel",JOptionPane.OK_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(sanAndreasControlUsingEqkRupture==null)
+    	sanAndreasControlUsingEqkRupture = new SanAndreasScenarioControlPanel(erfGuiBean,imrGuiBean,
+                                                                sitesGuiBean,mapGuiBean);
+    }
+    sanAndreasControlUsingEqkRupture.setParamsForSanAndreasScenario();	  
+  }
+  
   /**
    *Initialise the Control panel to generate the shapefiles for hazus input.
    */
