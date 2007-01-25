@@ -69,6 +69,7 @@ public class A_FaultSegmentedSource {
 	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
 	private double relativeSegRate_wt, relativeA_Priori_wt;
+	public final static double MIN_A_PRIORI_ERROR = 1e-6;
 	
 	
 	// slip model:
@@ -307,9 +308,14 @@ public class A_FaultSegmentedSource {
 		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
 		// for the a-priori rates:
 		if(relativeA_Priori_wt > 0.0) {
+			double wt;
 			for(int rup=0; rup < num_rup; rup++) {
-				d[rup+num_seg] *= relativeA_Priori_wt;
-				C[rup+num_seg][rup] *= relativeA_Priori_wt;
+				if(aPrioriRupRates[rup].getValue() > 0)
+					wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
+				else
+					wt = MIN_A_PRIORI_ERROR;
+				d[rup+num_seg] *= wt;
+				C[rup+num_seg][rup] *= wt;
 			}
 		}
 		// for the segment recurrence interval constraints if requested:
@@ -1410,7 +1416,18 @@ public class A_FaultSegmentedSource {
 	 * @return
 	 */
 	public double getA_PrioriModelError() {
-		return getNonNormA_PrioriModelError()*relativeA_Priori_wt*relativeA_Priori_wt; 
+		double wt, totError=0,finalRupRate, aPrioriRate;
+		for(int rup=0; rup < num_rup; rup++) {
+			// relativeA_Priori_wt = rate/stDev, and wt here should be 1/stDev
+			if(aPrioriRupRates[rup].getValue() > 0)
+				wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
+			else
+				wt = MIN_A_PRIORI_ERROR;
+			finalRupRate = getRupRate(rup);
+			aPrioriRate = getAPrioriRupRate(rup);
+			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate)*wt*wt;
+		}
+		return totError;
 	}
 	
 	
@@ -1419,11 +1436,10 @@ public class A_FaultSegmentedSource {
 	 * @return
 	 */
 	public double getNonNormA_PrioriModelError() {
-		double totError=0;
-		double finalRupRate, aPrioriRate;
-		for(int i=0; i<num_rup; ++i) {
-			finalRupRate = getRupRate(i);
-			aPrioriRate = getAPrioriRupRate(i);
+		double totError=0,finalRupRate, aPrioriRate;
+		for(int rup=0; rup<num_rup; ++rup) {
+			finalRupRate = getRupRate(rup);
+			aPrioriRate = getAPrioriRupRate(rup);
 			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate);
 		}
 		return totError;
