@@ -191,15 +191,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
 	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(0.0);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1);
-	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
+	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1e-7);
+	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Applied as rupture_rate/rupture-rate_error (standard deviation)";
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
 	// relative segment rate weights
 	public final static String REL_SEG_RATE_WT_PARAM_NAME = "Wt On Segment Rates";
 	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0);
 	private final static Double REL_SEG_RATE_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(1);
+	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(0);
 	private final static String REL_SEG_RATE_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
 	private DoubleParameter relativeSegRateWeightParam; 
 
@@ -1752,60 +1752,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 	
-		// TEST 1 - DEFAULT VALUES
+		// TEST - DEFAULT VALUES
 		setParamDefaults();
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Default_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Default_A_FaultNormResids_2_2.xls");
 
-		// TEST 2 - TURN PRESERVE MIN RATE OFF (ASSUMING DEFAULT IS TRUE)
-		preserveMinAFaultRateParam.setValue(false);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
-
-		// TEST 3 Zero slip rate reduction
-		setParamDefaults();
-		moRateFracToBackgroundParam.setValue(0.0);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");		
-
-		// TEST 4 (MEAN-MAG CORRECTION = +0.1)
-		setParamDefaults();
-		meanMagCorrectionParam.setValue(new Double(0.1));
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
-
-		// TEST 5 (MEAN-MAG CORRECTION = -0.1)
-		setParamDefaults();
-		meanMagCorrectionParam.setValue(new Double(-0.1));
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
-		
-		// TEST 6 Deformation Model D2.2
+		// TEST - Deformation Model D2.2
 		setParamDefaults();
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_2_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_2_A_FaultNormResids_2_2.xls");
 
-		// TEST 7 Deformation Model D2.3
+		// TEST - Deformation Model D2.3
 		setParamDefaults();
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");	
-
-		// TEST 8 No weight on segment rates
-		setParamDefaults();
-		relativeSegRateWeightParam.setValue(new Double(0.0));
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test8_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test8_A_FaultNormResids.xls");
-
-		// TEST 9 No weight on segment rates
-		setParamDefaults();
-		relativeSegRateWeightParam.setValue(new Double(0.0));
-		preserveMinAFaultRateParam.setValue(false);
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test9_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test9_A_FaultNormResids.xls");
+		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_3_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_3_A_FaultNormResids_2_2.xls");	
 
 	}
+
 	
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
@@ -1817,12 +1782,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		//erRateModel2_ERF.mkExcelSheetTests();
+		erRateModel2_ERF.mkExcelSheetTests();
 		
 		
-/**/
+/*
 		// do some tests
-		//erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(0.0));
+		erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(0.0));
 		erRateModel2_ERF.setParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME,false);
 		DecimalFormat formatter = new DecimalFormat("0.000E0");
 		System.out.println("A_prior Wt\tTotal Gen Pred Error\tSeg Slip Rate Error\tSeg Event Rate Error\tA-Priori Rup Rate Error (non-normalized)");
@@ -1849,6 +1814,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					formatter.format(erRateModel2_ERF.getNonNormalizedA_PrioriRateErr())+
 					")");
 		}
-
+*/
 	}
 }
