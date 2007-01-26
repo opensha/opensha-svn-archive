@@ -1,6 +1,15 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Nitin's ToDo
+------------
+1)Progress bar that states application starting based on christine comments- Done
+2)Add the note for the windows users for saving the jar files as jar rather then as zip files. Based on Christine comments- Done
+3)finish up the Ken Hudnut control panel - Done
+4)work on the IM_Event set calculator for Keith and generate the files in the format as specified by him.
+5)Meeting with Keith on Feb 1st for structural application
+
+
 GMT Map Generator
 -----------------
 1. Change to 72 dpi
