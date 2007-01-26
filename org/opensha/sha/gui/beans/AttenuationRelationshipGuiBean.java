@@ -56,7 +56,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
 
   //keeps the indexing for the Attenuation Relationship for which any event is generated.
-  private int indexOfAttenRel;
+  private int indexOfAttenRel = 0;
 
   //keeps the index of the last button pressed, so as to keep track of parameter list editor shown
   //So helps in corresponding to shown parameterList editor with the AttenuationRelation model.
@@ -828,8 +828,11 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      //non-identical params for each AttenRel.
      //We might have to think of the situation if event occurs to the identical
      //params for AttenRel's, them I will have to iterate over all the selected AttenRel.
-     if(indexOfAttenRel !=0)
+     if(indexOfAttenRel !=0  && !this.singleAttenRelSelected)
        imr = (AttenuationRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
+     else if(singleAttenRelSelected) //if single attenRel selected
+         imr = getSelectedIMR_Instance();
+
      ListIterator it = imr.getSiteParamsIterator();
      boolean found = false;
      while(it.hasNext() && !found)
