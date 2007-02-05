@@ -21,6 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
+import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -92,7 +93,8 @@ public class A_FaultSegmentedSource {
 	private double[] finalSegRate, segRateFromApriori, finalSegSlipRate;
 	
 	private String[] rupNameShort, rupNameLong;
-	private double[] rupArea, rupMeanMag, rupMeanMo, rupMoRate, totRupRate; // rupture mean mag
+	private double[] rupArea, rupMeanMag, rupMeanMo, rupMoRate, totRupRate;
+	double[] rupRateSolution; // these are the rates from the inversion (not total rate of MFD)
 	private IncrementalMagFreqDist[] rupMagFreqDist; // MFD for rupture
 	
 	private SummedMagFreqDist summedMagFreqDist;
@@ -198,6 +200,7 @@ public class A_FaultSegmentedSource {
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if MFD sigma non zero)
 		setAveSlipCorrection();
+//		System.out.println("AVE ratio: "+ aveSlipCorr);
 
 		// compute rupture mean mags
 		if(slipModelType.equals(CHAR_SLIP_MODEL))
@@ -357,15 +360,14 @@ public class A_FaultSegmentedSource {
 		
 		
 		// SOLVE THE INVERSE PROBLEM
-		double[] rupRate = getNNLS_solution(C, d);
+		rupRateSolution = getNNLS_solution(C, d);
 		
 		
 		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
 		if(preserveMinAFaultRate) {
 			for(int rup=0; rup<num_rup;rup++)
-				rupRate[rup] += minRate;
+				rupRateSolution[rup] += minRate;
 		}
-		
 		
 //		System.out.println("NNLS rates:");
 //		for(int rup=0; rup < rupRate.length; rup++)
@@ -399,7 +401,7 @@ public class A_FaultSegmentedSource {
 		for(int i=0; i<num_rup; ++i) {
 			// we conserve moment rate exactly (final rupture rates will differ from rupRate[] 
 			// due to MFD discretization or rounding if magSigma=0)
-			rupMoRate[i] = rupRate[i] * rupMeanMo[i];
+			rupMoRate[i] = rupRateSolution[i] * rupMeanMo[i];
 			totalMoRateFromRups+=rupMoRate[i];
 			// round the magnitude if need be
 			if(singleMag)
@@ -624,7 +626,7 @@ public class A_FaultSegmentedSource {
 	
 	
 	/**
-	 * Get total rupture rate of the ith char rupture
+	 * Get total rupture rate of the ith char rupture (the total of the final MFD)
 	 * 
 	 * @param ithRup
 	 * @return
@@ -632,6 +634,18 @@ public class A_FaultSegmentedSource {
 	public double getRupRate(int ithRup) {
 		return totRupRate[ithRup];
 	}
+	
+	/**
+	 * Get total rupture rate of the ith char rupture obtained from the inversion
+	 * (not the total from the MFD)
+	 * 
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupRateSolution(int ithRup) {
+		return rupRateSolution[ithRup];
+	}
+	
 	
 	/**
 	 * Difference in final Rup rate and aPrioriRate.
@@ -1190,21 +1204,138 @@ public class A_FaultSegmentedSource {
 	 *
 	 */
 	private void setAveSlipCorrection() {
-		// compute an average over a range of magitudes spanning DELTA_MAG
-		double sum=0, temp;
-		int num=0;
-		for(double mag = 7.0; mag <7.0+DELTA_MAG-0.001; mag +=0.01) {
-			GaussianMagFreqDist magFreqDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, mag, magSigma, 1.0, magTruncLevel, 2);
-			temp = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MomentMagCalc.getMoment(mag));
-			num +=1;
-			sum += temp;
-			// System.out.println("ratio: "+ temp + "  "+mag);
+		if(magSigma == 0 || magTruncLevel == 0)
+			aveSlipCorr = 1.0;
+		else {
+			// compute an average over a range of magitudes spanning DELTA_MAG
+			double sum=0, temp;
+			int num=0;
+			for(double mag = 7.0; mag <7.0+DELTA_MAG-0.001; mag +=0.01) {
+				GaussianMagFreqDist magFreqDist = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, mag, magSigma, 1.0, magTruncLevel, 2);
+				temp = magFreqDist.getTotalMomentRate()/(magFreqDist.getTotalIncrRate()*MomentMagCalc.getMoment(mag));
+				num +=1;
+				sum += temp;
+				// System.out.println("ratio: "+ temp + "  "+mag);
+			}
+			aveSlipCorr = sum/(double)num;
 		}
-		aveSlipCorr = sum/(double)num;
-		// System.out.println("AVE ratio: "+ aveSlipCorr);
 	}
 	
 	public static void main(String[] args) {
+		
+// ******* THIS REPRODUCES THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***************
+		//  (slight diff likely due to the rounding of their mags)
+		
+		String[] segNames = new String[2];
+		segNames[0] = "Seg1";
+		segNames[1] = "Seg2";
+		// sectionToSegmentData - an ArrayList containing N ArrayLists (one for each segment), 
+	  	// where the arrayList for each segment contains some number of FaultSectionPrefData objects
+		ArrayList sectionToSegmentData = new ArrayList();
+		
+		ArrayList faultSectDataList1 = new ArrayList();
+		FaultSectionPrefData sectData1 = new FaultSectionPrefData();
+		sectData1.setAseismicSlipFactor(0.0);
+		sectData1.setAveDip(90);
+		sectData1.setAveLongTermSlipRate(10);
+		sectData1.setAveLowerDepth(15);
+		sectData1.setAveUpperDepth(0);
+		sectData1.setAveRake(0);
+		FaultTrace faultTrace1 = new FaultTrace("trace1");
+		Location loc1 = new Location(0,0,0);
+		Direction dir = new Direction(0.0, 100, 0.0, 0.0);
+		Location loc2 = RelativeLocation.getLocation(loc1, dir);
+		dir = new Direction(0.0, 50, 0.0, 0.0);
+		Location loc3 = RelativeLocation.getLocation(loc2, dir);
+		faultTrace1.addLocation(loc1);
+		faultTrace1.addLocation(loc2);
+		System.out.println("faultTrace1 length = "+(float)faultTrace1.getTraceLength());
+		sectData1.setFaultTrace(faultTrace1);
+		sectData1.setSectionName("sect1");
+		sectData1.setSectionName("s1");
+		faultSectDataList1.add(sectData1);
+		sectionToSegmentData.add(faultSectDataList1);
+
+		ArrayList faultSectDataList2 = new ArrayList();
+		FaultSectionPrefData sectData2 = new FaultSectionPrefData();
+		sectData2.setAseismicSlipFactor(0.0);
+		sectData2.setAveDip(90);
+		sectData2.setAveLongTermSlipRate(10);
+		sectData2.setAveLowerDepth(15);
+		sectData2.setAveUpperDepth(0);
+		sectData2.setAveRake(0);
+		FaultTrace faultTrace2 = new FaultTrace("trace2");
+		faultTrace2.addLocation(loc2);
+		faultTrace2.addLocation(loc3);
+		System.out.println("faultTrace2 length = "+(float)faultTrace2.getTraceLength());
+		sectData2.setFaultTrace(faultTrace2);
+		sectData2.setSectionName("sect2");
+		sectData2.setSectionName("s2");
+		faultSectDataList2.add(sectData2);
+		sectionToSegmentData.add(faultSectDataList2);
+		
+		ArrayList<SegRateConstraint> segRateConstraints = new ArrayList();
+
+		FaultSegmentData segData = new FaultSegmentData(
+				sectionToSegmentData, 
+				segNames, 
+				true, 
+				"WG02 Test", 
+				segRateConstraints);
+
+		System.out.println(segData.getSegmentName(0)+"\n\t"+
+				segData.getSegmentSlipRate(0)+"\n\t"+
+				segData.getSegmentLength(0)+"\n\t"+
+				segData.getSegmentMomentRate(0)+"\n\t");
+		System.out.println(segData.getSegmentName(1)+"\n\t"+
+				segData.getSegmentSlipRate(1)+"\n\t"+
+				segData.getSegmentLength(1)+"\n\t"+
+				segData.getSegmentMomentRate(1)+"\n\t");
+		
+		PEER_testsMagAreaRelationship magAreaRel = new PEER_testsMagAreaRelationship();
+		ValueWeight[] aPrioriRates= new ValueWeight[3];
+		double w1 = 0.8;
+		double w2 = 0.2;
+		double rel1 = (w1/(w1+w1+w2)); 
+		double rel2 = (w1/(w1+w1+w2));
+		double rel3 = (w2/(w1+w1+w2));
+		// totMoRate = r1*mo1+r2*mo2+r3*mo3 = totRate*(rel1*mo1+rel2*mo2+rel3*mo3)
+		// totRate = totMoRate/(rel1*mo1+rel2*mo2+rel3*mo3)
+		double totRate = (4.5+2.25)/(rel1*660  + rel2*240  + rel3*1200);
+		double r1 = rel1*totRate; 
+		double r2 = rel2*totRate;
+		double r3 = rel3*totRate;
+		
+		System.out.println(r1/(r1+r2+r3)+"  "+r2/(r1+r2+r3) +"  "+r3/(r1+r2+r3));
+		System.out.println(r1+"  "+r2 +"  "+r3);
+
+		aPrioriRates[0] = new ValueWeight(r1,1);
+		aPrioriRates[1] = new ValueWeight(r2,1);
+		aPrioriRates[2] = new ValueWeight(r3,1);
+
+		A_FaultSegmentedSource src = new A_FaultSegmentedSource(segData, magAreaRel,
+				A_FaultSegmentedSource.WG02_SLIP_MODEL, aPrioriRates, 0.12, 0.0, 0, 0, false,false,0,1e-7);
+
+		System.out.println("MeanMags:\n\t"+
+				(float)src.getRupMeanMag(0)+"\n\t"+
+				(float)src.getRupMeanMag(1)+"\n\t"+
+				(float)src.getRupMeanMag(2)+"\n\t");
+		System.out.println("RupMoments:\n\t"+
+				(float)MomentMagCalc.getMoment(src.getRupMeanMag(0))+"\n\t"+
+				(float)MomentMagCalc.getMoment(src.getRupMeanMag(1))+"\n\t"+
+				(float)MomentMagCalc.getMoment(src.getRupMeanMag(2))+"\n\t");
+		System.out.println("RupRates:\n\t"+
+				(float)src.getRupRateSolution(0)+"\n\t"+
+				(float)src.getRupRateSolution(1)+"\n\t"+
+				(float)src.getRupRateSolution(2)+"\n\t");
+		totRate = src.getRupRateSolution(0)+src.getRupRateSolution(1)+src.getRupRateSolution(2);
+		System.out.println("RelRupRates:\n\t"+
+				(float)(src.getRupRateSolution(0)/totRate)+"\n\t"+
+				(float)(src.getRupRateSolution(1)/totRate)+"\n\t"+
+				(float)(src.getRupRateSolution(2)/totRate)+"\n\t");
+		
+// ****** END OF REPRODUCTION OF THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***********
+		
 		
 		//setAveSlipCorrection();
 		

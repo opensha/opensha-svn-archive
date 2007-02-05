@@ -10,7 +10,7 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.SimpleFaultData;
 
 /**
- * This class saves th preferred values (rather than the estimate) from the FaultSectionData
+ * This class saves the preferred values (rather than the estimate) from the FaultSectionData
  * @author vipingupta
  *
  */

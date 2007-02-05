@@ -1751,7 +1751,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public void mkExcelSheetTests() {
 		
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
-	
+
+		// TEST - INTERMEDIATE WEIGHT ON A-PRIORI
+		setParamDefaults();
+		relativeA_PrioriWeightParam.setValue(1.0);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("IntWt_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("IntWt_A_FaultNormResids_2_2.xls");
+		
+/*
 		// TEST - DEFAULT VALUES
 		setParamDefaults();
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Default_A_FaultRupRates_2_2.xls");
@@ -1768,7 +1775,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_3_A_FaultRupRates_2_2.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_3_A_FaultNormResids_2_2.xls");	
-
+*/
 	}
 
 	
