@@ -21,6 +21,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
+import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
@@ -414,12 +415,12 @@ public class A_FaultSegmentedSource {
 			// make source from this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
-/* COMMENTED OUT FOR SPEED
+/* COMMENTED OUT FOR SPEED*/
 			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
 					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 					segmentData.getAveRake(segmentsInRup),
 					DEFAULT_DURATION));
-*/
+
 			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
@@ -460,6 +461,42 @@ public class A_FaultSegmentedSource {
 	public ArrayList<FaultRuptureSource> getSources() {
 		return this.sourceList;
 	}
+	
+	/**
+	 * Get NSHMP Source File String. 
+	 * This method is needed to create file for NSHMP. 
+	 * 
+	 * @return
+	 */
+	public String getNSHMP_SrcFileString() {
+		StringBuffer strBuffer = new StringBuffer("");
+		int numSources = sourceList.size();
+		for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
+			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
+			strBuffer.append("1\t"); // char MFD
+			double rake = faultRupSrc.getRupture(0).getAveRake();
+			String rakeStr = "";
+			if((rake>=-45 && rake<=45) || (rake>=135 && rake<=180.01)) rakeStr="1"; // Strike slip
+			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
+			else if(rake>=-90 && rake<-45) rakeStr="3"; // Normal
+			else if(Double.isNaN(rake)) rakeStr = "1";
+			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
+			strBuffer.append(rakeStr+"\t"+this.getLongRupName(srcIndex)+"\n");
+			strBuffer.append(this.getRupMeanMag(srcIndex)+"\t"+this.getRupRateSolution(srcIndex)+"\n");
+			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
+			// dip, Down dip width, upper seismogenic depth, rup Area
+			strBuffer.append(surface.getAveDip()+"\t"+surface.getSurfaceWidth()+"\t"+
+					surface.getUpperSeismogenicDepth()+"\t"+this.getRupArea(srcIndex)+"\n");
+			FaultTrace faultTrace = surface.getFaultTrace();
+			// All fault trace locations
+			strBuffer.append(faultTrace.getNumLocations()+"\n");
+			for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
+				strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
+						faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+		}
+		return strBuffer.toString();
+	}
+	
 	
 	/**
 	 * Get segment indices for this particular rupture index

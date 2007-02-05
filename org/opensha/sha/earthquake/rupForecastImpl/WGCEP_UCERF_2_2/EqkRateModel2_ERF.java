@@ -1495,6 +1495,29 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	
+	/**
+	 * Write file for NSHMP 
+	 * 
+	 * @param fileName
+	 */
+	public void writeNSHMP_SrcFile(String fileName) {
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			// Write the adjustable Params
+			Iterator it = this.adjustableParams.getParametersIterator();
+			while(it.hasNext()) 
+				fw.write("# "+((ParameterAPI)it.next()).getMetadataString()+"\n");
+			// now write all ruptures
+			int numSources  = this.aFaultSources.size();	
+			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
+				fw.write(((A_FaultSegmentedSource)this.aFaultSources.get(iSrc)).getNSHMP_SrcFileString());
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	/**
 	 * update the forecast
@@ -1789,8 +1812,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
-		
+		//erRateModel2_ERF.mkExcelSheetTests();
+		erRateModel2_ERF.updateForecast();
+		erRateModel2_ERF.writeNSHMP_SrcFile("NSHMP2007Input_Temp.txt");
 		
 /*
 		// do some tests
