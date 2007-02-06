@@ -117,10 +117,10 @@ public final class FaultUtils {
     		throw new InvalidRangeException( S3 +
     		"Strike angle should be between -180 and 180");
        /* if( rake < -180 ) throw new InvalidRangeException( S3 +
-            "Strike angle cannot be less than -180"
+            "Rake angle cannot be less than -180"
         );
         if( rake > 180 ) throw new InvalidRangeException( S3 +
-            "Strike angle cannot be greater than 180"
+            "Rake angle cannot be greater than 180"
         );*/
     }
 
