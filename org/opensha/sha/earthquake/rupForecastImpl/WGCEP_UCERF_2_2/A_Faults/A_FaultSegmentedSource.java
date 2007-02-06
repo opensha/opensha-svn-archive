@@ -476,9 +476,9 @@ public class A_FaultSegmentedSource {
 			strBuffer.append("1\t"); // char MFD
 			double rake = faultRupSrc.getRupture(0).getAveRake();
 			String rakeStr = "";
-			if((rake>=-45 && rake<=45) || (rake>=135 && rake<=180.01)) rakeStr="1"; // Strike slip
+			if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
-			else if(rake>=-90 && rake<-45) rakeStr="3"; // Normal
+			else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
 			strBuffer.append(rakeStr+"\t"+this.getLongRupName(srcIndex)+"\n");
 			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)this.getRupRateSolution(srcIndex)+"\n");

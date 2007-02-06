@@ -1540,7 +1540,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			int numSources  = this.aFaultSources.size();	
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				A_FaultSegmentedSource segmentedSource = (A_FaultSegmentedSource)this.aFaultSources.get(iSrc);
-				FileWriter fw = new FileWriter(fileNamePrefix+"_"+segmentedSource.getFaultSegmentData().getFaultName()+".txt");
+				FileWriter fw = new FileWriter(fileNamePrefix+"_"+segmentedSource.getFaultSegmentData().getFaultName().replace(' ', '-')+".txt");
 
 // Commented out:				fw.write(metadataString);
 				fw.write(segmentedSource.getNSHMP_SrcFileString());
