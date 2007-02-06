@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.calc.FaultMomentCalc;
+import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
 import org.opensha.sha.fault.SimpleFaultData;
@@ -394,7 +395,10 @@ public class FaultSegmentData {
 				totRake+=(area*faultSectionPrefDataList.get(j).getAveRake()); // weight the rake by section area
 			}
 		}
-		return totRake/totArea;
+		double rake = totRake/totArea;
+		double tolerance = 1e-6;
+		if(rake-180 < tolerance) rake=180;
+		return rake;
 	}
 	
 	

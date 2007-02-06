@@ -144,6 +144,8 @@ public class SimpleFaultData {
     	for(int locIndex=0; locIndex<combinedFaultTrace.getNumLocations(); ++locIndex)
     		combinedFaultTrace.getLocationAt(locIndex).setDepth(simpleFaultData.getUpperSeismogenicDepth());
     	double dip = combinedDip/totArea;
+    	double tolerance = 1e-6;
+		if(dip-90 < tolerance) dip=90;
     	simpleFaultData.setAveDip(dip);
     	simpleFaultData.setLowerSeismogenicDepth((totArea/totLength)*Math.sin(dip*Math.PI/180)+upperSeismogenicDepth);
     	simpleFaultData.setFaultTrace(combinedFaultTrace);
