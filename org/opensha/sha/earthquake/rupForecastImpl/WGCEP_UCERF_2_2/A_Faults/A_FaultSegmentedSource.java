@@ -1260,7 +1260,7 @@ public class A_FaultSegmentedSource {
 	public static void main(String[] args) {
 		
 // ******* THIS REPRODUCES THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***************
-		//  (slight diff likely due to the rounding of their mags)
+		//  (slight diff likely due to the rounding of their mags & how that propagates)
 		
 		String[] segNames = new String[2];
 		segNames[0] = "Seg1";

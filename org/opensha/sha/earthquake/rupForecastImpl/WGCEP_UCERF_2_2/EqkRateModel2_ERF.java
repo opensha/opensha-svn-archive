@@ -1807,13 +1807,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 
-		// TEST - INTERMEDIATE WEIGHT ON A-PRIORI
+		// TEST - FULL WEIGHT ON A-PRIORI
+		setParamDefaults();
+		relativeA_PrioriWeightParam.setValue(1e10);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("FullWt_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("FullWt_A_FaultNormResids_2_2.xls");
+		
+/*
+  
+  		// TEST - INTERMEDIATE WEIGHT ON A-PRIORI
 		setParamDefaults();
 		relativeA_PrioriWeightParam.setValue(1.0);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("IntWt_A_FaultRupRates_2_2.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("IntWt_A_FaultNormResids_2_2.xls");
-		
-/*
+
 		// TEST - DEFAULT VALUES
 		setParamDefaults();
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Default_A_FaultRupRates_2_2.xls");
@@ -1849,7 +1856,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 /*
 		// do some tests
-		erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(0.0));
+		erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
 		erRateModel2_ERF.setParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME,false);
 		DecimalFormat formatter = new DecimalFormat("0.000E0");
 		System.out.println("A_prior Wt\tTotal Gen Pred Error\tSeg Slip Rate Error\tSeg Event Rate Error\tA-Priori Rup Rate Error (non-normalized)");
