@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
 
 
+import java.io.File;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -1496,23 +1497,54 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	
 	/**
-	 * Write file for NSHMP 
+	 * Make Source files for NSHMP
+	 * It makes separate file for each fault for each run.
+	 * There are 4 runs.
+	 *
+	 */
+	public void writeNSHMP_SrcFiles(String dirName) {
+		File file = new File(dirName);
+		if(!file.isDirectory()) file.mkdirs();
+		// Default parameters
+		this.setParamDefaults();
+		this.updateForecast();
+		writeNSHMP_SrcFile(dirName+"/"+"LowWt_EllB");
+		// change Mag Area to Hans Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		writeNSHMP_SrcFile(dirName+"/"+"LowWt_HB");
+		// default with High apriori model weight
+		this.setParamDefaults();
+		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
+		this.updateForecast();
+		writeNSHMP_SrcFile(dirName+"/"+"HighWt_EllB");
+		// change Mag Area Rel
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		writeNSHMP_SrcFile(dirName+"/"+"HighWt_HB");
+	}
+
+	/**
+	 * Write files for each source for NSHMP with the current parameters
 	 * 
 	 * @param fileName
 	 */
-	public void writeNSHMP_SrcFile(String fileName) {
+	private void writeNSHMP_SrcFile(String fileNamePrefix) {
 		try {
-			FileWriter fw = new FileWriter(fileName);
 			// Write the adjustable Params
+			String metadataString="";
 			Iterator it = this.adjustableParams.getParametersIterator();
 			while(it.hasNext()) 
-				fw.write("# "+((ParameterAPI)it.next()).getMetadataString()+"\n");
+				metadataString += "# "+((ParameterAPI)it.next()).getMetadataString()+"\n";
 			// now write all ruptures
 			int numSources  = this.aFaultSources.size();	
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
-				fw.write(((A_FaultSegmentedSource)this.aFaultSources.get(iSrc)).getNSHMP_SrcFileString());
+				A_FaultSegmentedSource segmentedSource = (A_FaultSegmentedSource)this.aFaultSources.get(iSrc);
+				FileWriter fw = new FileWriter(fileNamePrefix+"_"+segmentedSource.getFaultSegmentData().getFaultName()+".txt");
+				fw.write(metadataString);
+				fw.write(segmentedSource.getNSHMP_SrcFileString());
+				fw.close();
 			}
-			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -1813,8 +1845,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 		//erRateModel2_ERF.mkExcelSheetTests();
-		erRateModel2_ERF.updateForecast();
-		erRateModel2_ERF.writeNSHMP_SrcFile("NSHMP2007Input_Temp.txt");
+		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles"); // directory name
 		
 /*
 		// do some tests

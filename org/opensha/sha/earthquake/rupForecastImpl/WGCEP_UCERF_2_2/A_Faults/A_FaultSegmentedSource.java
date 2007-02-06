@@ -479,7 +479,6 @@ public class A_FaultSegmentedSource {
 			if((rake>=-45 && rake<=45) || (rake>=135 && rake<=180.01)) rakeStr="1"; // Strike slip
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 			else if(rake>=-90 && rake<-45) rakeStr="3"; // Normal
-			else if(Double.isNaN(rake)) rakeStr = "1";
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
 			strBuffer.append(rakeStr+"\t"+this.getLongRupName(srcIndex)+"\n");
 			strBuffer.append(this.getRupMeanMag(srcIndex)+"\t"+this.getRupRateSolution(srcIndex)+"\n");
