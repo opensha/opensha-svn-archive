@@ -481,11 +481,11 @@ public class A_FaultSegmentedSource {
 			else if(rake>=-90 && rake<-45) rakeStr="3"; // Normal
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
 			strBuffer.append(rakeStr+"\t"+this.getLongRupName(srcIndex)+"\n");
-			strBuffer.append(this.getRupMeanMag(srcIndex)+"\t"+this.getRupRateSolution(srcIndex)+"\n");
+			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)this.getRupRateSolution(srcIndex)+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
-			strBuffer.append(surface.getAveDip()+"\t"+surface.getSurfaceWidth()+"\t"+
-					surface.getUpperSeismogenicDepth()+"\t"+this.getRupArea(srcIndex)+"\n");
+			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
+					(float)surface.getUpperSeismogenicDepth()+"\t"+(float)this.getRupArea(srcIndex)/1e6+"\n");
 			FaultTrace faultTrace = surface.getFaultTrace();
 			// All fault trace locations
 			strBuffer.append(faultTrace.getNumLocations()+"\n");

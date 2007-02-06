@@ -1508,20 +1508,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// Default parameters
 		this.setParamDefaults();
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"LowWt_EllB");
+		writeNSHMP_SrcFile(dirName+"/"+"MoBal_EllB");
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"LowWt_HB");
+		writeNSHMP_SrcFile(dirName+"/"+"MoBal_HB");
 		// default with High apriori model weight
 		this.setParamDefaults();
 		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"HighWt_EllB");
+		writeNSHMP_SrcFile(dirName+"/"+"aPriori_EllB");
 		// change Mag Area Rel
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"HighWt_HB");
+		writeNSHMP_SrcFile(dirName+"/"+"aPriori_HB");
 	}
 
 	/**
@@ -1541,7 +1541,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				A_FaultSegmentedSource segmentedSource = (A_FaultSegmentedSource)this.aFaultSources.get(iSrc);
 				FileWriter fw = new FileWriter(fileNamePrefix+"_"+segmentedSource.getFaultSegmentData().getFaultName()+".txt");
-				fw.write(metadataString);
+
+// Commented out:				fw.write(metadataString);
 				fw.write(segmentedSource.getNSHMP_SrcFileString());
 				fw.close();
 			}
@@ -1813,8 +1814,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		excelSheetsGen.generateExcelSheetsForRupMagRates("FullWt_A_FaultRupRates_2_2.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("FullWt_A_FaultNormResids_2_2.xls");
 		
-/*
-  
   		// TEST - INTERMEDIATE WEIGHT ON A-PRIORI
 		setParamDefaults();
 		relativeA_PrioriWeightParam.setValue(1.0);
@@ -1837,7 +1836,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_3_A_FaultRupRates_2_2.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_3_A_FaultNormResids_2_2.xls");	
-*/
+
 	}
 
 	
