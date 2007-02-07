@@ -108,6 +108,7 @@ public class SimpleFaultData {
     	int num = simpleFaultDataList.size();
     	for(int i=0; i<num; ++i) {
     		FaultTrace faultTrace = simpleFaultDataList.get(i).getFaultTrace();
+    		int numLocations = faultTrace.getNumLocations();
     		if(i>0) { // check the ordering of point in this fault trace
     			FaultTrace prevFaultTrace = simpleFaultDataList.get(i-1).getFaultTrace();
     			Location lastLoc = prevFaultTrace.getLocationAt(prevFaultTrace.getNumLocations()-1);
@@ -117,7 +118,19 @@ public class SimpleFaultData {
     				faultTrace.reverse();
     				if(simpleFaultDataList.get(i).getAveDip()!=90) simpleFaultDataList.get(i).setAveDip(-simpleFaultDataList.get(i).getAveDip());
     			}
+    			//  remove any loc that is within 1km of its neighbor
+            	//  as per Ned's email on Feb 7, 2007 at 5:53 AM
+        		if(distance2>1 && distance1>1) combinedFaultTrace.addLocation(faultTrace.getLocationAt(0));
+        		// add the fault Trace locations to combined trace
+        		for(int locIndex=1; locIndex<numLocations; ++locIndex) 
+        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
+       
+    		} else { // if this is first fault section, add all points in fault trace
+//    			 add the fault Trace locations to combined trace
+        		for(int locIndex=0; locIndex<numLocations; ++locIndex) 
+        			combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
     		}
+    		
     		double length = faultTrace.getTraceLength();
     		double dip = simpleFaultDataList.get(i).getAveDip();
     		double area = Math.abs(length*(simpleFaultDataList.get(i).getLowerSeismogenicDepth()-simpleFaultDataList.get(i).getUpperSeismogenicDepth())/Math.sin(dip*Math.PI/ 180));
@@ -125,12 +138,6 @@ public class SimpleFaultData {
     		totArea+=area;
     		combinedUpperSeisDepth+=(area*simpleFaultDataList.get(i).getUpperSeismogenicDepth());
     		combinedDip+=(area*dip);
-    		
-    		int numLocations = faultTrace.getNumLocations();
-    		//System.out.println(i+":"+dip+","+area+","+combinedDip);
-    		// add the fault Trace locations to combined trace
-    		for(int locIndex=0; locIndex<numLocations; ++locIndex) combinedFaultTrace.addLocation(faultTrace.getLocationAt(locIndex));
-    			
     	}
 //    	 if Dip<0, reverse the trace points to follow Aki and Richards convention
     	if(combinedDip<0) {

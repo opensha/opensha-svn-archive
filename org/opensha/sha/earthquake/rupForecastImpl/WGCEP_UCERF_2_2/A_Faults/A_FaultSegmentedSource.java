@@ -485,7 +485,7 @@ public class A_FaultSegmentedSource {
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
 			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
-					(float)surface.getUpperSeismogenicDepth()+"\t"+(float)this.getRupArea(srcIndex)/1e6+"\n");
+					(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
 			FaultTrace faultTrace = surface.getFaultTrace();
 			// All fault trace locations
 			strBuffer.append(faultTrace.getNumLocations()+"\n");
