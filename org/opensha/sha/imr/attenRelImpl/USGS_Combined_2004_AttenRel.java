@@ -129,6 +129,8 @@ public class USGS_Combined_2004_AttenRel
   private final static boolean D = false;
   public final static String NAME = "USGS Combined (2004)";
   public final static String SHORT_NAME = "USGS_2004";
+  private static final long serialVersionUID = 1234567890987654370L;
+
 
 
   // attenuation relationships used.

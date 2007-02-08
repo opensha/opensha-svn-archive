@@ -8,6 +8,8 @@ public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
 	
    public final static String NAME = "Goulet Et. Al. (2006)";
    public final static String SHORT_NAME = "GouletEtAl2006";
+   private static final long serialVersionUID = 1234567890987654364L;
+
 	
   public GouletEtAl_2006_AttenRel(ParameterChangeWarningListener warningListener) {
 	  super(warningListener);

@@ -56,6 +56,7 @@ public class CB_2003_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Campbell and Bozorgnia (2003)";
   public final static String SHORT_NAME = "CB2003";
+  private static final long serialVersionUID = 1234567890987654357L;
 
 
   // style of faulting options

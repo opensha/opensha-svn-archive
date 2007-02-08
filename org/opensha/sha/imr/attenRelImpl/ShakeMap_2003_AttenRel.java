@@ -81,6 +81,7 @@ public class ShakeMap_2003_AttenRel
   private final static boolean D = false;
   public final static String NAME = "ShakeMap (2003)";
   public final static String SHORT_NAME = "ShakeMap2003";
+  private static final long serialVersionUID = 1234567890987654368L;
 
 
   // PGA thresholds for computing amp factors (convert from gals to g)

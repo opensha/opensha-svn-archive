@@ -71,6 +71,7 @@ public class CY_2006_AttenRel
   // Name of IMR
   public final static String NAME = "Chiou & Youngs (2006)";
   public final static String SHORT_NAME = "CY2006";
+  private static final long serialVersionUID = 1234567890987654360L;
 
 
   // coefficients:

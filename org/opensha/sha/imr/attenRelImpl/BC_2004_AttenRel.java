@@ -48,6 +48,8 @@ public class BC_2004_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Bazzuro and Cornell (2004)";
   public final static String SHORT_NAME = "BC2004";
+  private static final long serialVersionUID = 1234567890987654355L;
+
 
 
   // warning constraint fields:

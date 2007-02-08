@@ -49,6 +49,7 @@ public class CS_2005_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Choi & Stewart (2005)";
   public final static String SHORT_NAME = "CS2005";
+  private static final long serialVersionUID = 1234567890987654359L;
 
 
   // warning constraint fields:

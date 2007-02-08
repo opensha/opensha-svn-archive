@@ -58,6 +58,7 @@ public class BA_2006_AttenRel
   private final static String C = "BA_2006_AttenRel";
   private final static boolean D = false;
   public final static String SHORT_NAME = "Boore2006";
+  private static final long serialVersionUID = 1234567890987654353L;
 
 
   // Name of IMR

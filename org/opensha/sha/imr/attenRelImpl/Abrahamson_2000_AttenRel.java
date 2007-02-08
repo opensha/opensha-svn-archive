@@ -58,6 +58,8 @@ public class Abrahamson_2000_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Abrahamson (2000)";
   public final static String SHORT_NAME = "Abrahamson2000";
+  private static final long serialVersionUID = 1234567890987654351L;
+
 
   // style of faulting options
 //    private final static String FLT_TYPE_REVERSE = "Reverse";

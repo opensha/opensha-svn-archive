@@ -50,6 +50,7 @@ public class SadighEtAl_1997_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Sadigh et al (1997)";
   public final static String SHORT_NAME = "SadighEtAl1997";
+  private static final long serialVersionUID = 1234567890987654366L;
 
 
   // style of faulting options

@@ -50,7 +50,8 @@ public class BJF_1997_AttenRel
   private final static String C = "BJF_1997_AttenRel";
   private final static boolean D = false;
   public final static String NAME = "Boore, Joyner & Fumal (1997)";
-  public final static String SHORT_NAME = "BJF1997";
+  public final static String SHORT_NAME = "BJF1997"; 
+  private static final long serialVersionUID = 1234567890987654355L;
 
 
   // style of faulting options

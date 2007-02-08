@@ -53,6 +53,7 @@ public class Field_2000_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Field (2000)";
   public final static String SHORT_NAME = "Field2000";
+  private static final long serialVersionUID = 1234567890987654362L;
 
 
   // style of faulting options

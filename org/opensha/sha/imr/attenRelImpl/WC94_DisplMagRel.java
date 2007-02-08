@@ -46,6 +46,7 @@ public class WC94_DisplMagRel
   private final static boolean D = false;
   public final static String NAME = "Wells & Coppersmith (1994)";
   public final static String SHORT_NAME = "WC_1994";
+  private static final long serialVersionUID = 1234567890987654371L;
 
 
   /**

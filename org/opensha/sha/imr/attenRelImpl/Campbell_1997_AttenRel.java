@@ -53,6 +53,7 @@ public class Campbell_1997_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Campbell (1997) w/ erratum (2000) changes";
   public final static String SHORT_NAME = "Campbell_1997";
+  private static final long serialVersionUID = 1234567890987654356L;
 
 
   // style of faulting options

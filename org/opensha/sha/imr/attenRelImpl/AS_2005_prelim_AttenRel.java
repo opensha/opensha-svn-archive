@@ -49,6 +49,8 @@ public class AS_2005_prelim_AttenRel
   private final static String C = "AS_2005_prelim_AttenRel";
   private final static boolean D = false;
   public final static String SHORT_NAME = "AS2005";
+  private static final long serialVersionUID = 1234567890987654352L;
+
 
 
   // Name of IMR

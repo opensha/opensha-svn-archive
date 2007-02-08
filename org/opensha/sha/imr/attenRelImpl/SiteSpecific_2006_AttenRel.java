@@ -54,6 +54,8 @@ public class SiteSpecific_2006_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Site Specfic AttenuationRelationship (2006)";
   public final static String SHORT_NAME = "SS2006";
+  private static final long serialVersionUID = 1234567890987654369L;
+
 
   
   

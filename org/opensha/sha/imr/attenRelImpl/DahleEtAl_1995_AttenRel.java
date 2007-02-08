@@ -47,6 +47,7 @@ public class DahleEtAl_1995_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Dahle et al. (1995)";
   public final static String SHORT_NAME = "Dahle1995";
+  private static final long serialVersionUID = 1234567890987654361L;
 
 
   // component

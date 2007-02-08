@@ -48,6 +48,8 @@ public class BS_2003_AttenRel
   private final static boolean D = false;
   public final static String NAME = "Baturay and Stewart (2003)";
   public final static String SHORT_NAME = "BS2006";
+  private static final long serialVersionUID = 1234567890987654356L;
+
 
 
   // warning constraint fields:
