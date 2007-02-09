@@ -980,6 +980,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
 			totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
+			
+			// Test of Golden's proposed solution
+			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
+			//	totBackgroundMFD.set(i,0.33*totBackgroundMFD.getY(i));
 		}
 		
 // System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());
