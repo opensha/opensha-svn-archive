@@ -33,7 +33,7 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -205,7 +205,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		ArrayList<String> faultNames  = aFaultParam.getAllowedStrings();
 		int totalRows=faultNames.size();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
-			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
+			A_FaultSegmentedSourceGenerator source =  (A_FaultSegmentedSourceGenerator) aFaultSourceMap.get(faultNames.get(srcIndex));
 			totalRows+=source.getFaultSegmentData().getNumSegments()+1;// include totals
 		} 
 		int totalCols = SegmentDataTableModel.columnNames.length;
@@ -213,7 +213,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		int rowIndex=0;
 		SegmentDataTableModel segTableModel = new SegmentDataTableModel();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
-			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
+			A_FaultSegmentedSourceGenerator source =  (A_FaultSegmentedSourceGenerator) aFaultSourceMap.get(faultNames.get(srcIndex));
 			FaultSegmentData faultSegmentData = source.getFaultSegmentData();
 			rowData[rowIndex][0]=faultSegmentData.getFaultName();
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
@@ -236,7 +236,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		ArrayList<String> faultNames  = aFaultParam.getAllowedStrings();
 		int totalRows=faultNames.size();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
-			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
+			A_FaultSegmentedSourceGenerator source =  (A_FaultSegmentedSourceGenerator) aFaultSourceMap.get(faultNames.get(srcIndex));
 			totalRows+=source.getNumRuptures()+1; // also include totals
 		} 
 		int totalCols = RuptureTableModel.columnNames.length;
@@ -244,7 +244,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		int rowIndex=0;
 		RuptureTableModel rupTableModel = new RuptureTableModel();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
-			A_FaultSegmentedSource source =  (A_FaultSegmentedSource) aFaultSourceMap.get(faultNames.get(srcIndex));
+			A_FaultSegmentedSourceGenerator source =  (A_FaultSegmentedSourceGenerator) aFaultSourceMap.get(faultNames.get(srcIndex));
 			FaultSegmentData faultSegmentData = source.getFaultSegmentData();
 			rowData[rowIndex][0]=faultSegmentData.getFaultName();
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
@@ -267,7 +267,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JPanel getA_FaultSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
 		aFaultSourceMap = new HashMap();
-		ArrayList aFaultSources = this.eqkRateModelERF.get_A_FaultSources();
+		ArrayList aFaultSourceGenerators = this.eqkRateModelERF.get_A_FaultSourceGenerators();
 		
 		// whether this is segmented or unsegmented
 		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
@@ -282,11 +282,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			this.dataERButton.setVisible(true);
 		}
 		
-		if(aFaultSources==null) return panel;
+		if(aFaultSourceGenerators==null) return panel;
 		segmentDataPanel = new SegmentDataPanel();
 		ArrayList faultNames = new ArrayList();
-		for(int i=0; i<aFaultSources.size(); ++i) {
-			Object source = aFaultSources.get(i);
+		for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
+			Object source = aFaultSourceGenerators.get(i);
 			FaultSegmentData faultSegmentData = getFaultSegmentData(source);
 			faultNames.add(faultSegmentData.getFaultName());
 			aFaultSourceMap.put(faultSegmentData.getFaultName(), source);
@@ -300,12 +300,12 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		segmentInfoTabbedPane.addTab("Segment Info", segmentDataPanel);
 		if(this.isUnsegmented) {
 			B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
-			bFaultDataPanel.setB_FaultSources(aFaultSources);
+			bFaultDataPanel.setB_FaultSources(aFaultSourceGenerators);
 			segmentInfoTabbedPane.addTab("Rupture Info", bFaultDataPanel);
 		} else {
 			ruptureDataPanel = new RuptureDataPanel();
 			segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
-			ruptureDataPanel.setSourcesForMagAreaPlot(aFaultSources, this.eqkRateModelERF.getMagAreaRelationships());
+			ruptureDataPanel.setSourcesForMagAreaPlot(aFaultSourceGenerators, this.eqkRateModelERF.getMagAreaRelationships());
 		}
 		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
@@ -321,7 +321,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	private FaultSegmentData getFaultSegmentData(Object source) {
 		if(this.isUnsegmented) return ((UnsegmentedSource)source).getFaultSegmentData();
-		else return ((A_FaultSegmentedSource)source).getFaultSegmentData();
+		else return ((A_FaultSegmentedSourceGenerator)source).getFaultSegmentData();
 	}
 	
 	/**
@@ -370,8 +370,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		String selectedFault = (String)aFaultParam.getValue();
 		Object source =   aFaultSourceMap.get(selectedFault);
 		if(!this.isUnsegmented)  {
-			ruptureDataPanel.setSource((A_FaultSegmentedSource)source);
-			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSource)source, null, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+			ruptureDataPanel.setSource((A_FaultSegmentedSourceGenerator)source);
+			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSourceGenerator)source, null, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
 		} else {
 			segmentDataPanel.setEventRatesList(this.eqkRateModelERF.getA_FaultsFetcher().getEventRatesList());
 			this.segmentDataPanel.setFaultSegmentData(null, (UnsegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
@@ -424,11 +424,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormRupRatesDiff() {
-		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.eqkRateModelERF.get_A_FaultSourceGenerators();
 		normRupRatesRatioList = new ArrayList<Double>();
 		// iterate over all sources
-		for(int i=0; i<sourceList.size(); ++i) {
-			A_FaultSegmentedSource source = sourceList.get(i);
+		for(int i=0; i<sourceGeneratorList.size(); ++i) {
+			A_FaultSegmentedSourceGenerator source = sourceGeneratorList.get(i);
 			int numRuptures = source.getNumRuptures();
 			// iterate over all ruptures
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) {
@@ -444,11 +444,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormModSlipRateResids() {
-		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = eqkRateModelERF.get_A_FaultSourceGenerators();
 		normModlSlipRateRatioList = new ArrayList<Double>();
 		// iterate over all sources
-		for(int i=0; i<sourceList.size(); ++i) {
-			A_FaultSegmentedSource source = sourceList.get(i);
+		for(int i=0; i<sourceGeneratorList.size(); ++i) {
+			A_FaultSegmentedSourceGenerator source = sourceGeneratorList.get(i);
 			double normModResids[] = source.getNormModSlipRateResids();
 			for(int segIndex = 0; segIndex<normModResids.length; ++segIndex) normModlSlipRateRatioList.add(new Double(normModResids[segIndex]));
 		}
@@ -459,11 +459,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormDataER_Resids() {
-		ArrayList<A_FaultSegmentedSource> sourceList = eqkRateModelERF.get_A_FaultSources();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = eqkRateModelERF.get_A_FaultSourceGenerators();
 		normDataER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
-		for(int i=0; i<sourceList.size(); ++i) {
-			A_FaultSegmentedSource source = sourceList.get(i);
+		for(int i=0; i<sourceGeneratorList.size(); ++i) {
+			A_FaultSegmentedSourceGenerator source = sourceGeneratorList.get(i);
 			double normDataER_Resids[] = source.getNormDataER_Resids();
 			for(int segIndex = 0; segIndex<normDataER_Resids.length; ++segIndex) 
 				if(!Double.isNaN(normDataER_Resids[segIndex])) normDataER_RatioList.add(new Double(normDataER_Resids[segIndex]));
@@ -475,11 +475,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcPredERRatio() {
-		ArrayList<A_FaultSegmentedSource> sourceList = this.eqkRateModelERF.get_A_FaultSources();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.eqkRateModelERF.get_A_FaultSourceGenerators();
 		predER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
-		for(int i=0; i<sourceList.size(); ++i) {
-			A_FaultSegmentedSource source = sourceList.get(i);
+		for(int i=0; i<sourceGeneratorList.size(); ++i) {
+			A_FaultSegmentedSourceGenerator source = sourceGeneratorList.get(i);
 			int numSegments = source.getFaultSegmentData().getNumSegments();
 			// iterate over all segments
 			for(int segIndex = 0; segIndex<numSegments; ++segIndex) 

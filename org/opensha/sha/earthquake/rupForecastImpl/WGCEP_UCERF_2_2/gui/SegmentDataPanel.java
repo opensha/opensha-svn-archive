@@ -32,7 +32,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -153,7 +153,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param faultSegmentData
 	 * @param isAseisReducesArea
 	 */
-	public void setFaultSegmentData(A_FaultSegmentedSource segmentedSource, 
+	public void setFaultSegmentData(A_FaultSegmentedSourceGenerator segmentedSource, 
 			UnsegmentedSource unsegmentedSource,
 			boolean isAseisReducesArea, 
 			ArrayList magAreaRelationships) {
@@ -232,7 +232,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateSlipRateRatioFuncList(A_FaultSegmentedSource segmentedSource) {
+	private void generateSlipRateRatioFuncList(A_FaultSegmentedSourceGenerator segmentedSource) {
 		ArbitrarilyDiscretizedFunc slipRateRatioFunc = new ArbitrarilyDiscretizedFunc();
 		slipRateRatioFunc.setName("Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
 		double normModResids[] = segmentedSource.getNormModSlipRateResids();
@@ -248,7 +248,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateSlipRateFuncList(A_FaultSegmentedSource segmentedSource, 
+	private void generateSlipRateFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
 			FaultSegmentData faultSegmentData) {
 		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		origSlipRateFunc.setName("Orig Slip Rate");
@@ -296,7 +296,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateEventRateFuncList(A_FaultSegmentedSource segmentedSource, 
+	private void generateEventRateFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
 			FaultSegmentData faultSegmentData) {
 		ArbitrarilyDiscretizedFunc origEventRateFunc = new ArbitrarilyDiscretizedFunc();
 		origEventRateFunc.setName("Data Event Rate");
@@ -333,7 +333,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateEventRateRatioFuncList(A_FaultSegmentedSource segmentedSource) {
+	private void generateEventRateRatioFuncList(A_FaultSegmentedSourceGenerator segmentedSource) {
 		ArbitrarilyDiscretizedFunc eventRateRatioFunc = new ArbitrarilyDiscretizedFunc();
 		eventRateRatioFunc.setName("Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 		double normResids[] = segmentedSource.getNormDataER_Resids();
@@ -354,7 +354,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 */
 	private void setMagAndSlipsString(FaultSegmentData segmetedFaultData,
 			boolean isAseisReducesArea, ArrayList magAreaRelationships, 
-			A_FaultSegmentedSource segmentedSource,
+			A_FaultSegmentedSourceGenerator segmentedSource,
 			UnsegmentedSource unsegmentedSource) {
 		magAreasTextArea.setText("");
 		if(segmetedFaultData==null) return ;
@@ -672,7 +672,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
-	private A_FaultSegmentedSource segmentedSource;
+	private A_FaultSegmentedSourceGenerator segmentedSource;
 	private UnsegmentedSource unsegmentedSource;
 	
 	
@@ -688,7 +688,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * Segmented Fault data
 	 * @param segFaultData
 	 */
-	public SegmentDataTableModel( FaultSegmentData segFaultData, A_FaultSegmentedSource segmentedSource) {
+	public SegmentDataTableModel( FaultSegmentData segFaultData, A_FaultSegmentedSourceGenerator segmentedSource) {
 		setFaultData(segFaultData, segmentedSource, null);
 	}
 	
@@ -697,7 +697,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 	 * @param segFaultData
 	 */
 	public void setFaultData(FaultSegmentData segFaultData,
-			A_FaultSegmentedSource segmentedSource,
+			A_FaultSegmentedSourceGenerator segmentedSource,
 			UnsegmentedSource unsegmentedSource) {
 		this.segFaultData =   segFaultData;
 		this.segmentedSource = segmentedSource;

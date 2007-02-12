@@ -41,7 +41,7 @@ public class DeformationModelPrefDataDB_DAO {
 	private DB_AccessAPI dbAccess;
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO;
 	private DeformationModelDB_DAO deformationModelDB_DAO;
-	private ArrayList faultSectionIdList;
+	private static ArrayList faultSectionIdList;
 	
 	public DeformationModelPrefDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);

@@ -48,7 +48,7 @@ import sun.tools.tree.ThisExpression;
  */
 
 
-public class A_FaultSegmentedSource {
+public class A_FaultSegmentedSourceGenerator {
 	
 	//for Debug purposes
 	private static String C = new String("A_FaultSource");
@@ -151,7 +151,7 @@ public class A_FaultSegmentedSource {
 	 * @param relativeA_Priori_wt - the amount to weight the a-priori rates relative to the slip rates
 	 */
 
-	public A_FaultSegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
+	public A_FaultSegmentedSourceGenerator(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
 			double magTruncLevel, double moRateReduction, double meanMagCorrection,
 			boolean preserveMinAFaultRate, boolean wtedInversion, double relativeSegRate_wt,
@@ -1349,8 +1349,8 @@ public class A_FaultSegmentedSource {
 		aPrioriRates[1] = new ValueWeight(r2,1);
 		aPrioriRates[2] = new ValueWeight(r3,1);
 
-		A_FaultSegmentedSource src = new A_FaultSegmentedSource(segData, magAreaRel,
-				A_FaultSegmentedSource.WG02_SLIP_MODEL, aPrioriRates, 0.12, 0.0, 0, 0, false,false,0,1e-7);
+		A_FaultSegmentedSourceGenerator src = new A_FaultSegmentedSourceGenerator(segData, magAreaRel,
+				A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL, aPrioriRates, 0.12, 0.0, 0, 0, false,false,0,1e-7);
 
 		System.out.println("MeanMags:\n\t"+
 				(float)src.getRupMeanMag(0)+"\n\t"+

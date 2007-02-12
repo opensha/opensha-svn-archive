@@ -40,7 +40,7 @@ import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -281,30 +281,30 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 //		 figure 7
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.CHAR_SLIP_MODEL);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 8
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSourceGenerator.UNIFORM_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.UNIFORM_SLIP_MODEL);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSourceGenerator.UNIFORM_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 9
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
@@ -418,7 +418,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 ArrayList<String> allowedVals = param.getAllowedStrings();
 			 param.setValue(allowedVals.get(1));
 		 }
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
@@ -426,7 +426,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(0.67);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue("Minimum Rate");
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSource.WG02_SLIP_MODEL);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
@@ -494,17 +494,17 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 }
 		 
 		 // 
-		 ArrayList aFaultSources = eqkRateModelERF.get_A_FaultSources();
+		 ArrayList aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
 		 
-		 for(int i=0; i<aFaultSources.size(); ++i) {
+		 for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 			 IncrementalMagFreqDist magFreqDist;
 			 ArrayList funcs = new ArrayList();
 			 String faultName;
-			 Object obj = aFaultSources.get(i);
-			 if(obj instanceof A_FaultSegmentedSource) {
+			 Object obj = aFaultSourceGenerators.get(i);
+			 if(obj instanceof A_FaultSegmentedSourceGenerator) {
 				 // segmented source
-				 magFreqDist =( (A_FaultSegmentedSource)obj).getTotalRupMFD();
-				 faultName = ( (A_FaultSegmentedSource)obj).getFaultSegmentData().getFaultName();
+				 magFreqDist =( (A_FaultSegmentedSourceGenerator)obj).getTotalRupMFD();
+				 faultName = ( (A_FaultSegmentedSourceGenerator)obj).getFaultSegmentData().getFaultName();
 			 } else {
 				 // unsegmented source
 				 magFreqDist =( (UnsegmentedSource)obj).getMagFreqDist();

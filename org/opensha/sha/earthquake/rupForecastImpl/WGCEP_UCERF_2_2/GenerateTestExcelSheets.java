@@ -18,7 +18,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterListParameter;
 import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 
 /**
@@ -31,7 +31,7 @@ public class GenerateTestExcelSheets {
 	private ParameterAPI magAreaRelParam, slipModelParam;
 	private ParameterListParameter segmentedRupModelParam;
 	private ParameterList adjustableParams;
-	private ArrayList aFaultSources ;
+	private ArrayList aFaultSourceGenerators ;
 	private A_FaultsFetcher aFaultsFetcher;
 	private ArrayList magAreaOptions, slipModelOptions;
 	
@@ -116,20 +116,20 @@ public class GenerateTestExcelSheets {
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						this.eqkRateModelERF.updateForecast();
-						aFaultSources = eqkRateModelERF.get_A_FaultSources();
+						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
 						this.genPredErrAndTotRateSheet( genPredErrSheet, totalRatesSheet, imag, islip,irup, cellStyle);
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
 							// do for each fault
-							for(int i=0; i<aFaultSources.size(); ++i) {
+							for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 								HSSFSheet sheet = wb.getSheetAt(i+1); // first sheet is metadata sheet
-								String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
+								String sheetName = ((A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i)).getFaultSegmentData().getFaultName();
 								wb.setSheetName(i+1, sheetName);
 								HSSFRow row;
 								generateExcelSheetHeader(cellStyle, currRow[i], irup, sheet, columnHeaders);		
 								currRow[i]+=3;
 								 // write Rup Names and Apriori Rates
-								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+								 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 								 rupStartRow[i] = currRow[i];
 								 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
 									 row = sheet.createRow((short)currRow[i]++);
@@ -150,9 +150,9 @@ public class GenerateTestExcelSheets {
 						}
 					
 						// write the rup Mag and rates
-						for(int i=0; i<this.aFaultSources.size(); ++i) {
+						for(int i=0; i<this.aFaultSourceGenerators.size(); ++i) {
 							 HSSFSheet sheet = wb.getSheetAt(i+1);// first sheet is metadata
-							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+							 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 							 int magCol = this.getMagCol(islip, imag);
 							 int rateCol = this.getRateCol(islip, imag);
 							 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
@@ -228,17 +228,17 @@ public class GenerateTestExcelSheets {
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						this.eqkRateModelERF.updateForecast();
-						aFaultSources = eqkRateModelERF.get_A_FaultSources();
+						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
 							// do for each fault
-							for(int i=0; i<aFaultSources.size(); ++i) {
+							for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 								HSSFSheet sheet = wb.getSheetAt(i+1); // first sheet is metadata sheet
-								String sheetName = ((A_FaultSegmentedSource)aFaultSources.get(i)).getFaultSegmentData().getFaultName();
+								String sheetName = ((A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i)).getFaultSegmentData().getFaultName();
 								wb.setSheetName(i+1, sheetName);
 								HSSFRow row;
 								 // write Segment  Names and Original rates
-								 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+								 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 								 FaultSegmentData faultSegmentData = source.getFaultSegmentData();
 
 								 // for  Slip Rates
@@ -265,9 +265,9 @@ public class GenerateTestExcelSheets {
 						}
 					
 						// write the rup Mag and rates
-						for(int i=0; i<this.aFaultSources.size(); ++i) {
+						for(int i=0; i<this.aFaultSourceGenerators.size(); ++i) {
 							 HSSFSheet sheet = wb.getSheetAt(i+1);// first sheet is metadata
-							 A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);	
+							 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);	
 							 // normalized slip rates
 							 double normModSR[] = source.getNormModSlipRateResids();
 							 //	normalized event rates
@@ -325,7 +325,7 @@ public class GenerateTestExcelSheets {
 	 * @return
 	 */
 	private int getRateCol(int islip, int imag) {
-		 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) 
+		 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL)) 
 			 return 3;
 		 else 
 			 return getMagCol(islip,imag)+islip;
@@ -339,7 +339,7 @@ public class GenerateTestExcelSheets {
 	 * @return
 	 */
 	private int getMagCol(int islip, int imag) {
-		 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL))
+		 if(slipModelOptions.get(islip).equals(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL))
 			 return  2; 
 		 else 
 			 return 4 + imag*slipModelOptions.size();
@@ -378,7 +378,7 @@ public class GenerateTestExcelSheets {
 		 cell.setCellFormula(colStr+totRow3+"/"+colStr+totRow2);
 		 // totals for other rates
 		 for(int k=0; k<slipModelOptions.size(); ++k) {
-			 if(slipModelOptions.get(k).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) continue;
+			 if(slipModelOptions.get(k).equals(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL)) continue;
 			 for(int j=0; j<magAreaOptions.size(); ++j) {
 				 int totCol = 4 + j*slipModelOptions.size()+k;
 				 colStr=""+(char)('A'+totCol);
@@ -411,7 +411,7 @@ public class GenerateTestExcelSheets {
 		 cell.setCellFormula("SUM("+colStr+sumStartIndex+":"+colStr+(sumEndIndex+")"));
 		 // totals for other rates
 		 for(int k=0; k<slipModelOptions.size(); ++k) {
-			 if(slipModelOptions.get(k).equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) continue;
+			 if(slipModelOptions.get(k).equals(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL)) continue;
 			 for(int j=0; j<magAreaOptions.size(); ++j) {
 				 int totCol = 4 + j*slipModelOptions.size()+k;
 				 cell = row.createCell((short)totCol);
@@ -474,7 +474,7 @@ public class GenerateTestExcelSheets {
 			 cell.setCellStyle(cellStyle);
 			 for(int k=0; k<slipModelOptions.size(); ++k) {
 				 String slipModel = (String)slipModelOptions.get(k);
-				 if(!slipModel.equals(A_FaultSegmentedSource.CHAR_SLIP_MODEL)) {
+				 if(!slipModel.equals(A_FaultSegmentedSourceGenerator.CHAR_SLIP_MODEL)) {
 					 cell = row.createCell((short)col++);
 					 cell.setCellValue((String)slipModelOptions.get(k));
 					 cell.setCellStyle(cellStyle);
@@ -513,9 +513,9 @@ public class GenerateTestExcelSheets {
 			// write Source Names
 			totRate=0;
 			HSSFRow row1;
-			for(int iSource=0; iSource<aFaultSources.size(); ++iSource) {
+			for(int iSource=0; iSource<aFaultSourceGenerators.size(); ++iSource) {
 				row1 = predErrSheet.createRow((short)(faultNamesStartRow+iSource));
-				A_FaultSegmentedSource src = (A_FaultSegmentedSource)aFaultSources.get(iSource);
+				A_FaultSegmentedSourceGenerator src = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(iSource);
 				for(int rupIndex=0; rupIndex<src.getNumRuptures(); ++rupIndex) totRate+=src.getAPrioriRupRate(rupIndex);
 				row1.createCell((short)0).setCellValue(src.getFaultSegmentData().getFaultName());
 			}
@@ -524,7 +524,7 @@ public class GenerateTestExcelSheets {
 			// write the sum of apriori rates
 			totRateSheet.getRow(faultNamesStartRow).createCell((short)1).setCellValue(totRate);
 			
-			currRow+=aFaultSources.size();
+			currRow+=aFaultSourceGenerators.size();
 			// write totals
 			row1 = predErrSheet.createRow((short)currRow++);
 			this.createTotalRow(row1, faultNamesStartRow, faultNamesStartRow+numA_Faults);
@@ -534,8 +534,8 @@ public class GenerateTestExcelSheets {
 		int col = this.getRateCol(islip, imag);				
 		// write the Gen. Pred. Error
 		totRate=0;
-		for(int i=0; i<this.aFaultSources.size(); ++i) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource) aFaultSources.get(i);
+		for(int i=0; i<this.aFaultSourceGenerators.size(); ++i) {
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 			for(int rupIndex=0; rupIndex<source.getNumRuptures(); ++rupIndex) totRate+=source.getRupRate(rupIndex);
 			predErrSheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
 		}			

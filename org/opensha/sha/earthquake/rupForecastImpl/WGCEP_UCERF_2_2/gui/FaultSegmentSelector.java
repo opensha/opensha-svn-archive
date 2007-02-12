@@ -22,7 +22,7 @@ import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 
 /**
  * This GUI can be used to select a fault and a segment to plot the 
@@ -56,7 +56,7 @@ public class FaultSegmentSelector extends JFrame implements ParameterChangeListe
 		// get FaultSegmentData from A_FaultSourceList
 		faultSegmentDataList = new HashMap<String, FaultSegmentData>();
 		for(int i=0; i<aFaultSourceList.size(); ++i) {
-			FaultSegmentData faultSegmentData = ((A_FaultSegmentedSource)aFaultSourceList.get(i)).getFaultSegmentData();
+			FaultSegmentData faultSegmentData = ((A_FaultSegmentedSourceGenerator)aFaultSourceList.get(i)).getFaultSegmentData();
 			faultSegmentDataList.put(faultSegmentData.getFaultName(), faultSegmentData);
 		}
 		// Create GUI

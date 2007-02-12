@@ -38,7 +38,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.B_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EventRates;
@@ -328,7 +328,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
 
-	private ArrayList aFaultSources, bFaultSources;
+	private ArrayList aFaultSourceGenerators, bFaultSources;
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 	
@@ -503,8 +503,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		// A-fault slip type
 		slipModelParam = new StringParameter(SLIP_MODEL_TYPE_NAME, 
-				A_FaultSegmentedSource.getSupportedSlipModels(), 
-				A_FaultSegmentedSource.TAPERED_SLIP_MODEL);
+				A_FaultSegmentedSourceGenerator.getSupportedSlipModels(), 
+				A_FaultSegmentedSourceGenerator.TAPERED_SLIP_MODEL);
 		slipModelParam.setInfo(SLIP_MODEL_TYPE_INFO);
 		
 		// mag Sigma Param
@@ -608,7 +608,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			param.setValue(allowedVals.get(0));
 		}
 		// A-fault slip type
-		slipModelParam.setValue(A_FaultSegmentedSource.TAPERED_SLIP_MODEL);
+		slipModelParam.setValue(A_FaultSegmentedSourceGenerator.TAPERED_SLIP_MODEL);
 		// mag Sigma Param
 		magSigmaParam.setValue(MAG_SIGMA_DEFAULT);
 		// trunc level
@@ -898,7 +898,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		
 		return (ProbEqkSource) allSources.get(iSource);
 	}
 	
@@ -1126,18 +1125,19 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		boolean wtedInversion = ((Boolean) weightedInversionParam.getValue()).booleanValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
-		aFaultSources = new ArrayList();
+		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
-			A_FaultSegmentedSource aFaultSource = new A_FaultSegmentedSource(segmentData, 
+			A_FaultSegmentedSourceGenerator aFaultSourceGenerator = new A_FaultSegmentedSourceGenerator(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
 					magTruncLevel, totMoRateReduction, meanMagCorrection,preserveMinAFaultRate, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
-			aFaultSources.add(aFaultSource);
-			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSource.getTotalRupMFD());
+			aFaultSourceGenerators.add(aFaultSourceGenerator);
+			allSources.addAll(aFaultSourceGenerator.getSources());
+			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
 		}
 	}
@@ -1161,14 +1161,15 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
 //		 this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)	
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
-		aFaultSources = new ArrayList();
+		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
 					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
-			aFaultSources.add(source);
+			aFaultSourceGenerators.add(source);
+			allSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
 	}
@@ -1212,6 +1213,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
 						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
 				bFaultSources.add(source);
+				allSources.add(source);
 				IncrementalMagFreqDist charMagFreqDist = source.getCharMagFreqDist();
 				//fw1.write(segmentData.getFaultName()+";"+(float)charMagFreqDist.getCumRate(6.5)+"\n");
 				bFaultCharSummedMFD.addIncrementalMagFreqDist(charMagFreqDist);
@@ -1235,8 +1237,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 * @return
 	 */
-	public ArrayList get_A_FaultSources() {
-		return this.aFaultSources;
+	public ArrayList get_A_FaultSourceGenerators() {
+		return this.aFaultSourceGenerators;
 	}
 	
 	/**
@@ -1435,9 +1437,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public double getGeneralPredErr() {
 		double genPredErr = 0;
-		Iterator it = this.aFaultSources.iterator();
+		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
 			genPredErr += source.getGeneralizedPredictionError();
 		}
 		return genPredErr;
@@ -1449,9 +1451,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public double getModSlipRateError() {
 		double modSlipRateError=0;
-		Iterator it = this.aFaultSources.iterator();
+		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
 			modSlipRateError+=source.getNormModSlipRateError();
 		}
 		return modSlipRateError;
@@ -1463,9 +1465,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public double getDataER_Err() {
 		double dataER_Error=0;
-		Iterator it = this.aFaultSources.iterator();
+		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
 			dataER_Error+=source.getNormDataER_Error();
 		}
 		return dataER_Error;
@@ -1477,9 +1479,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public double getNormalizedA_PrioriRateErr() {
 		double aPrioriRateError=0;
-		Iterator it = this.aFaultSources.iterator();
+		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
 			aPrioriRateError+=source.getA_PrioriModelError();
 		}
 		return aPrioriRateError;
@@ -1491,9 +1493,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public double getNonNormalizedA_PrioriRateErr() {
 		double nonNorm_aPrioriRateError=0;
-		Iterator it = this.aFaultSources.iterator();
+		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
-			A_FaultSegmentedSource source = (A_FaultSegmentedSource)it.next();
+			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
 			nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
 		}
 		return nonNorm_aPrioriRateError;
@@ -1541,9 +1543,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			while(it.hasNext()) 
 				metadataString += "# "+((ParameterAPI)it.next()).getMetadataString()+"\n";
 			// now write all ruptures
-			int numSources  = this.aFaultSources.size();	
+			int numSources  = this.aFaultSourceGenerators.size();	
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
-				A_FaultSegmentedSource segmentedSource = (A_FaultSegmentedSource)this.aFaultSources.get(iSrc);
+				A_FaultSegmentedSourceGenerator segmentedSource = (A_FaultSegmentedSourceGenerator)this.aFaultSourceGenerators.get(iSrc);
 				FileWriter fw = new FileWriter(fileNamePrefix+"_"+segmentedSource.getFaultSegmentData().getFaultName().replace(' ', '-')+".txt");
 
 // Commented out:				fw.write(metadataString);
@@ -1571,8 +1573,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		totToKeep *= 1-((Double) aftershockFractionParam.getValue()).doubleValue();
 		totMoRateReduction = 1.0-totToKeep;
 		
-// System.out.println("totMoRateReduction="+totMoRateReduction);
-		
+		// System.out.println("totMoRateReduction="+totMoRateReduction);
+		this.allSources = new ArrayList();
 		String rupModel = (String) rupModelParam.getValue();
 		
 		//System.out.println("Creating A Fault sources");
@@ -1581,12 +1583,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			
 			// Find Predicted event rates for locations provided by Tom Parson's excel sheet
 			ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
-			int numSources = this.aFaultSources.size();
+			int numSources = this.aFaultSourceGenerators.size();
 			for(int eventIndex=0; eventIndex<eventRatesList.size(); ++eventIndex) {
 				EventRates event = eventRatesList.get(eventIndex);		
 				double rate = 0;
 				for(int iSource=0; iSource<numSources; ++iSource) {
-					UnsegmentedSource source = (UnsegmentedSource)aFaultSources.get(iSource);
+					UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);
 					rate+=source.getEventRate(new Location(event.getLatitude(), event.getLongitude()));
 				}
 				event.setPredictedRate(rate);

@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -48,7 +48,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	private JButton rupRatesButton= new JButton("Plot A-Priori and final rates");
 	private JButton rupRatesRatioButton = new JButton("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 	
-	private A_FaultSegmentedSource source;
+	private A_FaultSegmentedSourceGenerator source;
 	//	Filled Circles for rupture from each plot
 	public final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES,
 		      Color.BLUE, 2);
@@ -161,7 +161,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		double deltaRate = (Math.log10(maxRelativeRate)-Math.log10(minRelativeRate))/numRateDiscretizations;
 		//System.out.println("DeltaRate="+deltaRate);
 		for(int i=0; i<numFaults; ++i) {
-			A_FaultSegmentedSource aFaultSegmentedSource = (A_FaultSegmentedSource) aFaultSegmentedSourceList.get(i);
+			A_FaultSegmentedSourceGenerator aFaultSegmentedSource = (A_FaultSegmentedSourceGenerator) aFaultSegmentedSourceList.get(i);
 			ArbitrarilyDiscretizedFunc func;
 			double[] relativeRupRates = getRelativeRupRates(aFaultSegmentedSource);
 			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
@@ -246,7 +246,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		double area;
 		// create function list for all faults
 		for(int i=0; i<numFaults; ++i) {
-			A_FaultSegmentedSource aFaultSegmentedSource = (A_FaultSegmentedSource) aFaultSegmentedSourceList.get(i);
+			A_FaultSegmentedSourceGenerator aFaultSegmentedSource = (A_FaultSegmentedSourceGenerator) aFaultSegmentedSourceList.get(i);
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
 				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
@@ -305,7 +305,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param aFaultSegmentedSource
 	 * @return
 	 */
-	public double[] getRelativeRupRates(A_FaultSegmentedSource aFaultSegmentedSource) {
+	public double[] getRelativeRupRates(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		double[] relativeRates = new double[aFaultSegmentedSource.getNumRuptures()];
 		double maxRate=0.0;
 		for(int i=0; i< aFaultSegmentedSource.getNumRuptures(); ++i) {
@@ -402,7 +402,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param aFaultSegmentedSource
 	 */
-	public void setSource(A_FaultSegmentedSource aFaultSegmentedSource) {
+	public void setSource(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		this.source = aFaultSegmentedSource;
 		if(source!=null) mfdButton.setEnabled(true);
 		else mfdButton.setEnabled(false);
@@ -561,7 +561,7 @@ class RuptureTableModel extends AbstractTableModel {
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.00000");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
-	private A_FaultSegmentedSource aFaultSegmentedSource;
+	private A_FaultSegmentedSourceGenerator aFaultSegmentedSource;
 	
 	/**
 	 * default constructor
@@ -576,7 +576,7 @@ class RuptureTableModel extends AbstractTableModel {
 	 *  
 	 * @param faultSectionsPrefDataList  ArrayList of PrefFaultSedctionData
 	 */
-	public RuptureTableModel(A_FaultSegmentedSource aFaultSegmentedSource) {
+	public RuptureTableModel(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		setFaultSegmentedSource(aFaultSegmentedSource);
 	}
 	
@@ -584,7 +584,7 @@ class RuptureTableModel extends AbstractTableModel {
 	 * Set the segmented fault data
 	 * @param segFaultData
 	 */
-	public void setFaultSegmentedSource(A_FaultSegmentedSource aFaultSegmentedSource) {
+	public void setFaultSegmentedSource(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
 		this.aFaultSegmentedSource =   aFaultSegmentedSource;
 	}
 	
