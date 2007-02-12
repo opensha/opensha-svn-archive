@@ -416,12 +416,12 @@ public class A_FaultSegmentedSourceGenerator {
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
 /* COMMENTED OUT FOR SPEED*/
-			sourceList.add(new FaultRuptureSource(rupMagFreqDist[i], 
+			FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
 					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 					segmentData.getAveRake(segmentsInRup),
-					DEFAULT_DURATION));
-
-			
+					DEFAULT_DURATION);
+			faultRupSrc.setName(this.getLongRupName(i));
+			sourceList.add(faultRupSrc);
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
 		}
