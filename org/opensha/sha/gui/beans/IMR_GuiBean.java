@@ -1,13 +1,20 @@
 package org.opensha.sha.gui.beans;
 
 import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
+import org.opensha.param.StringParameter;
 import org.opensha.sha.imr.*;
 
 import java.util.*;
 import java.lang.reflect.*;
+
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -61,7 +68,130 @@ public class IMR_GuiBean extends ParameterListEditor
    init_imrParamListAndEditor();
  }
 
+ 
+ /**
+  * class default constructor
+  * @param classNames
+  */
+ public IMR_GuiBean(IMR_GuiBeanAPI api,String intensityMeasureType,double period) {
+   application  = api;
+   supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+   int numSupportedAttenRels = supportedAttenRels.size();
+   for(int i=0;i<numSupportedAttenRels;++i){
+	   AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )supportedAttenRels.get(i);
+	   imr.setParamDefaults();
+   }
+   setIMRParamListAndEditor(intensityMeasureType , period);
+ }
+ 
+ 
+  public void setIMRParamListAndEditor(String intensityMeaureType,double period){
+	  String selectedAttenRel = null;
+	  if(parameterList !=null)
+		 selectedAttenRel = (String)parameterList.getParameter(IMR_PARAM_NAME).getValue();
+	  ArrayList attenRels  = getAttenRelsSupportedForSelectedIM(intensityMeaureType,period);
+    // if we are entering this function for the first time, then make imr objects
+    
+      parameterList = new ParameterList();
+      Iterator it= attenRels.iterator();
 
+      ArrayList supportedIMRNames = new ArrayList();
+      while(it.hasNext()){
+        // make the IMR objects as needed to get the site params later
+        AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
+        imr.setParamDefaults();
+        supportedIMRNames.add(imr.getName());
+        Iterator it1 = imr.getSiteParamsIterator();
+        // add change fail listener to the site parameters for this IMR
+        while(it1.hasNext()) {
+          ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
+      }
+      
+      int index = -1;
+      if(selectedAttenRel !=null)
+//    checking if the imrNames contains the previously selected AttenRel Name
+      index =supportedIMRNames.indexOf(selectedAttenRel);
+
+      //AttenRel Name Param
+      StringParameter selectIMR = null;
+      if(index !=-1) //if the previuosly selected AttenRel is contained in the list
+      // make the IMR selection paramter
+        selectIMR = new StringParameter(IMR_PARAM_NAME,supportedIMRNames,(String)supportedIMRNames.get(index));
+      else //if previuosly selected AttenRel is not pesent in it.
+        selectIMR = new StringParameter(IMR_PARAM_NAME,
+                supportedIMRNames,(String)supportedIMRNames.get(0));
+
+      // listen to IMR paramter to change site params when it changes
+      selectIMR.addParameterChangeListener(this);
+      parameterList.addParameter(selectIMR);
+	    
+
+    // initalize imr
+    AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)attenRels.get(0);
+
+    // find & set the selectedIMR
+    imr = this.getSelectedIMR_Instance();
+
+    // getting the iterator of the Other Parameters for IMR
+    /**
+     * Instead of getting hard-coding for getting the selected Params Ned added
+     * a method to get the OtherParams for the selected IMR, Otherwise earlier we
+     * were getting the 3 params associated with IMR's by there name. But after
+     * adding the method to get the otherParams, it can also handle params that
+     * are customary to the selected IMR. So this automically adds the parameters
+     * associated with the IMR, which are : SIGMA_TRUNC_TYPE_NAME, SIGMA_TRUNC_LEVEL_NAME,
+     * STD_DEV_TYPE_NAME and any other param assoctade with the IMR.
+     */
+    ListIterator lt = imr.getOtherParamsIterator();
+    while(lt.hasNext()){
+      ParameterAPI tempParam=(ParameterAPI)lt.next();
+      //adding the parameter to the parameterList.
+      tempParam.addParameterChangeListener(this);
+      parameterList.addParameter(tempParam);
+      tempParam.addParameterChangeListener(this);
+    }
+
+    this.editorPanel.removeAll();
+    addParameters();
+    setTitle(IMR_EDITOR_TITLE);
+
+    // get the panel for increasing the font and border
+    // this is hard coding for increasing the IMR font
+    // the colors used here are from ParameterEditor
+    JPanel panel = this.getParameterEditor(this.IMR_PARAM_NAME).getOuterPanel();
+    TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+    titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
+    Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
+    titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+    titledBorder1.setTitle(IMR_PARAM_NAME);
+    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+    panel.setBorder(border1);
+
+    // set the trunc level based on trunc type
+    String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+    toggleSigmaLevelBasedOnTypeValue(value);
+
+ }
+
+  /**
+   * Returns the ArrayList of the AttenuationRelation being supported by the selected IM
+   * @return
+   */
+  private ArrayList getAttenRelsSupportedForSelectedIM(String intensityMeasure,double period){
+    
+    ArrayList attenRelsSupportedForIM = new ArrayList();
+    int numSupportedAttenRels = supportedAttenRels.size();
+    for(int i=0;i < numSupportedAttenRels;++i){
+      AttenuationRelationship attenRel = (AttenuationRelationship)supportedAttenRels.get(i);
+      if(attenRel.isIntensityMeasureSupported(intensityMeasure,period))
+        attenRelsSupportedForIM.add(attenRel);
+    }
+    return attenRelsSupportedForIM;
+  }
+  
+  
   /**
    *  Create a list of all the IMRs
    */

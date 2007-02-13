@@ -95,14 +95,14 @@ import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
  */
 
 public class BCR_Application extends JFrame
-    implements Runnable,  ParameterChangeListener,
+    implements Runnable, ParameterChangeListener,
     IMR_GuiBeanAPI{
 
   /**
    * Name of the class
    */
   private final static String C = "BCR_Application";
-  // for debug purpose
+  // for debug purpose 
   protected final static boolean D = false;
 
 
@@ -116,8 +116,8 @@ public class BCR_Application extends JFrame
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+  //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  //public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
   public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
@@ -730,16 +730,12 @@ public class BCR_Application extends JFrame
  
   }
 
-
- 
-  
-
   /**
    * Initialize the IMR Gui Bean
    */
   protected void initIMR_GuiBean() {
 
-     imrGuiBean = new IMR_GuiBean(this);
+     imrGuiBean = new IMR_GuiBean(this,org.opensha.sha.imr.AttenuationRelationship.SA_NAME,5.0);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -784,8 +780,8 @@ public class BCR_Application extends JFrame
         erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
         erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
         erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-        erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-        erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+        //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+        //erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
         erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
@@ -899,13 +895,11 @@ public class BCR_Application extends JFrame
     hazFunc = new ArbitrarilyDiscretizedFunc();
     // take log only if it is PGA, PGV ,SA or FaultDispl
 
-    
-      for(int i=0; i<numPoints; ++i)
-        hazFunc.set(function.getX(i), tempFunc.getY(i));
-      return hazFunc;
-    
-   
+    for(int i=0; i<numPoints; ++i)
+	  hazFunc.set(function.getX(i), tempFunc.getY(i));
+	return hazFunc;
   }
+
 
 
 

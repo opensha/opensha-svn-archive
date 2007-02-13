@@ -311,6 +311,29 @@ public abstract class IntensityMeasureRelationship
     }
     return false;
   }
+  
+  /**
+   * Checks if the Parameter is a supported intensity-Measure (checking
+   * only the name and Period).
+   * @param intensityMeasure Name of the intensity Measure parameter
+   * @param period Period Param Name is intensity measure is SA
+   * @return
+   */
+  public boolean isIntensityMeasureSupported(String intensityMeasure,double period){
+	  if(isIntensityMeasureSupported(intensityMeasure)){
+		ParameterAPI imParam = supportedIMParams.getParameter(intensityMeasure);
+		if(imParam.getName().equals(AttenuationRelationship.SA_NAME)){
+	        if (getParameter(AttenuationRelationship.PERIOD_NAME).isAllowed(period)) {
+	          return true;
+	        }
+	        else {
+	          return false;
+	        }
+		}
+		return true;
+	  }
+	return false;
+  }
 
   /**
    *  Sets the eqkRupture, site, and intensityMeasure objects
