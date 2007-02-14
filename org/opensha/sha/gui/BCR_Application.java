@@ -72,6 +72,7 @@ import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import java.awt.*;
 
 import javax.swing.*;
+
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
@@ -198,6 +199,15 @@ public class BCR_Application extends JFrame
   JComboBox controlComboBox = new JComboBox();
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
+  /**
+   * adding scroll pane for showing data
+   */
+  private JScrollPane dataScrollPane = new JScrollPane();
+
+  // text area to show the data values
+  private JTextArea pointsTextArea = new JTextArea();
+  
+  
   GridBagLayout gridBagLayout9 = new GridBagLayout();
   GridBagLayout gridBagLayout8 = new GridBagLayout();
   JSplitPane imrSplitPane = new JSplitPane();
@@ -311,7 +321,7 @@ public class BCR_Application extends JFrame
 
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-    clearButton.setText("Clear Plot");
+    clearButton.setText("Clear Results");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         clearButton_actionPerformed(e);
@@ -344,7 +354,13 @@ public class BCR_Application extends JFrame
     panel.setMinimumSize(new Dimension(0, 0));
     imrSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     
-
+    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    dataScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
+    dataScrollPane.getViewport().add( pointsTextArea, null );
+    pointsTextArea.setEditable(false);
+    panel.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
     erfTimespanPanel.setLayout(gridBagLayout13);
     erfTimespanPanel.setBackground(Color.white);
     siteLocPanel.setLayout(gridBagLayout8);
@@ -361,13 +377,6 @@ public class BCR_Application extends JFrame
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
 
-    
-
-    /*imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });*/
     cancelCalcButton.setText("Cancel");
     cancelCalcButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -565,31 +574,10 @@ public class BCR_Application extends JFrame
    * @param e
    */
   void clearButton_actionPerformed(ActionEvent e) {
-    clearPlot(true);
+	  this.pointsTextArea.setText("");
   }
-
-  /**
-   *  Clears the plot screen of all traces
-   */
-  private void clearPlot(boolean clearFunctions) {
-
-  
-  }
-
 
  
-
-
-  /*void imgLabel_mouseClicked(MouseEvent e) {
-    try{
-      this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
-    }catch(java.net.MalformedURLException ee){
-      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
-      return;
-    }
-  }*/
-
 
   /**
    *  Any time a control paramater or independent paramater is changed
