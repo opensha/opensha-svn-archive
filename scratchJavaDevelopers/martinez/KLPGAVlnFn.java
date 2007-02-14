@@ -2,8 +2,6 @@ package scratchJavaDevelopers.martinez;
 
 import java.util.ArrayList;
 
-import org.opensha.data.function.DiscretizedFunc;
-
 public class KLPGAVlnFn extends VulnerabilityModel {
 	
 	private double[] IML = {
@@ -194,21 +192,8 @@ public class KLPGAVlnFn extends VulnerabilityModel {
 	}
 
 	@Override
-	public DiscretizedFunc getIMLForHazardTemplate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getIMT() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayList<Double> getIntensityMeasureLevels() {
-		// TODO Auto-generated method stub
-		return null;
+		return PGA;
 	}
 
 }
