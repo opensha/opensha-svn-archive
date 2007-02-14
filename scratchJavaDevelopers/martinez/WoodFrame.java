@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class WoodFrame extends StructureType {
 	public WoodFrame() {
 		supportedTypes = new ArrayList<String>();
-		supportedTypes.add("org.riskagora.devel.KLPGAVlnFn");
+		supportedTypes.add("scratchJavaDevelopers.martinez.KLPGAVlnFn");
 		register(supportedTypes);
 	}
 }
