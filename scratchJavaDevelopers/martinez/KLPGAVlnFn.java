@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class KLPGAVlnFn extends VulnerabilityModel {
 	
+	private static String DISPLAY_NAME = "Karaca Luco PGA For Wood Frame Housing (Sample)";
 	private double[] IML = {
 			1.00E-003, 1.02E-003, 1.04E-003, 1.06E-003, 1.08E-003, 1.11E-003,
 			1.13E-003, 1.15E-003, 1.17E-003, 1.20E-003, 1.22E-003, 1.25E-003,
@@ -170,7 +171,7 @@ public class KLPGAVlnFn extends VulnerabilityModel {
 		BDF = 9.87E-001;
 		NIML = IML.length;
 		supportedTypes = new ArrayList<String>();
-		supportedTypes.add("org.riskagora.devel.WoodFrame");
+		supportedTypes.add("scratchJavaDevelopers.martinez.WoodFrame");
 		register(supportedTypes);
 	}
 	
@@ -194,6 +195,11 @@ public class KLPGAVlnFn extends VulnerabilityModel {
 	@Override
 	public String getIMT() {
 		return PGA;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return DISPLAY_NAME;
 	}
 
 }
