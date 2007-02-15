@@ -12,7 +12,17 @@ import org.opensha.param.event.*;
 
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 
-
+/**
+ * <strong>Title:</strong> BenefitCostBean<br />
+ * <strong>Description</strong> Gathers and stores all the information required to calculate
+ * a Benefit Cost Ratio.  Use in conjunction with a EALCalculator and BenefitCostCalculator 
+ * to get meaningful data output.
+ * 
+ * @see scratchJavaDevelopers.martinez.BenefitCostCalculator
+ * @see scratchJavaDevelopers.martinez.EALCalculator
+ * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ *
+ */
 public class BenefitCostBean extends GuiBeanAPI {
 	/** Request the Current structure conditions **/
 	public static final int CURRENT = 0;
@@ -117,7 +127,6 @@ public class BenefitCostBean extends GuiBeanAPI {
 			throw new IllegalArgumentException("The given design is not currently supported.");
 	}
 
-	
 	/**
 	 * Only used when <code>getIntensityMeasure(design)</code> returns Spectral Acceleration (SA).
 	 * @param design One of CURRENT or RETRO depending on which IMT period is of interest.

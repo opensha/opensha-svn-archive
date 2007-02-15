@@ -10,7 +10,16 @@ import org.opensha.param.*;
 
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 
-
+/**
+ * <strong>Title:</strong> StructureDescriptorBean<br />
+ * <strong>Description:</strong> A bean to gather and store information about a structure.
+ * While this can be expanding upon to include more specific information about a structure,
+ * its current implementation holds only the information for the purposes of the BenefitCostRatio
+ * application.
+ * 
+ * @see BRC_Application
+ * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ */
 public class StructureDescriptorBean extends GuiBeanAPI {
 	private ParameterListEditor applicationEditor = null;
 	private DoubleParameter initialCost = null;
@@ -32,6 +41,10 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 	public StructureDescriptorBean() {
 		this("");
 	}
+	
+	/**
+	 * @param name The title of this bean.
+	 */
 	public StructureDescriptorBean(String name) {
 		descriptorName = name;
 		vulnBean = new VulnerabilityBean();

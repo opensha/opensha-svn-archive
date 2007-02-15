@@ -8,6 +8,12 @@ import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * A testing aplication to see how the BenefitCostBean will look and gather information
+ * when plugged into a larger application.
+ * 
+ * @author emartinez
+ */
 public class Visual {
 	private JFrame frame = null;
 	private BenefitCostBean bean = null;

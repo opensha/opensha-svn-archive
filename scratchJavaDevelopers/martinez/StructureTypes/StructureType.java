@@ -8,7 +8,6 @@ import scratchJavaDevelopers.martinez.Trackable;
 /**
  * This class serves as the base class for all other structure types.  
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
- *
  */
 public abstract class StructureType implements Trackable {
 	private static ArrayList<Trackable> registeredTypes = new ArrayList<Trackable>();
@@ -21,7 +20,7 @@ public abstract class StructureType implements Trackable {
 	////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * See the generic contract in Trackable.
-	 * @see org.riskagora.devel.Trackable
+	 * @see Trackable
 	 */
 	public ArrayList<Trackable> getRegisteredTypes() {
 		return registeredTypes;
@@ -29,7 +28,7 @@ public abstract class StructureType implements Trackable {
 
 	/**
 	 * See the generic contract in Trackable.
-	 * @see org.riskagora.devel.Trackable
+	 * @see Trackable
 	 */
 	public ArrayList<Trackable> getSupportedTypes(Trackable obj) {
 		String tId = obj.getTrackableId();
@@ -42,7 +41,7 @@ public abstract class StructureType implements Trackable {
 
 	/**
 	 * See the generic contract in Trackable.
-	 * @see org.riskagora.devel.Trackable
+	 * @see Trackable
 	 */
 	public String getTrackableId() {
 		String str = (this.getClass()).toString();
@@ -51,7 +50,7 @@ public abstract class StructureType implements Trackable {
 
 	/**
 	 * See the generic contract in Trackable.
-	 * @see org.riskagora.devel.Trackable
+	 * @see Trackable
 	 */
 	public void register(ArrayList<String> types) {
 		Trackable t = (Trackable) this;
@@ -73,7 +72,7 @@ public abstract class StructureType implements Trackable {
 	
 	/**
 	 * See the generic contract in Trackable.
-	 * @see org.riskagora.devel.Trackable
+	 * @see Trackable
 	 */
 	public boolean equals(Object o) {
 		if(o == null) return false;
