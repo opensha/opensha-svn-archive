@@ -1,8 +1,13 @@
 package scratchJavaDevelopers.martinez;
 
+import java.awt.*;
+
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.param.*;
+import org.opensha.param.editor.*;
 
 public class BenefitCostBean extends GuiBeanAPI {
 	/** Request the Current structure conditions **/
@@ -20,13 +25,23 @@ public class BenefitCostBean extends GuiBeanAPI {
 	private VulnerabilityModel vulnModelNow = null;
 	private VulnerabilityModel vulnModelRetro = null;
 
+	private StructureDescriptorBean structNow = null;
+	private StructureDescriptorBean structRetro = null;
+	private StringParameter descParam = null;
+	private DoubleParameter discRateParam = null;
+	private DoubleParameter dsgnLifeParam = null;
+	
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
 	
 	public BenefitCostBean() {
-		
+		structNow = new StructureDescriptorBean("Current Construction Conditions");
+		structRetro = new StructureDescriptorBean("What-If Construction Conditions");
+		descParam = new StringParameter("BCR Description", "Describe this BCR Action");
+		discRateParam = new DoubleParameter("Discount Rate", 0.0, 200.0, "%");
+		dsgnLifeParam = new DoubleParameter("Design Life", 0.0, 10E+5, "Years");
 	}
 	
 	public String getDescription() {
@@ -160,22 +175,53 @@ public class BenefitCostBean extends GuiBeanAPI {
 	 * See the general contract specified in GuiBeanAPI.
 	 */
 	public String getVisualizationClassName(int type) {
-		// TODO Auto-generated method stub
-		return null;
+		if(type == GuiBeanAPI.APPLICATION)
+			return "javax.swing.JPanel";
+		else
+			return "";
 	}
 	@Override
 	/**
 	 * See the general contract specified in GuiBeanAPI.
 	 */
 	public boolean isVisualizationSupported(int type) {
-		// TODO Auto-generated method stub
-		return false;
+		return type == GuiBeanAPI.APPLICATION;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                             Private Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
 	private JPanel getApplicationVisualization() {
-		return null;
+		
+		JPanel panel = new JPanel(new GridBagLayout());
+		panel.add((JComponent) structNow.getVisualization(APPLICATION), new GridBagConstraints(
+				0, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(5, 5, 5, 5), 2, 2)
+		);
+		panel.add( (JComponent) structRetro.getVisualization(APPLICATION), new GridBagConstraints(
+				1, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(5, 5, 5, 5), 2, 2)
+		);
+		try {
+			panel.add((JComponent) new DoubleParameterEditor(discRateParam), new GridBagConstraints(
+					0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					new Insets(5, 5, 5, 5), 2, 2)
+			);
+			panel.add((JComponent) new DoubleParameterEditor(dsgnLifeParam), new GridBagConstraints(
+					1, 2, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					new Insets(5, 5, 5, 5), 2, 2)
+			);
+			panel.add((JComponent) new StringParameterEditor(descParam), new GridBagConstraints(
+					0, 3, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					new Insets(5, 5, 5, 5), 2, 2)
+			);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		panel.setPreferredSize(new Dimension(480, 500));
+		panel.setMinimumSize(new Dimension(200, 200));
+		panel.setMaximumSize(new Dimension(10000, 10000));
+		panel.setSize(panel.getPreferredSize());
+		return panel;
 	}
 }
