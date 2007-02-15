@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.martinez;
+package scratchJavaDevelopers.martinez.beans;
 
 import java.util.EventListener;
 
@@ -7,6 +7,9 @@ import javax.swing.JOptionPane;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
+
+import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
+
 
 public class StructureDescriptorBean extends GuiBeanAPI {
 	private ParameterListEditor applicationEditor = null;
@@ -99,10 +102,10 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 	}
 
 	private void handleInitialCostChange(ParameterChangeEvent event) {
-		initialVal = Double.parseDouble((String) event.getNewValue());
+		initialVal = (Double) event.getNewValue();
 	}
 	private void handleReplaceCostChange(ParameterChangeEvent event) {
-		replaceVal = Double.parseDouble((String) event.getNewValue());
+		replaceVal = (Double) event.getNewValue();
 	}
 	private class StructureDescriptorParameterListener implements ParameterChangeListener, ParameterChangeFailListener {
 

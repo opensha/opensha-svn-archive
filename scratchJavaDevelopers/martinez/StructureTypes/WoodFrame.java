@@ -1,6 +1,7 @@
-package scratchJavaDevelopers.martinez;
+package scratchJavaDevelopers.martinez.StructureTypes;
 
 import java.util.ArrayList;
+
 
 public class WoodFrame extends StructureType {
 	public WoodFrame() {

@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.martinez;
+package scratchJavaDevelopers.martinez.beans;
 
 import java.awt.*;
 import java.util.EventListener;
@@ -9,6 +9,9 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
+
+import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
+
 
 public class BenefitCostBean extends GuiBeanAPI {
 	/** Request the Current structure conditions **/
@@ -224,11 +227,11 @@ public class BenefitCostBean extends GuiBeanAPI {
 	}
 	
 	private void handleDiscountChangeEvent(ParameterChangeEvent event) {
-		discountRate = Double.parseDouble((String) event.getNewValue());
+		discountRate = (Double) event.getNewValue();
 	}
 	
 	private void handleDesignChangeEvent(ParameterChangeEvent event) {
-		designLife = Double.parseDouble((String) event.getNewValue());
+		designLife = (Double) event.getNewValue();
 	}
 	
 	private class BenefitCostParameterListener implements ParameterChangeListener, ParameterChangeFailListener {

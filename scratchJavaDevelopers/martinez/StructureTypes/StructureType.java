@@ -1,7 +1,9 @@
-package scratchJavaDevelopers.martinez;
+package scratchJavaDevelopers.martinez.StructureTypes;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+
+import scratchJavaDevelopers.martinez.Trackable;
 
 /**
  * This class serves as the base class for all other structure types.  

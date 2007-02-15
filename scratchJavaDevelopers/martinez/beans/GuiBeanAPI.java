@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.martinez;
+package scratchJavaDevelopers.martinez.beans;
 
 
 public abstract class GuiBeanAPI {
