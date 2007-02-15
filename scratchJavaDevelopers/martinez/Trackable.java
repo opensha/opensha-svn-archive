@@ -18,7 +18,6 @@ import java.util.ArrayList;
  * useful when the implementing class is abstract and multiple subclasses have varying
  * interdependencies.
  * 
- * @date 2/8/2007
  * @version 1.0
  * @author <a href="mailto:emartinez@usgs.gov>Eric Martinez</a>
  *
