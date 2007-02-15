@@ -1,13 +1,14 @@
 package scratchJavaDevelopers.martinez;
 
 import java.awt.*;
+import java.util.EventListener;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
+import org.opensha.param.event.*;
 
 public class BenefitCostBean extends GuiBeanAPI {
 	/** Request the Current structure conditions **/
@@ -18,19 +19,17 @@ public class BenefitCostBean extends GuiBeanAPI {
 	private String description = "";
 	private double discountRate = 0.0;
 	private double designLife = 0.0;
-	private double replacementCostNow = 0.0;
-	private double replacementCostRetro = 0.0;
-	private double initialCostNow = 0.0;
-	private double initialCostRetro = 0.0;
-	private VulnerabilityModel vulnModelNow = null;
-	private VulnerabilityModel vulnModelRetro = null;
 
+	private static final String DESC_PARAM = "BCR Description";
+	private static final String DISCOUNT_PARAM = "Discount Rate";
+	private static final String DESIGN_PARAM = "Design Life";
+	
 	private StructureDescriptorBean structNow = null;
 	private StructureDescriptorBean structRetro = null;
+	private EventListener listener =  null;
 	private StringParameter descParam = null;
 	private DoubleParameter discRateParam = null;
 	private DoubleParameter dsgnLifeParam = null;
-	
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
@@ -39,36 +38,46 @@ public class BenefitCostBean extends GuiBeanAPI {
 	public BenefitCostBean() {
 		structNow = new StructureDescriptorBean("Current Construction Conditions");
 		structRetro = new StructureDescriptorBean("What-If Construction Conditions");
-		descParam = new StringParameter("BCR Description", "Describe this BCR Action");
-		discRateParam = new DoubleParameter("Discount Rate", 0.0, 200.0, "%");
-		dsgnLifeParam = new DoubleParameter("Design Life", 0.0, 10E+5, "Years");
+		listener = new BenefitCostParameterListener();
+		
+		descParam = new StringParameter(DESC_PARAM, "Describe this BCR Action");
+		descParam.addParameterChangeListener((ParameterChangeListener) listener);
+		descParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		
+		discRateParam = new DoubleParameter(DISCOUNT_PARAM, 0.0, 200.0, "%");
+		discRateParam.addParameterChangeListener((ParameterChangeListener) listener);
+		discRateParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		
+		dsgnLifeParam = new DoubleParameter(DESIGN_PARAM, 0.0, 10E+5, "Years");
+		dsgnLifeParam.addParameterChangeListener((ParameterChangeListener) listener);
+		dsgnLifeParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
+
+	public String getDescription() { return description; }
+	public double getDiscountRate() { return discountRate; }
+	public double getDesignLife() { return designLife; }
 	
-	public String getDescription() {
-		return description;
-	}
+	public VulnerabilityModel getCurrentVulnModel() { return getVulnModel(CURRENT); }
+	public double getCurrentInitialCost() { return getInitialCost(CURRENT); }
+	public double getCurrentReplaceCost() { return getReplaceCost(CURRENT); }
 	
-	public double getDiscountRate() {
-		return discountRate;
-	}
-	
-	public double getDesignLife() {
-		return designLife;
-	}
+	public VulnerabilityModel getRetroVulnModel() { return getVulnModel(RETRO); }
+	public double getRetroInitialCost() { return getInitialCost(RETRO); }
+	public double getRetroReplaceCost() { return getReplaceCost(RETRO); }
 	
 	/**
-	 * @param design One of CURRENT or RETRO depending on which replacement cost
+	 * @param design One of CURRENT or RETRO depending on which Vulnerability Model
 	 * is of interest.
-	 * @return The expected replacement cost of the structure either under
+	 * @return The Vulnerability Model for the structure either under
 	 * current construction conditions, or that of the "what-if" retrofitted conditions
 	 * depending on the value of <code>design</code>.
 	 * @throws IllegalArgumentException if the given <code>design</code> is not supported.
 	 */
-	public double getReplacementCost(int design) {
+	public VulnerabilityModel getVulnModel(int design) {
 		if(design == CURRENT)
-			return replacementCostNow;
+			return structNow.getVulnerabilityModel();
 		else if (design == RETRO)
-			return replacementCostRetro;
+			return structRetro.getVulnerabilityModel();
 		else
 			throw new IllegalArgumentException("The given design is not currently supported.");
 	}
@@ -81,45 +90,30 @@ public class BenefitCostBean extends GuiBeanAPI {
 	 */
 	public double getInitialCost(int design) {
 		if(design == CURRENT)
-			return initialCostNow;
+			return structNow.getInitialCost();
 		else if (design == RETRO)
-			return initialCostRetro;
+			return structRetro.getInitialCost();
 		else
 			throw new IllegalArgumentException("The given design is not currently supported.");
 	}
 	
 	/**
-	 * @param design One of CURRENT or RETRO depending on which Vulnerability Model
+	 * @param design One of CURRENT or RETRO depending on which replacement cost
 	 * is of interest.
-	 * @return The Vulnerability Model for the structure either under
+	 * @return The expected replacement cost of the structure either under
 	 * current construction conditions, or that of the "what-if" retrofitted conditions
 	 * depending on the value of <code>design</code>.
 	 * @throws IllegalArgumentException if the given <code>design</code> is not supported.
 	 */
-	public VulnerabilityModel getVulnerabilityModel(int design) {
+	public double getReplaceCost(int design) {
 		if(design == CURRENT)
-			return vulnModelNow;
+			return structNow.getReplaceCost();
 		else if (design == RETRO)
-			return vulnModelRetro;
+			return structRetro.getReplaceCost();
 		else
-			throw new IllegalArgumentException("The given design is not currently supported");
+			throw new IllegalArgumentException("The given design is not currently supported.");
 	}
-	
-	/**
-	 * @param design One of CURRENT or RETRO depending on which IMT is of interest.
-	 * @return The Vulnerability Model's IMT for the structure either under
-	 * current construction conditions, or that of the "what-if" retrofitted conditions
-	 * depending on the value of <code>design</code>.
-	 * @throws IllegalArgumentException if the given <code>design</code> is not supported.
-	 */
-	public String getIntensityMeasure(int design) {
-		if(design == CURRENT)
-			return vulnModelNow.getIMT();
-		else if (design == RETRO)
-			return vulnModelRetro.getIMT();
-		else
-			throw new IllegalArgumentException("The given design is not currently supported");
-	}
+
 	
 	/**
 	 * Only used when <code>getIntensityMeasure(design)</code> returns Spectral Acceleration (SA).
@@ -131,9 +125,9 @@ public class BenefitCostBean extends GuiBeanAPI {
 	 */
 	public double getIntensityMeasurePeriod(int design) {
 		if(design == CURRENT) {
-			return vulnModelNow.getPeriod();
+			return structNow.getVulnerabilityModel().getPeriod();
 		} else if (design == RETRO) {
-			return vulnModelRetro.getPeriod();
+			return structRetro.getVulnerabilityModel().getPeriod();
 		} else {
 			throw new IllegalArgumentException("The given design is not currently supported");
 		}
@@ -149,9 +143,9 @@ public class BenefitCostBean extends GuiBeanAPI {
 	 */
 	public DiscretizedFuncAPI getSupportedIMLevels(int design) {
 		if(design == CURRENT)
-			return vulnModelNow.getHazardTemplate();
+			return structNow.getVulnerabilityModel().getHazardTemplate();
 		else if (design == RETRO)
-			return vulnModelRetro.getHazardTemplate();
+			return structRetro.getVulnerabilityModel().getHazardTemplate();
 		else
 			throw new IllegalArgumentException("The given design is not currently supported");
 	}
@@ -224,4 +218,35 @@ public class BenefitCostBean extends GuiBeanAPI {
 		panel.setSize(panel.getPreferredSize());
 		return panel;
 	}
+	
+	private void handleDescriptionChangeEvent(ParameterChangeEvent event) {
+		description = (String) event.getNewValue();
+	}
+	
+	private void handleDiscountChangeEvent(ParameterChangeEvent event) {
+		discountRate = Double.parseDouble((String) event.getNewValue());
+	}
+	
+	private void handleDesignChangeEvent(ParameterChangeEvent event) {
+		designLife = Double.parseDouble((String) event.getNewValue());
+	}
+	
+	private class BenefitCostParameterListener implements ParameterChangeListener, ParameterChangeFailListener {
+
+		public void parameterChange(ParameterChangeEvent event) {
+			if(DESC_PARAM.equals(event.getParameterName()))
+				handleDescriptionChangeEvent(event);
+			else if(DISCOUNT_PARAM.equals(event.getParameterName()))
+				handleDiscountChangeEvent(event);
+			else if(DESIGN_PARAM.equals(event.getParameterName()))
+				handleDesignChangeEvent(event);
+		}
+
+		public void parameterChangeFailed(ParameterChangeFailEvent event) {
+			String message = "The given value of " + event.getBadValue() + " is out of range.";
+			JOptionPane.showMessageDialog(null, message, "Failed to Change Value", JOptionPane.ERROR_MESSAGE);
+		}
+		
+	}
+
 }

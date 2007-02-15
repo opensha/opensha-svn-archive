@@ -1,15 +1,26 @@
 package scratchJavaDevelopers.martinez;
 
+import java.util.EventListener;
+
+import javax.swing.JOptionPane;
+
 import org.opensha.param.editor.*;
+import org.opensha.param.event.*;
 import org.opensha.param.*;
 
 public class StructureDescriptorBean extends GuiBeanAPI {
 	private ParameterListEditor applicationEditor = null;
-	private StringParameter vulnParam = null;
 	private DoubleParameter initialCost = null;
 	private DoubleParameter replaceCost = null;
 	private VulnerabilityBean vulnBean = null;
 	private String descriptorName = "";
+	
+	private double initialVal = 0.0;
+	private double replaceVal = 0.0;
+	
+	private EventListener listener = null;
+	private static final String INITIAL_PARAM = "Initial Construction Cost";
+	private static final String REPLACE_PARAM = "Replacement Construction Cost";
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
@@ -21,11 +32,21 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 	public StructureDescriptorBean(String name) {
 		descriptorName = name;
 		vulnBean = new VulnerabilityBean();
-		vulnParam = vulnBean.getParameter();
-		initialCost = new DoubleParameter("Initial Construction Cost", 0, 10E+10, "Dollars");
-		replaceCost = new DoubleParameter("Replacement Construction Cost", 0, 10E+10, "Dollars");
+		listener = new StructureDescriptorParameterListener();
+		
+		initialCost = new DoubleParameter("Initial Construction Cost", 0, 10E+10, "$$$");
+		initialCost.addParameterChangeListener((ParameterChangeListener) listener);
+		initialCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		
+		replaceCost = new DoubleParameter("Replacement Construction Cost", 0, 10E+10, "$$$");
+		replaceCost.addParameterChangeListener((ParameterChangeListener) listener);
+		replaceCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
 	
+	public VulnerabilityModel getVulnerabilityModel() { return vulnBean.getCurrentModel(); }
+	public double getInitialCost() { return initialVal; }
+	public double getReplaceCost() { return replaceVal; }
+
 	////////////////////////////////////////////////////////////////////////////////
 	//                  Minimum Functions to Extend GuiBeanAPI                    //
 	////////////////////////////////////////////////////////////////////////////////
@@ -68,12 +89,33 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 	private ParameterListEditor getApplicationVisualization() {
 		if(applicationEditor == null) {
 			ParameterList plist = new ParameterList();
-			plist.addParameter(vulnParam);
+			plist.addParameter(vulnBean.getParameter());
 			plist.addParameter(initialCost);
 			plist.addParameter(replaceCost);
 			applicationEditor = new ParameterListEditor(plist);
 			applicationEditor.setTitle(descriptorName);
 		}
 		return applicationEditor;
+	}
+
+	private void handleInitialCostChange(ParameterChangeEvent event) {
+		initialVal = Double.parseDouble((String) event.getNewValue());
+	}
+	private void handleReplaceCostChange(ParameterChangeEvent event) {
+		replaceVal = Double.parseDouble((String) event.getNewValue());
+	}
+	private class StructureDescriptorParameterListener implements ParameterChangeListener, ParameterChangeFailListener {
+
+		public void parameterChange(ParameterChangeEvent event) {
+			if(INITIAL_PARAM.equals(event.getParameterName()))
+				handleInitialCostChange(event);
+			else if(REPLACE_PARAM.equals(event.getParameterName()))
+				handleReplaceCostChange(event);
+		}
+		
+		public void parameterChangeFailed(ParameterChangeFailEvent event) {
+			JOptionPane.showMessageDialog(null, "The given value of " + event.getBadValue() +
+					" is out of range.", "Failed to Change Value", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
