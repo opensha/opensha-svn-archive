@@ -54,6 +54,7 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
@@ -84,6 +85,11 @@ import org.opensha.sha.gui.controls.CyberShakePlotControlPanel;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+
+import scratchJavaDevelopers.martinez.EALCalculator;
+import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
+import scratchJavaDevelopers.martinez.beans.BenefitCostBean;
+import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 
 
 
@@ -218,6 +224,8 @@ public class BCR_Application extends JFrame
   JSplitPane controlsSplit = new JSplitPane();
   JTabbedPane paramsTabbedPane = new JTabbedPane();
   JPanel structuralPanel = new JPanel();
+  private BenefitCostBean bcbean ;
+  private JPanel bcPanel;
   GridBagLayout gridBagLayout15 = new GridBagLayout();
   GridBagLayout gridBagLayout13 = new GridBagLayout();
   GridBagLayout gridBagLayout12 = new GridBagLayout();
@@ -240,15 +248,7 @@ public class BCR_Application extends JFrame
   boolean isHazardCalcDone= false;
  
 
-
-
-  //maintains which ERFList was previously selected
-  protected String prevSelectedERF_List = null;
-
-  //keeps track which was the last selected Weighted function list.
-  //It only initialises this weighted function list if user wants to add data to the existing ERF_List
-  protected WeightedFuncListforPlotting weightedFuncList;
-
+ 
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
   * If it is true then add new data on top of existing data, but if it is false
@@ -386,8 +386,9 @@ public class BCR_Application extends JFrame
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
-
- 
+    //creates the instance of the BenefitCost bean
+    bcbean = new BenefitCostBean();
+    bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
     buttonPanel.add(controlComboBox, 0);
     buttonPanel.add(addButton, 1);
     buttonPanel.add(cancelCalcButton, 2);
@@ -415,6 +416,8 @@ public class BCR_Application extends JFrame
 
     controlsSplit.setDividerLocation(230);
     structuralPanel.setLayout(gridBagLayout5);
+    structuralPanel.add(bcPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     structuralPanel.validate();
     structuralPanel.repaint();
     chartSplit.setDividerLocation(590);
@@ -655,19 +658,21 @@ public class BCR_Application extends JFrame
       timer.start();
     }
 
+    VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
+    String imt = currentModel.getIMT();
+    double period = 0;
+    if(imt.equals(AttenuationRelationship.SA_NAME))
+    	period = currentModel.getPeriod();
+    ArrayList<Double> imls = currentModel.getIMLVals();
+    
+    
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
 
-    
-    // check whether this forecast is a Forecast List
-    // if this is forecast list , handle it differently
-   
 
-    //making the previuos selected ERF List to be null
-    prevSelectedERF_List = null;
 
      // calculate the hazard curve
     try {
@@ -685,6 +690,7 @@ public class BCR_Application extends JFrame
     // initialize the values in condProbfunc with log values as passed in hazFunction
     // intialize the hazard function
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+    initX_Values(hazFunction,imls,imt);
    
     //System.out.println("22222222HazFunction: "+hazFunction.toString());
     try {
@@ -713,11 +719,37 @@ public class BCR_Application extends JFrame
 
     // add the function to the function list
     functionList.add(hazFunction);
+    ArrayList<Double> pe= new ArrayList<Double>();
+    for(int i=0 ;i<hazFunction.getNum();++i)
+    	pe.add(hazFunction.getY(i));
     
+    EALCalculator calc = new EALCalculator(imls,currentModel.getDFVals(),pe);
+    double ealVal = calc.computeEAL();
     setButtonsEnable(true);
  
   }
 
+  
+  /**
+   * set x values in log space for Hazard Function to be passed to IMR
+   * if the selected IMT are SA , PGA , PGV or FaultDispl
+   * It accepts 1 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   */
+  private void initX_Values(DiscretizedFuncAPI arb,ArrayList<Double> imls, String imt){
+
+	IMT_Info imtInfo = new IMT_Info();
+    if (imtInfo.isIMT_LogNormalDist(imt)) {
+      for(int i=0;i<imls.size();++i)
+        arb.set(Math.log(imls.get(i)),1);
+
+      //System.out.println("11111111111HazFunction: "+arb.toString());
+    }
+    else
+      throw new RuntimeException("Unsupported IMT");
+  }  
+  
   /**
    * Initialize the IMR Gui Bean
    */
