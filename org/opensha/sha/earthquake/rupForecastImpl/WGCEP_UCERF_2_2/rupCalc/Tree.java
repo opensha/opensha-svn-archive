@@ -24,10 +24,10 @@ public class Tree {
 		if(subSectionId1 > subSectionId2) {
 			updateTreeBranch(subSectionId1, subSectionId2);
 		}
-		else if(subSectionId1 < subSectionId2) {
+		else {
 			updateTreeBranch(subSectionId2, subSectionId1);
 		}
-		else return;
+		//else return;
 	}
 
 	/**
@@ -70,6 +70,7 @@ public class Tree {
 		  Iterator<Integer> it = this.treeBranchMap.keySet().iterator();
 		  while(it.hasNext()) {
 			  int subSecId = it.next();
+			  //System.out.println("subsection Id="+subSecId);
 			  ArrayList rupture= new ArrayList();
 			  // if(isTraversed(subSecName)) continue;
 			  traverse(subSecId, rupture);
@@ -86,7 +87,10 @@ public class Tree {
 		if(subSecList.contains(subSecId)) return;
 		subSecList.add(subSecId);
 		MultipleSectionRup rup = new MultipleSectionRup(subSecList);
-		if(!this.rupList.contains(rup)) rupList.add(rup);
+		if(!this.rupList.contains(rup)) {
+			rupList.add(rup);
+			//writeRup(rup);
+		}
 		//traversedBranchMap.put(subSecName, new Boolean(true));
 		//if(isTraversed(subSecName)) return;
 		TreeBranch branch = treeBranchMap.get(subSecId);
@@ -96,6 +100,11 @@ public class Tree {
 		
 	}
 	
+	private void writeRup(MultipleSectionRup rup) {
+		for(int i=0; i<rup.getNumSubSections(); ++i)
+			System.out.print(rup.getSubSection(i)+",");
+		System.out.println("");
+	}
 	
 	/**
 	 * Returns true if the subsection has already been traversed
@@ -114,14 +123,15 @@ public class Tree {
 	 * @return
 	 */
 	public int getNumSubSections() {
-		Iterator<Integer> it = treeBranchMap.keySet().iterator();
+		return getAllSubSectionsIdList().size();
+		/*Iterator<Integer> it = treeBranchMap.keySet().iterator();
 		int numSubSections=0;
 		while(it.hasNext()) {
 			int subSectionId = it.next();
 			++numSubSections;
 			numSubSections+=treeBranchMap.get(subSectionId).getAdjacentSubSectionsList().size();
 		}
-		return numSubSections;
+		return numSubSections;*/
 	}
 	
 	

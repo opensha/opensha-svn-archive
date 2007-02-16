@@ -48,7 +48,7 @@ public class SubSectionsRupCalc {
 	    try {      
 	      subSectionList = getAllSubSections(); // get all the fault sections
 	      createTreesForFaultSections(); // discretize the section in 5km
-	      System.out.println("Total ruptures="+rupList.size());
+	      
 	    }catch(Exception e) {
 	      e.printStackTrace();
 	    }
@@ -65,6 +65,7 @@ public class SubSectionsRupCalc {
 			ArrayList<FaultSectionPrefData> subSecList = new ArrayList<FaultSectionPrefData>();
 			for(int i=0; i<faultSectionPrefList.size(); ++i) {
 				FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)faultSectionPrefList.get(i);
+				//if(!faultSectionPrefData.getSectionName().equalsIgnoreCase("Battle Creek")) continue;
 				subSecList.addAll(faultSectionPrefData.getSubSectionsList(maxSubSectionLength));
 			}
 			return subSecList;
@@ -97,7 +98,7 @@ public class SubSectionsRupCalc {
 	    }
 	    System.out.println("Total Subsections ="+subSectionList.size());
 	    System.out.println("Total Clusters ="+clusterList.size());
-	    
+	    System.out.println("Total ruptures="+rupList.size());
 	  }
 	  
 	  
@@ -156,6 +157,7 @@ public class SubSectionsRupCalc {
 	  private void getAdjacentFaultSectionNodes(Tree tree, int subSectionIndex) {
 		  FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)subSectionList.get(subSectionIndex);
 		  doneList.add(faultSectionPrefData.getSectionName());
+		  tree.connectInTree(faultSectionPrefData.getSectionId(), faultSectionPrefData.getSectionId());
 		  for(int i=0; i<subSectionList.size(); ++i) {
 			  if(i==subSectionIndex) continue;
 			  FaultSectionPrefData faultSectionPrefData1 = (FaultSectionPrefData)subSectionList.get(i);
@@ -191,6 +193,6 @@ public class SubSectionsRupCalc {
 	  }
 
 	  public static void main(String args[]) {
-		  SubSectionsRupCalc rupCalc = new SubSectionsRupCalc();
+		  SubSectionsRupCalc rupCalc = new SubSectionsRupCalc(10, 10);
 	  }
 }
