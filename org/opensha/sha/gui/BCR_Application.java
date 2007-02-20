@@ -590,7 +590,20 @@ public class BCR_Application extends JFrame
       siteGuiBean.repaint();
       }
     if(name1.equalsIgnoreCase(bcbean.getCurrentVulnParam().getName())){
-    	this.initIMR_GuiBean();
+     	VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
+        String currentIMT = currentModel.getIMT();
+        double currentPeriod = 0;
+        if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+        	currentPeriod = currentModel.getPeriod();
+        
+        
+        VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
+        String newIMT = newModel.getIMT();
+        double newPeriod = 0;
+        if(newIMT.equals(AttenuationRelationship.SA_NAME))
+        	newPeriod = newModel.getPeriod();
+        
+    	imrGuiBean.setIMRParamListAndEditor(currentIMT, newIMT, currentPeriod, newPeriod);
     	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
     	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
         siteGuiBean.validate();
@@ -790,7 +803,7 @@ public class BCR_Application extends JFrame
     double newPeriod = 0;
     if(newIMT.equals(AttenuationRelationship.SA_NAME))
     	newPeriod = newModel.getPeriod();
-	    
+    imrPanel.removeAll();
      imrGuiBean = new IMR_GuiBean(this,currentIMT,newIMT,currentPeriod,newPeriod);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel

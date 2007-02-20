@@ -55,7 +55,7 @@ public class IMR_GuiBean extends ParameterListEditor
   
   //instance of the application using IMR_GuiBean
   private IMR_GuiBeanAPI application;
-  
+  private boolean isFirstTimeLaunched = true;
   
  /**
   * class default constructor
@@ -100,7 +100,8 @@ public class IMR_GuiBean extends ParameterListEditor
       while(it.hasNext()){
         // make the IMR objects as needed to get the site params later
         AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
-        imr.setParamDefaults();
+        if(isFirstTimeLaunched)
+        	imr.setParamDefaults();
         supportedIMRNames.add(imr.getName());
         Iterator it1 = imr.getSiteParamsIterator();
         // add change fail listener to the site parameters for this IMR
@@ -173,6 +174,7 @@ public class IMR_GuiBean extends ParameterListEditor
     // set the trunc level based on trunc type
     String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
     toggleSigmaLevelBasedOnTypeValue(value);
+    isFirstTimeLaunched = false;
 
  }
 
@@ -186,7 +188,8 @@ public class IMR_GuiBean extends ParameterListEditor
     int numSupportedAttenRels = supportedAttenRels.size();
     for(int i=0;i < numSupportedAttenRels;++i){
       AttenuationRelationship attenRel = (AttenuationRelationship)supportedAttenRels.get(i);
-      if(attenRel.isIntensityMeasureSupported(currentIMT,currentPeriod) && attenRel.isIntensityMeasureSupported(retroIMT,retroPeriod))
+      if(attenRel.isIntensityMeasureSupported(currentIMT,currentPeriod) && 
+         attenRel.isIntensityMeasureSupported(retroIMT,retroPeriod) )
         attenRelsSupportedForIM.add(attenRel);
     }
     return attenRelsSupportedForIM;
