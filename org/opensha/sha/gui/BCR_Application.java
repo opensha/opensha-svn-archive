@@ -706,7 +706,7 @@ public class BCR_Application extends JFrame
     double newEALVal = retroCalc.computeEAL();
     
     BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
-    		bcbean.getDesignLife(),bcbean.getCurrentInitialCost(),bcbean.getCurrentReplaceCost());
+    		bcbean.getDesignLife(),bcbean.getCurrentInitialCost(),bcbean.getRetroInitialCost());
     double bcr = bcCalc.computeBCR();
     double benefit = bcCalc.computeBenefit();
     double cost = bcCalc.computeCost();
