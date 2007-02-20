@@ -73,7 +73,8 @@ public class IMR_GuiBean extends ParameterListEditor
   * class default constructor
   * @param classNames
   */
- public IMR_GuiBean(IMR_GuiBeanAPI api,String intensityMeasureType,double period) {
+ public IMR_GuiBean(IMR_GuiBeanAPI api,String currentIMT,
+		            String retroIMT,double currentPeriod,double retroPeriod) {
    application  = api;
    supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
    int numSupportedAttenRels = supportedAttenRels.size();
@@ -81,15 +82,15 @@ public class IMR_GuiBean extends ParameterListEditor
 	   AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )supportedAttenRels.get(i);
 	   imr.setParamDefaults();
    }
-   setIMRParamListAndEditor(intensityMeasureType , period);
+   setIMRParamListAndEditor(currentIMT ,retroIMT, currentPeriod,retroPeriod);
  }
  
  
-  public void setIMRParamListAndEditor(String intensityMeaureType,double period){
+  public void setIMRParamListAndEditor(String currentIMT,String retroIMT,double currentPeriod,double retroPeriod){
 	  String selectedAttenRel = null;
 	  if(parameterList !=null)
 		 selectedAttenRel = (String)parameterList.getParameter(IMR_PARAM_NAME).getValue();
-	  ArrayList attenRels  = getAttenRelsSupportedForSelectedIM(intensityMeaureType,period);
+	  ArrayList attenRels  = getAttenRelsSupportedForSelectedIM(currentIMT,retroIMT,currentPeriod,retroPeriod);
     // if we are entering this function for the first time, then make imr objects
     
       parameterList = new ParameterList();
@@ -179,18 +180,18 @@ public class IMR_GuiBean extends ParameterListEditor
    * Returns the ArrayList of the AttenuationRelation being supported by the selected IM
    * @return
    */
-  private ArrayList getAttenRelsSupportedForSelectedIM(String intensityMeasure,double period){
+  private ArrayList getAttenRelsSupportedForSelectedIM(String currentIMT,String retroIMT,double currentPeriod,double retroPeriod){
     
     ArrayList attenRelsSupportedForIM = new ArrayList();
     int numSupportedAttenRels = supportedAttenRels.size();
     for(int i=0;i < numSupportedAttenRels;++i){
       AttenuationRelationship attenRel = (AttenuationRelationship)supportedAttenRels.get(i);
-      if(attenRel.isIntensityMeasureSupported(intensityMeasure,period))
+      if(attenRel.isIntensityMeasureSupported(currentIMT,currentPeriod) && attenRel.isIntensityMeasureSupported(retroIMT,retroPeriod))
         attenRelsSupportedForIM.add(attenRel);
     }
     return attenRelsSupportedForIM;
   }
-  
+   
   
   /**
    *  Create a list of all the IMRs

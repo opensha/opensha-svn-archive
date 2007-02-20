@@ -8,6 +8,9 @@ import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.*;
 import junit.framework.TestCase;
 
@@ -16,8 +19,8 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 	
 	  private CB_2006_AttenRel cb_2006 = null;
 	
-	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/";
-	  private static final String CB_2006_RESULTS = RESULT_SET_PATH +"CB2006_NGA.txt";
+	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/CB06/";
+	  //private static final String CB_2006_RESULTS = RESULT_SET_PATH +"CB2006_NGA.txt";
 	
 	  //Tolerence to check if the results fall within the range.
 	  private static double tolerence = .01; //default value for the tolerence
@@ -37,7 +40,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 		//create the instance of the CB_2006
 		cb_2006 = new CB_2006_AttenRel(this);
 		cb_2006.setParamDefaults();
-		testDataLines = FileUtils.loadFile(CB_2006_RESULTS);
+		//testDataLines = FileUtils.loadFile(CB_2006_RESULTS);
 	}
 
 	protected void tearDown() throws Exception {
@@ -47,7 +50,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 	/*
 	 * Test method for 'org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel.getMean()'
 	 * Also Test method for 'org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel.getStdDev()'
-	 */
+	 
 	public void testMeanAndStdDev() {
 		int numDataLines = testDataLines.size();
 		for(int i=1;i<numDataLines;++i){
@@ -95,9 +98,9 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			boolean results = compareResults(medianFromOpenSHA,targetMedian);
 			//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
-        	 	/**
-              * If any test for the CB-2006 failed
-              */
+        	 	
+              //If any test for the CB-2006 failed
+             
 			
             if(results == false){
             	 String failedResultMetadata = "Results failed for Median calculation for" +
@@ -124,9 +127,9 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 			//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			results = compareResults(stdFromOpenSHA,targetStdDev);
 			//if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
-        	 	/**
-              * If any test for the CY-2006 failed
-              */
+        	 	//
+               //If any test for the CY-2006 failed
+              
 			
             if(results == false){
             	String failedResultMetadata = "Results failed for Std Dev calculation for " +
@@ -149,8 +152,68 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
             }
 		}
 	}
-
-	 /**
+*/
+	
+	/*
+	 * Test method for 'org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel.getMean()'
+	 * Also Test method for 'org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel.getStdDev()'
+	 */
+	public void testMeanAndStdDev() {	
+		File f = new File(RESULT_SET_PATH);
+		File[] fileList = f.listFiles();
+		for(int i=0;i<fileList.length;++i){
+			String fileName = fileList[i].getName();
+			if(fileName.endsWith(".txt")){
+				String fltType = fileName.substring(5,7);
+				if(fltType.equals("SS"))
+				  cb_2006.getParameter(cb_2006.FLT_TYPE_NAME).setValue(cb_2006.FLT_TYPE_STRIKE_SLIP);
+				else if(fltType.equals("RV"))
+					  cb_2006.getParameter(cb_2006.FLT_TYPE_NAME).setValue(cb_2006.FLT_TYPE_REVERSE);
+				else
+					cb_2006.getParameter(cb_2006.FLT_TYPE_NAME).setValue(cb_2006.FLT_TYPE_NORMAL);
+				double dip = Double.parseDouble(fileName.substring(8,10));
+				cb_2006.getParameter(cb_2006.DIP_NAME).setValue(new Double(dip));
+				double vs30 = Double.parseDouble(fileName.substring(11,14));
+				cb_2006.getParameter(cb_2006.VS30_NAME).setValue(new Double(vs30));
+				double depthTop = Double.parseDouble(fileName.substring(17,18));
+				cb_2006.getParameter(cb_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
+				double depth25 = Double.parseDouble(fileName.substring(21,22));
+				cb_2006.getParameter(cb_2006.DEPTH_2pt5_NAME).setValue(new Double(depth25));
+				try {
+					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
+					int numLines = testDataLines.size();
+					for(int j=0;j<numLines;++j){
+						String fileLine = (String)testDataLines.get(j);
+						StringTokenizer st = new StringTokenizer(fileLine);
+						double mag = Double.parseDouble(st.nextToken().trim());
+						cb_2006.getParameter(cb_2006.MAG_NAME).setValue(new Double(mag));
+						
+						double rrup = Double.parseDouble(st.nextToken().trim());
+						cb_2006.getParameter(DistanceRupParameter.NAME).setValue(new Double(rrup));
+						
+						double rjb = Double.parseDouble(st.nextToken().trim());
+						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
+						cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME).setValue(new Double(distRupMinusJB_OverRup));
+						
+						cb_2006.setIntensityMeasure(cb_2006.PGA_NAME);
+						cb_2006.setIntensityMeasure(cb_2006.PGV_NAME);
+						cb_2006.setIntensityMeasure(cb_2006.PGD_NAME);
+						cb_2006.setIntensityMeasure(cb_2006.SA_NAME);
+						//cb_2006.
+						
+					}
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/**
 	   * This function compares the values we obtained after running the values for
 	   * the IMR and the target Values( our benchmark)
 	   * @param valFromSHA = values we got after running the OpenSHA code for the IMR

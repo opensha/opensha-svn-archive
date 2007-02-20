@@ -659,20 +659,24 @@ public class BCR_Application extends JFrame
     }
 
     VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
-    String imt = currentModel.getIMT();
-    double period = 0;
-    if(imt.equals(AttenuationRelationship.SA_NAME))
-    	period = currentModel.getPeriod();
-    ArrayList<Double> imls = currentModel.getIMLVals();
+    String currentIMT = currentModel.getIMT();
+    double currentPeriod = 0;
+    if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+    	currentPeriod = currentModel.getPeriod();
+    ArrayList<Double> currentIMLs = currentModel.getIMLVals();
     
+    VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
+    String newIMT = newModel.getIMT();
+    double newPeriod = 0;
+    if(newIMT.equals(AttenuationRelationship.SA_NAME))
+    	newPeriod = newModel.getPeriod();
+    ArrayList<Double> newIMLs = newModel.getIMLVals();
     
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
-
-
 
      // calculate the hazard curve
     try {
@@ -687,46 +691,57 @@ public class BCR_Application extends JFrame
       bugWindow.pack();
       e.printStackTrace();
     }
-    // initialize the values in condProbfunc with log values as passed in hazFunction
-    // intialize the hazard function
-    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-    initX_Values(hazFunction,imls,imt);
    
-    //System.out.println("22222222HazFunction: "+hazFunction.toString());
-    try {
-      // calculate the hazard curve
-      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
-      try {
-        
-          hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
-              hazFunction, site,imr, (EqkRupForecastAPI) forecast);
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-        setButtonsEnable(true);
-      }
-      hazFunction = toggleHazFuncLogValues(hazFunction);
-      hazFunction.setInfo(getParametersInfoAsString());
-    }
-    catch (RuntimeException e) {
-      JOptionPane.showMessageDialog(this, e.getMessage(),
-                                    "Parameters Invalid",
-                                    JOptionPane.INFORMATION_MESSAGE);
-      //e.printStackTrace();
-      setButtonsEnable(true);
-      return;
-    }
+    ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentIMLs,site,forecast,imr);
+    ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newIMLs,site,forecast,imr);
 
     // add the function to the function list
-    functionList.add(hazFunction);
-    ArrayList<Double> pe= new ArrayList<Double>();
-    for(int i=0 ;i<hazFunction.getNum();++i)
-    	pe.add(hazFunction.getY(i));
+    functionList.add(currentHazardCurve);
     
-    EALCalculator calc = new EALCalculator(imls,currentModel.getDFVals(),pe);
-    double ealVal = calc.computeEAL();
+    EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals());
+    double currentEALVal = currentCalc.computeEAL();
+    EALCalculator retroCalc = new EALCalculator(retroHazardCurve,newModel.getDFVals());
+    double newEALVal = retroCalc.computeEAL();
+    
+    
+
     setButtonsEnable(true);
  
+  }
+  
+  
+  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, ArrayList<Double> imls,
+		  Site site,ERF_API forecast,AttenuationRelationshipAPI imr){
+	  // initialize the values in condProbfunc with log values as passed in hazFunction
+	    // intialize the hazard function
+	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+	    initX_Values(hazFunction,imls,imt);
+	   
+	    //System.out.println("22222222HazFunction: "+hazFunction.toString());
+	    try {
+	      // calculate the hazard curve
+	      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
+	      try {
+	        
+	          hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
+	              hazFunction, site,imr, (EqkRupForecastAPI) forecast);
+	      }
+	      catch (Exception e) {
+	        e.printStackTrace();
+	        setButtonsEnable(true);
+	      }
+	      hazFunction = toggleHazFuncLogValues(hazFunction);
+	      hazFunction.setInfo(getParametersInfoAsString());
+	    }
+	    catch (RuntimeException e) {
+	      JOptionPane.showMessageDialog(this, e.getMessage(),
+	                                    "Parameters Invalid",
+	                                    JOptionPane.INFORMATION_MESSAGE);
+	      //e.printStackTrace();
+	      setButtonsEnable(true);
+	      return null;
+	    }	
+	    return hazFunction;
   }
 
   
@@ -755,7 +770,20 @@ public class BCR_Application extends JFrame
    */
   protected void initIMR_GuiBean() {
 
-     imrGuiBean = new IMR_GuiBean(this,org.opensha.sha.imr.AttenuationRelationship.SA_NAME,5.0);
+	VulnerabilityModel currentModel = bcbean.getVulnModel(bcbean.CURRENT);
+    String currentIMT = currentModel.getIMT();
+    double currentPeriod = 0;
+    if(currentIMT.equals(AttenuationRelationship.SA_NAME))
+    	currentPeriod = currentModel.getPeriod();
+    
+    
+    VulnerabilityModel newModel = bcbean.getVulnModel(bcbean.RETRO);
+    String newIMT = newModel.getIMT();
+    double newPeriod = 0;
+    if(newIMT.equals(AttenuationRelationship.SA_NAME))
+    	newPeriod = newModel.getPeriod();
+	    
+     imrGuiBean = new IMR_GuiBean(this,currentIMT,newIMT,currentPeriod,newPeriod);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
