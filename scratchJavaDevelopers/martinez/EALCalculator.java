@@ -1,6 +1,9 @@
 package scratchJavaDevelopers.martinez;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
+
+import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  * This class computes the expected annualized damage factor for a given building using a hazard curve.
@@ -23,6 +26,7 @@ public class EALCalculator {
 	 * set using the setVAR functions before you can compute any EAL.
 	 */
 	public EALCalculator() {}
+	
 	/**
 	 * A more useful constructor.  IML, DF, and PE are set as one might assume, and
 	 * the calculator is ready to compute EAL.
@@ -37,6 +41,70 @@ public class EALCalculator {
 		this.PE = PE;
 	}
 	
+	/**
+	 * Creates a new EALCalculator object using the IML and PE values as defined in the
+	 * given hazFunc.  Damage Factor values are set using the DF.
+	 * 
+	 * @param hazFunc The Hazard Function defining (x,y) values for IML,PE respectively.
+	 * @param DF The Damage Factor values to use in calculation.
+	 */
+	public EALCalculator(DiscretizedFuncAPI hazFunc, ArrayList<Double> DF) {
+		this.IML = new ArrayList<Double>();
+		this.PE = new ArrayList<Double>();
+		this.DF = DF;
+		ListIterator xIter = hazFunc.getXValuesIterator();
+		ListIterator yIter = hazFunc.getYValuesIterator();
+		while(xIter.hasNext()) {
+			IML.add((Double) xIter.next());
+		}
+		while(yIter.hasNext()) {
+			PE.add((Double) yIter.next());
+		}
+	}
+	
+	/**
+	 * Creates a new EALCalculator object using the IML and DF values as defined in the
+	 * given vulnFunc.  PE values are set using the PE.
+	 * 
+	 * @param PE The Probability of Exceedance values to use corresponding to the IML values
+	 * defined by the vulnFunc.
+	 * @param vulnFunc The Vulnerability Function defining (x,y) values for IML,DF respectively.
+	 */
+	public EALCalculator(ArrayList<Double> PE, DiscretizedFuncAPI vulnFunc) {
+		this.IML = new ArrayList<Double>();
+		this.PE = PE;
+		this.DF = new ArrayList<Double>();
+		ListIterator xIter = vulnFunc.getXValuesIterator();
+		ListIterator yIter = vulnFunc.getYValuesIterator();
+		while(xIter.hasNext()) {
+			IML.add((Double) xIter.next());
+		}
+		while(yIter.hasNext()) {
+			DF.add((Double) yIter.next());
+		}
+	}
+	
+	public  EALCalculator(DiscretizedFuncAPI hazFunc, DiscretizedFuncAPI vulnFunc) throws
+			IllegalArgumentException {
+		this.IML = new ArrayList<Double>();
+		this.PE = new ArrayList<Double>();
+		this.DF = new ArrayList<Double>();
+		ListIterator hXIter = hazFunc.getXValuesIterator();
+		ListIterator hYIter = hazFunc.getYValuesIterator();
+		ListIterator vXIter = vulnFunc.getXValuesIterator();
+		ListIterator vYIter = vulnFunc.getXValuesIterator();
+		while(hXIter.hasNext() && hYIter.hasNext() && vXIter.hasNext() && vYIter.hasNext()) {
+			double hx = (Double) hXIter.next();
+			double hy = (Double) hYIter.next();
+			double vx = (Double) vYIter.next();
+			double vy = (Double) vXIter.next();
+			if(hx != vx)
+				throw new IllegalArgumentException("IML Values for hazFunc and vulnFunc must match!");
+			IML.add(hx);
+			PE.add(hy);
+			DF.add(vy);
+		}
+	}
 	////////////////////////////////////////////////////////////////////////////////
 	//                               Public Functions                             //
 	////////////////////////////////////////////////////////////////////////////////
@@ -109,20 +177,55 @@ public class EALCalculator {
 	public ArrayList<Double> getDF() {
 		return DF;
 	}
+	/** Note: No checking is done to ensure the given DF values correspond to current IML values */
 	public void setDF(ArrayList<Double> df) {
 		DF = df;
 	}
 	public ArrayList<Double> getIML() {
 		return IML;
 	}
+	/** Note: No checking is done to ensure the given IML values correspond to current DF/PE values */
 	public void setIML(ArrayList<Double> iml) {
 		IML = iml;
 	}
 	public ArrayList<Double> getPE() {
 		return PE;
 	}
+	/** Note: No checking is done to ensure the given PE values correspond to current IML values */
 	public void setPE(ArrayList<Double> pe) {
 		PE = pe;
+	}
+	
+	/**
+	 * Resets the values for Damage Factor to those contained in the
+	 * <code>vulnFunc</code>.  Note that IML values remain unchanged.
+	 * It is the responsibility of the caller to ensure that the current
+	 * values of IML correspond to the given values for DF.
+	 * 
+	 * @param vulnFunc Used to get DF values.
+	 */
+	public void setDF(DiscretizedFuncAPI vulnFunc) {
+		DF.clear();
+		ListIterator iter = vulnFunc.getYValuesIterator();
+		while(iter.hasNext()) {
+			DF.add((Double) iter.next());
+		}
+	}
+	
+	/**
+	 * Resets the values for Probability of Exceedance to those contained in the
+	 * <code>hazFunc</code>.  Note hat IML values remain unchanged.  It is the
+	 * responsibility of the caller to ensure that the current value of IML
+	 * correspond to the given values for PE.
+	 * 
+	 * @param hazFunc Used to get PE values.
+	 */
+	public void setPE(DiscretizedFuncAPI hazFunc) {
+		PE.clear();
+		ListIterator iter = hazFunc.getYValuesIterator();
+		while(iter.hasNext()) {
+			PE.add((Double) iter.next());
+		}
 	}
 	
 	/**
@@ -138,67 +241,20 @@ public class EALCalculator {
 		ArrayList<Double> testDF = new ArrayList<Double>(19);
 		ArrayList<Double> testPE = new ArrayList<Double>(19);
 		double [] IMLvals = {
-				0.005,  
-				0.007,
-				0.010,
-				0.014,
-				0.019,
-				0.027,
-				0.038,
-				0.053,
-				0.074,
-				0.103,
-				0.145,
-				0.203,
-				0.284,
-				0.397,
-				0.556,
-				0.778,
-				1.090,
-				1.520,
-				2.130
+				0.005, 0.007, 0.010, 0.014, 0.019, 0.027, 0.038,
+				0.053, 0.074, 0.103, 0.145, 0.203, 0.284, 0.397,
+				0.556, 0.778, 1.090, 1.520, 2.130
 		};
 		double [] DFvals = {
-				0.00,
-				0.05,
-				0.10,
-				0.15,
-				0.20,
-				0.25,
-				0.30,
-				0.35,
-				0.40,
-				0.45,
-				0.50,
-				0.55,
-				0.60,
-				0.65,
-				0.75,
-				0.80,
-				0.85,
-				0.90,
-				0.95
+				0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30,
+				0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65,
+				0.75, 0.80, 0.85, 0.90, 0.95
 		};
 		double [] PEvals = {
-				8.030E-01,
-				7.068E-01,
-				5.880E-01,
-				4.550E-01,
-				3.218E-01,
-				2.068E-01,
-				1.216E-01,
-				6.583E-02,
-				3.380E-02,
-				1.681E-02,
-				7.637E-03,
-				3.092E-03,
-				1.093E-03,
-				3.557E-04,
-				1.121E-04,
-				3.314E-05,
-				7.738E-06,
-				1.207E-06,
-				6.705E-08
+				8.030E-01, 7.068E-01, 5.880E-01, 4.550E-01, 3.218E-01,
+				2.068E-01, 1.216E-01, 6.583E-02, 3.380E-02, 1.681E-02,
+				7.637E-03, 3.092E-03, 1.093E-03, 3.557E-04, 1.121E-04,
+				3.314E-05, 7.738E-06, 1.207E-06, 6.705E-08
 		};
 		for(int i = 0; i < 19; ++i) {
 			testIML.add(IMLvals[i]);
