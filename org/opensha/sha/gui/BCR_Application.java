@@ -270,9 +270,8 @@ public class BCR_Application extends JFrame
       // initialize the GUI components
       startAppProgressClass = new CalcProgressBar("Starting Application", "Initializing Application .. Please Wait");
       jbInit();
-      
-      
-      // initialize the various GUI beans
+//    initialize the various GUI beans
+      initBenefitCostBean();
       initIMR_GuiBean();
       initSiteGuiBean();
       try{
@@ -384,9 +383,7 @@ public class BCR_Application extends JFrame
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
-    //creates the instance of the BenefitCost bean
-    bcbean = new BenefitCostBean();
-    bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
+    
     buttonPanel.add(controlComboBox, 0);
     buttonPanel.add(addButton, 1);
     buttonPanel.add(cancelCalcButton, 2);
@@ -414,10 +411,6 @@ public class BCR_Application extends JFrame
 
     controlsSplit.setDividerLocation(230);
     structuralPanel.setLayout(gridBagLayout5);
-    structuralPanel.add(bcPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    structuralPanel.validate();
-    structuralPanel.repaint();
     chartSplit.setDividerLocation(590);
     this.setSize(W,H);
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -596,6 +589,13 @@ public class BCR_Application extends JFrame
       siteGuiBean.validate();
       siteGuiBean.repaint();
       }
+    if(name1.equalsIgnoreCase(bcbean.getCurrentVulnParam().getName())){
+    	this.initIMR_GuiBean();
+    	AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    	siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+        siteGuiBean.validate();
+        siteGuiBean.repaint();
+    }
   }
 
 
@@ -859,6 +859,22 @@ public class BCR_Application extends JFrame
   }
 
 
+  /**
+   * Initialize the Benefit cost GUI bean
+   *
+   */
+  protected void initBenefitCostBean(){
+//	creates the instance of the BenefitCost bean
+	 bcbean = new BenefitCostBean();
+	 bcPanel = (JPanel) bcbean.getVisualization(GuiBeanAPI.APPLICATION);
+	 bcbean.getRetroVulnParam().addParameterChangeListener(this);
+	 bcbean.getCurrentVulnParam().addParameterChangeListener(this);	  
+	 structuralPanel.add(bcPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+	 structuralPanel.validate();
+	 structuralPanel.repaint();
+  }
+  
 
 
   /**
