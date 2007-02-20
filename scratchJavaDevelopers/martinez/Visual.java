@@ -25,7 +25,7 @@ public class Visual {
 	
 	public Visual() {
 		bean = new BenefitCostBean();
-		JSplitPane panel = (JSplitPane) bean.getVisualization(GuiBeanAPI.APPLICATION);
+		JPanel panel = (JPanel) bean.getVisualization(GuiBeanAPI.APPLICATION);
 		
 		JButton showData = new JButton("Show Data");
 		showData.addActionListener(new ActionListener() {

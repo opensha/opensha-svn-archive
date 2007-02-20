@@ -199,7 +199,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 	 */
 	public String getVisualizationClassName(int type) {
 		if(type == GuiBeanAPI.APPLICATION)
-			return "javax.swing.JSplitPane";
+			return "javax.swing.JPanel";
 		else
 			return "";
 	}
@@ -214,23 +214,15 @@ public class BenefitCostBean implements GuiBeanAPI {
 	////////////////////////////////////////////////////////////////////////////////
 	//                             Private Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
-	private JSplitPane getApplicationVisualization() {
+	private JPanel getApplicationVisualization() {
 		
+		JPanel ret = new JPanel(new GridBagLayout());
 		JPanel panel = new JPanel(new GridBagLayout());
 		JSplitPane structSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		structSplit.add((JComponent) structNow.getVisualization(GuiBeanAPI.APPLICATION), JSplitPane.LEFT);
 		structSplit.add((JComponent) structRetro.getVisualization(GuiBeanAPI.APPLICATION), JSplitPane.RIGHT);
-		structSplit.setDividerLocation(235);
-		
-		/*panel.add((JComponent) structNow.getVisualization(APPLICATION), new GridBagConstraints(
-				0, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(5, 5, 5, 5), 2, 2)
-		);
-		panel.add( (JComponent) structRetro.getVisualization(APPLICATION), new GridBagConstraints(
-				1, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(5, 5, 5, 5), 2, 2)
-		);*/
-		
+		structSplit.setDividerLocation(230);
+
 		try {
 			panel.add((JComponent) new DoubleParameterEditor(discRateParam), new GridBagConstraints(
 					0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
@@ -251,11 +243,14 @@ public class BenefitCostBean implements GuiBeanAPI {
 
 		JSplitPane paramSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, structSplit, panel);
 		paramSplit.setDividerLocation(350);
-		paramSplit.setPreferredSize(new Dimension(480, 500));
-		paramSplit.setMinimumSize(new Dimension(200, 200));
-		paramSplit.setMaximumSize(new Dimension(10000, 10000));
-		paramSplit.setSize(paramSplit.getPreferredSize());
-		return paramSplit;
+		
+		ret.add(paramSplit, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 2, 2));
+		ret.setPreferredSize(new Dimension(480, 500));
+		ret.setMinimumSize(new Dimension(200, 200));
+		ret.setMaximumSize(new Dimension(10000, 10000));
+		ret.setSize(ret.getPreferredSize());
+		return ret;
 	}
 	
 	private void handleDescriptionChangeEvent(ParameterChangeEvent event) {
