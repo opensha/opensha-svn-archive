@@ -240,6 +240,26 @@ public abstract class IntensityMeasureRelationship
 
   /**
    *  This sets the intensityMeasure parameter as that which has the name
+   *  passed in and sets the passed in period  is IMT is SA.
+   *
+   * @param  intensityMeasure  The new intensityMeasureParameter name
+   */
+  public void setIntensityMeasure(String intensityMeasure , double period) throws
+      ParameterException, ConstraintException {
+
+    if (isIntensityMeasureSupported(intensityMeasure,period)) {
+        setIntensityMeasure(intensityMeasure);
+        if(intensityMeasure.equals(AttenuationRelationship.SA_NAME))
+           getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
+    }
+    else {
+      throw new ParameterException("This im is not supported, name = " +
+                                   intensityMeasure);
+    }
+  }
+  
+  /**
+   *  This sets the intensityMeasure parameter as that which has the name
    *  passed in; no value (level) is set, nor are any of the IM's independent
    *  parameters set (since it's only given the name).
    *

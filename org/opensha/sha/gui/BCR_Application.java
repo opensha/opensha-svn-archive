@@ -86,6 +86,7 @@ import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
 
+import scratchJavaDevelopers.martinez.BenefitCostCalculator;
 import scratchJavaDevelopers.martinez.EALCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 import scratchJavaDevelopers.martinez.beans.BenefitCostBean;
@@ -171,10 +172,6 @@ public class BCR_Application extends JFrame
   protected final static int W = 1100;
   protected final static int H = 770;
 
-  /**
-   * List of ArbitrarilyDiscretized functions and Weighted funstions
-   */
-  protected ArrayList functionList = new ArrayList();
 
   //holds the ArbitrarilyDiscretizedFunc
   protected ArbitrarilyDiscretizedFunc function;
@@ -247,7 +244,7 @@ public class BCR_Application extends JFrame
   //checks to see if HazardCurveCalculations are done
   boolean isHazardCalcDone= false;
  
-
+  private int computationDisplayCount =0;
  
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -359,6 +356,7 @@ public class BCR_Application extends JFrame
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     dataScrollPane.getViewport().add( pointsTextArea, null );
     pointsTextArea.setEditable(false);
+    pointsTextArea.setLineWrap(true);
     panel.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
     erfTimespanPanel.setLayout(gridBagLayout13);
@@ -538,7 +536,6 @@ public class BCR_Application extends JFrame
               if (isHazardCalcDone) {
                 timer.stop();
                 progressClass.dispose();
-                drawGraph();
               }
             }catch(Exception e){
               e.printStackTrace();
@@ -549,7 +546,6 @@ public class BCR_Application extends JFrame
 
       else {
         this.computeHazardCurve();
-        this.drawGraph();
       }
     }
 
@@ -562,12 +558,6 @@ public class BCR_Application extends JFrame
       return this;
     }
 
-    /**
-     * to draw the graph
-     */
-    protected void drawGraph() {
- 
-    }
 
 
 
@@ -578,6 +568,7 @@ public class BCR_Application extends JFrame
    */
   void clearButton_actionPerformed(ActionEvent e) {
 	  this.pointsTextArea.setText("");
+	  computationDisplayCount = 0;
   }
 
  
@@ -692,31 +683,48 @@ public class BCR_Application extends JFrame
       e.printStackTrace();
     }
    
-    ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentIMLs,site,forecast,imr);
-    ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newIMLs,site,forecast,imr);
+    ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
+    ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
 
-    // add the function to the function list
-    functionList.add(currentHazardCurve);
     
     EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals());
     double currentEALVal = currentCalc.computeEAL();
     EALCalculator retroCalc = new EALCalculator(retroHazardCurve,newModel.getDFVals());
     double newEALVal = retroCalc.computeEAL();
     
-    
-
+    BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
+    		bcbean.getDesignLife(),bcbean.getCurrentInitialCost(),bcbean.getCurrentReplaceCost());
+    double bcr = bcCalc.computeBCR();
+    double benefit = bcCalc.computeBenefit();
+    double cost = bcCalc.computeCost();
+    isHazardCalcDone = true;
+    displayData(currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
     setButtonsEnable(true);
  
   }
   
   
-  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, ArrayList<Double> imls,
+  private void displayData(ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
+		  double currentEALVal,double newEALVal,double bcr,double benefit,double cost){
+	  ++computationDisplayCount;
+	  String data = pointsTextArea.getText();
+	  if(computationDisplayCount !=1)
+		  data +="\n\n";
+	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
+	  data +="Current EAL Val = "+currentEALVal+"  ; Retrofitted EAL Val = "+newEALVal+"\n";
+	  data +="Benefit = "+benefit+" ; Cost Ratio = "+cost+" ; Benefit Cost Ratio = "+bcr+"\n";
+	  data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
+	  data +="Retrofitted Hazard Curve"+"\n"+retroHazardCurve.toString()+"\n\n";
+	  pointsTextArea.setText(data);
+  }
+  
+  private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
 		  Site site,ERF_API forecast,AttenuationRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 	    initX_Values(hazFunction,imls,imt);
-	   
+	    ((AttenuationRelationship)imr).setIntensityMeasure(imt,period);
 	    //System.out.println("22222222HazFunction: "+hazFunction.toString());
 	    try {
 	      // calculate the hazard curve
@@ -730,14 +738,14 @@ public class BCR_Application extends JFrame
 	        e.printStackTrace();
 	        setButtonsEnable(true);
 	      }
-	      hazFunction = toggleHazFuncLogValues(hazFunction);
+	      hazFunction = toggleHazFuncLogValues(hazFunction,imls);
 	      hazFunction.setInfo(getParametersInfoAsString());
 	    }
 	    catch (RuntimeException e) {
 	      JOptionPane.showMessageDialog(this, e.getMessage(),
 	                                    "Parameters Invalid",
 	                                    JOptionPane.INFORMATION_MESSAGE);
-	      //e.printStackTrace();
+	      e.printStackTrace();
 	      setButtonsEnable(true);
 	      return null;
 	    }	
@@ -937,14 +945,14 @@ public class BCR_Application extends JFrame
    *
    * @param hazFunction :  this is the function with X values set
    */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc){
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,ArrayList<Double> imls){
     int numPoints = hazFunc.getNum();
     DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
     hazFunc = new ArbitrarilyDiscretizedFunc();
     // take log only if it is PGA, PGV ,SA or FaultDispl
-
-    for(int i=0; i<numPoints; ++i)
-	  hazFunc.set(function.getX(i), tempFunc.getY(i));
+    for(int i=0;i<tempFunc.getNum();++i)
+    	hazFunc.set(imls.get(i),tempFunc.getY(i));
+    
 	return hazFunc;
   }
 
@@ -986,9 +994,7 @@ public class BCR_Application extends JFrame
         "Site Param List: "+"<br>"+
         "----------------"+"<br>"+
         siteGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
-        //"IMT Param List: "+"<br>"+
-        //"---------------"+"<br>"+
-        //imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
+        
         "Forecast Param List: "+"<br>"+
         "--------------------"+"<br>"+
         erfGuiBean.getERFParameterList().getParameterListMetadataString()+"<br><br>"+
@@ -998,18 +1004,8 @@ public class BCR_Application extends JFrame
         "Max. Source-Site Distance = "+maxSourceSiteDistance;
 
   }
-
- /**
-  *
-  * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
-  */
-  public ArrayList getCurveFunctionList(){
-    return functionList;
-  }
-
-
-
-
+  
+  
   /**
    * This function stops the hazard curve calculation if started, so that user does not
    * have to wait for the calculation to finish.
