@@ -23,7 +23,7 @@ import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  *
  */
-public class BenefitCostBean extends GuiBeanAPI {
+public class BenefitCostBean implements GuiBeanAPI {
 	/** Request the Current structure conditions **/
 	public static final int CURRENT = 0;
 	/** Request the "What-If" structure conditions **/
@@ -71,10 +71,12 @@ public class BenefitCostBean extends GuiBeanAPI {
 	public double getDesignLife() { return designLife; }
 	
 	public VulnerabilityModel getCurrentVulnModel() { return getVulnModel(CURRENT); }
+	public ParameterAPI getCurrentVulnParam() { return getVulnerabilityParameter(CURRENT); }
 	public double getCurrentInitialCost() { return getInitialCost(CURRENT); }
 	public double getCurrentReplaceCost() { return getReplaceCost(CURRENT); }
 	
 	public VulnerabilityModel getRetroVulnModel() { return getVulnModel(RETRO); }
+	public ParameterAPI getRetroVulnParam() { return getVulnerabilityParameter(RETRO); }
 	public double getRetroInitialCost() { return getInitialCost(RETRO); }
 	public double getRetroReplaceCost() { return getReplaceCost(RETRO); }
 	
@@ -151,9 +153,9 @@ public class BenefitCostBean extends GuiBeanAPI {
 	 * @return A template Hazard Curve (IML values) for the structure either under
 	 * current construction conditions, or that of the "what-if" retrofitted conditions
 	 * depending on the value of <code>design</code>.
-	 * @throws IllegalArgumentException if the given <code>design</code> is not supported.
+	 * @throws IllegalArgumentException If the given <code>design</code> is not supported.
 	 */
-	public DiscretizedFuncAPI getSupportedIMLevels(int design) {
+	public DiscretizedFuncAPI getSupportedIMLevels(int design) throws IllegalArgumentException {
 		if(design == CURRENT)
 			return structNow.getVulnerabilityModel().getHazardTemplate();
 		else if (design == RETRO)
@@ -162,10 +164,25 @@ public class BenefitCostBean extends GuiBeanAPI {
 			throw new IllegalArgumentException("The given design is not currently supported");
 	}
 	
+	/**
+	 * @param design One of CURRENT or RETOR depending on which Vulnerability Parameter
+	 * is of interest.
+	 * @return The underlying <code>ParameterAPI</code> that is used by the VulnerabilityBean.
+	 * @throws IllegalArgumentException If the given <code>design</code> is not supported.
+	 */
+	public ParameterAPI getVulnerabilityParameter(int design) throws IllegalArgumentException {
+		if(design == CURRENT) {
+			return structNow.getVulnerabilityBean().getParameter();
+		} else if (design == RETRO) {
+			return structNow.getVulnerabilityBean().getParameter();
+		} else {
+			throw new IllegalArgumentException("The given design is not currently supported");
+		}
+	}
 	////////////////////////////////////////////////////////////////////////////////
-	//                     Minimum Functions to Extend GuiBeanAPI                 //
+	//                   Minimum Functions to Implement GuiBeanAPI                //
 	////////////////////////////////////////////////////////////////////////////////
-	@Override
+	
 	/**
 	 * See the general contract specified in GuiBeanAPI.
 	 */
@@ -176,17 +193,17 @@ public class BenefitCostBean extends GuiBeanAPI {
 			return getApplicationVisualization();
 		return null;
 	}
-	@Override
+
 	/**
 	 * See the general contract specified in GuiBeanAPI.
 	 */
 	public String getVisualizationClassName(int type) {
 		if(type == GuiBeanAPI.APPLICATION)
-			return "javax.swing.JPanel";
+			return "javax.swing.JSplitPane";
 		else
 			return "";
 	}
-	@Override
+
 	/**
 	 * See the general contract specified in GuiBeanAPI.
 	 */
@@ -197,38 +214,48 @@ public class BenefitCostBean extends GuiBeanAPI {
 	////////////////////////////////////////////////////////////////////////////////
 	//                             Private Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
-	private JPanel getApplicationVisualization() {
+	private JSplitPane getApplicationVisualization() {
 		
 		JPanel panel = new JPanel(new GridBagLayout());
-		panel.add((JComponent) structNow.getVisualization(APPLICATION), new GridBagConstraints(
+		JSplitPane structSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+		structSplit.add((JComponent) structNow.getVisualization(GuiBeanAPI.APPLICATION), JSplitPane.LEFT);
+		structSplit.add((JComponent) structRetro.getVisualization(GuiBeanAPI.APPLICATION), JSplitPane.RIGHT);
+		structSplit.setDividerLocation(235);
+		
+		/*panel.add((JComponent) structNow.getVisualization(APPLICATION), new GridBagConstraints(
 				0, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(5, 5, 5, 5), 2, 2)
 		);
 		panel.add( (JComponent) structRetro.getVisualization(APPLICATION), new GridBagConstraints(
 				1, 0, 1, 2, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(5, 5, 5, 5), 2, 2)
-		);
+		);*/
+		
 		try {
 			panel.add((JComponent) new DoubleParameterEditor(discRateParam), new GridBagConstraints(
-					0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 			panel.add((JComponent) new DoubleParameterEditor(dsgnLifeParam), new GridBagConstraints(
-					1, 2, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 			panel.add((JComponent) new StringParameterEditor(descParam), new GridBagConstraints(
-					0, 3, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					0, 1, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		panel.setPreferredSize(new Dimension(480, 500));
-		panel.setMinimumSize(new Dimension(200, 200));
-		panel.setMaximumSize(new Dimension(10000, 10000));
-		panel.setSize(panel.getPreferredSize());
-		return panel;
+		
+
+		JSplitPane paramSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, structSplit, panel);
+		paramSplit.setDividerLocation(350);
+		paramSplit.setPreferredSize(new Dimension(480, 500));
+		paramSplit.setMinimumSize(new Dimension(200, 200));
+		paramSplit.setMaximumSize(new Dimension(10000, 10000));
+		paramSplit.setSize(paramSplit.getPreferredSize());
+		return paramSplit;
 	}
 	
 	private void handleDescriptionChangeEvent(ParameterChangeEvent event) {

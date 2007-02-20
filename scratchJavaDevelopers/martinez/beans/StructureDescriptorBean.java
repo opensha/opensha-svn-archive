@@ -20,7 +20,7 @@ import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
  * @see BRC_Application
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  */
-public class StructureDescriptorBean extends GuiBeanAPI {
+public class StructureDescriptorBean implements GuiBeanAPI {
 	private ParameterListEditor applicationEditor = null;
 	private DoubleParameter initialCost = null;
 	private DoubleParameter replaceCost = null;
@@ -50,23 +50,24 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 		vulnBean = new VulnerabilityBean();
 		listener = new StructureDescriptorParameterListener();
 		
-		initialCost = new DoubleParameter("Initial Construction Cost", 0, 10E+10, "$$$");
+		initialCost = new DoubleParameter(INITIAL_PARAM, 0, 10E+10, "$$$");
 		initialCost.addParameterChangeListener((ParameterChangeListener) listener);
 		initialCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 		
-		replaceCost = new DoubleParameter("Replacement Construction Cost", 0, 10E+10, "$$$");
+		replaceCost = new DoubleParameter(REPLACE_PARAM, 0, 10E+10, "$$$");
 		replaceCost.addParameterChangeListener((ParameterChangeListener) listener);
 		replaceCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
 	
+	public VulnerabilityBean getVulnerabilityBean() { return vulnBean; }
 	public VulnerabilityModel getVulnerabilityModel() { return vulnBean.getCurrentModel(); }
 	public double getInitialCost() { return initialVal; }
 	public double getReplaceCost() { return replaceVal; }
 
 	////////////////////////////////////////////////////////////////////////////////
-	//                  Minimum Functions to Extend GuiBeanAPI                    //
+	//                Minimum Functions to Implement GuiBeanAPI                   //
 	////////////////////////////////////////////////////////////////////////////////
-	@Override
+
 	/**
 	 * See the general contract in GuiBeanAPI.
 	 */
@@ -78,7 +79,7 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 		}
 		return null;
 	}
-	@Override
+
 	/**
 	 * See the general contract in GuiBeanAPI.
 	 */
@@ -90,7 +91,6 @@ public class StructureDescriptorBean extends GuiBeanAPI {
 		
 		return cname;
 	}
-	@Override
 	/**
 	 * See the general contract in GuiBeanAPI.
 	 */

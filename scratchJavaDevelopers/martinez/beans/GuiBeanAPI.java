@@ -1,7 +1,7 @@
 package scratchJavaDevelopers.martinez.beans;
 
 
-public abstract class GuiBeanAPI {
+public interface GuiBeanAPI {
 	/**
 	 * Predefined named variable for the Application type.
 	 */
@@ -14,8 +14,6 @@ public abstract class GuiBeanAPI {
 	 * Predefined named variable for the Web type
 	 */
 	public static final int WEB = 2;
-	
-	protected GuiBeanAPI() {}
 	
 	/**
 	 * Creates a visualization that can be used in any application type
