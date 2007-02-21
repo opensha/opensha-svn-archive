@@ -56,14 +56,14 @@ public class Visual {
 		sbuf.append("\tVulnerabilityModel = \"" + bean.getCurrentVulnModel().getDisplayName() + "\"\n");
 		sbuf.append("\tIntensity Type = \"" + bean.getCurrentVulnModel().getIMT() + "\"\n");
 		sbuf.append("\tPeriod = " + bean.getCurrentVulnModel().getPeriod() + "\n");
-		sbuf.append("\tInitial Cost = $" + bean.getCurrentInitialCost() + "\n");
+		//sbuf.append("\tInitial Cost = $" + bean.getCurrentInitialCost() + "\n");
 		sbuf.append("\tReplace Cost = $" + bean.getCurrentReplaceCost() + "\n\n");
 		
 		sbuf.append("RetroFit Conditions:\n");
 		sbuf.append("\tVulnerabilityModel = \"" + bean.getRetroVulnModel().getDisplayName() + "\"\n");
 		sbuf.append("\tIntensity Type = \"" + bean.getRetroVulnModel().getIMT() + "\"\n");
 		sbuf.append("\tPeriod = " + bean.getRetroVulnModel().getPeriod() + "\n");
-		sbuf.append("\tInitial Cost = $" + bean.getRetroInitialCost() + "\n");
+		//sbuf.append("\tInitial Cost = $" + bean.getRetroInitialCost() + "\n");
 		sbuf.append("\tReplace Cost = $" + bean.getRetroReplaceCost() + "\n\n");
 		
 		sbuf.append("Discount Rate: " + bean.getDiscountRate() + "%\n");

@@ -74,6 +74,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import java.awt.*;
+import java.text.DecimalFormat;
 
 import javax.swing.*;
 
@@ -234,6 +235,8 @@ public class BCR_Application extends JFrame
   HazardCurveCalculatorAPI calc;
 
   CalcProgressBar progressClass;
+  
+  
 
   protected CalcProgressBar startAppProgressClass;
   //timer threads to show the progress of calculations
@@ -244,7 +247,10 @@ public class BCR_Application extends JFrame
   //checks to see if HazardCurveCalculations are done
   boolean isHazardCalcDone= false;
  
+  //counts the number of computation done till now
   private int computationDisplayCount =0;
+  
+  private DecimalFormat bcrFormat = new DecimalFormat("#.00");
  
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -711,13 +717,14 @@ public class BCR_Application extends JFrame
     ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
 
     
-    EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals());
+    EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals(),
+    		bcbean.getCurrentReplaceCost());
     double currentEALVal = currentCalc.computeEAL();
-    EALCalculator retroCalc = new EALCalculator(retroHazardCurve,newModel.getDFVals());
+    EALCalculator retroCalc = new EALCalculator(retroHazardCurve,newModel.getDFVals(),bcbean.getRetroReplaceCost());
     double newEALVal = retroCalc.computeEAL();
     
     BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
-    		bcbean.getDesignLife(),bcbean.getCurrentInitialCost(),bcbean.getRetroInitialCost());
+    		bcbean.getDesignLife(),bcbean.getRetroCost());
     double bcr = bcCalc.computeBCR();
     double benefit = bcCalc.computeBenefit();
     double cost = bcCalc.computeCost();
@@ -735,8 +742,8 @@ public class BCR_Application extends JFrame
 		  data +="\n\n";
 	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
 	  data +="Site Class = "+siteClass+"\n";
-	  data +="Current EAL Val = "+currentEALVal+"  ; Retrofitted EAL Val = "+newEALVal+"\n";
-	  data +="Benefit = "+benefit+" ; Cost Ratio = "+cost+" ; Benefit Cost Ratio = "+bcr+"\n";
+	  data +="Current EAL Val = "+currentEALVal+"\nRetrofitted EAL Val = "+newEALVal+"\n";
+	  data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcrFormat.format(bcr)+"\n";
 	  data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
 	  data +="Retrofitted Hazard Curve"+"\n"+retroHazardCurve.toString()+"\n\n";
 	  pointsTextArea.setText(data);
