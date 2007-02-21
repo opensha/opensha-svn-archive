@@ -16,6 +16,8 @@ import java.io.*;
 
 
 import org.jfree.data.Range;
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
@@ -49,6 +51,7 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -85,6 +88,7 @@ import org.opensha.sha.gui.controls.CyberShakePlotControlPanel;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+
 
 import scratchJavaDevelopers.martinez.BenefitCostCalculator;
 import scratchJavaDevelopers.martinez.EALCalculator;
@@ -681,6 +685,17 @@ public class BCR_Application extends JFrame
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
+    LocationList locs = new LocationList();
+    Location loc = site.getLocation();
+    locs.addLocation(loc);
+//  getting the wills site class values from servlet
+    String siteClass="";
+    try {
+		ArrayList willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locs);
+		siteClass = (String)willsSiteClassList.get(0);
+	} catch (Exception e1) {
+		e1.printStackTrace();
+	}
 
      // calculate the hazard curve
     try {
@@ -711,19 +726,19 @@ public class BCR_Application extends JFrame
     double benefit = bcCalc.computeBenefit();
     double cost = bcCalc.computeCost();
     isHazardCalcDone = true;
-    displayData(currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
+    displayData(siteClass,currentHazardCurve,retroHazardCurve,currentEALVal,newEALVal,bcr,benefit,cost);
     setButtonsEnable(true);
- 
   }
   
   
-  private void displayData(ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
+  private void displayData(String siteClass,ArbitrarilyDiscretizedFunc currentHazardCurve,ArbitrarilyDiscretizedFunc retroHazardCurve,
 		  double currentEALVal,double newEALVal,double bcr,double benefit,double cost){
 	  ++computationDisplayCount;
 	  String data = pointsTextArea.getText();
 	  if(computationDisplayCount !=1)
 		  data +="\n\n";
 	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
+	  data +="Site Class = "+siteClass+"\n";
 	  data +="Current EAL Val = "+currentEALVal+"  ; Retrofitted EAL Val = "+newEALVal+"\n";
 	  data +="Benefit = "+benefit+" ; Cost Ratio = "+cost+" ; Benefit Cost Ratio = "+bcr+"\n";
 	  data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
