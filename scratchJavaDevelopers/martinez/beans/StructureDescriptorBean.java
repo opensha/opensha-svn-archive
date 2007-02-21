@@ -22,17 +22,14 @@ import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
  */
 public class StructureDescriptorBean implements GuiBeanAPI {
 	private ParameterListEditor applicationEditor = null;
-	private DoubleParameter initialCost = null;
 	private DoubleParameter replaceCost = null;
 	private VulnerabilityBean vulnBean = null;
 	private String descriptorName = "";
 	
-	private double initialVal = 0.0;
 	private double replaceVal = 0.0;
 	
 	private EventListener listener = null;
-	private static final String INITIAL_PARAM = "Initial Construction Cost";
-	private static final String REPLACE_PARAM = "Replacement Construction Cost";
+	private static final String REPLACE_PARAM = "Replacement Cost";
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
@@ -50,10 +47,6 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 		vulnBean = new VulnerabilityBean();
 		listener = new StructureDescriptorParameterListener();
 		
-		initialCost = new DoubleParameter(INITIAL_PARAM, 0, 10E+10, "$$$");
-		initialCost.addParameterChangeListener((ParameterChangeListener) listener);
-		initialCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
-		
 		replaceCost = new DoubleParameter(REPLACE_PARAM, 0, 10E+10, "$$$");
 		replaceCost.addParameterChangeListener((ParameterChangeListener) listener);
 		replaceCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
@@ -61,7 +54,6 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	
 	public VulnerabilityBean getVulnerabilityBean() { return vulnBean; }
 	public VulnerabilityModel getVulnerabilityModel() { return vulnBean.getCurrentModel(); }
-	public double getInitialCost() { return initialVal; }
 	public double getReplaceCost() { return replaceVal; }
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +98,6 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 		if(applicationEditor == null) {
 			ParameterList plist = new ParameterList();
 			plist.addParameter(vulnBean.getParameter());
-			plist.addParameter(initialCost);
 			plist.addParameter(replaceCost);
 			applicationEditor = new ParameterListEditor(plist);
 			applicationEditor.setTitle(descriptorName);
@@ -114,18 +105,13 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 		return applicationEditor;
 	}
 
-	private void handleInitialCostChange(ParameterChangeEvent event) {
-		initialVal = (Double) event.getNewValue();
-	}
 	private void handleReplaceCostChange(ParameterChangeEvent event) {
 		replaceVal = (Double) event.getNewValue();
 	}
 	private class StructureDescriptorParameterListener implements ParameterChangeListener, ParameterChangeFailListener {
 
 		public void parameterChange(ParameterChangeEvent event) {
-			if(INITIAL_PARAM.equals(event.getParameterName()))
-				handleInitialCostChange(event);
-			else if(REPLACE_PARAM.equals(event.getParameterName()))
+			if(REPLACE_PARAM.equals(event.getParameterName()))
 				handleReplaceCostChange(event);
 		}
 		

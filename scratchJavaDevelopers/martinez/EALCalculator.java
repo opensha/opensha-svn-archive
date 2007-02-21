@@ -16,6 +16,7 @@ public class EALCalculator {
 	private ArrayList<Double> IML = null;
 	private ArrayList<Double> DF = null;
 	private ArrayList<Double> PE = null;
+	double structValue = 0.0;
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                             Public Constructors                            //
@@ -35,10 +36,11 @@ public class EALCalculator {
 	 * @param DF An <code>ArrayList</code> of doubles representing the Damage Factor Values.
 	 * @param PE An <code>ArrayList</code> of doubles representing the Probability of Exceedance Values.
 	 */
-	public EALCalculator(ArrayList<Double> IML, ArrayList<Double> DF, ArrayList<Double> PE) {
+	public EALCalculator(ArrayList<Double> IML, ArrayList<Double> DF, ArrayList<Double> PE, double structValue) {
 		this.IML = IML;
 		this.DF = DF;
 		this.PE = PE;
+		this.structValue = structValue;
 	}
 	
 	/**
@@ -48,7 +50,7 @@ public class EALCalculator {
 	 * @param hazFunc The Hazard Function defining (x,y) values for IML,PE respectively.
 	 * @param DF The Damage Factor values to use in calculation.
 	 */
-	public EALCalculator(DiscretizedFuncAPI hazFunc, ArrayList<Double> DF) {
+	public EALCalculator(DiscretizedFuncAPI hazFunc, ArrayList<Double> DF, double structValue) {
 		this.IML = new ArrayList<Double>();
 		this.PE = new ArrayList<Double>();
 		this.DF = DF;
@@ -60,6 +62,7 @@ public class EALCalculator {
 		while(yIter.hasNext()) {
 			PE.add((Double) yIter.next());
 		}
+		this.structValue = structValue;
 	}
 	
 	/**
@@ -70,7 +73,7 @@ public class EALCalculator {
 	 * defined by the vulnFunc.
 	 * @param vulnFunc The Vulnerability Function defining (x,y) values for IML,DF respectively.
 	 */
-	public EALCalculator(ArrayList<Double> PE, DiscretizedFuncAPI vulnFunc) {
+	public EALCalculator(ArrayList<Double> PE, DiscretizedFuncAPI vulnFunc, double structValue) {
 		this.IML = new ArrayList<Double>();
 		this.PE = PE;
 		this.DF = new ArrayList<Double>();
@@ -82,9 +85,10 @@ public class EALCalculator {
 		while(yIter.hasNext()) {
 			DF.add((Double) yIter.next());
 		}
+		this.structValue = structValue;
 	}
 	
-	public  EALCalculator(DiscretizedFuncAPI hazFunc, DiscretizedFuncAPI vulnFunc) throws
+	public  EALCalculator(DiscretizedFuncAPI hazFunc, DiscretizedFuncAPI vulnFunc, double structValue) throws
 			IllegalArgumentException {
 		this.IML = new ArrayList<Double>();
 		this.PE = new ArrayList<Double>();
@@ -104,6 +108,7 @@ public class EALCalculator {
 			PE.add(hy);
 			DF.add(vy);
 		}
+		this.structValue = structValue;
 	}
 	////////////////////////////////////////////////////////////////////////////////
 	//                               Public Functions                             //
@@ -117,10 +122,10 @@ public class EALCalculator {
 	 * @param PE An <code>ArrayList</code> of doubles representing the Probability of Exceedance Values.
 	 * @return The Expected Annualized Loss for the given parameters.
 	 */
-	public static double computeEAL(ArrayList<Double> IML, ArrayList<Double> DF, ArrayList<Double> PE) {
+	public static double computeEAL(ArrayList<Double> IML, ArrayList<Double> DF, ArrayList<Double> PE, double structValue) {
 		if(IML == null || DF == null || PE == null)
 			throw new IllegalArgumentException("Null Values are not allowed!");
-		EALCalculator calc = new EALCalculator(IML, DF, PE);
+		EALCalculator calc = new EALCalculator(IML, DF, PE, structValue);
 		return calc.computeEAL();
 	}
 
@@ -141,7 +146,7 @@ public class EALCalculator {
 		double g, holder;
 		
 		double R = 0.0;
-		double V = 1.0;
+		double V = structValue;
 		
 		for(int i = 1; i < IML.size(); ++i) {
 			iml_cur = IML.get(i);
@@ -194,6 +199,12 @@ public class EALCalculator {
 	/** Note: No checking is done to ensure the given PE values correspond to current IML values */
 	public void setPE(ArrayList<Double> pe) {
 		PE = pe;
+	}
+	public double getStructValue() {
+		return structValue;
+	}
+	public void setStructValue(double structValue) {
+		this.structValue = structValue;
 	}
 	
 	/**
@@ -261,7 +272,7 @@ public class EALCalculator {
 			testDF.add(DFvals[i]);
 			testPE.add(PEvals[i]);
 		}
-		return EALCalculator.computeEAL(testIML, testDF, testPE);
+		return EALCalculator.computeEAL(testIML, testDF, testPE, 1.0);
 	}
 	////////////////////////////////////////////////////////////////////////////////
 	//                             Private Functions                              //

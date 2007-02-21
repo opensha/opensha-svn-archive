@@ -32,10 +32,12 @@ public class BenefitCostBean implements GuiBeanAPI {
 	private String description = "";
 	private double discountRate = 0.0;
 	private double designLife = 0.0;
+	private double retroCost = 0.0;
 
 	private static final String DESC_PARAM = "BCR Description";
 	private static final String DISCOUNT_PARAM = "Discount Rate";
 	private static final String DESIGN_PARAM = "Design Life";
+	private static final String RC_PARAM = "Added Cost to Retrofit";
 	
 	private StructureDescriptorBean structNow = null;
 	private StructureDescriptorBean structRetro = null;
@@ -43,6 +45,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 	private StringParameter descParam = null;
 	private DoubleParameter discRateParam = null;
 	private DoubleParameter dsgnLifeParam = null;
+	private DoubleParameter retroCostParam = null;
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//                              Public Functions                              //
@@ -64,20 +67,23 @@ public class BenefitCostBean implements GuiBeanAPI {
 		dsgnLifeParam = new DoubleParameter(DESIGN_PARAM, 0.0, 10E+5, "Years");
 		dsgnLifeParam.addParameterChangeListener((ParameterChangeListener) listener);
 		dsgnLifeParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		
+		retroCostParam = new DoubleParameter(RC_PARAM, 0.0, 10E+10, "$$$");
+		retroCostParam.addParameterChangeListener((ParameterChangeListener) listener);
+		retroCostParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
 
 	public String getDescription() { return description; }
 	public double getDiscountRate() { return discountRate; }
 	public double getDesignLife() { return designLife; }
+	public double getRetroCost() { return retroCost; }
 	
 	public VulnerabilityModel getCurrentVulnModel() { return getVulnModel(CURRENT); }
 	public ParameterAPI getCurrentVulnParam() { return getVulnerabilityParameter(CURRENT); }
-	public double getCurrentInitialCost() { return getInitialCost(CURRENT); }
 	public double getCurrentReplaceCost() { return getReplaceCost(CURRENT); }
 	
 	public VulnerabilityModel getRetroVulnModel() { return getVulnModel(RETRO); }
 	public ParameterAPI getRetroVulnParam() { return getVulnerabilityParameter(RETRO); }
-	public double getRetroInitialCost() { return getInitialCost(RETRO); }
 	public double getRetroReplaceCost() { return getReplaceCost(RETRO); }
 	
 	/**
@@ -93,21 +99,6 @@ public class BenefitCostBean implements GuiBeanAPI {
 			return structNow.getVulnerabilityModel();
 		else if (design == RETRO)
 			return structRetro.getVulnerabilityModel();
-		else
-			throw new IllegalArgumentException("The given design is not currently supported.");
-	}
-	
-	/**
-	 * @param design One of CURRENT or RETRO depending on which initial cost if of interest.
-	 * @return The initial cost of construction either under the current construction conditions,
-	 * or that of the "what-if" retrofitted conditions depeding on the value of <code>design</code>.
-	 * @throws IllegalArgumentException if the given <code>design</code> is not supported.
-	 */
-	public double getInitialCost(int design) {
-		if(design == CURRENT)
-			return structNow.getInitialCost();
-		else if (design == RETRO)
-			return structRetro.getInitialCost();
 		else
 			throw new IllegalArgumentException("The given design is not currently supported.");
 	}
@@ -224,16 +215,20 @@ public class BenefitCostBean implements GuiBeanAPI {
 		structSplit.setDividerLocation(230);
 
 		try {
+			panel.add((JComponent) new DoubleParameterEditor(retroCostParam), new GridBagConstraints(
+					0, 0, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					new Insets(5, 5, 5, 5), 2, 2)
+			);
 			panel.add((JComponent) new DoubleParameterEditor(discRateParam), new GridBagConstraints(
-					0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 			panel.add((JComponent) new DoubleParameterEditor(dsgnLifeParam), new GridBagConstraints(
-					1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 			panel.add((JComponent) new StringParameterEditor(descParam), new GridBagConstraints(
-					0, 1, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+					0, 2, 2, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2)
 			);
 		} catch (Exception ex) {
@@ -242,7 +237,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 		
 
 		JSplitPane paramSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, structSplit, panel);
-		paramSplit.setDividerLocation(350);
+		paramSplit.setDividerLocation(250);
 		
 		ret.add(paramSplit, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 2, 2));
