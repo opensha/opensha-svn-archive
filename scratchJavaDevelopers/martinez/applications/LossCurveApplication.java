@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
+import org.jfree.data.Range;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.StringParameter;
@@ -24,6 +25,8 @@ import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
@@ -35,7 +38,8 @@ import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 import scratchJavaDevelopers.martinez.beans.VulnerabilityBean;
 
 @SuppressWarnings("serial")
-public class LossCurveApplication extends JFrame {
+public class LossCurveApplication extends JFrame
+		implements GraphPanelAPI, ButtonControlPanelAPI {
 	/* Used for main content of application */
 	protected JSplitPane mainSplitPane = null;
 	protected JTabbedPane mainLeftContent = null;
@@ -52,12 +56,25 @@ public class LossCurveApplication extends JFrame {
 	/* Other compenents */
 	private JButton btnCalc = null;
 	private JButton btnClear = null;
+	private ButtonControlPanel bcPanel =  null;
 	private ArrayList<ArbitrarilyDiscretizedFunc> lossCurves = null;
+	private boolean xLog = false;
+	private boolean yLog = false;
+	private String plotLabel = "Loss Curve";
+	private String xAxisLabel = "Intensity Measure Level";
+	private String yAxisLabel = "Percent Loss";
+	private double maxXValue = 10.0;
+	private double minXValue = 0.0;
+	private double maxYValue = 10E+10;
+	private double minYValue = 0.0;
+	private Range xAxisRange = new Range(minXValue, maxXValue);
+	private Range yAxisRange = new Range(minYValue, maxYValue);
+	private boolean customAxis = false;
 	
 	/* Static Parameters used for Calculation */
 	private static ERF_API forecast = null;
 	private static AttenuationRelationshipAPI imr = null;
-	
+
 	
 	/**
 	 * Instantiates a new </code>LossCurveApplication</code> object and
@@ -105,6 +122,7 @@ public class LossCurveApplication extends JFrame {
 				btnClear_actionPerformed(event);
 			}
 		});
+		bcPanel = new ButtonControlPanel(this);
 		
 		mainRightContent.add((Component) vulnBean.getVisualization(GuiBeanAPI.APPLICATION), new GridBagConstraints(
 				0, 0, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
@@ -143,9 +161,9 @@ public class LossCurveApplication extends JFrame {
 		ArbitrarilyDiscretizedFunc hazFunc = getHazardCurve();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(hazFunc, vulnBean.getCurrentModel());
 		lossFunc.setInfo(getParameterInfoString());
-		lossCurves.add(lossFunc);
 		
-		
+		// Do this to swap the order, so curves stay the same color...
+		lossCurves.add(0, lossFunc);
 	}
 	
 	protected void btnClear_actionPerformed(ActionEvent event) {
@@ -164,18 +182,13 @@ public class LossCurveApplication extends JFrame {
 	
 	private JTabbedPane generateLeftContentPane() {
 		JTabbedPane newLeftContent = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
-		graphOut = new GraphPanel(new GraphPanelAPI() {
-			public double getMaxX() { return 10.0; }
-			public double getMaxY() { return 10E10; }
-			public double getMinX() { return 0.0; }
-			public double getMinY() { return 0.0; }
-		});
+		graphOut = new GraphPanel(this);
 		
 		textOut = new JPanel(new GridBagLayout());
 		newLeftContent.addTab("Graphical Output", null, graphOut, "View Graph");
 		newLeftContent.addTab("Raw Data Output", null, textOut, "View Data");
 		newLeftContent.setPreferredSize(new Dimension(500, 500));
-		newLeftContent.setSize(mainLeftContent.getPreferredSize());
+		newLeftContent.setSize(newLeftContent.getPreferredSize());
 		return newLeftContent;
 	}
 	
@@ -204,5 +217,46 @@ public class LossCurveApplication extends JFrame {
 	
 	private String getParameterInfoString() {
 		return "";
+	}
+
+	private void drawGraph() {
+		graphOut.drawGraphPanel(xAxisLabel, yAxisLabel, lossCurves, xLog, yLog, customAxis, plotLabel, bcPanel);
+	}
+	
+	/* Functions to implement the GraphPanelAPI */
+	public double getMaxX() {return maxXValue;}
+	public double getMaxY() {return maxYValue;}
+	public double getMinX() {return minXValue;}
+	public double getMinY() {return minYValue;}
+
+	/* Functions to implement the ButtonControlPanelAPI */
+	public String getPlotLabel() {return plotLabel;}
+	public ArrayList getPlottingFeatures() {
+		return graphOut.getCurvePlottingCharacterstic();
+	}
+	
+	public String getXAxisLabel() {return xAxisLabel;}
+	public String getYAxisLabel() {return yAxisLabel;}
+	public Range getX_AxisRange() {return xAxisRange;}
+	public Range getY_AxisRange() {return yAxisRange;}
+
+	public void plotGraphUsingPlotPreferences() {drawGraph();}
+	public void setPlotLabel(String plotTitle) {this.plotLabel = plotTitle;}
+	
+	public void setXAxisLabel(String xAxisLabel) {this.xAxisLabel = xAxisLabel;}
+	public void setYAxisLabel(String yAxisLabel) {this.yAxisLabel = yAxisLabel;}
+	public void setX_Log(boolean xLog) {this.xLog = xLog;}
+	public void setY_Log(boolean yLog) {this.yLog = yLog;}
+
+	public void setAutoRange() {this.customAxis = false; drawGraph();}
+	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
+		this.minXValue = xMin; this.maxXValue = xMax;
+		this.minYValue = yMin; this.maxYValue = yMax;
+		this.customAxis = true; drawGraph();
+	}
+
+	public void togglePlot() {
+		// TODO Auto-generated method stub
+		
 	}
 }
