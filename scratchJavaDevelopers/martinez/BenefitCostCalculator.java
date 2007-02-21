@@ -12,8 +12,7 @@ package scratchJavaDevelopers.martinez;
 public class BenefitCostCalculator {
 	private double EAL0;
 	private double EAL1;
-	private double Cost0;
-	private double Cost1;
+	private double netCost;
 	private double rate;
 	private double years;
 	
@@ -44,8 +43,16 @@ public class BenefitCostCalculator {
 			double years, double cost0, double cost1) {
 		this.EAL0 = eal0;
 		this.EAL1 = eal1;
-		this.Cost0 = cost0;
-		this.Cost1 = cost1;
+		this.netCost = cost1 - cost0;
+		this.rate = rate;
+		this.years = years;
+	}
+	
+	public BenefitCostCalculator(double eal0, double eal1, double rate,
+			double years, double netCost) {
+		this.EAL0 = eal0;
+		this.EAL1 = eal1;
+		this.netCost = netCost;
 		this.rate = rate;
 		this.years = years;
 	}
@@ -74,7 +81,7 @@ public class BenefitCostCalculator {
 	 * @return The cost of retrofitting the structure.
 	 */
 	public double computeCost() {
-		return (Cost1 - Cost0);
+		return netCost;
 	}
 	
 	/**
@@ -134,16 +141,15 @@ public class BenefitCostCalculator {
 
 	
 	////////////////////          Setters          ////////////////////
-	public void setInitialCost(double cost0) {Cost0 = cost0;}
-	public void setRetroCost(double cost1) {Cost1 = cost1;}
+	public void setNetCost(double netCost) {this.netCost = netCost;}
+	public void setNetCost(double cost0, double cost1) {this.netCost = cost1 - cost0;}
 	public void setInitialEAL(double eal0) {EAL0 = eal0;}
 	public void setRetroEAL(double eal1) {EAL1 = eal1;}
 	public void setRate(double rate) {this.rate = rate;}
 	public void setYears(double years) {this.years = years;}
 
 	////////////////////          Getters          ////////////////////
-	public double getInitialCost() {return Cost0;}
-	public double getRetroCost() {return Cost1;}
+	public double getNetCost() {return netCost;}
 	public double getInitialEAL() {return EAL0;}
 	public double getRetroEAL() {return EAL1;}
 	public double getRate() {return rate;}
