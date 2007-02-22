@@ -260,6 +260,10 @@ public class BenefitCostBean implements GuiBeanAPI {
 		designLife = (Double) event.getNewValue();
 	}
 	
+	private void handleRetroChangeEvent(ParameterChangeEvent event) {
+		retroCost = (Double) event.getNewValue();
+	}
+	
 	private class BenefitCostParameterListener implements ParameterChangeListener, ParameterChangeFailListener {
 
 		public void parameterChange(ParameterChangeEvent event) {
@@ -269,6 +273,8 @@ public class BenefitCostBean implements GuiBeanAPI {
 				handleDiscountChangeEvent(event);
 			else if(DESIGN_PARAM.equals(event.getParameterName()))
 				handleDesignChangeEvent(event);
+			else if(RC_PARAM.equals(event.getParameterName()))
+				handleRetroChangeEvent(event);
 		}
 
 		public void parameterChangeFailed(ParameterChangeFailEvent event) {
