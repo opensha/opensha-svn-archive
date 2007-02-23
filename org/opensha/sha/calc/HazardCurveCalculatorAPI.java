@@ -29,7 +29,13 @@ public interface HazardCurveCalculatorAPI extends Remote{
   public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
 
 
-
+	/**
+	 * Returns the Annualized Rates for the Hazard Curves 
+	 * @param hazFunction Discretized Hazard Function
+	 * @return
+	 */
+	  public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
+	  throws java.rmi.RemoteException;
 
   /**
    * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve

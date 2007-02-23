@@ -68,7 +68,21 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   }
 
 
-
+	/**
+	 * Returns the Annualized Rates for the Hazard Curves 
+	 * @param hazFunction Discretized Hazard Function
+	 * @return DiscretizedFuncAPI Annualized Rate Curve
+	 */
+	  public DiscretizedFuncAPI getAnnualizedRates(DiscretizedFuncAPI hazFunction,double years) 
+	  throws java.rmi.RemoteException{
+		  DiscretizedFuncAPI annualizedRateFunc = hazFunction.deepClone();
+		  int size = annualizedRateFunc.getNum();
+		  for(int i=0;i<size;++i){
+			  annualizedRateFunc.set(i, - (1-Math.log(annualizedRateFunc.getY(i)))/years);
+		  }
+		  return annualizedRateFunc;
+	  }
+  
 
   /**
    * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve

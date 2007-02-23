@@ -143,8 +143,8 @@ public class BCR_Application extends JFrame
   protected Site_GuiBean siteGuiBean;
 
 
-
-
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgslogo.JPG")));
 
 
   // Strings for control pick list
@@ -250,7 +250,7 @@ public class BCR_Application extends JFrame
   //counts the number of computation done till now
   private int computationDisplayCount =0;
   
-  private DecimalFormat bcrFormat = new DecimalFormat("#.00");
+  private DecimalFormat bcrFormat = new DecimalFormat("0.00");
  
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -394,9 +394,9 @@ public class BCR_Application extends JFrame
     buttonPanel.add(addButton, 1);
     buttonPanel.add(cancelCalcButton, 2);
     buttonPanel.add(clearButton, 3);
- 
     buttonPanel.add(progressCheckBox, 4);
-
+    buttonPanel.add(openshaImgLabel, 5);
+    buttonPanel.add(usgsImgLabel, 6);
 
     //making the cancel button not visible until user has started to do the calculation
     cancelCalcButton.setVisible(false);
@@ -714,8 +714,24 @@ public class BCR_Application extends JFrame
     }
    
     ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
+    ArbitrarilyDiscretizedFunc currentAnnualizedRates;
+    try {
+		currentAnnualizedRates = 
+			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
+					forecast.getTimeSpan().getDuration());
+	} catch (RemoteException e) {
+		
+	}
+    
     ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
-
+    ArbitrarilyDiscretizedFunc retroAnnualizedRates;
+    try {
+    	retroAnnualizedRates = 
+			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(retroHazardCurve, 
+					forecast.getTimeSpan().getDuration());
+	} catch (RemoteException e) {
+		
+	}
     
     EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals(),
     		bcbean.getCurrentReplaceCost());
@@ -743,7 +759,7 @@ public class BCR_Application extends JFrame
 	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
 	  data +="Site Class = "+siteClass+"\n";
 	  data +="Current EAL Val = "+currentEALVal+"\nRetrofitted EAL Val = "+newEALVal+"\n";
-	  data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcrFormat.format(bcr)+"\n";
+	  data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcr+"\n";
 	  data +="Curent Hazard Curve"+"\n"+currentHazardCurve.toString();
 	  data +="Retrofitted Hazard Curve"+"\n"+retroHazardCurve.toString()+"\n\n";
 	  pointsTextArea.setText(data);
