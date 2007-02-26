@@ -396,8 +396,8 @@ public class BCR_Application extends JFrame
     buttonPanel.add(cancelCalcButton, 2);
     buttonPanel.add(clearButton, 3);
     buttonPanel.add(progressCheckBox, 4);
-    buttonPanel.add(openshaImgLabel, 5);
-    buttonPanel.add(usgsImgLabel, 6);
+    buttonPanel.add(usgsImgLabel, 5);
+    buttonPanel.add(openshaImgLabel, 6);
     buttonPanel.add(riskAgoraImgLabel,7);
     
 
