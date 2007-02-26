@@ -14,4 +14,21 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>etc/img/openrisk_logoonly.gif</name>
+			<type>1</type>
+			<location>/Users/emartinez/Desktop/imgs/openrisk_logoonly.gif</location>
+		</link>
+		<link>
+			<name>etc/img/usgs_logoonly.gif</name>
+			<type>1</type>
+			<location>/Users/emartinez/Desktop/imgs/usgs_logoonly.gif</location>
+		</link>
+		<link>
+			<name>etc/img/opensha_logoonly.gif</name>
+			<type>1</type>
+			<location>/Users/emartinez/Desktop/imgs/opensha_logoonly.gif</location>
+		</link>
+	</linkedResources>
 </projectDescription>
