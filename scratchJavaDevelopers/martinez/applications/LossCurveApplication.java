@@ -256,12 +256,12 @@ public class LossCurveApplication extends JFrame {
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_logoonly.gif")));
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("openrisk_logoonly.gif")));
 		creditPanel.add(usgsImgLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST,
-				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
+				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.add(openshaImgLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
+				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.add(riskAgoraImgLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
-				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
-		creditPanel.setPreferredSize(new Dimension(290, 100));
+				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
+		creditPanel.setPreferredSize(new Dimension(250, 80));
 		
 		splash.setTitle("A Joint Effort");
 		splash.add(creditPanel);
