@@ -34,7 +34,7 @@ import scratchJavaDevelopers.martinez.LossCurveCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 import scratchJavaDevelopers.martinez.beans.GraphPane;
 import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
-import scratchJavaDevelopers.martinez.beans.ProgressBar;
+//import scratchJavaDevelopers.martinez.beans.ProgressBar;
 import scratchJavaDevelopers.martinez.beans.VulnerabilityBean;
 
 @SuppressWarnings("serial")
@@ -157,8 +157,8 @@ public class LossCurveApplication extends JFrame {
 	}
 	
 	protected void btnCalc_actionPerformed(ActionEvent event) {
-		ProgressBar progress = new ProgressBar((Component) this, "Computing", "Computing", creditPanel, 0);
-		progress.run();
+		//ProgressBar progress = new ProgressBar((Component) this, "Computing", "Computing", creditPanel, 0);
+		//progress.run();
 		LossCurveCalculator lCalc = new LossCurveCalculator();
 		ArbitrarilyDiscretizedFunc hazFunc = getHazardCurve();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(hazFunc, vulnBean.getCurrentModel());
@@ -171,7 +171,7 @@ public class LossCurveApplication extends JFrame {
 		mainSplitPane.remove(mainLeftContent);
 		mainLeftContent = generateLeftContentPane(lossCurves);
 		mainSplitPane.add(mainLeftContent, JSplitPane.LEFT);
-		progress.dispose();
+		//progress.dispose();
 		mainSplitPane.repaint();
 	}
 	
