@@ -254,7 +254,7 @@ public class LossCurveApplication extends JFrame {
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));*/
 		JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("opensha_logoonly.gif")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_logoonly.gif")));
-		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("agora_logoonly.gif")));
+		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("openrisk_logoonly.gif")));
 		creditPanel.add(usgsImgLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST,
 				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.add(openshaImgLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
