@@ -26,6 +26,8 @@ public class LossCurveCalculator {
 		while(iter.hasNext())
 			pelist.add((Double) iter.next());
 		
+		pelist = diffIt(pelist);
+		
 		Matrix PEMatrix = new Matrix(pelist.size(), 1);
 		for(int i = 0; i < pelist.size(); ++i)
 			PEMatrix.set(i, 0, pelist.get(i));
@@ -39,6 +41,15 @@ public class LossCurveCalculator {
 			lossCurve.set(dfs[i], result.get(i, 0));
 		
 		return lossCurve;
+	}
+	
+	public static ArrayList<Double> diffIt(ArrayList<Double> vals) {
+		ArrayList<Double> rtn = new ArrayList<Double>();
+		int i = 1;
+		for(i=1; i < vals.size(); ++i)
+			rtn.add(vals.get(i-1) - vals.get(i));
+		rtn.add(vals.get(--i));
+		return rtn;
 	}
 
 }

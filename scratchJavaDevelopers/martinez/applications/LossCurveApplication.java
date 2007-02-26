@@ -15,8 +15,8 @@ import javax.swing.*;
 
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
+//import org.opensha.param.StringParameter;
+//import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -24,9 +24,11 @@ import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
+import org.opensha.util.ImageUtils;
 
 import scratchJavaDevelopers.martinez.LossCurveCalculator;
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
@@ -44,11 +46,13 @@ public class LossCurveApplication extends JFrame {
 	/* Beans that provide input parameters */
 	protected VulnerabilityBean vulnBean = null;
 	protected Site_GuiBean siteBean = null;
+	protected TimeSpanGuiBean timeBean = null;
 	
 	/* Other compenents */
 	private JButton btnCalc = null;
 	private JButton btnClear = null;
 	private ArrayList<ArbitrarilyDiscretizedFunc> lossCurves = new ArrayList<ArbitrarilyDiscretizedFunc>();
+	private static JFrame splashScreen = null;
 	
 	/* Static Parameters used for Calculation */
 	private static ERF_API forecast = null;
@@ -61,8 +65,12 @@ public class LossCurveApplication extends JFrame {
 	 * application.
 	 */
 	public static void main(String[] args) {
+		splashScreen = createSplashScreen();
+		splashScreen.setVisible(true);
 		LossCurveApplication app = new LossCurveApplication();
 		app.prepare();
+		splashScreen.setVisible(false);
+		splashScreen.dispose();
 		app.setVisible(true);
 	}
 
@@ -92,6 +100,7 @@ public class LossCurveApplication extends JFrame {
 		mainRightContent = new JPanel(new GridBagLayout());
 		vulnBean = new VulnerabilityBean();
 		siteBean = new Site_GuiBean();
+		timeBean = new TimeSpanGuiBean(forecast.getTimeSpan());
 		siteBean.addSiteParams(imr.getSiteParamsIterator());
 		btnCalc = new JButton("Calculate");
 		btnCalc.addActionListener(new ActionListener() {
@@ -112,7 +121,11 @@ public class LossCurveApplication extends JFrame {
 		mainRightContent.add(siteBean, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2)); 
 		
-		try {
+		mainRightContent.add(timeBean, new GridBagConstraints(0, 3, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		
+		/* Removed at Nico's request to make room for other parameter/logos.  E.M. 2/25/2007 */
+		/*try {
 			mainRightContent.add(new ConstrainedStringParameterEditor(new StringParameter("Forecast Model", forecasts)), new GridBagConstraints(
 					0, 2, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
 					new Insets(5, 5, 5, 5), 2, 2));
@@ -121,13 +134,14 @@ public class LossCurveApplication extends JFrame {
 					new Insets(5, 5, 5, 5), 2, 2));
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		mainRightContent.add(btnCalc, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		mainRightContent.add(btnClear, new GridBagConstraints(1, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		
+
 		mainRightContent.setPreferredSize(new Dimension(300, 500));
 		mainRightContent.setSize(mainRightContent.getPreferredSize());
 		
@@ -139,6 +153,7 @@ public class LossCurveApplication extends JFrame {
 	}
 	
 	protected void btnCalc_actionPerformed(ActionEvent event) {
+		forecast.setTimeSpan(timeBean.getTimeSpan());
 		LossCurveCalculator lCalc = new LossCurveCalculator();
 		ArbitrarilyDiscretizedFunc hazFunc = getHazardCurve();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(hazFunc, vulnBean.getCurrentModel());
@@ -219,5 +234,33 @@ public class LossCurveApplication extends JFrame {
 	
 	private String getParameterInfoString() {
 		return "";
+	}
+	
+	private static JFrame createSplashScreen() {
+		JFrame splash = new JFrame();
+		JPanel contentPanel = new JPanel(new GridBagLayout());
+		JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
+		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgslogo.JPG")));
+		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));
+		JLabel textLabel = new JLabel("A Joint Effort");
+		contentPanel.add(textLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		contentPanel.add(riskAgoraImgLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		contentPanel.add(usgsImgLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		contentPanel.add(openshaImgLabel, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		contentPanel.setPreferredSize(new Dimension(370, 370));
+		
+		splash.setTitle("Loading...");
+		splash.add(contentPanel);
+		splash.pack();
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		splash.setLocation(
+	    		(dim.width - splash.getSize().width) / 2, 
+	    		(dim.height - splash.getSize().height) / 2
+	    	);
+	    return splash;
 	}
 }
