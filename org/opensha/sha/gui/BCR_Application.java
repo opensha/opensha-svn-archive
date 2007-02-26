@@ -143,9 +143,9 @@ public class BCR_Application extends JFrame
   protected Site_GuiBean siteGuiBean;
 
 
-  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgslogo.JPG")));
-  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
 
 
   // Strings for control pick list
@@ -396,9 +396,9 @@ public class BCR_Application extends JFrame
     buttonPanel.add(cancelCalcButton, 2);
     buttonPanel.add(clearButton, 3);
     buttonPanel.add(progressCheckBox, 4);
-    buttonPanel.add(riskAgoraImgLabel,5);
+    buttonPanel.add(openshaImgLabel, 5);
     buttonPanel.add(usgsImgLabel, 6);
-    buttonPanel.add(openshaImgLabel, 7);
+    buttonPanel.add(riskAgoraImgLabel,7);
     
 
     //making the cancel button not visible until user has started to do the calculation
