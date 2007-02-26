@@ -142,6 +142,7 @@ public class GraphPane extends JPanel
 		}
 
 		graphPanel = new GraphPanel(this);
+		graphPanel.setSplitLocation(425);
 		drawGraph();
 	}
 
@@ -167,7 +168,7 @@ public class GraphPane extends JPanel
 		add(chartSplitPane, BorderLayout.CENTER);
 		chartSplitPane.add(chartPane, JSplitPane.TOP);
 		chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-		chartSplitPane.setDividerLocation(650);
+		chartSplitPane.setDividerLocation(550);
 		//object for the ButtonControl Panel
 		buttonControlPanel = new ButtonControlPanel(this);
 		buttonPanel.add(buttonControlPanel, 0);
@@ -242,20 +243,20 @@ public class GraphPane extends JPanel
 	private void drawGraph() {
 
 		//getting the list of the curves that we need to plot
-String selectedDataToPlot = (String) graphListCombo.getSelectedItem();
+		String selectedDataToPlot = (String) graphListCombo.getSelectedItem();
 
-	//show correct graph titles
-	plotTitle = selectedDataToPlot;
+		//show correct graph titles
+		plotTitle = selectedDataToPlot;
 
-ArrayList functionsToPlot = (ArrayList) map.get(selectedDataToPlot);
-ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)
+		ArrayList functionsToPlot = (ArrayList) map.get(selectedDataToPlot);
+		ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)
 		functionsToPlot.get(0);
-xAxisName = func.getXAxisName();
-yAxisName = func.getYAxisName();
+		xAxisName = func.getXAxisName();
+		yAxisName = func.getYAxisName();
 
-//creating the graph to be shown in the window
+		//creating the graph to be shown in the window
 		graphPanel.drawGraphPanel(xAxisName, yAxisName, functionsToPlot, xLog, yLog,
-															customAxis, plotTitle, buttonControlPanel);
+				customAxis, plotTitle, buttonControlPanel);
 		togglePlot();
 		graphPanel.updateUI();
 	}
@@ -375,6 +376,8 @@ yAxisName = func.getYAxisName();
 	public void setLogSpace(boolean xlog, boolean ylog) {
 		this.xLog = xlog;
 		this.yLog = ylog;
+		buttonControlPanel.setXLog(xlog);
+		buttonControlPanel.setYLog(ylog);
 		drawGraph();
 	}
 }

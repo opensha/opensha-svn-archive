@@ -53,6 +53,7 @@ public class LossCurveApplication extends JFrame {
 	private JButton btnClear = null;
 	private ArrayList<ArbitrarilyDiscretizedFunc> lossCurves = new ArrayList<ArbitrarilyDiscretizedFunc>();
 	private static JFrame splashScreen = null;
+	private static JPanel creditPanel = null;
 	
 	/* Static Parameters used for Calculation */
 	private static ERF_API forecast = null;
@@ -141,8 +142,10 @@ public class LossCurveApplication extends JFrame {
 		mainRightContent.add(btnClear, new GridBagConstraints(1, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		
+		mainRightContent.add(creditPanel, new GridBagConstraints(0, 5, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 
-		mainRightContent.setPreferredSize(new Dimension(300, 500));
+		mainRightContent.setPreferredSize(new Dimension(300, 600));
 		mainRightContent.setSize(mainRightContent.getPreferredSize());
 		
 		// Put it all together
@@ -153,19 +156,14 @@ public class LossCurveApplication extends JFrame {
 	}
 	
 	protected void btnCalc_actionPerformed(ActionEvent event) {
-		forecast.setTimeSpan(timeBean.getTimeSpan());
 		LossCurveCalculator lCalc = new LossCurveCalculator();
 		ArbitrarilyDiscretizedFunc hazFunc = getHazardCurve();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(hazFunc, vulnBean.getCurrentModel());
 		lossFunc.setInfo(getParameterInfoString());
-		lossFunc.setName("Risk Curve - " + vulnBean.getCurrentModel().getDisplayName() + " (" + 
-				siteBean.getSite().getLocation().getLongitude() + ", " +
-				siteBean.getSite().getLocation().getLatitude() + ")");
+		lossFunc.setName(vulnBean.getCurrentModel().getDisplayName());
 		lossFunc.setXAxisName("Damage Factor");
 		lossFunc.setYAxisName("Probability of Exceedance");
-		
-		// Do this to swap the order, so curves stay the same color...
-		lossCurves.add(0, lossFunc);
+		lossCurves.add(lossFunc);
 		
 		mainSplitPane.remove(mainLeftContent);
 		mainLeftContent = generateLeftContentPane(lossCurves);
@@ -233,28 +231,40 @@ public class LossCurveApplication extends JFrame {
 	}
 	
 	private String getParameterInfoString() {
-		return "";
+		String TAB = "     ";
+		String NEWLINE = System.getProperty("line.separator") + TAB;
+		StringBuffer strBuf = new StringBuffer();
+		strBuf.append(NEWLINE);
+		strBuf.append("Forecast Model:      " + TAB + forecast.getName() + NEWLINE);
+		strBuf.append("Duration:                " + TAB + forecast.getTimeSpan().getDuration() + " years" + NEWLINE);
+		strBuf.append("Vulnerability Model:" + TAB + vulnBean.getCurrentModel().getDisplayName() + NEWLINE);
+		strBuf.append("Vs30 Value:             " + TAB + 
+				siteBean.getParameterListEditor().getParameterList().getParameter(
+				AttenuationRelationship.VS30_NAME).getValue() + " m/sec" + NEWLINE);
+		strBuf.append("Latitude:" + TAB + siteBean.getSite().getLocation().getLatitude() +
+				TAB + "Longitude:" + TAB + siteBean.getSite().getLocation().getLongitude() + NEWLINE);
+		return strBuf.toString();
 	}
 	
 	private static JFrame createSplashScreen() {
 		JFrame splash = new JFrame();
-		JPanel contentPanel = new JPanel(new GridBagLayout());
-		JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
+		creditPanel = new JPanel(new GridBagLayout());
+		/*JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgslogo.JPG")));
-		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));
-		JLabel textLabel = new JLabel("A Joint Effort");
-		contentPanel.add(textLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		contentPanel.add(riskAgoraImgLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		contentPanel.add(usgsImgLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		contentPanel.add(openshaImgLabel, new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		contentPanel.setPreferredSize(new Dimension(370, 370));
+		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));*/
+		JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("opensha_logoonly.gif")));
+		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_logoonly.gif")));
+		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("agora_logoonly.gif")));
+		creditPanel.add(usgsImgLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST,
+				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
+		creditPanel.add(openshaImgLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
+		creditPanel.add(riskAgoraImgLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
+				GridBagConstraints.VERTICAL, new Insets(5, 5, 5, 5), 2, 2));
+		creditPanel.setPreferredSize(new Dimension(290, 100));
 		
-		splash.setTitle("Loading...");
-		splash.add(contentPanel);
+		splash.setTitle("A Joint Effort");
+		splash.add(creditPanel);
 		splash.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		splash.setLocation(

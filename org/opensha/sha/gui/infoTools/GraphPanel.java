@@ -1102,4 +1102,7 @@ public class GraphPanel extends JPanel {
     return null;
   }
 
+  public void setSplitLocation(int l) {
+	  chartSplitPane.setDividerLocation(l);
+  }
 }

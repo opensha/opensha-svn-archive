@@ -47,7 +47,7 @@ public class LossCurveCalculator {
 		ArrayList<Double> rtn = new ArrayList<Double>();
 		int i = 1;
 		for(i=1; i < vals.size(); ++i)
-			rtn.add(vals.get(i-1) - vals.get(i));
+			rtn.add( Math.abs( vals.get(i) - vals.get(i-1) ) );
 		rtn.add(vals.get(--i));
 		return rtn;
 	}
