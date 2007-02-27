@@ -48,6 +48,7 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 		listener = new StructureDescriptorParameterListener();
 		
 		replaceCost = new DoubleParameter(REPLACE_PARAM, 0, 10E+10, "$$$");
+		replaceCost.setInfo("The cost to replace the facility excluding land and demolition");
 		replaceCost.addParameterChangeListener((ParameterChangeListener) listener);
 		replaceCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}

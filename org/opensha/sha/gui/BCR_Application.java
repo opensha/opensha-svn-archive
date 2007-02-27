@@ -760,6 +760,7 @@ public class BCR_Application extends JFrame
 	  if(computationDisplayCount !=1)
 		  data +="\n\n";
 	  data +="Benefit Cost Ratio Calculation # "+computationDisplayCount+"\n";
+	  data +="BCR Desc. = "+bcbean.getDescription()+"\n";
 	  data +="Site Class = "+siteClass+"\n";
 	  data +="Current EAL Val = "+currentEALVal+"\nRetrofitted EAL Val = "+newEALVal+"\n";
 	  data +="Benefit = $"+bcrFormat.format(benefit)+"\nBenefit Cost Ratio = "+bcr+"\n";

@@ -59,16 +59,21 @@ public class BenefitCostBean implements GuiBeanAPI {
 		descParam = new StringParameter(DESC_PARAM, "Describe this BCR Action");
 		descParam.addParameterChangeListener((ParameterChangeListener) listener);
 		descParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		descParam.setInfo("Describe the benefit-cost analysis being considered");
 		
 		discRateParam = new DoubleParameter(DISCOUNT_PARAM, 0.0, 200.0, "%");
 		discRateParam.addParameterChangeListener((ParameterChangeListener) listener);
 		discRateParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		discRateParam.setInfo("The after-inflation annual rate at which future money is discounted to present value");
 		
 		dsgnLifeParam = new DoubleParameter(DESIGN_PARAM, 0.0, 10E+5, "Years");
 		dsgnLifeParam.addParameterChangeListener((ParameterChangeListener) listener);
 		dsgnLifeParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
+		dsgnLifeParam.setInfo("The number of years into the future during which reduced future losses "+
+				"are recognized as a benefit");
 		
 		retroCostParam = new DoubleParameter(RC_PARAM, 0.0, 10E+10, "$$$");
+		retroCostParam.setInfo("The marginal cost to build the what-if facility relative to as-is");
 		retroCostParam.addParameterChangeListener((ParameterChangeListener) listener);
 		retroCostParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
