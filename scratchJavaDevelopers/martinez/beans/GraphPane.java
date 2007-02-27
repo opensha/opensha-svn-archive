@@ -142,7 +142,7 @@ public class GraphPane extends JPanel
 		}
 
 		graphPanel = new GraphPanel(this);
-		graphPanel.setSplitLocation(425);
+		graphPanel.setSplitLocation(350);
 		drawGraph();
 	}
 
@@ -168,7 +168,7 @@ public class GraphPane extends JPanel
 		add(chartSplitPane, BorderLayout.CENTER);
 		chartSplitPane.add(chartPane, JSplitPane.TOP);
 		chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-		chartSplitPane.setDividerLocation(550);
+		chartSplitPane.setDividerLocation(450);
 		//object for the ButtonControl Panel
 		buttonControlPanel = new ButtonControlPanel(this);
 		buttonPanel.add(buttonControlPanel, 0);

@@ -2,6 +2,7 @@ package scratchJavaDevelopers.martinez.applications;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,9 +41,11 @@ import scratchJavaDevelopers.martinez.beans.VulnerabilityBean;
 @SuppressWarnings("serial")
 public class LossCurveApplication extends JFrame {
 	/* Used for main content of application */
+	protected JSplitPane appSplitPane = null;
 	protected JSplitPane mainSplitPane = null;
 	protected JPanel mainLeftContent = null;
 	protected JPanel mainRightContent = null;
+	protected JPanel mainBottomContent = null;
 	
 	/* Beans that provide input parameters */
 	protected VulnerabilityBean vulnBean = null;
@@ -138,21 +141,36 @@ public class LossCurveApplication extends JFrame {
 			e.printStackTrace();
 		}*/
 		
-		mainRightContent.add(btnCalc, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+		/*mainRightContent.add(btnCalc, new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		mainRightContent.add(btnClear, new GridBagConstraints(1, 4, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		
 		mainRightContent.add(creditPanel, new GridBagConstraints(0, 5, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
-
-		mainRightContent.setPreferredSize(new Dimension(300, 600));
+		*/
+		mainRightContent.setPreferredSize(new Dimension(300, 500));
 		mainRightContent.setSize(mainRightContent.getPreferredSize());
 		
 		// Put it all together
 		mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, mainLeftContent, mainRightContent);
 		mainSplitPane.setDividerLocation(0.50);
-		add(mainSplitPane);
+		
+		mainBottomContent = new JPanel(new FlowLayout());
+		mainBottomContent.add(btnCalc, 0);
+		mainBottomContent.add(btnClear, 1);
+		mainBottomContent.add(new JLabel(new ImageIcon(
+				ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")
+			)), 2);
+		mainBottomContent.add(new JLabel(new ImageIcon(
+				ImageUtils.loadImage("AgoraOpenRisk.jpg")
+			)), 3);
+		mainBottomContent.add(new JLabel(new ImageIcon(
+				ImageUtils.loadImage("usgs_resrisk.gif")
+			)), 4);
+		
+		appSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, mainSplitPane, mainBottomContent);
+		add(appSplitPane);
 		
 	}
 	
@@ -252,20 +270,24 @@ public class LossCurveApplication extends JFrame {
 	
 	private static JFrame createSplashScreen() {
 		JFrame splash = new JFrame();
-		creditPanel = new JPanel(new GridBagLayout());
+		creditPanel = new JPanel(new FlowLayout());
 		/*JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredBy.gif")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgslogo.JPG")));
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("risk-agora_logo.jpg")));*/
 		JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
 		JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_resrisk.gif")));
 		JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
-		creditPanel.add(usgsImgLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST,
+		/*creditPanel.add(usgsImgLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.EAST,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.add(openshaImgLabel, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.add(riskAgoraImgLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
-		creditPanel.setPreferredSize(new Dimension(250, 80));
+		*/
+		creditPanel.add(openshaImgLabel);
+		creditPanel.add(usgsImgLabel);
+		creditPanel.add(riskAgoraImgLabel);
+		creditPanel.setPreferredSize(new Dimension(250, 160));
 				
 		splash.setTitle("A Joint Effort");
 		splash.add(creditPanel);
