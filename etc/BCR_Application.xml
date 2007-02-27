@@ -48,6 +48,7 @@
   	<pathelement location="${Required.Libraries.home}/poi-2.5.1-final-20040804.jar"/>
   	<pathelement location="${Required.Libraries.home}/junit.jar"/>
   	<pathelement location="${Required.Libraries.home}/nnls.jar"/>
+  	<pathelement location="${Required.Libraries.home}/Jama-1.0.2.jar"/>
   	<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>

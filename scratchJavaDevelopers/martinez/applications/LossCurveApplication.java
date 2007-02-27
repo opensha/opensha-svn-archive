@@ -240,7 +240,7 @@ public class LossCurveApplication extends JFrame {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append(NEWLINE);
 		strBuf.append("Forecast Model:      " + TAB + forecast.getName() + NEWLINE);
-		strBuf.append("Duration:                " + TAB + forecast.getTimeSpan().getDuration() + " years" + NEWLINE);
+		strBuf.append("Duration:               " + TAB + forecast.getTimeSpan().getDuration() + " years" + NEWLINE);
 		strBuf.append("Vulnerability Model:" + TAB + vulnBean.getCurrentModel().getDisplayName() + NEWLINE);
 		strBuf.append("Vs30 Value:             " + TAB + 
 				siteBean.getParameterListEditor().getParameterList().getParameter(
