@@ -9,7 +9,7 @@ import java.awt.Toolkit;
 
 import javax.swing.*;
 
-public class ProgressBar {
+public class ProgressBar implements Runnable {
 	private Component parent = null;
 	private JLabel textLabel = null;
 	private JPanel otherContent = null;

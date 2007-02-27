@@ -266,10 +266,7 @@ public class LossCurveApplication extends JFrame {
 		creditPanel.add(riskAgoraImgLabel, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.setPreferredSize(new Dimension(250, 80));
-		
-		creditPanel = createCreditPanel();
-		JPanel otherPanel = new JPanel();
-		
+				
 		splash.setTitle("A Joint Effort");
 		splash.add(creditPanel);
 		
