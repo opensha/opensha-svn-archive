@@ -267,8 +267,12 @@ public class LossCurveApplication extends JFrame {
 				GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 2, 2));
 		creditPanel.setPreferredSize(new Dimension(250, 80));
 		
+		creditPanel = createCreditPanel();
+		JPanel otherPanel = new JPanel();
+		
 		splash.setTitle("A Joint Effort");
 		splash.add(creditPanel);
+		
 		splash.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		splash.setLocation(
