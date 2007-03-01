@@ -34,7 +34,7 @@ public class BenefitCostCalculator {
 	 * 
 	 * @param eal0 The EAL for the Current Structure.
 	 * @param eal1 The EAL for the Retrofitted Structure.
-	 * @param rate The Discout Rate to apply.
+	 * @param rate The Discout Rate to apply.  This is in %. i.e. 3.5%
 	 * @param years The number of years to calculate for.
 	 * @param cost0 The cost of building the structure "As-Is".
 	 * @param cost1 The cost of building the structure "What-If".
@@ -44,16 +44,26 @@ public class BenefitCostCalculator {
 		this.EAL0 = eal0;
 		this.EAL1 = eal1;
 		this.netCost = cost1 - cost0;
-		this.rate = rate;
+		this.rate = rate / 100;
 		this.years = years;
 	}
 	
+	/**
+	 * Creates a new Benefit Cost Calculator with the given parameters.
+	 * 
+	 * @param eal0 The EAL for the Current Structure.
+	 * @param eal1 The EAL for the Retrofitted Structure.
+	 * @param rate The Discout Rate to apply.  This is in %. i.e. 3.5%
+	 * @param years The number of years to calculate for.
+	 * @param netCost The cost of a retrofit for an existing structure, 
+	 * or the marginal cost between two prospective structure designs
+	 */
 	public BenefitCostCalculator(double eal0, double eal1, double rate,
 			double years, double netCost) {
 		this.EAL0 = eal0;
 		this.EAL1 = eal1;
 		this.netCost = netCost;
-		this.rate = rate;
+		this.rate = rate / 100;
 		this.years = years;
 	}
 	
@@ -69,7 +79,7 @@ public class BenefitCostCalculator {
 	 */
 	public double computeBenefit() {
 		double diff = EAL0 - EAL1;
-		double numer = (1 - Math.exp( (0-(rate*years)) ));
+		double numer = (1 - Math.exp( (-(rate*years)) ));
 		double answer = diff * (numer / rate);
 		return answer;
 	}
