@@ -584,6 +584,7 @@ CREATE TABLE Combined_Events_Info (
   Is_Record_Deleted char(1) NOT NULL,
   NeoKinema_Fault_Number VARCHAR(20) NULL, 
   Data_Source VARCHAR2(20) NULL,
+  Fault_Section_Id INTEGER NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
     REFERENCES Paleo_Site(Site_Id, Entry_Date) ON DELETE CASCADE,
@@ -592,7 +593,9 @@ CREATE TABLE Combined_Events_Info (
   FOREIGN KEY(Start_Time_Id)
      REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE,
   FOREIGN KEY(End_Time_Id)
-     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE
+     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE,
+  FOREIGN KEY(Fault_Section_Id) 
+     REFERENCES Fault_Section(Section_Id) ON DELETE SET NULL, 	
 );
 
 CREATE TABLE Combined_Slip_Rate_Info (
