@@ -717,7 +717,7 @@ public class BCR_Application extends JFrame
     }
    
     ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
-    ArbitrarilyDiscretizedFunc currentAnnualizedRates;
+    ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
     try {
 		currentAnnualizedRates = 
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
@@ -727,7 +727,7 @@ public class BCR_Application extends JFrame
 	}
     
     ArbitrarilyDiscretizedFunc retroHazardCurve = calcHazardCurve(newIMT,newPeriod,newIMLs,site,forecast,imr);
-    ArbitrarilyDiscretizedFunc retroAnnualizedRates;
+    ArbitrarilyDiscretizedFunc retroAnnualizedRates = null;
     try {
     	retroAnnualizedRates = 
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(retroHazardCurve, 
@@ -736,10 +736,10 @@ public class BCR_Application extends JFrame
 		
 	}
     
-    EALCalculator currentCalc = new EALCalculator(currentHazardCurve,currentModel.getDFVals(),
+    EALCalculator currentCalc = new EALCalculator(currentAnnualizedRates,currentModel.getDFVals(),
     		bcbean.getCurrentReplaceCost());
     double currentEALVal = currentCalc.computeEAL();
-    EALCalculator retroCalc = new EALCalculator(retroHazardCurve,newModel.getDFVals(),bcbean.getRetroReplaceCost());
+    EALCalculator retroCalc = new EALCalculator(retroAnnualizedRates,newModel.getDFVals(),bcbean.getRetroReplaceCost());
     double newEALVal = retroCalc.computeEAL();
     
     BenefitCostCalculator bcCalc = new BenefitCostCalculator(currentEALVal,newEALVal,bcbean.getDiscountRate(),
