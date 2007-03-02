@@ -762,9 +762,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String backSeisPath = "backSeisFiles/";
 		try {
 			// read the locations into a location list
-			ArrayList latLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"latloc_v1.txt");
-			ArrayList lonLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"lonloc_v1.txt");
-			ArrayList backSeisRateLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"RatesRecommended_v1.txt");
+			ArrayList latLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"latloc_v1.txt");
+			ArrayList lonLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"lonloc_v1.txt");
+			ArrayList backSeisRateLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"RatesRecommended_v1.txt");
 			double lat, lon, rate;
 			int index;
 			//FileWriter fw = new FileWriter("KarenRates.txt");

@@ -143,7 +143,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        obj = null;
        return name;
      }catch(Exception e){
-       //e.printStackTrace();
+       e.printStackTrace();
        return null;
      }
    }

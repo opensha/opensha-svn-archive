@@ -241,7 +241,9 @@ public class LossEstimationApplication extends JFrame
 
 
 
-  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
+  private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_resrisk.gif")));
+  private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
 
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
@@ -299,8 +301,6 @@ public class LossEstimationApplication extends JFrame
   JButton saveButton = new JButton();
   ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
 
-
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
 
 
@@ -535,9 +535,10 @@ public class LossEstimationApplication extends JFrame
     buttonPanel.add(peelOffButton, 4);
     buttonPanel.add(progressCheckBox, 5);
     buttonPanel.add(buttonControlPanel, 6);
-    buttonPanel.add(imgLabel, 7);
-
-    //making the cancel button not visible until user has started to do the calculation
+    buttonPanel.add(usgsImgLabel, 7);
+    buttonPanel.add(openshaImgLabel, 8);
+    buttonPanel.add(riskAgoraImgLabel,9);
+      //making the cancel button not visible until user has started to do the calculation
     cancelCalcButton.setVisible(false);
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);
@@ -567,11 +568,6 @@ public class LossEstimationApplication extends JFrame
 
   }
 
-
-
-
-
-
 	  //Main method
 	  public static void main(String[] args) {
 	    LossEstimationApplication applet = new LossEstimationApplication();
@@ -589,8 +585,6 @@ public class LossEstimationApplication extends JFrame
 	    catch(Exception e) {
 	    }
 	  }
-
-
 
   /**
    *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
@@ -950,8 +944,8 @@ public class LossEstimationApplication extends JFrame
 	lossFunc.setName(vulnBean.getCurrentModel().getDisplayName());
 	 // set the X-axis label
     String imt = currentIMT;
-    xAxisName = "Damage Factor for "+ imt + " (" + imr.getParameter(imt).getUnits() + ")";
-    yAxisName = "Annualized Prob. Exceed.";
+    xAxisName = "Fractional Loss";
+    yAxisName = "Annualized Prob. of Exceed.";
 
 	this.functionList.add(lossFunc);
     isHazardCalcDone = true;
@@ -967,9 +961,7 @@ public class LossEstimationApplication extends JFrame
 	  int num = function.getNum();
 	  for(int i=0;i<num;++i){
 		  double rate = function.getY(i);
-		  System.out.println("Original val = "+rate);
 		  double pe = 1-Math.exp(-1*rate);
-		  System.out.println("Update val = "+pe);
 		  function.set(i,pe);
 	  }
   }
