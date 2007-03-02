@@ -39,7 +39,7 @@ public class PrefFaultSectionDataDB_DAO {
 	public final static String SECTION_NAME = "Name";
 	public final static String SHORT_NAME = "Short_Name";
 	public final static String FAULT_TRACE = "Fault_Section_Trace";
-	public final static String PREF_ASEISMIC_SLIP= "Pr ef_Aseismic_Slip";
+	public final static String PREF_ASEISMIC_SLIP= "Pref_Aseismic_Slip";
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	private DB_AccessAPI dbAccess;
 	private static HashMap cachedSections = new HashMap();
