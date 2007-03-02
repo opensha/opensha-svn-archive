@@ -138,6 +138,7 @@ public class LossEstimationApplication extends JFrame
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
+  public final static String WGCEP_UCERF_2_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF";
   //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   //public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
@@ -1158,7 +1159,8 @@ public class LossEstimationApplication extends JFrame
         //adding the client based ERF's to the application
         erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
         erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-        erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);        
+        erf_Classes.add(WGCEP_UCERF1_CLASS_NAME); 
+        erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
         erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
