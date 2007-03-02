@@ -34,12 +34,15 @@ public class MinMaxPrefEstimate extends Estimate{
                             double minProb, double maxProb, double prefProb) {
 
     // check that min<=pref<=max
-    if(!Double.isNaN(min) && !Double.isNaN(pref) && min>pref)
+    /* THIS HAS BEEN REMOVED DELIBERATELY BECAUSE IT CREATED PROBLEMS WHEN WE WERE DEALING WITH TIME.
+      IN THAT CASE, MAX REFERRED TO EARLIEST TIME AND HENCE WAS SMALLER THAN MIN SOMETIMES 
+     
+     if(!Double.isNaN(min) && !Double.isNaN(pref) && min>pref)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
     if(!Double.isNaN(min) && !Double.isNaN(max) && min>max)
       throw new InvalidParamValException(MSG_INVALID_X_VALS);
     if(!Double.isNaN(pref) && !Double.isNaN(max) && pref>max)
-      throw new InvalidParamValException(MSG_INVALID_X_VALS);
+      throw new InvalidParamValException(MSG_INVALID_X_VALS);*/
 
     // check that aprobabilites are in increasing order
     if(!Double.isNaN(minProb) && !Double.isNaN(prefProb) && minProb>=prefProb)

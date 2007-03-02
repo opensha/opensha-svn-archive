@@ -31,7 +31,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
  *
  */
 public class FileForDeformationModelers {
-	private final static String OUT_FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FileForDeformationModelersv3.xls";
+	private final static String OUT_FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FileForDeformationModelersv4.xls";
 	// DAO to get information from the database
 	private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
@@ -319,7 +319,7 @@ public class FileForDeformationModelers {
 		String measuredCompSlip="";
 		if(combinedSlipRateInfo!=null) 
 			measuredCompSlip = getMeasuredCompOfSlipCode(combinedSlipRateInfo.getMeasuredComponentQual());
-		if(combinedDisplacementInfo!=null && measuredCompSlip.equalsIgnoreCase("")) 
+		if(combinedDisplacementInfo!=null && (measuredCompSlip==null || measuredCompSlip.equalsIgnoreCase("")) ) 
 			measuredCompSlip = getMeasuredCompOfSlipCode(combinedDisplacementInfo.getMeasuredComponentQual());
 		return measuredCompSlip;
 	}	
