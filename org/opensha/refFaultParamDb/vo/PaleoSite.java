@@ -36,7 +36,7 @@ public class PaleoSite {
       paleoSiteSubString+=((PaleoSitePublication)paleoSitePubList.get(i)).toString()+"\n";
     String dipEstStr=null;
     if(dipEstimate!=null) dipEstStr = dipEstimate.toString();
-    return "Fault Section Name="+faultSection.getSectionName()+"\n"+
+    return /*"Fault Section Name="+faultSection.getSectionName()+"\n"+*/
         "Site Name="+siteName+"\n"+
         "Site Lat1="+siteLat1+"\n"+
         "Site Lon1="+siteLon1+"\n"+

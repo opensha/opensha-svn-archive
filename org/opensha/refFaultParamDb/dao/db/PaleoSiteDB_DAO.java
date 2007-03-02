@@ -343,7 +343,7 @@ public class PaleoSiteDB_DAO  {
    * @param loc
    * @return
    */
-  public static FaultSectionPrefData getClosestFaultSection(Location loc) {
+  /*public static FaultSectionPrefData getClosestFaultSection(Location loc) {
 	  double minDist = Double.MAX_VALUE, dist;
 	  FaultSectionPrefData closestFaultSection=null;
 	  for(int i=0; i<prefFaultSectionDataList.size(); ++i) {
@@ -356,7 +356,7 @@ public class PaleoSiteDB_DAO  {
 		  }
 	  }
 	  return closestFaultSection;
-  }
+  }*/
 
   /**
    * set the locations in paleo site
@@ -376,8 +376,8 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
 	if(point1.length>2)
 	  paleoSite.setSiteElevation1((float)point1[2]);
 	else paleoSite.setSiteElevation1(Float.NaN);
-	FaultSectionPrefData faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1()));
-	paleoSite.setFaultSectionNameId(faultSectionPrefData.getSectionName(), faultSectionPrefData.getSectionId());
+	//FaultSectionPrefData faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1()));
+	//paleoSite.setFaultSectionNameId(faultSectionPrefData.getSectionName(), faultSectionPrefData.getSectionId());
 	// check whether second locations exists or not
 	if(location2!=null) {
 		double []point2 = location2.getPoint();
@@ -387,8 +387,8 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
 		if(point2.length>2)
 			paleoSite.setSiteElevation2((float)point2[2]);
 		else paleoSite.setSiteElevation2(Float.NaN);
-		faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat2(), paleoSite.getSiteLon2()));
-		paleoSite.setGeneralComments(paleoSite.getGeneralComments()+"; Other associated fault section Id="+faultSectionPrefData.getSectionId());
+		//faultSectionPrefData = getClosestFaultSection(new Location(paleoSite.getSiteLat2(), paleoSite.getSiteLon2()));
+		//paleoSite.setGeneralComments(paleoSite.getGeneralComments()+"; Other associated fault section Id="+faultSectionPrefData.getSectionId());
 	}
 }
 
@@ -418,7 +418,7 @@ private void setPaleoSiteLocations(PaleoSite paleoSite, ArrayList geometries) {
  		locList.add(new Location(33.8200,	-116.3010));
  		locList.add(new Location(34.3697,	-117.6680));
  		for(int i=0; i<locList.size(); ++i) {
- 			System.out.println(PaleoSiteDB_DAO.getClosestFaultSection(locList.get(i)).getSectionName());
+ 			//System.out.println(PaleoSiteDB_DAO.getClosestFaultSection(locList.get(i)).getSectionName());
  		}
  		
  		/*

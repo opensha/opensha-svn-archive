@@ -11,6 +11,7 @@ import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
@@ -33,6 +34,7 @@ public class FileForDeformationModelers {
 	private final static String OUT_FILE_NAME = "org/opensha/refFaultParamDb/excelToDatabase/FileForDeformationModelersv3.xls";
 	// DAO to get information from the database
 	private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
 	private final static String KA = "KA";
@@ -106,14 +108,16 @@ public class FileForDeformationModelers {
 		HSSFRow row = sheet.createRow((short)rowId);
 		row.createCell((short)0).setCellValue(combinedEventsInfo.getEntryDate());
 		row.createCell((short)1).setCellValue(getEntryType(combinedEventsInfo.getIsExpertOpinion()));
-		row.createCell((short)2).setCellValue(paleoSite.getFaultSectionId());
+		row.createCell((short)2).setCellValue(combinedEventsInfo.getFaultSectionId());
+		
+		String faultSectionName = prefFaultSectionDAO.getFaultSectionPrefData(combinedEventsInfo.getFaultSectionId()).getSectionName();
 		
 		// WRITE CODE to specify whether ALTERNATES exist for fault Section
 		String alternates = "N";
-		if(paleoSite.getFaultSectionName().indexOf(ALT)>0) alternates="Y";
+		if(faultSectionName.indexOf(ALT)>0) alternates="Y";
 		row.createCell((short)3).setCellValue(alternates);
 		
-		row.createCell((short)4).setCellValue(paleoSite.getFaultSectionName());
+		row.createCell((short)4).setCellValue(faultSectionName);
 		row.createCell((short)5).setCellValue(combinedEventsInfo.getNeokinemaFaultNumber());
 		row.createCell((short)6).setCellValue(paleoSite.getSiteId());
 		row.createCell((short)7).setCellValue(paleoSite.getSiteName());

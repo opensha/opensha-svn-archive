@@ -210,7 +210,7 @@ public class PutCombinedInfoIntoDatabase_FAD {
 					fadPaleoSite.setSiteLon2((float)loc2.getLongitude());
 					fadPaleoSite.setGeneralComments(fadPaleoSite.getGeneralComments()+"\n"+
 							"No site location available.   Site is associated with a WG fault section.");
-					System.out.println(fadPaleoSite.getSiteName()+";"+fadPaleoSite.getFaultSectionId()+";"+fadPaleoSite.getFaultSectionName());
+					//System.out.println(fadPaleoSite.getSiteName()+";"+fadPaleoSite.getFaultSectionId()+";"+fadPaleoSite.getFaultSectionName());
 					ArrayList siteTypeNames = paleoSitePub.getSiteTypeNames();
 					siteTypeNames.clear();
 					siteTypeNames.add(BETWEEN_LOCATIONS_SITE_TYPE);

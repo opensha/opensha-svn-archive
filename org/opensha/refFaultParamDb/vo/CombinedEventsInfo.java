@@ -31,6 +31,7 @@ public class CombinedEventsInfo {
   private ArrayList referenceList;
   private String neokinemaFaultNumber="";  
   private String dataSource="";
+  private int faultSectionId;
 
   public String getDataSource() {
 	  return this.dataSource;
@@ -178,5 +179,13 @@ public class CombinedEventsInfo {
   }
   public void setPaleoSitePublication(PaleoSitePublication paleoSitePublication) {
     this.paleoSitePublication = paleoSitePublication;
+  }
+
+  public int getFaultSectionId() {
+	return faultSectionId;
+  }
+
+  public void setFaultSectionId(int faultSectionId) {
+	this.faultSectionId = faultSectionId;
   }
 }

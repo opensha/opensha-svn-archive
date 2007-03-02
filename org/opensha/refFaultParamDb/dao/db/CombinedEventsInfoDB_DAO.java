@@ -33,6 +33,7 @@ public class CombinedEventsInfoDB_DAO {
   private final static String END_TIME_ID="End_Time_Id";
   private final static String DATED_FEATURE_COMMENTS = "Dated_Feature_Comments";
   private final static String NEOKINEMA_FAULT_NUMBER = "NeoKinema_Fault_Number";
+  private final static String FAULT_SECTION_ID = "Fault_Section_Id";
   private final static String DATA_SOURCE = "Data_Source";
   //table for references
   private final static String REFERENCES_TABLE_NAME = "Combined_Events_References";
@@ -177,7 +178,7 @@ public class CombinedEventsInfoDB_DAO {
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         START_TIME_ID+","+END_TIME_ID+","+CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
-        ","+IS_EXPERT_OPINION+","+NEOKINEMA_FAULT_NUMBER+","+DATA_SOURCE+" from "+TABLE_NAME+condition;
+        ","+IS_EXPERT_OPINION+","+NEOKINEMA_FAULT_NUMBER+","+DATA_SOURCE+","+FAULT_SECTION_ID+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       while(rs.next())  {
@@ -201,6 +202,7 @@ public class CombinedEventsInfoDB_DAO {
         // set the references in the VO
         combinedEventsInfo.setReferenceList(referenceList);
         combinedEventsInfo.setInfoId(rs.getInt(INFO_ID));
+        combinedEventsInfo.setFaultSectionId(rs.getInt(FAULT_SECTION_ID));
         combinedEventsInfo.setEntryDate(rs.getString(ENTRY_DATE));
         combinedEventsInfo.setSiteId(rs.getInt(SITE_ID));
         combinedEventsInfo.setSiteEntryDate(rs.getString(SITE_ENTRY_DATE));
