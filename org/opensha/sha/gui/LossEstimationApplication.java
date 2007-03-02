@@ -563,60 +563,19 @@ public class LossEstimationApplication extends JFrame
     this.setLocation((dim.width - this.getSize().width) / 2, 0);
     //EXIT_ON_CLOSE == 3
     this.setDefaultCloseOperation(3);
-    this.setTitle("Loss Curve Application ("+getAppVersion()+" )");
+    this.setTitle("Loss Estimation Curve Application ");
 
   }
 
 
-	  /**
-	   * Checks if the current version of the application is latest else direct the
-	   * user to the latest version on the website.
-	   */
-	  protected void checkAppVersion(){
-	      ArrayList hazCurveVersion = null;
-	      try {
-	    	  hazCurveVersion = FileUtils.loadFile(new URL(versionURL));
-	      }
-	      catch (Exception ex1) {
-	        return;
-	      }
-	      String appVersionOnWebsite = (String)hazCurveVersion.get(0);
-	      if(!appVersionOnWebsite.trim().equals(version.trim())){
-	        try{
-	          ApplicationVersionInfoWindow messageWindow =
-	              new ApplicationVersionInfoWindow(appURL,
-	                                               this.versionUpdateInfoURL,
-	                                               "App Version Update", this);
-	          Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-	          messageWindow.setLocation( (dim.width -
-	                                      messageWindow.getSize().width) / 2,
-	                                    (dim.height -
-	                                     messageWindow.getSize().height) / 2);
-	          messageWindow.setVisible(true);
-	        }catch(Exception e){
-	          e.printStackTrace();
-	        }
-	      }
 
-	    return;
-
-	  }
-
-
-	  /**
-	   * Returns the Application version
-	   * @return String
-	   */
-	  public static String getAppVersion(){
-	    return version;
-	  }
 
 
 
 	  //Main method
 	  public static void main(String[] args) {
 	    LossEstimationApplication applet = new LossEstimationApplication();
-	    applet.checkAppVersion();
+	  
 	    applet.init();
 	    applet.setVisible(true);
 	  }
