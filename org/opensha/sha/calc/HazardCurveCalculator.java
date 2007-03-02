@@ -78,7 +78,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 		  DiscretizedFuncAPI annualizedRateFunc = hazFunction.deepClone();
 		  int size = annualizedRateFunc.getNum();
 		  for(int i=0;i<size;++i){
-			  annualizedRateFunc.set(i, - (1-Math.log(annualizedRateFunc.getY(i)))/years);
+			  annualizedRateFunc.set(i, - Math.log(1-annualizedRateFunc.getY(i))/years);
 		  }
 		  return annualizedRateFunc;
 	  }
