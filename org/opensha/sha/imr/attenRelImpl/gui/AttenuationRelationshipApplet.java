@@ -89,7 +89,7 @@ public class AttenuationRelationshipApplet extends JFrame
 
     //images for the OpenSHA
     private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
-    protected final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+    protected final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
 
     //static string for the OPENSHA website
     private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";

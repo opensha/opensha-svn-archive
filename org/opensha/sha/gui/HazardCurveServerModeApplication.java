@@ -287,7 +287,7 @@ public class HazardCurveServerModeApplication extends JFrame
 
 
 
-  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
 
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";

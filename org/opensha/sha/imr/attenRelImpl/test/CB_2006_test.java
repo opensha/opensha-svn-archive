@@ -2,6 +2,7 @@ package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.util.*;
 
+import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
@@ -22,8 +23,11 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/CB06/";
 	  //private static final String CB_2006_RESULTS = RESULT_SET_PATH +"CB2006_NGA.txt";
 	
+	  private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
+
+	  
 	  //Tolerence to check if the results fall within the range.
-	  private static double tolerence = .01; //default value for the tolerence
+	  private static double tolerence = 1; //default value for the tolerence
 
 	 private DecimalFormat format = new DecimalFormat("0.####");
 	private ArrayList testDataLines;
@@ -178,28 +182,96 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 				double depthTop = Double.parseDouble(fileName.substring(17,18));
 				cb_2006.getParameter(cb_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
 				double depth25 = Double.parseDouble(fileName.substring(21,22));
-				cb_2006.getParameter(cb_2006.DEPTH_2pt5_NAME).setValue(new Double(depth25));
+				((WarningDoubleParameter)cb_2006.getParameter(cb_2006.DEPTH_2pt5_NAME)).setValueIgnoreWarning(new Double(depth25));
 				try {
 					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
 					int numLines = testDataLines.size();
-					for(int j=0;j<numLines;++j){
+					for(int j=1;j<numLines;++j){
 						String fileLine = (String)testDataLines.get(j);
 						StringTokenizer st = new StringTokenizer(fileLine);
 						double mag = Double.parseDouble(st.nextToken().trim());
 						cb_2006.getParameter(cb_2006.MAG_NAME).setValue(new Double(mag));
 						
-						double rrup = Double.parseDouble(st.nextToken().trim());
-						cb_2006.getParameter(DistanceRupParameter.NAME).setValue(new Double(rrup));
-						
 						double rjb = Double.parseDouble(st.nextToken().trim());
-						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
-						cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME).setValue(new Double(distRupMinusJB_OverRup));
 						
+						double rrup = Double.parseDouble(st.nextToken().trim());
+						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
+						
+						
+						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
+						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
+						st.nextToken().trim();
 						cb_2006.setIntensityMeasure(cb_2006.PGA_NAME);
+						double openSHA_mean = Math.exp(cb_2006.getMean());
+						double tested_mean = Double.parseDouble(st.nextToken().trim());
+						boolean results = this.compareResults(openSHA_mean, tested_mean);
+						if(results == false){
+			            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+			            			                        "CB-2006 attenuation with the following parameter settings:"+
+			            									"  PGA "+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
+			            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " depth2pt5 ="+depth25+" FaultType = "+fltType+
+			            									"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+			            									"Std Dev from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            	
+			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+			              this.assertNull(failedResultMetadata,failedResultMetadata);
+			            }
 						cb_2006.setIntensityMeasure(cb_2006.PGV_NAME);
+						openSHA_mean = Math.exp(cb_2006.getMean());
+						tested_mean = Double.parseDouble(st.nextToken().trim());
+						results = this.compareResults(openSHA_mean, tested_mean);
+						if(results == false){
+			            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+			            			                        "CB-2006 attenuation with the following parameter settings:"+
+			            									"  PGV "+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
+			            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " depth2pt5 ="+depth25+" FaultType = "+fltType+
+			            									"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+			            									"Std Dev from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            	
+			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+			              this.assertNull(failedResultMetadata,failedResultMetadata);
+			            }
 						cb_2006.setIntensityMeasure(cb_2006.PGD_NAME);
+						openSHA_mean = Math.exp(cb_2006.getMean());
+						tested_mean = Double.parseDouble(st.nextToken().trim());
+						results = this.compareResults(openSHA_mean, tested_mean);
+						if(results == false){
+			            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+			            			                        "CB-2006 attenuation with the following parameter settings:"+
+			            									"  PGD "+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
+			            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " depth2pt5 ="+depth25+" FaultType = "+fltType+
+			            									"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+			            									"Std Dev from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            	
+			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+			              this.assertNull(failedResultMetadata,failedResultMetadata);
+			            }
 						cb_2006.setIntensityMeasure(cb_2006.SA_NAME);
-						//cb_2006.
+						int num= period.length;
+						for(int k=0;k<num;++k){
+							cb_2006.getParameter(cb_2006.PERIOD_NAME).setValue(new Double(period[k]));
+							if(k == 1 || k==2 || k==3){
+								st.nextToken();
+							}
+							openSHA_mean = Math.exp(cb_2006.getMean());
+							tested_mean = Double.parseDouble(st.nextToken().trim());
+							results = this.compareResults(openSHA_mean, tested_mean);
+							if(results == false){
+				            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+				            			                        "CB-2006 attenuation with the following parameter settings:"+
+				            									"  SA at period = "+period[k]+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
+				            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " depth2pt5 ="+depth25+" FaultType = "+fltType+
+				            									"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+				            									"Std Dev from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+				            	
+				            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+				            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+				              this.assertNull(failedResultMetadata,failedResultMetadata);
+				            }
+						}
 						
 					}
 				} catch (FileNotFoundException e) {
