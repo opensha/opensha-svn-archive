@@ -111,6 +111,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
       erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
       erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
       erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
@@ -124,7 +125,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
-      erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
+      
       try {
         erfGuiBean = new ERF_GuiBean(erf_Classes);
         erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
@@ -176,6 +177,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
        */
       erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
       erf_Classes.add(STEP_FORECAST_CLASS_NAME);
       erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
       erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
@@ -184,7 +186,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
       erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
       erf_Classes.add(WG02_ERF_CLASS_NAME);
-      erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
+      
 
       try {
 
