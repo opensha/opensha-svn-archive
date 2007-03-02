@@ -1127,6 +1127,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		double duration = timeSpan.getDuration();
 		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
@@ -1135,6 +1136,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
 					magTruncLevel, totMoRateReduction, meanMagCorrection,preserveMinAFaultRate, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
+			aFaultSourceGenerator.setDuration(duration);
 			aFaultSourceGenerators.add(aFaultSourceGenerator);
 			allSources.addAll(aFaultSourceGenerator.getSources());
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
@@ -1163,11 +1165,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		double duration = timeSpan.getDuration();
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
 					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
+			source.setDuration(duration);
 			aFaultSourceGenerators.add(source);
 			allSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
@@ -1190,6 +1194,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultSources = new ArrayList();
+		double duration = timeSpan.getDuration();
 		double fixMag, fixRate;
 		try{
 			//FileWriter fw1 = new FileWriter("B_Char_Temp.txt");
@@ -1212,6 +1217,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
 						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
+				source.setDuration(duration);
 				bFaultSources.add(source);
 				allSources.add(source);
 				IncrementalMagFreqDist charMagFreqDist = source.getCharMagFreqDist();
