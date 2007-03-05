@@ -140,8 +140,8 @@ public class EALCalculator {
 			throw new IllegalStateException("IML, DF, and MAFE must all be the same size for computing!");
 		
 		double answer = 0.0;
-		double iml_cur, df_cur, pe_cur;
-		double iml_pre, df_pre, pe_pre;
+		double iml_cur, df_cur, mafe_cur;
+		double iml_pre, df_pre, mafe_pre;
 		double iml_delta, df_delta;
 		double g, holder;
 		
@@ -157,14 +157,14 @@ public class EALCalculator {
 			df_pre = DF.get(i-1);
 			df_delta = df_cur - df_pre;
 			
-			pe_cur = MAFE.get(i);
-			pe_pre = MAFE.get(i-1);
+			mafe_cur = MAFE.get(i);
+			mafe_pre = MAFE.get(i-1);
 			
 			// Get the log-linear slope of the curve
-			g = (Math.log((pe_cur/pe_pre)) / iml_delta);
+			g = (Math.log((mafe_cur/mafe_pre)) / iml_delta);
 			
-			holder = (df_pre*pe_pre)*(1 - Math.exp( (g*iml_cur) ) );
-			holder -= ( ( (df_delta/iml_delta)*(pe_pre) )*( Math.exp( (g*iml_delta) ) * ( iml_delta - (1/g) ) + (1/g) ) );
+			holder = (df_pre*mafe_pre)*(1 - Math.exp( (g*iml_delta) ) );
+			holder -= ( ( (df_delta/iml_delta)*(mafe_pre) )*( Math.exp( (g*iml_delta) ) * ( iml_delta - (1/g) ) + (1/g) ) );
 			answer += holder;
 		} // END: for(int i < IML.size())
 		
