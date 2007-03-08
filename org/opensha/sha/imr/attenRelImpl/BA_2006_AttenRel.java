@@ -577,7 +577,7 @@ public class BA_2006_AttenRel
     double magDiff = mag-mh[iper];
     if (mag <= mh[iper]) {
       Fm = e01[iper]*U + e02[iper]*S + e03[iper]*N + e04[iper]*R + 
-      	   e05[iper]*(mag - mh[iper]) +
+      	   e05[iper]*magDiff+
       	   e06[iper]*magDiff*magDiff;
     }
     else {

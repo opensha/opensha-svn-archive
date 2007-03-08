@@ -2,12 +2,16 @@ package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.util.*;
 
+import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.*;
 import junit.framework.TestCase;
 
@@ -16,13 +20,17 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 	
 	  private CY_2006_AttenRel cy_2006 = null;
 	
-	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/";
-	  private static final String CY_2006_RESULTS = RESULT_SET_PATH +"CY2006_NGA.txt";
-	
+	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/CY06/";
+	  //private static final String CY_2006_RESULTS = RESULT_SET_PATH +"CY2006_NGA.txt";
+	  private double[] period = {
+			  0.01,0.02,0.025,0.03,0.04,0.05,0.075,0.1,0.15,
+			  0.2,0.25,0.3,0.4,0.5,0.75,1,1.5,2.0,3.0,4,5,7.5,10
+			  };
+	  
+	  
 	  //Tolerence to check if the results fall within the range.
-	  private static double tolerence = .01; //default value for the tolerence
+	private static double tolerence = 1; //default value for the tolerence
 
-	 private DecimalFormat format = new DecimalFormat("0.######");
 	private ArrayList testDataLines;
 	public static void main(String[] args) {
 	  junit.swingui.TestRunner.run(CY_2006_test.class);
@@ -37,7 +45,6 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 		//create the instance of the CY_2006
 		cy_2006 = new CY_2006_AttenRel(this);
 		cy_2006.setParamDefaults();
-		testDataLines = FileUtils.loadFile(CY_2006_RESULTS);
 	}
 
 	protected void tearDown() throws Exception {
@@ -107,7 +114,96 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 */
 	
 	public void testGetMean() {
-		
+		File f = new File(RESULT_SET_PATH);
+		File[] fileList = f.listFiles();
+		for(int i=0;i<fileList.length;++i){
+			String fileName = fileList[i].getName();
+			if(fileName.endsWith(".txt")){
+				String fltType = fileName.substring(5,7);
+				if(fltType.equals("SS"))
+				  cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_STRIKE_SLIP);
+				else if(fltType.equals("RV"))
+					  cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_REVERSE);
+				else if(fltType.equals("NR"))
+					cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_NORMAL);
+				double dip = Double.parseDouble(fileName.substring(8,10));
+				cy_2006.getParameter(cy_2006.DIP_NAME).setValue(new Double(dip));
+				
+				double vs30 = Double.parseDouble(fileName.substring(11,14));
+				cy_2006.getParameter(cy_2006.VS30_NAME).setValue(new Double(vs30));
+				double depthTop = Double.parseDouble(fileName.substring(17,18));
+				cy_2006.getParameter(cy_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
+				try {
+					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
+					int numLines = testDataLines.size();
+					for(int j=1;j<numLines;++j){
+						String fileLine = (String)testDataLines.get(j);
+						StringTokenizer st = new StringTokenizer(fileLine);
+						double mag = Double.parseDouble(st.nextToken().trim());
+						((WarningDoubleParameter)cy_2006.getParameter(cy_2006.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
+						
+						double rjb = Double.parseDouble(st.nextToken().trim());
+						double rrup = Double.parseDouble(st.nextToken().trim());
+						((WarningDoublePropagationEffectParameter)cy_2006.getParameter(DistanceRupParameter.NAME)).
+								setValueIgnoreWarning(new Double(rrup));
+						double distRupMinusJB_OverRup = (rrup-rjb)/rrup;
+						((WarningDoublePropagationEffectParameter)cy_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).
+						setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
+						st.nextToken().trim();//for rSeis
+						cy_2006.setIntensityMeasure(cy_2006.PGA_NAME);
+						double openSHA_mean = Math.exp(cy_2006.getMean());
+						double tested_mean = Double.parseDouble(st.nextToken().trim());
+						boolean results = this.compareResults(openSHA_mean, tested_mean);
+						if(results == false){
+							String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+	                        "CY-2006 attenuation with the following parameter settings:"+
+							"  PGA "+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
+							"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+" FaultType = "+fltType+
+							"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+							"Mean from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            	
+			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+			              this.assertNull(failedResultMetadata,failedResultMetadata);
+			            }
+						st.nextToken();//for PGV
+						st.nextToken();//for PGD
+						
+						cy_2006.setIntensityMeasure(cy_2006.SA_NAME);
+						int num= period.length;
+						for(int k=0;k<num;++k){
+							cy_2006.getParameter(cy_2006.PERIOD_NAME).setValue(new Double(period[k]));
+							if(k == 1)
+								st.nextToken();
+
+							
+							openSHA_mean = Math.exp(cy_2006.getMean());
+							tested_mean = Double.parseDouble(st.nextToken().trim());
+							results = this.compareResults(openSHA_mean, tested_mean);
+							if(results == false){
+								String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
+		                        "CY-2006 attenuation with the following parameter settings:"+
+								"  SA at period = "+period[k]+ "\nMag ="+(float)mag+" rRup = "+(float)rrup+
+								"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+" FaultType = "+fltType+
+								"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
+								"Mean from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+				            	
+				            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+				            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+				              this.assertNull(failedResultMetadata,failedResultMetadata);
+				            }
+						}
+						
+					}
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}		
 	}
 	
 	
