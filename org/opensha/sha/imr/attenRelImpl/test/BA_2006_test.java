@@ -184,22 +184,22 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 						st.nextToken().trim();//for rRup
 						st.nextToken().trim();//for rSeis
 						ba_2006.setIntensityMeasure(ba_2006.PGA_NAME);
-						double openSHA_mean = Math.exp(ba_2006.getMean());
+						double openSHA_mean_ForPGA = Math.exp(ba_2006.getMean());
 						double tested_mean = Double.parseDouble(st.nextToken().trim());
-						boolean results = this.compareResults(openSHA_mean, tested_mean);
+						boolean results = this.compareResults(openSHA_mean_ForPGA, tested_mean);
 						if(results == false){
 			            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
 			            			                        "BA-2006 attenuation with the following parameter settings:"+
 			            									"  PGA "+"\nMag ="+(float)mag+
 			            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
-			            									"Mean from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            									"Mean from OpenSHA = "+openSHA_mean_ForPGA+"  should be = "+tested_mean;
 			            	
 			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
 						ba_2006.setIntensityMeasure(ba_2006.PGV_NAME);
-						openSHA_mean = Math.exp(ba_2006.getMean());
+						double openSHA_mean = Math.exp(ba_2006.getMean());
 						tested_mean = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_mean, tested_mean);
 						if(results == false){
@@ -233,6 +233,8 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 							}
 							
 							openSHA_mean = Math.exp(ba_2006.getMean());
+							if(period[k]< 0.2 && openSHA_mean<openSHA_mean_ForPGA)
+								openSHA_mean = openSHA_mean_ForPGA;
 							tested_mean = Double.parseDouble(st.nextToken().trim());
 							results = this.compareResults(openSHA_mean, tested_mean);
 							if(results == false){

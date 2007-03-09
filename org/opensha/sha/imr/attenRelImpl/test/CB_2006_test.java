@@ -202,23 +202,23 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 						((WarningDoublePropagationEffectParameter)cb_2006.getParameter(DistRupMinusJB_OverRupParameter.NAME)).setValueIgnoreWarning(new Double(distRupMinusJB_OverRup));
 						st.nextToken().trim();
 						cb_2006.setIntensityMeasure(cb_2006.PGA_NAME);
-						double openSHA_mean = Math.exp(cb_2006.getMean());
+						double openSHA_meanForPGA = Math.exp(cb_2006.getMean());
 						double tested_mean = Double.parseDouble(st.nextToken().trim());
-						boolean results = this.compareResults(openSHA_mean, tested_mean);
+						boolean results = this.compareResults(openSHA_meanForPGA, tested_mean);
 						if(results == false){
 			            	String failedResultMetadata = "Results from file "+fileName+"failed for Mean calculation for " +
 			            			                        "CB-2006 attenuation with the following parameter settings:"+
 			            									"  PGA "+"\nMag ="+(float)mag+" rRup = "+(float)rrup+
 			            									"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " depth2pt5 ="+depth25+" FaultType = "+fltType+
 			            									"   depthTop = "+depthTop+"\n   dip = "+dip+"\n"+
-			            									"Std Dev from OpenSHA = "+openSHA_mean+"  should be = "+tested_mean;
+			            									"Std Dev from OpenSHA = "+openSHA_meanForPGA+"  should be = "+tested_mean;
 			            	
 			            	 //System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
 			            	 //System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 			              this.assertNull(failedResultMetadata,failedResultMetadata);
 			            }
 						cb_2006.setIntensityMeasure(cb_2006.PGV_NAME);
-						openSHA_mean = Math.exp(cb_2006.getMean());
+						double openSHA_mean = Math.exp(cb_2006.getMean());
 						tested_mean = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_mean, tested_mean);
 						if(results == false){
@@ -257,6 +257,8 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 								st.nextToken();
 							}
 							openSHA_mean = Math.exp(cb_2006.getMean());
+							if(period[k] < 0.2  && openSHA_mean < openSHA_meanForPGA)
+								openSHA_mean = openSHA_meanForPGA;
 							tested_mean = Double.parseDouble(st.nextToken().trim());
 							results = this.compareResults(openSHA_mean, tested_mean);
 							if(results == false){
