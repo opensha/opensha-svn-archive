@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import org.opensha.data.Site;
+import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 //import org.opensha.param.StringParameter;
 //import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -82,7 +85,6 @@ public class LossCurveApplication extends JFrame {
 	public LossCurveApplication() {
 		// Create the calculation utilities
 		forecast = new Frankel02_AdjustableEqkRupForecast();
-		forecast.updateForecast();
 		imr = new USGS_Combined_2004_AttenRel(new ParameterChangeWarningListener() {
 			public void parameterChangeWarning(ParameterChangeWarningEvent event) {
 				System.err.println("A warining occurred while changing the value of " + event.getWarningParameter() +
@@ -105,7 +107,9 @@ public class LossCurveApplication extends JFrame {
 		mainRightContent = new JPanel(new GridBagLayout());
 		vulnBean = new VulnerabilityBean();
 		siteBean = new Site_GuiBean();
+		forecast.getTimeSpan().setDuration(1.0);
 		timeBean = new TimeSpanGuiBean(forecast.getTimeSpan());
+		timeBean.getTimeSpan().setDuration(1.0);
 		siteBean.addSiteParams(imr.getSiteParamsIterator());
 		btnCalc = new JButton("Calculate");
 		btnCalc.addActionListener(new ActionListener() {
@@ -113,6 +117,7 @@ public class LossCurveApplication extends JFrame {
 				btnCalc_actionPerformed(event);
 			}
 		});
+		
 		btnClear = new JButton("Clear Output");
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -178,6 +183,7 @@ public class LossCurveApplication extends JFrame {
 		//ProgressBar progress = new ProgressBar((Component) this, "Computing", "Computing", creditPanel, 0);
 		//progress.run();
 		LossCurveCalculator lCalc = new LossCurveCalculator();
+		forecast.updateForecast();
 		ArbitrarilyDiscretizedFunc hazFunc = getHazardCurve();
 		ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(hazFunc, vulnBean.getCurrentModel());
 		lossFunc.setInfo(getParameterInfoString());
@@ -300,4 +306,5 @@ public class LossCurveApplication extends JFrame {
 	    	);
 	    return splash;
 	}
+
 }
