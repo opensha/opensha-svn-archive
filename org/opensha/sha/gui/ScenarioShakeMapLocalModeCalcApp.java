@@ -59,7 +59,7 @@ public class ScenarioShakeMapLocalModeCalcApp
      */
     erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
     erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+    //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
     //   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
     erf_Classes.add(FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
     erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
