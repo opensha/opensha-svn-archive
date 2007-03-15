@@ -137,23 +137,32 @@ public class SimpleFaultData {
     		totLength+=length;
     		totArea+=area;
     		combinedUpperSeisDepth+=(area*simpleFaultDataList.get(i).getUpperSeismogenicDepth());
-    		combinedDip+=(area*dip);
+    		if(dip>0)
+    			combinedDip+=(area*dip);
+    		else combinedDip+=(area*(dip+180));
+    		//System.out.println(dip+","+area+","+combinedDip+","+totArea);
     	}
-//    	 if Dip<0, reverse the trace points to follow Aki and Richards convention
-    	if(combinedDip<0) {
-    		combinedDip=-combinedDip;
+
+    	
+    	double dip = combinedDip/totArea;
+    	
+    	double tolerance = 1e-6;
+		if(dip-90 < tolerance) dip=90;
+//   	 if Dip<0, reverse the trace points to follow Aki and Richards convention
+    	if(dip>90) {
+    		dip=180-dip;
     		combinedFaultTrace.reverse();
     	}
     	
+    	//System.out.println(dip);
+    	
     	SimpleFaultData simpleFaultData = new SimpleFaultData();
+    	simpleFaultData.setAveDip(dip);
     	double upperSeismogenicDepth = combinedUpperSeisDepth/totArea;
     	simpleFaultData.setUpperSeismogenicDepth(upperSeismogenicDepth);
     	for(int locIndex=0; locIndex<combinedFaultTrace.getNumLocations(); ++locIndex)
     		combinedFaultTrace.getLocationAt(locIndex).setDepth(simpleFaultData.getUpperSeismogenicDepth());
-    	double dip = combinedDip/totArea;
-    	double tolerance = 1e-6;
-		if(dip-90 < tolerance) dip=90;
-    	simpleFaultData.setAveDip(dip);
+
     	simpleFaultData.setLowerSeismogenicDepth((totArea/totLength)*Math.sin(dip*Math.PI/180)+upperSeismogenicDepth);
     	simpleFaultData.setFaultTrace(combinedFaultTrace);
     	return simpleFaultData;
