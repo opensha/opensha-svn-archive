@@ -15,12 +15,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import org.opensha.data.Site;
-import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-//import org.opensha.param.StringParameter;
-//import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
