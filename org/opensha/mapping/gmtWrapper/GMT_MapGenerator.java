@@ -159,11 +159,11 @@ public class GMT_MapGenerator implements Serializable{
 
   // highways to plot parameter
   public final static String SHOW_HIWYS_PARAM_NAME = "Highways in plot";
-  private final static String SHOW_HIWYS_PARAM_DEFAULT = "None";
-  private final static String SHOW_HIWYS_PARAM_INFO = "Select the highways you'd like to be shown";
-  private final static String SHOW_HIWYS_ALL = "ca_hiwys.all.xy";
-  private final static String SHOW_HIWYS_MAIN = "ca_hiwys.main.xy";
-  private final static String SHOW_HIWYS_OTHER = "ca_hiwys.other.xy";
+  public final static String SHOW_HIWYS_PARAM_DEFAULT = "None";
+  public final static String SHOW_HIWYS_PARAM_INFO = "Select the highways you'd like to be shown";
+  public final static String SHOW_HIWYS_ALL = "ca_hiwys.all.xy";
+  public final static String SHOW_HIWYS_MAIN = "ca_hiwys.main.xy";
+  public final static String SHOW_HIWYS_OTHER = "ca_hiwys.other.xy";
   public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 

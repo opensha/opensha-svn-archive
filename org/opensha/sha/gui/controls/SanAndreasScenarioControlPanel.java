@@ -16,7 +16,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.data.Location;
 import org.opensha.data.Direction;
 import org.opensha.calc.RelativeLocation;
@@ -139,7 +139,7 @@ public class SanAndreasScenarioControlPanel {
 	faultTrace1.addLocation(new Location(34.547849,-118.103936));
 	faultTrace1.addLocation(new Location(34.402927,-117.753579));
 	faultTrace1.addLocation(new Location(34.3163,-117.549));
-	SimpleFaultData faultData1 = new SimpleFaultData(90,0,13.1,faultTrace1);
+	SimpleFaultData faultData1 = new SimpleFaultData(90,13.1,0,faultTrace1);
     
     //San Andreas (San Bernardino N)
     FaultTrace faultTrace2 =  new FaultTrace("San Andreas (San Bernardino N)");
@@ -148,7 +148,7 @@ public class SanAndreasScenarioControlPanel {
     faultTrace2.addLocation(new Location(34.232843,-117.388692));
     faultTrace2.addLocation(new Location(34.173137,-117.274161));
     faultTrace2.addLocation(new Location(34.150027,-117.222023));
-    SimpleFaultData faultData2 = new SimpleFaultData(90,0,12.8,faultTrace2);
+    SimpleFaultData faultData2 = new SimpleFaultData(90,12.8,0,faultTrace2);
     
 	//San Andreas (San Bernardino S)
     FaultTrace faultTrace3 =  new FaultTrace("San Andreas (San Bernardino S)");
@@ -158,7 +158,7 @@ public class SanAndreasScenarioControlPanel {
     faultTrace3.addLocation(new Location(34.033837,-116.90235));
     faultTrace3.addLocation(new Location(34.011347,-116.873541));
     faultTrace3.addLocation(new Location(33.959114,-116.819795));
-    SimpleFaultData faultData3 = new SimpleFaultData(90,0,12.8,faultTrace3);
+    SimpleFaultData faultData3 = new SimpleFaultData(90,12.8,0,faultTrace3);
 	
 	//San Andreas (San Gorgonio Pass-Garnet HIll)
     FaultTrace faultTrace4 =  new FaultTrace("San Andreas (San Gorgonio Pass-Garnet HIll)");
@@ -171,13 +171,13 @@ public class SanAndreasScenarioControlPanel {
     faultTrace4.addLocation(new Location(33.944163,-116.685809));
     faultTrace4.addLocation(new Location(33.937411,-116.778598));
     faultTrace4.addLocation(new Location(33.953154,-116.801391));
-    SimpleFaultData faultData4 = new SimpleFaultData(58,0,12.8,faultTrace4);
+    SimpleFaultData faultData4 = new SimpleFaultData(58,12.8,0,faultTrace4);
 	
 	//San Andreas (Coachella) rev
     FaultTrace faultTrace5 =  new FaultTrace("San Andreas (Coachella) rev");
     faultTrace5.addLocation(new Location(33.78825,-116.24629));
     faultTrace5.addLocation(new Location(33.35009,-115.71192));
-    SimpleFaultData faultData5 = new SimpleFaultData(90,0,11.1,faultTrace5);
+    SimpleFaultData faultData5 = new SimpleFaultData(90,11.1,0,faultTrace5);
 	
     ArrayList<SimpleFaultData> faultList = new ArrayList<SimpleFaultData>();
     faultList.add(faultData1);
@@ -260,25 +260,35 @@ public class SanAndreasScenarioControlPanel {
       imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
     // Set the imt as PGA
     ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
-    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGV_NAME);
     editor.refreshParamEditor();
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
-    imrGuiBean.setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_AVE_HORZ);
+    imrGuiBean.setIMR_Selected(Field_2000_AttenRel.NAME);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(Field_2000_AttenRel.COMPONENT_NAME).setValue(Field_2000_AttenRel.COMPONENT_AVE_HORZ);
     imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
     //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.5));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-118.7));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-116.00));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.016667));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(32.3));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.5));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.5));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-115));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.02));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(regionGuiBean.SET_SITES_USING_SCEC_CVM);
 
 
     // Set some of the mapping params:
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.CPT_FILE_PARAM_NAME).
+    setValue(GMT_MapGenerator.CPT_FILE_SHAKEMAP);
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).
+    setValue(GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).
+    setValue(new Double(0.3));
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).
+    setValue(new Double(2.3));
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.SHOW_HIWYS_PARAM_NAME).
+    setValue(GMT_MapGenerator.SHOW_HIWYS_ALL);
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
-    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(true));
     mapGuiBean.refreshParamEditor();
   }
 }

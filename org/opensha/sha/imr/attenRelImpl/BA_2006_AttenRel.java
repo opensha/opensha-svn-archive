@@ -357,8 +357,7 @@ public class BA_2006_AttenRel
   }
 
   /**
-   * This sets the site and eqkRupture, and the related parameters,
-   *  from the propEffect object passed in. Warning constrains are ingored.
+   * This sets the site and eqkRu passed in. Warning constrains are ingored.
    * @param propEffect
    * @throws ParameterException Thrown if the Site object doesn't contain a
    * Vs30 parameter

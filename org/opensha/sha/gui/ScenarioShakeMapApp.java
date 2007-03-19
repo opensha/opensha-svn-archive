@@ -150,9 +150,9 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   //protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
   protected final static String PUENTE_HILLS_CONTROL =
-      "Set Params for Puente Hills Sceanrio";
+      "Set Params for Puente Hills Scenario";
   protected final static String SAN_ANDREAS_CONTROL =
-      "Set Params for San Andreas Sceanrio";
+      "Set Params for SAF Shakeout Quake Scenario";
   protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
@@ -449,7 +449,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     */
    erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+   //erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
 //   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
