@@ -1,25 +1,28 @@
 package scratchJavaDevelopers.martinez.applications;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-
 import javax.swing.JFrame;
 
-import org.opensha.sha.gui.beans.ERF_GuiBean;
+import scratchJavaDevelopers.martinez.beans.ExceptionBean;
+import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 
 public class TestApp {
 	public static void main(String[] args) {
-		ArrayList<String> erfs = new ArrayList<String>();
-		erfs.add("org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast");
-		ERF_GuiBean erfBean = null;
 		try {
-			erfBean = new ERF_GuiBean(erfs);
-		} catch (InvocationTargetException ex) {
-			System.err.println(ex.getMessage());
+			foo(null);
+		} catch (Exception ex) {
+			ExceptionBean eb = new ExceptionBean(ex.getMessage(), "Error", ex);
+			((JFrame) eb.getVisualization(GuiBeanAPI.SPLASH)).setVisible(true);
+		} finally {
+			System.out.println("This comes after the exception bean is shown!");
 		}
-		JFrame frame = new JFrame();
-		frame.add(erfBean);
-		frame.pack();
+	}
+	
+	private static void foo(int[] a) {
+		bar(a);
+	}
+	
+	private static void bar(int[] b) {
+		JFrame frame = null;
 		frame.setVisible(true);
 	}
 }
