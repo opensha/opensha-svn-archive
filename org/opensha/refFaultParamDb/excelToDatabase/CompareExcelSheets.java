@@ -95,15 +95,15 @@ public class CompareExcelSheets {
 	 */
 	private void compare(HSSFRow r1, HSSFRow r2, int rowIndex1, int rowIndex2, FileWriter diffWriter) {
 		try {
-			int lastColIndex = r1.getLastCellNum();
-			for(int col=0; col<=lastColIndex; ++col) {
+			int LAST_COL = 50;
+			for(int col=0; col<LAST_COL; ++col) { // ignore the last column as it is just a Comment column
 				HSSFCell cell1 = r1.getCell((short)col);
 				String value1 = getValue(cell1);
 				HSSFCell cell2 = r2.getCell((short)col);
 				String value2 = getValue(cell2);
 				// if values are same, continue else write the difference in a file
 				if(value1.equalsIgnoreCase(value2)) continue;
-				diffWriter.write("Row "+(rowIndex1+1)+" Column "+(col+1)+" in Sheet1 has value "+value1+
+				diffWriter.write(">>>>> Row "+(rowIndex1+1)+" Column "+(col+1)+" in Sheet1 has value "+value1+
 						" but Row " +(rowIndex2+1)+" Column "+(col+1)+" in Sheet2 has value "+value2+"\n");
 			}
 		}catch(Exception e) {

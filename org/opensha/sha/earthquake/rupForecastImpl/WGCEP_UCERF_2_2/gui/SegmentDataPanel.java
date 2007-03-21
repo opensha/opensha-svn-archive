@@ -158,6 +158,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			boolean isAseisReducesArea, 
 			ArrayList magAreaRelationships) {
 		FaultSegmentData faultSegmentData ;
+		
 		if(segmentedSource!=null) faultSegmentData = segmentedSource.getFaultSegmentData();
 		else faultSegmentData = unsegmentedSource.getFaultSegmentData();
 		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, 
@@ -170,16 +171,18 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		
 		if(segmentedSource==null) { // for unsegmented source
 			this.eventRateButton.setVisible(false);
-			this.slipRateButton.setVisible(false);
-			this.slipRateRatioButton.setVisible(false);
+			this.slipRateButton.setVisible(true);
+			this.slipRateRatioButton.setVisible(true);
 			this.eventRateRatioButton.setVisible(false);
+			generateSlipRateFuncList(null, unsegmentedSource, faultSegmentData);
+			generateSlipRateRatioFuncList(null, unsegmentedSource);
 		} else { // Segmented source
 			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
 			this.slipRateRatioButton.setVisible(true);
 			this.eventRateRatioButton.setVisible(true);
-			generateSlipRateFuncList(segmentedSource, faultSegmentData);
-			generateSlipRateRatioFuncList(segmentedSource);
+			generateSlipRateFuncList(segmentedSource, null, faultSegmentData);
+			generateSlipRateRatioFuncList(segmentedSource, null);
 			generateEventRateFuncList(segmentedSource, faultSegmentData);
 			generateEventRateRatioFuncList(segmentedSource);
 		}
@@ -232,10 +235,14 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * 
 	 * @param segmentedSource
 	 */
-	private void generateSlipRateRatioFuncList(A_FaultSegmentedSourceGenerator segmentedSource) {
+	private void generateSlipRateRatioFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
+			UnsegmentedSource unsegmentedSource) {
 		ArbitrarilyDiscretizedFunc slipRateRatioFunc = new ArbitrarilyDiscretizedFunc();
 		slipRateRatioFunc.setName("Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
-		double normModResids[] = segmentedSource.getNormModSlipRateResids();
+		double normModResids[];
+		if(segmentedSource!=null)
+		 normModResids = segmentedSource.getNormModSlipRateResids();
+		else normModResids = unsegmentedSource.getNormModSlipRateResids();
 		for(int seg=0; seg<normModResids.length; ++seg) {
 			slipRateRatioFunc.set((double)seg+1, normModResids[seg]);
 		 }
@@ -249,7 +256,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @param segmentedSource
 	 */
 	private void generateSlipRateFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
-			FaultSegmentData faultSegmentData) {
+			UnsegmentedSource unsegmentedSource, FaultSegmentData faultSegmentData) {
 		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		origSlipRateFunc.setName("Orig Slip Rate");
 		ArbitrarilyDiscretizedFunc origMinSlipRateFunc = new ArbitrarilyDiscretizedFunc();
@@ -265,6 +272,11 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		finalSlipRateFunc.setName("Final Slip Rate");
 		double origSlipRate, origSlipRateStdDev, finalSlipRate, fraction;
+		// Modified Slip Rates
+		if(segmentedSource!=null)
+			fraction = 1-segmentedSource.getMoRateReduction();
+		else fraction = 1 - unsegmentedSource.getMoRateReduction();
+		
 		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
 			 // Original Slip Rates
 			origSlipRate = faultSegmentData.getSegmentSlipRate(seg)*1e3;
@@ -273,12 +285,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			origMinSlipRateFunc.set((double)seg+1, origSlipRate-2*origSlipRateStdDev);
 			origMaxSlipRateFunc.set((double)seg+1, origSlipRate+2*origSlipRateStdDev);
 			// Modified Slip Rates
-			fraction = 1-segmentedSource.getMoRateReduction();
 			modSlipRateFunc.set((double)seg+1, origSlipRate*fraction);
 			modMinSlipRateFunc.set((double)seg+1, (origSlipRate-2*origSlipRateStdDev)*fraction);
 			modMaxSlipRateFunc.set((double)seg+1, (origSlipRate+2*origSlipRateStdDev)*fraction);
 			// Final slip Rate
-			finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
+			if(segmentedSource!=null)
+				finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
+			else finalSlipRate  = unsegmentedSource.getFinalAveSegSlipRate(seg);
 			finalSlipRateFunc.set((double)seg+1, finalSlipRate*1e3);
 		 }
 		slipRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();

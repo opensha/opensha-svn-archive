@@ -65,6 +65,10 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	private MagAreaRelationship magAreaRel;
 	private double fixMag, fixRate;
 	
+//	 the following is the total moment-rate reduction, including that which goes to the  
+	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
+	private double moRateReduction;  
+	
 	
 	/**
 	 * Description:  The constructs the source using a supplied Mag PDF
@@ -79,6 +83,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		sourceMag = Double.NaN;
 		grMFD = null;
 		charMFD = null;
+		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
@@ -162,7 +167,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.fixMag = fixMag; // change this by meanMagCorrection?
 		this.fixRate = fixRate*(1-moRateReduction);  // do we really want to reduce this???
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
-		
+		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		double moRate;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
@@ -251,6 +256,33 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
+	}
+	
+	/**
+	 * Moment rate reduction
+	 * 
+	 * @return
+	 */
+	public double getMoRateReduction() {
+		return this.moRateReduction;
+	}
+	
+	
+	/**
+	 * Compute Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)
+	 *
+	 */
+	public double[] getNormModSlipRateResids() {
+		int numSegments = getFaultSegmentData().getNumSegments();
+		double[] normResids = new double[numSegments];
+		// iterate over all segments
+		double reduction = 1-getMoRateReduction();
+		for(int segIndex = 0; segIndex<numSegments; ++segIndex) {
+			normResids[segIndex] = getFinalAveSegSlipRate(segIndex)-getFaultSegmentData().getSegmentSlipRate(segIndex)*reduction;
+			normResids[segIndex] /= (getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
+		}
+
+	return normResids;
 	}
 	
 	/**
