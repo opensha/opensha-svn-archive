@@ -40,7 +40,7 @@ import org.opensha.util.FileUtils;
  *
  */
 public class A_FaultsFetcher extends FaultsFetcher{
-	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v12.xls";
+	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v14.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/BPT_rates2.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segRatesMap;

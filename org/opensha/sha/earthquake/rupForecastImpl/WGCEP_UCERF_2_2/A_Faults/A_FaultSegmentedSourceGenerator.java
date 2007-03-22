@@ -226,7 +226,7 @@ public class A_FaultSegmentedSourceGenerator {
 		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
 		int numRateConstraints = segRateConstraints.size();
 		
-		// set by number of segments 9one for each slip rate)
+		// set by number of segments one for each slip rate)
 		int totNumRows = num_seg;
 		// add segment rate constrains if needed
 		if(relativeSegRate_wt > 0.0)	totNumRows += numRateConstraints;
@@ -1439,7 +1439,7 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	/**
 	 * This is used to get the non rate-balanced a-priori rates from the geologists
-	 * to rate balanced models
+	 * to rate balanced models.  DOES THIS STILL WORK?
 	 */
 	private void convertA_prioriToRateBalanced() {
 		
