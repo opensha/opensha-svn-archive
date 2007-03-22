@@ -17,21 +17,25 @@ public class EventRates {
 	private double obsEventRate;
 	private double obsSigma;
 	private double predictedRate;
+	private double lower95Conf;
+	private double upper95Conf;
 	
 	public EventRates() { }
 	
 	public EventRates(String siteName, double latitude, double longitude,
-			double obsEventRate, double obsSigma) {
-		setAll( siteName,  latitude,  longitude, obsEventRate,  obsSigma);
+			double obsEventRate, double obsSigma, double lower95Conf, double upper95Conf) {
+		setAll( siteName,  latitude,  longitude, obsEventRate,  obsSigma, lower95Conf, upper95Conf);
 	}
 	
 	public void setAll(String siteName, double latitude, double longitude,
-			double obsEventRate, double obsSigma) {
+			double obsEventRate, double obsSigma, double lower95Conf, double upper95Conf) {
 		setSiteName(siteName);
 		setLatitude(latitude);
 		setLongitude(longitude);
 		this.setObsEventRate(obsEventRate);
 		this.setObsSigma(obsSigma);
+		this.setLower95Conf(lower95Conf);
+		this.setUpper95Conf(upper95Conf);
 	}
 	
 	public double getLatitude() {
@@ -71,5 +75,21 @@ public class EventRates {
 
 	public void setPredictedRate(double predictedRate) {
 		this.predictedRate = predictedRate;
+	}
+
+	public double getLower95Conf() {
+		return lower95Conf;
+	}
+
+	public void setLower95Conf(double lower95Conf) {
+		this.lower95Conf = lower95Conf;
+	}
+
+	public double getUpper95Conf() {
+		return upper95Conf;
+	}
+
+	public void setUpper95Conf(double upper95Conf) {
+		this.upper95Conf = upper95Conf;
 	}
 }

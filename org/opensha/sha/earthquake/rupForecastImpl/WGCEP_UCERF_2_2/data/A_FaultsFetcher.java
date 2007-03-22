@@ -166,7 +166,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
-				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma));
+				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma, lower95Conf, upper95Conf));
 				setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
 			}
 		}catch(Exception e) {
