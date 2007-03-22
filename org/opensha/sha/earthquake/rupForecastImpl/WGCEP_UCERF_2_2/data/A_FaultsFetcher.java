@@ -41,7 +41,7 @@ import org.opensha.util.FileUtils;
  */
 public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v14.xls";
-	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/BPT_rates2.xls";
+	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/RealityCheckFaultPtRates.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segRatesMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
@@ -151,8 +151,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			double lat, lon, rate, sigma;
 			String siteName;
 			int faultSectionId;
-			for(int r=2; r<=lastRowIndex; ++r) {	
-				if(r==9) continue; // Ignore the Hayward North
+			for(int r=1; r<=lastRowIndex; ++r) {	
+				if(r==8) continue; // Ignore the Hayward North
 				HSSFRow row = sheet.getRow(r);
 				if(row==null) continue;
 				HSSFCell cell = row.getCell( (short) 1);
@@ -160,8 +160,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				lat = cell.getNumericCellValue();
 				siteName = row.getCell( (short) 0).getStringCellValue().trim();
 				lon = row.getCell( (short) 2).getNumericCellValue();
-				rate = row.getCell( (short) 19).getNumericCellValue();
-				sigma =  row.getCell( (short) 20).getNumericCellValue();
+				rate = row.getCell( (short) 3).getNumericCellValue();
+				sigma =  row.getCell( (short) 4).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
 				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma));
