@@ -153,16 +153,19 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       "Set Params for Puente Hills Scenario";
   protected final static String SAN_ANDREAS_CONTROL =
       "Set Params for SAF Shakeout Quake Scenario";
+  protected final static String IM_EVENT_SET_SCENARIO_CONTROL = "Set Params for IMEvent Set Scenario";
+
   protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
   private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   protected final static String CALC_PARAMS_CONTROL = "Calculation Settings";
-
+ 
     // objects for control panels
   protected RegionsOfInterestControlPanel regionsOfInterest;
   protected PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
   protected SanAndreasScenarioControlPanel  sanAndreasControlUsingEqkRupture;
+  protected IM_EventSetCEA_ControlPanel imSetScenarioControl;
   //protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   protected GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
@@ -877,6 +880,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     //this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(SAN_ANDREAS_CONTROL);
+    this.controlComboBox.addItem(IM_EVENT_SET_SCENARIO_CONTROL);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
@@ -898,6 +902,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       initPuenteHillsScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.SAN_ANDREAS_CONTROL))
         initSanAndreasScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.IM_EVENT_SET_SCENARIO_CONTROL))
+        initIMEventSetScenarioControl();
     //else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
       //initPuenteHillsScenarioControlOld();
     //else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
@@ -980,6 +986,22 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
                                                                 sitesGuiBean,mapGuiBean);
     }
     sanAndreasControlUsingEqkRupture.setParamsForSanAndreasScenario();	  
+  }
+  
+  /**
+   * 
+   * Initialize the parameter settings for IM EventSet Scenario
+   */
+  protected void initIMEventSetScenarioControl(){
+	int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
+	        " for a IMEvent Set scenario?",
+	                                    "IM EventSet Scenario Control Panel",JOptionPane.OK_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(this.imSetScenarioControl==null)
+    	  imSetScenarioControl = new IM_EventSetCEA_ControlPanel(erfGuiBean,imrGuiBean,
+                                                                sitesGuiBean,mapGuiBean);
+    }
+    imSetScenarioControl.setParamsForSanAndreasScenario();	  
   }
   
   /**

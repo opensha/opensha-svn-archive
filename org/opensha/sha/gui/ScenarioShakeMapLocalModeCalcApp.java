@@ -143,6 +143,7 @@ public class ScenarioShakeMapLocalModeCalcApp
     //this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(SAN_ANDREAS_CONTROL);
+    this.controlComboBox.addItem(IM_EVENT_SET_SCENARIO_CONTROL);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
     //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);

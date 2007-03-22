@@ -717,10 +717,11 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
       parameterListParameterForLats.getParameter().getParameter(SimpleFaultParameter.LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
       parameterListParameterForLons.getParameter().getParameter(SimpleFaultParameter.LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
     }
-    this.initDipParamList();
+    this.initDepthParamList();
     for(int i=0;i<numDips;++i)
       parameterListParameterForDips.getParameter().getParameter(SimpleFaultParameter.DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
-    this.initDepthParamList();
+    
+    this.initDipParamList();
     for(int i=0;i<numDips+1;++i)
       parameterListParameterForDepths.getParameter().getParameter(SimpleFaultParameter.DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
 

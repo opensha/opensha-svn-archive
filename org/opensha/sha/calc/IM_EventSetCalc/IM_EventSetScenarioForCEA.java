@@ -77,7 +77,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		dips.add(new Double(dip));
 		
 		double dow = 27.00;
-		double lowDepth = 27*Math.sin(dip);
+		double lowDepth = dow*Math.sin(dip);
 		
 		ArrayList depths = new ArrayList();
 		depths.add(new Double(0.0));
