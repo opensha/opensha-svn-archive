@@ -41,7 +41,7 @@ import org.opensha.util.FileUtils;
  */
 public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v14.xls";
-	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/RealityCheckFaultPtRates.xls";
+	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/RealityCheckFaultPtRates_v1.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segRatesMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
@@ -148,7 +148,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastRowIndex = sheet.getLastRowNum();
-			double lat, lon, rate, sigma;
+			double lat, lon, rate, sigma, lower95Conf, upper95Conf;
 			String siteName;
 			int faultSectionId;
 			for(int r=1; r<=lastRowIndex; ++r) {	
@@ -162,10 +162,12 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				lon = row.getCell( (short) 2).getNumericCellValue();
 				rate = row.getCell( (short) 3).getNumericCellValue();
 				sigma =  row.getCell( (short) 4).getNumericCellValue();
+				lower95Conf = row.getCell( (short) 7).getNumericCellValue();
+				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
 				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma));
-				setRecurIntv(faultSectionId, rate, sigma);
+				setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -214,7 +216,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * @param rate
 	 * @param sigma
 	 */
-	private void setRecurIntv(int faultSectionId, double rate, double sigma) {
+	private void setRecurIntv(int faultSectionId, double rate, double sigma, double lower95Conf, double upper95Conf) {
 
 		Iterator<String> it = faultModels.keySet().iterator();
 		// Iterate over all A-Faults
@@ -229,7 +231,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				for(int segIndex=0; segIndex<segment.size(); ++segIndex) {
 					if(faultSectionId == ((FaultSectionSummary)segment.get(segIndex)).getSectionId()) {
 						SegRateConstraint segRateConstraint = new SegRateConstraint(faultName);
-						segRateConstraint.setSegRate(i, rate, sigma);
+						segRateConstraint.setSegRate(i, rate, sigma, lower95Conf, upper95Conf);
 						segRatesList.add(segRateConstraint);
 						return;
 					}

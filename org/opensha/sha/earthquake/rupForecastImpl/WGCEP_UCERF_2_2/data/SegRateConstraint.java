@@ -16,6 +16,8 @@ public class SegRateConstraint {
 	private int segIndex; // segment index
 	private double meanSegRate; // mean Segment rate
 	private double stdDevToMean; // Std dev to mean
+	private double lower95Conf; // Lower 95% confidence
+	private double upper95Conf; // Upper 95% confidence
 	
 	/**
 	 * Save the faultName
@@ -40,10 +42,12 @@ public class SegRateConstraint {
 	 * @param meanRate
 	 * @param stdDevtoMean
 	 */
-	public void setSegRate(int segIndex, double meanRate, double stdDevtoMean) {
+	public void setSegRate(int segIndex, double meanRate, double stdDevtoMean, double lower95Conf, double upper95Conf) {
 		this.segIndex = segIndex;
 		this.meanSegRate = meanRate;
 		this.stdDevToMean = stdDevtoMean;
+		this.lower95Conf = lower95Conf;
+		this.upper95Conf = upper95Conf;
 	}
 	
 	
@@ -73,7 +77,7 @@ public class SegRateConstraint {
 	
 	/**
 	   * Get the weight mean and Std Dev
-	   * 
+	   * Note: Lower and upper 95 not weight averaged, they are just set NaN
 	   * @param mean1
 	   * @param mean2
 	   * @param sigma1
@@ -94,8 +98,24 @@ public class SegRateConstraint {
 			  total+=sigmaSq*segRateConstraint.getMean();
 		  }
 		  SegRateConstraint finalSegRateConstraint = new SegRateConstraint(faultName);
-		  finalSegRateConstraint.setSegRate(segIndex, total/sigmaTotal, Math.sqrt(1.0/sigmaTotal));
+		  finalSegRateConstraint.setSegRate(segIndex, total/sigmaTotal, Math.sqrt(1.0/sigmaTotal), Double.NaN, Double.NaN);
 		  return finalSegRateConstraint;
 	  }
+
+	public double getLower95Conf() {
+		return lower95Conf;
+	}
+
+	public void setLower95Conf(double lower95Conf) {
+		this.lower95Conf = lower95Conf;
+	}
+
+	public double getUpper95Conf() {
+		return upper95Conf;
+	}
+
+	public void setUpper95Conf(double upper95Conf) {
+		this.upper95Conf = upper95Conf;
+	}
 	
 }

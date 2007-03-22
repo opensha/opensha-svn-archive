@@ -328,8 +328,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			finalEventRate  = segmentedSource.getFinalSegmentRate(seg);
 			predEventRate = segmentedSource.getSegRateFromAprioriRates(seg);
 			origEventRateFunc.set((double)seg+1, origEventRate);
-			minEventRateFunc.set((double)seg+1, origEventRate-2*stdDevEventRate);
-			maxEventRateFunc.set((double)seg+1, origEventRate+2*stdDevEventRate);
+			minEventRateFunc.set((double)seg+1, faultSegmentData.getSegLower95Conf(seg));
+			maxEventRateFunc.set((double)seg+1, faultSegmentData.getSegUpper95Conf(seg));
 			predEventRateFunc.set((double)seg+1, predEventRate);
 			finalEventRateFunc.set((double)seg+1, finalEventRate);
 		 }

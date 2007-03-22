@@ -239,6 +239,42 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * This returns the lower 95% confidence of segment rate (highest value is returned if more than
+	 * one value on the segment).  
+	 * 
+	 * @param index
+	 */
+	public double getSegLower95Conf(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(index);
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			double lower95Conf = Double.MIN_VALUE;
+			for(int i=0; i<segmentConstraints.size(); ++i)
+				if(segmentConstraints.get(i).getLower95Conf()>lower95Conf)
+					lower95Conf = segmentConstraints.get(i).getLower95Conf();
+			return lower95Conf;
+		}
+	}
+	
+	/**
+	 * This returns the upper 95% confidence of segment rate (lowest value is returned if more than
+	 * one value on the segment).  
+	 * 
+	 * @param index
+	 */
+	public double getSegUpper95Conf(int index) {
+		ArrayList<SegRateConstraint> segmentConstraints = getSegRateConstraints(index);
+		if(segmentConstraints.size()==0) return Double.NaN;
+		else {
+			double upper95Conf = Double.MAX_VALUE;
+			for(int i=0; i<segmentConstraints.size(); ++i)
+				if(segmentConstraints.get(i).getUpper95Conf()<upper95Conf)
+					upper95Conf = segmentConstraints.get(i).getUpper95Conf();
+			return upper95Conf;
+		}
+	}
+	
+	/**
 	 * Computes the standard deviation of the mean recur interval for a segment 
 	 * (using standard error propagation from getSegRateStdDevOfMean and getSegRateMean).  
 	 * 
