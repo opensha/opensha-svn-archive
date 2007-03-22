@@ -13,6 +13,8 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
 import org.opensha.util.*;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.ParameterAPI;
@@ -47,9 +49,16 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	private LocationList locList;
 	private ArrayList imtSupported;
 	private final static String EVENT_SET_FILE_CEA = "org/opensha/sha/calc/IM_EventSetCalc/eventSetFileCEA.txt";
-	
+	private final static String CB2006_TEST_FILE = "CB_2006_TestFile.txt";
+	private final static String BA2006_TEST_FILE = "BA_2006_TestFile.txt";
+	private final static String CY2006_TEST_FILE = "CY_2006_TestFile.txt";
 	  // site translator
-	  private Vs30SiteTranslator siteTranslator = new Vs30SiteTranslator();
+	private Vs30SiteTranslator siteTranslator = new Vs30SiteTranslator();
+	
+	private double minLat = Double.MAX_VALUE;
+	private double maxLat = Double.MIN_VALUE;
+	private double minLon = Double.MAX_VALUE;
+	private double maxLon = Double.NEGATIVE_INFINITY;
 	
 	private void createSimpleFaultParam(){
 		faultParameter = new SimpleFaultParameter(SimpleFaultParameter.DEPTH_PARAM_NAME);
@@ -76,6 +85,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		
 		faultParameter.setAll(SimpleFaultParameter.DEFAULT_GRID_SPACING, 
 				lats, lons, dips, depths, SimpleFaultParameter.FRANKEL);
+		faultParameter.setEvenlyGriddedSurfaceFromParams();
 	}
 	
 	private void createRuptureSurface(){
@@ -109,6 +119,15 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 				vs30List.add(Integer.parseInt(st.nextToken().trim()));
 				double lon = Double.parseDouble(st.nextToken().trim());
 				double lat = Double.parseDouble(st.nextToken().trim());
+				if(lat < this.minLat)
+					minLat = lat;
+				if(lat > this.maxLat)
+					maxLat = lat;
+				if(lon < this.minLon)
+					minLon = lon;
+				if(lon > this.maxLon)
+					maxLon = lon;
+					
 				locList.addLocation(new Location(lat,lon));
 			}
 		} catch (FileNotFoundException e) {
@@ -118,6 +137,9 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		System.out.println("MinLat = "+minLat+"  MaxLat = "+maxLat);
+		System.out.println("MinLon = "+minLon+" MaxLon = "+maxLon);
 		
 	}
 	
@@ -219,9 +241,19 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		  
 		  try {
 			FileWriter fw = new FileWriter("IM_MeanStdDevFile.txt");
+			FileWriter fwTest;
+
 			fw.write("AttenID,IMT,SiteID,Mean,Stdev\n");
+			
 			for(int i=0;i<this.attenRelList.size();++i){
+				boolean writenTofile = false;
 				AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)attenRelList.get(i);
+				if(attenRel.getName().equals(BA_2006_AttenRel.NAME))
+					fwTest = new FileWriter(this.BA2006_TEST_FILE);
+				else if(attenRel.getName().equals(CB_2006_AttenRel.NAME))
+					fwTest = new FileWriter(this.CB2006_TEST_FILE);
+				else
+					fwTest = new FileWriter(this.CY2006_TEST_FILE);
 				Site site = new Site();
 				Iterator it = attenRel.getSiteParamsIterator(); // get site params for this IMR
 			    while (it.hasNext()) {
@@ -247,11 +279,20 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 						site.setLocation(loc);
 						setSiteParamsInIMR(attenRel,((Integer)vs30List.get(k)).intValue());
 						propEffect.setSite(site);
+						attenRel.setPropagationEffect(propEffect);
 						double mean = Math.exp(attenRel.getMean());
 						double stdDev = attenRel.getStdDev();
 						fw.write(attenRel.getName()+","+imt+","+(String)this.stationIds.get(k)+
 								","+mean+","+stdDev+"\n");
+						if(!writenTofile){
+							fwTest.write("Selected Site : " +attenRel.getSite().getLocation().toString()+"\n");
+							fwTest.write("--------------\n");
+							fwTest.write(attenRel.getName()+" Params:\n"+attenRel.getAllParamMetadata().replaceAll(";","\n")+"\n");
+							fwTest.write("--------------\n");
+						}
 					}
+					writenTofile = true;
+					fwTest.close();
 				}
 			}
 			fw.close();
