@@ -436,12 +436,15 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private String getRateConstraints(FaultSegmentData segmetedFaultData) {
 		String rateConstraintStr = "Rate Constraints for the Segments \n"+
 									"---------------------------------\n\n";
-		rateConstraintStr+="Seg\tRate\t\tSigma\n";
+		rateConstraintStr+="Seg\tRate\t\tSigma\t   -95%\t\t95%\n";
 		int numSegs = segmetedFaultData.getNumSegments();
 		for(int segIndex=0; segIndex<numSegs; ++segIndex) {
 			ArrayList<SegRateConstraint> segConstraintList = segmetedFaultData.getSegRateConstraints(segIndex);
 			for(int i=0; i<segConstraintList.size(); ++i)
-				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+"\t\t"+(float)segConstraintList.get(i).getStdDevOfMean()+"\n";
+				rateConstraintStr+=(segIndex+1)+"\t"+(float)segConstraintList.get(i).getMean()+
+				"\t\t"+ (float)segConstraintList.get(i).getStdDevOfMean()+
+				"\t   "+ (float)segConstraintList.get(i).getLower95Conf()+
+				"\t"+ (float)segConstraintList.get(i).getUpper95Conf()+"\n";
 		}
 		return rateConstraintStr;
 	}
