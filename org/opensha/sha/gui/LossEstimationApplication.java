@@ -225,7 +225,7 @@ public class LossEstimationApplication extends JFrame
 
 
   // PEER Test Cases
-  protected String TITLE = new String("Hazard Curves");
+  protected String TITLE = new String("Loss Curves");
 
 
   private JPanel jPanel1 = new JPanel();
@@ -242,7 +242,7 @@ public class LossEstimationApplication extends JFrame
 
 
   private JLabel openshaImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("PoweredByOpenSHA_Agua.jpg")));
-  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("usgs_resrisk.gif")));
+  private JLabel usgsImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("tempResRisk2.gif")));
   private JLabel riskAgoraImgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage("AgoraOpenRisk.jpg")));
 
   //static string for the OPENSHA website
@@ -929,7 +929,7 @@ public class LossEstimationApplication extends JFrame
     }
    
     ArbitrarilyDiscretizedFunc currentHazardCurve = calcHazardCurve(currentIMT,currentPeriod,currentIMLs,site,forecast,imr);
-    ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
+    /*ArbitrarilyDiscretizedFunc currentAnnualizedRates= null;
     try {
 		currentAnnualizedRates = 
 			(ArbitrarilyDiscretizedFunc)calc.getAnnualizedRates(currentHazardCurve, 
@@ -937,15 +937,15 @@ public class LossEstimationApplication extends JFrame
 		getAnnualizedPE(currentAnnualizedRates);
 	} catch (RemoteException e) {
 		e.printStackTrace();
-	}
+	}*/
 	LossCurveCalculator lCalc = new LossCurveCalculator();
-	ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(currentAnnualizedRates, vulnBean.getCurrentModel());
+	ArbitrarilyDiscretizedFunc lossFunc = lCalc.getLossCurve(currentHazardCurve, vulnBean.getCurrentModel());
 	lossFunc.setInfo(this.getParametersInfoAsString());
 	lossFunc.setName(vulnBean.getCurrentModel().getDisplayName());
 	 // set the X-axis label
     String imt = currentIMT;
     xAxisName = "Fractional Loss";
-    yAxisName = "Annualized Prob. of Exceed.";
+    yAxisName = "Prob. of Exceed.";
 
 	this.functionList.add(lossFunc);
     isHazardCalcDone = true;

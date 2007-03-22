@@ -132,7 +132,13 @@ public class Vs30SiteTranslator implements java.io.Serializable{
         if(vs30>180)
           tempParam.setValue(new Double(vs30));
       }
-
+//    Depth 2.5 km/sec Parameter
+      else if (tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+        // set Depth 2.5 km/sec in kms
+        if (Double.isNaN(basinDepth)) tempParam.setValue(null);
+        else ((WarningDoubleParameter)tempParam).setValueIgnoreWarning(new Double(basinDepth / 1000));
+        return true;
+      }
       //Cambell 1997 basin depth
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.BASIN_DEPTH_NAME)){
         if(vs30>=400)
