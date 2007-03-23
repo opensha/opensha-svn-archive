@@ -37,7 +37,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   private boolean D = false;
 
   private double rake;
-  private double duration;
+  protected double duration;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private final static double RUPTURE_WIDTH =100.0;
   private double rupOffset;

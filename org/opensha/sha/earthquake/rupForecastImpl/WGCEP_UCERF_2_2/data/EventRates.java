@@ -19,17 +19,19 @@ public class EventRates {
 	private double predictedRate;
 	private double lower95Conf;
 	private double upper95Conf;
+	private String faultName;
 	
 	public EventRates() { }
 	
-	public EventRates(String siteName, double latitude, double longitude,
+	public EventRates(String siteName, String faultName, double latitude, double longitude,
 			double obsEventRate, double obsSigma, double lower95Conf, double upper95Conf) {
-		setAll( siteName,  latitude,  longitude, obsEventRate,  obsSigma, lower95Conf, upper95Conf);
+		setAll( siteName,  faultName, latitude,  longitude, obsEventRate,  obsSigma, lower95Conf, upper95Conf);
 	}
 	
-	public void setAll(String siteName, double latitude, double longitude,
+	public void setAll(String siteName, String faultName, double latitude, double longitude,
 			double obsEventRate, double obsSigma, double lower95Conf, double upper95Conf) {
 		setSiteName(siteName);
+		this.setFaultName(faultName);
 		setLatitude(latitude);
 		setLongitude(longitude);
 		this.setObsEventRate(obsEventRate);
@@ -91,5 +93,13 @@ public class EventRates {
 
 	public void setUpper95Conf(double upper95Conf) {
 		this.upper95Conf = upper95Conf;
+	}
+
+	public String getFaultName() {
+		return faultName;
+	}
+
+	public void setFaultName(String faultName) {
+		this.faultName = faultName;
 	}
 }

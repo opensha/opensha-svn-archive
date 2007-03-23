@@ -349,7 +349,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
 		timeSpan.addParameterChangeListener(this);
-		timeSpan.setDuration(1);
+		timeSpan.setDuration(50);
 		
 		// create and add adj params to list
 		initAdjParams();
@@ -1596,7 +1596,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				double rate = 0;
 				for(int iSource=0; iSource<numSources; ++iSource) {
 					UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);
-					rate+=source.getEventRate(new Location(event.getLatitude(), event.getLongitude()));
+					if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName()))
+						rate+=source.getEventRate(new Location(event.getLatitude(), event.getLongitude()));
 				}
 				event.setPredictedRate(rate);
 			}

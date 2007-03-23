@@ -166,8 +166,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
 				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
-				eventRatesList.add(new EventRates(siteName, lat,lon, rate, sigma, lower95Conf, upper95Conf));
-				setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
+				String faultName = setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
+				eventRatesList.add(new EventRates(siteName, faultName, lat,lon, rate, sigma, lower95Conf, upper95Conf));
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -216,7 +216,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * @param rate
 	 * @param sigma
 	 */
-	private void setRecurIntv(int faultSectionId, double rate, double sigma, double lower95Conf, double upper95Conf) {
+	private String setRecurIntv(int faultSectionId, double rate, double sigma, double lower95Conf, double upper95Conf) {
 
 		Iterator<String> it = faultModels.keySet().iterator();
 		// Iterate over all A-Faults
@@ -233,7 +233,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 						SegRateConstraint segRateConstraint = new SegRateConstraint(faultName);
 						segRateConstraint.setSegRate(i, rate, sigma, lower95Conf, upper95Conf);
 						segRatesList.add(segRateConstraint);
-						return;
+						return faultName;
 					}
 				}
 			}
