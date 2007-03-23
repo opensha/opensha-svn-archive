@@ -140,11 +140,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		System.out.println("MinLat = "+minLat+"  MaxLat = "+maxLat);
-		System.out.println("MinLon = "+minLon+" MaxLon = "+maxLon);
-		
+		}		
 	}
 	
 	
