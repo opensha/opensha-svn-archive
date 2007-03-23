@@ -349,7 +349,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
 		timeSpan.addParameterChangeListener(this);
-		timeSpan.setDuration(50);
+		timeSpan.setDuration(1);
 		
 		// create and add adj params to list
 		initAdjParams();
@@ -1590,8 +1590,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			// Find Predicted event rates for locations provided by Tom Parson's excel sheet
 			ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
 			int numSources = this.aFaultSourceGenerators.size();
+			//System.out.println(numSources);
 			for(int eventIndex=0; eventIndex<eventRatesList.size(); ++eventIndex) {
-				EventRates event = eventRatesList.get(eventIndex);		
+				EventRates event = eventRatesList.get(eventIndex);	
 				double rate = 0;
 				for(int iSource=0; iSource<numSources; ++iSource) {
 					UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);

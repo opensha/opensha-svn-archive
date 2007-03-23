@@ -529,17 +529,23 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		double rate = 0;
 		int numRups = getNumRuptures();
 		double distanceCutOff = 2; // Use 2Km as distance Cutoff
+		//System.out.println(loc.getLatitude()+","+loc.getLongitude());
+		double totRate=0;
 		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
 			ProbEqkRupture rupture = this.getRupture(rupIndex);
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
+			totRate+=rupture.getMeanAnnualRate(duration);
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
 				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration);
+					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
+						//	rupture.getMeanAnnualRate(this.duration));
 					break;
 				}
 			}
 		}
+		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}
 	
