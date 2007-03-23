@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.beans.*;
+import org.opensha.sha.calc.IM_EventSetCalc.IM_EventSetScenarioForCEA;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -65,21 +66,10 @@ public class IM_EventSetCEA_ControlPanel {
     this.imrGuiBean = imrGuiBean;
     this.regionGuiBean = regionGuiBean;
     this.mapGuiBean = mapGuiBean;
-    mkFaultTrace();
+    //mkFaultTrace();
   }
 
- 
-  private void mkFaultTrace() {
-	FaultTrace faultTrace1 =  new FaultTrace("2 segment rupture surface");
-    //San Andreas (Mojave S)
-	faultTrace1.addLocation(new Location(34.039,-118.334));
-	faultTrace1.addLocation(new Location((33.933+ 33.966)/2,(-118.124-118.135)/2));
-	faultTrace1.addLocation(new Location(33.875,-117.873));
-	double dip = 27.5;
-	double dow = 27.00;
-	simpleFaultData = new SimpleFaultData(dip,dow*Math.sin(dip),0.0,faultTrace1);
-   
-  }
+
 
 
 
@@ -105,43 +95,11 @@ public class IM_EventSetCEA_ControlPanel {
     // Set rake value to 90 degrees
     erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
-
-    //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
-    SimpleFaultParameterEditorPanel faultPanel= ((SimpleFaultParameterEditor)erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME)).getParameterEditorPanel();
-    //creating the Lat vector for the SimpleFaultParameter
-
-    ArrayList lats = new ArrayList();
-    ArrayList lons = new ArrayList();
-    FaultTrace faultTrace = simpleFaultData.getFaultTrace();
-    for(int i = 0; i<faultTrace.getNumLocations(); i++) {
-      lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
-      lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
-    }
-
-    //creating the dip vector for the SimpleFaultParameter
-    ArrayList dips = new ArrayList();
-    dips.add(new Double(simpleFaultData.getAveDip()));
-    
-
-    //creating the depth vector for the SimpleFaultParameter
-    ArrayList depths = new ArrayList();
-    depths.add(new Double(simpleFaultData.getUpperSeismogenicDepth()));
-    depths.add(new Double(simpleFaultData.getLowerSeismogenicDepth()));
-
-    //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,
-                      lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).FRANKEL);
-
-    // set the average dip direction
-    // use default which is perp to ave strike.
-//    faultPanel.setDipDirection(aveDipDir);
-
-    faultPanel.refreshParamEditor();
-
-    //updaing the faultParameter to update the faultSurface
-    faultPanel.setEvenlyGriddedSurfaceFromParams();
-
-
+    IM_EventSetScenarioForCEA eventSet = new IM_EventSetScenarioForCEA(); 
+    SimpleFaultParameter faultParameter = eventSet.createSimpleFaultParam();
+    erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME).setParameter(faultParameter);
+    erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME).setValue(faultParameter.getValue());
+     
     erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
     erfPanel.getParameterListEditor().refreshParamEditor();
 

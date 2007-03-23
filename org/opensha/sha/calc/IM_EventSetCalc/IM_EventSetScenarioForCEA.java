@@ -60,8 +60,8 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	private double minLon = Double.MAX_VALUE;
 	private double maxLon = Double.NEGATIVE_INFINITY;
 	
-	private void createSimpleFaultParam(){
-		faultParameter = new SimpleFaultParameter(SimpleFaultParameter.DEPTH_PARAM_NAME);
+	public SimpleFaultParameter createSimpleFaultParam(){
+		faultParameter = new SimpleFaultParameter("Set Fault Surface");
 		ArrayList lats = new ArrayList();
 		lats.add(new Double(34.039));
 		lats.add(new Double( (33.933+ 33.966)/2));
@@ -82,10 +82,14 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		ArrayList depths = new ArrayList();
 		depths.add(new Double(0.0));
 		depths.add(new Double(lowDepth));
+		faultParameter.initLatLonParamList();
+		faultParameter.initDipParamList();
+		faultParameter.initDepthParamList();
 		
 		faultParameter.setAll(SimpleFaultParameter.DEFAULT_GRID_SPACING, 
 				lats, lons, dips, depths, SimpleFaultParameter.FRANKEL);
 		faultParameter.setEvenlyGriddedSurfaceFromParams();
+		return faultParameter;
 	}
 	
 	private void createRuptureSurface(){

@@ -115,7 +115,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     setParameterInEditor(param);
     removeAll();
     surfaceParam = (SimpleFaultParameter) param;
-
+    
     // make the params editor
     initParamListAndEditor();
 
@@ -160,7 +160,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     if(dipDirectionParamEditor.isVisible())
       add(this.dipDirectionParamEditor,new GridBagConstraints( 0, 6, 0, 1, 1.0, 0.0
           , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
 
     // All done
     if ( D ) System.out.println( S + "Ending:" );
