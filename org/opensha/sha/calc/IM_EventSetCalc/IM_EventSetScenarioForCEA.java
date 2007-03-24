@@ -63,14 +63,14 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	public SimpleFaultParameter createSimpleFaultParam(){
 		faultParameter = new SimpleFaultParameter("Set Fault Surface");
 		ArrayList lats = new ArrayList();
-		lats.add(new Double(34.039));
-		lats.add(new Double( (33.933+ 33.966)/2));
 		lats.add(new Double(33.875));
+		lats.add(new Double( (33.933+ 33.966)/2));
+		lats.add(new Double(34.039));
 		
 		ArrayList lons = new ArrayList();
-		lons.add(new Double(-118.334));
-		lons.add(new Double((-118.124-118.135)/2));
 		lons.add(new Double(-117.873));
+		lons.add(new Double((-118.124-118.135)/2));
+		lons.add(new Double(-118.334));
 		
 		double dip = 27.5;
 		ArrayList dips = new ArrayList();
