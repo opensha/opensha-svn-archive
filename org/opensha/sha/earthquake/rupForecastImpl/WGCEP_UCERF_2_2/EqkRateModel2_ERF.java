@@ -1629,8 +1629,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		super.parameterChange(event);
 		String paramName = event.getParameterName();
 		
-		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) || paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
+		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME)) {
 			createParamList();
+		} else if (paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
+			createParamList();
+			updateFetchersBasedonDefModels();
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
 			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 					getSelectedDeformationModelSummary(), aFaultsFetcher);
@@ -1646,7 +1649,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 */
 	private void updateFetchersBasedonDefModels() {
-		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary());
+		String rupModelName = (String)this.rupModelParam.getValue();
+		boolean isUnsegmented;
+		if(rupModelName.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) isUnsegmented= true;
+		else isUnsegmented = false;
+		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary(), isUnsegmented);
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}

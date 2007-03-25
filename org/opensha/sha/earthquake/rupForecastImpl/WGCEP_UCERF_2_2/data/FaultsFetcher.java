@@ -31,6 +31,11 @@ public abstract class FaultsFetcher {
 	protected HashMap segmentNamesMap = new HashMap();
 	protected int deformationModelId=-1;
 	private ArrayList faultDataListInSelectedSegment=null;
+	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
+	private final static int TEMECULA_STEPOVER_FAULT_SECTION_ID = 298;
+	private final static int COMBINED_STEPOVER_FAULT_SECTION_ID = 402;
+	protected boolean isUnsegmented = false;
+	
 //	private ArrayList faultSectionList=null;
 	
 	
@@ -157,6 +162,21 @@ public abstract class FaultsFetcher {
 					//System.out.println(faultSectionPrefData.getSectionName());
 					continue;
 				}
+				
+				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  // SKIP for Glen Ivy Stepover
+						faultSectionPrefData.getSectionId()==TEMECULA_STEPOVER_FAULT_SECTION_ID) continue; 
+				
+				// If we encounter Temecula Stepover, then we need to replace it with combined stepover section
+				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  
+						faultSectionPrefData.getSectionId()==GLEN_IVY_STEPOVER_FAULT_SECTION_ID)  {
+					FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
+					FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
+					faultSectionPrefData = faultSectionDAO.getFaultSection(COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
+					faultSectionPrefData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
+					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
+				}
+				
+				
 				//System.out.println(faultSectionPrefData.getSectionName());
 //				faultSectionList.add(faultSectionPrefData);
 				newSegment.add(faultSectionPrefData);		
