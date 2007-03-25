@@ -76,7 +76,6 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
 		else throw new RuntimeException("Unsupported Fault Model");
 		this.loadSegmentModels(fileName);
-		segEventRatesMap = new HashMap<String,ArrayList>();
 		readSegEventRates();
 	}
 	
@@ -141,6 +140,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 *
 	 */
 	private void readSegEventRates() {
+		segEventRatesMap = new HashMap<String,ArrayList>();
 		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
 		while(it.hasNext()) this.segEventRatesMap.put(it.next(),new  ArrayList());
 		eventRatesList = new ArrayList<EventRates>();
@@ -153,7 +153,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			String siteName;
 			int faultSectionId;
 			for(int r=1; r<=lastRowIndex; ++r) {	
-				if(r==8) continue; // Ignore the Hayward North
+//				if(r==8) continue; // Ignore the Hayward North
 				HSSFRow row = sheet.getRow(r);
 				if(row==null) continue;
 				HSSFCell cell = row.getCell( (short) 1);
@@ -166,7 +166,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				lower95Conf = row.getCell( (short) 7).getNumericCellValue();
 				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
-				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
+//				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
 				String faultName = setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
 				eventRatesList.add(new EventRates(siteName, faultName, lat,lon, rate, sigma, lower95Conf, upper95Conf));
 			}
@@ -206,19 +206,18 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			}
 		}
 		//System.out.println(minDist);
-		if(minDist>2) return -1;
+		if(minDist>2) throw new RuntimeException("No fault section close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
 		return closestFaultSection.getSectionId();
 	}
 	
 	
 	/**
-	 * Set the recurrence intervals for this fault section. First we find the correct segment and then set the recurrence intervals.
+	 * Add a segRateConstraint object to the appropriate segRatesList in segEventRatesMap (a list for each segment)
 	 * @param faultSectiondId
 	 * @param rate
 	 * @param sigma
 	 */
 	private String setRecurIntv(int faultSectionId, double rate, double sigma, double lower95Conf, double upper95Conf) {
-
 		Iterator<String> it = faultModels.keySet().iterator();
 		// Iterate over all A-Faults
 		while(it.hasNext()) {
