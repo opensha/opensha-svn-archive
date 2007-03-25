@@ -20,8 +20,9 @@ import org.opensha.sha.surface.StirlingGriddedSurface;
 public class FaultSegmentData {
 	private ArrayList sectionToSegmentData;
 	
-	 /* ArrayList of ArrrayList of SimpleFaultData. 
-	This is same as sectionToSegmentData except the fact that this contains ArrayList of SimpleFaultData instead of FaultSectionPrefData*/
+	 /* The following is an ArrayList of ArrrayLists of SimpleFaultData 
+	    (same as sectionToSegmentData except the fact that this contains 
+	    ArrayList of SimpleFaultData instead of FaultSectionPrefData)*/
 	private ArrayList simpleFaultDataList;
 	private boolean aseisReducesArea;
 	private double totalArea, totalMoRate, totalMoRateIgnoringAseis, totalLength;
