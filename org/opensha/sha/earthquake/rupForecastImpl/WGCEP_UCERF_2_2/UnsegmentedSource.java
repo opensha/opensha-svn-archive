@@ -44,9 +44,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
 	
-	//private ArrayList ruptureList; // keep this in case we add more mags later
-	private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
-	
 	private int num_seg;
 	private double[] segRate, segVisibleRate; // segment rates 
 	//private double[] segAveSlipRate; // ave slip rate for segment
@@ -216,7 +213,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				DEFAULT_RUP_OFFSET,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
-				segmentData.getFaultName());
+				segmentData.getFaultName(),
+				magAreaRel);
 	
 
 		
