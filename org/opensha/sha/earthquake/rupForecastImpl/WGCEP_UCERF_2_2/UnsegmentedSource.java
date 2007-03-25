@@ -44,7 +44,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
 	
-	
 	//private ArrayList ruptureList; // keep this in case we add more mags later
 	private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
 	
@@ -106,7 +105,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				DEFAULT_RUP_OFFSET,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
-				segmentData.getFaultName());
+				segmentData.getFaultName(),
+				magAreaRel);
 			
 		// get the rate of ruptures on each segment (segSourceMFD[seg])
 		getSegSourceMFD();
@@ -398,7 +398,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		return segProbs;
 	}
-	
 	
 	/**
 	 * This returns the probability that the given magnitude 

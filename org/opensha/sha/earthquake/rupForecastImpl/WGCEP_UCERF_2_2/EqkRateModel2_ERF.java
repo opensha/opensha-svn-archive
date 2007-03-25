@@ -1600,9 +1600,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 						rate+=source.getEventRate(new Location(event.getLatitude(), event.getLongitude()));
 				}
 				event.setPredictedRate(rate);
-			}
-			
-			
+			}	
 		}
 		else 
 			mkA_FaultSegmentedSources();

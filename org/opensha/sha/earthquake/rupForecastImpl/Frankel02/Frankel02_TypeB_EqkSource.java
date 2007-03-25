@@ -7,6 +7,7 @@ import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
+import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.sha.earthquake.*;
 
 
@@ -44,6 +45,7 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   private int totNumRups;
   private EvenlyGriddedSurface surface;
   private ArrayList mags, rates;
+  private MagAreaRelationship magAreaRel;
 
   
   /**
@@ -71,10 +73,37 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 		  double duration,
 		  String sourceName) {
 	  
-	  setAll(magFreqDist, surface, rupOffset, rake, duration, sourceName);
+	  this.magAreaRel=null;
+	  updateAll(magFreqDist, surface, rupOffset, rake, duration, sourceName);
   }
+  
+  
+  public void setAll(IncrementalMagFreqDist magFreqDist,
+		  EvenlyGriddedSurface surface,
+		  double rupOffset,
+		  double rake,
+		  double duration,
+		  String sourceName) {
+	  
+	  this.magAreaRel=null;
+	  updateAll(magFreqDist, surface, rupOffset, rake, duration, sourceName);
+  }
+
     
   public void setAll(IncrementalMagFreqDist magFreqDist,
+		  EvenlyGriddedSurface surface,
+		  double rupOffset,
+		  double rake,
+		  double duration,
+		  String sourceName,
+		  MagAreaRelationship magAreaRel) {
+	  
+	  this.magAreaRel=magAreaRel;
+	  updateAll(magFreqDist, surface, rupOffset, rake, duration, sourceName);
+  }
+
+    
+  private void updateAll(IncrementalMagFreqDist magFreqDist,
 		  EvenlyGriddedSurface surface,
 		  double rupOffset,
 		  double rake,
@@ -105,22 +134,17 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
     int numMags = mags.size();
     totNumRups=0;
     for(int i=0;i<numMags;++i){
-      double rupLen = Math.pow(10.0,-3.22+0.69*((Double)mags.get(i)).doubleValue());
+      double rupLen = getRupLength(((Double)mags.get(i)).doubleValue());
       totNumRups += getNumRuptures(rupLen);
     }
   }
 
-  /**
-   * this functions sums up all the ruptures for all magnitudes
-   * @return the total num of rutures for all magnitudes
-   */
+
   public int getNumRuptures() { return totNumRups; }
 
 
   /**
-   * This method sets the probability of the different rupture surface for different mag
-   * @param nthRupture : it is to find the mag and rate to which that rupture number correspond
-   * @return the object of the ProbEqkRupture class after setting the probability
+   * This gets the ProbEqkRupture object for the nth Rupture
    */
   public ProbEqkRupture getRupture(int nthRupture){
     int numMags = mags.size();
@@ -130,11 +154,12 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
     if(nthRupture < 0 || nthRupture>=getNumRuptures())
        throw new RuntimeException("Invalid rupture index. This index does not exist");
 
-    // this finds the magnitude:
+    // this finds the magnitude for the nthRupture:
+    // alt would be to store a rup-mag mapping
     for(int i=0;i<numMags;++i){
       mag = ((Double)mags.get(i)).doubleValue();
       iMag = i;
-      rupLen = Math.pow(10.0,-3.22+0.69*mag);
+      rupLen = getRupLength(mag);
       if(D) System.out.println("mag="+mag+"; rupLen="+rupLen);
       numRups = getNumRuptures(rupLen);
       tempNumRups += numRups;
@@ -167,10 +192,21 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
   }
 
 
+  /**
+   * This returns the rupture length according the the Wells & Coppersmith (1994) "All" equation
+   * @param mag
+   * @return
+   */
+  private double getRupLength(double mag){ 
+	  if(this.magAreaRel == null)
+		  return Math.pow(10.0,-3.22+0.69*mag); 
+	  else
+		  return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
+  }
 
   /**
-   * @param mag
-   * @return the total number of ruptures associated with the given mag
+   * @param rupLen
+   * @return the total number of ruptures associated with the given rupLen
    */
   private int getNumRuptures(double rupLen){
     return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);
