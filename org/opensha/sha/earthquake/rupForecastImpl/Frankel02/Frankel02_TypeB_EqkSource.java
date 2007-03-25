@@ -193,7 +193,8 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
 
 
   /**
-   * This returns the rupture length according the the Wells & Coppersmith (1994) "All" equation
+   * This returns the rupture length implied by the magAreaRel (length=area/DDW), or if the magAreaRel is null then
+   * the Wells & Coppersmith (1994) "All" equation is used (the latter is what Frankel's 2002 code uses).
    * @param mag
    * @return
    */

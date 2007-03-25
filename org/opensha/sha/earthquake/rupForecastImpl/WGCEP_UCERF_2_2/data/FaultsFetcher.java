@@ -31,7 +31,7 @@ public abstract class FaultsFetcher {
 	protected HashMap segmentNamesMap = new HashMap();
 	protected int deformationModelId=-1;
 	private ArrayList faultDataListInSelectedSegment=null;
-	private ArrayList faultSectionList=null;
+//	private ArrayList faultSectionList=null;
 	
 	
 	public FaultsFetcher() {
@@ -135,19 +135,18 @@ public abstract class FaultsFetcher {
 	
 	
 	/**
-	 * Get segmented fault data for selected segment
+	 * Get segmented fault data for selected fault
 	 * 
-	 * @param selectedSegmentName
 	 * @return
 	 */
-	public FaultSegmentData getFaultSegmentData(String faultModel, boolean isAseisReducesArea) {
+	public FaultSegmentData getFaultSegmentData(String faultName, boolean isAseisReducesArea) {
 		// get the segment array list of section array lists
-		ArrayList segmentsList = (ArrayList)faultModels.get(faultModel);
+		ArrayList segmentsList = (ArrayList)faultModels.get(faultName);
 		faultDataListInSelectedSegment = new ArrayList();
-		faultSectionList = new ArrayList();
+//		faultSectionList = new ArrayList();
 		// iterate over all segment
 		for(int i=0; i<segmentsList.size(); ++i) {
-			ArrayList sectionList = (ArrayList)segmentsList.get(i);
+			ArrayList sectionList = (ArrayList)segmentsList.get(i); // secionList is an array list of faultSectionSummary objects
 			ArrayList newSegment = new ArrayList();
 			// iterate over all sections in a segment
 			for(int j=0; j<sectionList.size(); ++j) {
@@ -159,16 +158,16 @@ public abstract class FaultsFetcher {
 					continue;
 				}
 				//System.out.println(faultSectionPrefData.getSectionName());
-				faultSectionList.add(faultSectionPrefData);
+//				faultSectionList.add(faultSectionPrefData);
 				newSegment.add(faultSectionPrefData);		
 			}
-				faultDataListInSelectedSegment.add(newSegment);
+			faultDataListInSelectedSegment.add(newSegment);
 		}
 		
 		// make SegmentedFaultData 
-		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultModel);
+		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultName);
 		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, 
-				(String[])this.segmentNamesMap.get(faultModel), isAseisReducesArea, faultModel, segRates);
+				(String[])this.segmentNamesMap.get(faultName), isAseisReducesArea, faultName, segRates);
 		return segmetedFaultData;		
 	}
 	

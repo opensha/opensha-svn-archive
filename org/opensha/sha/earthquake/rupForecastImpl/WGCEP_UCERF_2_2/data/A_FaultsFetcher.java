@@ -43,7 +43,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v14.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/RealityCheckFaultPtRates_v1.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
-	private HashMap<String,ArrayList> segRatesMap;
+	private HashMap<String,ArrayList> segEventRatesMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
@@ -70,13 +70,13 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		//	find the deformation model
 		String fileName=null;
 		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
-		// get the B-Fault filename based on selected fault model
+		// get the A-Fault filename based on selected fault model
 		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
 		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
 		else throw new RuntimeException("Unsupported Fault Model");
 		this.loadSegmentModels(fileName);
-		segRatesMap = new HashMap<String,ArrayList>();
-		readSegRates();
+		segEventRatesMap = new HashMap<String,ArrayList>();
+		readSegEventRates();
 	}
 	
 	/**
@@ -139,9 +139,9 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * Read the segment recurrence intervals
 	 *
 	 */
-	private void readSegRates() {
+	private void readSegEventRates() {
 		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
-		while(it.hasNext()) this.segRatesMap.put(it.next(),new  ArrayList());
+		while(it.hasNext()) this.segEventRatesMap.put(it.next(),new  ArrayList());
 		eventRatesList = new ArrayList<EventRates>();
 		try {				
 			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
@@ -222,7 +222,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		// Iterate over all A-Faults
 		while(it.hasNext()) {
 			String faultName = it.next();
-			ArrayList segRatesList = this.segRatesMap.get(faultName);
+			ArrayList segRatesList = this.segEventRatesMap.get(faultName);
 			ArrayList segmentsList = (ArrayList)this.faultModels.get(faultName);
 			// iterate over all segments in this fault
 			for(int i=0; i<segmentsList.size(); ++i) {
@@ -248,7 +248,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * @return
 	 */
 	public  ArrayList<SegRateConstraint> getSegRateConstraints(String faultName) {
-		return this.segRatesMap.get(faultName);
+		return this.segEventRatesMap.get(faultName);
 	}
 	
 	/**

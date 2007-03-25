@@ -166,8 +166,10 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		double moRate;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
+//System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
-		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
+//System.out.print(sourceMag+"\n");
+		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
 		
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
