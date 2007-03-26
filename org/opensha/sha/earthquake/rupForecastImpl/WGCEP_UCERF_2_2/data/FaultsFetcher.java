@@ -31,9 +31,15 @@ public abstract class FaultsFetcher {
 	protected HashMap segmentNamesMap = new HashMap();
 	protected int deformationModelId=-1;
 	private ArrayList faultDataListInSelectedSegment=null;
+	// Stepover fix for Elsinore in case of Unsegmented model
 	private final static int GLEN_IVY_STEPOVER_FAULT_SECTION_ID = 297;
 	private final static int TEMECULA_STEPOVER_FAULT_SECTION_ID = 298;
-	private final static int COMBINED_STEPOVER_FAULT_SECTION_ID = 402;
+	private final static int ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID = 402;
+	//	 Stepover fix for San Jacinto in case of Unsegmented model
+	private final static int SJ_VALLEY_STEPOVER_FAULT_SECTION_ID = 290;
+	private final static int SJ_ANZA_STEPOVER_FAULT_SECTION_ID = 291;
+	private final static int SJ_COMBINED_STEPOVER_FAULT_SECTION_ID = 401;
+	
 	protected boolean isUnsegmented = false;
 	
 //	private ArrayList faultSectionList=null;
@@ -163,17 +169,30 @@ public abstract class FaultsFetcher {
 					continue;
 				}
 				
-				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  // SKIP for Glen Ivy Stepover
+				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  // SKIP for Temecula Stepover
 						faultSectionPrefData.getSectionId()==TEMECULA_STEPOVER_FAULT_SECTION_ID) continue; 
 				
-				// If we encounter Temecula Stepover, then we need to replace it with combined stepover section
+				// If we encounter Glen Ivy Stepover, then we need to replace it with combined stepover section
 				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  
 						faultSectionPrefData.getSectionId()==GLEN_IVY_STEPOVER_FAULT_SECTION_ID)  {
 					FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
 					FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
-					faultSectionPrefData = faultSectionDAO.getFaultSection(COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
+					faultSectionPrefData = faultSectionDAO.getFaultSection(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
 					faultSectionPrefData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
 					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
+				}
+				
+				if(this.isUnsegmented && faultName.equalsIgnoreCase("San Jacinto (SB to C)") &&  // SKIP for Anza Stepover
+						faultSectionPrefData.getSectionId()==this.SJ_ANZA_STEPOVER_FAULT_SECTION_ID) continue; 
+				
+				// If we encounter SJ Valley Stepover, then we need to replace it with combined stepover section
+				if(this.isUnsegmented && faultName.equalsIgnoreCase("San Jacinto (SB to C)") &&  
+						faultSectionPrefData.getSectionId()==this.SJ_VALLEY_STEPOVER_FAULT_SECTION_ID)  {
+					FaultSectionPrefData anzaStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, SJ_ANZA_STEPOVER_FAULT_SECTION_ID);
+					FaultSectionPrefData valleyStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, SJ_VALLEY_STEPOVER_FAULT_SECTION_ID);
+					faultSectionPrefData = faultSectionDAO.getFaultSection(this.SJ_COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
+					faultSectionPrefData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
+					faultSectionPrefData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
 				}
 				
 				

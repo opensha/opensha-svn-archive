@@ -544,6 +544,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				}
 			}
 		}
+		if(rate==0) throw new RuntimeException ("No rupture close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}

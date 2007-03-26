@@ -50,6 +50,9 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/SegmentModelsF2.1.txt";
 	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/SegmentModelsF2.2.txt";
+	private final static String UNSEGMENTED_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultUnsegmentedModelsF2.1.txt";
+	private final static String UNSEGMENTED_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultUnsegmentedModelsF2.2.txt";
+
 	private ArrayList<EventRates> eventRatesList; // Location list where event rates are available
 	
 	/**
@@ -72,9 +75,15 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		String fileName=null;
 		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
 		// get the A-Fault filename based on selected fault model
-		if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
-		else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
-		else throw new RuntimeException("Unsupported Fault Model");
+		if(isUnsegmented)  {
+			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = UNSEGMENTED_MODEL1;
+			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = UNSEGMENTED_MODEL2;
+			else throw new RuntimeException("Unsupported Fault Model");
+		} else { 
+			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
+			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
+			else throw new RuntimeException("Unsupported Fault Model");
+		}
 		this.loadSegmentModels(fileName);
 		readSegEventRates();
 	}
@@ -141,7 +150,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 */
 	private void readSegEventRates() {
 		segEventRatesMap = new HashMap<String,ArrayList>();
-		Iterator<String> it = aPrioriRupRatesMap.keySet().iterator();
+		Iterator<String> it = faultModelNames.iterator();
 		while(it.hasNext()) this.segEventRatesMap.put(it.next(),new  ArrayList());
 		eventRatesList = new ArrayList<EventRates>();
 		try {				
@@ -166,7 +175,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				lower95Conf = row.getCell( (short) 7).getNumericCellValue();
 				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
 				faultSectionId = getClosestFaultSectionId(new Location(lat,lon));
-//				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
+				if(faultSectionId==-1) continue; // closest fault section is at a distance of more than 2 km
 				String faultName = setRecurIntv(faultSectionId, rate, sigma, lower95Conf, upper95Conf);
 				eventRatesList.add(new EventRates(siteName, faultName, lat,lon, rate, sigma, lower95Conf, upper95Conf));
 			}
@@ -206,7 +215,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			}
 		}
 		//System.out.println(minDist);
-		if(minDist>2) throw new RuntimeException("No fault section close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
+		//if(minDist>2) throw new RuntimeException("No fault section close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
+		if(minDist>2) return -1;
 		return closestFaultSection.getSectionId();
 	}
 	
