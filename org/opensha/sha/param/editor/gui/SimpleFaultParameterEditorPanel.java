@@ -374,12 +374,12 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
      * If the changed parameter is the number of the fault trace param
      */
     if(name1.equalsIgnoreCase(SimpleFaultParameter.NUMBER_OF_FAULT_TRACE)){
-      surfaceParam.getLatParamVals().clear();
-      surfaceParam.getLonParamVals().clear();
+      //surfaceParam.getLatParamVals().clear();
+      //surfaceParam.getLonParamVals().clear();
       //System.out.println("Inside the Fault Trace param change");
-      ListIterator it = editorForLats.getParameterList().getParametersIterator();
+     // ListIterator it = editorForLats.getParameterList().getParametersIterator();
       //saving the previous lat values in the vector
-      while(it.hasNext()){
+     /* while(it.hasNext()){
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
           surfaceParam.getLatParamVals().add(param.getValue());
@@ -390,7 +390,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
           surfaceParam.getLonParamVals().add(param.getValue());
-      }
+      }*/
 
       //removing the lats and Lons editor from the Applet
       remove(editorForLats);
@@ -415,7 +415,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
      */
     if(name1.equalsIgnoreCase(SimpleFaultParameter.NUM_DIPS)) {
       //System.out.println("Inside the Num dips param change");
-      surfaceParam.getDipParamVals().clear();
+     /* surfaceParam.getDipParamVals().clear();
       surfaceParam.getDepthParamVals().clear();
       ListIterator it = editorForDips.getParameterList().getParametersIterator();
       //saving the previous Dip values in the vector
@@ -431,7 +431,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
           surfaceParam.getDepthParamVals().add(param.getValue());
-      }
+      }*/
 
       //removing the dips and depth editor from the applet
       remove(editorForDips);

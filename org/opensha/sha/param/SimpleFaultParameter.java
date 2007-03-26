@@ -364,6 +364,8 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     int size = 0;
     if(prevLats != null)
      size = prevLats.size();
+    else
+     prevLats = new ArrayList();
     //creating the editor for the lons
     for(int i=0;i<numFltTracePoints;++i){
       //checks if any value exists in the vector for that lats parameter else just fill it up with a blank.
@@ -380,7 +382,9 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     }
     parameterListParameterForLats = new ParameterListParameter(LAT_TITLE,parameterListForLats);
     if(prevLons !=null)
-     size = prevLons.size();
+      size = prevLons.size();
+    else
+      prevLons = new ArrayList();
     //creating the editor for the Lons
     for(int i=0;i<numFltTracePoints;++i){
       //checks if any value exists in the vector for that lons parameter else just fill it up with a blank.
@@ -424,6 +428,9 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     int size = 0;
     if(prevDips !=null)
       size= prevDips.size();
+    else
+      prevDips = new ArrayList();
+    
     for(int i=0;i<numDips;++i){
       //checks if any value exists in the vector for that dips parameter else just fill it up with a blank.
       if(size < (i+1) && size >0)
@@ -464,6 +471,8 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     int size = 0;
     if(prevDepths!=null)
     	size = prevDepths.size();
+    else
+    	prevDepths = new ArrayList();
     for(int i=0;i<numDepths;++i){
       //checks if any value exists in the vector for that Depth parameter else just fill it up with a blank.
       if(size < (i+1) && size >0)
@@ -720,10 +729,10 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     if (dips.size()>1 && faultType.equals(SimpleFaultParameter.FRANKEL))
       throw new RuntimeException(C+".setAll(): "+SimpleFaultParameter.FRANKEL+" fault type can't be used if dips.size() > 1");
 
-    this.prevLats = lats;
-    this.prevLons = lons;
-    this.prevDepths = depths;
-    this.prevDips = dips;
+    prevLats = lats;
+    prevLons = lons;
+    prevDepths = depths;
+    prevDips = dips;
     parameterList.getParameter(SimpleFaultParameter.GRID_SPACING).setValue(new Double(gridSpacing));
     parameterList.getParameter(SimpleFaultParameter.NUMBER_OF_FAULT_TRACE).setValue(new Integer(numFltPts));
     numDipParam.setValue(new Integer(numDips));
@@ -735,7 +744,6 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
  
     for(int i=0;i<numDips;++i)
       parameterListParameterForDips.getParameter().getParameter(SimpleFaultParameter.DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
-    
     
     for(int i=0;i<numDips+1;++i)
       parameterListParameterForDepths.getParameter().getParameter(SimpleFaultParameter.DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
