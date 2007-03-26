@@ -429,7 +429,7 @@ public class FaultSegmentData {
 			ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 			while(it.hasNext()) {
 				FaultSectionPrefData sectData = (FaultSectionPrefData) it.next();
-				simpleFaultData.add(sectData.getSimpleFaultData());
+				simpleFaultData.add(sectData.getSimpleFaultData(aseisReducesArea));
 				if(it.hasNext()) sectionsInSegString[seg]+=sectData.getSectionName()+" + ";
 				else sectionsInSegString[seg]+=sectData.getSectionName();
 				//set the area & moRate

@@ -160,7 +160,7 @@ public class FaultSectionPrefData {
 		}
 		else {
 			//adjust the lower seis depth according the aseis factor
-			double lowerDepth = getAveUpperDepth() + aseismicSlipFactor*(getAveLowerDepth()-getAveUpperDepth());
+			double lowerDepth = getAveUpperDepth() + (1.0-aseismicSlipFactor)*(getAveLowerDepth()-getAveUpperDepth());
 			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), lowerDepth, getAveUpperDepth(), getFaultTrace());
 			return simpleFaultData;
 			

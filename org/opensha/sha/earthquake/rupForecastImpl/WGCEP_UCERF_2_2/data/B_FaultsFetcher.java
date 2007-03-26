@@ -155,7 +155,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	 * This is used to generate a file after combining B-Faults. This file can then be viewed in SCEC-VDO
 	 *
 	 */
-	public void test_writeFileAfterCombiningB_Faults() {
+	public void test_writeFileAfterCombiningB_Faults(boolean isAseisReducesArea) {
 		try {
 			
 			FileWriter fwTrace = new FileWriter("Combined_Conn_B-Faults.txt");
@@ -166,7 +166,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 				if(faultSectionPredDataList.size()<2) continue;
 				ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData> ();
 				for(int i=0; i<faultSectionPredDataList.size(); ++i) {
-					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultData());
+					simpleFaultData.add(faultSectionPredDataList.get(i).getSimpleFaultData(isAseisReducesArea));
 				}
 				StirlingGriddedSurface surface = new StirlingGriddedSurface(simpleFaultData, 1);
 				// write to a file for connecting sections so that we can view them in SCEC-VDO

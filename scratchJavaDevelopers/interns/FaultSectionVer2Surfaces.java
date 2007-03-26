@@ -55,7 +55,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
-		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData();
+		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData(false);
 		//frankel fault factory
 		return new FrankelGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
@@ -66,7 +66,7 @@ public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
-		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData();
+		SimpleFaultData simpleFaultData = getFaultSection(faultSectionId).getSimpleFaultData(false);
 		return new StirlingGriddedSurface(simpleFaultData, GRID_SPACING);
 	}
 
