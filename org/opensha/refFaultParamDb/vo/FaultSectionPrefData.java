@@ -148,14 +148,23 @@ public class FaultSectionPrefData {
 	}
 	
 	/**
-	 * Make simple fault data 
+	 * Make simple fault data.  This reduces the lower seis depth by the aseismicSlipFactor if aseisReducesArea is true
 	 *
 	 * @param faultSection
 	 * @return
 	 */
-	public SimpleFaultData getSimpleFaultData() {
-		SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), getAveUpperDepth(), getFaultTrace());
-		return simpleFaultData;
+	public SimpleFaultData getSimpleFaultData(boolean aseisReducesArea) {
+		if(!aseisReducesArea) {
+			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), getAveLowerDepth(), getAveUpperDepth(), getFaultTrace());
+			return simpleFaultData;
+		}
+		else {
+			//adjust the lower seis depth according the aseis factor
+			double lowerDepth = getAveUpperDepth() + aseismicSlipFactor*(getAveLowerDepth()-getAveUpperDepth());
+			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), lowerDepth, getAveUpperDepth(), getFaultTrace());
+			return simpleFaultData;
+			
+		}
 	}
 
 }
