@@ -243,11 +243,11 @@ public class SanAndreasScenarioControlPanel {
     // use default which is perp to ave strike.
 //    faultPanel.setDipDirection(aveDipDir);
 
-    faultPanel.refreshParamEditor();
-
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
+    erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME).setValue(
+    		((SimpleFaultParameterEditor)erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME)).getParameter().getValue());
 
     erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
     erfPanel.getParameterListEditor().refreshParamEditor();
