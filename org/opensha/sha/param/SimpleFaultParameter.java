@@ -178,9 +178,9 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
    *      editable
    * @throws  ConstraintException  Thrown if the object value is not allowed
    */
-  public void setValue( EvenlyGriddedSurface value ) throws ParameterException {
+  /*public void setValue( EvenlyGriddedSurface value ) throws ParameterException {
     setValue( (Object) value);
-  }
+  }*/
 
   /**
    *  Compares value to see if equal.
@@ -577,7 +577,7 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
         Location loc = new Location(lat,lon,depth);
         fltTrace.addLocation(loc);
       }
-      this.fltTrace = fltTrace;
+      //this.fltTrace = fltTrace;
 
       if(D)
         System.out.println("Fault-trace length (km) = "+fltTrace.getTraceLength());
