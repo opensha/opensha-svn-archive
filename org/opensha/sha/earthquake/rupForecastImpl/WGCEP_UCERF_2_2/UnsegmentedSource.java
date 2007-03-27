@@ -655,7 +655,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				(float)b_valueGR+"\t"+
 				(float)mag_lowerGR+"\t"+
 				(float)sourceMag+"\t"+
-				(float)delta+"\n");
+				(float)delta+"\t"+
+				(float)moRate+"\n");
 		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
 		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
