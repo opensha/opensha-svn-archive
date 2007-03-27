@@ -1027,9 +1027,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     */
     public ProbEqkSource getSource(int iSource) {
 
-      // apply this here
-      double timeDuration =  timeSpan.getDuration();
-
       return (ProbEqkSource) allSources.get(iSource);
     }
 

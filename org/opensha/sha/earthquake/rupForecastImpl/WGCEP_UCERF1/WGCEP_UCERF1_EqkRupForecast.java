@@ -1019,9 +1019,6 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
     */
     public ProbEqkSource getSource(int iSource) {
 
-      // apply this here
-      double timeDuration =  timeSpan.getDuration();
-
       return (ProbEqkSource) allSources.get(iSource);
     }
 
@@ -1120,19 +1117,140 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
    }
    
    /**
-    * This assumes default values are used for the calculation
+    * This gives MFDs for each source that are comparable to UCERF 2
+    * This assumes time-ind.and otherwise default values in the calculation.
+    * 
+    * This was double checked on 3/27/07 by Ned - should be fine
     *
     */
    public void writeA_FaultMFDs() {
-	   int sjf_sources[] = {1,2,3,4,5,6};
-	   int elsinore_sources[] = {7,8,9,10,11};
-	   int ssaf_sources[] = {0,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38};
-	   int nsaf_sources[] = {39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,
-			   67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,390};
-	   int hrc_sources[] = {95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,
-			   120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,391};
-	   int calaveras_sources[] = {144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,
-			   164,165,166,167,168,392};
+	   
+	   // Note that these indeces are for the time-independent model, and those for the time-dep model are different
+	   // due to an extra source for San Bernardino in ca-amod2 for the latter 
+	   // (see email from Cao on 3/27/07 saying this is not an error)
+	   int sjf_sources[] = {1,2,3,4,5,6};  // sj10 Anza includes the new Clark, and sj14 is superstion hills (don't include)
+	   int elsinore_sources[] = {7,8,9,10,11};  // last one is whittier
+	   int ssaf_sources[] = {0,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37};
+	   int nsaf_sources[] = {38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,
+			   67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,389};
+	   int hrc_sources[] = {94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,
+			   120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,142,390};
+	   int calaveras_sources[] = {143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,
+			   164,165,166,167,391,392};
+	   
+	   /*  Here are the others if and when I want them:
+	    
+Concord Green Valley
+--------------------
+168	con -- average -4-1  M=6.2 Char
+169	sgv --gvs -- average - 4-2  M=6.2 Char
+170	con+sgv--con+gvs--4-5  M=6.0 Char
+171	con+sgv--con+gvs--4-5  M=6.1 Char
+172	con+sgv--con+gvs--4-5  M=6.2 Char
+173	con+sgv--con+gvs--4-5  M=6.3 Char
+174	con+sgv--con+gvs--4-5  M=6.4 Char
+175	con+sgv--con+gvs--4-5  M=6.5 Char
+176	con+sgv--con+gvs--4-5  M=6.6 Char
+177	con+sgv--con+gvs--4-5  M=6.7 Char
+178	con+sgv--con+gvs--4-5  M=6.8 Char
+179	con+sgv--con+gvs--4-5  M=6.9 Char
+180	con+sgv--con+gvs--4-5  M=7.0 Char
+181	con+sgv--con+gvs--4-5  M=7.1 Char
+182	ngv --gvn--average-4-7  M=6.2 Char
+183	sgv+ngv --gvs+gvn-4-9  M=5.9 Char
+184	sgv+ngv --gvs+gvn-4-9  M=6.0 Char
+185	sgv+ngv --gvs+gvn-4-9  M=6.1 Char
+186	sgv+ngv --gvs+gvn-4-9  M=6.2 Char
+187	sgv+ngv --gvs+gvn-4-9  M=6.3 Char
+188	sgv+ngv --gvs+gvn-4-9  M=6.4 Char
+189	sgv+ngv --gvs+gvn-4-9  M=6.5 Char
+190	sgv+ngv --gvs+gvn-4-9  M=6.6 Char
+191	sgv+ngv --gvs+gvn-4-9  M=6.7 Char
+192	sgv+ngv --gvs+gvn-4-9  M=6.8 Char
+193	sgv+ngv --gvs+gvn-4-9  M=6.9 Char
+194	sgv+ngv --gvs+gvn-4-9  M=7.0 Char
+195	con+sgv+ngv--con+gvs+gvn-4-10  M=6.2 Char
+196	con+sgv+ngv--con+gvs+gvn-4-10  M=6.3 Char
+197	con+sgv+ngv--con+gvs+gvn-4-10  M=6.4 Char
+198	con+sgv+ngv--con+gvs+gvn-4-10  M=6.5 Char
+199	con+sgv+ngv--con+gvs+gvn-4-10  M=6.6 Char
+200	con+sgv+ngv--con+gvs+gvn-4-10  M=6.7 Char
+201	con+sgv+ngv--con+gvs+gvn-4-10  M=6.8 Char
+202	con+sgv+ngv--con+gvs+gvn-4-10  M=6.9 Char
+203	con+sgv+ngv--con+gvs+gvn-4-10  M=7.0 Char
+204	con+sgv+ngv--con+gvs+gvn-4-10  M=7.1 Char
+205	con+sgv+ngv--con+gvs+gvn-4-10  M=7.2 Char
+393	floating con+sgv+ngv--con+gvs+gvn (4-11)  fl-Char
+
+San Gregorio
+------------
+206	sgs--5-1  M=6.7 Char
+207	sgs--5-1  M=6.8 Char
+208	sgs--5-1  M=6.9 Char
+209	sgs--5-1  M=7.0 Char
+210	sgs--5-1  M=7.1 Char
+211	sgs--5-1  M=7.2 Char
+212	sgs--5-1  M=7.3 Char
+213	sgn -- 5-9  M=6.9 Char
+214	sgn -- 5-9  M=7.0 Char
+215	sgn -- 5-9  M=7.1 Char
+216	sgn -- 5-9  M=7.2 Char
+217	sgn -- 5-9  M=7.3 Char
+218	sgn -- 5-9  M=7.4 Char
+219	sgn -- 5-9  M=7.5 Char
+220	sgs+sgn --5-10  M=7.2 Char
+221	sgs+sgn --5-10  M=7.3 Char
+222	sgs+sgn --5-10  M=7.4 Char
+223	sgs+sgn --5-10  M=7.5 Char
+224	sgs+sgn --5-10  M=7.6 Char
+225	sgs+sgn --5-10  M=7.7 Char
+394	floating sgs+sgn--sgs+sgn (5-11)  fl-Char
+
+Greenville
+----------
+226	sg --gs --6-1  M=6.1 Char
+227	sg --gs --6-1  M=6.2 Char
+228	sg --gs --6-1  M=6.3 Char
+229	sg --gs --6-1  M=6.4 Char
+230	sg --gs --6-1  M=6.5 Char
+231	sg --gs --6-1  M=6.6 Char
+232	sg --gs --6-1  M=6.7 Char
+233	sg --gs --6-1  M=6.8 Char
+234	sg --gs --6-1  M=6.9 Char
+235	sg --gs --6-1  M=7.0 Char
+236	ng -- gn -- 6-9  M=6.2 Char
+237	ng -- gn -- 6-9  M=6.3 Char
+238	ng -- gn -- 6-9  M=6.4 Char
+239	ng -- gn -- 6-9  M=6.5 Char
+240	ng -- gn -- 6-9  M=6.6 Char
+241	ng -- gn -- 6-9  M=6.7 Char
+242	ng -- gn -- 6-9  M=6.8 Char
+243	ng -- gn -- 6-9  M=6.9 Char
+244	ng -- gn -- 6-9  M=7.0 Char
+245	sg+ng --gs+gn -- 6-10  M=6.6 Char
+246	sg+ng --gs+gn -- 6-10  M=6.7 Char
+247	sg+ng --gs+gn -- 6-10  M=6.8 Char
+248	sg+ng --gs+gn -- 6-10  M=6.9 Char
+249	sg+ng --gs+gn -- 6-10  M=7.0 Char
+250	sg+ng --gs+gn -- 6-10  M=7.1 Char
+251	sg+ng --gs+gn -- 6-10  M=7.2 Char
+395	floating sg+ng--gs+gn (6-11)  fl-Char
+
+
+Mount Diablo (no floater here)
+------------
+252	mtd-- 7-10  M=6.2 Char
+253	mtd-- 7-10  M=6.3 Char
+254	mtd-- 7-10  M=6.4 Char
+255	mtd-- 7-10  M=6.5 Char
+256	mtd-- 7-10  M=6.6 Char
+257	mtd-- 7-10  M=6.7 Char
+258	mtd-- 7-10  M=6.8 Char
+259	mtd-- 7-10  M=6.9 Char
+260	mtd-- 7-10  M=7.0 Char
+
+	    */
+	   
 	   
 	   ArrayList<int[]> srcList = new ArrayList<int[]>();
 	   srcList.add(sjf_sources);
@@ -1177,10 +1295,10 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
    public static void main(String[] args) {
 
      WGCEP_UCERF1_EqkRupForecast frankCast = new WGCEP_UCERF1_EqkRupForecast();
+     frankCast.timeDependentParam.setValue(new Boolean(false));
      frankCast.updateForecast();
      
-     frankCast.timeDependentParam.setValue(new Boolean(false));
-     frankCast.writeA_FaultMFDs();
+//     frankCast.writeA_FaultMFDs();
 /*
      try {
        frankCast.writeRuptureTraces();
@@ -1189,14 +1307,14 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
        ex1.printStackTrace();
        System.exit(0);
      }
-
+*/
 
      int totSrc= frankCast.getNumSources();
      for(int i=0; i<totSrc; i++){
        ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
        System.out.println(i+"\t"+src.getName());
      }
-*/
+
      
 //     System.out.println("num sources="+frankCast.getNumSources());
 /*     ArrayList srcs = frankCast.getAllGR_FaultSources();
