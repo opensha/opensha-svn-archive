@@ -13,7 +13,10 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
+import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
+import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
@@ -58,7 +61,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	// inputs:
 	private FaultSegmentData segmentData;
 	private MagAreaRelationship magAreaRel;
-	private double fixMag, fixRate;
+	private double fixMag, fixRate, mag_lowerGR, b_valueGR;
 	
 //	 the following is the total moment-rate reduction, including that which goes to the  
 	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
@@ -164,6 +167,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.fixRate = fixRate*(1-moRateReduction);  // do we really want to reduce this???
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
+		this.mag_lowerGR = mag_lowerGR;
+		this.b_valueGR = b_valueGR;
 		double moRate;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
 //System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
@@ -255,6 +260,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
+		
+		// test
+		// System.out.println(getNSHMP_SrcFileString());
 	}
 	
 	/**
@@ -619,7 +627,73 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 	}*/
 	
-
+	/**
+	 * Get NSHMP Source File String. 
+	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the cumulative rate
+	 * above the magLowerGR, which is different from what they use.
+	 * 
+	 * @return
+	 */
+	public String getNSHMP_SrcFileString() {
+		StringBuffer strBuffer = new StringBuffer("");
+		strBuffer.append("2\t"); // GR MFD
+		double rake = segmentData.getAveRake();
+		String rakeStr = "";
+		if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
+		else if(rake>45 && rake<135) rakeStr="2"; // Reverse
+		else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
+		else throw new RuntimeException("Invalid Rake:"+rake);
+		strBuffer.append(rakeStr+"\t"+this.segmentData.getFaultName()+"\n");
+		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
+		double moRate = sourceMFD.getTotalMomentRate();
+		double delta = sourceMFD.getDelta();
+		double a_value = this.getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
+		double momentCheck = getMomentRate(mag_lowerGR,numNonZeroMags,delta,a_value,b_valueGR);
+		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
+			throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
+		strBuffer.append((float)a_value+"\t"+
+				(float)b_valueGR+"\t"+
+				(float)mag_lowerGR+"\t"+
+				(float)sourceMag+"\t"+
+				(float)delta+"\n");
+		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
+		// dip, Down dip width, upper seismogenic depth, rup Area
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		FaultTrace faultTrace = surface.getFaultTrace();
+		// All fault trace locations
+		strBuffer.append(faultTrace.getNumLocations()+"\n");
+		for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
+			strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
+					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+		return strBuffer.toString();
+	}
+	
+	   /**
+	    * this computes the moment for the GR distribution exactly the way frankel's code does it
+	    */
+	   private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
+	     double mo = 0;
+	     double mag;
+	     for(int i = 0; i <numMag; i++) {
+	       mag = magLower + i*deltaMag;
+	       mo += Math.pow(10,aVal-bVal*mag+1.5*mag+9.05);
+	     }
+	     return mo;
+	   }
+	   
+	   /**
+	    * this computes the a-value for the GR distribution exactly the way frankel's code does it
+	    */
+	   private double getNSHMP_aValue(double magLower, int numMag, double deltaMag, double moRate, double bVal) {
+	     double sum = 0;
+	     double mag;
+	     for(int i = 0; i <numMag; i++) {
+	       mag = magLower + i*deltaMag;
+	       sum += Math.pow(10,-bVal*mag+1.5*mag+9.05);
+	     }
+	     return Math.log10((moRate/sum));
+	   }
 	
 }
 
