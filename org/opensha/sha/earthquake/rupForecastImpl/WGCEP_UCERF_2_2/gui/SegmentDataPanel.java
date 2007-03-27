@@ -685,7 +685,8 @@ class SegmentDataTableModel extends AbstractTableModel {
 	
 	//Seg Name, Num, DDW, Legth, Aseis, Area, Orig SR, SR Sigma, Mo Rate, ... (as the rest appear).
 	private FaultSegmentData segFaultData;
-	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
+	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.###");
+	private final static DecimalFormat EVENT_RATE_FORMAT = new DecimalFormat("0.000E0");
 	private final static DecimalFormat ASEIS_FORMAT = new DecimalFormat("0.##");
 	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
@@ -784,18 +785,18 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 10:
 				double segRateMean = segFaultData.getSegRateMean(rowIndex);
 				if(Double.isNaN(segRateMean)) return "";
-				return SLIP_RATE_FORMAT.format(segRateMean);
+				return EVENT_RATE_FORMAT.format(segRateMean);
 			case 11:
 				double stdDev = segFaultData.getSegRateStdDevOfMean(rowIndex);
 				if(Double.isNaN(stdDev)) return "";
-				return SLIP_RATE_FORMAT.format(stdDev);
+				return EVENT_RATE_FORMAT.format(stdDev);
 			case 12:
 				// for segmented source
 				if(segmentedSource==null) return "";
-				return SLIP_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
+				return EVENT_RATE_FORMAT.format(segmentedSource.getSegRateFromAprioriRates(rowIndex));
 			case 13:
 				if(segmentedSource==null) return "";
-				return SLIP_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
+				return EVENT_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);

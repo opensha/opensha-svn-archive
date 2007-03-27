@@ -196,7 +196,7 @@ public class A_FaultSegmentedSourceGenerator {
 		// this one is used to compute char mags
 		computeSegRatesFromAprioriRates();
 		
-		// THIS IS TEMPORARY:
+		// THIS IS OLD, and no longer needed?
 		//convertA_prioriToRateBalanced();
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if MFD sigma non zero)
@@ -627,7 +627,7 @@ public class A_FaultSegmentedSourceGenerator {
 					{1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,1}, // seg 1
 					{0,1,0,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,1,1,1,0,1,1,1}, // seg 2
 					{0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,1,0,1,1,1,1,1,1,1}, // seg 3
-					{0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1}, // seg 4
+					{0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0}, // seg 4
 					{0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1}, // seg 5
 					{0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,1}, // seg 6
 					{0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,1}, // seg 7
@@ -1438,11 +1438,26 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	/**
-	 * This is used to get the non rate-balanced a-priori rates from the geologists
-	 * to rate balanced models.  DOES THIS STILL WORK?
+	 * This is no longer needed
 	 */
 	private void convertA_prioriToRateBalanced() {
 		
+		double[] seg_mri_data_elsinore = {1400,271,500,2000,933};
+		double[] seg_mri_data_sjf = {200,208.3,250,250,375,130,325};
+		double[] seg_mri_data_garlock = {933.3,1276,1159};
+		double[] seg_mri_data_ssaf = {24.5,155,175,175,155,130,175,200,225,212};
+		double[] seg_mri_data;
+		if(this.segmentData.getFaultName().equals("Elsinore"))
+			seg_mri_data = seg_mri_data_elsinore;
+		else if(this.segmentData.getFaultName().equals("San Jacinto"))
+			seg_mri_data = seg_mri_data_sjf;
+		else if(this.segmentData.getFaultName().equals("Garlock"))
+			seg_mri_data = seg_mri_data_garlock;
+		else if(this.segmentData.getFaultName().equals("S. San Andreas"))
+			seg_mri_data = seg_mri_data_ssaf;
+		else
+			return;
+		//
 		// find minimum value
 		double minRate = Double.POSITIVE_INFINITY;
 		for(int rup=0; rup < num_rup; rup++)
@@ -1464,7 +1479,7 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		// now fill in the segment recurrence interval constraints
 		for(int row = 0; row < num_seg; row ++) {
-			d[row+num_rup] = 1.0/segmentData.getRecurInterval(row);
+			d[row+num_rup] = 1.0/seg_mri_data[row];
 			for(int col=0; col<num_rup; col++)
 				C[row+num_rup][col] = rupInSeg[row][col];
 		}
@@ -1490,27 +1505,7 @@ public class A_FaultSegmentedSourceGenerator {
 		for(int rup=0; rup < num_rup; rup++) {
 			System.out.println((float)newRupRates[rup]);
 		}
-		// show before and after rates
-		double ratio;
-		System.out.println("Ratio, and Before and after rup rates:");
-		for(int rup=0; rup < num_rup; rup++) {
-			ratio = aPrioriRupRates[rup].getValue()/newRupRates[rup];
-			if(newRupRates[rup] ==0.0 && aPrioriRupRates[rup].getValue() == 0.0) ratio = 1.0;
-			System.out.println((float)ratio+"   "+(float)aPrioriRupRates[rup].getValue()+"   "+(float)newRupRates[rup]);
-		}
-		// compute new implied segment rates as check
-		double[] newSegRate = new double[num_seg];
-		for(int seg=0; seg<num_seg; ++seg) {
-			newSegRate[seg]=0.0;
-			// Sum the rates of all ruptures which are part of a segment
-			for(int rup=0; rup<num_rup; rup++) 
-				if(rupInSeg[seg][rup]==1) newSegRate[seg]+=newRupRates[rup];
-		}
-		// show before and after seg rates
-		System.out.println("Ratio, and before and after seg rates:");
-		for(int seg=0; seg < num_seg; seg++) {
-			System.out.println((float)(1.0/(newSegRate[seg]*segmentData.getRecurInterval(seg)))+"   "+(float)(1.0/segmentData.getRecurInterval(seg))+"   "+(float)newSegRate[seg]);
-		}
+
 	}
 	
 	/**

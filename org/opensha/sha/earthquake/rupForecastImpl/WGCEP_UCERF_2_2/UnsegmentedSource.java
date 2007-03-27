@@ -39,7 +39,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	private static String C = new String("UnsegmentedSource");
 	private final static boolean D = true;
 	public final static double DEFAULT_GRID_SPACING = 1;
-	public final static double DEFAULT_RUP_OFFSET= 10;
+	public final static double DEFAULT_RUP_OFFSET= 1;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
@@ -516,24 +516,76 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	}
 	
 	
+	
 
 	/**
-	 * Get rate at a particular location on the fault surface. 
+	 * Get rate at a particular location on the fault trace. 
 	 * It is calculated by adding the rates of all ruptures that include that location.
 	 * 
 	 * @param loc
+	 * @param distanceCutOff - rupture included in total if point on surface is within this distance
 	 * @return
 	 */
-	public double getEventRate(Location loc) {
-		double rate = 0;
+	public double getPredSlipRate(Location loc) {
+		// find distance to closest point on surface trace
+		EvenlyGriddedSurface surface = this.getSourceSurface();
+		double minDist = Double.MAX_VALUE, dist;
+		for(int col=0; col < surface.getNumCols(); col++){
+			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			if(dist <minDist) minDist = dist;
+		}
+		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
+//System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
+		if(distanceCutOff > 2) throw new RuntimeException ("Location:("+loc.getLatitude()+","+loc.getLongitude()+") is more than 2 km from any rupture");
+		double slipRate = 0;
 		int numRups = getNumRuptures();
-		double distanceCutOff = 2; // Use 2Km as distance Cutoff
 		//System.out.println(loc.getLatitude()+","+loc.getLongitude());
-		double totRate=0;
 		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
 			ProbEqkRupture rupture = this.getRupture(rupIndex);
 			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
-			totRate+=rupture.getMeanAnnualRate(duration);
+			while(it.hasNext()) { // iterate over all locations in a rupture
+				Location surfaceLoc = (Location)it.next();
+				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
+					double area = rupture.getRuptureSurface().getSurfaceLength()*rupture.getRuptureSurface().getSurfaceWidth();
+					double slip = FaultMomentCalc.getSlip(area*1e6,MomentMagCalc.getMoment(rupture.getMag()));
+					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
+					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
+						//	rupture.getMeanAnnualRate(this.duration));
+					break;
+				}
+			}
+		}
+		if(slipRate==0) throw new RuntimeException ("No rupture close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
+		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
+		return slipRate;
+	}
+	
+
+	/**
+	 * Get rate at a particular location on the fault trace. 
+	 * It is calculated by adding the rates of all ruptures that include that location.
+	 * 
+	 * @param loc
+	 * @param distanceCutOff - rupture included in total if point on surface is within this distance
+	 * @return
+	 */
+	public double getPredEventRate(Location loc) {
+		// find distance to closest point on surface trace
+		EvenlyGriddedSurface surface = this.getSourceSurface();
+		double minDist = Double.MAX_VALUE, dist;
+		for(int col=0; col < surface.getNumCols(); col++){
+			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			if(dist <minDist) minDist = dist;
+		}
+		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
+//System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
+		if(distanceCutOff > 2) throw new RuntimeException ("Location:("+loc.getLatitude()+","+loc.getLongitude()+") is more than 2 km from any rupture");
+		double rate = 0;
+		int numRups = getNumRuptures();
+		//System.out.println(loc.getLatitude()+","+loc.getLongitude());
+		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
+			ProbEqkRupture rupture = this.getRupture(rupIndex);
+			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
 			while(it.hasNext()) { // iterate over all locations in a rupture
 				Location surfaceLoc = (Location)it.next();
 				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
@@ -544,7 +596,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				}
 			}
 		}
-		if(rate==0) throw new RuntimeException ("No rupture close to event rate location:"+loc.getLatitude()+","+loc.getLongitude());
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}

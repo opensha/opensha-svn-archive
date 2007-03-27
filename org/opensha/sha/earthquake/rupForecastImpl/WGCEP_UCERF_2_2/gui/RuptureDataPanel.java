@@ -559,7 +559,7 @@ class RuptureTableModel extends AbstractTableModel {
 		"Final Rate", "A Priori Rate", "Moment Rate",  "Short Name", "Long Name"};
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
-	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.00000");
+	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.000E0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private A_FaultSegmentedSourceGenerator aFaultSegmentedSource;
 	

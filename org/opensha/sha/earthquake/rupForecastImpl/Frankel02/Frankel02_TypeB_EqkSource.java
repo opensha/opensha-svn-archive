@@ -139,6 +139,11 @@ public class Frankel02_TypeB_EqkSource extends ProbEqkSource {
     }
   }
 
+  /**
+   * 
+   * @return
+   */
+  public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
   public int getNumRuptures() { return totNumRups; }
 
