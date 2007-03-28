@@ -96,10 +96,9 @@ public class IM_EventSetCEA_ControlPanel {
     erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
     IM_EventSetScenarioForCEA eventSet = new IM_EventSetScenarioForCEA(); 
-    SimpleFaultParameter faultParameter = eventSet.createSimpleFaultParam();
-    erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME).setParameter(faultParameter);
-    erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME).setValue(faultParameter.getValue());
-     
+    ParameterAPI param = erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME);
+    eventSet.createSimpleFaultParam((SimpleFaultParameter)param);
+    
     erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
     erfPanel.getParameterListEditor().refreshParamEditor();
 

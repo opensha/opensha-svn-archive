@@ -334,7 +334,6 @@ public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
-    erfPanel.getParameter(erfPanel.FAULT_PARAM_NAME).setValue(faultPanel.getValue());
     erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
     erfPanel.getParameterListEditor().refreshParamEditor();
 

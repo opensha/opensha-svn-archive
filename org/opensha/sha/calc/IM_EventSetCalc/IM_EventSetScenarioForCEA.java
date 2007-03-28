@@ -40,7 +40,6 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 
 
 	private EqkRupture eqkRupture;
-	private SimpleFaultParameter faultParameter;
 	private ArrayList attenRelList;
 	private ArrayList vs30List ;
 	private ArrayList distanceJBList;
@@ -59,9 +58,10 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	private double maxLat = Double.MIN_VALUE;
 	private double minLon = Double.MAX_VALUE;
 	private double maxLon = Double.NEGATIVE_INFINITY;
+	SimpleFaultParameter faultParameter;
 	
-	public SimpleFaultParameter createSimpleFaultParam(){
-		faultParameter = new SimpleFaultParameter("Set Fault Surface");
+	public void  createSimpleFaultParam(SimpleFaultParameter faultParameter){
+		
 		ArrayList lats = new ArrayList();
 		lats.add(new Double(33.875));
 		lats.add(new Double( (33.933+ 33.966)/2));
@@ -89,13 +89,13 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 		faultParameter.setAll(SimpleFaultParameter.DEFAULT_GRID_SPACING, 
 				lats, lons, dips, depths, SimpleFaultParameter.FRANKEL);
 		faultParameter.setEvenlyGriddedSurfaceFromParams();
-		return faultParameter;
 	}
 	
 	private void createRuptureSurface(){
 	
 	    eqkRupture = new EqkRupture();
-		createSimpleFaultParam();
+	    faultParameter = new SimpleFaultParameter("Set Fault Surface");
+		createSimpleFaultParam(faultParameter);
 		eqkRupture.setRuptureSurface((EvenlyGriddedSurfaceAPI)faultParameter.getValue());
 		eqkRupture.setAveRake(90);
 		eqkRupture.setMag(7.15);
