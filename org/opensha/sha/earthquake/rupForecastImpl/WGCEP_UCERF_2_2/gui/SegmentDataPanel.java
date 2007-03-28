@@ -321,17 +321,23 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		finalEventRateFunc.setName("Final (Post-Inversion) Event Rate");
 		ArbitrarilyDiscretizedFunc predEventRateFunc = new ArbitrarilyDiscretizedFunc();
 		predEventRateFunc.setName("Predicted Event Rate from Apriori Rupture Rates");
-		double origEventRate, stdDevEventRate, predEventRate, finalEventRate;
+		double predEventRate, finalEventRate;
+		double smallVal = 0.1;
+		int index = 0;
 		for(int seg=0; seg<faultSegmentData.getNumSegments(); ++seg) {
-			origEventRate = faultSegmentData.getSegRateMean(seg);
-			stdDevEventRate = faultSegmentData.getSegRateStdDevOfMean(seg);
+			index = seg+1;
+			//origEventRate = faultSegmentData.getSegRateMean(seg);
+			ArrayList<SegRateConstraint> segRateConstraints = faultSegmentData.getSegRateConstraints(seg);
+			for(int i=0; i<segRateConstraints.size(); ++i) {
+				SegRateConstraint segRateconstraint = segRateConstraints.get(i);
+				origEventRateFunc.set((double)index+i*smallVal, segRateconstraint.getMean());
+				minEventRateFunc.set((double)index+i*smallVal, segRateconstraint.getLower95Conf());
+				maxEventRateFunc.set((double)index+i*smallVal, segRateconstraint.getUpper95Conf());
+			}
 			finalEventRate  = segmentedSource.getFinalSegmentRate(seg);
 			predEventRate = segmentedSource.getSegRateFromAprioriRates(seg);
-			origEventRateFunc.set((double)seg+1, origEventRate);
-			minEventRateFunc.set((double)seg+1, faultSegmentData.getSegLower95Conf(seg));
-			maxEventRateFunc.set((double)seg+1, faultSegmentData.getSegUpper95Conf(seg));
-			predEventRateFunc.set((double)seg+1, predEventRate);
-			finalEventRateFunc.set((double)seg+1, finalEventRate);
+			predEventRateFunc.set((double)index, predEventRate);
+			finalEventRateFunc.set((double)index, finalEventRate);
 		 }
 		this.eventRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		eventRatesList.add(origEventRateFunc);

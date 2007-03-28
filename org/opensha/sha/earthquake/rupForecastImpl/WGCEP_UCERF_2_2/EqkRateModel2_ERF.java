@@ -1523,66 +1523,81 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// Default parameters
 		this.setParamDefaults();
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"MoBal_EllB");
+		writeNSHMP_SegmentedSrcFile(dirName+"/"+"MoBal_EllB");
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"MoBal_HB");
+		writeNSHMP_SegmentedSrcFile(dirName+"/"+"MoBal_HB");
 		// default with High apriori model weight
 		this.setParamDefaults();
 		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"aPriori_EllB");
+		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_EllB");
 		// change Mag Area Rel
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"aPriori_HB");
+		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_HB");
 		
 		// UNSEGMENTED MODEL
 //		 Default parameters
 		this.setParamDefaults();
 		rupModelParam.setValue(UNSEGMENTED_A_FAULT_MODEL);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"Unsegmented_EllB");
+		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_EllB");
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SrcFile(dirName+"/"+"Unsegmented_HB");
+		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_HB");
 	}
 
 	/**
-	 * Write files for each source for NSHMP with the current parameters
+	 * Write files for each Segmented source for NSHMP with the current parameters
+	 * Separate file is generated for each source
 	 * 
 	 * @param fileName
 	 */
-	private void writeNSHMP_SrcFile(String fileNamePrefix) {
+	private void writeNSHMP_SegmentedSrcFile(String fileNamePrefix) {
 		try {
 			// Write the adjustable Params
-			String metadataString="";
+			/*String metadataString="";
 			Iterator it = this.adjustableParams.getParametersIterator();
 			while(it.hasNext()) 
-				metadataString += "# "+((ParameterAPI)it.next()).getMetadataString()+"\n";
+				metadataString += "# "+((ParameterAPI)it.next()).getMetadataString()+"\n";*/
 			// now write all ruptures
 			int numSources  = this.aFaultSourceGenerators.size();	
 			
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
-				String faultName, nshmpFileString;
-				if(this.aFaultSourceGenerators.get(iSrc) instanceof A_FaultSegmentedSourceGenerator) {
-					// Segmented source
-					A_FaultSegmentedSourceGenerator segmentedSource = (A_FaultSegmentedSourceGenerator)this.aFaultSourceGenerators.get(iSrc);
-					faultName = segmentedSource.getFaultSegmentData().getFaultName();
-					nshmpFileString = segmentedSource.getNSHMP_SrcFileString();
-				} else {
- 					// unsegmented source
-					UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.aFaultSourceGenerators.get(iSrc);
-					faultName = unsegmentedSource.getFaultSegmentData().getFaultName();
-					nshmpFileString = unsegmentedSource.getNSHMP_SrcFileString();
-				}
-// Commented out:				fw.write(metadataString);
+				String faultName;
+				// Segmented source
+				A_FaultSegmentedSourceGenerator segmentedSource = (A_FaultSegmentedSourceGenerator)this.aFaultSourceGenerators.get(iSrc);
+				faultName = segmentedSource.getFaultSegmentData().getFaultName();
+//				Commented out:				fw.write(metadataString);
 				FileWriter fw = new FileWriter(fileNamePrefix+"_"+faultName.replace(' ', '-')+".txt");
-				fw.write(nshmpFileString);
+				fw.write(segmentedSource.getNSHMP_SrcFileString());
 				fw.close();
 			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Write file for each Unsegmented source for NSHMP 
+	 * All sources are written in one file
+	 * 
+	 * @param fileName
+	 */
+	private void writeNSHMP_UnsegmentedSrcFile(String fileName) {
+		try {
+			// now write all ruptures
+			int numSources  = this.aFaultSourceGenerators.size();	
+			FileWriter fw = new FileWriter(fileName+".txt");
+			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
+				// unsegmented source
+				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.aFaultSourceGenerators.get(iSrc);
+				fw.write(unsegmentedSource.getNSHMP_SrcFileString());		
+			}
+			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
