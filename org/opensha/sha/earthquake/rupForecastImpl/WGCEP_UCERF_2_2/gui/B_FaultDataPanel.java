@@ -170,7 +170,7 @@ class B_FaultDataTableModel extends AbstractTableModel {
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalLength()/1e3);
 			case 8:
-				return MOMENT_FORMAT.format(faultSegmentData.getTotalMomentRate());
+				return MOMENT_FORMAT.format(source.getMomentRate());
 			case 9:
 				return ASEISMSIC_FORMAT.format(faultSegmentData.getTotalAveAseismicityFactor());
 			case 10:
