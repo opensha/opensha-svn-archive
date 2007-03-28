@@ -66,7 +66,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 //	 the following is the total moment-rate reduction, including that which goes to the  
 	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
 	private double moRateReduction;  
-	
+	private double moRate;
 	
 	/**
 	 * Description:  The constructs the source using a supplied Mag PDF
@@ -90,8 +90,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// get the source MFD
 		sourceMFD = (IncrementalMagFreqDist)sourceMagPDF.deepClone();
-		double sourceMoRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
-		sourceMFD.scaleToTotalMomentRate(sourceMoRate);
+		this.moRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
+		sourceMFD.scaleToTotalMomentRate(moRate);
 		
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
@@ -121,7 +121,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// change the info in the MFDs
 		String new_info = "Unsegmented Source MFD\n"+sourceMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)sourceMoRate+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)moRate+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
 		sourceMFD.setInfo(new_info);
 		
 		new_info = "Visible Unsegmented Source MFD\n"+visibleSourceMFD.getInfo();
@@ -169,7 +169,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		this.mag_lowerGR = mag_lowerGR;
 		this.b_valueGR = b_valueGR;
-		double moRate;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
 //System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
@@ -272,6 +271,14 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 */
 	public double getMoRateReduction() {
 		return this.moRateReduction;
+	}
+	
+	/**
+	 * Get the reduced moment rate
+	 * @return
+	 */
+	public double getMomentRate() {
+		return this.moRate;
 	}
 	
 	
