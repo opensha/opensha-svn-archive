@@ -14,6 +14,17 @@ import javax.swing.JFrame;
 import scratchJavaDevelopers.martinez.beans.ExceptionBean;
 import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 
+/**
+ * <strong>Title:</strong> DBAccessor<br />
+ * <strong>Description:</strong> Interacts with an oracle database.<br />
+ * This class provides access to oracle databases through java.  It essentially
+ * wraps the oracle driver(s), but makes for a much easier and cleaner user interface.
+ * This class was written and tested with the oracle.jdbc.OracleDriver and may or may
+ * not work with other drivers.  As is somewhat implied by its name, this class will
+ * only allow READ ONLY queries to the database.  
+ * 
+ * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ */
 public class DBAccessor {
 	
 	////////////////////////////////////////////////////////////////////////////////

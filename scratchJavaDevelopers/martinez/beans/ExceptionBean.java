@@ -129,8 +129,8 @@ public class ExceptionBean implements GuiBeanAPI {
 	 * 	(new ExceptionBean(message, title)).getVisualization(GuiBeanAPI.SPLASH).setVisible(true);
 	 * </code>
 	 */
-	public static void showSplashException(String message, String title) {
-		ExceptionBean ew = new ExceptionBean(message, title);
+	public static void showSplashException(String message, String title, Exception ex) {
+		ExceptionBean ew = new ExceptionBean(message, title, ex);
 		JFrame frame = (JFrame) ew.getVisualization(GuiBeanAPI.SPLASH);
 		frame.setVisible(true);
 	}
@@ -196,6 +196,7 @@ public class ExceptionBean implements GuiBeanAPI {
 		panel.removeAll();
 		
 		JLabel label = new JLabel(message);
+		label.setPreferredSize(new Dimension(290, 40));
 		JButton btnDetails = null;
 		JButton btnClose = new JButton("Okay");
 		btnClose.addActionListener(new ActionListener() {
