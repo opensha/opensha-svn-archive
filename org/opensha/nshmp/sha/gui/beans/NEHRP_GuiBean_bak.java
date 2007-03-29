@@ -22,9 +22,6 @@ import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
-import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
-import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
-
 /**
  * <p>Title:NEHRP_GuiBean</p>
  *
@@ -38,7 +35,7 @@ public class NEHRP_GuiBean
 
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
-  protected BatchLocationBean locGuiBean;
+  protected LocationGuiBean locGuiBean;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane locationSplitPane = new JSplitPane();
   JSplitPane buttonsSplitPane = new JSplitPane();
@@ -114,7 +111,7 @@ public class NEHRP_GuiBean
     application = api;
     try {
       datasetGui = new DataSetSelectionGuiBean();
-      locGuiBean = new BatchLocationBean();
+      locGuiBean = new LocationGuiBean();
       try {
         createGeographicRegionSelectionParameter();
       }
@@ -138,7 +135,7 @@ public class NEHRP_GuiBean
         bugWindow.pack();
 
       }
-      locationSplitPane.add((Component) locGuiBean.getVisualization(GuiBeanAPI.EMBED), JSplitPane.BOTTOM);
+      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(160);
       createGroundMotionParameter();
       jbInit();
@@ -404,9 +401,9 @@ public class NEHRP_GuiBean
     		siteCoeffWindowShow = false;
 		}*/
     }
-    else if (paramName.equals(locGuiBean.PARAM_LAT) ||
-             paramName.equals(locGuiBean.PARAM_LON) ||
-             paramName.equals(locGuiBean.PARAM_ZIP)) {
+    else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
+             paramName.equals(locGuiBean.LON_PARAM_NAME) ||
+             paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
       setButtonsEnabled(false);
 			resetButtons();
 		/*if (!locationVisible) {
@@ -440,7 +437,7 @@ public class NEHRP_GuiBean
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = LocationUtil.
           isZipCodeSupportedBySelectedEdition(selectedRegion);
-      locGuiBean.updateGuiParams(region.getMinLat(), region.getMaxLat(),
+      locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
@@ -541,43 +538,41 @@ public class NEHRP_GuiBean
    * Gets the SA Period and Values from datafiles
    */
   protected void getDataForSA_Period() throws ZipCodeErrorException,
-  		LocationErrorException,RemoteException {
+      LocationErrorException,RemoteException {
 
-	dataGenerator.setSpectraType(spectraType);
-	dataGenerator.setRegion(selectedRegion);
-	dataGenerator.setEdition(selectedEdition);
+    dataGenerator.setSpectraType(spectraType);
+    dataGenerator.setRegion(selectedRegion);
+    dataGenerator.setEdition(selectedEdition);
 
-	//doing the calculation if not territory and Location GUI is visible
-	if (locationVisible) {
-		int locationMode = locGuiBean.getLocationMode();
-		if (locationMode == BatchLocationBean.GEO_MODE) {
-			Location loc = locGuiBean.getSelectedLocation();
-			double lat = loc.getLatitude();
-			double lon = loc.getLongitude();
-			dataGenerator.calculateSsS1(lat, lon);
-		} else if (locationMode == BatchLocationBean.ZIP_MODE) {
-			String zipCode = locGuiBean.getZipCode();
-			dataGenerator.calculateSsS1(zipCode);
-		} else if (locationMode == BatchLocationBean.BAT_MODE) {
-			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-			for(int i = 0; i < locations.size(); ++i) {
-				Location loc = locations.get(i);
-				double lat = loc.getLatitude();
-				double lon = loc.getLongitude();
-				dataGenerator.calculateSsS1(lat, lon);
-			}
-		}
-	} else { // if territory and location Gui is not visible
-		try {
-			dataGenerator.calculateSsS1();
-		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage() + "\n" +
-			"Please check your network connection", "Server Connection Error",
-			JOptionPane.ERROR_MESSAGE);
-			return;
-		} // catch
-	} //if
-	}
+    //doing the calculation if not territory and Location GUI is visible
+    if (locationVisible) {
+      if (locGuiBean.getLocationMode()) {
+          Location loc = locGuiBean.getSelectedLocation();
+          double lat = loc.getLatitude();
+          double lon = loc.getLongitude();
+          dataGenerator.calculateSsS1(lat, lon);
+
+      }
+      else {
+          String zipCode = locGuiBean.getZipCode();
+          dataGenerator.calculateSsS1(zipCode);
+      }
+    }
+    else { // if territory and location Gui is not visible
+      try {
+        dataGenerator.calculateSsS1();
+      }
+      catch (RemoteException e) {
+        JOptionPane.showMessageDialog(this,
+                                      e.getMessage() + "\n" +
+                                      "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+
+    }
+  }
 
 	protected boolean locationReady() {
 		boolean r = locGuiBean.hasLocation();

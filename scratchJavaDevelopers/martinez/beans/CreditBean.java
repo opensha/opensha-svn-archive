@@ -195,7 +195,7 @@ public class CreditBean implements GuiBeanAPI {
 		else if(type == SPLASH)
 			return "javax.swing.JFrame";
 		else
-			throw new IllegalArgumentException("This given type is not currently supported.");
+			return null;
 	}
 
 	/**

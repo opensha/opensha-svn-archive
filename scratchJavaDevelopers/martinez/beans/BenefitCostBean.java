@@ -197,7 +197,7 @@ public class BenefitCostBean implements GuiBeanAPI {
 		if(type == GuiBeanAPI.APPLICATION)
 			return "javax.swing.JPanel";
 		else
-			return "";
+			return null;
 	}
 
 	/**

@@ -109,7 +109,7 @@ public class GraphingBean implements GuiBeanAPI, GraphPanelAPI,
 		else if(type == GuiBeanAPI.BUTTON)
 			return "javax.swing.JButton";
 		else
-			return "";
+			return null;
 	}
 
 	/** See the general contract in <code>GuiBeanAPI</code> */

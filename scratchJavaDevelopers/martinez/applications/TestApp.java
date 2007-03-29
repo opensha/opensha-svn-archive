@@ -39,9 +39,9 @@ public class TestApp {
 		app.setVisible(true);
 	}*/
 	public static void main(String args[]) throws InterruptedException {
-		String filename = "/Users/emartinez/Desktop/workbook.xls";
-		//BatchFileReader bfr = new BatchFileReader(filename);
-		BatchFileReader bfr = BatchFileReader.createReaderFromGui();
+		String filename = "/Users/emartinez/Desktop/workbook1.xls";
+		BatchFileReader bfr = new BatchFileReader(filename);
+		//BatchFileReader bfr = BatchFileReader.createReaderFromGui();
 		if(bfr.ready()) {
 			ArrayList<Double> lats = bfr.getColumnVals((short)0, 0);
 			ArrayList<Double> lons = bfr.getColumnVals((short)1, 0);

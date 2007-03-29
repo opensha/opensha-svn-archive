@@ -122,7 +122,7 @@ public class LocationGuiBean
 			if (getLocationMode()) {
 				getSelectedLocation();
 			} else {
-					getZipCode();
+				getZipCode();
 			}
 		} catch (Exception e) {
 			r = false;

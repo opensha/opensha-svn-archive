@@ -1,5 +1,6 @@
 package scratchJavaDevelopers.martinez.beans;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,7 +11,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -195,8 +195,13 @@ public class ExceptionBean implements GuiBeanAPI {
 		JPanel panel = (JPanel) splashFrame.getContentPane();
 		panel.removeAll();
 		
-		JLabel label = new JLabel(message);
-		label.setPreferredSize(new Dimension(290, 40));
+		JTextArea label = new JTextArea(message);
+		label.setWrapStyleWord(true);
+		label.setLineWrap(true);
+		label.setEditable(false);
+		float grey = (float) 0.5;
+		label.setBackground(new Color(grey, grey, grey, (float) 0.0));
+		label.setPreferredSize(new Dimension(300, 40));
 		JButton btnDetails = null;
 		JButton btnClose = new JButton("Okay");
 		btnClose.addActionListener(new ActionListener() {
@@ -235,7 +240,8 @@ public class ExceptionBean implements GuiBeanAPI {
 						trace[i].getFileName() + ": " + 
 						trace[i].getLineNumber() + ")\n");
 			JScrollPane scroller = new JScrollPane(new JTextArea(strBuf.toString()));
-			scroller.setPreferredSize(new Dimension(300, 100));
+			scroller.setPreferredSize(new Dimension(290, 100));
+			scroller.setMinimumSize(new Dimension(290, 100));
 			panel.add(scroller,	new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0, GridBagConstraints.CENTER, 
 						GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
 						

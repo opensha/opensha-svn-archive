@@ -97,7 +97,7 @@ public class PropertiesBean implements GuiBeanAPI {
 		} else if (type == GuiBeanAPI.BUTTON) {
 			return "javax.swing.JButton";
 		}
-		return "";
+		return null;
 	}
 	/**
 	 * See the general contract in GuiBeanAPI.

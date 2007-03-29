@@ -47,7 +47,8 @@ public interface GuiBeanAPI {
 	
 	/**
 	 * @return The fully qualified class name of the visualization object returned
-	 * by <code>getVisualization</code>.
+	 * by <code>getVisualization</code>.  If the given type is not supported, then 
+	 * <code>null<code> is returned.
 	 * 
 	 * @param type The type of visualization desired.
 	 */

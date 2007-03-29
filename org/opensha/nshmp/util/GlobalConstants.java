@@ -16,7 +16,8 @@ import org.opensha.util.ImageUtils;
 public final class GlobalConstants {
 	public static final String VERSION = "Version: 5.0.6 - 06/29/2006";
 	//public static final String SERVLET_PATH = "http://gldweb.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
-	public static final String SERVLET_PATH = "http://geohazards.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://geohazards.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	//public static final String SERVLET_PATH = "http://gldjanus.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
   //data files path
   //public final static String DATA_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
@@ -25,7 +26,7 @@ public final class GlobalConstants {
   public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
-  private final static String USGS_LOGO = "usgslogo.gif";
+  private final static String USGS_LOGO = "usgslogo.JPG";
 	private final static String USGS_LOGO_ONLY = "usgs_logoonly.gif";
   public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
 	public final static ImageIcon USGS_LOGO_ONLY_ICON = new
