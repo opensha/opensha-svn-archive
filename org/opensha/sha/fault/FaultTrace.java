@@ -77,7 +77,24 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       return aveStrike/totLength;
     }
 
+    /*
+     * Calculates  minimum distance of this faultTrace from the user provided fault trace.
+     * Returns the distance in km.
+     * 
+     * @param faultTrace FaultTrace from where distance needs to be calculated
+     */
+    public double getMinDistance(FaultTrace faultTrace) {
+    	// calculate the minimum fault trace distance
+		double minFaultTraceDist = Double.POSITIVE_INFINITY;
+		double dist;
+		for(int i=0; i<faultTrace.getNumLocations(); ++i) {
+			dist = getMinHorzDistToLine(faultTrace.getLocationAt(i));
+			if(dist<minFaultTraceDist) minFaultTraceDist = dist;
+		}
+		return minFaultTraceDist;
+    }
 
+    
     private final static String TAB = "  ";
     public String toString(){
 

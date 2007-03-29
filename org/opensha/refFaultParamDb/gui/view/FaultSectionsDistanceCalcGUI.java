@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -21,10 +22,12 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.sha.surface.StirlingGriddedSurface;
@@ -38,6 +41,7 @@ import java.util.Iterator;
 public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListener {
 	private final static double GRID_SPACING = 1.0;
 	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection); 
+	private PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
 	private StringParameter faultSection1Param, faultSection2Param, faultModelParam;
 	private final static String FAULT_SECTION1_PARAM_NAME = "Fault Section 1";
 	private final static String FAULT_SECTION2_PARAM_NAME = "Fault Section 2";
@@ -118,38 +122,24 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 	private void calculateDistances() {
 		// first fault section
 		FaultSectionSummary faultSection1Summary = FaultSectionSummary.getFaultSectionSummary((String)faultSection1Param.getValue());
-		FaultSectionPrefData faultSection1PrefData = faultSectionDAO.getFaultSection(faultSection1Summary.getSectionId()).getFaultSectionPrefData();
-		FaultTrace faultTrace1 = faultSection1PrefData.getFaultTrace();
+		FaultSectionPrefData faultSection1PrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSection1Summary.getSectionId());
+		
 		// second fault section
 		FaultSectionSummary faultSection2Summary = FaultSectionSummary.getFaultSectionSummary((String)faultSection2Param.getValue());
-		FaultSectionPrefData faultSection2PrefData = faultSectionDAO.getFaultSection(faultSection2Summary.getSectionId()).getFaultSectionPrefData();
+		FaultSectionPrefData faultSection2PrefData = prefFaultSectionDAO.getFaultSectionPrefData(faultSection2Summary.getSectionId());
+		
+		// get the fault traces
+		FaultTrace faultTrace1 = faultSection1PrefData.getFaultTrace();
 		FaultTrace faultTrace2 = faultSection2PrefData.getFaultTrace();
 		
-		// calculate the minimum fault trace distance
-		double minFaultTraceDist = Double.POSITIVE_INFINITY;
-		double dist;
-		for(int i=0; i<faultTrace2.getNumLocations(); ++i) {
-			dist = faultTrace1.getMinHorzDistToLine(faultTrace2.getLocationAt(i));
-			if(dist<minFaultTraceDist) minFaultTraceDist = dist;
-		}
 		
-		// calculate the minimum 3D distance
-		EvenlyGriddedSurfaceAPI surface1 = getEvenlyGriddedSurface(faultSection1PrefData);
-		EvenlyGriddedSurfaceAPI surface2 = getEvenlyGriddedSurface(faultSection2PrefData);
-		double min3dDist = Double.POSITIVE_INFINITY;
-		Iterator it1 = surface1.getLocationsIterator();
-		while(it1.hasNext()) {
-			Location loc1 = (Location)it1.next();
-			Iterator it2 = surface2.getLocationsIterator();
-			while(it2.hasNext()) {
-				Location loc2 = (Location)it2.next();
-				dist = RelativeLocation.getApproxHorzDistance(loc1, loc2);
-				if(dist<min3dDist) min3dDist = dist;
-			}
-		}
+		// get the surface
+		EvenlyGriddedSurface surface1 = getEvenlyGriddedSurface(faultSection1PrefData);
+		EvenlyGriddedSurface surface2 = getEvenlyGriddedSurface(faultSection2PrefData);
 		
-		JOptionPane.showMessageDialog(this, "Minimum Fault Trace distance="+DECIMAL_FORMAT.format(minFaultTraceDist)+" km\n"+
-				"Minimum 3D distance="+DECIMAL_FORMAT.format(min3dDist)+" km");
+		
+		JOptionPane.showMessageDialog(this, "Minimum Fault Trace distance="+DECIMAL_FORMAT.format(faultTrace1.getMinDistance(faultTrace2))+" km\n"+
+				"Minimum 3D distance="+DECIMAL_FORMAT.format(surface1.getMinDistance(surface2))+" km");
 	}
 	
 	/**
@@ -158,10 +148,8 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 	 * @param faultSectionPrefData
 	 * @return
 	 */
-	private EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface(FaultSectionPrefData faultSectionPrefData) {
-		SimpleFaultData simpleFaultData = new SimpleFaultData(faultSectionPrefData.getAveDip(),
-				faultSectionPrefData.getAveLowerDepth(), faultSectionPrefData.getAveUpperDepth(), 
-				faultSectionPrefData.getFaultTrace());
+	private EvenlyGriddedSurface getEvenlyGriddedSurface(FaultSectionPrefData faultSectionPrefData) {
+		SimpleFaultData simpleFaultData = faultSectionPrefData.getSimpleFaultData(false);
 		String selectedFaultModel = (String)this.faultModelParam.getValue();
 		// frankel and stirling surface
 		if(selectedFaultModel.equalsIgnoreCase(FRANKEL)) {
@@ -183,6 +171,34 @@ public class FaultSectionsDistanceCalcGUI extends JPanel implements ActionListen
 	}
 	
 	public static void main(String[] args) {
-		new FaultSectionsDistanceCalcGUI();
+		 // Write file needed by Natanya Black.
+		 // File consists of each fault section pair and minimum 3-D distance between them
+		
+		// get all fault sections from database
+		PrefFaultSectionDataDB_DAO prefFaultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection); 
+		ArrayList<FaultSectionPrefData> prefFaultSectionsList = prefFaultSectionDAO.getAllFaultSectionPrefData();
+		ArrayList<EvenlyGriddedSurface> surfaceList = new ArrayList<EvenlyGriddedSurface>();
+		
+		// make surfaces from faultsections
+		for(int i=0; i<prefFaultSectionsList.size(); ++i) {
+			SimpleFaultData simpleFaultData = prefFaultSectionsList.get(i).getSimpleFaultData(false);
+			surfaceList.add(new StirlingGriddedSurface(simpleFaultData, GRID_SPACING));
+		}
+		
+		try {
+			// now calculate distancd between each pair of surface and write to file
+			FileWriter fw = new FileWriter("FaultSectionDist.txt");
+			for(int i=0; i<surfaceList.size(); ++i) {
+				for(int j=i+1; j<surfaceList.size(); ++j) {
+					fw.write(prefFaultSectionsList.get(i).getSectionName()+";"+
+							prefFaultSectionsList.get(j).getSectionName() + ";"+
+							surfaceList.get(i).getMinDistance(surfaceList.get(j))+"\n");
+				}
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		 
 	}
 }

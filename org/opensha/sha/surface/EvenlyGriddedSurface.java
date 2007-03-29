@@ -354,6 +354,29 @@ public abstract class EvenlyGriddedSurface
     public double getSurfaceWidth() {
       return getGridSpacing() * (getNumRows()-1);
     }
+    
+    /**
+     * Calculate the minimum distance of this surface from user provided surface
+     * @param surface EvenlyGriddedSurface 
+     * @return distance in km
+     */
+    public double getMinDistance(EvenlyGriddedSurfaceAPI surface) {
+    	Iterator it = getLocationsIterator();
+    	double min3dDist = Double.POSITIVE_INFINITY;
+    	double dist;
+    	// find distance between all location pairs in the two surfaces
+    	while(it.hasNext()) { // iterate over all locations in this surface
+    		Location loc1 = (Location)it.next();
+    		Iterator it2 = surface.getLocationsIterator();
+    		while(it2.hasNext()) { // iterate over all locations on the user provided surface
+    			Location loc2 = (Location)it2.next();
+    			dist = RelativeLocation.getApproxHorzDistance(loc1, loc2);
+    			if(dist<min3dDist) min3dDist = dist;
+    		}
+    	}
+    	return min3dDist;
+    }
+	
 
     /**
      * Returns the Surface Metadata with the following info:
