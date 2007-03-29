@@ -36,9 +36,9 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.YELLOW, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
+		      Color.RED, 4);
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2);
+		      Color.BLACK, 4);
 	
 	public A_FaultsMFD_Plotter(ArrayList funcs, boolean isCumRate) {
 		this.funcs = funcs;
@@ -67,7 +67,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public boolean getYLog() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -89,14 +89,14 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	 */
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
+		 list.add(PLOT_CHAR8);
+		 list.add(PLOT_CHAR7);
 		 list.add(PLOT_CHAR1);
 		 list.add(PLOT_CHAR2);
 		 list.add(PLOT_CHAR3);
 		 list.add(PLOT_CHAR4);
 		 list.add(PLOT_CHAR5);
 		 list.add(PLOT_CHAR6);
-		 list.add(PLOT_CHAR7);
-		 list.add(PLOT_CHAR8);
 		 return list;
 	}
 	
@@ -105,38 +105,38 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
 	 */
 	public boolean isCustomAxis() {
-		return false;
+		return true;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
 	public double getMinX() {
-		//return 5.0;
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 6.0;
+		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
 	public double getMaxX() {
-		//return 9.255;
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 8.5;
+		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
 	public double getMinY() {
-		//return 1e-4;
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 1e-7;
+		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
 	public double getMaxY() {
-		//return 10;
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return 0.1;
+		//throw new UnsupportedOperationException("Method not implemented yet");
 	}
 }

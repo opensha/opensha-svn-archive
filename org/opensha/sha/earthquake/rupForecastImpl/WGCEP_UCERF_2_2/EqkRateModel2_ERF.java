@@ -1945,9 +1945,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int i=0; i<aFaultIncrRateFuncList.size(); ++i) {
 			String faultName = faultNames.get(i);
 			ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
+			if(ucerf1Rate.getNum()==0) ucerf1Rate.set(0.0, 0.0);
 			aFaultIncrRateFuncList.get(i).add(ucerf1Rate);
 			ucerf1Rate.setName(name);
 			ArbitrarilyDiscretizedFunc cumMFD = UCERF1MfdReader.getUCERF1CumMFD(faultName);
+			if(cumMFD.getNum()==0) cumMFD.set(0.0, 0.0);
 			cumMFD.setName(name);
 			aFaultCumRateFuncList.get(i).add(cumMFD);
 		}
@@ -1957,7 +1959,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			DiscretizedFuncList funcList = aFaultIncrRateFuncList.get(i);
 			String faultName = faultNames.get(i);
 			ArrayList funcArrayList = new ArrayList();
-			for(int j=0; j<funcList.size(); ++j) funcArrayList.add(funcList.get(j));
+			funcArrayList.add(funcList.get(funcList.size()-1));
+			funcArrayList.add(funcList.get(funcList.size()-2));
+			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
 			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
@@ -1969,7 +1973,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			DiscretizedFuncList funcList = aFaultCumRateFuncList.get(i);
 			String faultName = faultNames.get(i);
 			ArrayList funcArrayList = new ArrayList();
-			for(int j=0; j<funcList.size(); ++j) funcArrayList.add(funcList.get(j));
+			funcArrayList.add(funcList.get(funcList.size()-1));
+			funcArrayList.add(funcList.get(funcList.size()-2));
+			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
 			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
