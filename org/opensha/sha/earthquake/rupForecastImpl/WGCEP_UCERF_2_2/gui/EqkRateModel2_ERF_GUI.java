@@ -142,9 +142,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	   * @param actionEvent
 	   */
 	  private void genReportFigMenu_actionPerformed(ActionEvent actionEvent) {
-		  String dirName = getDirectoryName();
-		  if(dirName==null) return;
-		  generateAnalysisFigures(dirName);
+		  //String dirName = getDirectoryName();
+		  //if(dirName==null) return;
+		  //generateAnalysisFigures(dirName);
+		  this.eqkRateModelERF.plotFaultMFDs_forReport();
 	  }
 	  
 	  
