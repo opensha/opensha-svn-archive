@@ -1855,7 +1855,49 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		System.out.println(minRatio+"------"+minStr);
 	}
 	
+	// plot all MFDs in one chart, but diff chart for diff faults
+	public void plotFaultMFDs_forReport() {
+		// FOR SEGMENTED MODEL
+		
+		// Default parameters
+		this.setParamDefaults();
+		this.updateForecast();
+		
+		// Def Params w/ change Mag Area to Hanks Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
 
+		// Def. params with High apriori model weight
+		this.setParamDefaults();
+		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
+		this.updateForecast();
+
+		// Def. params with High apriori model weight & change Mag Area to Hanks Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+
+		
+		// Def. Params with unegmented
+		this.setParamDefaults();
+		rupModelParam.setValue(UNSEGMENTED_A_FAULT_MODEL);
+		this.updateForecast();
+
+		// Def. Params with unegmented & change Mag Area to Hans Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+
+		/* wt-ave MFD
+		 aPriori_EllB 	0.12
+		 aPriori_HB	0.12
+		 MoBal_EllB	0.33
+		 MoBal_HB	0.33
+		 Unseg_EllB 	0.05
+		 Unseg_HB	0.05
+		 */
+		
+		
+		//UCERF1 MFD
+	}
 	
 	
 	/**
@@ -1904,8 +1946,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
-		//erRateModel2_ERF.generateExcelSheetsForRupMagRates("A_FaultRupRates_2_1.xls");
-		//erRateModel2_ERF.generateExcelSheetForSegRecurIntv("A_FaultSegRecurIntv_2_1.xls");
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
