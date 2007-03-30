@@ -62,18 +62,20 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
 	
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      new Color(255,0,0), 10); // RED Cross symbols
-	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,0,0), 2); 
+		      new Color(255,0,0), 12); // RED Cross symbols
 	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,255,0), 2); 
+		      new Color(0,0,0), 4); 
+	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      new Color(0,255,0), 4); 
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-		      new Color(0,0,0), 10); // BLACK Cross symbols
+		      new Color(0,0,0), 12); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
 	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	private boolean yLog = true ;
 	private ArrayList<EventRates> aFaultsFetcherEventRatesList;
+	private String faultName;
+	
 	public SegmentDataPanel() {
 		setLayout(new GridBagLayout());
 		createGUI();
@@ -161,6 +163,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		
 		if(segmentedSource!=null) faultSegmentData = segmentedSource.getFaultSegmentData();
 		else faultSegmentData = unsegmentedSource.getFaultSegmentData();
+		faultName = faultSegmentData.getFaultName();
 		setMagAndSlipsString(faultSegmentData, isAseisReducesArea, 
 				magAreaRelationships, segmentedSource, unsegmentedSource);
 		segmentTableModel.setFaultData(faultSegmentData, segmentedSource, unsegmentedSource);
@@ -224,7 +227,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			yLog = false;
 		}
 		GraphWindow graphWindow= new GraphWindow(this);
-		graphWindow.setPlotLabel(yAxisLabel);
+		graphWindow.setPlotLabel(faultName);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);
 	}
