@@ -155,10 +155,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter totalMagRateParam ;
 	
 	// Aftershock/Foreshock Fraction
-	public final static String AFTERSHOCK_FRACTION_PARAM_NAME = "Aftershock/Foreshock Fraction";
+	public final static String AFTERSHOCK_FRACTION_PARAM_NAME = "Fraction Smaller Events & Aftershocks";
 	public final static Double AFTERSHOCK_FRACTION_MIN = new Double(0.0);
 	public final static Double AFTERSHOCK_FRACTION_MAX = new Double(1.0);
-	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.0);
+	public final static Double AFTERSHOCK_FRACTION_DEFAULT = new Double(0.1);
 	private final static String AFTERSHOCK_FRACTION_INFO = "Fraction of moment rate released in foreshocks and aftershocks";
 	private DoubleParameter aftershockFractionParam ;
 
@@ -203,7 +203,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
 	// relative segment rate weights
-	public final static String REL_SEG_RATE_WT_PARAM_NAME = "Wt On Segment Rates";
+	public final static String REL_SEG_RATE_WT_PARAM_NAME = "Relative Wt On Segment Rates";
 	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0);
 	private final static Double REL_SEG_RATE_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
 	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(0);
@@ -309,7 +309,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String ABC_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
 	public final static Double ABC_MO_RATE_REDUCTION_MIN = new Double(0);
 	public final static Double ABC_MO_RATE_REDUCTION_MAX = new Double(1);
-	public final static Double ABC_MO_RATE_REDUCTION_DEFAULT = new Double(0.1);
+	public final static Double ABC_MO_RATE_REDUCTION_DEFAULT = new Double(0.0);
 	public final static String ABC_MO_RATE_REDUCTION_INFO = "Fraction of Moment Rate to take from A & B Faults & C zones to put into background seismicity";
 	private DoubleParameter moRateFracToBackgroundParam;
 	
