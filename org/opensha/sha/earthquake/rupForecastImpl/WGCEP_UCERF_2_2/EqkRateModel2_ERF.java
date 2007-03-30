@@ -2047,6 +2047,54 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 
+		
+		// TEST 1 - relativeSegRateWeightParam = 1.0
+		setParamDefaults();
+		relativeSegRateWeightParam.setValue(1.0);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
+
+		// TEST 2 - TURN PRESERVE MIN RATE OFF (and keep above setting)
+		preserveMinAFaultRateParam.setValue(false);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
+		// reset that parameter
+		preserveMinAFaultRateParam.setValue(true);
+
+		
+		// TEST 3 Default Params
+		setParamDefaults();
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");
+
+		// TEST 4 zero moment rate taken out
+		aftershockFractionParam.setValue(0.0);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
+
+		// TEST 5 (MEAN-MAG CORRECTION = +0.1)
+		setParamDefaults();
+		meanMagCorrectionParam.setValue(new Double(0.1));
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
+
+		// TEST 6 (MEAN-MAG CORRECTION = -0.1)
+		meanMagCorrectionParam.setValue(new Double(-0.1));
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
+		
+		// TEST 7 Deformation Model D2.2
+		setParamDefaults();
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");
+
+		// TEST 8 Deformation Model D2.3
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test8_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test8_A_FaultNormResids.xls");	
+		
+		/*
 		// TEST - FULL WEIGHT ON A-PRIORI
 		setParamDefaults();
 		relativeA_PrioriWeightParam.setValue(1e10);
@@ -2075,10 +2123,48 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_3_A_FaultRupRates_2_2.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_3_A_FaultNormResids_2_2.xls");	
+		*/
 
 	}
 
-	
+	/**
+	 * This loops over various a-priori wts to see the impact in terms of prediction errors.  This was used
+	 * to generate the numbers cited in Appendix G of ERM 2.2.
+	 *
+	 */
+	public void evaluateA_prioriWT() {
+//		 do some tests
+		//erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+		//erRateModel2_ERF.setParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME,false);
+		DecimalFormat formatter = new DecimalFormat("0.000E0");
+		System.out.println("A_prior Wt\tTotal Gen Pred Error\tSeg Slip Rate Error\tSeg Event Rate Error\tA-Priori Rup Rate Error (non-normalized)");
+		double aPrioriWt = 0;
+		setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+		updateForecast();
+		// do the 0.0 case
+		System.out.println((float)aPrioriWt+"\t"+
+				formatter.format(getGeneralPredErr())+"\t"+
+				formatter.format(getModSlipRateError())+"\t"+
+				formatter.format(getDataER_Err())+"\t"+
+				formatter.format(getNormalizedA_PrioriRateErr())+"  ("+
+				formatter.format(getNonNormalizedA_PrioriRateErr())+
+		")");
+		for(int pow=-20; pow<16;pow++) {
+			aPrioriWt = Math.pow(10,pow);
+			setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			updateForecast();
+			System.out.println("1E"+pow+"\t"+
+					formatter.format(getGeneralPredErr())+"\t"+
+					formatter.format(getModSlipRateError())+"\t"+
+					formatter.format(getDataER_Err())+"\t"+
+					formatter.format(getNormalizedA_PrioriRateErr())+"  ("+
+					formatter.format(getNonNormalizedA_PrioriRateErr())+
+					")");
+		}
+	}
+
+		
+		
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
@@ -2087,38 +2173,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		//erRateModel2_ERF.mkExcelSheetTests();
-		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles"); // directory name
+		erRateModel2_ERF.mkExcelSheetTests();
+		//erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles"); // directory name
+		//erRateModel2_ERF.evaluateA_prioriWT();
 		
-/*
-		// do some tests
-		erRateModel2_ERF.setParameter(REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
-		erRateModel2_ERF.setParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME,false);
-		DecimalFormat formatter = new DecimalFormat("0.000E0");
-		System.out.println("A_prior Wt\tTotal Gen Pred Error\tSeg Slip Rate Error\tSeg Event Rate Error\tA-Priori Rup Rate Error (non-normalized)");
-		double aPrioriWt = 0;
-		erRateModel2_ERF.setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-		erRateModel2_ERF.updateForecast();
-		// do the 0.0 case
-		System.out.println((float)aPrioriWt+"\t"+
-				formatter.format(erRateModel2_ERF.getGeneralPredErr())+"\t"+
-				formatter.format(erRateModel2_ERF.getModSlipRateError())+"\t"+
-				formatter.format(erRateModel2_ERF.getDataER_Err())+"\t"+
-				formatter.format(erRateModel2_ERF.getNormalizedA_PrioriRateErr())+"  ("+
-				formatter.format(erRateModel2_ERF.getNonNormalizedA_PrioriRateErr())+
-		")");
-		for(int pow=-20; pow<16;pow++) {
-			aPrioriWt = Math.pow(10,pow);
-			erRateModel2_ERF.setParameter(REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-			erRateModel2_ERF.updateForecast();
-			System.out.println("1E"+pow+"\t"+
-					formatter.format(erRateModel2_ERF.getGeneralPredErr())+"\t"+
-					formatter.format(erRateModel2_ERF.getModSlipRateError())+"\t"+
-					formatter.format(erRateModel2_ERF.getDataER_Err())+"\t"+
-					formatter.format(erRateModel2_ERF.getNormalizedA_PrioriRateErr())+"  ("+
-					formatter.format(erRateModel2_ERF.getNonNormalizedA_PrioriRateErr())+
-					")");
-		}
-*/
+/**/
+		
+
 	}
 }
