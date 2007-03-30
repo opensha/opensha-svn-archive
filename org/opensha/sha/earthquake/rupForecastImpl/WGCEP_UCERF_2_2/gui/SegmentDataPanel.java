@@ -101,9 +101,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
-		slipRatePlottingFeatures.add(PLOT_CHAR4);
-		slipRatePlottingFeatures.add(PLOT_CHAR4);
-		slipRatePlottingFeatures.add(PLOT_CHAR4);
+		//slipRatePlottingFeatures.add(PLOT_CHAR4);
+		//slipRatePlottingFeatures.add(PLOT_CHAR4);
+		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		slipRatePlottingFeatures.add(PLOT_CHAR3);
 		// event rates Plotting features
 		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
@@ -298,9 +298,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			finalSlipRateFunc.set((double)seg+1, finalSlipRate*1e3);
 		 }
 		slipRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		slipRatesList.add(origSlipRateFunc);
-		slipRatesList.add(origMinSlipRateFunc);
-		slipRatesList.add(origMaxSlipRateFunc);
+		//slipRatesList.add(origSlipRateFunc);
+		//slipRatesList.add(origMinSlipRateFunc);
+		//slipRatesList.add(origMaxSlipRateFunc);
 		slipRatesList.add(modSlipRateFunc);
 		slipRatesList.add(modMinSlipRateFunc);
 		slipRatesList.add(modMaxSlipRateFunc);
