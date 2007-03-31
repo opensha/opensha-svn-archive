@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,81 +51,83 @@ public class GenPredErrAnalysisTool {
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	public void writeResults() {		
-		DecimalFormat formatter = new DecimalFormat("0.000E0");
-		String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-		for(int irup=0; irup<3;irup++) {
-			
-			Iterator it = this.segmentedRupModelParam.getParametersIterator();
-			while(it.hasNext()) { // set the specfiied rup model in each A fault
-				StringParameter param = (StringParameter)it.next();
-				ArrayList<String> allowedVals = param.getAllowedStrings();
-				param.setValue(allowedVals.get(irup));
-			}
-			
-			for(int imag=0; imag<magAreaOptions.size();imag++) {
-				//int numSlipModels = slipModelOptions.size();
-				//double magRate[][] = new double[numSlipModels][2];
-				for(int islip=0; islip<slipModelOptions.size();islip++) {
-					
-					magAreaRelParam.setValue(magAreaOptions.get(imag));
-					slipModelParam.setValue(slipModelOptions.get(islip));
-					System.out.println(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]);
-					double aPrioriWt = 0;
-					this.eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-					eqkRateModelERF.updateForecast();
-					// do the 0.0 case
-					aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
-					System.out.print("\t");
-					for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
-						A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
-						System.out.print(source.getFaultSegmentData().getFaultName()+"\t");
-					}
-					
-					// do for each fault
-					System.out.print("\n"+aPrioriWt+"\t");
-					for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
-						A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
-						System.out.print(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
-					}	 
-					System.out.println("");
-					
-					for(int pow=-20; pow<16;pow++) {
-						aPrioriWt = Math.pow(10,pow);
-						System.out.print("1E"+pow+"\t");
-						eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+	public void writeResults(String outFileName) {	
+		try { 
+			FileWriter fw = new FileWriter(outFileName);
+
+			DecimalFormat formatter = new DecimalFormat("0.000E0");
+			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+			for(int irup=0; irup<3;irup++) {
+
+				Iterator it = this.segmentedRupModelParam.getParametersIterator();
+				while(it.hasNext()) { // set the specfiied rup model in each A fault
+					StringParameter param = (StringParameter)it.next();
+					ArrayList<String> allowedVals = param.getAllowedStrings();
+					param.setValue(allowedVals.get(irup));
+				}
+
+				for(int imag=0; imag<magAreaOptions.size();imag++) {
+					//int numSlipModels = slipModelOptions.size();
+					//double magRate[][] = new double[numSlipModels][2];
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						fw.write(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]+"\n");
+						double aPrioriWt = 0;
+						this.eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
 						eqkRateModelERF.updateForecast();
+						// do the 0.0 case
 						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
-						// do for each fault
+						fw.write("\t");
 						for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 							A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
-							System.out.print(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
+							fw.write(source.getFaultSegmentData().getFaultName()+"\t");
+						}
+
+						// do for each fault
+						fw.write("\n"+aPrioriWt+"\t");
+						for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
+							A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
+							fw.write(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
 						}	 
-						System.out.println("");
-						/*System.out.println("1E"+pow+"\t"+
+						fw.write("\n");
+
+						for(int pow=-20; pow<16;pow++) {
+							aPrioriWt = Math.pow(10,pow);
+							fw.write("1E"+pow+"\t");
+							eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+							eqkRateModelERF.updateForecast();
+							aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+							// do for each fault
+							for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
+								A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
+								fw.write(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
+							}	 
+							fw.write("\n");
+							/*System.out.println("1E"+pow+"\t"+
 								formatter.format(getGeneralPredErr())+"\t"+
 								formatter.format(getModSlipRateError())+"\t"+
 								formatter.format(getDataER_Err())+"\t"+
 								formatter.format(getNormalizedA_PrioriRateErr())+"  ("+
 								formatter.format(getNonNormalizedA_PrioriRateErr())+
 								")");*/
+						}
 					}
-					
-					
-					
+
 				}
-				
 			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
-		// 
-		
-		
+
 	}
 	
 	public static void main(String args[]) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-		analysisTool.writeResults();
+		analysisTool.writeResults("PredAnalysisResults.txt");
 	}
 	
 }
