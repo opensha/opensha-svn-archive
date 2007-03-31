@@ -270,6 +270,19 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     else
       return 18;
   }
+  
+  
+  /**
+  *
+  * @returns the axis label font size
+  * Default is 12
+  */
+ public int getPlotLabelFontSize(){
+   if(plotControl != null)
+     return plotControl.getPlotLabelFontSize();
+   else
+     return 12;
+ }
 
 
 
