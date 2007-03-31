@@ -564,12 +564,18 @@ public class GraphPanel extends JPanel {
 
     plot.setBackgroundAlpha( .8f );
 
+    //getting the tick label font size
+    int plotLabelFontSize = buttonControlPanel.getPlotLabelFontSize();
+    
+    Font defaultPlotLabelFont = JFreeChart.DEFAULT_TITLE_FONT;
+    Font newPlotLabelFont = new Font(defaultPlotLabelFont.getFontName(),defaultPlotLabelFont.getStyle(),plotLabelFontSize);
+
     //giving off all the data that needs to be plotted to JFreechart, which return backs
     //a panel fo curves,
-    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+    JFreeChart chart = new JFreeChart(title, newPlotLabelFont, plot, false );
 
     chart.setBackgroundPaint( lightBlue );
-
+    
     // Put into a panel
     chartPanel = new ChartPanel(chart, true, true, true, true, false);
 
