@@ -29,7 +29,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
  * @author Ned Field, Nitin Gupta and E.V.Leyendecker
  * @version 1.0
  */
-public class NEHRP_GuiBean
+public class NEHRP_GuiBean_bak
     extends JPanel implements ParameterChangeListener,
     AnalysisOptionsGuiBeanAPI {
 
@@ -107,7 +107,7 @@ public class NEHRP_GuiBean
   protected boolean siteCoeffWindowShow = false;
 	protected boolean viewSitePopUp = true;
 
-  public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
+  public NEHRP_GuiBean_bak(ProbabilisticHazardApplicationAPI api) {
     application = api;
     try {
       datasetGui = new DataSetSelectionGuiBean();
