@@ -47,9 +47,7 @@ public class GenPredErrAnalysisTool {
 	
 	
 	/**
-	 * Generate Excel sheet for each fault.
-	 * Each sheet will have all Rup solution Types
-	 * 
+	 * This writes the total prediction error for each fault looping over several parameters
 	 */
 	public void writeResults(String outFileName) {	
 		try { 
@@ -57,7 +55,8 @@ public class GenPredErrAnalysisTool {
 
 			DecimalFormat formatter = new DecimalFormat("0.000E0");
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-			for(int irup=0; irup<3;irup++) {
+//			for(int irup=0; irup<3;irup++) {
+			for(int irup=1; irup<2;irup++) {
 
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -66,10 +65,12 @@ public class GenPredErrAnalysisTool {
 					param.setValue(allowedVals.get(irup));
 				}
 
-				for(int imag=0; imag<magAreaOptions.size();imag++) {
+				for(int imag=3; imag<magAreaOptions.size();imag++) {
+//				for(int imag=0; imag<magAreaOptions.size();imag++) {
 					//int numSlipModels = slipModelOptions.size();
 					//double magRate[][] = new double[numSlipModels][2];
-					for(int islip=0; islip<slipModelOptions.size();islip++) {
+//					for(int islip=0; islip<slipModelOptions.size();islip++) {
+					for(int islip=2; islip<3;islip++) {
 
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						slipModelParam.setValue(slipModelOptions.get(islip));
@@ -123,11 +124,133 @@ public class GenPredErrAnalysisTool {
 		}
 
 	}
+
+	
+	
+	
+	/**
+	 * This writes the stable regions looping over several parameters
+	 */
+	public void writeAllStableRanges(String outFileName) {	
+		try { 
+			FileWriter fw = new FileWriter(outFileName);
+			String outPutString;
+
+			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
+			for(int irup=0; irup<3;irup++) {
+				// set a-priori model
+				Iterator it = this.segmentedRupModelParam.getParametersIterator();
+				while(it.hasNext()) { // set the specfiied rup model in each A fault
+					StringParameter param = (StringParameter)it.next();
+					ArrayList<String> allowedVals = param.getAllowedStrings();
+					param.setValue(allowedVals.get(irup));
+				}
+
+				for(int imag=0; imag<magAreaOptions.size();imag++) {
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+						magAreaRelParam.setValue(magAreaOptions.get(imag));
+						slipModelParam.setValue(slipModelOptions.get(islip));
+						outPutString = magAreaRelParam.getValue()+";"+slipModelParam.getValue()+";"+models[irup]+"\t";
+//						fw.write(magAreaRelParam.getValue()+";"+slipModelParam.getValue()+";"+models[irup]);
+						outPutString += this.findStableRange();
+						System.out.println(outPutString);
+						fw.write(outPutString+"\n");
+					}
+				}
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	/*
+	 * This explores the influence of REL_A_PRIORI_WT_PARAM_NAME
+	 * It identifies three integers: 1) the power at the end of the first stable region
+	 * (where the a-priori model is fit exactly at powers greater than and equal to this
+	 * value); 2) The powers at the beginning and ending of the second stable region
+	 * (interpreted as where the "nearest to aPriori that best-fits data" region).
+	 * The numbers are returned in the string in that order.
+	 */
+	public String findStableRange() {
+		double tol = 0.00001;
+		boolean deBug = false;
+		boolean noChange = true;
+		int pow = 10;
+		int minPow = -20;
+		int pow1,pow2,pow3;
+		double aPrioriWt = Math.pow(10,pow);
+		eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+		eqkRateModelERF.updateForecast();
+		double lastError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+		double newError, fractChange;
+		if(deBug) System.out.println(pow+"\t"+lastError);
+		while (noChange  && pow >= minPow) {
+			pow -= 1;
+			aPrioriWt = Math.pow(10,pow);
+			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			eqkRateModelERF.updateForecast();
+			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			fractChange = Math.abs((lastError-newError)/lastError);
+			noChange = (fractChange < tol);
+			lastError = newError;
+			if(deBug) System.out.println(pow+"\t"+lastError+"\t"+fractChange);
+		}
+		pow1 = pow+1;
+		if(deBug) System.out.println("Power at end of 1st stable region = "+pow1);
+		while (!noChange  && pow >= minPow) {
+			pow -= 1;
+			aPrioriWt = Math.pow(10,pow);
+			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			eqkRateModelERF.updateForecast();
+			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			fractChange = Math.abs((lastError-newError)/lastError);
+			noChange = (fractChange < tol);
+			lastError = newError;
+			if(deBug) System.out.println(pow+"\t"+lastError+"\t"+fractChange);
+		}
+		pow2 = pow+1;
+		if(deBug) System.out.println("Power at beginning of 2nd stable region ="+pow2);
+		while (noChange && pow >= minPow) {
+			pow -=1;
+			aPrioriWt = Math.pow(10,pow);
+			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			eqkRateModelERF.updateForecast();
+			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			fractChange = Math.abs((lastError-newError)/lastError);
+			noChange = (fractChange < tol);
+			lastError = newError;
+			if(deBug) System.out.println(pow+"\t"+lastError+"\t"+fractChange);
+		}
+		pow3=pow+1;
+		if(deBug) System.out.println("Power at end of 2nd stable region ="+pow3);
+		
+		return new String(pow1+"\t"+pow2+"\t"+pow3);
+	}
 	
 	public static void main(String args[]) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
+		
 		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-		analysisTool.writeResults("PredAnalysisResults.txt");
+//		System.out.println(analysisTool.findStableRange());
+		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
+		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
+		
+		
+//		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
+//		analysisTool.writeResults("PredErrAnalysisResults_test.txt");
+//		analysisTool.writeResults("PredErrAnalysisResults1.txt");
+		
+		// include seg rate data
+//		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+//		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
+//		analysisTool.writeResults("PredErrAnalysisResults2.txt");
+		
 	}
 	
 }

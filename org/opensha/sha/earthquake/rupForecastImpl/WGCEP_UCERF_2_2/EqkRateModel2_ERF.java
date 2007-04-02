@@ -194,12 +194,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String CONSTRAIN_A_SEG_RATES_PARAM_INFO = "Constrain A-fault segments rates (add equations to inversion)";
 	private BooleanParameter constrainA_SegRatesParam; 
 */
-	// relative a-priori weights
+	// relative a-priori weights (CHANGE NAME TO REMOVE "REL")
 	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
 	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(0.0);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1e-7);
-	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Applied as rupture_rate/rupture-rate_error (standard deviation)";
+	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1e-4);
+	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Applied as 1/rupture_rate_error";
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
 	// relative segment rate weights
@@ -1452,7 +1452,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-			genPredErr += source.getGeneralizedPredictionError();
+			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
+				genPredErr += source.getGeneralizedPredictionError();
 		}
 		return genPredErr;
 	}
@@ -1466,7 +1467,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-			modSlipRateError+=source.getNormModSlipRateError();
+			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
+				modSlipRateError+=source.getNormModSlipRateError();
 		}
 		return modSlipRateError;
 	}
@@ -1480,7 +1482,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-			dataER_Error+=source.getNormDataER_Error();
+			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
+				dataER_Error+=source.getNormDataER_Error();
 		}
 		return dataER_Error;
 	}
@@ -1494,7 +1497,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-			aPrioriRateError+=source.getA_PrioriModelError();
+			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
+				aPrioriRateError+=source.getA_PrioriModelError();
 		}
 		return aPrioriRateError;
 	}
@@ -1508,7 +1512,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		Iterator it = this.aFaultSourceGenerators.iterator();
 		while(it.hasNext()) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)it.next();
-			nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
+//System.out.println(source.getName()+"  "+ source.getTotalAPrioriRate()+"  "+(source.getTotalAPrioriRate() > 0.0));
+			if(source.getTotalAPrioriRate() > 0.0) // filter out any bogus models (i.e., a-priori models not yet avail)
+				nonNorm_aPrioriRateError+=source.getNonNormA_PrioriModelError();
 		}
 		return nonNorm_aPrioriRateError;
 	}

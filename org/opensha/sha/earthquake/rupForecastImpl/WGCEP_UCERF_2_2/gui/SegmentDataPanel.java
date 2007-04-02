@@ -400,9 +400,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		String predError="";
 		if(segmentedSource!=null) {
 			predError = "Gen. Pred. Error = "+(float)segmentedSource.getGeneralizedPredictionError()+"\n";
-			predError += "Norm Mod Slip Rate Error = "+(float)segmentedSource.getNormModSlipRateError()+"\n";
-			predError += "Data Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
-			predError += "A-Priori Model Error = "+(float)segmentedSource.getA_PrioriModelError()+"\n\n";
+			predError += "Slip Rate Error = "+(float)segmentedSource.getNormModSlipRateError()+"\n";
+			predError += "Event Rate Error = "+(float)segmentedSource.getNormDataER_Error()+"\n";
+			predError += "Non-norm A-Priori Model Error = "+(float)segmentedSource.getNonNormA_PrioriModelError()+"\n\n";
 		}
 		String rateConstraints;
 		if(segmentedSource!=null) rateConstraints = getRateConstraints(segmetedFaultData);

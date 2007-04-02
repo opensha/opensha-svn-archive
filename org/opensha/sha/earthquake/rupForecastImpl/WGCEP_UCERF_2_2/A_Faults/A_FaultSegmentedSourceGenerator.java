@@ -70,7 +70,7 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
-	private double relativeSegRate_wt, relativeA_Priori_wt;
+	private double relativeSegRate_wt, aPrioriRupWt;
 	public final static double MIN_A_PRIORI_ERROR = 1e-6;
 	
 	
@@ -148,14 +148,14 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param preserveMinAFaultRate - 
 	 * @param wtedInversion - determines whether data standard deviations are applied as weights
 	 * @param relativeSegRate_wt - the amount to weight all segment rates relative to segment slip rates
-	 * @param relativeA_Priori_wt - the amount to weight the a-priori rates relative to the slip rates
+	 * @param aPrioriRupWt - the amount to weight the a-priori rates (1/uncertainty)
 	 */
 
 	public A_FaultSegmentedSourceGenerator(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
 			double magTruncLevel, double moRateReduction, double meanMagCorrection,
 			boolean preserveMinAFaultRate, boolean wtedInversion, double relativeSegRate_wt,
-			double relativeA_Priori_wt) {
+			double aPrioriRupWt) {
 		
 		this.segmentData = segmentData;
 		this.slipModelType = slipModelType;
@@ -167,9 +167,10 @@ public class A_FaultSegmentedSourceGenerator {
 		this.preserveMinAFaultRate = preserveMinAFaultRate;
 		this.wtedInversion = wtedInversion;
 		this.relativeSegRate_wt = relativeSegRate_wt;
-		this.relativeA_Priori_wt = relativeA_Priori_wt;
+		this.aPrioriRupWt = aPrioriRupWt;
 		num_seg = segmentData.getNumSegments();
 		this.sourceList = new ArrayList<FaultRuptureSource>();
+		
 		
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto")) {
@@ -180,7 +181,7 @@ public class A_FaultSegmentedSourceGenerator {
 			rupInSeg = getRupInSegMatrix(num_seg);
 			num_rup = getNumRuptureSurfaces(segmentData);
 		}
-	
+		
 
 		// do some checks
 		if(num_rup != aPrioriRupRates.length)
@@ -231,10 +232,10 @@ public class A_FaultSegmentedSourceGenerator {
 		// add segment rate constrains if needed
 		if(relativeSegRate_wt > 0.0)	totNumRows += numRateConstraints;
 		// add a-priori rate constrains if needed
-		if(relativeA_Priori_wt > 0.0)  totNumRows += num_rup;
+		if(aPrioriRupWt > 0.0)  totNumRows += num_rup;
 		
 		int numRowsBeforeSegRateData = num_seg;
-		if(relativeA_Priori_wt > 0.0) numRowsBeforeSegRateData += num_rup;
+		if(aPrioriRupWt > 0.0) numRowsBeforeSegRateData += num_rup;
 		
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
@@ -248,7 +249,7 @@ public class A_FaultSegmentedSourceGenerator {
 				C[row][col] = segSlipInRup[row][col];
 		}
 		// now fill in the a-priori rates if needed
-		if(relativeA_Priori_wt > 0.0) {
+		if(aPrioriRupWt > 0.0) {
 			for(int rup=0; rup < num_rup; rup++) {
 				d[rup+num_seg] = aPrioriRupRates[rup].getValue();
 				C[rup+num_seg][rup]=1.0;
@@ -311,13 +312,15 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
 		// for the a-priori rates:
-		if(relativeA_Priori_wt > 0.0) {
+		if(aPrioriRupWt > 0.0) {
 			double wt;
 			for(int rup=0; rup < num_rup; rup++) {
-				if(aPrioriRupRates[rup].getValue() > 0)
-					wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
+/*				if(aPrioriRupRates[rup].getValue() > 0)
+					wt = aPrioriRupWt/aPrioriRupRates[rup].getValue();
 				else
 					wt = MIN_A_PRIORI_ERROR;
+					*/
+				wt = aPrioriRupWt;
 				d[rup+num_seg] *= wt;
 				C[rup+num_seg][rup] *= wt;
 			}
@@ -1580,16 +1583,34 @@ public class A_FaultSegmentedSourceGenerator {
 	public double getA_PrioriModelError() {
 		double wt, totError=0,finalRupRate, aPrioriRate;
 		for(int rup=0; rup < num_rup; rup++) {
-			// relativeA_Priori_wt = rate/stDev, and wt here should be 1/stDev
+/*
+			// aPrioriRupWt = rate/stDev, and wt here should be 1/stDev
 			if(aPrioriRupRates[rup].getValue() > 0)
-				wt = relativeA_Priori_wt/aPrioriRupRates[rup].getValue();
+				wt = aPrioriRupWt/aPrioriRupRates[rup].getValue();
 			else
 				wt = MIN_A_PRIORI_ERROR;
+*/
+			wt= aPrioriRupWt;
 			finalRupRate = getRupRate(rup);
 			aPrioriRate = getAPrioriRupRate(rup);
 			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate)*wt*wt;
 		}
 		return totError;
+	}
+	
+	
+	/**
+	 * Get total a priori rupture rate
+	 * 
+	 * @return
+	 */
+	public double getTotalAPrioriRate() {
+		double total = 0;
+		for(int rup=0; rup < num_rup; rup++) {
+//System.out.println(aPrioriRupRates[rup].getValue());
+			total += aPrioriRupRates[rup].getValue();
+		}
+		return total;
 	}
 	
 	
