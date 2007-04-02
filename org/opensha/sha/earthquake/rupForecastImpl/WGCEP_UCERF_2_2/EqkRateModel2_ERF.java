@@ -198,8 +198,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String REL_A_PRIORI_WT_PARAM_NAME = "Wt On A-Priori Rates";
 	private final static Double REL_A_PRIORI_WT_PARAM_MIN = new Double(0.0);
 	private final static Double REL_A_PRIORI_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1e-4);
-	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Applied as 1/rupture_rate_error";
+	private final static Double REL_A_PRIORI_WT_PARAM_DEFAULT = new Double(1e-7);
+	private final static String REL_A_PRIORI_WT_PARAM_INFO = "Applied as rate/uncert (this is important to understand!)";
 	private DoubleParameter relativeA_PrioriWeightParam; 
 
 	// relative segment rate weights

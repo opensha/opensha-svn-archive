@@ -70,8 +70,8 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
-	private double relativeSegRate_wt, aPrioriRupWt;
-	public final static double MIN_A_PRIORI_ERROR = 1e-6;
+	private double relativeSegRate_wt, aPrioriRupWt, minNonZeroAprioriRate;
+//	public final static double MIN_A_PRIORI_ERROR = 1e-6;
 	
 	
 	// slip model:
@@ -189,6 +189,14 @@ public class A_FaultSegmentedSourceGenerator {
 
 		rupNameShort = getAllShortRuptureNames(segmentData);
 		rupNameLong = getAllLongRuptureNames(segmentData);
+		
+		// compute
+		minNonZeroAprioriRate=Double.MAX_VALUE;
+		for(int rup=0; rup<num_rup; rup++) 
+			if(aPrioriRupRates[rup].getValue() != 0.0 && aPrioriRupRates[rup].getValue() < minNonZeroAprioriRate)
+				minNonZeroAprioriRate = aPrioriRupRates[rup].getValue();
+		// System.out.println(this.segmentData.getFaultName()+":  minNonZeroAprioriRate = "+minNonZeroAprioriRate);
+
 		
 		getRupAreas();
 		
@@ -310,17 +318,18 @@ public class A_FaultSegmentedSourceGenerator {
 			}
 		}
 		
-		// APPLY EQUATION-SET WEIGHTS (relative to slip-rate equations)
+		// APPLY EQUATION-SET WEIGHTS
 		// for the a-priori rates:
 		if(aPrioriRupWt > 0.0) {
 			double wt;
 			for(int rup=0; rup < num_rup; rup++) {
-/*				if(aPrioriRupRates[rup].getValue() > 0)
+/**/				if(aPrioriRupRates[rup].getValue() > 0)
 					wt = aPrioriRupWt/aPrioriRupRates[rup].getValue();
 				else
-					wt = MIN_A_PRIORI_ERROR;
-					*/
-				wt = aPrioriRupWt;
+					wt = aPrioriRupWt/minNonZeroAprioriRate; // make it the same as for smallest non-zero rate
+//					wt = MIN_A_PRIORI_ERROR;
+					
+//				wt = aPrioriRupWt;
 				d[rup+num_seg] *= wt;
 				C[rup+num_seg][rup] *= wt;
 			}
@@ -540,15 +549,6 @@ public class A_FaultSegmentedSourceGenerator {
 		models.add(TAPERED_SLIP_MODEL);
 
 		return models;
-	}
-	
-	/**
-	 * Return the fault segment data
-	 * 
-	 * @return
-	 */
-	public FaultSegmentData getFaultSegmentData() {
-		return this.segmentData;
 	}
 	
 	/**
@@ -1136,6 +1136,15 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	/**
+		 * Return the fault segment data
+		 * 
+		 * @return
+		 */
+		public FaultSegmentData getFaultSegmentData() {
+			return this.segmentData;
+		}
+
+	/**
 	 * get the name of this class
 	 *
 	 * @return
@@ -1583,14 +1592,16 @@ public class A_FaultSegmentedSourceGenerator {
 	public double getA_PrioriModelError() {
 		double wt, totError=0,finalRupRate, aPrioriRate;
 		for(int rup=0; rup < num_rup; rup++) {
-/*
+/**/
 			// aPrioriRupWt = rate/stDev, and wt here should be 1/stDev
 			if(aPrioriRupRates[rup].getValue() > 0)
 				wt = aPrioriRupWt/aPrioriRupRates[rup].getValue();
 			else
-				wt = MIN_A_PRIORI_ERROR;
-*/
-			wt= aPrioriRupWt;
+				wt = aPrioriRupWt/minNonZeroAprioriRate; // make it the same as for smallest non-zero rate
+
+//				wt = MIN_A_PRIORI_ERROR;
+
+//			wt= aPrioriRupWt;
 			finalRupRate = getRupRate(rup);
 			aPrioriRate = getAPrioriRupRate(rup);
 			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate)*wt*wt;
