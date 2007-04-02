@@ -20,11 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>net.genady.rmi.RMINature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>etc/img/usgslogo.gif</name>
-			<type>1</type>
-			<location>/Users/emartinez/Desktop/NSHMP_Stuff/client/img/usgslogo.gif</location>
-		</link>
-	</linkedResources>
 </projectDescription>
