@@ -101,7 +101,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
 		slipRatePlottingFeatures.add(PLOT_CHAR1);
-		//slipRatePlottingFeatures.add(PLOT_CHAR4);
+		slipRatePlottingFeatures.add(PLOT_CHAR2);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		slipRatePlottingFeatures.add(PLOT_CHAR3);
@@ -274,6 +274,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		modMaxSlipRateFunc.setName("Max Modified Slip Rate");
 		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		finalSlipRateFunc.setName("Final Slip Rate");
+		ArbitrarilyDiscretizedFunc aPrioriSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		aPrioriSlipRateFunc.setName("A_Priori Slip Rate");
 		double origSlipRate, origSlipRateStdDev, finalSlipRate, fraction;
 		// Modified Slip Rates
 		if(segmentedSource!=null)
@@ -292,8 +294,10 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			modMinSlipRateFunc.set((double)seg+1, (origSlipRate-2*origSlipRateStdDev)*fraction);
 			modMaxSlipRateFunc.set((double)seg+1, (origSlipRate+2*origSlipRateStdDev)*fraction);
 			// Final slip Rate
-			if(segmentedSource!=null)
+			if(segmentedSource!=null) {
 				finalSlipRate  = segmentedSource.getFinalSegSlipRate(seg);
+				aPrioriSlipRateFunc.set((double)seg+1, segmentedSource.get_aPrioriSegSlipRate(seg)*1e3);
+			}
 			else finalSlipRate  = unsegmentedSource.getFinalAveSegSlipRate(seg);
 			finalSlipRateFunc.set((double)seg+1, finalSlipRate*1e3);
 		 }
@@ -301,9 +305,11 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		//slipRatesList.add(origSlipRateFunc);
 		//slipRatesList.add(origMinSlipRateFunc);
 		//slipRatesList.add(origMaxSlipRateFunc);
+		
 		slipRatesList.add(modSlipRateFunc);
 		slipRatesList.add(modMinSlipRateFunc);
 		slipRatesList.add(modMaxSlipRateFunc);
+		slipRatesList.add(aPrioriSlipRateFunc);
 		slipRatesList.add(finalSlipRateFunc);
 	}
 	
