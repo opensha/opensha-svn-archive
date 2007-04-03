@@ -91,7 +91,7 @@ public class A_FaultSegmentedSourceGenerator {
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist;  // segment slip dist
 	private ArbitrarilyDiscretizedFunc[] rupSlipDist;
 	
-	private double[] finalSegRate, segRateFromApriori, finalSegSlipRate;
+	private double[] finalSegRate, segRateFromApriori, finalSegSlipRate, aPrioriSegSlipRate;
 	
 	private String[] rupNameShort, rupNameLong;
 	private double[] rupArea, rupMeanMag, rupMeanMo, rupMoRate, totRupRate;
@@ -527,15 +527,19 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	/**
-	 * Computer Final Slip Rate for each segment
+	 * Computer Final Slip Rate for each segment (& aPrioriSegSlipRate)
 	 *
 	 */
 	private void computeFinalSegSlipRate() {
 		this.finalSegSlipRate = new double[num_seg];
+		this.aPrioriSegSlipRate = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++) {
 			finalSegSlipRate[seg] = 0;
-			for(int rup=0; rup < num_rup; rup++)
+			aPrioriSegSlipRate[seg] = 0;
+			for(int rup=0; rup < num_rup; rup++) {
 				finalSegSlipRate[seg] += totRupRate[rup]*segSlipInRup[seg][rup];
+				aPrioriSegSlipRate[seg] += aPrioriRupRates[rup].getValue()*segSlipInRup[seg][rup];
+			}
 		}
 	}
 	
@@ -748,6 +752,15 @@ public class A_FaultSegmentedSourceGenerator {
 	public double getFinalSegSlipRate(int ithSegment) {
 		return this.finalSegSlipRate[ithSegment];
 	}
+	
+	
+	/**
+	 * This returns the segment slip rate implied by the a-priori model
+	 */
+	public double get_aPrioriSegSlipRate(int ithSegment) {
+		return this.aPrioriSegSlipRate[ithSegment];
+	}
+	
 	
 	/**
 	 * Get final rate of events for ith segment

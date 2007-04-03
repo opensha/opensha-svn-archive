@@ -55,8 +55,8 @@ public class GenPredErrAnalysisTool {
 
 			DecimalFormat formatter = new DecimalFormat("0.000E0");
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-//			for(int irup=0; irup<3;irup++) {
-			for(int irup=1; irup<2;irup++) {
+			for(int irup=0; irup<3;irup++) {
+//			for(int irup=1; irup<2;irup++) {
 
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -65,12 +65,12 @@ public class GenPredErrAnalysisTool {
 					param.setValue(allowedVals.get(irup));
 				}
 
-				for(int imag=3; imag<magAreaOptions.size();imag++) {
-//				for(int imag=0; imag<magAreaOptions.size();imag++) {
+//				for(int imag=3; imag<magAreaOptions.size();imag++) {
+				for(int imag=0; imag<magAreaOptions.size();imag++) {
 					//int numSlipModels = slipModelOptions.size();
 					//double magRate[][] = new double[numSlipModels][2];
-//					for(int islip=0; islip<slipModelOptions.size();islip++) {
-					for(int islip=2; islip<3;islip++) {
+					for(int islip=0; islip<slipModelOptions.size();islip++) {
+//					for(int islip=2; islip<3;islip++) {
 
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						slipModelParam.setValue(slipModelOptions.get(islip));
@@ -90,7 +90,7 @@ public class GenPredErrAnalysisTool {
 						fw.write("\n"+aPrioriWt+"\t");
 						for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 							A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
-							fw.write(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
+							fw.write(formatter.format(source.getNonNormA_PrioriModelError())+"\t\t");
 						}	 
 						fw.write("\n");
 
@@ -103,7 +103,7 @@ public class GenPredErrAnalysisTool {
 							// do for each fault
 							for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 								A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
-								fw.write(formatter.format(source.getGeneralizedPredictionError())+"\t\t");
+								fw.write(formatter.format(source.getNonNormA_PrioriModelError())+"\t\t");
 							}	 
 							fw.write("\n");
 							/*System.out.println("1E"+pow+"\t"+
@@ -235,21 +235,20 @@ public class GenPredErrAnalysisTool {
 	public static void main(String args[]) {
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
 		
-		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-//		System.out.println(analysisTool.findStableRange());
-		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
-		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
-		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
-		
-		
 //		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-//		analysisTool.writeResults("PredErrAnalysisResults_test.txt");
-//		analysisTool.writeResults("PredErrAnalysisResults1.txt");
+//		System.out.println(analysisTool.findStableRange());
+//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
+//		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
+		
+		
+		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
+		analysisTool.writeResults("PredErrAnalysisResults1.txt");
 		
 		// include seg rate data
-//		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
 //		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-//		analysisTool.writeResults("PredErrAnalysisResults2.txt");
+		analysisTool.writeResults("PredErrAnalysisResults2.txt");
 		
 	}
 	
