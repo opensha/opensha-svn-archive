@@ -70,7 +70,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 12); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, segmentedSlipRatePlottingFeatures, unSegmentedSlipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	private boolean yLog = true ;
 	private ArrayList<EventRates> aFaultsFetcherEventRatesList;
@@ -96,15 +96,23 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	}
 	
 	private void makePlottingFeaturesList() {
-		// slip rate plotting features
-		slipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		slipRatePlottingFeatures.add(PLOT_CHAR1);
-		slipRatePlottingFeatures.add(PLOT_CHAR1);
-		slipRatePlottingFeatures.add(PLOT_CHAR1);
-		slipRatePlottingFeatures.add(PLOT_CHAR2);
+		// Segmented slip rate plotting features
+		segmentedSlipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR2);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
-		slipRatePlottingFeatures.add(PLOT_CHAR3);
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR3);
+		
+		// UnSegmented slip rate plotting features
+		unSegmentedSlipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		unSegmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		unSegmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		unSegmentedSlipRatePlottingFeatures.add(PLOT_CHAR1);
+		unSegmentedSlipRatePlottingFeatures.add(PLOT_CHAR3);
+		
 		// event rates Plotting features
 		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
 		eventRatesPlottingFeatures.add(PLOT_CHAR1);
@@ -200,7 +208,9 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			xAxisLabel = "Segment Index";
 			yAxisLabel = "Slip Rate (mm/yr)";
 			// plotting features
-			plottingFeatures = slipRatePlottingFeatures;
+			if(slipRatesList.size()==5)
+				plottingFeatures = this.segmentedSlipRatePlottingFeatures;
+			else plottingFeatures = this.unSegmentedSlipRatePlottingFeatures;
 			// plotting Func List
 			plottingFuncList = this.slipRatesList;
 			yLog = true;
@@ -309,7 +319,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatesList.add(modSlipRateFunc);
 		slipRatesList.add(modMinSlipRateFunc);
 		slipRatesList.add(modMaxSlipRateFunc);
-		slipRatesList.add(aPrioriSlipRateFunc);
+		if(segmentedSource!=null) slipRatesList.add(aPrioriSlipRateFunc);
 		slipRatesList.add(finalSlipRateFunc);
 	}
 	
