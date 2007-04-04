@@ -26,7 +26,7 @@ public final class GlobalConstants {
   public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
-  private final static String USGS_LOGO = "usgslogo.JPG";
+  private final static String USGS_LOGO = "usgslogo.gif";
 	private final static String USGS_LOGO_ONLY = "usgs_logoonly.gif";
   public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
 	public final static ImageIcon USGS_LOGO_ONLY_ICON = new
@@ -195,7 +195,7 @@ public final class GlobalConstants {
           "period and displacement), for Site Class A through E.";
 
 
-  private static final String analysis_choices_info =
+  public static final String analysis_choices_info =
       "The User may perform an " +
       "analysis for a site by selecting from the options listed. The type of analysis " +
       "depends on the option selected. In all cases the site location may be specified " +
@@ -381,7 +381,7 @@ public final class GlobalConstants {
    * @return ArrayList
    */
   public static ArrayList getSupportedReturnPeriods() {
-    ArrayList supportedReturnPeriods = new ArrayList();
+    ArrayList<String> supportedReturnPeriods = new ArrayList<String>();
     supportedReturnPeriods.add(PERIOD_10_YEARS);
     supportedReturnPeriods.add(PERIOD_20_YEARS);
     supportedReturnPeriods.add(PERIOD_30_YEARS);
@@ -409,7 +409,7 @@ public final class GlobalConstants {
    * @return ArrayList
    */
   public static ArrayList getSupportedExceedanceProb() {
-    ArrayList supportedExceedProbList = new ArrayList();
+    ArrayList<String> supportedExceedProbList = new ArrayList<String>();
     supportedExceedProbList.add(PROB_EXCEED_1);
     supportedExceedProbList.add(PROB_EXCEED_2);
     supportedExceedProbList.add(PROB_EXCEED_3);
@@ -425,7 +425,7 @@ public final class GlobalConstants {
    * @return ArrayList
    */
   public static ArrayList getSupportedExposureTime() {
-    ArrayList supportedExposureProbList = new ArrayList();
+    ArrayList<String> supportedExposureProbList = new ArrayList<String>();
     supportedExposureProbList.add(EXP_TIME_10);
     supportedExposureProbList.add(EXP_TIME_30);
     supportedExposureProbList.add(EXP_TIME_50);
@@ -440,7 +440,7 @@ public final class GlobalConstants {
    * @return ArrayList
    */
   public static ArrayList getSupportedSiteClasses() {
-    ArrayList supportedSiteClasses = new ArrayList();
+    ArrayList<String> supportedSiteClasses = new ArrayList<String>();
     supportedSiteClasses.add(SITE_CLASS_A);
     supportedSiteClasses.add(SITE_CLASS_B);
     supportedSiteClasses.add(SITE_CLASS_C);
@@ -455,7 +455,7 @@ public final class GlobalConstants {
    * @return ArrayList
    */
   public static ArrayList getSupportedAnalysisOptions() {
-    ArrayList supportedAnalysisOption = new ArrayList();
+    ArrayList<String> supportedAnalysisOption = new ArrayList<String>();
     supportedAnalysisOption.add(PROB_HAZ_CURVES);
     supportedAnalysisOption.add(PROB_UNIFORM_HAZ_RES);
     supportedAnalysisOption.add(NEHRP);

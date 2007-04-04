@@ -1,6 +1,5 @@
 package scratchJavaDevelopers.martinez.beans;
 
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -23,7 +22,7 @@ import org.opensha.data.Location;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
-import org.opensha.param.editor.DoubleParameterEditor;
+import org.opensha.param.editor.ConstrainedDoubleParameterEditor;
 import org.opensha.param.editor.StringParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeFailEvent;
@@ -38,22 +37,32 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	/////////////////// EMBEDED VISUALIZATION COMPONENETS /////////////////////
 	
 	/* Parameter Names */
-	public static final String PARAM_BAT = "Batch File";
+	public static final String PARAM_BAT = "Input File";
+	public static final String PARAM_OUT = "Output Directory";
 	public static final String PARAM_LAT = "Latitude";
 	public static final String PARAM_LON = "Longitude";
 	public static final String PARAM_ZIP = "5 Digit Zip Code";
+	public static final String OUTPUT = "USGS_Output.xls";
 
 	/* Parameter Editors */
 	private StringParameterEditor batEditor = null;
-	private DoubleParameterEditor latEditor = null;
-	private DoubleParameterEditor lonEditor = null;
+	private StringParameterEditor outEditor = null;
+	private ConstrainedDoubleParameterEditor latEditor = null;
+	private ConstrainedDoubleParameterEditor lonEditor = null;
 	private StringParameterEditor zipEditor = null;
 	
 	/* Parameters */
 	private StringParameter batParam = new StringParameter(PARAM_BAT, "");
-	private DoubleParameter latParam = new DoubleParameter(PARAM_LAT, -90, 90);
-	private DoubleParameter lonParam = new DoubleParameter(PARAM_LON, -180, 180);
+	private StringParameter outParam = new StringParameter(PARAM_OUT, "");
+	private DoubleParameter latParam = new DoubleParameter(PARAM_LAT, -90, 90, "Degrees");
+	private DoubleParameter lonParam = new DoubleParameter(PARAM_LON, -180, 180, "Degrees");
 	private StringParameter zipParam = new StringParameter(PARAM_ZIP, "");
+	
+	/* Values */
+	private double minlat = -90.0;
+	private double maxlat = 90.0;
+	private double minlon = -180.0;
+	private double maxlon = 180.0;
 
 	// << END EMBEDED VISUALIZATION COMPONENTS >> //
 	
@@ -61,6 +70,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	private JTabbedPane panel = null;
 	private String web = null;
 	private JButton btnFileChooser = null;
+	private JButton btnOutChooser = null;
 	
 	/* Tab Names */
 	private static final String GEO_TAB = "Lat/Lon";
@@ -84,6 +94,18 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	/* CONSTRUCTORS */
 	public BatchLocationBean() {
 		// Empty but that's okay too
+	}
+	
+	public String getOutputFile() {
+		String fileName = "";
+		try {
+			String dir = (String) outParam.getValue();
+			fileName = dir + System.getProperty("file.separator") + OUTPUT;
+		} catch (NullPointerException npe) {
+			ExceptionBean.showSplashException("File reference was null!", "Null File", npe);
+			fileName = "";
+		}
+		return fileName;
 	}
 	
 	public ArrayList<Location> getBatchLocations() {
@@ -134,10 +156,31 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	public void updateGuiParams(double minLat, double maxLat, 
 								double minLon, double maxLon, 
 								boolean zipCodeSupported) {
+		// Set these up for external reference
+		this.minlat = minLat; this.maxlat = maxLat;
+		this.minlon = minLon; this.maxlon = maxLon;
+		
+		// Create the new parameters
+		latParam = new DoubleParameter(PARAM_LAT, this.minlat, this.maxlat, "Degrees");
+		lonParam = new DoubleParameter(PARAM_LON, this.minlon, this.maxlon, "Degrees");
+		
+		// Add some change listeners
+		latParam.addParameterChangeListener(this);
+		latParam.addParameterChangeFailListener(this);
+		lonParam.addParameterChangeListener(this);
+		lonParam.addParameterChangeFailListener(this);
+		
+		// Set the parameters in the editors
+		if(latEditor != null)
+			latEditor.setParameter(latParam);
+		if(lonEditor != null)
+			lonEditor.setParameter(lonParam);
+		
+		// Set the enabled tabs
 		if(panel != null) {
-			latParam = new DoubleParameter(PARAM_LAT, minLat, maxLat);
-			lonParam = new DoubleParameter(PARAM_LON, minLon, maxLon);
+			panel.setEnabledAt(GEO_MODE, true);
 			panel.setEnabledAt(ZIP_MODE, zipCodeSupported);
+			panel.setEnabledAt(BAT_MODE, true);
 		}
 	}
 	
@@ -152,10 +195,12 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	
 	public void createNoLocationGUI() {
 		if(panel != null) {
+			// All modes are unavailable
 			panel.setEnabledAt(GEO_MODE, false);
 			panel.setEnabledAt(ZIP_MODE, false);
+			panel.setEnabledAt(BAT_MODE, false);
 			panel.setSelectedIndex(BAT_MODE);
-			JOptionPane.showMessageDialog(null, "The current region only supports batch files.", 
+			JOptionPane.showMessageDialog(null, "Spectral Values are constant across the selected region.", 
 					"Batch Mode Required", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -163,11 +208,36 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	/**
 	 * Always returns true.  Exists for legacy reasons only.
 	 * 
-	 * @return true
-	 * @deprecated
+	 * @return Whether or not the bean has a valid location
 	 */
 	public boolean hasLocation() {
-		return true;
+		if(panel != null) {
+			int mode = panel.getSelectedIndex();
+			if(mode == GEO_MODE) {
+				Object latObj = latParam.getValue();
+				Object lonObj = lonParam.getValue();
+				double latVal = (latObj==null)?99.0:((Double) latObj);
+				double lonVal = (lonObj==null)?380.0:((Double) lonObj);
+				try {
+					return (latParam.getMin() <= latVal && latVal <= latParam.getMax() &&
+							lonParam.getMin() <= lonVal && lonVal <= lonParam.getMax());
+				} catch (Exception ex) {
+					return false;
+				}
+			} else if (mode == ZIP_MODE) {
+				String zipVal = (String) zipParam.getValue();
+				return zipVal.length() == 5;
+			} else if (mode == BAT_MODE) {
+				String input = (String) batParam.getValue();
+				String output = (String) outParam.getValue();
+				return ( input.length() > 0 && (new File(input)).exists() &&
+						 output.length() > 0 && (new File(output)).exists());
+			} else if ( !panel.isEnabledAt(GEO_MODE) && !panel.isEnabledAt(ZIP_MODE) &&
+					!panel.isEnabledAt(BAT_MODE)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/* MINIMUM FUNCTIONS TO IMPLEMENT GuiBeanAPI */
@@ -221,8 +291,22 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	}
 
 	public void parameterChangeFailed(ParameterChangeFailEvent event) {
-		// TODO Auto-generated method stub
-		
+		String paramName = event.getParameterName();
+		if(paramName.equals(PARAM_LAT))
+			JOptionPane.showMessageDialog(panel, "The given latitude is out of range!",
+					"Out of Range", JOptionPane.ERROR_MESSAGE);
+		if(paramName.equals(PARAM_LON))
+			JOptionPane.showMessageDialog(panel, "The given longitude is out of range!",
+					"Out of Range", JOptionPane.ERROR_MESSAGE);
+		if(paramName.equals(PARAM_ZIP))
+			JOptionPane.showMessageDialog(panel, "The given zip code is out of range!",
+					"Out of Range", JOptionPane.ERROR_MESSAGE);
+		if(paramName.equals(PARAM_BAT))
+			JOptionPane.showMessageDialog(panel, "The given file is invalid!",
+					"Bad File", JOptionPane.ERROR_MESSAGE);
+		if(paramName.equals(PARAM_OUT))
+			JOptionPane.showMessageDialog(panel, "The given direcotory is invalid!",
+					"Bad Directory", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////
@@ -233,25 +317,32 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 		if(panel == null) {
 			// Create the parameters
 			batParam = new StringParameter(PARAM_BAT, "");
-			latParam = new DoubleParameter(PARAM_LAT, -90, 90);
-			lonParam = new DoubleParameter(PARAM_LON, -180, 180);
+			outParam = new StringParameter(PARAM_OUT, "");
 			zipParam = new StringParameter(PARAM_ZIP, "");
 			
 			// Create the editors
 			try {
 				batEditor = new StringParameterEditor(batParam);
-				latEditor = new DoubleParameterEditor(latParam);
-				lonEditor = new DoubleParameterEditor(lonParam);
+				outEditor = new StringParameterEditor(outParam);
+				latEditor = new ConstrainedDoubleParameterEditor(latParam);
+				lonEditor = new ConstrainedDoubleParameterEditor(lonParam);
 				zipEditor = new StringParameterEditor(zipParam);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			
+			outEditor.setToolTipText("A file called \""+OUTPUT+"\" will be generated and placed here.");
+			
 			// Add some listeners
 			batParam.addParameterChangeListener(this);
 			batParam.addParameterChangeFailListener(this);
+			outParam.addParameterChangeListener(this);
+			outParam.addParameterChangeFailListener(this);
 			zipParam.addParameterChangeListener(this);
 			zipParam.addParameterChangeFailListener(this);
+			
+			/* The latParam and lonParam get their listeners in the
+			 * updateGuiParams() function */
 			
 			btnFileChooser = new JButton(new ImageIcon(
 					ImageUtils.loadImage("openFile.png")));
@@ -261,24 +352,37 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 				}
 			});
 			
+			btnOutChooser = new JButton(new ImageIcon(
+					ImageUtils.loadImage("openFile.png")));
+			btnOutChooser.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					btnOutChooser_actionPerformed();
+				}
+			});
+			
 			// The panels for the three types of input
 			JPanel geoPanel = new JPanel(new GridBagLayout());
-			JPanel zipPanel = new JPanel(new FlowLayout());
+			JPanel zipPanel = new JPanel(new GridBagLayout());
 			JPanel batPanel = new JPanel(new GridBagLayout());
 			
 			// Set up the geoPanel
 			geoPanel.add(latEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			geoPanel.add(lonEditor, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Set up the zipPanel
-			zipPanel.add(zipEditor, 0);
+			zipPanel.add(zipEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Set up the batPanel
 			batPanel.add(batEditor, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
-			batPanel.add(btnFileChooser, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+			batPanel.add(btnFileChooser, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
+					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
+			batPanel.add(outEditor, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
+			batPanel.add(btnOutChooser, new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
 					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Now add the panels to the tabs...
@@ -312,17 +416,32 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 		JFrame frame = new JFrame("Select a batch file");
 		int returnVal = chooser.showOpenDialog(frame);
 		String newFileName = (String) batParam.getValue();
-		if(returnVal == JFileChooser.APPROVE_OPTION)
+		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			newFileName = chooser.getSelectedFile().getAbsolutePath();
-		try {
-			batParam.setValue(newFileName);
-			( (JTextField) batEditor.getValueEditor()).setText(newFileName);
-		} catch (Exception ex) {
-			batParam.unableToSetValue(newFileName);
+			try {
+				batParam.setValue(newFileName);
+				( (JTextField) batEditor.getValueEditor()).setText(newFileName);
+			} catch (Exception ex) {
+				batParam.unableToSetValue(newFileName);
+			}
 		}
 	}
 
-
+	private void btnOutChooser_actionPerformed() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		JFrame frame = new JFrame("Select Output Directory");
+		int returnVal = chooser.showOpenDialog(frame);
+		if(returnVal == JFileChooser.APPROVE_OPTION) {
+			String newDirectory = chooser.getSelectedFile().getAbsolutePath();
+			try {
+				outParam.setValue(newDirectory);
+				( (JTextField) outEditor.getValueEditor()).setText(newDirectory);
+			} catch (Exception ex) {
+				outParam.unableToSetValue(newDirectory);
+			}
+		}
+	}
 	
 
 }

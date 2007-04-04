@@ -35,7 +35,9 @@ import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 public class NEHRP_GuiBean
     extends JPanel implements ParameterChangeListener,
     AnalysisOptionsGuiBeanAPI {
-
+  // First 7 digits of MD5('nehrp') in Hex.
+  private static final long serialVersionUID = 0xEB31117;
+  
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
   protected BatchLocationBean locGuiBean;
@@ -139,7 +141,8 @@ public class NEHRP_GuiBean
 
       }
       locationSplitPane.add((Component) locGuiBean.getVisualization(GuiBeanAPI.EMBED), JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(160);
+      createLocation();
+      locationSplitPane.setDividerLocation(140);
       createGroundMotionParameter();
       jbInit();
 
@@ -178,7 +181,7 @@ public class NEHRP_GuiBean
   }
 
   protected ArrayList getSupportedSpectraTypes() {
-    ArrayList supportedSpectraTypes = new ArrayList();
+    ArrayList<String> supportedSpectraTypes = new ArrayList<String>();
     supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
     return supportedSpectraTypes;
   }
@@ -350,7 +353,7 @@ public class NEHRP_GuiBean
 																	//changes
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+    if (paramName.equals(DataSetSelectionGuiBean.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       try {
         createLocation();
@@ -378,7 +381,7 @@ public class NEHRP_GuiBean
 		}*/
 			
     }
-    else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+    else if (paramName.equals(DataSetSelectionGuiBean.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
 			
@@ -404,9 +407,9 @@ public class NEHRP_GuiBean
     		siteCoeffWindowShow = false;
 		}*/
     }
-    else if (paramName.equals(locGuiBean.PARAM_LAT) ||
-             paramName.equals(locGuiBean.PARAM_LON) ||
-             paramName.equals(locGuiBean.PARAM_ZIP)) {
+    else if (paramName.equals(BatchLocationBean.PARAM_LAT) ||
+             paramName.equals(BatchLocationBean.PARAM_LON) ||
+             paramName.equals(BatchLocationBean.PARAM_ZIP)) {
       setButtonsEnabled(false);
 			resetButtons();
 		/*if (!locationVisible) {
@@ -483,7 +486,7 @@ public class NEHRP_GuiBean
    */
   protected void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
 
     supportedEditionList.add(GlobalConstants.NEHRP_2003);
     supportedEditionList.add(GlobalConstants.NEHRP_2000);
@@ -548,7 +551,7 @@ public class NEHRP_GuiBean
 	dataGenerator.setEdition(selectedEdition);
 
 	//doing the calculation if not territory and Location GUI is visible
-	if (locationVisible) {
+	if (locationVisible && locGuiBean.hasLocation()) {
 		int locationMode = locGuiBean.getLocationMode();
 		if (locationMode == BatchLocationBean.GEO_MODE) {
 			Location loc = locGuiBean.getSelectedLocation();
@@ -560,12 +563,7 @@ public class NEHRP_GuiBean
 			dataGenerator.calculateSsS1(zipCode);
 		} else if (locationMode == BatchLocationBean.BAT_MODE) {
 			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-			for(int i = 0; i < locations.size(); ++i) {
-				Location loc = locations.get(i);
-				double lat = loc.getLatitude();
-				double lon = loc.getLongitude();
-				dataGenerator.calculateSsS1(lat, lon);
-			}
+			dataGenerator.calculateSsS1(locations, locGuiBean.getOutputFile());
 		}
 	} else { // if territory and location Gui is not visible
 		try {
@@ -614,7 +612,9 @@ public class NEHRP_GuiBean
 		mapSpecButtonClicked = false;
 		smSpecButtonClicked = false;
 		sdSpecButtonClicked = false;
-		ssButton_doActions();
+		if (locationReady() ) {
+			ssButton_doActions();
+		}
 	}
 
 	protected boolean ssButton_doActions() {

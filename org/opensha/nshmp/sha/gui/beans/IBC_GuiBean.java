@@ -21,6 +21,8 @@ import org.opensha.exceptions.RegionConstraintException;
 public class IBC_GuiBean
     extends NEHRP_GuiBean {
 
+	private static final long serialVersionUID = 0x63C3AE7;
+	
   public IBC_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
   }
@@ -31,7 +33,7 @@ public class IBC_GuiBean
    */
   protected void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
 
     supportedEditionList.add(GlobalConstants.IBC_2006);
     supportedEditionList.add(GlobalConstants.IBC_2004);
@@ -50,7 +52,7 @@ public class IBC_GuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+    if (paramName.equals(DataSetSelectionGuiBean.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createEditionSelectionParameter();
     }

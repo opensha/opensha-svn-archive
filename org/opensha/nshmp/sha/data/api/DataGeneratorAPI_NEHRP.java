@@ -3,6 +3,7 @@ package org.opensha.nshmp.sha.data.api;
 import java.rmi.*;
 import java.util.*;
 
+import org.opensha.data.Location;
 import org.opensha.nshmp.exceptions.*;
 
 /**
@@ -51,6 +52,16 @@ public interface DataGeneratorAPI_NEHRP {
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
       RemoteException;
 
+  /**
+   * Gets the data for SsS1 for each location in the list of <code>locations</code>.
+   * If any given location is not valid for the current region, an error message is
+   * displayed and the output displays "Out of Region" information.  Output is
+   * directed to the specified <code>outFile</code> Excel file.
+   * @param locations A list of locations to calculate SsS1 at.
+   * @param outFile The Excel file to output the information.
+   */
+  public void calculateSsS1(ArrayList<Location> locations, String outFile);
+  
   /**
    * Sets the selected site class
    * @param siteClass String
