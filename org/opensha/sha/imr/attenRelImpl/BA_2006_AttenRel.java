@@ -438,7 +438,7 @@ public class BA_2006_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceJBParam = new DistanceJBParameter();
+	distanceJBParam = new DistanceJBParameter();
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);
