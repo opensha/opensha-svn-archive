@@ -91,6 +91,49 @@ public class BatchFileReader {
 		return vals;
 	}
 
+	public ArrayList<String> getColumnStringVals(short columnNumber) {
+		return getColumnStringVals(columnNumber, activeSheet);
+	}
+	public ArrayList<String> getColumnStringVals(short columnNumber, int sheetNumber) {
+		short maxRows = 32767;
+		ArrayList<String> vals = new ArrayList<String>();
+		HSSFSheet sheet = null;
+		if(inReadyState()) {
+			try {
+				sheet = workbook.getSheetAt(sheetNumber);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
+			for(short i = 1; i < maxRows; ++i) {
+				// Make sure we have a valid row
+				HSSFRow row = sheet.getRow(i);
+				if(row == null)
+					break;
+				
+				// Make sure we have a valid cell
+				HSSFCell cell = row.getCell(columnNumber);
+				if(cell == null)
+					break;
+				
+				// Get the current value
+				String s = getCellValue(cell);
+				
+				if(s!=null) {
+					try {
+						vals.add(s);
+					} catch (Exception ex) {
+						ExceptionBean.showSplashException(
+							"A value was not valid in the sheet!", "Invalid value", ex);
+					} // try
+				} else {
+					break;
+				} // if
+			} // for
+		}
+		return vals;
+	}
+	
 	private String getCellValue(HSSFCell cell) {
 		String s = null;
 		try {

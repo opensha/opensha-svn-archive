@@ -710,17 +710,29 @@ public class NEHRP_GuiBean
 		smSpecButtonClicked = false;
 		sdSpecButtonClicked = false;
 		if (locationReady() ) {
-			setSiteCoeff();
+			if(!usingBatchMode())
+				setSiteCoeff();
 			smSDButton_doActions();
 		}
 	}
 
 	protected boolean smSDButton_doActions() {
 	  if (smSDButtonClicked) { return true; }
-		if (ssButton_doActions()) {
+		if (usingBatchMode() || ssButton_doActions()) {
     	try {
-      	dataGenerator.calculateSMSsS1();
-      	dataGenerator.calculatedSDSsS1();
+    		int locationMode = locGuiBean.getLocationMode();
+    		if(locationMode == BatchLocationBean.BAT_MODE) {
+    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+    			String outfile = locGuiBean.getOutputFile();
+    			dataGenerator.setSpectraType(spectraType);
+    			dataGenerator.setRegion(selectedRegion);
+    			dataGenerator.setEdition(selectedEdition);
+    			dataGenerator.calculateSMsSm1SDsSD1(locations, conditions, outfile);
+    		} else {
+		      	dataGenerator.calculateSMSsS1();
+		      	dataGenerator.calculatedSDSsS1();
+    		}
     	}
     	catch (RemoteException e) {
       	JOptionPane.showMessageDialog(this,
@@ -859,4 +871,7 @@ public class NEHRP_GuiBean
 		}
   }
 
+  private boolean usingBatchMode() {
+	  return locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE;
+  }
 }

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ import org.opensha.data.Location;
 import org.opensha.data.function.*;
 import org.opensha.nshmp.exceptions.*;
 import org.opensha.nshmp.sha.data.api.*;
+import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.*;
 
 
@@ -40,6 +42,8 @@ public class DataGenerator_NEHRP
   protected String dataEdition;
 	protected String zipCode, lat, lon = "";
 
+  private static final DecimalFormat saValFormat = new DecimalFormat("0.000");
+  
   protected ArbitrarilyDiscretizedFunc saFunction;
 
   protected float faVal = 1.0f;
@@ -231,9 +235,9 @@ public class DataGenerator_NEHRP
  public void calculateSsS1(ArrayList<Location> locations, String outFile) {
 	 HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SsS1");
+	 HSSFSheet xlSheet = xlOut.getSheet("Ss & S1");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SsS1");
+		 xlSheet = xlOut.createSheet("Ss & S1");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -260,10 +264,12 @@ public class DataGenerator_NEHRP
 	 ++startRow; // We would like a blank line.
 	 // Column Headers
 	 xlRow = xlSheet.createRow(startRow++);
-	 String[] headers = {"Latitude", "Longitude", "Site Condition", "Ss", "S1", "Grid Spacing"};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Ss (g)", "S1 (g)", "Grid Spacing Basis"};
+	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 5000};
 	 for(short i = 0; i < headers.length; ++i) {
 		 xlRow.createCell(i).setCellValue(headers[i]);
 		 xlRow.getCell(i).setCellStyle(headerStyle);
+		 xlSheet.setColumnWidth(i, colWidths[i]);
 	 }
 	 
 	 // Write the data information
@@ -276,8 +282,8 @@ public class DataGenerator_NEHRP
 		 String curGridSpacing = "";
 		 try {
 			getCalculateSsS1Function(curLat, curLon);
-			curSs = (Double) getSs();
-			curSa = (Double) getSa();
+			curSs = Double.parseDouble(saValFormat.format(getSs()));
+			curSa = Double.parseDouble(saValFormat.format(getSa()));
 			String reg1 = "^.*Data are based on a ";
 			String reg2 = " deg grid spacing.*$";
 			curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(saFunction.getInfo()).replaceAll("");
@@ -286,13 +292,13 @@ public class DataGenerator_NEHRP
 		} catch (RemoteException e) {
 			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
 					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
-			curSs = Double.NaN;
-			curSa = Double.NaN;
+			curSs = Double.MAX_VALUE;
+			curSa = Double.MAX_VALUE;
 			curGridSpacing = "Location out of Region";
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
-		 xlRow.createCell((short) 2).setCellValue("Site Class B");
+		 xlRow.createCell((short) 2).setCellValue("B");
 		 xlRow.createCell((short) 3).setCellValue(curSs);
 		 xlRow.createCell((short) 4).setCellValue(curSa);
 		 xlRow.createCell((short) 5).setCellValue(curGridSpacing);
@@ -304,7 +310,7 @@ public class DataGenerator_NEHRP
 		xlOut.write(fos);
 		fos.close();
 		// Let the user know that we are done
-		dataInfo += "Batch Completed!\nOutput sent to: " + outFile;
+		dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
 	} catch (FileNotFoundException e) {
 		// Just ignore for now...
 	} catch (IOException e) {
@@ -366,7 +372,118 @@ public class DataGenerator_NEHRP
 	
 	return(function);
   }
-
+  
+  public void calculateSMsSm1SDsSD1(ArrayList<Location> locations, 
+		  ArrayList<String> siteConditions, String outFile) {
+	  HSSFWorkbook xlOut = getOutputFile(outFile);
+	 // Create the output sheet
+	 HSSFSheet xlSheet = xlOut.getSheet("SM & SD");
+	 if(xlSheet==null)
+		 xlSheet = xlOut.createSheet("SM & SD");
+	 
+	 /* Write the header information */
+	 int startRow = xlSheet.getLastRowNum();
+	 startRow = (startRow==0)?0:startRow+2;  // Put an empty row in case there is already data
+	 
+	 // Create a header style
+	 HSSFFont headerFont = xlOut.createFont();
+	 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+	 HSSFCellStyle headerStyle = xlOut.createCellStyle();
+	 headerStyle.setFont(headerFont);
+	 
+	 // Geographic Region
+	 HSSFRow xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(geographicRegion);
+	 
+	 // Data Edition
+	 xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Data Edition:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(dataEdition);
+	 
+	 // Data Generation Explanation
+	 xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 1).setCellValue("SMs = Fa*Ss");
+	 xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
+	 xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 1).setCellValue("SDs = 2/3 * SMs");
+	 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * SM1");
+	 
+	 // Header row
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)", "Fa", "Fv"};
+	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000, 3000};
+	 ++startRow; // We want a blank row
+	 xlRow = xlSheet.createRow(startRow++);
+	 for(short i = 0; i < headers.length; ++i) {
+		 xlRow.createCell(i).setCellValue(headers[i]);
+		 xlRow.getCell(i).setCellStyle(headerStyle);
+		 xlSheet.setColumnWidth(i, colWidths[i]);
+	 }
+	 
+	 // A calculator
+	 FaFvCalc calc = new FaFvCalc();
+	 
+	 // Start plugging in the data
+	 for(int i = 0; i < locations.size(); ++i) {
+		 xlRow = xlSheet.createRow(i+startRow);
+		 double curLat = locations.get(i).getLatitude();
+		 double curLon = locations.get(i).getLongitude();
+		 
+		 Double curSMs = null; Double curSM1 = null; Double curSDs = null; Double curSD1 = null;
+		 
+		 Double curFa = Double.MAX_VALUE;
+		 Double curFv = Double.MAX_VALUE;
+		 
+		 String curCond = siteConditions.get(i);
+		 
+		 Double curSa = null;
+		 Double curSs = null;
+		 try {
+			getCalculateSsS1Function(curLat, curLon);
+			
+			curSs = getSs();
+			curSa = getSa();
+			
+			curFa = calc.getFa(curCond, curSs);
+			curFv = calc.getFv(curCond, curSa);
+			double coef = (double) 2 / 3;
+			curSMs = curFa * curSs; curSM1 = curFv * curSa;
+			curSDs = coef*curSMs; curSD1 = coef*curSM1;
+			
+			
+		} catch (RemoteException e) {
+			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
+					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			curSMs = Double.MAX_VALUE; curSM1 = Double.MAX_VALUE;
+			curSDs = Double.MAX_VALUE; curSD1 = Double.MAX_VALUE;
+		} finally {
+		 xlRow.createCell((short) 0).setCellValue(curLat);
+		 xlRow.createCell((short) 1).setCellValue(curLon);
+		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
+		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curSMs)));
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curSM1)));
+		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curSDs)));
+		 xlRow.createCell((short) 6).setCellValue(Double.parseDouble(saValFormat.format(curSD1)));
+		 xlRow.createCell((short) 7).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 8).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		} 
+	 } // for
+	 
+	 try {
+		FileOutputStream fos = new FileOutputStream(outFile);
+		xlOut.write(fos);
+		fos.close();
+		// Let the user know that we are done
+		dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
+	} catch (FileNotFoundException e) {
+		// Just ignore for now...
+	} catch (IOException e) {
+		// Just ignore for now...
+	}
+  }
+  
   /**
    *
    *

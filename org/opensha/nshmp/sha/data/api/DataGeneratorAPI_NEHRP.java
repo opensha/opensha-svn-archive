@@ -109,6 +109,15 @@ public interface DataGeneratorAPI_NEHRP {
   public void calculatedSDSsS1() throws RemoteException;
 
   /**
+   * 
+   * @param locations
+   * @param conditions
+   * @param outfile
+   */
+  public void calculateSMsSm1SDsSD1(ArrayList<Location> locations, 
+  		ArrayList<String> conditions, String outfile);
+  
+  /**
    *
    */
   public void calculateMapSpectrum() throws RemoteException;
@@ -152,5 +161,6 @@ public interface DataGeneratorAPI_NEHRP {
    * @param spectraType String
    */
   public void setSpectraType(String spectraType);
+
 
 }

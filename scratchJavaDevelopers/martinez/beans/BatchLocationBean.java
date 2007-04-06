@@ -127,6 +127,31 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 		return locations;
 	}
 	
+	public ArrayList<String> getBatchSiteConditions() {
+		String fileName = (String) batParam.getValue();
+		BatchFileReader bfr = new BatchFileReader(fileName);
+		ArrayList<String> siteConditions = bfr.getColumnStringVals((short) 2);
+		// Allowed strings
+		 ArrayList<String> siteClasses = new ArrayList<String>();
+		 siteClasses.add("A"); siteClasses.add("B"); siteClasses.add("C");
+		 siteClasses.add("D"); siteClasses.add("E");
+		// Normalize the inputs
+		 for(int i = 0; i < siteConditions.size(); ++i) {
+			String val = siteConditions.get(i);
+			val = val.substring(val.length() -1, val.length()).toUpperCase();
+			if(siteClasses.contains(val)) {
+				val = "Site Class " + val;
+			} else {
+				val = "Site Class D";
+				JOptionPane.showMessageDialog(null, "The given site class '"+siteConditions.get(i)+
+						"' is not valid.  Using 'Site Class D' instead.", "Invalid Site Class",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			siteConditions.set(i, val);
+		} //for
+		 return siteConditions;
+	}
+	
 	public Location getSelectedLocation() {
 		double lat = (Double) latParam.getValue();
 		double lon = (Double) lonParam.getValue();
