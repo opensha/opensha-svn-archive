@@ -390,7 +390,7 @@ public class DataGenerator_NEHRP
 	 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
 	 HSSFCellStyle headerStyle = xlOut.createCellStyle();
 	 headerStyle.setFont(headerFont);
-	 
+
 	 // Geographic Region
 	 HSSFRow xlRow = xlSheet.createRow(startRow++);
 	 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
@@ -412,7 +412,7 @@ public class DataGenerator_NEHRP
 	 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * SM1");
 	 
 	 // Header row
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)", "Fa", "Fv"};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)"};
 	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000, 3000};
 	 ++startRow; // We want a blank row
 	 xlRow = xlSheet.createRow(startRow++);
@@ -462,12 +462,12 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
 		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
-		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curSMs)));
-		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curSM1)));
-		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curSDs)));
-		 xlRow.createCell((short) 6).setCellValue(Double.parseDouble(saValFormat.format(curSD1)));
-		 xlRow.createCell((short) 7).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
-		 xlRow.createCell((short) 8).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curSMs)));
+		 xlRow.createCell((short) 6).setCellValue(Double.parseDouble(saValFormat.format(curSM1)));
+		 xlRow.createCell((short) 7).setCellValue(Double.parseDouble(saValFormat.format(curSDs)));
+		 xlRow.createCell((short) 8).setCellValue(Double.parseDouble(saValFormat.format(curSD1)));
 		} 
 	 } // for
 	 
@@ -495,6 +495,98 @@ public class DataGenerator_NEHRP
     getFunctionsForMapSpectrum(functions);
   }
 
+  public void calculateMapSpectrum(ArrayList<Location> locations, String outFile) {
+	  HSSFWorkbook xlOut = getOutputFile(outFile);
+		 // Create the output sheet
+		 HSSFSheet xlSheet = xlOut.getSheet("Map Spectrum");
+		 if(xlSheet==null)
+			 xlSheet = xlOut.createSheet("Map Spectrum");
+		 
+		 /* Write the header information */
+		 int startRow = xlSheet.getLastRowNum();
+		 startRow = (startRow==0)?0:startRow+2;  // Put an empty row in case there is already data
+		 
+		 // Create a header style
+		 HSSFFont headerFont = xlOut.createFont();
+		 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		 HSSFCellStyle headerStyle = xlOut.createCellStyle();
+		 headerStyle.setFont(headerFont);
+		 
+		 // Geographic Region
+		 HSSFRow xlRow = xlSheet.createRow(startRow++);
+		 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+		 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		 xlRow.createCell((short) 1).setCellValue(geographicRegion);
+		 
+		 // Data Edition
+		 xlRow = xlSheet.createRow(startRow++);
+		 xlRow.createCell((short) 0).setCellValue("Data Edition:");
+		 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		 xlRow.createCell((short) 1).setCellValue(dataEdition);
+		 
+		 // MCE Header
+		 xlRow = xlSheet.createRow(startRow++);
+		 xlRow.createCell((short) 1).setCellValue("MCE Response Spectra for Site Class B");
+		 
+		 // Header row
+		 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Period (sec)", "Sa (g)", "Sd (Inches)"};
+		 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000};
+		 ++startRow; // We want a blank row
+		 xlRow = xlSheet.createRow(startRow++);
+		 for(short i = 0; i < headers.length; ++i) {
+			 xlRow.createCell(i).setCellValue(headers[i]);
+			 xlRow.getCell(i).setCellStyle(headerStyle);
+			 xlSheet.setColumnWidth(i, colWidths[i]);
+		 }
+		 
+		 // Start plugging in the data
+		 for(int i = 0; i < locations.size(); ++i) {
+			 xlRow = xlSheet.createRow(i+startRow);
+			 double curLat = locations.get(i).getLatitude();
+			 double curLon = locations.get(i).getLongitude();
+			 DiscretizedFuncAPI saFunc = null;
+			 DiscretizedFuncAPI sdFunc = null;
+			 
+			 try {
+				// Set the saFunction (ss,s1)
+				getCalculateSsS1Function(curLat, curLon);
+				// Now get the Map Spectrum (sa,sd funcs)
+			    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+				DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
+				saFunc = functions.get(1);
+				sdFunc = functions.get(0);
+			} catch (RemoteException e) {
+				JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
+						curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			} finally {
+			 xlRow.createCell((short) 0).setCellValue(curLat);
+			 xlRow.createCell((short) 1).setCellValue(curLon);
+			 xlRow.createCell((short) 2).setCellValue("B");
+			 for(int j = 0; j < saFunc.getNum(); ++j) {
+				 xlRow.createCell((short) 3).setCellValue(
+						 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
+				 xlRow.createCell((short) 4).setCellValue(
+						 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+				 xlRow.createCell((short) 5).setCellValue(
+						 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
+				 ++startRow;
+				 xlRow  = xlSheet.createRow(i+startRow);
+			 } // for
+			} 
+		 } // for
+		 
+		 try {
+			FileOutputStream fos = new FileOutputStream(outFile);
+			xlOut.write(fos);
+			fos.close();
+			// Let the user know that we are done
+			dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
+		} catch (FileNotFoundException e) {
+			// Just ignore for now...
+		} catch (IOException e) {
+			// Just ignore for now...
+		}
+  }
   /**
    *
    * @param mapSpectrumFunctions DiscretizedFuncList
@@ -647,6 +739,119 @@ public class DataGenerator_NEHRP
     getFunctionsForSMSpectrum(functions);
   }
 
+  public void calculateSMSpectrum(ArrayList<Location> locations, 
+		  ArrayList<String> siteConditions, String outFile) {
+	  HSSFWorkbook xlOut = getOutputFile(outFile);
+	 // Create the output sheet
+	 HSSFSheet xlSheet = xlOut.getSheet("SM Spectrum");
+	 if(xlSheet==null)
+		 xlSheet = xlOut.createSheet("SM Spectrum");
+	 
+	 /* Write the header information */
+	 int startRow = xlSheet.getLastRowNum();
+	 startRow = (startRow==0)?0:startRow+2;  // Put an empty row in case there is already data
+	 
+	 // Create a header style
+	 HSSFFont headerFont = xlOut.createFont();
+	 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+	 HSSFCellStyle headerStyle = xlOut.createCellStyle();
+	 headerStyle.setFont(headerFont);
+
+	 // Geographic Region
+	 HSSFRow xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(geographicRegion);
+	 
+	 // Data Edition
+	 xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Data Edition:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(dataEdition);
+	 
+	 // Data Generation Explanation
+	 //xlRow = xlSheet.createRow(startRow++);
+	 //xlRow.createCell((short) 1).setCellValue("SMs = Fa*Ss");
+	 //xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
+	 
+	 // Header row
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
+	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000};
+	 ++startRow; // We want a blank row
+	 xlRow = xlSheet.createRow(startRow++);
+	 for(short i = 0; i < headers.length; ++i) {
+		 xlRow.createCell(i).setCellValue(headers[i]);
+		 xlRow.getCell(i).setCellStyle(headerStyle);
+		 xlSheet.setColumnWidth(i, colWidths[i]);
+	 }
+	 
+	 // A calculator
+	 FaFvCalc calc = new FaFvCalc();
+	 
+	 // Start plugging in the data
+	 for(int i = 0; i < locations.size(); ++i) {
+		 xlRow = xlSheet.createRow(i+startRow);
+		 double curLat = locations.get(i).getLatitude();
+		 double curLon = locations.get(i).getLongitude();
+		 DiscretizedFuncAPI saFunc = null;
+		 DiscretizedFuncAPI sdFunc = null;
+		 
+		 Float curFa = Float.MAX_VALUE;
+		 Float curFv = Float.MAX_VALUE;
+		 
+		 String curCond = siteConditions.get(i);
+		 // double coef = (double) 2 / 3;
+		 
+		 try {
+			getCalculateSsS1Function(curLat, curLon);
+			
+			double curSs = getSs();
+			double curSa = getSa();
+			
+			curFa = (float) calc.getFa(curCond, curSs);
+			curFv = (float) calc.getFv(curCond, curSa);
+
+		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+		    DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, curFa,
+		        curFv, curCond);
+			
+		    saFunc = functions.get(1);
+		    sdFunc = functions.get(0);
+		    
+		} catch (RemoteException e) {
+			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
+					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+		} finally {
+		 xlRow.createCell((short) 0).setCellValue(curLat);
+		 xlRow.createCell((short) 1).setCellValue(curLon);
+		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
+		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 for(int j = 0; j < saFunc.getNum(); ++j) {
+			 xlRow.createCell((short) 5).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
+			 xlRow.createCell((short) 6).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+			 xlRow.createCell((short) 7).setCellValue(
+					 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
+			 ++startRow;
+			 xlRow = xlSheet.createRow(i+startRow);
+		 }
+		} 
+	 } // for
+	 
+	 try {
+		FileOutputStream fos = new FileOutputStream(outFile);
+		xlOut.write(fos);
+		fos.close();
+		// Let the user know that we are done
+		dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
+	} catch (FileNotFoundException e) {
+		// Just ignore for now...
+	} catch (IOException e) {
+		// Just ignore for now...
+	}
+  }
   /**
    *
    */
@@ -658,6 +863,119 @@ public class DataGenerator_NEHRP
     getFunctionsForSDSpectrum(functions);
   }
 
+  public void calculateSDSpectrum(ArrayList<Location> locations,
+		  ArrayList<String> siteConditions, String outFile) {
+	  HSSFWorkbook xlOut = getOutputFile(outFile);
+	 // Create the output sheet
+	 HSSFSheet xlSheet = xlOut.getSheet("SD Spectrum");
+	 if(xlSheet==null)
+		 xlSheet = xlOut.createSheet("SD Spectrum");
+	 
+	 /* Write the header information */
+	 int startRow = xlSheet.getLastRowNum();
+	 startRow = (startRow==0)?0:startRow+2;  // Put an empty row in case there is already data
+	 
+	 // Create a header style
+	 HSSFFont headerFont = xlOut.createFont();
+	 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+	 HSSFCellStyle headerStyle = xlOut.createCellStyle();
+	 headerStyle.setFont(headerFont);
+
+	 // Geographic Region
+	 HSSFRow xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(geographicRegion);
+	 
+	 // Data Edition
+	 xlRow = xlSheet.createRow(startRow++);
+	 xlRow.createCell((short) 0).setCellValue("Data Edition:");
+	 xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	 xlRow.createCell((short) 1).setCellValue(dataEdition);
+	 
+	 // Data Generation Explanation
+	 //xlRow = xlSheet.createRow(startRow++);
+	 //xlRow.createCell((short) 1).setCellValue("SMs = Fa*Ss");
+	 //xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
+	 
+	 // Header row
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
+	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000};
+	 ++startRow; // We want a blank row
+	 xlRow = xlSheet.createRow(startRow++);
+	 for(short i = 0; i < headers.length; ++i) {
+		 xlRow.createCell(i).setCellValue(headers[i]);
+		 xlRow.getCell(i).setCellStyle(headerStyle);
+		 xlSheet.setColumnWidth(i, colWidths[i]);
+	 }
+	 
+	 // A calculator
+	 FaFvCalc calc = new FaFvCalc();
+	 
+	 // Start plugging in the data
+	 for(int i = 0; i < locations.size(); ++i) {
+		 xlRow = xlSheet.createRow(i+startRow);
+		 double curLat = locations.get(i).getLatitude();
+		 double curLon = locations.get(i).getLongitude();
+		 DiscretizedFuncAPI saFunc = null;
+		 DiscretizedFuncAPI sdFunc = null;
+		 
+		 Float curFa = Float.MAX_VALUE;
+		 Float curFv = Float.MAX_VALUE;
+		 
+		 String curCond = siteConditions.get(i);
+		 // double coef = (double) 2 / 3;
+		 
+		 try {
+			getCalculateSsS1Function(curLat, curLon);
+			
+			double curSs = getSs();
+			double curSa = getSa();
+			
+			curFa = (float) calc.getFa(curCond, curSs);
+			curFv = (float) calc.getFv(curCond, curSa);
+
+		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+		    DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, curFa,
+		        curFv, curCond);
+			
+		    saFunc = functions.get(1);
+		    sdFunc = functions.get(0);
+		    
+		} catch (RemoteException e) {
+			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
+					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+		} finally {
+		 xlRow.createCell((short) 0).setCellValue(curLat);
+		 xlRow.createCell((short) 1).setCellValue(curLon);
+		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
+		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 for(int j = 0; j < saFunc.getNum(); ++j) {
+			 xlRow.createCell((short) 5).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
+			 xlRow.createCell((short) 6).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+			 xlRow.createCell((short) 7).setCellValue(
+					 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
+			 ++startRow;
+			 xlRow = xlSheet.createRow(i+startRow);
+		 }
+		} 
+	 } // for
+	 
+	 try {
+		FileOutputStream fos = new FileOutputStream(outFile);
+		xlOut.write(fos);
+		fos.close();
+		// Let the user know that we are done
+		dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
+	} catch (FileNotFoundException e) {
+		// Just ignore for now...
+	} catch (IOException e) {
+		// Just ignore for now...
+	}
+  }
   /**
    * Sets the selected geographic region.
    * @param region String

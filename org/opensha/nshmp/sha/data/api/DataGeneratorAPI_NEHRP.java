@@ -162,5 +162,30 @@ public interface DataGeneratorAPI_NEHRP {
    */
   public void setSpectraType(String spectraType);
 
+  /**
+   * Computes the Map Spectrum(s) for the batch file.
+   * @param locations
+   * @param outfile
+   */
+  public void calculateMapSpectrum(ArrayList<Location> locations, String outfile);
+  
+  /**
+   * Computes the SM Spectrum(s) for the batch file.
+   * @param locations
+   * @param conditions
+   * @param outfile
+   */
+  public void calculateSMSpectrum(ArrayList<Location> locations,
+		ArrayList<String> conditions, String outfile);
+
+  /**
+   * Computes the SD Spectrum(s) for the batch file.
+   * @param locations
+   * @param conditions
+   * @param outfile
+   */
+  public void calculateSDSpectrum(ArrayList<Location> locations,
+		ArrayList<String> conditions, String outfile);
+
 
 }

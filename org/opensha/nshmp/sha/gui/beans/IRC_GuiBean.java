@@ -21,6 +21,9 @@ import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
+import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
+import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
+
 /**
  * <p>Title: IRC_GuiBean</p>
  *
@@ -35,9 +38,11 @@ public class IRC_GuiBean
     extends JPanel implements ParameterChangeListener,
     AnalysisOptionsGuiBeanAPI {
 
+	private static final long serialVersionUID = 0x407BDEC;
+	
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
-  protected LocationGuiBean locGuiBean;
+  protected BatchLocationBean locGuiBean;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane locationSplitPane = new JSplitPane();
   JPanel regionPanel = new JPanel();
@@ -77,7 +82,7 @@ public class IRC_GuiBean
     try {
 
       datasetGui = new DataSetSelectionGuiBean();
-      locGuiBean = new LocationGuiBean();
+      locGuiBean = new BatchLocationBean();
       try {
         createGeographicRegionSelectionParameter();
       }
@@ -101,7 +106,7 @@ public class IRC_GuiBean
         bugWindow.pack();
 
       }
-      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+      locationSplitPane.add((Component) locGuiBean.getVisualization(GuiBeanAPI.EMBED), JSplitPane.BOTTOM);
       createGroundMotionParameter();
       jbInit();
     }
@@ -140,7 +145,7 @@ public class IRC_GuiBean
   }
 
   protected ArrayList getSupportedSpectraTypes() {
-    ArrayList supportedSpectraTypes = new ArrayList();
+    ArrayList<String> supportedSpectraTypes = new ArrayList<String>();
     supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
     return supportedSpectraTypes;
   }
@@ -218,7 +223,7 @@ public class IRC_GuiBean
 
     String paramName = event.getParameterName();
 
-	if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+	if (paramName.equals(DataSetSelectionGuiBean.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createEditionSelectionParameter();
       try {
@@ -230,7 +235,7 @@ public class IRC_GuiBean
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
-	} else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+	} else if (paramName.equals(DataSetSelectionGuiBean.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       try {
         createLocation();
@@ -266,7 +271,7 @@ public class IRC_GuiBean
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = LocationUtil.
           isZipCodeSupportedBySelectedEdition(selectedRegion);
-      locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
+      locGuiBean.updateGuiParams(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
@@ -307,7 +312,7 @@ public class IRC_GuiBean
    */
   protected void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
 
 /*	if (!selectedRegion.equals(GlobalConstants.ALASKA) &&
         !selectedRegion.equals(GlobalConstants.HAWAII)) {
@@ -358,19 +363,14 @@ public class IRC_GuiBean
 
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
-      if (locGuiBean.getLocationMode()) {
+    	int locationMode = locGuiBean.getLocationMode();
+      if (locationMode == BatchLocationBean.GEO_MODE) {
         try {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
           dataGenerator.calculateSsS1(lat, lon);
-        }
-        catch (LocationErrorException e) {
-          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                        JOptionPane.OK_OPTION);
-          return;
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
           JOptionPane.showMessageDialog(this,
                                         e.getMessage() + "\n" +
                                         "Please check your network connection",
@@ -379,8 +379,7 @@ public class IRC_GuiBean
           return;
         }
 
-      }
-      else {
+      } else if(locationMode == BatchLocationBean.ZIP_MODE) {
         try {
           String zipCode = locGuiBean.getZipCode();
           dataGenerator.calculateSsS1(zipCode);
@@ -389,13 +388,7 @@ public class IRC_GuiBean
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
                                         JOptionPane.OK_OPTION);
           return;
-        }
-        catch (LocationErrorException e) {
-          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                        JOptionPane.OK_OPTION);
-          return;
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
           JOptionPane.showMessageDialog(this,
                                         e.getMessage() + "\n" +
                                         "Please check your network connection",
@@ -403,9 +396,12 @@ public class IRC_GuiBean
                                         JOptionPane.ERROR_MESSAGE);
           return;
         }
+      } else if (locationMode == BatchLocationBean.BAT_MODE) {
+    	  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	  String outFile = locGuiBean.getOutputFile();
+    	  dataGenerator.calculateSsS1(locations, outFile);
       }
-    }
-    else { // if territory and location Gui is not visible
+    } else { // if territory and location Gui is not visible
       try {
         dataGenerator.calculateSsS1();
       }

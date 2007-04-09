@@ -20,10 +20,12 @@ import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.*;
-import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.nshmp.param.EditableStringConstraint;
 import org.opensha.nshmp.param.editor.EditableConstrainedStringParameterEditor;
+
+import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
+import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
 
 
 /**
@@ -36,9 +38,12 @@ import org.opensha.nshmp.param.editor.EditableConstrainedStringParameterEditor;
 public class ProbHazCurvesGuiBean
     extends JPanel implements ParameterChangeListener,
     AnalysisOptionsGuiBeanAPI {
+	private static final long serialVersionUID = 0x06B4735;
+	
   //Dataset selection Gui instance
   private DataSetSelectionGuiBean datasetGui;
-  private LocationGuiBean locGuiBean;
+  //private LocationGuiBean locGuiBean;
+  private BatchLocationBean locGuiBean;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane locationSplitPane = new JSplitPane();
   JSplitPane buttonsSplitPane = new JSplitPane();
@@ -53,7 +58,6 @@ public class ProbHazCurvesGuiBean
       "Basic Hazard Curve");
   TitledBorder regionBorder = new TitledBorder(border9,
                                                "Region and DataSet Selection");
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
@@ -104,8 +108,7 @@ public class ProbHazCurvesGuiBean
   private ProbabilisticHazardApplicationAPI application;
 
   private String selectedRegion, selectedEdition, imt, returnPeriod,
-      exceedProbVal, expTimeVal,
-      singleHazardCalcMethod;
+      exceedProbVal, expTimeVal;
   //checks if Single Value for the Hazard Curve has to be computed using Return Pd.
   private boolean returnPdSelected = true;
 
@@ -116,7 +119,7 @@ public class ProbHazCurvesGuiBean
       jbInit();
 
       datasetGui = new DataSetSelectionGuiBean();
-      locGuiBean = new LocationGuiBean();
+      locGuiBean = new BatchLocationBean();
     }
     catch (Exception exception) {
       exception.printStackTrace();
@@ -145,7 +148,7 @@ public class ProbHazCurvesGuiBean
       bugWindow.pack();
 
     }
-    locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+    locationSplitPane.add((Component) locGuiBean.getVisualization(GuiBeanAPI.EMBED), JSplitPane.BOTTOM);
     locationSplitPane.setDividerLocation(120);
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -391,7 +394,7 @@ public class ProbHazCurvesGuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+    if (paramName.equals(DataSetSelectionGuiBean.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       //creating the edition parameter when user changes the region
       createEditionSelectionParameter();
@@ -411,7 +414,7 @@ public class ProbHazCurvesGuiBean
       //singleHazardCurveValButton.setEnabled(false);
 			calcButtonClicked = false;
     }
-    else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+    else if (paramName.equals(DataSetSelectionGuiBean.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       //viewCurveButton.setEnabled(false);
       //singleHazardCurveValButton.setEnabled(false);
@@ -433,9 +436,9 @@ public class ProbHazCurvesGuiBean
     else if (paramName.equals(EXP_TIME_PARAM_NAME)) {
       expTimeVal = (String) expTimeEditor.getValue();
     }
-    else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
-             paramName.equals(locGuiBean.LON_PARAM_NAME) ||
-             paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
+    else if (paramName.equals(BatchLocationBean.PARAM_LAT) ||
+             paramName.equals(BatchLocationBean.PARAM_LON) ||
+             paramName.equals(BatchLocationBean.PARAM_ZIP)) {
       //viewCurveButton.setEnabled(false);
       //singleHazardCurveValButton.setEnabled(false);
 			calcButtonClicked = false;
@@ -463,7 +466,7 @@ public class ProbHazCurvesGuiBean
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = LocationUtil.
           isZipCodeSupportedBySelectedEdition(selectedRegion);
-      locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
+      locGuiBean.updateGuiParams(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
@@ -507,7 +510,7 @@ public class ProbHazCurvesGuiBean
    */
   private void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       supportedEditionList.add(GlobalConstants.data_2002);
       supportedEditionList.add(GlobalConstants.data_1996);
@@ -553,17 +556,19 @@ public class ProbHazCurvesGuiBean
 
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
-      if (locGuiBean.getLocationMode()) {
+      int locationMode = locGuiBean.getLocationMode();
+      if (locationMode == BatchLocationBean.GEO_MODE) {
         Location loc = locGuiBean.getSelectedLocation();
         double lat = loc.getLatitude();
         double lon = loc.getLongitude();
         dataGenerator.calculateHazardCurve(lat, lon, imt);
 
-      }
-      else {
+      } else if(locationMode == BatchLocationBean.ZIP_MODE) {
         String zipCode = locGuiBean.getZipCode();
         dataGenerator.calculateHazardCurve(zipCode, imt);
-
+      } else if (locationMode == BatchLocationBean.BAT_MODE) {
+    	  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	  dataGenerator.calculateHazardCurve(locations, imt, locGuiBean.getOutputFile());
       }
     }
   }
@@ -578,6 +583,12 @@ public class ProbHazCurvesGuiBean
   }
 
   void viewCurveButton_actionPerformed(ActionEvent e) {
+	    if(locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
+	    	JOptionPane.showMessageDialog(this, "This option is not available for batch output.\n" +
+	    			"Please open the Excel output file and\n create your own plots.",
+	    			"Option Unavailable", JOptionPane.INFORMATION_MESSAGE);
+	    	return;
+	    }
 		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
 		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
 			return;

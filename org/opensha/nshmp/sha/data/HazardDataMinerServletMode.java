@@ -49,10 +49,10 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return double
   */
  public double getExceedProb(double fex, double expTime)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(new Double(fex));
    objectList.add(new Double(expTime));
-   Double result = (Double)connectToServlet(COMPUTE_EXCEED_PROB, objectList);
+   Double result = (Double)connectToServlet(HazardDataMinerServletMode.COMPUTE_EXCEED_PROB, objectList);
    return result.doubleValue();
  }
 
@@ -63,10 +63,10 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return double
   */
  public double getReturnPeriod(double exceedProb, double expTime) {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(new Double(exceedProb));
    objectList.add(new Double(expTime));
-   Double result = (Double)connectToServlet(this.COMPUTE_RETURN_PERIOD, objectList);
+   Double result = (Double)connectToServlet(HazardDataMinerServletMode.COMPUTE_RETURN_PERIOD, objectList);
    return result.doubleValue();
  }
 
@@ -80,13 +80,13 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   */
  public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
      String dataEdition, double lat, double lon, String hazCurveType)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(new Double(lat));
    objectList.add(new Double(lon));
    objectList.add(hazCurveType);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_HAZARD_CURVE, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_HAZARD_CURVE, objectList);
  }
 
  /**
@@ -101,15 +101,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      String dataEdition, String zipCode,
      String hazCurveType) throws
      ZipCodeErrorException {
-   ArrayList objectList = new ArrayList();
-	 System.out.println("Getting data for...\n\tZip: " + zipCode + "\n\t" +
-	 	"Region: " + geographicRegion + "\n\tEdition: " + dataEdition +
-		"\n\tCurveType: " + hazCurveType);
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(zipCode);
    objectList.add(hazCurveType);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_HAZARD_CURVE, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_HAZARD_CURVE, objectList);
  }
 
  /**
@@ -123,12 +120,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                            String dataEdition, double lat,
                                            double lon)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(new Double(lat));
    objectList.add(new Double(lon));
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SS_S1, objectList);
  }
 
  /**
@@ -145,13 +142,13 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
                                            double lon,
                                            String selectedSpectraType) {
 
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(new Double(lat));
    objectList.add(new Double(lon));
    objectList.add(selectedSpectraType);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SS_S1, objectList);
 
  }
 
@@ -168,13 +165,13 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
                                   String dataEdition, double lat,
                                   double lon, String selectedSpectraType) {
 
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(new Double(lat));
    objectList.add(new Double(lon));
    objectList.add(selectedSpectraType);
-   return (DiscretizedFuncList)this.connectToServlet(this.COMPUTE_SA, objectList);
+   return (DiscretizedFuncList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
  }
 
  /**
@@ -188,12 +185,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public DiscretizedFuncList getSA(String geographicRegion,
                                   String dataEdition, String zipCode,
                                   String spectraType) throws ZipCodeErrorException {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(zipCode);
    objectList.add(spectraType);
-   return (DiscretizedFuncList)this.connectToServlet(this.COMPUTE_SA, objectList);
+   return (DiscretizedFuncList)this.connectToServlet(HazardDataMinerServletMode.COMPUTE_SA, objectList);
  }
 
  /**
@@ -208,12 +205,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
                                            String dataEdition, String zipCode,
                                            String spectraType) throws
      ZipCodeErrorException {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(zipCode);
    objectList.add(spectraType);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SS_S1, objectList);
 
  }
 
@@ -229,11 +226,11 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
                                            String dataEdition, String zipCode) throws
      ZipCodeErrorException {
 
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
    objectList.add(dataEdition);
    objectList.add(zipCode);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SS_S1, objectList);
  }
 
  /**
@@ -243,9 +240,9 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   */
  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion){
 
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(geographicRegion);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SS_S1, objectList);
 
  }
 
@@ -259,12 +256,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public ArbitrarilyDiscretizedFunc getSDSsS1(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SD_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SS_S1, objectList);
  }
 
  /**
@@ -277,12 +274,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public ArbitrarilyDiscretizedFunc getSMSsS1(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (ArbitrarilyDiscretizedFunc)connectToServlet(this.COMPUTE_SM_SS_S1, objectList);
+   return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SS_S1, objectList);
  }
 
  /**
@@ -294,12 +291,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   */
  public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                           float fa, float fv, String siteClass) {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_SM_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SPECTRUM, objectList);
  }
 
  /**
@@ -311,12 +308,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   */
  public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                           float fa, float fv, String siteClass)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_SD_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SPECTRUM, objectList);
  }
 
  /**
@@ -325,9 +322,9 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return DiscretizedFuncList
   */
  public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_MAP_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_MAP_SPECTRUM, objectList);
  }
 
  /**
@@ -340,12 +337,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(func);
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_SM_UHS_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_UHS_SPECTRUM, objectList);
  }
 
  /**
@@ -358,12 +355,12 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                              float fa, float fv,
                                              String siteClass)  {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_SD_UHS_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_UHS_SPECTRUM, objectList);
  }
 
  /**
@@ -373,9 +370,9 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   */
  public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                  func) {
-   ArrayList objectList = new ArrayList();
+   ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
-   return (DiscretizedFuncList)connectToServlet(this.COMPUTE_APPROX_UHS_SPECTRUM, objectList);
+   return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_APPROX_UHS_SPECTRUM, objectList);
  }
 
  /**
@@ -387,7 +384,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
  private Object connectToServlet(String funcName, ArrayList objectList) {
    try {
      // make connection with servlet
-     URL hazCalcServlet = new URL(this.SERVLET_PATH);
+     URL hazCalcServlet = new URL(HazardDataMinerServletMode.SERVLET_PATH);
      URLConnection servletConnection = hazCalcServlet.openConnection();
 
      servletConnection.setDoOutput(true);

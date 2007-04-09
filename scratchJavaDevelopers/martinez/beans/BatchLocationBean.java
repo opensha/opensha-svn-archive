@@ -37,8 +37,8 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	/////////////////// EMBEDED VISUALIZATION COMPONENETS /////////////////////
 	
 	/* Parameter Names */
-	public static final String PARAM_BAT = "Input File";
-	public static final String PARAM_OUT = "Output Directory";
+	public static final String PARAM_BAT = "Input Batch File (*.xls)";
+	public static final String PARAM_OUT = "Output File (*.xls)";
 	public static final String PARAM_LAT = "Latitude";
 	public static final String PARAM_LON = "Longitude";
 	public static final String PARAM_ZIP = "5 Digit Zip Code";
@@ -99,8 +99,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	public String getOutputFile() {
 		String fileName = "";
 		try {
-			String dir = (String) outParam.getValue();
-			fileName = dir + System.getProperty("file.separator") + OUTPUT;
+			fileName = (String) outParam.getValue();
 		} catch (NullPointerException npe) {
 			ExceptionBean.showSplashException("File reference was null!", "Null File", npe);
 			fileName = "";
@@ -256,7 +255,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 				String input = (String) batParam.getValue();
 				String output = (String) outParam.getValue();
 				return ( input.length() > 0 && (new File(input)).exists() &&
-						 output.length() > 0 && (new File(output)).exists());
+						 output.length() > 0 );
 			} else if ( !panel.isEnabledAt(GEO_MODE) && !panel.isEnabledAt(ZIP_MODE) &&
 					!panel.isEnabledAt(BAT_MODE)) {
 				return true;
@@ -438,6 +437,7 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 				return "Microsoft Excel File (*.xls)";
 			}
 		});
+		chooser.setDialogTitle("Select Input Batch File");
 		JFrame frame = new JFrame("Select a batch file");
 		int returnVal = chooser.showOpenDialog(frame);
 		String newFileName = (String) batParam.getValue();
@@ -454,16 +454,18 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 
 	private void btnOutChooser_actionPerformed() {
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		JFrame frame = new JFrame("Select Output Directory");
-		int returnVal = chooser.showOpenDialog(frame);
+		chooser.setDialogTitle("Select Output Excel File");
+		JFrame frame = new JFrame("Select Output File");
+		int returnVal = chooser.showSaveDialog(frame);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			String newDirectory = chooser.getSelectedFile().getAbsolutePath();
+			String newOutFile = chooser.getSelectedFile().getAbsolutePath();
+			if(!newOutFile.endsWith(".xls"))
+				newOutFile += ".xls";
 			try {
-				outParam.setValue(newDirectory);
-				( (JTextField) outEditor.getValueEditor()).setText(newDirectory);
+				outParam.setValue(newOutFile);
+				( (JTextField) outEditor.getValueEditor()).setText(newOutFile);
 			} catch (Exception ex) {
-				outParam.unableToSetValue(newDirectory);
+				outParam.unableToSetValue(newOutFile);
 			}
 		}
 	}

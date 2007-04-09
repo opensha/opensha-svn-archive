@@ -22,6 +22,9 @@ import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
+import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
+import scratchJavaDevelopers.martinez.beans.GuiBeanAPI;
+
 /**
  * <p>Title: UHS_GuiBean</p>
  *
@@ -32,10 +35,10 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 public class UHS_GuiBean
     extends JPanel implements ParameterChangeListener,
     AnalysisOptionsGuiBeanAPI {
-
+  private static final long serialVersionUID = 0x277EA21;
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
-  protected LocationGuiBean locGuiBean;
+  protected BatchLocationBean locGuiBean;
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane locationSplitPane = new JSplitPane();
   private JPanel regionPanel = new JPanel();
@@ -49,10 +52,7 @@ public class UHS_GuiBean
   private TitledBorder regionBorder = new TitledBorder(border9,
                                                "Region and DataSet Selection");
 
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 
@@ -83,7 +83,7 @@ public class UHS_GuiBean
     try {
 
       datasetGui = new DataSetSelectionGuiBean();
-      locGuiBean = new LocationGuiBean();
+      locGuiBean = new BatchLocationBean();
       try {
         createGeographicRegionSelectionParameter();
       }
@@ -105,7 +105,7 @@ public class UHS_GuiBean
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
-      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+      locationSplitPane.add((Component) locGuiBean.getVisualization(GuiBeanAPI.EMBED), JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(200);
       jbInit();
 
@@ -155,7 +155,7 @@ public class UHS_GuiBean
   }
 
   protected ArrayList getSupportedSpectraTypes() {
-    ArrayList supportedSpectraTypes = new ArrayList();
+    ArrayList<String> supportedSpectraTypes = new ArrayList<String>();
     if (selectedEdition.equals(GlobalConstants.data_1996)) {
       supportedSpectraTypes.add(GlobalConstants.PE_2);
       supportedSpectraTypes.add(GlobalConstants.PE_5);
@@ -262,7 +262,7 @@ public class UHS_GuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
+    if (paramName.equals(DataSetSelectionGuiBean.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createEditionSelectionParameter();
       try {
@@ -281,7 +281,7 @@ public class UHS_GuiBean
       //setButtonsEnabled(false);
 			uhsButtonClicked = false;
     }
-    else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+    else if (paramName.equals(DataSetSelectionGuiBean.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       createGroundMotionParameter();
       //setButtonsEnabled(false);
@@ -291,9 +291,9 @@ public class UHS_GuiBean
       spectraType = (String) groundMotionParam.getValue();
     }
 
-    else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
-             paramName.equals(locGuiBean.LON_PARAM_NAME) ||
-             paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
+    else if (paramName.equals(BatchLocationBean.PARAM_LAT) ||
+             paramName.equals(BatchLocationBean.PARAM_LON) ||
+             paramName.equals(BatchLocationBean.PARAM_ZIP)) {
       //setButtonsEnabled(false);
 			uhsButtonClicked = false;
     }
@@ -318,7 +318,7 @@ public class UHS_GuiBean
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = LocationUtil.
           isZipCodeSupportedBySelectedEdition(selectedRegion);
-      locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
+      locGuiBean.updateGuiParams(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
@@ -348,7 +348,7 @@ public class UHS_GuiBean
    */
   protected void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       supportedEditionList.add(GlobalConstants.data_2002);
@@ -394,16 +394,20 @@ public class UHS_GuiBean
     dataGenerator.setSpectraType(spectraType);
     dataGenerator.setRegion(selectedRegion);
     dataGenerator.setEdition(selectedEdition);
-
-    if (locGuiBean.getLocationMode()) {
+    int locationMode = locGuiBean.getLocationMode();
+    
+    if (locationMode == BatchLocationBean.GEO_MODE) {
       Location loc = locGuiBean.getSelectedLocation();
       double lat = loc.getLatitude();
       double lon = loc.getLongitude();
       dataGenerator.calculateUHS(lat, lon);
-    }
-    else {
+    } else if (locationMode == BatchLocationBean.ZIP_MODE) {
       String zipCode = locGuiBean.getZipCode();
       dataGenerator.calculateUHS(zipCode);
+    } else if (locationMode == BatchLocationBean.BAT_MODE) {
+    	ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	String outFile = locGuiBean.getOutputFile();
+    	dataGenerator.calculateUHS(locations, outFile);
     }
   }
 
@@ -435,7 +439,7 @@ public class UHS_GuiBean
     application.setDataInWindow(getData());
     //setButtonsEnabled(true);
     //viewUHSButton.setEnabled(true);
-		uhsButtonClicked = true;
+	uhsButtonClicked = true;
     uhsCalculated = true;
   }
 
@@ -472,6 +476,12 @@ public class UHS_GuiBean
    * @param actionEvent ActionEvent
    */
   protected void viewUHSButton_actionPerformed(ActionEvent actionEvent) {
+	    if (locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
+	    	JOptionPane.showMessageDialog(this, "This feature is not available for batch output.\n" +
+	    			"To view the graphs, please open the output file\nand create your own plots.",
+	    			"Option Unavailable", JOptionPane.INFORMATION_MESSAGE);
+	    	return;
+	    }
 		if (!uhsButtonClicked) { uhsButton_actionPerformed(actionEvent); }
 		if (!uhsButtonClicked) { return; } //in case uhsButton exits abnormally
     viewCurves();

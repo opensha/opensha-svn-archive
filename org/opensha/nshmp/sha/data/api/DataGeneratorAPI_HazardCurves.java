@@ -3,6 +3,7 @@ package org.opensha.nshmp.sha.data.api;
 import java.rmi.*;
 import java.util.*;
 
+import org.opensha.data.Location;
 import org.opensha.nshmp.exceptions.*;
 
 /**
@@ -75,4 +76,11 @@ public interface DataGeneratorAPI_HazardCurves {
    */
   public void calcSingleValueHazardCurveUsingPEandExptime(double probExceedProb,
       double expTime, boolean logInterpolation) throws RemoteException;
+
+  /**
+   * Calculate the hazard curve over an array of locations
+   * @param locations
+   * @param outputFile
+   */
+  public void calculateHazardCurve(ArrayList<Location> locations, String imt, String outputFile);
 }

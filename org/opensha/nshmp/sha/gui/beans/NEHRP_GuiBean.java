@@ -720,8 +720,7 @@ public class NEHRP_GuiBean
 	  if (smSDButtonClicked) { return true; }
 		if (usingBatchMode() || ssButton_doActions()) {
     	try {
-    		int locationMode = locGuiBean.getLocationMode();
-    		if(locationMode == BatchLocationBean.BAT_MODE) {
+    		if(usingBatchMode()) {
     			ArrayList<Location> locations = locGuiBean.getBatchLocations();
     			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
     			String outfile = locGuiBean.getOutputFile();
@@ -755,6 +754,7 @@ public class NEHRP_GuiBean
 		smSpecButtonClicked = false;
 		sdSpecButtonClicked = false;
 		if (locationReady() ) {
+			if(!usingBatchMode())
 				setSiteCoeff();
 				mapSpecButton_doActions();
 		}
@@ -762,10 +762,19 @@ public class NEHRP_GuiBean
 
 	protected boolean mapSpecButton_doActions() {
 	  if (mapSpecButtonClicked) { return true; }
-		if (smSDButton_doActions() ) {
+		if (usingBatchMode() || smSDButton_doActions() ) {
 			
 			try {
-      	dataGenerator.calculateMapSpectrum();
+				if(usingBatchMode()) {
+	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+	    			String outfile = locGuiBean.getOutputFile();
+	    			dataGenerator.setSpectraType(spectraType);
+	    			dataGenerator.setRegion(selectedRegion);
+	    			dataGenerator.setEdition(selectedEdition);
+	    			dataGenerator.calculateMapSpectrum(locations, outfile);
+				} else {
+					dataGenerator.calculateMapSpectrum();
+				}
     	}
     	catch (RemoteException e) {
       	JOptionPane.showMessageDialog(this,
@@ -792,16 +801,27 @@ public class NEHRP_GuiBean
 		smSpecButtonClicked = false;
 		sdSpecButtonClicked = false;
 		if (locationReady()) {
-			setSiteCoeff();
+			if(!usingBatchMode())
+				setSiteCoeff();
 			smSpecButton_doActions();
 		}
 	}
 
 	protected boolean smSpecButton_doActions() {
 	  if (smSpecButtonClicked) { return true; }
-		if (mapSpecButton_doActions()) { 
+		if (usingBatchMode() || mapSpecButton_doActions()) { 
 			try {
-      	dataGenerator.calculateSMSpectrum();
+				if(usingBatchMode()) {
+	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+	    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+	    			String outfile = locGuiBean.getOutputFile();
+	    			dataGenerator.setSpectraType(spectraType);
+	    			dataGenerator.setRegion(selectedRegion);
+	    			dataGenerator.setEdition(selectedEdition);
+	    			dataGenerator.calculateSMSpectrum(locations, conditions, outfile);
+				} else {
+					dataGenerator.calculateSMSpectrum();
+				}
     	}
     	catch (RemoteException e) {
       	JOptionPane.showMessageDialog(this,
@@ -827,16 +847,27 @@ public class NEHRP_GuiBean
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
 		sdSpecButtonClicked = false;
 		if (locationReady()) {
-			setSiteCoeff();
+			if(!usingBatchMode())
+				setSiteCoeff();
 			sdSpecButton_doActions();
 		}
 	}
 	
 	protected boolean sdSpecButton_doActions() {
 		if (sdSpecButtonClicked) { return true; }
-    if (smSpecButton_doActions()) {
+    if (usingBatchMode() || smSpecButton_doActions()) {
 		try {
-      dataGenerator.calculateSDSpectrum();
+			if(usingBatchMode()) {
+    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+    			String outfile = locGuiBean.getOutputFile();
+    			dataGenerator.setSpectraType(spectraType);
+    			dataGenerator.setRegion(selectedRegion);
+    			dataGenerator.setEdition(selectedEdition);
+    			dataGenerator.calculateSDSpectrum(locations, conditions, outfile);
+			} else {
+				dataGenerator.calculateSDSpectrum();
+			}
     }
     catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
@@ -861,12 +892,18 @@ public class NEHRP_GuiBean
 
   protected void viewButton_actionPerformed(ActionEvent actionEvent) {
 		if (locationReady()) {
-			setSiteCoeff();
-			if (sdSpecButton_doActions()) {
-			ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
-      	mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
-    		GraphWindow window = new GraphWindow(functions);
-    		window.setVisible(true);
+			if(!usingBatchMode()) {
+				setSiteCoeff();
+				if (sdSpecButton_doActions()) {
+				ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
+	      	mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
+	    		GraphWindow window = new GraphWindow(functions);
+	    		window.setVisible(true);
+				}
+			} else {	
+				JOptionPane.showMessageDialog(null, "Due to the nature of using a batch output " +
+						"this feature is not currently enabled.\nPlease view the Excel Output file " +
+						"to create your own plots.", "Option Not Available", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
   }
