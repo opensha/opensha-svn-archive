@@ -256,7 +256,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// find the slip distribution of each segment
 		computeSegSlipDist();
-		Vipin_testSlipRateAdjustment();
+		//Vipin_testSlipRateAdjustment();
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
