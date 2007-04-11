@@ -389,7 +389,7 @@ public class HazusMapCalculator {
         //looping over all the SA Periods to get the ExceedProb Val for each.
         for (int imtIndex = 0; imtIndex < numIMTs; ++imtIndex) {
 
-
+        	boolean pgvSupported = true;
         	 if(imtIndex ==0){
         		 condProbFunc = IMT_Info.getUSGS_PGA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
@@ -397,22 +397,36 @@ public class HazusMapCalculator {
         	 else if(imtIndex ==1){
         		 condProbFunc = IMT_Info.getUSGS_SA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
+        		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
         	 }
         	 else if(imtIndex ==2){
         		 condProbFunc = IMT_Info.getUSGS_SA_Function();
         		 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
-              imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+        		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
         	 }
         	 else if(imtIndex ==3){
         		 condProbFunc = pgvFunction.deepClone();
-        		 imr.setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+        		 String pgv = AttenuationRelationship.PGV_NAME;
+        		 boolean isSupported = ((AttenuationRelationship)imr).isIntensityMeasureSupported(pgv);
+        		 if(isSupported)
+        			 imr.setIntensityMeasure(pgv);
+        		 else{
+        			 pgvSupported = false;
+        			 imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+            		 imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+        		 }
+        		 
         	 }
         	 numPoints = condProbFunc.getNum();
         	 condProbFunc = initDiscretizedValuesToLog(condProbFunc,1.0);
            // get the conditional probability of exceedance from the IMR
           condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
               condProbFunc);
+          if(!pgvSupported){
+        	  for(int i=0;i<condProbFunc.getNum();++i)
+        		  condProbFunc.set(i, condProbFunc.getY(i)*37.24*2.54);
+          }
+        	  
           //System.out.println("CurrentRupture: "+currRuptures);
           // For poisson source
           if (poissonSource) {

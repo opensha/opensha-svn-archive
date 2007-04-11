@@ -38,7 +38,7 @@ import org.opensha.exceptions.RegionConstraintException;
  * @version 1.0
  */
 
-public class HazusDataSetCalcApp extends JApplet
+public class HazusDataSetCalcApp extends JFrame
     implements ParameterChangeListener, IMR_GuiBeanAPI,Runnable {
 
 
@@ -65,8 +65,8 @@ public class HazusDataSetCalcApp extends JApplet
    *  The object class names for all the supported Eqk Rup Forecasts
    */
   public final static String FRANKEL96_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+  //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  //public final static String STEP_ALASKAN_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String WG02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   public final static String FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
@@ -107,7 +107,7 @@ public class HazusDataSetCalcApp extends JApplet
 
 
   //images for the OpenSHA
-  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
 
 
 
@@ -233,22 +233,21 @@ public class HazusDataSetCalcApp extends JApplet
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
     mainSplitPane.setDividerLocation(550);
+    //applet.createHelpMenu();
+    this.setSize(W,H);
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation((dim.width - getSize().width) / 2, (dim.height - getSize().height) / 2);
+    //EXIT_ON_CLOSE == 3
+    this.setDefaultCloseOperation(3);
+    this.setTitle("Hazus Dataset generator application");
+
   }
 
   //Main method
   public static void main(String[] args) {
 	HazusDataSetCalcApp application = new HazusDataSetCalcApp();
-    application.isStandalone = true;
-    JFrame frame = new JFrame();
-    //EXIT_ON_CLOSE == 3
-    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    frame.setTitle("HazusMapDataCalc App ");//getAppVersion()+" )");
-    frame.getContentPane().add(application, BorderLayout.CENTER);
     application.init();
-    frame.setSize(W,H);
-    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
-    frame.setVisible(true);
+    application.setVisible(true);
   }
 
   //static initializer for setting look & feel
@@ -301,8 +300,8 @@ public class HazusDataSetCalcApp extends JApplet
    erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(FRANKEL96_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_ALASKAN_FORECAST_CLASS_NAME);
+   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   //erf_Classes.add(STEP_ALASKAN_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(WGCEP_UCERF1_ERF_CLASS_NAME);
    try{

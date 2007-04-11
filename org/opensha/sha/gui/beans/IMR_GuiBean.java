@@ -316,6 +316,7 @@ public class IMR_GuiBean extends ParameterListEditor
      // if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
      //if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
        init_imrParamListAndEditor();
+       this.updateUI();
        //update the IM for the selected AttenutionRelationship, so similar can be shown by the application
        application.updateIM();
        //update the Site Params for the selected AttenutionRelationship, so the similar can be shown by the application and shown by 
