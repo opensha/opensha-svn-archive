@@ -256,6 +256,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// find the slip distribution of each segment
 		computeSegSlipDist();
+		
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
@@ -263,6 +264,55 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		// test
 		// System.out.println(getNSHMP_SrcFileString());
 	}
+	
+	
+	
+	private void Vipin_testSlipRateAdjustment() {
+		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		int numCols = sourceSurface.getNumCols();
+		
+		// Iterate over all points to get predicted slip rate on each gridded location
+		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		double slipRate=0;
+		for(int col=0; col<numCols; ++col) {
+			slipRate = this.getPredSlipRate(sourceSurface.getLocation(0, col));
+			finalSlipRateFunc.set((double)col, slipRate);
+		}
+		
+		// save cumulative segment lengths
+		ArbitrarilyDiscretizedFunc segLengths = new ArbitrarilyDiscretizedFunc();
+		double totSegLength = 0;
+		for(int segIndex=0; segIndex<num_seg; ++segIndex) {
+			totSegLength += this.segmentData.getSegmentLength(segIndex);
+			segLengths.set((double)segIndex, totSegLength);
+		}
+		
+		// Iterate over all points to get the orig slip rate on each gridded location
+		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		for(int col=0; col<numCols; ++col) {
+			double length = col*DEFAULT_GRID_SPACING;
+			// find the segment where this location exists
+			for(int segIndex=0; segIndex<num_seg; ++segIndex) {
+				if(length<segLengths.getY(segIndex)) {
+					slipRate = segmentData.getSegmentSlipRate(segIndex);
+					break;
+				}
+			}
+			origSlipRateFunc.set((double)col, slipRate);
+		}
+		
+		// calculate ratio of original slip rate to final slip rate at each location
+		double totRatio=0;
+		ArbitrarilyDiscretizedFunc ratioFunc = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<numCols; ++i) {
+			totRatio += finalSlipRateFunc.getY(i)/origSlipRateFunc.getY(i);
+			ratioFunc.set((double)i, totRatio);
+		}
+		
+		// now adjust the rate of all ruptures
+		
+	}
+	
 	
 	/**
 	 * Moment rate reduction
