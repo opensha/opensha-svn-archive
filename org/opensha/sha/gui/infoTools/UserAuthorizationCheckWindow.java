@@ -33,7 +33,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
 
 
   //Servlet address
-  private final static String SERVLET_ADDRESS = "http://scecdata.usc.edu:8080/CME/CheckAuthorizationServlet";
+  private final static String SERVLET_ADDRESS = "http://scecdata.usc.edu:8081/CME/CheckAuthorizationServlet";
   JButton newUserButton = new JButton();
   JButton forgetPassButton = new JButton();
   GridBagLayout gridBagLayout1 = new GridBagLayout();

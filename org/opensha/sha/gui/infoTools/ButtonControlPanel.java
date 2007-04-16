@@ -256,7 +256,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     if(plotControl != null)
       return plotControl.getAxisLabelFontSize();
     else
-      return 24;
+      return 12;
   }
 
   /**
@@ -268,7 +268,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     if(plotControl !=null)
       return plotControl.getTickLabelFontSize();
     else
-      return 18;
+      return 10;
   }
   
   
@@ -281,7 +281,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    if(plotControl != null)
      return plotControl.getPlotLabelFontSize();
    else
-     return 24;
+     return 12;
  }
 
 

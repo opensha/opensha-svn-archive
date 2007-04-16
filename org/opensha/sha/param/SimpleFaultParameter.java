@@ -32,6 +32,10 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   /** If true print out debug statements. */
   protected final static boolean D = false;
 
+  /** For serialization. */
+  private static final long serialVersionUID = 123456789099999999L;
+
+  
   //Final static declaration for the Parameters in the EvenlyGriddedSurface
   public static final String FAULT_NAME = "Fault Name";
   public static final String GRID_SPACING = "Grid Spacing";
