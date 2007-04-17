@@ -68,6 +68,15 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	private double moRateReduction;  
 	private double moRate;
 	
+	// List of discretized locations on the surface
+	private LocationList surfaceLocList;
+	//  ratio of orig slip rate to predicted slip rate on each discretized location on the fault surface
+	private ArbitrarilyDiscretizedFunc ratioFunc;
+	private ArbitrarilyDiscretizedFunc origSlipRateFunc;
+	private ArbitrarilyDiscretizedFunc predSlipRateFunc;
+	private ArbitrarilyDiscretizedFunc finalSlipRateFunc;
+	private boolean isSlipRateCorrection; // whether slip rate correction is needed
+	
 	/**
 	 * Description:  The constructs the source using a supplied Mag PDF
 	 * 
@@ -157,10 +166,10 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
 			double mag_lowerGR, double b_valueGR, double moRateReduction, double fixMag,
-			double fixRate, double meanMagCorrection) {
+			double fixRate, double meanMagCorrection, boolean isSlipRateCorrection) {
 		
 		this.isPoissonian = true;
-		
+		this.isSlipRateCorrection = isSlipRateCorrection;
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
 		this.fixMag = fixMag; // change this by meanMagCorrection?
@@ -256,7 +265,12 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// find the slip distribution of each segment
 		computeSegSlipDist();
-		//Vipin_testSlipRateAdjustment();
+		
+		
+		
+		//correctSlipRate();
+		//System.out.println("Moment Rate:"+this.moRate);
+		
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
@@ -266,29 +280,133 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	}
 	
 	
-	
-	private void Vipin_testSlipRateAdjustment() {
+	/**
+	 * Correct the slip rates
+	 *
+	 */
+	private void correctSlipRate() {
 		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
-		
-		// Iterate over all points to get predicted slip rate on each gridded location
-		ArbitrarilyDiscretizedFunc finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
-		double slipRate=0;
-		for(int col=0; col<numCols; ++col) {
-			slipRate = this.getPredSlipRate(sourceSurface.getLocation(0, col));
-			finalSlipRateFunc.set((double)col, slipRate);
+		//System.out.println(this.segmentData.getFaultName());
+		// Surface trace location list
+		surfaceLocList = new LocationList();
+		for(int col=0; col<numCols; ++col) 
+			surfaceLocList.addLocation(sourceSurface.getLocation(0, col));
+		// original slip rate
+		this.getOrigSlipRateAlongFault();
+		// uncorrected slip rate
+		this.getUnCorrSlipRateAlongFault();
+		// calculate ratio of original slip rate to predicted slip rate at each location
+		double totRatio=0;
+		ratioFunc = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<numCols; ++i) {
+			totRatio += origSlipRateFunc.getY(i)/predSlipRateFunc.getY(i);
+			ratioFunc.set((double)i, totRatio);
 		}
+		
+		this.getFinalSlipRateAlongFault(); // calculate final slip rate along fault
+		
+		//System.out.println(ratioFunc.toString());
+	}
+	
+	/**
+	 * Get final corrected slip rate along the fault
+	 * 
+	 * @return
+	 */
+	public ArbitrarilyDiscretizedFunc getFinalSlipRateAlongFault() {
+		if(finalSlipRateFunc!=null) return finalSlipRateFunc;
+		if(!this.isSlipRateCorrection) {
+			finalSlipRateFunc = (ArbitrarilyDiscretizedFunc)this.predSlipRateFunc.deepClone();
+		} else {
+			finalSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+			//System.out.print("Final Moment Rate:");
+			computeSlipRateAlongFault(finalSlipRateFunc, isSlipRateCorrection);
+		}
+		finalSlipRateFunc.setName("Final slip rate along fault");
+		
+		return finalSlipRateFunc;
+		
+	}
+	
+	/**
+	 * Compute the slip rate along fault.
+	 * For Uncorrected slip rate, it gets rupture from parent class
+	 * For corrected slip rate, it gets rupture from this class.
+	 * 
+	 * @param slipRateFunc
+	 * @param isSlipRateCorrection
+	 */
+	private void computeSlipRateAlongFault(ArbitrarilyDiscretizedFunc slipRateFunc, 
+			boolean isSlipRateCorrection) {
+		int numRups = this.getNumRuptures();
+		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		int numCols = sourceSurface.getNumCols();
+		for(int col=0; col<numCols; ++col) { // initialize all slip rates to 0
+			slipRateFunc.set((double)col,0);
+		}
+		
+		double area, slip, slipRate, moRate, totMoRate=0;
+		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
+			ProbEqkRupture rupture;
+			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
+			else rupture = super.getRupture(rupIndex);
+			EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
+			moRate = MomentMagCalc.getMoment(rupture.getMag());
+			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
+			slip = FaultMomentCalc.getSlip(area*1e6,moRate);
+			slipRate = rupture.getMeanAnnualRate(this.duration)*slip;
+			
+			//if(this.segmentData.getFaultName().equalsIgnoreCase("S. San Andreas") && isSlipRateCorrection)
+			 // System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
+			
+			int index1 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, 0));
+			int index2 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
+			for(int col=index1; col<=index2; ++col) { // update the slip rates for this rupture
+				slipRateFunc.set(col, slipRateFunc.getY(col)+slipRate);
+			}
+		}
+		//System.out.println(totMoRate);
+	}
+	
+	/**
+	 * Get Uncorr slip Rate along fault
+	 * 
+	 * @return
+	 */
+	public ArbitrarilyDiscretizedFunc getUnCorrSlipRateAlongFault() {
+		if(predSlipRateFunc!=null) return predSlipRateFunc;
+		predSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		predSlipRateFunc.setName("Uncorrected slip rate along fault");
+		//System.out.print("Uncorrected Moment Rate:");
+		computeSlipRateAlongFault(predSlipRateFunc, false);
+		return predSlipRateFunc;
+	}
+
+
+	
+	/**
+	 * Get Original Slip Rate along fault 
+	 * 
+	 * @return
+	 */
+	public ArbitrarilyDiscretizedFunc getOrigSlipRateAlongFault() {
+		if(origSlipRateFunc!=null) return origSlipRateFunc;
 		
 		// save cumulative segment lengths
 		ArbitrarilyDiscretizedFunc segLengths = new ArbitrarilyDiscretizedFunc();
 		double totSegLength = 0;
 		for(int segIndex=0; segIndex<num_seg; ++segIndex) {
-			totSegLength += this.segmentData.getSegmentLength(segIndex);
+			totSegLength += this.segmentData.getSegmentLength(segIndex)/1e3;
 			segLengths.set((double)segIndex, totSegLength);
 		}
-		
+		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
+		int numCols = sourceSurface.getNumCols();
+		double slipRate=0;
 		// Iterate over all points to get the orig slip rate on each gridded location
-		ArbitrarilyDiscretizedFunc origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
+		origSlipRateFunc.setName("Orig slip rate along fault");
 		for(int col=0; col<numCols; ++col) {
 			double length = col*DEFAULT_GRID_SPACING;
 			// find the segment where this location exists
@@ -300,18 +418,30 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			}
 			origSlipRateFunc.set((double)col, slipRate);
 		}
-		
-		// calculate ratio of original slip rate to final slip rate at each location
-		double totRatio=0;
-		ArbitrarilyDiscretizedFunc ratioFunc = new ArbitrarilyDiscretizedFunc();
-		for(int i=0; i<numCols; ++i) {
-			totRatio += finalSlipRateFunc.getY(i)/origSlipRateFunc.getY(i);
-			ratioFunc.set((double)i, totRatio);
-		}
-		
-		// now adjust the rate of all ruptures
-		
+		//System.out.println(origSlipRateFunc.toString());
+		return origSlipRateFunc;
 	}
+	
+	/**
+	   * This gets the ProbEqkRupture object for the nth Rupture
+	   * It adjusts the rupture rates to account for difference in original
+	   * and predicted slip rate
+	   */
+	  public ProbEqkRupture getRupture(int nthRupture) {
+		  ProbEqkRupture rupture = super.getRupture(nthRupture);
+		  if(!isSlipRateCorrection) return rupture;
+		  
+		  EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+		  int index1 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, 0));
+		  int index2 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
+		  double ratio = (ratioFunc.getY(index2)-ratioFunc.getY(index1))/(index2-index1);
+		  double rate = rupture.getMeanAnnualRate(this.duration)*ratio;
+		  double prob = 1- Math.exp(-duration*rate);
+		  rupture.setProbability(prob);
+		  return rupture;
+	  }
+	
+	
 	
 	
 	/**

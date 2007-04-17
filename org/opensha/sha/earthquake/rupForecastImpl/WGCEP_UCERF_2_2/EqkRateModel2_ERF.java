@@ -1176,7 +1176,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
-					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
+					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection, true);
 			source.setDuration(duration);
 			aFaultSourceGenerators.add(source);
 			allSources.add(source);
@@ -1222,7 +1222,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 					
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
-						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
+						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection, false);
 				source.setDuration(duration);
 				bFaultSources.add(source);
 				allSources.add(source);
