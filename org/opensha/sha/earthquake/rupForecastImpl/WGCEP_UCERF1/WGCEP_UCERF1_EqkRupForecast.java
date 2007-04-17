@@ -1277,11 +1277,14 @@ Mount Diablo (no floater here)
 			   probSrc = getSource(sources[index]);
 			   // for debugging to make sure correct sources are used
 			   //System.out.println(probSrc.getName());
+			   double srcTotalRate=0;
 			   for(rup=0; rup<probSrc.getNumRuptures(); rup++){
 				   probRup = probSrc.getRupture(rup);
 				   //System.out.println(probRup.getMag());
 				   summedMFD.addResampledMagRate(probRup.getMag(), probRup.getMeanAnnualRate(duration), true);
+				   srcTotalRate += probRup.getMeanAnnualRate(duration);
 			   }
+//			   System.out.println(faultNames[faultIndex]+" - source #"+index+"  "+probSrc.getName()+" rate = "+(float)srcTotalRate);
 		   }
 		   // write name and MFD to file
 		    System.out.println(summedMFD.toString());
@@ -1298,7 +1301,7 @@ Mount Diablo (no floater here)
      frankCast.timeDependentParam.setValue(new Boolean(false));
      frankCast.updateForecast();
      
-//     frankCast.writeA_FaultMFDs();
+     frankCast.writeA_FaultMFDs();
 /*
      try {
        frankCast.writeRuptureTraces();
@@ -1308,13 +1311,13 @@ Mount Diablo (no floater here)
        System.exit(0);
      }
 */
-
+/*
      int totSrc= frankCast.getNumSources();
      for(int i=0; i<totSrc; i++){
        ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
        System.out.println(i+"\t"+src.getName());
      }
-
+*/
      
 //     System.out.println("num sources="+frankCast.getNumSources());
 /*     ArrayList srcs = frankCast.getAllGR_FaultSources();

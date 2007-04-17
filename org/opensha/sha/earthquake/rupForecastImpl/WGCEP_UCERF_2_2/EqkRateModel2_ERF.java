@@ -2054,51 +2054,37 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 
 		
-		// TEST 1 - relativeSegRateWeightParam = 1.0
+		// TEST 1 - defaults
 		setParamDefaults();
-		relativeSegRateWeightParam.setValue(1.0);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
 
-		// TEST 2 - TURN PRESERVE MIN RATE OFF (and keep above setting)
-		preserveMinAFaultRateParam.setValue(false);
+		// TEST 2 zero moment rate taken out
+		aftershockFractionParam.setValue(0.0);
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
-		// reset that parameter
-		preserveMinAFaultRateParam.setValue(true);
 
-		
-		// TEST 3 Default Params
+		// TEST 3 (MEAN-MAG CORRECTION = +0.1)
 		setParamDefaults();
+		meanMagCorrectionParam.setValue(new Double(0.1));
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");
 
-		// TEST 4 zero moment rate taken out
-		aftershockFractionParam.setValue(0.0);
+		// TEST 4 (MEAN-MAG CORRECTION = -0.1)
+		meanMagCorrectionParam.setValue(new Double(-0.1));
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
-
-		// TEST 5 (MEAN-MAG CORRECTION = +0.1)
+		
+		// TEST 5 Deformation Model D2.2
 		setParamDefaults();
-		meanMagCorrectionParam.setValue(new Double(0.1));
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
 		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
 
-		// TEST 6 (MEAN-MAG CORRECTION = -0.1)
-		meanMagCorrectionParam.setValue(new Double(-0.1));
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");
-		
-		// TEST 7 Deformation Model D2.2
-		setParamDefaults();
-		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test7_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test7_A_FaultNormResids.xls");
-
-		// TEST 8 Deformation Model D2.3
+		// TEST 6 Deformation Model D2.3
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
-		excelSheetsGen.generateExcelSheetsForRupMagRates("Test8_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test8_A_FaultNormResids.xls");	
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");	
 		
 		/*
 		// TEST - FULL WEIGHT ON A-PRIORI
