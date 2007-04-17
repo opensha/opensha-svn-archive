@@ -268,7 +268,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		
 		
-		//correctSlipRate();
+		correctSlipRate();
 		//System.out.println("Moment Rate:"+this.moRate);
 		
 		//if(D)

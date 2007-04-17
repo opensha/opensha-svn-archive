@@ -53,13 +53,14 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private JTextArea magAreasTextArea = new JTextArea();
 	private JButton slipRateButton = new JButton("Plot Segment Slip Rates");
+	private JButton slipRateAlongFaultButton = new JButton("Plot Slip Rate Along Fault");
 	private JButton slipRateRatioButton = new JButton("Plot Normalized Slip-Rate Residuals - (Final_SR-Data_SR)/SR_Sigma");
 	private JButton eventRateButton = new JButton("Plot Segment Event Rates");
 	private JButton eventRateRatioButton = new JButton("Plot Normalized Event Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat SLIP_FORMAT = new DecimalFormat("0.000");
 	private final static DecimalFormat EVENT_RATE_FORMAT = new DecimalFormat("0.00E0");
-	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
+	private ArrayList<ArbitrarilyDiscretizedFunc> slipRatesList, slipRatesAlongFaultList, eventRatesList, eventRatesRatioList, slipRatesRatioList;
 	
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(255,0,0), 12); // RED Cross symbols
@@ -70,7 +71,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 12); // BLACK Cross symbols
 	private String xAxisLabel, yAxisLabel;
-	private ArrayList<PlotCurveCharacterstics> plottingFeatures, segmentedSlipRatePlottingFeatures, unSegmentedSlipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
+	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatesAlongFaultPlottingFeatures, segmentedSlipRatePlottingFeatures, unSegmentedSlipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
 	private boolean yLog = true ;
 	private ArrayList<EventRates> aFaultsFetcherEventRatesList;
@@ -80,6 +81,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		setLayout(new GridBagLayout());
 		createGUI();
 		slipRateButton.addActionListener(this);
+		slipRateAlongFaultButton.addActionListener(this);
 		eventRateButton.addActionListener(this);
 		eventRateRatioButton.addActionListener(this);
 		slipRateRatioButton.addActionListener(this);
@@ -105,6 +107,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR3);
+		
+		// Slip rate along fault plotting features
+		slipRatesAlongFaultPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
+		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR1);
+		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR2);
+		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR3);
+		
 		
 		// UnSegmented slip rate plotting features
 		unSegmentedSlipRatePlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
@@ -148,11 +157,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		add(slipRateButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(this.slipRateRatioButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		add(slipRateAlongFaultButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(this.eventRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+		add(this.slipRateRatioButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		add(this.eventRateRatioButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+		add(this.eventRateButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		add(this.eventRateRatioButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 	}
 	
@@ -183,13 +194,16 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		if(segmentedSource==null) { // for unsegmented source
 			this.eventRateButton.setVisible(false);
 			this.slipRateButton.setVisible(true);
+			slipRateAlongFaultButton.setVisible(true);
 			this.slipRateRatioButton.setVisible(true);
 			this.eventRateRatioButton.setVisible(false);
 			generateSlipRateFuncList(null, unsegmentedSource, faultSegmentData);
 			generateSlipRateRatioFuncList(null, unsegmentedSource);
+			generateSlipRateAlongFaultFuncList(null, unsegmentedSource);
 		} else { // Segmented source
 			this.eventRateButton.setVisible(true);
 			this.slipRateButton.setVisible(true);
+			slipRateAlongFaultButton.setVisible(false);
 			this.slipRateRatioButton.setVisible(true);
 			this.eventRateRatioButton.setVisible(true);
 			generateSlipRateFuncList(segmentedSource, null, faultSegmentData);
@@ -214,6 +228,13 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			// plotting Func List
 			plottingFuncList = this.slipRatesList;
 			yLog = true;
+		} else if(src==this.slipRateAlongFaultButton){
+			xAxisLabel = "Fault Distance";
+			yAxisLabel = "Slip Rate (mm/yr)";
+			// plotting features
+			plottingFeatures = this.slipRatesAlongFaultPlottingFeatures;
+			plottingFuncList = this.slipRatesAlongFaultList;
+			yLog = false;
 		} else if(src==this.eventRateButton){
 			xAxisLabel = "Segment Index";
 			yAxisLabel = "Event Rates (1/years)";
@@ -321,6 +342,19 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatesList.add(modMaxSlipRateFunc);
 		if(segmentedSource!=null) slipRatesList.add(aPrioriSlipRateFunc);
 		slipRatesList.add(finalSlipRateFunc);
+	}
+	
+	/**
+	 * Generate function list for slip rate along fault
+	 * 
+	 * @param segmentedSource
+	 */
+	private void generateSlipRateAlongFaultFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
+			UnsegmentedSource unsegmentedSource) {
+		this.slipRatesAlongFaultList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		slipRatesAlongFaultList.add(unsegmentedSource.getOrigSlipRateAlongFault());
+		slipRatesAlongFaultList.add(unsegmentedSource.getUnCorrSlipRateAlongFault());
+		slipRatesAlongFaultList.add(unsegmentedSource.getFinalSlipRateAlongFault());
 	}
 	
 	/**
