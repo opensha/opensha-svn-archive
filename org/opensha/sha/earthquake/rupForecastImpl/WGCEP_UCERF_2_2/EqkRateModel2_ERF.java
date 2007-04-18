@@ -1174,7 +1174,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		double duration = timeSpan.getDuration();
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
-			UnsegmentedSource source = new UnsegmentedSource_testCorr( segmentData,  magAreaRel, 
+			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
 					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
 			source.setDuration(duration);
