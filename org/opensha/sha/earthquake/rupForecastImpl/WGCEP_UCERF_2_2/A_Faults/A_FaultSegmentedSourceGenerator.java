@@ -1273,12 +1273,43 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 	}
 	
+	/**
+	 * It creates the matrix and data vector for testing the numerical matrix limits
+	 * for NNLS
+	 * 
+	 * @param num
+	 */
+	private static void testNNLS_SolutionLimits(int num) {
+		// data vector
+		double [] d= new double[num];
+		d[0]=1;
+		for(int i=1; i<num; ++i) d[i] = i;
+		// matrix C
+		double [][]C = new double[num][num];
+		// first element is 1
+		C[0][0]=1;
+		for(int i=1; i<num-1; ++i)  C[0][i] = 0;
+			
+		for(int i=0; i<(num-1); ++i) {
+			C[i+1][i] = -1;
+			C[i+1][i+1] = 1;
+		}
+		double[] solution = getNNLS_solution(C, d);
+		for(int i=0; i<solution.length; ++i)
+			System.out.println(solution[i]);
+	}
+	
 	public static void main(String[] args) {
+		
+		
+	// TEST THE  LIMITS of NNLS SOLUTION	
+		testNNLS_SolutionLimits(5000);
+		
 		
 // ******* THIS REPRODUCES THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***************
 		//  (slight diff likely due to the rounding of their mags & how that propagates)
 		
-		String[] segNames = new String[2];
+		/*String[] segNames = new String[2];
 		segNames[0] = "Seg1";
 		segNames[1] = "Seg2";
 		// sectionToSegmentData - an ArrayList containing N ArrayLists (one for each segment), 
@@ -1384,7 +1415,7 @@ public class A_FaultSegmentedSourceGenerator {
 		System.out.println("RelRupRates:\n\t"+
 				(float)(src.getRupRateSolution(0)/totRate)+"\n\t"+
 				(float)(src.getRupRateSolution(1)/totRate)+"\n\t"+
-				(float)(src.getRupRateSolution(2)/totRate)+"\n\t");
+				(float)(src.getRupRateSolution(2)/totRate)+"\n\t");*/
 		
 // ****** END OF REPRODUCTION OF THE 2-SEGMENT EXAMPLE IN WG02 APPENDIX G ***********
 		
