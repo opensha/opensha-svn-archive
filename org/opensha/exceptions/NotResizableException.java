@@ -18,6 +18,8 @@ package org.opensha.exceptions;
  */
 public final class NotResizableException extends RuntimeException {
 
+	private static final long serialVersionUID = 0x64354A8;
+	
     /** No-arg constructor */
     public NotResizableException()  { super(); }
     /** Constructor that specifies an error message */

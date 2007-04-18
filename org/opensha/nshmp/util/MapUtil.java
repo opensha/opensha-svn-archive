@@ -1,6 +1,5 @@
 package org.opensha.nshmp.util;
 
-import org.opensha.nshmp.util.GlobalConstants;
 import java.util.ArrayList;
 
 /**

@@ -1,9 +1,10 @@
 package org.opensha.nshmp.sha.data;
 
 import java.rmi.RemoteException;
+
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
  * <p>Title: HazardDataMinerAPI.java </p>

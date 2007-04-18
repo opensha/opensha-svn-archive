@@ -1,10 +1,9 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.Component;
 import java.util.ArrayList;
 
-import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.jfree.data.Range;
+import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 
 
 /**

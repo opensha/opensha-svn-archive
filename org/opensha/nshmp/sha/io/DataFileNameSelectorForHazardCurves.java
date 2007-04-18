@@ -1,6 +1,6 @@
 package org.opensha.nshmp.sha.io;
 
-import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title: DataFileNameSelector</p>

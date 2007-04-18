@@ -1,13 +1,16 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import java.util.*;
+import java.util.ArrayList;
 
-import org.opensha.data.region.*;
-import org.opensha.param.event.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.gui.api.*;
-import org.opensha.nshmp.util.*;
+import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
+import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.RegionUtil;
+import org.opensha.param.event.ParameterChangeEvent;
+
+
 
 /**
  * <p>Title: IBC_GuiBean</p>

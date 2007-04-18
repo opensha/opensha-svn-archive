@@ -1,5 +1,9 @@
 package org.opensha.calc;
-import org.opensha.data.*;
+
+import org.opensha.data.Direction;
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
+
 
 /**
  *  <b>Title:</b> RelativeLocation<p>
@@ -178,7 +182,7 @@ public final class RelativeLocation {
 
         //
         double xlat = lat * RADIANS_CONVERSION;
-        double xlon = lon * RADIANS_CONVERSION;
+        //double xlon = lon * RADIANS_CONVERSION;
 
         //
         double az2 = azimuth * RADIANS_CONVERSION;
@@ -186,7 +190,7 @@ public final class RelativeLocation {
         double st0 = Math.cos( xlat );
         double ct0 = Math.sin( xlat );
 
-        double phi0 = xlon;
+        //double phi0 = xlon;
 
         //
         double cz0 = Math.cos( az2 );
@@ -197,7 +201,7 @@ public final class RelativeLocation {
 
         //
         double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
-        double dlon = Math.atan2( y, x );
+        //double dlon = Math.atan2( y, x );
 
 
         //
@@ -238,13 +242,13 @@ public final class RelativeLocation {
 
         //
         double cz0 = Math.cos( az2 );
-        double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
+       // double ct1 = ( st0 * sdelt * cz0 ) + ( ct0 * cdelt );
 
         double x = (st0 * cdelt ) - ( ct0 * sdelt * cz0 );
         double y = sdelt * Math.sin( az2 );
 
         //
-        double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
+      //  double st1 =  Math.pow( ( ( x * x ) + ( y * y ) ), .5 );
         double dlon = Math.atan2( y, x );
 
         //

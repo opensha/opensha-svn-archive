@@ -17,6 +17,8 @@ package org.opensha.exceptions;
  */
 public final class InvalidArrayShapeException extends RuntimeException {
 
+	private static final long serialVersionUID = 0x12EA7F9;
+	
     /** No-arg constructor */
     public InvalidArrayShapeException()  { super(); }
     /** Constructor that specifies an error message */

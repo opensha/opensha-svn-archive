@@ -1,12 +1,11 @@
 package org.opensha.param;
 
+import org.opensha.data.NamedObjectAPI;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
+import org.opensha.param.event.ParameterChangeEvent;
 
-import org.opensha.sha.fault.*;
-import org.opensha.util.*;
-import org.opensha.data.*;
-import org.opensha.param.event.*;
+
 
 /**
  *  <b>Title:</b> ParameterAPI Interface<p>

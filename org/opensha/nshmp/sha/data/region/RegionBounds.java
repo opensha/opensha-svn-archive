@@ -1,8 +1,8 @@
 package org.opensha.nshmp.sha.data.region;
 
-import java.text.*;
+import java.text.DecimalFormat;
 
-import org.opensha.nshmp.sha.io.*;
+import org.opensha.nshmp.sha.io.DataRecord;
 
 /**
  * <p>Title: RegionBounds</p>

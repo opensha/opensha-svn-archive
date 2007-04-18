@@ -1,6 +1,8 @@
 package org.opensha.data.region;
 
-import org.opensha.data.*;
+
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
@@ -15,7 +17,8 @@ import org.opensha.exceptions.RegionConstraintException;
 
 public class RectangularGeographicRegion extends GeographicRegion {
 
-
+  private static final long serialVersionUID = 0xDEC5F47;
+  
   private final static String C = "RectangularGeographicRegion";
   private final static boolean D = false;
 

@@ -1,7 +1,7 @@
 package org.opensha.nshmp.util;
 
-import org.opensha.data.*;
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.data.Location;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
  * <p>Title: LocationUtil</p>

@@ -1,8 +1,13 @@
 package org.opensha.data;
 
-import java.util.*;
-import org.opensha.exceptions.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.ListIterator;
+
 import org.opensha.calc.RelativeLocation;
+import org.opensha.exceptions.InvalidRangeException;
 
 /**
  *  <b>Title:</b> LocationList<p>
@@ -28,6 +33,8 @@ import org.opensha.calc.RelativeLocation;
 
 public class LocationList implements java.io.Serializable{
 
+	private static final long serialVersionUID = 0xA9F494E;
+	
     /** Class name used for debugging purposes */
     protected final static String C = "LocationList";
     /** if true print out debugging statements */
@@ -37,7 +44,7 @@ public class LocationList implements java.io.Serializable{
      *  Internal data structure (ArrayList ) that contains the
      *  list of Locations.
      */
-    protected ArrayList locations = new ArrayList();
+    protected ArrayList<Location> locations = new ArrayList<Location>();
 
 
     /**
@@ -81,7 +88,8 @@ public class LocationList implements java.io.Serializable{
      * Sorts the list of locations based on Latitude. If Latitude is same then
      * sorts on Longitude.
      */
-    public void sort(){
+    @SuppressWarnings("unchecked")
+	public void sort(){
       Collections.sort(locations, new LocationComparator());
     }
 
@@ -131,7 +139,7 @@ public class LocationList implements java.io.Serializable{
         int size = locations.size();
         int reverseIndex = size - 1;
 
-        ArrayList newList = new ArrayList();
+        ArrayList<Location> newList = new ArrayList<Location>();
         for( int i = reverseIndex; i >= 0; i--){
             newList.add( locations.get(i) );
         }

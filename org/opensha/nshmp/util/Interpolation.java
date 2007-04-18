@@ -1,6 +1,7 @@
 package org.opensha.nshmp.util;
 
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.nshmp.exceptions.InterpolationException;
+
 
 /**
  * <p>Title: Interpolation</p>

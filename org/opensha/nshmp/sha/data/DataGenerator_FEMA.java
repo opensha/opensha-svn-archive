@@ -1,9 +1,9 @@
 package org.opensha.nshmp.sha.data;
 
-import java.rmi.*;
+import java.rmi.RemoteException;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
  * <p>Title: DataGenerator_FEMA</p>

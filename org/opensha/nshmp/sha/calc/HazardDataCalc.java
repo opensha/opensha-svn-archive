@@ -1,11 +1,12 @@
 package org.opensha.nshmp.sha.calc;
 
-import java.rmi.*;
-import java.rmi.server.*;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.calc.api.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
 
 /**
  * <p>Title: HazardDataCalc</p>

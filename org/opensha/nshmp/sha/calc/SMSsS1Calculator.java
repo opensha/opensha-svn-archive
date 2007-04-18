@@ -1,7 +1,7 @@
 package org.opensha.nshmp.sha.calc;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.util.ui.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
 /**
  * <p>Title: SMSsS1Calculator</p>

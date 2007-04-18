@@ -1,10 +1,10 @@
 package org.opensha.nshmp.sha.data.api;
 
-import java.rmi.*;
-import java.util.*;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 import org.opensha.data.Location;
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
  * <p>Title: DataGeneratorAPI_NEHRP</p>

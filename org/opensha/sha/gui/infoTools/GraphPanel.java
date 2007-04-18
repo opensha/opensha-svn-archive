@@ -1,49 +1,69 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.*;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.PrintJob;
+import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.awt.geom.*;
+import java.util.Properties;
 
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.renderer.*;
+import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.border.EtchedBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.TickUnits;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
-import org.jfree.data.*;
+import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 import org.jfree.util.ShapeUtilities;
-import org.jfree.chart.plot.*;
-import org.opensha.data.function.*;
-import org.opensha.gui.plot.jfreechart.*;
-
-/**
- * Creating the PDF files for the storing the curves and metadata.
- */
-import com.lowagie.text.pdf.PdfWriter;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.opensha.gui.plot.jfreechart.JFreeLogarithmicAxis;
+import org.opensha.gui.plot.jfreechart.MyTickUnits;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.util.DataUtil;
+import org.opensha.util.SystemPropertiesUtils;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.*;
 import com.lowagie.text.FontFactory;
-import com.lowagie.text.Phrase;
 import com.lowagie.text.HeaderFooter;
-
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.util.*;
-import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import java.io.IOException;
-import java.util.Properties;
-//import java.io.File;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.DefaultFontMapper;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
 
 
 

@@ -1,16 +1,14 @@
 package org.opensha.sha.surface;
-import java.lang.ArrayIndexOutOfBoundsException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-import org.opensha.sha.fault.*;
-import org.opensha.data.Location;
-import org.opensha.util.FaultUtils;
-import org.opensha.exceptions.InvalidRangeException;
-import org.opensha.exceptions.LocationException;
-import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
-
+import org.opensha.data.Container2D;
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
+import org.opensha.exceptions.LocationException;
 
 /**
  * <b>Title:</b> GriddedSurface<p>
@@ -253,7 +251,7 @@ public abstract class EvenlyGriddedSurface
     public Iterator getSubsetSurfacesIterator(int numSubSurfaceCols, int numSubSurfaceRows, int numSubSurfaceOffset) {
 
         //vector to store the GriddedSurface
-        ArrayList v= new ArrayList();
+        ArrayList<GriddedSubsetSurface> v = new ArrayList<GriddedSubsetSurface>();
 
         // number of subSurfaces along the length of fault
         int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffset +1);

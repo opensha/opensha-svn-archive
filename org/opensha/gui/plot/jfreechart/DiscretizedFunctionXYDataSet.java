@@ -1,17 +1,16 @@
 package org.opensha.gui.plot.jfreechart;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
-import org.jfree.data.*;
 import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.data.xy.XYDataset;
-import org.opensha.data.*;
+import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 
 
 /**

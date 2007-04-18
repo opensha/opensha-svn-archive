@@ -1,16 +1,16 @@
 package org.opensha.param.editor;
-import java.awt.*;
 
-import java.util.*;
-import javax.swing.*;
-//import com.borland.jbcl.layout.VerticalFlowLayout;
-import org.opensha.gui.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.param.ParameterAPI;
-import org.opensha.param.DependentParameter;
 import org.opensha.param.ParameterList;
-import org.opensha.param.event.ParameterChangeFailListener;
-import org.opensha.param.event.ParameterChangeListener;
-
 
 /**
  * <b>Title:</b> ParameterListEditor<p>

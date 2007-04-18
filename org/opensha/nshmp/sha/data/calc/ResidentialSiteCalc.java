@@ -1,6 +1,6 @@
 package org.opensha.nshmp.sha.data.calc;
 
-import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title: ResidentialSiteCalc</p>

@@ -1,9 +1,10 @@
 package org.opensha.nshmp.param;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
-import org.opensha.exceptions.*;
-import org.opensha.param.*;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.param.StringConstraint;
 
 /**
  * <p>Title: EditableStringConstraint </p>

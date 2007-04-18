@@ -1,10 +1,11 @@
 package org.opensha.nshmp.sha.calc;
 
-import java.text.*;
+import java.text.DecimalFormat;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.util.*;
-import org.opensha.nshmp.util.ui.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
 /**
  * <p>Title: SpectrumCalculator</p>

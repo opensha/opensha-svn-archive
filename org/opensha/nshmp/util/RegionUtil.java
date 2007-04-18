@@ -1,10 +1,12 @@
 package org.opensha.nshmp.util;
 
-import java.util.*;
+import java.util.ArrayList;
 
-import org.opensha.data.region.*;
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
+
+
 
 /**
  * <p>Title: RegionUtil</p>
@@ -23,7 +25,7 @@ public final class RegionUtil {
    */
   public static ArrayList getSupportedGeographicalRegions(String
       selectedAnalysisOption) throws AnalysisOptionNotSupportedException {
-    ArrayList supportedRegionList = new ArrayList();
+    ArrayList<String> supportedRegionList = new ArrayList<String>();
     if (selectedAnalysisOption.equals(GlobalConstants.NEHRP) ||
         selectedAnalysisOption.equals(GlobalConstants.ASCE_7) ||
         selectedAnalysisOption.equals(GlobalConstants.NFPA) ||
@@ -112,7 +114,7 @@ public final class RegionUtil {
    * @return ArrayList
    */
   public static ArrayList getSupportedIMT_PERIODS(String selectedRegion) {
-    ArrayList supportedImtPeriods = new ArrayList();
+    ArrayList<String> supportedImtPeriods = new ArrayList<String>();
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       supportedImtPeriods.add(GlobalConstants.PGA);
       supportedImtPeriods.add(GlobalConstants.IMT_POINT_ONE_SEC);

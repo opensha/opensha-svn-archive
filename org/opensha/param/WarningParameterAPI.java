@@ -1,7 +1,8 @@
 package org.opensha.param;
 
-import org.opensha.exceptions.*;
-import org.opensha.param.event.*;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.exceptions.ParameterException;
+import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 
 /**

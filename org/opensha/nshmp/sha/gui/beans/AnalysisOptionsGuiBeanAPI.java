@@ -1,6 +1,6 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
 /**
  * <p>Title: AnalysisOptionsGuiBeanAPI</p>

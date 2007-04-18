@@ -1,16 +1,23 @@
 package org.opensha.nshmp.sha.calc;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.StringTokenizer;
 
-import org.opensha.data.*;
-import org.opensha.data.function.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.data.*;
-import org.opensha.nshmp.sha.io.*;
-import org.opensha.nshmp.util.*;
-import org.opensha.nshmp.util.ui.*;
+import org.opensha.data.Location;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.data.SiteInterpolation;
+import org.opensha.nshmp.sha.io.DataFileNameSelector;
+import org.opensha.nshmp.sha.io.DataFileNameSelectorForFEMA;
+import org.opensha.nshmp.sha.io.NEHRP_Record;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.LocationUtil;
+import org.opensha.nshmp.util.ZipCodeToLatLonConvertor;
+import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 
 /**
  * <p>Title: SsS1Calculator</p>

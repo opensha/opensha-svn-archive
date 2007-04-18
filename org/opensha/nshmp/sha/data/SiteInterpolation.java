@@ -1,11 +1,12 @@
 package org.opensha.nshmp.sha.data;
 
-import java.text.*;
+import java.text.DecimalFormat;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.sha.data.region.*;
-import org.opensha.nshmp.sha.io.*;
-import org.opensha.nshmp.util.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.nshmp.sha.data.region.RegionBounds;
+import org.opensha.nshmp.sha.io.DataRecord;
+import org.opensha.nshmp.sha.io.HazardCurves_Record;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title: SiteInterpolation</p>

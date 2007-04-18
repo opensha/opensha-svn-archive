@@ -1,8 +1,10 @@
 package org.opensha.param;
 
-import java.util.*;
+import java.util.ArrayList;
 
-import org.opensha.exceptions.*;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.exceptions.EditableException;
+import org.opensha.exceptions.ParameterException;
 
 /**
  *  <b>Title:</b> StringParameter<p>

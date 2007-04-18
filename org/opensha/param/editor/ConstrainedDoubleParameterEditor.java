@@ -1,10 +1,13 @@
 package org.opensha.param.editor;
 
-import org.opensha.param.*;
+import java.awt.Color;
+
+import javax.swing.border.Border;
+
+import org.opensha.param.DoubleConstraint;
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.WarningParameterAPI;
 import org.opensha.util.ParamUtils;
-import javax.swing.border.*;
-import java.awt.event.*;
-import java.awt.*;
 
 /**
  * <b>Title:</b> ConstrainedDoubleParameterEditor<p>

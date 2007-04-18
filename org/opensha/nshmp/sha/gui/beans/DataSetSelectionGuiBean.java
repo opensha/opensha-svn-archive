@@ -1,16 +1,16 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import java.util.*;
-
-import org.opensha.param.*;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.nshmp.util.GlobalConstants;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.GridBagLayout;
-import java.awt.Dimension;
+
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>

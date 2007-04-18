@@ -1,9 +1,12 @@
 package org.opensha.nshmp.sha.io;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
-import org.opensha.util.*;
 import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.util.ByteSwapUtil;
+
+
 
 /**
  * <p>Title: NEHRP_Record </p>

@@ -1,6 +1,9 @@
 package org.opensha.nshmp.sha.data.calc;
 
-import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.Interpolation;
+
+
 
 /**
  * <p>Title: FaFvCalc</p>

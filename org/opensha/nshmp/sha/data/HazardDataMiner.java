@@ -1,13 +1,16 @@
 package org.opensha.nshmp.sha.data;
 
-import java.net.*;
-import java.rmi.*;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
-import org.opensha.data.function.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.calc.api.*;
-import org.opensha.nshmp.sha.calc.remote.api.*;
-import org.opensha.nshmp.util.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
+import org.opensha.nshmp.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title: HazardDataMiner</p>

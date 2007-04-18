@@ -17,6 +17,8 @@ package org.opensha.exceptions;
  */
 public class LocationException extends RuntimeException {
 
+	private static final long serialVersionUID = 0x55A0A7B;
+	
     /** No-arg constructor */
     public LocationException()  { super(); }
     /** Constructor that specifies an error message */

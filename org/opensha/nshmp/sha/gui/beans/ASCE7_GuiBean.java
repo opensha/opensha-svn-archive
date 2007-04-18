@@ -1,12 +1,14 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import java.util.*;
 
-import org.opensha.data.region.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.gui.api.*;
-import org.opensha.nshmp.util.*;
+import java.util.ArrayList;
+
+import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
+import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
+import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.RegionUtil;
 
 /**
  * <p>Title: ASCE7_NFPA_GuiBean</p>
@@ -17,7 +19,9 @@ import org.opensha.exceptions.RegionConstraintException;
  */
 public class ASCE7_GuiBean
     extends NEHRP_GuiBean {
-
+  
+  private static final long serialVersionUID = 0x35C204F;
+  
   public ASCE7_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
   }
@@ -46,7 +50,7 @@ public class ASCE7_GuiBean
    */
   protected void createEditionSelectionParameter() {
 
-    ArrayList supportedEditionList = new ArrayList();
+    ArrayList<String> supportedEditionList = new ArrayList<String>();
 
     supportedEditionList.add(GlobalConstants.ASCE_2005);
     supportedEditionList.add(GlobalConstants.ASCE_2002);

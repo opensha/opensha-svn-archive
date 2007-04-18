@@ -1,10 +1,12 @@
 package org.opensha.data.function;
 
-import java.util.*;
-import org.opensha.data.*;
-import org.opensha.exceptions.*;
-import org.jfree.data.*;
-import org.opensha.gui.plot.jfreechart.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import org.opensha.data.DataPoint2D;
+import org.opensha.data.NamedObjectAPI;
+import org.opensha.exceptions.DiscretizedFuncException;
 
 /**
  * <b>Title:</b> DiscretizedFuncList<p>

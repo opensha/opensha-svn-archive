@@ -1,16 +1,21 @@
 package org.opensha.data.function;
 
-import org.opensha.data.DataPoint2D;
-import org.opensha.exceptions.DataPoint2DException;
-
-import java.util.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Set;
 
-import org.opensha.util.*;
-import org.opensha.exceptions.*;
-import org.opensha.param.ParameterList;
-import org.opensha.data.*;
+import org.opensha.data.DataPoint2D;
+import org.opensha.data.DataPoint2DComparatorAPI;
+import org.opensha.data.DataPoint2DToleranceComparator;
+import org.opensha.data.DataPoint2DTreeMap;
+import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.exceptions.InvalidRangeException;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFunc<p>
@@ -34,6 +39,7 @@ import org.opensha.data.*;
 public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
                                         implements Serializable {
 
+	private static final long serialVersionUID = 0xF1E37DA;
     /* Class name Debbuging variables */
     protected final static String C = "ArbitrarilyDiscretizedFunc";
 
@@ -254,7 +260,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @return
      */
     public ListIterator getXValuesIterator(){
-        ArrayList list = new ArrayList();
+        ArrayList<Double> list = new ArrayList<Double>();
         int max = points.size();
         for( int i = 0; i < max; i++){
             list.add( new Double(this.getX(i)) );
@@ -268,7 +274,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @return
      */
     public ListIterator getYValuesIterator(){
-        ArrayList list = new ArrayList();
+        ArrayList<Double> list = new ArrayList<Double>();
         int max = points.size();
         for( int i = 0; i < max; i++){
             list.add( new Double(this.getY(i)));
@@ -486,7 +492,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * the two lists to have the same number of points.
      */
     public boolean equalXValues(DiscretizedFuncAPI function){
-        String S = C + ": equalXValues():";
+        // String S = C + ": equalXValues():";
         if( this.getNum() != function.getNum() ) return false;
         Iterator it = this.getPointsIterator();
         while(it.hasNext()) {
@@ -506,7 +512,6 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      */
     public String toString(){
       StringBuffer b = new StringBuffer();
-      Iterator it2 = this.getPointsIterator();
 
       b.append("Name: " + getName() + '\n');
       b.append("Num Points: " + getNum() + '\n');

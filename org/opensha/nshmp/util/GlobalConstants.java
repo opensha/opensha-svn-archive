@@ -1,7 +1,10 @@
 package org.opensha.nshmp.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Properties;
+
 import javax.swing.ImageIcon;
+
 import org.opensha.util.ImageUtils;
 
 /**

@@ -1,16 +1,18 @@
 package org.opensha.param.editor;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ListIterator;
+import java.util.Vector;
 
-import java.awt.event.*;
-import javax.swing.*;
+import javax.swing.JComboBox;
 
+import org.opensha.exceptions.ConstraintException;
 import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.exceptions.*;
 
 /**
  * <b>Title:</b> ConstrainedStringParameterEditor<p>

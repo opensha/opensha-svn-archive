@@ -1,16 +1,30 @@
 package org.opensha.param.editor;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
-import org.opensha.exceptions.*;
-import org.opensha.gui.*;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.exceptions.ParameterException;
+import org.opensha.param.ParameterAPI;
+
+
 
 /**
  * <b>Title:</b> ParameterEditor<p>
@@ -46,6 +60,8 @@ public class ParameterEditor
         ParameterEditorAPI,
         FocusListener,
         KeyListener {
+	
+	private static final long serialVersionUID = 0x60232F6;
 
         /** Class name for debugging. */
     protected final static String C = "ParameterEditor";
@@ -143,7 +159,7 @@ public class ParameterEditor
     /** Constructor for the ParameterEditor hat just calls jbinit().  */
     public ParameterEditor() {
 
-        String S = C + ": Constructor(): ";
+      //  String S = C + ": Constructor(): ";
         try { jbInit(); }
         catch ( Exception e ) { e.printStackTrace(); }
 
@@ -233,9 +249,11 @@ public class ParameterEditor
       else
         this.model = model;
 
-      String name = "";
-      name = model.getName();
-      Object value = model.getValue();
+      //String name = "";
+      //name = 
+      model.getName();
+      //Object value = 
+      model.getValue();
     }
 
     /**
@@ -431,7 +449,7 @@ public class ParameterEditor
      *  new type of parameter.
      */
     protected void removeWidget() {
-        String S = C + ": addWidget(): ";
+       // String S = C + ": addWidget(): ";
         if ( widgetPanel != null && valueEditor != null )
             widgetPanel.remove( valueEditor );
         valueEditor = null;

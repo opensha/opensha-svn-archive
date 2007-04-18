@@ -1,18 +1,36 @@
 package org.opensha.nshmp.sha.gui.beans;
 
-import java.util.*;
-
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-
-import org.opensha.data.*;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
-import org.opensha.nshmp.exceptions.*;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+
+import org.opensha.data.Location;
+import org.opensha.nshmp.exceptions.LocationErrorException;
+import org.opensha.param.DoubleParameter;
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterConstraintAPI;
+import org.opensha.param.ParameterList;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ConstrainedDoubleParameterEditor;
+import org.opensha.param.editor.StringParameterEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeFailEvent;
+import org.opensha.param.event.ParameterChangeFailListener;
+import org.opensha.param.event.ParameterChangeListener;
 
 /**
  * <p>Title: LocationGuiBean</p>

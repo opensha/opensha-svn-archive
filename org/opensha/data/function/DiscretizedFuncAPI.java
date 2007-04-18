@@ -1,8 +1,11 @@
 package org.opensha.data.function;
 
-import java.util.*;
-import org.opensha.data.*;
-import org.opensha.exceptions.*;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import org.opensha.data.DataPoint2D;
+import org.opensha.data.NamedObjectAPI;
+import org.opensha.exceptions.DataPoint2DException;
 
 /**
  * <b>Title:</b> DiscretizedFuncAPI<p>

@@ -1,9 +1,14 @@
 package org.opensha.data.function;
 
-import java.util.*;
-import org.opensha.util.*;
-import org.opensha.exceptions.*;
-import org.opensha.data.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import org.opensha.data.DataPoint2D;
+import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.exceptions.DiscretizedFuncException;
+import org.opensha.exceptions.InvalidRangeException;
+
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFunc<p>
@@ -39,6 +44,7 @@ import org.opensha.data.*;
 
 public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
+	private static final long serialVersionUID = 0xC4E0D3D;
 
     /** Class name used for debbuging */
     protected final static String C = "EvenlyDiscretizedFunc";
@@ -336,7 +342,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * added to a local ArrayList. Then the iterator of the local ArrayList is returned.
      */
     public Iterator getPointsIterator(){
-        ArrayList list = new ArrayList();
+        ArrayList<DataPoint2D> list = new ArrayList<DataPoint2D>();
         for( int i = 0; i < num; i++){
             list.add( new DataPoint2D( getX(i), getY(i) ) );
         }
@@ -347,7 +353,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * This returns an iterator over x values as Double objects
      */
     public ListIterator getXValuesIterator(){
-        ArrayList list = new ArrayList();
+        ArrayList<Double> list = new ArrayList<Double>();
         for( int i = 0; i < num; i++){ list.add(new Double(getX(i))); }
         return list.listIterator();
     }
@@ -356,7 +362,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * This returns an iterator over y values as Double objects
      */
     public ListIterator getYValuesIterator(){
-        ArrayList list = new ArrayList();
+        ArrayList<Double> list = new ArrayList<Double>();
         for( int i = 0; i < this.num; i++){ list.add(new Double(getY(i))); }
         return list.listIterator();
     }
@@ -558,7 +564,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * that each point x value is the same, within tolerance
      */
     public boolean equalXValues(DiscretizedFuncAPI function){
-        String S = C + ": equalXValues():";
+        //String S = C + ": equalXValues():";
 
         if( !(function instanceof EvenlyDiscretizedFunc ) ) return false;
         if( num != function.getNum() ) return false;
@@ -603,7 +609,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * and that each y value is the same, including nulls.
      */
     public boolean equalXAndYValues(DiscretizedFuncAPI function){
-        String S = C + ": equalXAndYValues():";
+        //String S = C + ": equalXAndYValues():";
 
         if( !equalXValues(function) ) return false;
 
@@ -629,7 +635,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public String toString(){
       StringBuffer b = new StringBuffer();
-      Iterator it2 = this.getPointsIterator();
+      //Iterator it2 = this.getPointsIterator();
 
       b.append("Name: " + getName() + '\n');
       b.append("Num Points: " + getNum() + '\n');

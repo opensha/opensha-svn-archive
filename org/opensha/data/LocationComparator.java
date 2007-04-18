@@ -15,6 +15,7 @@ import java.util.*;
 public class LocationComparator
     implements Comparator, java.io.Serializable{
 
+  private static final long serialVersionUID = 0xB6DF7B4;
   /**
    * Compares 2 location objects. Comparision is done based on location latitudes.
    * If location latitudes are equal then it will comparison will be done based on

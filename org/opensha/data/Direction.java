@@ -1,6 +1,6 @@
 package org.opensha.data;
 
-import org.opensha.param.*;
+import org.opensha.param.DoubleParameter;
 
 
 /**

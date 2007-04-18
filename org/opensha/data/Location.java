@@ -1,7 +1,7 @@
 package org.opensha.data;
-import org.opensha.exceptions.InvalidRangeException;
-
 import java.text.DecimalFormat;
+
+import org.opensha.exceptions.InvalidRangeException;
 
 
 /**
@@ -25,6 +25,8 @@ import java.text.DecimalFormat;
 
 public class Location implements java.io.Serializable {
 
+	private static final long serialVersionUID = 0xCE5BF55;
+	
     /** Class name used for debugging strings  */
     protected final static String C = "Location";
 
@@ -175,7 +177,7 @@ public class Location implements java.io.Serializable {
 
     }
 
-    private final static char TAB = '\t';
+    // private final static char TAB = '\t';
     /** Prints out all field names and values. useful for debugging. */
     public String toString() {
 
@@ -251,7 +253,8 @@ public class Location implements java.io.Serializable {
     }
 
     public static void main(String[] args) {
-      Location loc;
+      @SuppressWarnings("unused")
+	Location loc;
       long time = System.currentTimeMillis();
       for(int i=0; i < 10000;i++) {
         loc = new Location(44,30,0);

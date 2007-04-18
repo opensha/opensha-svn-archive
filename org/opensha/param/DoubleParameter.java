@@ -1,7 +1,11 @@
 package org.opensha.param;
 
-import java.util.*;
-import org.opensha.exceptions.*;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.exceptions.EditableException;
+import org.opensha.exceptions.ParameterException;
+
+
+
 
 /**
  *  <b>Title:</b> DoubleParameter<p>
@@ -19,6 +23,8 @@ public class DoubleParameter
     extends DependentParameter
     implements DependentParameterAPI, ParameterAPI
 {
+	
+	private static final long serialVersionUID = 0xBD103F5;
 
     /** Class name for debugging. */
     protected final static String C = "DoubleParameter";
@@ -356,7 +362,7 @@ public class DoubleParameter
             throw new ClassCastException( S + "Object not a DoubleParameter, or DoubleDiscreteParameter, unable to compare" );
         }
 
-        int result = 0;
+     //   int result = 0;
 
         Double n1 = ( Double ) this.getValue();
         Double n2 = null;

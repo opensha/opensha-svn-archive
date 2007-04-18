@@ -1,10 +1,12 @@
 package org.opensha.nshmp.util;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
 
-import org.opensha.data.*;
-import org.opensha.nshmp.exceptions.*;
+import org.opensha.data.Location;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**
  * <p>Title: ZipCodeToLatLonConvertor</p>

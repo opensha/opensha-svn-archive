@@ -5,8 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.rmi.*;
-import java.text.*;
+import java.rmi.RemoteException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -19,9 +19,12 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.Location;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.data.calc.*;
-import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.data.calc.FaFvCalc;
+import org.opensha.nshmp.sha.data.calc.ResidentialSiteCalc;
+import org.opensha.nshmp.util.GlobalConstants;
+
+
 
 /**
  * <p>Title: DataGenerator_IRC</p>

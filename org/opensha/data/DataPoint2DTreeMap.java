@@ -1,9 +1,16 @@
 package org.opensha.data;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
 import org.opensha.exceptions.InvalidRangeException;
 
-import org.opensha.util.*;
+
 
 /**
  *  <b>Title:</b> DataPoint2DTreeMap <p>
@@ -85,6 +92,7 @@ import org.opensha.util.*;
  */
 public class DataPoint2DTreeMap extends org.opensha.data.TreeMap {
 
+	private static final long serialVersionUID = 0xCE2A37B;
     /**
      *  Internal object used for the value in the TreeMap. This object is
      *  ignored, since we are storing the DataPoint2D in the keys of the
@@ -122,7 +130,7 @@ public class DataPoint2DTreeMap extends org.opensha.data.TreeMap {
     public DataPoint2DTreeMap() {
         super();
 
-        DataPoint2DTreeMap map = new DataPoint2DTreeMap( comparator );
+        //DataPoint2DTreeMap map = new DataPoint2DTreeMap( comparator );
         this.comparator = new DataPoint2DToleranceComparator();
 
     }

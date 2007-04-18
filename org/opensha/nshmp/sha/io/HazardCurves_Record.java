@@ -1,8 +1,9 @@
 package org.opensha.nshmp.sha.io;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
-import org.opensha.util.*;
+import org.opensha.util.ByteSwapUtil;
 
 /**
  * <p>Title: HazardCurves_Record </p>

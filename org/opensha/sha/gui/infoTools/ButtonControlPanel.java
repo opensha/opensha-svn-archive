@@ -1,18 +1,20 @@
 package org.opensha.sha.gui.infoTools;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
-import org.jfree.data.Range;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-import org.opensha.util.*;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanel;
 import org.opensha.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
 
 /**
