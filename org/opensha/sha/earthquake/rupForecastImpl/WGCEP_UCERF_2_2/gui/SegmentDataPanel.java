@@ -30,8 +30,10 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_Ma
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource_testCorr;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
@@ -65,11 +67,16 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private final static PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(255,0,0), 12); // RED Cross symbols
 	private final static PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,0,0), 4); 
+		      new Color(0,0,0), 4); // BLACK LINE
 	private final static PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,255,0), 4); 
+		      new Color(0,255,0), 4); // GREEN LINE
 	private final static PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      new Color(0,0,0), 12); // BLACK Cross symbols
+	private final static PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      new Color(255,0,0), 4); // RED LINE
+	private final static PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.GRAY, 4); // GREY LINE
+	
 	private String xAxisLabel, yAxisLabel;
 	private ArrayList<PlotCurveCharacterstics> plottingFeatures, slipRatesAlongFaultPlottingFeatures, segmentedSlipRatePlottingFeatures, unSegmentedSlipRatePlottingFeatures, eventRatesPlottingFeatures, eventRateRatioPlotFeatures, slipRateRatioPlotFeatures;
 	private ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList;
@@ -106,13 +113,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR2);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
 		//slipRatePlottingFeatures.add(PLOT_CHAR4);
-		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR3);
-		
-		// Slip rate along fault plotting features
-		slipRatesAlongFaultPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR1);
-		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR2);
-		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR3);
+		segmentedSlipRatePlottingFeatures.add(PLOT_CHAR3);			
 		
 		
 		// UnSegmented slip rate plotting features
@@ -352,9 +353,25 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 	private void generateSlipRateAlongFaultFuncList(A_FaultSegmentedSourceGenerator segmentedSource, 
 			UnsegmentedSource unsegmentedSource) {
 		this.slipRatesAlongFaultList = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		slipRatesAlongFaultPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();
+		
 		slipRatesAlongFaultList.add(unsegmentedSource.getOrigSlipRateAlongFault());
-		slipRatesAlongFaultList.add(unsegmentedSource.getUnCorrSlipRateAlongFault());
+		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR5);
+		
 		slipRatesAlongFaultList.add(unsegmentedSource.getFinalSlipRateAlongFault());
+		slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR2);
+		
+		// contribution by magnitude
+		ArrayList<ArbitrarilyDiscretizedFunc> magBasedFuncs = unsegmentedSource.getMagBasedFinalSlipRateListAlongFault();
+		slipRatesAlongFaultList.addAll(magBasedFuncs);
+		for(int i=0; i<magBasedFuncs.size(); ++i) slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR6);
+
+		// Slip rate along fault plotting features
+		if(unsegmentedSource instanceof UnsegmentedSource_testCorr) {
+			slipRatesAlongFaultList.add(((UnsegmentedSource_testCorr)unsegmentedSource).getModifiedSlipRateAlongFault());
+			slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR3);
+		}
+	
 	}
 	
 	/**
