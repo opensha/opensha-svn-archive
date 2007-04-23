@@ -1,95 +1,66 @@
 package org.opensha.sha.gui;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.rmi.RemoteException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 
-
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
-import java.io.*;
 
-
-import org.jfree.data.Range;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.DiscretizedFuncList;
-
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.sha.calc.DisaggregationCalculator;
-import org.opensha.sha.earthquake.ERF_List;
-import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.HazardCurveCalculatorAPI;
+import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
-import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.gui.controls.DisaggregationControlPanel;
-import org.opensha.sha.gui.controls.DisaggregationControlPanelAPI;
-import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
-import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
-import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanelAPI;
-import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
-import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
-import org.opensha.sha.gui.controls.PlottingOptionControl;
-import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-import org.opensha.sha.gui.infoTools.ButtonControlPanel;
-import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.sha.gui.infoTools.GraphPanel;
-import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.sha.gui.infoTools.GraphWindow;
-import org.opensha.sha.gui.infoTools.GraphWindowAPI;
+import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.util.SystemPropertiesUtils;
-
-import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveClient;
-import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
-import org.opensha.sha.calc.HazardCurveCalculatorAPI;
-import org.opensha.sha.calc.DisaggregationCalculatorAPI;
-import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
-import org.opensha.sha.earthquake.ERF_API;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
-import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
-import java.awt.*;
-import java.text.DecimalFormat;
-
-import javax.swing.*;
-
-import java.awt.event.*;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
-import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.gui.controls.CyberShakePlotControlPanelAPI;
-import org.opensha.sha.gui.controls.CyberShakePlotControlPanel;
-import org.opensha.sha.gui.beans.TimeSpanGuiBean;
-import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
-import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
-
 
 import scratchJavaDevelopers.martinez.BenefitCostCalculator;
 import scratchJavaDevelopers.martinez.EALCalculator;
@@ -111,7 +82,8 @@ public class BCR_Application extends JFrame
     implements Runnable, ParameterChangeListener,
     IMR_GuiBeanAPI{
 
-  /**
+	private static final long serialVersionUID = 0x1B8589F;
+	/**
    * Name of the class
    */
   private final static String C = "BCR_Application";
