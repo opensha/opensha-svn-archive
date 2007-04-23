@@ -1001,7 +1001,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     	  imSetScenarioControl = new IM_EventSetCEA_ControlPanel(erfGuiBean,imrGuiBean,
                                                                 sitesGuiBean,mapGuiBean);
     }
-    imSetScenarioControl.setParamsForSanAndreasScenario();	  
+    imSetScenarioControl.setParamsForPuenteHillsScenario();	  
   }
   
   /**

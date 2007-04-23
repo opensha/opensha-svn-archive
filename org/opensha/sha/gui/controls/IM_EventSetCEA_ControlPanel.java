@@ -77,7 +77,7 @@ public class IM_EventSetCEA_ControlPanel {
   /**
    * Sets the default Parameters in the Application for the Puente Hill Scenario
    */
-  public void setParamsForSanAndreasScenario(){
+  public void setParamsForPuenteHillsScenario(){
     //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean

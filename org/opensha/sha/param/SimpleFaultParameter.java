@@ -674,6 +674,25 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   }
 
   /**
+   * Sets the Num Fault Trace Points
+   * @param numPoints number of locations on the fault trace
+   */
+  public void setNumFaultTracePoints(int numPoints){
+	  this.numFltTrace.setValue(new Integer(numPoints));
+	  this.initLatLonParamList();
+  }
+  
+  /**
+   * Sets the Num Dips
+   * @param numDips
+   */
+  public void setNumDips(int numDips){
+	  this.numDipParam.setValue(new Integer(numDips));
+	  this.initDipParamList();
+	  this.initDepthParamList();
+  }
+  
+  /**
    *
    * @returns the name of the fault
    */
@@ -740,6 +759,8 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     parameterList.getParameter(SimpleFaultParameter.GRID_SPACING).setValue(new Double(gridSpacing));
     parameterList.getParameter(SimpleFaultParameter.NUMBER_OF_FAULT_TRACE).setValue(new Integer(numFltPts));
     numDipParam.setValue(new Integer(numDips));
+    this.initLatLonParamList();
+   
     
     for(int i=0;i<numFltPts;++i) {
       parameterListParameterForLats.getParameter().getParameter(SimpleFaultParameter.LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));

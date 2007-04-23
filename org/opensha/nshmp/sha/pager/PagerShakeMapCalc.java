@@ -15,10 +15,12 @@ import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.*;
 
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.sha.param.PropagationEffect;
+import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.gui.beans.MapGuiBean;
 
@@ -54,10 +56,16 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   private boolean gmtMapToGenerate; // if GMT map needs to be geberated
   private String defaultSiteType; //in case we are not able to get the site type for any site
   //in the region.
+  
+  private ArrayList lats, lons,dips,depths;
 
   //instance to the Scenario ShakeMap Calc
   private ScenarioShakeMapCalculator calc;
 
+  //checks if Point of Finite source rupture.
+  private int numPoints;
+  private double mag,aveRake,aveDip,aveUpperSiesDepth,aveLowerSiesDepth;
+  
 
   private DecimalFormat latLonFormat  = new DecimalFormat("0.000##");
   private DecimalFormat meanSigmaFormat = new DecimalFormat("0.000##");
@@ -77,27 +85,72 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       ArrayList fileLines = null;
 
       fileLines = FileUtils.loadFile(fileName);
-
+      
       int j = 0;
       for(int i=0; i<fileLines.size(); ++i) {
         String line = ((String)fileLines.get(i)).trim();
         // if it is comment skip to next line
         if(line.startsWith("#") || line.equals("")) continue;
 
-        //
         if(j==0) setRegionParams(line); // first line sets the region Params
-        else if(j==1) setRupture(line) ; // set the rupture params
-        else if(j==2) setIMR(line); // set the imr
-        else if(j==3) setIMT(line);  // set the IMT
-        else if(j==4) setMapType(line); // map type iml at Prob or Prob at IML
-        else if(j==5) setPointSrcCorrection(line); // whether point source correction is needed or not needed
-        else if(j==6) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
-        else if(j==7) setMapRequested(line) ; // whether to generate GMT map
-        else if(j==8) setOutputFileName(line); // set the output file name
+        else if(j==1) getRupture(line) ; // set the rupture params
+        else if(j==2){
+        	numPoints = Integer.parseInt(line.trim());
+        	if(numPoints == 1){
+        		++i;
+    			line = ((String)fileLines.get(i)).trim();
+        		setPointRuptureSurface(line);
+        	}
+        	else if(numPoints >1){
+        		
+        		lats = new ArrayList();
+        		lons = new ArrayList();
+        		depths = new ArrayList();
+        		dips  = new ArrayList();
+        		for(int k=0;k<numPoints;++k){
+        			++i;
+        			line = ((String)fileLines.get(i)).trim();
+        			readLocationLine(line);
+        		}
+        		setFiniteRuptureSurface();
+        	}
+        }
+        else if(j==3) setIMR(line); // set the imr
+        else if(j==4) setIMT(line);  // set the IMT
+        else if(j==5) setMapType(line); // map type iml at Prob or Prob at IML
+        else if(j==6) setPointSrcCorrection(line); // whether point source correction is needed or not needed
+        else if(j==7) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
+        else if(j==8) setMapRequested(line) ; // whether to generate GMT map
+        else if(j==9) setOutputFileName(line); // set the output file name
         ++j;
       }
 
   }
+  
+  private void setFiniteRuptureSurface(){
+	  depths.add(aveUpperSiesDepth);
+	  depths.add(aveLowerSiesDepth);
+	  dips.add(aveDip);
+	  SimpleFaultParameter faultParameter;
+	  faultParameter = new SimpleFaultParameter("Simple Fault Surface");
+	  faultParameter.setNumFaultTracePoints(lats.size());
+	  faultParameter.setNumDips(dips.size());
+	  faultParameter.setAll(SimpleFaultParameter.DEFAULT_GRID_SPACING, 
+				lats, lons, dips, depths, SimpleFaultParameter.STIRLING);
+	  faultParameter.setEvenlyGriddedSurfaceFromParams();
+	  rupture = new EqkRupture();
+	  rupture.setRuptureSurface((EvenlyGriddedSurfaceAPI)faultParameter.getValue());
+	  rupture.setAveRake(aveRake);
+	  rupture.setMag(mag);
+	  
+  }
+  
+  private void readLocationLine(String str){
+	  StringTokenizer tokenizer = new StringTokenizer(str);
+	  lats.add(Double.parseDouble(tokenizer.nextToken().trim()));
+	  lons.add(Double.parseDouble(tokenizer.nextToken().trim()));
+  }
+  
 
   /**
    * Setting the Region parameters
@@ -128,21 +181,27 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       System.exit(0);
     }
   }
+  
+  private void getRupture(String str){
+	  StringTokenizer tokenizer = new StringTokenizer(str);
+	  mag = Double.parseDouble(tokenizer.nextToken());
+	  aveRake = Double.parseDouble(tokenizer.nextToken());
+	  aveDip = Double.parseDouble(tokenizer.nextToken());
+	  aveUpperSiesDepth = Double.parseDouble(tokenizer.nextToken());
+	  aveLowerSiesDepth = Double.parseDouble(tokenizer.nextToken());
+  }
 
-  private void setRupture(String str) {
+  private void setPointRuptureSurface(String str) {
     StringTokenizer tokenizer = new StringTokenizer(str);
     double rupLat = Double.parseDouble(tokenizer.nextToken());
     double rupLon = Double.parseDouble(tokenizer.nextToken());
-    double rupDepth = Double.parseDouble(tokenizer.nextToken());
-    double rupMag = Double.parseDouble(tokenizer.nextToken());
-    double rupRake = Double.parseDouble(tokenizer.nextToken());
-    double rupDip = Double.parseDouble(tokenizer.nextToken());
+    
     rupture = new EqkRupture();
-    Location rupLoc = new Location(rupLat,rupLon,rupDepth);
-    rupture.setPointSurface(rupLoc,rupDip);
+    Location rupLoc = new Location(rupLat,rupLon,aveUpperSiesDepth);
+    rupture.setPointSurface(rupLoc,aveDip);
     //    rupture.setHypocenterLocation(rupLoc);    // this will put a star at the hypocenter
-    rupture.setMag(rupMag);
-    rupture.setAveRake(rupRake);
+    rupture.setMag(mag);
+    rupture.setAveRake(aveRake);
   }
 
   private void setIMR(String str) {
@@ -509,6 +568,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       System.exit(0);
     }
     catch (Exception ex) {
+    	ex.printStackTrace();
       System.out.println("Unable to parse the input file"+ args[0]);
       System.out.println("Please provide correct input file.");
       System.exit(0);
