@@ -40,7 +40,7 @@
 # "CY_2006_AttenRel"
 # See the above named links at the following web site for details:
 # http://www.opensha.org/java_code/doc/org/scec/sha/imr/AttenuationRelationship.html for details
-CB_2006_AttenRel
+BA_2006_AttenRel
 #
 # Choose an INTENSITY_MEASURE TYPE ("PGA", "PGV", "SA", and "MMI"
 # are currently supported).  If "SA" is chosen give the period as 
