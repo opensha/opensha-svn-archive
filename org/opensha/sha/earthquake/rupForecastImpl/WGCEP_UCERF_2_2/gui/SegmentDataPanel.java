@@ -489,7 +489,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		String rateConstraintStr = "Event Rate Constraints for the Unsegmented Model \n"+
 			"---------------------------------------\n\n";
 		rateConstraintStr+="Latitude\tLongitude\tRate(Obs)\tSigma(Obs)\t" +
-				"-95%\t95%\tRate(Predicted)\tNorm Resid\tSitename\n";
+				"-95%\t95%\tPredRate\tNormResid\tPredObsRate\tNormResid\tSitename\n";
 		int numEvents = this.aFaultsFetcherEventRatesList.size();
 		for(int eventIndex=0; eventIndex<numEvents; ++eventIndex) {
 			EventRates eventRate = aFaultsFetcherEventRatesList.get(eventIndex);
@@ -501,6 +501,8 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			EVENT_RATE_FORMAT.format(eventRate.getUpper95Conf())+"\t" +
 			EVENT_RATE_FORMAT.format(eventRate.getPredictedRate())+"\t" +
 			SLIP_FORMAT.format((eventRate.getPredictedRate()-eventRate.getObsEventRate())/eventRate.getObsSigma())+"\t" +
+			EVENT_RATE_FORMAT.format(eventRate.getPredictedObsRate())+"\t" +
+			SLIP_FORMAT.format((eventRate.getPredictedObsRate()-eventRate.getObsEventRate())/eventRate.getObsSigma())+"\t" +
 			eventRate.getSiteName()+"\n";
 		}
 		return rateConstraintStr;

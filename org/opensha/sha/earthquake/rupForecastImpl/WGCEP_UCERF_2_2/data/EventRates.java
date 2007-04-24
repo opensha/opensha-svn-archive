@@ -17,6 +17,7 @@ public class EventRates {
 	private double obsEventRate;
 	private double obsSigma;
 	private double predictedRate;
+	private double predictedObsRate;  // this is predictedRate reduced by prob not obs in trench
 	private double lower95Conf;
 	private double upper95Conf;
 	private String faultName;
@@ -75,8 +76,16 @@ public class EventRates {
 		return predictedRate;
 	}
 
+	public double getPredictedObsRate() {
+		return predictedObsRate;
+	}
+
 	public void setPredictedRate(double predictedRate) {
 		this.predictedRate = predictedRate;
+	}
+
+	public void setPredictedObsRate(double predictedObsRate) {
+		this.predictedObsRate = predictedObsRate;
 	}
 
 	public double getLower95Conf() {

@@ -1658,13 +1658,18 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			//System.out.println(numSources);
 			for(int locIndex=0; locIndex<eventRatesList.size(); ++locIndex) {
 				EventRates event = eventRatesList.get(locIndex);	
-				double rate = 0;
+				double rate = 0, obsRate = 0;
+				Location loc;
 				for(int iSource=0; iSource<numSources; ++iSource) {
 					UnsegmentedSource source = (UnsegmentedSource)aFaultSourceGenerators.get(iSource);
-					if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName()))
-						rate+=source.getPredEventRate(new Location(event.getLatitude(), event.getLongitude()));
+					if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName())) {
+						loc = new Location(event.getLatitude(), event.getLongitude());
+						rate+=source.getPredEventRate(loc);
+						obsRate+=source.getPredObsEventRate(loc);
+					}
 				}
 				event.setPredictedRate(rate);
+				event.setPredictedObsRate(obsRate);
 			}	
 		}
 		else 

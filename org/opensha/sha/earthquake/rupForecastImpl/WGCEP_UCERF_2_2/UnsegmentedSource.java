@@ -425,7 +425,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			// find the segment where this location exists
 			for(int segIndex=0; segIndex<num_seg; ++segIndex) {
 				if(length<segLengths.getY(segIndex)) {
-					slipRate = segmentData.getSegmentSlipRate(segIndex);
+					slipRate = segmentData.getSegmentSlipRate(segIndex)*(1-moRateReduction);
 					break;
 				}
 			}
@@ -547,9 +547,19 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 * @return
 	 */
 	private double[] getProbSegObsRupture(double[] segLengths, double totalLength, double rupLength) {
+
+//		if(this.segmentData.getFaultName().equals("Calaveras"))
+//			System.out.println("Calaveras: "+segLengths[0]+"  "+segLengths[1]+"  "+segLengths[2]+"  "+totalLength+"  "+rupLength);
+
+		double[] segProbs = new double[segLengths.length];
+
+		// check whether rup length exceed fault length; all get it if so
+		if(rupLength>totalLength) {
+			for(int j=0; j<segLengths.length; ++j) segProbs[j]=1.0;;
+			return segProbs;
+		}
+
 		EvenlyDiscretizedFunc probFunc = new EvenlyDiscretizedFunc(0, totalLength, 100);
-		// check whether rup length exceed fault length and shorten if so
-		if(rupLength>totalLength) rupLength = totalLength;
 		// first get the probability of observing the rupture at 100 points long the fault
 		if(rupLength<totalLength/2) {
 			double multFactor = rupLength/(totalLength-rupLength);  
@@ -574,7 +584,6 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//if (D) System.out.println("Prob Func="+probFunc.toString());
 		
 		// now average the probabilities for those points in each segment
-		double[] segProbs = new double[segLengths.length];
 		double firstLength = 0;
 		double lastLength;
 		for(int i=0 ; i<segLengths.length ; ++i) {
@@ -695,6 +704,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 			segVisibleSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 			IncrementalMagFreqDist segMFD =  segSourceMFD[seg];
+//if(this.segmentData.getFaultName().equals("Calaveras"))
+//	System.out.println(segMFD);
 			IncrementalMagFreqDist visibleSegMFD =  visibleSegSourceMFD[seg];
 			for(int i=0; i<segMFD.getNum(); ++i) {
 				double mag = segMFD.getX(i);
@@ -790,6 +801,49 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}
+	
+	
+	
+	/**
+	 * Get the "observed" rate at a particular location on the fault trace. By "observed" we mean reduce the rate
+	 * according to the probability that each rupture might not be seen in paleoseismic data.
+	 * It is calculated by adding the rates*prob_obs of all ruptures that include that location.
+	 * 
+	 * @param loc
+	 * @param distanceCutOff - rupture included in total if point on surface is within this distance
+	 * @return
+	 */
+	public double getPredObsEventRate(Location loc) {
+		// find distance to closest point on surface trace
+		EvenlyGriddedSurface surface = this.getSourceSurface();
+		double minDist = Double.MAX_VALUE, dist;
+		for(int col=0; col < surface.getNumCols(); col++){
+			dist = RelativeLocation.getApproxHorzDistance(surface.getLocation(0,col), loc);
+			if(dist <minDist) minDist = dist;
+		}
+		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
+		if(distanceCutOff > 2) throw new RuntimeException ("Location:("+loc.getLatitude()+","+loc.getLongitude()+") is more than 2 km from any rupture");
+		double rate = 0;
+		int numRups = getNumRuptures();
+		//System.out.println(loc.getLatitude()+","+loc.getLongitude());
+		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
+			ProbEqkRupture rupture = this.getRupture(rupIndex);
+			double probVis = getProbVisible(rupture.getMag());
+			Iterator it = rupture.getRuptureSurface().getLocationsIterator();
+			while(it.hasNext()) { // iterate over all locations in a rupture
+				Location surfaceLoc = (Location)it.next();
+				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
+					rate+= rupture.getMeanAnnualRate(this.duration) * probVis;
+					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
+						//	rupture.getMeanAnnualRate(this.duration));
+					break;
+				}
+			}
+		}
+		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
+		return rate;
+	}
+	
 	
 
 	/**
