@@ -51,6 +51,14 @@ public class BenefitCostBean implements GuiBeanAPI {
 	//                              Public Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Constructs a BenefitCostBean ready to be used in an application.  To visualize the
+	 * bean, one must make a call to the <code>getVisualization()</code> method as defined
+	 * in the <code>GuiBeanAPI</code>.  This bean currently supports the <code>GuiBeanAPI.APPLICATION</code>
+	 * visualization method, which returns a <code>JPanel</code> that can be embedded into
+	 * a parent container.  The bean listens to itself and updates all its parameters accordingly.
+	 * Use the public getter methods to retrieve information captured by this bean.
+	 */
 	public BenefitCostBean() {
 		structNow = new StructureDescriptorBean("Current Construction Conditions");
 		structRetro = new StructureDescriptorBean("What-If Construction Conditions");
@@ -78,17 +86,27 @@ public class BenefitCostBean implements GuiBeanAPI {
 		retroCostParam.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
 
+	/** Gets the bean's current description */
 	public String getDescription() { return description; }
+	/** Gets the bean's current discount rate */
 	public double getDiscountRate() { return discountRate; }
+	/** Gets the bean's current design life */
 	public double getDesignLife() { return designLife; }
+	/** Gets the bean's current retrofit cost */
 	public double getRetroCost() { return retroCost; }
 	
+	/** Gets the bean's current vulnerability model */
 	public VulnerabilityModel getCurrentVulnModel() { return getVulnModel(CURRENT); }
+	/** Gets the bean's current vulnerability parameter */
 	public ParameterAPI getCurrentVulnParam() { return getVulnerabilityParameter(CURRENT); }
+	/** Gets the bean's current replacement cost */
 	public double getCurrentReplaceCost() { return getReplaceCost(CURRENT); }
 	
+	/** Gets the bean's retrofitted vulnerability model */
 	public VulnerabilityModel getRetroVulnModel() { return getVulnModel(RETRO); }
+	/** Gets the bean's retrofitted vulnerability parameter */
 	public ParameterAPI getRetroVulnParam() { return getVulnerabilityParameter(RETRO); }
+	/** Gets the bean's retrofitted replacement cost */
 	public double getRetroReplaceCost() { return getReplaceCost(RETRO); }
 	
 	/**

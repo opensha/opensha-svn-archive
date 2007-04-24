@@ -88,6 +88,16 @@ public class EALCalculator {
 		this.structValue = structValue;
 	}
 	
+	/**
+	 * Creates a new EALCalculator based on the given hazFunc, vulnFunc, and structValue.  The IML (x) values
+	 * for the hazFunc and vulnFunc must match else an exception is thrown.  A calculator created in this way
+	 * will use the IML values from the haz-/vulnFunc for its IML values, the MAFE values from the hazFunc, and
+	 * the DF values from the vulnFunc.  The structValue is used for replacement cost.
+	 * @param hazFunc
+	 * @param vulnFunc
+	 * @param structValue
+	 * @throws IllegalArgumentException
+	 */
 	public  EALCalculator(DiscretizedFuncAPI hazFunc, DiscretizedFuncAPI vulnFunc, double structValue) throws
 			IllegalArgumentException {
 		this.IML = new ArrayList<Double>();
@@ -179,13 +189,18 @@ public class EALCalculator {
 	////////////////////////////////////////////////////////////////////////////////
 	//                            Simple Getters and Setters                      //
 	////////////////////////////////////////////////////////////////////////////////
+	/** @return An <code>ArrayList</code> of Damage Factors */
 	public ArrayList<Double> getDF() {
 		return DF;
 	}
-	/** Note: No checking is done to ensure the given DF values correspond to current IML values */
+	/**
+	 *  Note: No checking is done to ensure the given DF values correspond to current IML values
+	 */
 	public void setDF(ArrayList<Double> df) {
 		DF = df;
 	}
+	
+	/** @return An <code>ArrayList</code> of IML values */
 	public ArrayList<Double> getIML() {
 		return IML;
 	}
@@ -193,6 +208,7 @@ public class EALCalculator {
 	public void setIML(ArrayList<Double> iml) {
 		IML = iml;
 	}
+	/** @return An <code>ArrayList</code> of MAFE values */
 	public ArrayList<Double> getMAFE() {
 		return MAFE;
 	}
@@ -200,9 +216,11 @@ public class EALCalculator {
 	public void setMAFE(ArrayList<Double> pe) {
 		MAFE = pe;
 	}
+	/** @return The replacement cost for the structure */
 	public double getStructValue() {
 		return structValue;
 	}
+	/** Sets the replacement cost to <code>structValue</code> */
 	public void setStructValue(double structValue) {
 		this.structValue = structValue;
 	}

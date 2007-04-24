@@ -6,7 +6,10 @@ import java.util.TreeMap;
 import scratchJavaDevelopers.martinez.Trackable;
 
 /**
- * This class serves as the base class for all other structure types.  
+ * This class serves as the base class for all other structure types.  All structure
+ * types must be <code>Trackable</code> in order that we might maintain a relationship
+ * between supported vulnerabilities/structure types.
+ * 
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  */
 public abstract class StructureType implements Trackable {
@@ -86,6 +89,10 @@ public abstract class StructureType implements Trackable {
 	////////////////////////////////////////////////////////////////////////////////
 	//                               Public Functions                             //
 	////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * @return An <code>ArrayList</code> of currently registered <code>StructureTypes</code>
+	 */
 	public ArrayList<StructureType> getLibraryOfTypes() {
 		ArrayList<StructureType> st = new ArrayList<StructureType>();
 		for(int i = 0; i < registeredTypes.size(); ++i) {
@@ -94,6 +101,9 @@ public abstract class StructureType implements Trackable {
 		return st;
 	}
 	
+	/**
+	 * @return An <code>ArrayList</code> of types that are supported by the implementing <code>StructureType</code>
+	 */
 	public ArrayList<String> getSupportedTypes() {
 		return supportedTypes;
 	}

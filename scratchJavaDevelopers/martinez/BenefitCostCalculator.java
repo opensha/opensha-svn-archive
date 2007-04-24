@@ -151,17 +151,28 @@ public class BenefitCostCalculator {
 
 	
 	////////////////////          Setters          ////////////////////
+	/** Sets the NetCost to <code>netCost</code> */
 	public void setNetCost(double netCost) {this.netCost = netCost;}
+	/** Sets the NetCost to <code>cost1 - cost0</code> */
 	public void setNetCost(double cost0, double cost1) {this.netCost = cost1 - cost0;}
+	/** Sets the initialEAL value to <code>eal0</code> */
 	public void setInitialEAL(double eal0) {EAL0 = eal0;}
+	/** Sets the retroEAL value to <code>eal1</code> */
 	public void setRetroEAL(double eal1) {EAL1 = eal1;}
+	/** Sets the discount rate (in %) to <code>rate</code> */
 	public void setRate(double rate) {this.rate = rate;}
+	/** Sets the return period (in years) to <code>years</code> */
 	public void setYears(double years) {this.years = years;}
 
 	////////////////////          Getters          ////////////////////
+	/** @return The <code>netCost</code> for this retrofit analysis */
 	public double getNetCost() {return netCost;}
+	/** @return The EAL for "as-is" conditions */
 	public double getInitialEAL() {return EAL0;}
+	/** @return The EAL for "what-if" conditions */
 	public double getRetroEAL() {return EAL1;}
+	/** @return The current discount rate (in %) */
 	public double getRate() {return rate;}
+	/** @return The current return period (in years) */
 	public double getYears() {return years;}
 }

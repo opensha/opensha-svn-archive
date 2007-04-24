@@ -9,12 +9,31 @@ import Jama.Matrix;
 
 import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 
+/**
+ * <strong>Title</strong>: LossCurveCalculator<br />
+ * <strong>Description</strong>: Computes a loss curve (in the form of an <code>ArbitrarilyDiscretizedFunc</code> by
+ * using the given hazFunc and vulnModel.  A loss curve represents the expected loss incurred by a structure at predefined
+ * intensity measure levels (damage factors) given a particular hazard forecast model.
+ * 
+ * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</code>
+ *
+ */
 public class LossCurveCalculator {
 
+	/**
+	 * Creates a new Calculator
+	 *
+	 */
 	public LossCurveCalculator() {
 		
 	}
 	
+	/**
+	 * Generates a loss curve based on the given <code>hazFunc</code> and <code>curVulnModel</code>.
+	 * @param hazFunc An <code>ArbitrarilyDiscretizedFunc</code> representing the hazard curve
+	 * @param curVulnModel The vulnerability model to use for calculation purposes.
+	 * @return The loss cuves associated with the given <code>hazFunc</code> and <code>curVulnModel</code>
+	 */
 	public ArbitrarilyDiscretizedFunc getLossCurve(ArbitrarilyDiscretizedFunc hazFunc, VulnerabilityModel curVulnModel) {
 		ArbitrarilyDiscretizedFunc lossCurve = new ArbitrarilyDiscretizedFunc();
 		// Get the damage factors (these will be x values later)...
@@ -43,6 +62,15 @@ public class LossCurveCalculator {
 		return lossCurve;
 	}
 	
+	/**
+	 * Differences the values stored in </code>vals</code> as follows:<br />
+	 * <pre>
+	 * 	rtn[i] = vals[i] - vals[i-1], for 1 < i < vals.length
+	 * </pre><br />
+	 * (That is if <code>vals</code> were an array...)
+	 * @param vals The values to difference
+	 * @return The differenced array.
+	 */
 	public static ArrayList<Double> diffIt(ArrayList<Double> vals) {
 		ArrayList<Double> rtn = new ArrayList<Double>();
 		int i = 1;

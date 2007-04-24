@@ -35,11 +35,16 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 	//                              Public Functions                              //
 	////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * Creates an unnamed StructureDescriptorBean
+	 */
 	public StructureDescriptorBean() {
 		this("");
 	}
 	
 	/**
+	 * Creates a new StructureDescriptorBean with the given name.  The name is used for display purposes
+	 * within the application.
 	 * @param name The title of this bean.
 	 */
 	public StructureDescriptorBean(String name) {
@@ -53,8 +58,11 @@ public class StructureDescriptorBean implements GuiBeanAPI {
 		replaceCost.addParameterChangeFailListener((ParameterChangeFailListener) listener);
 	}
 	
+	/** @return The vulnerability bean used by this bean */
 	public VulnerabilityBean getVulnerabilityBean() { return vulnBean; }
+	/** @return The current vulnerability model selected within the vulnerability bean */
 	public VulnerabilityModel getVulnerabilityModel() { return vulnBean.getCurrentModel(); }
+	/** @return The current cost to replace the structre describe by this bean */
 	public double getReplaceCost() { return replaceVal; }
 
 	////////////////////////////////////////////////////////////////////////////////
