@@ -1091,7 +1091,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		cZonesMFD_List = new ArrayList<IncrementalMagFreqDist> ();
 		if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
- 			
+/* 			
 			String []names = { "Foothills Fault System", "Mohawk-Honey Lake Zone",
 					"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
 					"Eastern California Shear Zone S", "Imperial Valley", "San Gorgonio Knot"};
@@ -1103,6 +1103,19 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			double[] length = { 360, 88, 230, 245, 180, 88, 58, 100 }; // km
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
 			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.6, 7.6, 7.3, 7.3};
+*/
+			String []names = {"Foothills Fault System", "Mohawk-Honey Lake Zone",
+					"Northeastern California", "Western Nevada", 
+					"Eastern California Shear Zone", "San Gorgonio Knot"};
+			
+			double[] slipRates = { 0.1, 4.0, 4.0, 8.0, 4.0, 4.0}; // mm/yr
+			double[] depthTop = { 0, 0, 0, 0, 0, 0}; // km
+			double[] depthBottom = { 12, 15, 15, 15, 15, 18}; //km
+			double[] strike = { 325, 335, 315, 315, 313, 293};
+			double[] length = { 360, 230, 88, 245, 219, 102}; // km
+			double[] magLower = {6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
+			double[] magUpper = {7.6, 7.6, 7.6, 7.6, 7.6, 7.6};
+	
 			double bValue = 0.8;
 			double moRate, slipRate;
 			for(int i=0; i<names.length; ++i) {
