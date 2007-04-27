@@ -20,3 +20,6 @@
 - Greenville
 6:Greenville (No)
 7:Greenville (So) 
+- San Gregorio
+29:San Gregorio (So)
+12:San Gregorio (No)

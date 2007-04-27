@@ -47,3 +47,6 @@
 - Little Salmon
 17:Little Salmon (Onshore)
 16:Little Salmon (Offshore)
+- San Gregorio
+29:San Gregorio (So)
+12:San Gregorio (No)
