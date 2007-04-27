@@ -124,7 +124,6 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
         else if(j==9) setOutputFileName(line); // set the output file name
         ++j;
       }
-
   }
   
   private void setFiniteRuptureSurface(){

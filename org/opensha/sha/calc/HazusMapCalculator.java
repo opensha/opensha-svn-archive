@@ -243,14 +243,15 @@ public class HazusMapCalculator {
     	    double prob = 1-Math.exp(-1*rate*duration);
     	    double pgaIML =0.0,sa03IML=0.0,sa1IML=0.0,pgvIML=0.0;
     	    
-    	    
-        pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-    
-        sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-    
-        sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
-        
-        pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	try{    
+	        pgaIML = ((ArbitrarilyDiscretizedFunc)pgaHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+	    
+	        sa03IML = ((ArbitrarilyDiscretizedFunc)sa03HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+	    
+	        sa1IML = ((ArbitrarilyDiscretizedFunc)sa1HazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+	        
+	        pgvIML = ((ArbitrarilyDiscretizedFunc)pgvHazardFunction).getFirstInterpolatedX_inLogXLogYDomain(prob);
+    	}catch(InvalidRangeException e){}
         if(!pgvSupported)
         	pgvIML = pgvIML * 37.24*2.54;
     	fw[i].write(format.format(loc.getLatitude()) +","+format.format(loc.getLongitude())+","+
