@@ -67,7 +67,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private final static int H = 800;
 	private  JMenuBar menuBar = new JMenuBar();
 	private JMenu analysisMenu = new JMenu("Further Analysis");
-	private JMenuItem genReportFigMenu = new JMenuItem("Generate Report Figures");
+	private JMenuItem genReportFigMenu = new JMenuItem("Generate MFD Figs for Report");
 	private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
 	
