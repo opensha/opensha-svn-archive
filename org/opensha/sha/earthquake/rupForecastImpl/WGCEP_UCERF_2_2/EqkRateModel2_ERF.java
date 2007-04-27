@@ -227,11 +227,25 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public final static String SEGMENTED_RUP_MODEL_TYPE_INFO = "To set the a-prior solution for each type-A Fault Source";
 	private ParameterListParameter segmentedRupModelParam;
 	
+	// min rate param 1
+	public final static String MIN_A_FAULT_RATE_1_PARAM_NAME = "Min A-Fault Rate Fract 1";
+	private final static Double MIN_A_FAULT_RATE_MIN = new Double(0.0);
+	private final static Double MIN_A_FAULT_RATE_MAX = new Double(1.0);
+	private final static Double MIN_A_FAULT_RATE_1_DEFAULT = new Double(0.5);
+	private final static String MIN_A_FAULT_RATE_1_INFO = "The min rate for unknown ruptures, defined as fraction of min non-zero a-priori rate";
+	private DoubleParameter minA_FaultRate1Param;
+	
+	// min rate param 2
+	public final static String MIN_A_FAULT_RATE_2_PARAM_NAME = "Min A-Fault Rate Fract 2";
+	private final static Double MIN_A_FAULT_RATE_2_DEFAULT = new Double(0.1);
+	private final static String MIN_A_FAULT_RATE_2_INFO = "The min rate for unlikely ruptures, defined as fraction of min non-zero a-priori rate";
+	private DoubleParameter minA_FaultRate2Param;
+/*
 	// preserve minimum A-fault rates param
 	public final static String PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME = "Preserve Min A Fault Rates?";
 	private final static String PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO = "This will prevent rates from being lower than the minimum in the a-priori model";
 	private BooleanParameter preserveMinAFaultRateParam;
-
+*/
 	// weighted inversion param
 	public final static String WEIGHTED_INVERSION_PARAM_NAME = "Weighted Inversion?";
 	private final static String WEIGHTED_INVERSION_PARAM_INFO = "Use segment rate and slip rate uncertainties to weight the inversion";
@@ -455,10 +469,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		constrainA_SegRatesParam = new BooleanParameter(CONSTRAIN_A_SEG_RATES_PARAM_NAME, new Boolean(true));
 		constrainA_SegRatesParam.setInfo(CONSTRAIN_A_SEG_RATES_PARAM_INFO);
 */
-		
+/*		
 		// preserveMinAFaultRateParam
 		preserveMinAFaultRateParam = new BooleanParameter(PRESERVE_MIN_A_FAULT_RATE_PARAM_NAME, true);
 		preserveMinAFaultRateParam.setInfo(PRESERVE_MIN_A_FAULT_RATE_PARAM_INFO);
+*/	
+		// min rate param 1
+		minA_FaultRate1Param = new DoubleParameter(MIN_A_FAULT_RATE_1_PARAM_NAME, MIN_A_FAULT_RATE_MIN, MIN_A_FAULT_RATE_MAX,
+				MIN_A_FAULT_RATE_1_DEFAULT);
+		minA_FaultRate1Param.setInfo(MIN_A_FAULT_RATE_1_INFO);
+
+		// min rate param 2
+		minA_FaultRate2Param = new DoubleParameter(MIN_A_FAULT_RATE_2_PARAM_NAME, MIN_A_FAULT_RATE_MIN, MIN_A_FAULT_RATE_MAX,
+				MIN_A_FAULT_RATE_2_DEFAULT);
+		minA_FaultRate2Param.setInfo(MIN_A_FAULT_RATE_2_INFO);
 		
 		// weightedInversionParam
 		weightedInversionParam = new BooleanParameter(WEIGHTED_INVERSION_PARAM_NAME, true);
@@ -595,7 +619,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// relativeSegRateWeightParam
 		relativeSegRateWeightParam.setValue(REL_SEG_RATE_WT_PARAM_DEFAULT);		
 		// preserveMinAFaultRateParam
-		preserveMinAFaultRateParam.setValue(true);
+//		preserveMinAFaultRateParam.setValue(true);
+		minA_FaultRate1Param.setValue(MIN_A_FAULT_RATE_1_DEFAULT);
+		minA_FaultRate2Param.setValue(MIN_A_FAULT_RATE_2_DEFAULT);
 		// weightedInversionParam
 		weightedInversionParam.setValue(true);	
 		// connect more B Faults
@@ -663,12 +689,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
 		String rupModel = (String)rupModelParam.getValue();
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(segmentedRupModelParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(slipModelParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(relativeA_PrioriWeightParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(relativeSegRateWeightParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(weightedInversionParam);
-		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(preserveMinAFaultRateParam);
+		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) {
+			adjustableParams.addParameter(segmentedRupModelParam);
+			adjustableParams.addParameter(slipModelParam);
+			adjustableParams.addParameter(relativeA_PrioriWeightParam);
+			adjustableParams.addParameter(relativeSegRateWeightParam);
+			adjustableParams.addParameter(weightedInversionParam);
+			adjustableParams.addParameter(minA_FaultRate1Param);
+			adjustableParams.addParameter(minA_FaultRate2Param);
+//			adjustableParams.addParameter(preserveMinAFaultRateParam);
+		}
+		
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) adjustableParams.addParameter(aFaultB_ValParam);
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
@@ -1140,7 +1171,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		String slipModel = (String)slipModelParam.getValue();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		boolean preserveMinAFaultRate = ((Boolean) preserveMinAFaultRateParam.getValue()).booleanValue();
+//		boolean preserveMinAFaultRate = ((Boolean) preserveMinAFaultRateParam.getValue()).booleanValue();
 		boolean wtedInversion = ((Boolean) weightedInversionParam.getValue()).booleanValue();
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
 		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
@@ -1151,9 +1182,33 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
+			
+			// set the min-rate constraint and correct bogus, indicator rates in aPrioriRates
+			double minRates[] = new double[aPrioriRates.length];
+			double minRateFrac1 = ((Double)minA_FaultRate1Param.getValue()).doubleValue(); // for unknown ruptures
+			double minRateFrac2 = ((Double)minA_FaultRate2Param.getValue()).doubleValue(); // for unlikely ruptures
+			double minRate = Double.MAX_VALUE;
+			for(int rup=0; rup<aPrioriRates.length; rup++) // find minimum, ignoring values less than zero which are indicators
+				if(aPrioriRates[rup].getValue() < minRate && aPrioriRates[rup].getValue() >= 0) minRate = aPrioriRates[rup].getValue();
+			for(int rup=0; rup<aPrioriRates.length; rup++) {
+				double rate = aPrioriRates[rup].getValue();
+				if(rate >= 0) minRates[rup] = minRate*minRateFrac1; // treat it as unknowns
+				else if (rate == -1) {
+					minRates[rup] = minRate*minRateFrac1;
+					aPrioriRates[rup].setValue(0.0);   // over ride bogus indicator value with zero
+				}
+				else if (rate == -2) {
+					minRates[rup] = minRate*minRateFrac2;
+					aPrioriRates[rup].setValue(0.0);   // over ride bogus indicator value with zero
+				}
+				else 
+					throw new RuntimeException("Problem with a-priori rates for fault "+segmentData.getFaultName());
+// System.out.println(rup+"  "+(float)minRates[rup]+"  "+segmentData.getFaultName());
+			}
+			
 			A_FaultSegmentedSourceGenerator aFaultSourceGenerator = new A_FaultSegmentedSourceGenerator(segmentData, 
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
-					magTruncLevel, totMoRateReduction, meanMagCorrection,preserveMinAFaultRate, 
+					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
 			aFaultSourceGenerator.setDuration(duration);
 			aFaultSourceGenerators.add(aFaultSourceGenerator);

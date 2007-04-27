@@ -59,7 +59,8 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	private double magSigma, magTruncLevel;
 	
-	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
+//	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
+	private double minRates[]; // the minimum rate constraint
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
 	private double relativeSegRate_wt, aPrioriRupWt, minNonZeroAprioriRate;
 //	public final static double MIN_A_PRIORI_ERROR = 1e-6;
@@ -145,7 +146,7 @@ public class A_FaultSegmentedSourceGenerator {
 	public A_FaultSegmentedSourceGenerator(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			String slipModelType, ValueWeight[] aPrioriRupRates, double magSigma, 
 			double magTruncLevel, double moRateReduction, double meanMagCorrection,
-			boolean preserveMinAFaultRate, boolean wtedInversion, double relativeSegRate_wt,
+			double minRates[], boolean wtedInversion, double relativeSegRate_wt,
 			double aPrioriRupWt) {
 		
 		this.segmentData = segmentData;
@@ -155,7 +156,8 @@ public class A_FaultSegmentedSourceGenerator {
 		this.magTruncLevel = magTruncLevel;
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		this.meanMagCorrection = meanMagCorrection;
-		this.preserveMinAFaultRate = preserveMinAFaultRate;
+//		this.preserveMinAFaultRate = preserveMinAFaultRate;
+		this.minRates = minRates;
 		this.wtedInversion = wtedInversion;
 		this.relativeSegRate_wt = relativeSegRate_wt;
 		this.aPrioriRupWt = aPrioriRupWt;
@@ -186,7 +188,7 @@ public class A_FaultSegmentedSourceGenerator {
 		for(int rup=0; rup<num_rup; rup++) 
 			if(aPrioriRupRates[rup].getValue() != 0.0 && aPrioriRupRates[rup].getValue() < minNonZeroAprioriRate)
 				minNonZeroAprioriRate = aPrioriRupRates[rup].getValue();
-		// System.out.println(this.segmentData.getFaultName()+":  minNonZeroAprioriRate = "+minNonZeroAprioriRate);
+//		System.out.println(this.segmentData.getFaultName()+":  minNonZeroAprioriRate = "+minNonZeroAprioriRate);
 
 		
 		getRupAreas();
@@ -267,6 +269,8 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		
 		// CORRECT IF MINIMUM RATE CONSTRAINT DESIRED
+
+/* OLD WAY		
 		// find the minimum rate
 		double minRate=0;
 		if(preserveMinAFaultRate) {
@@ -284,6 +288,15 @@ public class A_FaultSegmentedSourceGenerator {
 				d[row] -= Cmin[row];
 			}
 		}
+*/		
+		double[] Cmin = new double[totNumRows];  // the data vector
+		// correct the data vector
+		for(int row=0; row <totNumRows; row++) {
+			for(int col=0; col < num_rup; col++)
+				Cmin[row]+=minRates[col]*C[row][col];
+			d[row] -= Cmin[row];
+		}
+
 
 		// APPLY DATA WEIGHTS IF DESIRED
 		if(wtedInversion) {
@@ -319,6 +332,11 @@ public class A_FaultSegmentedSourceGenerator {
 				else
 					wt = aPrioriRupWt/minNonZeroAprioriRate; // make it the same as for smallest non-zero rate
 //					wt = MIN_A_PRIORI_ERROR;
+
+				// Hard code special constraints
+				if(this.segmentData.getFaultName().equals("N. San Andreas") && rup==9) wt = 1e10/aPrioriRupRates[rup].getValue();
+				if(this.segmentData.getFaultName().equals("San Jacinto") && rup==3) wt = 1e10/minNonZeroAprioriRate;
+			
 					
 //				wt = aPrioriRupWt;
 				d[rup+num_seg] *= wt;
@@ -368,10 +386,14 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		
 		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
-		if(preserveMinAFaultRate) {
+/*  OLD WAY
+ 		if(preserveMinAFaultRate) {
 			for(int rup=0; rup<num_rup;rup++)
 				rupRateSolution[rup] += minRate;
 		}
+*/
+		for(int rup=0; rup<num_rup;rup++)
+			rupRateSolution[rup] += minRates[rup];
 		
 //		System.out.println("NNLS rates:");
 //		for(int rup=0; rup < rupRate.length; rup++)
