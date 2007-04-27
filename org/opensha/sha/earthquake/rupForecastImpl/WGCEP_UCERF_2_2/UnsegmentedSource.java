@@ -178,7 +178,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.mag_lowerGR = mag_lowerGR;
 		this.b_valueGR = b_valueGR;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
-//System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
+		//System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
 //System.out.print(sourceMag+"\n");
 		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
