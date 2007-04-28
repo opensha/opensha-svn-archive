@@ -170,11 +170,6 @@ public abstract class FaultsFetcher {
 				}
 				
 //System.out.println(faultSectionPrefData.getSectionName()+"  "+faultSectionPrefData.getSlipRateStdDev());
-// HARD CODE CHANGE OF A COUPLE UNCERTAINTIES
-if(faultSectionPrefData.getSectionName().equals("San Jacinto (Coyote Creek)"))
-	faultSectionPrefData.setSlipRateStdDev(3.0);
-if(faultSectionPrefData.getSectionName().equals("San Jacinto (Borrego)"))
-	faultSectionPrefData.setSlipRateStdDev(3.0);
 				
 				if(this.isUnsegmented && faultName.equalsIgnoreCase("Elsinore") &&  // SKIP for Temecula Stepover
 						faultSectionPrefData.getSectionId()==TEMECULA_STEPOVER_FAULT_SECTION_ID) continue; 
