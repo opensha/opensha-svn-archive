@@ -47,7 +47,7 @@ public class SanAndreasScenarioControlPanel {
   private double aveDipDir;
 
   //default magnitude.
-  private double magnitude = 7.9;
+  private double magnitude = 7.8;
 
   /**
    * Accepts 3 params for the EqkRupSelectorGuiBean, AttenuationRelationshipGuiBean, SitesInGriddedRectangularRegionGuiBean
