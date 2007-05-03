@@ -3,7 +3,7 @@
 /**
  * <p>Title: Wald_MMI_Calc </p>
  * <b>Description:</b> This computes MMI (from PGA and PGV) using the relationship given by
- * Wald et al. (1999, Earthquake Spectra).  The code is a modified version
+ * Wald et al. (1999, Earthquake Spectra, vol 15, p 557-564).  The code is a modified version
  * of what Bruce Worden sent me (Ned) on 12/04/03.  This code has been validated
  * against some of the values listed in the USGS on-line data archive for the Puente Hills event:
  * http://www.trinet.org/shake/Puente_Hills_se/download/grid.xyz.zip <p>
