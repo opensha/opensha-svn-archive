@@ -279,9 +279,9 @@ public class SanAndreasScenarioControlPanel {
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).
     setValue(GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).
-    setValue(new Double(0.3));
+    setValue(new Double(-0.39));
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).
-    setValue(new Double(2.3));
+    setValue(new Double(2.2));
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.SHOW_HIWYS_PARAM_NAME).
     setValue(GMT_MapGenerator.SHOW_HIWYS_ALL);
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
