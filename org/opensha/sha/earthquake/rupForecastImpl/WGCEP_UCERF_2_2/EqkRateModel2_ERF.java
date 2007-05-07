@@ -228,7 +228,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private ParameterListParameter segmentedRupModelParam;
 	
 	// min rate param 1
-	public final static String MIN_A_FAULT_RATE_1_PARAM_NAME = "Min A-Fault Rate Fract 1";
+	public final static String MIN_A_FAULT_RATE_1_PARAM_NAME = "Min Fraction for Unknown Ruptures";
 	private final static Double MIN_A_FAULT_RATE_MIN = new Double(0.0);
 	private final static Double MIN_A_FAULT_RATE_MAX = new Double(1.0);
 	private final static Double MIN_A_FAULT_RATE_1_DEFAULT = new Double(0.5);
@@ -236,7 +236,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private DoubleParameter minA_FaultRate1Param;
 	
 	// min rate param 2
-	public final static String MIN_A_FAULT_RATE_2_PARAM_NAME = "Min A-Fault Rate Fract 2";
+	public final static String MIN_A_FAULT_RATE_2_PARAM_NAME = "Min Fraction for Unlikely Ruptures";
 	private final static Double MIN_A_FAULT_RATE_2_DEFAULT = new Double(0.1);
 	private final static String MIN_A_FAULT_RATE_2_INFO = "The min rate for unlikely ruptures, defined as fraction of min non-zero a-priori rate";
 	private DoubleParameter minA_FaultRate2Param;
