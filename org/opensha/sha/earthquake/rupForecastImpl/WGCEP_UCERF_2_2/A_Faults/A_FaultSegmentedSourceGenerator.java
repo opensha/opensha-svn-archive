@@ -83,7 +83,7 @@ public class A_FaultSegmentedSourceGenerator {
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist;  // segment slip dist
 	private ArbitrarilyDiscretizedFunc[] rupSlipDist;
 	
-	private double[] finalSegRate, segRateFromApriori, finalSegSlipRate, aPrioriSegSlipRate;
+	private double[] finalSegRate, segRateFromApriori, segRateFromAprioriWithMinRateConstr, finalSegSlipRate, aPrioriSegSlipRate;
 	
 	private String[] rupNameShort, rupNameLong;
 	private double[] rupArea, rupMeanMag, rupMeanMo, rupMoRate, totRupRate;
@@ -194,8 +194,9 @@ public class A_FaultSegmentedSourceGenerator {
 		getRupAreas();
 		
 		// get rates on each segment implied by a-priori rates (segRateFromApriori[*])
-		// (which might be different from what's in FaultSegmentData if orig not rate balanced) 
-		// this one is used to compute char mags
+		// Compute this both with and without the min-rate constraints applied 
+		// (segRateFromApriori & segRateFromAprioriWithMinRateConstr, respectively) 
+		// The latter is used in computing mags & char slip below when Char Slip model chosen
 		computeSegRatesFromAprioriRates();
 		
 		// THIS IS OLD, and no longer needed?
@@ -440,13 +441,14 @@ public class A_FaultSegmentedSourceGenerator {
 			// make source from this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
-/* COMMENTED OUT FOR SPEED*/
+/* COMMENTED OUT FOR SPEED */
 			FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
 					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 					segmentData.getAveRake(segmentsInRup),
 					DEFAULT_DURATION);
 			faultRupSrc.setName(this.getLongRupName(i));
 			sourceList.add(faultRupSrc);
+			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
 		}
@@ -579,8 +581,8 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	/**
 	 * This computes rupture magnitudes assuming characteristic slip (not an M(A) relationship).
-	 * This also only uses segRateFromApriori (not segmentData.getSegRateConstraints()) to compute 
-	 * characteristic displacements.
+	 * This uses segment rates implied by a-priori model (not segmentData.getSegRateConstraints())
+	 * and uses the version that includes the min-rate constraint (also uses segRateFromAprioriWithMinRateConstr).
 	 *
 	 */
 	private void getRupMeanMagsAssumingCharSlip() {
@@ -591,7 +593,7 @@ public class A_FaultSegmentedSourceGenerator {
 			for(int seg=0; seg < num_seg; seg++) {
 				if(rupInSeg[seg][rup]==1) { // if this rupture is included in this segment	
 					area = segmentData.getSegmentArea(seg);
-					slip = (segmentData.getSegmentSlipRate(seg)/segRateFromApriori[seg])*(1-moRateReduction);
+					slip = (segmentData.getSegmentSlipRate(seg)/segRateFromAprioriWithMinRateConstr[seg])*(1-moRateReduction);
 					rupMeanMo[rup] += area*slip*FaultMomentCalc.SHEAR_MODULUS;
 				}
 			}
@@ -714,7 +716,7 @@ public class A_FaultSegmentedSourceGenerator {
 		double max = totRupRate[ithRup];
 		if(max<aPrioriRupRates[ithRup].getValue()) max = aPrioriRupRates[ithRup].getValue();
 		// if final and apriori rates are 0, return 0
-		if(max==0) return 0;
+		if(max<=1e-10) return 0;  // this MRI exceeds the age of the earth!
 		return (totRupRate[ithRup]-aPrioriRupRates[ithRup].getValue())/max;
 	}
 	
@@ -890,9 +892,10 @@ public class A_FaultSegmentedSourceGenerator {
 		segSlipInRup = new double[num_seg][num_rup];
 		
 		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
+		// note that we're using the event rates that include the min constraint (segRateFromAprioriWithMinRateConstr)
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
 			for(int seg=0; seg<num_seg; seg++) {
-				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-moRateReduction)/segRateFromApriori[seg];
+				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-moRateReduction)/segRateFromAprioriWithMinRateConstr[seg];
 				for(int rup=0; rup<num_rup; ++rup) {
 					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
 				}
@@ -1029,11 +1032,15 @@ public class A_FaultSegmentedSourceGenerator {
 	 */
 	private void computeSegRatesFromAprioriRates() {
 		segRateFromApriori = new double[num_seg];
+		segRateFromAprioriWithMinRateConstr = new double[num_seg];
 		for(int seg=0; seg<num_seg; ++seg) {
 			segRateFromApriori[seg]=0.0;
 			// Sum the rates of all ruptures which are part of a segment
-			for(int rup=0; rup<num_rup; rup++) 
-				if(rupInSeg[seg][rup]==1) segRateFromApriori[seg]+=aPrioriRupRates[rup].getValue();
+			for(int rup=0; rup<num_rup; rup++)
+				if(rupInSeg[seg][rup]==1) {
+					segRateFromApriori[seg]+=aPrioriRupRates[rup].getValue();
+					segRateFromAprioriWithMinRateConstr[seg]+=Math.max(aPrioriRupRates[rup].getValue(),minRates[rup]);
+				}
 		}
 	}
 	

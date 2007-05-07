@@ -55,8 +55,8 @@ public class GenPredErrAnalysisTool {
 
 			DecimalFormat formatter = new DecimalFormat("0.000E0");
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-			for(int irup=0; irup<3;irup++) {
-//			for(int irup=1; irup<2;irup++) {
+//			for(int irup=0; irup<3;irup++) {
+			for(int irup=0; irup<1;irup++) {
 
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -75,6 +75,7 @@ public class GenPredErrAnalysisTool {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						slipModelParam.setValue(slipModelOptions.get(islip));
 						fw.write(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]+"\n");
+						System.out.println(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]+"\n");
 						double aPrioriWt = 0;
 						this.eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
 						eqkRateModelERF.updateForecast();
@@ -137,7 +138,8 @@ public class GenPredErrAnalysisTool {
 			String outPutString;
 
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-			for(int irup=0; irup<3;irup++) {
+//			for(int irup=0; irup<3;irup++) {
+			for(int irup=0; irup<1;irup++) {
 				// set a-priori model
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -233,23 +235,20 @@ public class GenPredErrAnalysisTool {
 	}
 	
 	public static void main(String args[]) {
+		
+		// NOTE: for speed, it's wise to comment out the non type-A faults in the updateForecast() method
+
 		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		
-//		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-//		System.out.println(analysisTool.findStableRange());
-//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
-//		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
-//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
-		
-		
 		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
-		analysisTool.writeResults("PredErrAnalysisResults1.txt");
 		
-		// include seg rate data
+//		System.out.println(analysisTool.findStableRange());
+//		analysisTool.writeResults("PredErrAnalysisResults1.txt");
+//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
+/**/
 		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
-//		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
+		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
 		analysisTool.writeResults("PredErrAnalysisResults2.txt");
-		
+
 	}
 	
 }

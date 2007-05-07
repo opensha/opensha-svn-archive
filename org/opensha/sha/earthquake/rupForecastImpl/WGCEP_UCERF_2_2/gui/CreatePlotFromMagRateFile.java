@@ -36,7 +36,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 		"Somerville (2006)_Uniform/Boxcar", "Somerville (2006)_WGCEP-2002", "Somerville (2006)_Tapered"};
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      new Color(0,0,0), 2); // black
+		      new Color(0,0,0), 4); // black
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(192,192,192), 2); // silver grey
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -48,7 +48,7 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(255,0,255), 2); // fuchisia
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-			new Color(0,128,0), 2); //geen
+			new Color(0,255,0), 4); //geen
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 			new Color(0,255,0), 2); //lime
 	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -118,13 +118,13 @@ public class CreatePlotFromMagRateFile implements GraphWindowAPI {
 	public ArrayList getPlottingFeatures() {
 		 ArrayList list = new ArrayList();
 		 int numFuncs = funcs.size();
-		 if(numFuncs>0) list.add(this.PLOT_CHAR1);
-		 if(numFuncs>1) list.add(this.PLOT_CHAR2);
+		 if(numFuncs>0) list.add(this.PLOT_CHAR7);
+		 if(numFuncs>1) list.add(this.PLOT_CHAR1);
 		 if(numFuncs>2) list.add(this.PLOT_CHAR3);
 		 if(numFuncs>3) list.add(this.PLOT_CHAR4);
 		 if(numFuncs>4) list.add(this.PLOT_CHAR5);
 		 if(numFuncs>5) list.add(this.PLOT_CHAR6);
-		 if(numFuncs>6) list.add(this.PLOT_CHAR7);
+		 if(numFuncs>6) list.add(this.PLOT_CHAR2);
 		 if(numFuncs>7) list.add(this.PLOT_CHAR8);
 		 if(numFuncs>8) list.add(this.PLOT_CHAR9);
 		 if(numFuncs>9) list.add(this.PLOT_CHAR10);

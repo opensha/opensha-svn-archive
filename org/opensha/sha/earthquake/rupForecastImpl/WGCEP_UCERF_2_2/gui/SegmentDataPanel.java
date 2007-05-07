@@ -125,7 +125,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		
 		// event rates Plotting features
 		eventRatesPlottingFeatures = new ArrayList<PlotCurveCharacterstics>();;
-		eventRatesPlottingFeatures.add(PLOT_CHAR1);
+//		eventRatesPlottingFeatures.add(PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(PLOT_CHAR1);
 		eventRatesPlottingFeatures.add(PLOT_CHAR2);
@@ -410,7 +410,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 			finalEventRateFunc.set((double)index, finalEventRate);
 		 }
 		this.eventRatesList = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		eventRatesList.add(origEventRateFunc);
+//		eventRatesList.add(origEventRateFunc);
 		eventRatesList.add(minEventRateFunc);
 		eventRatesList.add(maxEventRateFunc);
 		eventRatesList.add(predEventRateFunc);
