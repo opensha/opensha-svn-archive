@@ -407,7 +407,10 @@ public class CY_2006_AttenRel
 	  dipParam.setValue(surface.getAveDip());
 	  double depth = surface.getLocation(0, 0).getDepth();
 	  rupTopDepthParam.setValue(depth);
-	  rupWidthParam.setValue(eqkRupture.getRuptureSurface().getSurfaceWidth());
+	  double rupDownDipWidth = eqkRupture.getRuptureSurface().getSurfaceWidth();
+	  if(rupDownDipWidth ==0)
+		  rupDownDipWidth = 1;
+	  rupWidthParam.setValue(rupDownDipWidth);
 //	  setFaultTypeFromRake(eqkRupture.getAveRake());
 	  this.eqkRupture = eqkRupture;
 	  setPropagationEffectParams();

@@ -28,11 +28,11 @@ import org.opensha.exceptions.RegionConstraintException;
 public class HazusDataGenerator implements ParameterChangeWarningListener{
 
   //grid region for the LA County provide by the Hazus
-  private final double MIN_LAT=  33.705860;
-  private final double MAX_LAT= 34.823168;
-  private final double MIN_LON = -118.943793 ;
-  private final double MAX_LON= -117.644716;
-  private final double GRID_SPACING= 0.1;
+  private final double MIN_LAT=  32.4;
+  private final double MAX_LAT= 42.1;
+  private final double MIN_LON = -125.5 ;
+  private final double MAX_LON= -114.1;
+  private final double GRID_SPACING= 1.0;
 
   private Frankel02_AdjustableEqkRupForecast forecast;
   private USGS_Combined_2004_AttenRel attenRel;
@@ -70,8 +70,6 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     }
   }
 
-
-
   /**
    * Gets the wills site class for the given sites
    */
@@ -90,7 +88,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
       ParameterAPI tempParam = (ParameterAPI) ( (ParameterAPI) it.next()).clone();
       //getting the Site Param Value corresponding to the default Wills site class selected by the user
       // for the seleted IMR  from the SiteTranslator
-      siteTrans.setParameterValue(tempParam, SiteTranslator.WILLS_BC, Double.NaN);
+      siteTrans.setParameterValue(tempParam, SiteTranslator.WILLS_DE, Double.NaN);
       defaultSiteParams.add(tempParam);
     }
     region.setDefaultSiteParams(defaultSiteParams);
@@ -98,8 +96,6 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
   private void createERF_Instance(){
 	   forecast = new Frankel02_AdjustableEqkRupForecast();
-	   forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
-	        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
 	   forecast.getTimeSpan().setDuration(50.0);
 	   /*forecast.getAdjustableParameterList().getParameter(
                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
