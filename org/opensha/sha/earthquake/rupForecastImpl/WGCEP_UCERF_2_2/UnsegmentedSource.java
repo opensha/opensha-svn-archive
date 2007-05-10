@@ -265,7 +265,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		// find the slip distribution of each segment
 		computeSegSlipDist();
 		
-		computeSlipRatesAlongFault();
+		saveSurfaceLocs();
 		//System.out.println("Moment Rate:"+this.moRate);
 		
 		//if(D)
@@ -281,7 +281,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 * Compute orig and final slip rates along the fault
 	 *
 	 */
-	private void computeSlipRatesAlongFault() {
+	private void saveSurfaceLocs() {
 		EvenlyGriddedSurface sourceSurface = this.getSourceSurface();
 		int numCols = sourceSurface.getNumCols();
 		//System.out.println(this.segmentData.getFaultName());
@@ -290,9 +290,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		for(int col=0; col<numCols; ++col) 
 			surfaceLocList.addLocation(sourceSurface.getLocation(0, col));
 		// original slip rate
-		this.getOrigSlipRateAlongFault();
+		//this.getOrigSlipRateAlongFault();
 		// uncorrected slip rate
-		this.getFinalSlipRateAlongFault();
+		//this.getFinalSlipRateAlongFault();
 		
 		// write Average uncorrected slip rates for each segment
 		/*double totSegLength = 0;
@@ -322,6 +322,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 * @return
 	 */
 	public ArrayList<ArbitrarilyDiscretizedFunc> getMagBasedFinalSlipRateListAlongFault() {
+		if(this.magBasedUncorrSlipRateFuncs==null) getFinalSlipRateAlongFault();
 		return this.magBasedUncorrSlipRateFuncs;
 	}
 	

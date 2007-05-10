@@ -96,6 +96,7 @@ public class UnsegmentedSource_testCorr extends UnsegmentedSource {
 	 * @return
 	 */
 	public ArrayList<ArbitrarilyDiscretizedFunc> getMagBasedModifiedSlipRateListAlongFault() {
+		if(this.magBasedFinalSlipRateFuncs==null) getModifiedSlipRateAlongFault();
 		return this.magBasedFinalSlipRateFuncs;
 	}
 	
