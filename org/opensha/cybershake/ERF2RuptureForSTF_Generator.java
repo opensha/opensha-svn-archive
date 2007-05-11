@@ -365,20 +365,20 @@ public class ERF2RuptureForSTF_Generator {
      * Site List for Cybershake
      */
 
-    //locList.addLocation(new Location(34.019200, -118.28600)); //USC
-    //locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
-    /*locList.addLocation(new Location(34.052041, -118.25713)); //LADT
-         locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
-         locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
-         locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
-         locList.addLocation(new Location(34.064986 , -117.29201)); //SBSM
-         locList.addLocation(new Location(34.336030 , -118.50862));//FFI
-         locList.addLocation(new Location(34.054884 , -118.41302));//CCP
-         locList.addLocation(new Location(34.009092 , -118.48939));//SMCA */
+    locList.addLocation(new Location(34.019200, -118.28600)); //USC
+    locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
+    locList.addLocation(new Location(34.052041, -118.25713)); //LADT
+    locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
+    locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
+    locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
+    locList.addLocation(new Location(34.064986 , -117.29201)); //SBSM
+    locList.addLocation(new Location(34.336030 , -118.50862));//FFI
+    locList.addLocation(new Location(34.054884 , -118.41302));//CCP
+    locList.addLocation(new Location(34.009092 , -118.48939));//SMCA 
 
     //2nd set of sites for Cybershake
     //locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport
-    locList.addLocation(new Location(34.2356, -118.5275)); //Northridge CSUN Campus
+    //locList.addLocation(new Location(34.2356, -118.5275)); //Northridge CSUN Campus
     /*locList.addLocation(new Location(34.00742,-118.239326 )); //Vernon
     locList.addLocation(new Location(33.957493,-118.22975)); //SouthGate
     locList.addLocation(new Location(33.92221,-118.223104 )); //North Compton
@@ -392,11 +392,14 @@ public class ERF2RuptureForSTF_Generator {
     ListIterator it = locList.listIterator();
     FileWriter fw = null;
     try {
-      fw = new FileWriter("Sites_2_DistanceBounds_Cybershake.txt");
+      fw = new FileWriter("Sites_1_DistanceBounds_Cybershake.txt");
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
     }
+    double regionMinLat=Double.POSITIVE_INFINITY,regionMaxLat=Double.NEGATIVE_INFINITY,
+    regionMinLon=Double.POSITIVE_INFINITY,regionMaxLon=Double.NEGATIVE_INFINITY;
+    
     while (it.hasNext()) {
       Location loc = (Location) it.next();
 
@@ -406,8 +409,8 @@ public class ERF2RuptureForSTF_Generator {
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
 
       //calling the function to generate the rupture files with directory name.
-      calc.getEqkRupturesAsStringNearSite("Temp");
-      /*RectangularGeographicRegion region = null;
+      //calc.getEqkRupturesAsStringNearSite("Temp");
+      RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();
@@ -419,7 +422,14 @@ public class ERF2RuptureForSTF_Generator {
             minLon, minLat, maxLon);
         double distanceNWSW = RelativeLocation.getApproxHorzDistance(minLat,
             minLon, maxLat, minLon);
-
+        if(regionMinLat > minLat)
+        	regionMinLat = minLat;
+        if(regionMaxLat < maxLat)
+        	regionMaxLat = maxLat;
+        if(regionMinLon > minLon)
+        	regionMinLon = minLon;
+        if(regionMaxLon < maxLon)
+        	regionMaxLon = maxLon;
         try {
           fw.write("Site : Lat =" + loc.getLatitude() + "   Lon =" +
                    loc.getLongitude() + "\n");
@@ -437,7 +447,7 @@ public class ERF2RuptureForSTF_Generator {
       }
       catch (RegionConstraintException ex) {
         ex.printStackTrace();
-      }*/
+      }
       try {
         fw.write("\n\n\n");
       }
@@ -446,6 +456,8 @@ public class ERF2RuptureForSTF_Generator {
       }
     }
     try {
+      fw.write("Region MinLat = " + regionMinLat +  "  Region MaxLat = " + regionMaxLat + " Region MinLon = " +
+                regionMinLon + " Region MaxLon = " + regionMaxLon+"\n\n\n");
       fw.close();
     }
     catch (IOException ex3) {
