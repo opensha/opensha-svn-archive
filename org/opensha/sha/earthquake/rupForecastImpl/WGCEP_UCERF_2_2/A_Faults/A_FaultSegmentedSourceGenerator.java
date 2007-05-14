@@ -335,8 +335,8 @@ public class A_FaultSegmentedSourceGenerator {
 //					wt = MIN_A_PRIORI_ERROR;
 
 				// Hard code special constraints
-				if(this.segmentData.getFaultName().equals("N. San Andreas") && rup==9) wt = 1e10/aPrioriRupRates[rup].getValue();
-				if(this.segmentData.getFaultName().equals("San Jacinto") && rup==3) wt = 1e10/minNonZeroAprioriRate;
+//				if(this.segmentData.getFaultName().equals("N. San Andreas") && rup==9) wt = 1e10/aPrioriRupRates[rup].getValue();
+//				if(this.segmentData.getFaultName().equals("San Jacinto") && rup==3) wt = 1e10/minNonZeroAprioriRate;
 			
 					
 //				wt = aPrioriRupWt;
