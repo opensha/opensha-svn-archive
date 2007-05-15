@@ -13,73 +13,215 @@ import com.sun.rowset.CachedRowSetImpl;
  * Author: Nitin Gupta
  * date May 11,2007
  */
-public class DBAccess implements DBAccessAPI {
+public class DBAccess {
 
 
-    private String dbDriver, dbServer, dbLogin, dbPassword, logFileString;
- 
+	  private Connection conn = null;
+	  private String hostName;
+	  private String dbName;
+	  private int port = 3306;
+
+	  /**
+	   *class constructor
+	   */
+	  public DBAccess(String hostname, String dbName)
+	  {
+	    this.hostName = hostname;
+	    this.dbName = dbName;
+	    try {
+	      getConnection();
+	    }
+	    catch (Exception ex) {
+	      ex.printStackTrace();
+	    }
+	  }
+
+	  /**
+	   * Runs the select query on the database
+	   * @param query
+	   * @return
+	   */
+	  public ResultSet selectData(String query)
+	  {
+	    ResultSet result =null;
+	    Statement stat= null;
+	    try
+	    {
+	      if(conn ==  null)
+	    	  getConnection();
+	      stat = conn.createStatement();
+	      //System.out.println(query);
+	      //gets the resultSet after running the query
+	      result = stat.executeQuery(query+";");
+
+	    }
+	    catch (SQLException ex)
+	    {
+	      ex.printStackTrace();
+	      while (ex != null)
+	      {
+	        ex.printStackTrace();
+	        //ex = ex.getNextException();
+	      }
+	    }
+	    catch (Exception ex)
+	    {
+	        ex.printStackTrace();
+	    }
+	    finally
+	    {
+	      try
+	      {
+	        //stat.close();
+	        //conn.close();
+	      } catch (Exception e)
+	      {
+	        e.printStackTrace();
+	      }
+	    }
+	    return result;
+	  }
 
 
-    private PrintWriter log;
+	  /**
+	   * Runs the inserts query on the database
+	   * @param query
+	   */
+	  public boolean insertData(String query)
+	  {
 
-    int debugLevel;
+	    Statement stat = null;
 
-    private Connection createConn()
-
-        throws SQLException {
-
-        Date now = new Date();
-        Connection conn = null;
-        try {
-            Class.forName (dbDriver);
-
-            conn = DriverManager.getConnection
-                          (dbServer,dbLogin,dbPassword);
-
-            
-        } catch (ClassNotFoundException e2) {
-            if(debugLevel > 0) {
-                log.println("Error creating connection: " + e2);
-            }
-        }
-
-        log.println(now.toString() + "  Opening connection " +" " + conn.toString() + ":");
-        return conn;
-    }
-    
-    
- 
-    /**
-     * Inserts  the data into the database
-     * @param query
-     */
-    public int insertUpdateOrDeleteData(String sql) throws java.sql.SQLException {
-      Connection conn = createConn();
-      Statement stat = conn.createStatement();
-      int rows = stat.executeUpdate(sql);
-      stat.close();
-      conn = null;
-      return rows;
-    }
+	    try
+	    {
+	      if(conn ==  null)	
+	         getConnection();
+	      stat = conn.createStatement();
+	      //System.out.println(query);
+	      //executes the query
+	      stat.executeUpdate(query+";");
+	      return true;
+	    }
+	    catch (SQLException ex)
+	    {
+	      while (ex != null)
+	      {
+	        ex.printStackTrace();
+	        ex = ex.getNextException();
+	      }
+	    }
+	    catch (Exception ex)
+	    {
+	      ex.printStackTrace();
+	    }
+	    finally
+	    {
+	      try
+	      {
+	        //stat.close();
+	        conn.close();
+	      } catch (Exception e)
+	      {
+	        e.printStackTrace();
+	      }
+	    }
+	    return false;
+	  }
 
 
-     /**
-      * Runs the select query on the database
-      * @param query
-      * @return
-      */
-     public CachedRowSetImpl queryData(String sql) throws java.sql.SQLException {
-       Connection conn = createConn();
-       Statement stat = conn.createStatement();
-       //gets the resultSet after running the query
-       ResultSet result = stat.executeQuery(sql);
-       // create CachedRowSet and populate
-       CachedRowSetImpl crs = new CachedRowSetImpl();
-       crs.populate(result);
-       result.close();
-       stat.close();
-       conn = null;
-       return crs;
-     }
+	  /**
+	   * Runs the Delete and update operation on the tables in the database
+	   * @param query
+	   */
+	  public boolean deleteOrUpdateData(String query)
+	  {
+	    Statement stat = null;
+	    try
+	    {
+	      if(conn ==  null)
+	         getConnection();
+	      stat = conn.createStatement();
+	      //executes the delete or update query
+	      stat.execute(query+";");
+	      //commits the result of the query to the database
+	      stat.execute("commit;");
+	      stat.close();
+	      return true;
+	    }
+	    catch (SQLException ex)
+	    {
+	      while (ex != null)
+	      {
+	        ex.printStackTrace();
+	        ex = ex.getNextException();
+	      }
+	    }
+	    catch (Exception ex)
+	    {
+	      ex.printStackTrace();
+	    }
+	    finally
+	    {
+	      try
+	      {
+	        stat.close();
+	        conn.close();
+	      } catch (Exception e)
+	      {
+	        e.printStackTrace();
+	      }
+	    }
+	    return false;
+	  }
+
+	  /**
+	   * Establishes the connection with the database using the mysql driver
+	   *
+	   * @return the database connection
+	   * @return
+	   * @throws SQLException
+	   * @throws IOException
+	   * @throws Exception
+	   */
+
+
+	  private void getConnection() throws SQLException, IOException,Exception {
+
+	    if(conn!=null && !conn.isClosed()) return ;
+//	    String drivers = "org.gjt.mm.mysql.Driver";
+	    String drivers = "com.mysql.jdbc.Driver";
+	    //System.out.println("dbname is:"+dbName);
+	    String url = "jdbc:mysql://"+hostName+":"+port+"/"+dbName;
+	    String username = "scottcal";
+	    String password = "CyberShake2007";
+//	    String password = "";
+
+	    //Try to load the driver, if this fails then print an error
+	    //and the contents of the stack
+	    try
+	    {
+	      Class.forName(drivers).newInstance();
+	    }
+	    catch (Exception E)
+	    {
+	      E.printStackTrace();
+	      throw new Exception("*** Unable to load database driver ***\n");
+	    }
+
+	     try
+	     {
+	       conn = DriverManager.getConnection(url,username,password);
+//	     	conn = DriverManager.getConnection(url);
+	     }
+	     //Catch the exception, throw a new DBException
+	     catch (SQLException E)
+	     {
+	       throw new Exception("*** Unable to connect to the database ***"+
+	                           "\nSQL Message: "+E.getMessage()+
+	                           "\nSQL ErrorCode: "+E.getErrorCode()+
+	                           "\nSQL State: "+E.getSQLState()+"\n");
+	     }
+	     return;
+	  }
 
    } // End class
