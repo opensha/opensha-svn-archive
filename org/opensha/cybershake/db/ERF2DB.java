@@ -89,31 +89,22 @@ public class ERF2DB implements ERF2DBAPI{
 	 * @param erfDesc
 	 * @return Autoincremented Id from the table for the last inserted ERF
 	 */
-	public void insertERFId(String erfName, String erfDesc) {
+	public int insertERFId(String erfName, String erfDesc) {
 //		generate the SQL to be inserted in the ERF_Metadata table
 		String sql = "INSERT into ERF_IDs VALUES('"+erfName+"','"+erfDesc+"')";
 		dbaccess.insertData(sql);
 		
-	}
-
-	/**
-	 * Returns the ERF_Id from the database table ERF_IDs for provided erfName
-	 * @param erfName
-	 * @return
-	 */
-	public int getERFId(String erfName) {
-		// TODO Auto-generated method stub
-		String sql = "Select ERF_ID from ERF_IDs "+
-		             "WHERE ERF_Name= '"+erfName+"'";
+//		 TODO Auto-generated method stub
+		 sql = "SELECT LAST_INSERT_ID() from ERF_IDs ";
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				return rs.getInt(0);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		 return -1;
 		
-		ResultSet rs =  dbaccess.selectData(sql);
-		try {
-			return rs.getInt("ERF_ID");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return -1;
 	}
 
 }

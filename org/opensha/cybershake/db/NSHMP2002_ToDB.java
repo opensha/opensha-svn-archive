@@ -24,8 +24,9 @@ public class NSHMP2002_ToDB {
 	private static String DATABASE_NAME = "CyberShake";
 	private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
 	private ERF2DBAPI erf2db;
-	private int erfId;
-	public NSHMP2002_ToDB(){
+	private int erfId = -1;
+	public NSHMP2002_ToDB(DBAccess db){
+		createFrankelForecast();
 		erf2db = new ERF2DB(db);
 	}
 	 /**
@@ -132,9 +133,24 @@ public class NSHMP2002_ToDB {
 	    return localStrike;
 	  }	  
 	  
-	  private void insertForecaseInDB(){
-		  erf2db.insertERFId(frankelForecast.getName(), "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model");
-		  erfId = erf2db.getERFId(frankelForecast.getName());
+	  /**
+	   * 
+	   * @returns the ERF_ID of the last inserted ERF in the database 
+	   */
+	  public int getInsertedERF_Id(){
+		  return erfId;
+	  }
+	  
+	  /**
+	   * returns the instance of the last inserted ERF
+	   * @return
+	   */
+	  public EqkRupForecastAPI getERF_Instance(){
+		  return this.frankelForecast;
+	  }
+	  
+	  public void insertForecaseInDB(){
+		  erfId = erf2db.insertERFId(frankelForecast.getName(), "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model");
 		  
 		  ListIterator it = frankelForecast.getAdjustableParamsIterator();
 		  //adding the forecast parameters
@@ -148,5 +164,7 @@ public class NSHMP2002_ToDB {
 			  ParameterAPI param = (ParameterAPI)it.next();
 			  erf2db.insertERFParams(erfId, param.getName(), param.getValue().toString(), param.getType(),param.getUnits());
 		  }
+		  //inserts the rupture information in the database
+		  insertSrcRupInDB();
 	  }
 }

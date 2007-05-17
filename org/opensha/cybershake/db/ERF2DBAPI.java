@@ -18,15 +18,9 @@ public interface ERF2DBAPI {
 	 * @param erfDesc
 	 * @return
 	 */
-	public void insertERFId(String erfName, String erfDesc);
+	public int insertERFId(String erfName, String erfDesc);
 	
-	/**
-	 * Returns the ERF_Id from the database table ERF_IDs for provided erfName
-	 * @param erfName
-	 * @return
-	 */
-	public int getERFId(String erfName);
-	
+
 	/**
 	 * Inserts source rupture information for the ERF in table "Rupture"
 	 * @param erfName
