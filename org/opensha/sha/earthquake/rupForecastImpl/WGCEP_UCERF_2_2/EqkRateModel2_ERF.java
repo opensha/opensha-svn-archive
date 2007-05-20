@@ -1971,6 +1971,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// Def. params with High apriori model weight
 		this.setParamDefaults();
 		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
+		this.minA_FaultRate1Param.setValue(0.0);
+		this.minA_FaultRate2Param.setValue(0.0);
 		this.updateForecast();
 		name = "Def. params with High apriori model weight";
 		addToFuncListForReportPlots(aFaultIncrRateFuncList, aFaultCumRateFuncList, name);
@@ -1995,11 +1997,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		name = "Def. Params with unegmented & change Mag Area to Hans Bakun";
 		addToFuncListForReportPlots(aFaultIncrRateFuncList, aFaultCumRateFuncList, name);
 
-		/* wt-ave MFD
-		 aPriori_EllB 	0.12
-		 aPriori_HB	0.12
-		 MoBal_EllB	0.33
-		 MoBal_HB	0.33
+		/* wt-ave MFD WT PROPOSED BY OTHER EXCOM MEMBERS FOLLOWING CONFERENCE CALL
+		 aPriori_EllB 	0.225
+		 aPriori_HB 		0.225
+		 MoBal_EllB 		0.225
+		 MoBal_HB 		0.225
 		 Unseg_EllB 	0.05
 		 Unseg_HB	0.05
 		 */
@@ -2008,11 +2010,29 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			DiscretizedFuncList funcList = aFaultIncrRateFuncList.get(i);
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
 			DiscretizedFuncAPI func = funcList.get(0);
+			
 			for(int imag=0; imag<func.getNum(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 
 						0.33*funcList.get(0).getY(imag) + 0.33*funcList.get(1).getY(imag) + 
 						0.12*funcList.get(2).getY(imag)+ 0.12*funcList.get(3).getY(imag) + 
 						0.05*funcList.get(4).getY(imag) + 0.05*funcList.get(5).getY(imag));
+/* WT PROPOSED BY OTHER EXCOM MEMBERS FOLLOWING CONFERENCE CALL
+			if(i != 4) {  // wts if it's not S. SAF
+				for(int imag=0; imag<func.getNum(); ++imag) 
+					wtAveMFD.set(func.getX(imag), 
+							0.225*funcList.get(0).getY(imag) + 0.225*funcList.get(1).getY(imag) + 
+							0.225*funcList.get(2).getY(imag) + 0.225*funcList.get(3).getY(imag) + 
+							0.050*funcList.get(4).getY(imag) + 0.050*funcList.get(5).getY(imag));
+			}
+			else { // wts if it is S. SAF
+				for(int imag=0; imag<func.getNum(); ++imag) 
+					wtAveMFD.set(func.getX(imag), 
+							0.113*funcList.get(0).getY(imag) + 0.113*funcList.get(1).getY(imag) + 
+							0.337*funcList.get(2).getY(imag) + 0.337*funcList.get(3).getY(imag) + 
+							0.050*funcList.get(4).getY(imag) + 0.050*funcList.get(5).getY(imag));
+			}
+*/
+			
 			wtAveMFD.setName(name);
 			aFaultIncrRateFuncList.get(i).add(wtAveMFD);
 			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDist();

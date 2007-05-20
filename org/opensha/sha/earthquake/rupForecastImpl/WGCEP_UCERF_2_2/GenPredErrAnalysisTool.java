@@ -55,8 +55,8 @@ public class GenPredErrAnalysisTool {
 
 			DecimalFormat formatter = new DecimalFormat("0.000E0");
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-//			for(int irup=0; irup<3;irup++) {
-			for(int irup=0; irup<1;irup++) {
+			for(int irup=0; irup<3;irup++) {
+//			for(int irup=0; irup<1;irup++) {
 
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -138,8 +138,8 @@ public class GenPredErrAnalysisTool {
 			String outPutString;
 
 			String[] models = {"Geological Insight", "Min Rate", "Max Rate"};
-//			for(int irup=0; irup<3;irup++) {
-			for(int irup=0; irup<1;irup++) {
+			for(int irup=0; irup<3;irup++) {
+//			for(int irup=0; irup<1;irup++) {
 				// set a-priori model
 				Iterator it = this.segmentedRupModelParam.getParametersIterator();
 				while(it.hasNext()) { // set the specfiied rup model in each A fault
