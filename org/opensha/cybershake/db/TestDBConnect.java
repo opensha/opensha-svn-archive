@@ -11,11 +11,11 @@ public class TestDBConnect {
 		ResultSet rs = dbc.selectData("SHOW TABLES");
 		
 		//dbc.deleteOrUpdateData("Delete from ERF_Metadata");
-		dbc.deleteOrUpdateData("Delete from CyberShake_Site_Ruptures");
-		dbc.deleteOrUpdateData("Delete from CyberShake_Site_Regions");
+		//dbc.deleteOrUpdateData("Delete from CyberShake_Site_Ruptures");
+		//dbc.deleteOrUpdateData("Delete from CyberShake_Site_Regions");
 		//dbc.deleteOrUpdateData("Delete from Ruptures");
 		//dbc.deleteOrUpdateData("Delete from Points");	
-		dbc.deleteOrUpdateData("Delete from CyberShake_Sites");
+		//dbc.deleteOrUpdateData("Delete from CyberShake_Sites");
 		//dbc.deleteOrUpdateData("Delete from ERF_IDs");
 		try {
 			System.out.println(rs.getMetaData().getColumnCount());
