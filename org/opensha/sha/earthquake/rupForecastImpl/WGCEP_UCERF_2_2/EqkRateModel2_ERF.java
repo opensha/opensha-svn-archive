@@ -1611,6 +1611,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// default with High apriori model weight
 		this.setParamDefaults();
 		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
+		this.minA_FaultRate1Param.setValue(0.0);
+		this.minA_FaultRate2Param.setValue(0.0);
 		this.updateForecast();
 		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_EllB");
 		// change Mag Area Rel
@@ -2010,13 +2012,14 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			DiscretizedFuncList funcList = aFaultIncrRateFuncList.get(i);
 			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
 			DiscretizedFuncAPI func = funcList.get(0);
-			
+/*	*/		
 			for(int imag=0; imag<func.getNum(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 
 						0.33*funcList.get(0).getY(imag) + 0.33*funcList.get(1).getY(imag) + 
 						0.12*funcList.get(2).getY(imag)+ 0.12*funcList.get(3).getY(imag) + 
 						0.05*funcList.get(4).getY(imag) + 0.05*funcList.get(5).getY(imag));
-/* WT PROPOSED BY OTHER EXCOM MEMBERS FOLLOWING CONFERENCE CALL
+
+/* WT PROPOSED BY OTHER EXCOM MEMBERS FOLLOWING CONFERENCE CALL 
 			if(i != 4) {  // wts if it's not S. SAF
 				for(int imag=0; imag<func.getNum(); ++imag) 
 					wtAveMFD.set(func.getX(imag), 
@@ -2259,8 +2262,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
-		//erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles"); // directory name
+		//erRateModel2_ERF.mkExcelSheetTests();
+		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles052207"); // directory name w/ data
 		//erRateModel2_ERF.evaluateA_prioriWT();
 		
 /**/

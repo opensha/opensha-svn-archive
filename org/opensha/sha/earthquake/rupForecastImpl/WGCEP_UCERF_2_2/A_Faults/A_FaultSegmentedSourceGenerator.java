@@ -103,6 +103,8 @@ public class A_FaultSegmentedSourceGenerator {
 	private double aveSlipCorr;
 	private double meanMagCorrection;
 	
+	private MagAreaRelationship magAreaRel;
+	
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
 
@@ -150,6 +152,7 @@ public class A_FaultSegmentedSourceGenerator {
 			double aPrioriRupWt) {
 		
 		this.segmentData = segmentData;
+		this.magAreaRel = magAreaRel;
 		this.slipModelType = slipModelType;
 		this.aPrioriRupRates = aPrioriRupRates;
 		this.magSigma = magSigma;
@@ -441,13 +444,21 @@ public class A_FaultSegmentedSourceGenerator {
 			// make source from this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
-/* COMMENTED OUT FOR SPEED */
-			FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
-					segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-					segmentData.getAveRake(segmentsInRup),
-					DEFAULT_DURATION);
-			faultRupSrc.setName(this.getLongRupName(i));
-			sourceList.add(faultRupSrc);
+
+			/* COMMENTED OUT FOR SPEED */
+			// Create source if rate is greater than ~zero (or age of earth)
+			if (rupMagFreqDist[i].getTotalIncrRate() > 1e-10) {				
+				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
+						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
+						segmentData.getAveRake(segmentsInRup),
+						DEFAULT_DURATION);
+				faultRupSrc.setName(this.getLongRupName(i));
+				
+				if(faultRupSrc.getNumRuptures() == 0)
+					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
+				
+				sourceList.add(faultRupSrc);
+			}
 			
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
@@ -496,6 +507,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @return
 	 */
 	public String getNSHMP_SrcFileString() {
+		boolean localDebug = true;
 		StringBuffer strBuffer = new StringBuffer("");
 		int numSources = sourceList.size();
 		for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
@@ -519,6 +531,16 @@ public class A_FaultSegmentedSourceGenerator {
 			for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
 				strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
 						faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+			// this is to make sure things look good
+			if(localDebug){
+				System.out.println(getLongRupName(srcIndex)+"\t"+
+						(float)getRupMeanMag(srcIndex)+"\t"+
+						(float)getRupRateSolution(srcIndex)+"\t"+
+						(float)getRupRate(srcIndex)+"\t"+
+						(float)(getRupRateSolution(srcIndex)/getRupRate(srcIndex))+"\t"+
+						magAreaRel.getName()+"\t"+
+						aPrioriRupWt);
+			}
 		}
 		return strBuffer.toString();
 	}
