@@ -14,7 +14,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	
 	
 	/**
-	 * Inserts the new site in the database table Sites
+	 * Inserts the new site in the database table CyberShake_Sites
 	 * @param siteName
 	 * @param siteShortName
 	 * @param lat
@@ -24,26 +24,56 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	public int insertSite(String siteName, String siteShortName, double lat,
 			double lon) {
 //		generate the SQL to be inserted in the Sites table
-		String sql = "INSERT into Sites VALUES('"+siteName+"','"+siteShortName+"','"+
-		lat+"','"+lon+"')";
+		String sql = "INSERT into CyberShake_Sites"+ 
+		             "(CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon)"+
+		             "VALUES('"+siteName+"','"+siteShortName+"','"+
+		(float)lat+"','"+(float)lon+"')";
 		dbaccess.insertData(sql);
 		
-//		 gets the last auto increment id from Sites table
-		 sql = "SELECT LAST_INSERT_ID() from Sites ";
-		 ResultSet rs =  dbaccess.selectData(sql);
-			try {
-				return rs.getInt(0);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		 return -1;
-		
+		return getSiteId(siteShortName);
 		
 	}
 
 	/**
-	 * Inserts the regional bounds (min/max lat/lon) for all cybershake sites in table Site_Region
+	 * Returns the site id of the cybershake site for the corresponding cybershake_short_site_name
+	 * @param cybershakeShortSiteName
+	 * @return
+	 */
+	public int getSiteId(String cybershakeShortSiteName){
+//		 gets the last auto increment id from Sites table
+		 String sql = "SELECT CS_Site_ID from CyberShake_Sites where CS_Short_Name = "+"'"+cybershakeShortSiteName+"'";
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				rs.first();
+				return Integer.parseInt(rs.getString("CS_Site_ID"));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return -1;
+	}
+	
+	/**
+	 * Returns the site id the cybershake site with given lat and lon
+	 * @param lat
+	 * @param lon
+	 * @return
+	 */
+	public int getSiteId(double lat,double lon){
+//		 gets the last auto increment id from Sites table
+		 String sql = "SELECT CS_Site_ID from CyberShake_Sites where CS_Site_Lat = "+"'"+(float)lat+"' and "+
+		              "CS_Site_Lon = "+"'"+(float)lon+"'";
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				rs.first();
+				return Integer.parseInt(rs.getString(0));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return -1;
+	}
+	
+	/**
+	 * Inserts the regional bounds (min/max lat/lon) for all cybershake sites in table CyberShake_Site_Regions
 	 * @param siteId
 	 * @param erfId
 	 * @param cutOffDistance
@@ -67,17 +97,17 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			int minLonSrcId, int minLonRupId) {
 		
 //		generate the SQL to be inserted in the Site_Region table
-		String sql = "INSERT into Site_Region VALUES('"+siteId+"','"+erfId+"','"+
-		cutOffDistance+"','"+maxLat+"','"+maxLatSrcId+"','"+maxLatRupId+"','"+maxLon+"','"+
-		maxLatSrcId+"','"+maxLonRupId+"','"+minLat+"','"+minLatSrcId+"','"+minLatRupId+"','"+
-		minLon+"','"+minLonSrcId+"','"+minLonRupId+"')";
+		String sql = "INSERT into CyberShake_Site_Regions VALUES('"+siteId+"','"+erfId+"','"+
+		(float)cutOffDistance+"','"+(float)maxLat+"','"+maxLatSrcId+"','"+maxLatRupId+"','"+(float)maxLon+"','"+
+		maxLatSrcId+"','"+maxLonRupId+"','"+(float)minLat+"','"+minLatSrcId+"','"+minLatRupId+"','"+
+		(float)minLon+"','"+minLonSrcId+"','"+minLonRupId+"')";
 		dbaccess.insertData(sql);
 
 	}
 
 	/**
 	 * Inserts the rupture ids that correspond to a given site within given cutoff distance
-	 * inside the table Site_Ruptures
+	 * inside the table CyberShake_Site_Ruptures
 	 * @param siteId
 	 * @param erfId
 	 * @param sourceId
@@ -87,7 +117,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	public void insertSite_RuptureInfo(int siteId, int erfId, int sourceId,
 			int ruptureId, double cutOffDistance) {
 //		generate the SQL to be inserted in the Sites table
-		String sql = "INSERT into Site_Rptures VALUES('"+siteId+"','"+erfId+"','"+
+		String sql = "INSERT into CyberShake_Site_Ruptures VALUES('"+siteId+"','"+erfId+"','"+
 		sourceId+"','"+ruptureId+"','"+cutOffDistance+"')";
 		dbaccess.insertData(sql);
 

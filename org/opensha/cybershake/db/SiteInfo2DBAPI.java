@@ -3,7 +3,7 @@ package org.opensha.cybershake.db;
 public interface SiteInfo2DBAPI {
 	
 	/**
-	 * Inserts the new site in the database table Sites
+	 * Inserts the new site in the database table CyberShake_Sites
 	 * @param siteName
 	 * @param siteShortName
 	 * @param lat
@@ -45,5 +45,20 @@ public interface SiteInfo2DBAPI {
 			                             int maxLatRupId,double minLat,int minLatSrcId,int minLatRupId,
 			                             double maxLon,int maxLonSrcId,int maxLonRupId,double minLon,
 			                             int minLonSrcId,int minLonRupId);
+	
+	/**
+	 * Returns the site id of the cybershake site for the corresponding cybershake_short_site_name
+	 * @param cybershakeShortSiteName
+	 * @return
+	 */
+	public int getSiteId(String cybershakeShortSiteName);
+	
+	/**
+	 * Returns the site id the cybershake site with given lat and lon
+	 * @param lat
+	 * @param lon
+	 * @return
+	 */
+	public int getSiteId(double lat,double lon);
 
 }

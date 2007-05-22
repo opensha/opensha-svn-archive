@@ -55,7 +55,7 @@ public class NSHMP2002_ToDB {
 	  private void insertSrcRupInDB(){
 		  int numSources = frankelForecast.getNumSources();
 		  int erfId = this.getInsertedERF_Id(frankelForecast.getName());
-		  for(int sourceId =478;sourceId<numSources;++sourceId){
+		  for(int sourceId = 0;sourceId<numSources;++sourceId){
 //			 get the ith source
 		     ProbEqkSource source  = (ProbEqkSource)frankelForecast.getSource(sourceId);
 		     int numRuptures = source.getNumRuptures();

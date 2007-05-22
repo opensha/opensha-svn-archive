@@ -107,7 +107,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	public static void main(String[] args) {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
-		//erfDB.insertForecaseInDB();
+		erfDB.insertForecaseInDB();
 		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
 		int erfId = erfDB.getInsertedERF_Id(forecast.getName());
 		app.putSiteInfoInDB(forecast,erfId);
