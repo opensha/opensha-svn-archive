@@ -34,6 +34,25 @@ public class CybershakeSiteInfo2DB {
 	    return site2db.insertSite(siteName, siteShortName, siteLat, siteLon);
 	}
 	
+	/**
+	 * Returns the CyberShake site id for the corresponding Cybershake short site name in the database
+	 * @param cybershakeShortSiteName
+	 * @return
+	 */
+	public int getCybershakeSiteId(String cybershakeShortSiteName){
+		return site2db.getSiteId(cybershakeShortSiteName);
+	}
+	
+	/**
+	 * Returns the Cybershake site id for the corresponding location with given Lat and Lon.
+	 * @param lat
+	 * @param lon
+	 * @return
+	 */
+	public int getCybershakeSiteId(double lat,double lon){
+		return site2db.getSiteId(lat, lon);
+	}
+	
 
 	/**
 	 * Finds all the ruptures that have any location on their surface within Cybershake location

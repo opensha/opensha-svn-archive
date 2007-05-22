@@ -50,8 +50,8 @@ public class DBAccess {
 	      if(conn ==  null)
 	    	  getConnection();
 	      stat = conn.createStatement();
-	      //System.out.println(query);
 	      //gets the resultSet after running the query
+	      System.out.println("Select Query:"+query);
 	      result = stat.executeQuery(query+";");
 
 	    }
@@ -97,8 +97,9 @@ public class DBAccess {
 	      if(conn ==  null)	
 	         getConnection();
 	      stat = conn.createStatement();
-	      //System.out.println(query);
+	     // System.out.println(query);
 	      //executes the query
+	     // System.out.println("Insert Query:"+query);
 	      stat.executeUpdate(query+";");
 	      return true;
 	    }
@@ -119,7 +120,7 @@ public class DBAccess {
 	      try
 	      {
 	        //stat.close();
-	        conn.close();
+	        //conn.close();
 	      } catch (Exception e)
 	      {
 	        e.printStackTrace();
@@ -142,6 +143,7 @@ public class DBAccess {
 	         getConnection();
 	      stat = conn.createStatement();
 	      //executes the delete or update query
+	      System.out.println("Delete/Update Query:"+query);
 	      stat.execute(query+";");
 	      //commits the result of the query to the database
 	      stat.execute("commit;");
@@ -164,8 +166,8 @@ public class DBAccess {
 	    {
 	      try
 	      {
-	        stat.close();
-	        conn.close();
+	        //stat.close();
+	        //conn.close();
 	      } catch (Exception e)
 	      {
 	        e.printStackTrace();

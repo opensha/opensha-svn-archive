@@ -22,7 +22,9 @@ public class ERF2DB implements ERF2DBAPI{
 	public void insertERFParams(int erfId, String attrName, String attrVal, String attrType,String attrUnits) {
 		
 		//generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into ERF_Metadata VALUES('"+erfId+"','"+attrName+"','"+
+		String sql = "INSERT into ERF_Metadata" +
+		    "(ERF_ID,ERF_Attr_Name,ERF_Attr_Value,ERF_Attr_Type,ERF_Attr_Units)"+
+			"VALUES('"+erfId+"','"+attrName+"','"+
 		             attrVal+"','"+attrType+"','"+attrUnits+"')";
 		dbaccess.insertData(sql);
 		
@@ -30,7 +32,7 @@ public class ERF2DB implements ERF2DBAPI{
 
 	
 	/**
-	 * Inserts source rupture information for the ERF in table "Rupture"
+	 * Inserts source rupture information for the ERF in table "Ruptures"
 	 * @param erfName
 	 * @param sourceId
 	 * @param ruptureId
@@ -50,11 +52,15 @@ public class ERF2DB implements ERF2DBAPI{
 			                        double surfaceEndLat, double surfaceEndLon,double surfaceEndDepth, 
 			                        int numRows, int numCols, int numPoints) {
 //		generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into Rupture VALUES('"+erfId+"','"+sourceId+"','"+
-		             ruptureId+"','"+sourceName+"','"+sourceType+"','"+magnitude+"','"+
-		             probability+"','"+gridSpacing+"','"+numRows+"','"+numCols+
-		             "','"+numPoints+"','"+surfaceStartLat+"','"+surfaceStartLon+"','"+surfaceStartDepth+
-		             "','"+surfaceEndLat+"','"+surfaceEndLon+"','"+surfaceEndDepth+"')";
+		String sql = "INSERT into Ruptures" +
+		             "(ERF_ID,Source_ID,Rupture_ID,Source_Name,Source_Type,Mag,Prob,"+
+		             "Grid_Spacing,Num_Rows,Num_Columns,Num_Points,Start_Lat,Start_Lon,"+
+		             "Start_Depth,End_Lat,End_Lon,End_Depth)"+
+		            "VALUES('"+erfId+"','"+sourceId+"','"+
+		             ruptureId+"','"+sourceName+"','"+sourceType+"','"+(float)magnitude+"','"+
+		             (float)probability+"','"+(float)gridSpacing+"','"+numRows+"','"+numCols+
+		             "','"+numPoints+"','"+(float)surfaceStartLat+"','"+(float)surfaceStartLon+"','"+(float)surfaceStartDepth+
+		             "','"+(float)surfaceEndLat+"','"+(float)surfaceEndLon+"','"+(float)surfaceEndDepth+"')";
 		dbaccess.insertData(sql);
 		
 	}
@@ -75,9 +81,11 @@ public class ERF2DB implements ERF2DBAPI{
 			                         double lat, double lon, double depth, double rake, 
 			                         double dip, double strike) {
 //		generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into Points VALUES('"+erfId+"','"+sourceId+"','"+
-		             ruptureId+"','"+lat+"','"+lon+"','"+depth+"','"+
-		             rake+"','"+dip+"','"+strike+"')";
+		String sql = "INSERT into Points"+ 
+		             "(ERF_ID,Source_ID,Rupture_ID,Lat,Lon,Depth,Rake,Dip,Strike)"+
+		            "VALUES('"+erfId+"','"+sourceId+"','"+
+		             ruptureId+"','"+(float)lat+"','"+(float)lon+"','"+(float)depth+"','"+
+		             (float)rake+"','"+(float)dip+"','"+(float)strike+"')";
 		dbaccess.insertData(sql);
 		
 	}
@@ -91,20 +99,32 @@ public class ERF2DB implements ERF2DBAPI{
 	 */
 	public int insertERFId(String erfName, String erfDesc) {
 //		generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into ERF_IDs VALUES('"+erfName+"','"+erfDesc+"')";
+		String sql = "INSERT into ERF_IDs"+ 
+		             "(ERF_Name,ERF_Description)"+
+		              "VALUES('"+erfName+"','"+erfDesc+"')";
 		dbaccess.insertData(sql);
 		
-//		 TODO Auto-generated method stub
-		 sql = "SELECT LAST_INSERT_ID() from ERF_IDs ";
-		 ResultSet rs =  dbaccess.selectData(sql);
-			try {
-				return rs.getInt(0);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		 return -1;
+		return getInserted_ERF_ID(erfName);
 		
 	}
 
+	/**
+	 * Retrives the id of the ERF from the table ERF_IDs  for the corresponding ERF_Name.
+	 * @param erfName
+	 * @return
+	 */
+	public int getInserted_ERF_ID(String erfName){
+		 String sql = "SELECT ERF_ID from ERF_IDs WHERE ERF_Name = "+"'"+erfName+"'";
+		 ResultSet rs =  dbaccess.selectData(sql);		 
+			try {
+				rs.first();
+				String erfId = rs.getString("ERF_ID");
+				return Integer.parseInt(erfId);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return -1;
+	}
+	
+	
 }

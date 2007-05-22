@@ -22,7 +22,7 @@ public interface ERF2DBAPI {
 	
 
 	/**
-	 * Inserts source rupture information for the ERF in table "Rupture"
+	 * Inserts source rupture information for the ERF in table "Ruptures"
 	 * @param erfName
 	 * @param sourceId
 	 * @param ruptureId
@@ -58,6 +58,11 @@ public interface ERF2DBAPI {
 			                         double lat,double lon,double depth,double rake,
 			                         double dip,double strike);
 	
-	
+	/**
+	 * Retrives the id of the ERF from the table ERF_IDs  for the corresponding ERF_Name.
+	 * @param erfName
+	 * @return
+	 */
+	public int getInserted_ERF_ID(String erfName);
 
 }
