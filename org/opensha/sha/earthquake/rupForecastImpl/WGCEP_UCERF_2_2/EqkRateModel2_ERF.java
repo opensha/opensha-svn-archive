@@ -1597,7 +1597,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	public void writeNSHMP_SrcFiles(String dirName) {
 		File file = new File(dirName);
 		if(!file.isDirectory()) file.mkdirs();
-		
+/*	*/
 		// FOR SEGMENTED MODEL
 		
 		// Default parameters
@@ -1619,7 +1619,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
 		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_HB");
-		
+	
 		// UNSEGMENTED MODEL
 //		 Default parameters
 		this.setParamDefaults();
@@ -1671,12 +1671,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	private void writeNSHMP_UnsegmentedSrcFile(String fileName) {
 		try {
-			// now write all ruptures
+			// now write all ruptures for A faults
 			int numSources  = this.aFaultSourceGenerators.size();	
-			FileWriter fw = new FileWriter(fileName+".txt");
+			FileWriter fw = new FileWriter(fileName+"_A_faults.txt");
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.aFaultSourceGenerators.get(iSrc);
+				fw.write(unsegmentedSource.getNSHMP_SrcFileString());		
+			}
+			fw.close();
+			// now do B-faults
+			numSources  = this.bFaultSources.size();	
+			fw = new FileWriter(fileName+"_B_faults.txt");
+			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
+				// unsegmented source
+				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
 				fw.write(unsegmentedSource.getNSHMP_SrcFileString());		
 			}
 			fw.close();
@@ -2252,8 +2261,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
-//		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles052207"); // directory name w/ data
+//		erRateModel2_ERF.mkExcelSheetTests();
+		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles052507"); // directory name w/ data
 		//erRateModel2_ERF.evaluateA_prioriWT();
 		
 /**/

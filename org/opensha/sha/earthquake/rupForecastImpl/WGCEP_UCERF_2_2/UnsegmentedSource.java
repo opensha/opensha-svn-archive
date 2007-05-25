@@ -888,7 +888,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		double a_value = this.getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
 		double momentCheck = getMomentRate(mag_lowerGR,numNonZeroMags,delta,a_value,b_valueGR);
 		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
-			throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
+			System.out.println("WARNING -- Bad a-value!: "+this.segmentData.getFaultName()+"  "+momentCheck+"  "+moRate);
+//			throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
 		strBuffer.append((float)a_value+"\t"+
 				(float)b_valueGR+"\t"+
 				(float)mag_lowerGR+"\t"+
