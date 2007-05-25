@@ -32,7 +32,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 42.1;
   private final double MIN_LON = -125.5 ;
   private final double MAX_LON= -114.1;
-  private final double GRID_SPACING= 1.0;
+  private final double GRID_SPACING= 0.1;
 
   private Frankel02_AdjustableEqkRupForecast forecast;
   private USGS_Combined_2004_AttenRel attenRel;
