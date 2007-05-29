@@ -69,7 +69,7 @@ public class GenerateTestExcelSheets {
 		// METADATA SHEET
 		HSSFSheet metadataSheet = wb.createSheet(); // Sheet for displaying the Total Rates
 		wb.setSheetName(0, "README");
-		/*String metadataStr = "This file contains final (post-inversion) rupture rates for the four " +
+		String metadataStr = "This file contains final (post-inversion) rupture rates for the four " +
 				"different magnitude-area relationships, the four slip models, " +
 				"and the three solution types (min rate, max rate, and geologic insight).  " +
 				"All other parameters were set as listed below.  The sheet for each fault lists" +
@@ -84,8 +84,8 @@ public class GenerateTestExcelSheets {
 				"total rates (summed over all faults) for each case.  The \"Gen. Pred. Err\" sheet" +
 				" lists the generalized prediction errors for each case (smaller values mean " +
 				"a better overall fit to the slip-rate and total segment event-rate data)." ;
-		*/
-		String metadataStr = "This file contains final (post-inversion) rupture rates for the four " +
+		
+		/*String metadataStr = "This file contains final (post-inversion) rupture rates for the four " +
 		"different magnitude-area relationships, the four slip models, " +
 		"and the geologic insight solution type.  " +
 		"All other parameters were set as listed below.  The sheet for each fault lists" +
@@ -97,7 +97,7 @@ public class GenerateTestExcelSheets {
 		"total rates (summed over all faults) for each case.  The \"Gen. Pred. Err\" sheet" +
 		" lists the generalized prediction errors for each case (smaller values mean " +
 		"a better overall fit to the slip-rate and total segment event-rate data)." ;
-
+*/
 		writeMetadata(wb, cellStyle, metadataSheet, metadataStr);
 		}
 		
@@ -111,8 +111,8 @@ public class GenerateTestExcelSheets {
 		HSSFSheet totalRatesSheet = wb.createSheet(); // Sheet for displaying the Total Rates
 		wb.setSheetName(wb.getNumberOfSheets()-1, "Total Rates");
 		int currRow[] = new int[numA_Faults];
-		for(int irup=0; irup<1;irup++) { // just do for geologic insight
-		// for(int irup=0; irup<3;irup++) { // Do for min/max/geologic insight
+		//for(int irup=0; irup<1;irup++) { // just do for geologic insight
+		 for(int irup=0; irup<3;irup++) { // Do for min/max/geologic insight
 			int rupStartRow[] = new int[numA_Faults];	
 			Iterator it = this.segmentedRupModelParam.getParametersIterator();
 			while(it.hasNext()) { // set the specfiied rup model in each A fault
@@ -158,7 +158,7 @@ public class GenerateTestExcelSheets {
 								 int ratioRowIndex1 = totRow3+2;
 								 createTotalRow( row, rupStartRow[i], rupStartRow[i]+source.getNumRuptures());
 								 if(irup==0){
-									 //this.createRatioRows(sheet, ratioRowIndex1, totRow1, totRow2, totRow3);
+									 this.createRatioRows(sheet, ratioRowIndex1, totRow1, totRow2, totRow3);
 								 }	 
 							}
 						}
@@ -225,8 +225,8 @@ public class GenerateTestExcelSheets {
 		}
 	
 		int currRow[] = new int[numA_Faults];
-		for(int irup=0; irup<1;irup++) { // do for geologic insight only
-		// for(int irup=0; irup<3;irup++) { // Do for Min/Max/Geologic insight
+		//for(int irup=0; irup<1;irup++) { // do for geologic insight only
+		 for(int irup=0; irup<3;irup++) { // Do for Min/Max/Geologic insight
 			int segSRStartRow[] = new int[numA_Faults];	
 			int segERStartRow[] = new int[numA_Faults];	
 			Iterator it = this.segmentedRupModelParam.getParametersIterator();
