@@ -313,11 +313,18 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String B_FAULTS_MIN_MAG_INFO = "Min Mag to apply to B-Faults GR-distribution";
 	private DoubleParameter bFaultsMinMagParam;
 	
-
+/*
 	// whether to inlcude C-zones
 	public final static String INCLUDE_C_ZONES  = "Include C Zones?";
 	private final static Boolean INCLUDE_C_ZONES_DEFAULT = new Boolean(true);
 	private BooleanParameter includeC_ZonesParam;
+*/
+//	 C-zone weight
+	public final static String C_ZONE_WT_PARAM_NAME  = "C-Zone Weight";
+	private final static Double C_ZONE_WT_DEFAULT = new Double(0.5);
+	private final static String C_ZONE_WT_INFO = "Weight to apply to type C-zones";
+	private DoubleParameter c_ZoneWtParam;
+	
 	
 	// fraction to put into background
 	public final static String ABC_MO_RATE_REDUCTION_PARAM_NAME = "Fract MoRate to Background";
@@ -572,8 +579,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		bFaultsMinMagParam.setInfo(B_FAULTS_MIN_MAG_INFO);
 		
 		
-		// whether to inlcude C-zones
-		includeC_ZonesParam = new BooleanParameter(INCLUDE_C_ZONES, INCLUDE_C_ZONES_DEFAULT);
+		// C-zone weight
+//		includeC_ZonesParam = new BooleanParameter(INCLUDE_C_ZONES, INCLUDE_C_ZONES_DEFAULT);
+		c_ZoneWtParam  = new DoubleParameter(C_ZONE_WT_PARAM_NAME, 0.0, 1.0, C_ZONE_WT_DEFAULT);
+		c_ZoneWtParam.setInfo(C_ZONE_WT_INFO);
 		
 		// set for background
 		ArrayList<String> options = new ArrayList<String>();
@@ -656,8 +665,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		meanMagCorrectionParam.setValue(MEAN_MAG_CORRECTION_DEFAULT);
 		//		 B-Fault Min Mag
 		bFaultsMinMagParam.setValue(B_FAULTS_MIN_MAG_DEFAULT);
-		// whether to inlcude C-zones
-		includeC_ZonesParam.setValue(INCLUDE_C_ZONES_DEFAULT);
+		// C-zone wt
+		c_ZoneWtParam.setValue(C_ZONE_WT_DEFAULT);
 		// set for background
 		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP02);
 	}
@@ -709,7 +718,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(bFaultsMinMagParam);
 		adjustableParams.addParameter(connectMoreB_FaultsParam);
 //		adjustableParams.addParameter(backSeisParam);		not needed for now
-		adjustableParams.addParameter(includeC_ZonesParam);
+		adjustableParams.addParameter(c_ZoneWtParam);
 		adjustableParams.addParameter(meanMagCorrectionParam);
 		adjustableParams.addParameter(totalMagRateParam);
 		adjustableParams.addParameter(moRateFracToBackgroundParam);
@@ -1121,7 +1130,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private void makeC_ZoneSources() {
 		cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		cZonesMFD_List = new ArrayList<IncrementalMagFreqDist> ();
-		if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
+		double cZoneWt = ((Double)c_ZoneWtParam.getValue()).doubleValue();
+		if(cZoneWt > 0.0) {
+//		if(((Boolean)includeC_ZonesParam.getValue()).booleanValue()) {
 /* 			
 			String []names = { "Foothills Fault System", "Mohawk-Honey Lake Zone",
 					"Northeastern California", "Western Nevada", "Eastern California Shear Zone N",
@@ -1151,8 +1162,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			double moRate, slipRate;
 			for(int i=0; i<names.length; ++i) {
 				// reduce slip rate by total moment rate reduction
-				slipRate = (1-totMoRateReduction)*slipRates[i]/1000.0;
-				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRate)*(1-totMoRateReduction);
+//				slipRate = (1-totMoRateReduction)*slipRates[i]/1000.0;
+				slipRate = cZoneWt*slipRates[i]/1000.0;
+				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRate);
 				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 				grMFD.setAllButTotCumRate(magLower[i], magUpper[i], moRate, bValue);
 				grMFD.setName(names[i]);

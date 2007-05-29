@@ -372,10 +372,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 //		 figure 16
 		 ++fig;
 		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue("0.0");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
@@ -422,7 +422,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME).setValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME).setValue(new Double(0));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(100));
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(0.67);
@@ -430,7 +430,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(A_FaultSegmentedSourceGenerator.WG02_SLIP_MODEL);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(100);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue("0.0");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
@@ -439,12 +439,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 this.eqkRateModelERF.setParamDefaults();
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME).setValue(new Double(0.75));
 		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME).setValue(new Double(85));
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.INCLUDE_C_ZONES).setValue(false);
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
 		 eqkRateModelERF.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.COUPLING_COEFF_PARAM_NAME)).createCell((short)fig).setCellValue(0.75);
 		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CHAR_VS_GR_PARAM_NAME)).createCell((short)fig).setCellValue(85);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.INCLUDE_C_ZONES)).createCell((short)fig).setCellValue("false");
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue("0.0");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
