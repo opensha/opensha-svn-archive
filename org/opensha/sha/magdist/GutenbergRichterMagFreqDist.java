@@ -226,9 +226,9 @@ public class GutenbergRichterMagFreqDist
    * @param point
    * @throws MagFreqDistException
    */
-  public void set(DataPoint2D point) throws MagFreqDistException {
+  /*public void set(DataPoint2D point) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
+  }*/
 
   /**
    * Throws the exception if the set functions are called from outside the class
@@ -238,9 +238,9 @@ public class GutenbergRichterMagFreqDist
    * @param y
    * @throws MagFreqDistException
    */
-  public void set(double x, double y) throws MagFreqDistException {
+  /*public void set(double x, double y) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
+  }*/
 
   /**
    * Throws the exception if the set functions are called from outside the class
@@ -250,9 +250,9 @@ public class GutenbergRichterMagFreqDist
    * @param y
    * @throws MagFreqDistException
    */
-  public void set(int index, double y) throws MagFreqDistException {
+  /*public void set(int index, double y) throws MagFreqDistException {
     throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
-  }
+  }*/
 
   /**
    * private function to set the rate values
