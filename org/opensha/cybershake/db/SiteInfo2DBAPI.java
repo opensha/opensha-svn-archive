@@ -1,5 +1,9 @@
 package org.opensha.cybershake.db;
 
+import java.util.ArrayList;
+
+import org.opensha.data.LocationList;
+
 public interface SiteInfo2DBAPI {
 	
 	/**
@@ -60,5 +64,17 @@ public interface SiteInfo2DBAPI {
 	 * @return
 	 */
 	public int getSiteId(double lat,double lon);
+	
+	/**
+	 * 
+	 * @returns the ArrayList of short site names for all Cybershake
+	 */
+	public ArrayList<String> getAllSites();
+	
+	/**
+	 * 
+	 * @returns the Arraylist of all cybershake site locations
+	 */
+	public LocationList getAllSitesLocation();
 
 }

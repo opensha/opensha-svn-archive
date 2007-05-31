@@ -2,6 +2,10 @@ package org.opensha.cybershake.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 
 public class SiteInfo2DB implements SiteInfo2DBAPI {
 
@@ -122,5 +126,51 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		dbaccess.insertData(sql);
 
 	}
+
+	/**
+	 * 
+	 * @returns the list of all cybershake site locations
+	 */
+	public LocationList getAllSitesLocation() {
+//		 gets the last auto increment id from Sites table
+		 String sql = "SELECT CS_Site_Lat,CS_Site_Lon from CyberShake_Sites";
+		 LocationList siteLocationList = new LocationList();
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				rs.first();
+				while(!rs.isAfterLast()){
+				  double lat = Double.parseDouble(rs.getString(0));	
+				  double lon = Double.parseDouble(rs.getString(1));
+				  Location loc = new Location(lat,lon);
+				  siteLocationList.addLocation(loc);
+				  rs.next();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return siteLocationList;
+   }
+
+
+	/**
+	 * 
+	 * @returns the ArrayList of short site names for all Cybershake
+	 */
+	public ArrayList getAllSites() {	
+//		 gets the last auto increment id from Sites table
+		 String sql = "SELECT CS_Short_Name from CyberShake_Sites";
+		 ArrayList<String> siteList = new ArrayList<String>();
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				rs.first();
+				while(!rs.isAfterLast()){
+				  siteList.add(rs.getString(0));
+				  rs.next();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return siteList;	
+     }
 
 }
