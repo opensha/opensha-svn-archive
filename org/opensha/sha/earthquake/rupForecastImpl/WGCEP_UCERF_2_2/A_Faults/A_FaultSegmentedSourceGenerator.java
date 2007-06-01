@@ -514,13 +514,14 @@ public class A_FaultSegmentedSourceGenerator {
 			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
 			strBuffer.append("1\t"); // char MFD
 			double rake = faultRupSrc.getRupture(0).getAveRake();
+			double wt = 0.0;
 			String rakeStr = "";
 			if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 			else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
-			strBuffer.append(rakeStr+"\t"+this.getLongRupName(srcIndex)+"\n");
-			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)this.getRupRateSolution(srcIndex)+"\n");
+			strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.getLongRupName(srcIndex)+"\n");
+			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)this.getRupRateSolution(srcIndex)+"\t"+wt+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
 			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+

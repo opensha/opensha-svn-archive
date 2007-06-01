@@ -866,13 +866,17 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	}*/
 	
 	/**
-	 * Get NSHMP Source File String. 
+	 * Get NSHMP GR Source File String. 
 	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the incremental rate
 	 * between magnitude -delta/2 to delta/2.
 	 * 
 	 * @return
 	 */
 	public String getNSHMP_GR_SrcFileString() {
+		// treat as char if mag<=6.5
+		if(sourceMag <= 6.5)
+			return getNSHMP_Char_SrcFileString();
+		
 		StringBuffer strBuffer = new StringBuffer("");
 		strBuffer.append("2\t"); // GR MFD
 		double rake = segmentData.getAveRake();
@@ -881,12 +885,13 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 		else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 		else throw new RuntimeException("Invalid Rake:"+rake);
-		strBuffer.append(rakeStr+"\t"+this.segmentData.getFaultName()+"\n");
+		strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.segmentData.getFaultName()+"\n");
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();
 		double delta = sourceMFD.getDelta();
 		double a_value = getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
 		double momentCheck = getMomentRate(mag_lowerGR,numNonZeroMags,delta,a_value,b_valueGR);
+		double wt = 1.0;
 		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
 			System.out.println("WARNING -- Bad a-value!: "+this.segmentData.getFaultName()+"  "+momentCheck+"  "+moRate);
 //			throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
@@ -895,6 +900,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				(float)mag_lowerGR+"\t"+
 				(float)sourceMag+"\t"+
 				(float)delta+"\t"+
+				(float)wt+"\t"+
 				(float)moRate+"\n");
 		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
 		// dip, Down dip width, upper seismogenic depth, rup Area
@@ -908,6 +914,45 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
 		return strBuffer.toString();
 	}
+	
+	
+	/**
+	 * Get NSHMP Char Source File String. 
+	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the incremental rate
+	 * between magnitude -delta/2 to delta/2.
+	 * 
+	 * @return
+	 */
+	public String getNSHMP_Char_SrcFileString() {
+		StringBuffer strBuffer = new StringBuffer("");
+		strBuffer.append("1\t"); // Char MFD
+		double rake = segmentData.getAveRake();
+		String rakeStr = "";
+		if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
+		else if(rake>45 && rake<135) rakeStr="2"; // Reverse
+		else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
+		else throw new RuntimeException("Invalid Rake:"+rake);
+		strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.segmentData.getFaultName()+"\n");
+		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
+		double moRate = sourceMFD.getTotalMomentRate();
+		double rate = moRate/MomentMagCalc.getMoment(sourceMag);
+		double wt = 1.0;
+		strBuffer.append((float)sourceMag+"\t"+rate+"\t"+wt+"\t"+(float)moRate+"\n");
+		StirlingGriddedSurface surface = (StirlingGriddedSurface)this.getSourceSurface();
+		// dip, Down dip width, upper seismogenic depth, rup Area
+		strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
+				(float)surface.getUpperSeismogenicDepth()+"\t"+(float)surface.getSurfaceLength()+"\n");
+		FaultTrace faultTrace = surface.getFaultTrace();
+		// All fault trace locations
+		strBuffer.append(faultTrace.getNumLocations()+"\n");
+		for(int locIndex=0; locIndex<faultTrace.getNumLocations(); ++locIndex)
+			strBuffer.append(faultTrace.getLocationAt(locIndex).getLatitude()+"\t"+
+					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
+		return strBuffer.toString();
+	}
+	
+	
+	
 	
 	   /**
 	    * this computes the moment for the GR distribution exactly the way frankel's code does it

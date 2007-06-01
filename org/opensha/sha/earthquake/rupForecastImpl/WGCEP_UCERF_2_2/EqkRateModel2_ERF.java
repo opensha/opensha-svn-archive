@@ -1638,6 +1638,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		rupModelParam.setValue(UNSEGMENTED_A_FAULT_MODEL);
 		this.updateForecast();
 		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_EllB");
+		
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
