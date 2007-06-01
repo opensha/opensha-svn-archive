@@ -37,9 +37,12 @@ The IgorAnalysis file generates eps plots of each source.
 Looks like the ones I need for CA (i.e., inside the RELM region) are:
 
 	agrd_brawly.out.txt.asc
+
+		The above uses b=0.8, Mmin=5, and Mmax=6.5
+
 	agrd_mendos.out.txt.asc
 
-		The above use b=0.8, Mmin=5, and Mmax=7
+		The above uses b=0.8, Mmin=5, and Mmax=7
 
 	agrd_creeps.out.txt.asc
 

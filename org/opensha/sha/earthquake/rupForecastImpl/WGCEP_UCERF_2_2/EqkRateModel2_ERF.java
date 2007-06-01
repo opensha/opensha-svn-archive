@@ -1689,7 +1689,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.aFaultSourceGenerators.get(iSrc);
-				fw.write(unsegmentedSource.getNSHMP_SrcFileString());		
+				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
 			}
 			fw.close();
 			// now do B-faults
@@ -1698,7 +1698,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
-				fw.write(unsegmentedSource.getNSHMP_SrcFileString());		
+				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
 			}
 			fw.close();
 		}catch(Exception e) {
@@ -2274,7 +2274,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 //		erRateModel2_ERF.mkExcelSheetTests();
-		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles052507"); // directory name w/ data
+		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles053007"); // directory name w/ data
 		//erRateModel2_ERF.evaluateA_prioriWT();
 		
 /**/

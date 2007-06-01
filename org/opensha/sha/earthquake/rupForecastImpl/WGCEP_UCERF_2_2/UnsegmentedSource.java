@@ -867,12 +867,12 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	
 	/**
 	 * Get NSHMP Source File String. 
-	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the cumulative rate
-	 * above the magLowerGR, which is different from what they use.
+	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the incremental rate
+	 * between magnitude -delta/2 to delta/2.
 	 * 
 	 * @return
 	 */
-	public String getNSHMP_SrcFileString() {
+	public String getNSHMP_GR_SrcFileString() {
 		StringBuffer strBuffer = new StringBuffer("");
 		strBuffer.append("2\t"); // GR MFD
 		double rake = segmentData.getAveRake();
@@ -885,7 +885,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();
 		double delta = sourceMFD.getDelta();
-		double a_value = this.getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
+		double a_value = getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
 		double momentCheck = getMomentRate(mag_lowerGR,numNonZeroMags,delta,a_value,b_valueGR);
 		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
 			System.out.println("WARNING -- Bad a-value!: "+this.segmentData.getFaultName()+"  "+momentCheck+"  "+moRate);
@@ -923,7 +923,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	   }
 	   
 	   /**
-	    * this computes the a-value for the GR distribution exactly the way frankel's code does it
+	    * this computes the a-value for the GR distribution by inverting what's done in getMomentRate(*)
 	    */
 	   private double getNSHMP_aValue(double magLower, int numMag, double deltaMag, double moRate, double bVal) {
 	     double sum = 0;

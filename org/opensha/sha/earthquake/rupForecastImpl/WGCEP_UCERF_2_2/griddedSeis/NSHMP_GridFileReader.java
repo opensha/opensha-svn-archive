@@ -184,8 +184,9 @@ public class NSHMP_GridFileReader {
 		
 		// C-Zones MFD. The final MFD can be checked with C-Zone MFD in GUI
 		
-		
+		/*	
 		NSHMP_GridFileReader gridFileReader = new NSHMP_GridFileReader();
+		
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
 		
 		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/area1new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
@@ -207,8 +208,9 @@ public class NSHMP_GridFileReader {
 		summedMFD.addResampledMagFreqDist(mfd, true);
 
 		System.out.println(summedMFD.getCumRateDist()); 
+*/
 		
-		/*ArrayList funcList = new ArrayList();
+		ArrayList funcList = new ArrayList();
 		NSHMP_GridFileReader gridFileReader = new NSHMP_GridFileReader();
 
 		String name = "agrd_brawly.out.txt.asc";
@@ -258,7 +260,7 @@ public class NSHMP_GridFileReader {
 		summedMFD.setName(name);
 		funcList.add(summedMFD);
 		
-		GraphWindowAPI_Impl graphWindow = new GraphWindowAPI_Impl(funcList, "Mag", "Rate", "Bckground Seis");*/
+		GraphWindowAPI_Impl graphWindow = new GraphWindowAPI_Impl(funcList, "Mag", "Rate", "Bckground Seis");
 		
 	}
 }
