@@ -514,7 +514,7 @@ public class A_FaultSegmentedSourceGenerator {
 			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
 			strBuffer.append("1\t"); // char MFD
 			double rake = faultRupSrc.getRupture(0).getAveRake();
-			double wt = 0.0;
+			double wt = 1.0;
 			String rakeStr = "";
 			if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse

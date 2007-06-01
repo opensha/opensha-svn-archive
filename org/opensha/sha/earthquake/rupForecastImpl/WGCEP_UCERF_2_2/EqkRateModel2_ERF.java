@@ -1615,36 +1615,46 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// Default parameters
 		this.setParamDefaults();
 		this.updateForecast();
-		writeNSHMP_SegmentedSrcFile(dirName+"/"+"MoBal_EllB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_EllB");
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SegmentedSrcFile(dirName+"/"+"MoBal_HB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_HB");
 		// default with High apriori model weight
 		this.setParamDefaults();
 		this.relativeA_PrioriWeightParam.setValue(new Double(1e10));
 		this.minA_FaultRate1Param.setValue(0.0);
 		this.minA_FaultRate2Param.setValue(0.0);
 		this.updateForecast();
-		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_EllB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB");
 		// change Mag Area Rel
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
-		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_HB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB");
 	
-		// UNSEGMENTED MODEL
-		
-		// Default parameters
+		// UNSEGMENTED MODELS & B-FAULTS
 		this.setParamDefaults();
 		rupModelParam.setValue(UNSEGMENTED_A_FAULT_MODEL);
 		this.updateForecast();
-		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_EllB");
+		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_EllB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB");
 		
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
-		connectMoreB_FaultsParam.setValue(new Boolean(true));
 		this.updateForecast();
-		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_HB");
+		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_HB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB");
+		
+		// UNSTITCHED B-FAULTS
+		this.setParamDefaults();
+		connectMoreB_FaultsParam.setValue(new Boolean(false));
+		this.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB");
+		
+		// change Mag Area to Hans Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB");
 		
 	}
 
@@ -1654,7 +1664,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * 
 	 * @param fileName
 	 */
-	private void writeNSHMP_SegmentedSrcFile(String fileNamePrefix) {
+	private void writeNSHMP_SegmentedAfaultSrcFile(String fileNamePrefix) {
 		try {
 			// Write the adjustable Params
 			/*String metadataString="";
@@ -1663,6 +1673,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				metadataString += "# "+((ParameterAPI)it.next()).getMetadataString()+"\n";*/
 			// now write all ruptures
 			int numSources  = this.aFaultSourceGenerators.size();	
+			FileWriter fw = new FileWriter(fileNamePrefix+".txt");
 			
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				String faultName;
@@ -1670,26 +1681,24 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				A_FaultSegmentedSourceGenerator segmentedSource = (A_FaultSegmentedSourceGenerator)this.aFaultSourceGenerators.get(iSrc);
 				faultName = segmentedSource.getFaultSegmentData().getFaultName();
 //				Commented out:				fw.write(metadataString);
-				FileWriter fw = new FileWriter(fileNamePrefix+"_"+faultName.replace(' ', '-')+".txt");
 				fw.write(segmentedSource.getNSHMP_SrcFileString());
-				fw.close();
 			}
+			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Write file for each Unsegmented source for NSHMP 
-	 * All sources are written in one file
+	 * Write NSHMP file for Unsegmented A faults (assumes parameters were set and run accordingly)
 	 * 
 	 * @param fileName
 	 */
-	private void writeNSHMP_UnsegmentedSrcFile(String fileName) {
+	private void writeNSHMP_UnsegmentedAfaultSrcFile(String fileName) {
 		try {
 			// now write all ruptures for A faults
 			int numSources  = this.aFaultSourceGenerators.size();	
-			FileWriter fw = new FileWriter(fileName+"_A_faults.txt");
+			FileWriter fw = new FileWriter(fileName+".txt");
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.aFaultSourceGenerators.get(iSrc);
@@ -1697,30 +1706,27 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			}
 			fw.close();
 			
-			// STITCHED B-faults
-			numSources  = this.bFaultSources.size();	
-			fw = new FileWriter(fileName+"_Stitched_B_faults_GR.txt");
-			FileWriter fwChar = new FileWriter(fileName+"_Stitched_B_faults_Char.txt");
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Write NSHMP files for B faults (GR vs Char files)
+	 * 
+	 * @param fileName
+	 */	
+	private void writeNSHMP_BfaultSrcFiles(String fileName) {
+		try {
+			
+			int numSources  = this.bFaultSources.size();	
+			FileWriter fw = new FileWriter(fileName+"_GR.txt");
+			FileWriter fwChar = new FileWriter(fileName+"_Char.txt");
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
 				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
 				fwChar.write(unsegmentedSource.getNSHMP_Char_SrcFileString());
-			}
-			fw.close();
-			fwChar.close();
-			
-			//	UNSTITCHED B-Faults
-			connectMoreB_FaultsParam.setValue(new Boolean(false));
-			this.updateForecast();
-			numSources  = this.bFaultSources.size();	
-			fw = new FileWriter(fileName+"_Unstitched_B_faults.txt");
-			fwChar = new FileWriter(fileName+"_Unstitched_B_faults_Char.txt");
-			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
-				// unsegmented source
-				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
-				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
-				fwChar.write(unsegmentedSource.getNSHMP_Char_SrcFileString());	
 			}
 			fw.close();
 			fwChar.close();
