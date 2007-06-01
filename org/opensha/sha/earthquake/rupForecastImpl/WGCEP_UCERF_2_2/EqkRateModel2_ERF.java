@@ -1633,7 +1633,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		writeNSHMP_SegmentedSrcFile(dirName+"/"+"aPriori_HB");
 	
 		// UNSEGMENTED MODEL
-//		 Default parameters
+		
+		// Default parameters
 		this.setParamDefaults();
 		rupModelParam.setValue(UNSEGMENTED_A_FAULT_MODEL);
 		this.updateForecast();
@@ -1641,8 +1642,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 		// change Mag Area to Hans Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		connectMoreB_FaultsParam.setValue(new Boolean(true));
 		this.updateForecast();
 		writeNSHMP_UnsegmentedSrcFile(dirName+"/"+"unseg_HB");
+		
 	}
 
 	/**
@@ -1693,15 +1696,35 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
 			}
 			fw.close();
-			// now do B-faults
+			
+			// STITCHED B-faults
 			numSources  = this.bFaultSources.size();	
-			fw = new FileWriter(fileName+"_B_faults.txt");
+			fw = new FileWriter(fileName+"_Stitched_B_faults_GR.txt");
+			FileWriter fwChar = new FileWriter(fileName+"_Stitched_B_faults_Char.txt");
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
 				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
+				fwChar.write(unsegmentedSource.getNSHMP_Char_SrcFileString());
 			}
 			fw.close();
+			fwChar.close();
+			
+			//	UNSTITCHED B-Faults
+			connectMoreB_FaultsParam.setValue(new Boolean(false));
+			this.updateForecast();
+			numSources  = this.bFaultSources.size();	
+			fw = new FileWriter(fileName+"_Unstitched_B_faults.txt");
+			fwChar = new FileWriter(fileName+"_Unstitched_B_faults_Char.txt");
+			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
+				// unsegmented source
+				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)this.bFaultSources.get(iSrc);
+				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
+				fwChar.write(unsegmentedSource.getNSHMP_Char_SrcFileString());	
+			}
+			fw.close();
+			fwChar.close();
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -2275,7 +2298,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
 //		erRateModel2_ERF.mkExcelSheetTests();
-		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles053007"); // directory name w/ data
+		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles060107"); // directory name w/ data
 		//erRateModel2_ERF.evaluateA_prioriWT();
 		
 /**/

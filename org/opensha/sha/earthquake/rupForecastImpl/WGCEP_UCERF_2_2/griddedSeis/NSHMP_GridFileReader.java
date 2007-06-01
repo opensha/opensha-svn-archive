@@ -189,22 +189,22 @@ public class NSHMP_GridFileReader {
 		
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
 		
-		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/area1new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area1new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/area2new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area2new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/area3new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area3new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/area4new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area4new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/mojave.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"mojave.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/sangreg.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"sangreg.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 
 		System.out.println(summedMFD.getCumRateDist()); 
@@ -214,7 +214,7 @@ public class NSHMP_GridFileReader {
 		NSHMP_GridFileReader gridFileReader = new NSHMP_GridFileReader();
 
 		String name = "agrd_brawly.out.txt.asc";
-		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 1);
+		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 6.5, 1);
 		mfd.setName(name);
 		funcList.add(mfd);
 
