@@ -189,22 +189,22 @@ public class NSHMP_GridFileReader {
 		
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
 		
-		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area1new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area1new.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area2new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area2new.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area3new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area3new.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area4new.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"area4new.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"mojave.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"mojave.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 		
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"sangreg.agrid.txt.asc", 0.8, 6.5, 7.6, 1);
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+"sangreg.agrid.asc", 0.8, 6.5, 7.6, 1);
 		summedMFD.addResampledMagFreqDist(mfd, true);
 
 		System.out.println(summedMFD.getCumRateDist()); 
@@ -213,50 +213,46 @@ public class NSHMP_GridFileReader {
 		ArrayList funcList = new ArrayList();
 		NSHMP_GridFileReader gridFileReader = new NSHMP_GridFileReader();
 
-		String name = "agrd_brawly.out.txt.asc";
+		String name = "agrd_brawly.out.asc";
 		GutenbergRichterMagFreqDist mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 6.5, 1);
 		mfd.setName(name);
 		funcList.add(mfd);
 
-		name = "agrd_mendos.out.txt.asc";
+		name = "agrd_mendos.out.asc";
 		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 1);
 		mfd.setName(name);
 		funcList.add(mfd);
 
 
-		name = "agrd_creeps.out.txt.asc";
+		name = "agrd_creeps.out.asc";
 		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.9, 5, 6, 1);
 		mfd.setName(name);
 		funcList.add(mfd);
 		
-		name = "agrd_cstcal.out.txt.asc";
+		name = "agrd_cstcal.out.asc";
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2ch.out7.txt.asc", 0.5, true), true);
-		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2gr.out7.txt.asc", 0.5, true), true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2ch.out7.asc", 0.333, true), true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2gr.out7.asc", 0.667, true), true);
 		summedMFD.setName(name);
 		funcList.add(summedMFD);
 		
 
-		name = "agrd_deeps.out.txt.asc";
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.9, 5, 7.2, 1);
+		name = "agrd_deeps.out.asc";
+		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7.2, 1);
 		mfd.setName(name);
 		funcList.add(mfd);
 		
-		name = "agrd_wuscmp.out.txt.asc";
+		name = "agrd_wuscmp.out.asc";
 		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 0.5);
-		summedMFD.addResampledMagFreqDist(mfd, true);
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 0.5);
-		summedMFD.addResampledMagFreqDist(mfd, true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.333, false), true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.667, false), true);
 		summedMFD.setName(name);
 		funcList.add(summedMFD);
 		
-		name = "agrd_wusext.out.txt.asc";
+		name = "agrd_wusext.out.asc";
 		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 0.5);
-		summedMFD.addResampledMagFreqDist(mfd, true);
-		mfd  = gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, 7, 0.5);
-		summedMFD.addResampledMagFreqDist(mfd, true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.333, false), true);
+		summedMFD.addResampledMagFreqDist(gridFileReader.getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.667, false), true);
 		summedMFD.setName(name);
 		funcList.add(summedMFD);
 		
