@@ -171,7 +171,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 				maxFromMaxMagFiles = fltmmaxCA2gr_out7[i];
 		}
 
-		System.out.println(maxFromMaxMagFiles);
+		//System.out.println(maxFromMaxMagFiles);
 		/* find indices that are zeros in all files
 		// NO LONGER NEEDED SINCE I TRIM THE RELM REGION
 		for(int i=0; i<agrd_brawly_out.length;i++){
@@ -258,7 +258,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
 		
 //		apply bulge reduction above mag 6.5 if desired
-		if(applyBulgeReduction) {	
+		if(applyBulgeReduction && mfd.getMaxX()>6.5) {	
 			for(int i=mfd.getXIndex(6.5) + 1; i<mfd.getNum(); ++i)
 				mfd.set(i, mfd.getY(i)/3);
 		}
@@ -328,24 +328,24 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		
 		
 		// find max mag among all contributions
-		double maxMagAtLoc = -1;
-		if(includeC_zones) { // if C-zones are included
+		double maxMagAtLoc = C_ZONES_MAX_MAG;
+		/*if(includeC_zones) { // if C-zones are included
 			if(this.C_ZONES_MAX_MAG>maxMagAtLoc) maxMagAtLoc = C_ZONES_MAX_MAG;
 		}
 		else {
 			if(applyMaxMagGrid) {
-				if(fltmmaxALLCNch_outv3[locIndex] > maxFromMaxMagFiles) 
+				if(fltmmaxALLCNch_outv3[locIndex] > maxMagAtLoc) 
 					maxMagAtLoc = fltmmaxALLCNch_outv3[locIndex];
-				if(fltmmaxALLCNgr_outv3[locIndex] > maxFromMaxMagFiles) 
+				if(fltmmaxALLCNgr_outv3[locIndex] > maxMagAtLoc) 
 					maxMagAtLoc = fltmmaxALLCNgr_outv3[locIndex];
-				if(fltmmaxCA2ch_out7[locIndex] > maxFromMaxMagFiles) 
+				if(fltmmaxCA2ch_out7[locIndex] > maxMagAtLoc) 
 					maxMagAtLoc = fltmmaxCA2ch_out7[locIndex];
-				if(fltmmaxCA2gr_out7[locIndex] > maxFromMaxMagFiles) 
+				if(fltmmaxCA2gr_out7[locIndex] > maxMagAtLoc) 
 					maxMagAtLoc = fltmmaxCA2gr_out7[locIndex];
 			} else {
 				maxMagAtLoc = DEFAULT_MAX_MAG;
 			}
-		}
+		}*/
 		
 		// create summed MFD
 		int numMags = (int)Math.round((maxMagAtLoc-EqkRateModel2_ERF.MIN_MAG)/DELTA_MAG) + 1;
@@ -385,6 +385,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
-		System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
+		//System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
+		System.out.println(srcGen.getTotMFDForRegion(false, true, true));
 	}
 }

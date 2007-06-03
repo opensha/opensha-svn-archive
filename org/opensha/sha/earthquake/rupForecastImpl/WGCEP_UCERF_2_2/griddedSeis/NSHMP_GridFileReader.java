@@ -323,6 +323,7 @@ public class NSHMP_GridFileReader {
 		
 		NSHMP_GridFileReader gridFileReader = new NSHMP_GridFileReader();
 		GraphWindowAPI_Impl graphWindow = new GraphWindowAPI_Impl(gridFileReader.getBackgroundMFDs(), "Mag", "Rate", "Bckground Seis");
-		System.out.println(gridFileReader.getC_ZonesSummedMFD().getCumRateDist());
+		//System.out.println(gridFileReader.getC_ZonesSummedMFD().getCumRateDist());
+		System.out.println(gridFileReader.getBackgroundSummedMFD());
 	}
 }
