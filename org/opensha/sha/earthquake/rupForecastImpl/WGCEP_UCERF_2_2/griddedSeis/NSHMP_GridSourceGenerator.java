@@ -48,6 +48,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private final static double B_VAL = 0.8;
 	private final static double B_VAL_CREEPING = 0.9;
 	private final static double DELTA_MAG = 0.1;
+
+	
 	private double maxFromMaxMagFiles;
 	
 	  public NSHMP_GridSourceGenerator() {
@@ -151,7 +153,21 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		fltmmaxCA2ch_out7 = readGridFile(PATH+"fltmmaxCA2ch.out7.asc",false);
 		fltmmaxCA2gr_out7 = readGridFile(PATH+"fltmmaxCA2gr.out7.asc",false);
 		
-		maxFromMaxMagFiles = ???;
+		int numMags = fltmmaxALLCNch_outv3.length;
+		
+		
+		// find maximum magitude from max mag files
+		maxFromMaxMagFiles = -1;
+		for(int i=0; i<numMags; ++i) {
+			if(fltmmaxALLCNch_outv3[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxALLCNch_outv3[i];
+			if(fltmmaxALLCNgr_outv3[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxALLCNgr_outv3[i];
+			if(fltmmaxCA2ch_out7[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxCA2ch_out7[i];
+			if(fltmmaxCA2gr_out7[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxCA2gr_out7[i];
+		}
 
 		
 		/* find indices that are zeros in all files
@@ -287,12 +303,47 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		
 		// find max mag among all contributions
+		double maxMagAtLoc = -1;
+		
+		if(fltmmaxALLCNch_outv3[locIndex] > maxFromMaxMagFiles) 
+			maxMagAtLoc = fltmmaxALLCNch_outv3[locIndex];
+		if(fltmmaxALLCNgr_outv3[locIndex] > maxFromMaxMagFiles) 
+			maxMagAtLoc = fltmmaxALLCNgr_outv3[locIndex];
+		if(fltmmaxCA2ch_out7[locIndex] > maxFromMaxMagFiles) 
+			maxMagAtLoc = fltmmaxCA2ch_out7[locIndex];
+		if(fltmmaxCA2gr_out7[locIndex] > maxFromMaxMagFiles) 
+			maxMagAtLoc = fltmmaxCA2gr_out7[locIndex];
 		
 		// create summed MFD
+		int numMags = (int)Math.round((maxMagAtLoc-EqkRateModel2_ERF.MIN_MAG)/DELTA_MAG) + 1;
+		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, maxMagAtLoc, numMags);
+
 		
 		// create and add each contributing MFD
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false), true);
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.0, agrd_mendos_out[locIndex], B_VAL, false), true);	
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false), true);
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false), true);
+				
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxCA2ch_out7[locIndex], 0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxCA2gr_out7[locIndex], 0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
+
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.333*agrd_wuscmp_out[locIndex], B_VAL, false), true);
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.667*agrd_wuscmp_out[locIndex], B_VAL, false), true);
+
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, false), true);
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, false), true);
+
+		if(includeC_zones) { // Include C-Zones
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, area1new_agrid[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, area2new_agrid[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, area3new_agrid[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, area4new_agrid[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, mojave_agrid[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, 7.6, sangreg_agrid[locIndex], B_VAL, false), true);	
+		}	
 		
-		
+		return mfdAtLoc;
 	}
 	
 	public static void main(String args[]) {
