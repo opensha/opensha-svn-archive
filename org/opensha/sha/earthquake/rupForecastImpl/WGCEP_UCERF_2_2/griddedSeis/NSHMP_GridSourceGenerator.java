@@ -21,7 +21,12 @@ import sun.tools.tree.ThisExpression;
 
 
 /**
- * Read NSHMP backgroud seismicity files
+ * Read NSHMP backgroud seismicity files.  This trims the western edge of the RELM
+ * region so there are no zero rate bins (i.e., the number of locationis is the same
+ * as the number of non-zero rate cells).  The number of locations in the result is
+ * numLocs=7654.
+ * 
+ * I verified sumOfAllAvals against my hand sum using Igor.
  * 
  * @author Ned Field & Vipin Gupta
  *
@@ -32,6 +37,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private final static String LAT_LON_FILENAME = PATH + "LonsLats.txt";
 	
 	private int[] aValIndexForLocIndex;
+	private double[] sumOfAllAvals;
 	private int numAvals;
 	// a-val and mmax values
 	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out, 
@@ -39,25 +45,55 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 					area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
 					fltmmaxALLCNch_outv3, fltmmaxALLCNgr_outv3, fltmmaxCA2ch_out7, fltmmaxCA2gr_out7;
 	
-	
+	private final static double B_VAL = 0.8;
+	private final static double B_VAL_CREEPING = 0.9;
+	private final static double DELTA_MAG = 0.1;
+	private double maxFromMaxMagFiles;
 	
 	  public NSHMP_GridSourceGenerator() {
-		    super();
-		    System.out.println("Setting aValIndexForLocIndex");
+		  	getLocationList();
+		    
+		    // trim the western edge of the RELM region where NSHMP area doesn't get to
+		    // (so we don't have to filter out zero rate bins in the RELM region)
+		    for(int i=0; i<locList.size();i++) {
+		    		if(locList.getLocationAt(i).getLongitude() < -125.001)
+		    			locList.getLocationAt(i).setLongitude(-125.0);
+		    }
+		    
+		    // make polygon from the location list
+		    createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+
 		    setA_ValIndexForLocIndex();
-		    System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
-		    System.out.println("reading all files");
+		    //System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
+		    //System.out.println("reading all files");
 		    readAllGridFiles();
-		    System.out.println("done");
+		    //System.out.println("done");
+		  
+		    /*  This is to output and check the sum 
+		    Location loc;
+		    System.out.println("test_lat\ttest_lon\ttest_rate");
+		    for(int i=0;i<this.getNumGridLocs();i++) {
+		    		loc = this.getGridLocation(i);
+		    		System.out.println((float)loc.getLatitude()+"\t"+
+		    				(float)loc.getLongitude()+"\t"+
+		    				(float)sumOfAllAvals[i]);
+		    }
+		    */
+		    
 	}
 	
 	
 	/**
-	 * This determins the index in each grid file that corresponds to the ith location in the RELM regions
+	 * This determins the index in each grid file that corresponds to the 
+	 * ith location in the RELM regions, setting the value to -1 if there is
+	 * no NSHMP grid cell for any of the RELM sites (the most western lons).
 	 *
 	 */
 	private void setA_ValIndexForLocIndex() {
 		aValIndexForLocIndex = new int[getNumGridLocs()];
+		//initialize values to -1 (bogus index) because not all RELM locs have a corresponding line in the grid file
+		for(int i=0;i<aValIndexForLocIndex.length;i++)
+			aValIndexForLocIndex[i] = -1;
 		numAvals = 0;
 		
 		try { 
@@ -93,23 +129,59 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 *
 	 */
 	private void readAllGridFiles() {
-		agrd_brawly_out = readGridFile(PATH+"agrd_brawly.out.asc");
-		agrd_creeps_out = readGridFile(PATH+"agrd_creeps_out.asc");
-		agrd_cstcal_out = readGridFile(PATH+"agrd_cstcal_out.asc");
-		agrd_deeps_out = readGridFile(PATH+"agrd_deeps_out.asc");
-		agrd_mendos_out = readGridFile(PATH+"agrd_mendos_out.asc");
-		agrd_wuscmp_out = readGridFile(PATH+"agrd_wuscmp_out.asc");
-		agrd_wusext_out = readGridFile(PATH+"agrd_wusext_out.asc");
-		area1new_agrid  = readGridFile(PATH+"area1new_agrid.asc");
-		area2new_agrid = readGridFile(PATH+"area2new_agrid.asc");
-		area3new_agrid = readGridFile(PATH+"area3new_agrid.asc");
-		area4new_agrid = readGridFile(PATH+"area4new_agrid.asc");
-		mojave_agrid = readGridFile(PATH+"mojave_agrid.asc");
-		sangreg_agrid = readGridFile(PATH+"sangreg_agrid.asc");
-		fltmmaxALLCNch_outv3 = readGridFile(PATH+"fltmmaxALLCNch_outv3.asc");
-		fltmmaxALLCNgr_outv3 = readGridFile(PATH+"fltmmaxALLCNgr_outv3.asc");
-		fltmmaxCA2ch_out7 = readGridFile(PATH+"fltmmaxCA2ch_out7.asc");
-		fltmmaxCA2gr_out7 = readGridFile(PATH+"fltmmaxCA2gr_out7.asc");
+		
+		// 
+		sumOfAllAvals = new double[numAvals];
+		
+		agrd_cstcal_out = readGridFile(PATH+"agrd_cstcal.out.asc",true);
+		agrd_brawly_out = readGridFile(PATH+"agrd_brawly.out.asc",true);
+		agrd_creeps_out = readGridFile(PATH+"agrd_creeps.out.asc",true);
+		agrd_deeps_out = readGridFile(PATH+"agrd_deeps.out.asc",true);
+		agrd_mendos_out = readGridFile(PATH+"agrd_mendos.out.asc",true);
+		agrd_wuscmp_out = readGridFile(PATH+"agrd_wuscmp.out.asc",true);
+		agrd_wusext_out = readGridFile(PATH+"agrd_wusext.out.asc",true);
+		area1new_agrid  = readGridFile(PATH+"area1new.agrid.asc",true);
+		area2new_agrid = readGridFile(PATH+"area2new.agrid.asc",true);
+		area3new_agrid = readGridFile(PATH+"area3new.agrid.asc",true);
+		area4new_agrid = readGridFile(PATH+"area4new.agrid.asc",true);
+		mojave_agrid = readGridFile(PATH+"mojave.agrid.asc",true);
+		sangreg_agrid = readGridFile(PATH+"sangreg.agrid.asc",true);
+		fltmmaxALLCNch_outv3 = readGridFile(PATH+"fltmmaxALLCNch.outv3.asc",false);
+		fltmmaxALLCNgr_outv3 = readGridFile(PATH+"fltmmaxALLCNgr.outv3.asc",false);
+		fltmmaxCA2ch_out7 = readGridFile(PATH+"fltmmaxCA2ch.out7.asc",false);
+		fltmmaxCA2gr_out7 = readGridFile(PATH+"fltmmaxCA2gr.out7.asc",false);
+		
+		maxFromMaxMagFiles = ???;
+
+		
+		/* find indices that are zeros in all files
+		// NO LONGER NEEDED SINCE I TRIM THE RELM REGION
+		for(int i=0; i<agrd_brawly_out.length;i++){
+			boolean allZero = true;
+			if(agrd_brawly_out[i] !=0) allZero = false;
+			if(agrd_creeps_out[i] !=0) allZero = false;
+			if(agrd_cstcal_out[i] !=0) allZero = false;
+			if(agrd_deeps_out[i] !=0) allZero = false;
+			if(agrd_mendos_out[i] !=0) allZero = false;
+			if(agrd_wuscmp_out[i] !=0) allZero = false;
+			if(agrd_wusext_out[i] !=0) allZero = false;
+			if(area1new_agrid[i] !=0) allZero = false;
+			if(area2new_agrid[i] !=0) allZero = false;
+			if(area3new_agrid[i] !=0) allZero = false;
+			if(area4new_agrid[i] !=0) allZero = false;
+			if(mojave_agrid[i] !=0) allZero = false;
+			if(sangreg_agrid[i] !=0) allZero = false;
+
+			if(allZero) {
+				Location loc = this.getGridLocation(i);
+				System.out.println(i+" is all zero; aValIndexForLocIndex = "+
+						aValIndexForLocIndex[i]+" Location: "+
+						(float)loc.getLatitude()+"\t"+
+	    				(float)loc.getLongitude()+"\t"+
+	    				(float)sumOfAllAvals[i]);
+			}
+		}
+		*/
 	}
 	
 	/**
@@ -118,9 +190,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @param fileName
 	 * @return
 	 */
-	private double[] readGridFile(String fileName) {
+	private double[] readGridFile(String fileName, boolean addToSumOfAllAvals) {
 		double[] allGridVals = new double[numAvals];
-		System.out.println("    Working on "+fileName);
+//		System.out.println("    Working on "+fileName);
 		try { 
 			FileReader ratesFileReader = new FileReader(fileName); 
 			BufferedReader ratesFileBufferedReader = new BufferedReader(ratesFileReader);
@@ -141,13 +213,87 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		
 		//now keep only the ones in the RELM region
 		double[] gridVals = new double[getNumGridLocs()];
-		for(int i=0;i<gridVals.length;i++)
-			gridVals[i] = allGridVals[aValIndexForLocIndex[i]];
+		for(int i=0;i<gridVals.length;i++) {
+			int aValIndex = aValIndexForLocIndex[i];
+			if(aValIndex != -1) {  // ignore the RELM locs outside the NSHMP region
+				gridVals[i] = allGridVals[aValIndex];
+				if(addToSumOfAllAvals) sumOfAllAvals[i]+=gridVals[i];
+			}
+		}
 		return gridVals;
 	}
 	
-	
+	/**
+	 * This creates an NSHMP mag-freq distribution from their a-value, 
+	 * with an option to reduce rates above M 6.5 by a factor of three.
+	 * @param minMag
+	 * @param maxMag
+	 * @param aValue
+	 * @param bValue
+	 * @param applyBulgeReduction
+	 * @return
+	 */		
+	private GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
+											double bValue, boolean applyBulgeReduction) {
+		int numMag = Math.round((float)((maxMag-minMag)/DELTA_MAG+1));
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, bValue);
+		mfd.scaleToIncrRate(minMag, Math.pow(10,aValue+bValue*minMag));
+		
+//		apply bulge reduction above mag 6.5 if desired
+		if(applyBulgeReduction) {	
+			for(int i=mfd.getXIndex(6.5) + 1; i<mfd.getNum(); ++i)
+				mfd.set(i, mfd.getY(i)/3);
+		}
+		return mfd;
+	}
 
+	
+	/**
+	 * This gets the total NSHMP mag-freq dist for the given array of a-values
+	 * @param minMag
+	 * @param maxMag
+	 * @param aValueArray
+	 * @param bValue
+	 * @param applyBulgeReduction
+	 * @return
+	 */
+	private GutenbergRichterMagFreqDist getTotalMFD(double minMag, double maxMag, double[] aValueArray, 
+			double bValue, boolean applyBulgeReduction) {
+		
+		double tot_aValue = 0;
+		for(int i=0; i<aValueArray.length; i++) tot_aValue += aValueArray[i];
+		return getMFD(minMag, maxMag, tot_aValue, bValue, applyBulgeReduction);
+	}
+	
+	
+	public GutenbergRichterMagFreqDist getTotalC_ZoneMFD() {
+		double tot_aValue = 0;
+		for(int i=0; i<area1new_agrid.length; i++) 
+			tot_aValue += area1new_agrid[i]+area2new_agrid[i]+area3new_agrid[i]+
+						  area4new_agrid[i]+mojave_agrid[i]+sangreg_agrid[i];
+		return getMFD(6.5, 7.6, tot_aValue, B_VAL, false);
+	}
+	
+	
+	/**
+	 * Note that applyBulgeReduction only applies to agrd_cstcal_out
+	 * @param locIndex
+	 * @param includeC_zones
+	 * @param applyBulgeReduction
+	 * @param applyMmaxGrid
+	 * @return
+	 */
+	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
+			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+		
+		// find max mag among all contributions
+		
+		// create summed MFD
+		
+		// create and add each contributing MFD
+		
+		
+	}
 	
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();

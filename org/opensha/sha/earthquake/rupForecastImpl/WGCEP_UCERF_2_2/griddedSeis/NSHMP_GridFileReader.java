@@ -247,7 +247,9 @@ public class NSHMP_GridFileReader {
 	 * @param weight
 	 * @return
 	 */
-	private SummedMagFreqDist getMFD_InsideRELM_Region(String fileName, double bValue, double mMin, String mMaxFilename, double weight, boolean applyBulgeReduction) {
+	private SummedMagFreqDist getMFD_InsideRELM_Region(String fileName, double 
+			bValue, double mMin, String mMaxFilename, double weight, 
+			boolean applyBulgeReduction) {
 		// RELM region 
 		EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);

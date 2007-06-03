@@ -19,7 +19,7 @@ import scratchJavaDevelopers.vipin.relm.*;
  */
 
 public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
-  private final static double GRID_SPACING = 0.1;
+  protected final static double GRID_SPACING = 0.1;
 
   public EvenlyGriddedRELM_Region() {
     /**
@@ -34,7 +34,7 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
    * Location list which formas the outline of the ploygon for RELM region
    * This was obtained by reading RELM output file and finding min/max Longitude. then, Ned edited the file to minimize the number of points
    */
-  private LocationList getLocationList() {
+  protected LocationList getLocationList() {
     LocationList locList = new LocationList();
     
     locList.addLocation(new Location(31.5,-117.2));
