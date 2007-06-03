@@ -47,6 +47,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.B_FaultsF
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.*;
@@ -1023,8 +1024,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
-			totBackgroundMFD = getNSHMP02_Backgr_MFD();
-			totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
+			NSHMP_GridSourceGenerator nshmp_srcGen = new NSHMP_GridSourceGenerator();
+			totBackgroundMFD = nshmp_srcGen.getTotMFDForRegion(false,true,true);
+			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
+			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 			
 			// Test of Golden's proposed solution
 			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
