@@ -1375,11 +1375,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 
 		if(includeAftershocks)  {
 			bVal = 1.0;
-			rate = 7.84;
+			rate = 7.4;
 		}
 		else {
 			bVal = 0.8;
-			rate = 3.6;
+			rate = 3.74;
 		}
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
 				this.MIN_MAG, 8.0, 1.0, bVal);
@@ -1411,13 +1411,31 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD and upper and lower confidence MFDs
-	 * (from Table 11 of Appendix_I_v01.pdf)
+	 * (from Table 21 of Appendix_I_v03.pdf)
 	 * @return
 	 */
 	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] cumRatesWith =     {7.4,      2.3,      0.73,      0.23,       0.07,       0.016};
+		double[] cumRatesLowWith =  {7.4-3.4,  2.3-1.1,  0.73-0.34, 0.23-0.11,  0.07-0.03,  0.016-0.011};
+		double[] cumRatesHighWith = {7.4+2.67, 2.3+0.84, 0.73+0.27, 0.23+0.084, 0.07+0.025, 0.016+0.0008};
+		double[] cumRates = {    3.74,      1.48,      0.58,      0.22,      0.08,      0.02};
+		double[] cumRatesLow =  {3.74-1.47, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.015};
+		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.18, 0.22+0.07, 0.08+0.03, 0.02+0.011};
+	
+		/* pasted from her table 21:
+		M 5.0 	7.4,?3.4,+2.67 			3.74,?1.47, +1.13
+		M 5.5 	2.3,?1.1,+0.84 			1.48,?0.59, +0.45
+		M 6.0 	0.73,?0.34, +0.27 		0.58,?0.23, +0.18
+		M 6.5 	0.23,?0.11, +0.084 		0.22,?0.09, +0.07
+		M 7.0 	0.07,?0.03, +0.025 		0.08,?0.04, +0.03
+		M 7.5 	0.016,?0.011, +0.0008 	0.02,?0.015, +0.011
+		*/
+		
+		
+		/* OLD VALUES (from Table 11 of Appendix_I_v01.pdf)
 		double[] cumRatesWith = {7.84, 2.47, 0.78, 0.24, 0.07, 0.017};
 		double[] cumRatesLowWith =  {7.84-3.6, 2.47-1.14, 0.78-0.36, 0.24-0.11, 0.07-0.05, 0.017-0.013};
 		double[] cumRatesHighWith = {7.84+3.6, 2.47+1.14, 0.78+0.36, 0.24+0.11, 0.07+0.07, 0.017+0.026};
@@ -1446,9 +1464,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			obsCumHighMFD.set(i, cumRatesHigh[i]);
 		}
 		if(includeAftershocks) {
-			obsCumMFD.setInfo("Cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
-			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
+			obsCumMFD.setInfo("Cumulative MFD for observed catalog including aftershocks (Table 21 of Karen Felzer's Appendix_I_v03.pdf)");
+			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog including aftershocks (Table 21 of Karen Felzer's Appendix_I_v03.pdf)");
+			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (Table 21 of Karen Felzer's Appendix_I_v03.pdf)");
 		}
 		else {
 			obsCumMFD.setInfo("Cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
