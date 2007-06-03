@@ -255,7 +255,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 											double bValue, boolean applyBulgeReduction) {
 		int numMag = Math.round((float)((maxMag-minMag)/DELTA_MAG+1));
 		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, bValue);
-		mfd.scaleToIncrRate(minMag, Math.pow(10,aValue+bValue*minMag));
+		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
 		
 //		apply bulge reduction above mag 6.5 if desired
 		if(applyBulgeReduction) {	
@@ -385,5 +385,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
+		System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
 	}
 }

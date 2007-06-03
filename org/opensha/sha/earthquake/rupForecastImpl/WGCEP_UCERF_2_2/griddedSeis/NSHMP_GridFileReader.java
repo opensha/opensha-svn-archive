@@ -137,8 +137,8 @@ public class NSHMP_GridFileReader {
 		
 		name = "agrd_cstcal.out.asc";
 		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2ch.out7.asc", 0.333, true), true);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2gr.out7.asc", 0.667, true), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2ch.out7.asc", 0.667, true), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2gr.out7.asc", 0.333, true), true);
 		summedMFD.setName(name);
 		bckMFDList.add(summedMFD);
 		bckSummedMFD.addResampledMagFreqDist(summedMFD, true);
@@ -152,16 +152,16 @@ public class NSHMP_GridFileReader {
 		
 		name = "agrd_wuscmp.out.asc";
 		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.333, false), true);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.667, false), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.667, false), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.333, false), true);
 		summedMFD.setName(name);
 		bckMFDList.add(summedMFD);
 		bckSummedMFD.addResampledMagFreqDist(summedMFD, true);
 		
 		name = "agrd_wusext.out.asc";
 		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.333, false), true);
-		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.667, false), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.667, false), true);
+		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.333, false), true);
 		summedMFD.setName(name);
 		bckMFDList.add(summedMFD);
 		bckSummedMFD.addResampledMagFreqDist(summedMFD, true);
@@ -214,7 +214,7 @@ public class NSHMP_GridFileReader {
 			ratesFileReader.close();
 			
 			// create GutenbergRichterMagFreqDist
-			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(MIN_MAG, (int)((mMax-MIN_MAG)/DELTA_MAG+1), DELTA_MAG, 1.0, bValue);
+			GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(MIN_MAG, (int)Math.round((mMax-MIN_MAG)/DELTA_MAG)+1, DELTA_MAG, 1.0, bValue);
 			mfd.scaleToIncrRate(0.0, totalA_Values*weight);
 
 			// set all rates below and including mMin to 0
