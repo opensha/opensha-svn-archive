@@ -348,9 +348,20 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR = "Trunc. GR (Mmax from fraction)";
 	private final static String SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR = "Tapered GR (Mcorner from fraction)";
 	private final static String SET_FOR_BCK_PARAM_BCK_MAX_MAG = "Trunc. GR (w/ set Mmax)";
-	private final static String SET_FOR_BCK_PARAM_NSHMP02 = "NSHMP02 MFD";
+	private final static String SET_FOR_BCK_PARAM_NSHMP07 = "NSHMP07 MFD";
 	private final static String SET_FOR_BCK_PARAM_INFO = "This specifies the type of magnitude-frequency dist. to use for the background";
 	private StringParameter setForBckParam;
+	
+	// NSHMP Bulge Reduction Param
+	public final static String BULGE_REDUCTION_PARAM_NAME = "NSHMP Bulge Reduction?";
+	private final static String BULGE_REDUCTION_PARAM_INFO = "This reduces california backgroud seis. rates by a factor of 3 for M>6.5";
+	private BooleanParameter bulgeReductionBooleanParam;
+
+	// NSHMP Max-Mag Grid Param
+	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
+	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
+	private BooleanParameter maxMagGridBooleanParam;
+
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
@@ -590,11 +601,17 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		options.add(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR);
 		options.add(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR);
 		options.add(SET_FOR_BCK_PARAM_BCK_MAX_MAG);
-		options.add(SET_FOR_BCK_PARAM_NSHMP02);
+		options.add(SET_FOR_BCK_PARAM_NSHMP07);
 		setForBckParam = new StringParameter(SET_FOR_BCK_PARAM_NAME, options, 
-				SET_FOR_BCK_PARAM_NSHMP02);
+				SET_FOR_BCK_PARAM_NSHMP07);
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
+		
+		bulgeReductionBooleanParam = new BooleanParameter(BULGE_REDUCTION_PARAM_NAME,true);
+		bulgeReductionBooleanParam.setInfo(BULGE_REDUCTION_PARAM_INFO);
+		
+		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
+		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
 		
 		// set param defaults
 		setParamDefaults();
@@ -669,7 +686,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// C-zone wt
 		c_ZoneWtParam.setValue(C_ZONE_WT_DEFAULT);
 		// set for background
-		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP02);
+		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP07);
+		bulgeReductionBooleanParam.setValue(true);
+		maxMagGridBooleanParam.setValue(true);
+
 	}
 	
 	/**
@@ -731,7 +751,11 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			adjustableParams.addParameter(regionB_ValParam);
 			adjustableParams.addParameter(backSeisMaxMagParam);
 		}
+		else {
 		// the else case (SET_FOR_BCK_PARAM_NSHMP02) adds nothing here
+			adjustableParams.addParameter(bulgeReductionBooleanParam);
+			adjustableParams.addParameter(maxMagGridBooleanParam);
+		}
 	}
 	
 	/**
@@ -1025,7 +1049,9 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
 			NSHMP_GridSourceGenerator nshmp_srcGen = new NSHMP_GridSourceGenerator();
-			totBackgroundMFD = nshmp_srcGen.getTotMFDForRegion(false,true,true);
+			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+			totBackgroundMFD = nshmp_srcGen.getTotMFDForRegion(false,bulgeReduction,maxMagGrid);
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 			
