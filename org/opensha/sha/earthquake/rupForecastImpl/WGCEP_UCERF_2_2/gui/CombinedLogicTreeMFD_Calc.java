@@ -57,10 +57,10 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 		int count=1;
 		double totWt=0, branchWt;
 		for(int defModel=0; defModel<2; ++defModel) { // deformation model
-			
+
 			if(defModel==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
 			else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-			
+
 			for(int solType=0; solType<2; ++solType) { // A-Fault solution type
 				if(solType==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).setValue(EqkRateModel2_ERF.SEGMENTED_A_FAULT_MODEL);
 				else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).setValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
@@ -73,29 +73,39 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 					for(int magArea=0; magArea<2; ++magArea) { // Mag Area Relationship
 						if(magArea==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
 						else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
-							
-						for(int connectBFaults=0; connectBFaults<2; ++connectBFaults) { // connect More B-faults
-							if(connectBFaults==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
-							else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(true));
-							branchWt = 0.5*0.5*0.5*0.5;
-							if(solType==0) branchWt = branchWt *0.9;
-							else branchWt = branchWt*0.1;
-							totWt += branchWt;
-							eqkRateModel2ERF.updateForecast();
-							IncrementalMagFreqDist mfd = eqkRateModel2ERF.getTotalMFD();
-							for(int i=0; i<mfd.getNum(); ++i) {
-								totalMFD.add(mfd.getX(i), branchWt*mfd.getY(i));
-							}
-							//totalMFD.addResampledMagFreqDist(eqkRateModel2ERF.getTotalMFD(), true);
-							System.out.println("Run "+count++);
+						for(int meanMagCorr=0; meanMagCorr<3; ++meanMagCorr) {	
+							if(meanMagCorr==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
+							else if(meanMagCorr==1) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(0.0));
+							else if(meanMagCorr==2) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
 
+							for(int connectBFaults=0; connectBFaults<2; ++connectBFaults) { // connect More B-faults
+								if(connectBFaults==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
+								else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(true));
+								branchWt = 0.5*0.5*0.5*0.5; // defModel, Apriori Wt, MagAreaRel, Connect B-Faults
+								if(solType==0) branchWt = branchWt *0.9; // A Fault solution type
+								else branchWt = branchWt*0.1;
+
+								if(meanMagCorr==0) branchWt = branchWt *0.2; // Mean Mag Correction
+								else if(meanMagCorr==1) branchWt = branchWt *0.6;
+								else if(meanMagCorr==2) branchWt = branchWt *0.2;
+
+								totWt += branchWt;
+								eqkRateModel2ERF.updateForecast();
+								IncrementalMagFreqDist mfd = eqkRateModel2ERF.getTotalMFD();
+								for(int i=0; i<mfd.getNum(); ++i) {
+									totalMFD.add(mfd.getX(i), branchWt*mfd.getY(i));
+								}
+								//totalMFD.addResampledMagFreqDist(eqkRateModel2ERF.getTotalMFD(), true);
+								System.out.println("Run "+count++);
+
+							}
 						}
 					}
 
 				}
 
 			}
-			
+
 		}
 		
 		System.out.println("total of all weights="+totWt);
