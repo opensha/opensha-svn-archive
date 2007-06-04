@@ -135,7 +135,7 @@ public abstract class EvenlyGriddedSurfFromSimpleFaultData
         ListIterator it=faultTrace.listIterator();
         while(it.hasNext()) {
           if(((Location)it.next()).getDepth() !=depth){
-            throw new FaultException(C + "All depth on faultTrace locations must be equal");
+            throw new FaultException(C + ":All depth on faultTrace locations must be equal");
           }
         }
     }

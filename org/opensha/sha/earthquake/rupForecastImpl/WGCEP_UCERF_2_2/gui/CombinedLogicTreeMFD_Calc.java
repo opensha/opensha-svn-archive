@@ -14,6 +14,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 /**
@@ -54,6 +55,7 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 
 		SummedMagFreqDist totalMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
 		int count=1;
+		double totWt=0, branchWt;
 		for(int defModel=0; defModel<2; ++defModel) { // deformation model
 			
 			if(defModel==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
@@ -75,9 +77,16 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 						for(int connectBFaults=0; connectBFaults<2; ++connectBFaults) { // connect More B-faults
 							if(connectBFaults==0) eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
 							else eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(true));
-							
+							branchWt = 0.5*0.5*0.5*0.5;
+							if(solType==0) branchWt = branchWt *0.9;
+							else branchWt = branchWt*0.1;
+							totWt += branchWt;
 							eqkRateModel2ERF.updateForecast();
-							totalMFD.addResampledMagFreqDist(eqkRateModel2ERF.getTotalMFD(), true);
+							IncrementalMagFreqDist mfd = eqkRateModel2ERF.getTotalMFD();
+							for(int i=0; i<mfd.getNum(); ++i) {
+								totalMFD.add(mfd.getX(i), branchWt*mfd.getY(i));
+							}
+							//totalMFD.addResampledMagFreqDist(eqkRateModel2ERF.getTotalMFD(), true);
 							System.out.println("Run "+count++);
 
 						}
@@ -86,9 +95,10 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 				}
 
 			}
-
-
+			
 		}
+		
+		System.out.println("total of all weights="+totWt);
 	
 		// CREATE FUNCTION LIST
 		funcs = new ArrayList();

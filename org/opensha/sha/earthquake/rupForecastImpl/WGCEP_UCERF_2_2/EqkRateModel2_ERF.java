@@ -1328,7 +1328,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //					System.out.println(segmentData.getFaultName());
 					continue;
 				}
-					
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
 						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
