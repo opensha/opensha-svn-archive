@@ -303,6 +303,16 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
+		 //		 figure 10
+		 ++fig;
+		 this.eqkRateModelERF.setParamDefaults();
+		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(1.0));
+		 eqkRateModelERF.updateForecast();
+		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 makeMFDsPlot("plot"+fig);
+		 
 		 
 		 // wrap cell style
 		 HSSFCellStyle wrapCellStyle = wb.createCellStyle();

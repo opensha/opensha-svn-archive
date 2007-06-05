@@ -14,6 +14,7 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.region.RELM_CollectionRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -261,7 +262,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
   public static void main(String[] args) {
 	  // region to view the rates
 	  RELM_CollectionRegion evenlyGriddedRegion  = new RELM_CollectionRegion();
-	   EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
+	   /*EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
 	    // include background sources as point sources
 	    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,
 	                                new Double(10.0));
@@ -270,7 +271,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
 	                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
 	    eqkRupForecast.getTimeSpan().setDuration(5.0);
-	    
+	    */
 	   /*EqkRupForecast eqkRupForecast = new WGCEP_UCERF1_EqkRupForecast();
 	   // include background sources as point sources
 	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME,
@@ -283,8 +284,8 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	                               Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
 	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.TIME_DEPENDENT_PARAM_NAME,
 	                               new Boolean(true));
-	   eqkRupForecast.getTimeSpan().setDuration(5.0);*/
-
+	   eqkRupForeast.getTimeSpan().setDuration(5.0);*/
+	   EqkRateModel2_ERF eqkRupForecast = new EqkRateModel2_ERF();
 	   eqkRupForecast.updateForecast();
 	   // min mag, maxMag, These are Centers of first and last bin
 	   double minMag=5.0, maxMag=9.00;
@@ -292,9 +293,10 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	   //	 make GriddedHypoMFD Forecast from the EqkRupForecast
 	   RELM_ERF_ToGriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
 		   new RELM_ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
-				   minMag, maxMag, numMag,5.0); // 5 year rates
+				   minMag, maxMag, numMag, 5.0); // 5 year rates
 	   
-	   griddedHypoMagFeqDistForecast.generateNedsBulgeFiles("NSHMP2002");
+	   // minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
+	   griddedHypoMagFeqDistForecast.generateNedsBulgeFiles("EqkRateModel2_ERF");
 	   
 	   // write into RELM formatted file
 	   /* WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);

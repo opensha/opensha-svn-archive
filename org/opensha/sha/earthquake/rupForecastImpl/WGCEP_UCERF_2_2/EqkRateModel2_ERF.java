@@ -371,6 +371,8 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 	
+	private NSHMP_GridSourceGenerator nshmp_srcGen = new NSHMP_GridSourceGenerator();
+	
 	/*
 	 // fault file parameter for testing
 	  public final static String FAULT_FILE_NAME = new String ("Fault File");
@@ -969,7 +971,13 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		return (ProbEqkSource) allSources.get(iSource);
+		if(iSource<allSources.size())
+			return (ProbEqkSource) allSources.get(iSource);
+		else {
+			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+			return nshmp_srcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
+		}
 	}
 	
 	/**
@@ -978,7 +986,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size();
+		return allSources.size() + nshmp_srcGen.getNumSources();
 	}
 	
 	/**
@@ -1048,7 +1056,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
-			NSHMP_GridSourceGenerator nshmp_srcGen = new NSHMP_GridSourceGenerator();
 			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
 			totBackgroundMFD = nshmp_srcGen.getTotMFDForRegion(false,bulgeReduction,maxMagGrid);
@@ -1378,7 +1385,12 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @return ArrayList of Prob Earthquake sources
 	 */
 	public ArrayList  getSourceList(){
-		return allSources;
+		ArrayList sourceList = new ArrayList();
+		sourceList.addAll(allSources);
+		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		sourceList.addAll(this.nshmp_srcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
+		return sourceList;
 	}
 	
 	
