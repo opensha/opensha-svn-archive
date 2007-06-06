@@ -117,6 +117,7 @@ public class ERF2GriddedSeisRatesCalc {
         cumRate1 = getRateForMag(cumFunc, mag - delta/2);
         // get interpolated rate for the mag
         cumRate2 = getRateForMag(cumFunc, mag + delta/2);
+        
         // set the rate in Incremental Mag Freq Dist
         magFreqDist.set(mag, (cumRate1-cumRate2)*duration);
       }

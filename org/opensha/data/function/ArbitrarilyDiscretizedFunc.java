@@ -447,13 +447,16 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
           break;
       }
       //finding the y values for the coressponding x values
-      double y1=Math.log(getY(x1));
-      double y2=Math.log(getY(x2));
+      double y1 = getY(x1);
+      double y2 = getY(x2);
+      if(y1==0 && y2==0) return 0;
+      double logY1=Math.log(y1);
+      double logY2=Math.log(y2);
       x1 = Math.log(x1);
       x2 = Math.log(x2);
       x = Math.log(x);
       //using the linear interpolation equation finding the value of y for given x
-      double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+      double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
       return Math.exp(y);
     }
 

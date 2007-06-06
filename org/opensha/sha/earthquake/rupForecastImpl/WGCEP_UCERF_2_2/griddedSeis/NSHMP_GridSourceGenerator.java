@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.GraphWindowAPI_Impl;
@@ -100,7 +101,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	  */ 
 	 public ArrayList<ProbEqkSource> getAllGriddedSources(boolean includeC_Zones, double duration, 
 			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
-		int numSources =  getNumGridLocs();
+		int numSources =  getNumSources();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
 			sources.add(getGriddedSource(i, includeC_Zones, duration, applyBulgeReduction, applyMaxMagGrid));
@@ -118,7 +119,18 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
 			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		 SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
-		 return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
+		 Point2Vert_SS_FaultPoisSource pointSrc = new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
+	
+		/* int numRups = pointSrc.getNumRuptures();
+		 for(int iRup=0; iRup<numRups; ++iRup) {
+			 ProbEqkRupture rup = pointSrc.getRupture(iRup);
+			 if(Double.isNaN((rup.getMeanAnnualRate(duration)/rup.getRuptureSurface().size())))  {
+					 System.out.println("Rate NaN at:"+getGridLocation(srcIndex).toString());
+					 System.exit(0);
+			 }
+		 }*/
+		 
+		 return pointSrc;
 	 }
 	 
 	 
@@ -425,7 +437,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false), true);	
 		}	
 		
-		for(int i=0; i<mfdAtLoc.getNum(); ++i) {
+		/*for(int i=0; i<mfdAtLoc.getNum(); ++i) {
 			if(Double.isNaN(mfdAtLoc.getY(i))) {
 				
 				System.out.println(this.getGridLocation(locIndex).toString());
@@ -446,7 +458,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 				System.exit(0);
 			}
-		}
+		}*/
 		
 		return mfdAtLoc;
 	}
