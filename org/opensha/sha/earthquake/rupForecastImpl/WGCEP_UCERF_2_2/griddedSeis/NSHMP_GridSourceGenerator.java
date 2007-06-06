@@ -119,18 +119,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
 			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		 SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
-		 Point2Vert_SS_FaultPoisSource pointSrc = new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
-	
-		/* int numRups = pointSrc.getNumRuptures();
-		 for(int iRup=0; iRup<numRups; ++iRup) {
-			 ProbEqkRupture rup = pointSrc.getRupture(iRup);
-			 if(Double.isNaN((rup.getMeanAnnualRate(duration)/rup.getRuptureSurface().size())))  {
-					 System.out.println("Rate NaN at:"+getGridLocation(srcIndex).toString());
-					 System.exit(0);
-			 }
-		 }*/
-		 
-		 return pointSrc;
+		 return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
 	 }
 	 
 	 
@@ -437,28 +426,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false), true);	
 		}	
 		
-		/*for(int i=0; i<mfdAtLoc.getNum(); ++i) {
-			if(Double.isNaN(mfdAtLoc.getY(i))) {
-				
-				System.out.println(this.getGridLocation(locIndex).toString());
-				
-				System.out.println(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false));
-				System.out.println(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false));
-				System.out.println(getMFD(5.0, 7.0, agrd_mendos_out[locIndex], B_VAL, false));	
-				System.out.println(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false));
-				System.out.println(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false));
-				System.out.println(getMFD(5.0, fltmmaxCA2ch_out7[locIndex], 0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction));
-				System.out.println(getMFD(5.0, fltmmaxCA2gr_out7[locIndex], 0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction));
-
-				System.out.println(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.667*agrd_wuscmp_out[locIndex], B_VAL, false));
-				System.out.println(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.333*agrd_wuscmp_out[locIndex], B_VAL, false));
-
-				System.out.println(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, false));
-				System.out.println(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, false));
-
-				System.exit(0);
-			}
-		}*/
 		
 		return mfdAtLoc;
 	}

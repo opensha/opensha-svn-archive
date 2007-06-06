@@ -294,7 +294,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	   RELM_ERF_ToGriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
 		   new RELM_ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
 				   minMag, maxMag, numMag, 5.0); // 5 year rates
-	   
+	      
 	   // minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
 	   griddedHypoMagFeqDistForecast.generateNedsBulgeFiles("EqkRateModel2_ERF");
 	   
