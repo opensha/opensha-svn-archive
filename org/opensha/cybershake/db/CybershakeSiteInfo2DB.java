@@ -1,8 +1,10 @@
 package org.opensha.cybershake.db;
 
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -180,5 +182,54 @@ public class CybershakeSiteInfo2DB {
 	    		                         minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
 	    		                         maxLonRupId, minLon, minLonSrcId, minLonRupId);
 	}
+	
+	
+	
+	/**
+	 * 
+	 * @returns the list of cybershake sites
+	 */
+	public ArrayList<String> getCS_SitesList(){
+		return site2db.getAllSites();
+	}
+	
+	
+	/**
+	 * 
+	 * @returns the list of all Cybershake Site Locations
+	 */
+	public LocationList getCS_SitesListLocations(){
+		return site2db.getAllSitesLocation();
+	}
+	
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public ArrayList<Integer> getSrcIDsForSite(String csSiteName){
+		return site2db.getSrcIdsForSite(csSiteName);
+	}
+	
+	/**
+	 * 
+	 * @param siteShortName
+	 * @param srcId
+	 * @returns the list of rupture ids 
+	 */
+	public ArrayList<Integer> getRupIDsForSite(String csSiteName,int srcID){
+		return site2db.getRupIdsForSite(csSiteName, srcID);
+	}
+	
+	
+	/**
+	 * 
+	 * @param csSiteName
+	 * @returns the Geographic locaton for the given Cybershake site
+	 */
+	public Location getCyberShakeSiteLocation(String csSiteName){
+		return site2db.getLocationForSite(csSiteName);
+	}
+	
 
 }

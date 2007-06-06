@@ -125,6 +125,27 @@ public class ERF2DB implements ERF2DBAPI{
 			}
 		 return -1;
 	}
-	
+
+	/**
+	 * Retrives the rupture probability
+	 * @param erfId
+	 * @param sourceId
+	 * @param rupId
+	 * @return
+	 */
+	public double getRuptureProb(int erfId,int sourceId,int rupId){
+		String sql = "SELECT Prob from Ruptures WHERE ERF_ID = "+"'"+erfId+"' and "+
+		             "Source_ID = '"+sourceId+"' and Rupture_ID = '"+rupId+"'";
+		ResultSet rs =  dbaccess.selectData(sql);
+		double rupProb = Double.NaN;
+		try{
+			rs.first();
+			rupProb = Double.parseDouble(rs.getString(0));
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+	 return rupProb;
+	}
 	
 }

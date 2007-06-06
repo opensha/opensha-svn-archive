@@ -173,4 +173,77 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		 return siteList;	
      }
 
+
+	/**
+	 * 
+	 * @param siteShortName
+	 * @param srcId
+	 * @returns the list of rupture ids 
+	 */
+	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int srcId) {
+		// TODO Auto-generated method stub
+		int siteId = this.getSiteId(siteShortName);
+		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"'"+
+		             " and Source_ID ='"+srcId+"' order by Rupture_ID asc";
+		ArrayList<Integer> rupList = new ArrayList<Integer>();
+		ResultSet rs =  dbaccess.selectData(sql);
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+			  int rupId = Integer.parseInt(rs.getString(0));	
+			  rupList.add(rupId);
+			  rs.next();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rupList;
+	}
+
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public ArrayList<Integer> getSrcIdsForSite(String siteShortName) {
+		// TODO Auto-generated method stub
+		int siteId = this.getSiteId(siteShortName);
+		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"'"+
+		             " order by Source_ID asc";
+		ArrayList<Integer> srcIdList = new ArrayList<Integer>();
+		ResultSet rs =  dbaccess.selectData(sql);
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+			  int srcId = Integer.parseInt(rs.getString(0));	
+			  srcIdList.add(srcId);
+			  rs.next();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return srcIdList;
+	}
+
+	/**
+	 * 
+	 * @param site
+	 * @returns the Location for the given cybershake site location
+	 */
+	public Location getLocationForSite(String site){
+		 String sql = "SELECT CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Short_Name = '"+site+"'";
+		 Location loc = null;
+		 ResultSet rs =  dbaccess.selectData(sql);
+			try {
+				rs.first();
+				double lat = Double.parseDouble(rs.getString(0));	
+				double lon = Double.parseDouble(rs.getString(1));
+				loc = new Location(lat,lon);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return loc;
+	}
+	
+	
 }

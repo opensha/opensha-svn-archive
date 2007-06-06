@@ -2,6 +2,7 @@ package org.opensha.cybershake.db;
 
 import java.util.ArrayList;
 
+import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 
 public interface SiteInfo2DBAPI {
@@ -76,5 +77,28 @@ public interface SiteInfo2DBAPI {
 	 * @returns the Arraylist of all cybershake site locations
 	 */
 	public LocationList getAllSitesLocation();
+	
+	
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public ArrayList<Integer> getSrcIdsForSite(String siteShortName);
+	
+	/**
+	 * 
+	 * @param siteShortName
+	 * @param srcId
+	 * @returns the list of rupture ids 
+	 */
+	public ArrayList<Integer> getRupIdsForSite(String siteShortName,int srcId);
+	
+	/**
+	 * 
+	 * @param site
+	 * @returns the Location for the given cybershake site location
+	 */
+	public Location getLocationForSite(String site);
 
 }

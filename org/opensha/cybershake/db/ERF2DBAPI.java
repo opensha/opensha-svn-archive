@@ -64,5 +64,14 @@ public interface ERF2DBAPI {
 	 * @return
 	 */
 	public int getInserted_ERF_ID(String erfName);
+	
+	/**
+	 * Retrives the rupture probability
+	 * @param erfId
+	 * @param sourceId
+	 * @param rupId
+	 * @return
+	 */
+	public double getRuptureProb(int erfId,int sourceId,int rupId);
 
 }
