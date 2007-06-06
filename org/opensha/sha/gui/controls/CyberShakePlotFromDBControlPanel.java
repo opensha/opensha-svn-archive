@@ -454,6 +454,7 @@ public class CyberShakePlotFromDBControlPanel
     DecimalFormat format = new DecimalFormat("0.00");
     imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
     String saPeriodString = (String)saPeriodParam.getValue();
+    saPeriodString = saPeriodString.substring(3);
     double saPeriod = Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
     DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
     ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
