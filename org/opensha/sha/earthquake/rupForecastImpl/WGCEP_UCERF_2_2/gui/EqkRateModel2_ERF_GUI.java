@@ -69,6 +69,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private JMenu analysisMenu = new JMenu("Further Analysis");
 	private JMenuItem genReportFigMenu = new JMenuItem("Generate MFD Figs for Report");
 	private JMenuItem bulgeAnalysisMenu = new JMenuItem("Make Bulge Analysis Plots");
+	private JMenuItem logicTreeMFDplotMenu = new JMenuItem("Combined MFD from Logic tree branches");
 	private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
 	
@@ -127,6 +128,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 menuBar.add(analysisMenu);
 		 analysisMenu.add(genReportFigMenu);
 		 analysisMenu.add(bulgeAnalysisMenu);
+		 analysisMenu.add(logicTreeMFDplotMenu);
 		 setJMenuBar(menuBar);	
 		 
 		 genReportFigMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -137,6 +139,11 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 bulgeAnalysisMenu.addActionListener(new java.awt.event.ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
 				 bulgeAnalysisMenu_actionPerformed(e);
+			 }
+		 });
+		 logicTreeMFDplotMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 logicTreeMFDplotMenu_actionPerformed(e);
 			 }
 		 });
 		
@@ -152,6 +159,15 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		  //if(dirName==null) return;
 		  //generateAnalysisFigures(dirName);
 		  this.eqkRateModelERF.plotFaultMFDs_forReport();
+	  }
+	  
+	  /**
+	   * Generate Plot for Combined MFD from all logic tree branches
+	   * 
+	   * @param actionEvent
+	   */
+	  private void logicTreeMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
+		  CombinedLogicTreeMFD_Calc  combinedLogicTreeMFD_Plotter = new CombinedLogicTreeMFD_Calc();
 	  }
 	  
 	  /**
