@@ -50,13 +50,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLUE, 2); // A-Faults
 	
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.DARK_GRAY, 2); // B-Faults Char
+		      Color.MAGENTA, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.DARK_GRAY, 2); // B-Faults Char
+		      Color.MAGENTA, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.DARK_GRAY, 2); // B-Faults Char
+		      Color.MAGENTA, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.DARK_GRAY, 2); // B-Faults Char
+		      Color.MAGENTA, 2); // B-Faults Char
 	
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2); // B-Faults GR
@@ -68,13 +68,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.GREEN, 2); // B-Faults GR
 	
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2); // Tot MFD
+		      Color.BLACK, 5); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLACK, 2); // Tot MFD
+		      Color.BLACK, 5); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLACK, 2); // Tot MFD
+		      Color.BLACK, 5); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.BLACK, 2); // Tot MFD
+		      Color.BLACK, 5); // Tot MFD
 	
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
@@ -151,14 +151,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public ArrayList getPlottingFeatures() {
-		 return this.funcs;
+		 return this.plottingFeaturesList;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
 	public ArrayList getCurveFunctionList() {
-		return this.plottingFeaturesList;
+		return this.funcs;
 	}
 	
 	
@@ -262,10 +262,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		doWeightedSum(0, null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgTotMFD);
 		String metadata = "Solid Line-";
 		// Add to function list
-		if(showAFaults) addToFuncList(avgAFaultMFD, "Average A-Fault MFD"+metadata, PLOT_CHAR1);
-		if(showBFaults) addToFuncList(avgBFaultCharMFD, "Average Char B-Fault MFD"+metadata, PLOT_CHAR2);
-		if(showBFaults) addToFuncList(avgBFaultGRMFD, "Average GR B-Fault MFD", PLOT_CHAR3);
-		addToFuncList(avgTotMFD, "Average Total MFD", PLOT_CHAR4);
+		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
+		if(showBFaults) addToFuncList(avgBFaultCharMFD, metadata+"Average Char B-Fault MFD", PLOT_CHAR2);
+		if(showBFaults) addToFuncList(avgBFaultGRMFD,metadata+ "Average GR B-Fault MFD", PLOT_CHAR3);
+		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
 			SummedMagFreqDist aFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
@@ -317,6 +317,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			PlotCurveCharacterstics curveCharateristic) {
 		EvenlyDiscretizedFunc func = mfd.getCumRateDist();
 		func.setName(metadata);
+		funcs.add(func);
 		this.plottingFeaturesList.add(curveCharateristic);
 	}
 	 
