@@ -13,40 +13,40 @@
 # Note that for B-fault models there is no practical difference between segments and sections 
 # (but we keep it here for format consistency with files for A faults)
 #
-- Palos Verdes
+- Palos Verdes Connected
 109:Palos Verdes
 121:Coronado Bank
-- Newport Inglewood
+- Newport Inglewood Connected alt 1
 123:Rose Canyon
 122:Newport-Inglewood (Offshore)
 235:Newport-Inglewood, alt 1
- - Santa Monica
+ - Santa Monica Connected alt 1
 219:Anacapa-Dume, alt 1
 226:Santa Monica, alt 1
-- Santa Ynez
+- Santa Ynez Connected
 77:Santa Ynez (West)
 79:Santa Ynez (East)
-- Sierra Madre
+- Sierra Madre Connected
 113:Sierra Madre (San Fernando)
 114:Sierra Madre
-- Death Valley
+- Death Valley Connected
 45:Death Valley (No of Cucamongo)
 46:Death Valley (No)
 245:Death Valley (Black Mtns Frontal)
 246:Death Valley (So)
-- Panamint Valley
+- Panamint Valley Connected
 50:Hunter Mountain-Saline Valley
-244:Panamint Valley
--Greenville
+244:Panamint Valley 
+-Greenville Connected
 7:Greenville (So)
 6:Greenville (No)
-- Green Valley
+- Green Valley Connected
 3:Concord
 1:Green Valley (So)
 71:Green Valley (No)
-- Little Salmon
+- Little Salmon Connected
 17:Little Salmon (Onshore)
 16:Little Salmon (Offshore)
-- San Gregorio
+- San Gregorio Connected
 29:San Gregorio (So)
 12:San Gregorio (No)
