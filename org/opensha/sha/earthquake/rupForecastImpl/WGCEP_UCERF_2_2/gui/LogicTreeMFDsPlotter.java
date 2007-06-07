@@ -101,9 +101,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
-		cZoneMFD = this.eqkRateModel2ERF.getTotal_C_ZoneMFD();
-		this.bckMFD = this.eqkRateModel2ERF.getTotal_BackgroundMFD();
 		calcMFDs(0);
+		cZoneMFD = this.eqkRateModel2ERF.getTotal_C_ZoneMFD();
+		bckMFD = this.eqkRateModel2ERF.getTotal_BackgroundMFD();
 	}
 	
 	/**
@@ -209,7 +209,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	public void plotMFDs() {
 		
 		// combined Logic Tree MFD
-		plotMFDs(null, null, true, true, true, true, true);
+		plotMFDs(null, null, true, true, true, true, false);
+		
+//		 combined Logic Tree MFD comparison with NSHMP2002
+		plotMFDs(null, null, false, false, false, false, true);
 		
 //		 Deformation model
 		String paramName = EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME;
