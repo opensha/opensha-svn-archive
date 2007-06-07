@@ -51,7 +51,7 @@
 3:Concord
 1:Green Valley (So)
 71:Green Valley (No)
-- Salmon Connected
+- Little Salmon Connected
 17:Little Salmon (Onshore)
 16:Little Salmon (Offshore)
 - San Gregorio Connected

@@ -34,7 +34,7 @@
 46:Death Valley (No)
 245:Death Valley (Black Mtns Frontal)
 246:Death Valley (So)
-- Panamint Valley Connected
+- Hunter Mountain Connected
 50:Hunter Mountain-Saline Valley
 244:Panamint Valley 
 -Greenville Connected
