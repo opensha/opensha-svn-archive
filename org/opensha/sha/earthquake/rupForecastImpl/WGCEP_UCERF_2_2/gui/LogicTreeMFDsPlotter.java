@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
@@ -89,7 +90,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.RED, 5); // observed MFD
 	
 	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.ORANGE, 2); // NSHMP 2002
+		      new Color(188, 143, 143), 2); // NSHMP 2002
 	
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
@@ -264,6 +265,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 		
 		plotBackgroundEffectsMFDs();
+
+		// calculate ratio of default settings and average value at Mag6.5
+		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
+		this.eqkRateModel2ERF.setParamDefaults();
+		eqkRateModel2ERF.updateForecast();
+		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+eqkRateModel2ERF.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
+
 	}
 	
 	
@@ -283,10 +291,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		for(int i=0; i< avgTotMFD.getNum(); ++i) {
 			double mag = avgTotMFD.getX(i);
-			modifiedTotMFD.set(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag));
+			modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
 		}
 		String metadata="Dotted Dashed Line - ";
 		metadata += "("+EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME+"=false) ";
+		addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
 		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
 		GraphWindow graphWindow= new GraphWindow(this);
@@ -304,10 +313,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	    
 	    for(int i=0; i< avgTotMFD.getNum(); ++i) {
 	    	double mag = avgTotMFD.getX(i);
-	    	modifiedTotMFD.set(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag));
+	    	modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
 	    }
 	    metadata="Dotted Dashed Line - ";
 	    metadata += "("+EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME+"=false) ";
+	    addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
 	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
 	    graphWindow= new GraphWindow(this);
@@ -384,8 +394,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showBFaults) addToFuncList(avgBFaultGRMFD,metadata+ "Average GR B-Fault MFD", PLOT_CHAR3);
 		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
-		if(showNSHMP_TotMFD) {
-			addToFuncList(Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false), metadata+"NSHMP-2002 Total MFD", PLOT_CHAR9);
+		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
+			EvenlyDiscretizedFunc nshmpMFD = Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false).getCumRateDist();
+			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
+			for(int i=0; i<nshmpMFD.getNum(); i=i+2)
+				resampledNSHMP_MFD.set(nshmpMFD.getX(i), nshmpMFD.getY(i));
+			
+			resampledNSHMP_MFD.setName("NSHMP-2002 Total MFD");
+			funcs.add(resampledNSHMP_MFD);
+			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
 		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
 		
@@ -536,6 +553,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 	public static void main(String []args) {
+		
+		
 		LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter();
 		mfdPlotter.plotMFDs();
 		//System.out.println(mfdPlotter.getMFDs(null, null).get(3).toString());
