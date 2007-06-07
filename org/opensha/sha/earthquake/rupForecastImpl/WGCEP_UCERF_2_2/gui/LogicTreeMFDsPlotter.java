@@ -75,6 +75,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.MAGENTA, 2); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
+		      Color.MAGENTA, 2); //background
+	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
+		      Color.MAGENTA, 2); //background
+	
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.PINK, 2); // C-zone
 	
@@ -258,6 +263,57 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values.add(new Boolean(false));
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 		
+		plotBackgroundEffectsMFDs();
+	}
+	
+	
+	/**
+	 * Plot ethe MFDs after varying the NSHMP Bulge Parameter and Apply M-Max Grid parameter
+	 *
+	 */
+	private void plotBackgroundEffectsMFDs() {
+		
+		//		 BULGE PARAMETER EFFECT
+		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
+		SummedMagFreqDist modifiedTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		eqkRateModel2ERF.setParamDefaults();
+		this.eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME).setValue(new Boolean(false));
+		eqkRateModel2ERF.updateForecast();
+		IncrementalMagFreqDist newBckMFD = eqkRateModel2ERF.getTotal_BackgroundMFD();
+		
+		for(int i=0; i< avgTotMFD.getNum(); ++i) {
+			double mag = avgTotMFD.getX(i);
+			modifiedTotMFD.set(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag));
+		}
+		String metadata="Dotted Dashed Line - ";
+		metadata += "("+EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME+"=false) ";
+		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
+		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+		GraphWindow graphWindow= new GraphWindow(this);
+	    graphWindow.setPlotLabel("Mag Freq Dist");
+	    graphWindow.plotGraphUsingPlotPreferences();
+	    graphWindow.setVisible(true);
+	    
+	    // APPLY MAX_MAG GRID parameter
+	    avgTotMFD = doAverageMFDs(false, false, false, false, false);
+	    modifiedTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+	    eqkRateModel2ERF.setParamDefaults();
+	    this.eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME).setValue(new Boolean(false));
+	    eqkRateModel2ERF.updateForecast();
+	    newBckMFD = eqkRateModel2ERF.getTotal_BackgroundMFD();
+	    
+	    for(int i=0; i< avgTotMFD.getNum(); ++i) {
+	    	double mag = avgTotMFD.getX(i);
+	    	modifiedTotMFD.set(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag));
+	    }
+	    metadata="Dotted Dashed Line - ";
+	    metadata += "("+EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME+"=false) ";
+	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
+	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+	    graphWindow= new GraphWindow(this);
+	    graphWindow.setPlotLabel("Mag Freq Dist");
+	    graphWindow.plotGraphUsingPlotPreferences();
+	    graphWindow.setVisible(true);
 	}
 	
 	/**
@@ -270,39 +326,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	public void plotMFDs(String paramName, ArrayList values, boolean showAFaults, boolean showBFaults,
 			boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
-		funcs  = new ArrayList();
-		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
-		
-		// Avg MFDs
-		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		mfdIndex = 0;
-		doWeightedSum(0, null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgTotMFD);
-		String metadata = "Solid Line-";
-		// Add to function list
-		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
-		if(showBFaults) addToFuncList(avgBFaultCharMFD, metadata+"Average Char B-Fault MFD", PLOT_CHAR2);
-		if(showBFaults) addToFuncList(avgBFaultGRMFD,metadata+ "Average GR B-Fault MFD", PLOT_CHAR3);
-		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
-		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
-		if(showNSHMP_TotMFD) {
-			addToFuncList(Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false), metadata+"NSHMP-2002 Total MFD", PLOT_CHAR9);
-		}
-		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
-		
-		// Karen's observed data
-		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
-		// historical best fit cum dist
-		funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
-		this.plottingFeaturesList.add(PLOT_CHAR7);
-		
-		// historical cum dist
-		funcs.addAll(eqkRateModel2ERF.getObsCumMFD(includeAfterShocks));
-		this.plottingFeaturesList.add(PLOT_CHAR8);
-		this.plottingFeaturesList.add(PLOT_CHAR8);
-		this.plottingFeaturesList.add(PLOT_CHAR8);
+		String metadata;
+		SummedMagFreqDist avgTotMFD = doAverageMFDs(showAFaults, showBFaults, showCZones, showBackground, showNSHMP_TotMFD);
 		
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
@@ -338,8 +363,45 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		GraphWindow graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
-	    graphWindow.setVisible(true);;
+	    graphWindow.setVisible(true);
 	 }
+
+	private SummedMagFreqDist doAverageMFDs(boolean showAFaults, boolean showBFaults, boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
+		funcs  = new ArrayList();
+		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
+		
+		// Avg MFDs
+		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		mfdIndex = 0;
+		doWeightedSum(0, null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgTotMFD);
+		String metadata = "Solid Line-";
+		// Add to function list
+		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
+		if(showBFaults) addToFuncList(avgBFaultCharMFD, metadata+"Average Char B-Fault MFD", PLOT_CHAR2);
+		if(showBFaults) addToFuncList(avgBFaultGRMFD,metadata+ "Average GR B-Fault MFD", PLOT_CHAR3);
+		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
+		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
+		if(showNSHMP_TotMFD) {
+			addToFuncList(Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false), metadata+"NSHMP-2002 Total MFD", PLOT_CHAR9);
+		}
+		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
+		
+		// Karen's observed data
+		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
+		// historical best fit cum dist
+		funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		this.plottingFeaturesList.add(PLOT_CHAR7);
+		
+		// historical cum dist
+		funcs.addAll(eqkRateModel2ERF.getObsCumMFD(includeAfterShocks));
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		return avgTotMFD;
+	}
 	
 	/**
 	 * 
