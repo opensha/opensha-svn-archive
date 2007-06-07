@@ -1199,6 +1199,111 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	   return summedDist;
    }
 
+   /**
+    * Get the Total MFD after summing MFDs from all sources within EvenlyGriddedRELM_Region
+    * 
+    * if(plot==true), it plots the MFDs in a GUI
+    * 
+    * @return
+    */
+   public static SummedMagFreqDist getTotalMFD_InsideRELM_region(boolean plot) {
+	   // **********  This computes and plots MFD for the different souce types ******************
+
+	     Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
+	     frankCast.setParameter(BACK_SEIS_NAME, BACK_SEIS_INCLUDE);
+	     frankCast.setParameter(BACK_SEIS_RUP_NAME, BACK_SEIS_RUP_POINT);
+	     frankCast.updateForecast();
+	     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
+	     
+	     double minMag = 4.0, maxMag=9.0; 
+	     int num=101;
+	     
+	     SummedMagFreqDist charSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+	     SummedMagFreqDist grSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+	     SummedMagFreqDist backSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+	     SummedMagFreqDist totalSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
+	     double duration = frankCast.getTimeSpan().getDuration();
+	     
+	     System.out.println("Char Sources:");
+	     int totalRupPoints, pointsInsideRegion;
+	     for(int i=0; i < frankCast.charFaultSources.size(); i++) {
+	    	 ProbEqkSource source = (ProbEqkSource) frankCast.charFaultSources.get(i);
+	    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+	    		 ProbEqkRupture rupture = source.getRupture(rup);
+	    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
+	    		 totalRupPoints=0;
+	    		 pointsInsideRegion=0;
+	    		 while(it.hasNext()) {
+	    			 ++totalRupPoints;
+	    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+	    		 }
+	    		 charSummedMFD.addResampledMagRate(rupture.getMag(), (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
+	    	 }
+	     }
+	     
+	     System.out.println("GR Sources:");
+	     for(int i=0; i < frankCast.grFaultSources.size(); i++) {
+	    	 ProbEqkSource source = (ProbEqkSource) frankCast.grFaultSources.get(i);
+	    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+	    		 ProbEqkRupture rupture = source.getRupture(rup);
+	    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
+	    		 totalRupPoints=0;
+	    		 pointsInsideRegion=0;
+	    		 while(it.hasNext()) {
+	    			 ++totalRupPoints;
+	    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
+	    		 }
+	    		 grSummedMFD.addResampledMagRate(rupture.getMag(),  (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
+	    	 }
+	     }
+	     
+	     System.out.println("Background Sources:");
+//	     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
+	     double backCorr = 1.0;  
+	     for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
+	    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
+	    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+	    		 ProbEqkRupture rupture = source.getRupture(rup);
+	    		 if (region.isLocationInside(rupture.getRuptureSurface().getLocation(0, 0)))
+	    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -backCorr*Math.log(1-rupture.getProbability())/duration, true);
+	    	 }
+	     }
+	 
+	     totalSummedMFD.addIncrementalMagFreqDist(charSummedMFD);
+	     totalSummedMFD.addIncrementalMagFreqDist(grSummedMFD);
+	     totalSummedMFD.addIncrementalMagFreqDist(backSummedMFD);
+	     
+//	     System.out.println("Char Sources:");
+//	     System.out.println(charSummedMFD.getCumRateDist().toString());
+//	     System.out.println("GR Sources:");
+//	     System.out.println(grSummedMFD.getCumRateDist().toString());
+//	     System.out.println("Back Sources:");
+//	     System.out.println(backSummedMFD.getCumRateDist().toString());
+//	     System.out.println("Total:");
+//	     System.out.println(totalSummedMFD.getCumRateDist().toString());
+	     
+	     if(plot) {
+	    	 ArrayList funcs = new ArrayList();
+	    	 EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
+	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all characteristic events on A & B faults");
+	    	 funcs.add(func);
+	    	 func = grSummedMFD.getCumRateDist();
+	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all GR events on B faults");
+	    	 funcs.add(func);
+	    	 func = backSummedMFD.getCumRateDist();
+	    	 func.setInfo("NSHMP-2002 Total Cum MFD for background & C-zone events");
+	    	 funcs.add(func);
+	    	 func = totalSummedMFD.getCumRateDist();
+	    	 func.setInfo("NSHMP-2002 Total Cum MFD for all events");
+	    	 funcs.add(func);
+	    	 EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
+	    	 funcs.addAll(eqkRateModel2.getObsCumMFD(false));
+	    	 funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
+
+	    	 WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
+	     }
+	     return totalSummedMFD;
+   }
 
 
    // this is temporary for testing purposes
@@ -1225,101 +1330,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	 
 	   
 	 /*
-	 // **********  This computes and plots MFD for the different souce types ******************
-
-     Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
-     frankCast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME, Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
-     frankCast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME, Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
-     frankCast.updateForecast();
-     EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
-     
-     double minMag = 4.0, maxMag=9.0; 
-     int num=101;
-     
-     SummedMagFreqDist charSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
-     SummedMagFreqDist grSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
-     SummedMagFreqDist backSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
-     SummedMagFreqDist totalSummedMFD = new SummedMagFreqDist(minMag, maxMag, num);
-     double duration = frankCast.getTimeSpan().getDuration();
-     
-     System.out.println("Char Sources:");
-     int totalRupPoints, pointsInsideRegion;
-     for(int i=0; i < frankCast.charFaultSources.size(); i++) {
-    	 ProbEqkSource source = (ProbEqkSource) frankCast.charFaultSources.get(i);
-    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
-    		 ProbEqkRupture rupture = source.getRupture(rup);
-    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
-    		 totalRupPoints=0;
-    		 pointsInsideRegion=0;
-    		 while(it.hasNext()) {
-    			 ++totalRupPoints;
-    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
-    		 }
-    		 charSummedMFD.addResampledMagRate(rupture.getMag(), (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
-    	 }
-     }
-     
-     System.out.println("GR Sources:");
-     for(int i=0; i < frankCast.grFaultSources.size(); i++) {
-    	 ProbEqkSource source = (ProbEqkSource) frankCast.grFaultSources.get(i);
-    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
-    		 ProbEqkRupture rupture = source.getRupture(rup);
-    		 Iterator it  = rupture.getRuptureSurface().getLocationsIterator();
-    		 totalRupPoints=0;
-    		 pointsInsideRegion=0;
-    		 while(it.hasNext()) {
-    			 ++totalRupPoints;
-    			 if(region.isLocationInside((Location)it.next())) ++pointsInsideRegion;
-    		 }
-    		 grSummedMFD.addResampledMagRate(rupture.getMag(),  (double)pointsInsideRegion/(double)totalRupPoints * -Math.log(1-rupture.getProbability())/duration, true);
-    	 }
-     }
-     
-     System.out.println("Background Sources:");
-//     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
-     double backCorr = 1.0;  
-     for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
-    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);
-    	 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
-    		 ProbEqkRupture rupture = source.getRupture(rup);
-    		 if (region.isLocationInside(rupture.getRuptureSurface().getLocation(0, 0)))
-    			 backSummedMFD.addResampledMagRate(rupture.getMag(), -backCorr*Math.log(1-rupture.getProbability())/duration, true);
-    	 }
-     }
- 
-     totalSummedMFD.addIncrementalMagFreqDist(charSummedMFD);
-     totalSummedMFD.addIncrementalMagFreqDist(grSummedMFD);
-     totalSummedMFD.addIncrementalMagFreqDist(backSummedMFD);
-     
-//     System.out.println("Char Sources:");
-//     System.out.println(charSummedMFD.getCumRateDist().toString());
-//     System.out.println("GR Sources:");
-//     System.out.println(grSummedMFD.getCumRateDist().toString());
-//     System.out.println("Back Sources:");
-//     System.out.println(backSummedMFD.getCumRateDist().toString());
-//     System.out.println("Total:");
-//     System.out.println(totalSummedMFD.getCumRateDist().toString());
-     
-     
-     ArrayList funcs = new ArrayList();
-     EvenlyDiscretizedFunc func = charSummedMFD.getCumRateDist();
-     func.setInfo("NSHMP-2002 Total Cum MFD for all characteristic events on A & B faults");
-     funcs.add(func);
-     func = grSummedMFD.getCumRateDist();
-     func.setInfo("NSHMP-2002 Total Cum MFD for all GR events on B faults");
-     funcs.add(func);
-     func = backSummedMFD.getCumRateDist();
-     func.setInfo("NSHMP-2002 Total Cum MFD for background & C-zone events");
-     funcs.add(func);
-     func = totalSummedMFD.getCumRateDist();
-     func.setInfo("NSHMP-2002 Total Cum MFD for all events");
-     funcs.add(func);
-     EqkRateModel2_ERF eqkRateModel2 = new EqkRateModel2_ERF();
-     funcs.addAll(eqkRateModel2.getObsCumMFD(false));
-     funcs.add(eqkRateModel2.getObsBestFitCumMFD(false));
-     
-     WG02_RuptureModelsGraphWindowAPI_Impl graphwindow = new WG02_RuptureModelsGraphWindowAPI_Impl(funcs, "Mag", "Rate", "Rates");
-     
+	     
      // ************************************************************
      
      */

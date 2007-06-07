@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -27,12 +28,12 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	private final static String X_AXIS_LABEL = "Magnitude";
-	private final static String Y_AXIS_LABEL = "Rate";
+	private final static String Y_AXIS_LABEL = "Cumulative Rate (per year)";
 	
 //	 Eqk Rate Model 2 ERF
 	private EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList;
-	
+	private IncrementalMagFreqDist cZoneMFD, bckMFD;
 	
 	
 	private ArrayList<String> paramNames;
@@ -46,17 +47,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLUE, 2); // A-Faults
 	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.BLUE, 2); // A-Faults
-	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.BLUE, 2); // A-Faults
+	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2); // B-Faults Char
+		      Color.LIGHT_GRAY, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.MAGENTA, 2); // B-Faults Char
+		      Color.LIGHT_GRAY, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.MAGENTA, 2); // B-Faults Char
-	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.MAGENTA, 2); // B-Faults Char
+		      Color.LIGHT_GRAY, 2); // B-Faults Char
+	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2); // B-Faults GR
@@ -64,17 +63,28 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.GREEN, 2); // B-Faults GR
 	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.GREEN, 2); // B-Faults GR
-	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.GREEN, 2); // B-Faults GR
+	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 5); // Tot MFD
+		      Color.BLACK, 2); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
-		      Color.BLACK, 5); // Tot MFD
+		      Color.BLACK, 2); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
-		      Color.BLACK, 5); // Tot MFD
-	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE,
-		      Color.BLACK, 5); // Tot MFD
+		      Color.BLACK, 2); // Tot MFD
+	
+	
+	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.MAGENTA, 2); //background
+	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.PINK, 2); // C-zone
+	
+	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.RED, 2); // best fit MFD
+	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+		      Color.RED, 5); // observed MFD
+	
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.ORANGE, 2); // NSHMP 2002
 	
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
@@ -91,6 +101,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
+		cZoneMFD = this.eqkRateModel2ERF.getTotal_C_ZoneMFD();
+		this.bckMFD = this.eqkRateModel2ERF.getTotal_BackgroundMFD();
 		calcMFDs(0);
 	}
 	
@@ -183,6 +195,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultCharMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsCharMFD());
 				bFaultGRMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsGR_MFD());
 				totMFDsList.add(eqkRateModel2ERF.getTotalMFD());
+				
 			} else { // recurrsion 
 				calcMFDs(paramIndex+1);
 			}
@@ -194,19 +207,23 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 *
 	 */
 	public void plotMFDs() {
+		
+		// combined Logic Tree MFD
+		plotMFDs(null, null, true, true, true, true, true);
+		
 //		 Deformation model
 		String paramName = EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
 		values.add("D2.4");
-		plotMFDs(paramName, values, false, true); // plot B-faults only
+		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults only
 		
 		// Mag Area Rel
 		paramName = EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME;
 		values = new ArrayList();
 		values.add(Ellsworth_B_WG02_MagAreaRel.NAME);
 		values.add(HanksBakun2002_MagAreaRel.NAME);
-		plotMFDs(paramName, values, true, true); // plot both A and B-faults
+		plotMFDs(paramName, values, true, true, false, false, false); // plot both A and B-faults
 		
 		
 		// A-Fault solution type
@@ -214,30 +231,29 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values = new ArrayList();
 		values.add(EqkRateModel2_ERF.SEGMENTED_A_FAULT_MODEL);
 		values.add(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
-		plotMFDs(paramName, values, true, false); // plot A-faults  only
+		plotMFDs(paramName, values, true, false, false, false, false); // plot A-faults  only
 		
 		// Aprioti wt param
 		paramName = EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(1e-4));
 		values.add(new Double(1e7));
-		plotMFDs(paramName, values, true, false); // plot A-faults  only
+		plotMFDs(paramName, values, true, false, false, false, false); // plot A-faults  only
 		
 		
 		// Mag Correction
 		paramName = EqkRateModel2_ERF.MEAN_MAG_CORRECTION;
 		values = new ArrayList();
 		values.add(new Double(-0.1));
-		values.add(new Double(0));
 		values.add(new Double(0.1));
-		plotMFDs(paramName, values, true, true); // plot A-faults  and B-faults
+		plotMFDs(paramName, values, true, true, false, false, false); // plot A-faults  and B-faults
 
 		//	Connect More B-Faults?
 		paramName = EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Boolean(true));
 		values.add(new Boolean(false));
-		plotMFDs(paramName, values, false, true); // plot B-faults
+		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 		
 	}
 	
@@ -249,7 +265,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * 
 	 * @return
 	 */
-	public void plotMFDs(String paramName, ArrayList values, boolean showAFaults, boolean showBFaults) {
+	public void plotMFDs(String paramName, ArrayList values, boolean showAFaults, boolean showBFaults,
+			boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
 		funcs  = new ArrayList();
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 		
@@ -265,7 +282,25 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
 		if(showBFaults) addToFuncList(avgBFaultCharMFD, metadata+"Average Char B-Fault MFD", PLOT_CHAR2);
 		if(showBFaults) addToFuncList(avgBFaultGRMFD,metadata+ "Average GR B-Fault MFD", PLOT_CHAR3);
+		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
+		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
+		if(showNSHMP_TotMFD) {
+			addToFuncList(Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false), metadata+"NSHMP-2002 Total MFD", PLOT_CHAR9);
+		}
 		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
+		
+		// Karen's observed data
+		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
+		// historical best fit cum dist
+		funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		this.plottingFeaturesList.add(PLOT_CHAR7);
+		
+		// historical cum dist
+		funcs.addAll(eqkRateModel2ERF.getObsCumMFD(includeAfterShocks));
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		this.plottingFeaturesList.add(PLOT_CHAR8);
+		
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
 			SummedMagFreqDist aFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
@@ -282,25 +317,19 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				plot3 = PLOT_CHAR3_1;
 				plot4 = PLOT_CHAR4_1;
 				metadata="Dotted Dashed Line - ";
-			} else if(i==1) {
+			} else {
 				plot1 = PLOT_CHAR1_2;
 				plot2 = PLOT_CHAR2_2;
 				plot3 = PLOT_CHAR3_2;
 				plot4 = PLOT_CHAR4_2;
 				metadata="Dashed Line - ";
-			} else  {
-				plot1 = PLOT_CHAR1_3;
-				plot2 = PLOT_CHAR2_3;
-				plot3 = PLOT_CHAR3_3;
-				plot4 = PLOT_CHAR4_3;
-				metadata=" Dotted Line - ";
-			}
+			} 
 			metadata += "("+paramName+"="+values.get(i)+")  ";
 			
 			if(showAFaults) addToFuncList(aFaultMFD, metadata+"A-Fault MFD", plot1);
 			if(showBFaults) addToFuncList(bFaultCharMFD, metadata+"Char B-Fault MFD", plot2);
 			if(showBFaults) addToFuncList(bFaultGRMFD, metadata+"GR B-Fault MFD", plot3);
-			addToFuncList(totMFD, metadata+"Total MFD", plot4);	
+			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Ratio = "+totMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), plot4);	
 		}
 		
 		GraphWindow graphWindow= new GraphWindow(this);
@@ -313,7 +342,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * 
 	 * @param mfd
 	 */
-	private void addToFuncList(SummedMagFreqDist mfd, String metadata, 
+	private void addToFuncList(IncrementalMagFreqDist mfd, String metadata, 
 			PlotCurveCharacterstics curveCharateristic) {
 		EvenlyDiscretizedFunc func = mfd.getCumRateDist();
 		func.setName(metadata);
