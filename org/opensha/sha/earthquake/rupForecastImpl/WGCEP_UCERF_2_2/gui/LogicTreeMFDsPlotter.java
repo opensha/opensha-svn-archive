@@ -38,13 +38,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 //	 Eqk Rate Model 2 ERF
 	private EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList;
-	private IncrementalMagFreqDist cZoneMFD, bckMFD;
+	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/";
 	private final static String A_FAULTS_MFD_FILENAME = PATH+"A_Faults_MFDs.txt";
 	private final static String B_FAULTS_CHAR_MFD_FILENAME = PATH+"B_FaultsCharMFDs.txt";
 	private final static String B_FAULTS_GR_MFD_FILENAME = PATH+"B_FaultsGR_MFDs.txt";
 	private final static String TOT_MFD_FILENAME = PATH+"TotMFDs.txt";
+	private final static String NSHMP_02_MFD_FILENAME = PATH+"NSHMP02_MFDs.txt";
 	
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
@@ -124,11 +125,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
 			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
 			saveMFDsToFile(TOT_MFD_FILENAME, this.totMFDsList);
+			saveMFDToFile(NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
 		}  else {
 			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
 			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
 			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
 			readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList);
+			nshmp02TotMFD = readMFDFromFile(NSHMP_02_MFD_FILENAME);
 		}
 		// calculate ratio of default settings and average value at Mag6.5
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
@@ -156,6 +159,17 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+
+	/**
+	 * Save single MFD to file
+	 *
+	 */
+	private void saveMFDToFile(String fileName, IncrementalMagFreqDist mfd) {
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		mfdList.add(mfd);
+		saveMFDsToFile(fileName, mfdList);
 	}
 	
 	/**
@@ -188,6 +202,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Read single MFD from file
+	 * 
+	 * @param fileName
+	 * @param mfd
+	 */
+	private IncrementalMagFreqDist readMFDFromFile(String fileName) {
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		readMFDsFromFile(fileName, mfdList);
+		return mfdList.get(0);
 	}
 	
 	/**
@@ -468,7 +494,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
 		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
-			EvenlyDiscretizedFunc nshmpMFD = Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false).getCumRateDist();
+			EvenlyDiscretizedFunc nshmpMFD = nshmp02TotMFD.getCumRateDist();
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<nshmpMFD.getNum(); i=i+2)
 				resampledNSHMP_MFD.set(nshmpMFD.getX(i), nshmpMFD.getY(i));
@@ -628,7 +654,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	public static void main(String []args) {
 		
 		
-		LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
+		//LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
 		//mfdPlotter.plotMFDs();
 		//System.out.println(mfdPlotter.getMFDs(null, null).get(3).toString());
 	}
