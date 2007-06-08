@@ -4,7 +4,11 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
@@ -36,6 +40,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD;
 	
+	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/";
+	private final static String A_FAULTS_MFD_FILENAME = PATH+"A_Faults_MFDs.txt";
+	private final static String B_FAULTS_CHAR_MFD_FILENAME = PATH+"B_FaultsCharMFDs.txt";
+	private final static String B_FAULTS_GR_MFD_FILENAME = PATH+"B_FaultsGR_MFDs.txt";
+	private final static String TOT_MFD_FILENAME = PATH+"TotMFDs.txt";
 	
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
@@ -96,20 +105,89 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	
 	/**
+	 * This method caclulates MFDs for all logic tree branches and saves them to files.
+	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
 	 * 
 	 * @param paramNames 
 	 * @param paramValues
 	 */
-	public LogicTreeMFDsPlotter () {
+	public LogicTreeMFDsPlotter (boolean reCalculate) {
 		fillAdjustableParams();
 		lastParamIndex = paramNames.size()-1;
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
-		calcMFDs(0);
+		if(reCalculate) {
+			calcMFDs(0);
+			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
+			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
+			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
+			saveMFDsToFile(TOT_MFD_FILENAME, this.totMFDsList);
+		}  else {
+			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
+			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
+			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
+			readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList);
+		}
+		// calculate ratio of default settings and average value at Mag6.5
+		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
+		this.eqkRateModel2ERF.setParamDefaults();
+		eqkRateModel2ERF.updateForecast();
+		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+eqkRateModel2ERF.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
 		cZoneMFD = this.eqkRateModel2ERF.getTotal_C_ZoneMFD();
 		bckMFD = this.eqkRateModel2ERF.getTotal_BackgroundMFD();
+	}
+	
+	/**
+	 * Save MFDs to file
+	 *
+	 */
+	private void saveMFDsToFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList) {
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			for(int i=0; i<mfdList.size(); ++i) {
+				IncrementalMagFreqDist mfd = mfdList.get(i);
+				fw.write("#Run "+(i+1)+"\n");
+				for(int magIndex=0; magIndex<mfd.getNum(); ++magIndex)
+					fw.write(mfd.getX(magIndex)+"\t"+mfd.getY(magIndex)+"\n");
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Read MFDs from file
+	 * 
+	 * @param fileName
+	 * @param mfdList
+	 */
+	private void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList) {
+		try {
+			FileReader fr = new FileReader(fileName);
+			BufferedReader br = new BufferedReader(fr);
+			String line = br.readLine();
+			IncrementalMagFreqDist mfd = null;
+			double mag, rate;
+			while(line!=null) {
+				if(line.startsWith("#")) {
+					mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+					mfdList.add(mfd);
+				} else {
+					StringTokenizer tokenizer = new StringTokenizer(line);
+					mag = Double.parseDouble(tokenizer.nextToken());
+					rate = Double.parseDouble(tokenizer.nextToken());
+					mfd.set(mag, rate);
+				}
+				line = br.readLine();
+			}
+			br.close();
+			fr.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -266,12 +344,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		plotBackgroundEffectsMFDs();
 
-		// calculate ratio of default settings and average value at Mag6.5
-		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
-		this.eqkRateModel2ERF.setParamDefaults();
-		eqkRateModel2ERF.updateForecast();
-		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+eqkRateModel2ERF.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
-
+	
 	}
 	
 	
@@ -555,8 +628,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	public static void main(String []args) {
 		
 		
-		LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter();
-		mfdPlotter.plotMFDs();
+		LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
+		//mfdPlotter.plotMFDs();
 		//System.out.println(mfdPlotter.getMFDs(null, null).get(3).toString());
 	}
 }

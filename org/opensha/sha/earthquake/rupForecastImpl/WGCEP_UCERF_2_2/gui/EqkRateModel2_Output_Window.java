@@ -47,8 +47,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  *
  */
 public class EqkRateModel2_Output_Window extends JFrame implements ActionListener, ParameterChangeListener{
-	private final static String PLOT_LABEL = "Eqk Rates";
-	private JButton plotMFDsButton = new JButton("Plot Mag Freq Dist");
+	private final static String CUM_PLOT_LABEL = "Cumulative  Rates";
+	private final static String INCR_PLOT_LABEL = "Incremental  Rates";
+	private JButton plotCumMFDsButton = new JButton("Plot Cum Mag Freq Dist");
+	private JButton plotIncrMFDsButton = new JButton("Plot Incr Mag Freq Dist");
 	private JButton modSlipRateButton = new JButton("Plot Histogram of Normalized Slip-Rate Residuals ((Final_SR-Orig_SR)/SR_Sigma)");
 	private JButton dataERButton = new JButton("Plot Histogram of Normalized Segment Event-Rate Residuals - (Final_ER-Data_ER)/ER_Sigma");
 	private JButton predERButton = new JButton("Plot the ratio of Final to Pred Segment Event Rate");
@@ -72,7 +74,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private ArrayList<Double> normRupRatesRatioList;
 	private  boolean isAseisReducesArea;
 	private JTable aFaultsSegData, aFaultsRupData;
-	private EqkRateModel2_MFDsPlotter mfdsPlotter;
+	private EqkRateModel2_MFDsPlotter cumMfdsPlotter;
+	private EqkRateModel2_MFDsPlotter incrMfdsPlotter;
+	
 	/**
 	 * 
 	 * @param eqkRateModelERF
@@ -124,7 +128,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	private JPanel getTotalModelSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
-		mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF);
+		cumMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF, true);
+		incrMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF, false);
 		JTextArea textArea = new JTextArea();
 		textArea.setText("");
 		textArea.setLineWrap(true);
@@ -171,23 +176,26 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		textArea.append(eqkRateModelERF.getAdjustableParameterList().getParameterListMetadataString("\n"));
 		panel.add(new JScrollPane(textArea),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(plotMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+		panel.add(plotCumMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+		panel.add(plotIncrMFDsButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(predERButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+		panel.add(this.modSlipRateButton,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(dataERButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+		panel.add(predERButton,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+		panel.add(dataERButton,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(aFaultsRupDataButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
+		panel.add(rupRatesRatioButton,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-		panel.add(aFaultsSegDataButton,new GridBagConstraints( 0, 7, 1, 1, 1.0, 0.0
+		panel.add(aFaultsRupDataButton,new GridBagConstraints( 0, 7, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(aFaultsSegDataButton,new GridBagConstraints( 0, 8, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
 		textArea.setEditable(false);
-		plotMFDsButton.addActionListener(this);
+		plotCumMFDsButton.addActionListener(this);
+		plotIncrMFDsButton.addActionListener(this);
 		this.modSlipRateButton.addActionListener(this);
 		this.predERButton.addActionListener(this);
 		this.dataERButton.addActionListener(this);
@@ -385,12 +393,17 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	public void actionPerformed(ActionEvent event) {
 		Object src = event.getSource();
-		if(src == this.plotMFDsButton) {
-			GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
-			graphWindow.setPlotLabel(PLOT_LABEL);
+		if(src == this.plotCumMFDsButton) {
+			GraphWindow graphWindow= new GraphWindow(cumMfdsPlotter);
+			graphWindow.setPlotLabel(CUM_PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
-		} else if(src == this.modSlipRateButton) { // ratio of modified slip rates
+		} else if(src == plotIncrMFDsButton) {
+			GraphWindow graphWindow= new GraphWindow(incrMfdsPlotter);
+			graphWindow.setPlotLabel(INCR_PLOT_LABEL);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+		}else if(src == this.modSlipRateButton) { // ratio of modified slip rates
 			String plotLabel = "Normalized Segment Slip-Rate Residuals\n((Final_SR-Orig_SR)/SR_Sigma)";
 			showHistograms(normModlSlipRateRatioList, plotLabel, "Normalized Segment Slip-Rate Residuals");
 		}else if(src == this.dataERButton) { // ratio of final Event rate and data Event rate

@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * This class is used for plotting the MFDs for the EqkRateModel2.1
@@ -42,41 +43,49 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      Color.RED, 5);
 	
-	public EqkRateModel2_MFDsPlotter(EqkRateModel2_ERF eqkRateModelERF) {
-		createFunctionList(eqkRateModelERF);
+	private final static String A_FAULTS_METADATA = "Type A-Faults Total Mag Freq Dist";
+	private final static String B_FAULTS_CHAR_METADATA = "Type B-Faults Total Char Mag Freq Dist";
+	private final static String B_FAULTS_GR_METADATA = "Type B-Faults Total GR Mag Freq Dist";
+	private final static String BACKGROUND_METADATA = "BackGround Total  Mag Freq Dist";
+	private final static String C_ZONES_METADATA = "C Zone Total  Mag Freq Dist";
+	private final static String TOTAL_METADATA = "Total  Mag Freq Dist";
+	
+	public EqkRateModel2_MFDsPlotter(EqkRateModel2_ERF eqkRateModelERF, boolean isCumMFD) {
+		if(isCumMFD) createCumFunctionList(eqkRateModelERF);
+		else createIncrFunctionList(eqkRateModelERF);
 	}
 	
 	/**
-	 * Create Function List
+	 * Create Cum Function List
 	 *
 	 */
-	private void createFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
+	private void createCumFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
 	
 		funcs = new ArrayList();
 		
 		// Type A faults cum Dist
 		EvenlyDiscretizedFunc cumDist = eqkRateModelERF.getTotal_A_FaultsMFD().getCumRateDist();
-		cumDist.setInfo("Type A-Faults Total Mag Freq Dist");
+		cumDist.setInfo(A_FAULTS_METADATA);
 		funcs.add(cumDist);
 		 // Type B faults Char cum Dist
 		cumDist = eqkRateModelERF.getTotal_B_FaultsCharMFD().getCumRateDist();
-		cumDist.setInfo("Type B-Faults Total Char Mag Freq Dist");
+		cumDist.setInfo(B_FAULTS_CHAR_METADATA);
 		funcs.add(cumDist);
 		//	Type B faults GR cum Dist
 		cumDist = eqkRateModelERF.getTotal_B_FaultsGR_MFD().getCumRateDist();
-		cumDist.setInfo("Type B-Faults Total GR Mag Freq Dist");
+		cumDist.setInfo(B_FAULTS_GR_METADATA);
 		funcs.add(cumDist);
 		//	Background cum Dist
 		cumDist = eqkRateModelERF.getTotal_BackgroundMFD().getCumRateDist();
-		cumDist.setInfo("BackGround Total  Mag Freq Dist");
+		cumDist.setInfo(BACKGROUND_METADATA);
 		funcs.add(cumDist);
 		//	C zone cum Dist
 		cumDist = eqkRateModelERF.getTotal_C_ZoneMFD().getCumRateDist();
-		cumDist.setInfo("C Zone Total  Mag Freq Dist");
+		cumDist.setInfo(C_ZONES_METADATA);
 		funcs.add(cumDist);
 		//	Total cum Dist
 		cumDist = eqkRateModelERF.getTotalMFD().getCumRateDist();
-		cumDist.setInfo("Total  Mag Freq Dist");
+		cumDist.setInfo(TOTAL_METADATA);
 		funcs.add(cumDist);
 		
 		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
@@ -86,6 +95,43 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		// historical cum dist
 		funcs.addAll(eqkRateModelERF.getObsCumMFD(includeAfterShocks));
 	}
+	
+	
+	/**
+	 * Create Incr Function List
+	 *
+	 */
+	private void createIncrFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
+	
+		funcs = new ArrayList();
+		
+		// Type A faults cum Dist
+		IncrementalMagFreqDist incrMFD = eqkRateModelERF.getTotal_A_FaultsMFD();
+		incrMFD.setInfo(A_FAULTS_METADATA);
+		funcs.add(incrMFD);
+		 // Type B faults Char cum Dist
+		incrMFD = eqkRateModelERF.getTotal_B_FaultsCharMFD();
+		incrMFD.setInfo(B_FAULTS_CHAR_METADATA);
+		funcs.add(incrMFD);
+		//	Type B faults GR cum Dist
+		incrMFD = eqkRateModelERF.getTotal_B_FaultsGR_MFD();
+		incrMFD.setInfo(B_FAULTS_GR_METADATA);
+		funcs.add(incrMFD);
+		//	Background cum Dist
+		incrMFD = eqkRateModelERF.getTotal_BackgroundMFD();
+		incrMFD.setInfo(BACKGROUND_METADATA);
+		funcs.add(incrMFD);
+		//	C zone cum Dist
+		incrMFD = eqkRateModelERF.getTotal_C_ZoneMFD();
+		incrMFD.setInfo(C_ZONES_METADATA);
+		funcs.add(incrMFD);
+		//	Total cum Dist
+		incrMFD = eqkRateModelERF.getTotalMFD();
+		incrMFD.setInfo(TOTAL_METADATA);
+		funcs.add(incrMFD);
+		
+	}
+
 
 	
 	/* (non-Javadoc)
@@ -134,10 +180,12 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		 list.add(this.PLOT_CHAR4);
 		 list.add(this.PLOT_CHAR5);
 		 list.add(this.PLOT_CHAR6);
-		 list.add(this.PLOT_CHAR7);
-		 list.add(this.PLOT_CHAR8);
-		 list.add(this.PLOT_CHAR8);
-		 list.add(this.PLOT_CHAR8);
+		 if(funcs.size()>6) {
+			 list.add(this.PLOT_CHAR7);
+			 list.add(this.PLOT_CHAR8);
+			 list.add(this.PLOT_CHAR8);
+			 list.add(this.PLOT_CHAR8);
+		 }
 		 return list;
 	}
 	
