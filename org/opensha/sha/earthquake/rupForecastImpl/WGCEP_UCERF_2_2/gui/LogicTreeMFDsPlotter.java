@@ -127,11 +127,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			saveMFDsToFile(TOT_MFD_FILENAME, this.totMFDsList);
 			saveMFDToFile(NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
 		}  else {
-			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
-			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
-			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
-			readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList);
-			nshmp02TotMFD = readMFDFromFile(NSHMP_02_MFD_FILENAME);
+			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
+			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
+			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList, false);
+			readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList, false);
+			nshmp02TotMFD = readMFDFromFile(NSHMP_02_MFD_FILENAME, true);
 		}
 		// calculate ratio of default settings and average value at Mag6.5
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
@@ -178,7 +178,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param fileName
 	 * @param mfdList
 	 */
-	private void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList) {
+	private void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList, boolean isNSHMP02) {
 		try {
 			FileReader fr = new FileReader(fileName);
 			BufferedReader br = new BufferedReader(fr);
@@ -187,7 +187,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			double mag, rate;
 			while(line!=null) {
 				if(line.startsWith("#")) {
-					mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+					if(isNSHMP02) mfd = new IncrementalMagFreqDist(4.0, 9.0, 101);
+					else mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 					mfdList.add(mfd);
 				} else {
 					StringTokenizer tokenizer = new StringTokenizer(line);
@@ -210,9 +211,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param fileName
 	 * @param mfd
 	 */
-	private IncrementalMagFreqDist readMFDFromFile(String fileName) {
+	private IncrementalMagFreqDist readMFDFromFile(String fileName, boolean isNSHMP02) {
 		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
-		readMFDsFromFile(fileName, mfdList);
+		readMFDsFromFile(fileName, mfdList, isNSHMP02);
 		return mfdList.get(0);
 	}
 	

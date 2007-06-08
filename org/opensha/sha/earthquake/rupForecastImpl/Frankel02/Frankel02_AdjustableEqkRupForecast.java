@@ -1206,9 +1206,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     * 
     * @return
     */
-   public static SummedMagFreqDist getTotalMFD_InsideRELM_region(boolean plot) {
+   public static IncrementalMagFreqDist getTotalMFD_InsideRELM_region(boolean plot) {
 	   // **********  This computes and plots MFD for the different souce types ******************
-
+	   
 	     Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
 	     frankCast.setParameter(BACK_SEIS_NAME, BACK_SEIS_INCLUDE);
 	     frankCast.setParameter(BACK_SEIS_RUP_NAME, BACK_SEIS_RUP_POINT);
