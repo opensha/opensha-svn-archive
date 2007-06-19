@@ -700,6 +700,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * @return
 	 */
 	public boolean areAfterShocksIncluded() {
+		// Check if NSHMP solution chosen
+		String setForBackground = (String)setForBckParam.getValue();
+		if(setForBackground.equalsIgnoreCase(this.SET_FOR_BCK_PARAM_NSHMP07))
+			return false;
 		double rate = ((Double)getParameter(TOT_MAG_RATE_PARAM_NAME).getValue()).doubleValue();
 		boolean includeAfterShocks;
 		if(rate > 5.85) includeAfterShocks = true;
@@ -716,9 +720,10 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 //		adjustableParams.addParameter(faultModelParam);		not needed for now
 //		adjustableParams.addParameter(rupOffset_Param);		not needed for now
 		adjustableParams.addParameter(deformationModelsParam);
-		adjustableParams.addParameter(aftershockFractionParam);
+		adjustableParams.addParameter(moRateFracToBackgroundParam);
 		adjustableParams.addParameter(couplingCoeffParam);
-		adjustableParams.addParameter(aseisFactorInterParam);
+		adjustableParams.addParameter(aftershockFractionParam);
+//		adjustableParams.addParameter(aseisFactorInterParam);
 		adjustableParams.addParameter(rupModelParam);
 		String rupModel = (String)rupModelParam.getValue();
 		if(rupModel.equalsIgnoreCase(SEGMENTED_A_FAULT_MODEL)) {
@@ -736,25 +741,26 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		adjustableParams.addParameter(magAreaRelParam);
 		adjustableParams.addParameter(magSigmaParam);
 		adjustableParams.addParameter(truncLevelParam);
+		adjustableParams.addParameter(meanMagCorrectionParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
 		adjustableParams.addParameter(bFaultsMinMagParam);
 		adjustableParams.addParameter(connectMoreB_FaultsParam);
 //		adjustableParams.addParameter(backSeisParam);		not needed for now
 		adjustableParams.addParameter(c_ZoneWtParam);
-		adjustableParams.addParameter(meanMagCorrectionParam);
-		adjustableParams.addParameter(totalMagRateParam);
-		adjustableParams.addParameter(moRateFracToBackgroundParam);
 		adjustableParams.addParameter(setForBckParam);
 		String setForBackground = (String)setForBckParam.getValue();
-		if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) || setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) 
+		if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) || setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) {
+			adjustableParams.addParameter(totalMagRateParam);
 			adjustableParams.addParameter(regionB_ValParam);
+		}
 		else if(setForBackground.equalsIgnoreCase(SET_FOR_BCK_PARAM_BCK_MAX_MAG)) {
+			adjustableParams.addParameter(totalMagRateParam);
 			adjustableParams.addParameter(regionB_ValParam);
 			adjustableParams.addParameter(backSeisMaxMagParam);
 		}
 		else {
-		// the else case (SET_FOR_BCK_PARAM_NSHMP02) adds nothing here
+		// the else case (SET_FOR_BCK_PARAM_NSHMP07) adds nothing here
 			adjustableParams.addParameter(bulgeReductionBooleanParam);
 			adjustableParams.addParameter(maxMagGridBooleanParam);
 		}

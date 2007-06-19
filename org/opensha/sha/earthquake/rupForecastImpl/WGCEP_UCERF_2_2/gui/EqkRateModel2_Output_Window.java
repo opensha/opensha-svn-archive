@@ -93,7 +93,8 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	
 	
 	private void createGUI() {
-		isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
+//		isAseisReducesArea = ((Boolean)this.eqkRateModelERF.getParameter(EqkRateModel2_ERF.ASEIS_INTER_PARAM_NAME).getValue()).booleanValue();
+		isAseisReducesArea = true;	// hard coded according to final definition
 		JPanel aFaultSummaryPanel = getA_FaultSummaryGUI();
 		tabbedPane.addTab("Total Model Summary", getTotalModelSummaryGUI());
 		tabbedPane.addTab("A Fault Summary", aFaultSummaryPanel);
