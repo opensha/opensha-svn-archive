@@ -508,15 +508,19 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		// Karen's observed data
 		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
-		// historical best fit cum dist
-		funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
-		this.plottingFeaturesList.add(PLOT_CHAR7);
 		
+		
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+		// historical best fit cum dist
+		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		funcs.add(obsCumMFD.get(0));
+		this.plottingFeaturesList.add(PLOT_CHAR7);
 		// historical cum dist
-		funcs.addAll(eqkRateModel2ERF.getObsCumMFD(includeAfterShocks));
+		funcs.addAll(obsCumMFD);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
+		
 		return avgTotMFD;
 	}
 	

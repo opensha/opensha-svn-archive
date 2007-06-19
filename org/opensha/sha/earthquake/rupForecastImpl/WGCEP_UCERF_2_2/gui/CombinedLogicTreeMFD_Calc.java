@@ -117,11 +117,13 @@ public class CombinedLogicTreeMFD_Calc implements GraphWindowAPI {
 		cumDist.setInfo("Total  Mag Freq Dist");
 		funcs.add(cumDist);
 		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
-		// historical best fit cum dist
-		funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+		
+		funcs.add(obsCumMFD.get(0));
 		
 		// historical cum dist
-		funcs.addAll(eqkRateModel2ERF.getObsCumMFD(includeAfterShocks));
+		funcs.addAll(obsCumMFD);
 		
 		
 		// SHOW THE PLOT

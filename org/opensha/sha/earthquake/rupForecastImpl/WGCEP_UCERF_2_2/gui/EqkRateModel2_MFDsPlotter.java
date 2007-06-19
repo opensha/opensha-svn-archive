@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -89,11 +90,16 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		funcs.add(cumDist);
 		
 		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
-		// historical best fit cum dist
-		funcs.add(eqkRateModelERF.getObsBestFitCumMFD(includeAfterShocks));
 		
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModelERF.getObsCumMFD(includeAfterShocks);
+		
+		// historical best fit cum dist
+		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		funcs.add(obsCumMFD.get(0));
 		// historical cum dist
-		funcs.addAll(eqkRateModelERF.getObsCumMFD(includeAfterShocks));
+		funcs.addAll(obsCumMFD);
+		
+		
 	}
 	
 	
@@ -129,6 +135,25 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		incrMFD = eqkRateModelERF.getTotalMFD();
 		incrMFD.setInfo(TOTAL_METADATA);
 		funcs.add(incrMFD);
+		
+		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
+		
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModelERF.getObsCumMFD(includeAfterShocks);
+		
+		ArrayList<EvenlyDiscretizedFunc> obsIncrMFDList = new ArrayList<EvenlyDiscretizedFunc>();
+		
+		for(int i=0; i<obsCumMFD.size(); ++i) {
+			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
+			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX(), cumMFD.getMaxX(), cumMFD.getNum());
+			arbIncrMFD.setCumRateDist(cumMFD);
+			obsIncrMFDList.add(arbIncrMFD);
+		}
+		
+		// historical best fit cum dist
+		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
+		funcs.add(obsIncrMFDList.get(0));
+		// historical cum dist
+		funcs.addAll(obsIncrMFDList);
 		
 	}
 
