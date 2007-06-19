@@ -144,7 +144,7 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		
 		for(int i=0; i<obsCumMFD.size(); ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
-			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX(), cumMFD.getMaxX(), cumMFD.getNum());
+			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_ERF.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_ERF.DELTA_MAG, EqkRateModel2_ERF.NUM_MAG);
 			arbIncrMFD.setCumRateDist(cumMFD);
 			obsIncrMFDList.add(arbIncrMFD);
 		}

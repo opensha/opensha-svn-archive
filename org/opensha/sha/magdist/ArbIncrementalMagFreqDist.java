@@ -63,13 +63,13 @@ public class ArbIncrementalMagFreqDist
 		  mag1 = mag - halfDelta;
 		  mag2 = mag + halfDelta;
 		  // rate 1
-		  if(mag1 < minX) rate1 = cumFunc.getY(minX);
+		  /*if(mag1 < minX) rate1 = cumFunc.getY(minX);
 		  else if(mag1 > maxX) rate1 = cumFunc.getY(maxX);
-		  else rate1 = cumFunc.getInterpolatedY_inLogXLogYDomain(mag1) ;
+		  else */rate1 = cumFunc.getInterpolatedY_inLogXLogYDomain(mag1) ;
 		  // rate 2
-		  if(mag2 < minX) rate2 = cumFunc.getY(minX);
+		  /*if(mag2 < minX) rate2 = cumFunc.getY(minX);
 		  else if(mag2 > maxX) rate2 = cumFunc.getY(maxX);
-		  else rate2 = cumFunc.getInterpolatedY_inLogXLogYDomain(mag2) ;
+		  else*/ rate2 = cumFunc.getInterpolatedY_inLogXLogYDomain(mag2) ;
 		  rate = rate1 - rate2;
 		  this.set(i, rate);
 	  }
