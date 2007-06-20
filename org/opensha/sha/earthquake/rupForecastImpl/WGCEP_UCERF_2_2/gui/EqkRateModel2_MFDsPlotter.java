@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -137,7 +138,7 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		funcs.add(incrMFD);
 		
 		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
-		ArrayList<EvenlyDiscretizedFunc> obsIncrMFDList = eqkRateModelERF.getObsIncrMFD(includeAfterShocks);
+		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = eqkRateModelERF.getObsIncrMFD(includeAfterShocks);
 		
 		// historical best fit cum dist
 		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));

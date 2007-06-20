@@ -1459,15 +1459,22 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 * (from Table 21 of Appendix_I_v03.pdf)
 	 * @return
 	 */
-	public ArrayList<EvenlyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
+	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
 		boolean includeAfterShocks = areAfterShocksIncluded();
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAfterShocks);
-		ArrayList<EvenlyDiscretizedFunc> obsIncrMFDList = new ArrayList<EvenlyDiscretizedFunc>();
+		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		for(int i=0; i<obsCumMFD.size(); ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
 			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_ERF.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_ERF.DELTA_MAG, EqkRateModel2_ERF.NUM_MAG);
 			arbIncrMFD.setCumRateDist(cumMFD);
-			obsIncrMFDList.add(arbIncrMFD);
+			ArbitrarilyDiscretizedFunc arbDiscFun = new ArbitrarilyDiscretizedFunc();
+			arbDiscFun.set(5.1, arbIncrMFD.getInterpolatedY(5.1));
+			arbDiscFun.set(5.5, arbIncrMFD.getInterpolatedY(5.5));
+			arbDiscFun.set(6.0, arbIncrMFD.getInterpolatedY(6.0));
+			arbDiscFun.set(6.5, arbIncrMFD.getInterpolatedY(6.5));
+			arbDiscFun.set(7.0, arbIncrMFD.getInterpolatedY(7.0));
+			arbDiscFun.set(7.4, arbIncrMFD.getInterpolatedY(7.4));
+			obsIncrMFDList.add(arbDiscFun);
 		}
 		return obsIncrMFDList;
 	}

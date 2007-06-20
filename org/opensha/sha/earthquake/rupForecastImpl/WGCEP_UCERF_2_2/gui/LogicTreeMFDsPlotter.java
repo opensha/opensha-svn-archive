@@ -504,14 +504,21 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			funcs.add(resampledNSHMP_MFD);
 			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
-		addToFuncList(avgTotMFD, metadata+"Average Total MFD", PLOT_CHAR4);
-		
-		// Karen's observed data
+//		 Karen's observed data
 		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
 		
-		ArrayList<EvenlyDiscretizedFunc> obsMFD;
-		if(this.isCumulative) obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
-		else obsMFD = eqkRateModel2ERF.getObsIncrMFD(includeAfterShocks);
+		ArrayList obsMFD;
+		if(this.isCumulative)  {
+			obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+			metadata+="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
+		}
+		else  {
+			obsMFD = eqkRateModel2ERF.getObsIncrMFD(includeAfterShocks);
+			metadata+="Average Total MFD";
+		}
+		addToFuncList(avgTotMFD, metadata, PLOT_CHAR4);
+		
+		
 		// historical best fit cum dist
 		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
 		funcs.add(obsMFD.get(0));
