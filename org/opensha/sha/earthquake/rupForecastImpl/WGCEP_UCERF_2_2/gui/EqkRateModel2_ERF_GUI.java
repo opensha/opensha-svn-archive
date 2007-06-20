@@ -69,7 +69,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private JMenu analysisMenu = new JMenu("Further Analysis");
 	private JMenuItem genReportFigMenu = new JMenuItem("Generate MFD Figs for Report");
 	private JMenuItem bulgeAnalysisMenu = new JMenuItem("Make Bulge Analysis Plots");
-	private JMenuItem logicTreeMFDplotMenu = new JMenuItem("Logic tree plots");
+	private JMenuItem logicTreeCumMFDplotMenu = new JMenuItem("Logic tree Cumulative plots");
+	private JMenuItem logicTreeIncrMFDplotMenu = new JMenuItem("Logic tree Incremental plots");
 	
 	private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
@@ -129,7 +130,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 menuBar.add(analysisMenu);
 		 analysisMenu.add(genReportFigMenu);
 		 analysisMenu.add(bulgeAnalysisMenu);
-		 analysisMenu.add(logicTreeMFDplotMenu);
+		 analysisMenu.add(logicTreeCumMFDplotMenu);
+		 analysisMenu.add(logicTreeIncrMFDplotMenu);
 		 setJMenuBar(menuBar);	
 		 
 		 genReportFigMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -142,9 +144,14 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 				 bulgeAnalysisMenu_actionPerformed(e);
 			 }
 		 });
-		 logicTreeMFDplotMenu.addActionListener(new java.awt.event.ActionListener() {
+		 logicTreeCumMFDplotMenu.addActionListener(new java.awt.event.ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
-				 logicTreeMFDplotMenu_actionPerformed(e);
+				 logicTreeCumMFDplotMenu_actionPerformed(e);
+			 }
+		 });
+		 logicTreeIncrMFDplotMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 logicTreeIncrMFDplotMenu_actionPerformed(e);
 			 }
 		 });
 		
@@ -163,12 +170,23 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  }
 	  
 	  /**
-	   * Generate Plot for various logic tree branches
+	   * Generate Cumulative MFD Plots for various logic tree branches
 	   * 
 	   * @param actionEvent
 	   */
-	  private void logicTreeMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
-		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false);
+	  private void logicTreeCumMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
+		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false, true);
+		  logicTreeMFDsPlotter.plotMFDs();
+	  }
+	  
+	  
+	  /**
+	   * Generate Incremental MFD Plots for various logic tree branches
+	   * 
+	   * @param actionEvent
+	   */
+	  private void logicTreeIncrMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
+		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false, false);
 		  logicTreeMFDsPlotter.plotMFDs();
 	  }
 	  

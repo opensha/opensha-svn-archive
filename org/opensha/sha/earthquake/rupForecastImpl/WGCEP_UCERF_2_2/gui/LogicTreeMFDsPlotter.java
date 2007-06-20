@@ -104,15 +104,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
+	private boolean isCumulative;
 	
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
 	 * 
-	 * @param paramNames 
-	 * @param paramValues
 	 */
-	public LogicTreeMFDsPlotter (boolean reCalculate) {
+	public LogicTreeMFDsPlotter (boolean reCalculate, boolean isCumulative) {
+		this.isCumulative = isCumulative;
 		fillAdjustableParams();
 		lastParamIndex = paramNames.size()-1;
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
@@ -397,7 +397,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		metadata += "("+EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME+"=false) ";
 		addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
 		GraphWindow graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
@@ -419,7 +419,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	    metadata += "("+EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME+"=false) ";
 	    addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
 	    graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
@@ -467,7 +467,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			if(showAFaults) addToFuncList(aFaultMFD, metadata+"A-Fault MFD", plot1);
 			if(showBFaults) addToFuncList(bFaultCharMFD, metadata+"Char B-Fault MFD", plot2);
 			if(showBFaults) addToFuncList(bFaultGRMFD, metadata+"GR B-Fault MFD", plot3);
-			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Ratio = "+totMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), plot4);	
+			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), plot4);	
 		}
 		
 		GraphWindow graphWindow= new GraphWindow(this);
@@ -509,14 +509,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		// Karen's observed data
 		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
 		
-		
-		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+		ArrayList<EvenlyDiscretizedFunc> obsMFD;
+		if(this.isCumulative) obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+		else obsMFD = eqkRateModel2ERF.getObsIncrMFD(includeAfterShocks);
 		// historical best fit cum dist
 		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
-		funcs.add(obsCumMFD.get(0));
+		funcs.add(obsMFD.get(0));
 		this.plottingFeaturesList.add(PLOT_CHAR7);
 		// historical cum dist
-		funcs.addAll(obsCumMFD);
+		funcs.addAll(obsMFD);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
@@ -530,7 +531,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	private void addToFuncList(IncrementalMagFreqDist mfd, String metadata, 
 			PlotCurveCharacterstics curveCharateristic) {
-		EvenlyDiscretizedFunc func = mfd.getCumRateDist();
+		EvenlyDiscretizedFunc func;
+		if(this.isCumulative) func = mfd.getCumRateDist();
+		else func = mfd;
 		func.setName(metadata);
 		funcs.add(func);
 		this.plottingFeaturesList.add(curveCharateristic);

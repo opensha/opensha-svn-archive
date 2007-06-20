@@ -289,7 +289,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	/**
 	 * This creates an NSHMP mag-freq distribution from their a-value, 
-	 * with an option to reduce rates above M 6.5 by a factor of three.
+	 * with an option to reduce rates at & above M 6.5 by a factor of three.
 	 * @param minMag
 	 * @param maxMag
 	 * @param aValue
@@ -303,9 +303,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, bValue);
 		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
 		
-//		apply bulge reduction above mag 6.5 if desired
-		if(applyBulgeReduction && mfd.getMaxX()>6.5) {	
-			for(int i=mfd.getXIndex(6.5) + 1; i<mfd.getNum(); ++i)
+//		apply bulge reduction at & above mag 6.5 if desired
+		if(applyBulgeReduction && mfd.getMaxX()>=6.5) {	
+			for(int i=mfd.getXIndex(6.5); i<mfd.getNum(); ++i)
 				mfd.set(i, mfd.getY(i)/3);
 		}
 		return mfd;
