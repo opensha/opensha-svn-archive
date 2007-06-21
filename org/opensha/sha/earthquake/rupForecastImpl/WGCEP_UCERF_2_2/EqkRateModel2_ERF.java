@@ -1454,9 +1454,6 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	}
 	
 	/**
-	 * This returns an ArrayList of EvenlyDiscretizedFunc that have incremental 
-	 * MFD for Karen Felzer's observed MFD and upper and lower confidence MFDs
-	 * (from Table 21 of Appendix_I_v03.pdf)
 	 * @return
 	 */
 	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
@@ -1465,15 +1462,16 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		for(int i=0; i<obsCumMFD.size(); ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
-			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_ERF.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_ERF.DELTA_MAG, EqkRateModel2_ERF.NUM_MAG);
+			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_ERF.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_ERF.DELTA_MAG, 24);
+//System.out.println("deltaMag="+arbIncrMFD.getDelta()+"  "+arbIncrMFD.getMinX()+"  "+arbIncrMFD.getMaxX());
 			arbIncrMFD.setCumRateDist(cumMFD);
 			ArbitrarilyDiscretizedFunc arbDiscFun = new ArbitrarilyDiscretizedFunc();
-			arbDiscFun.set(5.1, arbIncrMFD.getInterpolatedY(5.1));
-			arbDiscFun.set(5.5, arbIncrMFD.getInterpolatedY(5.5));
-			arbDiscFun.set(6.0, arbIncrMFD.getInterpolatedY(6.0));
-			arbDiscFun.set(6.5, arbIncrMFD.getInterpolatedY(6.5));
-			arbDiscFun.set(7.0, arbIncrMFD.getInterpolatedY(7.0));
-			arbDiscFun.set(7.4, arbIncrMFD.getInterpolatedY(7.4));
+			arbDiscFun.set(5.1, arbIncrMFD.getY(5.1));
+			arbDiscFun.set(5.5, arbIncrMFD.getY(5.5));
+			arbDiscFun.set(6.0, arbIncrMFD.getY(6.0));
+			arbDiscFun.set(6.5, arbIncrMFD.getY(6.5));
+			arbDiscFun.set(7.0, arbIncrMFD.getY(7.0));
+			arbDiscFun.set(7.4, arbIncrMFD.getY(7.4));
 			obsIncrMFDList.add(arbDiscFun);
 		}
 		return obsIncrMFDList;

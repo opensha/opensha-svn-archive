@@ -247,6 +247,15 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      */
     public double getInterpolatedY_inLogXLogYDomain(double x);
 
+    
+    /**
+     * This function interpolates the Y values in the log-Y space.
+     * The Y value returned is in the linear space.
+     * @param x : X value in the linear space corresponding to which we are required to find the interpolated
+     * y value in log space.
+     */
+    public double getInterpolatedY_inLogYDomain(double x);
+
     /**
      * Given the input y value, finds the two sequential
      * x values with the closest y values, then calculates an
