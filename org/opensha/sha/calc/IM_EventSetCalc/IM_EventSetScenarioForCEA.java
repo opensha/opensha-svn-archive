@@ -202,7 +202,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	  private void createIMTList(){
 		  imtSupported = new ArrayList();
 		  imtSupported.add(AttenuationRelationship.PGA_NAME);
-		  imtSupported.add(AttenuationRelationship.SA_NAME+" "+"0.2");
+		  imtSupported.add(AttenuationRelationship.SA_NAME+" "+"0.3");
 		  imtSupported.add(AttenuationRelationship.SA_NAME+" "+"1.0");
 	  }
 
