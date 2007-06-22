@@ -48,6 +48,8 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLACK, 1); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.GREEN, 5); // fractiles
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.RED, 5); // best fit MFD
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
@@ -182,8 +184,43 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		mfdIndex = 0;
 		doWeightedSum(0, 1.0);
 		
+		// mean MFD
+		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+			meanMfd.set(magIndex, rateWtFuncList.get(magIndex).getMean());
+		}
+		meanMfd.setInfo("Mean");
+		funcs.add(meanMfd);
+		plottingFeaturesList.add(this.PLOT_CHAR2);
+		//		 median MFD
+		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+			medianMfd.set(magIndex, rateWtFuncList.get(magIndex).getMean());
+		}
+		medianMfd.setInfo("Median");
+		funcs.add(medianMfd);
+		plottingFeaturesList.add(this.PLOT_CHAR2);
+		//		 97.5 percentile MFD
+		IncrementalMagFreqDist percentile97_5Mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+			percentile97_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.975));
+		}
+		percentile97_5Mfd.setInfo("97.5 percentile");
+		funcs.add(percentile97_5Mfd);
+		plottingFeaturesList.add(this.PLOT_CHAR2);
+		//		 2.5 percentile MFD
+		IncrementalMagFreqDist percentile2_5Mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+			percentile2_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.025));
+		}
+		percentile2_5Mfd.setInfo("2.5 percentile");
+		funcs.add(percentile2_5Mfd);
+		plottingFeaturesList.add(this.PLOT_CHAR2);
+		
+		
+		
 		// Karen's observed data
-		 EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
+		EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
 		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
 		
 		ArrayList obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);		
@@ -194,6 +231,8 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
+		
+		
 		
 		GraphWindow graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel("Mag Freq Dist");
