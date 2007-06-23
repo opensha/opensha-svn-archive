@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -49,9 +50,12 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLACK, 1); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 5); // fractiles
+		      Color.GREEN, 2); // median, 2.5%, 97.5%
+	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.BLUE, 2); // mean
+	
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 5); // best fit MFD
+		      Color.RED, 2); // best fit MFD
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      Color.RED, 5); // observed MFD
 
@@ -191,7 +195,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		}
 		meanMfd.setInfo("Mean");
 		funcs.add(meanMfd);
-		plottingFeaturesList.add(this.PLOT_CHAR2);
+		plottingFeaturesList.add(this.PLOT_CHAR3);
 		//		 median MFD
 		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
@@ -231,8 +235,8 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
 		this.plottingFeaturesList.add(PLOT_CHAR8);
-		
-		
+		Collections.reverse(funcs);
+		Collections.reverse(plottingFeaturesList);
 		
 		GraphWindow graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel("Mag Freq Dist");

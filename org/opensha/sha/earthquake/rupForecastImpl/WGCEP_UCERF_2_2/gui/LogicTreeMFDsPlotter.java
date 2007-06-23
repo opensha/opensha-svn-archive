@@ -5,15 +5,22 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -46,6 +53,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String B_FAULTS_GR_MFD_FILENAME = PATH+"B_FaultsGR_MFDs.txt";
 	private final static String TOT_MFD_FILENAME = PATH+"TotMFDs.txt";
 	private final static String NSHMP_02_MFD_FILENAME = PATH+"NSHMP02_MFDs.txt";
+	private final static String METADATA_EXCEL_SHEET = PATH+"Metadata.xls";
 	
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
@@ -105,7 +113,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	private boolean isCumulative;
-	
+	private double  obs6_5CumRate;
+	private HSSFSheet excelSheet;
+	ArrayList<String> adjustableParamNames;
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
@@ -119,13 +129,40 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
+		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
+		obs6_5CumRate = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks).get(0).getY(6.5);
 		if(reCalculate) {
+			HSSFWorkbook wb  = new HSSFWorkbook();
+			excelSheet = wb.createSheet();
+			HSSFRow row;
+			ParameterList adjustableParams = eqkRateModel2ERF.getAdjustableParameterList();
+			Iterator it = adjustableParams.getParametersIterator();
+			adjustableParamNames = new ArrayList<String>();
+			 while(it.hasNext()) {
+				 ParameterAPI param = (ParameterAPI)it.next();
+				 adjustableParamNames.add(param.getName());
+			 }
+			// add row for each parameter name. Also add a initial blank row for writing figure names
+			for(int i=0; i<=adjustableParamNames.size(); ++i) {
+				row = excelSheet.createRow(i); 
+				if(i>0) row.createCell((short)0).setCellValue(adjustableParamNames.get(i-1));
+			}
+			// add a row for predicted and observed ratio
+			excelSheet.createRow(adjustableParams.size()+1).createCell((short)0).setCellValue("M 6.5 pred/obs");
 			calcMFDs(0);
 			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
 			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
 			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
 			saveMFDsToFile(TOT_MFD_FILENAME, this.totMFDsList);
 			saveMFDToFile(NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
+			// write metadata excel sheet
+			try {
+				FileOutputStream fileOut = new FileOutputStream(METADATA_EXCEL_SHEET);
+				wb.write(fileOut);
+				fileOut.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
 		}  else {
 			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
 			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
@@ -306,7 +343,16 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultCharMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsCharMFD());
 				bFaultGRMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsGR_MFD());
 				totMFDsList.add(eqkRateModel2ERF.getTotalMFD());
-				
+				short colIndex = (short)totMFDsList.size();
+				// write to excel sheet
+				this.excelSheet.getRow(0).createCell((short)colIndex).setCellValue("Plot "+colIndex);
+				ParameterList paramList = eqkRateModel2ERF.getAdjustableParameterList();
+				for(int p=0; p<this.adjustableParamNames.size(); ++p) {
+					String pName = adjustableParamNames.get(p);
+					if(paramList.containsParameter(pName))
+						this.excelSheet.getRow(p+1).createCell((short)colIndex).setCellValue(paramList.getValue(pName).toString());
+				}
+				this.excelSheet.getRow(adjustableParamNames.size()+1).createCell((short)colIndex).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
 			} else { // recurrsion 
 				calcMFDs(paramIndex+1);
 			}
