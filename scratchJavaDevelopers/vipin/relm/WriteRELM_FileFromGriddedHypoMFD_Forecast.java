@@ -286,7 +286,8 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	   eqkRupForecast.setParameter(WGCEP_UCERF1_EqkRupForecast.TIME_DEPENDENT_PARAM_NAME,
 	                               new Boolean(true));
 	   eqkRupForeast.getTimeSpan().setDuration(5.0);*/
-	   EqkRateModel2_ERF eqkRupForecast = new EqkRateModel2_ERF();
+	   
+	  EqkRateModel2_ERF eqkRupForecast = new EqkRateModel2_ERF();
 	   eqkRupForecast.getTimeSpan().setDuration(5.0);
 	   eqkRupForecast.updateForecast();
 	   // min mag, maxMag, These are Centers of first and last bin
