@@ -142,14 +142,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				 ParameterAPI param = (ParameterAPI)it.next();
 				 adjustableParamNames.add(param.getName());
 			 }
-			// add row for each parameter name. Also add a initial blank row for writing figure names
-			for(int i=0; i<=adjustableParamNames.size(); ++i) {
-				row = excelSheet.createRow(i); 
-				if(i>0) row.createCell((short)0).setCellValue(adjustableParamNames.get(i-1));
+			// add column for each parameter name. Also add a initial blank row for writing figure names
+			 row = excelSheet.createRow(0); 
+			 for(int i=1; i<=adjustableParamNames.size(); ++i) {
+				if(i>0) row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
 			}
 			// add a row for predicted and observed ratio
-			excelSheet.createRow(adjustableParams.size()+1).createCell((short)0).setCellValue("M 6.5 pred/obs");
-			calcMFDs(0);
+			row.createCell((short)(adjustableParams.size()+1)).setCellValue("M 6.5 pred/obs");
+			row.createCell((short)(adjustableParams.size()+2)).setCellValue("Weight");
+			calcMFDs(0, 1.0);
 			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
 			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
 			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
@@ -304,6 +305,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		options.addValueWeight(new Boolean(true), 0.5);
 		options.addValueWeight(new Boolean(false), 0.5);
 		paramValues.add(options);
+		
+		// C-zone weights
+		paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.0), 0.5);
+		options.addValueWeight(new Double(1.0), 0.5);
+		paramValues.add(options);
 	}
 	
 	
@@ -328,7 +336,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param paramIndex
 	 * @param weight
 	 */
-	private void calcMFDs(int paramIndex) {
+	private void calcMFDs(int paramIndex, double weight) {
 		
 		ParamOptions options = paramValues.get(paramIndex);
 		String paramName = paramNames.get(paramIndex);
@@ -336,6 +344,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		for(int i=0; i<numValues; ++i) {
 			if(eqkRateModel2ERF.getAdjustableParameterList().containsParameter(paramName))
 				eqkRateModel2ERF.getParameter(paramName).setValue(options.getValue(i));
+			double newWt = weight * options.getWeight(i);
 			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save the MFDs
 				System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
 				eqkRateModel2ERF.updateForecast();
@@ -344,17 +353,19 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultGRMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsGR_MFD());
 				totMFDsList.add(eqkRateModel2ERF.getTotalMFD());
 				short colIndex = (short)totMFDsList.size();
+				HSSFRow row = this.excelSheet.createRow(colIndex);
 				// write to excel sheet
-				this.excelSheet.getRow(0).createCell((short)colIndex).setCellValue("Plot "+colIndex);
+				row.createCell((short)0).setCellValue("Plot "+colIndex);
 				ParameterList paramList = eqkRateModel2ERF.getAdjustableParameterList();
 				for(int p=0; p<this.adjustableParamNames.size(); ++p) {
 					String pName = adjustableParamNames.get(p);
 					if(paramList.containsParameter(pName))
-						this.excelSheet.getRow(p+1).createCell((short)colIndex).setCellValue(paramList.getValue(pName).toString());
+						row.createCell((short)(p+1)).setCellValue(paramList.getValue(pName).toString());
 				}
-				this.excelSheet.getRow(adjustableParamNames.size()+1).createCell((short)colIndex).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
-			} else { // recurrsion 
-				calcMFDs(paramIndex+1);
+				row.createCell((short)(adjustableParamNames.size()+1)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
+				row.createCell((short)(adjustableParamNames.size()+2)).setCellValue(newWt);
+			} else { // recursion 
+				calcMFDs(paramIndex+1, newWt);
 			}
 		}
 	}
@@ -414,6 +425,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values.add(new Boolean(true));
 		values.add(new Boolean(false));
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
+		
+//		 C-zone weights
+		/*paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		values = new ArrayList();
+		values.add(new Double(0.0));
+		values.add(new Double(1.0));
+		plotMFDs(paramName, values, false, false, true, false, false); */
 		
 		plotBackgroundEffectsMFDs();
 
