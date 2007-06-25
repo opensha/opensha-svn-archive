@@ -89,7 +89,7 @@ public class CyberShakePlotFromDBControlPanel
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   
   //Database connection 
-  private static String HOST_NAME = "intensity.usc.edu";
+  private static String HOST_NAME = "surface.usc.edu";
   private static String DATABASE_NAME = "CyberShake";
   private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
   
@@ -219,6 +219,7 @@ public class CyberShakePlotFromDBControlPanel
     ArrayList<String> saPeriods = hazCurve.getSupportedSA_PeriodStrings();
     saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
         saPeriods,saPeriods.get(0));
+    saPeriodParam.addParameterChangeListener(this);
   }
 
 
@@ -243,7 +244,12 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void initSrcIndexParam(){
     ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite);
+    int size = srcIdList.size();
+    for(int i=0;i<size;++i)
+    	srcIdList.set(i, ""+srcIdList.get(i));
+    
     srcIndexParam = new StringParameter(SRC_INDEX_PARAM,srcIdList,(String)srcIdList.get(0));
+    srcIndexParam.addParameterChangeListener(this);
   }
 
   /**
@@ -252,7 +258,11 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void initRupIndexParam(){
 	 ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite, selectedSrcId);
+	 int size = rupIdList.size();
+	 for(int i=0;i<size;++i)
+	     rupIdList.set(i, ""+rupIdList.get(i));
 	 rupIndexParam = new StringParameter(RUP_INDEX_PARAM,rupIdList,(String)rupIdList.get(0));   
+	 rupIndexParam.addParameterChangeListener(this);
   }
 
   /**
@@ -278,8 +288,10 @@ public class CyberShakePlotFromDBControlPanel
     }
     else if(paramName.equals(this.RUP_INDEX_PARAM))
     	selectedRupId = Integer.parseInt((String)this.rupIndexParam.getValue());
-    else if(paramName.equals(SA_PERIOD_SELECTOR_PARAM))
+    else if(paramName.equals(SA_PERIOD_SELECTOR_PARAM)){
     	saPeriod = (String)saPeriodParam.getValue();
+    	System.out.println("SA Period = "+saPeriod);
+    }
     else if(paramName.equals(DETER_PROB_SELECTOR_PARAM))
       this.makeParamVisible();
 
@@ -339,19 +351,15 @@ public class CyberShakePlotFromDBControlPanel
    * @param actionEvent ActionEvent
    */
   private void submitButton_actionPerformed(ActionEvent actionEvent) {
-    String cyberShakeSite = (String)siteSelectionParam.getValue();
-    String saPeriod = (String)saPeriodParam.getValue();
-    String srcIndex = (String)srcIndexParam.getValue();
-    Integer rupIndex = (Integer)rupIndexParam.getValue();
     ArrayList imlVals = application.getIML_Values();
     DiscretizedFuncAPI curveData = null;
 
     if(isDeterministic){
       curveData = getDeterministicData(imlVals);
       String name = "Cybershake deterministic curve";
-      String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
-          "; SA-Period = "+(String)saPeriodParam.getValue()+"; SourceIndex = "+(String)srcIndexParam.getValue()+
-          "; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
+      String infoString = "Site = "+ selectedSite+
+          "; SA-Period = "+saPeriod+"; SourceIndex = "+selectedSrcId+
+          "; RuptureIndex = "+selectedRupId;
       curveData.setName(name);
       curveData.setInfo(infoString);
       application.addCybershakeCurveData(curveData);
@@ -359,8 +367,8 @@ public class CyberShakePlotFromDBControlPanel
     else{
       curveData = this.getHazardData(imlVals);
       String name = "Cybershake hazard curve";
-      String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
-          "; SA-Period = "+(String)saPeriodParam.getValue();
+      String infoString = "Site = "+ selectedSite+
+          "; SA-Period = "+saPeriod;
       curveData.setName(name);
       curveData.setInfo(infoString);
       application.addCybershakeCurveData(curveData);
@@ -439,9 +447,9 @@ public class CyberShakePlotFromDBControlPanel
     }
     String srcIndex = (String)srcIndexParam.getValue();
     int srcNum = Integer.parseInt(srcIndex.trim());
-    Integer rupIndex = (Integer)rupIndexParam.getValue();
+    String rupIndex = (String)rupIndexParam.getValue();
     rupGuiBean.setSourceFromSelectedERF(srcNum);
-    rupGuiBean.setRuptureForSelectedSource(rupIndex.intValue());
+    rupGuiBean.setRuptureForSelectedSource(Integer.parseInt(rupIndex));
     rupGuiBean.showAllParamsForForecast(true);
   }
 
@@ -453,15 +461,14 @@ public class CyberShakePlotFromDBControlPanel
     IMT_GuiBean imtGui = application.getIMTGuiBeanInstance();
     DecimalFormat format = new DecimalFormat("0.00");
     imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
-    String saPeriodString = (String)saPeriodParam.getValue();
-    saPeriodString = saPeriodString.substring(3);
-    double saPeriod = Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
+    String saPeriodString = saPeriod.substring(10);//trimming the "SA Period" string in front of the Period value 
+    double saPeriodVal = Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
     DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
     ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
     int size = allowedVals.size();
     double minSaVal = ((Double)allowedVals.get(0)).doubleValue();
     double maxSaVal = ((Double)allowedVals.get(size -1)).doubleValue();
-    if ( (saPeriod < minSaVal) || (saPeriod > maxSaVal)) {
+    if ( (saPeriodVal < minSaVal) || (saPeriodVal > maxSaVal)) {
       JOptionPane.showMessageDialog(this,
                                     "This attenuation does not support the SA Period\n " +
                                     "selected in cybershake control panel. Either choose a \n different Attenuation " +
@@ -472,8 +479,8 @@ public class CyberShakePlotFromDBControlPanel
       for (int i = 0; i < size-1; ++i) {
         double saVal_first = Double.parseDouble(format.format(((Double)allowedVals.get(i)).doubleValue()));
         double saVal_second = Double.parseDouble(format.format(((Double)allowedVals.get(i+1)).doubleValue()));
-        if(saPeriod >= saVal_first && saPeriod <= saVal_second){
-          if((saPeriod - saVal_first) <= (saVal_second - saPeriod))
+        if(saPeriodVal >= saVal_first && saPeriodVal <= saVal_second){
+          if((saPeriodVal - saVal_first) <= (saVal_second - saPeriodVal))
             imtGui.getParameterEditor("SA Period").setValue((Double)allowedVals.get(i));
           else
             imtGui.getParameterEditor("SA Period").setValue((Double)allowedVals.get(i+1));

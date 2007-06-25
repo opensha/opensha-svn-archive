@@ -134,7 +134,7 @@ public class CybershakeSiteInfo2DB {
 	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 	        ProbEqkRupture rupture = source.getRupture(rupIndex);
 
-	        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+	        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
 
 	        //getting the iterator for all points on the rupture
 	        ListIterator it = rupSurface.getAllByRowsIterator();

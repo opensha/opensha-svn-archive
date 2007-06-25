@@ -77,7 +77,7 @@ public class HazardCurveComputation {
 	 * @param imType
 	 */
 	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,String imType){
-		
+		System.out.println("imType = "+imType);
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		int siteId = siteDB.getSiteId(site);
@@ -99,7 +99,7 @@ public class HazardCurveComputation {
 				for(int i=0;i<size;++i){
 					int rupVarId =  rupVariations.get(i);
 					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, srcId, rupId, rupVarId, imType);
-					function.set(imVal,1);
+					function.set(imVal/980,1);
 				}
 				setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 			}

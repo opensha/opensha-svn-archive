@@ -7,15 +7,36 @@ import java.sql.SQLException;
 public class TestDBConnect {
 
 	public static void main(String[] args) {
-		DBAccess dbc = new DBAccess("intensity.usc.edu","CyberShake");
-		ResultSet rs = dbc.selectData("SHOW TABLES");
+		DBAccess dbc = new DBAccess("surface.usc.edu","CyberShake");
+		ResultSet rs = null;
+		try {
+			rs = dbc.selectData("SHOW TABLES");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		//dbc.deleteOrUpdateData("Delete from ERF_Metadata");
-		//dbc.deleteOrUpdateData("Delete from CyberShake_Site_Ruptures");
-		//dbc.deleteOrUpdateData("Delete from CyberShake_Site_Regions");
+		//try {
+		//	dbc.insertUpdateOrDeleteData("Delete from CyberShake_Site_Ruptures");
+		//} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		//}
+		//try {
+			//dbc.insertUpdateOrDeleteData("Delete from CyberShake_Site_Regions");
+		//} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		//}
 		//dbc.deleteOrUpdateData("Delete from Ruptures");
 		//dbc.deleteOrUpdateData("Delete from Points");	
-		//dbc.deleteOrUpdateData("Delete from CyberShake_Sites");
+		try {
+			dbc.insertUpdateOrDeleteData("Delete from CyberShake_Sites");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		//dbc.deleteOrUpdateData("Delete from ERF_IDs");
 		try {
 			System.out.println(rs.getMetaData().getColumnCount());
@@ -24,6 +45,7 @@ public class TestDBConnect {
 				System.out.println(rs.getString(1));
 				rs.next();
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

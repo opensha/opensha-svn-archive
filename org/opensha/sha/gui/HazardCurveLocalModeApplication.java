@@ -40,7 +40,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  //public final static String STEP_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
@@ -118,7 +118,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
       erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
       erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-      erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+      //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
       erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
       erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
       erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
@@ -178,7 +178,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
-      erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+      //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
       erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
       erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
       erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);

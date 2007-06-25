@@ -21,14 +21,21 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		String sql = "SELECT IM_Type from PeakAmplitudes group by IM_Type";
 		
 		ArrayList<String> saPeriodList = new ArrayList<String>();
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  String saPeriod = rs.getString(0);	
+			  String saPeriod = rs.getString("IM_Type");	
 			  saPeriodList.add(saPeriod);
 			  rs.next();
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -47,14 +54,21 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		             "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'";
 		
 		ArrayList<Integer> rupVariationList = new ArrayList<Integer>();
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  String rupVariation = rs.getString(0);	
+			  String rupVariation = rs.getString("Rup_Var_ID");	
 			  rupVariationList.add(Integer.parseInt(rupVariation));
 			  rs.next();
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -76,10 +90,17 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
         "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"'";
 		
 		double imVal = Double.NaN;
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			rs.first();
-			imVal = Double.parseDouble(rs.getString(0));	
+			imVal = Double.parseDouble(rs.getString("IM_Value"));	
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

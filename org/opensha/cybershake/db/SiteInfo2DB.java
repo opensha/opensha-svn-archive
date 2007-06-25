@@ -32,8 +32,12 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		             "(CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon)"+
 		             "VALUES('"+siteName+"','"+siteShortName+"','"+
 		(float)lat+"','"+(float)lon+"')";
-		dbaccess.insertData(sql);
-		
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		return getSiteId(siteShortName);
 		
 	}
@@ -46,10 +50,19 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	public int getSiteId(String cybershakeShortSiteName){
 //		 gets the last auto increment id from Sites table
 		 String sql = "SELECT CS_Site_ID from CyberShake_Sites where CS_Short_Name = "+"'"+cybershakeShortSiteName+"'";
-		 ResultSet rs =  dbaccess.selectData(sql);
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 			try {
 				rs.first();
-				return Integer.parseInt(rs.getString("CS_Site_ID"));
+				String siteID = rs.getString("CS_Site_ID");
+				rs.close();;
+				return Integer.parseInt(siteID);
+				
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -66,10 +79,18 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 //		 gets the last auto increment id from Sites table
 		 String sql = "SELECT CS_Site_ID from CyberShake_Sites where CS_Site_Lat = "+"'"+(float)lat+"' and "+
 		              "CS_Site_Lon = "+"'"+(float)lon+"'";
-		 ResultSet rs =  dbaccess.selectData(sql);
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 			try {
 				rs.first();
-				return Integer.parseInt(rs.getString(0));
+				String siteID = rs.getString("CS_Site_ID");
+				rs.close();
+				return Integer.parseInt(siteID);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -105,8 +126,12 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		(float)cutOffDistance+"','"+(float)maxLat+"','"+maxLatSrcId+"','"+maxLatRupId+"','"+(float)maxLon+"','"+
 		maxLatSrcId+"','"+maxLonRupId+"','"+(float)minLat+"','"+minLatSrcId+"','"+minLatRupId+"','"+
 		(float)minLon+"','"+minLonSrcId+"','"+minLonRupId+"')";
-		dbaccess.insertData(sql);
-
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -123,8 +148,12 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 //		generate the SQL to be inserted in the Sites table
 		String sql = "INSERT into CyberShake_Site_Ruptures VALUES('"+siteId+"','"+erfId+"','"+
 		sourceId+"','"+ruptureId+"','"+cutOffDistance+"')";
-		dbaccess.insertData(sql);
-
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -135,16 +164,23 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 //		 gets the last auto increment id from Sites table
 		 String sql = "SELECT CS_Site_Lat,CS_Site_Lon from CyberShake_Sites";
 		 LocationList siteLocationList = new LocationList();
-		 ResultSet rs =  dbaccess.selectData(sql);
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 			try {
 				rs.first();
 				while(!rs.isAfterLast()){
-				  double lat = Double.parseDouble(rs.getString(0));	
-				  double lon = Double.parseDouble(rs.getString(1));
+				  double lat = Double.parseDouble(rs.getString("CS_Site_Lat"));	
+				  double lon = Double.parseDouble(rs.getString("CS_Site_Lon"));
 				  Location loc = new Location(lat,lon);
 				  siteLocationList.addLocation(loc);
 				  rs.next();
 				}
+				rs.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -156,17 +192,24 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * 
 	 * @returns the ArrayList of short site names for all Cybershake
 	 */
-	public ArrayList getAllSites() {	
+	public ArrayList<String> getAllSites() {	
 //		 gets the last auto increment id from Sites table
 		 String sql = "SELECT CS_Short_Name from CyberShake_Sites";
 		 ArrayList<String> siteList = new ArrayList<String>();
-		 ResultSet rs =  dbaccess.selectData(sql);
+		 ResultSet rs =null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 			try {
 				rs.first();
 				while(!rs.isAfterLast()){
-				  siteList.add(rs.getString(0));
+				  siteList.add(rs.getString("CS_Short_Name"));
 				  rs.next();
 				}
+				rs.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -186,14 +229,21 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"'"+
 		             " and Source_ID ='"+srcId+"' order by Rupture_ID asc";
 		ArrayList<Integer> rupList = new ArrayList<Integer>();
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  int rupId = Integer.parseInt(rs.getString(0));	
+			  int rupId = Integer.parseInt(rs.getString("Rupture_ID"));	
 			  rupList.add(rupId);
 			  rs.next();
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -209,16 +259,23 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		// TODO Auto-generated method stub
 		int siteId = this.getSiteId(siteShortName);
 		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"'"+
-		             " order by Source_ID asc";
+		             " group by Source_ID order by Source_ID asc";
 		ArrayList<Integer> srcIdList = new ArrayList<Integer>();
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  int srcId = Integer.parseInt(rs.getString(0));	
+			  int srcId = Integer.parseInt(rs.getString("Source_ID"));	
 			  srcIdList.add(srcId);
 			  rs.next();
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -233,12 +290,19 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	public Location getLocationForSite(String site){
 		 String sql = "SELECT CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Short_Name = '"+site+"'";
 		 Location loc = null;
-		 ResultSet rs =  dbaccess.selectData(sql);
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 			try {
 				rs.first();
-				double lat = Double.parseDouble(rs.getString(0));	
-				double lon = Double.parseDouble(rs.getString(1));
+				double lat = Double.parseDouble(rs.getString("CS_Site_Lat"));	
+				double lon = Double.parseDouble(rs.getString("CS_Site_Lon"));
 				loc = new Location(lat,lon);
+				rs.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

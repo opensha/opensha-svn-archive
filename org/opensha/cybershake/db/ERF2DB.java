@@ -26,7 +26,12 @@ public class ERF2DB implements ERF2DBAPI{
 		    "(ERF_ID,ERF_Attr_Name,ERF_Attr_Value,ERF_Attr_Type,ERF_Attr_Units)"+
 			"VALUES('"+erfId+"','"+attrName+"','"+
 		             attrVal+"','"+attrType+"','"+attrUnits+"')";
-		dbaccess.insertData(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -61,7 +66,12 @@ public class ERF2DB implements ERF2DBAPI{
 		             (float)probability+"','"+(float)gridSpacing+"','"+numRows+"','"+numCols+
 		             "','"+numPoints+"','"+(float)surfaceStartLat+"','"+(float)surfaceStartLon+"','"+(float)surfaceStartDepth+
 		             "','"+(float)surfaceEndLat+"','"+(float)surfaceEndLon+"','"+(float)surfaceEndDepth+"')";
-		dbaccess.insertData(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -86,7 +96,12 @@ public class ERF2DB implements ERF2DBAPI{
 		            "VALUES('"+erfId+"','"+sourceId+"','"+
 		             ruptureId+"','"+(float)lat+"','"+(float)lon+"','"+(float)depth+"','"+
 		             (float)rake+"','"+(float)dip+"','"+(float)strike+"')";
-		dbaccess.insertData(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -102,8 +117,12 @@ public class ERF2DB implements ERF2DBAPI{
 		String sql = "INSERT into ERF_IDs"+ 
 		             "(ERF_Name,ERF_Description)"+
 		              "VALUES('"+erfName+"','"+erfDesc+"')";
-		dbaccess.insertData(sql);
-		
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		return getInserted_ERF_ID(erfName);
 		
 	}
@@ -115,10 +134,17 @@ public class ERF2DB implements ERF2DBAPI{
 	 */
 	public int getInserted_ERF_ID(String erfName){
 		 String sql = "SELECT ERF_ID from ERF_IDs WHERE ERF_Name = "+"'"+erfName+"'";
-		 ResultSet rs =  dbaccess.selectData(sql);		 
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}		 
 			try {
 				rs.first();
 				String erfId = rs.getString("ERF_ID");
+				rs.close();
 				return Integer.parseInt(erfId);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -132,15 +158,23 @@ public class ERF2DB implements ERF2DBAPI{
 	 * @param sourceId
 	 * @param rupId
 	 * @return
+	 * @throws SQLException 
 	 */
-	public double getRuptureProb(int erfId,int sourceId,int rupId){
+	public double getRuptureProb(int erfId,int sourceId,int rupId) {
 		String sql = "SELECT Prob from Ruptures WHERE ERF_ID = "+"'"+erfId+"' and "+
 		             "Source_ID = '"+sourceId+"' and Rupture_ID = '"+rupId+"'";
-		ResultSet rs =  dbaccess.selectData(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		double rupProb = Double.NaN;
 		try{
 			rs.first();
-			rupProb = Double.parseDouble(rs.getString(0));
+			rupProb = Double.parseDouble(rs.getString("Prob"));
+			rs.close();
 			
 		}catch (SQLException e) {
 			e.printStackTrace();

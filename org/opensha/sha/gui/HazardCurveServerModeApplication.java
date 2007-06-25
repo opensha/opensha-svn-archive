@@ -32,6 +32,7 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanelAPI;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
@@ -197,7 +198,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
   protected PlottingOptionControl plotOptionControl;
   protected XY_ValuesControlPanel xyPlotControl;
-  protected CyberShakePlotControlPanel cyberControlPanel;
+  protected CyberShakePlotFromDBControlPanel cyberControlPanel;
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -1831,7 +1832,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   private void initCyberShakeDeterministicControlPanel(){
     if(cyberControlPanel == null)
-      cyberControlPanel = new CyberShakePlotControlPanel(this);
+      cyberControlPanel = new CyberShakePlotFromDBControlPanel(this);
     cyberControlPanel.setVisible(true);
   }
 
