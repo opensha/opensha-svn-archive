@@ -27,6 +27,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -591,15 +592,20 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
 		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
-			EvenlyDiscretizedFunc nshmpMFD;
-			if(this.isCumulative) nshmpMFD = nshmp02TotMFD.getCumRateDist();
-			else nshmpMFD = nshmp02TotMFD;
+			EvenlyDiscretizedFunc nshmpCumMFD = nshmp02TotMFD.getCumRateDist();
+			
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
-			for(int i=0; i<nshmpMFD.getNum(); i=i+2)
-				resampledNSHMP_MFD.set(nshmpMFD.getX(i), nshmpMFD.getY(i));
+			for(int i=0; i<nshmpCumMFD.getNum(); i=i+2)
+				resampledNSHMP_MFD.set(nshmpCumMFD.getX(i), nshmpCumMFD.getY(i));
 			
 			resampledNSHMP_MFD.setName("NSHMP-2002 Total MFD");
-			funcs.add(resampledNSHMP_MFD);
+			if(this.isCumulative) {
+				funcs.add(resampledNSHMP_MFD);
+			} else {
+				ArbIncrementalMagFreqDist nshmpIncrMFD = new ArbIncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG+EqkRateModel2_ERF.DELTA_MAG/2, EqkRateModel2_ERF.MAX_MAG-EqkRateModel2_ERF.DELTA_MAG/2,EqkRateModel2_ERF. NUM_MAG-1);
+				nshmpIncrMFD.setCumRateDist(resampledNSHMP_MFD);
+				funcs.add(nshmpIncrMFD);
+			}
 			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
 //		 Karen's observed data
