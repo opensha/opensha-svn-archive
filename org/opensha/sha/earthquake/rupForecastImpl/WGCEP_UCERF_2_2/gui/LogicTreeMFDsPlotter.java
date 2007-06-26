@@ -50,13 +50,17 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
-	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/";
-	private final static String A_FAULTS_MFD_FILENAME = PATH+"A_Faults_MFDs.txt";
-	private final static String B_FAULTS_CHAR_MFD_FILENAME = PATH+"B_FaultsCharMFDs.txt";
-	private final static String B_FAULTS_GR_MFD_FILENAME = PATH+"B_FaultsGR_MFDs.txt";
-	private final static String TOT_MFD_FILENAME = PATH+"TotMFDs.txt";
-	private final static String NSHMP_02_MFD_FILENAME = PATH+"NSHMP02_MFDs.txt";
-	private final static String METADATA_EXCEL_SHEET = PATH+"Metadata.xls";
+	private final static String DEFAULT_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/";
+	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/BackGrdFrac0_1/";
+	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/logicTreeMFDs/BFault_BVal0/";
+	
+	private final static String A_FAULTS_MFD_FILENAME = DEFAULT_PATH+"A_Faults_MFDs.txt";
+	private final static String B_FAULTS_CHAR_MFD_FILENAME = DEFAULT_PATH+"B_FaultsCharMFDs.txt";
+	private final static String B_FAULTS_GR_MFD_FILENAME = DEFAULT_PATH+"B_FaultsGR_MFDs.txt";
+	private final static String TOT_MFD_FILENAME = DEFAULT_PATH+"TotMFDs.txt";
+	private final static String NSHMP_02_MFD_FILENAME = DEFAULT_PATH+"NSHMP02_MFDs.txt";
+	private final static String METADATA_EXCEL_SHEET = DEFAULT_PATH+"Metadata.xls";
+	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
 	
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
@@ -305,7 +309,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramNames.add(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
-		options.addValueWeight(new Double(1e7), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
 		// Mag Correction
@@ -359,8 +363,19 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		String paramName = paramNames.get(paramIndex);
 		int numValues = options.getNumValues();
 		for(int i=0; i<numValues; ++i) {
-			if(eqkRateModel2ERF.getAdjustableParameterList().containsParameter(paramName))
-				eqkRateModel2ERF.getParameter(paramName).setValue(options.getValue(i));
+			if(eqkRateModel2ERF.getAdjustableParameterList().containsParameter(paramName)) {
+				eqkRateModel2ERF.getParameter(paramName).setValue(options.getValue(i));	
+				if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME)) {
+					ParameterAPI param = eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
+					if(((Double)param.getValue()).doubleValue()==1e10) {
+						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
+						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
+					} else {
+						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_DEFAULT);
+						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_DEFAULT);	
+					}
+				}
+			}
 			double newWt = weight * options.getWeight(i);
 			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save the MFDs
 				System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
@@ -441,7 +456,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramName = EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(1e-4));
-		values.add(new Double(1e7));
+		values.add(new Double(1e10));
 		plotMFDs(paramName, values, true, false, false, false, false); // plot A-faults  only
 		
 		
@@ -467,7 +482,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(paramName, values, false, false, true, false, false); */
 		
 		plotBackgroundEffectsMFDs();
+		
+//		B-faults b-values
+		paramName = EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME;
+		values = new ArrayList();
+		values.add(new Double(0.0));
+		//plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 
+//		fraction MoRate to Background
+		paramName = EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME;
+		values = new ArrayList();
+		values.add(new Double(0.1));
+		//plotMFDs(paramName, values, true, true, false, false, false); // plot A & B-faults
 	
 	}
 	
@@ -543,7 +569,20 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			SummedMagFreqDist bFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 			SummedMagFreqDist totMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 			mfdIndex = 0;
-			doWeightedSum(0, paramName, values.get(i), 1.0, aFaultMFD, bFaultCharMFD, bFaultGRMFD, totMFD);
+			
+			if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
+				ArrayList<SummedMagFreqDist> mfds = null;//this.getMFDsWhenBckFrac0_1();
+				aFaultMFD = mfds.get(0);
+				bFaultCharMFD = mfds.get(1);
+				bFaultGRMFD = mfds.get(2);
+				totMFD = mfds.get(3);
+			} else if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME)) {
+				ArrayList<SummedMagFreqDist> mfds = null;//getMFDsWhenBVal0();
+				aFaultMFD = mfds.get(0);
+				bFaultCharMFD = mfds.get(1);
+				bFaultGRMFD = mfds.get(2);
+				totMFD = mfds.get(3);
+			} else doWeightedSum(0, paramName, values.get(i), 1.0, aFaultMFD, bFaultCharMFD, bFaultGRMFD, totMFD);
 			
 			
 			if(i==0) {
@@ -689,6 +728,30 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			}
 		}
 	}
+	
+	
+	/**
+	 * Return the MFDs for A-Faults, B-Char, B-GR and Total when B-Fault b-value=0
+	 * @return
+	 */
+	private ArrayList<IncrementalMagFreqDist> getMFDsWhenBVal0() {
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		readMFDsFromFile(BFAULT_BVAL_PATH+ COMBINED_AVG_FILENAME, mfdList, false);
+		return mfdList;
+	}
+	
+	/**
+	 * Return the MFDs for A-Faults, B-Char, B-GR and Total when 
+	 * Fraction MoRate to Bck = 0.1
+	 * @return
+	 */
+	private ArrayList<IncrementalMagFreqDist> getMFDsWhenBckFrac0_1() {
+		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+		readMFDsFromFile(BCK_FRAC_PATH+ COMBINED_AVG_FILENAME, mfdList, false);
+		return mfdList;
+	}
+	
+	
 	
 	/**
 	 * Add source MFD to Target MFD after applying the  weight

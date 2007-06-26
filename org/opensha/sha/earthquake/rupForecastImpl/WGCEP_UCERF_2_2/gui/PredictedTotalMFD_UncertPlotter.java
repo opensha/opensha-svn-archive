@@ -199,7 +199,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		//		 median MFD
 		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
-			medianMfd.set(magIndex, rateWtFuncList.get(magIndex).getMean());
+			medianMfd.set(magIndex, rateWtFuncList.get(magIndex).getMedian());
 		}
 		medianMfd.setInfo("Median");
 		funcs.add(medianMfd);
