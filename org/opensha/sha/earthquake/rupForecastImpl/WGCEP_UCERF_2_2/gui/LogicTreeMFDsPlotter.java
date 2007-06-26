@@ -40,7 +40,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	private final static String X_AXIS_LABEL = "Magnitude";
-	private final static String Y_AXIS_LABEL = "Cumulative Rate (per year)";
+	private final static String CUM_Y_AXIS_LABEL = "Cumulative Rate (per year)";
+	private final static String INCR_Y_AXIS_LABEL = "Incremental Rate (per year)";
+	
 	
 //	 Eqk Rate Model 2 ERF
 	private EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
@@ -147,9 +149,23 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			 for(int i=1; i<=adjustableParamNames.size(); ++i) {
 				if(i>0) row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
 			}
+			int colNum = adjustableParams.size()+1;
 			// add a row for predicted and observed ratio
-			row.createCell((short)(adjustableParams.size()+1)).setCellValue("M 6.5 pred/obs");
-			row.createCell((short)(adjustableParams.size()+2)).setCellValue("Weight");
+			row.createCell((short)(colNum)).setCellValue("M 6.5 pred/obs");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("Weight");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("A-Fault MoRate");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("B-Faults Char MoRate");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("B-Faults GR Mo Rate");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("C-Zone MoRate");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("Background MoRate");
+			++colNum;
+			row.createCell((short)(colNum)).setCellValue("Total MoRate");
 			calcMFDs(0, 1.0);
 			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
 			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
@@ -362,8 +378,24 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 					if(paramList.containsParameter(pName))
 						row.createCell((short)(p+1)).setCellValue(paramList.getValue(pName).toString());
 				}
-				row.createCell((short)(adjustableParamNames.size()+1)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
-				row.createCell((short)(adjustableParamNames.size()+2)).setCellValue(newWt);
+				
+				int colNum = adjustableParamNames.size()+1;
+				// add a row for predicted and observed ratio
+				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(newWt);
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(aFaultMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(bFaultCharMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(bFaultGRMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(eqkRateModel2ERF.getTotal_C_ZoneMFD().getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(eqkRateModel2ERF.getTotal_BackgroundMFD().getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
 			} else { // recursion 
 				calcMFDs(paramIndex+1, newWt);
 			}
@@ -559,7 +591,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
 		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
-			EvenlyDiscretizedFunc nshmpMFD = nshmp02TotMFD.getCumRateDist();
+			EvenlyDiscretizedFunc nshmpMFD;
+			if(this.isCumulative) nshmpMFD = nshmp02TotMFD.getCumRateDist();
+			else nshmpMFD = nshmp02TotMFD;
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<nshmpMFD.getNum(); i=i+2)
 				resampledNSHMP_MFD.set(nshmpMFD.getX(i), nshmpMFD.getY(i));
@@ -687,7 +721,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
 	 */
 	public String getYAxisLabel() {
-		return Y_AXIS_LABEL;
+		if(this.isCumulative)	return CUM_Y_AXIS_LABEL;
+		else return INCR_Y_AXIS_LABEL;
 	}
 
 	/* (non-Javadoc)
