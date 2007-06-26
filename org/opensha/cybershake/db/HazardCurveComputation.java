@@ -13,7 +13,7 @@ public class HazardCurveComputation {
 	private PeakAmplitudesFromDBAPI peakAmplitudes;
 	private ERF2DBAPI erfDB;
 	private SiteInfo2DBAPI siteDB;
-	
+	private double CONVERSION_TO_G = 980;
 	
 	public HazardCurveComputation(DBAccess db){
 		peakAmplitudes = new PeakAmplitudesFromDB(db);
@@ -58,7 +58,7 @@ public class HazardCurveComputation {
 		for(int i=0;i<size;++i){
 			int rupVarId =  rupVariations.get(i);
 			double imVal = peakAmplitudes.getIM_Value(siteId, erfId, srcId, rupId, rupVarId, imType);
-			function.set(imVal,1);
+			function.set(imVal/CONVERSION_TO_G,1);
 		}
 		setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 		
@@ -99,7 +99,7 @@ public class HazardCurveComputation {
 				for(int i=0;i<size;++i){
 					int rupVarId =  rupVariations.get(i);
 					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, srcId, rupId, rupVarId, imType);
-					function.set(imVal/980,1);
+					function.set(imVal/CONVERSION_TO_G,1);
 				}
 				setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 			}
