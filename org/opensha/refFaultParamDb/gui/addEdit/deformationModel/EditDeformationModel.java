@@ -188,7 +188,7 @@ public class EditDeformationModel extends JPanel implements ActionListener, Para
 	 */
 	private void writeSectionsToFile(File file) {
 		DeformationModelFileWriter defModelWriter = new DeformationModelFileWriter();
-		defModelWriter.writeForDeformationModel(this.selectedDeformationModelId, file);
+		defModelWriter.writeForDeformationModel(this.selectedDeformationModelId, file, true);
 	}
 	
 	/**
