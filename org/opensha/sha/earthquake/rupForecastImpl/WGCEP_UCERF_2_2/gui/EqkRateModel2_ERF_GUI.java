@@ -175,7 +175,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	   * @param actionEvent
 	   */
 	  private void logicTreeCumMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
-		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(true, true);
+		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false, true);
 		  logicTreeMFDsPlotter.plotMFDs();
 	  }
 	  

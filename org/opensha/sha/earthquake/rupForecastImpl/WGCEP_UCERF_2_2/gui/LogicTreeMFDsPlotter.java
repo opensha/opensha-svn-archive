@@ -487,13 +487,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramName = EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
-		//plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
+		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 
 //		fraction MoRate to Background
 		paramName = EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.1));
-		//plotMFDs(paramName, values, true, true, false, false, false); // plot A & B-faults
+		plotMFDs(paramName, values, true, true, false, false, false); // plot A & B-faults
 	
 	}
 	
@@ -564,25 +564,33 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
-			SummedMagFreqDist aFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			SummedMagFreqDist bFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			SummedMagFreqDist bFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			SummedMagFreqDist totMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+			IncrementalMagFreqDist aFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+			IncrementalMagFreqDist bFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+			IncrementalMagFreqDist bFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+			IncrementalMagFreqDist totMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
 			mfdIndex = 0;
 			
 			if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
-				ArrayList<SummedMagFreqDist> mfds = null;//this.getMFDsWhenBckFrac0_1();
+				ArrayList<IncrementalMagFreqDist> mfds = this.getMFDsWhenBckFrac0_1();
 				aFaultMFD = mfds.get(0);
+				aFaultMFD.setInfo("A-Faults MFD");
 				bFaultCharMFD = mfds.get(1);
+				bFaultCharMFD.setInfo("B-Faults Char MFD");
 				bFaultGRMFD = mfds.get(2);
+				bFaultGRMFD.setInfo("B-Faults GR MFD");
 				totMFD = mfds.get(3);
+				totMFD.setInfo("Total MFD");
 			} else if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME)) {
-				ArrayList<SummedMagFreqDist> mfds = null;//getMFDsWhenBVal0();
+				ArrayList<IncrementalMagFreqDist> mfds = getMFDsWhenBVal0();
 				aFaultMFD = mfds.get(0);
+				aFaultMFD.setInfo("A-Faults MFD");
 				bFaultCharMFD = mfds.get(1);
+				bFaultCharMFD.setInfo("B-Faults Char MFD");
 				bFaultGRMFD = mfds.get(2);
+				bFaultGRMFD.setInfo("B-Faults GR MFD");
 				totMFD = mfds.get(3);
-			} else doWeightedSum(0, paramName, values.get(i), 1.0, aFaultMFD, bFaultCharMFD, bFaultGRMFD, totMFD);
+				totMFD.setInfo("Total MFD");
+			} else doWeightedSum(0, paramName, values.get(i), 1.0, (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD, (SummedMagFreqDist)totMFD);
 			
 			
 			if(i==0) {
