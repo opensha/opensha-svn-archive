@@ -142,7 +142,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		paramNames.add(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
-		options.addValueWeight(new Double(1e7), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
 		// Mag Correction
@@ -158,6 +158,13 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		options = new ParamOptions();
 		options.addValueWeight(new Boolean(true), 0.5);
 		options.addValueWeight(new Boolean(false), 0.5);
+		paramValues.add(options);
+		
+//		 C-zone weights
+		paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.0), 0.5);
+		options.addValueWeight(new Double(1.0), 0.5);
 		paramValues.add(options);
 	}
 	
@@ -271,8 +278,8 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 				if(newWt!=0) {
 					EvenlyDiscretizedFunc mfd  = totMFDsList.get(mfdIndex).getCumRateDist();
 					mfd.setInfo("Cumulative MFD for a logic tree branch");
-					funcs.add(mfd);
-					plottingFeaturesList.add(this.PLOT_CHAR1);
+					//funcs.add(mfd);
+					//plottingFeaturesList.add(this.PLOT_CHAR1);
 					for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
 						rateWtFuncList.get(magIndex).set(mfd.getY(magIndex), newWt);
 					}
