@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
@@ -123,48 +124,67 @@ public class DeformationModelFileWriter implements Runnable {
 		if(this.rowNum==0) {
 			row.createCell((short)colIndex).setCellValue("Section Name");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("End Location 1");
-			++colIndex;
-			row.createCell((short)colIndex).setCellValue("End Location 2");
-			++colIndex;
+			
 			row.createCell((short)colIndex).setCellValue("Strike");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("Dip");
+			row.createCell((short)colIndex).setCellValue("Dip (degrees)");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("Slip Rate");
+			row.createCell((short)colIndex).setCellValue("Slip Rate (mm/yr)");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Aseismic Slip Factor");
 			++colIndex;
 			row.createCell((short)colIndex).setCellValue("Rake");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("Length");
+			row.createCell((short)colIndex).setCellValue("Upper Seis Depth (km)");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("Down Dip Width");
+			row.createCell((short)colIndex).setCellValue("Lower Seis Depth (km)");
 			++colIndex;
-			row.createCell((short)colIndex).setCellValue("Area");
+			row.createCell((short)colIndex).setCellValue("Length (km)");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Down Dip Width (km)");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Area (sq. km)");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Num Fault Trace Locations");
 			++colIndex;
 			++rowNum;
 			row = this.excelSheet.createRow(rowNum);
 		}
-		colIndex = 0;
+		
+		colIndex= 0;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
 		++colIndex;
-		FaultTrace faultTrace  = faultSectionPrefData.getFaultTrace();
-		row.createCell((short)colIndex).setCellValue(faultTrace.getLocationAt(0).toString());
-		++colIndex;
-		row.createCell((short)colIndex).setCellValue(faultTrace.getLocationAt(faultTrace.getNumLocations()-1).toString());
-		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getDipDirection()));
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getDipDirection()));
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveLongTermSlipRate()));
 		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAseismicSlipFactor()));
+		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveRake()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveUpperDepth()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveLowerDepth()));
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength());
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getDownDipWidth());
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength()*faultSectionPrefData.getDownDipWidth());
+		++colIndex;
+		FaultTrace faultTrace  = faultSectionPrefData.getFaultTrace();
+		int numLocations = faultTrace.getNumLocations();
+		row.createCell((short)colIndex).setCellValue(numLocations);
+		for(int i=0; i<numLocations; ++i) {
+			Location loc = faultTrace.getLocationAt(i);
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue(loc.getLatitude());
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue(loc.getLongitude());
+		}
+		++colIndex;
 		++rowNum;
 	}
 	
