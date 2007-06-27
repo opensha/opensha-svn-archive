@@ -4,9 +4,13 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
@@ -27,14 +31,25 @@ public class DeformationModelFileWriter implements Runnable {
 	private CalcProgressBar progressBar;
 	private int totSections;
 	private int currSection;
-	
+	private HSSFWorkbook wb;
+	private HSSFSheet excelSheet;
+	private int rowNum;
+	private boolean createExcelSheet;
 	/**
 	 * Write FaultSectionPrefData to file.
 	 * @param faultSectionIds  array of faultsection Ids
+	 * 
+	 * It creates an excel sheet as well if createExcelSheet is set as true. Excel sheet format is 
+	 * as requested by Ray Weldon in his email on June 26, 2007 at 1:39 PM
 	 * @param file
 	 */
-	public  void writeForDeformationModel(int deformationModelId, File file) {
+	public  void writeForDeformationModel(int deformationModelId, File file, boolean createExcelSheet) {
 		try {
+			this.createExcelSheet = createExcelSheet;
+			if(createExcelSheet) {
+				wb  = new HSSFWorkbook();
+				excelSheet  = wb.createSheet();
+			}
 			currSection=0;
 			ArrayList faultSectionIds = deformationModelPrefDAO.getFaultSectionIdsForDeformationModel(deformationModelId);
 			totSections = faultSectionIds.size();
@@ -46,7 +61,6 @@ public class DeformationModelFileWriter implements Runnable {
 			// write to file
 			FileWriter fw = new FileWriter(file);
 			fw.write(getFormatStringForDeformationModel());
-			
 			for(currSection=0; currSection<totSections; ++currSection) {
 				//System.out.println(currSection);
 				writeForDeformationModel(deformationModelId, 
@@ -54,6 +68,14 @@ public class DeformationModelFileWriter implements Runnable {
 						fw);
 			}
 			fw.close();
+			
+			// write to Excel sheet
+			if(createExcelSheet) {
+				FileOutputStream fileOut = new FileOutputStream(file.getAbsolutePath().replaceFirst(".txt", ".xls"));
+				wb.write(fileOut);
+				fileOut.close();
+			}
+			
 			
 			// dispose the progressbar
 			progressBar.showProgress(false);
@@ -83,11 +105,68 @@ public class DeformationModelFileWriter implements Runnable {
 		try{
 			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDAO.getFaultSectionPrefData(deformationModelId, faultSectionId);
 			writeForDeformationModel(faultSectionPrefData, fw);
+			if(this.createExcelSheet) writeToExcelSheet(faultSectionPrefData);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+	
+	/**
+	 * Write to excel sheet
+	 * 
+	 * @param faultSectionPrefData
+	 */
+	private void writeToExcelSheet(FaultSectionPrefData faultSectionPrefData) {
+		HSSFRow row = this.excelSheet.createRow(rowNum);
+		int colIndex=0;
+		if(this.rowNum==0) {
+			row.createCell((short)colIndex).setCellValue("Section Name");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("End Location 1");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("End Location 2");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Strike");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Dip");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Slip Rate");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Rake");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Length");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Down Dip Width");
+			++colIndex;
+			row.createCell((short)colIndex).setCellValue("Area");
+			++colIndex;
+			++rowNum;
+			row = this.excelSheet.createRow(rowNum);
+		}
+		colIndex = 0;
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
+		++colIndex;
+		FaultTrace faultTrace  = faultSectionPrefData.getFaultTrace();
+		row.createCell((short)colIndex).setCellValue(faultTrace.getLocationAt(0).toString());
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(faultTrace.getLocationAt(faultTrace.getNumLocations()-1).toString());
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getDipDirection()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getDipDirection()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveLongTermSlipRate()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveRake()));
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength());
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getDownDipWidth());
+		++colIndex;
+		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength()*faultSectionPrefData.getDownDipWidth());
+		++rowNum;
+	}
 	
 	/**
 	 * Write FaultSectionPrefData to the file. It also contains slip rate and aseismic slip factor
