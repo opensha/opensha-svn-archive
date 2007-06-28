@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.opensha.calc.RelativeLocation;
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
@@ -125,7 +126,7 @@ public class DeformationModelFileWriter implements Runnable {
 			row.createCell((short)colIndex).setCellValue("Section Name");
 			++colIndex;
 			
-			row.createCell((short)colIndex).setCellValue("Strike");
+			row.createCell((short)colIndex).setCellValue("Ave Strike -  Direction from the first to the last point on fault trace");
 			++colIndex;
 			row.createCell((short)colIndex).setCellValue("Dip (degrees)");
 			++colIndex;
@@ -150,11 +151,13 @@ public class DeformationModelFileWriter implements Runnable {
 			++rowNum;
 			row = this.excelSheet.createRow(rowNum);
 		}
-		
+		FaultTrace faultTrace  = faultSectionPrefData.getFaultTrace();
+		int numLocations = faultTrace.getNumLocations();
 		colIndex= 0;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getSectionName());
 		++colIndex;
-		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getDipDirection()));
+		double strike = RelativeLocation.getDirection(faultTrace.getLocationAt(0), faultTrace.getLocationAt(numLocations-1)).getAzimuth();
+		row.createCell((short)colIndex).setCellValue(strike);
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(getValue(faultSectionPrefData.getAveDip()));
 		++colIndex;
@@ -174,8 +177,7 @@ public class DeformationModelFileWriter implements Runnable {
 		++colIndex;
 		row.createCell((short)colIndex).setCellValue(faultSectionPrefData.getLength()*faultSectionPrefData.getDownDipWidth());
 		++colIndex;
-		FaultTrace faultTrace  = faultSectionPrefData.getFaultTrace();
-		int numLocations = faultTrace.getNumLocations();
+		
 		row.createCell((short)colIndex).setCellValue(numLocations);
 		for(int i=0; i<numLocations; ++i) {
 			Location loc = faultTrace.getLocationAt(i);
