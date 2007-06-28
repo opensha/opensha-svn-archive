@@ -167,7 +167,12 @@ public class A_FaultSegmentedSourceGenerator {
 		num_seg = segmentData.getNumSegments();
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		
+		calcAllRates();
+		makeAllTimeIndSources();
 		
+	}
+	
+	private void calcAllRates(){
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto")) {
 			rupInSeg = getSanJacintoRupInSeg();	// special case for this branching fault
@@ -440,28 +445,10 @@ public class A_FaultSegmentedSourceGenerator {
 				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
 					mag, magSigma, rupMoRate[i], magTruncLevel, 2);
-			
-			// make source from this rupture
-			int[] segmentsInRup = getSegmentsInRup(i);
-			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
-
-			/* COMMENTED OUT FOR SPEED */
-			// Create source if rate is greater than ~zero (or age of earth)
-			if (rupMagFreqDist[i].getTotalIncrRate() > 1e-10) {				
-				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
-						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-						segmentData.getAveRake(segmentsInRup),
-						DEFAULT_DURATION);
-				faultRupSrc.setName(this.getLongRupName(i));
-				
-				if(faultRupSrc.getNumRuptures() == 0)
-					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
-				
-				sourceList.add(faultRupSrc);
-			}
-			
+						
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
+// if(((String)getLongRupName(i)).equals("W")) System.out.print(totRupRate[i]+"  "+rupRateSolution[i]);
 		}
 		// add info to the summed dist
 		/**/
@@ -489,6 +476,29 @@ public class A_FaultSegmentedSourceGenerator {
 			}
 		}
 		*/
+
+	}
+	
+	private void makeAllTimeIndSources() {
+		for(int i=0; i<num_rup; i++) {
+			// get list of segments in this rupture
+			int[] segmentsInRup = getSegmentsInRup(i);
+			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
+
+			// Create source if rate is greater than ~zero (or age of earth)
+			if (rupMagFreqDist[i].getTotalIncrRate() > 1e-10) {				
+				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
+						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
+						segmentData.getAveRake(segmentsInRup),
+						DEFAULT_DURATION);
+				faultRupSrc.setName(this.getLongRupName(i));
+				
+				if(faultRupSrc.getNumRuptures() == 0)
+					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
+				
+				sourceList.add(faultRupSrc);
+			}	
+		}
 	}
 	
 	/**
