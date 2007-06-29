@@ -66,7 +66,7 @@ public abstract class FaultsFetcher {
 		// read file 
 		try {
 			// read the text file that defines the sctions in each segment for each fault model
-			ArrayList fileLines = FileUtils.loadFile(fileName);
+			ArrayList fileLines = FileUtils.loadJarFile(fileName);
 			ArrayList segmentsList=null;  // segments in a given fault model
 			String faultModelName=null;
 			for(int i=0; i<fileLines.size(); ++i) {

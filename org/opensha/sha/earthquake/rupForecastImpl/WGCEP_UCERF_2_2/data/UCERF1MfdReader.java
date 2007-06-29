@@ -30,7 +30,7 @@ public class UCERF1MfdReader {
 		if(incrMFD_Map.containsKey(faultName)) return incrMFD_Map.get(faultName);
 		try {
 			ArbitrarilyDiscretizedFunc magRateFunc = new ArbitrarilyDiscretizedFunc();
-			ArrayList fileLines = FileUtils.loadFile(UCERF1_RATE_FILE);
+			ArrayList fileLines = FileUtils.loadJarFile(UCERF1_RATE_FILE);
 			int numLines = fileLines.size();
 			for(int i=0; i<numLines; ++i) {
 				String fileLine = (String)fileLines.get(i);

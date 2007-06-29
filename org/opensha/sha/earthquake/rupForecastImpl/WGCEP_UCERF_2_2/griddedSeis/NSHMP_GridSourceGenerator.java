@@ -5,6 +5,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.griddedSeis;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -148,7 +149,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		
 		try { 
 			// Region filename
-			FileReader regionFileReader = new FileReader(LAT_LON_FILENAME); 
+			InputStreamReader regionFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(LAT_LON_FILENAME));
 			BufferedReader regionFileBufferedReader = new BufferedReader(regionFileReader);
 			String latlonLine = regionFileBufferedReader.readLine(); // skip header line
 			Location loc;
@@ -258,7 +259,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		double[] allGridVals = new double[numAvals];
 //		System.out.println("    Working on "+fileName);
 		try { 
-			FileReader ratesFileReader = new FileReader(fileName); 
+			InputStreamReader ratesFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(fileName));
 			BufferedReader ratesFileBufferedReader = new BufferedReader(ratesFileReader);
 			String ratesLine = ratesFileBufferedReader.readLine(); // skip header
 			ratesLine = ratesFileBufferedReader.readLine();

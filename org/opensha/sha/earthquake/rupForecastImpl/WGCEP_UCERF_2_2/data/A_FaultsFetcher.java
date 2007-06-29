@@ -94,7 +94,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 */
 	private void readA_PrioriRupRates() {
 		try {
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(RUP_RATE_FILE_NAME));
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(RUP_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastIndex = sheet.getLastRowNum();
@@ -154,7 +154,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		while(it.hasNext()) this.segEventRatesMap.put(it.next(),new  ArrayList());
 		eventRatesList = new ArrayList<EventRates>();
 		try {				
-			POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream(SEG_RATE_FILE_NAME));
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastRowIndex = sheet.getLastRowNum();
