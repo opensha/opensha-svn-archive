@@ -36,6 +36,9 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
 
   private final static String C = "GeographicRegion";
   private final static boolean D = false;
+  
+  // name for this region
+  private String name;
 
 
   /**
@@ -222,5 +225,23 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
       if (temp < min) return temp;
       else return min;
     }
+  }
+
+  /**
+   * Get the name for this region
+   * 
+   * @return
+   */
+  public String getName() {
+	  return name;
+  }
+
+  /**
+   * Set the name for this region
+   * 
+   * @param name
+   */
+  public void setName(String name) {
+	  this.name = name;
   }
 }
