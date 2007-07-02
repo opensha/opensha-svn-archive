@@ -24,19 +24,35 @@ public class WG02_QkProbCalc {
 	protected String NAME = "WG02_QkProbCalc";
 		
 	private double[] segProb, rupProb;
-		
+	
+	
+	/*
+	 * For segment specific alpha
+	 */
 	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
 			double[] segAlpha, double[] segT_Last, double duration, double[][] rupInSeg) {
 		
+		computeSegProbs(segRate, segAlpha, segT_Last, duration);
+		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
+	}
+
+
+	/*
+	 * For constant alpha
+	 */
+	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
+			double segAlpha, double[] segT_Last, double duration, double[][] rupInSeg) {
+		
+		computeSegProbs(segRate, segAlpha, segT_Last, duration);
+		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
+	}
+
+	
+	private void computeRupProbs(double[] segRate, double[] rupRate, double[] segMoRate, double[][] rupInSeg) {
+		
 		int num_seg = segRate.length;
 		int num_rup = rupRate.length;
-		
-		// compute seg probs
-		segProb = new double[num_seg];
-		for(int seg=0; seg < num_seg; seg++)
-			segProb[seg] = BPT_DistCalc.getCondProb(segT_Last[seg], segRate[seg], segAlpha[seg], duration);
-		
-		// now compute rup probs
+
 		rupProb = new double[num_rup];
 		for(int rup=0; rup<num_rup; rup++) {
 			// compute sum of segMoRates for segs in rupture
@@ -49,6 +65,26 @@ public class WG02_QkProbCalc {
 				sum += segProb[seg]*segMoRate[seg]*rupInSeg[seg][rup]/segRate[seg];
 			rupProb[rup] = rupRate[rup]*sum/totMoRate;
 		}				
+	}
+
+	/*
+	 * compute seg probs
+	 */
+	private void computeSegProbs(double[] segRate, double[] segAlpha, double[] segT_Last, double duration) {
+		int num_seg = segRate.length;
+		segProb = new double[num_seg];
+		for(int seg=0; seg < num_seg; seg++)
+			segProb[seg] = BPT_DistCalc.getCondProb(segT_Last[seg], segRate[seg], segAlpha[seg], duration);
+	}
+
+	/*
+	 * compute seg probs
+	 */
+	private void computeSegProbs(double[] segRate, double segAlpha, double[] segT_Last, double duration) {
+		int num_seg = segRate.length;
+		segProb = new double[num_seg];
+		for(int seg=0; seg < num_seg; seg++)
+			segProb[seg] = BPT_DistCalc.getCondProb(segT_Last[seg], segRate[seg], segAlpha, duration);
 	}
 	
 	public double[] getSegProbs() {return segProb;}
@@ -67,6 +103,7 @@ public class WG02_QkProbCalc {
 		double[] rupRate = {0.00145604357,0.000706832856,0.,0.,0.000505269971,0.,0.00109066791,0.,0.000402616395,0.00270615076};
 		double[] segMoRate  = {4.74714853E+24,5.62020641E+24,1.51106804E+25,1.06885024E+25};
 		double[] segAlpha = {0.5,0.5,0.5,0.5};
+		double alpha = 0.5;
 		double[] segT_Last = {96, 96, 96, 96};
 		double duration = 30;
 		double[][] rupInSeg = {
@@ -81,7 +118,8 @@ public class WG02_QkProbCalc {
 		double[] testSegProb = {0.130127236,0.105091952,0.0964599401,0.0964599401};
 
 		WG02_QkProbCalc calc = new WG02_QkProbCalc();
-		calc.computeProbs(segRate,rupRate,segMoRate,segAlpha,segT_Last,duration,rupInSeg);
+		// try with both alpha and segAlpha
+		calc.computeProbs(segRate,rupRate,segMoRate,alpha,segT_Last,duration,rupInSeg);
 		double[] rupProb = calc.getRupProbs();
 		System.out.println("Test rup fractional differences:");
 		for(int rup=0; rup<10;rup++)

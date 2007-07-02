@@ -250,12 +250,13 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	}
 	
 	/**
-	 * this reads an NSHMP grid file
+	 * this reads an NSHMP grid file.  The boolean specifies whether to add this to a running 
+	 * total (sumOfAllAvals[i]).
 	 * This could be modified to read binary files
 	 * @param fileName
 	 * @return
 	 */
-	private double[] readGridFile(String fileName, boolean addToSumOfAllAvals) {
+	public double[] readGridFile(String fileName, boolean addToSumOfAllAvals) {
 		double[] allGridVals = new double[numAvals];
 //		System.out.println("    Working on "+fileName);
 		try { 
@@ -434,6 +435,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
 		//System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
-		System.out.println(srcGen.getTotMFDForRegion(false, true, true));
+		//System.out.println(srcGen.getTotMFDForRegion(false, true, true));
+		double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
+		
+		for(int i=0; i<area1new_agrid.length; i++) System.out.println(area1new_agrid[i]);
 	}
 }

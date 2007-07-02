@@ -21,14 +21,16 @@ import org.opensha.sha.magdist.*;
  * </UL><p>
  * If magnitude/probability are given the source is set as non poissonian (and
  * duration is meaningless); If a mag-freq-dist and duration is given then the source
- * is assumed to be Poissonian. The entire surface ruptures for all cases (no floating
- * of events).  Note that duration is the only constructor argument saved internally
- * in order to conserve memory (this is why there are no associated get/set methods
- * for anything besides duration).<p>
+ * is assumed to be Poissonian.  If a mag-freq-dist and prob is given then the source
+ * is non Poissonian, and the mag-freq-dist is treated as a PDF (relative prob of different
+ * mag/rups, such that the sum of these matches the total given). 
+ * The entire surface ruptures for all cases (no floating of events).  Note that duration 
+ * is the only constructor argument saved internally in order to conserve memory (this is 
+ * why there are no associated get/set methods for anything besides duration).<p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
- * @date Sept, 2003
+ * @date Sept, 2003, modified June 2007.
  * @version 1.0
  */
 
@@ -158,6 +160,61 @@ public class FaultRuptureSource
 
   }
 
+  
+  /**
+   * Constructor - this treats the input "magDist" as a PDF (not absolute rates), and assigns 
+   * a probability to each rupture (one for each mag magnitude) such that the total probabiulity 
+   * is that given (as "prob").
+   * This source is set as non Poissonian.
+   * @param prob - total probability of an event
+   * @param magDist - magnitude-frequency distribution
+   * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
+   * @param rake - average rake of the ruptures
+   */
+  public FaultRuptureSource(double prob, IncrementalMagFreqDist magDist,
+                            EvenlyGriddedSurface ruptureSurface,
+                            double rake) {
+
+    this.isPoissonian = false;
+
+    // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
+    makeFaultCornerLocs(ruptureSurface);
+
+    // make the rupture list
+    ruptureList = new ArrayList();
+    double mag;
+    
+    // compute total rate of magDist
+    double totRate = 0, qkRate, qkProb;
+    for (int i = 0; i < magDist.getNum(); ++i)
+    		totRate += magDist.getY(i);
+    
+    // Make the ruptures
+    for (int i = 0; i < magDist.getNum(); ++i) {
+      mag = magDist.getX(i);
+      // make sure it has a non-zero rate
+      if ((qkRate = magDist.getY(i)) > 0) {
+        qkProb = qkRate*prob/totRate;
+        probEqkRupture = new ProbEqkRupture();
+        probEqkRupture.setAveRake(rake);
+        probEqkRupture.setRuptureSurface(ruptureSurface);
+        probEqkRupture.setMag(mag);
+        probEqkRupture.setProbability(qkProb);
+        ruptureList.add(probEqkRupture);
+      }
+    }
+    
+    if (D) {
+      double totProb = 0;
+      for(int i =0; i< ruptureList.size(); i++)
+    	  	totProb += this.getRupture(i).getProbability();
+      System.out.println("input prob="+prob+", final tot prob="+totProb+", ratio="+(prob/totProb));
+    }
+  }
+
+  
+  
+  
   /**
    * This changes the duration for the case where a mag-freq dist was given in
    * the constructor (for the Poisson) case.
