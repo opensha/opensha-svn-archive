@@ -100,10 +100,10 @@ public class FileUtils {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static ArrayList loadFile(URL url) throws Exception {
+    public static ArrayList<String> loadFile(URL url) throws Exception {
       if(D) System.out.println("url="+url);
         URLConnection uc = url.openConnection();
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         BufferedReader tis =
             new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
         String str = tis.readLine();
@@ -123,7 +123,7 @@ public class FileUtils {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static ArrayList loadJarFile(String fileName)
+    public static ArrayList<String> loadJarFile(String fileName)
        throws  FileNotFoundException, IOException {
       try {
         if(D) System.out.println("FileUtils:filename="+fileName);
