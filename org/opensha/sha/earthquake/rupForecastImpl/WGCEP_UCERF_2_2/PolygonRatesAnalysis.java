@@ -28,12 +28,15 @@ public class PolygonRatesAnalysis {
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		System.out.println("Total rate in RELM region:"+totRate);
 		double rateInPoly;
+		double rateRestOfRegion = totRate;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 			if(polygon.getRegionOutline()==null) continue;
 			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, eqkRateModelERF, polygon);
+			rateRestOfRegion-=rateInPoly;
 			System.out.println("Rate in region "+polygon.getName()+" is "+rateInPoly);
 		}
+		System.out.println("Rate in rest of region is "+rateRestOfRegion);
 	}		
 	public static void main(String[] args) {
 		PolygonRatesAnalysis polygonRatesAnalysis = new PolygonRatesAnalysis();
