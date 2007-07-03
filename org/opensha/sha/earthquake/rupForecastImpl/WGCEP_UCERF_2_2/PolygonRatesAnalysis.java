@@ -99,11 +99,11 @@ public class PolygonRatesAnalysis {
 	}
 	
 	private String getHeader() {
-		String header = "#FaultName, Index, Fraction of Points in RELM Region";
+		String header = "#FaultName, Index,RELM Region";
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
-			header+=", Fraction of points in "+polygon.getName();
+			header+=","+polygon.getName();
 		}
 		header+="\n";
 		return header;
