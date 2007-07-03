@@ -89,7 +89,7 @@ public class CyberShakePlotFromDBControlPanel
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   
   //Database connection 
-  private static String HOST_NAME = "surface.usc.edu";
+  private static String HOST_NAME = "intensity.usc.edu";
   private static String DATABASE_NAME = "CyberShake";
   private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
   
