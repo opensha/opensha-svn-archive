@@ -40,6 +40,13 @@ public class PolygonRatesAnalysis {
 	
 	public PolygonRatesAnalysis() {
 		eqkRateModelERF.updateForecast();
+	}		
+
+	/**
+	 * Caluclate rates in polygons
+	 *
+	 */
+	public void calcRatesInPolygons() {
 		double totRate = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, eqkRateModelERF, relmRegion);
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		System.out.println("Total rate in RELM region:"+totRate);
@@ -53,8 +60,8 @@ public class PolygonRatesAnalysis {
 			System.out.println("Rate in region "+polygon.getName()+" is "+rateInPoly);
 		}
 		System.out.println("Rate in rest of region is "+rateRestOfRegion);
-	}		
-
+	}
+	
 	/**
 	 * For each A-Fault, find the fraction that lies in each polygon
 	 *
