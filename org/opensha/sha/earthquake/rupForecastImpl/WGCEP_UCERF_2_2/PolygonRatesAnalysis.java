@@ -160,7 +160,10 @@ public class PolygonRatesAnalysis {
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getRegionOutline()==null) continue;
-				if(polygon.isLocationInside(loc)) ++pointInEachPolygon[regionIndex];
+				if(polygon.isLocationInside(loc)) {
+					++pointInEachPolygon[regionIndex];
+					break;
+				}
 			}
 		}
 		fw.write(cZoneIndex+","+ 
@@ -172,7 +175,6 @@ public class PolygonRatesAnalysis {
 			if(polygon.getRegionOutline()!=null)
 				fw.write(","+pointInEachPolygon[regionIndex]/(float)totPointsInRELM_Region);
 		}
-		if(pointsOutsidePolygon<0) pointsOutsidePolygon=0;
 		fw.write(","+pointsOutsidePolygon/(float)totPointsInRELM_Region+"\n");
 	}
 
@@ -196,7 +198,10 @@ public class PolygonRatesAnalysis {
 			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 				if(polygon.getRegionOutline()==null) continue;
-				if(polygon.isLocationInside(loc)) ++pointInEachPolygon[regionIndex];
+				if(polygon.isLocationInside(loc)) {
+					++pointInEachPolygon[regionIndex];
+					break;
+				}
 			}
 		}
 		fw.write(srcIndex+","+ 
@@ -208,7 +213,6 @@ public class PolygonRatesAnalysis {
 			if(polygon.getRegionOutline()!=null)
 				fw.write(","+pointInEachPolygon[regionIndex]/(float)numPoints);
 		}
-		if(pointsOutsidePolygon<0) pointsOutsidePolygon=0;
 		fw.write(","+pointsOutsidePolygon/(float)numPoints+"\n");
 	}
 
