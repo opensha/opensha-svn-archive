@@ -35,6 +35,8 @@ public class PolygonRatesAnalysis {
 	private final static String A_FAULT_FILENAME = PATH+"A_FaultsPolygonFractions.txt";
 	private final static String B_FAULT_FILENAME = PATH+"B_FaultsPolygonFractions.txt";
 	private final static String C_ZONES_FILENAME = PATH+"C_ZonesPolygonFractions.txt";
+	private final static String HEADER = "# Each line has Source Index, fraction of points in RELM region, " +
+			"fraction of  points in different polygons followed by fraction of points in rest of caliornia as the last column\n";
 	
 	public PolygonRatesAnalysis() {
 		eqkRateModelERF.updateForecast();
@@ -63,6 +65,7 @@ public class PolygonRatesAnalysis {
 		
 		try {
 			FileWriter fw = new FileWriter(A_FAULT_FILENAME);
+			fw.write(HEADER);
 			// iterate over all source generators
 			for(int i=0; i<numA_Faults; ++i) {
 			
@@ -101,6 +104,7 @@ public class PolygonRatesAnalysis {
 		
 		try {
 			FileWriter fw = new FileWriter(B_FAULT_FILENAME);
+			fw.write(HEADER);
 			// iterate over all sources
 			for(int i=0; i<numB_Faults; ++i) {
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)bFaultSources.get(i);
@@ -123,6 +127,7 @@ public class PolygonRatesAnalysis {
 		String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/";
 		try {
 			FileWriter fw = new FileWriter(C_ZONES_FILENAME);
+			fw.write(HEADER);
 			double [] area1new_agrid  = nshmpGridSrcGen.readGridFile(PATH+"area1new.agrid.asc",true);
 			int cZoneIndex=0;
 			calcFractionC_Zone(nshmpGridSrcGen, fw, area1new_agrid, cZoneIndex);
@@ -159,15 +164,16 @@ public class PolygonRatesAnalysis {
 			}
 		}
 		fw.write(cZoneIndex+","+ 
-				totPointsInRELM_Region/(double)totPointsInRELM_Region);	
+				totPointsInRELM_Region/(float)totPointsInRELM_Region);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
 			if(polygon.getRegionOutline()!=null)
-				fw.write(","+pointInEachPolygon[regionIndex]/(double)totPointsInRELM_Region);
+				fw.write(","+pointInEachPolygon[regionIndex]/(float)totPointsInRELM_Region);
 		}
-		fw.write(","+pointsOutsidePolygon/(double)totPointsInRELM_Region+"\n");
+		if(pointsOutsidePolygon<0) pointsOutsidePolygon=0;
+		fw.write(","+pointsOutsidePolygon/(float)totPointsInRELM_Region+"\n");
 	}
 
 	/**
@@ -194,15 +200,16 @@ public class PolygonRatesAnalysis {
 			}
 		}
 		fw.write(srcIndex+","+ 
-				totPointsInRELM_Region/(double)numPoints);	
+				totPointsInRELM_Region/(float)numPoints);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
 			if(polygon.getRegionOutline()!=null)
-				fw.write(","+pointInEachPolygon[regionIndex]/(double)numPoints);
+				fw.write(","+pointInEachPolygon[regionIndex]/(float)numPoints);
 		}
-		fw.write(","+pointsOutsidePolygon/(double)numPoints+"\n");
+		if(pointsOutsidePolygon<0) pointsOutsidePolygon=0;
+		fw.write(","+pointsOutsidePolygon/(float)numPoints+"\n");
 	}
 
 
