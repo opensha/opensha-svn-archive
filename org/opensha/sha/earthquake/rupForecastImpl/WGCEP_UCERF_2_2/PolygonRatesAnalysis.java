@@ -35,8 +35,6 @@ public class PolygonRatesAnalysis {
 	private final static String A_FAULT_FILENAME = PATH+"A_FaultsPolygonFractions.txt";
 	private final static String B_FAULT_FILENAME = PATH+"B_FaultsPolygonFractions.txt";
 	private final static String C_ZONES_FILENAME = PATH+"C_ZonesPolygonFractions.txt";
-	private final static String HEADER = "# Each line has Source Index, fraction of points in RELM region, " +
-			"fraction of  points in different polygons followed by fraction of points in rest of caliornia as the last column\n";
 	
 	public PolygonRatesAnalysis() {
 		eqkRateModelERF.updateForecast();
@@ -72,7 +70,7 @@ public class PolygonRatesAnalysis {
 		
 		try {
 			FileWriter fw = new FileWriter(A_FAULT_FILENAME);
-			fw.write(HEADER);
+			fw.write(getHeader());
 			// iterate over all source generators
 			for(int i=0; i<numA_Faults; ++i) {
 			
@@ -85,12 +83,12 @@ public class PolygonRatesAnalysis {
 					for(int srcIndex=0; srcIndex<numSrc; ++srcIndex) {
 						FaultRuptureSource faultRupSrc = aFaultSources.get(srcIndex);
 						EvenlyGriddedSurfaceAPI surface  = faultRupSrc.getSourceSurface();
-						findFractionOfPointsInPolygons(fw, srcIndex, surface);
+						findFractionOfPointsInPolygons(fw, srcGen.getFaultSegmentData().getFaultName(), srcIndex, surface);
 					}
 				} else { // unsegmented source
 					UnsegmentedSource unsegmentedSource = (UnsegmentedSource)aFaultGenerators.get(i);
 					EvenlyGriddedSurfaceAPI surface  = unsegmentedSource.getSourceSurface();
-					findFractionOfPointsInPolygons(fw, i, surface);
+					findFractionOfPointsInPolygons(fw, unsegmentedSource.getName(), i, surface);
 
 				}
 			}
@@ -98,6 +96,17 @@ public class PolygonRatesAnalysis {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private String getHeader() {
+		String header = "#FaultName, Index, Fraction of Points in RELM Region";
+		int numPolygons = empiricalModelFetcher.getNumRegions();
+		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
+			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+			header+=", Fraction of points in "+polygon.getName();
+		}
+		header+="\n";
+		return header;
 	}
 	
 	
@@ -111,12 +120,12 @@ public class PolygonRatesAnalysis {
 		
 		try {
 			FileWriter fw = new FileWriter(B_FAULT_FILENAME);
-			fw.write(HEADER);
+			fw.write(getHeader());
 			// iterate over all sources
 			for(int i=0; i<numB_Faults; ++i) {
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)bFaultSources.get(i);
 				EvenlyGriddedSurfaceAPI surface  = unsegmentedSource.getSourceSurface();
-				findFractionOfPointsInPolygons(fw, i, surface);
+				findFractionOfPointsInPolygons(fw, unsegmentedSource.getName(), i, surface);
 			}
 			fw.close();
 		}catch(Exception e) {
@@ -134,20 +143,20 @@ public class PolygonRatesAnalysis {
 		String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/";
 		try {
 			FileWriter fw = new FileWriter(C_ZONES_FILENAME);
-			fw.write(HEADER);
+			fw.write(getHeader());
 			double [] area1new_agrid  = nshmpGridSrcGen.readGridFile(PATH+"area1new.agrid.asc",true);
 			int cZoneIndex=0;
-			calcFractionC_Zone(nshmpGridSrcGen, fw, area1new_agrid, cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "Area 1", area1new_agrid, cZoneIndex);
 			double [] area2new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area2new.agrid.asc",true);
-			calcFractionC_Zone(nshmpGridSrcGen, fw, area2new_agrid, ++cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "Area 2", area2new_agrid, ++cZoneIndex);
 			double [] area3new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area3new.agrid.asc",true);
-			calcFractionC_Zone(nshmpGridSrcGen, fw, area3new_agrid, ++cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "Area 3", area3new_agrid, ++cZoneIndex);
 			double [] area4new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area4new.agrid.asc",true);
-			calcFractionC_Zone(nshmpGridSrcGen, fw, area4new_agrid, ++cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "Area 4", area4new_agrid, ++cZoneIndex);
 			double [] mojave_agrid = nshmpGridSrcGen.readGridFile(PATH+"mojave.agrid.asc",true);
-			calcFractionC_Zone(nshmpGridSrcGen, fw, mojave_agrid, ++cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "Mojave", mojave_agrid, ++cZoneIndex);
 			double [] sangreg_agrid = nshmpGridSrcGen.readGridFile(PATH+"sangreg.agrid.asc",true);
-			calcFractionC_Zone(nshmpGridSrcGen, fw, sangreg_agrid, ++cZoneIndex);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, "San Gregonio", sangreg_agrid, ++cZoneIndex);
 			fw.close();
 		} catch (Exception e){
 			e.printStackTrace();
@@ -156,7 +165,7 @@ public class PolygonRatesAnalysis {
 
 	}
 
-	private void calcFractionC_Zone(NSHMP_GridSourceGenerator nshmpGridSrcGen, FileWriter fw, double[] area1new_agrid, int cZoneIndex) throws IOException {
+	private void calcFractionC_Zone(NSHMP_GridSourceGenerator nshmpGridSrcGen, FileWriter fw, String cZoneName, double[] area1new_agrid, int cZoneIndex) throws IOException {
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		int []pointInEachPolygon = new int[numPolygons];
 		int totPointsInRELM_Region = 0;
@@ -173,7 +182,7 @@ public class PolygonRatesAnalysis {
 				}
 			}
 		}
-		fw.write(cZoneIndex+","+ 
+		fw.write(cZoneName+","+cZoneIndex+","+ 
 				totPointsInRELM_Region/(float)totPointsInRELM_Region);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
@@ -193,7 +202,7 @@ public class PolygonRatesAnalysis {
 	 * @param surface
 	 * @throws IOException
 	 */
-	private void findFractionOfPointsInPolygons(FileWriter fw, int srcIndex, EvenlyGriddedSurfaceAPI surface) throws IOException {
+	private void findFractionOfPointsInPolygons(FileWriter fw, String faultName, int srcIndex, EvenlyGriddedSurfaceAPI surface) throws IOException {
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		int []pointInEachPolygon = new int[numPolygons];
 		int numPoints = surface.getNumCols();
@@ -211,7 +220,7 @@ public class PolygonRatesAnalysis {
 				}
 			}
 		}
-		fw.write(srcIndex+","+ 
+		fw.write(faultName+","+srcIndex+","+ 
 				totPointsInRELM_Region/(float)numPoints);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
