@@ -15,6 +15,7 @@ import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EmpiricalModelDataFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
@@ -33,7 +34,8 @@ public class PolygonRatesAnalysis {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/";
 	private final static String A_FAULT_FILENAME = PATH+"A_FaultsPolygonFractions.txt";
 	private final static String B_FAULT_FILENAME = PATH+"B_FaultsPolygonFractions.txt";
-
+	private final static String C_ZONES_FILENAME = PATH+"C_ZonesPolygonFractions.txt";
+	
 	public PolygonRatesAnalysis() {
 		eqkRateModelERF.updateForecast();
 		double totRate = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, eqkRateModelERF, relmRegion);
@@ -110,6 +112,63 @@ public class PolygonRatesAnalysis {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/**
+	 * Fro each C-zone, find the fraction that lies in each polygon
+	 *
+	 */
+	public void computeC_SourcesFraction() {
+		NSHMP_GridSourceGenerator nshmpGridSrcGen = new NSHMP_GridSourceGenerator();
+		String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/griddedSeis/";
+		try {
+			FileWriter fw = new FileWriter(C_ZONES_FILENAME);
+			double [] area1new_agrid  = nshmpGridSrcGen.readGridFile(PATH+"area1new.agrid.asc",true);
+			int cZoneIndex=0;
+			calcFractionC_Zone(nshmpGridSrcGen, fw, area1new_agrid, cZoneIndex);
+			double [] area2new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area2new.agrid.asc",true);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, area2new_agrid, ++cZoneIndex);
+			double [] area3new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area3new.agrid.asc",true);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, area3new_agrid, ++cZoneIndex);
+			double [] area4new_agrid = nshmpGridSrcGen.readGridFile(PATH+"area4new.agrid.asc",true);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, area4new_agrid, ++cZoneIndex);
+			double [] mojave_agrid = nshmpGridSrcGen.readGridFile(PATH+"mojave.agrid.asc",true);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, mojave_agrid, ++cZoneIndex);
+			double [] sangreg_agrid = nshmpGridSrcGen.readGridFile(PATH+"sangreg.agrid.asc",true);
+			calcFractionC_Zone(nshmpGridSrcGen, fw, sangreg_agrid, ++cZoneIndex);
+			fw.close();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
+
+	}
+
+	private void calcFractionC_Zone(NSHMP_GridSourceGenerator nshmpGridSrcGen, FileWriter fw, double[] area1new_agrid, int cZoneIndex) throws IOException {
+		int numPolygons = empiricalModelFetcher.getNumRegions();
+		int []pointInEachPolygon = new int[numPolygons];
+		int totPointsInRELM_Region = 0;
+		for(int i=0; i<area1new_agrid.length; ++i) {
+			if(area1new_agrid[i]==0) continue; // if the rate is 0 at this location
+			++totPointsInRELM_Region;
+			Location loc = nshmpGridSrcGen.getGridLocation(i);
+			for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
+				GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+				if(polygon.getRegionOutline()==null) continue;
+				if(polygon.isLocationInside(loc)) ++pointInEachPolygon[regionIndex];
+			}
+		}
+		fw.write(cZoneIndex+","+ 
+				totPointsInRELM_Region/(double)totPointsInRELM_Region);	
+		int pointsOutsidePolygon = totPointsInRELM_Region;
+		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
+			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
+			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
+			if(polygon.getRegionOutline()!=null)
+				fw.write(","+pointInEachPolygon[regionIndex]/(double)totPointsInRELM_Region);
+		}
+		fw.write(","+pointsOutsidePolygon/(double)totPointsInRELM_Region+"\n");
+	}
 
 	/**
 	 * Find the fraction of points in each polygon
@@ -124,7 +183,6 @@ public class PolygonRatesAnalysis {
 		int []pointInEachPolygon = new int[numPolygons];
 		int numPoints = surface.getNumCols();
 		int totPointsInRELM_Region = 0;
-		Arrays.fill(pointInEachPolygon, 0);
 		// iterate over all surface point locations
 		for(int ptIndex=0; ptIndex<numPoints; ++ptIndex) {
 			Location loc = surface.getLocation(0, ptIndex);
@@ -135,7 +193,7 @@ public class PolygonRatesAnalysis {
 				if(polygon.isLocationInside(loc)) ++pointInEachPolygon[regionIndex];
 			}
 		}
-		fw.write(srcIndex+","+numPoints+","+ 
+		fw.write(srcIndex+","+ 
 				totPointsInRELM_Region/(double)numPoints);	
 		int pointsOutsidePolygon = totPointsInRELM_Region;
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
@@ -153,6 +211,7 @@ public class PolygonRatesAnalysis {
 		PolygonRatesAnalysis polygonRatesAnalysis = new PolygonRatesAnalysis();
 		polygonRatesAnalysis.computeA_SourcesFraction();
 		polygonRatesAnalysis.computeB_SourcesFraction();
+		polygonRatesAnalysis.computeC_SourcesFraction();
 	}
 
 
