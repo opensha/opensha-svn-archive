@@ -42,8 +42,10 @@ import org.opensha.util.FileUtils;
 public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/A_FaultsSegmentData_v24.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/Appendix_C_v07_table8.xls";
+	private final static String TIME_DEP_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/SegmentTimeDepData_v02.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segEventRatesMap;
+	private HashMap<String, SegmentTimeDepData> segTimeDepDataMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
@@ -86,6 +88,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		}
 		this.loadSegmentModels(fileName);
 		readSegEventRates();
+		readSegTimeDepData();
 	}
 	
 	/**
@@ -182,6 +185,92 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	/**
+	 * Read Time dependent data for each segment
+	 *
+	 */
+	private void readSegTimeDepData() {
+		segTimeDepDataMap = new HashMap<String, SegmentTimeDepData>();
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(TIME_DEP_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastIndex = sheet.getLastRowNum();
+			double slip, aperiodicity, lastEventYr;
+			// read data for each row
+			for(int r = 1; r<=lastIndex; ) {	
+				HSSFRow row = sheet.getRow(r);
+				HSSFCell cell = row.getCell( (short) 0);
+				// segment name
+				String faultName = cell.getStringCellValue().trim();
+				++r;
+				int segIndex = -1;
+				while(true) {
+					row = sheet.getRow(r++);
+					
+					if(row==null) break;
+					
+					// Segment name
+					cell = row.getCell( (short) 0);
+					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
+					
+					++segIndex;
+					
+					// last event yr
+					cell = row.getCell( (short) 1);
+					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) lastEventYr = Double.NaN;
+					else lastEventYr = (int)cell.getNumericCellValue();
+					
+					// slip in MRE
+					cell = row.getCell( (short) 2);
+					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) slip = Double.NaN;
+					else slip = cell.getNumericCellValue();
+					
+					// apriodicity
+					cell = row.getCell( (short) 3);
+					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) aperiodicity = Double.NaN;
+					else aperiodicity = cell.getNumericCellValue();
+					
+					//System.out.println(faultName+","+segIndex+","+lastEventYr+","+slip+","+aperiodicity);
+					
+					// Segment Time dependent data
+					SegmentTimeDepData segTimeDepData = new SegmentTimeDepData();
+					segTimeDepData.setAll(faultName, segIndex, lastEventYr, slip, aperiodicity);
+					String hashMapKey = getKeyFromFaultNameAndSegIndex(faultName, segIndex);
+					segTimeDepDataMap.put(hashMapKey, segTimeDepData);
+				}
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Makes hashmpa key using fault name and segment index
+	 * 
+	 * @param faultName
+	 * @param segIndex
+	 */
+	private String getKeyFromFaultNameAndSegIndex(String faultName, int segIndex) {
+		return faultName+""+segIndex;
+	}
+	
+	
+	/**
+	 * Get segment time dependent data for selected faultName and segment index.
+	 * 
+	 * @param faultName
+	 * @param segIndex
+	 * @return
+	 */
+	public SegmentTimeDepData getSegTimeDepData(String faultName, int segIndex) {
+		String hashMapKey = getKeyFromFaultNameAndSegIndex(faultName, segIndex);
+		return segTimeDepDataMap.get(hashMapKey);
 	}
 	
 	/**

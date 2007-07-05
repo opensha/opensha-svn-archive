@@ -45,6 +45,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.B_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EventRates;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegmentTimeDepData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.griddedSeis.NSHMP_GridSourceGenerator;
@@ -1921,6 +1922,21 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		if(rupModelName.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) isUnsegmented= true;
 		else isUnsegmented = false;
 		aFaultsFetcher.setDeformationModel(getSelectedDeformationModelSummary(), isUnsegmented);
+		
+		
+		/*
+		  
+		 ArrayList<String> faultNames = aFaultsFetcher.getAllFaultNames();
+		for(int i=0; i<faultNames.size(); ++i) {
+			FaultSegmentData faultSegData = aFaultsFetcher.getFaultSegmentData(faultNames.get(i), false);
+			for(int j=0; j<faultSegData.getNumSegments(); ++j) {
+				SegmentTimeDepData segTimeDepData = aFaultsFetcher.getSegTimeDepData(faultNames.get(i), j);
+				System.out.println(segTimeDepData.getLastEventCalendarYr()+","+segTimeDepData.getSlip()+","+segTimeDepData.getAperiodicity());
+			}
+				
+		}*/
+		
+		
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
 	}
