@@ -27,23 +27,27 @@ public class WG02_QkProbCalc {
 	
 	
 	/*
-	 * For segment specific alpha
+	 * For segment specific alpha.  Note that segRate could be computed from rupRate and rupInSeg,
+	 * but we don't do that in case this is called multiple times with the same values (e.g., in 
+	 * a simulation).  It is up to the user do make sure segRate is consistent with rupRate and rupInSeg.
 	 */
 	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
-			double[] segAlpha, double[] segT_Last, double duration, double[][] rupInSeg) {
+			double[] segAlpha, double[] segTimeSinceLast, double duration, double[][] rupInSeg) {
 		
-		computeSegProbs(segRate, segAlpha, segT_Last, duration);
+		computeSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
 		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
 	}
 
 
 	/*
-	 * For constant alpha
+	 * For constant alpha.    Note that segRate could be computed from rupRate and rupInSeg,
+	 * but we don't do that in case this is called multiple times with the same values (e.g., in 
+	 * a simulation).  It is up to the user do make sure segRate is consistent with rupRate and rupInSeg.
 	 */
 	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
-			double segAlpha, double[] segT_Last, double duration, double[][] rupInSeg) {
+			double segAlpha, double[] segTimeSinceLast, double duration, double[][] rupInSeg) {
 		
-		computeSegProbs(segRate, segAlpha, segT_Last, duration);
+		computeSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
 		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
 	}
 
@@ -70,27 +74,29 @@ public class WG02_QkProbCalc {
 	/*
 	 * compute seg probs
 	 */
-	private void computeSegProbs(double[] segRate, double[] segAlpha, double[] segT_Last, double duration) {
+	private void computeSegProbs(double[] segRate, double[] segAlpha, double[] segTimeSinceLast, double duration) {
 		int num_seg = segRate.length;
 		segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
-			segProb[seg] = BPT_DistCalc.getCondProb(segT_Last[seg], segRate[seg], segAlpha[seg], duration);
+			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha[seg], duration);
 	}
 
 	/*
 	 * compute seg probs
 	 */
-	private void computeSegProbs(double[] segRate, double segAlpha, double[] segT_Last, double duration) {
+	private void computeSegProbs(double[] segRate, double segAlpha, double[] segTimeSinceLast, double duration) {
 		int num_seg = segRate.length;
 		segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
-			segProb[seg] = BPT_DistCalc.getCondProb(segT_Last[seg], segRate[seg], segAlpha, duration);
+			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha, duration);
 	}
 	
 	public double[] getSegProbs() {return segProb;}
 
 	public double[] getRupProbs() {return rupProb;}
 	
+	
+
 	
 	/*
 	 * This tests results against those obtained from the WGCEP-2002 Fortran code (single branch 
@@ -104,7 +110,7 @@ public class WG02_QkProbCalc {
 		double[] segMoRate  = {4.74714853E+24,5.62020641E+24,1.51106804E+25,1.06885024E+25};
 		double[] segAlpha = {0.5,0.5,0.5,0.5};
 		double alpha = 0.5;
-		double[] segT_Last = {96, 96, 96, 96};
+		double[] segTimeSinceLast = {96, 96, 96, 96};
 		double duration = 30;
 		double[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
@@ -119,14 +125,17 @@ public class WG02_QkProbCalc {
 
 		WG02_QkProbCalc calc = new WG02_QkProbCalc();
 		// try with both alpha and segAlpha
-		calc.computeProbs(segRate,rupRate,segMoRate,alpha,segT_Last,duration,rupInSeg);
+		calc.computeProbs(segRate,rupRate,segMoRate,alpha,segTimeSinceLast,duration,rupInSeg);
 		double[] rupProb = calc.getRupProbs();
+		// write out test results 
+		/*
 		System.out.println("Test rup fractional differences:");
 		for(int rup=0; rup<10;rup++)
 			if(rupProb[rup] == 0)
 				System.out.println("rup"+rup+": "+(float)(rupProb[rup]-testRupProb[rup]));
 			else
 				System.out.println("rup"+rup+": "+(float)((rupProb[rup]-testRupProb[rup])/testRupProb[rup]));
+		*/
 		
 	}
 }
