@@ -10,6 +10,8 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
+ * This class accepts a function list and plots it using Jfreechart
+ * 
  * @author vipingupta
  *
  */
