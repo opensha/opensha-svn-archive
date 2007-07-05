@@ -28,16 +28,11 @@ import org.opensha.exceptions.InvalidRangeException;
  * and the delta spacing between x values. This is enough to calculate any x-value by
  * index.<p>
  *
- * This function can be used to generate histograms. To do that, tolerance should be set greater than delta.
- * add methods should then be used to add to Y values for histograms. 
- * The  x value is the mid-point of the histogram interval<p>
+ * This function can be used to generate histograms. To do that, tolerance should be set greater 
+ * than delta.  Add methods should then be used to add to Y values for histograms. 
+ * The x value is the mid-point of the histogram interval<p>
  * 
  * 
- * Note: If speed was more of an issue that memory saving, the internal storage could
- * be changed from an array of y-values to an ArrayList of DataPoint2D. Since this storage
- * structure is encapsulated ( hidden ) this change could be made without affecting any
- * API calling code.<p>
- *
  * @author Steven W. Rock
  * @version 1.0
  */
