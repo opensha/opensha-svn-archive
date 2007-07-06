@@ -23,7 +23,7 @@ public final class BPT_DistCalc {
 	
 	
 	/*
-	 * delta is the discretization of the x-axis
+	 * delta is the discretization of the x-axis for unit rate
 	 */
 	public BPT_DistCalc(double alpha, double delta){
 		this.alpha = alpha;
@@ -52,7 +52,8 @@ public final class BPT_DistCalc {
 	}
 
 	/*
-	 * delta is the discretization of the x-axis
+	 * delta is the discretization of the x-axis.  
+	 * The total number of points in the function will be 10*alpha/delta
 	 */
 	public void setAlphaAndDelta(double alpha, double delta) {
 		this.alpha = alpha;
@@ -60,7 +61,8 @@ public final class BPT_DistCalc {
 	}
 
 	/*
-	 * delta is the discretization of the x-axis
+	 * delta is the discretization of the x-axis.  The total number of points in the 
+	 * function will be 10*alpha/delta+1.
 	 */
 	public void setDelta(double delta) {
 		makeFunctions(delta);
@@ -73,10 +75,11 @@ public final class BPT_DistCalc {
 	 */
 	public double getDelta() {return cdf.getDelta();}
 
-	/**
-	 * This makes pdf and cdf functions for mu = 1.0 & the current alpha value.
-	 * The max x-axis value is alpha*10
-	 *
+	/*
+	 * delta is the discretization of the x-axis.  The total number of points in the 
+	 * function will be 10*alpha/delta+1.  This obtains the cdf from the pdf using 
+	 * Trapezoidal integration (more accurate than rectangular integration using by
+	 * the static method). 
 	 */
 	private void makeFunctions(double delta) {
 		
@@ -85,8 +88,11 @@ public final class BPT_DistCalc {
 			throw new RuntimeException("Error in BPT_DistCalc: alpha is NaN");
 		
 		int num = Math.round((float)(alpha*10/delta));
-		pdf = new EvenlyDiscretizedFunc( (delta/2),  num,  delta);
-		cdf = new EvenlyDiscretizedFunc( 0,  num+1,  delta);
+		pdf = new EvenlyDiscretizedFunc(0,num,delta);
+		cdf = new EvenlyDiscretizedFunc(0,num,delta);
+		// set first y-values to zero
+		pdf.set(0,0);
+		cdf.set(0,0);
 		
 		double temp1 = 1.0/(2.*Math.PI*(alpha*alpha));
 		double temp2 = 2.*(alpha*alpha);
@@ -94,26 +100,16 @@ public final class BPT_DistCalc {
 		for(int i=1; i< pdf.getNum(); i++) { // skip first point because it's NaN
 			t = cdf.getX(i);
 			pd = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-1)*(t-1)/(temp2*t));
-			cd += pd*delta;
+			if(Double.isNaN(pd)){
+				pd=0;
+				System.out.println("pd=0 for i="+i);
+			}
+			cd += delta*(pd+pdf.getY(i-1))/2;
 			pdf.set(i,pd);
-			cdf.set(i+1,cd);
+			cdf.set(i,cd);
 		}
-		
-		// these are for the test of the getCDF and getPDF methods (in the main method) 
-		/*
-		System.out.println("pdf.getMinX="+pdf.getMinX()+"; pdf.getMaxX="+pdf.getMaxX());
-		System.out.println("pdf.getY(1000)="+pdf.getY(1000));
-		System.out.println("cdf.getMinX="+cdf.getMinX()+"; cdf.getMaxX="+cdf.getMaxX());
-		System.out.println("cdf.getY(1000)="+cdf.getY(1000));
-		*/
-
-		//System.out.println("maxCDF="+cdf.getY(cdf.getNum()-1));
-		//System.out.println("num="+cdf.getNum());
-		
-//		for(int i=0;i<cdf.getNum();i+=50)
-//		System.out.println(pdf.getX(i)+"\t"+pdf.getY(i));
 	}
-	
+
 	
 	/*
 	 * This gets the CDF for the alpha (and delta) already set
@@ -130,7 +126,7 @@ public final class BPT_DistCalc {
 	 */
 	public EvenlyDiscretizedFunc getPDF(double rate) {
 		EvenlyDiscretizedFunc newPDF = new EvenlyDiscretizedFunc(pdf.getMinX()/rate, pdf.getMaxX()/rate, pdf.getNum());
-		for(int i=0;i<newPDF.getNum();i++) newPDF.set(i,pdf.getY(i));
+		for(int i=0;i<newPDF.getNum();i++) newPDF.set(i,pdf.getY(i)*rate);
 		// Add Info ?????
 		return newPDF;
 	}
@@ -143,7 +139,7 @@ public final class BPT_DistCalc {
 		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(pdf.getMinX()/rate, pdf.getMaxX()/rate, pdf.getNum());
 		double haz;
 		for(int i=0;i<hazFunc.getNum();i++) {
-			haz = pdf.getY(i)/(1.0-cdf.getInterpolatedY(pdf.getX(i)));
+			haz = pdf.getY(i)/(1.0-cdf.getY(i));
 			hazFunc.set(i,haz);
 		}
 		// Add Info ?????
@@ -167,44 +163,44 @@ public final class BPT_DistCalc {
 	}
 	
 
+	
 	/**
-	 * This computed the conditional probability exactly as done in the WGCEP (2002) code.  
-	 * Although this method is static (doesn't require instantiation), it is less efficient
-	 * when performing numerous calculations (?).
-	 * @param lapseTime - time since last event
+	 * This computed the conditional probability using Trapezoidal integration (slightly more
+	 * accurrate that the WGCEP-2002 code, which this method is modeled after). Although this method 
+	 * is static (doesn't require instantiation), it is less efficient than the non-static version 
+	 * here (it is also very slightly less accurate because the other interpolates the cdf).  
+	 * @param timeSinceLast - time since last event
 	 * @param rate - average rate of events
 	 * @param alpha - coefficient of variation (technically corrrect??)
 	 * @param duration - forecast duration
 	 * @return
 	 */
-	public static double getCondProb(double lapseTime, double rate,double alpha, double duration) {
+	public static double getCondProb(double timeSinceLast, double rate,double alpha, double duration) {
 		
-		double mu1 = 1.0;
 		double step = 0.001;
-		double cdf, pdf, t, temp1, temp2, x, cBPT1, cBPT2;
+		double cdf=0, pdf, pdf_last=0, t, temp1, temp2, x, cBPT1=0, cBPT2;
 		int i, i1, i2;
 		double mu = 1/rate;
 		
 		// avoid numerical problems when too far out on tails
-		if ( lapseTime*rate > alpha*10 )
+		if ( timeSinceLast*rate > alpha*10 )
 			x = 10.*alpha/rate;
 		else
-			x = lapseTime;
+			x = timeSinceLast;
 		
 		// find index of the two points in time
-		i1 = Math.round((float)((x/mu)/step));
-		i2 = Math.round((float)(((x+duration)/mu)/step));
+		i1 = Math.round((float)((x/mu)/step))+1;
+		i2 = Math.round((float)(((x+duration)/mu)/step))+1;
 		
-		temp1 = mu1/(2.*Math.PI*(alpha*alpha));
-		temp2 = 2.*(alpha*alpha)*mu1;
-		t = step*3.;
-		cdf = 0;
-		cBPT1 = 0;
-		for(i=3; i<=i2; i++) {
-			pdf = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-mu1)*(t-mu1) / (temp2*t) );
-			cdf = cdf + pdf*step;
+		temp1 = 1/(2.*Math.PI*(alpha*alpha));
+		temp2 = 2.*(alpha*alpha)*1;
+		t = step*1.;
+		for(i=1; i<=i2; i++) {
+			pdf = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-1)*(t-1) / (temp2*t) );
+			cdf += step*(pdf+pdf_last)/2;
 			if ( i == i1 ) cBPT1 = cdf;
 			t += step;
+			pdf_last=pdf;
 		}
 		cBPT2 = cdf;
 		
@@ -215,15 +211,33 @@ public final class BPT_DistCalc {
 		
 	}
 	
-	
-	public double getCondProb(double lapseTime, double rate, double duration) {
-		double t1 = lapseTime*rate;
-		double t2 = (lapseTime+duration)*rate;
+
+	/**
+	 * This is a non-static version that is more efficient and slightly more accurate (due to
+	 * interpolation of the cdf function), although it requires instantiation and for alpha
+	 * to have been set (whereupon the pdf and cdf functions for unit rate are created and
+	 * stored). The commented out bit of code shows gives the non interpolated result which is
+	 * exactly the same as what comes from the static version.
+	 * @param timeSinceLast
+	 * @param rate
+	 * @param duration
+	 * @return
+	 */
+	public double getCondProb(double timeSinceLast, double rate, double duration) {
+		double t1 = timeSinceLast*rate;
+		double t2 = (timeSinceLast+duration)*rate;
 		double p1 = cdf.getInterpolatedY(t1);
 		if(p1 >= 1.0) return Double.NaN;
-		
 		double p2 = cdf.getInterpolatedY(t2);
 		return (p2-p1)/(1.0-p1);
+		
+		// non interpolated alt:
+		/*
+		int pt1 = (int) Math.round(timeSinceLast*rate/cdf.getDelta())+1;
+		int pt2 = (int) Math.round((timeSinceLast+duration)*rate/cdf.getDelta())+1;
+		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
+		*/
+
 	}
 	
 	/**
@@ -241,24 +255,28 @@ public final class BPT_DistCalc {
 		
 		// test data from WGCEP-2002 code run (single branch for SAF) done by Ned Field
 		// in Feb of 2006 (see his "Neds0206TestOutput.txt" file).
-		double elapseTime = 96;
+		double timeSinceLast = 96;
 		double nYr = 30;
 		double alph = 0.5;
 		double[] rate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
 		double[] prob = {0.130127236,0.105091952,0.0964599401,0.0964599401};
 		
 		// Test1 (static method based on WGCEP-2002 code)
+		double[] static_prob = new double[rate.length];
 		double p;
+		System.out.println("Test1: comparison with probs from WG02 code");
 		for(int i=0;i<rate.length;i++) {
-			p = getCondProb(elapseTime,rate[i],alph,nYr);
+			p = getCondProb(timeSinceLast,rate[i],alph,nYr);
 			System.out.println("Test1 (static): ="+(float)p+"; ratio="+(float)(p/prob[i]));
+			static_prob[i]=p;
 		}
 		
 		// Test2 (faster method based on pre-computed & saved function)
 		BPT_DistCalc calc = new BPT_DistCalc(0.5);
+		System.out.println("Test2: comparison between static and non static");
 		for(int i=0;i<rate.length;i++) {
-			p = calc.getCondProb(elapseTime,rate[i],nYr);
-			System.out.println("Test2 (other): ="+(float)p+"; ratio="+(float)(p/prob[i]));
+			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
+			System.out.println("Test2 (other): ="+(float)p+"; ratio="+(float)(p/static_prob[i]));
 		}
 		
 		// Speed tests
@@ -266,28 +284,29 @@ public final class BPT_DistCalc {
 		long milSec0 = System.currentTimeMillis();
 		int numCalcs = 10000;
 		for(int i=0; i< numCalcs; i++)
-			p = getCondProb(elapseTime,rate[0],alph,nYr);
+			p = getCondProb(timeSinceLast,rate[0],alph,nYr);
 		double time = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for static = "+(float)time+" sec");
 		// now the faster method based on pre-computed & saved function
 		milSec0 = System.currentTimeMillis();
 		for(int i=0; i< numCalcs; i++)
-			p = calc.getCondProb(elapseTime,rate[0],nYr);
+			p = calc.getCondProb(timeSinceLast,rate[0],nYr);
 		double time2 = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for other = "+(float)time2+" sec");
 		System.out.println("Ratio of static to other = "+(float)(time/time2));
 		
 		
 		// test the delta=0.01 case
+		System.out.println("Test3: comparison static and non static w/ delta=0.01");
 		calc.setDelta(0.01);
 		for(int i=0;i<rate.length;i++) {
-			p = calc.getCondProb(elapseTime,rate[i],nYr);
-			System.out.println("Test3 (delta=0.01): ="+(float)p+"; ratio="+(float)(p/prob[i]));
+			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
+			System.out.println("Test3 (delta=0.01): ="+(float)p+"; ratio="+(float)(p/static_prob[i]));
 		}
 		// Speed tests
 		milSec0 = System.currentTimeMillis();
 		for(int i=0; i< numCalcs; i++)
-			p = calc.getCondProb(elapseTime,rate[0],nYr);
+			p = calc.getCondProb(timeSinceLast,rate[0],nYr);
 		double time3 = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for 0.01 delta (non static) = "+(float)time3+" sec");
 		System.out.println("Ratio of compute time for default delta vs 0.01 delta  = "+(float)(time2/time3));

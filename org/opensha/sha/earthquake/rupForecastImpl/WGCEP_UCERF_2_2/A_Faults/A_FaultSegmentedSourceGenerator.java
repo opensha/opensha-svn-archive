@@ -91,7 +91,7 @@ public class A_FaultSegmentedSourceGenerator {
 	private IncrementalMagFreqDist[] rupMagFreqDist; // MFD for rupture
 	
 	private SummedMagFreqDist summedMagFreqDist;
-	private double totalMoRateFromSegments, totalMoRateFromRups;
+	private double totalMoRateFromRups;
 	
 	private ValueWeight[] aPrioriRupRates;
 	
@@ -170,7 +170,13 @@ public class A_FaultSegmentedSourceGenerator {
 		calcAllRates();
 		makeAllTimeIndSources();
 		
+		// temp simulation
+		if(segmentData.getFaultName().equals("S. San Andreas"))
+			this.simulateEvents(20000);
+	
+		
 	}
+	
 	
 	private void calcAllRates(){
 		// get the RupInSeg Matrix for the given number of segments
@@ -501,6 +507,8 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 	}
 	
+	
+	
 	/**
 	 * Get a list of all sources 
 	 * 
@@ -702,10 +710,6 @@ public class A_FaultSegmentedSourceGenerator {
 		return sjfRupInSeg;
 	}
 	
-	
-	public double getTotalMoRateFromSegs() {
-		return totalMoRateFromSegments;
-	}
 	
 	public double getTotalMoRateFromRups() {
 		return totalMoRateFromRups;
@@ -1734,6 +1738,20 @@ public class A_FaultSegmentedSourceGenerator {
 			totError+=(finalRupRate-aPrioriRate)*(finalRupRate-aPrioriRate);
 		}
 		return totError;
+	}
+	
+	public void simulateEvents(int num) {
+		
+		double[] segMoRate = new double[num_seg];
+		double totMoRate = 0;
+		for(int i=0; i<num_seg;i++) {
+			segMoRate[i] = segmentData.getSegmentMomentRate(i)*(1-this.moRateReduction);
+			totMoRate += segMoRate[i];
+		}
+//		System.out.println("moments: "+totMoRate+"  "+this.getTotalMoRateFromRups());
+		WG02_QkSimulations qkSim = new WG02_QkSimulations();
+		qkSim.computeSimulatedEvents(totRupRate, segMoRate, 0.5, rupInSeg, num);
+		qkSim.plotSegmentRecurIntPDFs();
 	}
 
 }

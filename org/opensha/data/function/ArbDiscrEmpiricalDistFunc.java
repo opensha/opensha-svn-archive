@@ -34,7 +34,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
     /* Class name Debbuging variables */
     protected final static String C = "ArbDiscrEmpiricalDistFunc";
-    private final static String ERR_MSG_MULTI_MODAL = "Error: There exists mre than 1 mode";
+    private final static String ERR_MSG_MULTI_MODAL = "Error: There exists more than 1 mode";
 
     /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = true;
@@ -136,13 +136,19 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public ArbitrarilyDiscretizedFunc getNormalizedCumDist() {
-
-      // get the total sum
-      double totSum = 0;
-      Iterator it = getPointsIterator();
-      while (it.hasNext()) { totSum += ((DataPoint2D) it.next()).getY(); }
-
-      return getCumDist(totSum);
+      return getCumDist(getSumOfAllY_Values());
+    }
+    
+    
+    /**
+     * This returns the sum of all Y values
+     * @return
+     */
+    public double getSumOfAllY_Values() {
+        double totSum = 0;
+        Iterator it = getPointsIterator();
+        while (it.hasNext()) { totSum += ((DataPoint2D) it.next()).getY(); }
+        return totSum;    	
     }
     
     
@@ -234,7 +240,8 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
     /**
      * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
-     * distribution (sum of Y values less than and equal te each X value) normalized by the value (totSum) passed in
+     * distribution (sum of Y values less than and equal te each X value) normalized 
+     * by the value (totSum) passed in
      * @return
      */
     private ArbitrarilyDiscretizedFunc getCumDist(double totSum) throws DataPoint2DException {

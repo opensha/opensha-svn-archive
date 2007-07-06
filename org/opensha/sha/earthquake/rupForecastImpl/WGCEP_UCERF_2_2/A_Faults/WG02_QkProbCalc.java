@@ -23,41 +23,19 @@ public class WG02_QkProbCalc {
 	//name for this classs
 	protected String NAME = "WG02_QkProbCalc";
 		
-	private double[] segProb, rupProb;
-	
-	
 	/*
 	 * For segment specific alpha.  Note that segRate could be computed from rupRate and rupInSeg,
 	 * but we don't do that in case this is called multiple times with the same values (e.g., in 
 	 * a simulation).  It is up to the user do make sure segRate is consistent with rupRate and rupInSeg.
 	 */
-	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
-			double[] segAlpha, double[] segTimeSinceLast, double duration, double[][] rupInSeg) {
-		
-		computeSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
-		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
-	}
-
-
-	/*
-	 * For constant alpha.    Note that segRate could be computed from rupRate and rupInSeg,
-	 * but we don't do that in case this is called multiple times with the same values (e.g., in 
-	 * a simulation).  It is up to the user do make sure segRate is consistent with rupRate and rupInSeg.
-	 */
-	public void computeProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
-			double segAlpha, double[] segTimeSinceLast, double duration, double[][] rupInSeg) {
-		
-		computeSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
-		computeRupProbs(segRate, rupRate, segMoRate, rupInSeg);
-	}
-
-	
-	private void computeRupProbs(double[] segRate, double[] rupRate, double[] segMoRate, double[][] rupInSeg) {
+	public static double[] getRupProbs(double[] segRate, double[] rupRate, double[] segMoRate, 
+			double[] segAlpha, double[] segTimeSinceLast, double duration, int[][] rupInSeg) {
 		
 		int num_seg = segRate.length;
 		int num_rup = rupRate.length;
 
-		rupProb = new double[num_rup];
+		double[] segProb = getSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
+		double[] rupProb = new double[num_rup];
 		for(int rup=0; rup<num_rup; rup++) {
 			// compute sum of segMoRates for segs in rupture
 			double totMoRate = 0;
@@ -68,32 +46,61 @@ public class WG02_QkProbCalc {
 			for(int seg=0; seg < num_seg; seg++)
 				sum += segProb[seg]*segMoRate[seg]*rupInSeg[seg][rup]/segRate[seg];
 			rupProb[rup] = rupRate[rup]*sum/totMoRate;
-		}				
-	}
+		}	
+		return rupProb;	}
+
 
 	/*
-	 * compute seg probs
+	 * For constant alpha.    Note that segRate could be computed from rupRate and rupInSeg,
+	 * but we don't do that in case this is called multiple times with the same values (e.g., in 
+	 * a simulation).  It is up to the user do make sure segRate is consistent with rupRate and rupInSeg.
 	 */
-	private void computeSegProbs(double[] segRate, double[] segAlpha, double[] segTimeSinceLast, double duration) {
+	public static double[] getRupProbs(double[] segRate, double[] rupRate, double[] segMoRate, double segAlpha, 
+			                    double[] segTimeSinceLast, double duration, int[][] rupInSeg) {
+		
 		int num_seg = segRate.length;
-		segProb = new double[num_seg];
+		int num_rup = rupRate.length;
+
+		double[] segProb = getSegProbs(segRate, segAlpha, segTimeSinceLast, duration);
+		double[] rupProb = new double[num_rup];
+		for(int rup=0; rup<num_rup; rup++) {
+			// compute sum of segMoRates for segs in rupture
+			double totMoRate = 0;
+			for(int seg=0; seg < num_seg; seg++)
+				totMoRate += segMoRate[seg]*rupInSeg[seg][rup];
+			// now compute sum
+			double sum = 0;
+			for(int seg=0; seg < num_seg; seg++)
+				sum += segProb[seg]*segMoRate[seg]*rupInSeg[seg][rup]/segRate[seg];
+			rupProb[rup] = rupRate[rup]*sum/totMoRate;
+		}	
+		return rupProb;
+	}
+
+	
+	/*
+	 * compute seg probs for seg-variable alpha
+	 */
+	public static double[] getSegProbs(double[] segRate, double[] segAlpha, double[] segTimeSinceLast, double duration) {
+		int num_seg = segRate.length;
+		double[] segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
 			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha[seg], duration);
+		return segProb;
 	}
 
+	
 	/*
-	 * compute seg probs
+	 * compute seg probs for constant alpha
 	 */
-	private void computeSegProbs(double[] segRate, double segAlpha, double[] segTimeSinceLast, double duration) {
+	public static double[] getSegProbs(double[] segRate, double segAlpha, double[] segTimeSinceLast, double duration) {
 		int num_seg = segRate.length;
-		segProb = new double[num_seg];
+		double[] segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
 			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha, duration);
+		return segProb;
 	}
 	
-	public double[] getSegProbs() {return segProb;}
-
-	public double[] getRupProbs() {return rupProb;}
 	
 	
 
@@ -101,7 +108,7 @@ public class WG02_QkProbCalc {
 	/*
 	 * This tests results against those obtained from the WGCEP-2002 Fortran code (single branch 
 	 * for SAF done by Ned Field in Feb of 2006; see his "Neds0206TestOutput.txt" file).  Results
-	 * are within 0.5%.
+	 * are within 0.3%.
 
 	 */
 	public static void main(String args[]) {
@@ -112,7 +119,7 @@ public class WG02_QkProbCalc {
 		double alpha = 0.5;
 		double[] segTimeSinceLast = {96, 96, 96, 96};
 		double duration = 30;
-		double[][] rupInSeg = {
+		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
 				{1,0,0,0,1,0,0,1,0,1}, // seg 1
 				{0,1,0,0,1,1,0,1,1,1}, // seg 2
@@ -123,19 +130,17 @@ public class WG02_QkProbCalc {
 		double[] testRupProb = {0.0405939706,0.017191546,0.,0.,0.0131122563,0.,0.0250523612,0.,0.00934537873,0.0644722432};
 		double[] testSegProb = {0.130127236,0.105091952,0.0964599401,0.0964599401};
 
-		WG02_QkProbCalc calc = new WG02_QkProbCalc();
 		// try with both alpha and segAlpha
-		calc.computeProbs(segRate,rupRate,segMoRate,alpha,segTimeSinceLast,duration,rupInSeg);
-		double[] rupProb = calc.getRupProbs();
+		double[] rupProb = WG02_QkProbCalc.getRupProbs(segRate,rupRate,segMoRate,alpha,segTimeSinceLast,duration,rupInSeg);
 		// write out test results 
-		/*
+		/**/
 		System.out.println("Test rup fractional differences:");
 		for(int rup=0; rup<10;rup++)
 			if(rupProb[rup] == 0)
 				System.out.println("rup"+rup+": "+(float)(rupProb[rup]-testRupProb[rup]));
 			else
 				System.out.println("rup"+rup+": "+(float)((rupProb[rup]-testRupProb[rup])/testRupProb[rup]));
-		*/
+		
 		
 	}
 }

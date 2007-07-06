@@ -3,6 +3,10 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults;
 import org.opensha.calc.BPT_DistCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.data.function.*;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
+import org.opensha.sha.gui.infoTools.GraphWindow;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import java.util.ArrayList;
 
 
 /**
@@ -27,7 +31,8 @@ public class WG02_QkSimulations {
 		
 	private double[] eventYear;
 	private int[] eventIndex;
-	private double[][] rupInSeg;
+	private int[][] rupInSeg;
+	double segAlpha;
 	
 	
 
@@ -36,16 +41,17 @@ public class WG02_QkSimulations {
 	 * This monte carlo simulates events.  This sets the time of rupture first rupture for all
 	 * segments at year=0 (other methods here assume this).
 	 */
-	public void computeSimulatedEvents(double[] segRate, double[] rupRate, double[] segMoRate, 
-			double segAlpha, double[][] rupInSeg, int numEvents) {
+	public void computeSimulatedEvents(double[] rupRate, double[] segMoRate, 
+			double segAlpha, int[][] rupInSeg, int numEvents) {
 		
 		this.rupInSeg = rupInSeg; // needed by other methods.
+		this.segAlpha = segAlpha;
+		
+		// compute segRates from rupRates
+		double[] segRate = getSegRateFromRupRate(rupRate, rupInSeg);
 		
 		eventIndex = new int[numEvents];
 		eventYear = new double[numEvents];
-		
-		
-		
 		WG02_QkProbCalc calc = new WG02_QkProbCalc();
 
 		int numSeg = segRate.length;
@@ -53,13 +59,16 @@ public class WG02_QkSimulations {
 		double year = 0.0;
 		double[] segTimeOfLast = new double[numSeg];  // initialized at zero, which is what we want
 		double[] segTimeSinceLast = new double[numSeg];
+		double[] rupProbs;
 		int numSimEvents = 0, rupIndex;
+		int progressReportIncrement = numEvents/10;
+		int progressReportAt = progressReportIncrement;
 		while(numSimEvents < numEvents) {
 			year += deltaYear;
 			for(int s=0; s<numSeg; s++)
 				segTimeSinceLast[s] = year - segTimeOfLast[s];
-			calc.computeProbs(segRate, rupRate, segMoRate, segAlpha, segTimeSinceLast, deltaYear, rupInSeg);
-			rupIndex =getRandomEvent(calc.getRupProbs());
+			rupProbs = WG02_QkProbCalc.getRupProbs(segRate, rupRate, segMoRate, segAlpha, segTimeSinceLast, deltaYear, rupInSeg);
+			rupIndex =getRandomEvent(rupProbs);
 			if (rupIndex > -1) {  // got an event
 				eventYear[numSimEvents] = year;
 				eventIndex[numSimEvents] = rupIndex;
@@ -68,6 +77,11 @@ public class WG02_QkSimulations {
 				if(D)
 					System.out.println(numSimEvents+"   "+(float)eventYear[numSimEvents]+"   "+eventIndex[numSimEvents]);
 				numSimEvents+= 1;
+				if(numSimEvents == progressReportAt) { // does this slow things down?
+					int perc = 100*progressReportAt/numEvents;
+					System.out.println(perc+" Percent Done");
+					progressReportAt += progressReportIncrement;
+				} 
 			}
 		}
 	}
@@ -176,7 +190,7 @@ public class WG02_QkSimulations {
 		return -1;
 	}
 	
-	private double[] getSegRateFromRupRate(double[] rupRate, double[][] rupInSeg) {
+	private double[] getSegRateFromRupRate(double[] rupRate, int[][] rupInSeg) {
 		double[] segRate = new double[rupInSeg.length];
 		for(int i=0; i<segRate.length; i++)
 			for(int j=0; j<rupRate.length;j++)
@@ -198,7 +212,7 @@ public class WG02_QkSimulations {
 		}
 		double[] rupRate = {segRate[0],segRate[1],segRate[2],segRate[3],0,0,0,0,0,0};
 		double alpha = 0.5;
-		double[][] rupInSeg = {
+		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
 				{1,0,0,0,0,0,0,0,0,0}, // seg 1
 				{0,1,0,0,0,0,0,0,0,0}, // seg 2
@@ -208,10 +222,10 @@ public class WG02_QkSimulations {
 		
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =4000;
-		this.computeSimulatedEvents(segRate, rupRate, segMoRate, alpha, rupInSeg, numSim);
+		int numSim =1000;
+		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
-		System.out.println("Dome w/ "+numSim+" events in "+(float)timeTaken+" seconds");
+		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
 		
 		System.out.println("Segment Rate Matches:");
 		for(int i=0;i<segRate.length;i++)
@@ -231,17 +245,20 @@ public class WG02_QkSimulations {
 					";  cdfRate="+(float)(1/cdf.getMean())+"; simSegRate="+
 					(float)getSimAveSegRate(i)+"; numEvents="+cdf.getSumOfAllY_Values());
 		}
-		
-		// get the sim pdf for seg 0
-		EvenlyDiscretizedFunc func = this.getPDF_ofSegRecurIntervals(0,20);
-		System.out.println(func.toString());
-		
-		// now make the target PDF for seg 0
-		BPT_DistCalc calc = new BPT_DistCalc(alpha,0.05);
-		EvenlyDiscretizedFunc func2 = calc.getPDF(this.getSimAveSegRate(0));
-		System.out.println(func2.toString());
+		plotSegmentRecurIntPDFs();
 	}
 		
+	
+	public void plotSegmentRecurIntPDFs() {
+		BPT_DistCalc calc = new BPT_DistCalc(segAlpha,0.05);
+		for(int i=0; i<rupInSeg.length;i++) {
+			ArrayList funcList = new ArrayList();
+			funcList.add(calc.getPDF(this.getSimAveSegRate(i)));
+			funcList.add(this.getPDF_ofSegRecurIntervals(i,20));
+			String title = "Simulated and Expected BPT Dist for seg "+i;
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
+		}
+	}
 
 	
 	
@@ -254,7 +271,7 @@ public class WG02_QkSimulations {
 		double duration = 30;
 		double[] segRate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
 		double[] rupRate = {0.00145604357,0.000706832856,0.,0.,0.000505269971,0.,0.00109066791,0.,0.000402616395,0.00270615076};
-		double[][] rupInSeg = {
+		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
 				{1,0,0,0,1,0,0,1,0,1}, // seg 1
 				{0,1,0,0,1,1,0,1,1,1}, // seg 2
@@ -268,6 +285,7 @@ public class WG02_QkSimulations {
 		for(int i=0; i<segRate.length; i++)
 			System.out.println(segRate[i]+"  "+testSegRate[i]+"  "+(segRate[i]/testSegRate[i]));
 
+/*		
 		// test the getRandomEvent(*)method
 		System.out.println("Testing getRandomEvent(*) method:");
 		WG02_QkProbCalc calc = new WG02_QkProbCalc();
@@ -291,14 +309,17 @@ public class WG02_QkSimulations {
 		for(int i=0; i<rupProb.length; i++)
 			System.out.println((float)rupProb[i]+"   "+(float)simEventsProb[i]+"   "+
 					(float)(simEventsProb[i]/rupProb[i]));
-
+*/
+		
 		// now test the simulation
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =10;
-		this.computeSimulatedEvents(segRate, rupRate, segMoRate, alpha, rupInSeg, numSim);
+		int numSim =500;
+		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
-		System.out.println("Dome w/ "+numSim+" events in "+(float)timeTaken+" seconds");
+		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
+		
+		plotSegmentRecurIntPDFs();
 	}
 	
 	
