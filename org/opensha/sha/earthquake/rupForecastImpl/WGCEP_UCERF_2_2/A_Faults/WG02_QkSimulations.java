@@ -1,9 +1,9 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults;
 
 import org.netlib.util.doubleW;
-import org.opensha.calc.BPT_DistCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.data.function.*;
+import org.opensha.sha.earthquake.calc.BPT_DistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;

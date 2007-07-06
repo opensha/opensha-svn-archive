@@ -1,6 +1,11 @@
-package org.opensha.calc;
+package org.opensha.sha.earthquake.calc;
 
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.param.DoubleParameter;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.ParameterList;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 
 
 /**
@@ -13,15 +18,36 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  * @version 1.0
  */
 
-public final class BPT_DistCalc {
+public final class BPT_DistCalc implements ParameterChangeListener {
 	
-	EvenlyDiscretizedFunc pdf, cdf, hazFunc;
-	double mean, aperiodicity, deltaX, duration;
-	int numPoints;
+	private EvenlyDiscretizedFunc pdf, cdf;
+	private double mean, aperiodicity, deltaX, duration;
+	private int numPoints;
 	public static final double DELTA_X_DEFAULT = 0.001;
-	boolean upToDate=false;
-
+	private boolean upToDate=false;
+	private final String NAME = "BPT";
 	
+	// Parameter names
+	private final static String MEAN_PARAM_NAME= "Mean";
+	private final static String APERIODICITY_PARAM_NAME = "Aperiodicity";
+	private final static String DURATION_PARAM_NAME = "Duration";
+	private final static String DELTA_X_PARAM_NAME = "Delta X";
+	private final static String NUM_POINTS_PARAM_NAME = "Num Points";
+	
+	// Parameter Infos
+	private final static String MEAN_PARAM_INFO= "Mean";
+	private final static String APERIODICITY_PARAM_INFO = "Aperiodicity";
+	private final static String DURATION_PARAM_INFO = "Duration";
+	private final static String DELTA_X_PARAM_INFO = "Delta X";
+	private final static String NUM_POINTS_PARAM_INFO = "Num Points";
+	
+	// various adjustable params
+	private DoubleParameter meanParam, aperiodicityParam, durationParam, deltaX_Param;
+	private IntegerParameter numPointsParam;
+	
+	// adjustable parameter list
+	private ParameterList adjustableParams;
+
 	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
 		this.mean=mean;
 		this.aperiodicity=aperiodicity;
@@ -206,7 +232,10 @@ public final class BPT_DistCalc {
 		
 	}
 
-	
+	/**
+	 * Initialize adjustable parameters
+	 *
+	 */
 	private void initAdjParams() {
 	
 		/* make double parameters for the following (except the last is an IntParam); all
@@ -225,6 +254,51 @@ public final class BPT_DistCalc {
 		 Add a getAdjParams method so these can be put in a GUI
 		 */
 		
+		meanParam =  new  DoubleParameter(MEAN_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		meanParam.setInfo(MEAN_PARAM_INFO);
+		meanParam.addParameterChangeListener(this);
+		aperiodicityParam  = new DoubleParameter(APERIODICITY_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		aperiodicityParam.setInfo(APERIODICITY_PARAM_INFO);
+		aperiodicityParam.addParameterChangeListener(this);
+		durationParam = new  DoubleParameter(DURATION_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		durationParam.setInfo(DURATION_PARAM_INFO);
+		durationParam.addParameterChangeListener(this);
+		deltaX_Param = new  DoubleParameter(DELTA_X_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		deltaX_Param.setInfo(DELTA_X_PARAM_INFO);
+		deltaX_Param.addParameterChangeListener(this);
+		numPointsParam = new  IntegerParameter(NUM_POINTS_PARAM_NAME, Integer.MIN_VALUE, Integer.MAX_VALUE);;
+		numPointsParam.setInfo(NUM_POINTS_PARAM_INFO);
+		numPointsParam.addParameterChangeListener(this);
+		
+		adjustableParams = new ParameterList();
+		adjustableParams.addParameter(meanParam);
+		adjustableParams.addParameter(aperiodicityParam);
+		adjustableParams.addParameter(durationParam);
+		adjustableParams.addParameter(deltaX_Param);
+		adjustableParams.addParameter(numPointsParam);
+	}
+	
+	
+	/**
+	 * Get adjustable params
+	 * 
+	 * @return
+	 */
+	public ParameterList getAdjParams() {
+		return this.adjustableParams;
+	}
+	
+	/**
+	 * Set the primitive types whenever a parameter changes
+	 */
+	public void parameterChange(ParameterChangeEvent event) {
+		String paramName = event.getParameterName();
+		if(paramName.equalsIgnoreCase(MEAN_PARAM_NAME)) this.mean = ((Double) meanParam.getValue()).doubleValue();
+		else if(paramName.equalsIgnoreCase(APERIODICITY_PARAM_NAME)) this.aperiodicity = ((Double) aperiodicityParam.getValue()).doubleValue();
+		else if(paramName.equalsIgnoreCase(DURATION_PARAM_NAME)) this.duration = ((Double) durationParam.getValue()).doubleValue();
+		else if(paramName.equalsIgnoreCase(DELTA_X_PARAM_NAME)) this.deltaX = ((Double) deltaX_Param.getValue()).doubleValue();
+		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) deltaX_Param.getValue()).intValue();
+		this.upToDate = false;
 	}
 	
 	/**
@@ -319,6 +393,14 @@ public final class BPT_DistCalc {
 		double time3 = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for deltaX = 0.01 & non static used effieicintly = "+(float)time3+" sec");
 		System.out.println("Ratio of compute time above versus static  = "+(float)(time3/time));
+	}
+	
+	/**
+	 * Get the name 
+	 * @return
+	 */
+	public String getName() {
+		return this.NAME;
 	}
 }
 
