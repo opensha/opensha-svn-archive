@@ -16,11 +16,20 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 public final class BPT_DistCalc {
 	
 	EvenlyDiscretizedFunc pdf, cdf, hazFunc;
-	double mean, aperiodicity, deltaX;
+	double mean, aperiodicity, deltaX, duration;
 	int numPoints;
 	public static final double DELTA_X_DEFAULT = 0.001;
 	boolean upToDate=false;
+
 	
+	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
+		this.mean=mean;
+		this.aperiodicity=aperiodicity;
+		this.deltaX=deltaX;;
+		this.numPoints=numPoints;
+		upToDate=false;
+	}
+
 	
 	/**
 	 * 
@@ -31,11 +40,12 @@ public final class BPT_DistCalc {
 	 * @param deltaX
 	 * @param numPoints
 	 */
-	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
+	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints, double duration) {
 		this.mean=mean;
 		this.aperiodicity=aperiodicity;
 		this.deltaX=deltaX;;
 		this.numPoints=numPoints;
+		this.duration = duration;
 		upToDate=false;
 	}
 	
@@ -109,11 +119,13 @@ public final class BPT_DistCalc {
 	}
 	
 	/*
-	 * This gives the probability of an event occurring between time T
+	 * This gives a function of the probability of an event occurring between time T
 	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T.
 	 * THIS NEEDS TO BE TESTED
 	 */
-	public EvenlyDiscretizedFunc getCondProbFunc(double duration) {
+	public EvenlyDiscretizedFunc getCondProbFunc() {
+		if(duration==0)
+			throw new RuntimeException("duration has not been set");
 		if(!upToDate) computeDistributions();
 		int numPts = numPoints - (int)(duration/deltaX);
 		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
@@ -147,7 +159,7 @@ public final class BPT_DistCalc {
 		*/
 	}	
 
-	
+
 	/**
 	 * This computed the conditional probability using Trapezoidal integration (slightly more
 	 * accurrate that the WGCEP-2002 code, which this method is modeled after). Although this method 
@@ -201,7 +213,6 @@ public final class BPT_DistCalc {
 		   must be greater than zero:
 		 Mean
 		 Aperiodicity
-		 Time Since Last
 		 Duration
 		 Delta X
 		 Num Points
