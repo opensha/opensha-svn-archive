@@ -15,7 +15,7 @@ import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.data.region.RELM_CollectionRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -287,7 +287,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
 	                               new Boolean(true));
 	   eqkRupForeast.getTimeSpan().setDuration(5.0);*/
 	   
-	  EqkRateModel2_ERF eqkRupForecast = new EqkRateModel2_ERF();
+	  UCERF2 eqkRupForecast = new UCERF2();
 	   eqkRupForecast.getTimeSpan().setDuration(5.0);
 	   eqkRupForecast.updateForecast();
 	   // min mag, maxMag, These are Centers of first and last bin

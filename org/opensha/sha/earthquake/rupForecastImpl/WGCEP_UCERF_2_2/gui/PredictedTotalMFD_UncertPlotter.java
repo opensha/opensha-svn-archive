@@ -14,7 +14,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_M
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -92,7 +92,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 			double mag, rate;
 			while(line!=null) {
 				if(line.startsWith("#")) {
-					mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+					mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 					mfdList.add(mfd);
 				} else {
 					StringTokenizer tokenizer = new StringTokenizer(line);
@@ -118,35 +118,35 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		this.paramValues = new ArrayList<ParamOptions>();
 		
 		// Deformation model
-		paramNames.add(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME);
+		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
 		ParamOptions options = new ParamOptions();
 		options.addValueWeight("D2.1", 0.5);
 		options.addValueWeight("D2.4", 0.5);
 		paramValues.add(options);
 		
 		// Mag Area Rel
-		paramNames.add(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME);
+		paramNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
 		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
 		paramValues.add(options);
 		
 		// A-Fault solution type
-		paramNames.add(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME);
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
 		options = new ParamOptions();
-		options.addValueWeight(EqkRateModel2_ERF.SEGMENTED_A_FAULT_MODEL, 0.9);
-		options.addValueWeight(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
 		paramValues.add(options);
 		
 		// Aprioti wt param
-		paramNames.add(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
+		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
 		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
 		// Mag Correction
-		paramNames.add(EqkRateModel2_ERF.MEAN_MAG_CORRECTION);
+		paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(-0.1), 0.2);
 		options.addValueWeight(new Double(0), 0.6);
@@ -154,14 +154,14 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		paramValues.add(options);
 		
 		//	Connect More B-Faults?
-		paramNames.add(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME);
+		paramNames.add(UCERF2.CONNECT_B_FAULTS_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Boolean(true), 0.5);
 		options.addValueWeight(new Boolean(false), 0.5);
 		paramValues.add(options);
 		
 //		 C-zone weights
-		paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		paramNames.add(UCERF2.C_ZONE_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(0.0), 0.5);
 		options.addValueWeight(new Double(1.0), 0.5);
@@ -189,39 +189,39 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 		// Avg MFDs
 		rateWtFuncList = new ArrayList<ArbDiscrEmpiricalDistFunc>();
-		for(int i=0; i<EqkRateModel2_ERF.NUM_MAG; ++i) {
+		for(int i=0; i<UCERF2.NUM_MAG; ++i) {
 			rateWtFuncList.add(new ArbDiscrEmpiricalDistFunc());
 		}
 		mfdIndex = 0;
 		doWeightedSum(0, 1.0);
 		
 		// mean MFD
-		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			meanMfd.set(magIndex, rateWtFuncList.get(magIndex).getMean());
 		}
 		meanMfd.setInfo("Mean");
 		funcs.add(meanMfd);
 		plottingFeaturesList.add(this.PLOT_CHAR3);
 		//		 median MFD
-		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			medianMfd.set(magIndex, rateWtFuncList.get(magIndex).getMedian());
 		}
 		medianMfd.setInfo("Median");
 		funcs.add(medianMfd);
 		plottingFeaturesList.add(this.PLOT_CHAR2);
 		//		 97.5 percentile MFD
-		IncrementalMagFreqDist percentile97_5Mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+		IncrementalMagFreqDist percentile97_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			percentile97_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.975));
 		}
 		percentile97_5Mfd.setInfo("97.5 percentile");
 		funcs.add(percentile97_5Mfd);
 		plottingFeaturesList.add(this.PLOT_CHAR2);
 		//		 2.5 percentile MFD
-		IncrementalMagFreqDist percentile2_5Mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+		IncrementalMagFreqDist percentile2_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			percentile2_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.025));
 		}
 		percentile2_5Mfd.setInfo("2.5 percentile");
@@ -231,10 +231,10 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		
 		
 		// Karen's observed data
-		EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
-		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
+		UCERF2 ucerf2 = new UCERF2();
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		
-		ArrayList obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);		
+		ArrayList obsMFD = ucerf2.getObsCumMFD(includeAfterShocks);		
 		funcs.add(obsMFD.get(0));
 		this.plottingFeaturesList.add(PLOT_CHAR7);
 		// historical cum dist
@@ -280,7 +280,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 					mfd.setInfo("Cumulative MFD for a logic tree branch");
 					//funcs.add(mfd);
 					//plottingFeaturesList.add(this.PLOT_CHAR1);
-					for(int magIndex=0; magIndex<EqkRateModel2_ERF.NUM_MAG; ++magIndex) {
+					for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 						rateWtFuncList.get(magIndex).set(mfd.getY(magIndex), newWt);
 					}
 				}

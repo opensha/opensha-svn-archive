@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsF
  *
  */
 public class GenerateTestExcelSheets {
-	private EqkRateModel2_ERF eqkRateModelERF;
+	private UCERF2 ucerf2;
 	private ParameterAPI magAreaRelParam, slipModelParam;
 	private ParameterListParameter segmentedRupModelParam;
 	private ParameterList adjustableParams;
@@ -36,13 +36,13 @@ public class GenerateTestExcelSheets {
 	private ArrayList magAreaOptions, slipModelOptions;
 	
 	
-	public GenerateTestExcelSheets(EqkRateModel2_ERF eqkRateModelERF) {
-		this.eqkRateModelERF = eqkRateModelERF;
-		adjustableParams = eqkRateModelERF.getAdjustableParameterList();
-		magAreaRelParam = eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME);
-		segmentedRupModelParam = (ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME);
-		slipModelParam = eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME);
-		aFaultsFetcher = eqkRateModelERF.getA_FaultsFetcher();
+	public GenerateTestExcelSheets(UCERF2 ucerf2) {
+		this.ucerf2 = ucerf2;
+		adjustableParams = ucerf2.getAdjustableParameterList();
+		magAreaRelParam = ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME);
+		segmentedRupModelParam = (ParameterListParameter)ucerf2.getParameter(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME);
+		slipModelParam = ucerf2.getParameter(UCERF2.SLIP_MODEL_TYPE_NAME);
+		aFaultsFetcher = ucerf2.getA_FaultsFetcher();
 		magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 
@@ -129,8 +129,8 @@ public class GenerateTestExcelSheets {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
-						this.eqkRateModelERF.updateForecast();
-						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+						this.ucerf2.updateForecast();
+						aFaultSourceGenerators = ucerf2.get_A_FaultSourceGenerators();
 						this.genPredErrAndTotRateSheet( genPredErrSheet, totalRatesSheet, imag, islip,irup, cellStyle);
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
@@ -242,8 +242,8 @@ public class GenerateTestExcelSheets {
 						magAreaRelParam.setValue(magAreaOptions.get(imag));
 						
 						slipModelParam.setValue(slipModelOptions.get(islip));
-						this.eqkRateModelERF.updateForecast();
-						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+						this.ucerf2.updateForecast();
+						aFaultSourceGenerators = ucerf2.get_A_FaultSourceGenerators();
 						// Write header for each Rup Solution Types
 						if(imag==0 && islip==0) {
 							// do for each fault
@@ -325,8 +325,8 @@ public class GenerateTestExcelSheets {
 		Iterator it = this.adjustableParams.getParametersIterator();
 		while(it.hasNext()) {
 			ParameterAPI param = (ParameterAPI)it.next();
-			if(param.getName().equals(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME) ||
-					param.getName().equals(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
+			if(param.getName().equals(UCERF2.MAG_AREA_RELS_PARAM_NAME) || param.getName().equals(UCERF2.SLIP_MODEL_TYPE_NAME) ||
+					param.getName().equals(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME)) continue;
 			metadataSheet.createRow(row++).createCell((short)0).setCellValue(param.getMetadataString());
 		}
 	}

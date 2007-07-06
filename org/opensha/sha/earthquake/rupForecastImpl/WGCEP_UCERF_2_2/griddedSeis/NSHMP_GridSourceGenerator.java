@@ -10,17 +10,13 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.data.Location;
-import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.GraphWindowAPI_Impl;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-import sun.tools.tree.ThisExpression;
 
 
 
@@ -354,8 +350,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		
 		// create summed MFD
-		int numMags = (int)Math.round((EqkRateModel2_ERF.MAX_MAG-EqkRateModel2_ERF.MIN_MAG)/DELTA_MAG) + 1;
-		SummedMagFreqDist totMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, numMags);
+		int numMags = (int)Math.round((UCERF2.MAX_MAG-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
+		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, numMags);
 		int numLocs = getNumGridLocs();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
 			totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
@@ -396,8 +392,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}*/
 		
 		// create summed MFD
-		int numMags = (int)Math.round((maxMagAtLoc-EqkRateModel2_ERF.MIN_MAG)/DELTA_MAG) + 1;
-		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, maxMagAtLoc, numMags);
+		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
+		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
 
 		
 		// create and add each contributing MFD

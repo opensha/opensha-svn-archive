@@ -41,7 +41,7 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -59,7 +59,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, ParameterChangeListener{
 	
-	private EqkRateModel2_ERF eqkRateModelERF= new EqkRateModel2_ERF(); // erf to get the adjustable params
+	private UCERF2 ucerf2= new UCERF2(); // erf to get the adjustable params
 	private ParameterListEditor editor; // editor
 	private final static String TITLE = "Eqk Rate Model2 Params";
 	private JButton calcButton = new JButton("Calculate");
@@ -82,7 +82,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	public EqkRateModel2_ERF_GUI() {
 		
 		// listen to all parameters
-		ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
+		ParameterList paramList = ucerf2.getAdjustableParameterList();
 		Iterator it = paramList.getParametersIterator();
 		while(it.hasNext()) {
 			ParameterAPI param = (ParameterAPI)it.next();
@@ -109,7 +109,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	
 	private void addParameterListEditor() {
 		int val = scrollPane.getVerticalScrollBar().getValue();
-		editor = new ParameterListEditor(eqkRateModelERF.getAdjustableParameterList());
+		editor = new ParameterListEditor(ucerf2.getAdjustableParameterList());
 		editor.setTitle(TITLE);
 		scrollPane.setViewportView(editor);
 		scrollPane.getVerticalScrollBar().setValue(val);
@@ -166,7 +166,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		  //String dirName = getDirectoryName();
 		  //if(dirName==null) return;
 		  //generateAnalysisFigures(dirName);
-		  this.eqkRateModelERF.plotFaultMFDs_forReport();
+		  this.ucerf2.plotFaultMFDs_forReport();
 	  }
 	  
 	  /**
@@ -223,7 +223,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 
 		 ArrayList<String> paramNames = new ArrayList<String>();
 		 // remove parameter listeners
-		 ParameterList paramList = eqkRateModelERF.getAdjustableParameterList();
+		 ParameterList paramList = ucerf2.getAdjustableParameterList();
 		 Iterator it = paramList.getParametersIterator();
 		 while(it.hasNext()) {
 			 ParameterAPI param = (ParameterAPI)it.next();
@@ -244,109 +244,109 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 
 		 
 		 this.dirName=dirName;
-		 this.eqkRateModelERF.setParamDefaults();
+		 this.ucerf2.setParamDefaults();
 		 
 		 // figure 1 with defaults
 		 int fig=1;
-		 eqkRateModelERF.updateForecast();
+		 ucerf2.updateForecast();
 		 makeMFDsPlot("plot"+fig);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 for(int i=0; i<paramNames.size(); ++i) {
-			 if(paramNames.get(i).equalsIgnoreCase(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME))
+			 if(paramNames.get(i).equalsIgnoreCase(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME))
 				 sheet.getRow(i+1).createCell((short)fig).setCellValue("Geological Insight");
 			 else	 sheet.getRow(i+1).createCell((short)fig).setCellValue(paramList.getValue(paramNames.get(i)).toString());			 
 		 }
-		 double obsVal = this.eqkRateModelERF.getObsCumMFD(eqkRateModelERF.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 double obsVal = this.ucerf2.getObsCumMFD(ucerf2.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 
 		 // figure 2
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
+		 ucerf2.updateForecast();
 		 makeMFDsPlot("plot"+fig);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 
 		 //		 figure 3
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).setValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		
 		 //		 figure 4
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e7));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e7));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME)).createCell((short)fig).setCellValue("1e7");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)).createCell((short)fig).setCellValue("1e7");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 5
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 6
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(-0.1);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(-0.1);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 7
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 8
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("False");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("False");
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 9
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0.0);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0.0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 //		 figure 10
 		 ++fig;
-		 this.eqkRateModelERF.setParamDefaults();
-		 eqkRateModelERF.getParameter(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME).setValue(new Double(1.0));
-		 eqkRateModelERF.updateForecast();
+		 this.ucerf2.setParamDefaults();
+		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(1.0));
+		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((eqkRateModelERF.getTotalMFD().getCumRate(6.5)/obsVal));
+		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
+		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		 makeMFDsPlot("plot"+fig);
 		 
 		 
@@ -361,10 +361,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 }
 		 }
 		 
-		 eqkRateModelERF.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 
 		 // add back parameter listeners
-		 paramList = eqkRateModelERF.getAdjustableParameterList();
+		 paramList = ucerf2.getAdjustableParameterList();
 		 it = paramList.getParametersIterator();
 		 while(it.hasNext()) {
 			 ParameterAPI param = (ParameterAPI)it.next();
@@ -385,7 +385,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  * @param fileName
 	  */
 	 private void makeMFDsPlot(String fileName) {
-		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF, true);
+		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.ucerf2, true);
 		 GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
 		 graphWindow.setPlotLabel("Cum Mag Freq Dist");
 		 graphWindow.plotGraphUsingPlotPreferences();
@@ -438,9 +438,9 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		if(source==this.calcButton) {
 			CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
 			progressBar.setLocationRelativeTo(this);
-			eqkRateModelERF.updateForecast(); // update forecast
+			ucerf2.updateForecast(); // update forecast
 			// show the output
-			EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(eqkRateModelERF);
+			EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(ucerf2);
 			outputWindow.setLocationRelativeTo(this);
 			progressBar.showProgress(false);
 		} 

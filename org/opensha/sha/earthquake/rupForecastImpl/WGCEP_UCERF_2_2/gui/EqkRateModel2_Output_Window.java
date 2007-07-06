@@ -30,7 +30,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -57,7 +57,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 	private JButton aFaultsSegDataButton = new JButton("Table of all A-Faults Segment Data");
 	private JButton aFaultsRupDataButton = new JButton("Table of all A-Faults Rupture Data");
-	private EqkRateModel2_ERF eqkRateModelERF;
+	private UCERF2 ucerf2;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private HashMap aFaultSourceMap;
@@ -79,11 +79,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	
 	/**
 	 * 
-	 * @param eqkRateModelERF
+	 * @param ucerf2
 	 * @param historicalMFD
 	 */
-	public EqkRateModel2_Output_Window(EqkRateModel2_ERF eqkRateModelERF) {
-		this.eqkRateModelERF = eqkRateModelERF;
+	public EqkRateModel2_Output_Window(UCERF2 ucerf2) {
+		this.ucerf2 = ucerf2;
 		//this.historicalMFD = historicalMFD;
 		createGUI();
 		this.pack();
@@ -129,52 +129,52 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	private JPanel getTotalModelSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
-		cumMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF, true);
-		incrMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.eqkRateModelERF, false);
+		cumMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.ucerf2, true);
+		incrMfdsPlotter = new EqkRateModel2_MFDsPlotter(this.ucerf2, false);
 		JTextArea textArea = new JTextArea();
 		textArea.setText("");
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		
-		IncrementalMagFreqDist totalMFD = this.eqkRateModelERF.getTotalMFD();
+		IncrementalMagFreqDist totalMFD = this.ucerf2.getTotalMFD();
 		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
-		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
-		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.eqkRateModelERF.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
+		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.ucerf2.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
 		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n");
 		
 		// Display the general prediction error in case of Segmented A-Faults
 		if(!this.isUnsegmented) { // for segmented faults, get the general prediction error
 			textArea.append("\nTotal A-Fault Pred Errors:"+"\n");
-			textArea.append("\n\tGen Pred Error = "+(float)eqkRateModelERF.getGeneralPredErr()+"\n");
-			textArea.append("\tSeg Slip Rate Error = "+(float)eqkRateModelERF.getModSlipRateError()+"\n");
-			textArea.append("\tSeg Event Rate Error = "+(float)eqkRateModelERF.getDataER_Err()+"\n");
-			textArea.append("\tA-Priori Rup Rate Error = "+(float)eqkRateModelERF.getNormalizedA_PrioriRateErr()+"  ");
-			textArea.append("(non-normalized = "+(float)eqkRateModelERF.getNonNormalizedA_PrioriRateErr()+")\n\n\n");
+			textArea.append("\n\tGen Pred Error = "+(float)ucerf2.getGeneralPredErr()+"\n");
+			textArea.append("\tSeg Slip Rate Error = "+(float)ucerf2.getModSlipRateError()+"\n");
+			textArea.append("\tSeg Event Rate Error = "+(float)ucerf2.getDataER_Err()+"\n");
+			textArea.append("\tA-Priori Rup Rate Error = "+(float)ucerf2.getNormalizedA_PrioriRateErr()+"  ");
+			textArea.append("(non-normalized = "+(float)ucerf2.getNonNormalizedA_PrioriRateErr()+")\n\n\n");
 		}
 		
 		
 		textArea.append("\tRate (M>=5)\tRate (M>=6.5)\tMoment Rate\n");
 		textArea.append("------------------------------------------------\n");
-		textArea.append("A Faults\t"+(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getCumRate(6.5)+"\t"+
-				(float)this.eqkRateModelERF.getTotal_A_FaultsMFD().getTotalMomentRate()+"\n");
-		textArea.append("B Char\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getCumRate(6.5)+"\t"+
-				(float)this.eqkRateModelERF.getTotal_B_FaultsCharMFD().getTotalMomentRate()+"\n");
-		textArea.append("B GR\t"+(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getCumRate(6.5)+"\t"+
-				(float)this.eqkRateModelERF.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
-		textArea.append("C Zone\t"+(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getCumRate(6.5)+"\t"+
-				(float)this.eqkRateModelERF.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");
-		textArea.append("Background\t"+(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getTotalIncrRate()+"\t"+
-				(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getCumRate(6.5)+"\t"+
-				(float)this.eqkRateModelERF.getTotal_BackgroundMFD().getTotalMomentRate()+"\n");
+		textArea.append("A Faults\t"+(float)this.ucerf2.getTotal_A_FaultsMFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_A_FaultsMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_A_FaultsMFD().getTotalMomentRate()+"\n");
+		textArea.append("B Char\t"+(float)this.ucerf2.getTotal_B_FaultsCharMFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsCharMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsCharMFD().getTotalMomentRate()+"\n");
+		textArea.append("B GR\t"+(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
+		textArea.append("C Zone\t"+(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_C_ZoneMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");
+		textArea.append("Background\t"+(float)this.ucerf2.getTotal_BackgroundMFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_BackgroundMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_BackgroundMFD().getTotalMomentRate()+"\n");
 		textArea.append("Total\t"+(float)totalMFD.getTotalIncrRate()+"\t"+
 				(float)totalMFD.getCumRate(6.5)+"\t"+
 				(float)totalMFD.getTotalMomentRate()+"\n\n");
 		textArea.append("Adjustable Params Metadata:\n");
-		textArea.append(eqkRateModelERF.getAdjustableParameterList().getParameterListMetadataString("\n"));
+		textArea.append(ucerf2.getAdjustableParameterList().getParameterListMetadataString("\n"));
 		panel.add(new JScrollPane(textArea),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(plotCumMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
@@ -276,11 +276,11 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JPanel getA_FaultSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
 		aFaultSourceMap = new HashMap();
-		ArrayList aFaultSourceGenerators = this.eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList aFaultSourceGenerators = this.ucerf2.get_A_FaultSourceGenerators();
 		
 		// whether this is segmented or unsegmented
-		String rupModel = (String)eqkRateModelERF.getParameter(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME).getValue();
-		if(rupModel.equalsIgnoreCase(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL)) {
+		String rupModel = (String)ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue();
+		if(rupModel.equalsIgnoreCase(UCERF2.UNSEGMENTED_A_FAULT_MODEL)) {
 			this.isUnsegmented = true;
 			this.predERButton.setVisible(false);
 			this.dataERButton.setVisible(false);
@@ -314,7 +314,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		} else {
 			ruptureDataPanel = new RuptureDataPanel();
 			segmentInfoTabbedPane.addTab("Rupture Info", ruptureDataPanel);
-			ruptureDataPanel.setSourcesForMagAreaPlot(aFaultSourceGenerators, this.eqkRateModelERF.getMagAreaRelationships());
+			ruptureDataPanel.setSourcesForMagAreaPlot(aFaultSourceGenerators, this.ucerf2.getMagAreaRelationships());
 		}
 		panel.add(segmentInfoTabbedPane,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
@@ -339,7 +339,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	private JPanel getB_FaultSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
-		ArrayList bFaultSources = this.eqkRateModelERF.get_B_FaultSources();
+		ArrayList bFaultSources = this.ucerf2.get_B_FaultSources();
 		B_FaultDataPanel bFaultDataPanel = new B_FaultDataPanel();
 		bFaultDataPanel.setB_FaultSources(bFaultSources);
 		panel.add(bFaultDataPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -354,7 +354,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 */
 	private JPanel getC_ZonesSummaryGUI() {
 		JPanel panel = new JPanel(new GridBagLayout());
-		ArrayList<IncrementalMagFreqDist> cZonesMFDs = this.eqkRateModelERF.getC_ZoneMFD_List();
+		ArrayList<IncrementalMagFreqDist> cZonesMFDs = this.ucerf2.getC_ZoneMFD_List();
 		C_ZoneDataPanel cZonesDataPanel = new C_ZoneDataPanel();
 		cZonesDataPanel.setC_ZonesMFD_List(cZonesMFDs);
 		panel.add(cZonesDataPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -380,10 +380,10 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		Object source =   aFaultSourceMap.get(selectedFault);
 		if(!this.isUnsegmented)  {
 			ruptureDataPanel.setSource((A_FaultSegmentedSourceGenerator)source);
-			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSourceGenerator)source, null, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+			this.segmentDataPanel.setFaultSegmentData((A_FaultSegmentedSourceGenerator)source, null, isAseisReducesArea, this.ucerf2.getMagAreaRelationships());
 		} else {
-			segmentDataPanel.setEventRatesList(this.eqkRateModelERF.getA_FaultsFetcher().getEventRatesList());
-			this.segmentDataPanel.setFaultSegmentData(null, (UnsegmentedSource)source, isAseisReducesArea, this.eqkRateModelERF.getMagAreaRelationships());
+			segmentDataPanel.setEventRatesList(this.ucerf2.getA_FaultsFetcher().getEventRatesList());
+			this.segmentDataPanel.setFaultSegmentData(null, (UnsegmentedSource)source, isAseisReducesArea, this.ucerf2.getMagAreaRelationships());
 		}
 	} 
 
@@ -438,7 +438,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormRupRatesDiff() {
-		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.ucerf2.get_A_FaultSourceGenerators();
 		normRupRatesRatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceGeneratorList.size(); ++i) {
@@ -458,7 +458,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormModSlipRateResids() {
-		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = ucerf2.get_A_FaultSourceGenerators();
 		normModlSlipRateRatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceGeneratorList.size(); ++i) {
@@ -473,7 +473,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcNormDataER_Resids() {
-		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = ucerf2.get_A_FaultSourceGenerators();
 		normDataER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceGeneratorList.size(); ++i) {
@@ -489,7 +489,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	 *
 	 */
 	private void calcPredERRatio() {
-		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList<A_FaultSegmentedSourceGenerator> sourceGeneratorList = this.ucerf2.get_A_FaultSourceGenerators();
 		predER_RatioList = new ArrayList<Double>();
 		// iterate over all sources
 		for(int i=0; i<sourceGeneratorList.size(); ++i) {

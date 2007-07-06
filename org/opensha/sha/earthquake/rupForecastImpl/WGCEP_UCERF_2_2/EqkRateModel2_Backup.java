@@ -63,9 +63,9 @@ import org.opensha.util.FileUtils;
  * @author 
  *
  */
-public class EqkRateModel2_ERF extends EqkRupForecast {
+public class EqkRateModel2_Backup extends EqkRupForecast {
 	//for Debug purposes
-	private static String  C = new String("EqkRateModel2_ERF");
+	private static String  C = new String("EqkRateModel2_Backup");
 	private boolean D = true;
 	
 	// name of this ERF
@@ -386,7 +386,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 *
 	 * No argument constructor
 	 */
-	public EqkRateModel2_ERF() {
+	public EqkRateModel2_Backup() {
 		
 		// create the timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -1463,7 +1463,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		for(int i=0; i<obsCumMFD.size(); ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
-			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_ERF.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_ERF.DELTA_MAG, 24);
+			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+EqkRateModel2_Backup.DELTA_MAG, cumMFD.getMaxX()-EqkRateModel2_Backup.DELTA_MAG, 24);
 //System.out.println("deltaMag="+arbIncrMFD.getDelta()+"  "+arbIncrMFD.getMinX()+"  "+arbIncrMFD.getMaxX());
 			arbIncrMFD.setCumRateDist(cumMFD);
 			ArbitrarilyDiscretizedFunc arbDiscFun = new ArbitrarilyDiscretizedFunc();
@@ -2293,7 +2293,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	 */
 	public void mkExcelSheetTests() {
 		
-		GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
+		/*GenerateTestExcelSheets excelSheetsGen = new GenerateTestExcelSheets(this);
 
 		
 		// TEST 1 - defaults
@@ -2326,7 +2326,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		// TEST 6 Deformation Model D2.3
 		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
 		excelSheetsGen.generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
-		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");	
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");	*/
 		
 		/*
 		// TEST - FULL WEIGHT ON A-PRIORI
@@ -2401,7 +2401,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 		
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
+		EqkRateModel2_Backup erRateModel2_ERF = new EqkRateModel2_Backup();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.findMinBulge();
 		//erRateModel2_ERF.printMag6_5_discrepancies();

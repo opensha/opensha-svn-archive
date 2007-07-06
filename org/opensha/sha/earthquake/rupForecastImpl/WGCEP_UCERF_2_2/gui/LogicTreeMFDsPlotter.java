@@ -22,7 +22,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -46,7 +46,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 //	 Eqk Rate Model 2 ERF
-	private EqkRateModel2_ERF eqkRateModel2ERF = new EqkRateModel2_ERF();
+	private UCERF2 ucerf2 = new UCERF2();
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
@@ -136,13 +136,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
-		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
-		obs6_5CumRate = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks).get(0).getY(6.5);
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
+		obs6_5CumRate = ucerf2.getObsCumMFD(includeAfterShocks).get(0).getY(6.5);
 		if(reCalculate) {
 			HSSFWorkbook wb  = new HSSFWorkbook();
 			excelSheet = wb.createSheet();
 			HSSFRow row;
-			ParameterList adjustableParams = eqkRateModel2ERF.getAdjustableParameterList();
+			ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
 			Iterator it = adjustableParams.getParametersIterator();
 			adjustableParamNames = new ArrayList<String>();
 			 while(it.hasNext()) {
@@ -194,11 +194,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		}
 		// calculate ratio of default settings and average value at Mag6.5
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
-		this.eqkRateModel2ERF.setParamDefaults();
-		eqkRateModel2ERF.updateForecast();
-		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+eqkRateModel2ERF.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
-		cZoneMFD = this.eqkRateModel2ERF.getTotal_C_ZoneMFD();
-		bckMFD = this.eqkRateModel2ERF.getTotal_BackgroundMFD();
+		this.ucerf2.setParamDefaults();
+		ucerf2.updateForecast();
+		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+ucerf2.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
+		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
+		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
 	}
 	
 	/**
@@ -247,7 +247,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			while(line!=null) {
 				if(line.startsWith("#")) {
 					if(isNSHMP02) mfd = new IncrementalMagFreqDist(4.0, 9.0, 101);
-					else mfd = new IncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+					else mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 					mfdList.add(mfd);
 				} else {
 					StringTokenizer tokenizer = new StringTokenizer(line);
@@ -285,35 +285,35 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		this.paramValues = new ArrayList<ParamOptions>();
 		
 		// Deformation model
-		paramNames.add(EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME);
+		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
 		ParamOptions options = new ParamOptions();
 		options.addValueWeight("D2.1", 0.5);
 		options.addValueWeight("D2.4", 0.5);
 		paramValues.add(options);
 		
 		// Mag Area Rel
-		paramNames.add(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME);
+		paramNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
 		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
 		paramValues.add(options);
 		
 		// A-Fault solution type
-		paramNames.add(EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME);
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
 		options = new ParamOptions();
-		options.addValueWeight(EqkRateModel2_ERF.SEGMENTED_A_FAULT_MODEL, 0.9);
-		options.addValueWeight(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
 		paramValues.add(options);
 		
 		// Aprioti wt param
-		paramNames.add(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
+		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
 		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
 		// Mag Correction
-		paramNames.add(EqkRateModel2_ERF.MEAN_MAG_CORRECTION);
+		paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(-0.1), 0.2);
 		options.addValueWeight(new Double(0), 0.6);
@@ -321,14 +321,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramValues.add(options);
 		
 		//	Connect More B-Faults?
-		paramNames.add(EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME);
+		paramNames.add(UCERF2.CONNECT_B_FAULTS_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Boolean(true), 0.5);
 		options.addValueWeight(new Boolean(false), 0.5);
 		paramValues.add(options);
 		
 		// C-zone weights
-		paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		paramNames.add(UCERF2.C_ZONE_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(0.0), 0.5);
 		options.addValueWeight(new Double(1.0), 0.5);
@@ -363,32 +363,32 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		String paramName = paramNames.get(paramIndex);
 		int numValues = options.getNumValues();
 		for(int i=0; i<numValues; ++i) {
-			if(eqkRateModel2ERF.getAdjustableParameterList().containsParameter(paramName)) {
-				eqkRateModel2ERF.getParameter(paramName).setValue(options.getValue(i));	
-				if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME)) {
-					ParameterAPI param = eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME);
+			if(ucerf2.getAdjustableParameterList().containsParameter(paramName)) {
+				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
+				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
+					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 					if(((Double)param.getValue()).doubleValue()==1e10) {
-						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
-						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
 					} else {
-						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(EqkRateModel2_ERF.MIN_A_FAULT_RATE_1_DEFAULT);
-						eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(EqkRateModel2_ERF.MIN_A_FAULT_RATE_2_DEFAULT);	
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_1_DEFAULT);
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
 					}
 				}
 			}
 			double newWt = weight * options.getWeight(i);
 			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save the MFDs
 				System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
-				eqkRateModel2ERF.updateForecast();
-				aFaultMFDsList.add(eqkRateModel2ERF.getTotal_A_FaultsMFD());
-				bFaultCharMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsCharMFD());
-				bFaultGRMFDsList.add(eqkRateModel2ERF.getTotal_B_FaultsGR_MFD());
-				totMFDsList.add(eqkRateModel2ERF.getTotalMFD());
+				ucerf2.updateForecast();
+				aFaultMFDsList.add(ucerf2.getTotal_A_FaultsMFD());
+				bFaultCharMFDsList.add(ucerf2.getTotal_B_FaultsCharMFD());
+				bFaultGRMFDsList.add(ucerf2.getTotal_B_FaultsGR_MFD());
+				totMFDsList.add(ucerf2.getTotalMFD());
 				short colIndex = (short)totMFDsList.size();
 				HSSFRow row = this.excelSheet.createRow(colIndex);
 				// write to excel sheet
 				row.createCell((short)0).setCellValue("Plot "+colIndex);
-				ParameterList paramList = eqkRateModel2ERF.getAdjustableParameterList();
+				ParameterList paramList = ucerf2.getAdjustableParameterList();
 				for(int p=0; p<this.adjustableParamNames.size(); ++p) {
 					String pName = adjustableParamNames.get(p);
 					if(paramList.containsParameter(pName))
@@ -407,9 +407,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				++colNum;
 				row.createCell((short)(colNum)).setCellValue(bFaultGRMFDsList.get(colIndex-1).getTotalMomentRate());
 				++colNum;
-				row.createCell((short)(colNum)).setCellValue(eqkRateModel2ERF.getTotal_C_ZoneMFD().getTotalMomentRate());
+				row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate());
 				++colNum;
-				row.createCell((short)(colNum)).setCellValue(eqkRateModel2ERF.getTotal_BackgroundMFD().getTotalMomentRate());
+				row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_BackgroundMFD().getTotalMomentRate());
 				++colNum;
 				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
 			} else { // recursion 
@@ -431,14 +431,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(null, null, false, false, false, false, true);
 		
 //		 Deformation model
-		String paramName = EqkRateModel2_ERF.DEFORMATION_MODEL_PARAM_NAME;
+		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
 		values.add("D2.4");
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults only
 		
 		// Mag Area Rel
-		paramName = EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME;
+		paramName = UCERF2.MAG_AREA_RELS_PARAM_NAME;
 		values = new ArrayList();
 		values.add(Ellsworth_B_WG02_MagAreaRel.NAME);
 		values.add(HanksBakun2002_MagAreaRel.NAME);
@@ -446,14 +446,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		
 		// A-Fault solution type
-		paramName = EqkRateModel2_ERF.RUP_MODEL_TYPE_NAME;
+		paramName = UCERF2.RUP_MODEL_TYPE_NAME;
 		values = new ArrayList();
-		values.add(EqkRateModel2_ERF.SEGMENTED_A_FAULT_MODEL);
-		values.add(EqkRateModel2_ERF.UNSEGMENTED_A_FAULT_MODEL);
+		values.add(UCERF2.SEGMENTED_A_FAULT_MODEL);
+		values.add(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		plotMFDs(paramName, values, true, false, false, false, false); // plot A-faults  only
 		
 		// Aprioti wt param
-		paramName = EqkRateModel2_ERF.REL_A_PRIORI_WT_PARAM_NAME;
+		paramName = UCERF2.REL_A_PRIORI_WT_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(1e-4));
 		values.add(new Double(1e10));
@@ -461,14 +461,14 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		
 		// Mag Correction
-		paramName = EqkRateModel2_ERF.MEAN_MAG_CORRECTION;
+		paramName = UCERF2.MEAN_MAG_CORRECTION;
 		values = new ArrayList();
 		values.add(new Double(-0.1));
 		values.add(new Double(0.1));
 		plotMFDs(paramName, values, true, true, false, false, false); // plot A-faults  and B-faults
 
 		//	Connect More B-Faults?
-		paramName = EqkRateModel2_ERF.CONNECT_B_FAULTS_PARAM_NAME;
+		paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Boolean(true));
 		values.add(new Boolean(false));
@@ -484,13 +484,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotBackgroundEffectsMFDs();
 		
 //		B-faults b-values
-		paramName = EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME;
+		paramName = UCERF2.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults
 
 //		fraction MoRate to Background
-		paramName = EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME;
+		paramName = UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.1));
 		plotMFDs(paramName, values, true, true, false, false, false); // plot A & B-faults
@@ -506,18 +506,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		//		 BULGE PARAMETER EFFECT
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false);
-		SummedMagFreqDist modifiedTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		eqkRateModel2ERF.setParamDefaults();
-		this.eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME).setValue(new Boolean(false));
-		eqkRateModel2ERF.updateForecast();
-		IncrementalMagFreqDist newBckMFD = eqkRateModel2ERF.getTotal_BackgroundMFD();
+		SummedMagFreqDist modifiedTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		ucerf2.setParamDefaults();
+		this.ucerf2.getParameter(UCERF2.BULGE_REDUCTION_PARAM_NAME).setValue(new Boolean(false));
+		ucerf2.updateForecast();
+		IncrementalMagFreqDist newBckMFD = ucerf2.getTotal_BackgroundMFD();
 		
 		for(int i=0; i< avgTotMFD.getNum(); ++i) {
 			double mag = avgTotMFD.getX(i);
 			modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
 		}
 		String metadata="Dotted Dashed Line - ";
-		metadata += "("+EqkRateModel2_ERF.BULGE_REDUCTION_PARAM_NAME+"=false) ";
+		metadata += "("+UCERF2.BULGE_REDUCTION_PARAM_NAME+"=false) ";
 		addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
 		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
@@ -528,18 +528,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	    
 	    // APPLY MAX_MAG GRID parameter
 	    avgTotMFD = doAverageMFDs(false, false, false, false, false);
-	    modifiedTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-	    eqkRateModel2ERF.setParamDefaults();
-	    this.eqkRateModel2ERF.getParameter(EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME).setValue(new Boolean(false));
-	    eqkRateModel2ERF.updateForecast();
-	    newBckMFD = eqkRateModel2ERF.getTotal_BackgroundMFD();
+	    modifiedTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+	    ucerf2.setParamDefaults();
+	    this.ucerf2.getParameter(UCERF2.MAX_MAG_GRID_PARAM_NAME).setValue(new Boolean(false));
+	    ucerf2.updateForecast();
+	    newBckMFD = ucerf2.getTotal_BackgroundMFD();
 	    
 	    for(int i=0; i< avgTotMFD.getNum(); ++i) {
 	    	double mag = avgTotMFD.getX(i);
 	    	modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
 	    }
 	    metadata="Dotted Dashed Line - ";
-	    metadata += "("+EqkRateModel2_ERF.MAX_MAG_GRID_PARAM_NAME+"=false) ";
+	    metadata += "("+UCERF2.MAX_MAG_GRID_PARAM_NAME+"=false) ";
 	    addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
 	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
@@ -564,13 +564,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		PlotCurveCharacterstics plot1, plot2, plot3, plot4;
 		for(int i =0; values!=null && i<values.size(); ++i) {
-			IncrementalMagFreqDist aFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			IncrementalMagFreqDist bFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			IncrementalMagFreqDist bFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-			IncrementalMagFreqDist totMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+			IncrementalMagFreqDist aFaultMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+			IncrementalMagFreqDist bFaultCharMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+			IncrementalMagFreqDist bFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+			IncrementalMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 			mfdIndex = 0;
 			
-			if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
+			if(paramName.equalsIgnoreCase(UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
 				ArrayList<IncrementalMagFreqDist> mfds = this.getMFDsWhenBckFrac0_1();
 				aFaultMFD = mfds.get(0);
 				aFaultMFD.setInfo("A-Faults MFD");
@@ -580,7 +580,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultGRMFD.setInfo("B-Faults GR MFD");
 				totMFD = mfds.get(3);
 				totMFD.setInfo("Total MFD");
-			} else if(paramName.equalsIgnoreCase(EqkRateModel2_ERF.B_FAULTS_B_VAL_PARAM_NAME)) {
+			} else if(paramName.equalsIgnoreCase(UCERF2.B_FAULTS_B_VAL_PARAM_NAME)) {
 				ArrayList<IncrementalMagFreqDist> mfds = getMFDsWhenBVal0();
 				aFaultMFD = mfds.get(0);
 				aFaultMFD.setInfo("A-Faults MFD");
@@ -625,10 +625,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 		
 		// Avg MFDs
-		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
-		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG,EqkRateModel2_ERF. NUM_MAG);
+		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		mfdIndex = 0;
 		doWeightedSum(0, null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgTotMFD);
 		String metadata = "Solid Line-";
@@ -649,22 +649,22 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			if(this.isCumulative) {
 				funcs.add(resampledNSHMP_MFD);
 			} else {
-				ArbIncrementalMagFreqDist nshmpIncrMFD = new ArbIncrementalMagFreqDist(EqkRateModel2_ERF.MIN_MAG+EqkRateModel2_ERF.DELTA_MAG/2, EqkRateModel2_ERF.MAX_MAG-EqkRateModel2_ERF.DELTA_MAG/2,EqkRateModel2_ERF. NUM_MAG-1);
+				ArbIncrementalMagFreqDist nshmpIncrMFD = new ArbIncrementalMagFreqDist(UCERF2.MIN_MAG+UCERF2.DELTA_MAG/2, UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2,UCERF2. NUM_MAG-1);
 				nshmpIncrMFD.setCumRateDist(resampledNSHMP_MFD);
 				funcs.add(nshmpIncrMFD);
 			}
 			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
 //		 Karen's observed data
-		boolean includeAfterShocks = eqkRateModel2ERF.areAfterShocksIncluded();
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		
 		ArrayList obsMFD;
 		if(this.isCumulative)  {
-			obsMFD = eqkRateModel2ERF.getObsCumMFD(includeAfterShocks);
+			obsMFD = ucerf2.getObsCumMFD(includeAfterShocks);
 			metadata+="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
 		}
 		else  {
-			obsMFD = eqkRateModel2ERF.getObsIncrMFD(includeAfterShocks);
+			obsMFD = ucerf2.getObsIncrMFD(includeAfterShocks);
 			metadata+="Average Total MFD";
 		}
 		addToFuncList(avgTotMFD, metadata, PLOT_CHAR4);

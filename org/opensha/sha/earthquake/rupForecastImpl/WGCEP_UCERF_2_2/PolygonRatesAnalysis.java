@@ -26,7 +26,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
  */
 public class PolygonRatesAnalysis {
 
-	private EqkRateModel2_ERF eqkRateModelERF = new EqkRateModel2_ERF();
+	private UCERF2 ucerf2 = new UCERF2();
 	private EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
 	private EmpiricalModelDataFetcher empiricalModelFetcher = new EmpiricalModelDataFetcher();
 	private ERF2GriddedSeisRatesCalc erf2GriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc(); 
@@ -37,7 +37,7 @@ public class PolygonRatesAnalysis {
 	private final static String C_ZONES_FILENAME = PATH+"C_ZonesPolygonFractions.txt";
 	
 	public PolygonRatesAnalysis() {
-		eqkRateModelERF.updateForecast();
+		ucerf2.updateForecast();
 	}		
 
 	/**
@@ -45,7 +45,7 @@ public class PolygonRatesAnalysis {
 	 *
 	 */
 	public void calcRatesInPolygons() {
-		double totRate = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, eqkRateModelERF, relmRegion);
+		double totRate = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, ucerf2, relmRegion);
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		System.out.println("Total rate in RELM region:"+totRate);
 		double rateInPoly;
@@ -53,7 +53,7 @@ public class PolygonRatesAnalysis {
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 			if(polygon.getRegionOutline()==null) continue;
-			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, eqkRateModelERF, polygon);
+			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, ucerf2, polygon);
 			rateRestOfRegion-=rateInPoly;
 			System.out.println("Rate in region "+polygon.getName()+" is "+rateInPoly);
 		}
@@ -65,7 +65,7 @@ public class PolygonRatesAnalysis {
 	 *
 	 */
 	public void computeA_SourcesFraction() {
-		ArrayList aFaultGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+		ArrayList aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
 		int numA_Faults = aFaultGenerators.size();
 		
 		try {
@@ -115,7 +115,7 @@ public class PolygonRatesAnalysis {
 	 *
 	 */
 	public void computeB_SourcesFraction() {
-		ArrayList bFaultSources = eqkRateModelERF.get_B_FaultSources();
+		ArrayList bFaultSources = ucerf2.get_B_FaultSources();
 		int numB_Faults = bFaultSources.size();
 		
 		try {

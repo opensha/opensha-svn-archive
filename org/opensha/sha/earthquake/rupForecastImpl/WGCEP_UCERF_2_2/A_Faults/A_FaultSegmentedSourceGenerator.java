@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
 import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
@@ -52,10 +50,10 @@ public class A_FaultSegmentedSourceGenerator {
 	private int num_seg, num_rup;
 	
 	// x-axis attributes for the MagFreqDists
-	private final static double MIN_MAG = EqkRateModel2_ERF.MIN_MAG;
-	private final static double MAX_MAG = EqkRateModel2_ERF.MAX_MAG;
-	private final static double DELTA_MAG = EqkRateModel2_ERF.DELTA_MAG;
-	private final static int NUM_MAG = EqkRateModel2_ERF.NUM_MAG;
+	private final static double MIN_MAG = UCERF2.MIN_MAG;
+	private final static double MAX_MAG = UCERF2.MAX_MAG;
+	private final static double DELTA_MAG = UCERF2.DELTA_MAG;
+	private final static int NUM_MAG = UCERF2.NUM_MAG;
 	
 	private double magSigma, magTruncLevel;
 	

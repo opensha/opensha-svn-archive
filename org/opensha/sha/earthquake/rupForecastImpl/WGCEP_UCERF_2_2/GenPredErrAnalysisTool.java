@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsF
  *
  */
 public class GenPredErrAnalysisTool {
-	private EqkRateModel2_ERF eqkRateModelERF;
+	private UCERF2 ucerf2;
 	private ParameterAPI magAreaRelParam, slipModelParam;
 	private ParameterListParameter segmentedRupModelParam;
 	private ParameterList adjustableParams;
@@ -33,13 +33,13 @@ public class GenPredErrAnalysisTool {
 	private ArrayList magAreaOptions, slipModelOptions;
 	
 	
-	public GenPredErrAnalysisTool(EqkRateModel2_ERF eqkRateModelERF) {
-		this.eqkRateModelERF = eqkRateModelERF;
-		adjustableParams = eqkRateModelERF.getAdjustableParameterList();
-		magAreaRelParam = eqkRateModelERF.getParameter(EqkRateModel2_ERF.MAG_AREA_RELS_PARAM_NAME);
-		segmentedRupModelParam = (ParameterListParameter)eqkRateModelERF.getParameter(EqkRateModel2_ERF.SEGMENTED_RUP_MODEL_TYPE_NAME);
-		slipModelParam = eqkRateModelERF.getParameter(EqkRateModel2_ERF.SLIP_MODEL_TYPE_NAME);
-		aFaultsFetcher = eqkRateModelERF.getA_FaultsFetcher();
+	public GenPredErrAnalysisTool(UCERF2 ucerf2) {
+		this.ucerf2 = ucerf2;
+		adjustableParams = ucerf2.getAdjustableParameterList();
+		magAreaRelParam = ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME);
+		segmentedRupModelParam = (ParameterListParameter)ucerf2.getParameter(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME);
+		slipModelParam = ucerf2.getParameter(UCERF2.SLIP_MODEL_TYPE_NAME);
+		aFaultsFetcher = ucerf2.getA_FaultsFetcher();
 		magAreaOptions = ((StringConstraint)magAreaRelParam.getConstraint()).getAllowedStrings();
 		slipModelOptions = ((StringConstraint)slipModelParam.getConstraint()).getAllowedStrings();
 		
@@ -77,10 +77,10 @@ public class GenPredErrAnalysisTool {
 						fw.write(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]+"\n");
 						System.out.println(magAreaRelParam.getValue()+"\t"+slipModelParam.getValue()+"\t"+models[irup]+"\n");
 						double aPrioriWt = 0;
-						this.eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-						eqkRateModelERF.updateForecast();
+						this.ucerf2.setParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+						ucerf2.updateForecast();
 						// do the 0.0 case
-						aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+						aFaultSourceGenerators = ucerf2.get_A_FaultSourceGenerators();
 						fw.write("\t");
 						for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 							A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
@@ -98,9 +98,9 @@ public class GenPredErrAnalysisTool {
 						for(int pow=-20; pow<16;pow++) {
 							aPrioriWt = Math.pow(10,pow);
 							fw.write("1E"+pow+"\t");
-							eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-							eqkRateModelERF.updateForecast();
-							aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
+							ucerf2.setParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+							ucerf2.updateForecast();
+							aFaultSourceGenerators = ucerf2.get_A_FaultSourceGenerators();
 							// do for each fault
 							for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
 								A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i);
@@ -186,17 +186,17 @@ public class GenPredErrAnalysisTool {
 		int minPow = -20;
 		int pow1,pow2,pow3;
 		double aPrioriWt = Math.pow(10,pow);
-		eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-		eqkRateModelERF.updateForecast();
-		double lastError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+		ucerf2.setParameter(ucerf2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+		ucerf2.updateForecast();
+		double lastError = ucerf2.getNonNormalizedA_PrioriRateErr();
 		double newError, fractChange;
 		if(deBug) System.out.println(pow+"\t"+lastError);
 		while (noChange  && pow >= minPow) {
 			pow -= 1;
 			aPrioriWt = Math.pow(10,pow);
-			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-			eqkRateModelERF.updateForecast();
-			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			ucerf2.setParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			ucerf2.updateForecast();
+			newError = ucerf2.getNonNormalizedA_PrioriRateErr();
 			fractChange = Math.abs((lastError-newError)/lastError);
 			noChange = (fractChange < tol);
 			lastError = newError;
@@ -207,9 +207,9 @@ public class GenPredErrAnalysisTool {
 		while (!noChange  && pow >= minPow) {
 			pow -= 1;
 			aPrioriWt = Math.pow(10,pow);
-			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-			eqkRateModelERF.updateForecast();
-			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			ucerf2.setParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			ucerf2.updateForecast();
+			newError = ucerf2.getNonNormalizedA_PrioriRateErr();
 			fractChange = Math.abs((lastError-newError)/lastError);
 			noChange = (fractChange < tol);
 			lastError = newError;
@@ -220,9 +220,9 @@ public class GenPredErrAnalysisTool {
 		while (noChange && pow >= minPow) {
 			pow -=1;
 			aPrioriWt = Math.pow(10,pow);
-			eqkRateModelERF.setParameter(eqkRateModelERF.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
-			eqkRateModelERF.updateForecast();
-			newError = eqkRateModelERF.getNonNormalizedA_PrioriRateErr();
+			ucerf2.setParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME,new Double(aPrioriWt));
+			ucerf2.updateForecast();
+			newError = ucerf2.getNonNormalizedA_PrioriRateErr();
 			fractChange = Math.abs((lastError-newError)/lastError);
 			noChange = (fractChange < tol);
 			lastError = newError;
@@ -238,14 +238,14 @@ public class GenPredErrAnalysisTool {
 		
 		// NOTE: for speed, it's wise to comment out the non type-A faults in the updateForecast() method
 
-		EqkRateModel2_ERF erRateModel2_ERF = new EqkRateModel2_ERF();
-		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(erRateModel2_ERF);
+		UCERF2 ucerf2 = new UCERF2();
+		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(ucerf2);
 		
 //		System.out.println(analysisTool.findStableRange());
 //		analysisTool.writeResults("PredErrAnalysisResults1.txt");
 //		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
 /**/
-		erRateModel2_ERF.setParameter(erRateModel2_ERF.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
+		ucerf2.setParameter(UCERF2.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
 		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
 		analysisTool.writeResults("PredErrAnalysisResults2.txt");
 

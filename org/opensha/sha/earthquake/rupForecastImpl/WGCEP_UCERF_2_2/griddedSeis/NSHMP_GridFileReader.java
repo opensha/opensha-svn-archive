@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.GraphWindowAPI_Impl;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -80,7 +80,7 @@ public class NSHMP_GridFileReader {
 	 */
 	private void makeC_ZoneMFDs() {
 		cZonesMFDList = new ArrayList();
-		cZonesSummedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		cZonesSummedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		
 		GutenbergRichterMagFreqDist mfd  = getMFD_InsideRELM_Region(Path+"area1new.agrid.asc", 0.8, 6.5, 7.6, 1);
 		cZonesMFDList.add(mfd);
@@ -113,7 +113,7 @@ public class NSHMP_GridFileReader {
 	 */
 	private void makeBckMFDs() {
 		bckMFDList = new ArrayList();
-		bckSummedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		bckSummedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 
 	
 		String name = "agrd_brawly.out.asc";
@@ -136,7 +136,7 @@ public class NSHMP_GridFileReader {
 		bckSummedMFD.addResampledMagFreqDist(mfd, true);
 		
 		name = "agrd_cstcal.out.asc";
-		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		SummedMagFreqDist summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2ch.out7.asc", 0.667, true), true);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxCA2gr.out7.asc", 0.333, true), true);
 		summedMFD.setName(name);
@@ -151,7 +151,7 @@ public class NSHMP_GridFileReader {
 		bckSummedMFD.addResampledMagFreqDist(mfd, true);
 		
 		name = "agrd_wuscmp.out.asc";
-		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.667, false), true);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.333, false), true);
 		summedMFD.setName(name);
@@ -159,7 +159,7 @@ public class NSHMP_GridFileReader {
 		bckSummedMFD.addResampledMagFreqDist(summedMFD, true);
 		
 		name = "agrd_wusext.out.asc";
-		summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNch.outv3.asc", 0.667, false), true);
 		summedMFD.addResampledMagFreqDist(getMFD_InsideRELM_Region(Path+name, 0.8, 5, Path+"fltmmaxALLCNgr.outv3.asc", 0.333, false), true);
 		summedMFD.setName(name);
@@ -252,7 +252,7 @@ public class NSHMP_GridFileReader {
 			boolean applyBulgeReduction) {
 		// RELM region 
 		EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
-		SummedMagFreqDist summedMFD = new SummedMagFreqDist(EqkRateModel2_ERF.MIN_MAG, EqkRateModel2_ERF.MAX_MAG, EqkRateModel2_ERF.NUM_MAG);
+		SummedMagFreqDist summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		try { 
 			// Region filename
 			FileReader regionFileReader = new FileReader(LAT_LON_FILENAME); 

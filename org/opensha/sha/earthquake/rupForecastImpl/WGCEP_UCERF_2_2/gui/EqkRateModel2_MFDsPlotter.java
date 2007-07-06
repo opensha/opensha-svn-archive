@@ -10,7 +10,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.EqkRateModel2_ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -52,47 +52,47 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 	private final static String C_ZONES_METADATA = "C Zone Total  Mag Freq Dist";
 	private final static String TOTAL_METADATA = "Total  Mag Freq Dist";
 	
-	public EqkRateModel2_MFDsPlotter(EqkRateModel2_ERF eqkRateModelERF, boolean isCumMFD) {
-		if(isCumMFD) createCumFunctionList(eqkRateModelERF);
-		else createIncrFunctionList(eqkRateModelERF);
+	public EqkRateModel2_MFDsPlotter(UCERF2 ucerf2, boolean isCumMFD) {
+		if(isCumMFD) createCumFunctionList(ucerf2);
+		else createIncrFunctionList(ucerf2);
 	}
 	
 	/**
 	 * Create Cum Function List
 	 *
 	 */
-	private void createCumFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
+	private void createCumFunctionList(UCERF2 ucerf2) {
 	
 		funcs = new ArrayList();
 		
 		// Type A faults cum Dist
-		EvenlyDiscretizedFunc cumDist = eqkRateModelERF.getTotal_A_FaultsMFD().getCumRateDist();
+		EvenlyDiscretizedFunc cumDist = ucerf2.getTotal_A_FaultsMFD().getCumRateDist();
 		cumDist.setInfo(A_FAULTS_METADATA);
 		funcs.add(cumDist);
 		 // Type B faults Char cum Dist
-		cumDist = eqkRateModelERF.getTotal_B_FaultsCharMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_B_FaultsCharMFD().getCumRateDist();
 		cumDist.setInfo(B_FAULTS_CHAR_METADATA);
 		funcs.add(cumDist);
 		//	Type B faults GR cum Dist
-		cumDist = eqkRateModelERF.getTotal_B_FaultsGR_MFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_B_FaultsGR_MFD().getCumRateDist();
 		cumDist.setInfo(B_FAULTS_GR_METADATA);
 		funcs.add(cumDist);
 		//	Background cum Dist
-		cumDist = eqkRateModelERF.getTotal_BackgroundMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_BackgroundMFD().getCumRateDist();
 		cumDist.setInfo(BACKGROUND_METADATA);
 		funcs.add(cumDist);
 		//	C zone cum Dist
-		cumDist = eqkRateModelERF.getTotal_C_ZoneMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_C_ZoneMFD().getCumRateDist();
 		cumDist.setInfo(C_ZONES_METADATA);
 		funcs.add(cumDist);
 		//	Total cum Dist
-		cumDist = eqkRateModelERF.getTotalMFD().getCumRateDist();
+		cumDist = ucerf2.getTotalMFD().getCumRateDist();
 		cumDist.setInfo(TOTAL_METADATA);
 		funcs.add(cumDist);
 		
-		boolean includeAfterShocks = eqkRateModelERF.areAfterShocksIncluded();
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		
-		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = eqkRateModelERF.getObsCumMFD(includeAfterShocks);
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = ucerf2.getObsCumMFD(includeAfterShocks);
 		
 		// historical best fit cum dist
 		//funcs.add(eqkRateModel2ERF.getObsBestFitCumMFD(includeAfterShocks));
@@ -108,7 +108,7 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 	 * Create Incr Function List
 	 *
 	 */
-	private void createIncrFunctionList(EqkRateModel2_ERF eqkRateModelERF) {
+	private void createIncrFunctionList(UCERF2 eqkRateModelERF) {
 	
 		funcs = new ArrayList();
 		
