@@ -1,7 +1,5 @@
 package org.opensha.calc;
 
-//The following are needed only for the tests
-import java.text.DecimalFormat;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 
 
@@ -18,150 +16,136 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 public final class BPT_DistCalc {
 	
 	EvenlyDiscretizedFunc pdf, cdf, hazFunc;
-	double alpha;
-	public final double DELTA_DEFAULT = 0.001;
+	double mean, aperiodicity, deltaX;
+	int numPoints;
+	public static final double DELTA_X_DEFAULT = 0.001;
+	boolean upToDate=false;
 	
 	
-	/*
-	 * delta is the discretization of the x-axis for unit rate
+	/**
+	 * 
+	 * @param mean
+	 * @param aperiodicity
+	 * @param timeSinceLast
+	 * @param duration
+	 * @param deltaX
+	 * @param numPoints
 	 */
-	public BPT_DistCalc(double alpha, double delta){
-		this.alpha = alpha;
-		makeFunctions(delta);
+	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
+		this.mean=mean;
+		this.aperiodicity=aperiodicity;
+		this.deltaX=deltaX;;
+		this.numPoints=numPoints;
+		upToDate=false;
 	}
 	
-	/*
-	 * This applies the default delta
+	/**
+	 * For this case deltaX defaults to 0.001*mean and numPoints is aperiodicity*10/deltaX+1
+	 * @param mean
+	 * @param aperiodicity
+	 * @param timeSinceLast
+	 * @param duration
 	 */
-	public BPT_DistCalc(double alpha){
-		this.alpha = alpha;
-		makeFunctions(DELTA_DEFAULT);
+	public void setAll(double mean, double aperiodicity) {
+		this.mean=mean;
+		this.aperiodicity=aperiodicity;
+		this.deltaX = DELTA_X_DEFAULT*mean;
+		this.numPoints = (int)Math.round(aperiodicity*10*mean/deltaX)+1;
+		upToDate=false;
 	}
 	
-	/*
-	 * no arg constructor
-	 */
-	public BPT_DistCalc(){
-		this.alpha = Double.NaN;
-	}
-	
-	
-	public void setAlpha(double alpha) {
-		this.alpha = alpha;
-		makeFunctions(DELTA_DEFAULT);
-	}
-
-	/*
-	 * delta is the discretization of the x-axis.  
-	 * The total number of points in the function will be 10*alpha/delta
-	 */
-	public void setAlphaAndDelta(double alpha, double delta) {
-		this.alpha = alpha;
-		makeFunctions(delta);
-	}
-
-	/*
-	 * delta is the discretization of the x-axis.  The total number of points in the 
-	 * function will be 10*alpha/delta+1.
-	 */
-	public void setDelta(double delta) {
-		makeFunctions(delta);
-	}
-	
-	public double getAlpha() {return alpha;}
 	
 	/*
-	 * The discretization of the x-axis
+	 * This computes the PDF and then the cdf from the pdf using 
+	 * Trapezoidal integration. 
 	 */
-	public double getDelta() {return cdf.getDelta();}
-
-	/*
-	 * delta is the discretization of the x-axis.  The total number of points in the 
-	 * function will be 10*alpha/delta+1.  This obtains the cdf from the pdf using 
-	 * Trapezoidal integration (more accurate than rectangular integration using by
-	 * the static method). 
-	 */
-	private void makeFunctions(double delta) {
+	private void computeDistributions() {
 		
-		// make sure alpha has been set
-		if(Double.isNaN(alpha))
-			throw new RuntimeException("Error in BPT_DistCalc: alpha is NaN");
-		
-		int num = Math.round((float)(alpha*10/delta));
-		pdf = new EvenlyDiscretizedFunc(0,num,delta);
-		cdf = new EvenlyDiscretizedFunc(0,num,delta);
+		pdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
+		cdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		// set first y-values to zero
 		pdf.set(0,0);
 		cdf.set(0,0);
 		
-		double temp1 = 1.0/(2.*Math.PI*(alpha*alpha));
-		double temp2 = 2.*(alpha*alpha);
+		double temp1 = mean/(2.*Math.PI*(aperiodicity*aperiodicity));
+		double temp2 = 2.*mean*(aperiodicity*aperiodicity);
 		double t,pd,cd=0;
 		for(int i=1; i< pdf.getNum(); i++) { // skip first point because it's NaN
 			t = cdf.getX(i);
-			pd = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-1)*(t-1)/(temp2*t));
+			pd = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-mean)*(t-mean)/(temp2*t));
 			if(Double.isNaN(pd)){
 				pd=0;
 				System.out.println("pd=0 for i="+i);
 			}
-			cd += delta*(pd+pdf.getY(i-1))/2;
+			cd += deltaX*(pd+pdf.getY(i-1))/2;  // Trapizoidal integration
 			pdf.set(i,pd);
 			cdf.set(i,cd);
 		}
+		upToDate = true;
 	}
 
 	
-	/*
-	 * This gets the CDF for the alpha (and delta) already set
-	 */
-	public EvenlyDiscretizedFunc getCDF(double rate) {
-		EvenlyDiscretizedFunc newCDF = new EvenlyDiscretizedFunc(cdf.getMinX()/rate, cdf.getMaxX()/rate, cdf.getNum());
-		for(int i=0;i<newCDF.getNum();i++) newCDF.set(i,cdf.getY(i));
-		// Add Info ?????
-		return newCDF;
+	public EvenlyDiscretizedFunc getCDF() {
+		if(!upToDate) computeDistributions();
+		return cdf;
 	}
 
-	/*
-	 * This gets the PDF for the alpha (and delta) already set
-	 */
-	public EvenlyDiscretizedFunc getPDF(double rate) {
-		EvenlyDiscretizedFunc newPDF = new EvenlyDiscretizedFunc(pdf.getMinX()/rate, pdf.getMaxX()/rate, pdf.getNum());
-		for(int i=0;i<newPDF.getNum();i++) newPDF.set(i,pdf.getY(i)*rate);
-		// Add Info ?????
-		return newPDF;
+
+	public EvenlyDiscretizedFunc getPDF() {
+		if(!upToDate) computeDistributions();
+		return pdf;
 	}
 
-	
-	/*
-	 * This gets the hazard function for the alpha (and delta) already set.  THIS NEEDS VERIFICATION
-	 */
-	public EvenlyDiscretizedFunc getHazFunc(double rate) {
-		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(pdf.getMinX()/rate, pdf.getMaxX()/rate, pdf.getNum());
+
+	public EvenlyDiscretizedFunc getHazFunc() {
+		if(!upToDate) computeDistributions();
+		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(0, pdf.getMaxX(), pdf.getNum());
 		double haz;
 		for(int i=0;i<hazFunc.getNum();i++) {
 			haz = pdf.getY(i)/(1.0-cdf.getY(i));
 			hazFunc.set(i,haz);
 		}
-		// Add Info ?????
 		return hazFunc;
 	}
 	
 	/*
 	 * This gives the probability of an event occurring between time T
-	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T
-	 * (for the set alpha and delta).  THIS NEEDS TO BE TESTED
+	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T.
+	 * THIS NEEDS TO BE TESTED
 	 */
-	public EvenlyDiscretizedFunc getCondProbFunc(double rate, double duration) {
-		double delta = cdf.getDelta()/rate;
-		int num = (int)((cdf.getMaxX()/rate - duration)/delta) - 1;
-		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, num , delta);
+	public EvenlyDiscretizedFunc getCondProbFunc(double duration) {
+		if(!upToDate) computeDistributions();
+		int numPts = numPoints - (int)(duration/deltaX);
+		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
 		for(int i=0;i<condFunc.getNum();i++) {
-			condFunc.set(i,getCondProb(condFunc.getX(i), rate, duration));
+			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
 		}
-		// Add Info ?????
 		return condFunc;
 	}
 	
+
+	/**
+	 * This is a non-static version that is slightly more accurate (due to
+	 * interpolation of the cdf function), although it requires instantiation of the class to
+	 * access (and stores information internally). The commented out bit of code gives the non 
+	 * interpolated result which is exactly the same as what comes from the static version.
+	 * @param timeSinceLast
+	 * @param duration
+	 * @return
+	 */
+	public double getCondProb(double timeSinceLast, double duration) {
+		if(!upToDate) computeDistributions();
+		double p1 = cdf.getInterpolatedY(timeSinceLast);
+		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
+		return (p2-p1)/(1.0-p1);
+		
+		// non interpolated alt:
+		/*
+		int pt1 = (int)Math.round(timeSinceLast/deltaX) + 1;
+		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX) + 1;
+		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
+		*/
+	}	
 
 	
 	/**
@@ -175,25 +159,24 @@ public final class BPT_DistCalc {
 	 * @param duration - forecast duration
 	 * @return
 	 */
-	public static double getCondProb(double timeSinceLast, double rate,double alpha, double duration) {
+	public static double getCondProb(double mean, double aperiodicity, double timeSinceLast, double duration) {
 		
 		double step = 0.001;
 		double cdf=0, pdf, pdf_last=0, t, temp1, temp2, x, cBPT1=0, cBPT2;
 		int i, i1, i2;
-		double mu = 1/rate;
 		
 		// avoid numerical problems when too far out on tails
-		if ( timeSinceLast*rate > alpha*10 )
-			x = 10.*alpha/rate;
+		if ( timeSinceLast/mean > aperiodicity*10 )
+			x = 10.*aperiodicity*mean;
 		else
 			x = timeSinceLast;
 		
 		// find index of the two points in time
-		i1 = Math.round((float)((x/mu)/step))+1;
-		i2 = Math.round((float)(((x+duration)/mu)/step))+1;
+		i1 = Math.round((float)((x/mean)/step))+1;
+		i2 = Math.round((float)(((x+duration)/mean)/step))+1;
 		
-		temp1 = 1/(2.*Math.PI*(alpha*alpha));
-		temp2 = 2.*(alpha*alpha)*1;
+		temp1 = 1/(2.*Math.PI*(aperiodicity*aperiodicity));
+		temp2 = 2.*(aperiodicity*aperiodicity)*1;
 		t = step*1.;
 		for(i=1; i<=i2; i++) {
 			pdf = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-1)*(t-1) / (temp2*t) );
@@ -210,46 +193,40 @@ public final class BPT_DistCalc {
 			return (cBPT2-cBPT1)/( 1.-cBPT1);
 		
 	}
+
 	
-
-	/**
-	 * This is a non-static version that is more efficient and slightly more accurate (due to
-	 * interpolation of the cdf function), although it requires instantiation and for alpha
-	 * to have been set (whereupon the pdf and cdf functions for unit rate are created and
-	 * stored). The commented out bit of code shows gives the non interpolated result which is
-	 * exactly the same as what comes from the static version.
-	 * @param timeSinceLast
-	 * @param rate
-	 * @param duration
-	 * @return
-	 */
-	public double getCondProb(double timeSinceLast, double rate, double duration) {
-		double t1 = timeSinceLast*rate;
-		double t2 = (timeSinceLast+duration)*rate;
-		double p1 = cdf.getInterpolatedY(t1);
-		if(p1 >= 1.0) return Double.NaN;
-		double p2 = cdf.getInterpolatedY(t2);
-		return (p2-p1)/(1.0-p1);
+	private void initAdjParams() {
+	
+		/* make double parameters for the following (except the last is an IntParam); all
+		   must be greater than zero:
+		 Mean
+		 Aperiodicity
+		 Time Since Last
+		 Duration
+		 Delta X
+		 Num Points
+		 
+		 Ned will edit the names and info
+		 
+		 Listen to each of these and set the local/primative accordingly when it changes & set
+		 the upToDate = false
+		 
+		 Add a getAdjParams method so these can be put in a GUI
+		 */
 		
-		// non interpolated alt:
-		/*
-		int pt1 = (int) Math.round(timeSinceLast*rate/cdf.getDelta())+1;
-		int pt2 = (int) Math.round((timeSinceLast+duration)*rate/cdf.getDelta())+1;
-		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
-		*/
-
 	}
 	
 	/**
 	 *  Main method for running tests.  
-	 *  Test1 compares the static getCondProb(*) method against values from the WGCEP-2002 
-	 *  code; all are within 0.5%.
-	 *  Test2 campares the other (non static) getCondProb(*)  method against values from the WGCEP-2002 
-	 *  code; all are within 0.4%.  The systematic bias is due to what I believe is improved
-	 *  bin centering in this version.
-	 *  The static method takes about 2 times longer.
-	 *  Test3 examines what happens if delta is changed to 0.01 (discrepancies are now up to 2.5%),
-	 *  although it is faster by a factor of 8.
+	 *  Test1 compares the static getCondProb(*) method against values obtained directly from the WGCEP-2002 
+	 *  code; all are within 0.3%.
+	 *  Test2 campares the non static getCondProb(*) method against the static; all are within 0.4%.  The 
+	 *  differences is that the non-static is slightly more accurate due to interpolation of the CDF
+	 *  (exact same values are obtained otherwise; see commented out code).
+	 *  Test3 is the non-static used more efficiently (exact same values as from non-static above); this
+	 *  is about a factor of two faster.
+	 *  Test4 examines what happens if delta is changed to 0.01 in the non-static method (also about
+	 *  a factor of two faster).
 	 */
 	public static void main(String args[]) {
 		
@@ -261,75 +238,76 @@ public final class BPT_DistCalc {
 		double[] rate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
 		double[] prob = {0.130127236,0.105091952,0.0964599401,0.0964599401};
 		
-		// Test1 (static method based on WGCEP-2002 code)
+		// Test1
 		double[] static_prob = new double[rate.length];
 		double p;
-		System.out.println("Test1: comparison with probs from WG02 code");
+		System.out.println("Test1: static-method comparison with probs from WG02 code");
 		for(int i=0;i<rate.length;i++) {
-			p = getCondProb(timeSinceLast,rate[i],alph,nYr);
-			System.out.println("Test1 (static): ="+(float)p+"; ratio="+(float)(p/prob[i]));
+			p = getCondProb(1/rate[i],alph, timeSinceLast, nYr);
+			System.out.println("Test1 (static): prob="+(float)p+"; ratio="+(float)(p/prob[i]));
 			static_prob[i]=p;
 		}
+
 		
-		// Test2 (faster method based on pre-computed & saved function)
-		BPT_DistCalc calc = new BPT_DistCalc(0.5);
-		System.out.println("Test2: comparison between static and non static");
+		BPT_DistCalc calc = new BPT_DistCalc();
+		
+		// Test2
+		double[] nonStatic_prob = new double[rate.length];
+
+		System.out.println("Test2: non-static method compared to static");
 		for(int i=0;i<rate.length;i++) {
-			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
-			System.out.println("Test2 (other): ="+(float)p+"; ratio="+(float)(p/static_prob[i]));
+			calc.setAll((1/rate[i]),alph);
+			p = calc.getCondProb(timeSinceLast,nYr);
+			System.out.println("Test2: prob="+(float)p+"; ratio="+(float)(p/static_prob[i]));
+			nonStatic_prob[i]=p;
+		}
+
+		
+		// Test3
+		System.out.println("Test3: non-static method used efficiently compared to non-static");
+		calc.setAll(1,alph);
+		for(int i=0;i<rate.length;i++) {
+			p = calc.getCondProb(timeSinceLast*rate[i],nYr*rate[i]);
+			System.out.println("Test3: prob="+(float)p+"; ratio="+(float)(p/nonStatic_prob[i]));
 		}
 		
+		
 		// Speed tests
-		// First the static method based on WGCEP-2002 code
+		// First the static method
 		long milSec0 = System.currentTimeMillis();
 		int numCalcs = 10000;
 		for(int i=0; i< numCalcs; i++)
-			p = getCondProb(timeSinceLast,rate[0],alph,nYr);
+			p = getCondProb(1/rate[0],alph,timeSinceLast,nYr);
 		double time = (double)(System.currentTimeMillis()-milSec0)/1000;
-		System.out.println("Speed Test for static = "+(float)time+" sec");
-		// now the faster method based on pre-computed & saved function
+		System.out.println("Speed Test for static method = "+(float)time+" sec");
+		// now the faster way
 		milSec0 = System.currentTimeMillis();
+		calc.setAll(1,alph);
 		for(int i=0; i< numCalcs; i++)
-			p = calc.getCondProb(timeSinceLast,rate[0],nYr);
+			p = calc.getCondProb(timeSinceLast*rate[0],nYr*rate[0]);
 		double time2 = (double)(System.currentTimeMillis()-milSec0)/1000;
-		System.out.println("Speed Test for other = "+(float)time2+" sec");
-		System.out.println("Ratio of static to other = "+(float)(time/time2));
+		System.out.println("Speed Test for non-static used efficiently = "+(float)time2+" sec");
+		System.out.println("Ratio of non-static used efficiently to static = "+(float)(time2/time));
 		
 		
 		// test the delta=0.01 case
-		System.out.println("Test3: comparison static and non static w/ delta=0.01");
-		calc.setDelta(0.01);
+		System.out.println("Test4: comparison of non-static and non static w/ delta=0.01");
 		for(int i=0;i<rate.length;i++) {
-			p = calc.getCondProb(timeSinceLast,rate[i],nYr);
-			System.out.println("Test3 (delta=0.01): ="+(float)p+"; ratio="+(float)(p/static_prob[i]));
+			double mri = 1/rate[i];
+			int num = (int)(10*alph*mri/0.01);
+			calc.setAll(mri,alph,0.01,num);
+			p = calc.getCondProb(timeSinceLast,nYr);
+			System.out.println("Test4 (delta=0.01): ="+(float)p+"; ratio="+(float)(p/nonStatic_prob[i]));
 		}
-		// Speed tests
+
+		// Another Speed test
 		milSec0 = System.currentTimeMillis();
+		calc.setAll(1,alph);
 		for(int i=0; i< numCalcs; i++)
-			p = calc.getCondProb(timeSinceLast,rate[0],nYr);
+			p = calc.getCondProb(timeSinceLast*rate[0],nYr*rate[0]);
 		double time3 = (double)(System.currentTimeMillis()-milSec0)/1000;
-		System.out.println("Speed Test for 0.01 delta (non static) = "+(float)time3+" sec");
-		System.out.println("Ratio of compute time for default delta vs 0.01 delta  = "+(float)(time2/time3));
-
-
-		
-		// test the returned discretized functions
-		// (need to un-comment println statements in makeFunctions method for the test comparison
-		/*
-		calc.setDelta(calc.DELTA_DEFAULT);
-		
-		EvenlyDiscretizedFunc func = calc.getPDF(0.01);
-		System.out.println("PDF: func.getMinX="+func.getMinX()+"; func.getMaxX="+func.getMaxX());
-		System.out.println("PDF: func.getY(1000)="+func.getY(1000));
-
-		func = calc.getCDF(0.01);
-		System.out.println("CDF: func.getMinX="+func.getMinX()+"; func.getMaxX="+func.getMaxX());
-		System.out.println("CDF: func.getY(1000)="+func.getY(1000));
-		
-		EvenlyDiscretizedFunc func = calc.getCondProbFunc(0.01, 30);
-		EvenlyDiscretizedFunc func = calc.getHazFunc(0.01);
-
-		*/
+		System.out.println("Speed Test for deltaX = 0.01 & non static used effieicintly = "+(float)time3+" sec");
+		System.out.println("Ratio of compute time above versus static  = "+(float)(time3/time));
 	}
 }
 

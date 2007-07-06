@@ -1,5 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults;
 
+import org.netlib.util.doubleW;
 import org.opensha.calc.BPT_DistCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.data.function.*;
@@ -250,10 +251,13 @@ public class WG02_QkSimulations {
 		
 	
 	public void plotSegmentRecurIntPDFs() {
-		BPT_DistCalc calc = new BPT_DistCalc(segAlpha,0.05);
+		BPT_DistCalc calc = new BPT_DistCalc();
 		for(int i=0; i<rupInSeg.length;i++) {
 			ArrayList funcList = new ArrayList();
-			funcList.add(calc.getPDF(this.getSimAveSegRate(i)));
+			double mri = 1/this.getSimAveSegRate(i);
+			int num = (int)(segAlpha*10/0.05);
+			calc.setAll(mri,segAlpha,0.05*mri,num);
+			funcList.add(calc.getPDF());
 			funcList.add(this.getPDF_ofSegRecurIntervals(i,20));
 			String title = "Simulated and Expected BPT Dist for seg "+i;
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);

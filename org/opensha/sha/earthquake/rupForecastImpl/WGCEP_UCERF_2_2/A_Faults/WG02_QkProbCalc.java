@@ -85,11 +85,11 @@ public class WG02_QkProbCalc {
 		int num_seg = segRate.length;
 		double[] segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
-			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha[seg], duration);
+			segProb[seg] = BPT_DistCalc.getCondProb(1/segRate[seg], segAlpha[seg], segTimeSinceLast[seg], duration);
 		return segProb;
 	}
 
-	
+
 	/*
 	 * compute seg probs for constant alpha
 	 */
@@ -97,7 +97,7 @@ public class WG02_QkProbCalc {
 		int num_seg = segRate.length;
 		double[] segProb = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++)
-			segProb[seg] = BPT_DistCalc.getCondProb(segTimeSinceLast[seg], segRate[seg], segAlpha, duration);
+			segProb[seg] = BPT_DistCalc.getCondProb(1/segRate[seg], segAlpha, segTimeSinceLast[seg], duration);
 		return segProb;
 	}
 	
