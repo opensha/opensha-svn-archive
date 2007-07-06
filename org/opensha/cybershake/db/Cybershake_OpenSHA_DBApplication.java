@@ -12,7 +12,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 public class Cybershake_OpenSHA_DBApplication {
 
 	
-	private static String HOST_NAME = "surface.usc.edu";
+	private static String HOST_NAME = "intensity.usc.edu";
 	private static String DATABASE_NAME = "CyberShake";
 	private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
 	
@@ -77,8 +77,8 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SABD_LAT, SABD_LON);
 	    
 	    //SBSM
-	    double SBSM_LAT = 33.754111;
-	    double SBSM_LON = -117.86778;
+	    double SBSM_LAT = 34.064986;
+	    double SBSM_LON = -117.29201;
 	    siteId = sites.getCybershakeSiteId("SBSM");
 	    //siteId = sites.putCybershakeLocationInDB("SBSM", "SBSM", SBSM_LAT, SBSM_LON);
 	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SBSM_LAT, SBSM_LON);
