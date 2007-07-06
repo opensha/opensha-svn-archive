@@ -128,7 +128,7 @@ public class MagFreqDistApp
   private  JButton saveButton = new JButton();
   ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
 
-  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredByOpenSHA_Agua.jpg";
 
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
   private JButton clearButton = new JButton();
