@@ -169,8 +169,8 @@ public class A_FaultSegmentedSourceGenerator {
 		makeAllTimeIndSources();
 		
 		// temp simulation
-		if(segmentData.getFaultName().equals("S. San Andreas"))
-			this.simulateEvents(20000);
+//		if(segmentData.getFaultName().equals("S. San Andreas"))
+//			this.simulateEvents(20000);
 	
 		
 	}
