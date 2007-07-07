@@ -163,10 +163,8 @@ public class A_FaultSegmentedSourceGenerator {
 		this.relativeSegRate_wt = relativeSegRate_wt;
 		this.aPrioriRupWt = aPrioriRupWt;
 		num_seg = segmentData.getNumSegments();
-		this.sourceList = new ArrayList<FaultRuptureSource>();
 		
 		calcAllRates();
-		makeAllTimeIndSources();
 		
 		// temp simulation
 //		if(segmentData.getFaultName().equals("S. San Andreas"))
@@ -176,6 +174,9 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	
+	/*
+	 * This does all the main calculations related to long-term rates
+	 */
 	private void calcAllRates(){
 		// get the RupInSeg Matrix for the given number of segments
 		if(segmentData.getFaultName().equals("San Jacinto")) {
@@ -195,24 +196,21 @@ public class A_FaultSegmentedSourceGenerator {
 		rupNameShort = getAllShortRuptureNames(segmentData);
 		rupNameLong = getAllLongRuptureNames(segmentData);
 		
-		// compute
+		// compute minNonZeroAprioriRate
 		minNonZeroAprioriRate=Double.MAX_VALUE;
 		for(int rup=0; rup<num_rup; rup++) 
 			if(aPrioriRupRates[rup].getValue() != 0.0 && aPrioriRupRates[rup].getValue() < minNonZeroAprioriRate)
 				minNonZeroAprioriRate = aPrioriRupRates[rup].getValue();
 //		System.out.println(this.segmentData.getFaultName()+":  minNonZeroAprioriRate = "+minNonZeroAprioriRate);
 
-		
-		getRupAreas();
+		// compute rupture areas
+		computeRupAreas();
 		
 		// get rates on each segment implied by a-priori rates (segRateFromApriori[*])
 		// Compute this both with and without the min-rate constraints applied 
 		// (segRateFromApriori & segRateFromAprioriWithMinRateConstr, respectively) 
 		// The latter is used in computing mags & char slip below when Char Slip model chosen
 		computeSegRatesFromAprioriRates();
-		
-		// THIS IS OLD, and no longer needed?
-		//convertA_prioriToRateBalanced();
 		
 		// compute aveSlipCorr (ave slip is greater than slip of ave mag if MFD sigma non zero)
 		setAveSlipCorrection();
@@ -235,13 +233,13 @@ public class A_FaultSegmentedSourceGenerator {
 		computeSegSlipInRupMatrix();
 		
 		
-		// now solve the inverse problem
+		// NOW SOLVE THE INVERSE PROBLEM
 		
 		// get the segment rate constraints
 		ArrayList<SegRateConstraint> segRateConstraints = segmentData.getSegRateConstraints();
 		int numRateConstraints = segRateConstraints.size();
 		
-		// set by number of segments one for each slip rate)
+		// set number of rows as one for each slip-rate/segment (the minimum)
 		int totNumRows = num_seg;
 		// add segment rate constrains if needed
 		if(relativeSegRate_wt > 0.0)	totNumRows += numRateConstraints;
@@ -253,7 +251,6 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		double[][] C = new double[totNumRows][num_rup];
 		double[] d = new double[totNumRows];  // the data vector
-//		double wt = 1000;
 		
 		// CREATE THE MODEL AND DATA MATRICES
 		// first fill in the slip-rate constraints
@@ -282,26 +279,6 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		
 		// CORRECT IF MINIMUM RATE CONSTRAINT DESIRED
-
-/* OLD WAY		
-		// find the minimum rate
-		double minRate=0;
-		if(preserveMinAFaultRate) {
-			minRate = Double.POSITIVE_INFINITY;
-			for(int rup=0; rup < num_rup; rup++)
-				if(minRate > aPrioriRupRates[rup].getValue())
-					minRate = aPrioriRupRates[rup].getValue();
-			
-			double[] Cmin = new double[totNumRows];  // the data vector
-			
-			// correct the data vector
-			for(int row=0; row <totNumRows; row++) {
-				for(int col=0; col < num_rup; col++)
-					Cmin[row]+=minRate*C[row][col];
-				d[row] -= Cmin[row];
-			}
-		}
-*/		
 		double[] Cmin = new double[totNumRows];  // the data vector
 		// correct the data vector
 		for(int row=0; row <totNumRows; row++) {
@@ -309,7 +286,6 @@ public class A_FaultSegmentedSourceGenerator {
 				Cmin[row]+=minRates[col]*C[row][col];
 			d[row] -= Cmin[row];
 		}
-
 
 		// APPLY DATA WEIGHTS IF DESIRED
 		if(wtedInversion) {
@@ -340,7 +316,7 @@ public class A_FaultSegmentedSourceGenerator {
 		if(aPrioriRupWt > 0.0) {
 			double wt;
 			for(int rup=0; rup < num_rup; rup++) {
-/**/				if(aPrioriRupRates[rup].getValue() > 0)
+				if(aPrioriRupRates[rup].getValue() > 0)
 					wt = aPrioriRupWt/aPrioriRupRates[rup].getValue();
 				else
 					wt = aPrioriRupWt/minNonZeroAprioriRate; // make it the same as for smallest non-zero rate
@@ -348,8 +324,7 @@ public class A_FaultSegmentedSourceGenerator {
 
 				// Hard code special constraints
 //				if(this.segmentData.getFaultName().equals("N. San Andreas") && rup==9) wt = 1e10/aPrioriRupRates[rup].getValue();
-				if(this.segmentData.getFaultName().equals("San Jacinto") && rup==3) wt = 1e10/minNonZeroAprioriRate;
-			
+				if(this.segmentData.getFaultName().equals("San Jacinto") && rup==3) wt = 1e10/minNonZeroAprioriRate;			
 					
 //				wt = aPrioriRupWt;
 				d[rup+num_seg] *= wt;
@@ -399,12 +374,6 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		
 		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
-/*  OLD WAY
- 		if(preserveMinAFaultRate) {
-			for(int rup=0; rup<num_rup;rup++)
-				rupRateSolution[rup] += minRate;
-		}
-*/
 		for(int rup=0; rup<num_rup;rup++)
 			rupRateSolution[rup] += minRates[rup];
 		
@@ -455,7 +424,6 @@ public class A_FaultSegmentedSourceGenerator {
 // if(((String)getLongRupName(i)).equals("W")) System.out.print(totRupRate[i]+"  "+rupRateSolution[i]);
 		}
 		// add info to the summed dist
-		/**/
 		String summed_info = "\n\nMoment Rate: "+(float) getTotalMoRateFromSummedMFD() +
 		"\n\nTotal Rate: "+(float)summedMagFreqDist.getCumRate(0);
 		summedMagFreqDist.setInfo(summed_info);
@@ -483,7 +451,8 @@ public class A_FaultSegmentedSourceGenerator {
 
 	}
 	
-	private void makeAllTimeIndSources() {
+	private void makeAllTimeIndSources(double duration) {
+		this.sourceList = new ArrayList<FaultRuptureSource>();
 		for(int i=0; i<num_rup; i++) {
 			// get list of segments in this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
@@ -494,7 +463,7 @@ public class A_FaultSegmentedSourceGenerator {
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
 						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 						segmentData.getAveRake(segmentsInRup),
-						DEFAULT_DURATION);
+						duration);
 				faultRupSrc.setName(this.getLongRupName(i));
 				
 				if(faultRupSrc.getNumRuptures() == 0)
@@ -508,13 +477,29 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	
 	/**
-	 * Get a list of all sources 
+	 * Get a list of time independent sources for the given duration
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultRuptureSource> getSources() {
+	public ArrayList<FaultRuptureSource> getTimeIndependentSources(double duration) {
+		// a check could be made here whether time-ind sources already exist, 
+		// and if so the durations of each could simply be changed (rather than recreating the sources)
+		// Otherwise no need for separate makeAllTimeIndSources(*) method (put contents here).
+		makeAllTimeIndSources(duration);
 		return this.sourceList;
 	}
+	
+
+	/**
+	 * Get a list of time dependent sources for the given duration
+	 * 
+	 * @return
+	 */
+	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, double startYear) {
+
+		return this.sourceList;
+	}
+
 	
 	/**
 	 * Get NSHMP Source File String. 
@@ -525,6 +510,7 @@ public class A_FaultSegmentedSourceGenerator {
 	public String getNSHMP_SrcFileString() {
 		boolean localDebug = true;
 		StringBuffer strBuffer = new StringBuffer("");
+		makeAllTimeIndSources(1.0);
 		int numSources = sourceList.size();
 		for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
 			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
@@ -830,16 +816,6 @@ public class A_FaultSegmentedSourceGenerator {
 	 */
 	public double getFinalSegmentRate(int ithSegment) {
 		return finalSegRate[ithSegment];
-	}
-	
-	/**
-	 * Get recurrence interval for the ith Segment
-	 * 
-	 * @param ithSegment
-	 * @return
-	 */
-	public double getFinalSegRecurInt(int ithSegment) {
-		return 1.0/getFinalSegmentRate(ithSegment);
 	}
 	
 	/**
@@ -1149,7 +1125,7 @@ public class A_FaultSegmentedSourceGenerator {
 	/**
 	 * compute rupArea (meters)
 	 */
-	private void getRupAreas() {
+	private void computeRupAreas() {
 		rupArea = new double[num_rup];
 		for(int rup=0; rup<num_rup; rup++){
 			rupArea[rup] = 0;
@@ -1162,16 +1138,6 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 
-	
-	/**
-	 * This changes the duration.
-	 * @param newDuration
-	 */
-	public void setDuration(double newDuration) {
-		int numSources  = sourceList.size();
-		for(int iSource=0; iSource<numSources; ++iSource)
-			this.sourceList.get(iSource).setDuration(newDuration);
-	}
 	
 	/**
 	 * @return the total num of rutures for all magnitudes
@@ -1548,76 +1514,7 @@ public class A_FaultSegmentedSourceGenerator {
 		
 	}
 	
-	/**
-	 * This is no longer needed
-	 */
-	private void convertA_prioriToRateBalanced() {
-		
-		double[] seg_mri_data_elsinore = {1400,271,500,2000,933};
-		double[] seg_mri_data_sjf = {200,208.3,250,250,375,130,325};
-		double[] seg_mri_data_garlock = {933.3,1276,1159};
-		double[] seg_mri_data_ssaf = {24.5,155,175,175,155,130,175,200,225,212};
-		double[] seg_mri_data;
-		if(this.segmentData.getFaultName().equals("Elsinore"))
-			seg_mri_data = seg_mri_data_elsinore;
-		else if(this.segmentData.getFaultName().equals("San Jacinto"))
-			seg_mri_data = seg_mri_data_sjf;
-		else if(this.segmentData.getFaultName().equals("Garlock"))
-			seg_mri_data = seg_mri_data_garlock;
-		else if(this.segmentData.getFaultName().equals("S. San Andreas"))
-			seg_mri_data = seg_mri_data_ssaf;
-		else
-			return;
-		//
-		// find minimum value
-		double minRate = Double.POSITIVE_INFINITY;
-		for(int rup=0; rup < num_rup; rup++)
-			if(minRate > aPrioriRupRates[rup].getValue())
-				minRate = aPrioriRupRates[rup].getValue();
 
-		int totNumRows = num_seg+num_rup;
-
-		
-		// now solve the inverse problem
-		double[][] C = new double[totNumRows][num_rup];
-		double[] d = new double[totNumRows];  // the data vector
-		double[] Cmin = new double[totNumRows];  // the data vector
-		double wt = 1000;
-		// fill in the a-priori rates
-		for(int rup=0; rup < num_rup; rup++) {
-			d[rup] = aPrioriRupRates[rup].getValue()/wt;
-			C[rup][rup]=1.0/wt;
-		}
-		// now fill in the segment recurrence interval constraints
-		for(int row = 0; row < num_seg; row ++) {
-			d[row+num_rup] = 1.0/seg_mri_data[row];
-			for(int col=0; col<num_rup; col++)
-				C[row+num_rup][col] = rupInSeg[row][col];
-		}
-		
-		// Compute min-rate data correction
-		for(int row=0; row <totNumRows; row++) {
-			for(int col=0; col < num_rup; col++)
-				Cmin[row]+=minRate*C[row][col];
-			d[row] -= Cmin[row];
-		}
-
-		double[] newRupRates = getNNLS_solution(C, d);
-		
-		// correct final results
-		for(int rup=0; rup<num_rup;rup++)
-			newRupRates[rup] += minRate;
-		
-		
-		// WRITE OUT RESULTS *****************
-		System.out.println("******* "+segmentData.getFaultName()+" *******");
-		// print out revised rates
-		System.out.println("Final rup rates:");
-		for(int rup=0; rup < num_rup; rup++) {
-			System.out.println((float)newRupRates[rup]);
-		}
-
-	}
 	
 	/**
 	 * Compute Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)

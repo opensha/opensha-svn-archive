@@ -77,7 +77,7 @@ public class PolygonRatesAnalysis {
 				// for segmented source
 				if(aFaultGenerators.get(i) instanceof A_FaultSegmentedSourceGenerator) {
 					A_FaultSegmentedSourceGenerator srcGen = (A_FaultSegmentedSourceGenerator)aFaultGenerators.get(i);
-					ArrayList<FaultRuptureSource> aFaultSources = srcGen.getSources();
+					ArrayList<FaultRuptureSource> aFaultSources = srcGen.getTimeIndependentSources(1.0);
 					int numSrc = aFaultSources.size();
 					// iterate over all sources
 					for(int srcIndex=0; srcIndex<numSrc; ++srcIndex) {

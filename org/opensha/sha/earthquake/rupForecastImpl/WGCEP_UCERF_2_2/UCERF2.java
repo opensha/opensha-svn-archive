@@ -17,12 +17,7 @@ import java.util.StringTokenizer;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.TimeSpan;
@@ -73,12 +68,6 @@ public class UCERF2 extends EqkRupForecast {
 	
 //	ArrayList allSourceNames;
 	
-	private String CHAR_MAG_FREQ_DIST = "1";
-	private String GR_MAG_FREQ_DIST = "2";
-	private String FAULTING_STYLE_SS = "1";
-	private String FAULTING_STYLE_R = "2";
-	private String FAULTING_STYLE_N = "3";
-	
 	public final static double MIN_MAG = 5;
 	public final static double MAX_MAG = 9;
 	public final static double DELTA_MAG = 0.1;
@@ -106,32 +95,22 @@ public class UCERF2 extends EqkRupForecast {
 	
 	private ArrayList allSources;
 	
-	// fault-model parameter stuff
-	// public final static String FAULT_MODEL_NAME = new String ("Fault Model");
-	// public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
-	// public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
-	// make the fault-model parameter
-	// ArrayList faultModelNamesStrings = new ArrayList();
-	// StringParameter faultModelParam;
-	
-	// background seismicity inlcude/exclude
+	// background seismicity inlcude/exclude param
 	public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
 	public final static String BACK_SEIS_INCLUDE = new String ("Include");
 	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
 	public final static String BACK_SEIS_ONLY = new String ("Only Background");
-	// make the fault-model parameter
 	private ArrayList backSeisOptionsStrings = new ArrayList();
 	private StringParameter backSeisParam;
 	
-	//	 background seismicity 
+	// background seismicity treated as param
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
 	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
-	// make the fault-model parameter
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 	
-	// 
+	// background seismicity max-mag param
 	public final static String BACK_SEIS_MAG_NAME = "Backgroud Seis Mmax";
 	public final static Double BACK_SEIS_MAG_MIN = new Double(5.0);
 	public final static Double BACK_SEIS_MAG_MAX = new Double(9.0);
@@ -217,7 +196,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static String CONNECT_B_FAULTS_PARAM_INFO = "Connect nearby B-Faults";
 	private BooleanParameter connectMoreB_FaultsParam;
 
-	//	 rupture model type
+	// A-fault rupture model seg vs unseg type
 	public final static String RUP_MODEL_TYPE_NAME = "A-Fault Solution Type";
 	public final static String RUP_MODEL_TYPE_INFO = "The type of solution to apply for all A-Fault Sources";
 	public final static String UNSEGMENTED_A_FAULT_MODEL = "Unsegmented Model";
@@ -265,11 +244,6 @@ public class UCERF2 extends EqkRupForecast {
 	private final static Double CHAR_VS_GR_DEFAULT = new Double(67.0);
 	private final static String CHAR_VS_GR_INFO = "The % moment rate put into characteristic (vs GR) events on B-Faults (and A-Faults for un-segmented option)";
 	private DoubleParameter percentCharVsGRParam; 
-	
-	// 
-	private double[] totalRelativeGriddedRates;
-	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
-	
 	
 	// char mag sigma >=0 and <=1
 	public final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
@@ -362,7 +336,10 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
 	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
 	private BooleanParameter maxMagGridBooleanParam;
-
+	
+	// 
+	private double[] totalRelativeGriddedRates;
+	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
 	
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
@@ -372,16 +349,9 @@ public class UCERF2 extends EqkRupForecast {
 	
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 	
-	private NSHMP_GridSourceGenerator nshmp_srcGen = new NSHMP_GridSourceGenerator();
+	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 	
-	/*
-	 // fault file parameter for testing
-	  public final static String FAULT_FILE_NAME = new String ("Fault File");
-	  // make the fault-model parameter
-	   ArrayList faultFileNamesStrings = new ArrayList();
-	   StringParameter faultFileParam;
-	   */
-	
+
 	/**
 	 *
 	 * No argument constructor
@@ -393,9 +363,14 @@ public class UCERF2 extends EqkRupForecast {
 		timeSpan.addParameterChangeListener(this);
 		timeSpan.setDuration(50);
 		
-		// create and add adj params to list
+		// create and add adj params
 		initAdjParams();
 		
+		// set param defaults
+		setParamDefaults();
+		
+		// put parameters in the parameter List object	
+		createParamList();
 		
 		// add the change listener to parameters so that forecast can be updated
 		// whenever any paramater changes
@@ -425,11 +400,6 @@ public class UCERF2 extends EqkRupForecast {
 		
 		// NOTE THAT VALUES SET IN THE CONSTRUCTORS ARE OVER RIDDEN BY CALLING THE setParamDefaults()
 		// NETHOD AT THE END
-		
-		//faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
-		// faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
-		//  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
-		//     (String)faultModelNamesStrings.get(0));
 		
 		// background seismicity include/exclude  
 		backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
@@ -616,11 +586,6 @@ public class UCERF2 extends EqkRupForecast {
 		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
 		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
 		
-		// set param defaults
-		setParamDefaults();
-		
-		// put parameters in the parameter List object	
-		createParamList();
 	
 	}
 	
@@ -823,153 +788,6 @@ public class UCERF2 extends EqkRupForecast {
 		return null;
 	}
 	
-	
-	
-	/**
-	 * This gets the total relative a-value rates for all locations inside the RELM test region
-	 * (by total we mean including A, B, and C faults/zones).  Note that absolute rates in Karen's 
-	 * files are not correct, so just compute relative rates such that the sum of all equals 1.0.
-	 * This will be used for the background seismicity after rates from A, B, and C faults/zones
-	 * are subtracted off.
-	 */
-	private void makeTotalRelativeGriddedRates() {
-		
-		double origTime = System.currentTimeMillis();
-		
-		// Read Karen's a-value data
-		totalRelativeGriddedRates = new double[region.getNumGridLocs()];
-		double totRateSum=0, rateSumInsideRegion = 0;
-		String backSeisPath = "backSeisFiles/";
-		try {
-			// read the locations into a location list
-			ArrayList latLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"latloc_v1.txt");
-			ArrayList lonLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"lonloc_v1.txt");
-			ArrayList backSeisRateLines = FileUtils.loadJarFile(IN_FILE_PATH+backSeisPath+"RatesRecommended_v1.txt");
-			double lat, lon, rate;
-			int index;
-			//FileWriter fw = new FileWriter("KarenRates.txt");
-			
-			for(int i=0;i<latLines.size(); ++i) {
-				String latLine = (String)latLines.get(i);
-				String lonLine = (String)lonLines.get(i);
-				StringTokenizer latTokenizer = new StringTokenizer(latLine);
-				StringTokenizer lonTokenizer = new StringTokenizer(lonLine);
-				String backSeisRateLine = (String)backSeisRateLines.get(i);
-				StringTokenizer rateTokenizer = new StringTokenizer(backSeisRateLine);
-				while(latTokenizer.hasMoreTokens()) {
-					rate = Double.parseDouble(rateTokenizer.nextToken());
-					totRateSum+=rate;
-					// NOTE THAT ADDING 0.05 IN WHAT FOLLOWS IS APPOXIMATE: WE SHOULD REALLY 
-					// AVE THE FOUR CORNER LOCS OR HAVE HER CHANGE THE BIN_CENTER LOCATIONS
-					lat = Double.parseDouble(latTokenizer.nextToken()) + 0.05;
-					lon = Double.parseDouble(lonTokenizer.nextToken()) + 0.05;
-					// the following wrote the file out to check it visually; it looked good
-					//fw.write((float)(lat-0.05)+"\t"+(float)(lon-0.05)+"\t"+rate+"\n");
-					index = region.getNearestLocationIndex(new Location(lat,lon));
-					if(index!=-1) {
-						rateSumInsideRegion+=rate;
-						//if(totalRelativeGriddedRates[index]!=0) System.out.println(lat+","+lon+","+index);
-						totalRelativeGriddedRates[index]=rate;
-						
-					}
-					
-				}
-			}
-			//fw.close();
-			
-			double relativeSum = 0;
-			// the following wrote the file out to check it visually; it looked good
-			//FileWriter fw1 = new FileWriter("erfRates.txt");
-			for(int i=0; i<totalRelativeGriddedRates.length; ++i) {
-				//Location loc = this.region.getGridLocation(i);
-				// the following wrote the file out to check it visually; it looked good
-				//fw1.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+totalRelativeGriddedRates[i]+"\n");
-				totalRelativeGriddedRates[i]/=rateSumInsideRegion;
-				relativeSum+=totalRelativeGriddedRates[i];
-			}
-			//fw1.close();
-			
-			
-			if(D){
-				System.out.println("makeGridSources(): time to read & sum rates (sec) = "+(System.currentTimeMillis()-origTime)/1e3);
-				System.out.println(C+" makeGridSources(): Sum of all background rates="+totRateSum);
-				System.out.println(C+" makeGridSources(): Sum of rates inside RELM region ="+rateSumInsideRegion);
-				System.out.println(C+" makeGridSources(): Fractional rate inside RELM region ="+(float)rateSumInsideRegion/totRateSum);
-				System.out.println(C+" makeGridSources(): relative sum in RELM region ="+relativeSum);
-			}
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		
-		
-		
-		/* String backSeisPath = "backSeisFiles/";
-		 try {
-		 // read the locations into a location list
-		  backSeisLocList = new LocationList();
-		  ArrayList latLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"latloc_v1.txt");
-		  ArrayList lonLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"lonloc_v1.txt");
-		  double lat, lon;
-		  for(int i=0;i<latLines.size(); ++i) {
-		  String latLine = (String)latLines.get(i);
-		  String lonLine = (String)lonLines.get(i);
-		  StringTokenizer latTokenizer = new StringTokenizer(latLine);
-		  StringTokenizer lonTokenizer = new StringTokenizer(lonLine);
-		  while(latTokenizer.hasMoreTokens()) {
-		  lat = Double.parseDouble(latTokenizer.nextToken());
-		  lon = Double.parseDouble(lonTokenizer.nextToken());
-		  backSeisLocList.addLocation(new Location(lat,lon));
-		  }
-		  }
-		  // free the memeory
-		   latLines = null;
-		   lonLines = null;
-		   
-		   if(D) {
-		   System.out.println("makeGridSources(): time to read background seis loc file (sec) = "+(System.currentTimeMillis()-origTime)/1e3);
-		   origTime = System.currentTimeMillis();
-		   }
-		   
-		   // read the backgroud rates
-		    backSeisRates = new double[backSeisLocList.size()];
-		    ArrayList backSeisRateLines = FileUtils.loadFile(IN_FILE_PATH+backSeisPath+"RatesRecommended_v1.txt");
-		    int index=0;
-		    double ratesSum=0, rateSumInsideRELM = 0; // sum of all background rates
-		    for(int i=0;i<backSeisRateLines.size(); ++i) {
-		    String backSeisRateLine = (String)backSeisRateLines.get(i);
-		    StringTokenizer rateTokenizer = new StringTokenizer(backSeisRateLine);
-		    while(rateTokenizer.hasMoreTokens()) {
-		    backSeisRates[index] = Double.parseDouble(rateTokenizer.nextToken());
-		    ratesSum+=backSeisRates[index];
-		    if(region.isLocationInside(backSeisLocList.getLocationAt(index)))
-		    rateSumInsideRELM+=backSeisRates[index];
-		    ++index;
-		    }
-		    }
-		    
-		    /* FileWriter fw = new FileWriter("backgroundRates.txt");
-		     for(int i=0; i<backSeisRates.length; ++i) {
-		     Location loc = this.backSeisLocList.getLocationAt(i);
-		     fw.write(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+backSeisRates[i]+"\n");
-		     }
-		     fw.close();
-		     
-		     
-		     if(D){
-		     System.out.println("makeGridSources(): time to read & sum rates (sec) = "+(System.currentTimeMillis()-origTime)/1e3);
-		     System.out.println(C+" makeGridSources(): Sum of all background rates="+ratesSum);
-		     System.out.println(C+" makeGridSources(): Sum of rates inside RELM region ="+rateSumInsideRELM);
-		     System.out.println(C+" makeGridSources(): Fractional rate inside RELM region ="+(float)rateSumInsideRELM/ratesSum);
-		     }
-		     
-		     } catch(Exception e) {
-		     e.printStackTrace();
-		     }*/
-		
-	}
-	
 
 	
 	/**
@@ -983,7 +801,7 @@ public class UCERF2 extends EqkRupForecast {
 		else {
 			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			return nshmp_srcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
+			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
 		}
 	}
 	
@@ -993,36 +811,14 @@ public class UCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size() + nshmp_srcGen.getNumSources();
+		return allSources.size() + nshmp_gridSrcGen.getNumSources();
 	}
 	
+
 	/**
-	 * Temproray test
+	 * This can be vastly simplified if and when NSHMP07 treatment is the only option
 	 *
 	 */
-	private void  makeBackgroundGridSources_TEST() {
-		
-		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
-		
-		// get the total rate of M³5 events
-		double rate = ((Double) totalMagRateParam.getValue()).doubleValue();
-		double bValue = ((Double) regionB_ValParam.getValue()).doubleValue();
-		double magMax = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
-		
-		// now subtract the A, B, & C fault/zone rates
-		//rate -= this.bFaultCharSummedMFD.getTotalIncrRate();
-		//rate -= this.bFaultGR_SummedMFD.getTotalIncrRate();
-		//	rate -= this.aFaultSummedMFD.getTotalIncrRate();
-		double totMoRateBC = this.bFaultCharSummedMFD.getTotalMomentRate()+
-				this.bFaultGR_SummedMFD.getTotalMomentRate()+this.cZoneSummedMFD.getTotalMomentRate();
-		double totRateA = this.aFaultSummedMFD.getTotalIncrRate();
-		double totBackRate = rate-totRateA;
-		double totBackMoRate = totMoRateBC;
-		totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		((GutenbergRichterMagFreqDist)totBackgroundMFD).setAllButMagUpper(MIN_MAG, totBackMoRate, totBackRate, bValue, true);
-	}
-
-	
 	private void  makeBackgroundGridSources() {
 		
 		// get the total rate of M³5 events & b-value
@@ -1062,10 +858,10 @@ public class UCERF2 extends EqkRupForecast {
 			totBackgroundMFD = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
-		else { // the SET_FOR_BCK_PARAM_NSHMP02 case
+		else { // the SET_FOR_BCK_PARAM_NSHMP07 case
 			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			totBackgroundMFD = nshmp_srcGen.getTotMFDForRegion(false,bulgeReduction,maxMagGrid);
+			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(false,bulgeReduction,maxMagGrid);
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 			
@@ -1144,32 +940,15 @@ public class UCERF2 extends EqkRupForecast {
 //		nshmp02_Backgr_MFD.set(7.3, 1.3159173E-4);
 //		nshmp02_Backgr_MFD.set(7.4, 1.09453234E-4);
 		
-		/*  OLD NUMBERS
-		nshmp02_Backgr_MFD.set(5.0, 0.16698005174155264);
-		nshmp02_Backgr_MFD.set(5.1, 0.3058680092770254);
-		nshmp02_Backgr_MFD.set(5.2, 0.2544099288559251);
-		nshmp02_Backgr_MFD.set(5.3, 0.2116089618311663);
-		nshmp02_Backgr_MFD.set(5.4, 0.17600866809181212);
-		nshmp02_Backgr_MFD.set(5.5, 0.14639763351880405);
-		nshmp02_Backgr_MFD.set(5.6, 0.12176824773610705);
-		nshmp02_Backgr_MFD.set(5.7, 0.10128241693754861);
-		nshmp02_Backgr_MFD.set(5.8, 0.08419511268253424);
-		nshmp02_Backgr_MFD.set(5.9, 0.06998251205740466);
-		nshmp02_Backgr_MFD.set(6.0, 0.05808698785127969);
-		nshmp02_Backgr_MFD.set(6.1, 0.048192721778350184);
-		nshmp02_Backgr_MFD.set(6.2, 0.03995083223814626);
-		nshmp02_Backgr_MFD.set(6.3, 0.03304396747741058);
-		nshmp02_Backgr_MFD.set(6.4, 0.027317668655642918);
-		nshmp02_Backgr_MFD.set(6.5, 0.021448389512954837);
-		nshmp02_Backgr_MFD.set(6.6, 0.01655280428196882);
-		nshmp02_Backgr_MFD.set(6.7, 0.013495202518441145);
-		nshmp02_Backgr_MFD.set(6.8, 0.010890259946258175);
-		nshmp02_Backgr_MFD.set(6.9, 0.008774086217621335);
-		nshmp02_Backgr_MFD.set(7.0, 0.0039333546797175895);
-		*/
 		return nshmp02_Backgr_MFD;
 	}
 	
+	
+	/**
+	 * This currently just computes the MFD for each C zone (need to add the actual sources).
+	 * Adding the actual sources should be easy from nshmp_srcGen
+	 *
+	 */
 	private void makeC_ZoneSources() {
 		cZoneSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		cZonesMFD_List = new ArrayList<IncrementalMagFreqDist> ();
@@ -1233,7 +1012,6 @@ public class UCERF2 extends EqkRupForecast {
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		double duration = timeSpan.getDuration();
-		//System.out.println("************ Initial ******"+aFaultSummedMFD.toString());
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
 			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
@@ -1265,9 +1043,8 @@ public class UCERF2 extends EqkRupForecast {
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
 					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
-			aFaultSourceGenerator.setDuration(duration);
 			aFaultSourceGenerators.add(aFaultSourceGenerator);
-			allSources.addAll(aFaultSourceGenerator.getSources());
+			allSources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
 		}
@@ -1286,7 +1063,6 @@ public class UCERF2 extends EqkRupForecast {
 		double fractCharVsGR= 0.0;
 		MagAreaRelationship magAreaRel = getMagAreaRelationship();
 		boolean isAseisReducesArea = ((Boolean) aseisFactorInterParam.getValue()).booleanValue();
-//		double bValue = ((Double) bFaultB_ValParam.getValue()).doubleValue();
 		double bValue = ((Double) aFaultB_ValParam.getValue()).doubleValue();
 		double meanMagCorrection = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
 		double minMagGR = ((Double) bFaultsMinMagParam.getValue()).doubleValue();
@@ -1301,6 +1077,7 @@ public class UCERF2 extends EqkRupForecast {
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
 					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
 			source.setDuration(duration);
+// the following isn't really correct (not a srcGen, but rather a src)
 			aFaultSourceGenerators.add(source);
 			allSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
@@ -1338,6 +1115,7 @@ public class UCERF2 extends EqkRupForecast {
 				//if(!Double.isNaN(fixMag)) {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
+				// skip Mendocino (hard coded for now)
 				if(segmentData.getFaultName().equals("Mendocino")) {
 //					System.out.println(segmentData.getFaultName());
 					continue;
@@ -1396,7 +1174,7 @@ public class UCERF2 extends EqkRupForecast {
 		sourceList.addAll(allSources);
 		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-		sourceList.addAll(this.nshmp_srcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
+		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
 		return sourceList;
 	}
 	
@@ -1613,7 +1391,7 @@ public class UCERF2 extends EqkRupForecast {
 	
 	
 	/**
-	 * General Prediction Error
+	 * This returns the summed GeneralizedPredictionError for all A-faults
 	 * @return
 	 */
 	public double getGeneralPredErr() {
@@ -1628,7 +1406,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 	
 	/**
-	 * Modified Slip Rate error
+	 * This returns the summed NormModSlipRateError for all A-faults
 	 * @return
 	 */
 	public double getModSlipRateError() {
@@ -1643,7 +1421,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 	
 	/**
-	 * Get Event Rate error
+	 * This returns the summed getNormDataER_Error for all A-faults
 	 * @return
 	 */
 	public double getDataER_Err() {
@@ -1658,7 +1436,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 	
 	/**
-	 * Get Normalized A-Priori rate error
+	 * Get summed Normalized A-Priori rate error for all A faults
 	 * @return
 	 */
 	public double getNormalizedA_PrioriRateErr() {
@@ -1673,7 +1451,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 	
 	/**
-	 * Get Non-Normzlized A-Priori Rate error
+	 * Get summed Non-Normzlized A-Priori Rate error for all A faults
 	 * @return
 	 */
 	public double getNonNormalizedA_PrioriRateErr() {
@@ -1831,8 +1609,8 @@ public class UCERF2 extends EqkRupForecast {
 	 **/
 	
 	public void updateForecast() {
-		double totToKeep = 1;
 		// compute total moment rate reduction for A/B faults (fraction to reduce by)
+		double totToKeep = 1;
 		// 1st remove that which goes to the background
 		totToKeep *= 1.0-((Double) moRateFracToBackgroundParam.getValue()).doubleValue();
 		// now remove that which goes to aseismicity
@@ -1847,9 +1625,11 @@ public class UCERF2 extends EqkRupForecast {
 		
 		//System.out.println("Creating A Fault sources");
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
+			
 			mkA_FaultUnsegmentedSources();
 			
-			// Find Predicted event rates for locations provided by Tom Parson's excel sheet
+			// Calculate Predicted event rates at the locations where we have obs (given in Tom Parson's excel sheet)
+			// These are stored in the aFaultsFetcher for others to reference later
 			ArrayList<EventRates> eventRatesList = this.aFaultsFetcher.getEventRatesList();
 			int numSources = this.aFaultSourceGenerators.size();
 			//System.out.println(numSources);
@@ -1862,7 +1642,7 @@ public class UCERF2 extends EqkRupForecast {
 					if(source.getFaultSegmentData().getFaultName().equalsIgnoreCase(event.getFaultName())) {
 						loc = new Location(event.getLatitude(), event.getLongitude());
 						rate+=source.getPredEventRate(loc);
-						obsRate+=source.getPredObsEventRate(loc);
+						obsRate+=source.getPredObsEventRate(loc);  // this one is reduced by the probability of it being paleoseismically observed
 					}
 				}
 				event.setPredictedRate(rate);

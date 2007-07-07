@@ -1265,9 +1265,8 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 					getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
 					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
-			aFaultSourceGenerator.setDuration(duration);
 			aFaultSourceGenerators.add(aFaultSourceGenerator);
-			allSources.addAll(aFaultSourceGenerator.getSources());
+			allSources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
 		}
