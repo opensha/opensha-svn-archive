@@ -41,6 +41,13 @@ public final class BPT_DistCalc implements ParameterChangeListener {
 	private final static String DELTA_X_PARAM_INFO = "Delta X";
 	private final static String NUM_POINTS_PARAM_INFO = "Num Points";
 	
+	// default param values
+	private final static Double DEFAULT_MEAN_PARAM_VAL = new Double(5.0);
+	private final static Double DEFAULT_APERIODICITY_PARAM_VAL = new Double(0.5);
+	private final static Double DEFAULT_DURATION_PARAM_VAL = new Double(50);
+	private final static Double DEFAULT_DELTAX_PARAM_VAL = new Double(1);
+	private final static Integer DEFAULT_NUMPOINTS_PARAM_VAL = new Integer(100);
+	
 	// various adjustable params
 	private DoubleParameter meanParam, aperiodicityParam, durationParam, deltaX_Param;
 	private IntegerParameter numPointsParam;
@@ -48,6 +55,12 @@ public final class BPT_DistCalc implements ParameterChangeListener {
 	// adjustable parameter list
 	private ParameterList adjustableParams;
 
+	
+	public BPT_DistCalc() {
+		this.initAdjParams();
+		
+	}
+	
 	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
 		this.mean=mean;
 		this.aperiodicity=aperiodicity;
@@ -254,19 +267,19 @@ public final class BPT_DistCalc implements ParameterChangeListener {
 		 Add a getAdjParams method so these can be put in a GUI
 		 */
 		
-		meanParam =  new  DoubleParameter(MEAN_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		meanParam =  new  DoubleParameter(MEAN_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_MEAN_PARAM_VAL);
 		meanParam.setInfo(MEAN_PARAM_INFO);
 		meanParam.addParameterChangeListener(this);
-		aperiodicityParam  = new DoubleParameter(APERIODICITY_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		aperiodicityParam  = new DoubleParameter(APERIODICITY_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_APERIODICITY_PARAM_VAL);
 		aperiodicityParam.setInfo(APERIODICITY_PARAM_INFO);
 		aperiodicityParam.addParameterChangeListener(this);
-		durationParam = new  DoubleParameter(DURATION_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		durationParam = new  DoubleParameter(DURATION_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_DURATION_PARAM_VAL);
 		durationParam.setInfo(DURATION_PARAM_INFO);
 		durationParam.addParameterChangeListener(this);
-		deltaX_Param = new  DoubleParameter(DELTA_X_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE);
+		deltaX_Param = new  DoubleParameter(DELTA_X_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_DELTAX_PARAM_VAL);
 		deltaX_Param.setInfo(DELTA_X_PARAM_INFO);
 		deltaX_Param.addParameterChangeListener(this);
-		numPointsParam = new  IntegerParameter(NUM_POINTS_PARAM_NAME, Integer.MIN_VALUE, Integer.MAX_VALUE);;
+		numPointsParam = new  IntegerParameter(NUM_POINTS_PARAM_NAME, Integer.MIN_VALUE, Integer.MAX_VALUE, DEFAULT_NUMPOINTS_PARAM_VAL);;
 		numPointsParam.setInfo(NUM_POINTS_PARAM_INFO);
 		numPointsParam.addParameterChangeListener(this);
 		
@@ -276,6 +289,10 @@ public final class BPT_DistCalc implements ParameterChangeListener {
 		adjustableParams.addParameter(durationParam);
 		adjustableParams.addParameter(deltaX_Param);
 		adjustableParams.addParameter(numPointsParam);
+		
+		setAll(DEFAULT_MEAN_PARAM_VAL.doubleValue(), DEFAULT_APERIODICITY_PARAM_VAL.doubleValue(),
+				DEFAULT_DELTAX_PARAM_VAL.doubleValue(), DEFAULT_NUMPOINTS_PARAM_VAL.intValue(),
+				DEFAULT_DURATION_PARAM_VAL.doubleValue());
 	}
 	
 	
@@ -297,7 +314,7 @@ public final class BPT_DistCalc implements ParameterChangeListener {
 		else if(paramName.equalsIgnoreCase(APERIODICITY_PARAM_NAME)) this.aperiodicity = ((Double) aperiodicityParam.getValue()).doubleValue();
 		else if(paramName.equalsIgnoreCase(DURATION_PARAM_NAME)) this.duration = ((Double) durationParam.getValue()).doubleValue();
 		else if(paramName.equalsIgnoreCase(DELTA_X_PARAM_NAME)) this.deltaX = ((Double) deltaX_Param.getValue()).doubleValue();
-		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) deltaX_Param.getValue()).intValue();
+		else if(paramName.equalsIgnoreCase(NUM_POINTS_PARAM_NAME)) this.numPoints = ((Integer) numPointsParam.getValue()).intValue();
 		this.upToDate = false;
 	}
 	
