@@ -152,6 +152,17 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	}
 	
 	/**
+	 * Get time dependent data for selected fault.
+	 * It returns null for each B-Fault
+	 * 
+	 * @param faultName
+	 * @return
+	 */
+	public  ArrayList<SegmentTimeDepData> getSegTimeDepData(String faultName) {
+		return null;
+	}
+	
+	/**
 	 * This is used to generate a file after combining B-Faults. This file can then be viewed in SCEC-VDO
 	 *
 	 */
@@ -199,7 +210,7 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		ArrayList segmentList = (ArrayList) this.faultSegmentMap.get(faultModel);
 		if(segmentList!=null) {
 			return new FaultSegmentData(segmentList, null, isAseisReducesArea, faultModel,
-					null);
+					null, null);
 		} else {
 			 // if it is a part of connecting B-faults
 			FaultSegmentData faultSegmentData =  super.getFaultSegmentData(faultModel, isAseisReducesArea);

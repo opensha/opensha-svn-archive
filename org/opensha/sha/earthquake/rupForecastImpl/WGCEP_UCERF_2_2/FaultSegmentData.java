@@ -10,6 +10,7 @@ import org.opensha.calc.FaultMomentCalc;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegRateConstraint;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegmentTimeDepData;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 
@@ -30,6 +31,7 @@ public class FaultSegmentData {
 	private String[] segName, sectionsInSegString;
 	private String faultName;
 	private ArrayList<SegRateConstraint> segRates;
+	private ArrayList<SegmentTimeDepData> segTimeDepDataList;
 
 	
 	/**
@@ -51,9 +53,11 @@ public class FaultSegmentData {
   	 * @
   	 */
 	public FaultSegmentData(ArrayList sectionToSegmentData, String[] segNames, boolean aseisReducesArea, 
-			String faultName, ArrayList<SegRateConstraint> segRateConstraints) {
+			String faultName, ArrayList<SegRateConstraint> segRateConstraints,
+			ArrayList<SegmentTimeDepData> segTimeDepDataList) {
 		//if(recurInterval!=null && (recurInterval.length!=sectionToSegmentData.size()))
 			//	throw new RuntimeException ("Number of recurrence intervals should  equal  number of segments");
+		this.segTimeDepDataList = segTimeDepDataList;
 		this.segRates = segRateConstraints;
 		this.faultName = faultName;
 		this.sectionToSegmentData = sectionToSegmentData;	
@@ -165,6 +169,16 @@ public class FaultSegmentData {
 	 */
 	public double getSegSlipRateStdDev(int index) {
 		return this.segSlipRateStdDev[index];
+	}
+	
+	/**
+	 * Get Time Dependent data for specified segment index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public SegmentTimeDepData getSegTimeDependentData(int index) {
+		return this.segTimeDepDataList.get(index);
 	}
 	
 	/**

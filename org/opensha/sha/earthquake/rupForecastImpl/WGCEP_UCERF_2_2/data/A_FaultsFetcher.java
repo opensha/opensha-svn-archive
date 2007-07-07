@@ -45,7 +45,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String TIME_DEP_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_2/data/SegmentTimeDepData_v02.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segEventRatesMap;
-	private HashMap<String, SegmentTimeDepData> segTimeDepDataMap;
+	private HashMap<String, ArrayList> segTimeDepDataMap;
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
@@ -193,7 +193,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 *
 	 */
 	private void readSegTimeDepData() {
-		segTimeDepDataMap = new HashMap<String, SegmentTimeDepData>();
+		segTimeDepDataMap = new HashMap<String, ArrayList>();
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(TIME_DEP_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -208,6 +208,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				String faultName = cell.getStringCellValue().trim();
 				++r;
 				int segIndex = -1;
+				ArrayList<SegmentTimeDepData> segTimeDepDataList = new ArrayList<SegmentTimeDepData>();
 				while(true) {
 					row = sheet.getRow(r++);
 					
@@ -239,9 +240,9 @@ public class A_FaultsFetcher extends FaultsFetcher{
 					// Segment Time dependent data
 					SegmentTimeDepData segTimeDepData = new SegmentTimeDepData();
 					segTimeDepData.setAll(faultName, segIndex, lastEventYr, slip, aperiodicity);
-					String hashMapKey = getKeyFromFaultNameAndSegIndex(faultName, segIndex);
-					segTimeDepDataMap.put(hashMapKey, segTimeDepData);
+					segTimeDepDataList.add(segTimeDepData);
 				}
+				segTimeDepDataMap.put(faultName, segTimeDepDataList);
 			}
 			
 		}catch(Exception e) {
@@ -249,29 +250,18 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		}
 	}
 	
+
 	
 	/**
-	 * Makes hashmpa key using fault name and segment index
+	 * Get time dependent data for selected fault.
 	 * 
 	 * @param faultName
-	 * @param segIndex
-	 */
-	private String getKeyFromFaultNameAndSegIndex(String faultName, int segIndex) {
-		return faultName+""+segIndex;
-	}
-	
-	
-	/**
-	 * Get segment time dependent data for selected faultName and segment index.
-	 * 
-	 * @param faultName
-	 * @param segIndex
 	 * @return
 	 */
-	public SegmentTimeDepData getSegTimeDepData(String faultName, int segIndex) {
-		String hashMapKey = getKeyFromFaultNameAndSegIndex(faultName, segIndex);
-		return segTimeDepDataMap.get(hashMapKey);
+	public  ArrayList<SegmentTimeDepData> getSegTimeDepData(String faultName) {
+		return this.segTimeDepDataMap.get(faultName);
 	}
+	
 	
 	/**
 	 * It gets the list of all event rates.

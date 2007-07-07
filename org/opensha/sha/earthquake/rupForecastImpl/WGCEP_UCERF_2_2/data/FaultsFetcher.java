@@ -207,8 +207,10 @@ public abstract class FaultsFetcher {
 		
 		// make SegmentedFaultData 
 		ArrayList<SegRateConstraint> segRates = getSegRateConstraints(faultName);
+		ArrayList<SegmentTimeDepData> segTimeDepDataList = this.getSegTimeDepData(faultName);
 		FaultSegmentData segmetedFaultData = new FaultSegmentData(faultDataListInSelectedSegment, 
-				(String[])this.segmentNamesMap.get(faultName), isAseisReducesArea, faultName, segRates);
+				(String[])this.segmentNamesMap.get(faultName), isAseisReducesArea, faultName, segRates,
+				segTimeDepDataList);
 		return segmetedFaultData;		
 	}
 	
@@ -227,6 +229,13 @@ public abstract class FaultsFetcher {
 	 */
 	public abstract ArrayList<SegRateConstraint> getSegRateConstraints(String selectedSegmentModel);
 	
+	
+	/**
+	 * Get time dependent data for selected fault
+	 * @param faultName
+	 * @return
+	 */
+	public abstract ArrayList<SegmentTimeDepData> getSegTimeDepData(String faultName);
 	
 	/**
 	 * Get the Segment model name
