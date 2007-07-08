@@ -181,6 +181,12 @@ public class FaultSegmentData {
 		return this.segTimeDepDataList.get(index);
 	}
 	
+	public double getSegCalYearOfLastEvent(int index) {return segTimeDepDataList.get(index).getLastEventCalendarYr(); }
+	
+	public double getSegAperiodicity(int index) {return segTimeDepDataList.get(index).getAperiodicity(); }
+	
+	public double getSegAveSlipInLastEvent(int index) {return segTimeDepDataList.get(index).getSlip(); }
+	
 	/**
 	 * Get total ave slip rate - wt averaged by area (note that this is reduce by  
 	 * any non-zero aseismicity factors if aseisReducesArea is false)

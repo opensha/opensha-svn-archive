@@ -109,8 +109,11 @@ public class A_FaultSegmentedSourceGenerator {
 	// list of sources
 	private ArrayList<FaultRuptureSource> sourceList;
 	
-	private final static double DEFAULT_DURATION = 1.0;
 	private final static double DEFAULT_GRID_SPACING = 1.0;
+	
+	private Boolean isTimeDeptendent;
+	
+
 
 	
 	/**
@@ -165,6 +168,8 @@ public class A_FaultSegmentedSourceGenerator {
 		num_seg = segmentData.getNumSegments();
 		
 		calcAllRates();
+		
+		isTimeDeptendent = null;
 		
 		// temp simulation
 //		if(segmentData.getFaultName().equals("S. San Andreas"))
@@ -451,7 +456,19 @@ public class A_FaultSegmentedSourceGenerator {
 
 	}
 	
-	private void makeAllTimeIndSources(double duration) {
+	
+	
+	/**
+	 * Get a list of time independent sources for the given duration
+	 * 
+	 * @return
+	 */
+	public ArrayList<FaultRuptureSource> getTimeIndependentSources(double duration) {
+		
+		isTimeDeptendent= false;
+
+		// a check could be made here whether time-ind sources already exist, 
+		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		for(int i=0; i<num_rup; i++) {
 			// get list of segments in this rupture
@@ -472,20 +489,6 @@ public class A_FaultSegmentedSourceGenerator {
 				sourceList.add(faultRupSrc);
 			}	
 		}
-	}
-	
-	
-	
-	/**
-	 * Get a list of time independent sources for the given duration
-	 * 
-	 * @return
-	 */
-	public ArrayList<FaultRuptureSource> getTimeIndependentSources(double duration) {
-		// a check could be made here whether time-ind sources already exist, 
-		// and if so the durations of each could simply be changed (rather than recreating the sources)
-		// Otherwise no need for separate makeAllTimeIndSources(*) method (put contents here).
-		makeAllTimeIndSources(duration);
 		return this.sourceList;
 	}
 	
@@ -495,9 +498,66 @@ public class A_FaultSegmentedSourceGenerator {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, double startYear) {
+	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
 
+		isTimeDeptendent= true;
+		double[] rupProb = this.getWG02_RupProbs(duration,startYear,aperiodicity,applySegVariableAperiodicity);
+		
+		this.sourceList = new ArrayList<FaultRuptureSource>();
+		for(int i=0; i<num_rup; i++) {
+			// get list of segments in this rupture
+			int[] segmentsInRup = getSegmentsInRup(i);
+			// Create source if prob is greater than ~zero
+			if (rupProb[i] > 1e-10) {				
+				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
+						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
+						segmentData.getAveRake(segmentsInRup));
+				faultRupSrc.setName(this.getLongRupName(i));
+				sourceList.add(faultRupSrc);
+			}	
+		}
+		
 		return this.sourceList;
+	}
+	
+	
+	/*
+	 * 
+	 */
+	public double[] getWG02_RupProbs(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
+		double[] segTimeSinceLast = new double[num_seg];
+		double[] segAlpha = new double[num_seg];
+		for(int i=0;i<num_seg;i++) {
+			segTimeSinceLast[i] = startYear-this.segmentData.getSegCalYearOfLastEvent(i);
+			segAlpha[i] = this.segmentData.getSegAperiodicity(i);
+			if(Double.isNaN(segAlpha[i])) segAlpha[i] = aperiodicity;
+		}
+		if(applySegVariableAperiodicity) {
+			return WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), segAlpha, 
+					segTimeSinceLast, duration, rupInSeg);			
+		} else {
+			return WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), aperiodicity, 
+					segTimeSinceLast, duration, rupInSeg);			
+		}
+	}
+
+	
+	/*
+	 * 
+	 */
+	public double[] getWG02_SegProbs(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
+		double[] segTimeSinceLast = new double[num_seg];
+		double[] segAlpha = new double[num_seg];
+		for(int i=0;i<num_seg;i++) {
+			segTimeSinceLast[i] = startYear-this.segmentData.getSegCalYearOfLastEvent(i);
+			segAlpha[i] = this.segmentData.getSegAperiodicity(i);
+			if(Double.isNaN(segAlpha[i])) segAlpha[i] = aperiodicity;
+		}
+		if(applySegVariableAperiodicity) {
+			return WG02_QkProbCalc.getSegProbs(finalSegRate, segAlpha, segTimeSinceLast, duration);
+		} else {
+			return WG02_QkProbCalc.getSegProbs(finalSegRate, aperiodicity, segTimeSinceLast, duration);
+		}
 	}
 
 	
@@ -510,7 +570,7 @@ public class A_FaultSegmentedSourceGenerator {
 	public String getNSHMP_SrcFileString() {
 		boolean localDebug = true;
 		StringBuffer strBuffer = new StringBuffer("");
-		makeAllTimeIndSources(1.0);
+		ArrayList<FaultRuptureSource> sourceList = getTimeIndependentSources(1.0);
 		int numSources = sourceList.size();
 		for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
 			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
@@ -1635,17 +1695,23 @@ public class A_FaultSegmentedSourceGenerator {
 		return totError;
 	}
 	
-	public void simulateEvents(int num) {
-		
+	/*
+	 * This give the final segment moment rates (reduced by moRateReduction)
+	 */
+	public double[] getFinalSegMoRate() {
 		double[] segMoRate = new double[num_seg];
 		double totMoRate = 0;
 		for(int i=0; i<num_seg;i++) {
 			segMoRate[i] = segmentData.getSegmentMomentRate(i)*(1-this.moRateReduction);
 			totMoRate += segMoRate[i];
 		}
+		return segMoRate;
+	}
+	public void simulateEvents(int num) {
+		
 //		System.out.println("moments: "+totMoRate+"  "+this.getTotalMoRateFromRups());
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
-		qkSim.computeSimulatedEvents(totRupRate, segMoRate, 0.5, rupInSeg, num);
+		qkSim.computeSimulatedEvents(totRupRate, getFinalSegMoRate(), 0.5, rupInSeg, num);
 		qkSim.plotSegmentRecurIntPDFs();
 	}
 
