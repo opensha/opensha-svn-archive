@@ -1774,7 +1774,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
 	private void setTimespanParameter() {
-		boolean isTimeDep = this.isTimeIndependent();
+		boolean isTimeDep = !this.isTimeIndependent();
 		if (isTimeDep) {
 			// create the time-dep timespan object with start time and duration in years
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
