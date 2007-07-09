@@ -343,7 +343,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
 	public final static String PROB_MODEL_POISSON = "Poisson";
 	public final static String PROB_MODEL_BPT = "BPT";
-	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_POISSON;
+	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_BPT;
 	private StringParameter probModelParam;
 
 	// Aperiodicity Param
@@ -806,7 +806,6 @@ public class UCERF2 extends EqkRupForecast {
 		if(!isTimeIndependent()) { // if time dependent prob model is chosen
 			adjustableParams.addParameter(this.segDepAperiodicityParam);
 			boolean isSegDepApriodicity = ((Boolean)segDepAperiodicityParam.getValue()).booleanValue();
-			System.out.println(isSegDepApriodicity);
 			if(isSegDepApriodicity) adjustableParams.addParameter(this.defaultAperiodicityParam);
 			else adjustableParams.addParameter(this.aperiodicityParam);
 		}
