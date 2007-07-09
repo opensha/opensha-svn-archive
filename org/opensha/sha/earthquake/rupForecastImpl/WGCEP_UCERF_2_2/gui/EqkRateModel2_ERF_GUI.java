@@ -438,7 +438,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		if(source==this.calcButton) {
 			CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
 			progressBar.setLocationRelativeTo(this);
-			ucerf2.updateForecast(); // update forecast
+			try {
+				ucerf2.updateForecast(); // update forecast
+			}catch(Exception e) {
+				JOptionPane.showMessageDialog(this, e.getMessage());
+				return;
+			}
 			// show the output
 			EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(ucerf2);
 			outputWindow.setLocationRelativeTo(this);

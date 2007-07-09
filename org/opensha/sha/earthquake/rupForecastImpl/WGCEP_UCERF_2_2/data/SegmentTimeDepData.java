@@ -16,9 +16,6 @@ public class SegmentTimeDepData {
 	private double slip = Double.NaN;
 	private double aperiodicity = Double.NaN;
 	
-	
-	
-	
 	public void setAll(String faultName, int segIndex, double lastEventCalendarYr, double slip, double aperiodicity) {
 		setFaultName(faultName);
 		setSegIndex(segIndex);
