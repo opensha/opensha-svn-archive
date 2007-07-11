@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis;
 
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -15,6 +15,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterListParameter;
 import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 
@@ -233,6 +234,9 @@ public class GenPredErrAnalysisTool {
 		
 		return new String(pow1+"\t"+pow2+"\t"+pow3);
 	}
+	
+	
+	
 	
 	public static void main(String args[]) {
 		

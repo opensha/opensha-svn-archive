@@ -42,6 +42,8 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.ReportBulgeFigures;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.UCERF1ComparisonPlotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
@@ -178,7 +180,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		  //generateAnalysisFigures(dirName);
 		  try {
 			  UCERF2 ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF_Instance();
-			  ucerf2.plotA_FaultMFDs_forReport();
+			  UCERF1ComparisonPlotter ucerf1ComparisonPlotter = new UCERF1ComparisonPlotter(ucerf2);
+			  //ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport();
+			  ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport();
+			  ucerf1ComparisonPlotter.plotB_FaultMFDs_forReport();
 		  }catch(Exception e) {
 			  e.printStackTrace();
 		  }
@@ -213,7 +218,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	  private void bulgeAnalysisMenu_actionPerformed(ActionEvent actionEvent) {
 		  String dirName = getDirectoryName();
 		  if(dirName==null) return;
-		  generateAnalysisFigures(dirName);
+		  ReportBulgeFigures reportBulgeFigures = new ReportBulgeFigures();
+		  reportBulgeFigures.generateAnalysisFigures(dirName);
 	  }
 	  
 	  
@@ -229,211 +235,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		return dirName;
 	  }
 	  
-	 /**
-	  * Generate figures for analysis
-	  * @param dirName
-	  */
-	 private void generateAnalysisFigures(String dirName) {
-		
-		 UCERF2 ucerf2 = new UCERF2();
-		 ArrayList<String> paramNames = new ArrayList<String>();
-		 // remove parameter listeners
-		 ParameterList paramList = ucerf2.getAdjustableParameterList();
-		 Iterator it = paramList.getParametersIterator();
-		 while(it.hasNext()) {
-			 ParameterAPI param = (ParameterAPI)it.next();
-			 paramNames.add(param.getName());
-		 }
-		 
-		 HSSFWorkbook wb  = new HSSFWorkbook();
-		 HSSFSheet sheet = wb.createSheet();
-		 HSSFRow row;
-		 // add row for each parameter name. Also add a initial blank row for writing figure names
-		 for(int i=0; i<=paramNames.size(); ++i) {
-			 row = sheet.createRow(i); 
-			 if(i>0) row.createCell((short)0).setCellValue(paramNames.get(i-1));
-		 }
-		 // add a row for predicted and observed ratio
-		 sheet.createRow(paramNames.size()+1).createCell((short)0).setCellValue("M 6.5 pred/obs");
-		 
-		 
-		 this.dirName=dirName;
-		 ucerf2.setParamDefaults();
-		 
-		 // figure 1 with defaults
-		 int fig=1;
-		 ucerf2.updateForecast();
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 for(int i=0; i<paramNames.size(); ++i) {
-			 if(paramNames.get(i).equalsIgnoreCase(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME))
-				 sheet.getRow(i+1).createCell((short)fig).setCellValue("Geological Insight");
-			 else	 sheet.getRow(i+1).createCell((short)fig).setCellValue(paramList.getValue(paramNames.get(i)).toString());			 
-		 }
-		 double obsVal = ucerf2.getObsCumMFD(ucerf2.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-
-		 // figure 2
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		 ucerf2.updateForecast();
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-
-		 //		 figure 3
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		
-		 //		 figure 4
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e7));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)).createCell((short)fig).setCellValue("1e7");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 5
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 6
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(-0.1);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 7
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 8
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("False");
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 9
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0.0);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 //		 figure 10
-		 ++fig;
-		 ucerf2.setParamDefaults();
-		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(1.0));
-		 ucerf2.updateForecast();
-		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
-		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
-		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig, ucerf2);
-		 
-		 
-		 // wrap cell style
-		 HSSFCellStyle wrapCellStyle = wb.createCellStyle();
-		 wrapCellStyle.setWrapText(true);
-		 for(int rowCount=0; rowCount<=sheet.getLastRowNum(); ++rowCount) {
-			 for(int colCount=0; colCount<=fig; ++colCount) {
-				 HSSFCell cell = sheet.getRow(rowCount).getCell((short)colCount);
-				 if(cell==null) continue;
-				 cell.setCellStyle(wrapCellStyle);
-			 }
-		 }
-		 
-		 //ucerf2.setParamDefaults();
-		 
-		 try {
-				FileOutputStream fileOut = new FileOutputStream(dirName+"/Table_For_Figures.xls");
-				wb.write(fileOut);
-				fileOut.close();
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-	 }
-	 
-	 /**
-	  * Plot MFDs
-	  * @param fileName
-	  */
-	 private void makeMFDsPlot(String fileName, UCERF2 ucerf2) {
-		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(ucerf2, true);
-		 GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
-		 graphWindow.setPlotLabel("Cum Mag Freq Dist");
-		 graphWindow.plotGraphUsingPlotPreferences();
-		 graphWindow.setVisible(true);
-		 try {
-			 graphWindow.saveAsPNG(dirName+"/"+fileName+".png");
-		 }catch(Exception e) {
-			 e.printStackTrace();
-		 }
-		 
-		 // 
-		/* ArrayList aFaultSourceGenerators = eqkRateModelERF.get_A_FaultSourceGenerators();
-		 
-		 for(int i=0; i<aFaultSourceGenerators.size(); ++i) {
-			 IncrementalMagFreqDist magFreqDist;
-			 ArrayList funcs = new ArrayList();
-			 String faultName;
-			 Object obj = aFaultSourceGenerators.get(i);
-			 if(obj instanceof A_FaultSegmentedSourceGenerator) {
-				 // segmented source
-				 magFreqDist =( (A_FaultSegmentedSourceGenerator)obj).getTotalRupMFD();
-				 faultName = ( (A_FaultSegmentedSourceGenerator)obj).getFaultSegmentData().getFaultName();
-			 } else {
-				 // unsegmented source
-				 magFreqDist =( (UnsegmentedSource)obj).getMagFreqDist();
-				 faultName = ( (UnsegmentedSource)obj).getFaultSegmentData().getFaultName();
-			 }
-			 
-			 magFreqDist.setName(faultName+" Mag Freq Dist");
-			 EvenlyDiscretizedFunc cumRateDist = magFreqDist.getCumRateDist();
-			 cumRateDist.setInfo(faultName+" Cumulative Mag Freq Dist");
-			 funcs.add(magFreqDist);
-			 funcs.add(cumRateDist);
-			 ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
-			 ArbitrarilyDiscretizedFunc ucerf1CumRate = UCERF1MfdReader.getUCERF1CumMFD(faultName);
-			 funcs.add(ucerf1Rate);
-			 funcs.add(ucerf1CumRate);
-			 GraphWindowAPI_Impl faultGraphWindow = new GraphWindowAPI_Impl(funcs, "Mag", "Rate", faultName+" MFD");
-			 faultGraphWindow.saveAsPNG(dirName+"/"+fileName+"_"+faultName+".png");
-			 faultGraphWindow.destroy();
-		 }*/
-	 }
+	
 	
 	/**
 	 * When Calc button is clicked

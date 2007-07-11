@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -18,6 +18,9 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterListParameter;
 import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
+import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.A_FaultsFetcher;
 
@@ -36,6 +39,10 @@ public class GenerateTestExcelSheets {
 	private ArrayList magAreaOptions, slipModelOptions;
 	
 	
+	public GenerateTestExcelSheets() {
+		this(new UCERF2());
+	}
+	
 	public GenerateTestExcelSheets(UCERF2 ucerf2) {
 		this.ucerf2 = ucerf2;
 		adjustableParams = ucerf2.getAdjustableParameterList();
@@ -48,13 +55,86 @@ public class GenerateTestExcelSheets {
 
 	}
 	
+	/**
+	 * This generates some excel spreadsheet test results, where each file has results for all mag-area
+	 * relationships, slip models, and solution types.
+	 *
+	 */
+	public void mkExcelSheetTests() {
+
+		// TEST 1 - defaults
+		ucerf2.setParamDefaults();
+		generateExcelSheetsForRupMagRates("Test1_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test1_A_FaultNormResids.xls");
+
+		// TEST 2 zero moment rate taken out
+		ucerf2.getParameter(UCERF2.AFTERSHOCK_FRACTION_PARAM_NAME).setValue(0.0);
+		generateExcelSheetsForRupMagRates("Test2_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test2_A_FaultNormResids.xls");
+
+		// TEST 3 (MEAN-MAG CORRECTION = +0.1)
+		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(0.1);
+		generateExcelSheetsForRupMagRates("Test3_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test3_A_FaultNormResids.xls");
+
+		// TEST 4 (MEAN-MAG CORRECTION = -0.1)
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(-0.1);
+		generateExcelSheetsForRupMagRates("Test4_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test4_A_FaultNormResids.xls");
+
+		// TEST 5 Deformation Model D2.2
+		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.2");
+		generateExcelSheetsForRupMagRates("Test5_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test5_A_FaultNormResids.xls");
+
+		// TEST 6 Deformation Model D2.3
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.3");
+		generateExcelSheetsForRupMagRates("Test6_A_FaultRupRates.xls");
+		generateExcelSheetsForNormResSR_And_ER("Test6_A_FaultNormResids.xls");	
+
+		/*
+		// TEST - FULL WEIGHT ON A-PRIORI
+		setParamDefaults();
+		relativeA_PrioriWeightParam.setValue(1e10);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("FullWt_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("FullWt_A_FaultNormResids_2_2.xls");
+
+  		// TEST - INTERMEDIATE WEIGHT ON A-PRIORI
+		setParamDefaults();
+		relativeA_PrioriWeightParam.setValue(1.0);
+		excelSheetsGen.generateExcelSheetsForRupMagRates("IntWt_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("IntWt_A_FaultNormResids_2_2.xls");
+
+		// TEST - DEFAULT VALUES
+		setParamDefaults();
+		excelSheetsGen.generateExcelSheetsForRupMagRates("Default_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("Default_A_FaultNormResids_2_2.xls");
+
+		// TEST - Deformation Model D2.2
+		setParamDefaults();
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(1)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_2_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_2_A_FaultNormResids_2_2.xls");
+
+		// TEST - Deformation Model D2.3
+		setParamDefaults();
+		deformationModelsParam.setValue(((DeformationModelSummary)deformationModelSummariesList.get(2)).getDeformationModelName());
+		excelSheetsGen.generateExcelSheetsForRupMagRates("D2_3_A_FaultRupRates_2_2.xls");
+		excelSheetsGen.generateExcelSheetsForNormResSR_And_ER("D2_3_A_FaultNormResids_2_2.xls");	
+		 */
+
+	}
+
+	
 	
 	/**
 	 * Generate Excel sheet for each fault.
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	public void generateExcelSheetsForRupMagRates(String outputFileName) {		
+	private void generateExcelSheetsForRupMagRates(String outputFileName) {		
 		System.out.println(outputFileName);
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
@@ -199,7 +279,7 @@ public class GenerateTestExcelSheets {
 	 * Each sheet will have all Rup solution Types
 	 * 
 	 */
-	public void generateExcelSheetsForNormResSR_And_ER(String outputFileName) {		
+	private void generateExcelSheetsForNormResSR_And_ER(String outputFileName) {		
 		System.out.println(outputFileName);
 		int numA_Faults = this.aFaultsFetcher.getAllFaultNames().size();	
 //		 Create Excel Workbook and sheets if they do not exist already
@@ -845,5 +925,10 @@ public class GenerateTestExcelSheets {
 			e.printStackTrace();
 		}
 	}*/
+	
+	public static void main(String args[]) {
+		GenerateTestExcelSheets genExcelSheets = new GenerateTestExcelSheets();
+		genExcelSheets.mkExcelSheetTests();
+	}
 	
 }
