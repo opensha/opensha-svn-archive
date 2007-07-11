@@ -48,8 +48,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
   private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/AllCalDeltaRates.txt";
   //private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/DailyRates96Model.txt";
   //private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/DailyRates96Model.txt";
-  //private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/AllCal96ModelDaily.txt";
-  private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+  private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/AllCal96ModelDaily.txt";
+  //private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
 
 // ArrayLists of input file lines
   private ArrayList deltaRateFileLines;
@@ -241,7 +241,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
     //read background rates file if needed
     if(!backgroundRatesFileAlreadyRead){
       try {
-        backgroundRateFileLines = FileUtils.loadJarFile( BACKGROUND_RATES_FILE_NAME );
+        backgroundRateFileLines = FileUtils.loadFile( BACKGROUND_RATES_FILE_NAME );
       } catch(Exception e) {
         throw new RuntimeException("Background file could not be loaded");
       }

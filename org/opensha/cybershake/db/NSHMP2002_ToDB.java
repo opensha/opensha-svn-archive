@@ -1,6 +1,7 @@
 package org.opensha.cybershake.db;
 
 
+import java.rmi.RemoteException;
 import java.util.ListIterator;
 
 import org.opensha.sha.earthquake.*;
@@ -10,6 +11,7 @@ import org.opensha.calc.RelativeLocation;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
@@ -19,7 +21,7 @@ import java.util.Iterator;
 
 public class NSHMP2002_ToDB {
 
-	private Frankel02_AdjustableEqkRupForecast frankelForecast;
+	private EqkRupForecast frankelForecast;
 	private static String HOST_NAME = "intensity.usc.edu";
 	private static String DATABASE_NAME = "CyberShake";
 	private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
@@ -34,8 +36,14 @@ public class NSHMP2002_ToDB {
 	  */
 	  private void createFrankelForecast() {
 
-	    frankelForecast = new
-	        Frankel02_AdjustableEqkRupForecast();
+	    //try {
+			frankelForecast = new
+			//Frankel02_AdjustableEqkRupForecastClient();
+			Frankel02_AdjustableEqkRupForecast();
+		//} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		//}
 
 	    frankelForecast.getAdjustableParameterList().getParameter(
 	        Frankel02_AdjustableEqkRupForecast.
@@ -44,7 +52,7 @@ public class NSHMP2002_ToDB {
 
 	    frankelForecast.getAdjustableParameterList().getParameter(
 	      Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(
-	        frankelForecast.FAULT_MODEL_STIRLING);
+	    		  Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
 	    frankelForecast.getAdjustableParameterList().getParameter(
 	      Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(
 	        new Double(5.0));

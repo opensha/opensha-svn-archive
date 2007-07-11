@@ -91,7 +91,7 @@ public class EqkRateModel2_ERF extends EqkRupForecast {
 	/*
 	 * Static variables for input files
 	 */
-	//private final static String IN_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
+	//private final static String IN_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/WGCEP_UCERF_2_1/";
 	private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_1/";
 	
 	private ArrayList allSources;

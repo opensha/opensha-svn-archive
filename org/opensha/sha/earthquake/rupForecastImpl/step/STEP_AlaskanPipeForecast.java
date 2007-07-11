@@ -72,7 +72,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
   public STEP_AlaskanPipeForecast() {
 
     // read the lines of the input files into a list
-    try{ inputFileLines = FileUtils.loadJarFile( INPUT_FILE_NAME ); }
+    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
