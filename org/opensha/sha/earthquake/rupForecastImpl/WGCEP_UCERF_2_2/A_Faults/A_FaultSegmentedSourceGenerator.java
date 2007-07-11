@@ -512,7 +512,7 @@ public class A_FaultSegmentedSourceGenerator {
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
 				double probFromSrc =faultRupSrc.computeTotalProb();
-				System.out.println("Prob: from src="+(float)probFromSrc+
+				System.out.println(segmentData.getFaultName()+" Prob: from src="+(float)probFromSrc+
 						"; from totRate="+(float)rupProb[i]+"; ratio="+
 						(float)(probFromSrc/rupProb[i]));
 				
@@ -568,7 +568,7 @@ public class A_FaultSegmentedSourceGenerator {
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
 				double probFromSrc =faultRupSrc.computeTotalProb();
-				System.out.println("Prob: from src="+(float)probFromSrc+
+				System.out.println(segmentData.getFaultName()+" Prob: from src="+(float)probFromSrc+
 						"; from rupProb="+(float)rupProb[i]+"; ratio="+
 						(float)(probFromSrc/rupProb[i]));
 			}	
