@@ -145,7 +145,7 @@ public class GenerateTestExcelSheets {
 								 // write Rup Names and Apriori Rates
 								 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 								 rupStartRow[i] = currRow[i];
-								 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+								 for(int rup=0; rup<source.getNumRupSources(); ++rup) {
 									 row = sheet.createRow((short)currRow[i]++);
 									 row.createCell((short)0).setCellValue(source.getLongRupName(rup));
 									 row.createCell((short)1).setCellValue(source.getAPrioriRupRate(rup));
@@ -156,7 +156,7 @@ public class GenerateTestExcelSheets {
 								 int totRow2 = 2*totRow1+2;
 								 int totRow3 = 3*totRow1+4;
 								 int ratioRowIndex1 = totRow3+2;
-								 createTotalRow( row, rupStartRow[i], rupStartRow[i]+source.getNumRuptures());
+								 createTotalRow( row, rupStartRow[i], rupStartRow[i]+source.getNumRupSources());
 								 if(irup==0){
 									 this.createRatioRows(sheet, ratioRowIndex1, totRow1, totRow2, totRow3);
 								 }	 
@@ -169,7 +169,7 @@ public class GenerateTestExcelSheets {
 							 A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
 							 int magCol = this.getMagCol(islip, imag);
 							 int rateCol = this.getRateCol(islip, imag);
-							 for(int rup=0; rup<source.getNumRuptures(); ++rup) {
+							 for(int rup=0; rup<source.getNumRupSources(); ++rup) {
 								 sheet.getRow(rup+rupStartRow[i]).createCell((short)magCol).setCellValue(source.getRupMeanMag(rup));
 								 sheet.getRow(rup+rupStartRow[i]).createCell((short)rateCol).setCellValue(source.getRupRate(rup));
 							 }
@@ -531,7 +531,7 @@ public class GenerateTestExcelSheets {
 			for(int iSource=0; iSource<aFaultSourceGenerators.size(); ++iSource) {
 				row1 = predErrSheet.createRow((short)(faultNamesStartRow+iSource));
 				A_FaultSegmentedSourceGenerator src = (A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(iSource);
-				for(int rupIndex=0; rupIndex<src.getNumRuptures(); ++rupIndex) totRate+=src.getAPrioriRupRate(rupIndex);
+				for(int rupIndex=0; rupIndex<src.getNumRupSources(); ++rupIndex) totRate+=src.getAPrioriRupRate(rupIndex);
 				row1.createCell((short)0).setCellValue(src.getFaultSegmentData().getFaultName());
 			}
 			
@@ -551,7 +551,7 @@ public class GenerateTestExcelSheets {
 		totRate=0;
 		for(int i=0; i<this.aFaultSourceGenerators.size(); ++i) {
 			A_FaultSegmentedSourceGenerator source = (A_FaultSegmentedSourceGenerator) aFaultSourceGenerators.get(i);
-			for(int rupIndex=0; rupIndex<source.getNumRuptures(); ++rupIndex) totRate+=source.getRupRate(rupIndex);
+			for(int rupIndex=0; rupIndex<source.getNumRupSources(); ++rupIndex) totRate+=source.getRupRate(rupIndex);
 			predErrSheet.getRow(i+faultNamesStartRow).createCell((short)col).setCellValue(source.getGeneralizedPredictionError());
 		}			
 		totRateSheet.getRow(faultNamesStartRow).createCell((short)(col)).setCellValue(totRate);

@@ -28,6 +28,9 @@ import nnls.NNLSWrapper;
  * segment slip rates are matched for all solution types; 2) the correct mag-areas are obtained where a
  * mag-area relationship is used (seen in a GUI).
  * 
+ * There is potential confusion here in that ruptures referred to here are actaully
+ * sources (i.e., occurrences of "rup" should be changed to "rupSrc").
+ * 
  * To Do: Matlab inversion tests
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -487,6 +490,16 @@ public class A_FaultSegmentedSourceGenerator {
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
 				
 				sourceList.add(faultRupSrc);
+				
+				/*
+				// this is a check to make sure the total prob from source is same as
+				// that computed by hand. It is
+				double probFromRate = 1-Math.exp(-totRupRate[i]*duration);
+				double probFromSrc =faultRupSrc.computeTotalProb();
+				System.out.println("Prob: from src="+(float)probFromSrc+
+						"; from totRate="+(float)probFromRate+"; ratio="+
+						(float)(probFromSrc/probFromRate));
+				*/
 			}	
 		}
 		return this.sourceList;
@@ -514,6 +527,13 @@ public class A_FaultSegmentedSourceGenerator {
 						segmentData.getAveRake(segmentsInRup));
 				faultRupSrc.setName(this.getLongRupName(i));
 				sourceList.add(faultRupSrc);
+				/**/
+				// this is a check to make sure the total prob from source is same as
+				// that computed by hand. It is
+				double probFromSrc =faultRupSrc.computeTotalProb();
+				System.out.println("Prob: from src="+(float)probFromSrc+
+						"; from rupProb="+(float)rupProb[i]+"; ratio="+
+						(float)(probFromSrc/rupProb[i]));
 			}	
 		}
 		
@@ -1200,9 +1220,9 @@ public class A_FaultSegmentedSourceGenerator {
 
 	
 	/**
-	 * @return the total num of rutures for all magnitudes
+	 * @return the total num of ruture sourcs
 	 */
-	public int getNumRuptures() {
+	public int getNumRupSources() {
 		return num_rup;
 	}
 	

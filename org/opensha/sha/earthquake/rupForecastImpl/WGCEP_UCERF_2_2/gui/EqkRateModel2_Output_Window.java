@@ -246,7 +246,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		int totalRows=faultNames.size();
 		for(int srcIndex=0; srcIndex<faultNames.size(); ++srcIndex) {
 			A_FaultSegmentedSourceGenerator source =  (A_FaultSegmentedSourceGenerator) aFaultSourceMap.get(faultNames.get(srcIndex));
-			totalRows+=source.getNumRuptures()+1; // also include totals
+			totalRows+=source.getNumRupSources()+1; // also include totals
 		} 
 		int totalCols = RuptureTableModel.columnNames.length;
 		Object[][] rowData = new Object[totalRows][totalCols];
@@ -259,7 +259,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			for(int colIndex=1; colIndex<totalCols;++colIndex) rowData[rowIndex][colIndex]="";
 			++rowIndex;
 			rupTableModel.setFaultSegmentedSource(source);
-			for(int rupIndex=0; rupIndex<=source.getNumRuptures(); ++rupIndex, ++rowIndex) {
+			for(int rupIndex=0; rupIndex<=source.getNumRupSources(); ++rupIndex, ++rowIndex) {
 				for(int colIndex=0; colIndex<totalCols;++colIndex)
 					rowData[rowIndex][colIndex]=rupTableModel.getValueAt(rupIndex, colIndex);
 			}
@@ -443,7 +443,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		// iterate over all sources
 		for(int i=0; i<sourceGeneratorList.size(); ++i) {
 			A_FaultSegmentedSourceGenerator source = sourceGeneratorList.get(i);
-			int numRuptures = source.getNumRuptures();
+			int numRuptures = source.getNumRupSources();
 			// iterate over all ruptures
 			for(int rupIndex = 0; rupIndex<numRuptures; ++rupIndex) {
 				normRupRatesRatioList.add(source.getRupRateResid(rupIndex));

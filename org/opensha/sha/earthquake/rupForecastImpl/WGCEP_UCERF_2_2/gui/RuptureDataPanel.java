@@ -164,7 +164,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			A_FaultSegmentedSourceGenerator aFaultSegmentedSource = (A_FaultSegmentedSourceGenerator) aFaultSegmentedSourceList.get(i);
 			ArbitrarilyDiscretizedFunc func;
 			double[] relativeRupRates = getRelativeRupRates(aFaultSegmentedSource);
-			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
+			for(int j=0; j<aFaultSegmentedSource.getNumRupSources(); ++j) {
 				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
 				
 				//if(relativeRupRates[j]<minRelativeRate) System.out.println(" Low relative rate for:"+ 
@@ -248,7 +248,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		for(int i=0; i<numFaults; ++i) {
 			A_FaultSegmentedSourceGenerator aFaultSegmentedSource = (A_FaultSegmentedSourceGenerator) aFaultSegmentedSourceList.get(i);
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-			for(int j=0; j<aFaultSegmentedSource.getNumRuptures(); ++j) {
+			for(int j=0; j<aFaultSegmentedSource.getNumRupSources(); ++j) {
 				area = aFaultSegmentedSource.getRupArea(j)/1e6; // area to sq km
 				if(func.getXIndex(area)!=-1) System.out.println("RuptureDataPanel::setSourcesForMagAreaPlot()::**********Duplicate Area********");
 				func.set(area, aFaultSegmentedSource.getRupMeanMag(j));
@@ -306,13 +306,13 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 	 * @return
 	 */
 	public double[] getRelativeRupRates(A_FaultSegmentedSourceGenerator aFaultSegmentedSource) {
-		double[] relativeRates = new double[aFaultSegmentedSource.getNumRuptures()];
+		double[] relativeRates = new double[aFaultSegmentedSource.getNumRupSources()];
 		double maxRate=0.0;
-		for(int i=0; i< aFaultSegmentedSource.getNumRuptures(); ++i) {
+		for(int i=0; i< aFaultSegmentedSource.getNumRupSources(); ++i) {
 			if(maxRate<aFaultSegmentedSource.getRupRate(i))
 				maxRate = aFaultSegmentedSource.getRupRate(i);
 		}
-		for(int i=0; i< aFaultSegmentedSource.getNumRuptures(); ++i) {
+		for(int i=0; i< aFaultSegmentedSource.getNumRupSources(); ++i) {
 			relativeRates[i]=aFaultSegmentedSource.getRupRate(i)/maxRate;
 		}
 		return relativeRates;
@@ -362,7 +362,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			aPrioriRatesFunc.setName("A-Priori Rupture Rates");
 			ArbitrarilyDiscretizedFunc finalRupRatesFunc = new ArbitrarilyDiscretizedFunc();
 			finalRupRatesFunc.setName("Final Rupture Rates");
-			int numRups = source.getNumRuptures();
+			int numRups = source.getNumRupSources();
 			for(int i=0; i<numRups; ++i) {
 				aPrioriRatesFunc.set((double)i+1, source.getAPrioriRupRate(i));
 				finalRupRatesFunc.set((double)i+1, source.getRupRate(i));
@@ -381,7 +381,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 			ArrayList<ArbitrarilyDiscretizedFunc> plottingFuncList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 			ArbitrarilyDiscretizedFunc ratioFunc = new ArbitrarilyDiscretizedFunc();
 			ratioFunc.setName("(FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
-			int numRups = source.getNumRuptures();
+			int numRups = source.getNumRupSources();
 			for(int i=0; i<numRups; ++i) {
 				ratioFunc.set((double)i+1, source.getRupRateResid(i));
 			}
@@ -612,7 +612,7 @@ class RuptureTableModel extends AbstractTableModel {
 	 */
 	public int getRowCount() {
 		if(aFaultSegmentedSource==null) return 0;
-		return (aFaultSegmentedSource.getNumRuptures()+1); 
+		return (aFaultSegmentedSource.getNumRupSources()+1); 
 	}
 	
 	
@@ -622,7 +622,7 @@ class RuptureTableModel extends AbstractTableModel {
 	public Object getValueAt (int rowIndex, int columnIndex) {
 			
 		if(aFaultSegmentedSource==null) return "";
-		if(rowIndex == aFaultSegmentedSource.getNumRuptures()) return getTotal(columnIndex);
+		if(rowIndex == aFaultSegmentedSource.getNumRupSources()) return getTotal(columnIndex);
 		switch(columnIndex) {
 			case 0:
 				return ""+(rowIndex+1);
@@ -655,11 +655,11 @@ class RuptureTableModel extends AbstractTableModel {
 			case 0:
 				return "Total";
 			case 3:
-				for(int i=0; i<aFaultSegmentedSource.getNumRuptures(); ++i)
+				for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
 					totalRate+=aFaultSegmentedSource.getRupRate(i);
 				return RATE_FORMAT.format(totalRate);
 			case 4:
-				for(int i=0; i<aFaultSegmentedSource.getNumRuptures(); ++i)
+				for(int i=0; i<aFaultSegmentedSource.getNumRupSources(); ++i)
 					totalRate+=aFaultSegmentedSource.getAPrioriRupRate(i);
 				return RATE_FORMAT.format(totalRate);
 			case 5:
