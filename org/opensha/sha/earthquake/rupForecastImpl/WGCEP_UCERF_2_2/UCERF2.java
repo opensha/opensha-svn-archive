@@ -386,7 +386,8 @@ public class UCERF2 extends EqkRupForecast {
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
 
-	private ArrayList aFaultSourceGenerators, bFaultSources;
+	private ArrayList aFaultSourceGenerators; 
+	private ArrayList<UnsegmentedSource> bFaultSources;
 
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 
@@ -2026,7 +2027,7 @@ public class UCERF2 extends EqkRupForecast {
 	}
 
 	// plot all MFDs in one chart, but diff chart for diff faults
-	public void plotFaultMFDs_forReport() {
+	public void plotA_FaultMFDs_forReport() {
 		// FOR SEGMENTED MODEL
 
 		// Default parameters
@@ -2147,6 +2148,134 @@ public class UCERF2 extends EqkRupForecast {
 		for(int i=0; i<aFaultCumRateFuncList.size(); ++i) {
 			DiscretizedFuncList funcList = aFaultCumRateFuncList.get(i);
 			String faultName = faultNames.get(i);
+			ArrayList funcArrayList = new ArrayList();
+			funcArrayList.add(funcList.get(funcList.size()-1));
+			funcArrayList.add(funcList.get(funcList.size()-2));
+			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
+			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
+			graphWindow.setPlotLabel(faultName);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+		}
+	}
+	
+	
+	/**
+	 * Plot MFDs for San Gregorio, Greenville, Concord-Green Valley and Mt. Diablo
+	 */
+	public void plotB_FaultMFDs_forReport() {
+
+		// Default parameters
+		this.setParamDefaults();
+		this.updateForecast();
+		String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", "Green Valley Connected", "Mount Diablo Thrust"};  
+		int[] b_FaultIndices = new int[bFaultNames.length];
+		
+		//find indices of B-Faults in the B-Fault sources list
+		for(int i=0; i<bFaultNames.length; ++i) {
+			String faultName = bFaultNames[i];
+			for(int j=0; j<this.bFaultSources.size(); ++j) {
+				if(this.bFaultSources.get(j).getFaultSegmentData().getFaultName().equalsIgnoreCase(faultName)) {
+					b_FaultIndices[i] = j;
+					break;
+				}
+			}
+		}
+		
+		int numB_Faults = bFaultNames.length;
+		
+		// It holds incr rates for each B-Faults
+		ArrayList<DiscretizedFuncList> bFaultIncrRateFuncList = new ArrayList<DiscretizedFuncList>();
+		// It holds Cum Rates for each A-Fault
+		ArrayList<DiscretizedFuncList> bFaultCumRateFuncList = new ArrayList<DiscretizedFuncList>();
+
+		for(int i=0; i<numB_Faults; ++i) {
+			bFaultIncrRateFuncList.add(new DiscretizedFuncList());
+			bFaultCumRateFuncList.add(new DiscretizedFuncList());
+		}
+		String name = "Default Parameters";
+		
+		for(int i=0; i<numB_Faults; ++i) {
+			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
+			incrMFD.setName(name);
+			incrMFD.setInfo("");
+			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
+			cumMFD.setName(name);
+			cumMFD.setInfo("");
+			bFaultIncrRateFuncList.get(i).add(incrMFD);
+			bFaultCumRateFuncList.get(i).add(cumMFD);
+		}
+		
+
+		// Def Params w/ change Mag Area to Hanks Bakun
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		name = "Def Params w/ change Mag Area to Hanks Bakun";
+		for(int i=0; i<numB_Faults; ++i) {
+			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
+			incrMFD.setName(name);
+			incrMFD.setInfo("");
+			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
+			cumMFD.setName(name);
+			cumMFD.setInfo("");
+			bFaultIncrRateFuncList.get(i).add(incrMFD);
+			bFaultCumRateFuncList.get(i).add(cumMFD);
+		}
+
+		/* wt-ave MFD WT 
+		 EllB 	0.5
+		 HB 	0.5
+		 */
+		name  = "Wt Avg MFD";
+		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
+			DiscretizedFuncList funcList = bFaultIncrRateFuncList.get(i);
+			IncrementalMagFreqDist wtAveMFD = (IncrementalMagFreqDist) ((IncrementalMagFreqDist)funcList.get(0)).deepClone();
+			DiscretizedFuncAPI func = funcList.get(0);
+			
+			for(int imag=0; imag<func.getNum(); ++imag) 
+				wtAveMFD.set(func.getX(imag), 
+						0.5*funcList.get(0).getY(imag) + 0.5*funcList.get(1).getY(imag));
+
+
+			wtAveMFD.setName(name);
+			bFaultIncrRateFuncList.get(i).add(wtAveMFD);
+			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDist();
+			cumMFD.setName(name);
+			bFaultCumRateFuncList.get(i).add(cumMFD);
+		}
+
+		//UCERF1 MFD
+		name = "UCERF1 MFD";
+		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
+			String faultName = bFaultNames[i];
+			ArbitrarilyDiscretizedFunc ucerf1Rate = UCERF1MfdReader.getUCERF1IncrementalMFD(faultName);
+			if(ucerf1Rate.getNum()==0) ucerf1Rate.set(0.0, 0.0);
+			bFaultIncrRateFuncList.get(i).add(ucerf1Rate);
+			ucerf1Rate.setName(name);
+			ArbitrarilyDiscretizedFunc cumMFD = UCERF1MfdReader.getUCERF1CumMFD(faultName);
+			if(cumMFD.getNum()==0) cumMFD.set(0.0, 0.0);
+			cumMFD.setName(name);
+			bFaultCumRateFuncList.get(i).add(cumMFD);
+		}
+
+		// PLOT INCR RATES
+		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
+			DiscretizedFuncList funcList = bFaultIncrRateFuncList.get(i);
+			String faultName = bFaultNames[i];
+			ArrayList funcArrayList = new ArrayList();
+			funcArrayList.add(funcList.get(funcList.size()-1));
+			funcArrayList.add(funcList.get(funcList.size()-2));
+			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
+			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
+			graphWindow.setPlotLabel(faultName);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+		}
+
+		// PLOT CUM RATES
+		for(int i=0; i<bFaultCumRateFuncList.size(); ++i) {
+			DiscretizedFuncList funcList = bFaultCumRateFuncList.get(i);
+			String faultName = bFaultNames[i];
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
@@ -2334,10 +2463,10 @@ public class UCERF2 extends EqkRupForecast {
 		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		erRateModel2_ERF.mkExcelSheetTests();
+		//erRateModel2_ERF.mkExcelSheetTests();
 //		erRateModel2_ERF.writeNSHMP_SrcFiles("NSHMPFiles060107"); // directory name w/ data
 		//erRateModel2_ERF.evaluateA_prioriWT();
-
+		erRateModel2_ERF.plotB_FaultMFDs_forReport();
 		/**/
 
 

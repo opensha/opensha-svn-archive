@@ -13,13 +13,13 @@
 # Note that for B-fault models there is no practical difference between segments and sections 
 # (but we keep it here for format consistency with files for A faults)
 #
-- Green Valley
+- Green Valley Connected
 1:Green Valley (So)
 71:Green Valley (No)
 3:Concord
-- Greenville
+- Greenville Connected
 6:Greenville (No)
 7:Greenville (So) 
-- San Gregorio
+- San Gregorio Connected
 29:San Gregorio (So)
 12:San Gregorio (No)

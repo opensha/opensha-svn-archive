@@ -166,7 +166,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		  //String dirName = getDirectoryName();
 		  //if(dirName==null) return;
 		  //generateAnalysisFigures(dirName);
-		  this.ucerf2.plotFaultMFDs_forReport();
+		  this.ucerf2.plotA_FaultMFDs_forReport();
 	  }
 	  
 	  /**

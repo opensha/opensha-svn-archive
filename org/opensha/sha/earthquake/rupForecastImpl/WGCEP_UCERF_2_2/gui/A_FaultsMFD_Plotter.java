@@ -11,7 +11,7 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
- * This class is used for plotting the MFDs for the EqkRateModel2.1
+ * This class is used for plotting the MFDs for the EqkRateModel2.2
  * @author vipingupta
  *
  */
@@ -26,7 +26,7 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLUE, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.DARK_GRAY, 2);
+		      Color.GRAY, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -93,10 +93,12 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 		 list.add(PLOT_CHAR7);
 		 list.add(PLOT_CHAR1);
 		 list.add(PLOT_CHAR2);
-		 list.add(PLOT_CHAR3);
-		 list.add(PLOT_CHAR4);
-		 list.add(PLOT_CHAR5);
-		 list.add(PLOT_CHAR6);
+		 if(funcs.size()>4) { // Size is 4 for B-Faults 
+			 list.add(PLOT_CHAR3);
+			 list.add(PLOT_CHAR4);
+			 list.add(PLOT_CHAR5);
+			 list.add(PLOT_CHAR6);
+		 }
 		 return list;
 	}
 	
