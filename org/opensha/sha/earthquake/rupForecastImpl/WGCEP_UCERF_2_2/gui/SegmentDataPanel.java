@@ -757,16 +757,14 @@ class FaultSectionTableModel extends AbstractTableModel {
 class SegmentDataTableModel extends AbstractTableModel {
 	// column names
 	public final static String[] columnNames = { "Seg Name", "Num", "DDW", "Length", "Aseis","Area",
-		"Orig SR", "SR Sigma",
-		"Final SR", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
-		 "Sections In Segment"};
+		"Orig SR", "SR Sigma", "Final SR", "Mo Rate", "Data ER", "ER Sigma", "Pred ER", "Final ER", /*"Char Slip",*/ 
+		"Seg Prob", "Seg Gain", "Seg Aper.", "Cal Yr. of Last Event", "Sections In Segment"};
 	
 	//Seg Name, Num, DDW, Legth, Aseis, Area, Orig SR, SR Sigma, Mo Rate, ... (as the rest appear).
 	private FaultSegmentData segFaultData;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.###");
 	private final static DecimalFormat EVENT_RATE_FORMAT = new DecimalFormat("0.000E0");
 	private final static DecimalFormat ASEIS_FORMAT = new DecimalFormat("0.##");
-	private final static DecimalFormat CHAR_SLIP_RATE_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.0");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
 	private A_FaultSegmentedSourceGenerator segmentedSource;
@@ -875,6 +873,17 @@ class SegmentDataTableModel extends AbstractTableModel {
 			case 13:
 				if(segmentedSource==null) return "";
 				return EVENT_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
+			case 14:
+				if(segmentedSource==null) return "";
+				return SLIP_RATE_FORMAT.format(segmentedSource.getSegProb(rowIndex));
+			case 15:
+				if(segmentedSource==null) return "";
+				return SLIP_RATE_FORMAT.format(segmentedSource.getSegGain(rowIndex));
+			case 16:
+				if(segmentedSource==null) return "";
+				return SLIP_RATE_FORMAT.format(segmentedSource.getSegAperiodicity(rowIndex));
+			case 17:
+				return ""+(int)(segFaultData.getSegCalYearOfLastEvent(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
 				//return this.predMRI[rowIndex]*segFaultData.getSegmentSlipRate(rowIndex);
@@ -884,7 +893,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				double charSlip = getCharSlip(rowIndex)*100; // char slip in cm
 				double segStressDrop = 2*charSlip*3e11*1e-11/(Math.PI *ddw); 
 				return ""+(float)segStressDrop;*/
-			case 14:
+			case 18:
 				return ""+segFaultData.getSectionsInSeg(rowIndex);
 		}
 		return "";

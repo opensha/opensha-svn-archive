@@ -558,7 +558,7 @@ class RupAveSlipTableModel extends AbstractTableModel {
 class RuptureTableModel extends AbstractTableModel {
 //	 column names
 	public final static String[] columnNames = { "Rup Index", "Area (sq km)", "Mean Mag", 
-		"Final Rate", "A Priori Rate", "Moment Rate",  "Short Name", "Long Name"};
+		"Final Rate", "A Priori Rate", "Moment Rate", "Rup Prob", "Rup Gain", "Short Name", "Long Name"};
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MAG_FORMAT = new DecimalFormat("0.00");
 	private final static DecimalFormat RATE_FORMAT = new DecimalFormat("0.000E0");
@@ -637,8 +637,12 @@ class RuptureTableModel extends AbstractTableModel {
 			case 5:
 				return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupMoRate(rowIndex));
 			case 6:
-				return aFaultSegmentedSource.getShortRupName(rowIndex);
+				return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupSourceProb(rowIndex));
 			case 7:
+				return MAG_FORMAT.format(aFaultSegmentedSource.getRupSourcGain(rowIndex));
+			case 8:
+				return aFaultSegmentedSource.getShortRupName(rowIndex);
+			case 9:
 				return aFaultSegmentedSource.getLongRupName(rowIndex);
 		}
 		return "";
