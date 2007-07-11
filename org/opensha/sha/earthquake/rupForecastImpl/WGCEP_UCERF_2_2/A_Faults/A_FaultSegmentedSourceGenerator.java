@@ -508,14 +508,14 @@ public class A_FaultSegmentedSourceGenerator {
 				
 				sourceList.add(faultRupSrc);
 				
-				/**/
+				/*
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
 				double probFromSrc =faultRupSrc.computeTotalProb();
 				System.out.println(segmentData.getFaultName()+" Prob: from src="+(float)probFromSrc+
 						"; from totRate="+(float)rupProb[i]+"; ratio="+
 						(float)(probFromSrc/rupProb[i]));
-				
+				*/
 			}	
 		}
 		return this.sourceList;
@@ -546,6 +546,11 @@ public class A_FaultSegmentedSourceGenerator {
 											segTimeSinceLast, duration, rupInSeg);		
 		segProb = WG02_QkProbCalc.getSegProbs(finalSegRate, segAperiodicity, segTimeSinceLast, duration);
 		
+// this writes out data that I pasted into the testAll() procedure of the Igor Experiment "testBPT_calcs",
+// which is in Ned's Appendix N folder; everything looked good		
+//		for(int i=0; i<num_seg; i++)
+//			System.out.println("testCondProb("+finalSegRate[i]+","+segAperiodicity[i]+","+segmentData.getSegCalYearOfLastEvent(i)+","+startYear+","+duration+","+segProb[i]+")");
+		
 		// now compute gain data
 		segGain = new double[num_seg];
 		for(int i=0;i<num_seg;i++) segGain[i]=segProb[i]/(1-Math.exp(-duration*finalSegRate[i]));
@@ -564,13 +569,14 @@ public class A_FaultSegmentedSourceGenerator {
 						segmentData.getAveRake(segmentsInRup));
 				faultRupSrc.setName(this.getLongRupName(i));
 				sourceList.add(faultRupSrc);
-				/**/
+				/*
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
 				double probFromSrc =faultRupSrc.computeTotalProb();
 				System.out.println(segmentData.getFaultName()+" Prob: from src="+(float)probFromSrc+
 						"; from rupProb="+(float)rupProb[i]+"; ratio="+
 						(float)(probFromSrc/rupProb[i]));
+				*/
 			}	
 		}
 		

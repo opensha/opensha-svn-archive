@@ -1310,8 +1310,15 @@ Mount Diablo (no floater here)
      WGCEP_UCERF1_EqkRupForecast frankCast = new WGCEP_UCERF1_EqkRupForecast();
      frankCast.timeDependentParam.setValue(new Boolean(false));
      frankCast.updateForecast();
+
+     int totSrc= frankCast.getNumSources();
+     for(int i=0; i<totSrc; i++){
+       ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
+       System.out.println(i+"\t"+src.getName());
+     }
+
+//     frankCast.writeA_FaultMFDs();
      
-     frankCast.writeA_FaultMFDs();
 /*
      try {
        frankCast.writeRuptureTraces();
