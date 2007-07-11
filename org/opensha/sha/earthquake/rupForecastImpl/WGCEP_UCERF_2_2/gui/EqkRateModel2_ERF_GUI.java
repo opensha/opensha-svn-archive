@@ -43,6 +43,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSou
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -57,9 +58,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, ParameterChangeListener{
+public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	
-	private UCERF2 ucerf2= new UCERF2(); // erf to get the adjustable params
+	//private UCERF2 ucerf2= new UCERF2(); // erf to get the adjustable params
 	private ParameterListEditor editor; // editor
 	private final static String TITLE = "Eqk Rate Model2 Params";
 	private JButton calcButton = new JButton("Calculate");
@@ -71,6 +72,9 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private JMenuItem bulgeAnalysisMenu = new JMenuItem("Make Bulge Analysis Plots");
 	private JMenuItem logicTreeCumMFDplotMenu = new JMenuItem("Logic tree Cumulative plots");
 	private JMenuItem logicTreeIncrMFDplotMenu = new JMenuItem("Logic tree Incremental plots");
+	private ERF_GuiBean erfGuiBean;
+	
+	public final static String WGCEP_UCERF_2_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2";
 	
 	private String dirName=null; 
 	private JScrollPane scrollPane = new JScrollPane();
@@ -81,19 +85,25 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	
 	public EqkRateModel2_ERF_GUI() {
 		
-		// listen to all parameters
+		/*// listen to all parameters
 		ParameterList paramList = ucerf2.getAdjustableParameterList();
 		Iterator it = paramList.getParametersIterator();
 		while(it.hasNext()) {
 			ParameterAPI param = (ParameterAPI)it.next();
 			param.addParameterChangeListener(this);
+		}*/
+		ArrayList classNames = new ArrayList();
+		classNames.add(WGCEP_UCERF_2_2_CLASS_NAME);
+		try {
+			erfGuiBean  =new ERF_GuiBean(classNames);
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
-		
 		createGUI();
 		calcButton.addActionListener(this);
 		pack();
 		Container container = this.getContentPane();
-		container.add(this.scrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+		container.add(this.erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		container.validate();
 		container.repaint();
@@ -103,7 +113,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		show();
 	}
 	
-	public void parameterChange(ParameterChangeEvent event) {
+	/*public void parameterChange(ParameterChangeEvent event) {
 		addParameterListEditor();
 	}
 	
@@ -113,7 +123,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		editor.setTitle(TITLE);
 		scrollPane.setViewportView(editor);
 		scrollPane.getVerticalScrollBar().setValue(val);
-	}
+	}*/
 	
 	
 	/**
@@ -123,7 +133,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	private void createGUI() {
 		Container container = this.getContentPane();
 		container.setLayout(new GridBagLayout());
-		this.addParameterListEditor();
+		//this.addParameterListEditor();
 		container.add(this.calcButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		
@@ -166,7 +176,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		  //String dirName = getDirectoryName();
 		  //if(dirName==null) return;
 		  //generateAnalysisFigures(dirName);
-		  this.ucerf2.plotA_FaultMFDs_forReport();
+		  try {
+			  UCERF2 ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF_Instance();
+			  ucerf2.plotA_FaultMFDs_forReport();
+		  }catch(Exception e) {
+			  e.printStackTrace();
+		  }
 	  }
 	  
 	  /**
@@ -220,14 +235,13 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  */
 	 private void generateAnalysisFigures(String dirName) {
 		
-		 
+		 UCERF2 ucerf2 = new UCERF2();
 		 ArrayList<String> paramNames = new ArrayList<String>();
 		 // remove parameter listeners
 		 ParameterList paramList = ucerf2.getAdjustableParameterList();
 		 Iterator it = paramList.getParametersIterator();
 		 while(it.hasNext()) {
 			 ParameterAPI param = (ParameterAPI)it.next();
-			 param.removeParameterChangeListener(this);
 			 paramNames.add(param.getName());
 		 }
 		 
@@ -244,110 +258,110 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 		 
 		 
 		 this.dirName=dirName;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 
 		 // figure 1 with defaults
 		 int fig=1;
 		 ucerf2.updateForecast();
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 for(int i=0; i<paramNames.size(); ++i) {
 			 if(paramNames.get(i).equalsIgnoreCase(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME))
 				 sheet.getRow(i+1).createCell((short)fig).setCellValue("Geological Insight");
 			 else	 sheet.getRow(i+1).createCell((short)fig).setCellValue(paramList.getValue(paramNames.get(i)).toString());			 
 		 }
-		 double obsVal = this.ucerf2.getObsCumMFD(ucerf2.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
+		 double obsVal = ucerf2.getObsCumMFD(ucerf2.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 
 		 // figure 2
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
 		 ucerf2.updateForecast();
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 
 		 //		 figure 3
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.RUP_MODEL_TYPE_NAME)).createCell((short)fig).setCellValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		
 		 //		 figure 4
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e7));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)).createCell((short)fig).setCellValue("1e7");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 5
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.MAG_AREA_RELS_PARAM_NAME)).createCell((short)fig).setCellValue(HanksBakun2002_MagAreaRel.NAME);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 6
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(-0.1);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 7
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 8
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.CONNECT_B_FAULTS_PARAM_NAME)).createCell((short)fig).setCellValue("False");
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 9
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(0.0);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 //		 figure 10
 		 ++fig;
-		 this.ucerf2.setParamDefaults();
+		 ucerf2.setParamDefaults();
 		 ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(1.0));
 		 ucerf2.updateForecast();
 		 sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		 sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
 		 sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		 makeMFDsPlot("plot"+fig);
+		 makeMFDsPlot("plot"+fig, ucerf2);
 		 
 		 
 		 // wrap cell style
@@ -361,15 +375,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			 }
 		 }
 		 
-		 ucerf2.setParamDefaults();
-		 
-		 // add back parameter listeners
-		 paramList = ucerf2.getAdjustableParameterList();
-		 it = paramList.getParametersIterator();
-		 while(it.hasNext()) {
-			 ParameterAPI param = (ParameterAPI)it.next();
-			 param.addParameterChangeListener(this);
-		 }
+		 //ucerf2.setParamDefaults();
 		 
 		 try {
 				FileOutputStream fileOut = new FileOutputStream(dirName+"/Table_For_Figures.xls");
@@ -384,8 +390,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	  * Plot MFDs
 	  * @param fileName
 	  */
-	 private void makeMFDsPlot(String fileName) {
-		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(this.ucerf2, true);
+	 private void makeMFDsPlot(String fileName, UCERF2 ucerf2) {
+		 EqkRateModel2_MFDsPlotter mfdsPlotter = new EqkRateModel2_MFDsPlotter(ucerf2, true);
 		 GraphWindow graphWindow= new GraphWindow(mfdsPlotter);
 		 graphWindow.setPlotLabel("Cum Mag Freq Dist");
 		 graphWindow.plotGraphUsingPlotPreferences();
@@ -435,10 +441,12 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 	 */
 	public void actionPerformed(ActionEvent event) {
 		Object source  = event.getSource();
+		UCERF2 ucerf2 = null;
 		if(source==this.calcButton) {
-			CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
-			progressBar.setLocationRelativeTo(this);
+			//CalcProgressBar progressBar = new CalcProgressBar("Calculating", "Please Wait  (Accessing database takes time) .....");
+			//progressBar.setLocationRelativeTo(this);
 			try {
+				ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF();
 				ucerf2.updateForecast(); // update forecast
 			}catch(Exception e) {
 				JOptionPane.showMessageDialog(this, e.getMessage());
@@ -447,7 +455,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener, Par
 			// show the output
 			EqkRateModel2_Output_Window outputWindow = new EqkRateModel2_Output_Window(ucerf2);
 			outputWindow.setLocationRelativeTo(this);
-			progressBar.showProgress(false);
+			//progressBar.showProgress(false);
 		} 
 	}
 }
