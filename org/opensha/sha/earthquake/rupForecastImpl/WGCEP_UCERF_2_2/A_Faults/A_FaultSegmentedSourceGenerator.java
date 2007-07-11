@@ -116,6 +116,8 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	private Boolean isTimeDeptendent;
 	
+	private double[] segProb, segGain, segAperiodicity, segTimeSinceLast, rupProb, rupGain;
+	
 
 
 	
@@ -469,11 +471,26 @@ public class A_FaultSegmentedSourceGenerator {
 	public ArrayList<FaultRuptureSource> getTimeIndependentSources(double duration) {
 		
 		isTimeDeptendent= false;
+		
+		segTimeSinceLast = null;
+		segAperiodicity = null;
+
+		// compute seg prob and gain
+		segGain = new double[num_seg];
+		segProb = new double[num_seg];
+		for(int i=0;i<num_seg;i++) {
+			segProb[i]=(1-Math.exp(-duration*finalSegRate[i]));
+			segGain[i]=1.0;
+		}
 
 		// a check could be made here whether time-ind sources already exist, 
 		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
+		rupGain = new double[num_rup];
+		rupProb = new double[num_rup];
 		for(int i=0; i<num_rup; i++) {
+			rupProb[i]=(1-Math.exp(-duration*totRupRate[i]));
+			rupGain[i]=1.0;
 			// get list of segments in this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
@@ -491,31 +508,51 @@ public class A_FaultSegmentedSourceGenerator {
 				
 				sourceList.add(faultRupSrc);
 				
-				/*
+				/**/
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
-				double probFromRate = 1-Math.exp(-totRupRate[i]*duration);
 				double probFromSrc =faultRupSrc.computeTotalProb();
 				System.out.println("Prob: from src="+(float)probFromSrc+
-						"; from totRate="+(float)probFromRate+"; ratio="+
-						(float)(probFromSrc/probFromRate));
-				*/
+						"; from totRate="+(float)rupProb[i]+"; ratio="+
+						(float)(probFromSrc/rupProb[i]));
+				
 			}	
 		}
 		return this.sourceList;
 	}
 	
-
 	/**
-	 * Get a list of time dependent sources for the given duration
+	 * Get a list of time dependent sources for the given info
 	 * 
 	 * @return
 	 */
 	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
 
 		isTimeDeptendent= true;
-		double[] rupProb = this.getWG02_RupProbs(duration,startYear,aperiodicity,applySegVariableAperiodicity);
 		
+		// compute time-dep data
+		segTimeSinceLast = new double[num_seg];
+		segAperiodicity = new double[num_seg];
+		for(int i=0;i<num_seg;i++) {
+			segTimeSinceLast[i] = startYear-this.segmentData.getSegCalYearOfLastEvent(i);
+			if(applySegVariableAperiodicity) {
+				segAperiodicity[i] = this.segmentData.getSegAperiodicity(i);
+				if(Double.isNaN(segAperiodicity[i])) segAperiodicity[i] = aperiodicity;
+			}
+			else
+				segAperiodicity[i] = aperiodicity;
+		}
+		rupProb = WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), segAperiodicity, 
+											segTimeSinceLast, duration, rupInSeg);		
+		segProb = WG02_QkProbCalc.getSegProbs(finalSegRate, segAperiodicity, segTimeSinceLast, duration);
+		
+		// now compute gain data
+		segGain = new double[num_seg];
+		for(int i=0;i<num_seg;i++) segGain[i]=segProb[i]/(1-Math.exp(-duration*finalSegRate[i]));
+		rupGain = new double[num_rup];
+		for(int i=0;i<num_rup;i++) rupGain[i]=rupProb[i]/(1-Math.exp(-duration*totRupRate[i]));
+		
+		// now make the sources
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		for(int i=0; i<num_rup; i++) {
 			// get list of segments in this rupture
@@ -541,19 +578,78 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	
-	/*
-	 * 
+	/**
+	 * This returns the total probability for the ith Rupture Source 
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
 	 */
+	public double getRupSourceProb(int ithRup) { return rupProb[ithRup]; }
+
+	/**
+	 * This returns the total probability for the ith Rupture Source divided by the Possion Prob
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupSourcGain(int ithRup) { return rupGain[ithRup]; }
+
+	/**
+	 * This returns the total probability for the ith Segment divided by the Poisson Prob
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
+	 */
+	public double getSegGain(int ithSeg) { return segGain[ithSeg]; }
+
+	/**
+	 * This returns the total probability for the ith Segment
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
+	 */
+	public double getSegProb(int ithSeg) { return segProb[ithSeg]; }
+
+	/**
+	 * This returns the aperiodicity for the ith Segment
+	 * (as specified the last time getTimeDependentSources(*) was called).  Double.NaN is return
+	 * if getTimeIndependentSources(*) was called last.
+	 * @param ithRup
+	 * @return
+	 */
+	public double getSegAperiodicity(int ithSeg) { 
+		if(isTimeDeptendent)
+			return segAperiodicity[ithSeg];
+		else
+			return Double.NaN;
+	}
+
+	/**
+	 * This returns the time since last event for the ith Segment
+	 * (as specified the last time getTimeDependentSources(*) was called).  Double.NaN is return
+	 * if getTimeIndependentSources(*) was called last.
+	 * @param ithRup
+	 * @return
+	 */
+	public double getSegTimeSinceLast(int ithSeg) {
+		if(isTimeDeptendent)
+			return segTimeSinceLast[ithSeg];
+		else
+			return Double.NaN;
+	}
+
+	
+	/*  NO LONGER NEEDED ??????????
 	public double[] getWG02_RupProbs(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
-		double[] segTimeSinceLast = new double[num_seg];
-		double[] segAlpha = new double[num_seg];
+		segTimeSinceLast = new double[num_seg];
+		segAperiodicity = new double[num_seg];
 		for(int i=0;i<num_seg;i++) {
 			segTimeSinceLast[i] = startYear-this.segmentData.getSegCalYearOfLastEvent(i);
-			segAlpha[i] = this.segmentData.getSegAperiodicity(i);
-			if(Double.isNaN(segAlpha[i])) segAlpha[i] = aperiodicity;
+			segAperiodicity[i] = this.segmentData.getSegAperiodicity(i);
+			if(Double.isNaN(segAperiodicity[i])) segAperiodicity[i] = aperiodicity;
 		}
 		if(applySegVariableAperiodicity) {
-			return WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), segAlpha, 
+			return WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), segAperiodicity, 
 					segTimeSinceLast, duration, rupInSeg);			
 		} else {
 			return WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), aperiodicity, 
@@ -562,9 +658,6 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 
 	
-	/*
-	 * 
-	 */
 	public double[] getWG02_SegProbs(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
 		double[] segTimeSinceLast = new double[num_seg];
 		double[] segAlpha = new double[num_seg];
@@ -579,7 +672,7 @@ public class A_FaultSegmentedSourceGenerator {
 			return WG02_QkProbCalc.getSegProbs(finalSegRate, aperiodicity, segTimeSinceLast, duration);
 		}
 	}
-
+*/
 	
 	/**
 	 * Get NSHMP Source File String. 
