@@ -91,9 +91,9 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 		 ArrayList list = new ArrayList();
 		 list.add(PLOT_CHAR8);
 		 list.add(PLOT_CHAR7);
-		 list.add(PLOT_CHAR1);
-		 list.add(PLOT_CHAR2);
-		 if(funcs.size()>4) { // Size is 4 for B-Faults 
+		 if(funcs.size()>2) { // Size is 2 for B-Faults 
+			 list.add(PLOT_CHAR1);
+			 list.add(PLOT_CHAR2);
 			 list.add(PLOT_CHAR3);
 			 list.add(PLOT_CHAR4);
 			 list.add(PLOT_CHAR5);

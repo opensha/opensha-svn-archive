@@ -2193,38 +2193,49 @@ public class UCERF2 extends EqkRupForecast {
 			bFaultIncrRateFuncList.add(new DiscretizedFuncList());
 			bFaultCumRateFuncList.add(new DiscretizedFuncList());
 		}
+		// Default Parameters
 		String name = "Default Parameters";
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
 		
-		for(int i=0; i<numB_Faults; ++i) {
-			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
-			incrMFD.setName(name);
-			incrMFD.setInfo("");
-			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
-			cumMFD.setName(name);
-			cumMFD.setInfo("");
-			bFaultIncrRateFuncList.get(i).add(incrMFD);
-			bFaultCumRateFuncList.get(i).add(cumMFD);
-		}
-		
-
 		// Def Params w/ change Mag Area to Hanks Bakun
 		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
 		this.updateForecast();
 		name = "Def Params w/ change Mag Area to Hanks Bakun";
-		for(int i=0; i<numB_Faults; ++i) {
-			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
-			incrMFD.setName(name);
-			incrMFD.setInfo("");
-			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
-			cumMFD.setName(name);
-			cumMFD.setInfo("");
-			bFaultIncrRateFuncList.get(i).add(incrMFD);
-			bFaultCumRateFuncList.get(i).add(cumMFD);
-		}
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
 
+		// Def Params with Mean Mag correction=-0.1
+		this.setParamDefaults();
+		this.meanMagCorrectionParam.setValue(new Double(-0.1));
+		this.updateForecast();
+		name = "Def Params w/ change Mean Mag Correction to -0.1";
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
+		
+		// HB Mag Area Rel and Mean Mag correction=-0.1
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		name = "Def Params w/ change Mean Mag Correction to -0.1 and Mag Area to Hanks Bakun";
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
+		
+		// Def Params with Mean Mag correction=0.1
+		this.setParamDefaults();
+		this.meanMagCorrectionParam.setValue(new Double(0.1));
+		this.updateForecast();
+		name = "Def Params w/ change Mean Mag Correction to 0.1";
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
+		
+		// HB Mag Area Rel and Mean Mag correction=0.1
+		this.magAreaRelParam.setValue(HanksBakun2002_MagAreaRel.NAME);
+		this.updateForecast();
+		name = "Def Params w/ change Mean Mag Correction to 0.1 and Mag Area to Hanks Bakun";
+		addToB_FaultsPlottingList(b_FaultIndices, numB_Faults, bFaultIncrRateFuncList, bFaultCumRateFuncList, name);
+		
 		/* wt-ave MFD WT 
-		 EllB 	0.5
-		 HB 	0.5
+		 EllB, 0.6 	0.3
+		 HB, 0.6	0.3
+		 EllB,-0.1	0.1
+		 HB,-0.1	0.1
+		 EllB,0.1	0.1
+		 HB,0.1		0.1
 		 */
 		name  = "Wt Avg MFD";
 		for(int i=0; i<bFaultIncrRateFuncList.size(); ++i) {
@@ -2234,7 +2245,9 @@ public class UCERF2 extends EqkRupForecast {
 			
 			for(int imag=0; imag<func.getNum(); ++imag) 
 				wtAveMFD.set(func.getX(imag), 
-						0.5*funcList.get(0).getY(imag) + 0.5*funcList.get(1).getY(imag));
+						0.3*funcList.get(0).getY(imag) + 0.3*funcList.get(1).getY(imag)+
+						0.1*funcList.get(2).getY(imag) + 0.1*funcList.get(3).getY(imag)+
+						0.1*funcList.get(4).getY(imag) + 0.1*funcList.get(4).getY(imag));
 
 
 			wtAveMFD.setName(name);
@@ -2265,7 +2278,7 @@ public class UCERF2 extends EqkRupForecast {
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
-			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
+			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
 			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, false));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
@@ -2279,11 +2292,24 @@ public class UCERF2 extends EqkRupForecast {
 			ArrayList funcArrayList = new ArrayList();
 			funcArrayList.add(funcList.get(funcList.size()-1));
 			funcArrayList.add(funcList.get(funcList.size()-2));
-			for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
+			//for(int j=0; j<funcList.size()-2; ++j) funcArrayList.add(funcList.get(j));
 			GraphWindow graphWindow= new GraphWindow(new A_FaultsMFD_Plotter(funcArrayList, true));
 			graphWindow.setPlotLabel(faultName);
 			graphWindow.plotGraphUsingPlotPreferences();
 			graphWindow.setVisible(true);
+		}
+	}
+
+	private void addToB_FaultsPlottingList(int[] b_FaultIndices, int numB_Faults, ArrayList<DiscretizedFuncList> bFaultIncrRateFuncList, ArrayList<DiscretizedFuncList> bFaultCumRateFuncList, String name) {
+		for(int i=0; i<numB_Faults; ++i) {
+			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
+			incrMFD.setName(name);
+			incrMFD.setInfo("");
+			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
+			cumMFD.setName(name);
+			cumMFD.setInfo("");
+			bFaultIncrRateFuncList.get(i).add(incrMFD);
+			bFaultCumRateFuncList.get(i).add(cumMFD);
 		}
 	}
 

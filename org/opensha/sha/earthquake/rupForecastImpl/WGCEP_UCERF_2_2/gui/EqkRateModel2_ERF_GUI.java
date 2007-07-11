@@ -447,7 +447,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 			//progressBar.setLocationRelativeTo(this);
 			try {
 				ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF();
-				ucerf2.updateForecast(); // update forecast
+				//ucerf2.updateForecast(); // update forecast
 			}catch(Exception e) {
 				JOptionPane.showMessageDialog(this, e.getMessage());
 				return;
