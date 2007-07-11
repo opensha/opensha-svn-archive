@@ -42,6 +42,7 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.LogicTreeMFDsPlotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.ReportBulgeFigures;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.UCERF1ComparisonPlotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
