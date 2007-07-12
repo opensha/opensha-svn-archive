@@ -26,6 +26,7 @@ public class WriteTimeDepRupProbAndGain {
 	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet;
 	private int loginTreeBranchIndex = 0;
 	private final static String FILENAME = "RupSegProbGain.xls";
+	private static double DURATION = 30;
 	
 	
 	public WriteTimeDepRupProbAndGain() {
@@ -42,6 +43,7 @@ public class WriteTimeDepRupProbAndGain {
 		rupGainSheet = wb.createSheet("Rupture Gain");
 		segProbSheet = wb.createSheet("Segment Probability");
 		segGainSheet = wb.createSheet("Segment Gain");
+		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration to be 30 years
 		calcLogicTreeBranch(0, 1);
 		// write  excel sheet
 		try {
