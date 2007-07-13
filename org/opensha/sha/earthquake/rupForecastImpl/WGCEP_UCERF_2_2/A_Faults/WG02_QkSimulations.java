@@ -308,8 +308,32 @@ public class WG02_QkSimulations {
 	}
 
 	
+	public void plotSegmentRecurIntPDFs(String[] segName) {
+		BPT_DistCalc calc = new BPT_DistCalc();
+		for(int i=0; i<rupInSeg.length;i++) {
+			ArrayList funcList = new ArrayList();
+			double mri = 1/segRate[i];
+			int num = (int)(segAlpha*10/0.05);
+			calc.setAll(mri,segAlpha,0.05*mri,num);
+			funcList.add(calc.getPDF());
+			double binWidth = Math.round(mri/10); // 10 bins before the mean
+			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
+			String title = "PDF for"+segName[i];
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
+			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.GRAY, 2));
+			graph.setPlottingFeatures(plotChars);
+			graph.setPlotLabelFontSize(24);
+			graph.setY_AxisLabel("");
+			graph.setX_AxisLabel("Segment Recurrence Interval");
+			graph.setAxisLabelFontSize(20);
+		}
+	}
+	
 	public void wg02_haywardRC_simulation() {
 		
+		String[] segName = {"HS","HN","RC"};
 		double[] segMoRate  = {52.54,34.89,62.55};  // these are just lengths, as slip rate and DDW are constant across segments
 		double alpha = 0.5;
 		double[] rupRate = {1.28e-3,1.02e-3,3.32e-3,2.16e-3,0.32e-3,0.44e-3};
@@ -332,7 +356,7 @@ public class WG02_QkSimulations {
 
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =10000;
+		int numSim =1000;
 		computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
@@ -355,7 +379,7 @@ public class WG02_QkSimulations {
 		double simMoRate = this.getSimMoRate(rupMag);
 		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
 		
-		plotSegmentRecurIntPDFs();
+		plotSegmentRecurIntPDFs(segName);
 	}
 	
 	
@@ -452,8 +476,8 @@ public class WG02_QkSimulations {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
 //		qkSim.testWithWG02_values();
-		qkSim.testWithWG02_SingleSegRups();
-//		qkSim.wg02_haywardRC_simulation();
+//		qkSim.testWithWG02_SingleSegRups();
+		qkSim.wg02_haywardRC_simulation();
 	}
 }
 
