@@ -515,11 +515,28 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   }
   
   /**
+  *Set axis label font size
+  * @returns 
+  */
+ public void setAxisLabelFontSize(int fontSize){
+     axisLabelsFontSizeParam.setValue(""+fontSize);
+ }
+  
+  /**
   *
   * @returns axis label font size
   */
   public int getPlotLabelFontSize(){
 	  return  Integer.parseInt((String)plotLabelsFontSizeParam.getValue());
+  }
+  
+  /**
+   * Set plot label font size
+   * 
+   * @param fontSize
+   */
+  public void setPlotLabelFontSize(int fontSize) {
+	  plotLabelsFontSizeParam.setValue(""+fontSize);
   }
 
   /**
@@ -528,6 +545,15 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
    */
   public int getTickLabelFontSize(){
     return  Integer.parseInt((String)tickFontSizeParam.getValue());
+  }
+  
+  /**
+   * Set the tick label font size
+   * 
+   * @param fontSize
+   */
+  public void setTickLabelFontSize(int fontSize) {
+	  this.tickFontSizeParam.setValue(""+fontSize);
   }
 
   /**

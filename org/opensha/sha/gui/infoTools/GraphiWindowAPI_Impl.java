@@ -17,33 +17,30 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  */
 public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 
-	private final static String DEFAULT_X_AXIS_LABEL = "X";
-	private final static String DEFAULT_Y_AXIS_LABEL = "Y";
-	
 	private ArrayList funcs;
-	
+
+
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLUE, 2);
+			Color.BLUE, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 2);
+			Color.BLACK, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.GREEN, 2);
+			Color.GREEN, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.MAGENTA, 2);
+			Color.MAGENTA, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.PINK, 2);
+			Color.PINK, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.LIGHT_GRAY, 5);
+			Color.LIGHT_GRAY, 5);
 	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.RED, 2);
-	
-	
-	private String xAxisLabel = DEFAULT_X_AXIS_LABEL, yAxisLabel = DEFAULT_Y_AXIS_LABEL;
-	private boolean isCustomAxis = false, xLog = false, yLog = false;
-	private double minX, minY, maxX, maxY;
+			Color.RED, 2);
+
+	private boolean xLog = false, yLog = false;
 	private ArrayList<PlotCurveCharacterstics> plotChars;
-	
-	
+	private String plotTitle;
+	private GraphWindow graphWindow;
+	private boolean isCustomAxis = false;
+
 	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle) {
 		this.funcs = funcs;
 		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
@@ -58,14 +55,40 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		plotChars = new ArrayList<PlotCurveCharacterstics>();
 		for(int i=0; i<funcs.size(); ++i)
 			plotChars.add(list.get(i%numChars));
-		
-		GraphWindow graphWindow= new GraphWindow(this);
+
+		graphWindow= new GraphWindow(this);
 		graphWindow.setPlotLabel(plotTitle);
 		graphWindow.plotGraphUsingPlotPreferences();
 		graphWindow.setVisible(true);
 	}
-	
-	
+
+	/**
+	 * Plot Graph using preferences
+	 *
+	 */
+	public void refreshPlot() {
+		graphWindow.plotGraphUsingPlotPreferences();
+	}
+
+	/**
+	 * Set plot Title
+	 * @param plotTitle
+	 */
+	public void setPlotTitle(String plotTitle) {
+		this.plotTitle = plotTitle;
+		graphWindow.setPlotLabel(plotTitle);
+	}
+
+	/**
+	 * Get plot title
+	 * 
+	 * @return
+	 */
+	public String getPlotTitle() {
+		return this.plotTitle;
+	}
+
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getCurveFunctionList()
 	 */
@@ -73,26 +96,28 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		return funcs;
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
 	 */
 	public void setXLog(boolean xLog) {
-		 this.xLog = xLog;
+		this.xLog = xLog;
+		graphWindow.setX_Log(xLog);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYLog()
 	 */
 	public void setYLog(boolean yLog) {
-		 this.yLog = yLog;
+		this.yLog = yLog;
+		graphWindow.setY_Log(yLog);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXLog()
 	 */
 	public boolean getXLog() {
-		return xLog;
+		return this.xLog;
 	}
 
 	/* (non-Javadoc)
@@ -103,133 +128,173 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	}
 
 	public void setX_AxisLabel(String xAxisLabel) {
-		this.xAxisLabel = xAxisLabel;
+		graphWindow.setXAxisLabel(xAxisLabel);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getXAxisLabel()
 	 */
 	public String getXAxisLabel() {
-		return xAxisLabel;
+		if(graphWindow==null) return "X";
+		return graphWindow.getXAxisLabel();
 	}
 
 	public void setY_AxisLabel(String yAxisLabel) {
-		this.yAxisLabel = yAxisLabel;
+		graphWindow.setYAxisLabel(yAxisLabel);
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getYAxisLabel()
 	 */
 	public String getYAxisLabel() {
-		return yAxisLabel;
+		if(graphWindow==null) return "Y";
+		return graphWindow.getYAxisLabel();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public ArrayList getPlottingFeatures() {
-		 return plotChars;
+		return plotChars;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public void setPlottingFeatures(ArrayList<PlotCurveCharacterstics> curveCharacteristics) {
 		plotChars   = curveCharacteristics;
+		this.graphWindow.plotGraphUsingPlotPreferences();
 	}
-	
-	
+
 	/**
-	 * When set to True, please set minX, maxX, minY and maxY as well
-	 * @param isCustomAxis
+	 * sets the range for X and Y axis
+	 * @param xMin : minimum value for X-axis
+	 * @param xMax : maximum value for X-axis
+	 * @param yMin : minimum value for Y-axis
+	 * @param yMax : maximum value for Y-axis
+	 *
 	 */
-	public void setCustomAxis(boolean isCustomAxis) {
-		this.isCustomAxis = isCustomAxis;
+	public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
+		this.graphWindow.setAxisRange(xMin, xMax, yMin, yMax);
+		isCustomAxis = true;
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#isCustomAxis()
+
+	/**
+	 * Whether this is custom axis
 	 */
 	public boolean isCustomAxis() {
-		return isCustomAxis;
+		return this.isCustomAxis;
+	}
+
+	/**
+	 * set the auto range for the axis. 
+	 */
+	public void setAutoRange() {
+		this.isCustomAxis = false;
+		this.graphWindow.setAutoRange();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
 	 */
 	public double getMinX() {
-		return minX;
+		return graphWindow.getMinX();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
 	 */
 	public double getMaxX() {
-		return maxX;
+		return graphWindow.getMaxX();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
 	 */
 	public double getMinY() {
-		return minY;
+		return graphWindow.getMinY();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
 	 */
 	public double getMaxY() {
-		return maxY;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinX()
-	 */
-	public void setMinX(double minX) {
-		 this.minX = minX;
+		return graphWindow.getMaxY();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxX()
+	/**
+	 * Set plot label font size
+	 * 
+	 * @param fontSize
 	 */
-	public void setMaxX(double maxX) {
-		 this.maxX = maxX;
+	public void setPlotLabelFontSize(int fontSize) {
+		this.graphWindow.setPlotLabelFontSize(fontSize);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMinY()
+
+
+	/**
+	 * Set the tick label font size
+	 * 
+	 * @param fontSize
 	 */
-	public void setMinY(double minY) {
-		 this.minY = minY;
+	public void setTickLabelFontSize(int fontSize) {
+		graphWindow.setTickLabelFontSize(fontSize);
+	}
+	
+	/**
+	 * Set the axis label font size
+	 * 
+	 * @param fontSize
+	 */
+	public void setAxisLabelFontSize(int fontSize) {
+		graphWindow.setAxisLabelFontSize(fontSize);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getMaxY()
+	/**
+	 *
+	 * @returns the tick label font
+	 * Default is 10
 	 */
-	public void setMaxY(double maxY) {
-		 this.maxY = maxY;
+	public int getTickLabelFontSize(){
+		return this.graphWindow.getTickLabelFontSize();
 	}
-	
-	
+
+
+	/**
+	 *
+	 * @returns the axis label font size
+	 * Default is 12
+	 */
+	public int getPlotLabelFontSize(){
+		return this.graphWindow.getPlotLabelFontSize();
+	}
+
+
+
 	public static void main(String args[]) {
 		ArrayList funcs = new ArrayList();
-		
+
 		ArbitrarilyDiscretizedFunc func  = new ArbitrarilyDiscretizedFunc();
 		func.set(2.0, 3.0);
 		func.set(0.5, 3.5);
 		func.set(6.0, 1.0);
 		funcs.add(func);
-		
+
 		func  = new ArbitrarilyDiscretizedFunc();
 		func.set(1.0, 6);
 		func.set(10.0, 7);
 		func.set(2.0, 2);
 		funcs.add(func);
-		
+
 		GraphiWindowAPI_Impl graphWindowImpl = new GraphiWindowAPI_Impl(funcs, "Test");
-		
+		graphWindowImpl.setXLog(true);
+		graphWindowImpl.setYLog(true);
+		graphWindowImpl.setPlotTitle("Test Title");
+		graphWindowImpl.setTickLabelFontSize(20);
+		graphWindowImpl.setPlotLabelFontSize(24);
+		graphWindowImpl.setAxisLabelFontSize(20);
 	}
-	
+
 }
