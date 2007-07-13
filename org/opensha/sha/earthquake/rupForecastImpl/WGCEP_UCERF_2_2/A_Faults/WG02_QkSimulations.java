@@ -5,8 +5,12 @@ import org.opensha.calc.MomentMagCalc;
 import org.opensha.data.function.*;
 import org.opensha.sha.earthquake.calc.BPT_DistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
+
+import java.awt.Color;
 import java.util.ArrayList;
 
 
@@ -244,7 +248,7 @@ public class WG02_QkSimulations {
 		
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =1000;
+		int numSim =1005;
 		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
@@ -292,6 +296,14 @@ public class WG02_QkSimulations {
 			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
 			String title = "Simulated and Expected BPT Dist for seg "+i;
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
+			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.GRAY, 2));
+			graph.setPlottingFeatures(plotChars);
+			graph.setPlotLabelFontSize(24);
+			graph.setY_AxisLabel("");
+			graph.setX_AxisLabel("Segment Recurrence Interval");
+			graph.setAxisLabelFontSize(20);
 		}
 	}
 
@@ -439,8 +451,8 @@ public class WG02_QkSimulations {
 	public static void main(String args[]) {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
-		qkSim.testWithWG02_values();
-//		qkSim.testWithWG02_SingleSegRups();
+//		qkSim.testWithWG02_values();
+		qkSim.testWithWG02_SingleSegRups();
 //		qkSim.wg02_haywardRC_simulation();
 	}
 }
