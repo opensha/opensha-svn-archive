@@ -178,7 +178,7 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		// temp simulation
 //		if(segmentData.getFaultName().equals("S. San Andreas"))
-//			this.simulateEvents(20000);
+//			simulateEvents(10000);
 	
 		
 	}
@@ -1826,12 +1826,49 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		return segMoRate;
 	}
+	
+	
 	public void simulateEvents(int num) {
 		
 //		System.out.println("moments: "+totMoRate+"  "+this.getTotalMoRateFromRups());
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
 		qkSim.computeSimulatedEvents(totRupRate, getFinalSegMoRate(), 0.5, rupInSeg, num);
+		
+		System.out.println("Rup rates: orig, sim, and sim/orig");
+		for(int i=0;i<totRupRate.length;i++) {
+			double simRate = qkSim.getSimAveRupRate(i);
+			System.out.println((float)totRupRate[i]+"   "+(float)simRate+"   "+(float)(simRate/totRupRate[i]));
+		}
+
+		System.out.println("Seg rates: orig, sim, and sim/orig");
+		for(int i=0;i<finalSegRate.length;i++) {
+			double simRate = qkSim.getSimAveSegRate(i);
+			System.out.println((float)finalSegRate[i]+"   "+(float)simRate+"   "+(float)(simRate/finalSegRate[i]));
+		}
+		
+		
+		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
+		double simMoRate = qkSim.getSimMoRate(rupMeanMag);
+		double totMoRate = getTotalMoRateFromRups();
+		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
+		
 		qkSim.plotSegmentRecurIntPDFs();
+	}
+	
+	
+	public double[] tryTimePredProbs(double duration,double startYear,double aperiodicity) {
+		double[] segSlipLast = new double[num_seg];
+		double[] segSlipRate = new double[num_seg];
+		double[] segArea = new double[num_seg];
+		double[] segTimeLast  = new double[num_seg];
+		for(int i=0;i<num_seg;i++) {
+			segSlipLast[i]=this.segmentData.getSegAveSlipInLastEvent(i);
+			segSlipRate[i]=this.segmentData.getSegmentSlipRate(i)*(1-this.moRateReduction);
+			segArea[i]=this.segmentData.getSegmentArea(i);
+			segTimeLast[i]=this.segmentData.getSegCalYearOfLastEvent(i);
+		}
+		return TimePredictableQkProbCalc.getRupProbs(totRupRate, segSlipLast, segSlipRate, segArea, segTimeLast, 
+				rupInSeg, aperiodicity, startYear, duration);
 	}
 
 }

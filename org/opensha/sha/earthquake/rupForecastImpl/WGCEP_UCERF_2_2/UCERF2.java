@@ -36,6 +36,7 @@ import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis.GenerateTestExcelSheets;
@@ -1783,12 +1784,24 @@ public class UCERF2 extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		UCERF2 erRateModel2_ERF = new UCERF2();
-		//erRateModel2_ERF.printMag6_5_discrepancies();
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
-		//erRateModel2_ERF.makeTotalRelativeGriddedRates();
-		//erRateModel2_ERF.evaluateA_prioriWT();
-		/**/
-
+		erRateModel2_ERF.setParamDefaults();
+		erRateModel2_ERF.updateForecast();
+		int nsaf_index = 3;
+		A_FaultSegmentedSourceGenerator nsaf_src_gen = (A_FaultSegmentedSourceGenerator)erRateModel2_ERF.get_A_FaultSourceGenerators().get(nsaf_index);
+		ArrayList<FaultRuptureSource> junk = nsaf_src_gen.getTimeDependentSources(30,2007,0.5, false);
+		int nrup = nsaf_src_gen.getNumRupSources();
+		double[] wg02_probs = new double[nrup];
+		for(int r=0;r<nrup;r++) wg02_probs[r] = nsaf_src_gen.getRupSourceProb(r);
+		
+		double[] timePredProbs = nsaf_src_gen.tryTimePredProbs(30,2007,0.5);
+		
+		System.out.println("wg02_probs\ttimePredProbs\twg02_probs/timePredProbs");
+		for(int r=0;r<nrup;r++) {
+			System.out.println((float)wg02_probs[r]+"\t"+(float)timePredProbs[r]+"\t"+
+					(float)(wg02_probs[r]/timePredProbs[r])+"\t"+nsaf_src_gen.getLongRupName(r));
+		}
+		
 
 	}
 }

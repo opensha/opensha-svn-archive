@@ -30,7 +30,7 @@ public class WG02_QkSimulations {
 	//name for this classs
 	protected String NAME = "WG02_QkSimulations";
 		
-	private double[] eventYear;
+	private double[] eventYear, segRate;
 	private int[] eventIndex;
 	private int[][] rupInSeg;
 	double segAlpha;
@@ -49,7 +49,7 @@ public class WG02_QkSimulations {
 		this.segAlpha = segAlpha;
 		
 		// compute segRates from rupRates
-		double[] segRate = getSegRateFromRupRate(rupRate, rupInSeg);
+		segRate = getSegRateFromRupRate(rupRate, rupInSeg);   // also needed by other methods
 		
 		eventIndex = new int[numEvents];
 		eventYear = new double[numEvents];
@@ -284,11 +284,12 @@ public class WG02_QkSimulations {
 		BPT_DistCalc calc = new BPT_DistCalc();
 		for(int i=0; i<rupInSeg.length;i++) {
 			ArrayList funcList = new ArrayList();
-			double mri = 1/this.getSimAveSegRate(i);
+			double mri = 1/segRate[i];
 			int num = (int)(segAlpha*10/0.05);
 			calc.setAll(mri,segAlpha,0.05*mri,num);
 			funcList.add(calc.getPDF());
-			funcList.add(this.getPDF_ofSegRecurIntervals(i,20));
+			double binWidth = Math.round(mri/10); // 10 bins before the mean
+			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
 			String title = "Simulated and Expected BPT Dist for seg "+i;
 			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
 		}
@@ -400,7 +401,7 @@ public class WG02_QkSimulations {
 		// now test the simulation
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =10000;
+		int numSim =1000;
 		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
@@ -438,9 +439,9 @@ public class WG02_QkSimulations {
 	public static void main(String args[]) {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
-//		qkSim.testWithWG02_values();
+		qkSim.testWithWG02_values();
 //		qkSim.testWithWG02_SingleSegRups();
-		qkSim.wg02_haywardRC_simulation();
+//		qkSim.wg02_haywardRC_simulation();
 	}
 }
 
