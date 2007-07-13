@@ -122,7 +122,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private boolean isCumulative;
 	private double  obs6_5CumRate;
 	private HSSFSheet excelSheet;
-	ArrayList<String> adjustableParamNames;
+	private ArrayList<String> adjustableParamNames;
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
@@ -145,7 +145,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
 			Iterator it = adjustableParams.getParametersIterator();
 			adjustableParamNames = new ArrayList<String>();
-			 while(it.hasNext()) {
+			while(it.hasNext()) {
 				 ParameterAPI param = (ParameterAPI)it.next();
 				 adjustableParamNames.add(param.getName());
 			 }

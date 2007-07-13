@@ -2,12 +2,15 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.analysis;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -23,11 +26,11 @@ public class WriteTimeDepRupProbAndGain {
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
 	private UCERF2 ucerf2;
-	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet;
+	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet, adjustableParamsSheet;
 	private int loginTreeBranchIndex = 0;
 	private final static String FILENAME = "RupSegProbGain.xls";
 	private static double DURATION = 30;
-	
+	private ArrayList<String> adjustableParamNames;
 	
 	public WriteTimeDepRupProbAndGain() {
 		this(new UCERF2());
@@ -39,11 +42,23 @@ public class WriteTimeDepRupProbAndGain {
 		fillAdjustableParams();
 		lastParamIndex = paramNames.size()-1;
 		HSSFWorkbook wb  = new HSSFWorkbook();
+		adjustableParamsSheet = wb.createSheet("Parameter Settings");
 		rupProbSheet = wb.createSheet("Rupture Probability");
 		rupGainSheet = wb.createSheet("Rupture Gain");
 		segProbSheet = wb.createSheet("Segment Probability");
 		segGainSheet = wb.createSheet("Segment Gain");
 		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration to be 30 years
+		
+		// Save names of all adjustable parameters
+		ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
+		Iterator it = adjustableParams.getParametersIterator();
+		adjustableParamNames = new ArrayList<String>();
+		while(it.hasNext()) {
+			 ParameterAPI param = (ParameterAPI)it.next();
+			 adjustableParamNames.add(param.getName());
+		 }
+		
+	
 		calcLogicTreeBranch(0, 1);
 		// write  excel sheet
 		try {
@@ -127,6 +142,7 @@ public class WriteTimeDepRupProbAndGain {
 				ucerf2.updateForecast();
 				ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
 				if(this.loginTreeBranchIndex==0) {
+					
 					int rupRowIndex = 0, segRowIndex=0;
 					int colIndex = loginTreeBranchIndex;
 					rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Rupture Name");
@@ -167,6 +183,16 @@ public class WriteTimeDepRupProbAndGain {
 					rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
+					
+					// write adjustable parameters
+					// add a row for each parameter name. Also add a initial blank row for writing Branch names
+					HSSFRow row = this.adjustableParamsSheet.createRow(0);
+					row.createCell((short)0).setCellValue("Parameters"); 
+					for(int p=1; p<=adjustableParamNames.size(); ++p) {
+						adjustableParamsSheet.createRow(p).createCell((short)0).setCellValue(adjustableParamNames.get(p-1));
+					}
+					
+					
 				}
 				
 				loginTreeBranchIndex++;
@@ -176,6 +202,8 @@ public class WriteTimeDepRupProbAndGain {
 				rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
+				adjustableParamsSheet.createRow(0).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
+				
 				++rupRowIndex;
 				++segRowIndex;
 				
@@ -207,6 +235,15 @@ public class WriteTimeDepRupProbAndGain {
 				rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
+				
+				// Write adjustable parameters
+				// add a row for each parameter name. Also add a initial blank row for writing Branch names 
+				ParameterList paramList = ucerf2.getAdjustableParameterList();
+				for(int p=1; p<=adjustableParamNames.size(); ++p) {
+					String parameterName = adjustableParamNames.get(p-1);
+					if(paramList.containsParameter(parameterName))
+						adjustableParamsSheet.getRow(p).createCell((short)loginTreeBranchIndex).setCellValue(paramList.getValue(parameterName).toString());
+				}
 
 			} else { // recursion 
 				calcLogicTreeBranch(paramIndex+1, newWt);
