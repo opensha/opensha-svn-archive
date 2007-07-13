@@ -172,7 +172,27 @@ public class WG02_QkSimulations {
 		if(numRup == 0) return 0.0;
 		else return numRup/(yearLast-yearFirst);
 	}
+
 	
+	
+	/**
+	 * 
+	 * @param ithSeg
+	 * @return
+	 */
+	public double getSimMoRate(double[] rupMag){
+		double totMoment = 0;
+		for(int i=0;i<eventIndex.length;i++) totMoment += MomentMagCalc.getMoment(rupMag[eventIndex[i]]);
+		double moRate = totMoment/eventYear[eventYear.length-1];
+		
+		totMoment = 0;
+		for(int i=0;i<eventIndex.length-1;i++) totMoment += MomentMagCalc.getMoment(rupMag[eventIndex[i]]);
+		double moRate2 = totMoment/eventYear[eventYear.length-1];
+		System.out.println("MoRateRange:"+(float)moRate2+"   "+(float)moRate);
+		
+		return moRate;
+	}
+
 	/**
 	 * This chooses a random event from the prob[] array passed in, giving
 	 * back the index of the chosen event.  
@@ -212,6 +232,7 @@ public class WG02_QkSimulations {
 //			System.out.println("seg "+i+" rate = "+segRate[i]);
 		}
 		double[] rupRate = {segRate[0],segRate[1],segRate[2],segRate[3],0,0,0,0,0,0};
+		double[] rupMag = {7.16886,7.24218,7.52195,7.37158,7.5081,7.70524,7.75427,7.81611,7.87073,7.94943};
 		double alpha = 0.5;
 		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
@@ -228,17 +249,6 @@ public class WG02_QkSimulations {
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
 		
-		System.out.println("Segment Rate Matches:");
-		for(int i=0;i<segRate.length;i++)
-			System.out.println("ratio="+
-					(float)getSimAveSegRate(i)/segRate[i]+";  segRate="+(float)segRate[i]+"; simSegRate="+
-					(float)getSimAveSegRate(i));
-		System.out.println("Rupture Rate Matches:");
-		for(int i=0;i<rupRate.length;i++)
-			System.out.println("ratio="+ (float)getSimAveRupRate(i)/rupRate[i]+
-					";  rupRate="+(float)rupRate[i]+
-					"; simRupRate="+(float)getSimAveRupRate(i));
-		
 		System.out.println("Segment Rate From Recur. Int. CDF:");
 		for(int i=0;i<segRate.length;i++) {
 			ArbDiscrEmpiricalDistFunc cdf = this.getCDF_ofSegRecurIntervals(i);
@@ -246,6 +256,26 @@ public class WG02_QkSimulations {
 					";  cdfRate="+(float)(1/cdf.getMean())+"; simSegRate="+
 					(float)getSimAveSegRate(i)+"; numEvents="+cdf.getSumOfAllY_Values());
 		}
+		
+		
+		System.out.println("Rup rates: orig, sim, and sim/orig");
+		for(int i=0;i<rupRate.length;i++) {
+			double simRate = getSimAveRupRate(i);
+			System.out.println((float)rupRate[i]+"   "+(float)simRate+"   "+(float)(simRate/rupRate[i]));
+		}
+
+		System.out.println("Seg rates: orig, sim, and sim/orig");
+		for(int i=0;i<segRate.length;i++) {
+			double simRate = getSimAveSegRate(i);
+			System.out.println((float)segRate[i]+"   "+(float)simRate+"   "+(float)(simRate/segRate[i]));
+		}
+		
+		double totMoRate = 0;
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
+		double simMoRate = this.getSimMoRate(rupMag);
+		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
+
 		plotSegmentRecurIntPDFs();
 	}
 		
@@ -265,6 +295,57 @@ public class WG02_QkSimulations {
 	}
 
 	
+	public void wg02_haywardRC_simulation() {
+		
+		double[] segMoRate  = {52.54,34.89,62.55};  // these are just lengths, as slip rate and DDW are constant across segments
+		double alpha = 0.5;
+		double[] rupRate = {1.28e-3,1.02e-3,3.32e-3,2.16e-3,0.32e-3,0.44e-3};
+		double[] rupMag = {7.00,6.82,7.07,7.22,7.27,7.46};
+
+		int[][] rupInSeg = {
+				// 1,2,3,4,5,6
+				{1,0,0,1,0,1}, // seg 1
+				{0,1,0,1,1,1}, // seg 2
+				{0,0,1,0,1,1}, // seg 3
+		};
+		double[] segRate = this.getSegRateFromRupRate(rupRate,rupInSeg);
+		/*
+		// check above segment rates
+		System.out.println("Testing segment rates:");
+		double[] testSegRate = this.getSegRateFromRupRate(rupRate,rupInSeg);
+		for(int i=0; i<testSegRate.length; i++)
+			System.out.println(i+"th seg rate:  "+testSegRate[i]);
+		*/
+
+		System.out.println("Starting Simulation Test");
+		long startTime = System.currentTimeMillis();
+		int numSim =10000;
+		computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
+		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
+		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
+		
+		System.out.println("Rup rates: orig, sim, and sim/orig");
+		for(int i=0;i<rupRate.length;i++) {
+			double simRate = getSimAveRupRate(i);
+			System.out.println((float)rupRate[i]+"   "+(float)simRate+"   "+(float)(simRate/rupRate[i]));
+		}
+
+		System.out.println("Seg rates: orig, sim, and sim/orig");
+		for(int i=0;i<segRate.length;i++) {
+			double simRate = getSimAveSegRate(i);
+			System.out.println((float)segRate[i]+"   "+(float)simRate+"   "+(float)(simRate/segRate[i]));
+		}
+		
+		double totMoRate = 0;
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
+		double simMoRate = this.getSimMoRate(rupMag);
+		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
+		
+		plotSegmentRecurIntPDFs();
+	}
+	
+	
 	
 	public void testWithWG02_values() {
 		
@@ -275,6 +356,7 @@ public class WG02_QkSimulations {
 		double duration = 30;
 		double[] segRate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
 		double[] rupRate = {0.00145604357,0.000706832856,0.,0.,0.000505269971,0.,0.00109066791,0.,0.000402616395,0.00270615076};
+		double[] rupMag = {7.16886,7.24218,7.52195,7.37158,7.5081,7.70524,7.75427,7.81611,7.87073,7.94943};
 		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
 				{1,0,0,0,1,0,0,1,0,1}, // seg 1
@@ -318,11 +400,31 @@ public class WG02_QkSimulations {
 		// now test the simulation
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =500;
+		int numSim =10000;
 		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
 		
+		System.out.println("Rup rates: orig, sim, and sim/orig");
+		for(int i=0;i<rupRate.length;i++) {
+			double simRate = getSimAveRupRate(i);
+			System.out.println((float)rupRate[i]+"   "+(float)simRate+"   "+(float)(simRate/rupRate[i]));
+		}
+
+		System.out.println("Seg rates: orig, sim, and sim/orig");
+		for(int i=0;i<segRate.length;i++) {
+			double simRate = getSimAveSegRate(i);
+			System.out.println((float)segRate[i]+"   "+(float)simRate+"   "+(float)(simRate/segRate[i]));
+		}
+		
+		
+		double totMoRate = 0;
+		for(int i=0;i<rupRate.length;i++) totMoRate += rupRate[i]*MomentMagCalc.getMoment(rupMag[i]);
+		System.out.println("Tot Moment rates: orig, sim, and sim/orig");
+		double simMoRate = this.getSimMoRate(rupMag);
+		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
+
+
 		plotSegmentRecurIntPDFs();
 	}
 	
@@ -337,7 +439,8 @@ public class WG02_QkSimulations {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
 //		qkSim.testWithWG02_values();
-		qkSim.testWithWG02_SingleSegRups();
+//		qkSim.testWithWG02_SingleSegRups();
+		qkSim.wg02_haywardRC_simulation();
 	}
 }
 
