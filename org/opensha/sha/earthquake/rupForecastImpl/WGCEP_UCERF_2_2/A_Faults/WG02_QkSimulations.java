@@ -303,7 +303,7 @@ public class WG02_QkSimulations {
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
-			graph.setAxisLabelFontSize(20);
+			graph.setAxisAndTickLabelFontSize(20);
 		}
 	}
 
@@ -318,16 +318,15 @@ public class WG02_QkSimulations {
 			funcList.add(calc.getPDF());
 			double binWidth = Math.round(mri/10); // 10 bins before the mean
 			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
-			String title = "PDF for"+segName[i];
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
+			String title = "PDF for "+segName[i];
 			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 4));
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.GRAY, 2));
-			graph.setPlottingFeatures(plotChars);
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title,plotChars);
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
-			graph.setAxisLabelFontSize(20);
+			graph.setAxisAndTickLabelFontSize(20);
 		}
 	}
 	
@@ -356,7 +355,7 @@ public class WG02_QkSimulations {
 
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =1000;
+		int numSim =500;
 		computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");

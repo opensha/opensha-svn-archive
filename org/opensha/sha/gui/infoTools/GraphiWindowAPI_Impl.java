@@ -62,6 +62,16 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		graphWindow.setVisible(true);
 	}
 
+	
+	public GraphiWindowAPI_Impl(ArrayList funcs, String plotTitle, ArrayList<PlotCurveCharacterstics> plotChars) {
+		this.funcs=funcs;
+		this.plotChars = plotChars;
+		graphWindow= new GraphWindow(this);
+		graphWindow.setPlotLabel(plotTitle);
+		graphWindow.plotGraphUsingPlotPreferences();
+		graphWindow.setVisible(true);
+	}
+
 	/**
 	 * Plot Graph using preferences
 	 *
@@ -248,8 +258,9 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	 * 
 	 * @param fontSize
 	 */
-	public void setAxisLabelFontSize(int fontSize) {
+	public void setAxisAndTickLabelFontSize(int fontSize) {
 		graphWindow.setAxisLabelFontSize(fontSize);
+		graphWindow.setTickLabelFontSize(fontSize);
 	}
 
 	/**
@@ -294,7 +305,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		graphWindowImpl.setPlotTitle("Test Title");
 		graphWindowImpl.setTickLabelFontSize(20);
 		graphWindowImpl.setPlotLabelFontSize(24);
-		graphWindowImpl.setAxisLabelFontSize(20);
+		graphWindowImpl.setAxisAndTickLabelFontSize(20);
 	}
 
 }
