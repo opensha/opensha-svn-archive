@@ -639,7 +639,7 @@ class RuptureTableModel extends AbstractTableModel {
 			case 6:
 				return MOMENT_FORMAT.format(aFaultSegmentedSource.getRupSourceProb(rowIndex));
 			case 7:
-				return MAG_FORMAT.format(aFaultSegmentedSource.getRupSourcGain(rowIndex));
+				return MAG_FORMAT.format(aFaultSegmentedSource.getRupSourcProbGain(rowIndex));
 			case 8:
 				return aFaultSegmentedSource.getShortRupName(rowIndex);
 			case 9:

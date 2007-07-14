@@ -544,6 +544,10 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		rupProb = WG02_QkProbCalc.getRupProbs(finalSegRate, totRupRate, getFinalSegMoRate(), segAperiodicity, 
 											segTimeSinceLast, duration, rupInSeg);		
+		//set very low rupture probabilities to zero (nicer values)
+		for(int i=0;i<num_rup;i++)
+			if(rupProb[i] <= 1e-12) rupProb[i] = 0.0;
+		
 		segProb = WG02_QkProbCalc.getSegProbs(finalSegRate, segAperiodicity, segTimeSinceLast, duration);
 		
 // this writes out data that I pasted into the testAll() procedure of the Igor Experiment "testBPT_calcs",
@@ -555,7 +559,12 @@ public class A_FaultSegmentedSourceGenerator {
 		segGain = new double[num_seg];
 		for(int i=0;i<num_seg;i++) segGain[i]=segProb[i]/(1-Math.exp(-duration*finalSegRate[i]));
 		rupGain = new double[num_rup];
-		for(int i=0;i<num_rup;i++) rupGain[i]=rupProb[i]/(1-Math.exp(-duration*totRupRate[i]));
+		for(int i=0;i<num_rup;i++) {
+			if(totRupRate[i] >1e-12) // avoid dividing by zero for very low prob events
+				rupGain[i]=rupProb[i]/(1-Math.exp(-duration*totRupRate[i]));
+			else
+				rupGain[i]=1.0;
+		}
 		
 		// now make the sources
 		this.sourceList = new ArrayList<FaultRuptureSource>();
@@ -583,6 +592,26 @@ public class A_FaultSegmentedSourceGenerator {
 		return this.sourceList;
 	}
 	
+	/*
+	 * This returns the total probability of occurrence assuming independence among all the rupture sources
+	 */
+	public double getTotFaultProb() {
+		double totProbNoEvent = 1;
+		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceProb(i));
+		return 1.0 - totProbNoEvent;
+	}
+	
+	/*
+	 * This returns the total probability of occurrence assuming independence among all the rupture sources
+	 */
+	public double getTotFaultProbGain() {
+		double totPoisProbNoEvent = 1;
+		for(int i=0;i<num_rup;i++){
+			double poisProb = getRupSourceProb(i)/getRupSourcProbGain(i);
+			totPoisProbNoEvent *= (1-poisProb);
+		}
+		return getTotFaultProb()/(1.0-totPoisProbNoEvent);
+	}
 	
 	/**
 	 * This returns the total probability for the ith Rupture Source 
@@ -598,7 +627,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param ithRup
 	 * @return
 	 */
-	public double getRupSourcGain(int ithRup) { return rupGain[ithRup]; }
+	public double getRupSourcProbGain(int ithRup) { return rupGain[ithRup]; }
 
 	/**
 	 * This returns the total probability for the ith Segment divided by the Poisson Prob
@@ -606,7 +635,7 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param ithRup
 	 * @return
 	 */
-	public double getSegGain(int ithSeg) { return segGain[ithSeg]; }
+	public double getSegProbGain(int ithSeg) { return segGain[ithSeg]; }
 
 	/**
 	 * This returns the total probability for the ith Segment

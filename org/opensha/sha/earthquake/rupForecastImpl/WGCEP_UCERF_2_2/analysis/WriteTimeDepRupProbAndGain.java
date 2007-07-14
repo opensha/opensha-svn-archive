@@ -216,7 +216,7 @@ public class WriteTimeDepRupProbAndGain {
 					// loop over all ruptures
 					for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getRupSourceProb(rupIndex));
-						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getRupSourcGain(rupIndex));
+						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getRupSourcProbGain(rupIndex));
 						++rupRowIndex;
 					}
 					
@@ -226,7 +226,7 @@ public class WriteTimeDepRupProbAndGain {
 					// loop over all segments
 					for(int segIndex=0; segIndex<numSegs; ++segIndex) {
 						segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getSegProb(segIndex));
-						segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getSegGain(segIndex));
+						segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getSegProbGain(segIndex));
 						++segRowIndex;
 					}
 				}
