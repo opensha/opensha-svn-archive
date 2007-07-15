@@ -18,14 +18,47 @@ import org.opensha.param.event.ParameterChangeListener;
  * @version 1.0
  */
 
-public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChangeListener {
+public final class BPT_DistCalc_OLD implements ParameterChangeListener {
 	
-	public static String NAME = "BPT";
+	private EvenlyDiscretizedFunc pdf, cdf;
+	private double mean, aperiodicity, deltaX, duration;
+	private int numPoints;
+	public static final double DELTA_X_DEFAULT = 0.001;
+	private boolean upToDate=false;
+	private final String NAME = "BPT";
 	
+	// Parameter names
+	private final static String MEAN_PARAM_NAME= "Mean";
+	private final static String APERIODICITY_PARAM_NAME = "Aperiodicity";
+	private final static String DURATION_PARAM_NAME = "Duration";
+	private final static String DELTA_X_PARAM_NAME = "Delta X";
+	private final static String NUM_POINTS_PARAM_NAME = "Num Points";
 	
-	public BPT_DistCalc() {
-		super.initAdjParams();
-		mkAdjParamList();
+	// Parameter Infos
+	private final static String MEAN_PARAM_INFO= "Mean";
+	private final static String APERIODICITY_PARAM_INFO = "Aperiodicity";
+	private final static String DURATION_PARAM_INFO = "Duration";
+	private final static String DELTA_X_PARAM_INFO = "Delta X";
+	private final static String NUM_POINTS_PARAM_INFO = "Num Points";
+	
+	// default param values
+	private final static Double DEFAULT_MEAN_PARAM_VAL = new Double(5.0);
+	private final static Double DEFAULT_APERIODICITY_PARAM_VAL = new Double(0.5);
+	private final static Double DEFAULT_DURATION_PARAM_VAL = new Double(50);
+	private final static Double DEFAULT_DELTAX_PARAM_VAL = new Double(1);
+	private final static Integer DEFAULT_NUMPOINTS_PARAM_VAL = new Integer(100);
+	
+	// various adjustable params
+	private DoubleParameter meanParam, aperiodicityParam, durationParam, deltaX_Param;
+	private IntegerParameter numPointsParam;
+	
+	// adjustable parameter list
+	private ParameterList adjustableParams;
+
+	
+	public BPT_DistCalc_OLD() {
+		this.initAdjParams();
+		
 	}
 	
 	public void setAll(double mean, double aperiodicity, double deltaX, int numPoints) {
@@ -75,7 +108,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * This computes the PDF and then the cdf from the pdf using 
 	 * Trapezoidal integration. 
 	 */
-	protected void computeDistributions() {
+	private void computeDistributions() {
 		
 		pdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		cdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
@@ -101,6 +134,70 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	}
 
 	
+	public EvenlyDiscretizedFunc getCDF() {
+		if(!upToDate) computeDistributions();
+		return cdf;
+	}
+
+
+	public EvenlyDiscretizedFunc getPDF() {
+		if(!upToDate) computeDistributions();
+		return pdf;
+	}
+
+
+	public EvenlyDiscretizedFunc getHazFunc() {
+		if(!upToDate) computeDistributions();
+		EvenlyDiscretizedFunc hazFunc = new EvenlyDiscretizedFunc(0, pdf.getMaxX(), pdf.getNum());
+		double haz;
+		for(int i=0;i<hazFunc.getNum();i++) {
+			haz = pdf.getY(i)/(1.0-cdf.getY(i));
+			hazFunc.set(i,haz);
+		}
+		return hazFunc;
+	}
+	
+	/*
+	 * This gives a function of the probability of an event occurring between time T
+	 * (on the x-axis) and T+duration, conditioned that it has not occurred before T.
+	 * THIS NEEDS TO BE TESTED
+	 */
+	public EvenlyDiscretizedFunc getCondProbFunc() {
+		if(duration==0)
+			throw new RuntimeException("duration has not been set");
+		if(!upToDate) computeDistributions();
+		int numPts = numPoints - (int)(duration/deltaX);
+		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
+		for(int i=0;i<condFunc.getNum();i++) {
+			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
+		}
+		return condFunc;
+	}
+	
+
+	/**
+	 * This is a non-static version that is slightly more accurate (due to
+	 * interpolation of the cdf function), although it requires instantiation of the class to
+	 * access (and stores information internally). The commented out bit of code gives the non 
+	 * interpolated result which is exactly the same as what comes from the static version.
+	 * @param timeSinceLast
+	 * @param duration
+	 * @return
+	 */
+	public double getCondProb(double timeSinceLast, double duration) {
+		if(!upToDate) computeDistributions();
+		double p1 = cdf.getInterpolatedY(timeSinceLast);
+		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
+		return (p2-p1)/(1.0-p1);
+		
+		// non interpolated alt:
+		/*
+		int pt1 = (int)Math.round(timeSinceLast/deltaX) + 1;
+		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX) + 1;
+		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
+		*/
+	}	
+
 
 	/**
 	 * This computed the conditional probability using Trapezoidal integration (slightly more
@@ -134,7 +231,6 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		t = step*1.;
 		for(i=1; i<=i2; i++) {
 			pdf = Math.sqrt(temp1/(t*t*t)) * Math.exp(-(t-1)*(t-1) / (temp2*t) );
-			
 			cdf += step*(pdf+pdf_last)/2;
 			if ( i == i1 ) cBPT1 = cdf;
 			t += step;
@@ -150,10 +246,43 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	}
 
 	/**
+	 * Initialize adjustable parameters
 	 *
 	 */
-	private void mkAdjParamList() {
-
+	private void initAdjParams() {
+	
+		/* make double parameters for the following (except the last is an IntParam); all
+		   must be greater than zero:
+		 Mean
+		 Aperiodicity
+		 Duration
+		 Delta X
+		 Num Points
+		 
+		 Ned will edit the names and info
+		 
+		 Listen to each of these and set the local/primative accordingly when it changes & set
+		 the upToDate = false
+		 
+		 Add a getAdjParams method so these can be put in a GUI
+		 */
+		
+		meanParam =  new  DoubleParameter(MEAN_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_MEAN_PARAM_VAL);
+		meanParam.setInfo(MEAN_PARAM_INFO);
+		meanParam.addParameterChangeListener(this);
+		aperiodicityParam  = new DoubleParameter(APERIODICITY_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_APERIODICITY_PARAM_VAL);
+		aperiodicityParam.setInfo(APERIODICITY_PARAM_INFO);
+		aperiodicityParam.addParameterChangeListener(this);
+		durationParam = new  DoubleParameter(DURATION_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_DURATION_PARAM_VAL);
+		durationParam.setInfo(DURATION_PARAM_INFO);
+		durationParam.addParameterChangeListener(this);
+		deltaX_Param = new  DoubleParameter(DELTA_X_PARAM_NAME, Double.MIN_VALUE, Double.MAX_VALUE, DEFAULT_DELTAX_PARAM_VAL);
+		deltaX_Param.setInfo(DELTA_X_PARAM_INFO);
+		deltaX_Param.addParameterChangeListener(this);
+		numPointsParam = new  IntegerParameter(NUM_POINTS_PARAM_NAME, Integer.MIN_VALUE, Integer.MAX_VALUE, DEFAULT_NUMPOINTS_PARAM_VAL);;
+		numPointsParam.setInfo(NUM_POINTS_PARAM_INFO);
+		numPointsParam.addParameterChangeListener(this);
+		
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(meanParam);
 		adjustableParams.addParameter(aperiodicityParam);
@@ -166,6 +295,15 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 				DEFAULT_DURATION_PARAM_VAL.doubleValue());
 	}
 	
+	
+	/**
+	 * Get adjustable params
+	 * 
+	 * @return
+	 */
+	public ParameterList getAdjParams() {
+		return this.adjustableParams;
+	}
 	
 	/**
 	 * Set the primitive types whenever a parameter changes
@@ -274,6 +412,12 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		System.out.println("Ratio of compute time above versus static  = "+(float)(time3/time));
 	}
 	
-
+	/**
+	 * Get the name 
+	 * @return
+	 */
+	public String getName() {
+		return this.NAME;
+	}
 }
 
