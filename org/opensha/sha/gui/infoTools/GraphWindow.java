@@ -394,6 +394,14 @@ extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 				customAxis, plotTitle, buttonControlPanel);
 		togglePlot();
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
+	 */
+	public void setPlottingFeatures(ArrayList<PlotCurveCharacterstics> curveCharacteristics) {
+		this.graphPanel.setCurvePlottingCharacterstic(curveCharacteristics);
+		drawGraph();
+	}
 
 	/**
 	 * plots the curves with defined color,line width and shape.

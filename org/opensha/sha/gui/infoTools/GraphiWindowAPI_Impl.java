@@ -174,7 +174,7 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	 */
 	public void setPlottingFeatures(ArrayList<PlotCurveCharacterstics> curveCharacteristics) {
 		plotChars   = curveCharacteristics;
-		this.graphWindow.plotGraphUsingPlotPreferences();
+		this.graphWindow.setPlottingFeatures(curveCharacteristics);
 	}
 
 	/**
@@ -300,12 +300,18 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		funcs.add(func);
 
 		GraphiWindowAPI_Impl graphWindowImpl = new GraphiWindowAPI_Impl(funcs, "Test");
-		graphWindowImpl.setXLog(true);
-		graphWindowImpl.setYLog(true);
+		//graphWindowImpl.setXLog(true);
+		//graphWindowImpl.setYLog(true);
 		graphWindowImpl.setPlotTitle("Test Title");
-		graphWindowImpl.setTickLabelFontSize(20);
-		graphWindowImpl.setPlotLabelFontSize(24);
-		graphWindowImpl.setAxisAndTickLabelFontSize(20);
+		graphWindowImpl.setAxisRange(0, 5, 0, 5);
+		PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+				Color.PINK, 2);
+		PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+				Color.LIGHT_GRAY, 5);
+		ArrayList<PlotCurveCharacterstics> list = new ArrayList<PlotCurveCharacterstics>();
+		list.add(PLOT_CHAR5);
+		list.add(PLOT_CHAR6);
+		graphWindowImpl.setPlottingFeatures(list);
 	}
 
 }
