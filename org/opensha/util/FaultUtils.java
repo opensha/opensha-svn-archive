@@ -58,11 +58,9 @@ public final class FaultUtils {
     {
    
         if( dip < 0 ) throw new InvalidRangeException( S2 +
-            "Dip angle cannot be less than zero"
-        );
+            "Dip angle cannot be less than zero; the value is "+dip);
         if( dip > 90 ) throw new InvalidRangeException( S2 +
-            "Dip angle cannot be greater than 90"
-        );
+            "Dip angle cannot be greater than 90; the value is "+dip);
     }
 
 

@@ -37,17 +37,29 @@ public class WG02_QkSimulations {
 	private double[] eventYear, segRate;
 	private int[] eventIndex;
 	private int[][] rupInSeg;
-	double segAlpha;
+	double segAlpha[];
 	
 	
 
+	/*
+	 * This monte carlo simulates events.  This sets the time of rupture first rupture for all
+	 * segments at year=0 (other methods here assume this).
+	 */
+	public void computeSimulatedEvents(double[] rupRate, double[] segMoRate, 
+			double alpha, int[][] rupInSeg, int numEvents) {
+		segAlpha = new double[segMoRate.length];
+		for(int i=0;i<segMoRate.length;i++) segAlpha[i] = alpha;
+		computeSimulatedEvents(rupRate, segMoRate, segAlpha, rupInSeg, numEvents);
+	}
+
+	
 	
 	/*
 	 * This monte carlo simulates events.  This sets the time of rupture first rupture for all
 	 * segments at year=0 (other methods here assume this).
 	 */
 	public void computeSimulatedEvents(double[] rupRate, double[] segMoRate, 
-			double segAlpha, int[][] rupInSeg, int numEvents) {
+			double[] segAlpha, int[][] rupInSeg, int numEvents) {
 		
 		this.rupInSeg = rupInSeg; // needed by other methods.
 		this.segAlpha = segAlpha;
@@ -224,11 +236,15 @@ public class WG02_QkSimulations {
 	}
 	
 	
-	
+	/*
+	 * This tests results against those obtained from the WGCEP-2002 Fortran code (single branch 
+	 * for N. SAF done by Ned Field in Feb of 2006; see his "Neds0206TestOutput.txt" file).
+	 */
 	public void testWithWG02_SingleSegRups() {
 		
 		double[] segMoRate  = {4.74714853E+24,5.62020641E+24,1.51106804E+25,1.06885024E+25};  // cgs units!
-		double[] segAlpha = {0.5,0.5,0.5,0.5};
+		double[] segAlpha = {0.2,0.5,0.8,0.5};
+//		double[] segAlpha = {0.5,0.5,0.5,0.5};
 		double[] segMag = {7.16886,7.24218,7.52195,7.37158};
 		double[] segRate = new double[segMoRate.length];
 		for(int i=0;i<segRate.length;i++) {
@@ -237,7 +253,6 @@ public class WG02_QkSimulations {
 		}
 		double[] rupRate = {segRate[0],segRate[1],segRate[2],segRate[3],0,0,0,0,0,0};
 		double[] rupMag = {7.16886,7.24218,7.52195,7.37158,7.5081,7.70524,7.75427,7.81611,7.87073,7.94943};
-		double alpha = 0.5;
 		int[][] rupInSeg = {
 				// 1,2,3,4,5,6,7,8,9,10
 				{1,0,0,0,0,0,0,0,0,0}, // seg 1
@@ -248,8 +263,8 @@ public class WG02_QkSimulations {
 		
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =1005;
-		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
+		int numSim =1000;
+		this.computeSimulatedEvents(rupRate, segMoRate, segAlpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
 		
@@ -289,21 +304,23 @@ public class WG02_QkSimulations {
 		for(int i=0; i<rupInSeg.length;i++) {
 			ArrayList funcList = new ArrayList();
 			double mri = 1/segRate[i];
-			int num = (int)(segAlpha*10/0.05);
-			calc.setAll(mri,segAlpha,0.05*mri,num);
+			int num = (int)(segAlpha[i]*10/0.05);
+			calc.setAll(mri,segAlpha[i],0.05*mri,num);
 			funcList.add(calc.getPDF());
 			double binWidth = Math.round(mri/10); // 10 bins before the mean
 			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
 			String title = "Simulated and Expected BPT Dist for seg "+i;
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title);
 			ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,Color.RED, 2));
 			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,Color.GRAY, 2));
+			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcList,title,plotChars);
 			graph.setPlottingFeatures(plotChars);
 			graph.setPlotLabelFontSize(24);
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
 			graph.setAxisAndTickLabelFontSize(20);
+//			graph.setAxisRange(graph.getMinX(),mri*4,graph.getMinY(),graph.getMaxY());
+
 		}
 	}
 
@@ -313,8 +330,8 @@ public class WG02_QkSimulations {
 		for(int i=0; i<rupInSeg.length;i++) {
 			ArrayList funcList = new ArrayList();
 			double mri = 1/segRate[i];
-			int num = (int)(segAlpha*10/0.05);
-			calc.setAll(mri,segAlpha,0.05*mri,num);
+			int num = (int)(segAlpha[i]*10/0.05);
+			calc.setAll(mri,segAlpha[i],0.05*mri,num);
 			funcList.add(calc.getPDF());
 			double binWidth = Math.round(mri/10); // 10 bins before the mean
 			funcList.add(this.getPDF_ofSegRecurIntervals(i,binWidth));
@@ -327,6 +344,7 @@ public class WG02_QkSimulations {
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
 			graph.setAxisAndTickLabelFontSize(20);
+//			graph.setAxisRange(graph.getMinX(),mri*4,graph.getMinY(),graph.getMaxY());
 		}
 	}
 	
@@ -355,7 +373,7 @@ public class WG02_QkSimulations {
 
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =500;
+		int numSim =1000;
 		computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
@@ -382,12 +400,15 @@ public class WG02_QkSimulations {
 	}
 	
 	
-	
+	/*
+	 * This tests results against those obtained from the WGCEP-2002 Fortran code (single branch 
+	 * for N. SAF done by Ned Field in Feb of 2006; see his "Neds0206TestOutput.txt" file).
+	 */
 	public void testWithWG02_values() {
 		
 		double[] segMoRate  = {4.74714853E+24,5.62020641E+24,1.51106804E+25,1.06885024E+25};
-		double[] segAlpha = {0.5,0.5,0.5,0.5};
-		double alpha = 0.5;
+		double[] segAlpha = {0.2,0.5,0.8,0.5};
+//		double[] segAlpha = {0.5,0.5,0.5,0.5};
 		double[] segT_Last = {96, 96, 96, 96};
 		double duration = 30;
 		double[] segRate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
@@ -437,7 +458,7 @@ public class WG02_QkSimulations {
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
 		int numSim =1000;
-		this.computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
+		this.computeSimulatedEvents(rupRate, segMoRate, segAlpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
 		
@@ -475,8 +496,8 @@ public class WG02_QkSimulations {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
 //		qkSim.testWithWG02_values();
-//		qkSim.testWithWG02_SingleSegRups();
-		qkSim.wg02_haywardRC_simulation();
+		qkSim.testWithWG02_SingleSegRups();
+//		qkSim.wg02_haywardRC_simulation();
 	}
 }
 

@@ -1779,12 +1779,11 @@ public class UCERF2 extends EqkRupForecast {
 			}
 	}
 
-
-
-	// this is temporary for testing purposes
-	public static void main(String[] args) {
+	/*
+	 * This examines time-pred probs for the N SAF
+	 */
+	public static void testNSAF_TimePredProbs() {
 		UCERF2 erRateModel2_ERF = new UCERF2();
-		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 		erRateModel2_ERF.setParamDefaults();
 		erRateModel2_ERF.updateForecast();
 		int nsaf_index = 3;
@@ -1800,8 +1799,27 @@ public class UCERF2 extends EqkRupForecast {
 		for(int r=0;r<nrup;r++) {
 			System.out.println((float)wg02_probs[r]+"\t"+(float)timePredProbs[r]+"\t"+
 					(float)(wg02_probs[r]/timePredProbs[r])+"\t"+nsaf_src_gen.getLongRupName(r));
-		}
-		
+		}	
+	}
+	
+	public static void simulateSSAF_events() {
+		UCERF2 erRateModel2_ERF = new UCERF2();
+		erRateModel2_ERF.setParamDefaults();
+		erRateModel2_ERF.updateForecast();
+		int ssaf_index = 4;
+		A_FaultSegmentedSourceGenerator ssaf_src_gen = (A_FaultSegmentedSourceGenerator)erRateModel2_ERF.get_A_FaultSourceGenerators().get(ssaf_index);
+		ArrayList<FaultRuptureSource> junk = ssaf_src_gen.getTimeDependentSources(30,2007,0.5, false);
+		ssaf_src_gen.simulateEvents(1000);
+		junk = ssaf_src_gen.getTimeDependentSources(30,2007,0.5, true);
+		ssaf_src_gen.simulateEvents(1000);
+	}
 
+	// this is temporary for testing purposes
+	public static void main(String[] args) {
+		//testNSAF_TimePredProbs();
+		simulateSSAF_events();
+		
+		//UCERF2 erRateModel2_ERF = new UCERF2();
+		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 	}
 }

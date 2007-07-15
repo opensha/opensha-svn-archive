@@ -572,7 +572,7 @@ public class A_FaultSegmentedSourceGenerator {
 			// get list of segments in this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			// Create source if prob is greater than ~zero
-			if (rupProb[i] > 1e-10) {				
+			if (rupProb[i] > 1e-10) {		
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
 						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 						segmentData.getAveRake(segmentsInRup));
@@ -1856,12 +1856,17 @@ public class A_FaultSegmentedSourceGenerator {
 		return segMoRate;
 	}
 	
-	
+	/*
+	 * This must be run after calling the getTimeDependentSources(double, double, double, boolean)() method.
+	 */
 	public void simulateEvents(int num) {
+		
+		if(!isTimeDeptendent)
+			throw new RuntimeException("Error with method simulateEvents(): Source can't be time independent");
 		
 //		System.out.println("moments: "+totMoRate+"  "+this.getTotalMoRateFromRups());
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
-		qkSim.computeSimulatedEvents(totRupRate, getFinalSegMoRate(), 0.5, rupInSeg, num);
+		qkSim.computeSimulatedEvents(totRupRate, getFinalSegMoRate(), segAperiodicity, rupInSeg, num);
 		
 		System.out.println("Rup rates: orig, sim, and sim/orig");
 		for(int i=0;i<totRupRate.length;i++) {
@@ -1881,7 +1886,10 @@ public class A_FaultSegmentedSourceGenerator {
 		double totMoRate = getTotalMoRateFromRups();
 		System.out.println((float)totMoRate+"   "+(float)simMoRate+"   "+(float)(simMoRate/totMoRate));
 		
-		qkSim.plotSegmentRecurIntPDFs();
+		String[] segNames = new String[num_seg];
+		for(int i=0; i<num_seg;i++)
+			segNames[i]=this.segmentData.getSegmentName(i);
+		qkSim.plotSegmentRecurIntPDFs(segNames);
 	}
 	
 	

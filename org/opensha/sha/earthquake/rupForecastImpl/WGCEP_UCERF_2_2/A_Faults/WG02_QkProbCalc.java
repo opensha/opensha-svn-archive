@@ -107,7 +107,7 @@ public class WG02_QkProbCalc {
 	
 	/*
 	 * This tests results against those obtained from the WGCEP-2002 Fortran code (single branch 
-	 * for SAF done by Ned Field in Feb of 2006; see his "Neds0206TestOutput.txt" file).  Results
+	 * for N. SAF done by Ned Field in Feb of 2006; see his "Neds0206TestOutput.txt" file).  Results
 	 * are within 0.3%.
 
 	 */
