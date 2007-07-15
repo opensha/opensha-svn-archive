@@ -20,7 +20,7 @@ import org.opensha.param.event.ParameterChangeListener;
 
 public final class LognormalDistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
-	public static String NAME = "BPT";
+	public static String NAME = "Lognormal";
 	
 	
 	public LognormalDistCalc() {
