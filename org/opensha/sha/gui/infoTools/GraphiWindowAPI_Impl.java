@@ -6,6 +6,7 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.jfree.data.Range;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
@@ -191,6 +192,29 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 	}
 
 	/**
+	 * sets the range for X axis
+	 * @param xMin : minimum value for X-axis
+	 * @param xMax : maximum value for X-axis
+	 *
+	 */
+	public void setX_AxisRange(double xMin, double xMax) {
+		Range yAxisRange = graphWindow.getY_AxisRange();
+		setAxisRange(xMin, xMax, yAxisRange.getLowerBound(), yAxisRange.getUpperBound());
+	}
+	
+	/**
+	 * sets the range for  Y axis
+	 * @param yMin : minimum value for Y-axis
+	 * @param yMax : maximum value for Y-axis
+	 *
+	 */
+	public void setY_AxisRange(double yMin, double yMax) {
+		Range xAxisRange = graphWindow.getX_AxisRange();
+		setAxisRange(xAxisRange.getLowerBound(), xAxisRange.getUpperBound(), yMin, yMax);
+	}
+	
+	
+	/**
 	 * Whether this is custom axis
 	 */
 	public boolean isCustomAxis() {
@@ -303,7 +327,8 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		//graphWindowImpl.setXLog(true);
 		//graphWindowImpl.setYLog(true);
 		graphWindowImpl.setPlotTitle("Test Title");
-		graphWindowImpl.setAxisRange(0, 5, 0, 5);
+		graphWindowImpl.setX_AxisRange(0, 5);
+		graphWindowImpl.setAutoRange();
 		PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 				Color.PINK, 2);
 		PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
