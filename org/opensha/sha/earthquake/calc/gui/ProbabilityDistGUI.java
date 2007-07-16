@@ -317,6 +317,8 @@ ParameterChangeListener{
                                        , GridBagConstraints.CENTER,
                                        GridBagConstraints.BOTH,
                                        new Insets(2, 2, 2, 2), 0, 0));
+	    editorPanel.validate();
+	    editorPanel.repaint();
 	  }
 	  
 	  
