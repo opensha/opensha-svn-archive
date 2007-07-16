@@ -20,10 +20,10 @@ import org.opensha.param.event.ParameterChangeListener;
 
 public final class ExponentialDistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
-	public static String NAME = "Exponential";
 	
 	
 	public ExponentialDistCalc() {
+		NAME = "Exponential";
 		super.initAdjParams();
 		mkAdjParamList();
 	}

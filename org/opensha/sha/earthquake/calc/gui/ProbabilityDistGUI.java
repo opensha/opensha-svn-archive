@@ -36,6 +36,9 @@ import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.calc.BPT_DistCalc;
+import org.opensha.sha.earthquake.calc.EqkProbDistCalc;
+import org.opensha.sha.earthquake.calc.ExponentialDistCalc;
+import org.opensha.sha.earthquake.calc.LognormalDistCalc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
@@ -64,7 +67,7 @@ ParameterChangeListener{
 	private ArrayList<String> plottingPanelNames;
 	
 	// list of all probability distribution names
-	private ArrayList<BPT_DistCalc> probDistList;
+	private ArrayList<EqkProbDistCalc> probDistList;
 	private ArrayList<String> probDistNames;
 	
 	//	instance for the ButtonControlPanel
@@ -187,8 +190,10 @@ ParameterChangeListener{
 	 */
 	private void makeProbDistList() {
 		// list of all probability distribution names
-		probDistList = new ArrayList<BPT_DistCalc>();
+		probDistList = new ArrayList<EqkProbDistCalc>();
 		probDistList.add(new BPT_DistCalc());
+		probDistList.add(new LognormalDistCalc());
+		probDistList.add(new ExponentialDistCalc());
 		
 		probDistNames = new ArrayList<String>();
 		for(int i=0; i<probDistList.size(); ++i)
@@ -304,7 +309,7 @@ ParameterChangeListener{
 	   * Show adjustable params based on selected probability distribution
 	   */
 	  private void showAdjParams(){
-	    BPT_DistCalc selectedProbDist = getSelectedProbDist();
+		EqkProbDistCalc selectedProbDist = getSelectedProbDist();
 	    editorPanel.removeAll();
 	    ParameterListEditor paramListEditor = new ParameterListEditor(selectedProbDist.getAdjParams());
 	    editorPanel.add(paramListEditor,
@@ -320,10 +325,10 @@ ParameterChangeListener{
 	   * 
 	   * @return
 	   */
-	  private BPT_DistCalc getSelectedProbDist() {
+	  private EqkProbDistCalc getSelectedProbDist() {
 		  String selectedProbDistName = (String)probDistParam.getValue();
 		  int selectedProbDistIndex = probDistNames.indexOf(selectedProbDistName);
-		  BPT_DistCalc selectedProbDist = this.probDistList.get(selectedProbDistIndex);
+		  EqkProbDistCalc selectedProbDist = this.probDistList.get(selectedProbDistIndex);
 		  return selectedProbDist;
 		  
 	  }
@@ -364,7 +369,7 @@ ParameterChangeListener{
 	      System.out.println("Starting");
 
 	    try {
-	    	 BPT_DistCalc selectedProbDist = getSelectedProbDist();
+	    	EqkProbDistCalc selectedProbDist = getSelectedProbDist();
 	    	 this.plottingPanelsList.get(0).addFunc(selectedProbDist.getPDF());
 	    	 this.plottingPanelsList.get(1).addFunc(selectedProbDist.getCDF());
 	    	 this.plottingPanelsList.get(2).addFunc(selectedProbDist.getCondProbFunc());

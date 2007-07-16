@@ -18,14 +18,14 @@ import org.opensha.param.event.ParameterChangeListener;
  * @version 1.0
  */
 
-abstract class EqkProbDistCalc implements ParameterChangeListener {
+public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	
 	protected EvenlyDiscretizedFunc pdf, cdf;
 	protected double mean, aperiodicity, deltaX, duration;
 	protected int numPoints;
 	public static final double DELTA_X_DEFAULT = 0.001;
 	protected boolean upToDate=false;
-	public String NAME;
+	protected  String NAME;
 	
 	// Parameter names
 	protected final static String MEAN_PARAM_NAME= "Mean";

@@ -20,10 +20,10 @@ import org.opensha.param.event.ParameterChangeListener;
 
 public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChangeListener {
 	
-	public static String NAME = "BPT";
 	
 	
 	public BPT_DistCalc() {
+		NAME = "BPT";
 		super.initAdjParams();
 		mkAdjParamList();
 	}
