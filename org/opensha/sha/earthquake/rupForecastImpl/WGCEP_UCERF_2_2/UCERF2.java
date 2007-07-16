@@ -1139,7 +1139,7 @@ public class UCERF2 extends EqkRupForecast {
 			if(isTimeIndepenent) // time Independent
 				allSources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
 			else { // Time dependence
-				allSources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
+//				allSources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
 			}
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
@@ -1809,9 +1809,9 @@ public class UCERF2 extends EqkRupForecast {
 		int ssaf_index = 4;
 		A_FaultSegmentedSourceGenerator ssaf_src_gen = (A_FaultSegmentedSourceGenerator)erRateModel2_ERF.get_A_FaultSourceGenerators().get(ssaf_index);
 		ArrayList<FaultRuptureSource> junk = ssaf_src_gen.getTimeDependentSources(30,2007,0.5, false);
-		ssaf_src_gen.simulateEvents(1000);
+		ssaf_src_gen.simulateEvents(20000);
 		junk = ssaf_src_gen.getTimeDependentSources(30,2007,0.5, true);
-		ssaf_src_gen.simulateEvents(1000);
+		ssaf_src_gen.simulateEvents(20000);
 	}
 
 	// this is temporary for testing purposes

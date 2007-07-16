@@ -319,8 +319,7 @@ public class WG02_QkSimulations {
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
 			graph.setAxisAndTickLabelFontSize(20);
-//			graph.setAxisRange(graph.getMinX(),mri*4,graph.getMinY(),graph.getMaxY());
-
+			graph.setAxisRange(0,mri*5,0,(1.1*calc.getPDF().getMaxY()));
 		}
 	}
 
@@ -344,7 +343,7 @@ public class WG02_QkSimulations {
 			graph.setY_AxisLabel("");
 			graph.setX_AxisLabel("Segment Recurrence Interval");
 			graph.setAxisAndTickLabelFontSize(20);
-//			graph.setAxisRange(graph.getMinX(),mri*4,graph.getMinY(),graph.getMaxY());
+			graph.setAxisRange(0,mri*5,0,(1.1*calc.getPDF().getMaxY()));
 		}
 	}
 	
@@ -373,7 +372,7 @@ public class WG02_QkSimulations {
 
 		System.out.println("Starting Simulation Test");
 		long startTime = System.currentTimeMillis();
-		int numSim =1000;
+		int numSim =20000;
 		computeSimulatedEvents(rupRate, segMoRate, alpha, rupInSeg, numSim);
 		double timeTaken = (double) (System.currentTimeMillis()-startTime) / 1000.0;
 		System.out.println("Done w/ "+numSim+" events in "+(float)timeTaken+" seconds");
@@ -496,8 +495,8 @@ public class WG02_QkSimulations {
 		
 		WG02_QkSimulations qkSim = new WG02_QkSimulations();
 //		qkSim.testWithWG02_values();
-		qkSim.testWithWG02_SingleSegRups();
-//		qkSim.wg02_haywardRC_simulation();
+//		qkSim.testWithWG02_SingleSegRups();
+		qkSim.wg02_haywardRC_simulation();
 	}
 }
 
