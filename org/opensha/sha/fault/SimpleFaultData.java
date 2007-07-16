@@ -77,6 +77,7 @@ public class SimpleFaultData {
     	FaultTrace faultTrace2 =  simpleFaultDataList.get(1).getFaultTrace();
     	double minDist = Double.MAX_VALUE, distance;
     	boolean reverse = false;
+    	ArrayList<Integer> reversedIndices = new ArrayList<Integer>();
     	distance = RelativeLocation.getHorzDistance(faultTrace1.getLocationAt(0), faultTrace2.getLocationAt(0));
     	if(distance<minDist) {
     		minDist = distance;
@@ -98,6 +99,7 @@ public class SimpleFaultData {
     		reverse=false;
     	}
     	if(reverse) {
+    		reversedIndices.add(0);
     		faultTrace1.reverse();
     		if( simpleFaultDataList.get(0).getAveDip()!=90)  simpleFaultDataList.get(0).setAveDip(- simpleFaultDataList.get(0).getAveDip());
     	}
@@ -106,6 +108,7 @@ public class SimpleFaultData {
     	double combinedDip=0, combinedUpperSeisDepth=0, totArea=0, totLength=0;
     	FaultTrace combinedFaultTrace = new FaultTrace("Combined Fault Sections");
     	int num = simpleFaultDataList.size();
+    	
     	for(int i=0; i<num; ++i) {
     		FaultTrace faultTrace = simpleFaultDataList.get(i).getFaultTrace();
     		int numLocations = faultTrace.getNumLocations();
@@ -116,6 +119,7 @@ public class SimpleFaultData {
     			double distance2 = RelativeLocation.getHorzDistance(lastLoc, faultTrace.getLocationAt(faultTrace.getNumLocations()-1));
     			if(distance2<distance1) { // reverse this fault trace
     				faultTrace.reverse();
+    				reversedIndices.add(i);
     				if(simpleFaultDataList.get(i).getAveDip()!=90) simpleFaultDataList.get(i).setAveDip(-simpleFaultDataList.get(i).getAveDip());
     			}
     			//  remove any loc that is within 1km of its neighbor
@@ -141,6 +145,13 @@ public class SimpleFaultData {
     			combinedDip+=(area*dip);
     		else combinedDip+=(area*(dip+180));
     		//System.out.println(dip+","+area+","+combinedDip+","+totArea);
+    	}
+    	
+    	// Revert back the fault traces that were reversed
+    	for(int i=0; i<reversedIndices.size(); ++i) {
+    		int index = reversedIndices.get(i);
+    		simpleFaultDataList.get(index).getFaultTrace().reverse();
+    		if(simpleFaultDataList.get(index).getAveDip()!=90) simpleFaultDataList.get(index).setAveDip(- simpleFaultDataList.get(index).getAveDip());
     	}
 
     	
