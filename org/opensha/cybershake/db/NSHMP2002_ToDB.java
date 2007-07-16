@@ -41,8 +41,8 @@ public class NSHMP2002_ToDB {
 			//Frankel02_AdjustableEqkRupForecastClient();
 			Frankel02_AdjustableEqkRupForecast();
 		//} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			 //TODO Auto-generated catch block
+		//	e.printStackTrace();
 		//}
 
 	    frankelForecast.getAdjustableParameterList().getParameter(
