@@ -4,6 +4,9 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -38,7 +41,7 @@ public class WriteTimeDepRupProbAndGain {
 	private ArrayList<Double> rupProbWtAve, rupProbWtAveAperiodTrue, rupProbWtAveAperiodFalse, rupProbMin, rupProbMax;
 	private ArrayList<Double> segGainWtAve, segGainWtAveAperiodTrue, segGainWtAveAperiodFalse, segGainMin, segGainMax;
 	private ArrayList<Double> rupGainWtAve, rupGainWtAveAperiodTrue, rupGainWtAveAperiodFalse, rupGainMin, rupGainMax;
-	
+	private HSSFCellStyle boldStyle;
 	
 	
 	public WriteTimeDepRupProbAndGain() {
@@ -68,12 +71,19 @@ public class WriteTimeDepRupProbAndGain {
 			 adjustableParamNames.add(param.getName());
 		 }
 		
+		
 		// add timespan parameters
 		it = ucerf2.getTimeSpan().getAdjustableParams().getParametersIterator();
 		while(it.hasNext()) {
 			 ParameterAPI param = (ParameterAPI)it.next();
 			 adjustableParamNames.add(param.getName());
 		 }
+		
+		// create bold font style
+		HSSFFont boldFont = wb.createFont();
+		boldFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		boldStyle = wb.createCellStyle();
+		boldStyle.setFont(boldFont);
 		
 		calcLogicTreeBranch(0, 1);
 		
@@ -384,7 +394,10 @@ public class WriteTimeDepRupProbAndGain {
 					HSSFRow row = this.adjustableParamsSheet.createRow(0);
 					row.createCell((short)0).setCellValue("Parameters"); 
 					for(int p=1; p<=adjustableParamNames.size(); ++p) {
-						adjustableParamsSheet.createRow(p).createCell((short)0).setCellValue(adjustableParamNames.get(p-1));
+						String adjParamName = adjustableParamNames.get(p-1);
+						HSSFCell cell = adjustableParamsSheet.createRow(p).createCell((short)0);
+						if(this.paramNames.contains(adjParamName)) cell.setCellStyle(this.boldStyle);
+						cell.setCellValue(adjParamName);
 					}
 					
 					
@@ -496,8 +509,11 @@ public class WriteTimeDepRupProbAndGain {
 				ParameterList timeSpanParamList = ucerf2.getTimeSpan().getAdjustableParams();
 				for(int p=1; p<=adjustableParamNames.size(); ++p) {
 					String parameterName = adjustableParamNames.get(p-1);
-					if(paramList.containsParameter(parameterName))
-						adjustableParamsSheet.getRow(p).createCell((short)loginTreeBranchIndex).setCellValue(paramList.getValue(parameterName).toString());
+					if(paramList.containsParameter(parameterName)) {
+						HSSFCell cell = adjustableParamsSheet.getRow(p).createCell((short)loginTreeBranchIndex);
+						if(this.paramNames.contains(parameterName)) cell.setCellStyle(this.boldStyle);
+						cell.setCellValue(paramList.getValue(parameterName).toString());
+					}
 					else if(timeSpanParamList.containsParameter(parameterName))
 						adjustableParamsSheet.getRow(p).createCell((short)loginTreeBranchIndex).setCellValue(timeSpanParamList.getValue(parameterName).toString());
 				}
