@@ -76,7 +76,6 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 * Trapezoidal integration. 
 	 */
 	protected void computeDistributions() {
-		
 		pdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		cdf = new EvenlyDiscretizedFunc(0,numPoints,deltaX);
 		// set first y-values to zero
