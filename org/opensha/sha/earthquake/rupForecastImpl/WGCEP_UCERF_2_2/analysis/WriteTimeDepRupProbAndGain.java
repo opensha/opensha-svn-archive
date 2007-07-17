@@ -27,7 +27,21 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_Fau
 public class WriteTimeDepRupProbAndGain {
 	
 	
-	private final static String README_TEXT = "Write Readme Text here";
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Gain, Segment Probability,\n"+
+		"and Segment Gain (each on a different sheet) for all Type-A fault segmented models,\n"+
+		"and for all 24 relevant logic-tree branches (in columns B through Y) described in Appendix N.\n"+
+		"The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\"\n"+
+		"sheet, where those that vary between branches are in bold typeface.  The total aggregated\n"+
+		"rupture probability for each fault is given at the bottom of the list for each fault.\n"+
+		"Column Z gives the weighted average value (over all logic tree branches, where the weights\n"+
+		"are given on row 147 on the Rupture Probability & Gain sheet and row 52 on the Segment Probability\n"+
+		"and Gain sheet.  Columns AA and AB give the Min and Max, respectively, among all the logic-tree\n"+
+		"branches.  Column AC gives the weight average considering only the \"Seg Dependent Aperiodicity\"\n"+
+		"= \"false\" branches, and column AD gives the weight average for the \"true\" case (separated\n"+
+		"in order to easily see the influence of this on the average).  \"Gain\" is defined as the ratio\n"+
+		"of the probability to the Poisson probability.  Note that the weighted averages for the gains are\n"+
+		"the individual ratios averaged, which is not the same as the weight-averaged probability divided by\n"+
+		"the weight-averaged Poisson probability (the latter is probably more correct).";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
