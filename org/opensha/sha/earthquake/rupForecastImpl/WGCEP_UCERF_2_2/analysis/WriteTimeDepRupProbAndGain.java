@@ -34,7 +34,7 @@ public class WriteTimeDepRupProbAndGain {
 	private UCERF2 ucerf2;
 	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet, adjustableParamsSheet, readmeSheet;
 	private int loginTreeBranchIndex = 0;
-	private final static String FILENAME = "RupSegProbGain.xls";
+	private final static String FILENAME = "RupSegProbGain_BPT_30yrs.xls";
 	private static double DURATION = 30;
 	private ArrayList<String> adjustableParamNames;
 	private ArrayList<Double> segProbWtAve, segProbWtAveAperiodTrue, segProbWtAveAperiodFalse, segProbMin, segProbMax;
@@ -60,7 +60,8 @@ public class WriteTimeDepRupProbAndGain {
 		rupGainSheet = wb.createSheet("Rupture Gain");
 		segProbSheet = wb.createSheet("Segment Probability");
 		segGainSheet = wb.createSheet("Segment Gain");
-		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration to be 30 years
+		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_BPT);
+		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration 
 		
 		// Save names of all adjustable parameters
 		ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
@@ -426,7 +427,9 @@ public class WriteTimeDepRupProbAndGain {
 					++rupRowIndex;
 					// loop over all ruptures
 					double rupProb, rupGain;
-					boolean isSegDepAperiodicity = ((Boolean)ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).getValue()).booleanValue();
+					boolean isSegDepAperiodicity = false;
+					if(ucerf2.getAdjustableParameterList().containsParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME))
+						isSegDepAperiodicity = ((Boolean)ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).getValue()).booleanValue();
 					for(int rupIndex=0; rupIndex<numRups; ++rupIndex, ++totRupsIndex) {
 						rupProb = sourceGen.getRupSourceProb(rupIndex);
 						
