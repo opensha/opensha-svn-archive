@@ -27,21 +27,21 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.A_Faults.A_Fau
 public class WriteTimeDepRupProbAndGain {
 	
 	
-	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Gain, Segment Probability,\n"+
-		"and Segment Gain (each on a different sheet) for all Type-A fault segmented models,\n"+
-		"and for all 24 relevant logic-tree branches (in columns B through Y) described in Appendix N.\n"+
-		"The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\"\n"+
-		"sheet, where those that vary between branches are in bold typeface.  The total aggregated\n"+
-		"rupture probability for each fault is given at the bottom of the list for each fault.\n"+
-		"Column Z gives the weighted average value (over all logic tree branches, where the weights\n"+
-		"are given on row 147 on the Rupture Probability & Gain sheet and row 52 on the Segment Probability\n"+
-		"and Gain sheet.  Columns AA and AB give the Min and Max, respectively, among all the logic-tree\n"+
-		"branches.  Column AC gives the weight average considering only the \"Seg Dependent Aperiodicity\"\n"+
-		"= \"false\" branches, and column AD gives the weight average for the \"true\" case (separated\n"+
-		"in order to easily see the influence of this on the average).  \"Gain\" is defined as the ratio\n"+
-		"of the probability to the Poisson probability.  Note that the weighted averages for the gains are\n"+
-		"the individual ratios averaged, which is not the same as the weight-averaged probability divided by\n"+
-		"the weight-averaged Poisson probability (the latter is probably more correct).";
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Gain, Segment Probability,"+
+		" and Segment Gain (each on a different sheet) for all Type-A fault segmented models,"+
+		" and for all 24 relevant logic-tree branches (in columns B through Y) described in Appendix N."+
+		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
+		" sheet, where those that vary between branches are in bold typeface.  The total aggregated"+
+		" rupture probability for each fault is given at the bottom of the list for each fault."+
+		" Column Z gives the weighted average value (over all logic tree branches, where the weights"+
+		" are given on row 147 on the Rupture Probability & Gain sheet and row 52 on the Segment Probability"+
+		" and Gain sheet.  Columns AA and AB give the Min and Max, respectively, among all the logic-tree"+
+		" branches.  Column AC gives the weight average considering only the \"Seg Dependent Aperiodicity\""+
+		" = \"false\" branches, and column AD gives the weight average for the \"true\" case (separated"+
+		" in order to easily see the influence of this on the average).  \"Gain\" is defined as the ratio"+
+		" of the probability to the Poisson probability.  Note that the weighted averages for the gains are"+
+		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
+		" the weight-averaged Poisson probability (the latter is probably more correct).";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
@@ -56,7 +56,7 @@ public class WriteTimeDepRupProbAndGain {
 	private ArrayList<Double> segGainWtAve, segGainWtAveAperiodTrue, segGainWtAveAperiodFalse, segGainMin, segGainMax;
 	private ArrayList<Double> rupGainWtAve, rupGainWtAveAperiodTrue, rupGainWtAveAperiodFalse, rupGainMin, rupGainMax;
 	private HSSFCellStyle boldStyle;
-	
+	private final static double NORMALIZATION_FACTOR=2;
 	
 	public WriteTimeDepRupProbAndGain() {
 		this(new UCERF2());
@@ -106,7 +106,11 @@ public class WriteTimeDepRupProbAndGain {
 		writeWeightAvMinMaxCols();
 		
 		// write README
-		readmeSheet.createRow(0).createCell((short)0).setCellValue(README_TEXT);
+		readmeSheet.setColumnWidth((short)0,(short) (51200)); // 256 * number of desired characters
+		HSSFCellStyle wrapCellStyle = wb.createCellStyle();
+		wrapCellStyle.setWrapText(true);
+		readmeSheet.createRow(0).createCell((short)0).setCellStyle(wrapCellStyle);
+		readmeSheet.getRow(0).getCell((short)0).setCellValue(README_TEXT);
 		
 		
 		// write  excel sheet
@@ -129,30 +133,39 @@ public class WriteTimeDepRupProbAndGain {
 		int rupRowIndex = 0, segRowIndex=0;
 		int colIndex = loginTreeBranchIndex+1;
 		
+		boolean isPoisson = ((String)(ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).getValue())).equalsIgnoreCase(UCERF2.PROB_MODEL_POISSON);
+		
 		rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
-		rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		if(!isPoisson) {
+			rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
+			rupProbSheet.createRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		}
 		
 		rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
-		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		if(!isPoisson) {
+			rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
+			rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		}
 		
 		segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
-		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		if(!isPoisson) {
+			segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
+			segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		}
 		
 		segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
-		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
-	
+		if(!isPoisson) {
+			segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue("Weighted Av1 (Seg Dependent Aperiodicity = true) ");
+			segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue("Weighted Av2 (Seg Dependent Aperiodicity = false) ");
+		}
 		++rupRowIndex;
 		++segRowIndex;
 		++rupRowIndex;
@@ -171,28 +184,35 @@ public class WriteTimeDepRupProbAndGain {
 				rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve.get(totRupsIndex));
 				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin.get(totRupsIndex));
 				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax.get(totRupsIndex));
-				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupProbWtAveAperiodTrue.get(totRupsIndex));
-				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupProbWtAveAperiodFalse.get(totRupsIndex));
-				
+				if(!isPoisson) {
+					rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupProbWtAveAperiodTrue.get(totRupsIndex)*NORMALIZATION_FACTOR);
+					rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupProbWtAveAperiodFalse.get(totRupsIndex)*NORMALIZATION_FACTOR);
+				}
 				rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGainWtAve.get(totRupsIndex));
 				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupGainMin.get(totRupsIndex));
 				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupGainMax.get(totRupsIndex));
-				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupGainWtAveAperiodTrue.get(totRupsIndex));
-				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupGainWtAveAperiodFalse.get(totRupsIndex));
+				if(!isPoisson) {
+					rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupGainWtAveAperiodTrue.get(totRupsIndex)*NORMALIZATION_FACTOR);
+					rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupGainWtAveAperiodFalse.get(totRupsIndex)*NORMALIZATION_FACTOR);
+				}
 				++rupRowIndex;
 			}
 
 			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve.get(totRupsIndex));
 			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin.get(totRupsIndex));
 			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax.get(totRupsIndex));
-			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupProbWtAveAperiodTrue.get(totRupsIndex));
-			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupProbWtAveAperiodFalse.get(totRupsIndex));
+			if(!isPoisson) {
+				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupProbWtAveAperiodTrue.get(totRupsIndex)*NORMALIZATION_FACTOR);
+				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupProbWtAveAperiodFalse.get(totRupsIndex)*NORMALIZATION_FACTOR);
+			}
 			
 			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGainWtAve.get(totRupsIndex));
 			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupGainMin.get(totRupsIndex));
 			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupGainMax.get(totRupsIndex));
-			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupGainWtAveAperiodTrue.get(totRupsIndex));
-			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupGainWtAveAperiodFalse.get(totRupsIndex));
+			if(!isPoisson) {
+				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+3)).setCellValue(rupGainWtAveAperiodTrue.get(totRupsIndex)*NORMALIZATION_FACTOR);
+				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+4)).setCellValue(rupGainWtAveAperiodFalse.get(totRupsIndex)*NORMALIZATION_FACTOR);
+			}
 			++totRupsIndex;
 			++rupRowIndex;
 			
@@ -206,14 +226,17 @@ public class WriteTimeDepRupProbAndGain {
 				segProbSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segProbWtAve.get(totSegsIndex));
 				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segProbMin.get(totSegsIndex));
 				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segProbMax.get(totSegsIndex));
-				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue(segProbWtAveAperiodTrue.get(totSegsIndex));
-				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue(segProbWtAveAperiodFalse.get(totSegsIndex));
-				
+				if(!isPoisson) {
+					segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue(segProbWtAveAperiodTrue.get(totSegsIndex)*NORMALIZATION_FACTOR);
+					segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue(segProbWtAveAperiodFalse.get(totSegsIndex)*NORMALIZATION_FACTOR);
+				}
 				segGainSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segGainWtAve.get(totSegsIndex));
 				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segGainMin.get(totSegsIndex));
 				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segGainMax.get(totSegsIndex));
-				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue(segGainWtAveAperiodTrue.get(totSegsIndex));
-				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue(segGainWtAveAperiodFalse.get(totSegsIndex));
+				if(!isPoisson) {
+					segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+3)).setCellValue(segGainWtAveAperiodTrue.get(totSegsIndex)*NORMALIZATION_FACTOR);
+					segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+4)).setCellValue(segGainWtAveAperiodFalse.get(totSegsIndex)*NORMALIZATION_FACTOR);
+				}
 				++segRowIndex;
 			}
 		}
@@ -411,7 +434,10 @@ public class WriteTimeDepRupProbAndGain {
 					for(int p=1; p<=adjustableParamNames.size(); ++p) {
 						String adjParamName = adjustableParamNames.get(p-1);
 						HSSFCell cell = adjustableParamsSheet.createRow(p).createCell((short)0);
-						if(this.paramNames.contains(adjParamName)) cell.setCellStyle(this.boldStyle);
+						if(this.paramNames.contains(adjParamName) ||
+								adjParamName.equalsIgnoreCase(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME) ||
+								adjParamName.equalsIgnoreCase(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME)) 
+							cell.setCellStyle(this.boldStyle);
 						cell.setCellValue(adjParamName);
 					}
 					
@@ -528,7 +554,10 @@ public class WriteTimeDepRupProbAndGain {
 					String parameterName = adjustableParamNames.get(p-1);
 					if(paramList.containsParameter(parameterName)) {
 						HSSFCell cell = adjustableParamsSheet.getRow(p).createCell((short)loginTreeBranchIndex);
-						if(this.paramNames.contains(parameterName)) cell.setCellStyle(this.boldStyle);
+						if(this.paramNames.contains(parameterName) ||
+								parameterName.equalsIgnoreCase(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME) ||
+								parameterName.equalsIgnoreCase(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME)) 
+							cell.setCellStyle(this.boldStyle);
 						cell.setCellValue(paramList.getValue(parameterName).toString());
 					}
 					else if(timeSpanParamList.containsParameter(parameterName))
