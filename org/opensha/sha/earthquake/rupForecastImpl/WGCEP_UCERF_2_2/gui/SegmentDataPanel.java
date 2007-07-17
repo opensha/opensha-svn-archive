@@ -875,7 +875,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				return EVENT_RATE_FORMAT.format(segmentedSource.getFinalSegmentRate(rowIndex));
 			case 14:
 				if(segmentedSource==null) return "";
-				return SLIP_RATE_FORMAT.format(segmentedSource.getSegProb(rowIndex));
+				return MOMENT_FORMAT.format(segmentedSource.getSegProb(rowIndex));
 			case 15:
 				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegProbGain(rowIndex));

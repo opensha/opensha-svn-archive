@@ -371,7 +371,7 @@ public class UCERF2 extends EqkRupForecast {
 	private BooleanParameter segDepAperiodicityParam;
 
 	// Time duration
-	private final static double DURATION_DEFAULT = 50;
+	private final static double DURATION_DEFAULT = 30;
 	private final static double DURATION_MIN = 1;
 	private final static double DURATION_MAX = 100;
 
@@ -1139,7 +1139,7 @@ public class UCERF2 extends EqkRupForecast {
 			if(isTimeIndepenent) // time Independent
 				allSources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
 			else { // Time dependence
-//				allSources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
+				allSources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
 			}
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
