@@ -1,6 +1,10 @@
 package org.opensha.sha.gui.infoTools;
 import java.awt.*;
 import javax.swing.*;
+
+import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersDBDAO;
+import org.opensha.sha.gui.servlets.user_auth_db.OpenSHA_UsersVO;
+
 import java.net.*;
 import java.io.*;
 import java.net.*;
@@ -33,7 +37,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
 
 
   //Servlet address
-  private final static String SERVLET_ADDRESS = "http://scecdata.usc.edu:8081/CME/CheckAuthorizationServlet";
+  private final static String SERVLET_ADDRESS = "http://gravity.usc.edu/OpenSHA/servlet/CheckAuthorizationServlet";
   JButton newUserButton = new JButton();
   JButton forgetPassButton = new JButton();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -275,6 +279,9 @@ public class UserAuthorizationCheckWindow extends JFrame {
       Boolean auth = (Boolean) fromServlet.readObject();
       fromServlet.close();
       return auth.booleanValue();
+      //OpenSHA_UsersDBDAO dao = new OpenSHA_UsersDBDAO();
+      //OpenSHA_UsersVO userInfo  = dao.getUserInfo(username, password);
+      //return (userInfo!=null);
     }
     catch (Exception e) {
       e.printStackTrace();

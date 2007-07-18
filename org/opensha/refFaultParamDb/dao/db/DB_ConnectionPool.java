@@ -39,7 +39,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     private String pid;
 
     private final int DEFAULTMAXCHECKOUTSECONDS=60;
-    private final int DEFAULTDEBUGLEVEL=0;
+    private final int DEFAULTDEBUGLEVEL=1;
 
 
 
@@ -215,6 +215,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
                 throw new IOException();
             }
         } catch (Exception e) {
+        	e.printStackTrace();
             throw new IOException();
         }
 
@@ -554,6 +555,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
             connLockTime[i]=0;
             connCreateDate[i] =  now.getTime();
         } catch (ClassNotFoundException e2) {
+        	
             if(debugLevel > 0) {
                 log.println("Error creating connection: " + e2);
             }
