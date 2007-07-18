@@ -41,7 +41,8 @@ public class WriteTimeDepRupProbAndGain {
 		" in order to easily see the influence of this on the average).  \"Gain\" is defined as the ratio"+
 		" of the probability to the Poisson probability.  Note that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
-		" the weight-averaged Poisson probability (the latter is probably more correct).";
+		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
+		" Appendix N).";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
