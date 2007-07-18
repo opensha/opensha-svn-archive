@@ -48,6 +48,7 @@
 	  	<pathelement location="${Required.Libraries.home}/junit.jar"/>
 	  	<pathelement location="${Required.Libraries.home}/nnls.jar"/>
 	  	<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
+	  	<pathelement location="${Required.Libraries.home}/mysql-connector-java-3.1.6-bin.jar" />
 	    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
 	    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
 	    <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
@@ -153,6 +154,7 @@
 	    <unjar src="${Required.Libraries.home}/jpedal.jar" dest="${dest}" />
 	  	<unjar src="${Required.Libraries.home}/jcommon-1.0.5.jar" dest="${dest}" />
 	  	<unjar src="${Required.Libraries.home}/jfreechart-1.0.2.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/mysql-connector-java-3.1.6-bin.jar" dest="${dest}" />
 	  </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
     <jar destfile="HazardCurveServerModeApp.jar" basedir="${dest}" manifest="HazCurveServerMode_MANIFEST.MF">

@@ -56,7 +56,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
 
 
-  protected final static String version = "0.0.7";
+  protected final static String version = "0.0.8";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazMapApps/HazMapApps_Version.txt";
   protected final static String appURL = "http://gravity.usc.edu/OpenSHA/HazardDataSetCalcCondorApp.jar";
