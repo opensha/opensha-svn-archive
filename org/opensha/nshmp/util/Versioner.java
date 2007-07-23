@@ -18,9 +18,9 @@ public class Versioner {
 	private static final String GET_CHANGES = 
 		"http://earthquake.usgs.gov/research/hazmaps/design/updates.php";
 
-	private static String ERROR = 
-		"Connection failed.  Our servers may be temporarily down for maintenance.\n" + 
-		"If the problem persists please contact emartinez@usgs.gov for support.";
+//	private static String ERROR = 
+//		"Connection failed.  Our servers may be temporarily down for maintenance.\n" + 
+//		"If the problem persists please contact emartinez@usgs.gov for support.";
 
 	private static String START_READ =
 		"<!-- BEGIN RECENT REVISION -->";
