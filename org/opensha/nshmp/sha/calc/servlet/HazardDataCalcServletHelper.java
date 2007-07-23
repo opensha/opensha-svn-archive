@@ -23,8 +23,8 @@ public class HazardDataCalcServletHelper {
 	// Cycle these comments as you release new versions
 		//if (methodName.endsWith("_V4") ) {
 		//if (methodName.endsWith("_V5") ) {
-		if (methodName.endsWith("_V6") ) {
-		//if (methodName.endsWith("_V7") ) {
+		//if (methodName.endsWith("_V6") ) {
+		if (methodName.endsWith("_V7") ) {
 		//if (methodName.endsWith("_V8") ) {
 		//if (methodName.endsWith("_V9") ) {
 			methodName = methodName.substring(0, methodName.length() - 3);

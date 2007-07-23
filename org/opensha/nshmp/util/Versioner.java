@@ -62,9 +62,9 @@ public class Versioner {
 				setConnection();
 			}
 
-			setUpdates();    // Sets the updates
-			setAllUpdates();
 		} 
+		setUpdates();    // Sets the updates
+		setAllUpdates();
 
 	}
 
