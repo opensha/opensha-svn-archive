@@ -36,11 +36,11 @@ public class WriteTimeDepRupProbAndGain {
 		" Column N gives the weighted average value (over all logic tree branches, where the weights"+
 		" are given on row 147 on the Rupture Probability & Gain sheet and row 52 on the Segment Probability"+
 		" and Gain sheet.  Columns O and P give the Min and Max, respectively, among all the logic-tree"+
-		" branches. \"Gain\" is defined as the ratio"+
-		" of the probability to the Poisson probability.  Note that the weighted averages for the gains are"+
+		" branches. \"Gain\" is defined as the ratio of the probability to the Poisson probability.  Note" +
+		" that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
 		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
-		" Appendix N).";
+		" Appendix N). The \"Segment Rate\" sheet gives data on the annual rate of events on each segment.";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
@@ -58,16 +58,16 @@ public class WriteTimeDepRupProbAndGain {
 	private HSSFCellStyle boldStyle;
 	
 	// change these parameters for every run
-	private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
-	//private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
-	//private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
-	//private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
-	//private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
-	//private final static String FILENAME = "RupSegProbGain_BPT_30yrs_SegDepAperiodicityTrue.xls";
+	//private final static String FILENAME = "RupProbs_BPT_30yr_SegDepAper.xls";
+	//private final static String FILENAME = "RupProbs_BPT_5yr_SegDepAper.xls";
+	//private final static String FILENAME = "RupProbs_BPT_30yr_ConstAper.xls";
+	//private final static String FILENAME = "RupProbs_BPT_5yr_ConstAper.xls";
+	//private final static String FILENAME = "RupProbs_Pois_30yr.xls";
+	private final static String FILENAME = "RupProbs_Pois_5yr.xls";
 	
-	private static double DURATION = 30;
-	private final static Boolean SEG_DEP_APERIODICITY = new Boolean(true);
-	private final static String PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
+	private static double DURATION = 5;
+	private final static Boolean SEG_DEP_APERIODICITY = new Boolean(false);
+	private final static String PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 	
 	
 	public WriteTimeDepRupProbAndGain() {
