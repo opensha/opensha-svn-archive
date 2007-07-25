@@ -30,7 +30,8 @@ import javax.swing.JOptionPane;
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  */
 public class AppConfigurer {
-	public static final String JAVA_HOME = System.getProperty("java.home"); 
+	// Okay, so not really "Java Home", but this is more suitable
+	public static final String JAVA_HOME = System.getProperty("user.home"); 
 	public static final String SLASH = System.getProperty("file.separator");
 	private static final String CONFIG_FILE = JAVA_HOME + SLASH + "NSHMP_CONFIG"; 
 
@@ -105,14 +106,15 @@ public class AppConfigurer {
 		the first values (index 0) containing the proxyHost to use and
 		the second value (index 1) containing the proxyPort to be used.
 	*/
-	private static ArrayList getProxyFromConfigFile() {
+	@SuppressWarnings("finally")
+	private static ArrayList<String> getProxyFromConfigFile() {
 		File f  = new File(CONFIG_FILE);
 		if (!f.exists()) { return null;}
 
 		String line;
 		String proxyHost = "";
 		String proxyPort = "";
-		ArrayList arr = null;
+		ArrayList<String> arr = null;
 
 		try {
 			BufferedReader bin = new BufferedReader(new FileReader(f));
@@ -122,7 +124,7 @@ public class AppConfigurer {
 				if (line.startsWith("proxy_port:") )
 					proxyPort = line.substring(11);
 				if ( (proxyHost != "") && (proxyPort != "") ) {
-					arr = new ArrayList();
+					arr = new ArrayList<String>();
 					break;
 				}
 			}
@@ -153,8 +155,8 @@ public class AppConfigurer {
 		proxyPort.  Then returns an array list with the 0 index containing the
 		proxyHost and the 1 index containing the proxyPort.
 	*/
-	private static ArrayList getProxyFromUser_GuiMode() {
-		ArrayList arr = new ArrayList();
+	private static ArrayList<String> getProxyFromUser_GuiMode() {
+		ArrayList<String> arr = new ArrayList<String>();
 		String proxyHost = JOptionPane.showInputDialog(null, "Please enter the " +
 			"name of the proxy server you wish to use.", "Proxy Host Name",
 			JOptionPane.INFORMATION_MESSAGE);
