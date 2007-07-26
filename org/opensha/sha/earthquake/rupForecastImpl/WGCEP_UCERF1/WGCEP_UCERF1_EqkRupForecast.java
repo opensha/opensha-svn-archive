@@ -1116,6 +1116,69 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
      return mo;
    }
    
+   
+  public void writeA_FaultTotalProbs() {
+	   
+	   // Note that these indeces are for the time-dependent model, and those for the time-ind model are different
+	   // due to an extra source for San Bernardino in ca-amod2 here 
+	   // (see email from Cao on 3/27/07 saying this is not an error)
+	   int sjf_sources[] = {1,2,3,4,5,6};  // sj10 Anza includes the new Clark, and sj14 is superstion hills (don't include)
+	   int elsinore_sources[] = {7,8,9,10,11};  // last one is whittier
+	   int ssaf_sources[] = {0,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38};
+	   int ssaf_noParkfield_sources[] = {15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38};
+	   
+	   int nsaf_sources[] = {39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,
+			   67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93, 94,390};
+	   
+	   int hrc_sources[] = {95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,
+			   120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,142,143,391};
+	   
+	   int calaveras_sources[] = {144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,
+			   164,165,166,167,168,392,393};
+	   int con_greenValley_sources[] = {169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,
+			   188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,394};
+	   
+	   int sanGregorio_sources[] = {207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,395};
+	   int greenville_sources[] = {227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,
+			   249,250,251,252,396};
+	   int mtDiablo_sources[] = {253,254,255,256,257,258,259,260,261};
+	   
+	   ArrayList<int[]> srcList = new ArrayList<int[]>();
+	   srcList.add(sjf_sources);
+	   srcList.add(elsinore_sources);
+	   srcList.add(nsaf_sources);
+	   srcList.add(ssaf_sources);
+	   srcList.add(ssaf_noParkfield_sources);
+	   srcList.add(hrc_sources);
+	   srcList.add(calaveras_sources);
+	   srcList.add(con_greenValley_sources);
+	   srcList.add(sanGregorio_sources);
+	   srcList.add(greenville_sources);
+	   srcList.add(mtDiablo_sources);
+
+	   String[] faultNames = {"SJF", "Elsinore", "N-SAF", "S-SAF", "S-SAF w/out Parkfield", "HRC", "Calaveras", 
+			   "Concord-GreenValley", "San Gregorio", "Greenville","Mt Diablo" };
+	   
+	   // make it time dependent
+	   timeDependentParam.setValue(new Boolean(true));
+	   getTimeSpan().setDuration(30);
+	   updateForecast();
+	   ProbEqkSource probSrc;
+	   
+	   System.out.println("Aggregate 30-year probabilities for faults in UCERF 1");
+	   // Loop over all faults
+	   for(int faultIndex=0; faultIndex<faultNames.length; ++faultIndex) {
+		   int[] sources = srcList.get(faultIndex);
+		   double totProb=1;
+		   for(int index=0; index<sources.length; index++){
+			   probSrc = getSource(sources[index]);
+			   totProb *= (1-probSrc.computeTotalProb());
+		   }
+		   System.out.println((float)(1-totProb)+"\t"+faultNames[faultIndex]);
+	   }
+  }
+   
+   
    /**
     * This gives MFDs for each source that are comparable to UCERF 2
     * This assumes time-ind.and otherwise default values in the calculation.
@@ -1308,15 +1371,20 @@ Mount Diablo (no floater here)
    public static void main(String[] args) {
 
      WGCEP_UCERF1_EqkRupForecast frankCast = new WGCEP_UCERF1_EqkRupForecast();
-     frankCast.timeDependentParam.setValue(new Boolean(false));
+     frankCast.writeA_FaultTotalProbs();
+/*     
+     frankCast.timeDependentParam.setValue(new Boolean(true));
+//     frankCast.timeDependentParam.setValue(new Boolean(false));
+     frankCast.getTimeSpan().setDuration(30);
      frankCast.updateForecast();
 
      int totSrc= frankCast.getNumSources();
      for(int i=0; i<totSrc; i++){
        ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
-       System.out.println(i+"\t"+src.getName());
+//       System.out.println(i+"\t"+src.getName());
+       System.out.println(i+"\t"+(float)src.computeTotalProb()+"\t"+src.getName());
      }
-
+*/
 //     frankCast.writeA_FaultMFDs();
      
 /*
