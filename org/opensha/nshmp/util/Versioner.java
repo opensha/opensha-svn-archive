@@ -58,11 +58,20 @@ public class Versioner {
 
 			// If yes, then configure the proxy settings and try to connect again
 			if (ans == JOptionPane.OK_OPTION) {
-				AppConfigurer.setProxyConfig(true);
+				String proxyHost = JOptionPane.showInputDialog(null, "Please enter the " +
+						"name of the proxy server you wish to use.", "Proxy Host Name",
+						JOptionPane.INFORMATION_MESSAGE);
+				String proxyPort = JOptionPane.showInputDialog(null, "Please enter the " +
+					"port number to use on this proxy.", "Proxy Port Number",
+					JOptionPane.INFORMATION_MESSAGE);
+				
+				AppProperties.setProperty(AppProperties.PROXY_HOST, proxyHost);
+				AppProperties.setProperty(AppProperties.PROXY_PORT, proxyPort);
 				setConnection();
 			}
 
-		} 
+		}
+		
 		setUpdates();    // Sets the updates
 		setAllUpdates();
 
@@ -163,6 +172,10 @@ public class Versioner {
 	 * @return connection boolean, true if connected successfully, else false
 	 */
 	private static void setConnection() {
+
+		// Set these such that the application has the best chance at succeeding
+		AppProperties.setSystemProperty(AppProperties.PROXY_HOST);
+		AppProperties.setSystemProperty(AppProperties.PROXY_PORT);
 		try {
 			URL url = new URL(PATH);
 			BufferedReader bin = new BufferedReader(

@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
  * TODO: Allow further customization through the configurations.
  *
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ * @deprecated Use AppProperties
  */
 public class AppConfigurer {
 	// Okay, so not really "Java Home", but this is more suitable
