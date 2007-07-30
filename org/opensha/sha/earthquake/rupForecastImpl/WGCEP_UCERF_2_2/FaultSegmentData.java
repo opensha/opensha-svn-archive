@@ -68,6 +68,18 @@ public class FaultSegmentData {
 	}
 	
 	/**
+	 * an ArrayList containing N ArrayLists (one for each segment), 
+  	 * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
+  	 * It is assumed that these are in proper order such that concatenating the FaultTraces will produce
+  	 * a total FaultTrace with locations in the proper order.
+  	 * 
+	 * @return
+	 */
+	public ArrayList getSectionToSegmentData() {
+		return this.sectionToSegmentData;
+	}
+	
+	/**
 	 * This returns the name of the fault.
 	 * @return
 	 */
