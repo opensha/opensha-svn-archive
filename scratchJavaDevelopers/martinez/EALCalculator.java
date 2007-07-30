@@ -155,35 +155,9 @@ public class EALCalculator {
 		double iml_delta, df_delta;
 		double g = 0.0;
 		double holder = 0.0;
-		double holder2 = 0.0;
 		
 		double R = 0.0;
 		double V = structValue;
-		
-		System.err.println(structValue);
-
-		// Display the IML
-		//System.err.print("IML Values = (");
-		for(int i = 0; i < IML.size(); ++i) {
-			//System.err.print(IML.get(i) + ", ");	
-		}
-		//System.err.println(")");
-		
-		// Display the DF
-		//System.err.print("DF Values = (");
-		for(int i = 0; i < DF.size(); ++i) {
-		//	System.err.print(DF.get(i) + ", ");
-		}
-		//System.err.println(")");
-		
-		// Display the MAFE
-		//System.err.print("MAFE Values = (");
-		
-		System.err.println("s	y	G	g	dy	q");
-		for(int i = 0; i < MAFE.size(); ++i) {
-		//	System.err.print(MAFE.get(i) + ", ");
-		}
-		//System.err.println(")");
 		
 		for(int i = 1; i < IML.size(); ++i) {
 			iml_cur = IML.get(i);
@@ -199,18 +173,11 @@ public class EALCalculator {
 					
 			// Get the log-linear slope of the curve
 			g = (Math.log((mafe_cur/mafe_pre)) / iml_delta);
-			
-			//System.err.println("Log linear slope is: " + g);
-			
-			holder2 = (df_pre * mafe_pre) * (1.0 - Math.exp(g * iml_delta))
-					- 
-						(df_delta / iml_delta) * mafe_pre *
-						( Math.exp(g * iml_delta) * (iml_delta - 1.0 / g) + 1.0 / g );
 					
 			holder = (df_pre*mafe_pre)*(1.0 - Math.exp( (g*iml_delta) ) );
 			holder -= ( 
 					( 
-							(df_delta/iml_delta) //*(mafe_pre) 
+							(df_delta/iml_delta) * (mafe_pre) 
 					)*
 					( 
 							Math.exp( (g*iml_delta) ) 
@@ -218,10 +185,6 @@ public class EALCalculator {
 							+ (1.0/g) 
 					) 
 					);
-			
-			System.err.printf("%5.4f	%5.4f	%5.4f	%5.4f	%5.4f	%6.5f\n",
-					iml_cur, df_cur, mafe_cur, g, df_delta, holder
-			);
 			
 			answer += holder;
 			
