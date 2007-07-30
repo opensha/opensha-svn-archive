@@ -23,7 +23,6 @@ public class HazardDataCalc
 
   /**
    *
-   * @param hazardCurveFunction ArbitrarilyDiscretizedFunc
    * @param fex double Frequency of exceedance = 1/ReturnPd
    * @param expTime double
    * @return double
@@ -145,8 +144,7 @@ public class HazardDataCalc
    * Used for getting the SA values for the UHS
    * @param selectedRegion String
    * @param selectedEdition String
-   * @param latitude double
-   * @param longitude double
+   * @param zipCode The 5 character zip code of interest
    * @param spectraType String
    * @return DiscretizedFuncList
    */
@@ -240,8 +238,6 @@ public class HazardDataCalc
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc
-   * @param fa float
-   * @param fv float
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList computeMapSpectrum(ArbitrarilyDiscretizedFunc
