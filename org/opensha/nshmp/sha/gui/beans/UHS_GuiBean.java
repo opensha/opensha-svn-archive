@@ -426,9 +426,14 @@ public class UHS_GuiBean
       String zipCode = locGuiBean.getZipCode();
       dataGenerator.calculateUHS(zipCode);
     } else if (locationMode == BatchLocationBean.BAT_MODE) {
-    	ArrayList<Location> locations = locGuiBean.getBatchLocations();
-    	String outFile = locGuiBean.getOutputFile();
-    	dataGenerator.calculateUHS(locations, outFile);
+    	Thread t = new Thread(new Runnable() {
+    		public void run() {
+    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	    	String outFile = locGuiBean.getOutputFile();
+    	    	dataGenerator.calculateUHS(locations, outFile);
+    		}
+    	});
+    	t.start();
     }
   }
 

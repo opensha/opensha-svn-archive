@@ -27,6 +27,8 @@ import org.opensha.nshmp.sha.calc.HazardCurveCalculator;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves;
 import org.opensha.nshmp.util.GlobalConstants;
 
+import scratchJavaDevelopers.martinez.util.BatchProgress;
+
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
  *
@@ -176,7 +178,11 @@ public class DataGenerator_HazardCurves
 		 }
 		 
 		 // Write the data information
+		 int answer = 1;
+		 BatchProgress bp = new BatchProgress("Computing Hazard Curves", locations.size());
+		 bp.start();
 		 for(int i = 0; i < locations.size(); ++i) {
+			 bp.update(i+1);
 			 xlRow = xlSheet.createRow(i+startRow);
 			 double curLat = locations.get(i).getLatitude();
 			 double curLon = locations.get(i).getLongitude();
@@ -192,9 +198,18 @@ public class DataGenerator_HazardCurves
 				curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(function.getInfo()).replaceAll("");
 				curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
 				curGridSpacing += " Degrees";
-			} catch (RemoteException e) {
-				JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-						curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			} catch (Exception e) {
+				if(answer != 0) {
+					Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Cancel Calculations"};
+					answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+								curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+								JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+				}
+				if(answer == 2) {
+					bp.update(locations.size());
+					break;
+				}
+				
 				function = new ArbitrarilyDiscretizedFunc();
 				curGridSpacing = "Location out of Region";
 			} finally {

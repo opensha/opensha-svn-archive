@@ -24,6 +24,8 @@ import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.sha.data.calc.ResidentialSiteCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
+import scratchJavaDevelopers.martinez.util.BatchProgress;
+
 
 
 /**
@@ -167,7 +169,11 @@ public class DataGenerator_IRC
 	 }
 	 
 	 // Write the data information
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing Residential Design Values", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -190,25 +196,38 @@ public class DataGenerator_IRC
 			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
 			curGridSpacing += " Degrees";
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Cancel Calculations"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			
 			curGridSpacing = "Location out of Region";
 		} finally {
-		 xlRow.createCell((short) 0).setCellValue(curLat);
-		 xlRow.createCell((short) 1).setCellValue(curLon);
-		 xlRow.createCell((short) 2).setCellValue("D");
-		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
-		 xlRow.createCell((short) 4).setCellValue(
-				 Double.parseDouble(siteValFormat.format(faVal)));
-		 xlRow.createCell((short) 5).setCellValue(
-				 Double.parseDouble(siteValFormat.format(fvVal)));
-		 xlRow.createCell((short) 6).setCellValue(
-				 Double.parseDouble(siteValFormat.format(ssVal)));
-		 xlRow.createCell((short) 7).setCellValue(
-				 Double.parseDouble(siteValFormat.format(s1Val)));
-		 xlRow.createCell((short) 8).setCellValue( 
-				 Double.parseDouble(siteValFormat.format(coef * faVal * ssVal )));
-		 xlRow.createCell((short) 9).setCellValue(residentilaSeismicDesignVal);
+			try {
+			 xlRow.createCell((short) 0).setCellValue(curLat);
+			 xlRow.createCell((short) 1).setCellValue(curLon);
+			 xlRow.createCell((short) 2).setCellValue("D");
+			 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
+			 xlRow.createCell((short) 4).setCellValue(
+					 Double.parseDouble(siteValFormat.format(faVal)));
+			 xlRow.createCell((short) 5).setCellValue(
+					 Double.parseDouble(siteValFormat.format(fvVal)));
+			 xlRow.createCell((short) 6).setCellValue(
+					 Double.parseDouble(siteValFormat.format(ssVal)));
+			 xlRow.createCell((short) 7).setCellValue(
+					 Double.parseDouble(siteValFormat.format(s1Val)));
+			 xlRow.createCell((short) 8).setCellValue( 
+					 Double.parseDouble(siteValFormat.format(coef * faVal * ssVal )));
+			 xlRow.createCell((short) 9).setCellValue(residentilaSeismicDesignVal);
+			} catch(Exception ex) {
+				// Ignore these since they are just formatting issues
+			}
 		} 
 	 }
 	 

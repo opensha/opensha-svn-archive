@@ -26,6 +26,8 @@ import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS;
 import org.opensha.nshmp.util.GlobalConstants;
 
+import scratchJavaDevelopers.martinez.util.BatchProgress;
+
 /**
  * <p>Title: DataGenerator_UHS</p>
  *
@@ -375,7 +377,11 @@ public class DataGenerator_UHS
 	 }
 	 
 	 // Write the data information
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing Uniform Hazard Response Spectra", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -394,9 +400,20 @@ public class DataGenerator_UHS
 			curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(funcList.getInfo()).replaceAll("");
 			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
 			curGridSpacing += " Degrees";
-		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+		} catch (Exception e) {
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Cancel Calculations"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			saFunc = new ArbitrarilyDiscretizedFunc();
+			sdFunc = new ArbitrarilyDiscretizedFunc();
+			
 			curGridSpacing = "Location out of Region";
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);

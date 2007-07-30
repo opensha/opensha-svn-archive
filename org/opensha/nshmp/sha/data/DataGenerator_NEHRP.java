@@ -27,6 +27,8 @@ import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
+import scratchJavaDevelopers.martinez.util.BatchProgress;
+
 /**
  * <p>Title: DataGenerator_NEHRP</p>
  *
@@ -274,7 +276,11 @@ public class DataGenerator_NEHRP
 	 }
 	 
 	 // Write the data information
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing Ss and S1", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -291,8 +297,17 @@ public class DataGenerator_NEHRP
 			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
 			curGridSpacing += " Degrees";
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			
 			curSs = Double.MAX_VALUE;
 			curSa = Double.MAX_VALUE;
 			curGridSpacing = "Location out of Region";
@@ -427,7 +442,11 @@ public class DataGenerator_NEHRP
 	 FaFvCalc calc = new FaFvCalc();
 	 
 	 // Start plugging in the data
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing SMs, Sm1, SDs and SD1", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -455,8 +474,17 @@ public class DataGenerator_NEHRP
 			
 			
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			
 			curSMs = Double.MAX_VALUE; curSM1 = Double.MAX_VALUE;
 			curSDs = Double.MAX_VALUE; curSD1 = Double.MAX_VALUE;
 		} finally {
@@ -541,7 +569,11 @@ public class DataGenerator_NEHRP
 		 }
 		 
 		 // Start plugging in the data
+		 int answer = 1;
+		 BatchProgress bp = new BatchProgress("Computing Map Spectrum", locations.size());
+		 bp.start();
 		 for(int i = 0; i < locations.size(); ++i) {
+			 bp.update(i+1);
 			 xlRow = xlSheet.createRow(i+startRow);
 			 double curLat = locations.get(i).getLatitude();
 			 double curLon = locations.get(i).getLongitude();
@@ -557,8 +589,18 @@ public class DataGenerator_NEHRP
 				saFunc = functions.get(1);
 				sdFunc = functions.get(0);
 			} catch (RemoteException e) {
-				JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-						curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+				if(answer != 0) {
+					Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
+					answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+								curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+								JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+				}
+				if(answer == 2) {
+					bp.update(locations.size());
+					break;
+				}
+				saFunc = new ArbitrarilyDiscretizedFunc();
+				sdFunc = new ArbitrarilyDiscretizedFunc();
 			} finally {
 			 xlRow.createCell((short) 0).setCellValue(curLat);
 			 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -790,7 +832,11 @@ public class DataGenerator_NEHRP
 	 FaFvCalc calc = new FaFvCalc();
 	 
 	 // Start plugging in the data
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing SM Spectrum", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -820,8 +866,18 @@ public class DataGenerator_NEHRP
 		    sdFunc = functions.get(0);
 		    
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			saFunc = new ArbitrarilyDiscretizedFunc();
+			sdFunc = new ArbitrarilyDiscretizedFunc();
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -914,7 +970,11 @@ public class DataGenerator_NEHRP
 	 FaFvCalc calc = new FaFvCalc();
 	 
 	 // Start plugging in the data
+	 int answer = 1;
+	 BatchProgress bp = new BatchProgress("Computing SD Spectrum", locations.size());
+	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
+		 bp.update(i+1);
 		 xlRow = xlSheet.createRow(i+startRow);
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
@@ -944,8 +1004,18 @@ public class DataGenerator_NEHRP
 		    sdFunc = functions.get(0);
 		    
 		} catch (RemoteException e) {
-			JOptionPane.showMessageDialog(null, "Failed to retrieve information for:\nLatitude: " +
-					curLat + "\nLongitude: " + curLon, "Data Mining Error", JOptionPane.ERROR_MESSAGE);
+			if(answer != 0) {
+				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
+				answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+							curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+							JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+			}
+			if(answer == 2) {
+				bp.update(locations.size());
+				break;
+			}
+			saFunc = new ArbitrarilyDiscretizedFunc();
+			sdFunc = new ArbitrarilyDiscretizedFunc();
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);

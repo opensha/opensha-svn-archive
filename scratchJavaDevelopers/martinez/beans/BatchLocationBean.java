@@ -1,5 +1,7 @@
 package scratchJavaDevelopers.martinez.beans;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -12,10 +14,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
 import org.opensha.data.Location;
@@ -71,6 +75,10 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 	private String web = null;
 	private JButton btnFileChooser = null;
 	private JButton btnOutChooser = null;
+	private JLabel latConstraintLabel = null;
+	private JLabel lonConstraintLabel = null;
+	private JLabel batchConstraintLatLabel = null;
+	private JLabel batchConstraintLonLabel = null;
 	
 	/* Tab Names */
 	private static final String GEO_TAB = "Lat/Lon";
@@ -107,8 +115,16 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 		return fileName;
 	}
 	
+	public boolean inputFileExists() {
+		String filename = (String) batParam.getValue();
+		if(filename == null) {return false;}
+		return (new File(filename)).exists();
+	}
 	public ArrayList<Location> getBatchLocations() {
 		String fileName = (String) batParam.getValue();
+		if(!(new File(fileName)).exists()) {
+			
+		}
 		BatchFileReader bfr = new BatchFileReader(fileName);
 		ArrayList<Location> locations = null;
 		if(!bfr.ready()) return null;
@@ -199,6 +215,16 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 			latEditor.setParameter(latParam);
 		if(lonEditor != null)
 			lonEditor.setParameter(lonParam);
+		
+		// Change the constraint labels
+		if(latConstraintLabel != null)
+			latConstraintLabel.setText("(" + this.minlat + ", " + this.maxlat + ")");
+		if(lonConstraintLabel != null)
+			lonConstraintLabel.setText("(" + this.minlon + ", " + this.maxlon + ")");
+		if(batchConstraintLatLabel != null)
+			batchConstraintLatLabel.setText("Lat: [" + this.minlat + ", " + this.maxlat + "]");
+		if(batchConstraintLonLabel != null)
+			batchConstraintLonLabel.setText("Lon: ["+ this.minlon + ", " + this.maxlon + "]");
 		
 		// Set the enabled tabs
 		if(panel != null) {
@@ -389,10 +415,29 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 			JPanel zipPanel = new JPanel(new GridBagLayout());
 			JPanel batPanel = new JPanel(new GridBagLayout());
 			
+			// The lat/lon constraints
+			latConstraintLabel = new JLabel("(" + minlat + ", " + maxlat + ")", SwingConstants.CENTER);
+			lonConstraintLabel = new JLabel("(" + minlon + ", " + maxlon + ")", SwingConstants.CENTER);
+			batchConstraintLatLabel = new JLabel("Lat: [" + this.minlat + ", " + this.maxlat + "]", SwingConstants.CENTER);
+			batchConstraintLonLabel = new JLabel("Lon: ["+ this.minlon + ", " + this.maxlon + "]", SwingConstants.CENTER);
+			
+			latConstraintLabel.setForeground(new Color(80, 80, 133));
+			lonConstraintLabel.setForeground(new Color(80, 80, 133));
+			batchConstraintLatLabel.setForeground(new Color(80, 80, 133));
+			batchConstraintLonLabel.setForeground(new Color(80, 80, 133));
+			
+			Font constraintFont = new Font("Lucida Grande", Font.PLAIN, 11);
+			batchConstraintLatLabel.setFont(constraintFont);
+			batchConstraintLonLabel.setFont(constraintFont);
+			
 			// Set up the geoPanel
 			geoPanel.add(latEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			geoPanel.add(lonEditor, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
+			geoPanel.add(latConstraintLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
+			geoPanel.add(lonConstraintLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Set up the zipPanel
@@ -400,13 +445,17 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Set up the batPanel
-			batPanel.add(batEditor, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
+			batPanel.add(batEditor, new GridBagConstraints(0, 0, 2, 1, 5.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
-			batPanel.add(btnFileChooser, new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
+			batPanel.add(btnFileChooser, new GridBagConstraints(2, 0, 1, 1, 0.5, 1.0, GridBagConstraints.EAST,
+					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			batPanel.add(outEditor, new GridBagConstraints(0, 1, 2, 1, 5.0, 1.0, GridBagConstraints.CENTER,
+					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
+			batPanel.add(btnOutChooser, new GridBagConstraints(2, 1, 1, 1, 0.5, 1.0, GridBagConstraints.EAST,
+					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			batPanel.add(batchConstraintLatLabel, new GridBagConstraints(3, 0, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
-			batPanel.add(outEditor, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
-					GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 2, 0));
-			batPanel.add(btnOutChooser, new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0, GridBagConstraints.WEST,
+			batPanel.add(batchConstraintLonLabel, new GridBagConstraints(3, 1, 2, 1, 1.0, 1.0, GridBagConstraints.CENTER,
 					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 2, 0));
 			
 			// Now add the panels to the tabs...

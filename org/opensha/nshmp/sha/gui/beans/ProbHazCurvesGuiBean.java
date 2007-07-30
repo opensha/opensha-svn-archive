@@ -590,8 +590,14 @@ public class ProbHazCurvesGuiBean
         String zipCode = locGuiBean.getZipCode();
         dataGenerator.calculateHazardCurve(zipCode, imt);
       } else if (locationMode == BatchLocationBean.BAT_MODE) {
-    	  ArrayList<Location> locations = locGuiBean.getBatchLocations();
-    	  dataGenerator.calculateHazardCurve(locations, imt, locGuiBean.getOutputFile());
+    	  Thread t = new Thread(new Runnable() {
+    		  public void run() {
+    			  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	    	  dataGenerator.calculateHazardCurve(locations, imt, locGuiBean.getOutputFile());
+    	    	  application.setDataInWindow(getData());
+    		  }
+    	  });
+    	  t.start();
       }
     }
   }
@@ -655,6 +661,11 @@ public class ProbHazCurvesGuiBean
    * @param e ActionEvent
    */
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
+	    if(locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
+	    	JOptionPane.showMessageDialog(null, "This option is not valid for the batch mode.",
+	    			"Invalid Mode", JOptionPane.ERROR_MESSAGE);
+	    	return;
+	    }
 		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
 		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
 			return;

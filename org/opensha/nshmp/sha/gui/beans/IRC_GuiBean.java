@@ -446,7 +446,12 @@ public class IRC_GuiBean
 
   protected void residentialSiteCategoryButton_actionPerformed(ActionEvent
       actionEvent) {
-    getDataForSA_Period();
-    application.setDataInWindow(getData());
+	Thread t = new Thread(new Runnable() {
+		public void run() {
+		    getDataForSA_Period();
+		    application.setDataInWindow(getData());
+		}
+	});
+	t.start();
   }
 }

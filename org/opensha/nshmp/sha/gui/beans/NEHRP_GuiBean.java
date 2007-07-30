@@ -583,8 +583,18 @@ public class NEHRP_GuiBean
 			String zipCode = locGuiBean.getZipCode();
 			dataGenerator.calculateSsS1(zipCode);
 		} else if (locationMode == BatchLocationBean.BAT_MODE) {
-			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-			dataGenerator.calculateSsS1(locations, locGuiBean.getOutputFile());
+			Thread t = new Thread(new Runnable() {
+				public void run() {
+					try {
+						ArrayList<Location> locations = locGuiBean.getBatchLocations();
+						dataGenerator.calculateSsS1(locations, locGuiBean.getOutputFile());
+						application.setDataInWindow(getData());
+					} catch (NullPointerException npx) {
+						System.err.println("Error");
+					}
+				}
+			});
+			t.start();
 		}
 	} else { // if territory and location Gui is not visible
 		try {
@@ -616,8 +626,12 @@ public class NEHRP_GuiBean
 
 				r = true; // location is ready 
 			} else if ( selectedRegion.equals(GlobalConstants.GUAM) || 
-						   selectedRegion.equals(GlobalConstants.TUTUILA)) {
+						selectedRegion.equals(GlobalConstants.TUTUILA) ) {
 				r = true; // location is ready
+		   } else if (locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE &&
+				      !locGuiBean.inputFileExists()) {
+			   JOptionPane.showMessageDialog(this, "The input file was not found.",
+					   "File Not Found", JOptionPane.ERROR_MESSAGE);
 		   } else {
 				JOptionPane.showMessageDialog(this, "Location not specified!\n" +
 					"Please fill in the location parameter.", "Location Error",
@@ -742,13 +756,19 @@ public class NEHRP_GuiBean
 		if (usingBatchMode() || ssButton_doActions()) {
     	try {
     		if(usingBatchMode()) {
-    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
-    			String outfile = locGuiBean.getOutputFile();
-    			dataGenerator.setSpectraType(spectraType);
-    			dataGenerator.setRegion(selectedRegion);
-    			dataGenerator.setEdition(selectedEdition);
-    			dataGenerator.calculateSMsSm1SDsSD1(locations, conditions, outfile);
+    			Thread t = new Thread(new Runnable() {
+    				public void run() {
+    	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+    	    			String outfile = locGuiBean.getOutputFile();
+    	    			dataGenerator.setSpectraType(spectraType);
+    	    			dataGenerator.setRegion(selectedRegion);
+    	    			dataGenerator.setEdition(selectedEdition);
+    	    			dataGenerator.calculateSMsSm1SDsSD1(locations, conditions, outfile);
+    	    			application.setDataInWindow(getData());
+    				}
+    			});
+    			t.start();
     		} else {
 		      	dataGenerator.calculateSMSsS1();
 		      	dataGenerator.calculatedSDSsS1();
@@ -787,12 +807,18 @@ public class NEHRP_GuiBean
 			
 			try {
 				if(usingBatchMode()) {
-	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-	    			String outfile = locGuiBean.getOutputFile();
-	    			dataGenerator.setSpectraType(spectraType);
-	    			dataGenerator.setRegion(selectedRegion);
-	    			dataGenerator.setEdition(selectedEdition);
-	    			dataGenerator.calculateMapSpectrum(locations, outfile);
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+			    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+			    			String outfile = locGuiBean.getOutputFile();
+			    			dataGenerator.setSpectraType(spectraType);
+			    			dataGenerator.setRegion(selectedRegion);
+			    			dataGenerator.setEdition(selectedEdition);
+			    			dataGenerator.calculateMapSpectrum(locations, outfile);
+			    			application.setDataInWindow(getData());
+						}
+					});
+					t.start();
 				} else {
 					dataGenerator.calculateMapSpectrum();
 				}
@@ -833,13 +859,19 @@ public class NEHRP_GuiBean
 		if (usingBatchMode() || mapSpecButton_doActions()) { 
 			try {
 				if(usingBatchMode()) {
-	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-	    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
-	    			String outfile = locGuiBean.getOutputFile();
-	    			dataGenerator.setSpectraType(spectraType);
-	    			dataGenerator.setRegion(selectedRegion);
-	    			dataGenerator.setEdition(selectedEdition);
-	    			dataGenerator.calculateSMSpectrum(locations, conditions, outfile);
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							ArrayList<Location> locations = locGuiBean.getBatchLocations();
+			    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+			    			String outfile = locGuiBean.getOutputFile();
+			    			dataGenerator.setSpectraType(spectraType);
+			    			dataGenerator.setRegion(selectedRegion);
+			    			dataGenerator.setEdition(selectedEdition);
+			    			dataGenerator.calculateSMSpectrum(locations, conditions, outfile);
+			    			application.setDataInWindow(getData());
+						}
+					});
+	    			t.start();
 				} else {
 					dataGenerator.calculateSMSpectrum();
 				}
@@ -879,13 +911,19 @@ public class NEHRP_GuiBean
     if (usingBatchMode() || smSpecButton_doActions()) {
 		try {
 			if(usingBatchMode()) {
-    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
-    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
-    			String outfile = locGuiBean.getOutputFile();
-    			dataGenerator.setSpectraType(spectraType);
-    			dataGenerator.setRegion(selectedRegion);
-    			dataGenerator.setEdition(selectedEdition);
-    			dataGenerator.calculateSDSpectrum(locations, conditions, outfile);
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						ArrayList<Location> locations = locGuiBean.getBatchLocations();
+		    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
+		    			String outfile = locGuiBean.getOutputFile();
+		    			dataGenerator.setSpectraType(spectraType);
+		    			dataGenerator.setRegion(selectedRegion);
+		    			dataGenerator.setEdition(selectedEdition);
+		    			dataGenerator.calculateSDSpectrum(locations, conditions, outfile);
+		    			application.setDataInWindow(getData());
+					}
+				});
+    			t.start();
 			} else {
 				dataGenerator.calculateSDSpectrum();
 			}
