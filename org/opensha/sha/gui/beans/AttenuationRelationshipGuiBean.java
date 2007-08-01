@@ -1194,14 +1194,18 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
                //if it was previously selected, if so then keep it selected
                AttenuationRelationship attenRelTemp = (AttenuationRelationship)prevSelectedAttenRel.get(j);
                if(attenRelTemp.getName().equals(((JCheckBox)attenRelCheckBox[i]).getText())){
+            	 attenRelCheckBox[i].setEnabled(true);
                  attenRelCheckBox[i].setSelected(true);
+                 
                  break;
                }
              }
            }
-           else
+           else{
+        	 attenRelCheckBox[i].setEnabled(true);
              attenRelCheckBox[i].setSelected(true);
-           attenRelCheckBox[i].setEnabled(true);
+             
+           }
          }
        }
      }
