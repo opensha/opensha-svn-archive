@@ -466,7 +466,8 @@ public class FaultSegmentData {
 		}
 		double rake = totRake/totArea;
 		double tolerance = 1e-6;
-		if(rake-180 < tolerance) rake=180;
+		//System.out.println(this.faultName+","+rake);
+		if(rake>180 && (rake-180 < tolerance)) rake=180;
 		return rake;
 	}
 	

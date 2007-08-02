@@ -932,6 +932,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 		else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 		else throw new RuntimeException("Invalid Rake:"+rake);
+		
+		//System.out.println(rake+","+rakeStr);
+		
 		strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.segmentData.getFaultName()+"\n");
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();

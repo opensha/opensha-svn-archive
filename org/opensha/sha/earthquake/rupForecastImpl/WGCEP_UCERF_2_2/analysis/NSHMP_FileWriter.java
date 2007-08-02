@@ -39,7 +39,7 @@ public class NSHMP_FileWriter {
 	public void writeNSHMP_SrcFiles(String dirName) {
 		File file = new File(dirName);
 		if(!file.isDirectory()) file.mkdirs();
-		/*	*/
+		
 		// FOR SEGMENTED MODEL
 
 		// Default parameters
