@@ -105,7 +105,7 @@ public final class BasinDepthClass {
       //initializing the bd vector with the Double.NaN values
       for(int i=0;i<size;++i)
         bd.add(new Double(Double.NaN));
-
+      
       double prevLat=Double.NaN;
       for(int i=0;i<size;++i){
         double lat = ((Location)locations.get(i)).getLatitude();
@@ -149,6 +149,7 @@ public final class BasinDepthClass {
           str=iBuf.readLine();
         }
       }
+      
       //returns the ArrayList containg the Basin Depth values for each gridded site
       return bd;
     }catch (Exception e) {

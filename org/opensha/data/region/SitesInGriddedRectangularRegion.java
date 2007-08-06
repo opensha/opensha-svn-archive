@@ -172,7 +172,7 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
        Iterator it = site.getParametersIterator();
        //checking to see if we are getting the correct value for willsSiteClassList and basin depth.
        if(D){
-         System.out.println(site.getLocation().toString()+"\t"+willsSiteClassList.get(index)+
+         System.out.println(site.getLocation().toString()+"\t"+(String)willsSiteClassList.get(index)+
                             "\t\t"+((Double)basinDepth.get(index)).doubleValue());
        }
        boolean setSite = true;

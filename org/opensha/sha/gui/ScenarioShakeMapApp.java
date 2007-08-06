@@ -546,6 +546,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     catch(RuntimeException ee){
       step =0;
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
+      ee.printStackTrace();
       return;
 
     }
@@ -630,7 +631,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
           ArrayList zVals = xyzDataSet.getZ_DataSet();
           int size = zVals.size();
           for(int i=0;i<size;++i){
-            double tempVal = Math.exp(((Double)(zVals.get(i))).doubleValue());
+        	  double val = ((Double)(zVals.get(i))).doubleValue();
+            double tempVal = Math.exp(val);
             zVals.set(i,new Double(tempVal));
           }
         }
@@ -777,6 +779,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 
      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
                                     JOptionPane.ERROR_MESSAGE);
+     ee.printStackTrace();
       addButton.setEnabled(true);
       return;
     }
