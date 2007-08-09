@@ -389,7 +389,7 @@ public class A_FaultSegmentedSourceGenerator {
 		
 //		System.out.println("NNLS rates:");
 //		for(int rup=0; rup < rupRate.length; rup++)
-//			System.out.println((float) rupRate[rup]);
+//			System.out.println((float) rupRateSolution[rup]);
 		
 /*		
 		if(D) {
@@ -399,7 +399,7 @@ public class A_FaultSegmentedSourceGenerator {
 			for(int seg=0; seg < num_seg; seg++) {
 				tempSlipRate = 0;
 				for(int rup=0; rup < num_rup; rup++)
-					tempSlipRate += rupRate[rup]*segSlipInRup[seg][rup];
+					tempSlipRate += rupRateSolution[rup]*segSlipInRup[seg][rup];
 				double absFractDiff = Math.abs(tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction)) - 1.0);				System.out.println("SlipRateCheck:  "+(float) (tempSlipRate/(segmentData.getSegmentSlipRate(seg)*(1-this.moRateReduction))));
 				if(absFractDiff > 0.001)
 					throw new RuntimeException("ERROR - slip rates differ!!!!!!!!!!!!");
@@ -417,7 +417,7 @@ public class A_FaultSegmentedSourceGenerator {
 		rupMagFreqDist = new GaussianMagFreqDist[num_rup];
 		double mag;
 		for(int i=0; i<num_rup; ++i) {
-			// we conserve moment rate exactly (final rupture rates will differ from rupRate[] 
+			// we conserve moment rate exactly (final rupture rates will differ from rupRateSolution[] 
 			// due to MFD discretization or rounding if magSigma=0)
 			rupMoRate[i] = rupRateSolution[i] * rupMeanMo[i];
 			totalMoRateFromRups+=rupMoRate[i];
@@ -431,6 +431,9 @@ public class A_FaultSegmentedSourceGenerator {
 						
 			summedMagFreqDist.addIncrementalMagFreqDist(rupMagFreqDist[i]);
 			totRupRate[i] = rupMagFreqDist[i].getTotalIncrRate();
+			
+//double testRate = rupMoRate[i]/MomentMagCalc.getMoment(rupMeanMag[i]);
+//System.out.println((float)(testRate/rupRateSolution[i]));
 // if(((String)getLongRupName(i)).equals("W")) System.out.print(totRupRate[i]+"  "+rupRateSolution[i]);
 		}
 		// add info to the summed dist
@@ -731,7 +734,9 @@ public class A_FaultSegmentedSourceGenerator {
 			else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
 			strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.getLongRupName(srcIndex)+"\n");
-			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)this.getRupRateSolution(srcIndex)+"\t"+wt+"\n");
+			// get the rate needed by NSHMP code (rate assuming no aleatory uncertainty)
+			double fixRate = rupMoRate[srcIndex]/MomentMagCalc.getMoment(rupMeanMag[srcIndex]);
+			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
 			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
