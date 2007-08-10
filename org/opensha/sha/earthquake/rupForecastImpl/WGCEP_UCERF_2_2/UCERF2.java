@@ -1223,7 +1223,11 @@ public class UCERF2 extends EqkRupForecast {
 				//	System.out.println(segmentData.getFaultName()+","+fixMag+","+fixRate);
 				//}
 				// skip Mendocino (hard coded for now)
-				if(segmentData.getFaultName().equals("Mendocino")) {
+				if(segmentData.getFaultName().equals("Mendocino") ||
+						segmentData.getFaultName().equals("Brawley (Seismic Zone), alt 1")	||
+						segmentData.getFaultName().equals("Brawley (Seismic Zone), alt 2") ||
+						segmentData.getFaultName().equals("Carson Range (Genoa)") ||
+						segmentData.getFaultName().equals("Antelope Valley")) {
 //					System.out.println(segmentData.getFaultName());
 					continue;
 				}

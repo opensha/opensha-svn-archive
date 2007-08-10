@@ -56,35 +56,62 @@ public class NSHMP_FileWriter {
 		ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0));
 		ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0));
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllBMeanMagCorr0.0");
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
+		ucerf2.updateForecast();
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB_MeanMagCorr0.1");
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
+		ucerf2.updateForecast();
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB_MeanMagCorr-0.1");
 		// change Mag Area Rel
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.0));
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HBMeanMagCorr0.0");
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
+		ucerf2.updateForecast();
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB_MeanMagCorr0.1");
+		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
+		ucerf2.updateForecast();
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB_MeanMagCorr-0.1");
 
 		// UNSEGMENTED MODELS & B-FAULTS
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		ucerf2.updateForecast();
 		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_EllB");
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB_D2.1");
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
+		ucerf2.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB_D2.4");
 
 		// change Mag Area to Hans Bakun
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
 		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_HB");
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB_D2.1");
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
+		ucerf2.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB_D2.4");
 
 		// UNSTITCHED B-FAULTS
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
 		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB_D2.1");
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
+		ucerf2.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB_D2.4");
 
 		// change Mag Area to Hans Bakun
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB_D2.1");
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
+		ucerf2.updateForecast();
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB_D2.4");
 
 	}
 
@@ -171,7 +198,7 @@ public class NSHMP_FileWriter {
 	
 	public static void main(String[] args) {
 		NSHMP_FileWriter nshmpFileWriter = new NSHMP_FileWriter();
-		nshmpFileWriter.writeNSHMP_SrcFiles("NSHMP");
+		nshmpFileWriter.writeNSHMP_SrcFiles("NSHMP_Aug10");
 	}
 	
 }
