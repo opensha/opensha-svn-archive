@@ -346,7 +346,7 @@ public class CY_2006_AttenRel
   public final static String RUP_WIDTH_NAME = "Rupture Width";
   public final static String RUP_WIDTH_UNITS = "km";
   public final static String RUP_WIDTH_INFO =
-      "The width of the earthquake rupture surface";
+      "The down dip width of the earthquake rupture surface";
   public final static Double RUP_WIDTH_DEFAULT = new Double(1);
   protected final static Double RUP_WIDTH_MIN = new Double(1);
   protected final static Double RUP_WIDTH_MAX = new Double(100);
