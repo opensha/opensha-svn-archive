@@ -499,7 +499,16 @@ public class CY_2006_AttenRel
 	  // compute rJB
 	  distanceJB = rRup - distRupMinusJB_OverRup*rRup;
 	  
-	  return getMean(iper, vs30, f_rv, f_nm, rRup, distanceJB, ruptureWidth, dip, mag, depthTop);
+	  //please uncomment the below commented code to test the Ken's CY06 model because he assume if
+	  //mean of any SA Period less then of equal to 0.2 is below PGA then PGA value should be used, same 
+	  // thing as he assumes for his relationship.
+	  //if(iper < 1 || iper > 38)
+	    return getMean(iper, vs30, f_rv, f_nm, rRup, distanceJB, ruptureWidth, dip, mag, depthTop);
+	 // else{
+		//  double pga_mean = getMean(0, vs30, f_rv, f_nm, rRup, distanceJB, ruptureWidth, dip, mag, depthTop);
+		 // double mean = getMean(iper, vs30, f_rv, f_nm, rRup, distanceJB, ruptureWidth, dip, mag, depthTop);
+		 // return Math.max(pga_mean, mean);
+	 // }
   }
 
   /**

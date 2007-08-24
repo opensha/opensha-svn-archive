@@ -28,6 +28,7 @@ public class HazardCurveComputation {
 	 * @returns the List of supported Peak amplitudes
 	 */
 	public ArrayList<String> getSupportedSA_PeriodStrings(){
+		
 		return peakAmplitudes.getSupportedSA_PeriodList();
 	}
 	

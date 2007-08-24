@@ -244,6 +244,7 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void initSrcIndexParam(){
     ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite);
+    selectedSrcId = ((Integer)srcIdList.get(0));
     int size = srcIdList.size();
     for(int i=0;i<size;++i)
     	srcIdList.set(i, ""+srcIdList.get(i));
@@ -273,7 +274,7 @@ public class CyberShakePlotFromDBControlPanel
     String paramName = e.getParameterName();
     if(paramName.equals(SITE_SELECTOR_PARAM)){
       selectedSite = (String)siteSelectionParam.getValue();
-      initSA_PeriodParam();
+      //initSA_PeriodParam();
       initSrcIndexParam();
       initRupIndexParam();
       listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );

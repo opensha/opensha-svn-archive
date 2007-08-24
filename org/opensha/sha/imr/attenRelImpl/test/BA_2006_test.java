@@ -165,10 +165,12 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 					  ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_REVERSE);
 				else if(fltType.equals("NR"))
 					ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_NORMAL);
-				else
+				else if(fltType.equals("UN"))
 					ba_2006.getParameter(ba_2006.FLT_TYPE_NAME).setValue(ba_2006.FLT_TYPE_UNKNOWN);
+				else 
+					continue;
 				
-				double vs30 = Double.parseDouble(fileName.substring(11,14));
+				double vs30 = Double.parseDouble(fileName.substring(11,fileName.indexOf(".")));
 				ba_2006.getParameter(ba_2006.VS30_NAME).setValue(new Double(vs30));
 				try {
 					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());

@@ -160,6 +160,7 @@ public class IM_EventSetCalc
       try{
         willsClass = (String) ConnectToCVM.getWillsSiteTypeFromCVM(
             siteLocListForWillsSiteClass).get(0);
+        System.out.println("Site Class ="+willsClass);
       }catch(Exception e){
         throw new RuntimeException(e);
       }

@@ -126,12 +126,14 @@ public class CY_2006_test extends TestCase implements ParameterChangeWarningList
 					  cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_REVERSE);
 				else if(fltType.equals("NR"))
 					cy_2006.getParameter(cy_2006.FLT_TYPE_NAME).setValue(cy_2006.FLT_TYPE_NORMAL);
+				else
+				    continue;
 				double dip = Double.parseDouble(fileName.substring(8,10));
 				cy_2006.getParameter(cy_2006.DIP_NAME).setValue(new Double(dip));
 				
-				double vs30 = Double.parseDouble(fileName.substring(11,14));
+				double vs30 = Double.parseDouble(fileName.substring(11,fileName.indexOf("_Z")));
 				cy_2006.getParameter(cy_2006.VS30_NAME).setValue(new Double(vs30));
-				double depthTop = Double.parseDouble(fileName.substring(17,18));
+				double depthTop = Double.parseDouble(fileName.substring((fileName.indexOf("Zt")+2),fileName.indexOf(".")));
 				cy_2006.getParameter(cy_2006.RUP_TOP_NAME).setValue(new Double(depthTop));
 				try {
 					testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
