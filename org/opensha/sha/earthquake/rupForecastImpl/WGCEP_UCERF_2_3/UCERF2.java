@@ -1051,6 +1051,14 @@ public class UCERF2 extends EqkRupForecast {
 			double[] magLower = {6.0, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
 			double[] magUpper = {7.0, 7.3, 7.3, 7.3, 7.6, 7.6, 7.3, 7.3};
 			 */
+			
+			/*
+			 * "Foothills Fault System" = area1 or shear1
+			 * "Mohawk-Honey Lake Zone" = area3 or shear3
+			 * "Northeastern California" = area2 or shear2
+			 * "Western Nevada" = area4 or shear4
+			 */
+
 			String []names = {"Foothills Fault System", "Mohawk-Honey Lake Zone",
 					"Northeastern California", "Western Nevada", 
 					"Eastern California Shear Zone", "San Gorgonio Knot"};
