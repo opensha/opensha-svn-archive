@@ -78,7 +78,6 @@ public class HazardCurveComputation {
 	 * @param imType
 	 */
 	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,String imType){
-		System.out.println("imType = "+imType);
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		int siteId = siteDB.getSiteId(site);
