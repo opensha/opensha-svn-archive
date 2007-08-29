@@ -6,30 +6,100 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
+import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.fault.FaultTrace;
 import org.opensha.util.FileUtils;
 
 /**
  * It reads the Non-CA faults file to generate a list of non-CA faults.
- * This file is generated from Chris Wills email on Aug 28, 3:48 PM
+ *
  * 
  * 
  * @author vipingupta
  *
  */
 public class NonCA_FaultsFetcher {
-	public static final String FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NonCA_FaultsFromChris.txt";
+	public static final String CHRIS_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NonCA_FaultsFromChris.txt";
+	private final static String CHAR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsChar.txt";
+	private final static String GR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsGR.txt";
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDataDB_DAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private ArrayList<Integer> faultIds;
 	
 	public NonCA_FaultsFetcher() {
+		
+	}
+	
+	/**
+	 * Read files created after reading non-CA faults from NSHMP files
+	 * 
+	 * @return
+	 */
+	public ArrayList<FaultRuptureSource> getCharSources() {
+		ArrayList<FaultRuptureSource> charSources = new ArrayList<FaultRuptureSource>();
+		try {
+			ArrayList<String> charFileLines = FileUtils.loadJarFile(CHAR_FILENAME);
+			int numLines = charFileLines.size();
+			int rakeId;
+			double mag, rate, wt, dip, surfaceWidth, upperSeisDepth, latitude, longitude;
+			FaultTrace faultTrace;
+			String faultName;
+			for(int i=0; i<numLines; ) {
+				String line = charFileLines.get(i++);
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				rakeId = Integer.parseInt(tokenizer.nextToken().trim());
+				faultName = line.substring(8).trim();
+				line = charFileLines.get(i++);
+
+				// mag, rate & wt
+				line = charFileLines.get(i++);
+				tokenizer = new StringTokenizer(line);
+				mag = Double.parseDouble(tokenizer.nextToken().trim());
+				rate = Double.parseDouble(tokenizer.nextToken().trim());
+				wt = Double.parseDouble(tokenizer.nextToken().trim());
+				line = charFileLines.get(i++);
+
+				// dip, surface width, upper seis depth, surface length
+				line = charFileLines.get(i++);
+				tokenizer = new StringTokenizer(line);
+				dip = Double.parseDouble(tokenizer.nextToken().trim());
+				surfaceWidth = Double.parseDouble(tokenizer.nextToken().trim());
+				upperSeisDepth = Double.parseDouble(tokenizer.nextToken().trim());
+				
+				//fault trace
+				line = charFileLines.get(i++);
+				int numLocations = Integer.parseInt(line.trim());
+				faultTrace = new FaultTrace(faultName);
+				for(int locIndex=0; locIndex<numLocations; ++locIndex) {
+					line = charFileLines.get(i++);
+					tokenizer = new StringTokenizer(line);
+					latitude = Double.parseDouble(tokenizer.nextToken());
+					longitude =Double.parseDouble(tokenizer.nextToken());
+					faultTrace.addLocation(new Location(latitude, longitude));
+				}
+				
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return charSources;
+	}
+	
+	/**
+	 * Read file from Chris Wills email
+	 * 
+	 * @return
+	 */
+	public ArrayList<Integer> getNonCA_FaultIdsFromChrisFile() {
 		try {
 			// Read the Non-CA faults file
-			ArrayList<String> faultNames = FileUtils.loadJarFile(FILENAME);
-			faultIds = new ArrayList<Integer>();
+			ArrayList<String> faultNames = FileUtils.loadJarFile(CHRIS_FILENAME);
+			ArrayList<Integer> faultIds = new ArrayList<Integer>();
 			ArrayList<FaultSectionPrefData> prefFaultSectionDataList = prefFaultSectionDataDB_DAO.getAllFaultSectionPrefData();
 			int numFaultSections = prefFaultSectionDataList.size();
 			for(int i=0; i<numFaultSections; ++i) {
@@ -42,23 +112,15 @@ public class NonCA_FaultsFetcher {
 			
 			for(int i=0; i<faultNames.size(); ++i)
 				System.out.println(faultNames.get(i)+ " : Non-CA fault not found in database");
-			
+			return faultIds;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
+		return null;
 	}
 	
-	
-	/**
-	 * Get a list of Ids of all Non-CA faults
-	 * 
-	 * @return
-	 */
-	public ArrayList<Integer> getNonCA_FaultIds() {
-		return this.faultIds;
-	}
 	
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
