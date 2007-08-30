@@ -23,24 +23,21 @@ import org.opensha.util.FileUtils;
 public class MakeNonCA_File {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/";
 	private EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
-	private final static String CHAR_OUT_FILE = "NonCA_FaultsChar.txt";
-	private final static String GR_OUT_FILE = "NonCA_FaultsGR.txt";
+	private final static String OUT_FILE = "NonCA_Faults.txt";
 
 	public MakeNonCA_File() {
 		try {
-			FileWriter charFw = new FileWriter(PATH+CHAR_OUT_FILE); // Non-CA Char file
-			FileWriter grFw = new FileWriter(PATH+GR_OUT_FILE); // Non-CA GR File
-			processFile("azz.65", charFw);
-			processFile("azc", charFw);
-			processFile("azgr", grFw);
-			processFile("nv.65.aug", charFw);
-			processFile("nv.char", charFw);
-			processFile("nv.gr", grFw);
-			processFile("orwa.65.aug", charFw);
-			processFile("orwa.new.char", charFw);
-			processFile("orwa.new.gr", grFw);
-			charFw.close();
-			grFw.close();
+			FileWriter fw = new FileWriter(PATH+OUT_FILE); // Non-CA Char file
+			processFile("azz.65", fw);
+			processFile("nv.65.aug", fw);
+			processFile("orwa.65.aug", fw);
+			processFile("azc", fw);
+			processFile("azgr", fw);
+			processFile("nv.char", fw);
+			processFile("nv.gr", fw);
+			processFile("orwa.new.char", fw);
+			processFile("orwa.new.gr", fw);
+			fw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
