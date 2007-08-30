@@ -14,6 +14,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
 /**
@@ -29,7 +30,7 @@ public class NonCA_FaultsFetcher {
 	private final static String CHAR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsChar.txt";
 	private final static String GR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsGR.txt";
 	private PrefFaultSectionDataDB_DAO prefFaultSectionDataDB_DAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-	private ArrayList<Integer> faultIds;
+	private final static double GRID_SPACING = 0.1;
 	
 	public NonCA_FaultsFetcher() {
 		
@@ -40,36 +41,44 @@ public class NonCA_FaultsFetcher {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultRuptureSource> getCharSources() {
+	public ArrayList<FaultRuptureSource> getCharSources(double duration) {
 		ArrayList<FaultRuptureSource> charSources = new ArrayList<FaultRuptureSource>();
 		try {
 			ArrayList<String> charFileLines = FileUtils.loadJarFile(CHAR_FILENAME);
 			int numLines = charFileLines.size();
 			int rakeId;
-			double mag, rate, wt, dip, surfaceWidth, upperSeisDepth, latitude, longitude;
+			double mag, rate, wt, dip, downDipWidth, upperSeisDepth, lowerSeisDepth, latitude, longitude, rake, prob;
 			FaultTrace faultTrace;
 			String faultName;
 			for(int i=0; i<numLines; ) {
 				String line = charFileLines.get(i++);
 				StringTokenizer tokenizer = new StringTokenizer(line);
 				rakeId = Integer.parseInt(tokenizer.nextToken().trim());
-				faultName = line.substring(8).trim();
-				line = charFileLines.get(i++);
-
+				if(rakeId==1) rake = 0;
+				else if(rakeId==2) rake =90;
+				else rake = -90;
+				tokenizer.nextToken();
+				tokenizer.nextToken();
+				tokenizer.nextToken();
+				tokenizer.nextToken();
+				faultName = "";
+				while(tokenizer.hasMoreTokens()) faultName+=tokenizer.nextToken()+" ";
+				System.out.println(faultName);
 				// mag, rate & wt
 				line = charFileLines.get(i++);
 				tokenizer = new StringTokenizer(line);
 				mag = Double.parseDouble(tokenizer.nextToken().trim());
 				rate = Double.parseDouble(tokenizer.nextToken().trim());
+				prob = 1 - Math.exp(-rate*duration);
 				wt = Double.parseDouble(tokenizer.nextToken().trim());
-				line = charFileLines.get(i++);
 
 				// dip, surface width, upper seis depth, surface length
 				line = charFileLines.get(i++);
 				tokenizer = new StringTokenizer(line);
 				dip = Double.parseDouble(tokenizer.nextToken().trim());
-				surfaceWidth = Double.parseDouble(tokenizer.nextToken().trim());
+				downDipWidth = Double.parseDouble(tokenizer.nextToken().trim());
 				upperSeisDepth = Double.parseDouble(tokenizer.nextToken().trim());
+				lowerSeisDepth = upperSeisDepth + downDipWidth*Math.sin((Math.toRadians(Math.abs(dip))));
 				
 				//fault trace
 				line = charFileLines.get(i++);
@@ -82,7 +91,11 @@ public class NonCA_FaultsFetcher {
 					longitude =Double.parseDouble(tokenizer.nextToken());
 					faultTrace.addLocation(new Location(latitude, longitude));
 				}
-				
+				// surface
+				StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, dip, upperSeisDepth,
+						lowerSeisDepth, GRID_SPACING);   
+				FaultRuptureSource frs = new FaultRuptureSource(mag,surface,rake, prob);
+				charSources.add(frs);
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -124,6 +137,8 @@ public class NonCA_FaultsFetcher {
 	
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
+		nonCA_FaultsFetcher.getNonCA_FaultIdsFromChrisFile();
+		nonCA_FaultsFetcher.getCharSources(1);
 	}
 	
 }
