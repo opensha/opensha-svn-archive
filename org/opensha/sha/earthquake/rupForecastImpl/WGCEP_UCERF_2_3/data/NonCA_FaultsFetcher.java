@@ -27,10 +27,8 @@ import org.opensha.util.FileUtils;
  *
  */
 public class NonCA_FaultsFetcher {
-	public static final String CHRIS_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NonCA_FaultsFromChris.txt";
 	private final static String CHAR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsChar.txt";
 	private final static String GR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsGR.txt";
-	private PrefFaultSectionDataDB_DAO prefFaultSectionDataDB_DAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static double GRID_SPACING = 0.1;
 	
 	public NonCA_FaultsFetcher() {
@@ -176,41 +174,9 @@ public class NonCA_FaultsFetcher {
 		return grSources;
 	}
 	
-	/**
-	 * Read file from Chris Wills email
-	 * 
-	 * @return
-	 */
-	public ArrayList<Integer> getNonCA_FaultIdsFromChrisFile() {
-		try {
-			// Read the Non-CA faults file
-			ArrayList<String> faultNames = FileUtils.loadJarFile(CHRIS_FILENAME);
-			ArrayList<Integer> faultIds = new ArrayList<Integer>();
-			ArrayList<FaultSectionPrefData> prefFaultSectionDataList = prefFaultSectionDataDB_DAO.getAllFaultSectionPrefData();
-			int numFaultSections = prefFaultSectionDataList.size();
-			for(int i=0; i<numFaultSections; ++i) {
-				FaultSectionPrefData faultSectionPrefData = prefFaultSectionDataList.get(i);
-				if(faultNames.contains(faultSectionPrefData.getSectionName())) {
-					faultIds.add(faultSectionPrefData.getSectionId());
-					faultNames.remove(faultSectionPrefData.getSectionName());
-				}
-			}
-			
-			for(int i=0; i<faultNames.size(); ++i)
-				System.out.println(faultNames.get(i)+ " : Non-CA fault not found in database");
-			return faultIds;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}	
-		return null;
-	}
-	
 	
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
-		nonCA_FaultsFetcher.getNonCA_FaultIdsFromChrisFile();
 		nonCA_FaultsFetcher.getCharSources(1.0);
 		nonCA_FaultsFetcher.getGRSources(1.0);
 	}
