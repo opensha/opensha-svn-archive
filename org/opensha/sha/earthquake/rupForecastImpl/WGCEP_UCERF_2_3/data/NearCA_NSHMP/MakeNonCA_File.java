@@ -30,13 +30,13 @@ public class MakeNonCA_File {
 		try {
 			FileWriter charFw = new FileWriter(PATH+CHAR_OUT_FILE); // Non-CA Char file
 			FileWriter grFw = new FileWriter(PATH+GR_OUT_FILE); // Non-CA GR File
-			processFile("az.65", charFw);
+			processFile("azz.65", charFw);
 			processFile("azc", charFw);
 			processFile("azgr", grFw);
-			processFile("nv.65", charFw);
+			processFile("nv.65.aug", charFw);
 			processFile("nv.char", charFw);
 			processFile("nv.gr", grFw);
-			processFile("orwa.new.65", charFw);
+			processFile("orwa.65.aug", charFw);
 			processFile("orwa.new.char", charFw);
 			processFile("orwa.new.gr", grFw);
 			charFw.close();
