@@ -289,7 +289,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
 		ParamOptions options = new ParamOptions();
 		options.addValueWeight("D2.1", 0.5);
+		//options.addValueWeight("D2.2", 0.125);
+		//options.addValueWeight("D2.3", 0.125);
 		options.addValueWeight("D2.4", 0.5);
+		//options.addValueWeight("D2.5", 0.125);
+		//options.addValueWeight("D2.6", 0.125);
 		paramValues.add(options);
 		
 		// Mag Area Rel
@@ -314,12 +318,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramValues.add(options);
 		
 		// Mag Correction
-		paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
+		/*paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(-0.1), 0.2);
 		options.addValueWeight(new Double(0), 0.6);
 		options.addValueWeight(new Double(0.1), 0.2);
-		paramValues.add(options);
+		paramValues.add(options);*/
 		
 		//	Connect More B-Faults?
 		paramNames.add(UCERF2.CONNECT_B_FAULTS_PARAM_NAME);
@@ -329,11 +333,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramValues.add(options);
 		
 		// C-zone weights
-		paramNames.add(UCERF2.C_ZONE_WT_PARAM_NAME);
+		/*paramNames.add(UCERF2.C_ZONE_WT_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(0.0), 0.5);
 		options.addValueWeight(new Double(1.0), 0.5);
-		paramValues.add(options);
+		paramValues.add(options);*/
 	}
 	
 	
@@ -435,7 +439,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
+		//values.add("D2.2");
+		//values.add("D2.3");
 		values.add("D2.4");
+		//values.add("D2.5");
+		//values.add("D2.6");
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults only
 		
 		// Mag Area Rel
@@ -462,12 +470,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		
 		
 		// Mag Correction
-		paramName = UCERF2.MEAN_MAG_CORRECTION;
+		/*paramName = UCERF2.MEAN_MAG_CORRECTION;
 		values = new ArrayList();
 		values.add(new Double(-0.1));
 		values.add(new Double(0.1));
 		plotMFDs(paramName, values, true, true, false, false, false); // plot A-faults  and B-faults
-
+*/
 		//	Connect More B-Faults?
 		paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
 		values = new ArrayList();

@@ -86,14 +86,56 @@ public class ReportBulgeFigures {
 		// figure 2
 		++fig;
 		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.2");
+		ucerf2.updateForecast();
+		makeMFDsPlot("plot"+fig, ucerf2);
+		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.2");
+		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
+		
+		// figure 3
+		++fig;
+		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.3");
+		ucerf2.updateForecast();
+		makeMFDsPlot("plot"+fig, ucerf2);
+		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.3");
+		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
+		
+		// figure 4
+		++fig;
+		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
 		ucerf2.updateForecast();
 		makeMFDsPlot("plot"+fig, ucerf2);
 		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
+		
+		// figure 5
+		++fig;
+		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.5");
+		ucerf2.updateForecast();
+		makeMFDsPlot("plot"+fig, ucerf2);
+		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.5");
+		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
+		
+		
+		// figure 6
+		++fig;
+		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.6");
+		ucerf2.updateForecast();
+		makeMFDsPlot("plot"+fig, ucerf2);
+		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
+		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.6");
+		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
+		
 
-		//		 figure 3
+		//		 figure 7
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
@@ -103,7 +145,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		makeMFDsPlot("plot"+fig, ucerf2);
 
-		//		 figure 4
+		//		 figure 8
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e7));
@@ -113,7 +155,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		makeMFDsPlot("plot"+fig, ucerf2);
 
-		//		 figure 5
+		//		 figure 9
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
@@ -124,7 +166,7 @@ public class ReportBulgeFigures {
 		makeMFDsPlot("plot"+fig, ucerf2);
 
 		//		 figure 6
-		++fig;
+		/*++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
 		ucerf2.updateForecast();
@@ -141,9 +183,9 @@ public class ReportBulgeFigures {
 		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		sheet.getRow(1+paramNames.indexOf(UCERF2.MEAN_MAG_CORRECTION)).createCell((short)fig).setCellValue(0.1);
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		makeMFDsPlot("plot"+fig, ucerf2);
+		makeMFDsPlot("plot"+fig, ucerf2);*/
 
-		//		 figure 8
+		//		 figure 10
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
@@ -154,7 +196,7 @@ public class ReportBulgeFigures {
 		makeMFDsPlot("plot"+fig, ucerf2);
 
 		//		 figure 9
-		++fig;
+		/*++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.C_ZONE_WT_PARAM_NAME).setValue(new Double(0.0));
 		ucerf2.updateForecast();
@@ -171,7 +213,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(0).createCell((short)fig).setCellValue("Figure "+fig);
 		sheet.getRow(1+paramNames.indexOf(UCERF2.C_ZONE_WT_PARAM_NAME)).createCell((short)fig).setCellValue(1.0);
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
-		makeMFDsPlot("plot"+fig, ucerf2);
+		makeMFDsPlot("plot"+fig, ucerf2);*/
 
 
 		// wrap cell style

@@ -39,81 +39,75 @@ public class NSHMP_FileWriter {
 	public void writeNSHMP_SrcFiles(String dirName) {
 		File file = new File(dirName);
 		if(!file.isDirectory()) file.mkdirs();
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.1");
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.2");
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.3");
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.4");
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.5");
+		writeNSHMP_SrcFilesForDefModel( dirName, "D2.6");
+	}
+	
+	/**
+	 * Make Source files for NSHMP for a particular deformation model
+	 *
+	 */
+	public void writeNSHMP_SrcFilesForDefModel(String dirName, String defModelName) {
+
 		
 		// FOR SEGMENTED MODEL
 
 		// Default parameters
 		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_EllB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_EllB_"+defModelName);
 		// change Mag Area to Hans Bakun
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_HB");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_HB_"+defModelName);
 		// default with High apriori model weight
 		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e10));
 		ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0));
 		ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0));
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllBMeanMagCorr0.0");
-		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
-		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB_MeanMagCorr0.1");
-		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
-		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB_MeanMagCorr-0.1");
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_EllB_"+defModelName);
+
 		// change Mag Area Rel
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
-		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.0));
 		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HBMeanMagCorr0.0");
-		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(0.1));
-		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB_MeanMagCorr0.1");
-		ucerf2.getParameter(UCERF2.MEAN_MAG_CORRECTION).setValue(new Double(-0.1));
-		ucerf2.updateForecast();
-		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB_MeanMagCorr-0.1");
-
+		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_aPriori_HB_"+defModelName);
+		
 		// UNSEGMENTED MODELS & B-FAULTS
 		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		ucerf2.updateForecast();
-		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_EllB");
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB_D2.1");
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB_D2.4");
-
+		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_EllB_"+defModelName);
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_EllB_"+defModelName);
 		// change Mag Area to Hans Bakun
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_HB");
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB_D2.1");
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB_D2.4");
+		writeNSHMP_UnsegmentedAfaultSrcFile(dirName+"/"+"aFault_unseg_HB_"+defModelName);
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_stitched_HB_"+defModelName);
+		
 
 		// UNSTITCHED B-FAULTS
 		ucerf2.setParamDefaults();
+		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
 		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB_D2.1");
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB_D2.4");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_EllB_"+defModelName);
 
 		// change Mag Area to Hans Bakun
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.1");
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB_D2.1");
-		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
-		ucerf2.updateForecast();
-		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB_D2.4");
+		writeNSHMP_BfaultSrcFiles(dirName+"/"+"bFault_unstitched_HB_"+defModelName);
 
 	}
+	
+	
 
 	/**
 	 * Write files for each Segmented source for NSHMP with the current parameters
