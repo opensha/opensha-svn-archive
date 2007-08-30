@@ -1114,7 +1114,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
    /**
     * this computes the moment for the GR distribution exactly the way frankel's code does it
     */
-   private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
+   public static double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
      double mo = 0;
      double mag;
      for(int i = 0; i <numMag; i++) {

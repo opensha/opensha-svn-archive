@@ -42,8 +42,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	//for Debug purposes
 	private static String C = new String("UnsegmentedSource");
 	private final static boolean D = true;
-	public final static double DEFAULT_GRID_SPACING = 1;
-	public final static double DEFAULT_RUP_OFFSET= 1;
+	public final static double DEFAULT_RUP_OFFSET= UCERF2.RUP_OFFSET;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
@@ -110,7 +109,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// create the source
 		setAll(sourceMFD,
-				segmentData.getCombinedGriddedSurface(DEFAULT_GRID_SPACING),
+				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
 				DEFAULT_RUP_OFFSET,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
@@ -223,7 +222,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		
 		// create the source
 		setAll(sourceMFD,
-				segmentData.getCombinedGriddedSurface(DEFAULT_GRID_SPACING),
+				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
 				DEFAULT_RUP_OFFSET,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
@@ -422,7 +421,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		origSlipRateFunc = new ArbitrarilyDiscretizedFunc();
 		origSlipRateFunc.setName("Orig slip rate along fault");
 		for(int col=0; col<numCols; ++col) {
-			double length = col*DEFAULT_GRID_SPACING;
+			double length = col*UCERF2.GRID_SPACING;
 			// find the segment where this location exists
 			for(int segIndex=0; segIndex<num_seg; ++segIndex) {
 				if(length<segLengths.getY(segIndex)) {

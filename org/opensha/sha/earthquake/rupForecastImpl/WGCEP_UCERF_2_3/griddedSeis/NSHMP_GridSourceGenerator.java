@@ -408,8 +408,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.667*agrd_wuscmp_out[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.333*agrd_wuscmp_out[locIndex], B_VAL, false), true);
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, false), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_outv3[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_outv3[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		} else { // Apply default Mag Max
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wuscmp_out[locIndex], B_VAL, false), true);

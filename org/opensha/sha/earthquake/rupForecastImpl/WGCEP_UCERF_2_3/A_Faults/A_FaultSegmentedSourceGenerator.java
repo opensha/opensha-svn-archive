@@ -112,7 +112,7 @@ public class A_FaultSegmentedSourceGenerator {
 	// list of sources
 	private ArrayList<FaultRuptureSource> sourceList;
 	
-	private final static double DEFAULT_GRID_SPACING = 1.0;
+	private final static double DEFAULT_GRID_SPACING = UCERF2.GRID_SPACING;
 	
 	private Boolean isTimeDeptendent;
 	

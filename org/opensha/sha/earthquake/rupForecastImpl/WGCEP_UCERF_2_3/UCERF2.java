@@ -43,6 +43,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.Gener
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.B_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegmentTimeDepData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.A_FaultsMFD_Plotter;
@@ -78,6 +79,10 @@ public class UCERF2 extends EqkRupForecast {
 
 	// public final static double B_FAULT_GR_MAG_LOWER = 6.5;
 	public final static double BACKGROUND_MAG_LOWER = 5.0;
+	
+	// Fault Grid Spacing
+	public final static double GRID_SPACING = 1;
+	public final static double RUP_OFFSET = 1;
 
 
 	public final static double BACK_SEIS_DEPTH = 5.0;
@@ -390,6 +395,7 @@ public class UCERF2 extends EqkRupForecast {
 
 	private ArrayList aFaultSourceGenerators; 
 	private ArrayList<UnsegmentedSource> bFaultSources;
+	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
 
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 
@@ -1260,6 +1266,18 @@ public class UCERF2 extends EqkRupForecast {
 			e.printStackTrace();
 		}
 	}
+	
+	private void mkNonCA_B_FaultSources() {
+		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
+		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
+		double duration = timeSpan.getDuration();
+
+		NonCA_FaultsFetcher fetcher = new NonCA_FaultsFetcher();
+		ArrayList sources = fetcher.getSources(duration, magSigma, magTruncLevel,RUP_OFFSET);
+		nonCA_bFaultSources.addAll(sources);
+		allSources.addAll(sources);
+	}
+
 
 
 	/**
