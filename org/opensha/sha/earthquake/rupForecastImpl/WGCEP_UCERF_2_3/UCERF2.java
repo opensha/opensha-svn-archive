@@ -91,7 +91,7 @@ public class UCERF2 extends EqkRupForecast {
 	private double totMoRateReduction;
 
 	// various summed MFDs
-	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD;
+	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD;
 	private ArrayList<IncrementalMagFreqDist>  cZonesMFD_List;
 
@@ -396,6 +396,7 @@ public class UCERF2 extends EqkRupForecast {
 	private ArrayList aFaultSourceGenerators; 
 	private ArrayList<UnsegmentedSource> bFaultSources;
 	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
+	
 
 	private B_FaultFixes bFaultFixes = new B_FaultFixes(); 
 
@@ -1271,11 +1272,12 @@ public class UCERF2 extends EqkRupForecast {
 		double magSigma  = ((Double) magSigmaParam.getValue()).doubleValue();
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		double duration = timeSpan.getDuration();
-
 		NonCA_FaultsFetcher fetcher = new NonCA_FaultsFetcher();
 		ArrayList sources = fetcher.getSources(duration, magSigma, magTruncLevel,RUP_OFFSET);
+		nonCA_bFaultSources = new ArrayList();
 		nonCA_bFaultSources.addAll(sources);
 		allSources.addAll(sources);
+		nonCA_B_FaultsSummedMFD = fetcher.getSummedMFD();
 	}
 
 
@@ -1288,6 +1290,16 @@ public class UCERF2 extends EqkRupForecast {
 	 */
 	public ArrayList get_A_FaultSourceGenerators() {
 		return this.aFaultSourceGenerators;
+	}
+
+	
+	/**
+	 * Get a List of Non-CA b Fault sources 
+	 * 
+	 * @return
+	 */
+	public ArrayList getNonCA_B_FaultSources() {
+		return this.nonCA_bFaultSources;
 	}
 
 	/**
@@ -1494,6 +1506,10 @@ public class UCERF2 extends EqkRupForecast {
 		//return new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 	} 
 
+	public IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD() {
+		return this.nonCA_B_FaultsSummedMFD;
+	}
+	
 	public IncrementalMagFreqDist getTotal_A_FaultsMFD() {
 		return this.aFaultSummedMFD;
 	}
@@ -1659,6 +1675,8 @@ public class UCERF2 extends EqkRupForecast {
 		/* */
 		//System.out.println("Creating B Fault sources");
 		mkB_FaultSources();
+		
+		mkNonCA_B_FaultSources();
 
 		//System.out.println("Creating C Zone Fault sources");
 		makeC_ZoneSources();

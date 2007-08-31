@@ -44,10 +44,13 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		      Color.RED, 2);
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      Color.RED, 5);
+	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+		      Color.ORANGE, 2);
 	
 	private final static String A_FAULTS_METADATA = "Type A-Faults Total Mag Freq Dist";
 	private final static String B_FAULTS_CHAR_METADATA = "Type B-Faults Total Char Mag Freq Dist";
 	private final static String B_FAULTS_GR_METADATA = "Type B-Faults Total GR Mag Freq Dist";
+	private final static String NON_CA_B_FAULTS_METADATA = "Non-CA Type B-Faults Total Mag Freq Dist";
 	private final static String BACKGROUND_METADATA = "BackGround Total  Mag Freq Dist";
 	private final static String C_ZONES_METADATA = "C Zone Total  Mag Freq Dist";
 	private final static String TOTAL_METADATA = "Total  Mag Freq Dist";
@@ -76,6 +79,10 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		//	Type B faults GR cum Dist
 		cumDist = ucerf2.getTotal_B_FaultsGR_MFD().getCumRateDist();
 		cumDist.setInfo(B_FAULTS_GR_METADATA);
+		funcs.add(cumDist);
+		// Non-CA Type B faults
+		cumDist = ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRateDist();
+		cumDist.setInfo(NON_CA_B_FAULTS_METADATA);
 		funcs.add(cumDist);
 		//	Background cum Dist
 		cumDist = ucerf2.getTotal_BackgroundMFD().getCumRateDist();
@@ -124,6 +131,10 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		incrMFD = eqkRateModelERF.getTotal_B_FaultsGR_MFD();
 		incrMFD.setInfo(B_FAULTS_GR_METADATA);
 		funcs.add(incrMFD);
+		// Non-CA Type B faults
+		incrMFD = eqkRateModelERF.getTotal_NonCA_B_FaultsMFD();
+		incrMFD.setInfo(NON_CA_B_FAULTS_METADATA);
+		funcs.add(incrMFD);	
 		//	Background cum Dist
 		incrMFD = eqkRateModelERF.getTotal_BackgroundMFD();
 		incrMFD.setInfo(BACKGROUND_METADATA);
@@ -193,6 +204,7 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		 list.add(this.PLOT_CHAR1);
 		 list.add(this.PLOT_CHAR2);
 		 list.add(this.PLOT_CHAR3);
+		 list.add(this.PLOT_CHAR9);
 		 list.add(this.PLOT_CHAR4);
 		 list.add(this.PLOT_CHAR5);
 		 list.add(this.PLOT_CHAR6);

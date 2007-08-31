@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data;
 
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -21,6 +22,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
@@ -33,13 +35,15 @@ import org.opensha.util.FileUtils;
  *
  */
 public class NonCA_FaultsFetcher {
-	private final static String CHAR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsChar.txt";
-	private final static String GR_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_FaultsGR.txt";
+	private final static String FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
 	
 	
 	private ArrayList<FaultRuptureSource> charSources = new ArrayList<FaultRuptureSource>();
 	private ArrayList<Frankel02_TypeB_EqkSource> grSources = new ArrayList<Frankel02_TypeB_EqkSource>();
 	private ArrayList<FaultRuptureSource> lessThan6_5_Sources = new ArrayList<FaultRuptureSource>();
+	private SummedMagFreqDist summedMFD;
+	
+	
 
 	
 	/**
@@ -52,9 +56,14 @@ public class NonCA_FaultsFetcher {
 		
 		GaussianMagFreqDist charMFD = null;
 		GutenbergRichterMagFreqDist grMFD = null;
+		summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
+		
+		
 		
 		try {
-			ArrayList<String> fileLines = FileUtils.loadJarFile(CHAR_FILENAME);
+			//FileWriter fw = new FileWriter("NonCA_Sources.txt");
+			//fw.write("Total Yearly Rate\tTotal Moment Rate\tSource Name\n");
+			ArrayList<String> fileLines = FileUtils.loadJarFile(FILENAME);
 			int numLines = fileLines.size();
 			int rakeId, srcTypeId;
 			double mag=0, dip, downDipWidth, upperSeisDepth, lowerSeisDepth, latitude, longitude, rake;
@@ -86,6 +95,7 @@ public class NonCA_FaultsFetcher {
 					moRate *= wt*wt2;
 					charMFD = new GaussianMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG, 
 							mag, charMagSigma, moRate, charMagTruncLevel, 2);
+					summedMFD.addIncrementalMagFreqDist(charMFD);
 				}
 				else if (srcTypeId==2) {
 					double aVal=Double.parseDouble(tokenizer.nextToken().trim());
@@ -93,14 +103,17 @@ public class NonCA_FaultsFetcher {
 					double magLower=Double.parseDouble(tokenizer.nextToken().trim());
 					double magUpper=Double.parseDouble(tokenizer.nextToken().trim());
 					double deltaMag=Double.parseDouble(tokenizer.nextToken());
+					//System.out.println(faultName+","+magLower+","+magUpper);
 		            magLower += deltaMag/2.0;
 		            magUpper -= deltaMag/2.0;
 		            numMags = Math.round( (float)((magUpper-magLower)/deltaMag + 1.0) );
+		            //if(numMags==0) System.out.println(faultName+","+magLower+","+magUpper);
 					double moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(magLower, numMags, deltaMag, aVal, bVal);
 					double wt = Double.parseDouble(tokenizer.nextToken().trim());
 					double wt2 = 0.334;
 					moRate *= wt*wt2;
-					grMFD = new GutenbergRichterMagFreqDist(magLower,numMags,deltaMag,moRate,bVal);					
+					grMFD = new GutenbergRichterMagFreqDist(magLower,numMags,deltaMag,moRate,bVal);
+					summedMFD.addResampledMagFreqDist(grMFD, true);
 				}
 				else throw new RuntimeException("Src type not supported");
 
@@ -132,13 +145,18 @@ public class NonCA_FaultsFetcher {
 					frs.setName(faultName+" Char");
 					if(mag > 6.5) charSources.add(frs);
 					else lessThan6_5_Sources.add(frs);
+					//fw.write((float)charMFD.getTotalIncrRate()+"\t"+(float)charMFD.getTotalMomentRate()+"\t"+frs.getName()+"\n");
 				}
 				else {
 					Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(grMFD,surface,
                             rupOffset, rake, duration, faultName+" GR");
+					//fw.write((float)grMFD.getTotalIncrRate()+"\t"+(float)grMFD.getTotalMomentRate()+"\t"+fgrs.getName()+"\n");
 					grSources.add(fgrs);
 				}
 			}
+			//fw.write("\n\n"+summedMFD.toString());
+			//fw.write("\n\n"+summedMFD.getCumRateDist().toString());
+			//fw.close();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -151,11 +169,19 @@ public class NonCA_FaultsFetcher {
 	}
 	
 	
-
-
+	/**
+	 * Get Summed MFD for all sources
+	 * 
+	 * @return
+	 */
+	public SummedMagFreqDist getSummedMFD()  {
+		return this.summedMFD;
+	}
 	
+
 	
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
+		nonCA_FaultsFetcher.getSources(1.0, 0.12, 2, 1);
 	}
 }
