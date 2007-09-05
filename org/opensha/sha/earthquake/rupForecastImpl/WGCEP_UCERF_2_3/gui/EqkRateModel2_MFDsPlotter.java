@@ -208,12 +208,10 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		 list.add(this.PLOT_CHAR4);
 		 list.add(this.PLOT_CHAR5);
 		 list.add(this.PLOT_CHAR6);
-		 if(funcs.size()>6) {
-			 list.add(this.PLOT_CHAR7);
-			 list.add(this.PLOT_CHAR8);
-			 list.add(this.PLOT_CHAR8);
-			 list.add(this.PLOT_CHAR8);
-		 }
+		 if(funcs.size()>7) list.add(this.PLOT_CHAR7);
+		 if(funcs.size()>8)	 list.add(this.PLOT_CHAR8);
+		 if(funcs.size()>9)	 list.add(this.PLOT_CHAR8);
+		 if(funcs.size()>10)	 list.add(this.PLOT_CHAR8);
 		 return list;
 	}
 	

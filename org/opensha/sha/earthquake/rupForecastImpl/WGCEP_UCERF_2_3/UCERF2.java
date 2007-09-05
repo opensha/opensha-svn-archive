@@ -1340,48 +1340,6 @@ public class UCERF2 extends EqkRupForecast {
 	}
 
 
-	/**
-	 * This returns an EvenlyDiscretizedFunc that is a cumulative 
-	 * MFD for Karen Felzer's best-fit to the observed MFD (from Table 11 in Appendix_I_v01.pdf)
-	 * @return
-	 */
-	public EvenlyDiscretizedFunc getObsBestFitCumMFD(boolean includeAftershocks) {
-		double rate;
-		double bVal;
-
-		if(includeAftershocks)  {
-			bVal = 1.0;
-			rate = 7.4;
-		}
-		else {
-			bVal = 0.8;
-			rate = 3.74;
-		}
-		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG,
-				this.MIN_MAG, 8.0, 1.0, bVal);
-		gr.scaleToCumRate(0,rate);
-		EvenlyDiscretizedFunc func = gr.getCumRateDist();
-		EvenlyDiscretizedFunc newFunc = new EvenlyDiscretizedFunc(MIN_MAG, 7.5, (int)Math.round((7.5-MIN_MAG)/DELTA_MAG)+1);
-		for(int i=0; i<newFunc.getNum(); ++i) {
-			newFunc.set(i, func.getY(i));
-		}
-
-		if(includeAftershocks)
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(M³5)=6.69; b= 1.0)");
-		else
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(M³5)=3.22; b= 0.8)");
-
-		return newFunc;
-		/*EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG);
-		double[] incrRates = {5.68, 1.79, 0.57, 0.18, 0.06, 0.018};
-		double sum=0;
-		for(int i=5; i>=0; i--) {
-			sum += incrRates[i];
-			obsBestFitCumMFD.set(i, sum);
-		}
-		obsBestFitCumMFD.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog (from Table 1 in her appendix)");
-		return obsBestFitCumMFD;*/
-	}
 
 	/**
 	 * @return
@@ -1390,7 +1348,8 @@ public class UCERF2 extends EqkRupForecast {
 		boolean includeAfterShocks = areAfterShocksIncluded();
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAfterShocks);
 		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		for(int i=0; i<obsCumMFD.size(); ++i) {
+		// Only get the best estimate because 95% conf bounds may not be legit 
+		for(int i=0; i<1; ++i) {
 			EvenlyDiscretizedFunc cumMFD = obsCumMFD.get(i);
 			ArbIncrementalMagFreqDist arbIncrMFD = new ArbIncrementalMagFreqDist(cumMFD.getMinX()+UCERF2.DELTA_MAG, cumMFD.getMaxX()-UCERF2.DELTA_MAG, 24);
 //			System.out.println("deltaMag="+arbIncrMFD.getDelta()+"  "+arbIncrMFD.getMinX()+"  "+arbIncrMFD.getMaxX());
@@ -1411,7 +1370,7 @@ public class UCERF2 extends EqkRupForecast {
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD and upper and lower confidence MFDs
-	 * (from Table 21 of Appendix_I_v03.pdf)
+	 * (from Karen's email on 08/27/07). NOTE THAT THE WITH AFTERSHOCK VALUES WERE NOT UPDATED HERE
 	 * @return
 	 */
 	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
@@ -1422,35 +1381,9 @@ public class UCERF2 extends EqkRupForecast {
 		double[] cumRatesLowWith =  {7.4-3.4,  2.3-1.1,  0.73-0.34, 0.23-0.11,  0.07-0.03,  0.016-0.011};
 		double[] cumRatesHighWith = {7.4+2.67, 2.3+0.84, 0.73+0.27, 0.23+0.084, 0.07+0.025, 0.016+0.0008};
 		double[] cumRates = {    3.74,      1.48,      0.58,      0.22,      0.08,      0.02};
-		double[] cumRatesLow =  {3.74-1.47, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.015};
-		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.18, 0.22+0.07, 0.08+0.03, 0.02+0.011};
+		double[] cumRatesLow =  {3.74-1.47, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.014};
+		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.18, 0.22+0.10, 0.08+0.06, 0.02+0.025};
 
-		/* pasted from her table 21:
-		M 5.0 	7.4,?3.4,+2.67 			3.74,?1.47, +1.13
-		M 5.5 	2.3,?1.1,+0.84 			1.48,?0.59, +0.45
-		M 6.0 	0.73,?0.34, +0.27 		0.58,?0.23, +0.18
-		M 6.5 	0.23,?0.11, +0.084 		0.22,?0.09, +0.07
-		M 7.0 	0.07,?0.03, +0.025 		0.08,?0.04, +0.03
-		M 7.5 	0.016,?0.011, +0.0008 	0.02,?0.015, +0.011
-		 */
-
-
-		/* OLD VALUES (from Table 11 of Appendix_I_v01.pdf)
-		double[] cumRatesWith = {7.84, 2.47, 0.78, 0.24, 0.07, 0.017};
-		double[] cumRatesLowWith =  {7.84-3.6, 2.47-1.14, 0.78-0.36, 0.24-0.11, 0.07-0.05, 0.017-0.013};
-		double[] cumRatesHighWith = {7.84+3.6, 2.47+1.14, 0.78+0.36, 0.24+0.11, 0.07+0.07, 0.017+0.026};
-		double[] cumRates = {3.6, 1.42, 0.56, 0.21, 0.076, 0.022};
-		double[] cumRatesLow =  {3.6-1.37, 1.42-0.55, 0.56-0.22, 0.21-0.09, 0.076-0.06, 0.022-0.021};
-		double[] cumRatesHigh = {3.6+1.37, 1.42+0.55, 0.56+0.22, 0.21+0.13, 0.076+0.074, 0.022+0.017};
-
-		/* OLD VALUES (from Table 6 in the doc she sent on Nov 2nd) 
-		double[] cumRatesWith = {6.69, 2.11, 0.66, 0.21, 0.06, 0.015};
-		double[] cumRatesLowWith =  {6.69-2.7, 2.11-0.85, 0.66-0.27, 0.21-0.11, 0.06-0.045, 0.015-0.01};
-		double[] cumRatesHighWith = {6.69+2.7, 2.11+0.85, 0.66+0.27, 0.21+0.11, 0.06+0.077, 0.015+0.026};
-		double[] cumRates = {3.22, 1.27, 0.5, 0.19, 0.06, 0.015};
-		double[] cumRatesLow =  {3.22-1.13, 1.27-0.45, 0.5-0.18, 0.19-0.1, 0.06-0.045, 0.015-0.01};
-		double[] cumRatesHigh = {3.22+1.13, 1.27+0.45, 0.5+0.18, 0.19+0.1, 0.06+0.077, 0.015+0.026};
-		 */
 
 		if(includeAftershocks) {
 			cumRates = cumRatesWith;
@@ -1469,9 +1402,9 @@ public class UCERF2 extends EqkRupForecast {
 			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog including aftershocks (Table 21 of Karen Felzer's Appendix_I_v03.pdf)");
 		}
 		else {
-			obsCumMFD.setInfo("Cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Sept. 29, 2006 email)");
-			obsCumLowMFD.setInfo("Lower 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
-			obsCumHighMFD.setInfo("Upper 98% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Nov. 2, 2006 email)");
+			obsCumMFD.setInfo("Cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Aug 27, 2007 email)");
+			obsCumLowMFD.setInfo("Lower 95% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Aug 27, 2007 email)");
+			obsCumHighMFD.setInfo("Upper 95% confidence of cumulative MFD for observed catalog excluding aftershocks (from Karen Felzer's Aug 27, 2007 email)");
 		}
 
 		/*
