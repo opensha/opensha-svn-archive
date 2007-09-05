@@ -15,6 +15,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
@@ -108,7 +109,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			moRateReduction = 0.0;
 			this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 			
-			// These values come from an email from Steve Harmsen on 08/30/07
+			// The following values come from the file "creepflt.1sta.in" sent by Steve Harmsen on 08/30/07
+			// this produces a total rate of 0.01095, hwereas that annoted in their file is 0.01079 (close enough)
 			mag_lowerGR = 6.0;
 			this.mag_lowerGR = mag_lowerGR;
 			b_valueGR = 0.91;
@@ -116,6 +118,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			this.sourceMag = 6.7;
 			fractCharVsGR = 0;
 			moRate = 3.8593e16;  // correct units?
+			
 		}
 
 		
