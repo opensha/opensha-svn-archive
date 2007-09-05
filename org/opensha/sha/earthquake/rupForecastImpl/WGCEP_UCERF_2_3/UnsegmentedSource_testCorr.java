@@ -25,19 +25,6 @@ public class UnsegmentedSource_testCorr extends UnsegmentedSource {
 	/**
 	 * @param segmentData
 	 * @param magAreaRel
-	 * @param sourceMagPDF
-	 * @param moRateReduction
-	 */
-	public UnsegmentedSource_testCorr(FaultSegmentData segmentData,
-			MagAreaRelationship magAreaRel,
-			IncrementalMagFreqDist sourceMagPDF, double moRateReduction) {
-		super(segmentData, magAreaRel, sourceMagPDF, moRateReduction);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param segmentData
-	 * @param magAreaRel
 	 * @param fractCharVsGR
 	 * @param min_mag
 	 * @param max_mag

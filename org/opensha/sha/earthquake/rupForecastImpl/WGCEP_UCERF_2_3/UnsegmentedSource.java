@@ -16,6 +16,7 @@ import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.*;
@@ -73,89 +74,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 
 	protected ArbitrarilyDiscretizedFunc origSlipRateFunc, predSlipRateFunc;
 	private ArrayList<ArbitrarilyDiscretizedFunc> magBasedUncorrSlipRateFuncs;
-	
-	
-	
-	/**
-	 * Description:  The constructs the source using a supplied Mag PDF
-	 * 
-	 */
-	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
-			IncrementalMagFreqDist sourceMagPDF, double moRateReduction) {
-		
-		this.isPoissonian = true;
-		
-		// source mag undefined because PDF given
-		sourceMag = Double.NaN;
-		grMFD = null;
-		charMFD = null;
-		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
-		
-		this.segmentData = segmentData;
-		this.magAreaRel = magAreaRel;
-		
-		num_seg = segmentData.getNumSegments();
-		
-		// get the source MFD
-		sourceMFD = (IncrementalMagFreqDist)sourceMagPDF.deepClone();
-		this.moRate = segmentData.getTotalMomentRate()*(1-moRateReduction);
-		sourceMFD.scaleToTotalMomentRate(moRate);
-		
-		// get the impled MFD for "visible" ruptures (those that are large 
-		// enough that their rupture will be seen at the surface)
-		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
-		for(int i =0; i<sourceMFD.getNum(); i++)
-			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
-		
-		// create the source
-		setAll(sourceMFD,
-				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
-				DEFAULT_RUP_OFFSET,
-				segmentData.getAveRake(),
-				DEFAULT_DURATION,
-				segmentData.getFaultName(),
-				magAreaRel);
-			
-		// get the rate of ruptures on each segment (segSourceMFD[seg])
-		getSegSourceMFD();
-		
-		// now get the visible MFD for each segment
-		visibleSegSourceMFD = new IncrementalMagFreqDist[num_seg];
-		for(int s=0; s< num_seg; s++) {
-			visibleSegSourceMFD[s] = (IncrementalMagFreqDist) segSourceMFD[s].deepClone();
-			for(int i =0; i<sourceMFD.getNum(); i++)
-				visibleSegSourceMFD[s].set(i,segSourceMFD[s].getY(i)*getProbVisible(segSourceMFD[s].getX(i)));
-		}
-		
-		// change the info in the MFDs
-		String new_info = "Unsegmented Source MFD\n"+sourceMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)moRate+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
-		sourceMFD.setInfo(new_info);
-		
-		new_info = "Visible Unsegmented Source MFD\n"+visibleSourceMFD.getInfo();
-		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleSourceMFD.getTotalMomentRate()+
-		"\n\n\tNew Total Rate: "+(float)visibleSourceMFD.getCumRate(0);
-		visibleSourceMFD.setInfo(new_info);
-		
-		
-		// find the total rate of ruptures for each segment
-		segRate = new double[num_seg];
-		segVisibleRate = new double[num_seg];
-		for(int s=0; s< num_seg; s++) {
-			segRate[s] = segSourceMFD[s].getTotalIncrRate();
-			segVisibleRate[s] = visibleSegSourceMFD[s].getTotalIncrRate();
-		}
-		
-		// find the slip distribution of each segment
-		computeSegSlipDist();
-		//if(D)
-		//  for(int i=0; i<num_seg; ++i)
-		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
-	}
 
-
-	
-	
 	
 	/**
 	 * Description:  The constructs the source as a fraction of charateristic (Gaussian) and GR
@@ -181,6 +100,26 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
 //System.out.print(sourceMag+"\n");
 		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
+		
+		
+		
+		//OVERRIDE VALUES FOR SAF CREEPING SECTION WITH NSHMP VALUES
+		if(segmentData.getFaultName().equals("San Andreas (Creeping Segment)")) {
+			moRateReduction = 0.0;
+			this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
+			
+			// These values come from an email from Steve Harmsen on 08/30/07
+			mag_lowerGR = 6.0;
+			this.mag_lowerGR = mag_lowerGR;
+			b_valueGR = 0.91;
+			this.b_valueGR = b_valueGR;
+			this.sourceMag = 6.7;
+			fractCharVsGR = 0;
+			moRate = 3.8593e16;  // correct units?
+		}
+
+		
+		
 		
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
@@ -213,13 +152,13 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		}
 		
 		num_seg = segmentData.getNumSegments();
-		
+				
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
 		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
 		for(int i =0; i<sourceMFD.getNum(); i++)
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
-		
+
 		// create the source
 		setAll(sourceMFD,
 				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
@@ -981,6 +920,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	     }
 	     return Math.log10((moRate/sum));
 	   }
+	   
 	
 }
 
