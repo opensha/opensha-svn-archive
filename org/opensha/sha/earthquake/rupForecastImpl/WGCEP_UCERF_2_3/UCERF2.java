@@ -100,7 +100,8 @@ public class UCERF2 extends EqkRupForecast {
 	 */
 	//private final static String IN_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
 	private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/";
-
+	private final static String NON_CA_SOURCES_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
+	
 	private ArrayList allSources;
 
 	// background seismicity inlcude/exclude param
@@ -1273,7 +1274,7 @@ public class UCERF2 extends EqkRupForecast {
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		double duration = timeSpan.getDuration();
 		NonCA_FaultsFetcher fetcher = new NonCA_FaultsFetcher();
-		ArrayList sources = fetcher.getSources(duration, magSigma, magTruncLevel,RUP_OFFSET);
+		ArrayList sources = fetcher.getSources(NON_CA_SOURCES_FILENAME, duration, magSigma, magTruncLevel,RUP_OFFSET);
 		nonCA_bFaultSources = new ArrayList();
 		nonCA_bFaultSources.addAll(sources);
 		allSources.addAll(sources);

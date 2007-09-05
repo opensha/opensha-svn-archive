@@ -35,7 +35,6 @@ import org.opensha.util.FileUtils;
  *
  */
 public class NonCA_FaultsFetcher {
-	private final static String FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
 	
 	
 	private ArrayList<FaultRuptureSource> charSources = new ArrayList<FaultRuptureSource>();
@@ -51,7 +50,7 @@ public class NonCA_FaultsFetcher {
 	 * 
 	 * @return
 	 */
-	public ArrayList<ProbEqkSource> getSources(double duration, double charMagSigma, 
+	public ArrayList<ProbEqkSource> getSources(String fileName, double duration, double charMagSigma, 
 			double charMagTruncLevel, double rupOffset) {
 		
 		GaussianMagFreqDist charMFD = null;
@@ -63,7 +62,7 @@ public class NonCA_FaultsFetcher {
 		try {
 			//FileWriter fw = new FileWriter("NonCA_Sources.txt");
 			//fw.write("Total Yearly Rate\tTotal Moment Rate\tSource Name\n");
-			ArrayList<String> fileLines = FileUtils.loadJarFile(FILENAME);
+			ArrayList<String> fileLines = FileUtils.loadJarFile(fileName);
 			int numLines = fileLines.size();
 			int rakeId, srcTypeId;
 			double mag=0, dip, downDipWidth, upperSeisDepth, lowerSeisDepth, latitude, longitude, rake;
@@ -182,6 +181,7 @@ public class NonCA_FaultsFetcher {
 	
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
-		nonCA_FaultsFetcher.getSources(1.0, 0.12, 2, 1);
+		String fileName = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
+		nonCA_FaultsFetcher.getSources(fileName, 1.0, 0.12, 2, 1);
 	}
 }
