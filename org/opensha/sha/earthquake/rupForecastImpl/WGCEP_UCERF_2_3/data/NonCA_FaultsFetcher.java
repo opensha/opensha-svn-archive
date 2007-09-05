@@ -103,8 +103,10 @@ public class NonCA_FaultsFetcher {
 					double magUpper=Double.parseDouble(tokenizer.nextToken().trim());
 					double deltaMag=Double.parseDouble(tokenizer.nextToken());
 					//System.out.println(faultName+","+magLower+","+magUpper);
-		            magLower += deltaMag/2.0;
-		            magUpper -= deltaMag/2.0;
+					if(magUpper>magLower) {
+						magLower += deltaMag/2.0;
+						magUpper -= deltaMag/2.0;
+					}
 		            numMags = Math.round( (float)((magUpper-magLower)/deltaMag + 1.0) );
 		            //if(numMags==0) System.out.println(faultName+","+magLower+","+magUpper);
 					double moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(magLower, numMags, deltaMag, aVal, bVal);
