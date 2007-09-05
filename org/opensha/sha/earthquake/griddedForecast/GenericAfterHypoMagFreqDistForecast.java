@@ -239,10 +239,10 @@ public void setNumGridLocs() {
       dist[0] = GR_Dist;
       Location gridLoc;
       
-      //IS REGION CORRECT HERE?!?!?!
       gridLoc = this.region.getGridLocation(gridIndex);
-      return magDistLoc = new HypoMagFreqDistAtLoc(dist,
+      magDistLoc = new HypoMagFreqDistAtLoc(dist,
           gridLoc);
+      return magDistLoc;
     //}
   }
 

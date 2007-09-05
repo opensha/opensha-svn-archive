@@ -51,7 +51,7 @@ public class AS_2005_prelim_AttenRel
   public final static String SHORT_NAME = "AS2005";
   private static final long serialVersionUID = 1234567890987654352L;
 
-
+ 
 
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2005 prelim)";

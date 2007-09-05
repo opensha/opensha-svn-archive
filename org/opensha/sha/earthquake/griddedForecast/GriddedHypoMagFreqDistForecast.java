@@ -186,6 +186,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
 
   /**
    * If any parameter has been changed then update the forecast.
+   * NOTE : Not implemented
    */
   public void updateForecast(){
     if(parameterChangeFlag){

@@ -24,14 +24,17 @@ import org.opensha.sha.magdist.*;
  * @version 1.0
  */
 public class STEP_main {
-  private RegionDefaults rDefs;
-  private BackGroundRatesGrid bgGrid;
-  private GregorianCalendar currentTime;
+  private static RegionDefaults rDefs;
+  private static GregorianCalendar currentTime;
 
-  public STEP_main() {
-   
+  /**
+   * First load the active aftershock sequence objects from the last run
+   * load: ActiveSTEP_AIC_AftershockForecastList
+   * each object is a STEP_AftershockHypoMagFreqDistForecast
+   */
+  private static ArrayList STEP_AftershockForecastList = null;
+  public void STEP_main() {
      calc_STEP();
-
   }
 
 
@@ -39,15 +42,12 @@ public class STEP_main {
   /**
    * calc_STEP
    */
-  public void calc_STEP() {
-    /**
-     * First load the active aftershock sequence objects from the last run
-     * load: ActiveSTEP_AIC_AftershockForecastList
-     * each object is a STEP_AftershockHypoMagFreqDistForecast
-     */
-    ArrayList STEP_AftershockForecastList = null;
-    ArrayList New_AftershockForecastList = null;
-   
+  public static void calc_STEP() {
+    
+	 ArrayList New_AftershockForecastList = null;
+	 BackGroundRatesGrid bgGrid = null;
+
+
     /**
      * Now obtain all events that have occurred since the last time the code
      * was run:
@@ -81,7 +81,7 @@ public class STEP_main {
       int min = curTime.get(Calendar.MINUTE);
       int sec = curTime.get(Calendar.SECOND);
 
-      this.currentTime = new GregorianCalendar(year, month,
+      currentTime = new GregorianCalendar(year, month,
           day, hour24, min, sec);
 
     /**
@@ -139,10 +139,19 @@ public class STEP_main {
           * should be set to static (as the aftershock zones apparently overlap)
           */
           if (msMag > maxMag) {
+        	
             if (maxMagInd > -1){
-              staticModel =
-            (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
-              staticModel.set_isStatic(true);
+            	
+        	/***
+        	 * getting the mainshock index which had
+        	 * maximum magnitude upto this point, setting that static 
+        	 * as it no longer has maximum magnitude. 
+        	 */
+           //   staticModel =
+            //(STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
+              staticModel = 
+            (STEP_CombineForecastModels)STEP_AftershockForecastList.get(maxMagInd);
+            staticModel.set_isStatic(true);
             }
             // set the index and mag of the new ms so it can be compared against
             // Correct?!?!
@@ -157,13 +166,15 @@ public class STEP_main {
         foundMsModel =
             (STEP_CombineForecastModels)STEP_AftershockForecastList.get(maxMagInd);
         foundMsModel.addToAftershockList(newEvent);
+        //added as  aftershock to a main shock.
+        isAftershock = true;
       }
 
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= RegionDefaults.minMagForMainshock) {
       STEP_CombineForecastModels newForecastMod =
-           new STEP_CombineForecastModels(newEvent,this.bgGrid,this.currentTime);
+           new STEP_CombineForecastModels(newEvent,bgGrid,currentTime);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.  Default is true
@@ -206,7 +217,7 @@ public class STEP_main {
       double bgSumOver5, seqSumOver5;
       
       ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
-      ListIterator backGroundIt = this.bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
+      ListIterator backGroundIt = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
 
       while (backGroundIt.hasNext()){
     	  bgLoc = (Location)backGroundIt.next();

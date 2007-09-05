@@ -162,7 +162,7 @@ public void updateSequenceModelForecast() {
 	int numGridLocs = sequenceModel.getAfterShockZone().getNumGridLocs();
 	int gLoop = 0;
 	while ( gLoop < numGridLocs) {
-		 seqForecastAtLoc = forecastModelSeq. calcHypoMagFreqDistAtLoc(gLoop);
+		 seqForecastAtLoc = forecastModelSeq.calcHypoMagFreqDistAtLoc(gLoop);
 		 forecastModelSeq.setGriddedMagFreqDistAtLoc(seqForecastAtLoc, gLoop++);
 	}
 	  
