@@ -164,6 +164,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		textArea.append("B GR\t"+(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalIncrRate()+"\t"+
 				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getCumRate(6.5)+"\t"+
 				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
+		textArea.append("B (Non-CA)\t"+(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getTotalIncrRate()+"\t"+
+				(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getTotalMomentRate()+"\n");
 		textArea.append("C Zone\t"+(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalIncrRate()+"\t"+
 				(float)this.ucerf2.getTotal_C_ZoneMFD().getCumRate(6.5)+"\t"+
 				(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");

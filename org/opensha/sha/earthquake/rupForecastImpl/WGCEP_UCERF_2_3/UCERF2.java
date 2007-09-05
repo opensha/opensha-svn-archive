@@ -917,7 +917,7 @@ public class UCERF2 extends EqkRupForecast {
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
 
 		double totRateABC = aFaultSummedMFD.getTotalIncrRate()+bFaultCharSummedMFD.getTotalIncrRate()+
-		bFaultGR_SummedMFD.getTotalIncrRate()+cZoneSummedMFD.getTotalIncrRate();
+		bFaultGR_SummedMFD.getTotalIncrRate()+cZoneSummedMFD.getTotalIncrRate()+this.nonCA_B_FaultsSummedMFD.getTotalIncrRate();
 
 		double totBackRate = rate-totRateABC;
 
@@ -925,7 +925,7 @@ public class UCERF2 extends EqkRupForecast {
 		if(backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TR_GR) ||
 				backgroundTreatment.equals(SET_FOR_BCK_PARAM_FRAC_MO_RATE_TA_GR)) {
 			double totMoRateABC = aFaultSummedMFD.getTotalMomentRate()+bFaultCharSummedMFD.getTotalMomentRate()+
-			bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate();
+			bFaultGR_SummedMFD.getTotalMomentRate()+cZoneSummedMFD.getTotalMomentRate()+nonCA_B_FaultsSummedMFD.getTotalMomentRate();
 			//restore the original, total moment rate:
 			totMoRateABC /= (1-totMoRateReduction);
 			// now get background component:
@@ -1540,6 +1540,7 @@ public class UCERF2 extends EqkRupForecast {
 		totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(totBackgroundMFD);
 		totalMFD.addIncrementalMagFreqDist(cZoneSummedMFD);
+		totalMFD.addIncrementalMagFreqDist(nonCA_B_FaultsSummedMFD);
 		return totalMFD;
 	}
 
