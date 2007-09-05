@@ -177,7 +177,11 @@ public class NSHMP_FileWriter {
 			FileWriter fwChar = new FileWriter(fileName+"_Char.txt");
 			for(int iSrc = 0; iSrc<numSources; ++iSrc) {
 				// unsegmented source
+				
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)bFaultSources.get(iSrc);
+				// do not give Creeping Segment to NSHMP as they already have their own file format or it
+				if(unsegmentedSource.getFaultSegmentData().getFaultName().equalsIgnoreCase("San Andreas (Creeping Segment)"))
+						continue;
 				fw.write(unsegmentedSource.getNSHMP_GR_SrcFileString());		
 				fwChar.write(unsegmentedSource.getNSHMP_Char_SrcFileString());
 			}
