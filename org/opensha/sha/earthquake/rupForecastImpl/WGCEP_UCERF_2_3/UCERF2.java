@@ -1064,7 +1064,8 @@ public class UCERF2 extends EqkRupForecast {
 			 * "Foothills Fault System" = area1 or shear1
 			 * "Mohawk-Honey Lake Zone" = area3 or shear3
 			 * "Northeastern California" = area2 or shear2
-			 * "Western Nevada" = area4 or shear4
+			 * "Western Nevada" = area4 or shear4 or Reno
+			 * "Eastern California Shear Zone" = Mojave
 			 */
 
 			String []names = {"Foothills Fault System", "Mohawk-Honey Lake Zone",
@@ -1074,8 +1075,8 @@ public class UCERF2 extends EqkRupForecast {
 			double[] slipRates = { 0.1, 4.0, 4.0, 8.0, 4.0, 4.0}; // mm/yr
 			double[] depthTop = { 0, 0, 0, 0, 0, 0}; // km
 			double[] depthBottom = { 12, 15, 15, 15, 15, 18}; //km
-			double[] strike = { 325, 335, 315, 315, 313, 293};
-			double[] length = { 360, 230, 88, 245, 219, 102}; // km
+			double[] strike = { 325, 315, 335, 315, 313, 293};
+			double[] length = { 360, 88, 230, 245, 219, 102}; // km
 			double[] magLower = {6.5, 6.5, 6.5, 6.5, 6.5, 6.5}; 
 			double[] magUpper = {7.6, 7.6, 7.6, 7.6, 7.6, 7.6};
 
