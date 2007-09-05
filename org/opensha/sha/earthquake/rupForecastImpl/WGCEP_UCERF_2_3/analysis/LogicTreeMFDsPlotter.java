@@ -288,12 +288,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		// Deformation model
 		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
 		ParamOptions options = new ParamOptions();
-		options.addValueWeight("D2.1", 0.5);
-		//options.addValueWeight("D2.2", 0.125);
-		//options.addValueWeight("D2.3", 0.125);
-		options.addValueWeight("D2.4", 0.5);
-		//options.addValueWeight("D2.5", 0.125);
-		//options.addValueWeight("D2.6", 0.125);
+		options.addValueWeight("D2.1", 0.25);
+		options.addValueWeight("D2.2", 0.1);
+		options.addValueWeight("D2.3", 0.15);
+		options.addValueWeight("D2.4", 0.25);
+		options.addValueWeight("D2.5", 0.1);
+		options.addValueWeight("D2.6", 0.15);
 		paramValues.add(options);
 		
 		// Mag Area Rel
@@ -439,11 +439,11 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
-		//values.add("D2.2");
-		//values.add("D2.3");
+		values.add("D2.2");
+		values.add("D2.3");
 		values.add("D2.4");
-		//values.add("D2.5");
-		//values.add("D2.6");
+		values.add("D2.5");
+		values.add("D2.6");
 		plotMFDs(paramName, values, false, true, false, false, false); // plot B-faults only
 		
 		// Mag Area Rel
