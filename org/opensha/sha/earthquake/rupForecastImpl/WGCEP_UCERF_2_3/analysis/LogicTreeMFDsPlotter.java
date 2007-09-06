@@ -75,6 +75,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLUE, 2); // A-Faults
 	private final PlotCurveCharacterstics PLOT_CHAR1_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.BLUE, 2); // A-Faults
+	private final PlotCurveCharacterstics PLOT_CHAR1_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+		      Color.BLUE, 1); // A-Faults
 	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -83,6 +85,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
+	private final PlotCurveCharacterstics PLOT_CHAR2_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+		      Color.LIGHT_GRAY, 1); // B-Faults Char
 	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -91,6 +95,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.GREEN, 2); // B-Faults GR
 	private final PlotCurveCharacterstics PLOT_CHAR3_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.GREEN, 2); // B-Faults GR
+	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+		      Color.GREEN, 1); // B-Faults GR
 	
 	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.ORANGE, 2); // Non-CA B-Faults
@@ -103,6 +109,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLACK, 2); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.BLACK, 2); // Tot MFD
+	private final PlotCurveCharacterstics PLOT_CHAR4_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+		      Color.BLACK, 1); // Tot MFD
 	
 	
 	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -448,16 +456,20 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 //		 combined Logic Tree MFD comparison with NSHMP2002
 		plotMFDs(null, null, false, false, false, false, false, true);
 		
-//		 Deformation model
+		//	Different Fault Models
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		ArrayList values = new ArrayList();
 		values.add("D2.1");
+		values.add("D2.4");
+		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults only
+		
+		//	Differemt Def Models
+		paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
+		values = new ArrayList();
+		values.add("D2.1");
 		values.add("D2.2");
 		values.add("D2.3");
-		values.add("D2.4");
-		values.add("D2.5");
-		values.add("D2.6");
-		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults only
+		plotMFDs(paramName, values, true, false, false, false, false, false); // plot A-faults only
 		
 		// Mag Area Rel
 		paramName = UCERF2.MAG_AREA_RELS_PARAM_NAME;
@@ -509,13 +521,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramName = UCERF2.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
-		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
+		//plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
 
 //		fraction MoRate to Background
 		paramName = UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.1));
-		plotMFDs(paramName, values, true, true, false, false, false, false); // plot A & B-faults
+		//plotMFDs(paramName, values, true, true, false, false, false, false); // plot A & B-faults
 	
 	}
 	
@@ -572,7 +584,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	}
 	
 	/**
-	 * It returns 3 MFD: First is A-Fault MFD, Second is B-Fault char MFD, Third is B-Fault GR MFD and last is TotalMFD
+	 *
 	 * 
 	 * @param paramName Param Name whose value needs to remain constant. Can be null 
 	 * @param value Param Value for constant paramter. can be null
@@ -622,13 +634,19 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				plot3 = PLOT_CHAR3_1;
 				plot4 = PLOT_CHAR4_1;
 				metadata="Dotted Dashed Line - ";
-			} else {
+			} else if(i==1) {
 				plot1 = PLOT_CHAR1_2;
 				plot2 = PLOT_CHAR2_2;
 				plot3 = PLOT_CHAR3_2;
 				plot4 = PLOT_CHAR4_2;
 				metadata="Dashed Line - ";
-			} 
+			} else {
+				plot1 = PLOT_CHAR1_3;
+				plot2 = PLOT_CHAR2_3;
+				plot3 = PLOT_CHAR3_3;
+				plot4 = PLOT_CHAR4_3;
+				metadata="Lines and Circles - ";
+			}
 			metadata += "("+paramName+"="+values.get(i)+")  ";
 			
 			if(showAFaults) addToFuncList(aFaultMFD, metadata+"A-Fault MFD", plot1);
