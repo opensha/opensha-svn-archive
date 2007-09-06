@@ -281,7 +281,7 @@ public class UCERF2 extends EqkRupForecast {
 
 	public final static String A_FAULTS_B_VAL_PARAM_NAME = "A-Faults b-value";
 	public final static String A_FAULTS_B_VAL_PARAM_INFO = "GR-distribution b-value to apply to A-Faults";
-	public final static Double A_FAULT_GR_B_DEFAULT= new Double(0.8);
+	public final static Double A_FAULT_GR_B_DEFAULT= new Double(0.0);
 	public final static Double A_VAL_MIN = new Double(-1);
 	public final static Double A_VAL_MAX = new Double(2);
 	private DoubleParameter aFaultB_ValParam;
