@@ -28,7 +28,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		CybershakeSiteInfo2DB sites = new CybershakeSiteInfo2DB(db);
 		
 		//USC
-		double USC_LAT = 34.019200;
+		/*double USC_LAT = 34.019200;
 		double USC_LON = -118.28600;
 		int siteId = sites.getCybershakeSiteId("USC");
 		//siteId= sites.putCybershakeLocationInDB("USC", "USC", USC_LAT, USC_LON);
@@ -107,7 +107,14 @@ public class Cybershake_OpenSHA_DBApplication {
 	    siteId = sites.getCybershakeSiteId("SMCA");
 	    //siteId = sites.putCybershakeLocationInDB("SMCA", "SMCA", SMCA_LAT, SMCA_LON);
 	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
-	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
+	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);*/
+		
+		//PTWN
+	    double PTWN_LAT = 34.14280;
+	    double PTWN_LON = -116.49771;
+	    int siteId = sites.putCybershakeLocationInDB("Pioneer Town", "PTWN", PTWN_LAT, PTWN_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
+	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
 
 	}
 	
