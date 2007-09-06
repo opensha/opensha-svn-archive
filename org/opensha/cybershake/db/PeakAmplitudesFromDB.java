@@ -87,7 +87,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	public double getIM_Value(int siteId,int erfId,int srcId,int rupId,int rupVarId, String imType){
 		String sql = "SELECT IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
         "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"'";
+        "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '2'";
 		
 		double imVal = Double.NaN;
 		ResultSet rs = null;
