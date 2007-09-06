@@ -205,6 +205,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			}
 		}  else {
 			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
+			//for(int i=0; i<aFaultMFDsList.size(); ++i)
+				//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
 			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
 			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList, false);
 			readMFDsFromFile(NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList, false);
