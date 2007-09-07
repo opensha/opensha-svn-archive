@@ -139,7 +139,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		IncrementalMagFreqDist totalMFD = this.ucerf2.getTotalMFD();
 		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
-		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5)/this.ucerf2.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5))+"\n");
+		textArea.append("Predicted 6.5 rate over observed = "+(totalMFD.getCumRate(6.5+totalMFD.getDelta()/2)/this.ucerf2.getObsCumMFD(includeAfterShocks).get(0).getInterpolatedY(6.5+totalMFD.getDelta()/2))+"\n");
 		textArea.append("Total Moment Rate = "+(float)totalMFD.getTotalMomentRate()+"\n");
 		
 		// Display the general prediction error in case of Segmented A-Faults
@@ -156,25 +156,25 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		textArea.append("\tRate (M>=5)\tRate (M>=6.5)\tMoment Rate\n");
 		textArea.append("------------------------------------------------\n");
 		textArea.append("A Faults\t"+(float)this.ucerf2.getTotal_A_FaultsMFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_A_FaultsMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_A_FaultsMFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_A_FaultsMFD().getTotalMomentRate()+"\n");
 		textArea.append("B Char\t"+(float)this.ucerf2.getTotal_B_FaultsCharMFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_B_FaultsCharMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsCharMFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_B_FaultsCharMFD().getTotalMomentRate()+"\n");
 		textArea.append("B GR\t"+(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_B_FaultsGR_MFD().getTotalMomentRate()+"\n");
 		textArea.append("B (Non-CA)\t"+(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_NonCA_B_FaultsMFD().getTotalMomentRate()+"\n");
 		textArea.append("C Zone\t"+(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_C_ZoneMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_C_ZoneMFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate()+"\n");
 		textArea.append("Background\t"+(float)this.ucerf2.getTotal_BackgroundMFD().getTotalIncrRate()+"\t"+
-				(float)this.ucerf2.getTotal_BackgroundMFD().getCumRate(6.5)+"\t"+
+				(float)this.ucerf2.getTotal_BackgroundMFD().getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)this.ucerf2.getTotal_BackgroundMFD().getTotalMomentRate()+"\n");
 		textArea.append("Total\t"+(float)totalMFD.getTotalIncrRate()+"\t"+
-				(float)totalMFD.getCumRate(6.5)+"\t"+
+				(float)totalMFD.getCumRate(6.5+totalMFD.getDelta()/2)+"\t"+
 				(float)totalMFD.getTotalMomentRate()+"\n\n");
 		textArea.append("Adjustable Params Metadata:\n");
 		textArea.append(ucerf2.getAdjustableParameterList().getParameterListMetadataString("\n"));

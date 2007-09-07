@@ -149,8 +149,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				charMFD.scaleToCumRate(0, this.fixRate);		
 			}
 			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			// note half-bin offset of lower and upper GR mags in what follows
 			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
-					mag_lowerGR, sourceMag, moRate*(1-fractCharVsGR), b_valueGR);
+					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR), b_valueGR);
 			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
 		}
 		
@@ -830,8 +831,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();
 		double delta = sourceMFD.getDelta();
-		double a_value = getNSHMP_aValue(mag_lowerGR,numNonZeroMags,delta,moRate,b_valueGR);
-		double momentCheck = getMomentRate(mag_lowerGR,numNonZeroMags,delta,a_value,b_valueGR);
+		double a_value = getNSHMP_aValue(mag_lowerGR+delta/2,numNonZeroMags-1,delta,moRate,b_valueGR);
+		double momentCheck = getMomentRate(mag_lowerGR+delta/2,numNonZeroMags-1,delta,a_value,b_valueGR);
 		double wt = 1.0;
 		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
 			System.out.println("WARNING -- Bad a-value!: "+this.segmentData.getFaultName()+"  "+momentCheck+"  "+moRate);

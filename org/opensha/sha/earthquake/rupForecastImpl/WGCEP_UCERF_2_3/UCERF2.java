@@ -72,8 +72,8 @@ public class UCERF2 extends EqkRupForecast {
 
 //	ArrayList allSourceNames;
 
-	public final static double MIN_MAG = 5;
-	public final static double MAX_MAG = 9;
+	public final static double MIN_MAG = 5.05;
+	public final static double MAX_MAG = 8.95;
 	public final static double DELTA_MAG = 0.1;
 	public final static int NUM_MAG = (int)Math.round((MAX_MAG-MIN_MAG)/DELTA_MAG) + 1;
 
@@ -1088,7 +1088,7 @@ public class UCERF2 extends EqkRupForecast {
 				slipRate = cZoneWt*slipRates[i]/1000.0;
 				moRate = FaultMomentCalc.getMoment((depthBottom[i]-depthTop[i])*length[i]*1e6, slipRate);
 				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-				grMFD.setAllButTotCumRate(magLower[i], magUpper[i], moRate, bValue);
+				grMFD.setAllButTotCumRate(magLower[i]+DELTA_MAG/2, magUpper[i]-DELTA_MAG/2, moRate, bValue);
 				grMFD.setName(names[i]);
 				cZonesMFD_List.add(grMFD);
 				cZoneSummedMFD.addIncrementalMagFreqDist(grMFD);

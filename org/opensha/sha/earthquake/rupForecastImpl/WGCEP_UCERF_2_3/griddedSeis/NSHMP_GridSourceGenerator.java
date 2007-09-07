@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -297,13 +298,17 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */		
 	private GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
 											double bValue, boolean applyBulgeReduction) {
+		minMag += DELTA_MAG/2;
+		maxMag -= DELTA_MAG/2;
 		int numMag = Math.round((float)((maxMag-minMag)/DELTA_MAG+1));
 		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, bValue);
+//		double moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(minMag, numMag, DELTA_MAG, aValue, bValue);
+//		mfd.scaleToTotalMomentRate(moRate);
 		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
 		
 //		apply bulge reduction at & above mag 6.5 if desired
 		if(applyBulgeReduction && mfd.getMaxX()>=6.5) {	
-			for(int i=mfd.getXIndex(6.5); i<mfd.getNum(); ++i)
+			for(int i=mfd.getXIndex(6.5+DELTA_MAG/2); i<mfd.getNum(); ++i)
 				mfd.set(i, mfd.getY(i)/3);
 		}
 		return mfd;
@@ -312,8 +317,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	/**
 	 * This gets the total NSHMP mag-freq dist for the given array of a-values
-	 * @param minMag
-	 * @param maxMag
+	 * @param minMag - NOT YET BIN CENTERED!
+	 * @param maxMag - NOT YET BIN CENTERED!
 	 * @param aValueArray
 	 * @param bValue
 	 * @param applyBulgeReduction
@@ -350,8 +355,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		
 		// create summed MFD
-		int numMags = (int)Math.round((UCERF2.MAX_MAG-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
-		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, numMags);
+		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		int numLocs = getNumGridLocs();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
 			totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
@@ -372,7 +376,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		
 		
 		// find max mag among all contributions
-		double maxMagAtLoc = C_ZONES_MAX_MAG;
+		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
 		/*if(includeC_zones) { // if C-zones are included
 			if(this.C_ZONES_MAX_MAG>maxMagAtLoc) maxMagAtLoc = C_ZONES_MAX_MAG;
 		}
@@ -395,7 +399,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
 		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
 
-		
 		// create and add each contributing MFD
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.0, agrd_mendos_out[locIndex], B_VAL, false), true);	

@@ -253,6 +253,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 				//ucerf2.updateForecast(); // update forecast
 			}catch(Exception e) {
 				JOptionPane.showMessageDialog(this, e.getMessage());
+				e.printStackTrace();
 				return;
 			}
 			// show the output

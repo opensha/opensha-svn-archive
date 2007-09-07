@@ -423,7 +423,7 @@ public class A_FaultSegmentedSourceGenerator {
 			totalMoRateFromRups+=rupMoRate[i];
 			// round the magnitude if need be
 			if(singleMag)
-				mag = Math.round(rupMeanMag[i]/DELTA_MAG) * DELTA_MAG;
+				mag = Math.round((rupMeanMag[i]-MIN_MAG)/DELTA_MAG) * DELTA_MAG + MIN_MAG;
 			else
 				mag = rupMeanMag[i];
 			rupMagFreqDist[i] = new GaussianMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG, 
