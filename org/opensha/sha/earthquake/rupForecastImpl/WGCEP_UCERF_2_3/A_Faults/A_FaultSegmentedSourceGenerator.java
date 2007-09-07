@@ -727,9 +727,10 @@ public class A_FaultSegmentedSourceGenerator {
 		boolean localDebug = true;
 		StringBuffer strBuffer = new StringBuffer("");
 		ArrayList<FaultRuptureSource> sourceList = getTimeIndependentSources(1.0);
-		int numSources = sourceList.size();
-		for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
-			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex);
+		int srcIndex=0;
+		for(int rupIndex=0; rupIndex<num_rup; ++rupIndex) {
+			if (rupMagFreqDist[rupIndex].getTotalIncrRate() <= MIN_RUP_RATE) continue;
+			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex++);
 			strBuffer.append("1\t"); // char MFD
 			double rake = faultRupSrc.getRupture(0).getAveRake();
 			double wt = 1.0;
@@ -737,11 +738,11 @@ public class A_FaultSegmentedSourceGenerator {
 			if((rake>=-45 && rake<=45) || rake>=135 || rake<=-135) rakeStr="1"; // Strike slip
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 			else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
-			else throw new RuntimeException("Invalid Rake:"+rake+", index="+srcIndex+", name="+getLongRupName(srcIndex));
-			strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.getLongRupName(srcIndex)+"\n");
+			else throw new RuntimeException("Invalid Rake:"+rake+", index="+rupIndex+", name="+getLongRupName(rupIndex));
+			strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.getLongRupName(rupIndex)+"\n");
 			// get the rate needed by NSHMP code (rate assuming no aleatory uncertainty)
-			double fixRate = rupMoRate[srcIndex]/MomentMagCalc.getMoment(rupMeanMag[srcIndex]);
-			strBuffer.append((float)this.getRupMeanMag(srcIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
+			double fixRate = rupMoRate[rupIndex]/MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
+			strBuffer.append((float)this.getRupMeanMag(rupIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
 			EvenlyGriddedSurfFromSimpleFaultData surface = (EvenlyGriddedSurfFromSimpleFaultData)faultRupSrc.getSourceSurface();
 			// dip, Down dip width, upper seismogenic depth, rup Area
 			strBuffer.append((float)surface.getAveDip()+"\t"+(float)surface.getSurfaceWidth()+"\t"+
@@ -754,11 +755,11 @@ public class A_FaultSegmentedSourceGenerator {
 						faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
 			// this is to make sure things look good
 			if(localDebug){
-				System.out.println(getLongRupName(srcIndex)+"\t"+
-						(float)getRupMeanMag(srcIndex)+"\t"+
-						(float)getRupRateSolution(srcIndex)+"\t"+
-						(float)getRupRate(srcIndex)+"\t"+
-						(float)(getRupRateSolution(srcIndex)/getRupRate(srcIndex))+"\t"+
+				System.out.println(getLongRupName(rupIndex)+"\t"+
+						(float)getRupMeanMag(rupIndex)+"\t"+
+						(float)getRupRateSolution(rupIndex)+"\t"+
+						(float)getRupRate(rupIndex)+"\t"+
+						(float)(getRupRateSolution(rupIndex)/getRupRate(rupIndex))+"\t"+
 						magAreaRel.getName()+"\t"+
 						aPrioriRupWt);
 			}
