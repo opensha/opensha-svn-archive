@@ -264,7 +264,7 @@ PlotColorAndLineTypeSelectorControlPanelAPI{
 			return plotControl.getAxisLabelFontSize();
 		else
 			return this.axisLabelFontSize;
-//		return 24;
+			//return 24;
 	}
 
 	/**
@@ -277,7 +277,7 @@ PlotColorAndLineTypeSelectorControlPanelAPI{
 			return plotControl.getTickLabelFontSize();
 		else
 			return this.tickLabelFontSize;
-//		return 20;
+			//return 20;
 	}
 
 
@@ -291,7 +291,8 @@ PlotColorAndLineTypeSelectorControlPanelAPI{
 			return plotControl.getPlotLabelFontSize();
 		else
 			return this.plotLabelFontSize;
-//		return 24;
+			//return 24;
+
 	}
 
 	/**

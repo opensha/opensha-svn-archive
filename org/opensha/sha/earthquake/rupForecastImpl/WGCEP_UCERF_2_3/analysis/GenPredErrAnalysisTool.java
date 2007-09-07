@@ -246,8 +246,8 @@ public class GenPredErrAnalysisTool {
 		GenPredErrAnalysisTool analysisTool = new GenPredErrAnalysisTool(ucerf2);
 		
 //		System.out.println(analysisTool.findStableRange());
-//		analysisTool.writeResults("PredErrAnalysisResults1.txt");
-//		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
+		analysisTool.writeResults("PredErrAnalysisResults1.txt");
+		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis1.txt");
 /**/
 		ucerf2.setParameter(UCERF2.REL_SEG_RATE_WT_PARAM_NAME,new Double(1.0));
 		analysisTool.writeAllStableRanges("PredErrStableRangeAnalysis2.txt");
