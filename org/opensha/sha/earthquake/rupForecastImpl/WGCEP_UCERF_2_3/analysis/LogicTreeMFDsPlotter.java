@@ -217,7 +217,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false, false);
 		this.ucerf2.setParamDefaults();
 		ucerf2.updateForecast();
-		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+ucerf2.getTotalMFD().getY(6.5)/avgTotMFD.getY(6.5));
+		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+ucerf2.getTotalMFD().getY(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getY(6.5+UCERF2.DELTA_MAG/2));
 		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
 		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
 	}
@@ -423,7 +423,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				
 				int colNum = adjustableParamNames.size()+1;
 				// add a row for predicted and observed ratio
-				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5)/obs6_5CumRate);
+				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5+UCERF2.DELTA_MAG/2)/obs6_5CumRate);
 				++colNum;
 				row.createCell((short)(colNum)).setCellValue(newWt);
 				++colNum;
@@ -556,7 +556,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		metadata += "("+UCERF2.BULGE_REDUCTION_PARAM_NAME+"=false) ";
 		addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), PLOT_CHAR4_1);	
 		GraphWindow graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
@@ -578,7 +578,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	    metadata += "("+UCERF2.MAX_MAG_GRID_PARAM_NAME+"=false) ";
 	    addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
 	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), PLOT_CHAR4_1);	
+	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), PLOT_CHAR4_1);	
 	    graphWindow= new GraphWindow(this);
 	    graphWindow.setPlotLabel("Mag Freq Dist");
 	    graphWindow.plotGraphUsingPlotPreferences();
@@ -654,7 +654,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			if(showAFaults) addToFuncList(aFaultMFD, metadata+"A-Fault MFD", plot1);
 			if(showBFaults) addToFuncList(bFaultCharMFD, metadata+"Char B-Fault MFD", plot2);
 			if(showBFaults) addToFuncList(bFaultGRMFD, metadata+"GR B-Fault MFD", plot3);
-			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5)/avgTotMFD.getCumRate(6.5), plot4);	
+			addToFuncList(totMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+totMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), plot4);	
 		}
 		
 		GraphWindow graphWindow= new GraphWindow(this);
@@ -706,7 +706,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		ArrayList obsMFD;
 		if(this.isCumulative)  {
 			obsMFD = ucerf2.getObsCumMFD(includeAfterShocks);
-			metadata+="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
+			metadata+="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
 		}
 		else  {
 			obsMFD = ucerf2.getObsIncrMFD(includeAfterShocks);
