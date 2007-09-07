@@ -523,7 +523,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		paramName = UCERF2.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
-		//plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
+		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
 
 //		fraction MoRate to Background
 		paramName = UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME;
