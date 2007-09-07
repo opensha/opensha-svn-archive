@@ -58,6 +58,9 @@ public class A_FaultSegmentedSourceGenerator {
 	private final static double DELTA_MAG = UCERF2.DELTA_MAG;
 	private final static int NUM_MAG = UCERF2.NUM_MAG;
 	
+	// this is used to filter out infrequent ruptures (approx age of earth)
+	private final static double MIN_RUP_RATE = 1e-10;
+	
 	private double magSigma, magTruncLevel;
 	
 //	private boolean preserveMinAFaultRate;		// don't let any post inversion rates be below the minimum a-priori rate
@@ -499,7 +502,7 @@ public class A_FaultSegmentedSourceGenerator {
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
 
 			// Create source if rate is greater than ~zero (or age of earth)
-			if (rupMagFreqDist[i].getTotalIncrRate() > 1e-10) {				
+			if (rupMagFreqDist[i].getTotalIncrRate() > MIN_RUP_RATE) {				
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
 						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 						segmentData.getAveRake(segmentsInRup),
@@ -520,6 +523,8 @@ public class A_FaultSegmentedSourceGenerator {
 						(float)(probFromSrc/rupProb[i]));
 				*/
 			}	
+			else
+				System.out.println("Rate of "+this.getLongRupName(i)+" is below 1e-10 ("+rupMagFreqDist[i].getTotalIncrRate()+")");
 		}
 		return this.sourceList;
 	}
@@ -575,7 +580,7 @@ public class A_FaultSegmentedSourceGenerator {
 			// get list of segments in this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
 			// Create source if prob is greater than ~zero
-			if (rupProb[i] > 1e-10) {		
+			if (rupProb[i] > MIN_RUP_RATE) {		
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
 						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 						segmentData.getAveRake(segmentsInRup));
@@ -950,7 +955,7 @@ public class A_FaultSegmentedSourceGenerator {
 		double max = totRupRate[ithRup];
 		if(max<aPrioriRupRates[ithRup].getValue()) max = aPrioriRupRates[ithRup].getValue();
 		// if final and apriori rates are 0, return 0
-		if(max<=1e-10) return 0;  // this MRI exceeds the age of the earth!
+		if(max<=MIN_RUP_RATE) return 0;  // this MRI exceeds the age of the earth!
 		return (totRupRate[ithRup]-aPrioriRupRates[ithRup].getValue())/max;
 	}
 	
