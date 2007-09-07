@@ -43,7 +43,6 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultsSegmentData_v26.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/Appendix_C_Table7_082907.xls";
 	private final static String SEG_TIME_DEP_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentTimeDepData_v04.xls";
-	private final static String UNSEG_TIME_DEP_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/UnsegmentedTimeDepData_v04.xls";
 	private HashMap<String,A_PrioriRupRates> aPrioriRupRatesMap;
 	private HashMap<String,ArrayList> segEventRatesMap;
 	private HashMap<String, ArrayList> segTimeDepDataMap;
@@ -76,23 +75,20 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		this.isUnsegmented = isUnsegmented;
 		//	find the deformation model
 		String fileName=null;
-		String timeDepFileName;
 		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
 		// get the A-Fault filename based on selected fault model
 		if(isUnsegmented)  {
-			timeDepFileName = UNSEG_TIME_DEP_FILE_NAME;
 			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = UNSEGMENTED_MODEL1;
 			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = UNSEGMENTED_MODEL2;
 			else throw new RuntimeException("Unsupported Fault Model");
 		} else { 
-			timeDepFileName = SEG_TIME_DEP_FILE_NAME;
 			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
 			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
 			else throw new RuntimeException("Unsupported Fault Model");
 		}
 		this.loadSegmentModels(fileName);
 		readSegEventRates();
-		readSegTimeDepData(timeDepFileName);
+		readSegTimeDepData();
 	}
 	
 	/**
@@ -196,10 +192,10 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	 * Read Time dependent data for each segment
 	 *
 	 */
-	private void readSegTimeDepData(String fileName) {
+	private void readSegTimeDepData() {
 		segTimeDepDataMap = new HashMap<String, ArrayList>();
 		try {
-			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_TIME_DEP_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
 			int lastIndex = sheet.getLastRowNum();

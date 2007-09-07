@@ -883,6 +883,7 @@ class SegmentDataTableModel extends AbstractTableModel {
 				if(segmentedSource==null) return "";
 				return SLIP_RATE_FORMAT.format(segmentedSource.getSegAperiodicity(rowIndex));
 			case 17:
+				if(segmentedSource==null) return "";
 				return ""+(int)(segFaultData.getSegCalYearOfLastEvent(rowIndex));
 			/*case 12:	
 				//System.out.println(this.predMRI[rowIndex]+","+segFaultData.getSegmentSlipRate(rowIndex));
