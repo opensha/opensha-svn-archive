@@ -40,10 +40,25 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLACK, 4);
 	
+	private ArrayList plottingFeatures;
+	
 	public A_FaultsMFD_Plotter(ArrayList funcs, boolean isCumRate) {
 		this.funcs = funcs;
 		if(isCumRate) yAxisLabel = CUM_RATE_AXIS_LABEL;
 		else yAxisLabel = RATE_AXIS_LABEL;
+		
+		// set the default plotting features
+		plottingFeatures  = new ArrayList();
+		plottingFeatures.add(PLOT_CHAR8);
+		plottingFeatures.add(PLOT_CHAR7);
+		 if(funcs.size()>2) { // Size is 2 for B-Faults 
+			 plottingFeatures.add(PLOT_CHAR1);
+			 plottingFeatures.add(PLOT_CHAR2);
+			 plottingFeatures.add(PLOT_CHAR3);
+			 plottingFeatures.add(PLOT_CHAR4);
+			 plottingFeatures.add(PLOT_CHAR5);
+			 plottingFeatures.add(PLOT_CHAR6);
+		 }
 	}
 	
 	
@@ -88,18 +103,16 @@ public class A_FaultsMFD_Plotter implements GraphWindowAPI {
 	 * @see org.opensha.sha.gui.infoTools.GraphWindowAPI#getPlottingFeatures()
 	 */
 	public ArrayList getPlottingFeatures() {
-		 ArrayList list = new ArrayList();
-		 list.add(PLOT_CHAR8);
-		 list.add(PLOT_CHAR7);
-		 if(funcs.size()>2) { // Size is 2 for B-Faults 
-			 list.add(PLOT_CHAR1);
-			 list.add(PLOT_CHAR2);
-			 list.add(PLOT_CHAR3);
-			 list.add(PLOT_CHAR4);
-			 list.add(PLOT_CHAR5);
-			 list.add(PLOT_CHAR6);
-		 }
-		 return list;
+		return this.plottingFeatures;
+	}
+	
+	
+	/**
+	 * Set the plotting features
+	 * @param plotFeatures
+	 */
+	public void setPlottingFeatures(ArrayList plotFeatures) {
+		this.plottingFeatures = plotFeatures;
 	}
 	
 

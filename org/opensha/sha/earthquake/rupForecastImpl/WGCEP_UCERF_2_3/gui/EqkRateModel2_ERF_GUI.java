@@ -72,6 +72,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	private  JMenuBar menuBar = new JMenuBar();
 	private JMenu analysisMenu = new JMenu("Further Analysis");
 	private JMenuItem genReportFigMenu = new JMenuItem("Generate MFD Figs for Report");
+	private JMenuItem sjSsafReportFigMenu = new JMenuItem("Generate SJF and SSAF MFD Figs for Report");
 	private JMenuItem bulgeAnalysisMenu = new JMenuItem("Make Bulge Analysis Plots");
 	private JMenuItem logicTreeCumMFDplotMenu = new JMenuItem("Logic tree Cumulative plots");
 	private JMenuItem logicTreeIncrMFDplotMenu = new JMenuItem("Logic tree Incremental plots");
@@ -142,6 +143,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		
 		 menuBar.add(analysisMenu);
 		 analysisMenu.add(genReportFigMenu);
+		 analysisMenu.add(sjSsafReportFigMenu);
 		 analysisMenu.add(bulgeAnalysisMenu);
 		 analysisMenu.add(logicTreeCumMFDplotMenu);
 		 analysisMenu.add(logicTreeIncrMFDplotMenu);
@@ -150,6 +152,11 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		 genReportFigMenu.addActionListener(new java.awt.event.ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
 				 genReportFigMenu_actionPerformed(e);
+			 }
+		 });
+		 sjSsafReportFigMenu.addActionListener(new java.awt.event.ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 sjSsafReportFigMenu_actionPerformed(e);
 			 }
 		 });
 		 bulgeAnalysisMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -170,6 +177,22 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 		
 	}
 	
+	/**
+	   * Generate Figures for Report
+	   * 
+	   * @param actionEvent
+	   */
+	  private void sjSsafReportFigMenu_actionPerformed(ActionEvent actionEvent) {
+		  try {
+			  UCERF2 ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF_Instance();
+			  UCERF1ComparisonPlotter ucerf1ComparisonPlotter = new UCERF1ComparisonPlotter(ucerf2);
+			  //ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport();
+			  ucerf1ComparisonPlotter.plot_SJ_SSAF_FaultsDefModels(); 
+		  }catch(Exception e) {
+			  e.printStackTrace();
+		  }
+	  }
+	
 	  /**
 	   * Generate Figures for Report
 	   * 
@@ -183,7 +206,7 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 			  UCERF2 ucerf2 = (UCERF2)this.erfGuiBean.getSelectedERF_Instance();
 			  UCERF1ComparisonPlotter ucerf1ComparisonPlotter = new UCERF1ComparisonPlotter(ucerf2);
 			  //ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport();
-			  ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport();
+			  ucerf1ComparisonPlotter.plotA_FaultMFDs_forReport("D2.1"); // do for deformation model 2.1
 			  ucerf1ComparisonPlotter.plotB_FaultMFDs_forReport();
 		  }catch(Exception e) {
 			  e.printStackTrace();

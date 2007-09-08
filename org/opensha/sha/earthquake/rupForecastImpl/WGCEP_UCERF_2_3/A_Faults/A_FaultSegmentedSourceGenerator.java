@@ -523,8 +523,8 @@ public class A_FaultSegmentedSourceGenerator {
 						(float)(probFromSrc/rupProb[i]));
 				*/
 			}	
-			else
-				System.out.println("Rate of "+this.getLongRupName(i)+" is below 1e-10 ("+rupMagFreqDist[i].getTotalIncrRate()+")");
+			//else
+				//System.out.println("Rate of "+this.getLongRupName(i)+" is below 1e-10 ("+rupMagFreqDist[i].getTotalIncrRate()+")");
 		}
 		return this.sourceList;
 	}
