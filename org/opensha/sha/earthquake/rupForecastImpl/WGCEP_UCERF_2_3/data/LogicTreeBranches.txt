@@ -1,0 +1,16 @@
+#1;0.5
+Deformation Model=D2.1
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B-Faults?=true
+#2;0.5
+Deformation Model=D2.1
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B-Faults?=false
