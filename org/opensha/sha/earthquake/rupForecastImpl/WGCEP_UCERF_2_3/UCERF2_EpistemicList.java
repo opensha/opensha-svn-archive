@@ -122,7 +122,7 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 		if(parameter instanceof DoubleParameter)
 			parameter.setValue(new Double(value));
 		else if(parameter instanceof StringParameter)
-			parameter.setValue(new Double(value));
+			parameter.setValue(value);
 		else if(parameter instanceof BooleanParameter)
 			parameter.setValue(new Boolean(value));
 		else if(parameter instanceof IntegerParameter)
