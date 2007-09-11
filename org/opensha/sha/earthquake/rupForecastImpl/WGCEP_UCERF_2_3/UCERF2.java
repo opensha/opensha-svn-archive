@@ -351,7 +351,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
 	public final static String PROB_MODEL_POISSON = "Poisson";
 	public final static String PROB_MODEL_BPT = "BPT";
-	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_BPT;
+	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_POISSON;
 	private StringParameter probModelParam;
 
 	// Aperiodicity Param
@@ -403,6 +403,8 @@ public class UCERF2 extends EqkRupForecast {
 
 	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 
+	private boolean reCalcB_Faults=true, reCalcBck=true, reCalcA_Faults=true;
+	private boolean reCalcC_Zones=true, reFetchFromDatabase=true, reCalcNonCA_B_Fauts=true;
 
 	/**
 	 *
@@ -960,6 +962,8 @@ public class UCERF2 extends EqkRupForecast {
 			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
 			//	totBackgroundMFD.set(i,0.33*totBackgroundMFD.getY(i));
 		}
+		
+		this.reCalcBck = false; 
 
 //		System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());
 
@@ -1094,6 +1098,7 @@ public class UCERF2 extends EqkRupForecast {
 				cZoneSummedMFD.addIncrementalMagFreqDist(grMFD);
 			}
 		}
+		this.reCalcC_Zones = false;
 	}
 
 	private void mkA_FaultSegmentedSources() {
@@ -1161,7 +1166,10 @@ public class UCERF2 extends EqkRupForecast {
 			}
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
-		}
+		
+		
+	}
+		reCalcA_Faults=false;
 	}
 
 
@@ -1206,6 +1214,7 @@ public class UCERF2 extends EqkRupForecast {
 			allSources.add(source);
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
+		reCalcA_Faults=false;
 	}
 
 	private void mkB_FaultSources() {
@@ -1263,6 +1272,8 @@ public class UCERF2 extends EqkRupForecast {
 					//fw2.write(segmentData.getFaultName()+";"+(float)grMagFreqDist.getCumRate(6.5)+"\n");
 				}
 			}
+			
+			reCalcB_Faults=false;
 			//fw1.close();
 			//fw2.close();
 		}catch(Exception e) {
@@ -1280,6 +1291,7 @@ public class UCERF2 extends EqkRupForecast {
 		nonCA_bFaultSources.addAll(sources);
 		allSources.addAll(sources);
 		nonCA_B_FaultsSummedMFD = fetcher.getSummedMFD();
+		reCalcNonCA_B_Fauts=false;
 	}
 
 
@@ -1563,6 +1575,7 @@ public class UCERF2 extends EqkRupForecast {
 	 **/
 
 	public void updateForecast() {
+		if(reFetchFromDatabase) this.updateFetchersBasedonDefModels();
 		// compute total moment rate reduction for A/B faults (fraction to reduce by)
 		double totToKeep = 1;
 		// 1st remove that which goes to the background
@@ -1661,6 +1674,87 @@ public class UCERF2 extends EqkRupForecast {
 		super.parameterChange(event);
 		String paramName = event.getParameterName();
 
+		/*if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+			this.reFetchFromDatabase = true;
+		} else if(paramName.equalsIgnoreCase(ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
+			this.reCalcBck = true;
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+		} else if(paramName.equalsIgnoreCase(COUPLING_COEFF_PARAM_NAME)) {
+			this.reCalcBck = true;
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(AFTERSHOCK_FRACTION_PARAM_NAME)) {
+			this.reCalcBck = true;
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+		} else if(paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
+			this.reCalcA_Faults = true;
+			this.reFetchFromDatabase =true;
+		} else if(paramName.equalsIgnoreCase(this.SEGMENTED_A_FAULT_MODEL)) {
+			this.reCalcA_Faults = true;
+		} else if(paramName.equalsIgnoreCase(this.SLIP_MODEL_TYPE_NAME)) {
+			this.reCalcA_Faults = true;
+		} else if(paramName.equalsIgnoreCase(this.REL_A_PRIORI_WT_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.REL_SEG_RATE_WT_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.WEIGHTED_INVERSION_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.MIN_A_FAULT_RATE_1_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.MIN_A_FAULT_RATE_2_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.MAG_AREA_RELS_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults  = true;
+		}else if(paramName.equalsIgnoreCase(this.A_FAULTS_B_VAL_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.MAG_SIGMA_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.TRUNC_LEVEL_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.MEAN_MAG_CORRECTION)) {
+			this.reCalcA_Faults  =true;
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.CHAR_VS_GR_PARAM_NAME)) {
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.B_FAULTS_B_VAL_PARAM_NAME)) {
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.B_FAULTS_MIN_MAG)) {
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.CONNECT_B_FAULTS_PARAM_NAME)) {
+			this.reFetchFromDatabase = true;
+			this.reCalcB_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.C_ZONE_WT_PARAM_NAME)) {
+			this.reCalcC_Zones  = true;
+		}else if(paramName.equalsIgnoreCase(this.SET_FOR_BCK_PARAM_NAME)) {
+			this.reCalcBck = true;
+		}else if(paramName.equalsIgnoreCase(this.TOT_MAG_RATE_PARAM_NAME)) {
+			this.reCalcBck = true;
+		}else if(paramName.equalsIgnoreCase(this.BACK_SEIS_B_VAL_PARAM_NAME)) {
+			this.reCalcBck = true;
+		}else if(paramName.equalsIgnoreCase(this.MAX_MAG_GRID_PARAM_NAME)) {
+			this.reCalcBck = true;
+		}else if(paramName.equalsIgnoreCase(this.BULGE_REDUCTION_PARAM_NAME)) {
+			this.reCalcBck = true;
+		}else if(paramName.equalsIgnoreCase(this.BACK_SEIS_MAG_NAME)) {
+			this.reCalcBck = true;
+		} else if(paramName.equalsIgnoreCase(this.PROB_MODEL_PARAM_NAME)) {
+			this.reCalcA_Faults  =true;
+			this.reCalcB_Faults = true;
+		} else if(paramName.equalsIgnoreCase(this.SEG_DEP_APERIODICITY_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.DEF_APERIODICITY_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}else if(paramName.equalsIgnoreCase(this.APERIODICITY_PARAM_NAME)) {
+			this.reCalcA_Faults = true;
+		}*/
+		
 		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) ||
 				paramName.equalsIgnoreCase(SEG_DEP_APERIODICITY_PARAM_NAME)) {
 			createParamList();
@@ -1670,27 +1764,58 @@ public class UCERF2 extends EqkRupForecast {
 			timeSpanChange(new EventObject(timeSpan));
 		} else if (paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
 			createParamList();
-			updateFetchersBasedonDefModels();
+			this.reFetchFromDatabase = true;
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
-			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
-					getSelectedDeformationModelSummary(), aFaultsFetcher);
+			//bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+				//	getSelectedDeformationModelSummary(), aFaultsFetcher);
 			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
+			this.reFetchFromDatabase = true;
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
-			updateFetchersBasedonDefModels();
+			this.reFetchFromDatabase = true;
 			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 		} 
 	}
 
 
 	/**
-	 *  Function that must be implemented by all Timespan Listeners for
-	 *  ParameterChangeEvents.
+	 *  Function that must be ?
 	 *
 	 * @param  event  The Event which triggered this function call
 	 */
 	public void timeSpanChange(EventObject event) {
+		
 		parameterChangeFlag = true;
+		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/**
 	 * Update fetchers based on selected deformation model
@@ -1719,6 +1844,7 @@ public class UCERF2 extends EqkRupForecast {
 
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
+		this.reFetchFromDatabase = false;
 	}
 
 

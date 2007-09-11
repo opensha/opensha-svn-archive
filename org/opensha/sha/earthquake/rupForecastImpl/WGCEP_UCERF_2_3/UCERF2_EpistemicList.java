@@ -1,69 +1,134 @@
-/**
- * 
- */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.StringTokenizer;
 
-import org.opensha.exceptions.FaultException;
-import org.opensha.param.BooleanParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.IntegerParameter;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
-import org.opensha.param.StringParameter;
+import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast;
-import org.opensha.util.FileUtils;
 
 /**
- * This class generates a list of UCERF2 ERF that represent each logic tree branch
+ * It creates UCERF2 Epistemic List for Time Independent model
  * 
  * @author vipingupta
  *
  */
 public class UCERF2_EpistemicList extends ERF_EpistemicList {
-	public static final String  NAME = new String("UCERF2 ERF List");
-	private final static String BRANCH_LNE_PREFIX = "#";
-	private final static String INPUT_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/LogicTreeBranches.txt";
-	private ArrayList<String> fileLines = null;
+	public static final String  NAME = new String("UCERF2 ERF Epistemic List");
 	private ArrayList<Double> weights = null;
-	private int numBranches = -1;
-	// mapping og branch number and the corresponding line number where branch starts
-	private HashMap<Integer, Integer> branchLineNumberMap;
+	private ArrayList<ParameterList> paramList = null;
 	private UCERF2 ucerf2 = new UCERF2();
+	private ArrayList<String> paramNames; // parameters that are adjusted for logic tree
+	private ArrayList<ParamOptions> paramValues; // paramter values and their weights
+	private int lastParamIndex;
 	
 	public UCERF2_EpistemicList() {
-		try {
-			fileLines = FileUtils.loadJarFile(INPUT_FILE_NAME);
-			int numLines = fileLines.size();
-			numBranches = -1;
-			weights = new ArrayList<Double>();
-			branchLineNumberMap = new HashMap<Integer, Integer>();
-			for(int lineIndex=0; lineIndex<numLines; ++lineIndex)
-				if(fileLines.get(lineIndex).startsWith("#")) {  // # signifies start of a branch
-					++numBranches;
-					StringTokenizer tokenizer = new StringTokenizer(fileLines.get(lineIndex), ";");
-					tokenizer.nextToken();
-					weights.add(Double.parseDouble(tokenizer.nextToken().trim()));
-					// mapping of branch index and correspding line in the file
-					branchLineNumberMap.put(numBranches, lineIndex);
+		fillAdjustableParams(); // fill the paramters that will be adjusted for the logic tree
+		lastParamIndex = paramNames.size()-1;
+		weights = new ArrayList<Double>();
+		paramList = new ArrayList<ParameterList>();
+		findBranches(0, 1);
+	}
+	
+	
+	/**
+	 * Paramters that are adjusted in the runs
+	 *
+	 */
+	private void fillAdjustableParams() {
+		this.paramNames = new ArrayList<String>();
+		this.paramValues = new ArrayList<ParamOptions>();
+		
+		// Deformation model
+		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight("D2.1", 0.25);
+		options.addValueWeight("D2.2", 0.1);
+		options.addValueWeight("D2.3", 0.15);
+		options.addValueWeight("D2.4", 0.25);
+		options.addValueWeight("D2.5", 0.1);
+		options.addValueWeight("D2.6", 0.15);
+		paramValues.add(options);
+		
+		// Mag Area Rel
+		paramNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
+		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
+		paramValues.add(options);
+		
+		// A-Fault solution type
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		paramValues.add(options);
+		
+		// Aprioti wt param
+		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(1e-4), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
+		paramValues.add(options);
+		
+		//	Connect More B-Faults?
+		paramNames.add(UCERF2.CONNECT_B_FAULTS_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Boolean(true), 0.5);
+		options.addValueWeight(new Boolean(false), 0.5);
+		paramValues.add(options);
+		
+		// B-Fault bValue=0
+		/*paramNames.add(UCERF2.B_FAULTS_B_VAL_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.8), 0.5);
+		options.addValueWeight(new Double(0.0), 0.5);
+		paramValues.add(options);*/
+	}
+	
+	/**
+	 * Calculate MFDs
+	 * 
+	 * @param paramIndex
+	 * @param weight
+	 */
+	private void findBranches(int paramIndex, double weight) {
+		ParamOptions options = paramValues.get(paramIndex);
+		String paramName = paramNames.get(paramIndex);
+		int numValues = options.getNumValues();
+		for(int i=0; i<numValues; ++i) {
+			double newWt;
+			if(ucerf2.getAdjustableParameterList().containsParameter(paramName)) {
+				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
+				newWt = weight * options.getWeight(i);
+				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
+					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+					if(((Double)param.getValue()).doubleValue()==1e10) {
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
+					} else {
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_1_DEFAULT);
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
+					}
 				}
-			++numBranches;
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			} else {
+				if(i==0) newWt=weight;
+				else return;
+			}
+			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save the MFDs
+				paramList.add((ParameterList)ucerf2.getAdjustableParameterList().clone());
+				weights.add(newWt);
+			} else { // recursion 
+				findBranches(paramIndex+1, newWt);
+			}
 		}
 	}
+	
 	
 	/**
 	 * Return the name for this class
@@ -80,55 +145,36 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 	 * @return : number of eqk rup forecasts in this list
 	 */
 	public int getNumERFs() {
-		return this.numBranches;
+		return this.weights.size();
 	}
 
 
 	/**
-	 * Get the ERF in the list with the specified index.
+	 * Get the ERF in the list with the specified index. 
+	 * Index can range from 0 to getNumERFs-1
 	 * 
 	 * 
 	 * @param index : index of Eqk rup forecast to return
 	 * @return
 	 */
 	public EqkRupForecastAPI getERF(int index) {
-		//System.out.println("Getting ERF:"+index);
-		
-		int startLineNumber = this.branchLineNumberMap.get(index);
-		int endLineNumber = this.fileLines.size();
-		if(branchLineNumberMap.containsKey(index+1))
-			endLineNumber = branchLineNumberMap.get(index)-1;
-		// set the default parameters in UCERF2
-		ucerf2.setParamDefaults();
-		// read the parameters and values and set in  UCERF2
-		for(int i=startLineNumber+1; i<=endLineNumber; ++i) {
-			String line = fileLines.get(i);
-			setParameterValue(line);
+		Iterator it = paramList.get(index).getParametersIterator();
+		while(it.hasNext()) {
+			Parameter param = (Parameter)it.next();
+			ucerf2.getParameter(param.getName()).setValue(param.getValue());
 		}
-		ucerf2.updateForecast();
 		return ucerf2;
 	}
-
-	/**
-	 * Set the paramter value from the String 
-	 * 
-	 * @param line
-	 */
-	private void setParameterValue(String line) {
-		StringTokenizer tokenizer = new StringTokenizer(line,"=");
-		String paramName = tokenizer.nextToken().trim();
-		String value = tokenizer.nextToken().trim();
-		ParameterAPI parameter = this.ucerf2.getParameter(paramName);
-		if(parameter instanceof DoubleParameter)
-			parameter.setValue(new Double(value));
-		else if(parameter instanceof StringParameter)
-			parameter.setValue(value);
-		else if(parameter instanceof BooleanParameter)
-			parameter.setValue(new Boolean(value));
-		else if(parameter instanceof IntegerParameter)
-			parameter.setValue(new Integer(value));
-	}
 	
+	/**
+	 * Get the ParameterList for ERF at the specified index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public ParameterList getParameterList(int index) {
+		return paramList.get(index);
+	}
 
 	/**
 	 * get the weight of the ERF at the specified index
@@ -150,16 +196,67 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 	
 	
 	public static void main(String[] args) {
-		UCERF2_EpistemicList ucerf2EpistemicList = new UCERF2_EpistemicList();
+		UCERF2_EpistemicList_old ucerf2EpistemicList = new UCERF2_EpistemicList_old();
 		int numERFs = ucerf2EpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
 		for(int i=0; i<numERFs; ++i) {
 			System.out.println("Weight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
 			System.out.println("Parameters of Branch "+i+":");
-			System.out.println(ucerf2EpistemicList.getERF(i).getAdjustableParameterList().toString());
+			System.out.println(ucerf2EpistemicList.getERF(i).getAdjustableParameterList().getParameterListMetadataString("\n"));
 			
 		}
 		
 	}
 
+}
+
+
+/**
+ * Various parameter values and their corresponding weights
+ * 
+ * @author vipingupta
+ *
+ */
+class ParamOptions {
+	private ArrayList values = new ArrayList();
+	private ArrayList<Double> weights = new ArrayList<Double>();
+	
+	/**
+	 * Add a value and weight for this parameter 
+	 * @param value
+	 * @param weight
+	 */
+	public void addValueWeight(Object value, double weight) {
+		values.add(value);
+		weights.add(weight);
+	}
+	
+	/**
+	 * Number of different options for this parameter
+	 * @return
+	 */
+	public int getNumValues() {
+		return values.size();
+	}
+	
+	/**
+	 * Get the value at specified index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Object getValue(int index) {
+		return values.get(index);
+	}
+	
+	/**
+	 * Get the weight at specified index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public double getWeight(int index) {
+		return weights.get(index);
+	}
+	
 }

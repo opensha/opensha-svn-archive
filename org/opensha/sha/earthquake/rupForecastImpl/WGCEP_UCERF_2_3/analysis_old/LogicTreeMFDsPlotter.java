@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis_old;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -23,7 +23,6 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_EpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -65,6 +64,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String METADATA_EXCEL_SHEET = DEFAULT_PATH+"Metadata.xls";
 	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
 	
+	private ArrayList<String> paramNames;
+	private ArrayList<ParamOptions> paramValues;
+	private int lastParamIndex;
+	private int mfdIndex;
 	
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLUE, 2); // A-Faults
@@ -141,6 +144,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	public LogicTreeMFDsPlotter (boolean reCalculate, boolean isCumulative) {
 		this.isCumulative = isCumulative;
+		fillAdjustableParams();
+		lastParamIndex = paramNames.size()-1;
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
@@ -183,7 +188,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			row.createCell((short)(colNum)).setCellValue("Background MoRate");
 			++colNum;
 			row.createCell((short)(colNum)).setCellValue("Total MoRate");
-			calcMFDs();
+			calcMFDs(0, 1.0);
 			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
 			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
 			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
@@ -292,7 +297,68 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		return mfdList.get(0);
 	}
 	
-	
+	/**
+	 * Paramters that are adjusted in the runs
+	 *
+	 */
+	private void fillAdjustableParams() {
+		this.paramNames = new ArrayList<String>();
+		this.paramValues = new ArrayList<ParamOptions>();
+		
+		// Deformation model
+		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight("D2.1", 0.25);
+		options.addValueWeight("D2.2", 0.1);
+		options.addValueWeight("D2.3", 0.15);
+		options.addValueWeight("D2.4", 0.25);
+		options.addValueWeight("D2.5", 0.1);
+		options.addValueWeight("D2.6", 0.15);
+		paramValues.add(options);
+		
+		// Mag Area Rel
+		paramNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
+		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
+		paramValues.add(options);
+		
+		// A-Fault solution type
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		paramValues.add(options);
+		
+		// Aprioti wt param
+		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(1e-4), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
+		paramValues.add(options);
+		
+		// Mag Correction
+		/*paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(-0.1), 0.2);
+		options.addValueWeight(new Double(0), 0.6);
+		options.addValueWeight(new Double(0.1), 0.2);
+		paramValues.add(options);*/
+		
+		//	Connect More B-Faults?
+		paramNames.add(UCERF2.CONNECT_B_FAULTS_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Boolean(true), 0.5);
+		options.addValueWeight(new Boolean(false), 0.5);
+		paramValues.add(options);
+		
+		// C-zone weights
+		/*paramNames.add(UCERF2.C_ZONE_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.0), 0.5);
+		options.addValueWeight(new Double(1.0), 0.5);
+		paramValues.add(options);*/
+	}
 	
 	
 	/* (non-Javadoc)
@@ -316,50 +382,67 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param paramIndex
 	 * @param weight
 	 */
-	private void calcMFDs() {
-		UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
-		int numBranches = ucerf2List.getNumERFs();
-		for(int i=0; i<numBranches; ++i) {
-			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
-			 // if it is last paramter in list, save the MFDs
-			System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
-			ucerf2.updateForecast();
-			aFaultMFDsList.add(ucerf2.getTotal_A_FaultsMFD());
-			bFaultCharMFDsList.add(ucerf2.getTotal_B_FaultsCharMFD());
-			bFaultGRMFDsList.add(ucerf2.getTotal_B_FaultsGR_MFD());
-			this.nonCA_B_FaultsMFDsList.add(ucerf2.getTotal_NonCA_B_FaultsMFD());
-			totMFDsList.add(ucerf2.getTotalMFD());
-			short colIndex = (short)totMFDsList.size();
-			HSSFRow row = this.excelSheet.createRow(colIndex);
-			// write to excel sheet
-			row.createCell((short)0).setCellValue("Plot "+colIndex);
-			ParameterList paramList = ucerf2.getAdjustableParameterList();
-			for(int p=0; p<this.adjustableParamNames.size(); ++p) {
-				String pName = adjustableParamNames.get(p);
-				if(paramList.containsParameter(pName))
-					row.createCell((short)(p+1)).setCellValue(paramList.getValue(pName).toString());
-			}
-			
-			int colNum = adjustableParamNames.size()+1;
-			// add a row for predicted and observed ratio
-			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5+UCERF2.DELTA_MAG/2)/obs6_5CumRate);
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(ucerf2List.getERF_RelativeWeight(i));
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(aFaultMFDsList.get(colIndex-1).getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(bFaultCharMFDsList.get(colIndex-1).getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(bFaultGRMFDsList.get(colIndex-1).getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(this.nonCA_B_FaultsMFDsList.get(colIndex-1).getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_BackgroundMFD().getTotalMomentRate());
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
+	private void calcMFDs(int paramIndex, double weight) {
 		
+		ParamOptions options = paramValues.get(paramIndex);
+		String paramName = paramNames.get(paramIndex);
+		int numValues = options.getNumValues();
+		for(int i=0; i<numValues; ++i) {
+			if(ucerf2.getAdjustableParameterList().containsParameter(paramName)) {
+				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
+				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
+					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+					if(((Double)param.getValue()).doubleValue()==1e10) {
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0.0));
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(new Double(0.0));	
+					} else {
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_1_DEFAULT);
+						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
+					}
+				}
+			}
+			double newWt = weight * options.getWeight(i);
+			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save the MFDs
+				System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
+				ucerf2.updateForecast();
+				aFaultMFDsList.add(ucerf2.getTotal_A_FaultsMFD());
+				bFaultCharMFDsList.add(ucerf2.getTotal_B_FaultsCharMFD());
+				bFaultGRMFDsList.add(ucerf2.getTotal_B_FaultsGR_MFD());
+				this.nonCA_B_FaultsMFDsList.add(ucerf2.getTotal_NonCA_B_FaultsMFD());
+				totMFDsList.add(ucerf2.getTotalMFD());
+				short colIndex = (short)totMFDsList.size();
+				HSSFRow row = this.excelSheet.createRow(colIndex);
+				// write to excel sheet
+				row.createCell((short)0).setCellValue("Plot "+colIndex);
+				ParameterList paramList = ucerf2.getAdjustableParameterList();
+				for(int p=0; p<this.adjustableParamNames.size(); ++p) {
+					String pName = adjustableParamNames.get(p);
+					if(paramList.containsParameter(pName))
+						row.createCell((short)(p+1)).setCellValue(paramList.getValue(pName).toString());
+				}
+				
+				int colNum = adjustableParamNames.size()+1;
+				// add a row for predicted and observed ratio
+				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5+UCERF2.DELTA_MAG/2)/obs6_5CumRate);
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(newWt);
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(aFaultMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(bFaultCharMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(bFaultGRMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(this.nonCA_B_FaultsMFDsList.get(colIndex-1).getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_C_ZoneMFD().getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(ucerf2.getTotal_BackgroundMFD().getTotalMomentRate());
+				++colNum;
+				row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
+			} else { // recursion 
+				calcMFDs(paramIndex+1, newWt);
+			}
 		}
 	}
 	
@@ -412,22 +495,35 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values.add(new Double(1e10));
 		plotMFDs(paramName, values, true, false, false, false, false, false); // plot A-faults  only
 		
-
+		
+		// Mag Correction
+		/*paramName = UCERF2.MEAN_MAG_CORRECTION;
+		values = new ArrayList();
+		values.add(new Double(-0.1));
+		values.add(new Double(0.1));
+		plotMFDs(paramName, values, true, true, false, false, false); // plot A-faults  and B-faults
+*/
 		//	Connect More B-Faults?
-		 paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
-		 values = new ArrayList();
+		paramName = UCERF2.CONNECT_B_FAULTS_PARAM_NAME;
+		values = new ArrayList();
 		values.add(new Boolean(true));
 		values.add(new Boolean(false));
 		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
 		
+//		 C-zone weights
+		/*paramNames.add(EqkRateModel2_ERF.C_ZONE_WT_PARAM_NAME);
+		values = new ArrayList();
+		values.add(new Double(0.0));
+		values.add(new Double(1.0));
+		plotMFDs(paramName, values, false, false, true, false, false); */
 		
-		//plotBackgroundEffectsMFDs();
+		plotBackgroundEffectsMFDs();
 		
 //		B-faults b-values
 		paramName = UCERF2.B_FAULTS_B_VAL_PARAM_NAME;
 		values = new ArrayList();
 		values.add(new Double(0.0));
-		//plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
+		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults
 
 //		fraction MoRate to Background
 		paramName = UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME;
@@ -509,7 +605,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			IncrementalMagFreqDist bFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 			IncrementalMagFreqDist nonCA__B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 			IncrementalMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-			
+			mfdIndex = 0;
 			
 			if(paramName.equalsIgnoreCase(UCERF2.ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
 				ArrayList<IncrementalMagFreqDist> mfds = this.getMFDsWhenBckFrac0_1();
@@ -531,7 +627,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultGRMFD.setInfo("B-Faults GR MFD");
 				totMFD = mfds.get(3);
 				totMFD.setInfo("Total MFD");
-			} else doWeightedSum(paramName, values.get(i), 1.0, (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD,(SummedMagFreqDist)nonCA__B_FaultsMFD, (SummedMagFreqDist)totMFD);
+			} else doWeightedSum(0, paramName, values.get(i), 1.0, (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD,(SummedMagFreqDist)nonCA__B_FaultsMFD, (SummedMagFreqDist)totMFD);
 			
 			
 			if(i==0) {
@@ -577,8 +673,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgNonCA_B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		
-		doWeightedSum(null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
+		mfdIndex = 0;
+		doWeightedSum(0, null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
 		String metadata = "Solid Line-";
 		// Add to function list
 		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
@@ -660,29 +756,34 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param bFaultMFD
 	 * @param totMFD
 	 */
-	private void doWeightedSum(String constantParamName, Object value, double weight, 
+	private void doWeightedSum( int paramIndex, String constantParamName, Object value, double weight, 
 			SummedMagFreqDist aFaultTotMFD, SummedMagFreqDist bFaultTotCharMFD, SummedMagFreqDist bFaultTotGRMFD, 
 			SummedMagFreqDist nonCA_B_FaultsTotMFD, SummedMagFreqDist totMFD) {
 		
-		UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
-		int numBranches = ucerf2List.getNumERFs();
-		for(int i=0; i<numBranches; ++i) {
-			ParameterList paramList = ucerf2List.getParameterList(i);
-			double wt = ucerf2List.getERF_RelativeWeight(i);
-			if(constantParamName!=null && (!paramList.containsParameter(constantParamName)))
-				continue;
-			if(constantParamName!=null) {
-				ParameterAPI param = paramList.getParameter(constantParamName);
-				if(!param.getValue().equals(value)) continue;
-			}
-			addMFDs(aFaultTotMFD, aFaultMFDsList.get(i), wt);
-			addMFDs(bFaultTotCharMFD, bFaultCharMFDsList.get(i), wt);
-			addMFDs(bFaultTotGRMFD, bFaultGRMFDsList.get(i), wt);
-			addMFDs(nonCA_B_FaultsTotMFD, this.nonCA_B_FaultsMFDsList.get(i), wt);
-			addMFDs(totMFD, totMFDsList.get(i), wt);
+		ParamOptions options = paramValues.get(paramIndex);
+		String paramName = paramNames.get(paramIndex);
+		int numValues = options.getNumValues();
+		double newWt;
+		for(int i=0; i<numValues; ++i) {
+			if(paramName !=null && paramName.equalsIgnoreCase(constantParamName)) {
+				if(options.getValue(i).equals(value)) newWt = 1*weight; // for constant paramter
+				else newWt = 0*weight;
+			} else newWt = weight * options.getWeight(i);
 			
+			if(paramIndex==lastParamIndex) { // if it is last paramter in list, add to the MFDs
+				if(newWt!=0) {
+					addMFDs(aFaultTotMFD, aFaultMFDsList.get(mfdIndex), newWt);
+					addMFDs(bFaultTotCharMFD, bFaultCharMFDsList.get(mfdIndex), newWt);
+					addMFDs(bFaultTotGRMFD, bFaultGRMFDsList.get(mfdIndex), newWt);
+					addMFDs(nonCA_B_FaultsTotMFD, this.nonCA_B_FaultsMFDsList.get(mfdIndex), newWt);
+					addMFDs(totMFD, totMFDsList.get(mfdIndex), newWt);
+				}
+				++mfdIndex;
+			} else { // recursion 
+				doWeightedSum(paramIndex+1, constantParamName,  value, newWt, 
+						 aFaultTotMFD,  bFaultTotCharMFD,  bFaultTotGRMFD, nonCA_B_FaultsTotMFD, totMFD);
+			}
 		}
-		
 	}
 	
 	
@@ -799,4 +900,52 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	}
 }
 
-
+/**
+ * Various parameter values and their corresponding weights
+ * 
+ * @author vipingupta
+ *
+ */
+class ParamOptions {
+	private ArrayList values = new ArrayList();
+	private ArrayList<Double> weights = new ArrayList<Double>();
+	
+	/**
+	 * Add a value and weight for this parameter 
+	 * @param value
+	 * @param weight
+	 */
+	public void addValueWeight(Object value, double weight) {
+		values.add(value);
+		weights.add(weight);
+	}
+	
+	/**
+	 * Number of different options for this parameter
+	 * @return
+	 */
+	public int getNumValues() {
+		return values.size();
+	}
+	
+	/**
+	 * Get the value at specified index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Object getValue(int index) {
+		return values.get(index);
+	}
+	
+	/**
+	 * Get the weight at specified index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public double getWeight(int index) {
+		return weights.get(index);
+	}
+	
+}

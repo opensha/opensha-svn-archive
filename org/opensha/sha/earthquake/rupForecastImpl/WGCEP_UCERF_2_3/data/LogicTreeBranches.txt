@@ -1,16 +1,576 @@
-#1;0.5
+#1;0.028125
 Deformation Model=D2.1
+Probability Model=Poisson
 A-Fault Solution Type=Segmented Model
 Wt On A-Priori Rates=1E-4
 Min Fraction for Unknown Ruptures=0.5
 Min Fraction for Unlikely Ruptures=0.1
 Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
-Connect More B-Faults?=true
-#2;0.5
+Connect More B Faults?=true
+#2;0.028125
 Deformation Model=D2.1
+Probability Model=Poisson
 A-Fault Solution Type=Segmented Model
 Wt On A-Priori Rates=1E-4
 Min Fraction for Unknown Ruptures=0.5
 Min Fraction for Unlikely Ruptures=0.1
 Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
-Connect More B-Faults?=false
+Connect More B Faults?=false
+#3;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#4;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#5;0.006250
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#6;0.006250
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#7;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#8;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#9;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#10;0.028125
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#11;0.006250
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#12;0.006250
+Deformation Model=D2.1
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#13;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#14;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#15;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#16;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#17;0.00250
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#18;0.00250
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#19;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#20;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#21;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#22;0.01125
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#23;0.00250
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#24;0.00250
+Deformation Model=D2.2
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#25;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#26;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#27;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#28;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#29;0.003750
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#30;0.003750
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#31;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#32;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#33;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#34;0.016875
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#35;0.003750
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#36;0.003750
+Deformation Model=D2.3
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#37;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#38;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#39;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#40;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#41;0.006250
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#42;0.006250
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#43;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#44;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#45;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#46;0.028125
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#47;0.006250
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#48;0.006250
+Deformation Model=D2.4
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#49;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#50;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#51;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#52;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#53;0.00250
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#54;0.00250
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#55;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#56;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#57;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#58;0.01125
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#59;0.00250
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#60;0.00250
+Deformation Model=D2.5
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#61;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#62;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#63;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#64;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#65;0.003750
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=false
+#66;0.003750
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Ellsworth-B (WGCEP, 2002, Eq 4.5b)
+Connect More B Faults?=true
+#67;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#68;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E-4
+Min Fraction for Unknown Ruptures=0.5
+Min Fraction for Unlikely Ruptures=0.1
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#69;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true
+#70;0.016875
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Segmented Model
+Wt On A-Priori Rates=1E10
+Min Fraction for Unknown Ruptures=0.0
+Min Fraction for Unlikely Ruptures=0.0
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#71;0.003750
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=false
+#72;0.003750
+Deformation Model=D2.6
+Probability Model=Poisson
+A-Fault Solution Type=Unsegmented Model
+Mag-Area Relationship=Hanks & Bakun (2002)
+Connect More B Faults?=true

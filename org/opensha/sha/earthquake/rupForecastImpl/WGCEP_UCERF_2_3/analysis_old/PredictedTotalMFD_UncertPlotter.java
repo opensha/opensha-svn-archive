@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis_old;
 
 import java.awt.Color;
 import java.io.BufferedReader;
