@@ -373,7 +373,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(null, null, true, true, true, true, true, false);
 		
 //		 combined Logic Tree MFD comparison with NSHMP2002
-		plotMFDs(null, null, false, false, false, false, false, true);
+		/*plotMFDs(null, null, false, false, false, false, false, true);
 		
 		//	Different Fault Models
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
@@ -434,7 +434,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values = new ArrayList();
 		values.add(new Double(0.1));
 		//plotMFDs(paramName, values, true, true, false, false, false, false); // plot A & B-faults
-	
+	*/
 	}
 	
 	
