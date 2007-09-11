@@ -84,11 +84,11 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 		paramValues.add(options);
 		
 		// B-Fault bValue=0
-		/*paramNames.add(UCERF2.B_FAULTS_B_VAL_PARAM_NAME);
+		paramNames.add(UCERF2.B_FAULTS_B_VAL_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(0.8), 0.5);
 		options.addValueWeight(new Double(0.0), 0.5);
-		paramValues.add(options);*/
+		paramValues.add(options);
 	}
 	
 	/**
