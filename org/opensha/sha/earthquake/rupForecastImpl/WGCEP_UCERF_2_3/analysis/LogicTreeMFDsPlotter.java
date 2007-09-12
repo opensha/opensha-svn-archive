@@ -666,7 +666,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			SummedMagFreqDist nonCA_B_FaultsTotMFD, SummedMagFreqDist totMFD) {
 		
 		int numBranches = ucerf2List.getNumERFs();
-		double paramWt = ucerf2List.getWtForParamVal(constantParamName,  value);
+		double paramWt = 1;
+		if(constantParamName!=null)
+			paramWt = ucerf2List.getWtForParamVal(constantParamName,  value);
 		for(int i=0; i<numBranches; ++i) {
 			ParameterList paramList = ucerf2List.getParameterList(i);
 			double wt = ucerf2List.getERF_RelativeWeight(i);
@@ -677,7 +679,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				if(!param.getValue().equals(value)) continue;
 				wt = wt/paramWt;
 			}
-			System.out.println(constantParamName+":"+value+" branch used:"+i+":weight=\t"+wt);
+			//System.out.println(constantParamName+":"+value+" branch used:"+i+":weight=\t"+wt);
 			addMFDs(aFaultTotMFD, aFaultMFDsList.get(i), wt);
 			addMFDs(bFaultTotCharMFD, bFaultCharMFDsList.get(i), wt);
 			addMFDs(bFaultTotGRMFD, bFaultGRMFDsList.get(i), wt);

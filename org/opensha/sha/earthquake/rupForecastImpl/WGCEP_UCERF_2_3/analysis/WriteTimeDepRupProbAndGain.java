@@ -226,7 +226,12 @@ public class WriteTimeDepRupProbAndGain {
 		for(int i=0; i<numBranches; ++i) {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
 			double wt = ucerf2List.getERF_RelativeWeight(i);
-
+			if(ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.UNSEGMENTED_A_FAULT_MODEL))
+				continue;
+			wt = wt/ucerf2List.getWtForParamVal(UCERF2.RUP_MODEL_TYPE_NAME, UCERF2.SEGMENTED_A_FAULT_MODEL);
+			ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).setValue(SEG_DEP_APERIODICITY);
+			ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(PROB_MODEL_VAL);
+			ucerf2.getTimeSpan().setDuration(DURATION); // Set duration 
 			System.out.println("Doing run:"+(this.loginTreeBranchIndex+1));
 			ucerf2.updateForecast();
 			ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
