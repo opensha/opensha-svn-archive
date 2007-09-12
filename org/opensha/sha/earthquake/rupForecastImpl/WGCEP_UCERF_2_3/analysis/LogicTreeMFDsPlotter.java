@@ -46,8 +46,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String INCR_Y_AXIS_LABEL = "Incremental Rate (per year)";
 	
 	
-//	 Eqk Rate Model 2 ERF
-	private UCERF2 ucerf2 = new UCERF2();
+
 	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
@@ -134,6 +133,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private double  obs6_5CumRate;
 	private HSSFSheet excelSheet;
 	private ArrayList<String> adjustableParamNames;
+	private UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
+//	 Eqk Rate Model 2 ERF
+	private UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
@@ -317,7 +319,6 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param weight
 	 */
 	private void calcMFDs() {
-		UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
 		int numBranches = ucerf2List.getNumERFs();
 		for(int i=0; i<numBranches; ++i) {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
@@ -370,10 +371,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	public void plotMFDs() {
 		
 		// combined Logic Tree MFD
-		plotMFDs(null, null, true, true, true, true, true, false);
+		//plotMFDs(null, null, true, true, true, true, true, false);
 		
 //		 combined Logic Tree MFD comparison with NSHMP2002
-		/*plotMFDs(null, null, false, false, false, false, false, true);
+		//plotMFDs(null, null, false, false, false, false, false, true);
 		
 		//	Different Fault Models
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
@@ -383,7 +384,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults only
 		
 		//	Differemt Def Models
-		paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
+	/*	paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		values = new ArrayList();
 		values.add("D2.1");
 		values.add("D2.2");
@@ -531,7 +532,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 				bFaultGRMFD.setInfo("B-Faults GR MFD");
 				totMFD = mfds.get(3);
 				totMFD.setInfo("Total MFD");
-			} else doWeightedSum(paramName, values.get(i), 1.0, (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD,(SummedMagFreqDist)nonCA__B_FaultsMFD, (SummedMagFreqDist)totMFD);
+			} else doWeightedSum(paramName, values.get(i), (SummedMagFreqDist)aFaultMFD, (SummedMagFreqDist)bFaultCharMFD, (SummedMagFreqDist)bFaultGRMFD,(SummedMagFreqDist)nonCA__B_FaultsMFD, (SummedMagFreqDist)totMFD);
 			
 			
 			if(i==0) {
@@ -578,7 +579,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		SummedMagFreqDist avgNonCA_B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
 		
-		doWeightedSum(null, null, 1.0, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
+		doWeightedSum(null, null, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
 		String metadata = "Solid Line-";
 		// Add to function list
 		if(showAFaults) addToFuncList(avgAFaultMFD, metadata+"Average A-Fault MFD", PLOT_CHAR1);
@@ -660,12 +661,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param bFaultMFD
 	 * @param totMFD
 	 */
-	private void doWeightedSum(String constantParamName, Object value, double weight, 
+	private void doWeightedSum(String constantParamName, Object value,
 			SummedMagFreqDist aFaultTotMFD, SummedMagFreqDist bFaultTotCharMFD, SummedMagFreqDist bFaultTotGRMFD, 
 			SummedMagFreqDist nonCA_B_FaultsTotMFD, SummedMagFreqDist totMFD) {
 		
-		UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
 		int numBranches = ucerf2List.getNumERFs();
+		double paramWt = ucerf2List.getWtForParamVal(constantParamName,  value);
 		for(int i=0; i<numBranches; ++i) {
 			ParameterList paramList = ucerf2List.getParameterList(i);
 			double wt = ucerf2List.getERF_RelativeWeight(i);
@@ -674,7 +675,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			if(constantParamName!=null) {
 				ParameterAPI param = paramList.getParameter(constantParamName);
 				if(!param.getValue().equals(value)) continue;
+				wt = wt/paramWt;
 			}
+			System.out.println(constantParamName+":"+value+" branch used:"+i+":weight=\t"+wt);
 			addMFDs(aFaultTotMFD, aFaultMFDsList.get(i), wt);
 			addMFDs(bFaultTotCharMFD, bFaultCharMFDsList.get(i), wt);
 			addMFDs(bFaultTotGRMFD, bFaultGRMFDsList.get(i), wt);

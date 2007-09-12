@@ -92,6 +92,23 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 	}
 	
 	/**
+	 * Get weight for parameter and value
+	 * 
+	 * @param paramName
+	 * @param val
+	 * @return
+	 */
+	public double getWtForParamVal(String paramName, Object val) {
+		int paramIndex = paramNames.indexOf(paramName);
+		ParamOptions options = paramValues.get(paramIndex);
+		int numValues = options.getNumValues();
+		for(int i=0; i<numValues; ++i) {
+			if(options.getValue(i).equals(val)) return options.getWeight(i);
+		}
+		return 0;
+	}
+	
+	/**
 	 * Calculate MFDs
 	 * 
 	 * @param paramIndex
