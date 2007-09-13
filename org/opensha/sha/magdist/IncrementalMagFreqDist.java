@@ -322,7 +322,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
 
     /** Returns a copy of this and all points in this DiscretizedFunction */
-   public DiscretizedFuncAPI deepClone()throws DataPoint2DException{
+   public IncrementalMagFreqDist deepClone()throws DataPoint2DException{
 
        IncrementalMagFreqDist f = new IncrementalMagFreqDist(
            minX, num, delta

@@ -10,12 +10,14 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
 import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
+import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 
 //import cj.math.nnls.NNLSWrapper;
@@ -469,6 +471,7 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	
 	
+	
 	/**
 	 * Get a list of time independent sources for the given duration
 	 * 
@@ -518,7 +521,7 @@ public class A_FaultSegmentedSourceGenerator {
 				// this is a check to make sure the total prob from source is same as
 				// that computed by hand. It is
 				double probFromSrc =faultRupSrc.computeTotalProb();
-				System.out.println(segmentData.getFaultName()+" Prob: from src="+(float)probFromSrc+
+				System.out.println(segme3ntData.getFaultName()+" Prob: from src="+(float)probFromSrc+
 						"; from totRate="+(float)rupProb[i]+"; ratio="+
 						(float)(probFromSrc/rupProb[i]));
 				*/
@@ -528,6 +531,91 @@ public class A_FaultSegmentedSourceGenerator {
 		}
 		return this.sourceList;
 	}
+
+	
+	/**
+	 * Get a list of time dependent empirical sources for the given duration
+	 * 
+	 * @return
+	 */
+	public ArrayList<FaultRuptureSource> getTimeDepEmpiricalSources(double duration, EmpiricalModel empiricalModel) {
+		
+		isTimeDeptendent= false;
+		
+		segTimeSinceLast = null;
+		segAperiodicity = null;
+
+		
+		// a check could be made here whether time-ind sources already exist, 
+		// and if so the durations of each could simply be changed (rather than recreating the sources)
+		this.sourceList = new ArrayList<FaultRuptureSource>();
+		rupGain = new double[num_rup];
+		rupProb = new double[num_rup];
+		double[] modRupRate = new double[num_rup];
+		for(int i=0; i<num_rup; i++) {
+			int[] segmentsInRup = getSegmentsInRup(i);
+			StirlingGriddedSurface rupSurf = segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
+			double empiricalCorr;
+			int rowOfRupCenter = Math.round(rupSurf.getNumRows()/2.0f);
+			int colOfRupCenter = Math.round(rupSurf.getNumCols()/2.0f);
+			Location centerSurfLoc = rupSurf.getLocation(rowOfRupCenter,colOfRupCenter);
+			empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+
+			modRupRate[i] = totRupRate[i]*empiricalCorr;
+			rupProb[i]=(1-Math.exp(-duration*modRupRate[i]));
+			rupGain[i]= rupProb[i]/(1-Math.exp(-duration*totRupRate[i]));
+
+			// reduce rates in MFD
+			IncrementalMagFreqDist modMagFreqDist = rupMagFreqDist[i].deepClone();
+			for(int magIndex=0; magIndex<modMagFreqDist.getNum(); ++magIndex) {
+				modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
+			}
+			// Create source if rate is greater than ~zero (or age of earth)
+			if (totRupRate[i] > MIN_RUP_RATE) {				
+				FaultRuptureSource faultRupSrc = new FaultRuptureSource(modMagFreqDist, 
+						rupSurf,
+						segmentData.getAveRake(segmentsInRup),
+						duration);
+				faultRupSrc.setName(this.getLongRupName(i));
+				
+				if(faultRupSrc.getNumRuptures() == 0)
+					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
+				
+				sourceList.add(faultRupSrc);
+				
+				/*
+				// this is a check to make sure the total prob from source is same as
+				// that computed by hand. It is
+				double probFromSrc =faultRupSrc.computeTotalProb();
+				System.out.println(segme3ntData.getFaultName()+" Prob: from src="+(float)probFromSrc+
+						"; from totRate="+(float)rupProb[i]+"; ratio="+
+						(float)(probFromSrc/rupProb[i]));
+				*/
+			}	
+			//else
+				//System.out.println("Rate of "+this.getLongRupName(i)+" is below 1e-10 ("+rupMagFreqDist[i].getTotalIncrRate()+")");
+		}
+		
+		// compute seg prob and gain
+		segGain = new double[num_seg];
+		segProb = new double[num_seg];
+		double[] modSegRate = new double[num_seg];
+		for(int seg=0; seg<num_seg; ++seg) {
+			modSegRate[seg]=0.0;
+			// Sum the rates of all ruptures which are part of a segment
+			for(int rup=0; rup<num_rup; rup++) 
+				if(rupInSeg[seg][rup]==1) modSegRate[seg]+=modRupRate[rup];
+		}
+
+		for(int i=0;i<num_seg;i++) {
+			segProb[i]=(1-Math.exp(-duration*modSegRate[i]));
+			segGain[i]=segProb[i]/(1-Math.exp(-duration*finalSegRate[i]));
+		}
+
+		return this.sourceList;
+	}
+
+	
 	
 	/**
 	 * Get a list of time dependent sources for the given info

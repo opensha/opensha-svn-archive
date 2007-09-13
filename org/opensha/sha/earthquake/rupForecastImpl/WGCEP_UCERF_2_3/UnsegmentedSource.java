@@ -8,6 +8,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -28,7 +29,12 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
 
 /**
  * <p>Title: UnsegmentedSource </p>
- * <p>Description: 	CONSIDER EFFECT OF: ASEISMICITY; VARIABLE AREA FOR GIVEN MAG, AND OVERLAPPING STEPOVERS.
+ * <p>Description: 	
+ * 
+ * The EmpricalModel option only influence what's returned by the getRupture() method (it doesn't influence any
+ * other diagnostics included what's returned by getMagFreqDist).
+ * 
+ * Need to add floating in down-dip direction since NGAs will use this
  * 
  * If Asismicity is applied as a reduction of area, then effective all down-dip widths (DDW) are reduced, 
  * and given a single value applied to all segments (DDW = the total reduced area divided by total length).
@@ -39,44 +45,53 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRela
  * @version 1.0
  */
 
-public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
-	
+public class UnsegmentedSource extends ProbEqkSource {
+
 	//for Debug purposes
 	private static String C = new String("UnsegmentedSource");
 	private final static boolean D = true;
-	public final static double DEFAULT_RUP_OFFSET= UCERF2.RUP_OFFSET;
+	private double rake;
+	protected double duration;
+	//these are the static static defined varibles to be used to find the number of ruptures.
+	private final static double RUPTURE_WIDTH =100.0;
+	private double rupOffset= UCERF2.RUP_OFFSET;
+	private int totNumRups;
+	private EvenlyGriddedSurface surface;
+	private ArrayList mags, rates;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
-	
+
 	private int num_seg;
 	private double[] segRate, segVisibleRate; // segment rates 
 	//private double[] segAveSlipRate; // ave slip rate for segment
 	private ArbDiscrEmpiricalDistFunc[] segSlipDist, segVisibleSlipDist;  // segment slip dist
-	
+
 	private IncrementalMagFreqDist sourceMFD, grMFD, charMFD; // Mag Freq dist for source
 	private IncrementalMagFreqDist visibleSourceMFD; // Mag Freq dist for visible ruptures
 	private IncrementalMagFreqDist[] segSourceMFD;  // Mag Freq Dist for each segment
 	private IncrementalMagFreqDist[] visibleSegSourceMFD;  // Mag Freq Dist for visible ruptures on each segment
 	private double sourceMag;  // this is the char mag or upper mag if mag PDF is not given
-	
+
 	// inputs:
 	private FaultSegmentData segmentData;
 	private MagAreaRelationship magAreaRel;
 	private double fixMag, fixRate, mag_lowerGR, b_valueGR;
-	
-//	 the following is the total moment-rate reduction, including that which goes to the  
+
+//	the following is the total moment-rate reduction, including that which goes to the  
 	// background, sfterslip, events smaller than the min mag here, and aftershocks and foreshocks.
 	private double moRateReduction;  
 	private double moRate;
-	
+
 	// List of discretized locations on the surface
 	protected LocationList surfaceLocList;
+	
+	private EmpiricalModel empiricalModel;
 
 	protected ArbitrarilyDiscretizedFunc origSlipRateFunc, predSlipRateFunc;
 	private ArrayList<ArbitrarilyDiscretizedFunc> magBasedUncorrSlipRateFuncs;
 
-	
+
 	/**
 	 * Description:  The constructs the source as a fraction of charateristic (Gaussian) and GR
 	 * 
@@ -85,8 +100,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
 			double mag_lowerGR, double b_valueGR, double moRateReduction, double fixMag,
-			double fixRate, double meanMagCorrection) {
-		
+			double fixRate, double meanMagCorrection, EmpiricalModel empiricalModel) {
+
 		this.isPoissonian = true;
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
@@ -96,19 +111,20 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
 		this.mag_lowerGR = mag_lowerGR;
 		this.b_valueGR = b_valueGR;
+		this.empiricalModel = empiricalModel;
 		sourceMag = magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6)+meanMagCorrection;  // this area is reduced by aseis if appropriate
 		//System.out.print(this.segmentData.getFaultName()+" mag_before="+sourceMag+";  mag_after=");
 		sourceMag = Math.round(sourceMag/delta_mag) * delta_mag;
-//System.out.print(sourceMag+"\n");
+//		System.out.print(sourceMag+"\n");
 		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
-		
-		
-		
+
+
+
 		//OVERRIDE VALUES FOR SAF CREEPING SECTION WITH NSHMP VALUES
 		if(segmentData.getFaultName().equals("San Andreas (Creeping Segment)")) {
 			moRateReduction = 0.0;
 			this.moRateReduction = moRateReduction;  // fraction of slip rate reduction
-			
+
 			// The following values come from the file "creepflt.1sta.in" sent by Steve Harmsen on 08/30/07
 			// this produces a total rate of 0.01095, hwereas that annoted in their file is 0.01079 (close enough)
 			mag_lowerGR = 6.0;
@@ -118,12 +134,12 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			this.sourceMag = 6.7;
 			fractCharVsGR = 0;
 			moRate = 3.8593e16;  // correct units?
-			
+
 		}
 
-		
-		
-		
+
+
+
 		// only apply char if mag <= lower RG mag 
 		if(sourceMag <= mag_lowerGR) {
 			if(Double.isNaN(fixMag)) // if it is not a B Fault Fix
@@ -133,7 +149,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag,
 						fixMag, charMagSigma, 1.0, charMagTruncLevel, 2);
 				charMFD.scaleToCumRate(0, this.fixRate);
-				
+
 			}
 			sourceMFD = charMFD;
 		}
@@ -154,9 +170,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR), b_valueGR);
 			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
 		}
-		
+
 		num_seg = segmentData.getNumSegments();
-				
+
 		// get the impled MFD for "visible" ruptures (those that are large 
 		// enough that their rupture will be seen at the surface)
 		visibleSourceMFD = (IncrementalMagFreqDist)sourceMFD.deepClone();
@@ -164,19 +180,18 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 
 		// create the source
-		setAll(sourceMFD,
+		updateAll(sourceMFD,
 				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
-				DEFAULT_RUP_OFFSET,
+				rupOffset,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
-				segmentData.getFaultName(),
-				magAreaRel);
-	
+				segmentData.getFaultName());
 
-		
+
+
 		// get the rate of ruptures on each segment (segSourceMFD[seg])
 		getSegSourceMFD();
-		
+
 		// now get the visible MFD for each segment
 		visibleSegSourceMFD = new IncrementalMagFreqDist[num_seg];
 		for(int s=0; s< num_seg; s++) {
@@ -184,18 +199,18 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			for(int i =0; i<sourceMFD.getNum(); i++)
 				visibleSegSourceMFD[s].set(i,segSourceMFD[s].getY(i)*getProbVisible(segSourceMFD[s].getX(i)));
 		}
-		
+
 		// change the info in the MFDs
 		String new_info = "Source MFD\n"+sourceMFD.getInfo();
 		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)sourceMFD.getTotalMomentRate()+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
 		sourceMFD.setInfo(new_info);
-		
+
 		new_info = "Visible Source MFD\n"+visibleSourceMFD.getInfo();
 		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)visibleSourceMFD.getTotalMomentRate()+
 		"\n\n\tNew Total Rate: "+(float)visibleSourceMFD.getCumRate(0);
 		visibleSourceMFD.setInfo(new_info);
-		
-		
+
+
 		// find the total rate of ruptures for each segment
 		segRate = new double[num_seg];
 		segVisibleRate = new double[num_seg];
@@ -203,22 +218,22 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			segRate[s] = segSourceMFD[s].getTotalIncrRate();
 			segVisibleRate[s] = visibleSegSourceMFD[s].getTotalIncrRate();
 		}
-		
+
 		// find the slip distribution of each segment
 		computeSegSlipDist();
-		
+
 		saveSurfaceLocs();
 		//System.out.println("Moment Rate:"+this.moRate);
-		
+
 		//if(D)
 		//  for(int i=0; i<num_seg; ++i)
 		//	  System.out.println("Slip for segment "+i+":  " +segSlipDist[i] +";  "+segVisibleSlipDist[i] );
-		
+
 		// test
 		// System.out.println(getNSHMP_SrcFileString());
 	}
-	
-	
+
+
 	/**
 	 * Compute orig and final slip rates along the fault
 	 *
@@ -235,7 +250,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//this.getOrigSlipRateAlongFault();
 		// uncorrected slip rate
 		//this.getFinalSlipRateAlongFault();
-		
+
 		// write Average uncorrected slip rates for each segment
 		/*double totSegLength = 0;
 		int index1, index2;
@@ -251,12 +266,12 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			totSlipRate = totSlipRate/(index2-index1);
 			System.out.println(segIndex+":\t"+totSlipRate/this.getFinalAveSegSlipRate(segIndex));
 		}*/
-		
-		
-		
+
+
+
 		//System.out.println(ratioFunc.toString());
 	}
-	
+
 	/**
 	 * Get Mag Based slip rate func list along the fault. 
 	 * These are for uncorrected slip rates
@@ -267,7 +282,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		if(this.magBasedUncorrSlipRateFuncs==null) getFinalSlipRateAlongFault();
 		return this.magBasedUncorrSlipRateFuncs;
 	}
-	
+
 	/**
 	 * Compute the slip rate along fault.
 	 * For Uncorrected slip rate, it gets rupture from parent class
@@ -285,7 +300,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		for(int col=0; col<numCols; ++col) { // initialize all slip rates to 0
 			slipRateFunc.set((double)col,0);
 		}
-		
+
 		// mag based contributions
 		HashMap<Double, ArbitrarilyDiscretizedFunc> magFuncMap = new HashMap<Double, ArbitrarilyDiscretizedFunc>();
 		int numMags = this.sourceMFD.getNum();
@@ -298,22 +313,22 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			magFuncMap.put(sourceMFD.getX(i), func);
 			magBasedFuncs.add(func);
 		}
-		
-		
+
+
 		double area, slip, slipRate, moRate, totMoRate=0;
 		for(int rupIndex=0; rupIndex<numRups; ++rupIndex) { // iterate over all ruptures
 			ProbEqkRupture rupture;
 			if(isSlipRateCorrection) rupture = getRupture(rupIndex);
-			else rupture = super.getRupture(rupIndex);
+			else rupture = getRupture(rupIndex);
 			EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
 			area = rupSurface.getSurfaceLength()*rupSurface.getSurfaceWidth();
 			moRate = MomentMagCalc.getMoment(rupture.getMag());
 			totMoRate+=moRate*rupture.getMeanAnnualRate(this.duration);
 			slip = FaultMomentCalc.getSlip(area*1e6,moRate);
 			slipRate = rupture.getMeanAnnualRate(this.duration)*slip;
-			
+
 			//if(this.segmentData.getFaultName().equalsIgnoreCase("S. San Andreas") && isSlipRateCorrection)
-			 // System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
+			// System.out.println(rupIndex+","+rupture.getMag()+","+slipRate);
 			ArbitrarilyDiscretizedFunc magBasedFunc = magFuncMap.get(rupture.getMag());
 			int index1 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, 0));
 			int index2 = this.surfaceLocList.getLocationIndex(rupSurface.getLocation(0, rupSurface.getNumCols()-1));
@@ -324,7 +339,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		}
 		//System.out.println(totMoRate);
 	}
-	
+
 	/**
 	 * Get final slip Rate along fault
 	 * 
@@ -341,7 +356,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	}
 
 
-	
+
 	/**
 	 * Get Original Slip Rate along fault (e.g., w/ step functions at segment boundaries)
 	 * 
@@ -349,7 +364,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 */
 	public ArbitrarilyDiscretizedFunc getOrigSlipRateAlongFault() {
 		if(origSlipRateFunc!=null) return origSlipRateFunc;
-		
+
 		// save cumulative segment lengths
 		ArbitrarilyDiscretizedFunc segLengths = new ArbitrarilyDiscretizedFunc();
 		double totSegLength = 0;
@@ -377,12 +392,12 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//System.out.println(origSlipRateFunc.toString());
 		return origSlipRateFunc;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	/**
 	 * Moment rate reduction
 	 * 
@@ -391,7 +406,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getMoRateReduction() {
 		return this.moRateReduction;
 	}
-	
+
 	/**
 	 * Get the reduced moment rate
 	 * @return
@@ -399,8 +414,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getMomentRate() {
 		return this.moRate;
 	}
-	
-	
+
+
 	/**
 	 * Compute Normalized Segment Slip-Rate Residuals (where orig slip-rate and stddev are reduces by the fraction of moment rate removed)
 	 *
@@ -415,9 +430,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			normResids[segIndex] /= (getFaultSegmentData().getSegSlipRateStdDev(segIndex)*reduction);
 		}
 
-	return normResids;
+		return normResids;
 	}
-	
+
 	/**
 	 * This returns of magnitude computed for the characteristic earthquake 
 	 * (and upper mag of the GR) if that constructor was used (no mag PDF given)
@@ -426,7 +441,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getSourceMag() {
 		return sourceMag;
 	}
-	
+
 	/**
 	 * Get B Fault Mag Fix (Some B faults have Mag fix which is specified in a text file)
 	 * @return
@@ -434,7 +449,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getFixMag() {
 		return this.fixMag;
 	}
-	
+
 	/**
 	 * Get B Fault Rate Fix (Some B faults have Rate fix which is specified in a text file)
 	 * @return
@@ -442,7 +457,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public double getFixRate() {
 		return this.fixRate;
 	}
-	
+
 	/**
 	 * Get fault segment data
 	 * @return
@@ -450,7 +465,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public FaultSegmentData getFaultSegmentData() {
 		return this.segmentData;
 	}
-	
+
 	/**
 	 * This gets the magnitude frequency distribution for each segment by multiplying the original MFD
 	 * by the average probability of observing each rupture on each segment (assuming ruptures have a
@@ -476,7 +491,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			}
 		}
 	}
-	
+
 	/**
 	 * This returns the probability of observing a rupture (of given length) 
 	 * on each of the various segments (of given lengths) assuming the rupture has equal
@@ -492,7 +507,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	private double[] getProbSegObsRupture(double[] segLengths, double totalLength, double rupLength) {
 
 //		if(this.segmentData.getFaultName().equals("Calaveras"))
-//			System.out.println("Calaveras: "+segLengths[0]+"  "+segLengths[1]+"  "+segLengths[2]+"  "+totalLength+"  "+rupLength);
+//		System.out.println("Calaveras: "+segLengths[0]+"  "+segLengths[1]+"  "+segLengths[2]+"  "+totalLength+"  "+rupLength);
 
 		double[] segProbs = new double[segLengths.length];
 
@@ -525,7 +540,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			}
 		} 
 		//if (D) System.out.println("Prob Func="+probFunc.toString());
-		
+
 		// now average the probabilities for those points in each segment
 		double firstLength = 0;
 		double lastLength;
@@ -538,10 +553,10 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			segProbs[i]= total/(index2-index1+1);
 			firstLength=lastLength;
 		}
-		
+
 		return segProbs;
 	}
-	
+
 	/**
 	 * This returns the probability that the given magnitude 
 	 * event will be observed at the ground surface.  This is based
@@ -562,7 +577,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		 return 1.0;
 		 */
 	}
-	
+
 	/**
 	 * Final, implied average, slip rate on the segment
 	 */
@@ -573,9 +588,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			slipRate+=segmenstSlipDist.getX(i)*segmenstSlipDist.getY(i);
 		return slipRate;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Get Slip Distribution for this segment
 	 * 
@@ -585,7 +600,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public ArbDiscrEmpiricalDistFunc getSegmentSlipDist(int ithSegment) {
 		return segSlipDist[ithSegment];
 	}
-	
+
 	/**
 	 * Get Visible Slip Distribution for this segment
 	 * 
@@ -595,8 +610,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public ArbDiscrEmpiricalDistFunc getSegmentVisibleSlipDist(int ithSegment) {
 		return segVisibleSlipDist[ithSegment];
 	}
-	
-	
+
+
 	/**
 	 * Get the Mag Freq Dist for the source
 	 * 
@@ -605,7 +620,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public IncrementalMagFreqDist getMagFreqDist() {
 		return sourceMFD; 
 	}
-	
+
 	/**
 	 * The returns the characteristic mag freq dist if it exists (i.e., the constructor
 	 * that specifies a fraction of char vs GR was used)
@@ -614,8 +629,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public IncrementalMagFreqDist getCharMagFreqDist() {
 		return charMFD; 
 	}
-	
-	
+
+
 	/**
 	 * The returns the GR mag freq dist if it exists (i.e., the constructor
 	 * that specifies a fraction of char vs GR was used)
@@ -624,8 +639,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public IncrementalMagFreqDist getGR_MagFreqDist() {
 		return grMFD;
 	}
-	
-	
+
+
 	/**
 	 * Get the Mag Freq Dist for "visible" source ruptures
 	 * 
@@ -634,21 +649,21 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	public IncrementalMagFreqDist getVisibleSourceMagFreqDist() {
 		return visibleSourceMFD; 
 	}
-	
+
 	/**
 	 * Compute both total and visible slip distribution for each segment (segSlipDist[seg] & segVisibleSlipDist[seg])
 	 */
 	private void computeSegSlipDist() {
-		
+
 		segSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
 		segVisibleSlipDist = new ArbDiscrEmpiricalDistFunc[num_seg];
-		
+
 		for(int seg=0; seg<num_seg; ++seg) {
 			segSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 			segVisibleSlipDist[seg]=new ArbDiscrEmpiricalDistFunc();
 			IncrementalMagFreqDist segMFD =  segSourceMFD[seg];
-//if(this.segmentData.getFaultName().equals("Calaveras"))
-//	System.out.println(segMFD);
+//			if(this.segmentData.getFaultName().equals("Calaveras"))
+//			System.out.println(segMFD);
 			IncrementalMagFreqDist visibleSegMFD =  visibleSegSourceMFD[seg];
 			for(int i=0; i<segMFD.getNum(); ++i) {
 				double mag = segMFD.getX(i);
@@ -659,9 +674,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 
 	/**
 	 * Get rate at a particular location on the fault trace. 
@@ -680,7 +695,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
-//System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
+//		System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
 		if(distanceCutOff > 2) throw new RuntimeException ("Location:("+loc.getLatitude()+","+loc.getLongitude()+") is more than 2 km from any rupture");
 		double slipRate = 0;
 		int numRups = getNumRuptures();
@@ -695,7 +710,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 					double slip = FaultMomentCalc.getSlip(area*1e6,MomentMagCalc.getMoment(rupture.getMag()));
 					slipRate+= rupture.getMeanAnnualRate(this.duration)*slip;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
-						//	rupture.getMeanAnnualRate(this.duration));
+					//	rupture.getMeanAnnualRate(this.duration));
 					break;
 				}
 			}
@@ -704,7 +719,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return slipRate;
 	}
-	
+
 
 	/**
 	 * Get rate at a particular location on the fault trace. 
@@ -723,7 +738,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 			if(dist <minDist) minDist = dist;
 		}
 		double distanceCutOff=minDist+0.001;  // add one meter to make sure we always get it
-//System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
+//		System.out.println(this.segmentData.getFaultName()+"  min dist to Tom's site ="+minDist);
 		if(distanceCutOff > 2) throw new RuntimeException ("Location:("+loc.getLatitude()+","+loc.getLongitude()+") is more than 2 km from any rupture");
 		double rate = 0;
 		int numRups = getNumRuptures();
@@ -736,7 +751,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration);
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
-						//	rupture.getMeanAnnualRate(this.duration));
+					//	rupture.getMeanAnnualRate(this.duration));
 					break;
 				}
 			}
@@ -744,9 +759,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Get the "observed" rate at a particular location on the fault trace. By "observed" we mean reduce the rate
 	 * according to the probability that each rupture might not be seen in paleoseismic data.
@@ -778,7 +793,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 				if(RelativeLocation.getApproxHorzDistance(surfaceLoc, loc)< distanceCutOff) {
 					rate+= rupture.getMeanAnnualRate(this.duration) * probVis;
 					//System.out.println(this.segmentData.getFaultName()+","+rupIndex+","+
-						//	rupture.getMeanAnnualRate(this.duration));
+					//	rupture.getMeanAnnualRate(this.duration));
 					break;
 				}
 			}
@@ -786,8 +801,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		//System.out.println(this.segmentData.getFaultName()+","+"Total Rate="+rate);
 		return rate;
 	}
-	
-	
+
+
 
 	/**
 	 * This makes the vector of fault corner location used by the getMinDistance(site)
@@ -795,7 +810,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 	 * @param faultSurface
 	 */
 	/*private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
-		
+
 		int nRows = faultSurface.getNumRows();
 		int nCols = faultSurface.getNumCols();
 		faultCornerLocations.add(faultSurface.get(0, 0));
@@ -804,9 +819,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		faultCornerLocations.add(faultSurface.get(nRows - 1, 0));
 		faultCornerLocations.add(faultSurface.get(nRows - 1, (int) (nCols / 2)));
 		faultCornerLocations.add(faultSurface.get(nRows - 1, nCols - 1));
-		
+
 	}*/
-	
+
 	/**
 	 * Get NSHMP GR Source File String. 
 	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the incremental rate
@@ -818,7 +833,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		// treat as char if mag<=6.5
 		if(sourceMag <= 6.5)
 			return getNSHMP_Char_SrcFileString();
-		
+
 		StringBuffer strBuffer = new StringBuffer("");
 		strBuffer.append("2\t"); // GR MFD
 		double rake = segmentData.getAveRake();
@@ -836,7 +851,7 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		double wt = 1.0;
 		if(momentCheck/moRate < 0.999 || momentCheck/moRate > 1.001)
 			System.out.println("WARNING -- Bad a-value!: "+this.segmentData.getFaultName()+"  "+momentCheck+"  "+moRate);
-//			throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
+//		throw new RuntimeException("Bad a-value!: "+momentCheck+"  "+moRate);
 		strBuffer.append((float)a_value+"\t"+
 				(float)b_valueGR+"\t"+
 				(float)mag_lowerGR+"\t"+
@@ -856,8 +871,8 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
 		return strBuffer.toString();
 	}
-	
-	
+
+
 	/**
 	 * Get NSHMP Char Source File String. 
 	 * This method is needed to create file for NSHMP. NOTE that the a-value here is the incremental rate
@@ -874,9 +889,9 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 		else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 		else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 		else throw new RuntimeException("Invalid Rake:"+rake);
-		
+
 		//System.out.println(rake+","+rakeStr);
-		
+
 		strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.segmentData.getFaultName()+"\n");
 		int numNonZeroMags = (int)Math.round((sourceMag-mag_lowerGR)/sourceMFD.getDelta()+1);
 		double moRate = sourceMFD.getTotalMomentRate();
@@ -895,36 +910,240 @@ public class UnsegmentedSource extends Frankel02_TypeB_EqkSource {
 					faultTrace.getLocationAt(locIndex).getLongitude()+"\n");
 		return strBuffer.toString();
 	}
-	
-	
-	
-	
-	   /**
-	    * this computes the moment for the GR distribution exactly the way frankel's code does it
-	    */
-	   private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
-	     double mo = 0;
-	     double mag;
-	     for(int i = 0; i <numMag; i++) {
-	       mag = magLower + i*deltaMag;
-	       mo += Math.pow(10,aVal-bVal*mag+1.5*mag+9.05);
-	     }
-	     return mo;
-	   }
-	   
-	   /**
-	    * this computes the a-value for the GR distribution by inverting what's done in getMomentRate(*)
-	    */
-	   private double getNSHMP_aValue(double magLower, int numMag, double deltaMag, double moRate, double bVal) {
-	     double sum = 0;
-	     double mag;
-	     for(int i = 0; i <numMag; i++) {
-	       mag = magLower + i*deltaMag;
-	       sum += Math.pow(10,-bVal*mag+1.5*mag+9.05);
-	     }
-	     return Math.log10((moRate/sum));
-	   }
-	   
-	
+
+
+
+
+	/**
+	 * this computes the moment for the GR distribution exactly the way frankel's code does it
+	 */
+	private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
+		double mo = 0;
+		double mag;
+		for(int i = 0; i <numMag; i++) {
+			mag = magLower + i*deltaMag;
+			mo += Math.pow(10,aVal-bVal*mag+1.5*mag+9.05);
+		}
+		return mo;
+	}
+
+	/**
+	 * this computes the a-value for the GR distribution by inverting what's done in getMomentRate(*)
+	 */
+	private double getNSHMP_aValue(double magLower, int numMag, double deltaMag, double moRate, double bVal) {
+		double sum = 0;
+		double mag;
+		for(int i = 0; i <numMag; i++) {
+			mag = magLower + i*deltaMag;
+			sum += Math.pow(10,-bVal*mag+1.5*mag+9.05);
+		}
+		return Math.log10((moRate/sum));
+	}
+
+
+	private void updateAll(IncrementalMagFreqDist magFreqDist,
+			EvenlyGriddedSurface surface,
+			double rupOffset,
+			double rake,
+			double duration,
+			String sourceName) {
+
+		this.surface=surface;
+		this.rupOffset = rupOffset;
+		this.rake=rake;
+		this.duration = duration;
+		this.name = sourceName;
+
+		probEqkRupture = new ProbEqkRupture();
+		probEqkRupture.setAveRake(rake);
+
+		// get a list of mags and rates for non-zero rates
+		mags = new ArrayList();
+		rates = new ArrayList();
+		for (int i=0; i<magFreqDist.getNum(); ++i){
+			if(magFreqDist.getY(i) > 0){
+				//magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+				mags.add(new Double(magFreqDist.getX(i)));
+				rates.add(new Double(magFreqDist.getY(i)));
+			}
+		}
+
+		// Determine number of ruptures
+		int numMags = mags.size();
+		totNumRups=0;
+		for(int i=0;i<numMags;++i){
+			double rupLen = getRupLength(((Double)mags.get(i)).doubleValue());
+			totNumRups += getNumRuptures(rupLen);
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
+
+	public int getNumRuptures() { return totNumRups; }
+
+
+	/**
+	 * This gets the ProbEqkRupture object for the nth Rupture
+	 */
+	public ProbEqkRupture getRupture(int nthRupture){
+		int numMags = mags.size();
+		double mag=0, rupLen=0;
+		int numRups=0, tempNumRups=0, iMag=-1;
+
+		if(nthRupture < 0 || nthRupture>=getNumRuptures())
+			throw new RuntimeException("Invalid rupture index. This index does not exist");
+
+		// this finds the magnitude for the nthRupture:
+		// alt would be to store a rup-mag mapping
+		for(int i=0;i<numMags;++i){
+			mag = ((Double)mags.get(i)).doubleValue();
+			iMag = i;
+			rupLen = getRupLength(mag);
+			if(D) System.out.println("mag="+mag+"; rupLen="+rupLen);
+			numRups = getNumRuptures(rupLen);
+			tempNumRups += numRups;
+			if(nthRupture < tempNumRups)
+				break;
+		}
+
+		// set rupture surface
+		GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,
+				RUPTURE_WIDTH,rupOffset,
+				nthRupture+numRups-tempNumRups);
+		probEqkRupture.setRuptureSurface(rupSurf);
+
+		probEqkRupture.setMag(mag);
+		// set probability
+	    double empiricalCorr=1;
+	    if(empiricalModel != null) {
+	    	int rowOfRupCenter = Math.round(rupSurf.getNumRows()/2.0f);
+	    	int colOfRupCenter = Math.round(rupSurf.getNumCols()/2.0f);
+	    	Location centerSurfLoc = rupSurf.getLocation(rowOfRupCenter,colOfRupCenter);
+	    	empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+	    }
+
+		double rate = ((Double)rates.get(iMag)).doubleValue() * empiricalCorr;
+		double prob = 1- Math.exp(-duration*rate/numRups);
+		probEqkRupture.setProbability(prob);
+
+
+		return probEqkRupture;
+	}
+
+
+	/** Set the time span in years
+	 *
+	 * @param yrs : timeSpan as specified in  Number of years
+	 */
+	public void setDuration(double yrs) {
+		//set the time span in yrs
+		duration = yrs;
+	}
+
+
+	/**
+	 * This returns the rupture length implied by the magAreaRel (length=area/DDW), or if the magAreaRel is null then
+	 * the Wells & Coppersmith (1994) "All" equation is used (the latter is what Frankel's 2002 code uses).
+	 * @param mag
+	 * @return
+	 */
+	private double getRupLength(double mag){ 
+		if(this.magAreaRel == null)
+			return Math.pow(10.0,-3.22+0.69*mag); 
+		else
+			return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
+	}
+
+	/**
+	 * @param rupLen
+	 * @return the total number of ruptures associated with the given rupLen
+	 */
+	private int getNumRuptures(double rupLen){
+		return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);
+	}
+
+
+	/**
+	 * This returns the shortest dist to either end of the fault trace, or to the
+	 * mid point of the fault trace.
+	 * @param site
+	 * @return minimum distance
+	 */
+	public  double getMinDistance(Site site) {
+
+		double min;
+
+		// get first location on fault trace
+		Direction dir = RelativeLocation.getDirection(site.getLocation(), (Location) surface.get(0,0));
+		min = dir.getHorzDistance();
+
+		// get last location on fault trace
+		dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,surface.getNumCols()-1));
+		if (min > dir.getHorzDistance())
+			min = dir.getHorzDistance();
+
+		// get mid location on fault trace
+		dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,(int) surface.getNumCols()/2));
+		if (min > dir.getHorzDistance())
+			min = dir.getHorzDistance();
+
+		return min;
+	}
+
+	/**
+	 * get the name of this class
+	 *
+	 * @return
+	 */
+	public String getName() {
+		return name;
+	}
+
+
+	/**
+	 * this is to test the code
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		FaultTrace fltTr = new FaultTrace("name");
+		fltTr.addLocation(new Location(33.0,-122,0));
+		fltTr.addLocation(new Location(34.0,-122,0));
+		FrankelGriddedSurface surface = new FrankelGriddedSurface(fltTr,90,0,10,1);
+
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
+		System.out.println("cumRate="+(float)gr.getTotCumRate());
+
+		Frankel02_TypeB_EqkSource src = new Frankel02_TypeB_EqkSource(gr,surface,
+				10.0,0.0,1,"name");
+		ProbEqkRupture rup;
+		for(int i=0; i< src.getNumRuptures();i++) {
+			rup = src.getRupture(i);
+			System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
+					rup.getProbability()+"\n\tRup Ends: "+
+					(float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
+					(float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+			"\n\n");
+		}
+
+	}
+
+	/**
+	 * It returns a list of all the locations which make up the surface for this
+	 * source.
+	 *
+	 * @return LocationList - List of all the locations which constitute the surface
+	 * of this source
+	 */
+	public LocationList getAllSourceLocs() {
+		LocationList locList = new LocationList();
+		Iterator it = this.surface.getAllByRowsIterator();
+		while(it.hasNext()) locList.addLocation((Location)it.next());
+		return locList;
+	}
+
 }
 

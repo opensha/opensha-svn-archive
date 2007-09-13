@@ -33,7 +33,6 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource_testCorr;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
@@ -366,11 +365,7 @@ public class SegmentDataPanel extends JPanel implements ActionListener, GraphWin
 		slipRatesAlongFaultList.addAll(magBasedFuncs);
 		for(int i=0; i<magBasedFuncs.size(); ++i) slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR6);
 
-		// Slip rate along fault plotting features
-		if(unsegmentedSource instanceof UnsegmentedSource_testCorr) {
-			slipRatesAlongFaultList.add(((UnsegmentedSource_testCorr)unsegmentedSource).getModifiedSlipRateAlongFault());
-			slipRatesAlongFaultPlottingFeatures.add(PLOT_CHAR3);
-		}
+
 	
 	}
 	

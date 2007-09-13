@@ -64,7 +64,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
   private int totNumRups;
   private ArrayList ruptureList;
   private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
-  private double timeSpan;
+  private double duration;
   private EvenlyGriddedSurface faultSurface;
 
   /* Note that none of the input objects are saved after the ruptureList is created
@@ -81,7 +81,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
    * @param rupAspectRatio - ratio of rupture length to rupture width
    * @param rupOffset - amount of offset for floating ruptures
    * @param rake - average rake of the ruptures
-   * @param timeSpan - the timeSpan of interest in years (this is a Poissonian source)
+   * @param duration - the timeSpan of interest in years (this is a Poissonian source)
    * @param minMag - the minimum magnitude to be considered from magDist (lower mags are ignored)
    */
   public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
@@ -91,10 +91,10 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                                   double rupAspectRatio,
                                   double rupOffset,
                                   double rake,
-                                  double timeSpan,
+                                  double duration,
                                   double minMag) {
 
-      this.timeSpan = timeSpan;
+      this.duration = duration;
       this.faultSurface = faultSurface;
 
       if (D) {
@@ -105,7 +105,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
         System.out.println("rupAspectRatio: "+rupAspectRatio);
         System.out.println("rupOffset: "+rupOffset);
         System.out.println("rake: "+rake);
-        System.out.println("timeSpan: "+timeSpan);
+        System.out.println("timeSpan: "+duration);
         System.out.println("minMag: "+minMag);
 
       }
@@ -139,8 +139,8 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                                   double rupAspectRatio,
                                   double rupOffset,
                                   double rake,
-                                  double timeSpan) {
-    this( magDist, faultSurface, magScalingRel,magScalingSigma,rupAspectRatio,rupOffset,rake,timeSpan,5.0);
+                                  double duration) {
+    this( magDist, faultSurface, magScalingRel,magScalingSigma,rupAspectRatio,rupOffset,rake,duration,5.0);
   }
 
   /**
@@ -226,12 +226,12 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
           probEqkRupture.setAveRake(rake);
           probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
           probEqkRupture.setMag(mag);
-          prob = weight*(1.0 - Math.exp(-timeSpan*rate/numRup));
+          prob = weight*(1.0 - Math.exp(-duration*rate/numRup));
           probEqkRupture.setProbability(prob);
           ruptureList.add(probEqkRupture);
         }
           if( D ) System.out.println(C+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                      "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+
+                                      "; rate="+rate+"; timeSpan="+duration+"; numRup="+numRup+
                                       "; weight="+weight+"; prob="+prob);
       }
     }

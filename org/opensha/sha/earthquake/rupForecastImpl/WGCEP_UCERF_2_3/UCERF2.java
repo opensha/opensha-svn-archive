@@ -351,6 +351,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
 	public final static String PROB_MODEL_POISSON = "Poisson";
 	public final static String PROB_MODEL_BPT = "BPT";
+	public final static String PROB_MODEL_EMPIRICAL = "Empirical";
 	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_BPT;
 	private StringParameter probModelParam;
 
@@ -393,6 +394,7 @@ public class UCERF2 extends EqkRupForecast {
 	// A and B faults fetcher
 	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
 	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
+	private EmpiricalModel empiricalModel = new EmpiricalModel();
 
 	private ArrayList aFaultSourceGenerators; 
 	private ArrayList<UnsegmentedSource> bFaultSources;
@@ -646,6 +648,7 @@ public class UCERF2 extends EqkRupForecast {
 		ArrayList<String> probModelOptions = new ArrayList<String>();
 		probModelOptions.add(PROB_MODEL_POISSON);
 		probModelOptions.add(PROB_MODEL_BPT);
+		probModelOptions.add(PROB_MODEL_EMPIRICAL);
 		probModelParam = new StringParameter(PROB_MODEL_PARAM_NAME, probModelOptions, PROB_MODEL_DEFAULT);
 		probModelParam.setInfo(PROB_MODEL_PARAM_INFO);
 
@@ -817,7 +820,7 @@ public class UCERF2 extends EqkRupForecast {
 			adjustableParams.addParameter(maxMagGridBooleanParam);
 		}
 		adjustableParams.addParameter(probModelParam);
-		if(!isTimeIndependent()) { // if time dependent prob model is chosen
+		if(this.probModelParam.getValue().equals(PROB_MODEL_BPT)) { // if time dependent prob model is chosen
 			adjustableParams.addParameter(this.segDepAperiodicityParam);
 			boolean isSegDepApriodicity = ((Boolean)segDepAperiodicityParam.getValue()).booleanValue();
 			if(isSegDepApriodicity) adjustableParams.addParameter(this.defaultAperiodicityParam);
@@ -1117,11 +1120,11 @@ public class UCERF2 extends EqkRupForecast {
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		double duration = timeSpan.getDuration();
-		boolean isTimeIndepenent = isTimeIndependent();
+//		boolean isTimeIndepenent = isTimeIndependent();
 		double startYear = Double.NaN, aperiodicity = Double.NaN;
 		boolean isSegDependentAperiodicity = false;
 
-		if(!isTimeIndepenent) { // for time dependence
+		if(this.probModelParam.getValue().equals(PROB_MODEL_BPT)) { // for time dependence
 			startYear = this.timeSpan.getStartTimeYear();
 			isSegDependentAperiodicity = ((Boolean)this.segDepAperiodicityParam.getValue()).booleanValue();
 			aperiodicity = ((Double)this.aperiodicityParam.getValue()).doubleValue();
@@ -1159,10 +1162,12 @@ public class UCERF2 extends EqkRupForecast {
 					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
 			aFaultSourceGenerators.add(aFaultSourceGenerator);
-			if(isTimeIndepenent) // time Independent
+			if(this.probModelParam.getValue().equals(PROB_MODEL_POISSON)) // time Independent
 				allSources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
-			else { // Time dependence
+			else if(this.probModelParam.getValue().equals(PROB_MODEL_BPT)) { // Time dependence
 				allSources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
+			} else { // Empirical Model
+				allSources.addAll(aFaultSourceGenerator.getTimeDepEmpiricalSources(duration, empiricalModel));
 			}
 			aFaultSummedMFD.addIncrementalMagFreqDist(aFaultSourceGenerator.getTotalRupMFD());
 			//System.out.println("************"+i+"******"+aFaultSummedMFD.toString());
@@ -1172,16 +1177,6 @@ public class UCERF2 extends EqkRupForecast {
 		reCalcA_Faults=false;
 	}
 
-
-	/**
-	 * Whether current parameter are for time dependent or time independent
-	 * 
-	 * @return
-	 */
-	private boolean isTimeIndependent() {
-		String probModel = (String)this.probModelParam.getValue();
-		return probModel.equalsIgnoreCase(PROB_MODEL_POISSON);
-	}
 
 	/**
 	 * This is a quick fix.  We should really use our A_FaultFloatingSource since it has a lot of
@@ -1203,11 +1198,14 @@ public class UCERF2 extends EqkRupForecast {
 		aFaultSourceGenerators = new ArrayList();
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		double duration = timeSpan.getDuration();
+		EmpiricalModel empiricalModel  = null;
+		if(this.probModelParam.getValue().equals(this.PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
+			
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
-			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
+			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);	
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
-					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection);
+					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection, empiricalModel);
 			source.setDuration(duration);
 //			the following isn't really correct (not a srcGen, but rather a src)
 			aFaultSourceGenerators.add(source);
@@ -1236,6 +1234,9 @@ public class UCERF2 extends EqkRupForecast {
 		double duration = timeSpan.getDuration();
 		double fixMag, fixRate;
 		try{
+			EmpiricalModel empiricalModel  = null;
+			if(this.probModelParam.getValue().equals(this.PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
+
 			//FileWriter fw1 = new FileWriter("B_Char_Temp.txt");
 			//FileWriter fw2 = new FileWriter("B_GR_Temp.txt");
 			for(int i=0; i<bFaultSegmentData.size(); ++i) {
@@ -1259,7 +1260,7 @@ public class UCERF2 extends EqkRupForecast {
 				}
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
-						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection);
+						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection, empiricalModel);
 				source.setDuration(duration);
 				bFaultSources.add(source);
 				allSources.add(source);
@@ -1593,8 +1594,8 @@ public class UCERF2 extends EqkRupForecast {
 		//System.out.println("Creating A Fault sources");
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
 
-			if(!isTimeIndependent())
-				throw new RuntimeException("Only Poisson probability model is  allowed for unsegmented A-Faults model");
+			if(!this.probModelParam.getValue().equals(this.PROB_MODEL_BPT))
+				throw new RuntimeException("BPT probability model is not allowed for unsegmented A-Faults model");
 
 			mkA_FaultUnsegmentedSources();
 
@@ -1639,8 +1640,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
 	private void setTimespanParameter() {
-		boolean isTimeDep = !this.isTimeIndependent();
-		if (isTimeDep) {
+		if (this.probModelParam.getValue().equals(PROB_MODEL_BPT)) {
 			// create the time-dep timespan object with start time and duration in years
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 			// set duration
