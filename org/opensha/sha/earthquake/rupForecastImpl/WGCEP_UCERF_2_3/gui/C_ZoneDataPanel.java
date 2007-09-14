@@ -109,9 +109,9 @@ class C_ZonesDataTableModel extends AbstractTableModel {
 			case 0:
 				return mfd.getName();
 			case 1:
-				return RATE_FORMAT.format(mfd.getCumRate(5.0));
+				return RATE_FORMAT.format(mfd.getCumRate(5.05));
 			case 2:
-				return RATE_FORMAT.format(mfd.getCumRate(6.5));
+				return RATE_FORMAT.format(mfd.getCumRate(6.55));
 			case 3:
 				return MOMENT_FORMAT.format(mfd.getTotalMomentRate());
 		}

@@ -163,6 +163,9 @@ public abstract class Parameter
             throw new ConstraintException( S + "Value is not allowed: " + value.toString() );
         }
 
+        // do not fire the event if new value is same as current value
+        if(this.value!=null && this.value.equals(value)) return;
+        
         this.value = value;
 
         org.opensha.param.event.ParameterChangeEvent event = new org.opensha.param.event.ParameterChangeEvent(

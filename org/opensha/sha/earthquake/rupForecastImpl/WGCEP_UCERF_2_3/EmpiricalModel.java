@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3;
 
 import org.opensha.data.Location;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.EmpiricalModelDataFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EmpiricalModelDataFetcher;
 
 /**
  * 

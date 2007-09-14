@@ -1,4 +1,4 @@
-#FaultName, Index, Fraction of Points in RELM Region, Fraction of points in North Region, Fraction of points in San Francisco Region, Fraction of points in Central Coast Region, Fraction of points in Los Angeles Region, Fraction of points in Mojave Region, Fraction of points in Mid Region, Fraction of points in Northeast Region, Fraction of points in Rest of state
+#FaultName, Index, RELM Region,North Region,San Francisco Region,Central Coast Region,Los Angeles Region,Mojave Region,Mid Region,Northeast Region,Rest of state
 Mount Diablo Thrust,0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
 Monte Vista-Shannon,1,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
 Ortigalita,2,1.0,0.0,0.0,0.15492958,0.0,0.0,0.0,0.0,0.8450704
@@ -94,35 +94,32 @@ San Joaquin Hills,91,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
 Little Lake,92,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0
 Tank Canyon,93,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0
 Elysian Park (Upper),94,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Carson Range (Genoa),95,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-Antelope Valley,96,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-Maacama-Garberville,97,1.0,0.9279279,0.06306306,0.0,0.0,0.0,0.0,0.0,0.009009009
-Goose Lake,98,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
-Great Valley 9,99,1.0,0.0,0.0,0.025,0.0,0.0,0.0,0.0,0.975
-Raymond,100,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Casmalia (Orcutt Frontal),101,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
-Los Alamos-West Baseline,102,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
-Pitas Point (Lower, West),103,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-Pitas Point (Lower)-Montalvo,104,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-Malibu Coast, alt 1,105,1.0,0.0,0.0,0.0,0.974359,0.0,0.0,0.0,0.025641026
-Santa Susana, alt 1,106,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Holser, alt 1,107,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Chino, alt 1,108,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Puente Hills,109,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-San Gabriel,110,1.0,0.0,0.0,0.0,0.7361111,0.25,0.0,0.0,0.013888889
-Earthquake Valley,111,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-White Wolf,112,1.0,0.0,0.0,0.0,0.0,0.921875,0.0,0.0,0.078125
-West Tahoe,113,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-North Tahoe,114,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
-Great Valley 4b, Gordon Valley,115,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-Palos Verdes Connected,116,1.0,0.0,0.0,0.0,0.1958042,0.0,0.0,0.0,0.8041958
-Newport Inglewood Connected alt 1,117,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Santa Monica Connected alt 1,118,1.0,0.0,0.0,0.0,0.3625,0.0,0.0,0.0,0.6375
-Santa Ynez Connected,119,1.0,0.0,0.0,0.28467155,0.71532845,0.0,0.0,0.0,0.0
-Sierra Madre Connected,120,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
-Death Valley Connected,121,1.0,0.0,0.0,0.0,0.0,0.0,0.2019544,0.0,0.7980456
-Hunter Mountain Connected,122,1.0,0.0,0.0,0.0,0.0,0.171123,0.2513369,0.0,0.5775401
-Greenville Connected,123,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-Green Valley Connected,124,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
-Little Salmon Connected,125,1.0,0.9259259,0.0,0.0,0.0,0.0,0.0,0.0,0.074074075
-San Gregorio Connected,126,1.0,0.0,0.8361582,0.15254237,0.0,0.0,0.0,0.0,0.011299435
+Maacama-Garberville,95,1.0,0.9279279,0.06306306,0.0,0.0,0.0,0.0,0.0,0.009009009
+Great Valley 9,96,1.0,0.0,0.0,0.025,0.0,0.0,0.0,0.0,0.975
+Raymond,97,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Casmalia (Orcutt Frontal),98,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+Los Alamos-West Baseline,99,1.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+Pitas Point (Lower, West),100,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+Pitas Point (Lower)-Montalvo,101,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+Malibu Coast, alt 1,102,1.0,0.0,0.0,0.0,0.974359,0.0,0.0,0.0,0.025641026
+Santa Susana, alt 1,103,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Holser, alt 1,104,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Chino, alt 1,105,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Puente Hills,106,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+San Gabriel,107,1.0,0.0,0.0,0.0,0.7361111,0.25,0.0,0.0,0.013888889
+Earthquake Valley,108,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+White Wolf,109,1.0,0.0,0.0,0.0,0.0,0.921875,0.0,0.0,0.078125
+West Tahoe,110,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+North Tahoe,111,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+Great Valley 4b, Gordon Valley,112,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+Palos Verdes Connected,113,1.0,0.0,0.0,0.0,0.1958042,0.0,0.0,0.0,0.8041958
+Newport Inglewood Connected alt 1,114,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Santa Monica Connected alt 1,115,1.0,0.0,0.0,0.0,0.3625,0.0,0.0,0.0,0.6375
+Santa Ynez Connected,116,1.0,0.0,0.0,0.28467155,0.71532845,0.0,0.0,0.0,0.0
+Sierra Madre Connected,117,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+Death Valley Connected,118,1.0,0.0,0.0,0.0,0.0,0.0,0.2019544,0.0,0.7980456
+Hunter Mountain Connected,119,1.0,0.0,0.0,0.0,0.0,0.171123,0.2513369,0.0,0.5775401
+Greenville Connected,120,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+Green Valley Connected,121,1.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+Little Salmon Connected,122,1.0,0.9259259,0.0,0.0,0.0,0.0,0.0,0.0,0.074074075
+San Gregorio Connected,123,1.0,0.0,0.8361582,0.15254237,0.0,0.0,0.0,0.0,0.011299435

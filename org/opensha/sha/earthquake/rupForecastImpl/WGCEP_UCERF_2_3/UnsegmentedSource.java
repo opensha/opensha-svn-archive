@@ -49,7 +49,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 	//for Debug purposes
 	private static String C = new String("UnsegmentedSource");
-	private final static boolean D = true;
+	private final static boolean D = false;
 	private double rake;
 	protected double duration;
 	//these are the static static defined varibles to be used to find the number of ruptures.

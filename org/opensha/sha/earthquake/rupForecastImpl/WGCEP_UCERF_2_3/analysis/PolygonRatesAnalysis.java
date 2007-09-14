@@ -12,7 +12,9 @@ import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
@@ -28,7 +30,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
  */
 public class PolygonRatesAnalysis {
 
-	private UCERF2 ucerf2 = new UCERF2();
+	private UCERF2 ucerf2;
 	private EvenlyGriddedRELM_Region relmRegion = new EvenlyGriddedRELM_Region();
 	private EmpiricalModelDataFetcher empiricalModelFetcher = new EmpiricalModelDataFetcher();
 	private ERF2GriddedSeisRatesCalc erf2GriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc(); 
@@ -36,9 +38,13 @@ public class PolygonRatesAnalysis {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/";
 	private final static String A_FAULT_FILENAME = PATH+"A_FaultsPolygonFractions.txt";
 	private final static String B_FAULT_FILENAME = PATH+"B_FaultsPolygonFractions.txt";
+	private final static String NON_CA_B_FAULT_FILENAME = PATH+"NonCA_B_FaultsPolygonFractions.txt";
 	private final static String C_ZONES_FILENAME = PATH+"C_ZonesPolygonFractions.txt";
 	
+	private double  totPointsInRELM_Region;
 	public PolygonRatesAnalysis() {
+		ucerf2 = new UCERF2();
+		ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_EMPIRICAL);
 		ucerf2.updateForecast();
 	}		
 
@@ -57,22 +63,23 @@ public class PolygonRatesAnalysis {
 			if(polygon.getRegionOutline()==null) continue;
 			rateInPoly = erf2GriddedSeisRatesCalc.getTotalSeisRateInRegion(MIN_MAG, ucerf2, polygon);
 			rateRestOfRegion-=rateInPoly;
-			System.out.println("Rate in region "+polygon.getName()+" is "+rateInPoly);
+			System.out.println("Rate in region "+polygon.getName()+" is\t\t"+rateInPoly);
 		}
 		System.out.println("Rate in rest of region is "+rateRestOfRegion);
 	}
 	
+	
 	/**
 	 * For each A-Fault, find the fraction that lies in each polygon
-	 *
 	 */
-	public void computeA_SourcesFraction() {
+	public void mkA_SourcesFile() {
 		ArrayList aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
 		int numA_Faults = aFaultGenerators.size();
 		
 		try {
 			FileWriter fw = new FileWriter(A_FAULT_FILENAME);
-			fw.write(getHeader());
+			fw.write(getFileHeader());
+			int index=0;
 			// iterate over all source generators
 			for(int i=0; i<numA_Faults; ++i) {
 			
@@ -85,13 +92,12 @@ public class PolygonRatesAnalysis {
 					for(int srcIndex=0; srcIndex<numSrc; ++srcIndex) {
 						FaultRuptureSource faultRupSrc = aFaultSources.get(srcIndex);
 						EvenlyGriddedSurfaceAPI surface  = faultRupSrc.getSourceSurface();
-						findFractionOfPointsInPolygons(fw, srcGen.getFaultSegmentData().getFaultName(), srcIndex, surface);
+						writeFractonOfPointsInFile(fw, srcGen.getFaultSegmentData().getFaultName(), index++, surface);
 					}
 				} else { // unsegmented source
 					UnsegmentedSource unsegmentedSource = (UnsegmentedSource)aFaultGenerators.get(i);
 					EvenlyGriddedSurfaceAPI surface  = unsegmentedSource.getSourceSurface();
-					findFractionOfPointsInPolygons(fw, unsegmentedSource.getName(), i, surface);
-
+					writeFractonOfPointsInFile(fw, unsegmentedSource.getName(), i, surface);
 				}
 			}
 			fw.close();
@@ -100,8 +106,12 @@ public class PolygonRatesAnalysis {
 		}
 	}
 	
-	private String getHeader() {
-		String header = "#FaultName, Index,RELM Region";
+	/**
+	 * Header to be written in file
+	 * @return
+	 */
+	private String getFileHeader() {
+		String header = "#FaultName, Index, RELM Region";
 		int numPolygons = empiricalModelFetcher.getNumRegions();
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
 			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
@@ -116,18 +126,43 @@ public class PolygonRatesAnalysis {
 	 * For each B-Fault, find the fraction that lies in each polygon
 	 *
 	 */
-	public void computeB_SourcesFraction() {
+	public void mkB_SourcesFile() {
 		ArrayList bFaultSources = ucerf2.get_B_FaultSources();
 		int numB_Faults = bFaultSources.size();
 		
 		try {
 			FileWriter fw = new FileWriter(B_FAULT_FILENAME);
-			fw.write(getHeader());
+			fw.write(getFileHeader());
 			// iterate over all sources
 			for(int i=0; i<numB_Faults; ++i) {
 				UnsegmentedSource unsegmentedSource = (UnsegmentedSource)bFaultSources.get(i);
 				EvenlyGriddedSurfaceAPI surface  = unsegmentedSource.getSourceSurface();
-				findFractionOfPointsInPolygons(fw, unsegmentedSource.getName(), i, surface);
+				writeFractonOfPointsInFile(fw, unsegmentedSource.getName(), i, surface);
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * For each B-Fault, find the fraction that lies in each polygon
+	 *
+	 */
+	public void mkNonCA_B_SourcesFile() {
+		ArrayList nonCA_B_FaultSources = ucerf2.getNonCA_B_FaultSources();
+		int numNonCA_B_Faults = nonCA_B_FaultSources.size();
+		
+		try {
+			FileWriter fw = new FileWriter(NON_CA_B_FAULT_FILENAME);
+			fw.write(getFileHeader());
+			// iterate over all sources
+			for(int i=0; i<numNonCA_B_Faults; ++i) {
+				ProbEqkSource probEqkSrc = (ProbEqkSource)nonCA_B_FaultSources.get(i);
+				EvenlyGriddedSurfaceAPI surface  = null;
+				if(probEqkSrc instanceof FaultRuptureSource) surface = ((FaultRuptureSource)probEqkSrc).getRupture(0).getRuptureSurface();
+				else surface = ((Frankel02_TypeB_EqkSource)probEqkSrc).getSourceSurface();
+				writeFractonOfPointsInFile(fw, probEqkSrc.getName(), i, surface);
 			}
 			fw.close();
 		}catch(Exception e) {
@@ -140,12 +175,12 @@ public class PolygonRatesAnalysis {
 	 * Fro each C-zone, find the fraction that lies in each polygon
 	 *
 	 */
-	public void computeC_SourcesFraction() {
+	public void mkC_ZonesFile() {
 		NSHMP_GridSourceGenerator nshmpGridSrcGen = new NSHMP_GridSourceGenerator();
 		String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/griddedSeis/";
 		try {
 			FileWriter fw = new FileWriter(C_ZONES_FILENAME);
-			fw.write(getHeader());
+			fw.write(getFileHeader());
 			double [] area1new_agrid  = nshmpGridSrcGen.readGridFile(PATH+"area1new.agrid.asc",true);
 			int cZoneIndex=0;
 			calcFractionC_Zone(nshmpGridSrcGen, fw, "Area 1", area1new_agrid, cZoneIndex);
@@ -197,18 +232,34 @@ public class PolygonRatesAnalysis {
 	}
 
 	/**
-	 * Find the fraction of points in each polygon
+	 * Find the fraction of points in each polygon and then write in a file.
+	 * This is used for A-Faults and B-Faults only.
 	 * 
 	 * @param fw
 	 * @param srcIndex
 	 * @param surface
 	 * @throws IOException
 	 */
-	private void findFractionOfPointsInPolygons(FileWriter fw, String faultName, int srcIndex, EvenlyGriddedSurfaceAPI surface) throws IOException {
+	private void writeFractonOfPointsInFile(FileWriter fw, String faultName, int srcIndex, EvenlyGriddedSurfaceAPI surface) throws IOException {
+		double []pointInEachPolygon = findFractionOfPointsInPolygons(surface);
+		fw.write(faultName+","+srcIndex+","+(float)this.totPointsInRELM_Region);	
+		for(int regionIndex=0; regionIndex<pointInEachPolygon.length; ++regionIndex) {
+				fw.write(","+(float)pointInEachPolygon[regionIndex]);
+		}
+		fw.write("\n");
+	}
+	
+	/**
+	 * It returns the fraction of points in each polygon and the last element contains the
+	 * fraction of points in rest of California
+	 * @param surface
+	 * @return
+	 */
+	private double[] findFractionOfPointsInPolygons(EvenlyGriddedSurfaceAPI surface) {
 		int numPolygons = empiricalModelFetcher.getNumRegions();
-		int []pointInEachPolygon = new int[numPolygons];
+		double []pointInEachPolygon = new double[numPolygons];
 		int numPoints = surface.getNumCols();
-		int totPointsInRELM_Region = 0;
+		totPointsInRELM_Region = 0;
 		// iterate over all surface point locations
 		for(int ptIndex=0; ptIndex<numPoints; ++ptIndex) {
 			Location loc = surface.getLocation(0, ptIndex);
@@ -221,26 +272,30 @@ public class PolygonRatesAnalysis {
 					break;
 				}
 			}
-		}
-		fw.write(faultName+","+srcIndex+","+ 
-				totPointsInRELM_Region/(float)numPoints);	
-		int pointsOutsidePolygon = totPointsInRELM_Region;
+		}	
+		// find the points in Rest of California and also calculate the fraction of points in each polygon
+		int pointsOutsidePolygon =(int) Math.round(totPointsInRELM_Region);
 		for(int regionIndex=0; regionIndex<numPolygons; ++regionIndex) {
-			GeographicRegion polygon = empiricalModelFetcher.getRegion(regionIndex);
 			pointsOutsidePolygon-=pointInEachPolygon[regionIndex];
-			if(polygon.getRegionOutline()!=null)
-				fw.write(","+pointInEachPolygon[regionIndex]/(float)numPoints);
+			// calculate fraction of points in each polygon
+			pointInEachPolygon[regionIndex] = pointInEachPolygon[regionIndex]/(float)numPoints;
 		}
-		fw.write(","+pointsOutsidePolygon/(float)numPoints+"\n");
+		// fraction in rest of California (it is assumed that last index contains rest of California)
+		pointInEachPolygon[numPolygons-1] = pointsOutsidePolygon/(float)numPoints;
+		totPointsInRELM_Region = totPointsInRELM_Region/(float)numPoints;
+		return pointInEachPolygon;
 	}
 
 
 
+	
 	public static void main(String[] args) {
 		PolygonRatesAnalysis polygonRatesAnalysis = new PolygonRatesAnalysis();
-		polygonRatesAnalysis.computeA_SourcesFraction();
-		polygonRatesAnalysis.computeB_SourcesFraction();
-		polygonRatesAnalysis.computeC_SourcesFraction();
+		//polygonRatesAnalysis.mkA_SourcesFile();
+		//polygonRatesAnalysis.mkB_SourcesFile();
+		//polygonRatesAnalysis.mkC_ZonesFile();
+		//polygonRatesAnalysis.mkNonCA_B_SourcesFile();
+		polygonRatesAnalysis.calcRatesInPolygons();
 	}
 
 

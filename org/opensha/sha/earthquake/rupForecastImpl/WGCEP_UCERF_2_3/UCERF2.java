@@ -1287,7 +1287,9 @@ public class UCERF2 extends EqkRupForecast {
 		double magTruncLevel = ((Double) truncLevelParam.getValue()).doubleValue();
 		double duration = timeSpan.getDuration();
 		NonCA_FaultsFetcher fetcher = new NonCA_FaultsFetcher();
-		ArrayList sources = fetcher.getSources(NON_CA_SOURCES_FILENAME, duration, magSigma, magTruncLevel,RUP_OFFSET);
+		EmpiricalModel empiricalModel  = null;
+		if(this.probModelParam.getValue().equals(PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
+		ArrayList sources = fetcher.getSources(NON_CA_SOURCES_FILENAME, duration, magSigma, magTruncLevel,RUP_OFFSET, empiricalModel);
 		nonCA_bFaultSources = new ArrayList();
 		nonCA_bFaultSources.addAll(sources);
 		allSources.addAll(sources);

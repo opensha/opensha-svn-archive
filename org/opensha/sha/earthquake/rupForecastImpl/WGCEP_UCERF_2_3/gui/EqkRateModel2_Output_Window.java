@@ -136,6 +136,14 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		
+		if(ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).getValue().equals(UCERF2.PROB_MODEL_EMPIRICAL)) {
+		textArea.append("Important Note: The influence of the Empirical Model is not included " +
+				"in the magnitude-frequency distributions plotted here.  However, the " +
+				"influence is included in the rupture and segment probabilities and gains " +
+				"shown for the Type A faults. The influence is also included in Total Prob "+
+				"for B-Faults\n\n");
+		}
+		
 		IncrementalMagFreqDist totalMFD = this.ucerf2.getTotalMFD();
 		textArea.append("Total Rate (M>=5) = "+(float)totalMFD.getTotalIncrRate()+"\n");
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();

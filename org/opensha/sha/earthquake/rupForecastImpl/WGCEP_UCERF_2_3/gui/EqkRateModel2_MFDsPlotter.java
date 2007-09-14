@@ -97,6 +97,15 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		cumDist.setInfo(TOTAL_METADATA);
 		funcs.add(cumDist);
 		
+		// shift the mags by halfdelta for Cum Distributions
+		/*double halfDelta = ((EvenlyDiscretizedFunc)funcs.get(0)).getDelta()/2;
+		for(int i=0; i<funcs.size(); ++i) {
+			cumDist = (EvenlyDiscretizedFunc)funcs.get(i);
+			for(int magIndex=0; magIndex<cumDist.getNum(); ++magIndex)
+				cumDist.get(magIndex).setX(cumDist.getX(magIndex)-halfDelta);
+		}*/
+		
+		
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = ucerf2.getObsCumMFD(includeAfterShocks);

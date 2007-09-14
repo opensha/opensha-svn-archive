@@ -18,10 +18,12 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
@@ -51,7 +53,7 @@ public class NonCA_FaultsFetcher {
 	 * @return
 	 */
 	public ArrayList<ProbEqkSource> getSources(String fileName, double duration, double charMagSigma, 
-			double charMagTruncLevel, double rupOffset) {
+			double charMagTruncLevel, double rupOffset, EmpiricalModel empiricalModel) {
 		
 		GaussianMagFreqDist charMFD = null;
 		GutenbergRichterMagFreqDist grMFD = null;
@@ -145,15 +147,33 @@ public class NonCA_FaultsFetcher {
 				StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, dip, upperSeisDepth,
 						lowerSeisDepth, UCERF2.GRID_SPACING);   
 				
+				// find empirical correction
+				double empiricalCorr=1;
+				if(empiricalModel!=null) {
+					int rowOfRupCenter = Math.round(surface.getNumRows()/2.0f);
+					int colOfRupCenter = Math.round(surface.getNumCols()/2.0f);
+					Location centerSurfLoc = surface.getLocation(rowOfRupCenter,colOfRupCenter);
+					empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+				}
+				
 				if(srcTypeId == 1) {
-					FaultRuptureSource frs = new FaultRuptureSource(charMFD,surface, rake,duration);
+					// reduce rates in MFD
+					IncrementalMagFreqDist modMagFreqDist = charMFD.deepClone();
+					for(int magIndex=0; magIndex<modMagFreqDist.getNum() && empiricalModel!=null; ++magIndex) {
+						modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
+					}
+					FaultRuptureSource frs = new FaultRuptureSource(modMagFreqDist,surface, rake,duration);
 					frs.setName(faultName+" Char");
 					if(mag > 6.5) charSources.add(frs);
 					else lessThan6_5_Sources.add(frs);
 					//fw.write((float)charMFD.getTotalIncrRate()+"\t"+(float)charMFD.getTotalMomentRate()+"\t"+frs.getName()+"\n");
 				}
-				else {
-					Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(grMFD,surface,
+				else {// reduce rates in MFD
+					IncrementalMagFreqDist modMagFreqDist = grMFD.deepClone();
+					for(int magIndex=0; magIndex<modMagFreqDist.getNum() && empiricalModel!=null; ++magIndex) {
+						modMagFreqDist.set(magIndex, empiricalCorr*modMagFreqDist.getY(magIndex));
+					}
+					Frankel02_TypeB_EqkSource fgrs = new Frankel02_TypeB_EqkSource(modMagFreqDist,surface,
                             rupOffset, rake, duration, faultName+" GR");
 					//fw.write((float)grMFD.getTotalIncrRate()+"\t"+(float)grMFD.getTotalMomentRate()+"\t"+fgrs.getName()+"\n");
 					grSources.add(fgrs);
@@ -188,6 +208,6 @@ public class NonCA_FaultsFetcher {
 	public static void main(String args[]) {
 		NonCA_FaultsFetcher nonCA_FaultsFetcher = new NonCA_FaultsFetcher();
 		String fileName = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
-		nonCA_FaultsFetcher.getSources(fileName, 1.0, 0.12, 2, 1);
+		nonCA_FaultsFetcher.getSources(fileName, 1.0, 0.12, 2, 1, null);
 	}
 }
