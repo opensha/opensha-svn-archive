@@ -59,7 +59,7 @@ public class WriteTimeDepRupProbAndGain {
 	
 	// change these parameters for every run
 	//private final static String FILENAME = "RupProbs_BPT_30yr_SegDepAper.xls";
-	//private final static String FILENAME = "RupProbs_BPT_5yr_SegDepAper.xls";
+	private final static String FILENAME = "RupProbs_BPT_5yr_SegDepAper.xls";
 	//private final static String FILENAME = "RupProbs_BPT_30yr_ConstAper.xls";
 	//private final static String FILENAME = "RupProbs_BPT_5yr_ConstAper.xls";
 	//private final static String FILENAME = "RupProbs_Pois_30yr.xls";
@@ -70,9 +70,9 @@ public class WriteTimeDepRupProbAndGain {
 	 * so, modify the fillAdjustableParams() method accordingly.
 	 */
 	//private final static String FILENAME = "RupProbs_BPT_5yr_ConstAperBranches.xls";
-	private final static String FILENAME = "RupProbs_BPT_30yr_ConstAperBranches.xls";
+	//private final static String FILENAME = "RupProbs_BPT_30yr_ConstAperBranches.xls";
 	
-	private static double DURATION = 30;
+	private static double DURATION = 5;
 	private final static Boolean SEG_DEP_APERIODICITY = new Boolean(true);
 	private final static String PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 	
@@ -259,12 +259,12 @@ public class WriteTimeDepRupProbAndGain {
 		
 		
 		// Aperiodicity
-		paramNames.add(UCERF2.DEF_APERIODICITY_PARAM_NAME);
+		/*paramNames.add(UCERF2.DEF_APERIODICITY_PARAM_NAME);
 		options = new ParamOptions();
 		options.addValueWeight(new Double(0.3), 0.2);
 		options.addValueWeight(new Double(0.5), 0.5);
 		options.addValueWeight(new Double(0.7), 0.3);
-		paramValues.add(options);
+		paramValues.add(options);*/
 	
 	}
 	
