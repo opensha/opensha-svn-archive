@@ -36,7 +36,7 @@ public class GenericAfterHypoMagFreqDistForecast
   int numGridLocs;
   private double[] rateForecastGrid, kScaler;
   private RegionDefaults rDefs;
-  private double dayStart, dayEnd;
+  //private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
   private EvenlyGriddedCircularGeographicRegion castCircularRegion;

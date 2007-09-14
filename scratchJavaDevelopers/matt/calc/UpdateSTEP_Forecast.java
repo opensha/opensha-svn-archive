@@ -1,6 +1,7 @@
 package scratchJavaDevelopers.matt.calc;
 
 import org.opensha.data.region.*;
+import org.opensha.param.DoubleParameter;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
@@ -27,7 +28,7 @@ public class UpdateSTEP_Forecast {
   private static int numGridNodes;
   private HypoMagFreqDistAtLoc genForecastAtLoc,seqForecastAtLoc,spaForecastAtLoc;
   private GriddedHypoMagFreqDistForecast genGriddedForecast;
-
+ 
 
   public UpdateSTEP_Forecast(STEP_CombineForecastModels sequenceModel) {
     this.sequenceModel = sequenceModel;
