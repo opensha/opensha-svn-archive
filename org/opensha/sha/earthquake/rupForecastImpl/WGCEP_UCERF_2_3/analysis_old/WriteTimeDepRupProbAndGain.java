@@ -63,11 +63,18 @@ public class WriteTimeDepRupProbAndGain {
 	//private final static String FILENAME = "RupProbs_BPT_30yr_ConstAper.xls";
 	//private final static String FILENAME = "RupProbs_BPT_5yr_ConstAper.xls";
 	//private final static String FILENAME = "RupProbs_Pois_30yr.xls";
-	private final static String FILENAME = "RupProbs_Pois_5yr.xls";
+	//private final static String FILENAME = "RupProbs_Pois_5yr.xls";
 	
-	private static double DURATION = 5;
-	private final static Boolean SEG_DEP_APERIODICITY = new Boolean(false);
-	private final static String PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
+	/**
+	 * Following Files need DEF_APERIODICITY_PARAM_NAME branch while other 6 files do not need that. 
+	 * so, modify the fillAdjustableParams() method accordingly.
+	 */
+	//private final static String FILENAME = "RupProbs_BPT_5yr_ConstAperBranches.xls";
+	private final static String FILENAME = "RupProbs_BPT_30yr_ConstAperBranches.xls";
+	
+	private static double DURATION = 30;
+	private final static Boolean SEG_DEP_APERIODICITY = new Boolean(true);
+	private final static String PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 	
 	
 	public WriteTimeDepRupProbAndGain() {
@@ -228,10 +235,17 @@ public class WriteTimeDepRupProbAndGain {
 		this.paramNames = new ArrayList<String>();
 		this.paramValues = new ArrayList<ParamOptions>();
 		
+		// Deformation model
+		paramNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight("D2.1", 0.5);
+		options.addValueWeight("D2.2", 0.2);
+		options.addValueWeight("D2.3", 0.3);
+		paramValues.add(options);
 		
 		// Mag Area Rel
 		paramNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
-		ParamOptions options = new ParamOptions();
+		options = new ParamOptions();
 		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
 		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
 		paramValues.add(options);
@@ -243,20 +257,14 @@ public class WriteTimeDepRupProbAndGain {
 		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
-		// Mag Correction
-		paramNames.add(UCERF2.MEAN_MAG_CORRECTION);
-		options = new ParamOptions();
-		options.addValueWeight(new Double(-0.1), 0.2);
-		options.addValueWeight(new Double(0), 0.6);
-		options.addValueWeight(new Double(0.1), 0.2);
-		paramValues.add(options);
 		
 		// Aperiodicity
-		/*paramNames.add(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME);
+		paramNames.add(UCERF2.DEF_APERIODICITY_PARAM_NAME);
 		options = new ParamOptions();
-		options.addValueWeight(new Boolean(false), 0.5);
-		options.addValueWeight(new Boolean(true), 0.5);
-		paramValues.add(options);*/
+		options.addValueWeight(new Double(0.3), 0.2);
+		options.addValueWeight(new Double(0.5), 0.5);
+		options.addValueWeight(new Double(0.7), 0.3);
+		paramValues.add(options);
 	
 	}
 	
