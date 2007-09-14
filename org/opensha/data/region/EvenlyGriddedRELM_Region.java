@@ -3,6 +3,8 @@ package org.opensha.data.region;
 import org.opensha.data.LocationList;
 import scratchJavaDevelopers.vipin.relm.CreateRELM_GriddedRegion;
 import org.opensha.util.FileUtils;
+
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.opensha.data.Location;
@@ -273,7 +275,16 @@ public class EvenlyGriddedRELM_Region extends EvenlyGriddedGeographicRegion {
   }
   
   public static void main(String []args) {
-	  EvenlyGriddedRELM_Region region = new  EvenlyGriddedRELM_Region();
-	  System.out.println(region.getGridLocation(0));
-  }
+	  EvenlyGriddedRELM_Region relmCollectionRegion = new EvenlyGriddedRELM_Region();
+		try {
+			FileWriter fw = new FileWriter("EvenlyGriddedRELM_Region.txt");
+			for(int i=0; i<relmCollectionRegion.getNumGridLocs(); ++i) {
+				Location loc = relmCollectionRegion.getGridLocation(i);
+				fw.write((float)loc.getLatitude()+","+(float)loc.getLongitude()+"\n");
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

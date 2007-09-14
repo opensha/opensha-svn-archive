@@ -1,5 +1,7 @@
 package org.opensha.data.region;
 
+import java.io.FileWriter;
+
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 
@@ -18,7 +20,7 @@ public class RELM_CollectionRegion extends EvenlyGriddedGeographicRegion {
 	}
 	
 	/**
-	 * Location list which formas the outline of the ploygon for RELM region
+	 * Location list which forms the outline of the ploygon for RELM region
 	 * 
 	 */
 	private LocationList getLocationList() {
@@ -44,5 +46,19 @@ public class RELM_CollectionRegion extends EvenlyGriddedGeographicRegion {
 		locList.addLocation(new Location(43.0, -125.7));
 		locList.addLocation(new Location(43.5, -125.7));
 		return locList;
+	}
+	
+	public static void main(String []args) {
+		RELM_CollectionRegion relmCollectionRegion = new RELM_CollectionRegion();
+		try {
+			FileWriter fw = new FileWriter("RELM_CollectionRegion.txt");
+			for(int i=0; i<relmCollectionRegion.getNumGridLocs(); ++i) {
+				Location loc = relmCollectionRegion.getGridLocation(i);
+				fw.write((float)loc.getLatitude()+","+(float)loc.getLongitude()+"\n");
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
