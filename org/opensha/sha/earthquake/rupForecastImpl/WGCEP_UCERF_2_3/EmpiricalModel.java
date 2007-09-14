@@ -9,6 +9,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.Empirical
  */
 public class EmpiricalModel {
 	private EmpiricalModelDataFetcher empiricalModelDataFetcher = new EmpiricalModelDataFetcher();
+	
 	/**
 	 * This returns the ratio of short term rate to long term rate
 	 * 
@@ -23,5 +24,6 @@ public class EmpiricalModel {
 		 }
 		 // return for rest of California
 		 return empiricalModelDataFetcher.getRate(numPolygons-1);
+		 //return 0.5;
 	 }
 }
