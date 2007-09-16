@@ -6,7 +6,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.util.Geometry;
 
 
 /**
@@ -42,9 +41,9 @@ public class MakeNoAndSoCalRegions {
 		}
 		
 		//double[] points = Geometry.findLinePolygonIntersections (x, y, X0,  Y0, X1, Y1);
-		double[] points = Geometry.findLinePolygonIntersections (x, y, X0,  Y0, X1, Y1);
+		//double[] points = Geometry.findLinePolygonIntersections (x, y, X0,  Y0, X1, Y1);
 		
-		for(int i=0; i<points.length; ++i) System.out.println(points[i]);
+		//for(int i=0; i<points.length; ++i) System.out.println(points[i]);
 		
 		// after printing the intersection points, we can calculate the lat/lon intersection points
 		// -121.622, 34.2223
