@@ -125,8 +125,8 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			x = timeSinceLast;
 		
 		// find index of the two points in time
-		i1 = Math.round((float)((x/mean)/step))+1;
-		i2 = Math.round((float)(((x+duration)/mean)/step))+1;
+		i1 = Math.round((float)((x/mean)/step));
+		i2 = Math.round((float)(((x+duration)/mean)/step));
 		
 		temp1 = 1/(2.*Math.PI*(aperiodicity*aperiodicity));
 		temp2 = 2.*(aperiodicity*aperiodicity)*1;
@@ -136,6 +136,12 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			
 			cdf += step*(pdf+pdf_last)/2;
 			if ( i == i1 ) cBPT1 = cdf;
+/*
+			if ( i == i1 || i == i2) {
+				System.out.println("time = "+t);
+			}
+			System.out.println(i+"\t"+t+"\t"+pdf+"\t"+cdf);
+*/
 			t += step;
 			pdf_last=pdf;
 		}
@@ -183,7 +189,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 *  Main method for running tests.  
 	 *  Test1 compares the static getCondProb(*) method against values obtained directly from the WGCEP-2002 
 	 *  code; all are within 0.3%.
-	 *  Test2 campares the non static getCondProb(*) method against the static; all are within 0.4%.  The 
+	 *  Test2 campares the non static getCondProb(*) method against the static; all are within 0.5%.  The 
 	 *  differences is that the non-static is slightly more accurate due to interpolation of the CDF
 	 *  (exact same values are obtained otherwise; see commented out code).
 	 *  Test3 is the non-static used more efficiently (exact same values as from non-static above); this
@@ -195,11 +201,21 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		
 		// test data from WGCEP-2002 code run (single branch for SAF) done by Ned Field
 		// in Feb of 2006 (see his "Neds0206TestOutput.txt" file).
+
 		double timeSinceLast = 96;
 		double nYr = 30;
 		double alph = 0.5;
 		double[] rate = {0.00466746464,0.00432087015,0.004199435,0.004199435};
 		double[] prob = {0.130127236,0.105091952,0.0964599401,0.0964599401};
+/*
+		// this is a test of a problematic case (which let to a bug identification).  This case
+		// shows a 4% difference between the static and non-static methods due to interpolation
+		double timeSinceLast = 0.247;
+		double nYr = 0.0107;
+		double alph = 0.5;
+		double[] rate = {1};
+		double[] prob = {8.3067856E-4}; // this is the value given by the static method
+*/
 		
 		// Test1
 		double[] static_prob = new double[rate.length];
@@ -271,6 +287,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double time3 = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for deltaX = 0.01 & non static used effieicintly = "+(float)time3+" sec");
 		System.out.println("Ratio of compute time above versus static  = "+(float)(time3/time));
+		
 	}
 	
 

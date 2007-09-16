@@ -648,8 +648,9 @@ public class A_FaultSegmentedSourceGenerator {
 		
 // this writes out data that I pasted into the testAll() procedure of the Igor Experiment "testBPT_calcs",
 // which is in Ned's Appendix N folder; everything looked good		
-//		for(int i=0; i<num_seg; i++)
-//			System.out.println("testCondProb("+finalSegRate[i]+","+segAperiodicity[i]+","+segmentData.getSegCalYearOfLastEvent(i)+","+startYear+","+duration+","+segProb[i]+")");
+		for(int i=0; i<num_seg; i++)
+			if(this.segmentData.getSegmentName(i).equals("CC"))
+				System.out.println("testCondProb("+finalSegRate[i]+","+segAperiodicity[i]+","+segmentData.getSegCalYearOfLastEvent(i)+","+startYear+","+duration+","+segProb[i]+")");
 		
 		// now compute gain data
 		segGain = new double[num_seg];

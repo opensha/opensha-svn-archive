@@ -90,7 +90,7 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 		if(duration==0)
 			throw new RuntimeException("duration has not been set");
 		if(!upToDate) computeDistributions();
-		int numPts = numPoints - (int)(duration/deltaX);
+		int numPts = numPoints - (int)(duration/deltaX+1);
 		EvenlyDiscretizedFunc condFunc = new EvenlyDiscretizedFunc(0.0, numPts , deltaX);
 		for(int i=0;i<condFunc.getNum();i++) {
 			condFunc.set(i,getCondProb(condFunc.getX(i), duration));
@@ -110,16 +110,24 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	 */
 	public double getCondProb(double timeSinceLast, double duration) {
 		if(!upToDate) computeDistributions();
+		
+//System.out.println(cdf.toString());
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
+//		System.out.println("t1 and t2:\t"+timeSinceLast+"\t"+(timeSinceLast+duration));		
+//		System.out.println("p1 and p2:\t"+p1+"\t"+p2);		
 		return (p2-p1)/(1.0-p1);
+
 		
-		// non interpolated alt:
-		/*
-		int pt1 = (int)Math.round(timeSinceLast/deltaX) + 1;
-		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX) + 1;
+		// non interpolated alternative that gives the same result as the static methods:
+/*
+		int pt1 = (int)Math.round(timeSinceLast/deltaX);
+		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX);
+//		System.out.println("pt1 and pt2:\t"+pt1+"\t"+pt2+"\t"+cdf.getX(pt1)+"\t"+cdf.getX(pt2));
+//		System.out.println(cdf.getY(pt1)+"\t"+cdf.getY(pt2));
 		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
-		*/
+*/
+		
 	}	
 
 	/**

@@ -476,7 +476,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
        double x2=Double.NaN;
        //if passed parameter(x value) is not within range then throw exception
        if(x>getX(num-1) || x<getX(0))
-          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(num-1));
+          throw new InvalidRangeException("x Value ("+x+") must be within the range: "+getX(0)+" and "+getX(num-1));
       //finds the X values within which the the given x value lies
        for(int i=0;i<num-1;++i) {
          x1=getX(i);
