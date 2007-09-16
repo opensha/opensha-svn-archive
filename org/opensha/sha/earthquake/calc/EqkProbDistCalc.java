@@ -111,7 +111,6 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 	public double getCondProb(double timeSinceLast, double duration) {
 		if(!upToDate) computeDistributions();
 		
-//System.out.println(cdf.toString());
 		double p1 = cdf.getInterpolatedY(timeSinceLast);
 		double p2 = cdf.getInterpolatedY(timeSinceLast+duration);
 //		System.out.println("t1 and t2:\t"+timeSinceLast+"\t"+(timeSinceLast+duration));		
@@ -123,9 +122,10 @@ public abstract class EqkProbDistCalc implements ParameterChangeListener {
 /*
 		int pt1 = (int)Math.round(timeSinceLast/deltaX);
 		int pt2 = (int)Math.round((timeSinceLast+duration)/deltaX);
+		double prob = (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
 //		System.out.println("pt1 and pt2:\t"+pt1+"\t"+pt2+"\t"+cdf.getX(pt1)+"\t"+cdf.getX(pt2));
-//		System.out.println(cdf.getY(pt1)+"\t"+cdf.getY(pt2));
-		return (cdf.getY(pt2)-cdf.getY(pt1))/(1.0-cdf.getY(pt1));
+//		System.out.println(cdf.getX(pt1)+"\t"+cdf.getX(pt2)+"\t"+cdf.getY(pt1)+"\t"+cdf.getY(pt2));
+		return prob;
 */
 		
 	}	

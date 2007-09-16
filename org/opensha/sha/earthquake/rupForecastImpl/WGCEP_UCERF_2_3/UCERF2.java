@@ -892,7 +892,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		if(iSource<allSources.size())
+		if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
 		else {
 			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
@@ -1444,6 +1444,53 @@ public class UCERF2 extends EqkRupForecast {
 		return obsCumList;
 	}
 
+	
+
+	public double getTotal_B_FaultsProb(double minMag) {
+		double prob=1.0;
+		for(int i=0; i < bFaultSources.size(); i++)
+			prob *= (1-bFaultSources.get(i).computeTotalProbAbove(minMag));
+		return 1.0-prob;
+	}
+
+	public double getTotal_NonCA_B_FaultsProb(double minMag) {
+		double prob=1.0;
+		for(int i=0; i < this.nonCA_bFaultSources.size(); i++)
+			prob *= (1-nonCA_bFaultSources.get(i).computeTotalProbAbove(minMag));
+		return 1.0-prob;
+	}
+	
+	public double getTotal_A_FaultsProb(double minMag) {
+		double prob=1.0;
+		for(int i=0; i < this.aFaultSourceGenerators.size(); i++)
+			prob *= (1-((A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i)).getTotFaultProb(minMag));
+		return 1.0-prob;
+	}
+
+	// this assumes not time dependence
+	public double getTotal_BackgroundProb(double minMag) {
+		int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);  // make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
+		double expNum = timeSpan.getDuration()*this.getTotal_BackgroundMFD().getCumRate(index);
+		return 1-Math.exp(-expNum);
+	}
+
+	// this assumes not time dependence
+	public double getTotal_C_ZoneProb(double minMag) {
+		int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);  // make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
+		double expNum = timeSpan.getDuration()*this.getTotal_C_ZoneMFD().getCumRate(index);
+		return 1-Math.exp(-expNum);
+	}
+
+	public double getTotalProb(double minMag) {
+		double prob=1;
+		prob *= 1-getTotal_B_FaultsProb(minMag);
+		prob *= 1-getTotal_NonCA_B_FaultsProb(minMag);
+		prob *= 1-getTotal_A_FaultsProb(minMag);
+		prob *= 1-getTotal_BackgroundProb(minMag);
+		prob *= 1-getTotal_C_ZoneProb(minMag);
+		return prob;
+	}
+	
 
 
 	public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {

@@ -198,7 +198,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 	 *  a factor of two faster).
 	 */
 	public static void main(String args[]) {
-		
+
 		// test data from WGCEP-2002 code run (single branch for SAF) done by Ned Field
 		// in Feb of 2006 (see his "Neds0206TestOutput.txt" file).
 
@@ -215,8 +215,13 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double alph = 0.5;
 		double[] rate = {1};
 		double[] prob = {8.3067856E-4}; // this is the value given by the static method
+		double timeSinceLast = 115;
+//		double nYr = 5;
+//		double alph = 0.5;
+//		double[] rate = {0.002149};
+//		double[] prob = {8.3067856E-4}; // this is the value given by the static method
 */
-		
+
 		// Test1
 		double[] static_prob = new double[rate.length];
 		double p;
@@ -241,7 +246,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 			nonStatic_prob[i]=p;
 		}
 
-		
+		/*
 		// Test3
 		System.out.println("Test3: non-static method used efficiently compared to non-static");
 		calc.setAll(1,alph);
@@ -287,7 +292,7 @@ public final class BPT_DistCalc extends EqkProbDistCalc implements ParameterChan
 		double time3 = (double)(System.currentTimeMillis()-milSec0)/1000;
 		System.out.println("Speed Test for deltaX = 0.01 & non static used effieicintly = "+(float)time3+" sec");
 		System.out.println("Ratio of compute time above versus static  = "+(float)(time3/time));
-		
+		*/
 	}
 	
 

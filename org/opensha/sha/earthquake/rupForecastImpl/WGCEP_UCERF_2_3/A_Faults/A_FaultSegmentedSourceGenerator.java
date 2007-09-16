@@ -701,6 +701,15 @@ public class A_FaultSegmentedSourceGenerator {
 	/*
 	 * This returns the total probability of occurrence assuming independence among all the rupture sources
 	 */
+	public double getTotFaultProb(double mag) {
+		double totProbNoEvent = 1;
+		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceProbAboveMag(i, mag));
+		return 1.0 - totProbNoEvent;
+	}
+	
+	/*
+	 * This returns the total probability of occurrence assuming independence among all the rupture sources
+	 */
 	public double getTotFaultProbGain() {
 		double totPoisProbNoEvent = 1;
 		for(int i=0;i<num_rup;i++){
@@ -716,8 +725,20 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param ithRup
 	 * @return
 	 */
-	public double getRupSourceProb(int ithRup) { return rupProb[ithRup]; }
+	public double getRupSourceProb(int ithRup) { 
+		return rupProb[ithRup]; 
+		}
 
+	/**
+	 * This returns the total probability for the ith Rupture Source above the given mag 
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupSourceProbAboveMag(int ithRup, double mag) { 
+		return sourceList.get(ithRup).computeTotalProbAbove(mag);
+		}
+	
 	/**
 	 * This returns the total probability for the ith Rupture Source divided by the Possion Prob
 	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
