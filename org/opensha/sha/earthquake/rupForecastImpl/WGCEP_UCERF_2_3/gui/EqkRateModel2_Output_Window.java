@@ -74,7 +74,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private ArrayList<Double> predER_RatioList;
 	private ArrayList<Double> normRupRatesRatioList;
 	private  boolean isAseisReducesArea;
-	private JTable aFaultsSegData, aFaultsRupData;
+	private JTable aFaultsSegData, aFaultsRupData, probContrTable;
 	private EqkRateModel2_MFDsPlotter cumMfdsPlotter;
 	private EqkRateModel2_MFDsPlotter incrMfdsPlotter;
 	
@@ -108,6 +108,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			calcNormRupRatesDiff();
 			calcA_FaultRupData();
 			calcA_FaultSegData();
+			probContrTable = new JTable(new ProbsTableModel(this.ucerf2)); 
 		} else {
 			this.modSlipRateButton.setVisible(false);
 			this.predERButton.setVisible(false);
@@ -447,7 +448,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			frame.pack();
 			frame.show();
 		}else if(src == this.probContrButton) {
-			JTable probContrTable = new JTable(new ProbsTableModel(this.ucerf2));
+			
 			JFrame frame = new JFrame();
 			frame.getContentPane().setLayout(new  GridBagLayout());
 			frame.getContentPane().add(new JScrollPane(probContrTable), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0

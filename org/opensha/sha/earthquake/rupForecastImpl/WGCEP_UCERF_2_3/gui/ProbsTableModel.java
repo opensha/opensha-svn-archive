@@ -14,12 +14,24 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
  *
  */
 public class ProbsTableModel extends AbstractTableModel {
-	private double[] mags = { 5.0, 6.0, 6.7, 7.0, 7.5, 8.0 };
+	private double[] mags = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 };
 	private String[] columns = { "Mags", "A-Faults", "B-Faults", "Non-CA B-Faults", "C-Zones", "Background", "Total"};
-	private UCERF2 ucerf2;
+	private double data[][];
 	
 	public ProbsTableModel(UCERF2 ucerf2) {
-		this.ucerf2 = ucerf2;
+		int numDataRows = mags.length;
+		int numDataCols = columns.length-1;
+		data = new double[numDataRows][numDataCols];
+		for(int i=0; i<numDataRows; ++i) {
+			double mag = mags[i];
+			data[i][0] = ucerf2.getTotal_A_FaultsProb(mag);
+			data[i][1] = ucerf2.getTotal_B_FaultsProb(mag);
+			data[i][2] = ucerf2.getTotal_NonCA_B_FaultsProb(mag);
+			data[i][3] = ucerf2.getTotal_C_ZoneProb(mag);
+			data[i][4] = ucerf2.getTotal_BackgroundProb(mag);
+			data[i][5] = ucerf2.getTotalProb(mag);
+		}
+		
 	}
 	
 	/**
@@ -55,19 +67,8 @@ public class ProbsTableModel extends AbstractTableModel {
 		switch(columnIndex) {
 			case 0:
 				return ""+mags[rowIndex];
-			case 1: // A-Faults
-				return ""+(float)ucerf2.getTotal_A_FaultsProb(mag);
-			case 2: //B-Faults
-				return ""+(float)ucerf2.getTotal_B_FaultsProb(mag);
-			case 3: // Non-CA B-Faults
-				return ""+(float)ucerf2.getTotal_NonCA_B_FaultsProb(mag);
-			case 4: // C-Zones
-				return ""+(float)ucerf2.getTotal_C_ZoneProb(mag);
-			case 5: // Background
-				return ""+(float)ucerf2.getTotal_BackgroundProb(mag);
-			case 6: // total
-				return ""+(float)ucerf2.getTotalProb(mag);
+			 default:
+				return ""+data[rowIndex][columnIndex-1];
 		}
-		return "";
 	}
 }
