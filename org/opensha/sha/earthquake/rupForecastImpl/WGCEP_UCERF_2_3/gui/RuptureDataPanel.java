@@ -325,7 +325,7 @@ public class RuptureDataPanel extends JPanel implements ActionListener, GraphWin
 		if(eventSource == mfdButton) { // MFD for selected A Fault
 			ArrayList funcs = new ArrayList();
 			IncrementalMagFreqDist magFreqDist = source.getTotalRupMFD();
-			EvenlyDiscretizedFunc cumRateDist = magFreqDist.getCumRateDist();
+			EvenlyDiscretizedFunc cumRateDist = magFreqDist.getCumRateDistWithOffset();
 			cumRateDist.setInfo("Cumulative Mag Freq Dist");
 			funcs.add(magFreqDist);
 			funcs.add(cumRateDist);

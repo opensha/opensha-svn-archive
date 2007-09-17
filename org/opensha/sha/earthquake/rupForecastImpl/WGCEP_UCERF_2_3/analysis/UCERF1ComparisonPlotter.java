@@ -114,13 +114,13 @@ public class UCERF1ComparisonPlotter {
 		}			
 		sjWtAveMFD.setName(name);
 		sjIncrRateFuncList.add(sjWtAveMFD);
-		EvenlyDiscretizedFunc cumMFD = sjWtAveMFD.getCumRateDist();
+		EvenlyDiscretizedFunc cumMFD = sjWtAveMFD.getCumRateDistWithOffset();
 		cumMFD.setName(name);
 		sjCumRateFuncList.add(cumMFD);
 		
 		ssafWtAveMFD.setName(name);
 		ssafIncrRateFuncList.add(ssafWtAveMFD);
-		cumMFD = ssafWtAveMFD.getCumRateDist();
+		cumMFD = ssafWtAveMFD.getCumRateDistWithOffset();
 		cumMFD.setName(name);
 		ssafCumRateFuncList.add(cumMFD);
 		
@@ -292,7 +292,7 @@ public class UCERF1ComparisonPlotter {
 			}
 			wtAveMFD.setName(name);
 			aFaultIncrRateFuncList.get(i).add(wtAveMFD);
-			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDist();
+			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDistWithOffset();
 			cumMFD.setName(name);
 			aFaultCumRateFuncList.get(i).add(cumMFD);
 		}
@@ -393,7 +393,7 @@ public class UCERF1ComparisonPlotter {
 
 			wtAveMFD.setName(name);
 			bFaultIncrRateFuncList.get(i).add(wtAveMFD);
-			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDist();
+			EvenlyDiscretizedFunc cumMFD = wtAveMFD.getCumRateDistWithOffset();
 			cumMFD.setName(name);
 			bFaultCumRateFuncList.get(i).add(cumMFD);
 		}
@@ -447,7 +447,7 @@ public class UCERF1ComparisonPlotter {
 			IncrementalMagFreqDist incrMFD = bFaultSources.get(b_FaultIndices[i]).getMagFreqDist();
 			incrMFD.setName(name);
 			incrMFD.setInfo("");
-			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDist();
+			EvenlyDiscretizedFunc cumMFD = incrMFD.getCumRateDistWithOffset();
 			cumMFD.setName(name);
 			cumMFD.setInfo("");
 			bFaultIncrRateFuncList.get(i).add(incrMFD);
@@ -495,7 +495,7 @@ public class UCERF1ComparisonPlotter {
 
 			}
 			incrMFD.setName(name);
-			cumMFD = incrMFD.getCumRateDist();
+			cumMFD = incrMFD.getCumRateDistWithOffset();
 			cumMFD.setName(name);
 			incrMFD.setInfo("");
 			cumMFD.setInfo("");

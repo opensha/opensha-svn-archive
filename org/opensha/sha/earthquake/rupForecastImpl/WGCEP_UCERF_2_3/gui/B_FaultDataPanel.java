@@ -171,14 +171,14 @@ class B_FaultDataTableModel extends AbstractTableModel {
 				ArrayList funcs = new ArrayList();
 				IncrementalMagFreqDist magFreqDist1 = source.getMagFreqDist();
 				magFreqDist1.setName("Mag Freq Dist");
-				EvenlyDiscretizedFunc cumFreqDist1 = magFreqDist1.getCumRateDist();
+				EvenlyDiscretizedFunc cumFreqDist1 = magFreqDist1.getCumRateDistWithOffset();
 				cumFreqDist1.setName("Cumulative Mag Freq Dist");
 				funcs.add(magFreqDist1);
 				funcs.add(cumFreqDist1);
 				
 				IncrementalMagFreqDist magFreqDist2 = source.getVisibleSourceMagFreqDist();
 				magFreqDist2.setName("Visible Mag Freq Dist (Dashed Lines)");
-				EvenlyDiscretizedFunc cumFreqDist2 = magFreqDist2.getCumRateDist();
+				EvenlyDiscretizedFunc cumFreqDist2 = magFreqDist2.getCumRateDistWithOffset();
 				cumFreqDist2.setName("Visible Cumulative Mag Freq Dist (Dashed Lines)");
 				funcs.add(magFreqDist2);
 				funcs.add(cumFreqDist2);

@@ -11,6 +11,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
 
 /**
  * It creates UCERF2 Epistemic List for Time Independent model
@@ -228,52 +229,3 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 }
 
 
-/**
- * Various parameter values and their corresponding weights
- * 
- * @author vipingupta
- *
- */
-class ParamOptions {
-	private ArrayList values = new ArrayList();
-	private ArrayList<Double> weights = new ArrayList<Double>();
-	
-	/**
-	 * Add a value and weight for this parameter 
-	 * @param value
-	 * @param weight
-	 */
-	public void addValueWeight(Object value, double weight) {
-		values.add(value);
-		weights.add(weight);
-	}
-	
-	/**
-	 * Number of different options for this parameter
-	 * @return
-	 */
-	public int getNumValues() {
-		return values.size();
-	}
-	
-	/**
-	 * Get the value at specified index
-	 * 
-	 * @param index
-	 * @return
-	 */
-	public Object getValue(int index) {
-		return values.get(index);
-	}
-	
-	/**
-	 * Get the weight at specified index
-	 * 
-	 * @param index
-	 * @return
-	 */
-	public double getWeight(int index) {
-		return weights.get(index);
-	}
-	
-}

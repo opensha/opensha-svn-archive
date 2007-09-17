@@ -69,31 +69,31 @@ public class EqkRateModel2_MFDsPlotter implements GraphWindowAPI {
 		funcs = new ArrayList();
 		
 		// Type A faults cum Dist
-		EvenlyDiscretizedFunc cumDist = ucerf2.getTotal_A_FaultsMFD().getCumRateDist();
+		EvenlyDiscretizedFunc cumDist = ucerf2.getTotal_A_FaultsMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(A_FAULTS_METADATA);
 		funcs.add(cumDist);
 		 // Type B faults Char cum Dist
-		cumDist = ucerf2.getTotal_B_FaultsCharMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_B_FaultsCharMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(B_FAULTS_CHAR_METADATA);
 		funcs.add(cumDist);
 		//	Type B faults GR cum Dist
-		cumDist = ucerf2.getTotal_B_FaultsGR_MFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_B_FaultsGR_MFD().getCumRateDistWithOffset();
 		cumDist.setInfo(B_FAULTS_GR_METADATA);
 		funcs.add(cumDist);
 		// Non-CA Type B faults
-		cumDist = ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_NonCA_B_FaultsMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(NON_CA_B_FAULTS_METADATA);
 		funcs.add(cumDist);
 		//	Background cum Dist
-		cumDist = ucerf2.getTotal_BackgroundMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_BackgroundMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(BACKGROUND_METADATA);
 		funcs.add(cumDist);
 		//	C zone cum Dist
-		cumDist = ucerf2.getTotal_C_ZoneMFD().getCumRateDist();
+		cumDist = ucerf2.getTotal_C_ZoneMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(C_ZONES_METADATA);
 		funcs.add(cumDist);
 		//	Total cum Dist
-		cumDist = ucerf2.getTotalMFD().getCumRateDist();
+		cumDist = ucerf2.getTotalMFD().getCumRateDistWithOffset();
 		cumDist.setInfo(TOTAL_METADATA);
 		funcs.add(cumDist);
 		

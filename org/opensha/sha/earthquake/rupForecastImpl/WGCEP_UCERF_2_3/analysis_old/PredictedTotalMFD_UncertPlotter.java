@@ -20,6 +20,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
 
 /**
  * This class reads the TotMFDs.txt file located in WGCEP_UCERF_2_3/data/logicTreeMFDs/

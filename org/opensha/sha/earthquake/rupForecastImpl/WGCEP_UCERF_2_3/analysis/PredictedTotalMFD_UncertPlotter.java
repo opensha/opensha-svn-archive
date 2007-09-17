@@ -203,7 +203,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		for(int i=0; i<numBranches; ++i) {
 			double wt = ucerf2List.getERF_RelativeWeight(i);
 			
-			EvenlyDiscretizedFunc mfd  = totMFDsList.get(i).getCumRateDist();
+			EvenlyDiscretizedFunc mfd  = totMFDsList.get(i).getCumRateDistWithOffset();
 			mfd.setInfo("Cumulative MFD for a logic tree branch");
 			//funcs.add(mfd);
 			//plottingFeaturesList.add(this.PLOT_CHAR1);

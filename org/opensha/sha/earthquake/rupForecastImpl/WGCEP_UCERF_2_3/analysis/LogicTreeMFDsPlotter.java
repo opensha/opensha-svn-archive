@@ -371,10 +371,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	public void plotMFDs() {
 		
 		// combined Logic Tree MFD
-		//plotMFDs(null, null, true, true, true, true, true, false);
+		plotMFDs(null, null, true, true, true, true, true, false);
 		
 //		 combined Logic Tree MFD comparison with NSHMP2002
-		//plotMFDs(null, null, false, false, false, false, false, true);
+		plotMFDs(null, null, false, false, false, false, false, true);
 		
 		//	Different Fault Models
 		String paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
@@ -384,7 +384,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		plotMFDs(paramName, values, false, true, false, false, false, false); // plot B-faults only
 		
 		//	Differemt Def Models
-	/*	paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
+		paramName = UCERF2.DEFORMATION_MODEL_PARAM_NAME;
 		values = new ArrayList();
 		values.add("D2.1");
 		values.add("D2.2");
@@ -435,7 +435,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		values = new ArrayList();
 		values.add(new Double(0.1));
 		//plotMFDs(paramName, values, true, true, false, false, false, false); // plot A & B-faults
-	*/
+	
 	}
 	
 	
@@ -589,7 +589,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		if(showBackground) addToFuncList(this.bckMFD, metadata+"Average Background MFD", PLOT_CHAR5);
 		if(showCZones) addToFuncList(this.cZoneMFD, metadata+"Average C-Zones MFD", PLOT_CHAR6);
 		if(showNSHMP_TotMFD) { // add NSHMP MFD after resampling for smoothing purposes
-			EvenlyDiscretizedFunc nshmpCumMFD = nshmp02TotMFD.getCumRateDist();
+			EvenlyDiscretizedFunc nshmpCumMFD = nshmp02TotMFD.getCumRateDistWithOffset();
 			
 			ArbitrarilyDiscretizedFunc resampledNSHMP_MFD = new ArbitrarilyDiscretizedFunc();
 			for(int i=0; i<nshmpCumMFD.getNum(); i=i+2)
@@ -642,7 +642,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private void addToFuncList(IncrementalMagFreqDist mfd, String metadata, 
 			PlotCurveCharacterstics curveCharateristic) {
 		EvenlyDiscretizedFunc func;
-		if(this.isCumulative) func = mfd.getCumRateDist();
+		if(this.isCumulative) func = mfd.getCumRateDistWithOffset();
 		else func = mfd;
 		func.setName(metadata);
 		funcs.add(func);

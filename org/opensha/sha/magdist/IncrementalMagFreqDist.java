@@ -179,6 +179,27 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
       cumRateDist.setName(this.getName());
       return cumRateDist;
     }
+    
+    /**
+     * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
+     * with Cum Rate Distribution (the rate greater than and equal to each magnitude).
+     * It differs from getCumRateDist() in the X Values because the values are offset
+     * by delta/2 in the CumDist returned by this method.
+     * 
+     * @return
+     */
+
+   public EvenlyDiscretizedFunc getCumRateDistWithOffset() throws DataPoint2DException{
+     EvenlyDiscretizedFunc cumRateDist = new EvenlyDiscretizedFunc(minX-delta/2,num,delta);
+     double sum=0.0;
+     for(int i=num-1;i>=0;--i) {
+        sum+=getIncrRate(i);
+        cumRateDist.set(i,sum);
+     }
+     cumRateDist.setInfo(this.getInfo());
+     cumRateDist.setName(this.getName());
+     return cumRateDist;
+   }
 
 
     /**
