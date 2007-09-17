@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 
@@ -123,7 +124,9 @@ public class A_FaultSegmentedSourceGenerator {
 	
 	private double[] segProb, segGain, segAperiodicity, segTimeSinceLast, rupProb, rupGain;
 	
-
+	/*Create a Rupture-Source Mapping, This is needed because some sources are not put into SourceList 
+	when we call getTimeDependentSources() or getTimeIndependentSources() or getTimeDepEmpiricalSources() */
+	private HashMap<Integer, Integer> rupSrcMapping; 
 
 	
 	/**
@@ -495,6 +498,7 @@ public class A_FaultSegmentedSourceGenerator {
 		// a check could be made here whether time-ind sources already exist, 
 		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
+		rupSrcMapping = new  HashMap<Integer, Integer> (); 
 		rupGain = new double[num_rup];
 		rupProb = new double[num_rup];
 		for(int i=0; i<num_rup; i++) {
@@ -514,7 +518,7 @@ public class A_FaultSegmentedSourceGenerator {
 				
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
-				
+				rupSrcMapping.put(i, sourceList.size());
 				sourceList.add(faultRupSrc);
 				
 				/*
@@ -549,6 +553,7 @@ public class A_FaultSegmentedSourceGenerator {
 		// a check could be made here whether time-ind sources already exist, 
 		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
+		rupSrcMapping = new  HashMap<Integer, Integer> (); 
 		rupGain = new double[num_rup];
 		rupProb = new double[num_rup];
 		double[] modRupRate = new double[num_rup];
@@ -580,7 +585,7 @@ public class A_FaultSegmentedSourceGenerator {
 				
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
-				
+				rupSrcMapping.put(i, sourceList.size());
 				sourceList.add(faultRupSrc);
 				
 				/*
@@ -665,6 +670,7 @@ public class A_FaultSegmentedSourceGenerator {
 		
 		// now make the sources
 		this.sourceList = new ArrayList<FaultRuptureSource>();
+		rupSrcMapping = new  HashMap<Integer, Integer> (); 
 		for(int i=0; i<num_rup; i++) {
 			// get list of segments in this rupture
 			int[] segmentsInRup = getSegmentsInRup(i);
@@ -674,6 +680,7 @@ public class A_FaultSegmentedSourceGenerator {
 						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
 						segmentData.getAveRake(segmentsInRup));
 				faultRupSrc.setName(this.getLongRupName(i));
+				rupSrcMapping.put(i, sourceList.size());
 				sourceList.add(faultRupSrc);
 				/*
 				// this is a check to make sure the total prob from source is same as
@@ -736,8 +743,10 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @return
 	 */
 	public double getRupSourceProbAboveMag(int ithRup, double mag) { 
-		return sourceList.get(ithRup).computeTotalProbAbove(mag);
-		}
+		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
+		int srcIndex = rupSrcMapping.get(ithRup);
+		return sourceList.get(srcIndex).computeTotalProbAbove(mag);
+	}
 	
 	/**
 	 * This returns the total probability for the ith Rupture Source divided by the Possion Prob
@@ -839,7 +848,7 @@ public class A_FaultSegmentedSourceGenerator {
 		ArrayList<FaultRuptureSource> sourceList = getTimeIndependentSources(1.0);
 		int srcIndex=0;
 		for(int rupIndex=0; rupIndex<num_rup; ++rupIndex) {
-			if (rupMagFreqDist[rupIndex].getTotalIncrRate() <= MIN_RUP_RATE) continue;
+			if (!this.rupSrcMapping.containsKey(rupIndex)) continue; // if this rupture does not exist in the list
 			FaultRuptureSource faultRupSrc = this.sourceList.get(srcIndex++);
 			strBuffer.append("1\t"); // char MFD
 			double rake = faultRupSrc.getRupture(0).getAveRake();
