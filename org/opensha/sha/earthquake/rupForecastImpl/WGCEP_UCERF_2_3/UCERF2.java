@@ -1643,9 +1643,7 @@ public class UCERF2 extends EqkRupForecast {
 		//System.out.println("Creating A Fault sources");
 		if(rupModel.equalsIgnoreCase(UNSEGMENTED_A_FAULT_MODEL)) {
 
-			if(!this.probModelParam.getValue().equals(this.PROB_MODEL_BPT))
-				throw new RuntimeException("BPT probability model is not allowed for unsegmented A-Faults model");
-
+			// Note that BPT is same as Poisson in case of Unsegmented A-Fault sources
 			mkA_FaultUnsegmentedSources();
 
 			// Calculate Predicted event rates at the locations where we have obs (given in Tom Parson's excel sheet)
