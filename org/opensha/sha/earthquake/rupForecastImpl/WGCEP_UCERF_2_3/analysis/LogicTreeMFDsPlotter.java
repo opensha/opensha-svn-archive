@@ -23,7 +23,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_EpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -133,7 +133,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private double  obs6_5CumRate;
 	private HSSFSheet excelSheet;
 	private ArrayList<String> adjustableParamNames;
-	private UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
+	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
 //	 Eqk Rate Model 2 ERF
 	private UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
 	/**

@@ -19,17 +19,17 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.Param
  * @author vipingupta
  *
  */
-public class UCERF2_EpistemicList extends ERF_EpistemicList {
+public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 	public static final String  NAME = new String("UCERF2 ERF Epistemic List");
 	private ArrayList<Double> weights = null;
 	private ArrayList<ParameterList> paramList = null;
-	private UCERF2 ucerf2 = new UCERF2();
-	private ArrayList<String> paramNames; // parameters that are adjusted for logic tree
-	private ArrayList<ParamOptions> paramValues; // paramter values and their weights
+	protected UCERF2 ucerf2 = new UCERF2();
+	protected ArrayList<String> paramNames; // parameters that are adjusted for logic tree
+	protected ArrayList<ParamOptions> paramValues; // paramter values and their weights
 	private int lastParamIndex;
 	
-	public UCERF2_EpistemicList() {
-		fillAdjustableParams(); // fill the paramters that will be adjusted for the logic tree
+	public UCERF2_TimeIndependentEpistemicList() {
+		fillAdjustableParams(); // fill the parameters that will be adjusted for the logic tree
 		lastParamIndex = paramNames.size()-1;
 		weights = new ArrayList<Double>();
 		paramList = new ArrayList<ParameterList>();
@@ -41,7 +41,8 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 	 * Paramters that are adjusted in the runs
 	 *
 	 */
-	private void fillAdjustableParams() {
+	protected void fillAdjustableParams() {
+		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		this.paramNames = new ArrayList<String>();
 		this.paramValues = new ArrayList<ParamOptions>();
 		
@@ -214,7 +215,7 @@ public class UCERF2_EpistemicList extends ERF_EpistemicList {
 	
 	
 	public static void main(String[] args) {
-		UCERF2_EpistemicList_old ucerf2EpistemicList = new UCERF2_EpistemicList_old();
+		UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeIndependentEpistemicList();
 		int numERFs = ucerf2EpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
 		for(int i=0; i<numERFs; ++i) {

@@ -17,7 +17,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_EpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -61,7 +61,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	private ArrayList funcs = new ArrayList();
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	private ArrayList<ArbDiscrEmpiricalDistFunc> rateWtFuncList;
-	private UCERF2_EpistemicList ucerf2List = new UCERF2_EpistemicList();
+	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
 	
 	/**
 	 *  it just reads the data from the file wihtout recalculation
