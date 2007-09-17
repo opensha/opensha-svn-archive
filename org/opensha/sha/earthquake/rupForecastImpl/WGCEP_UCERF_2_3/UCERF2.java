@@ -1837,34 +1837,6 @@ public class UCERF2 extends EqkRupForecast {
 		
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	/**
 	 * Update fetchers based on selected deformation model
