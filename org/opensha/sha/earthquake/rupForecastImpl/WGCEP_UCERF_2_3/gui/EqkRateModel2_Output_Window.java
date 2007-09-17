@@ -57,6 +57,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	private JButton rupRatesRatioButton = new JButton("Plot Histogram of (FinalRate-A_PrioriRate)/Max(A_PrioriRate,FinalRate)");
 	private JButton aFaultsSegDataButton = new JButton("Table of all A-Faults Segment Data");
 	private JButton aFaultsRupDataButton = new JButton("Table of all A-Faults Rupture Data");
+	private JButton probContrButton = new JButton("Table of all Probability Contributions");
 	private UCERF2 ucerf2;
 	//private ArbitrarilyDiscretizedFunc historicalMFD;
 	private JTabbedPane tabbedPane = new JTabbedPane();
@@ -204,6 +205,9 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(aFaultsSegDataButton,new GridBagConstraints( 0, 8, 1, 1, 1.0, 0.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		panel.add(probContrButton,new GridBagConstraints( 0, 9, 1, 1, 1.0, 0.0
+	      	      ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+		
 
 		textArea.setEditable(false);
 		plotCumMFDsButton.addActionListener(this);
@@ -214,6 +218,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 		rupRatesRatioButton.addActionListener(this);
 		this.aFaultsRupDataButton.addActionListener(this);
 		this.aFaultsSegDataButton.addActionListener(this);
+		this.probContrButton.addActionListener(this);
 		return panel;
 	}
 	
@@ -438,6 +443,14 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 			JFrame frame = new JFrame();
 			frame.getContentPane().setLayout(new  GridBagLayout());
 			frame.getContentPane().add(new JScrollPane(this.aFaultsRupData), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+		      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+			frame.pack();
+			frame.show();
+		}else if(src == this.probContrButton) {
+			JTable probContrTable = new JTable(new ProbsTableModel(this.ucerf2));
+			JFrame frame = new JFrame();
+			frame.getContentPane().setLayout(new  GridBagLayout());
+			frame.getContentPane().add(new JScrollPane(probContrTable), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 		      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 			frame.pack();
 			frame.show();
