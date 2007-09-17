@@ -1462,8 +1462,12 @@ public class UCERF2 extends EqkRupForecast {
 	
 	public double getTotal_A_FaultsProb(double minMag) {
 		double prob=1.0;
-		for(int i=0; i < this.aFaultSourceGenerators.size(); i++)
-			prob *= (1-((A_FaultSegmentedSourceGenerator)aFaultSourceGenerators.get(i)).getTotFaultProb(minMag));
+		for(int i=0; i < this.aFaultSourceGenerators.size(); i++) {
+			Object source = aFaultSourceGenerators.get(i);
+			if(source instanceof A_FaultSegmentedSourceGenerator) // Segmented source
+				prob *= (1-((A_FaultSegmentedSourceGenerator)source).getTotFaultProb(minMag));
+			else prob *= (1-((UnsegmentedSource)source).computeTotalProbAbove(minMag));
+		}
 		return 1.0-prob;
 	}
 
