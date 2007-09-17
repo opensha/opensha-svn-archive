@@ -1488,7 +1488,7 @@ public class UCERF2 extends EqkRupForecast {
 		prob *= 1-getTotal_A_FaultsProb(minMag);
 		prob *= 1-getTotal_BackgroundProb(minMag);
 		prob *= 1-getTotal_C_ZoneProb(minMag);
-		return prob;
+		return 1-prob;
 	}
 	
 
