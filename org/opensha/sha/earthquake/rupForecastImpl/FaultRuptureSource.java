@@ -48,7 +48,8 @@ public class FaultRuptureSource
 
   private ArrayList ruptureList; // keep this in case we add more mags later
   private ArrayList faultCornerLocations = new ArrayList(); // used for the getMinDistance(Site) method
-
+  
+ 
   /**
    * Constructor - this is for a single mag, non-poissonian rupture.
    * @param magnitude

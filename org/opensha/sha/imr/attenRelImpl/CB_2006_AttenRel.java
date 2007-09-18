@@ -596,6 +596,10 @@ public class CB_2006_AttenRel
     depthTo2pt5kmPerSecParam.setValue(DEPTH_2pt5_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
     
+    vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
+    mag = ( (Double) magParam.getValue()).doubleValue();
+    stdDevType = (String) stdDevTypeParam.getValue();
+    
   }
 
   /**

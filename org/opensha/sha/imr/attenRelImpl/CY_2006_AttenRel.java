@@ -542,6 +542,10 @@ public class CY_2006_AttenRel
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
+    
+    vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
+    mag = ( (Double) magParam.getValue()).doubleValue();
+    stdDevType = (String) stdDevTypeParam.getValue();
 
   }
 
