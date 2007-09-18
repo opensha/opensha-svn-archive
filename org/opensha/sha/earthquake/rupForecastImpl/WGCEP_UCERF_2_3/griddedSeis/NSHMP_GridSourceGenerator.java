@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
@@ -334,32 +335,40 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	
 	public GutenbergRichterMagFreqDist getTotalC_ZoneMFD() {
-		double tot_aValue = 0;
-		for(int i=0; i<area1new_agrid.length; i++) 
-			tot_aValue += area1new_agrid[i]+area2new_agrid[i]+area3new_agrid[i]+
-						  area4new_agrid[i]+mojave_agrid[i]+sangreg_agrid[i];
-		return getMFD(6.5, 7.6, tot_aValue, B_VAL, false);
+		return getTotalC_ZoneMFD_InRegion(null);
 	}
 	
 	
+	public GutenbergRichterMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
+		double tot_aValue = 0;
+		for(int i=0; i<area1new_agrid.length; i++)
+			if(region==null || region.isLocationInside(getGridLocation(i)))
+					tot_aValue += area1new_agrid[i]+area2new_agrid[i]+area3new_agrid[i]+
+						  area4new_agrid[i]+mojave_agrid[i]+sangreg_agrid[i];
+		return getMFD(6.5, C_ZONES_MAX_MAG, tot_aValue, B_VAL, false);
+	}
+
+	
 	/**
 	 * Note that applyBulgeReduction only applies to agrd_cstcal_out
-	 * Get Total MFD for Region
+	 * Get Total MFD for Region. Set region to null if you want the entire region.
 	 * 
+	 * @param region 
 	 * @param includeC_zones
 	 * @param applyBulgeReduction
 	 * @param applyMaxMagGrid
 	 * @return
 	 */
-	public SummedMagFreqDist getTotMFDForRegion(boolean includeC_zones, 
+	public SummedMagFreqDist getTotMFDForRegion(GeographicRegion region, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		
 		// create summed MFD
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		int numLocs = getNumGridLocs();
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
-			totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
-					 applyBulgeReduction,  applyMaxMagGrid), true);
+			if(region==null || region.isLocationInside(this.getGridLocation(locIndex)))
+				totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
+						applyBulgeReduction,  applyMaxMagGrid), true);
 		return totMFD;
 	}
 	

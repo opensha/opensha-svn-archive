@@ -9,6 +9,7 @@ import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
@@ -709,8 +710,15 @@ public class A_FaultSegmentedSourceGenerator {
 	 * This returns the total probability of occurrence assuming independence among all the rupture sources
 	 */
 	public double getTotFaultProb(double mag) {
+		return getTotFaultProb(mag, null);
+	}
+	
+	/*
+	 * This returns the total probability of occurrence assuming independence among all the rupture sources
+	 */
+	public double getTotFaultProb(double mag, GeographicRegion region) {
 		double totProbNoEvent = 1;
-		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceProbAboveMag(i, mag));
+		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceProbAboveMag(i, mag, region));
 		return 1.0 - totProbNoEvent;
 	}
 	
@@ -743,9 +751,19 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @return
 	 */
 	public double getRupSourceProbAboveMag(int ithRup, double mag) { 
+		return getRupSourceProbAboveMag(ithRup, mag, null);
+	}
+	
+	/**
+	 * This returns the total probability for the ith Rupture Source above the given mag 
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupSourceProbAboveMag(int ithRup, double mag, GeographicRegion region) { 
 		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
 		int srcIndex = rupSrcMapping.get(ithRup);
-		return sourceList.get(srcIndex).computeTotalProbAbove(mag);
+		return sourceList.get(srcIndex).computeTotalProbAbove(mag, region);
 	}
 	
 	/**

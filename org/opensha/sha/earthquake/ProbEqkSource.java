@@ -3,8 +3,10 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.data.NamedObjectAPI;
+import org.opensha.data.region.GeographicRegion;
 
 /**
  * <p>Title: ProbEqkSource</p>
@@ -198,25 +200,46 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
  * @return
  */
   public double computeTotalProbAbove(double mag) {
-    double totProb=0;
-    ProbEqkRupture tempRup;
-    if(isPoissonian) {
-      for(int i=0; i<getNumRuptures(); i++) {
-        tempRup = getRupture(i);
-        if(tempRup.getMag() >= mag)
-          totProb += Math.log(1-tempRup.getProbability());
-      }
-      totProb = 1 - Math.exp(totProb);
-    }
-    else {
-      for(int i=0; i<getNumRuptures(); i++) {
-        tempRup = getRupture(i);
-        if(tempRup.getMag() >= mag)
-          totProb += tempRup.getProbability();
-      }
-    }
-    return totProb;
+	  return computeTotalProbAbove( mag, null);
   }
+  
+  
+  /**
+   * This computes the total probability of all rutures great than or equal to the
+   * given mangitude
+   * @return
+   */
+  public double computeTotalProbAbove(double mag,GeographicRegion region) {
+	  double totProb=0;
+	  ProbEqkRupture tempRup;
+	  for(int i=0; i<getNumRuptures(); i++) {
+		  tempRup = getRupture(i);
+		  if(tempRup.getMag() < mag) continue;
+		  int numLocsInside = 0;
+		  int totPoints = 0;
+		  if(region!=null) {
+			  // get num surface points inside region
+			  Iterator locIt = tempRup.getRuptureSurface().getLocationsIterator();
+
+			  while(locIt.hasNext()) {
+				  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
+				  ++totPoints;
+			  }
+		  } else {
+			  numLocsInside=1;
+			  totPoints = numLocsInside;
+		  }
+		  if(isPoissonian)
+			  totProb += Math.log(1-tempRup.getProbability()*numLocsInside/(double)totPoints);
+		  else
+			  totProb += tempRup.getProbability()*numLocsInside/(double)totPoints;
+	  }
+	  if(isPoissonian)
+		  return 1 - Math.exp(totProb);
+	  else
+		  return totProb;
+  }
+
 
 
 /*

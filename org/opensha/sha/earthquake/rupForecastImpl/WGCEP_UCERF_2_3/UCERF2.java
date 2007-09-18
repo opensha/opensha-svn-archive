@@ -28,6 +28,8 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.data.region.EvenlyGriddedWG02_Region;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.exceptions.FaultException;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
@@ -957,7 +959,7 @@ public class UCERF2 extends EqkRupForecast {
 		else { // the SET_FOR_BCK_PARAM_NSHMP07 case
 			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(false,bulgeReduction,maxMagGrid);
+			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,bulgeReduction,maxMagGrid);
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 
@@ -1446,53 +1448,105 @@ public class UCERF2 extends EqkRupForecast {
 
 	
 
-	public double getTotal_B_FaultsProb(double minMag) {
-		double prob=1.0;
-		for(int i=0; i < bFaultSources.size(); i++)
-			prob *= (1-bFaultSources.get(i).computeTotalProbAbove(minMag));
-		return 1.0-prob;
+	public void getTotal_B_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		for(int i=0; i<numMags; ++i) {
+			double prob = 1;
+			double minMag = magProbDist.getX(i);
+			for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++)
+				if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals("San Gregorio Connected") && (region instanceof EvenlyGriddedWG02_Region))
+					prob *= (1-bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, null));
+				else prob *= (1-bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, region));
+				
+			magProbDist.set(i, 1.0 - prob);
+		}
 	}
 
-	public double getTotal_NonCA_B_FaultsProb(double minMag) {
-		double prob=1.0;
-		for(int i=0; i < this.nonCA_bFaultSources.size(); i++)
-			prob *= (1-nonCA_bFaultSources.get(i).computeTotalProbAbove(minMag));
-		return 1.0-prob;
+	public void getTotal_NonCA_B_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		for(int i=0; i<numMags; ++i) {
+			double prob = 1;
+			double minMag = magProbDist.getX(i);
+			for(int srcIndex=0; srcIndex < nonCA_bFaultSources.size(); srcIndex++)
+				prob *= (1-nonCA_bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, region));
+			magProbDist.set(i, 1.0-prob);
+		}
 	}
 	
-	public double getTotal_A_FaultsProb(double minMag) {
-		double prob=1.0;
-		for(int i=0; i < this.aFaultSourceGenerators.size(); i++) {
-			Object source = aFaultSourceGenerators.get(i);
-			if(source instanceof A_FaultSegmentedSourceGenerator) // Segmented source
-				prob *= (1-((A_FaultSegmentedSourceGenerator)source).getTotFaultProb(minMag));
-			else prob *= (1-((UnsegmentedSource)source).computeTotalProbAbove(minMag));
+	public void getTotal_A_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		for(int i=0; i<numMags; ++i) {
+			double prob = 1;
+			double minMag = magProbDist.getX(i);
+			for(int srcIndex=0; srcIndex < aFaultSourceGenerators.size(); srcIndex++) {
+				Object source = aFaultSourceGenerators.get(i);
+				if(source instanceof A_FaultSegmentedSourceGenerator) { // Segmented source 
+					A_FaultSegmentedSourceGenerator srcGen = (A_FaultSegmentedSourceGenerator)source;
+					if(srcGen.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region))
+						prob *= (1-srcGen.getTotFaultProb(minMag, null));
+					else prob *= (1-srcGen.getTotFaultProb(minMag, region));
+				}
+				else  {
+					UnsegmentedSource unsegSrc = (UnsegmentedSource)source;
+					if(unsegSrc.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region))
+						prob *= (1-unsegSrc.computeTotalProbAbove(minMag, null));
+					else prob *= (1-unsegSrc.computeTotalProbAbove(minMag, region));
+					
+				}
+			}
+			magProbDist.set(i, 1.0-prob);
 		}
-		return 1.0-prob;
 	}
 
 	// this assumes not time dependence
-	public double getTotal_BackgroundProb(double minMag) {
-		int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);  // make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
-		double expNum = timeSpan.getDuration()*this.getTotal_BackgroundMFD().getCumRate(index);
-		return 1-Math.exp(-expNum);
+	public void getTotal_BackgroundProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, applyBulgeReduction, applyMaxMagGrid);
+		for(int i=0; i<numMags; ++i) {
+			double minMag = magProbDist.getX(i);
+			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
+			int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);
+			magProbDist.set(i, 1-Math.exp(-timeSpan.getDuration()*incrMFD.getCumRate(index)));
+		}
 	}
 
 	// this assumes no time dependence
-	public double getTotal_C_ZoneProb(double minMag) {
-		int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);  // make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
-		double expNum = timeSpan.getDuration()*this.getTotal_C_ZoneMFD().getCumRate(index);
-		return 1-Math.exp(-expNum);
+	public void getTotal_C_ZoneProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotalC_ZoneMFD_InRegion(region);
+		for(int i=0; i<numMags; ++i) {
+			double minMag = magProbDist.getX(i);
+			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
+			int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);
+			magProbDist.set(i, 1-Math.exp(-timeSpan.getDuration()*incrMFD.getCumRate(index)));
+		}
 	}
 
-	public double getTotalProb(double minMag) {
-		double prob=1;
-		prob *= 1-getTotal_B_FaultsProb(minMag);
-		prob *= 1-getTotal_NonCA_B_FaultsProb(minMag);
-		prob *= 1-getTotal_A_FaultsProb(minMag);
-		prob *= 1-getTotal_BackgroundProb(minMag);
-		prob *= 1-getTotal_C_ZoneProb(minMag);
-		return 1-prob;
+	public void getTotalProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		DiscretizedFuncAPI bFaultsProbDist = magProbDist.deepClone();
+		DiscretizedFuncAPI nonCA_B_FaultsProbDist = magProbDist.deepClone();
+		DiscretizedFuncAPI aFaultsProbDist = magProbDist.deepClone();
+		DiscretizedFuncAPI bckProbDist = magProbDist.deepClone();
+		DiscretizedFuncAPI cZoneProbDist = magProbDist.deepClone();
+		
+		getTotal_B_FaultsProb(bFaultsProbDist, region);
+		getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbDist, region);
+		getTotal_A_FaultsProb(aFaultsProbDist, region);
+		getTotal_BackgroundProb(bckProbDist, region);
+		getTotal_C_ZoneProb(cZoneProbDist, region);
+		
+		for(int i=0; i<numMags; ++i) {
+			double prob = 1;
+			prob *= 1-bFaultsProbDist.getY(i);
+			prob *= 1-nonCA_B_FaultsProbDist.getY(i);
+			prob *= 1-aFaultsProbDist.getY(i);
+			prob *= 1-bckProbDist.getY(i);
+			prob *= 1-cZoneProbDist.getY(i);
+			magProbDist.set(i, 1.0-prob);
+		}
 	}
 	
 
