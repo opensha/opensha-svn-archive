@@ -45,8 +45,8 @@ public class WriteTimeDepRupProbAndGain {
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
 	private UCERF2 ucerf2;
-	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet, rupProbSheet67;
-	private HSSFSheet adjustableParamsSheet, readmeSheet, segRateSheet;
+	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet, rupProbSheet67 ;
+	private HSSFSheet adjustableParamsSheet, readmeSheet, segRateSheet, segRecurIntvSheet;
 	private int loginTreeBranchIndex;
 	
 	private ArrayList<String> adjustableParamNames;
@@ -56,6 +56,8 @@ public class WriteTimeDepRupProbAndGain {
 	private ArrayList<Double> segGainWtAve, segGainMin, segGainMax;
 	private ArrayList<Double> rupGainWtAve, rupGainMin, rupGainMax;
 	private ArrayList<Double> segRateWtAve, segRateMin, segRateMax;
+	private ArrayList<Integer>  segRecurIntvMin, segRecurIntvMax;
+	private ArrayList<Double> segRecurIntvWtAve;
 	private HSSFCellStyle boldStyle;
 	
 	private static double DURATION ;
@@ -114,6 +116,7 @@ public class WriteTimeDepRupProbAndGain {
 		SEG_DEP_APERIODICITY = new Boolean(false);
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 		makeExcelSheet(ucerf2);
+		
 		//	BPT 5 yrs seg const Aper
 		DURATION = 5;
 		FILENAME = "RupProbs_BPT_5yr_ConstAper.xls";
@@ -121,26 +124,49 @@ public class WriteTimeDepRupProbAndGain {
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 		makeExcelSheet(ucerf2);
 		
+		// Prob Model
+		paramNames.add(UCERF2.PROB_MODEL_PARAM_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 0.3);
+		options.addValueWeight(UCERF2.PROB_MODEL_BPT, 0.7);
+		paramValues.add(options);
 		
 		//	BPT parameter setting
 		paramNames.add(UCERF2.APERIODICITY_PARAM_NAME);
-		ParamOptions options = new ParamOptions();
+		options = new ParamOptions();
 		options.addValueWeight(new Double(0.3), 0.2);
 		options.addValueWeight(new Double(0.5), 0.5);
 		options.addValueWeight(new Double(0.7), 0.3);
 		paramValues.add(options);
 		
+		DURATION = 5;
+		FILENAME = "RupProbs_Emp_BPT_5yr.xls";
+		SEG_DEP_APERIODICITY = new Boolean(false);
+		makeExcelSheet(ucerf2);
+		
+		DURATION = 30;
+		FILENAME = "RupProbs_Emp_BPT_30yr.xls";
+		SEG_DEP_APERIODICITY = new Boolean(false);
+		makeExcelSheet(ucerf2);
+		
+		
+		paramNames.remove(UCERF2.PROB_MODEL_PARAM_NAME);
+		paramValues.remove(paramValues.size()-2);
+		//		BPT 30 yrs seg const Aper
 		DURATION = 30;
 		FILENAME = "RupProbs_BPT_30yr_ConstAperBranches.xls";
 		SEG_DEP_APERIODICITY = new Boolean(false);
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 		makeExcelSheet(ucerf2);
+		
 		//	BPT 5 yrs seg const Aper
 		DURATION = 5;
 		FILENAME = "RupProbs_BPT_5yr_ConstAperBranches.xls";
 		SEG_DEP_APERIODICITY = new Boolean(false);
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
 		makeExcelSheet(ucerf2);
+		
+		
 		
 	}
 
@@ -158,6 +184,7 @@ public class WriteTimeDepRupProbAndGain {
 		segProbSheet = wb.createSheet("Segment Probability");
 		segGainSheet = wb.createSheet("Segment Gain");
 		segRateSheet = wb.createSheet("Segment Rate");
+		segRecurIntvSheet = wb.createSheet("Segment Recurrence Interval");
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(PROB_MODEL_VAL);
 		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration 
 		if(ucerf2.getAdjustableParameterList().containsParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME))
@@ -239,6 +266,9 @@ public class WriteTimeDepRupProbAndGain {
 		segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		segRateSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		segRateSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
+		segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
+		segRecurIntvSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
+		segRecurIntvSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
 		++rupRowIndex;
 		++segRowIndex;
 		++rupRowIndex;
@@ -294,7 +324,9 @@ public class WriteTimeDepRupProbAndGain {
 				segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRateWtAve.get(totSegsIndex));
 				segRateSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segRateMin.get(totSegsIndex));
 				segRateSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segRateMax.get(totSegsIndex));
-
+				segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(Math.round(segRecurIntvWtAve.get(totSegsIndex)));
+				segRecurIntvSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segRecurIntvMin.get(totSegsIndex));
+				segRecurIntvSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segRecurIntvMax.get(totSegsIndex));
 				++segRowIndex;
 			}
 		}
@@ -347,8 +379,10 @@ public class WriteTimeDepRupProbAndGain {
 		String paramName = paramNames.get(paramIndex);
 		int numValues = options.getNumValues();
 		for(int i=0; i<numValues; ++i) {
+			double newWt;
 			if(ucerf2.getAdjustableParameterList().containsParameter(paramName)) {
 				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
+				newWt = weight * options.getWeight(i);
 				if(paramName.equalsIgnoreCase(UCERF2.REL_A_PRIORI_WT_PARAM_NAME)) {
 					ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 					if(((Double)param.getValue()).doubleValue()==1e10) {
@@ -359,8 +393,10 @@ public class WriteTimeDepRupProbAndGain {
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
 					}
 				}
+			} else {
+				if(i==0) newWt=weight;
+				else return;
 			}
-			double newWt = weight * options.getWeight(i);
 			if(paramIndex==lastParamIndex) { // if it is last paramter in list, write the Rupture Rates to excel sheet
 				
 				
@@ -380,6 +416,10 @@ public class WriteTimeDepRupProbAndGain {
 					segRateWtAve = new ArrayList<Double>();
 					segRateMin = new ArrayList<Double>(); 
 					segRateMax = new ArrayList<Double>();
+					
+					segRecurIntvWtAve = new ArrayList<Double>();
+					segRecurIntvMin = new ArrayList<Integer>(); 
+					segRecurIntvMax = new ArrayList<Integer>();
 					
 					rupProbWtAve = new ArrayList<Double>();
 					rupProbMin = new ArrayList<Double>();
@@ -402,6 +442,7 @@ public class WriteTimeDepRupProbAndGain {
 					segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
 					segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
 					segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
+					segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
 					++rupRowIndex;
 					++segRowIndex;
 					++rupRowIndex;
@@ -458,6 +499,7 @@ public class WriteTimeDepRupProbAndGain {
 						segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
 						segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
 						segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+						segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
 						FaultSegmentData faultSegData = sourceGen.getFaultSegmentData();
 						int numSegs = faultSegData.getNumSegments();
 						++segRowIndex;
@@ -466,6 +508,7 @@ public class WriteTimeDepRupProbAndGain {
 							segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
 							segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
 							segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
+							segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
 							++segRowIndex;
 							
 							segProbWtAve.add(0.0);
@@ -479,6 +522,10 @@ public class WriteTimeDepRupProbAndGain {
 							segRateWtAve.add(0.0);
 							segRateMin.add(Double.MAX_VALUE);
 							segRateMax.add(0.0);
+							
+							segRecurIntvWtAve.add(0.0);
+							segRecurIntvMin.add(Integer.MAX_VALUE);
+							segRecurIntvMax.add(0);
 						}
 						
 					}
@@ -488,6 +535,7 @@ public class WriteTimeDepRupProbAndGain {
 					segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
+					segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					
 					// write adjustable parameters
 					// add a row for each parameter name. Also add a initial blank row for writing Branch names
@@ -515,6 +563,7 @@ public class WriteTimeDepRupProbAndGain {
 				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
+				segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				adjustableParamsSheet.createRow(0).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				
 				++rupRowIndex;
@@ -584,6 +633,7 @@ public class WriteTimeDepRupProbAndGain {
 					int numSegs = faultSegData.getNumSegments();
 					++segRowIndex;
 					double segProb, segGain, segRate;
+					int segRecurIntv;
 					// loop over all segments
 					for(int segIndex=0; segIndex<numSegs; ++segIndex, ++totSegsIndex) {
 						segProb = sourceGen.getSegProb(segIndex);
@@ -608,6 +658,17 @@ public class WriteTimeDepRupProbAndGain {
 						if(segRateMax.get(totSegsIndex) < segRate) segRateMax.set(totSegsIndex, segRate);
 						segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRate);
 						segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRate);
+						
+						
+						segRecurIntv = Math.round((float) (1/sourceGen.getFinalSegmentRate(segIndex)));
+						//	wt and min/max columns
+						segRecurIntvWtAve.set(totSegsIndex, segRecurIntvWtAve.get(totSegsIndex)+newWt*segRecurIntv);
+						if(segRecurIntvMin.get(totSegsIndex) > segRecurIntv) segRecurIntvMin.set(totSegsIndex, segRecurIntv);
+						if(segRecurIntvMax.get(totSegsIndex) < segRecurIntv) segRecurIntvMax.set(totSegsIndex, segRecurIntv);
+						segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRecurIntv);
+						segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRecurIntv);
+						
+						
 						++segRowIndex;
 					}
 				}
@@ -618,6 +679,7 @@ public class WriteTimeDepRupProbAndGain {
 				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
+				segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				
 				// Write adjustable parameters
 				// add a row for each parameter name. Also add a initial blank row for writing Branch names 
