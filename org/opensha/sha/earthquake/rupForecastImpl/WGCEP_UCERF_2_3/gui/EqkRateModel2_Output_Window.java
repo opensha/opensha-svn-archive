@@ -188,6 +188,7 @@ public class EqkRateModel2_Output_Window extends JFrame implements ActionListene
 				(float)totalMFD.getTotalMomentRate()+"\n\n");
 		textArea.append("Adjustable Params Metadata:\n");
 		textArea.append(ucerf2.getAdjustableParameterList().getParameterListMetadataString("\n"));
+		textArea.append("\n"+ucerf2.getTimeSpan().getAdjustableParams().getParameterListMetadataString("\n"));
 		panel.add(new JScrollPane(textArea),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
 	      	      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 		panel.add(plotCumMFDsButton,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
