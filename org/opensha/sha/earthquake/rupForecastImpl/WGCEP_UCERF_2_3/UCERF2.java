@@ -1478,7 +1478,7 @@ public class UCERF2 extends EqkRupForecast {
 		return 1-Math.exp(-expNum);
 	}
 
-	// this assumes not time dependence
+	// this assumes no time dependence
 	public double getTotal_C_ZoneProb(double minMag) {
 		int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);  // make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
 		double expNum = timeSpan.getDuration()*this.getTotal_C_ZoneMFD().getCumRate(index);

@@ -27,20 +27,22 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
 public class WriteTimeDepRupProbAndGain {
 	
 	
-	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Gain, Segment Probability,"+
-		" Segment Gain and Segment Rate (each on a different sheet) for all Type-A fault segmented models,"+
-		" and for all 12 relevant logic-tree branches (in columns B through M) described in Appendix N."+
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
+		"Rupture Gain, Segment Probability, Segment Gain, Segment Rate, and Segment Recurrence"+
+		" Interval (each on a different sheet) for all Type-A fault segmented models,"+
+		" and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
 		" sheet, where those that vary between branches are in bold typeface.  The total aggregated"+
 		" rupture probability for each fault is given at the bottom of the list for each fault."+
-		" Column N gives the weighted average value (over all logic tree branches, where the weights"+
-		" are given on row 147 on the Rupture Probability & Gain sheet and row 52 on the Segment Probability"+
-		" and Gain sheet.  Columns O and P give the Min and Max, respectively, among all the logic-tree"+
+		" The third-to-last column gives the weighted average value (over all logic tree branches, where the weights"+
+		" are given on row 147 on the rupture-related sheets and row 52 on the segment-related sheets.  The last"+
+		" two columns give the Min and Max, respectively, among all the logic-tree"+
 		" branches. \"Gain\" is defined as the ratio of the probability to the Poisson probability.  Note" +
 		" that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
 		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
-		" Appendix N). The \"Segment Rate\" sheet gives data on the annual rate of events on each segment.";
+		" Appendix N). The \"Segment Rate\" and \"Segment Recurrence Interval\" sheets give data on the annual"+
+		" rate of events and recurrence interval, respectively, on each segment.";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
