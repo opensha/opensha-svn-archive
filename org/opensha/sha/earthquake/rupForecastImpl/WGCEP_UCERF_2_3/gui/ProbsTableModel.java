@@ -5,6 +5,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 
 /**
@@ -16,22 +18,26 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 public class ProbsTableModel extends AbstractTableModel {
 	private double[] mags = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 };
 	private String[] columns = { "Mags", "A-Faults", "B-Faults", "Non-CA B-Faults", "C-Zones", "Background", "Total"};
-	private double data[][];
+	private DiscretizedFuncAPI data[];
 	
 	public ProbsTableModel(UCERF2 ucerf2) {
-		int numDataRows = mags.length;
 		int numDataCols = columns.length-1;
-		data = new double[numDataRows][numDataCols];
-		for(int i=0; i<numDataRows; ++i) {
-			double mag = mags[i];
-			data[i][0] = ucerf2.getTotal_A_FaultsProb(mag);
-			data[i][1] = ucerf2.getTotal_B_FaultsProb(mag);
-			data[i][2] = ucerf2.getTotal_NonCA_B_FaultsProb(mag);
-			data[i][3] = ucerf2.getTotal_C_ZoneProb(mag);
-			data[i][4] = ucerf2.getTotal_BackgroundProb(mag);
-			data[i][5] = ucerf2.getTotalProb(mag);
-		}
-		
+		data = new DiscretizedFuncAPI[numDataCols];
+		for(int i=0; i<numDataCols; ++i)
+			data[i] = getDiscretizedFunc();
+			
+		ucerf2.getTotal_A_FaultsProb(data[0], null);
+		ucerf2.getTotal_B_FaultsProb(data[1], null);
+		ucerf2.getTotal_NonCA_B_FaultsProb(data[2], null);
+		ucerf2.getTotal_C_ZoneProb(data[3], null);
+		ucerf2.getTotal_BackgroundProb(data[4], null);
+		ucerf2.getTotalProb(data[5], null);
+	}
+	
+	private DiscretizedFuncAPI getDiscretizedFunc() {
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<mags.length; ++i) func.set(mags[i], 1.0);
+		return func;
 	}
 	
 	/**
@@ -68,7 +74,7 @@ public class ProbsTableModel extends AbstractTableModel {
 			case 0:
 				return ""+mags[rowIndex];
 			 default:
-				return ""+data[rowIndex][columnIndex-1];
+				return ""+data[columnIndex-1].getY(rowIndex);
 		}
 	}
 }
