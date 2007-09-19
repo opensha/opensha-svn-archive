@@ -408,7 +408,7 @@ public class UCERF2 extends EqkRupForecast {
 	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 
 	private boolean reCalcB_Faults=true, reCalcBck=true, reCalcA_Faults=true;
-	private boolean reCalcC_Zones=true, reFetchFromDatabase=true, reCalcNonCA_B_Fauts=true;
+	private boolean reCalcC_Zones=true, updateA_FaultsFetcher=true, updateB_FaultsFetcher=true, reCalcNonCA_B_Fauts=true;
 
 	/**
 	 *
@@ -1701,7 +1701,13 @@ public class UCERF2 extends EqkRupForecast {
 	 **/
 
 	public void updateForecast() {
-		if(reFetchFromDatabase) this.updateFetchersBasedonDefModels();
+		// update both A and B-Faults
+		if(this.updateA_FaultsFetcher) this.updateFetchersBasedonDefModels();
+		if(this.updateB_FaultsFetcher) { // only update B-Faults
+			bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
+					getSelectedDeformationModelSummary(), aFaultsFetcher);
+			updateB_FaultsFetcher = false;
+		}
 		// compute total moment rate reduction for A/B faults (fraction to reduce by)
 		double totToKeep = 1;
 		// 1st remove that which goes to the background
@@ -1887,14 +1893,15 @@ public class UCERF2 extends EqkRupForecast {
 			timeSpanChange(new EventObject(timeSpan));
 		} else if (paramName.equalsIgnoreCase(RUP_MODEL_TYPE_NAME)) {
 			createParamList();
-			this.reFetchFromDatabase = true;
+			this.updateA_FaultsFetcher = true;
 		} else if(paramName.equalsIgnoreCase(CONNECT_B_FAULTS_PARAM_NAME)) { // whether more B-Faults need to be connected
 			//bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				//	getSelectedDeformationModelSummary(), aFaultsFetcher);
 			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
-			this.reFetchFromDatabase = true;
+			this.updateB_FaultsFetcher = true;
 		} else if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) { // if deformation model changes, update the files to be read
-			this.reFetchFromDatabase = true;
+			this.updateA_FaultsFetcher = true;
+			this.updateB_FaultsFetcher = true;
 			//bFaultsFetcher.test_writeFileAfterCombiningB_Faults();
 		} 
 	}
@@ -1936,10 +1943,10 @@ public class UCERF2 extends EqkRupForecast {
 
 		}*/
 
-
 		bFaultsFetcher.setDeformationModel( ((Boolean) connectMoreB_FaultsParam.getValue()).booleanValue(), 
 				getSelectedDeformationModelSummary(), aFaultsFetcher);
-		this.reFetchFromDatabase = false;
+		this.updateA_FaultsFetcher = false;
+		this.updateB_FaultsFetcher = false;
 	}
 
 
