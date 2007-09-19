@@ -83,6 +83,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		int numERFs = ucerf2EpistemicList.getNumERFs(); // number of logic tree branches
 		//	now write the probability contribtuions of each source in each branch of logic tree
 		int startRowIndex = 2;
+		DiscretizedFuncAPI bckgroundProbs = null;
+		DiscretizedFuncAPI cZoneProbs =null;
 		for(int erfIndex=0; erfIndex<numERFs; ++erfIndex) {
 			System.out.println("Doing run "+(erfIndex+1)+" of "+numERFs);
 			row1 = allCA_RegionSheet.createRow(startRowIndex+erfIndex); 
@@ -90,24 +92,30 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getERF(erfIndex);
 			ucerf2.getTimeSpan().setDuration(duration);
 			ucerf2.updateForecast();
-			DiscretizedFuncAPI []data = new DiscretizedFuncAPI[numSources];
-			for(int i=0; i<numSources; ++i)
-				data[i] = getDiscretizedFunc();
-				
-			ucerf2.getTotal_A_FaultsProb(data[0], region);
-			ucerf2.getTotal_B_FaultsProb(data[1], region);
-			ucerf2.getTotal_NonCA_B_FaultsProb(data[2], region);
-			ucerf2.getTotal_C_ZoneProb(data[3], region);
-			ucerf2.getTotal_BackgroundProb(data[4], region);
-			ucerf2.getTotalProb(data[5], region);
+			if(bckgroundProbs==null) {
+				bckgroundProbs = getDiscretizedFunc();
+				cZoneProbs = getDiscretizedFunc();
+				ucerf2.getTotal_C_ZoneProb(cZoneProbs, region);
+				ucerf2.getTotal_BackgroundProb(bckgroundProbs, region);
+			}
+			DiscretizedFuncAPI aFaultsProbs = getDiscretizedFunc();
+			DiscretizedFuncAPI bFaultsProbs = getDiscretizedFunc();
+			DiscretizedFuncAPI nonCA_B_FaultsProbs = getDiscretizedFunc();
+			DiscretizedFuncAPI totalProbs = getDiscretizedFunc();
+			
+			ucerf2.getTotal_A_FaultsProb(aFaultsProbs, region);
+			ucerf2.getTotal_B_FaultsProb(bFaultsProbs, region);
+			ucerf2.getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbs, region);
+			getTotalProb(totalProbs, aFaultsProbs, bFaultsProbs, nonCA_B_FaultsProbs, cZoneProbs, bckgroundProbs);
+			
 			for(int magIndex=0; magIndex<mags.length; ++magIndex) {
 				int colIndex = magIndex*numSources+1;
-				row1.createCell((short)(colIndex++)).setCellValue(data[0].getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(data[1].getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(data[2].getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(data[3].getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(data[4].getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(data[5].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(aFaultsProbs.getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(bFaultsProbs.getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(nonCA_B_FaultsProbs.getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(cZoneProbs.getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(bckgroundProbs.getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(totalProbs.getY(magIndex));
 			}	
 		}
 
@@ -120,6 +128,24 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	public void getTotalProb(DiscretizedFuncAPI totalProbs, 
+			DiscretizedFuncAPI aFaultsProbs, 
+			DiscretizedFuncAPI bFaultsProbs, DiscretizedFuncAPI nonCA_B_FaultsProbs, 
+			DiscretizedFuncAPI cZoneProbs, DiscretizedFuncAPI bckgroundProbs) {
+		int numMags = totalProbs.getNum();
+		for(int i=0; i<numMags; ++i) {
+			double prob = 1;
+			prob *= 1-bFaultsProbs.getY(i);
+			prob *= 1-nonCA_B_FaultsProbs.getY(i);
+			prob *= 1-aFaultsProbs.getY(i);
+			prob *= 1-bckgroundProbs.getY(i);
+			prob *= 1-cZoneProbs.getY(i);
+			totalProbs.set(i, 1.0-prob);
+		}
+	}
+	
 	
 	/**
 	 * Get discretized func
@@ -307,10 +333,11 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
+		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_RELM.xls", null);
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_RELM.xls", null);
 		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_RELM.xls", null);
-		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		
 
 	}
