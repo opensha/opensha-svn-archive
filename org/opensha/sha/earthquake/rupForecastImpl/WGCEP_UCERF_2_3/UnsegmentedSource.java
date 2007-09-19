@@ -1020,10 +1020,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// set probability
 	    double empiricalCorr=1;
 	    if(empiricalModel != null) {
-	    	int rowOfRupCenter = Math.round(rupSurf.getNumRows()/2.0f);
-	    	int colOfRupCenter = Math.round(rupSurf.getNumCols()/2.0f);
-	    	Location centerSurfLoc = rupSurf.getLocation(rowOfRupCenter,colOfRupCenter);
-	    	empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+	    	empiricalCorr = empiricalModel.getCorrection(rupSurf);
 	    }
 
 		double rate = ((Double)rates.get(iMag)).doubleValue() * empiricalCorr;

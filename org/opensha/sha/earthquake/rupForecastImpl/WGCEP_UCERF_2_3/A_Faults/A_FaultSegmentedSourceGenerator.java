@@ -561,11 +561,7 @@ public class A_FaultSegmentedSourceGenerator {
 		for(int i=0; i<num_rup; i++) {
 			int[] segmentsInRup = getSegmentsInRup(i);
 			StirlingGriddedSurface rupSurf = segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
-			double empiricalCorr;
-			int rowOfRupCenter = Math.round(rupSurf.getNumRows()/2.0f);
-			int colOfRupCenter = Math.round(rupSurf.getNumCols()/2.0f);
-			Location centerSurfLoc = rupSurf.getLocation(rowOfRupCenter,colOfRupCenter);
-			empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+			double empiricalCorr = empiricalModel.getCorrection(rupSurf);
 
 			modRupRate[i] = totRupRate[i]*empiricalCorr;
 			rupProb[i]=(1-Math.exp(-duration*modRupRate[i]));

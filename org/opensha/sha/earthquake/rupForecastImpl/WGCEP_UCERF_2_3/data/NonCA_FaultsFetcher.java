@@ -150,10 +150,7 @@ public class NonCA_FaultsFetcher {
 				// find empirical correction
 				double empiricalCorr=1;
 				if(empiricalModel!=null) {
-					int rowOfRupCenter = Math.round(surface.getNumRows()/2.0f);
-					int colOfRupCenter = Math.round(surface.getNumCols()/2.0f);
-					Location centerSurfLoc = surface.getLocation(rowOfRupCenter,colOfRupCenter);
-					empiricalCorr = empiricalModel.getCorrection(centerSurfLoc);
+					empiricalCorr = empiricalModel.getCorrection(surface);
 				}
 				
 				if(srcTypeId == 1) {
