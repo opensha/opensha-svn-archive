@@ -78,8 +78,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			for(int srcIndex=0; srcIndex<numSources; ++srcIndex) // each source for this magnitude
 				row2.createCell((short)(colIndex+srcIndex)).setCellValue(sources[srcIndex]);
 		}
-
-
+		
+		
 		int numERFs = ucerf2EpistemicList.getNumERFs(); // number of logic tree branches
 		//	now write the probability contribtuions of each source in each branch of logic tree
 		int startRowIndex = 2;
@@ -231,7 +231,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
 		}
 
-
+		int weightCol = adjustableParamNames.size()+1;
+		row.createCell((short)(weightCol)).setCellValue("Branch Weight");
+		
 		int numERFs = ucerf2EpistemicList.getNumERFs(); // number of logic tree branches
 		//		now write all the parameter settings for each branch in the excel sheet
 		for(int i=0; i<numERFs; ++i) {
@@ -243,6 +245,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				if(adjustableParams.containsParameter(pName))
 					row.createCell((short)(paramIndex+1)).setCellValue(adjustableParams.getValue(pName).toString());
 			}
+			row.createCell((short)(weightCol)).setCellValue(ucerf2EpistemicList.getERF_RelativeWeight(i));
 
 		}
 	}
