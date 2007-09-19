@@ -15,6 +15,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.region.EvenlyGriddedWG02_Region;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
@@ -308,8 +309,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_RELM.xls", null);
 		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_RELM.xls", null);
-//		plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		
 
 	}
