@@ -12,7 +12,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -52,7 +55,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * 
 	 * @param minMag
 	 */
-	public void generateProbContributionsExcelSheet(double duration, String fileName) {
+	public void generateProbContributionsExcelSheet(double duration, String fileName, GeographicRegion region) {
 
 
 		//	create a sheet that contains param settings for each logic tree branch
@@ -86,15 +89,24 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getERF(erfIndex);
 			ucerf2.getTimeSpan().setDuration(duration);
 			ucerf2.updateForecast();
+			DiscretizedFuncAPI []data = new DiscretizedFuncAPI[numSources];
+			for(int i=0; i<numSources; ++i)
+				data[i] = getDiscretizedFunc();
+				
+			ucerf2.getTotal_A_FaultsProb(data[0], region);
+			ucerf2.getTotal_B_FaultsProb(data[1], region);
+			ucerf2.getTotal_NonCA_B_FaultsProb(data[2], region);
+			ucerf2.getTotal_C_ZoneProb(data[3], region);
+			ucerf2.getTotal_BackgroundProb(data[4], region);
+			ucerf2.getTotalProb(data[5], region);
 			for(int magIndex=0; magIndex<mags.length; ++magIndex) {
 				int colIndex = magIndex*numSources+1;
-				double mag = mags[magIndex];
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotal_A_FaultsProb(mag));
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotal_B_FaultsProb(mag));
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotal_NonCA_B_FaultsProb(mag));
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotal_C_ZoneProb(mag));
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotal_BackgroundProb(mag));
-				row1.createCell((short)(colIndex++)).setCellValue(ucerf2.getTotalProb(mag));
+				row1.createCell((short)(colIndex++)).setCellValue(data[0].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(data[1].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(data[2].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(data[3].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(data[4].getY(magIndex));
+				row1.createCell((short)(colIndex++)).setCellValue(data[5].getY(magIndex));
 			}	
 		}
 
@@ -106,6 +118,16 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Get discretized func
+	 * @return
+	 */
+	private DiscretizedFuncAPI getDiscretizedFunc() {
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		for(int i=0; i<mags.length; ++i) func.set(mags[i], 1.0);
+		return func;
 	}
 
 	/**
@@ -284,8 +306,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs.xls");
-		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs.xls");
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_RELM.xls", null);
+		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_RELM.xls", null);
+//		plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		
+
 	}
 
 }
