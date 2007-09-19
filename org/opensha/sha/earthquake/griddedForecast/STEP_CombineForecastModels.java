@@ -78,6 +78,7 @@ public class STEP_CombineForecastModels
      */
     this.set_AftershockZoneRadius();
     this.calcTypeI_AftershockZone();
+    this.setAfterShocks();
     //this.aftershockZone = this.getAfterShockZone();
     double[] kScaler = DistDecayFromRupCalc.getDensity(this.mainShock,aftershockZone);
     
@@ -486,13 +487,18 @@ public class STEP_CombineForecastModels
    * get_useSeqAndSpatial
    */
   public void set_useSeqAndSpatial() {
-	CompletenessMagCalc.setMcBest(this.afterShocks);
-	double mComplete = CompletenessMagCalc.getMcBest();
-	ObsEqkRupList compList = this.afterShocks.getObsEqkRupsAboveMag(mComplete);
-	if (compList.size() > 100)
-		this.useSeqAndSpatial = true;
-	else
-		this.useSeqAndSpatial = false;
+	int size = afterShocks.size();
+	if(size < 100)
+		useSeqAndSpatial = false;
+	else{
+		CompletenessMagCalc.setMcBest(this.afterShocks);
+		double mComplete = CompletenessMagCalc.getMcBest();
+		ObsEqkRupList compList = this.afterShocks.getObsEqkRupsAboveMag(mComplete);
+		if (compList.size() > 100)
+			this.useSeqAndSpatial = true;
+		else
+			this.useSeqAndSpatial = false;
+	}
   }
 
   /**

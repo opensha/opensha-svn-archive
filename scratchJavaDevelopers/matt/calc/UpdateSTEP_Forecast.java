@@ -42,7 +42,8 @@ public class UpdateSTEP_Forecast {
    */
   private void initUpdate() {
 	  forecastModelGen = this.sequenceModel.getGenElement();
-	  aftershocks = forecastModelGen.getAfterShocks();
+	  aftershocks = sequenceModel.getAfterShocks();
+	  
 	  
 	  /**
 	   * check to see if the aftershock zone needs to be updated

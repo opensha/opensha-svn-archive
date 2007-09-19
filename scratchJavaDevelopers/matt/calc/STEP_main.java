@@ -39,7 +39,7 @@ public class STEP_main {
    */
   private static ArrayList STEP_AftershockForecastList =  new ArrayList();
   public STEP_main() {
-	 System.out.println("11111");
+	// System.out.println("11111");
      calc_STEP();
   }
 
@@ -104,6 +104,8 @@ public class STEP_main {
      */
     
     bgGrid = new BackGroundRatesGrid(BACKGROUND_RATES_FILE_NAME);
+    System.out.println("Number of BG locs = "+
+  		  bgGrid.getEvenlyGriddedGeographicRegion().getNumGridLocs());
     ArrayList<HypoMagFreqDistAtLoc> hypList = initHypoMagFreqDistForBGGrid(bgGrid);
     
     System.out.println("Read background rates");
@@ -124,9 +126,9 @@ public class STEP_main {
     while (newIt.hasNext()) {
       newEvent = (ObsEqkRupture) newIt.next();
       newMag = newEvent.getMag();
-      System.out.println("new mainshock mag = "+newMag);
+      //System.out.println("new mainshock mag = "+newMag);
 
-      System.out.println("number of main shock="+numMainshocks);
+      //System.out.println("number of main shock="+numMainshocks);
       //loop over existing mainshocks
       for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
         mainshockModel =
@@ -192,7 +194,7 @@ public class STEP_main {
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= RegionDefaults.minMagForMainshock) {
-          System.out.println("Creating new main shock model");
+          //System.out.println("Creating new main shock model");
 
       STEP_CombineForecastModels newForecastMod =
            new STEP_CombineForecastModels(newEvent,bgGrid,currentTime);
@@ -218,6 +220,7 @@ public class STEP_main {
      */
 
     int numAftershockModels = STEP_AftershockForecastList.size();
+    System.out.println("Number of Aftershock Models ="+numAftershockModels);
     STEP_CombineForecastModels forecastModel;
 
     for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
@@ -240,7 +243,9 @@ public class STEP_main {
       
       ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
       ListIterator backGroundIt = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
-
+       System.out.println("Number of Forecast locs = "+
+    		  forecastModel.getAfterShockZone().getNumGridLocs());
+      System.out.println("Size of Hype List ="+hypList.size());
       while (backGroundIt.hasNext()){
     	  bgLoc = (Location)backGroundIt.next();
     	  while (seqIt.hasNext()){
@@ -265,6 +270,7 @@ public class STEP_main {
     		  }
     	  }
       }
+      System.out.println("222222Size of Hype List ="+hypList.size());
     }
     ArrayList<PointEqkSource> sourceList = createStepSources(hypList);
     createRateFile(sourceList);
@@ -329,6 +335,7 @@ public class STEP_main {
   	ArrayList<HypoMagFreqDistAtLoc> hypForecastList = bgGrid.getMagDistList();
   	ArrayList<HypoMagFreqDistAtLoc> stepHypForecastList = new ArrayList <HypoMagFreqDistAtLoc>();
   	int size = hypForecastList.size();
+  	System.out.println("Size of BG magDist list = "+size);
   	for(int i=0;i<size;++i){
   		HypoMagFreqDistAtLoc hypForcast = hypForecastList.get(i);
   		Location loc = hypForcast.getLocation();

@@ -25,6 +25,8 @@ public class IsAftershockToMainshock_Calc {
   public IsAftershockToMainshock_Calc(ObsEqkRupture newEvent,
                                       STEP_CombineForecastModels
                                       mainshockModel) {
+	this.mainshockModel = mainshockModel;
+	this.newEvent = newEvent;
     Calc_IsAftershockToMainshock();
   }
 

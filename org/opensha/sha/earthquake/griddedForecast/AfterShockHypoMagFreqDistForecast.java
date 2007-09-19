@@ -3,6 +3,8 @@ package org.opensha.sha.earthquake.griddedForecast;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
+import scratchJavaDevelopers.matt.calc.SortAftershocks_Calc;
+
 
 /**
  * <p>Title: AfterShockHypoMagFreqDistForecast</p>
@@ -58,8 +60,9 @@ public abstract class AfterShockHypoMagFreqDistForecast
    * Sets the list of ObsEqkRuptures for the given AfterShockHypoMagFreqDistForecast.
    * @param afterShocks ObsEqkRupList
    */
-  public void setAfterShocks(ObsEqkRupList afterShocks) {
-    this.afterShocks = afterShocks;
+  public void setAfterShocks() {
+	SortAftershocks_Calc afterShockCalc = new   SortAftershocks_Calc();
+    afterShocks = afterShockCalc.selectAfterShocksToNewMainshock_Calc();
   }
 
   /**
