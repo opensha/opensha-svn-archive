@@ -126,7 +126,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 	private void createBackGroundSources(){
 		bgSources = new ArrayList();
 		try {
-			ArrayList<String> fileLines = FileUtils.loadFile(BG_FILE_NAME);
+			ArrayList<String> fileLines = FileUtils.loadJarFile(BG_FILE_NAME);
 			int size = fileLines.size();
 			for(int i=4;i<size;++i){
 				String sourceName = fileLines.get(i);
@@ -175,7 +175,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 	
 	private void createFaultSources(){
 	try {
-		ArrayList<String> fileLines = FileUtils.loadFile(FAULT_SOURCE_FILENAME);
+		ArrayList<String> fileLines = FileUtils.loadJarFile(FAULT_SOURCE_FILENAME);
 		int size = fileLines.size();
 		for(int i=6;i<size;++i){
 			String sourceName = fileLines.get(i);
