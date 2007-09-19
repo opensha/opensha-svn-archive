@@ -14,7 +14,6 @@ import org.opensha.util.FileUtils;
 
 public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	
-	protected HypoMagFreqDistAtLoc[] griddedMagFreqDistForecast;
 	private double minForecastMag, maxForecastMag, deltaForecastMag;
 	private double[] seqIndAtNode;
 	// booleans to help decide if sources need to be made
@@ -1128,10 +1127,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	 */
 	
 	public void setMagFreqDistAtLoc(IncrementalMagFreqDist locDist, int ithLocation){
-		Location distLoc;
-		distLoc = griddedMagFreqDistForecast[ithLocation].getLocation();
-		HypoMagFreqDistAtLoc locFreqDist = new HypoMagFreqDistAtLoc(locDist, distLoc); 
-	    griddedMagFreqDistForecast[ithLocation] = locFreqDist;
+		hypoMagFreqDist.set(ithLocation, locDist);
 	}
 
 }

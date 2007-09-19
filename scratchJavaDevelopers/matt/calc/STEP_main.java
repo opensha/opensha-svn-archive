@@ -241,13 +241,14 @@ public class STEP_main {
       //IncrementalMagFreqDist seqDist, bgDist;
       double bgSumOver5, seqSumOver5;
       
-      ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
+      
       ListIterator backGroundIt = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
        System.out.println("Number of Forecast locs = "+
     		  forecastModel.getAfterShockZone().getNumGridLocs());
       System.out.println("Size of Hype List ="+hypList.size());
       while (backGroundIt.hasNext()){
     	  bgLoc = (Location)backGroundIt.next();
+    	  ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
     	  while (seqIt.hasNext()){
     		  seqLoc = (Location)seqIt.next();
     		  if (bgLoc.equalsLocation(seqLoc)){
@@ -323,10 +324,13 @@ public class STEP_main {
 		  double rate = magDist.getY(0);
 		  if(rate ==0)
 			  continue;
-		  PointEqkSource source = new PointEqkSource(loc,magDist,
-				                  RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
-				                  RegionDefaults.DIP,RegionDefaults.minForecastMag);
-		  sourceList.add(source);      
+		  else if(rate !=0){
+			  System.out.println("Writing out sources with rates not zero");
+			  PointEqkSource source = new PointEqkSource(loc,magDist,
+					                  RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
+					                  RegionDefaults.DIP,RegionDefaults.minForecastMag);
+			  sourceList.add(source);     
+		  }
 	  }
 	  return sourceList;
   }

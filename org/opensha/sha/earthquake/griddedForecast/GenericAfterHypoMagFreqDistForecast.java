@@ -230,7 +230,7 @@ public void setNumGridLocs() {
       totalForecast = omoriCalc.get_OmoriRate();
 
       GutenbergRichterMagFreqDist GR_Dist =
-          new GutenbergRichterMagFreqDist(this.a_valueGeneric, totalForecast,
+          new GutenbergRichterMagFreqDist(this.b_valueGeneric, totalForecast,
                                           this.minForecastMag,
                                           this.maxForecastMag, numForecastMags);
       // this must be added to an array so that it can be added to

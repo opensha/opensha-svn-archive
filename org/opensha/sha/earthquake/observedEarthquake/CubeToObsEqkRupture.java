@@ -107,7 +107,7 @@ public class CubeToObsEqkRupture {
       int hour = Integer.parseInt(sHour);
       int min = Integer.parseInt(sMinute);
       int sec = (int) Double.parseDouble(sSecond);
-      GregorianCalendar originTime = new GregorianCalendar(year, month, day, hour,
+      GregorianCalendar originTime = new GregorianCalendar(year, month-1, day, hour,
           min, sec);
 
       //Hypocenter Location at which EqkRupture occured
