@@ -23,7 +23,7 @@ public class RegionDefaults {
    * to a region.  Default values are set.
    */
 
-  public static String cubeFilePath = "scratchDevelopers/matt/calc/merge.nts";
+  public static String cubeFilePath = "/Users/matt/projects/jQuake/scratchJavaDevelopers/matt/calc/merge.nts";
 
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;

@@ -86,8 +86,7 @@ public class STEP_main {
      * this sets the forecast start time as the current time.
      */
     
-      Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
-          "UTC"));
+      Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
       int year = curTime.get(Calendar.YEAR);
       int month = curTime.get(Calendar.MONTH);
       int day = curTime.get(Calendar.DAY_OF_MONTH);
@@ -124,6 +123,8 @@ public class STEP_main {
     while (newIt.hasNext()) {
       newEvent = (ObsEqkRupture) newIt.next();
       newMag = newEvent.getMag();
+      System.out.println("new mainshock mag = "+newMag);
+
       System.out.println("number of main shock="+numMainshocks);
       //loop over existing mainshocks
       for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
@@ -190,6 +191,8 @@ public class STEP_main {
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= RegionDefaults.minMagForMainshock) {
+          System.out.println("Creating new main shock model");
+
       STEP_CombineForecastModels newForecastMod =
            new STEP_CombineForecastModels(newEvent,bgGrid,currentTime);
 

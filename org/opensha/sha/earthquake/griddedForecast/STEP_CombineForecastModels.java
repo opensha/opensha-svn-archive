@@ -375,7 +375,7 @@ public class STEP_CombineForecastModels
       Location mainshockLocation = mainshock.getHypocenterLocation();
       this.aftershockZone =
           new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
-          zoneRadius, gridSpacing);
+          zoneRadius, RegionDefaults.gridSpacing);
       this.aftershockZone.createRegionLocationsList(backgroundRatesGrid.region);
        this.region = this.aftershockZone;
        this.useCircularRegion = true;
@@ -430,7 +430,7 @@ public class STEP_CombineForecastModels
    */
   private void set_CurrentTime() {
     Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
-        "UTC"));
+        "GMT"));
     int year = curTime.get(Calendar.YEAR);
     int month = curTime.get(Calendar.MONTH);
     int day = curTime.get(Calendar.DAY_OF_MONTH);
@@ -450,9 +450,9 @@ public class STEP_CombineForecastModels
    * calcTimeSpan
    */
   public void calcTimeSpan() {
-    String durationUnits = "DAYS";
-    String timePrecision = "SECONDS";
-    TimeSpan timeSpan = new TimeSpan(timePrecision, durationUnits);
+    String durationUnits = "Days";
+    String timePrecision = "Seconds";
+    timeSpan = new TimeSpan(timePrecision, durationUnits);
 
     if (RegionDefaults.startForecastAtCurrentTime) {
       set_CurrentTime();
@@ -470,7 +470,7 @@ public class STEP_CombineForecastModels
    * setDaysSinceMainshock
    */
   public void setDaysSinceMainshock() {
-    String durationUnits = "DAYS";
+    String durationUnits = "Days";
     GregorianCalendar startDate = this.timeSpan.getStartTimeCalendar();
     double duration = this.timeSpan.getDuration(durationUnits);
     ObsEqkRupture mainshock = this.getMainShock();
