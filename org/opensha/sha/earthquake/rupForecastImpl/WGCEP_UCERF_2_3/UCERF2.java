@@ -1806,7 +1806,6 @@ public class UCERF2 extends EqkRupForecast {
 		/*if(paramName.equalsIgnoreCase(DEFORMATION_MODEL_PARAM_NAME)) {
 			this.reCalcA_Faults = true;
 			this.reCalcB_Faults = true;
-			this.reFetchFromDatabase = true;
 		} else if(paramName.equalsIgnoreCase(ABC_MO_RATE_REDUCTION_PARAM_NAME)) {
 			this.reCalcBck = true;
 			this.reCalcA_Faults = true;
