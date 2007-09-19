@@ -56,7 +56,7 @@ public class EvenlyGriddedGeographicRegion
   protected LocationList gridLocsList;
 
   //This array stores the number of locations below a given latitude
-  private int[] locsBelowLat;
+  protected int[] locsBelowLat;
 
   //List for storing each for a given latitude
   private ArrayList lonsPerLatList;
@@ -138,6 +138,8 @@ public class EvenlyGriddedGeographicRegion
 
     for(int i=0;i<numLocations;++i){
       Location loc = this.getNearestGridLocation(i,region);
+      if(gridLocsList == null)
+    	  gridLocsList = new LocationList();
       gridLocsList.addLocation(loc);
     }
     return gridLocsList;

@@ -73,6 +73,7 @@ public class STEP_main {
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
+      System.exit(-1);
     }
     catch (IOException ex) {
       ex.printStackTrace();

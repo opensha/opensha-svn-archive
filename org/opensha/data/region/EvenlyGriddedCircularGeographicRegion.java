@@ -36,11 +36,6 @@ public class EvenlyGriddedCircularGeographicRegion
   private final static String C = "EvenlyGriddedCircularGeographicRegion";
   private final static boolean D = false;
 
-
-
-  //This array store number of locations below a given latitude
-  private int[] locsBelowLat;
-
   //List for storing starting lon for each lat
   private double[] firstLonPerLat;
 

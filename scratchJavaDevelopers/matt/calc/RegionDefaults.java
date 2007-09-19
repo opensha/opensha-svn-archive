@@ -23,7 +23,7 @@ public class RegionDefaults {
    * to a region.  Default values are set.
    */
 
-  public static String cubeFilePath = "/Users/matt/projects/jQuake/scratchJavaDevelopers/matt/calc/merge.nts";
+  public static String cubeFilePath = "scratchJavaDevelopers/matt/calc/merge.nts";
 
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;
@@ -40,7 +40,7 @@ public class RegionDefaults {
   public static double searchLongMin = -124.6;
   public static double searchLongMax = -112;
 
-  public static double gridSpacing = 0.05;
+  public static double gridSpacing = 0.1;
 
   public static double addToMc = 0.02;
 

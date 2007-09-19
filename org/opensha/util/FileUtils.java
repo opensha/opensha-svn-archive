@@ -24,7 +24,7 @@ public class FileUtils {
     /** Class name used for debug strings */
     protected final static String C = "FileUtils";
     /** boolean that indicates if print out debug statements */
-    protected final static boolean D = false;
+    protected final static boolean D = true;
 
     /**
      * Loads in each line to a text file into an ArrayList ( i.e. a vector ). Each
