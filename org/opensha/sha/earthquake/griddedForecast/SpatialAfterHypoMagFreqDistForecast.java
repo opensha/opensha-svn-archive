@@ -46,7 +46,7 @@ public class SpatialAfterHypoMagFreqDistForecast
      */
     this.setMainShock(mainshock);
     this.region = aftershockZone;
-    this.setAfterShocks(aftershocks);
+    this.afterShocks = afterShocks;
 
   }
 

@@ -45,7 +45,7 @@ public class SequenceAfterHypoMagFreqDistForecast
      */
     this.setMainShock(mainshock);
     this.region = aftershockZone;
-    this.setAfterShocks(aftershocks);
+    this.afterShocks = aftershocks;
 
     numGridLocs = aftershockZone.getNumGridLocs();
     grid_Seq_aVal = new double[numGridLocs];
