@@ -1461,10 +1461,10 @@ public class UCERF2 extends EqkRupForecast {
 			for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++)
 				if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals("San Gregorio Connected") && (region instanceof EvenlyGriddedWG02_Region)) {
 					
-					prob *= (1-bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, null));
+					prob *= (1-bFaultSources.get(srcIndex).computeApproxTotalProbAbove(minMag, null));
 					//System.out.println("San Gregorio found for WG02 region");
 				}
-				else prob *= (1-bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, region));
+				else prob *= (1-bFaultSources.get(srcIndex).computeApproxTotalProbAbove(minMag, region));
 				
 			magProbDist.set(i, 1.0 - prob);
 		}
@@ -1476,7 +1476,7 @@ public class UCERF2 extends EqkRupForecast {
 			double prob = 1;
 			double minMag = magProbDist.getX(i);
 			for(int srcIndex=0; srcIndex < nonCA_bFaultSources.size(); srcIndex++)
-				prob *= (1-nonCA_bFaultSources.get(srcIndex).computeTotalProbAbove(minMag, region));
+				prob *= (1-nonCA_bFaultSources.get(srcIndex).computeApproxTotalProbAbove(minMag, region));
 			magProbDist.set(i, 1.0-prob);
 		}
 	}
@@ -1497,18 +1497,18 @@ public class UCERF2 extends EqkRupForecast {
 				if(source instanceof A_FaultSegmentedSourceGenerator) { // Segmented source 
 					A_FaultSegmentedSourceGenerator srcGen = (A_FaultSegmentedSourceGenerator)source;
 					if(srcGen.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region)) {
-						prob *= (1-srcGen.getTotFaultProb(minMag, null));
+						prob *= (1-srcGen.getApproxTotFaultProb(minMag, null));
 						//System.out.println("N. San Andreas found for WG02 region for segmented");
 					}
-					else prob *= (1-srcGen.getTotFaultProb(minMag, region));
+					else prob *= (1-srcGen.getApproxTotFaultProb(minMag, region));
 				}
 				else  {
 					UnsegmentedSource unsegSrc = (UnsegmentedSource)source;
 					if(unsegSrc.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region)) {
-						prob *= (1-unsegSrc.computeTotalProbAbove(minMag, null));
+						prob *= (1-unsegSrc.computeApproxTotalProbAbove(minMag, null));
 						//System.out.println("N. San Andreas found for WG02 region for unsegmented");
 					}
-					else prob *= (1-unsegSrc.computeTotalProbAbove(minMag, region));
+					else prob *= (1-unsegSrc.computeApproxTotalProbAbove(minMag, region));
 					
 				}
 			}

@@ -723,6 +723,16 @@ public class A_FaultSegmentedSourceGenerator {
 	}
 	
 	/*
+	 * This returns the approximate total probability of occurrence assuming independence among all the rupture sources
+	 * It calls the computeApproxTotalProbAbove of ProbEqkSource (instead of computeTotalProbAbove method)
+	 */
+	public double getApproxTotFaultProb(double mag, GeographicRegion region) {
+		double totProbNoEvent = 1;
+		for(int i=0;i<num_rup;i++) totProbNoEvent *= (1.0-this.getRupSourceApproxProbAboveMag(i, mag, region));
+		return 1.0 - totProbNoEvent;
+	}
+	
+	/*
 	 * This returns the total probability of occurrence assuming independence among all the rupture sources
 	 */
 	public double getTotFaultProbGain() {
@@ -764,6 +774,19 @@ public class A_FaultSegmentedSourceGenerator {
 		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
 		int srcIndex = rupSrcMapping.get(ithRup);
 		return sourceList.get(srcIndex).computeTotalProbAbove(mag, region);
+	}
+	
+	/**
+	 * This returns the approximate total probability for the ith Rupture Source above the given mag 
+	 * (as computed the last time getTimeIndependentSources(*) or getTimeDependentSources(*) was called).
+	 * It calls the computeApproxTotalProbAbove of ProbEqkSource (instead of computeTotalProbAbove method)
+	 * @param ithRup
+	 * @return
+	 */
+	public double getRupSourceApproxProbAboveMag(int ithRup, double mag, GeographicRegion region) { 
+		if (!this.rupSrcMapping.containsKey(ithRup)) return 0;
+		int srcIndex = rupSrcMapping.get(ithRup);
+		return sourceList.get(srcIndex).computeApproxTotalProbAbove(mag, region);
 	}
 	
 	/**

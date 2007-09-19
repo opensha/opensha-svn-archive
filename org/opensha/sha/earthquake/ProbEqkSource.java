@@ -7,6 +7,7 @@ import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <p>Title: ProbEqkSource</p>
@@ -203,6 +204,27 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 	  return computeTotalProbAbove( mag, null);
   }
   
+  /**
+   * This computes the Approx total probability of all ruptures great than or equal to the
+   * given mangitude.
+   * It checks the 2 end points of the rupture to see whether the rupture lies within region
+   * If both points are within region, rupture is assumed to be in region
+   * 
+   * @return
+   */
+  public double computeApproxTotalProbAbove(double mag,GeographicRegion region) {
+	  double totProb=0;
+	  ProbEqkRupture tempRup;
+	  for(int i=0; i<getNumRuptures(); i++) {
+		  tempRup = getRupture(i);
+		  if(tempRup.getMag() < mag) continue;
+		  totProb+=getApproxRupProbWithinRegion(tempRup, region);
+	  }
+	  if(isPoissonian)
+		  return 1 - Math.exp(totProb);
+	  else
+		  return totProb;
+  }
   
   /**
    * This computes the total probability of all rutures great than or equal to the
@@ -215,29 +237,80 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 	  for(int i=0; i<getNumRuptures(); i++) {
 		  tempRup = getRupture(i);
 		  if(tempRup.getMag() < mag) continue;
-		  int numLocsInside = 0;
-		  int totPoints = 0;
-		  if(region!=null) {
-			  // get num surface points inside region
-			  Iterator locIt = tempRup.getRuptureSurface().getLocationsIterator();
-
-			  while(locIt.hasNext()) {
-				  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
-				  ++totPoints;
-			  }
-		  } else {
-			  numLocsInside=1;
-			  totPoints = numLocsInside;
-		  }
-		  if(isPoissonian)
-			  totProb += Math.log(1-tempRup.getProbability()*numLocsInside/(double)totPoints);
-		  else
-			  totProb += tempRup.getProbability()*numLocsInside/(double)totPoints;
+		  totProb+=getRupProbWithinRegion(tempRup, region);
 	  }
 	  if(isPoissonian)
 		  return 1 - Math.exp(totProb);
 	  else
 		  return totProb;
+  }
+  
+  /**
+   * Get rupture probability within a region. It finds the fraction of rupture surface points 
+   * within the region and then adjusts the probability accordingly.
+   * 
+   * @param tempRup
+   * @param region
+   * @return
+   */
+  private double getRupProbWithinRegion(ProbEqkRupture tempRup, GeographicRegion region) {
+	  int numLocsInside = 0;
+	  int totPoints = 0;
+	  if(region!=null) {
+		  // get num surface points inside region
+		  Iterator locIt = tempRup.getRuptureSurface().getLocationsIterator();
+		  while(locIt.hasNext()) {
+			  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
+			  ++totPoints;
+		  }
+	  } else {
+		  numLocsInside=1;
+		  totPoints = numLocsInside;
+	  }
+	  if(isPoissonian)
+		  return Math.log(1-tempRup.getProbability()*numLocsInside/(double)totPoints);
+	  else
+		  return tempRup.getProbability()*numLocsInside/(double)totPoints;
+  }
+  
+  /**
+   * Get rupture probability within a region. 
+   * It first checks whether the end points are within region. If yes,
+   * then rupture is considered within the region
+   * Else It finds the fraction of rupture surface points 
+   * within the region and then adjusts the probability accordingly.
+   * 
+   * @param tempRup
+   * @param region
+   * @return
+   */
+  private double getApproxRupProbWithinRegion(ProbEqkRupture tempRup, GeographicRegion region) {
+	  int numLocsInside = 0;
+	  int totPoints = 0;
+	  if(region!=null) {
+		  // get num surface points inside region
+		  EvenlyGriddedSurfaceAPI rupSurface = tempRup.getRuptureSurface();
+		  Location loc1 = rupSurface.getLocation(0, 0);
+		  Location loc2 = rupSurface.getLocation(0, rupSurface.getNumCols()-1);
+		  // if both surface points are within region, rupture is considered within region
+		  if(region.isLocationInside(loc1) && region.isLocationInside(loc2)) {
+			  numLocsInside=1;
+			  totPoints = numLocsInside;
+		  } else { // if both points are not within region, calculate rupProb
+			  Iterator locIt =	rupSurface.getLocationsIterator();
+			  while(locIt.hasNext()) {
+				  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
+				  ++totPoints;
+			  }
+		  }
+	  } else {
+		  numLocsInside=1;
+		  totPoints = numLocsInside;
+	  }
+	  if(isPoissonian)
+		  return Math.log(1-tempRup.getProbability()*numLocsInside/(double)totPoints);
+	  else
+		  return tempRup.getProbability()*numLocsInside/(double)totPoints;
   }
 
 
