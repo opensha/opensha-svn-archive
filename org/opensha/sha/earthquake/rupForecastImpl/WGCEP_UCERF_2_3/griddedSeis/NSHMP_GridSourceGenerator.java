@@ -17,6 +17,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
@@ -334,18 +335,37 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	}
 	
 	
-	public GutenbergRichterMagFreqDist getTotalC_ZoneMFD() {
+	public IncrementalMagFreqDist getTotalC_ZoneMFD() {
 		return getTotalC_ZoneMFD_InRegion(null);
 	}
 	
 	
-	public GutenbergRichterMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
-		double tot_aValue = 0;
-		for(int i=0; i<area1new_agrid.length; i++)
+	public IncrementalMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
+		/*double tot_aValue = 0;
+		int numLocs = getNumGridLocs();
+		for(int i=0; i<numLocs; i++)
 			if(region==null || region.isLocationInside(getGridLocation(i)))
 					tot_aValue += area1new_agrid[i]+area2new_agrid[i]+area3new_agrid[i]+
 						  area4new_agrid[i]+mojave_agrid[i]+sangreg_agrid[i];
-		return getMFD(6.5, C_ZONES_MAX_MAG, tot_aValue, B_VAL, false);
+		return getMFD(6.5, C_ZONES_MAX_MAG, tot_aValue, B_VAL, false);*/
+		
+		// find max mag among all contributions
+		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
+		// create summed MFD
+		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
+		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
+		int numLocs = getNumGridLocs();
+		for(int i=0; i<numLocs; i++)
+			if(region==null || region.isLocationInside(getGridLocation(i))) {
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[i], B_VAL, false), true);
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[i], B_VAL, false), true);
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[i], B_VAL, false), true);
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area4new_agrid[i], B_VAL, false), true);
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[i], B_VAL, false), true);
+				mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[i], B_VAL, false), true);	
+
+			}
+		return mfdAtLoc;
 	}
 
 	
