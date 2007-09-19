@@ -277,8 +277,9 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Get rupture probability within a region. 
    * It first checks whether the end points are within region. If yes,
    * then rupture is considered within the region
-   * Else It finds the fraction of rupture surface points 
+   * Else It finds the fraction of rupture FAULT TRACE (not the surface) points 
    * within the region and then adjusts the probability accordingly.
+   * 
    * 
    * @param tempRup
    * @param region
@@ -297,7 +298,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 			  numLocsInside=1;
 			  totPoints = numLocsInside;
 		  } else { // if both points are not within region, calculate rupProb
-			  Iterator locIt =	rupSurface.getLocationsIterator();
+			  Iterator locIt =	rupSurface.getColumnIterator(0);
 			  while(locIt.hasNext()) {
 				  if(region.isLocationInside((Location)locIt.next())) ++numLocsInside;
 				  ++totPoints;

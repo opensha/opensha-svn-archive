@@ -135,6 +135,12 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
 					}
 				}
+				// change BPT to Poisson for Unsegmented case
+				if(paramName.equalsIgnoreCase(UCERF2.PROB_MODEL_PARAM_NAME) &&
+						ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.UNSEGMENTED_A_FAULT_MODEL) &&
+						options.getValue(i).equals(UCERF2.PROB_MODEL_BPT)	) {
+					ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+				}
 			} else {
 				if(i==0) newWt=weight;
 				else return;
