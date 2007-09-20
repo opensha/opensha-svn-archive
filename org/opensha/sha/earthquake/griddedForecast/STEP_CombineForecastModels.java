@@ -78,7 +78,7 @@ public class STEP_CombineForecastModels
      */
     this.set_AftershockZoneRadius();
     this.calcTypeI_AftershockZone();
-    this.setAfterShocks();
+    //this.setAfterShocks();
     //this.aftershockZone = this.getAfterShockZone();
     double[] kScaler = DistDecayFromRupCalc.getDensity(this.mainShock,aftershockZone);
     

@@ -60,9 +60,10 @@ public abstract class AfterShockHypoMagFreqDistForecast
    * Sets the list of ObsEqkRuptures for the given AfterShockHypoMagFreqDistForecast.
    * @param afterShocks ObsEqkRupList
    */
-  public void setAfterShocks() {
-	SortAftershocks_Calc afterShockCalc = new   SortAftershocks_Calc();
-    afterShocks = afterShockCalc.selectAfterShocksToNewMainshock_Calc();
+  public void setAfterShocks(ObsEqkRupList aftershockList) {
+	//SortAftershocks_Calc afterShockCalc = new   SortAftershocks_Calc();
+    //afterShocks = afterShockCalc.selectAfterShocksToNewMainshock_Calc();
+	  afterShocks = aftershockList;
   }
 
   /**
