@@ -50,7 +50,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	private double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0};
 	private String[] sources = { "A-Faults", "B-Faults", "Non-CA B-Faults", "C-Zones", "Background", "Total" };
-	UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+	private UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+	private String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", 
+			"Green Valley Connected", "Mount Diablo Thrust"};
+	private String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
+			"Hayward-Rogers Creek", "Calaveras"};
+	
 	/**
 	 * Plot histograms of probability contributions from various branches
 	 * 
@@ -68,6 +73,17 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		HSSFSheet allCA_RegionSheet = workbook.createSheet("All CA Region");
 		HSSFRow row1, row2;
+		
+		
+		// create sheet for each A-Fault
+		for(int i=0; i<aFaultNames.length; ++i) {
+			workbook.createSheet(aFaultNames[i]);
+		}
+		
+		//create sheet for each B-Fault
+		for(int i=0; i<bFaultNames.length; ++i) {
+			workbook.createSheet(bFaultNames[i]);
+		}
 
 		// add column for each magnitude and each source
 		row1 = allCA_RegionSheet.createRow(0);
@@ -77,6 +93,22 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			row1.createCell((short)(colIndex)).setCellValue(" Mag "+mags[magIndex]);
 			for(int srcIndex=0; srcIndex<numSources; ++srcIndex) // each source for this magnitude
 				row2.createCell((short)(colIndex+srcIndex)).setCellValue(sources[srcIndex]);
+		}
+		
+
+		// create sheet for each A-Fault
+		for(int i=0; i<aFaultNames.length; ++i) {
+			row1 = workbook.getSheet(aFaultNames[i]).createRow(0);
+			for(int magIndex=0; magIndex<mags.length; ++magIndex)
+				row1.createCell((short)(magIndex+1)).setCellValue(" Mag "+mags[magIndex]);
+		}
+		
+		//create sheet for each B-Fault
+		for(int i=0; i<bFaultNames.length; ++i) {
+			row1 = workbook.getSheet(bFaultNames[i]).createRow(0);
+			for(int magIndex=0; magIndex<mags.length; ++magIndex)
+				row1.createCell((short)(magIndex+1)).setCellValue(" Mag "+mags[magIndex]);
+
 		}
 		
 		
@@ -92,6 +124,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getERF(erfIndex);
 			ucerf2.getTimeSpan().setDuration(duration);
 			ucerf2.updateForecast();
+			
 			if(bckgroundProbs==null) {
 				bckgroundProbs = getDiscretizedFunc();
 				cZoneProbs = getDiscretizedFunc();
@@ -117,6 +150,28 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				row1.createCell((short)(colIndex++)).setCellValue(bckgroundProbs.getY(magIndex));
 				row1.createCell((short)(colIndex++)).setCellValue(totalProbs.getY(magIndex));
 			}	
+			
+
+			// create sheet for each A-Fault
+			for(int i=0; i<aFaultNames.length; ++i) {
+				DiscretizedFuncAPI aFaultProbDist = getDiscretizedFunc();
+				row1 = workbook.getSheet(aFaultNames[i]).createRow(startRowIndex+erfIndex);
+				row1.createCell((short)0).setCellValue("Branch "+(i+1));
+				ucerf2.getProbForA_Fault(aFaultNames[i], aFaultProbDist, region);
+				for(int magIndex=0; magIndex<mags.length; ++magIndex)
+					row1.createCell((short)(magIndex+1)).setCellValue(aFaultProbDist.getY(magIndex));
+			}
+			
+			//create sheet for each B-Fault
+			for(int i=0; i<bFaultNames.length; ++i) {
+				DiscretizedFuncAPI bFaultProbDist = getDiscretizedFunc();
+				row1 = workbook.getSheet(bFaultNames[i]).createRow(startRowIndex+erfIndex);
+				row1.createCell((short)0).setCellValue("Branch "+(i+1));
+				ucerf2.getProbsForB_Fault(bFaultNames[i], bFaultProbDist, region);
+				for(int magIndex=0; magIndex<mags.length; ++magIndex)
+					row1.createCell((short)(magIndex+1)).setCellValue(bFaultProbDist.getY(magIndex));
+			}
+			
 		}
 
 		//		 write  excel sheet
@@ -339,7 +394,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_RELM.xls", null);
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_RELM.xls", null);
 		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_RELM.xls", null);
-		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		
 

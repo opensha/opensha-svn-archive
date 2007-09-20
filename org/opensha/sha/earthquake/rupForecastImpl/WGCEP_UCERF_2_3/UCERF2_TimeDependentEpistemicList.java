@@ -74,7 +74,7 @@ public class UCERF2_TimeDependentEpistemicList extends UCERF2_TimeIndependentEpi
 		
 		// Prob Model
 		paramNames.add(UCERF2.PROB_MODEL_PARAM_NAME);
-		options = new ParamOptions();
+		 options = new ParamOptions();
 		options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 0.3);
 		options.addValueWeight(UCERF2.PROB_MODEL_BPT, 0.7);
 		paramValues.add(options);

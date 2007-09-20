@@ -73,7 +73,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 		
 		// Aprioti wt param
 		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
-		options = new ParamOptions();
+		 options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
 		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);

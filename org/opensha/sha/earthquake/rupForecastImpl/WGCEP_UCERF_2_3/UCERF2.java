@@ -1453,22 +1453,80 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param magProbDist
 	 * @param region
 	 */
-	public void getTotal_B_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+	public void getTotal_B_FaultsProb(DiscretizedFuncAPI magProbDist, 
+			GeographicRegion region) {
 		int numMags = magProbDist.getNum();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
 			double minMag = magProbDist.getX(i);
 			for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++)
-				if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals("San Gregorio Connected") && (region instanceof EvenlyGriddedWG02_Region)) {
-					
-					prob *= (1-bFaultSources.get(srcIndex).computeApproxTotalProbAbove(minMag, null));
-					//System.out.println("San Gregorio found for WG02 region");
-				}
-				else prob *= (1-bFaultSources.get(srcIndex).computeApproxTotalProbAbove(minMag, region));
-				
+				prob *= getProbForUnsegmentedSrc(bFaultSources.get(srcIndex), 
+						 minMag,  region);
 			magProbDist.set(i, 1.0 - prob);
 		}
 	}
+	
+	/**
+	 * Get Probability for unsegmented source. Region does not matter if it WG02 region
+	 * and faultName is San Gregorio
+	 * 
+	 * @param unsegmentedSrc
+	 * @param minMag
+	 * @param region
+	 * @return
+	 */
+	private double getProbForSegmentedSrc(A_FaultSegmentedSourceGenerator segmentedSrcGenerator, 
+			double minMag, GeographicRegion region) {
+		String faultName = segmentedSrcGenerator.getFaultSegmentData().getFaultName();
+		if(faultName.equals("N. San Andreas")
+				&& region instanceof EvenlyGriddedWG02_Region) 
+			return (1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, null));
+		else return 1-segmentedSrcGenerator.getApproxTotFaultProb(minMag, region);
+
+	}
+	
+	/**
+	 * Get Probability for unsegmented source. Region does not matter if it WG02 region
+	 * and faultName is San Gregorio
+	 * 
+	 * @param unsegmentedSrc
+	 * @param minMag
+	 * @param region
+	 * @return
+	 */
+	private double getProbForUnsegmentedSrc(UnsegmentedSource unsegmentedSrc, 
+			double minMag, GeographicRegion region) {
+		String faultName = unsegmentedSrc.getFaultSegmentData().getFaultName();
+		if((faultName.equals("San Gregorio Connected") || faultName.equals("N. San Andreas"))
+				&& (region instanceof EvenlyGriddedWG02_Region)) 
+			return (1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, null));
+		else return 1-unsegmentedSrc.computeApproxTotalProbAbove(minMag, region);
+
+	}
+	
+	/**
+	 * Get Probs for a particular B-Fault
+	 * 
+	 * @param bFaultName
+	 * @param magProbDist
+	 * @param region
+	 */
+	public void getProbsForB_Fault(String bFaultName,
+			DiscretizedFuncAPI magProbDist, GeographicRegion region ) {
+		int numMags = magProbDist.getNum();
+		for(int srcIndex=0; srcIndex < bFaultSources.size(); srcIndex++) {
+			if(bFaultSources.get(srcIndex).getFaultSegmentData().getFaultName().equals(bFaultName)) {
+				for(int i=0; i<numMags; ++i) {
+					double minMag = magProbDist.getX(i);
+					double prob = getProbForUnsegmentedSrc(bFaultSources.get(srcIndex), 
+							minMag,  region);
+					magProbDist.set(i, 1-prob);
+				}
+				break;
+			}
+		}
+	}
+	
 
 	public void getTotal_NonCA_B_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
 		int numMags = magProbDist.getNum();
@@ -1487,7 +1545,8 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param magProbDist
 	 * @param region
 	 */
-	public void getTotal_A_FaultsProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
+	public void getTotal_A_FaultsProb(DiscretizedFuncAPI magProbDist, 
+			GeographicRegion region) {
 		int numMags = magProbDist.getNum();
 		for(int i=0; i<numMags; ++i) {
 			double prob = 1;
@@ -1495,24 +1554,61 @@ public class UCERF2 extends EqkRupForecast {
 			for(int srcIndex=0; srcIndex < aFaultSourceGenerators.size(); srcIndex++) {
 				Object source = aFaultSourceGenerators.get(srcIndex);
 				if(source instanceof A_FaultSegmentedSourceGenerator) { // Segmented source 
-					A_FaultSegmentedSourceGenerator srcGen = (A_FaultSegmentedSourceGenerator)source;
-					if(srcGen.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region)) {
-						prob *= (1-srcGen.getApproxTotFaultProb(minMag, null));
-						//System.out.println("N. San Andreas found for WG02 region for segmented");
-					}
-					else prob *= (1-srcGen.getApproxTotFaultProb(minMag, region));
+					prob *= getProbForSegmentedSrc((A_FaultSegmentedSourceGenerator)source, minMag, region);
 				}
-				else  {
-					UnsegmentedSource unsegSrc = (UnsegmentedSource)source;
-					if(unsegSrc.getFaultSegmentData().getFaultName().equals("N. San Andreas") && (region instanceof EvenlyGriddedWG02_Region)) {
-						prob *= (1-unsegSrc.computeApproxTotalProbAbove(minMag, null));
-						//System.out.println("N. San Andreas found for WG02 region for unsegmented");
-					}
-					else prob *= (1-unsegSrc.computeApproxTotalProbAbove(minMag, region));
-					
+				else  { // unsegmneted source
+					prob *= this.getProbForUnsegmentedSrc((UnsegmentedSource)source, minMag, region);
 				}
 			}
 			magProbDist.set(i, 1.0-prob);
+		}
+	}
+	
+	/**
+	 * Note that it calculates the WG02 region by including the complete N. San Andreas
+	 * 
+	 * @param magProbDist
+	 * @param region
+	 */
+	public void getProbForA_Fault(String aFaultName, DiscretizedFuncAPI magProbDist, 
+			GeographicRegion region) {
+		int numMags = magProbDist.getNum();
+		for(int srcIndex=0; srcIndex < aFaultSourceGenerators.size(); srcIndex++) {
+			Object source = aFaultSourceGenerators.get(srcIndex);
+			if(source instanceof A_FaultSegmentedSourceGenerator) { // Segmented source
+				A_FaultSegmentedSourceGenerator srcGen = (A_FaultSegmentedSourceGenerator)source;
+				if(srcGen.getFaultSegmentData().getFaultName().equals(aFaultName)) {
+					for(int i=0; i<numMags; ++i) {
+						double minMag = magProbDist.getX(i);
+						double prob = getProbForSegmentedSrc(srcGen, minMag, region);
+						magProbDist.set(i, 1-prob);
+					}
+					break;
+				}
+					
+			}
+			else  { // Unsegmented source
+				UnsegmentedSource unsegmentedSrc = (UnsegmentedSource)source;
+				if(aFaultName.equalsIgnoreCase("San Jacinto")) {
+					DiscretizedFuncAPI sj1 = magProbDist.deepClone();
+					DiscretizedFuncAPI sj2 = magProbDist.deepClone();
+					getProbForA_Fault("San Jacinto (SB to C)", sj1, region);
+					getProbForA_Fault("San Jacinto (CC to SM)", sj2, region);
+					for(int i=0; i<numMags; ++i) {
+						double prob = (1-sj1.getY(i))*(1-sj2.getY(i));
+						magProbDist.set(i, 1-prob);
+					}
+					break;
+				}
+				else if(unsegmentedSrc.getFaultSegmentData().getFaultName().equals(aFaultName)) {
+					for(int i=0; i<numMags; ++i) {
+						double minMag = magProbDist.getX(i);
+						double prob = getProbForUnsegmentedSrc(unsegmentedSrc, minMag, region);
+						magProbDist.set(i, 1-prob);
+					}
+					break;
+				}
+			}
 		}
 	}
 
