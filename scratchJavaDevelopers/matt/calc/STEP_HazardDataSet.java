@@ -155,8 +155,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	  
 	  
 	  private double convertToRate(double prob){
-		  double linProb = Math.exp(prob);
-		  return (-1*Math.log(1-linProb)/RegionDefaults.forecastLengthDays);
+		  return (-1*Math.log(1-prob)/RegionDefaults.forecastLengthDays);
 	  }
 	  /**
 	   * HazardCurve Calculator for the STEP
