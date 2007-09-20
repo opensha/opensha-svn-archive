@@ -6,8 +6,12 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.earthquake.griddedForecast.*;
+import org.opensha.sha.gui.infoTools.ConnectToCVM;
+import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.Location;
+import org.opensha.data.Site;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,8 +34,8 @@ public class STEP_main {
   private static RegionDefaults rDefs;
   private static GregorianCalendar currentTime;
   private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
-
-
+  private BackGroundRatesGrid bgGrid = null;
+  private ArrayList<PointEqkSource> sourceList;
   /**
    * First load the active aftershock sequence objects from the last run
    * load: ActiveSTEP_AIC_AftershockForecastList
@@ -51,14 +55,30 @@ public class STEP_main {
  public static void main(String[] args) {
 	 STEP_main step = new STEP_main();
  }
+ 
+ /**
+  * Returns the Gridded Region applicable for STEP forecast
+  * @return
+  */
+ public SitesInGriddedRegion getGriddedRegion(){
+	 return (SitesInGriddedRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+ }
+ 
+ /**
+  * Returns the List of PointEqkSources
+  * @return
+  */
+ public ArrayList<PointEqkSource> getSourceList(){
+	 return sourceList;
+ }
 
   /**
    * calc_STEP
    */
-  public  void calc_STEP() {
+  private  void calc_STEP() {
     
 	 ArrayList New_AftershockForecastList = null;
-	 BackGroundRatesGrid bgGrid = null;
+	 
 
 	 System.out.println("Starting STEP");
 
@@ -273,9 +293,11 @@ public class STEP_main {
       }
       System.out.println("222222Size of Hype List ="+hypList.size());
     }
-    ArrayList<PointEqkSource> sourceList = createStepSources(hypList);
-    createRateFile(sourceList);
+    sourceList = createStepSources(hypList);
+    //createRateFile(sourceList);
   }
+  
+  
 
   private void createRateFile(ArrayList<PointEqkSource> sourcelist){
 	  int size = sourcelist.size();
@@ -352,10 +374,4 @@ public class STEP_main {
   	}
   	return stepHypForecastList;
   }
-
-  
-  private void createRatesFile(){
-	  
-  }
-
 }
