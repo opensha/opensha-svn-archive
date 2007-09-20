@@ -75,6 +75,8 @@ public class SortAftershocks_Calc {
    * selectAfterShocksToNewMainshock_Calc
  * @return 
    */
+	  
+
   public ObsEqkRupList selectAfterShocksToNewMainshock_Calc() {
 	  return (new ObsEqkRupList());
   }
