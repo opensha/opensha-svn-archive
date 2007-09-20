@@ -2,6 +2,7 @@ package scratchJavaDevelopers.matt.calc;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
@@ -34,7 +35,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	private static final String STEP_BG_FILE_NAME = "backGround.txt";
 	private static final String STEP_HAZARD_OUT_FILE_NAME = "Step_hazard_probs.txt";
 	private static final double IML_VALUE = Math.log(0.126);
-	
+	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 	
 	
 	public STEP_HazardDataSet(boolean includeWillsSiteClass){
@@ -46,7 +47,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		STEP_HazardDataSet step = new STEP_HazardDataSet(true);
+		STEP_HazardDataSet step = new STEP_HazardDataSet(false);
+		step.runSTEP();
 	}
 
 
@@ -101,17 +103,22 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	    int size = probVals.length;
 	    LocationList locList = region.getGridLocationsList();
 	    int numLocations = locList.size();
+	    
 	    try{
 		      FileWriter fr = new FileWriter(STEP_HAZARD_OUT_FILE_NAME);
-		      for(int i=0;i<numLocations;++numLocations){
+		      for(int i=0;i<numLocations;++i){
 		    	  Location loc = locList.getLocationAt(i);
 		    	  // System.out.println("Size of the Prob ArrayList is:"+size);
-		    	  fr.write(loc.getLatitude()+"    "+loc.getLongitude()+"      "+probVals[i]+"\n");
+		    	  fr.write(locFormat.format(loc.getLatitude())+"    "+locFormat.format(loc.getLongitude())+"      "+convertToProb(probVals[i])+"\n");
 		      }
 		      fr.close();
 	    }catch(IOException ee){
 	      ee.printStackTrace();
 	    }
+	  }
+	  
+	  private double convertToProb(double rate){
+		  return (1-Math.pow(Math.E, -1*rate*RegionDefaults.forecastLengthDays));
 	  }
 	 
 	  /**
@@ -130,10 +137,15 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	        st.nextToken();
 	        st.nextToken();
 	        String val =st.nextToken().trim();
-	        if(!val.equalsIgnoreCase("NaN"))
-	          vals[i++]=(new Double(val)).doubleValue();
-	        else
-	          vals[i++]=(new Double(Double.NaN)).doubleValue();
+	        double temp =0;
+	        if(!val.equalsIgnoreCase("NaN")){
+	          temp=(new Double(val)).doubleValue();
+	          vals[i++] = convertToRate(temp);
+	        }
+	        else{
+	          temp=(new Double(Double.NaN)).doubleValue();
+	          vals[i++] = convertToRate(temp);
+	        }
 	      }
 	    }catch(Exception e){
 	      e.printStackTrace();
@@ -142,6 +154,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	  }
 	  
 	  
+	  private double convertToRate(double prob){
+		  double linProb = Math.pow(Math.E, prob);
+		  return (-1*Math.log(1-linProb)/RegionDefaults.forecastLengthDays);
+	  }
 	  /**
 	   * HazardCurve Calculator for the STEP
 	   * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
@@ -211,7 +227,8 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	        else
 	          hazVal = 0.0;
 	        //System.out.println("HazVal: "+hazVal);
-	        probVals[j]=hazVal;
+	        
+	        probVals[j]=this.convertToRate(hazVal);
 	      }
 	    }catch(Exception e){
 	      e.printStackTrace();

@@ -298,14 +298,12 @@ public class STEP_main {
       }
       //System.out.println("222222Size of Hype List ="+hypList.size());
     }
-    ArrayList<PointEqkSource> sourceList = createStepSources(hypList);
+    createStepSources(hypList);
     createRateFile(sourceList);
     /**
      * no remove all model elements
      */
-    PurgeMainshockList.removeModels(STEP_AftershockForecastList);
-    
-    sourceList = createStepSources(hypList);
+   // PurgeMainshockList.removeModels(STEP_AftershockForecastList);
     //createRateFile(sourceList);
   }
   
@@ -347,9 +345,9 @@ public class STEP_main {
   }
   
   
-  private ArrayList<PointEqkSource> createStepSources(ArrayList<HypoMagFreqDistAtLoc> hypoMagDist){
+  private void createStepSources(ArrayList<HypoMagFreqDistAtLoc> hypoMagDist){
 	  System.out.println("Creating STEP sources");
-	  ArrayList<PointEqkSource> sourceList = new ArrayList<PointEqkSource>();
+	  sourceList = new ArrayList<PointEqkSource>();
 	  int size = hypoMagDist.size();
 	  for(int i=0;i<size;++i){
 		  HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
@@ -366,7 +364,6 @@ public class STEP_main {
 			  sourceList.add(source);     
 		  }
 	  }
-	  return sourceList;
   }
   
   private ArrayList<HypoMagFreqDistAtLoc> initHypoMagFreqDistForBGGrid(BackGroundRatesGrid bgGrid){
