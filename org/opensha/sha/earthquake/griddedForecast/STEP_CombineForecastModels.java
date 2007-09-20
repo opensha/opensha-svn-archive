@@ -56,7 +56,7 @@ public class STEP_CombineForecastModels
   //private double sampleSizeAIC;
   private EvenlyGriddedGeographicRegionAPI aftershockZone;
   private boolean existSeqElement = false, existSpaElement = false; 
-  
+  private boolean usedInForecast = false;
   
   /**
    * STEP_AftershockForecast
@@ -78,7 +78,8 @@ public class STEP_CombineForecastModels
      */
     this.set_AftershockZoneRadius();
     this.calcTypeI_AftershockZone();
-    //this.setAfterShocks();
+    ObsEqkRupList emptyAftershocks = new ObsEqkRupList();
+    this.setAfterShocks(emptyAftershocks);
     //this.aftershockZone = this.getAfterShockZone();
     double[] kScaler = DistDecayFromRupCalc.getDensity(this.mainShock,aftershockZone);
     
@@ -292,6 +293,17 @@ public class STEP_CombineForecastModels
   public void setUseFixed_cVal(boolean fix_cVal) {
     useFixed_cValue = fix_cVal;
   }
+  
+  /**
+   * set_UsedInForecast
+   * This will be set to true is any node in this model
+   * forecasts greater rates than the background
+   * the default is false.
+   * @param used
+   */
+  public void set_UsedInForecast(boolean used){
+  	usedInForecast = used;
+  }
 
   /**
    * set_addToMcConstant
@@ -473,7 +485,7 @@ public class STEP_CombineForecastModels
   public void setDaysSinceMainshock() {
     String durationUnits = "Days";
     GregorianCalendar startDate = this.timeSpan.getStartTimeCalendar();
-    System.out.println("From Timespan ="+startDate.toString());
+    //System.out.println("From Timespan ="+startDate.toString());
     double duration = this.timeSpan.getDuration(durationUnits);
     ObsEqkRupture mainshock = this.getMainShock();
     GregorianCalendar mainshockDate = mainshock.getOriginTime();
@@ -516,6 +528,14 @@ public class STEP_CombineForecastModels
     return daysSinceMainshockEnd;
   }
 
+  /**
+   * returns true is this model has been used in a forecast and should
+   * be retained.
+   * @return boolean
+   */
+  public boolean get_UsedInForecast(){
+	  return usedInForecast;
+  }
 
 
   /**

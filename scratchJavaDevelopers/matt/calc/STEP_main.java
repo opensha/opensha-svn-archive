@@ -42,6 +42,8 @@ public class STEP_main {
    * each object is a STEP_AftershockHypoMagFreqDistForecast
    */
   private static ArrayList STEP_AftershockForecastList =  new ArrayList();
+  private static ArrayList STEP_FinalModelList =  new ArrayList();
+
   public STEP_main() {
 	// System.out.println("11111");
      calc_STEP();
@@ -124,8 +126,8 @@ public class STEP_main {
      */
     
     bgGrid = new BackGroundRatesGrid(BACKGROUND_RATES_FILE_NAME);
-    System.out.println("Number of BG locs = "+
-  		  bgGrid.getEvenlyGriddedGeographicRegion().getNumGridLocs());
+    //System.out.println("Number of BG locs = "+
+  		  //bgGrid.getEvenlyGriddedGeographicRegion().getNumGridLocs());
     ArrayList<HypoMagFreqDistAtLoc> hypList = initHypoMagFreqDistForBGGrid(bgGrid);
     
     System.out.println("Read background rates");
@@ -240,7 +242,7 @@ public class STEP_main {
      */
 
     int numAftershockModels = STEP_AftershockForecastList.size();
-    System.out.println("Number of Aftershock Models ="+numAftershockModels);
+    //System.out.println("Number of Aftershock Models ="+numAftershockModels);
     STEP_CombineForecastModels forecastModel;
 
     for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
@@ -263,9 +265,9 @@ public class STEP_main {
       
       
       ListIterator backGroundIt = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
-       System.out.println("Number of Forecast locs = "+
-    		  forecastModel.getAfterShockZone().getNumGridLocs());
-      System.out.println("Size of Hype List ="+hypList.size());
+       //System.out.println("Number of Forecast locs = "+
+    		  //forecastModel.getAfterShockZone().getNumGridLocs());
+      //System.out.println("Size of Hype List ="+hypList.size());
       while (backGroundIt.hasNext()){
     	  bgLoc = (Location)backGroundIt.next();
     	  ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
@@ -287,12 +289,22 @@ public class STEP_main {
     			      // record the index of this aftershock sequence in an array in
     				  // the background so we know to save the sequence (or should it just be archived somehow now?)
     				  bgGrid.setSeqIndAtNode(next_bgInd,modelLoop);
+    				  // The above may not be necessary here I set a flag
+    				  // to true that the model has been used in a forecast
+    				  forecastModel.set_UsedInForecast(true);
     			  }
     		  }
     	  }
       }
-      System.out.println("222222Size of Hype List ="+hypList.size());
+      //System.out.println("222222Size of Hype List ="+hypList.size());
     }
+    ArrayList<PointEqkSource> sourceList = createStepSources(hypList);
+    createRateFile(sourceList);
+    /**
+     * no remove all model elements
+     */
+    PurgeMainshockList.removeModels(STEP_AftershockForecastList);
+    
     sourceList = createStepSources(hypList);
     //createRateFile(sourceList);
   }
@@ -347,7 +359,7 @@ public class STEP_main {
 		  if(rate ==0)
 			  continue;
 		  else if(rate !=0){
-			  System.out.println("Writing out sources with rates not zero");
+			  //System.out.println("Writing out sources with rates not zero");
 			  PointEqkSource source = new PointEqkSource(loc,magDist,
 					                  RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
 					                  RegionDefaults.DIP,RegionDefaults.minForecastMag);
@@ -361,7 +373,7 @@ public class STEP_main {
   	ArrayList<HypoMagFreqDistAtLoc> hypForecastList = bgGrid.getMagDistList();
   	ArrayList<HypoMagFreqDistAtLoc> stepHypForecastList = new ArrayList <HypoMagFreqDistAtLoc>();
   	int size = hypForecastList.size();
-  	System.out.println("Size of BG magDist list = "+size);
+  	//System.out.println("Size of BG magDist list = "+size);
   	for(int i=0;i<size;++i){
   		HypoMagFreqDistAtLoc hypForcast = hypForecastList.get(i);
   		Location loc = hypForcast.getLocation();
