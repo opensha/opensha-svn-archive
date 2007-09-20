@@ -118,7 +118,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	  }
 	  
 	  private double convertToProb(double rate){
-		  return (1-Math.pow(Math.E, -1*rate*RegionDefaults.forecastLengthDays));
+		  return (1-Math.exp(-1*rate*RegionDefaults.forecastLengthDays));
 	  }
 	 
 	  /**
@@ -155,7 +155,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	  
 	  
 	  private double convertToRate(double prob){
-		  double linProb = Math.pow(Math.E, prob);
+		  double linProb = Math.exp(prob);
 		  return (-1*Math.log(1-linProb)/RegionDefaults.forecastLengthDays);
 	  }
 	  /**
