@@ -1429,6 +1429,24 @@ public class A_FaultSegmentedSourceGenerator {
 				}
 		}
 	}
+
+	/**
+	 * This computes the total final probability of a segment having an event larger than
+	 * or equal to the given magnitude.
+	 */
+	public double computeSegProbAboveMag(double mag, int segIndex) {
+		double segProbAboveMag=1;
+		for(int rup=0; rup < num_rup; rup++)
+			if (rupSrcMapping.containsKey(rup))
+				if(rupInSeg[segIndex][rup]==1) {
+					FaultRuptureSource src = sourceList.get(rupSrcMapping.get(rup));
+					segProbAboveMag *= (1-src.computeTotalProbAbove(mag));
+				}
+		return 1.0-segProbAboveMag;
+	}
+
+	
+	
 	
 	/**
 	 * This gives an array of short names for each rupture (this is static so that GUIs can get this info

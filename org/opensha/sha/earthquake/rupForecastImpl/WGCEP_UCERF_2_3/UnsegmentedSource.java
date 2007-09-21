@@ -13,6 +13,7 @@ import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -985,11 +986,18 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 	public int getNumRuptures() { return totNumRups; }
 
-
+	
 	/**
 	 * This gets the ProbEqkRupture object for the nth Rupture
 	 */
 	public ProbEqkRupture getRupture(int nthRupture){
+		return getRupture(nthRupture, true);
+	}
+
+	/**
+	 * This gets the ProbEqkRupture object for the nth Rupture
+	 */
+	private ProbEqkRupture getRupture(int nthRupture, boolean includeEmpCorr){
 		int numMags = mags.size();
 		double mag=0, rupLen=0;
 		int numRups=0, tempNumRups=0, iMag=-1;
@@ -1019,7 +1027,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		probEqkRupture.setMag(mag);
 		// set probability
 	    double empiricalCorr=1;
-	    if(empiricalModel != null) {
+	    if(empiricalModel != null && includeEmpCorr) {
 	    	empiricalCorr = empiricalModel.getCorrection(rupSurf);
 	    }
 
@@ -1029,6 +1037,24 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 
 		return probEqkRupture;
+	}
+	
+	
+	/**
+	 * This returns the source gain
+	 * @return
+	 */
+	public double getSourceGain() {
+		double totProb=0, totProbEmp=0;
+		ProbEqkRupture tempRup;
+		for(int i=0; i<getNumRuptures(); i++) {
+			tempRup = getRupture(i);
+			totProb+=Math.log(1-tempRup.getProbability());
+			tempRup = getRupture(i, false);
+			totProbEmp+=Math.log(1-tempRup.getProbability());
+
+		}
+		return (1 - Math.exp(totProbEmp))/(1 - Math.exp(totProb));
 	}
 
 
