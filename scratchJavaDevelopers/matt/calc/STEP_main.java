@@ -11,6 +11,7 @@ import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 
 import java.io.FileWriter;
@@ -264,32 +265,31 @@ public class STEP_main {
       double bgSumOver5, seqSumOver5;
       
       
-      ListIterator backGroundIt = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsIterator();
-       //System.out.println("Number of Forecast locs = "+
-    		  //forecastModel.getAfterShockZone().getNumGridLocs());
-      //System.out.println("Size of Hype List ="+hypList.size());
-      while (backGroundIt.hasNext()){
-    	  bgLoc = (Location)backGroundIt.next();
+      LocationList bgLocList = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();
+      int bgRegionSize = bgLocList.size();
+      LocationList aftershockZoneList = forecastModel.getAfterShockZone().getGridLocationsList();
+      int asZoneSize = aftershockZoneList.size();
+
+      
+      for(int k=0;k<bgRegionSize;++k){
+    	  bgLoc = bgLocList.getLocationAt(k);
     	  ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
-    	  while (seqIt.hasNext()){
-    		  seqLoc = (Location)seqIt.next();
+    	  for(int g=0;g<asZoneSize;++g){
+    		  seqLoc = aftershockZoneList.getLocationAt(g);
     		  if (seqLoc != null){
     			  if (bgLoc.equalsLocation(seqLoc)){
-    				  int nextSeqInd = seqIt.nextIndex()-1;
-    				  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(nextSeqInd);
-    				  int next_bgInd = backGroundIt.nextIndex()-1;
-    			 
-    				  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(next_bgInd);
+    				  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(g);
+    				  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(k);
     				  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
     				  seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;
     				  if (seqSumOver5 > bgSumOver5) {
-    					  HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(next_bgInd);
+    					  HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(k);
     					  Location loc= hypoMagDistAtLoc.getLocation();
-    					  hypList.set(next_bgInd, new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),loc));
-    					  bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),next_bgInd);
+    					  hypList.set(k, new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),loc));
+    					  bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),k);
     					  // record the index of this aftershock sequence in an array in
     					  // the background so we know to save the sequence (or should it just be archived somehow now?)
-    					  bgGrid.setSeqIndAtNode(next_bgInd,modelLoop);
+    					  bgGrid.setSeqIndAtNode(k,modelLoop);
     					  // The above may not be necessary here I set a flag
     					  // to true that the model has been used in a forecast
     					  forecastModel.set_UsedInForecast(true);
