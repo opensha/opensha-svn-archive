@@ -15,6 +15,8 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.region.EvenlyGriddedNoCalRegion;
+import org.opensha.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.data.region.EvenlyGriddedWG02_Region;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterAPI;
@@ -71,7 +73,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		int numSources = sources.length; // A-Faults, B-Faults, Non-CA B-Faults, Background, C-Zones, Total
 
-		HSSFSheet allCA_RegionSheet = workbook.createSheet("All CA Region");
+		HSSFSheet allCA_RegionSheet = workbook.createSheet("Entire Region");
 		HSSFRow row1, row2;
 		
 		
@@ -156,7 +158,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			for(int i=0; i<aFaultNames.length; ++i) {
 				DiscretizedFuncAPI aFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(aFaultNames[i]).createRow(startRowIndex+erfIndex);
-				row1.createCell((short)0).setCellValue("Branch "+(i+1));
+				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
 				ucerf2.getProbForA_Fault(aFaultNames[i], aFaultProbDist, region);
 				for(int magIndex=0; magIndex<mags.length; ++magIndex)
 					row1.createCell((short)(magIndex+1)).setCellValue(aFaultProbDist.getY(magIndex));
@@ -166,7 +168,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			for(int i=0; i<bFaultNames.length; ++i) {
 				DiscretizedFuncAPI bFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(bFaultNames[i]).createRow(startRowIndex+erfIndex);
-				row1.createCell((short)0).setCellValue("Branch "+(i+1));
+				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
 				ucerf2.getProbsForB_Fault(bFaultNames[i], bFaultProbDist, region);
 				for(int magIndex=0; magIndex<mags.length; ++magIndex)
 					row1.createCell((short)(magIndex+1)).setCellValue(bFaultProbDist.getY(magIndex));
@@ -391,12 +393,14 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_RELM.xls", null);
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_RELM.xls", null);
-		//plotter.plotTotalProbHistogramsAboveMag(8.0, "ProbabilityContributions_30yrs_RELM.xls", null);
-		plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
 
 	}
 

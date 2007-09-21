@@ -50,10 +50,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
 	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-	private final static String A_FAULT_SEGMENTS_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentModelsF2.1.txt";
-	private final static String A_FAULT_SEGMENTS_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentModelsF2.2.txt";
-	private final static String UNSEGMENTED_MODEL1 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultUnsegmentedModelsF2.1.txt";
-	private final static String UNSEGMENTED_MODEL2 = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultUnsegmentedModelsF2.2.txt";
+	private final static String A_FAULT_SEGMENTS_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentModels.txt";
+	private final static String UNSEGMENTED_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultUnsegmentedModels.txt";
 
 	private ArrayList<EventRates> eventRatesList; // Location list where event rates are available
 	
@@ -75,16 +73,11 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		this.isUnsegmented = isUnsegmented;
 		//	find the deformation model
 		String fileName=null;
-		String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
 		// get the A-Fault filename based on selected fault model
 		if(isUnsegmented)  {
-			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = UNSEGMENTED_MODEL1;
-			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = UNSEGMENTED_MODEL2;
-			else throw new RuntimeException("Unsupported Fault Model");
+			fileName = UNSEGMENTED_MODEL;
 		} else { 
-			if(faultModelName.equalsIgnoreCase("F2.1")) fileName = A_FAULT_SEGMENTS_MODEL1;
-			else if((faultModelName.equalsIgnoreCase("F2.2"))) fileName = A_FAULT_SEGMENTS_MODEL2;
-			else throw new RuntimeException("Unsupported Fault Model");
+			fileName = A_FAULT_SEGMENTS_MODEL;
 		}
 		this.loadSegmentModels(fileName);
 		readSegEventRates();

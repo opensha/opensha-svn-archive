@@ -16,6 +16,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 
 /**
@@ -24,152 +25,94 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
  * @author vipingupta
  *
  */
-public class WriteTimeDepRupProbAndGain {
+public class WriteTimeDepUnsegmentedProbAndGain {
 	
 	
 	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
-		"Rupture Gain, Segment Probability, Segment Gain, Segment Rate, and Segment Recurrence"+
-		" Interval (each on a different sheet) for all Type-A fault segmented models,"+
+		"Rupture Gain "+
+		"  (each on a different sheet) for all Type-A fault unsegmented models,"+
 		" and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
 		" sheet, where those that vary between branches are in bold typeface.  The total aggregated"+
 		" rupture probability for each fault is given at the bottom of the list for each fault."+
 		" The third-to-last column gives the weighted average value (over all logic tree branches, where the weights"+
-		" are given on row 147 on the rupture-related sheets and row 52 on the segment-related sheets.  The last"+
+		" are given on row 147 on the rupture-related sheets.  The last"+
 		" two columns give the Min and Max, respectively, among all the logic-tree"+
 		" branches. \"Gain\" is defined as the ratio of the probability to the Poisson probability.  Note" +
 		" that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
 		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
-		" Appendix N). The \"Segment Rate\" and \"Segment Recurrence Interval\" sheets give data on the annual"+
-		" rate of events and recurrence interval, respectively, on each segment.";
+		" Appendix N). ";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
 	private UCERF2 ucerf2;
-	private HSSFSheet rupProbSheet, rupGainSheet, segProbSheet, segGainSheet, rupProbSheet67 ;
-	private HSSFSheet adjustableParamsSheet, readmeSheet, segRateSheet, segRecurIntvSheet;
+	private HSSFSheet rupProbSheet, rupGainSheet, rupProbSheet67 ;
+	private HSSFSheet adjustableParamsSheet, readmeSheet;
 	private int loginTreeBranchIndex;
 	
 	private ArrayList<String> adjustableParamNames;
-	private ArrayList<Double> segProbWtAve, segProbMin, segProbMax;
 	private ArrayList<Double> rupProbWtAve, rupProbMin, rupProbMax;
 	private ArrayList<Double> rupProbWtAve67, rupProbMin67, rupProbMax67;
-	private ArrayList<Double> segGainWtAve, segGainMin, segGainMax;
 	private ArrayList<Double> rupGainWtAve, rupGainMin, rupGainMax;
-	private ArrayList<Double> segRateWtAve, segRateMin, segRateMax;
-	private ArrayList<Integer>  segRecurIntvMin, segRecurIntvMax;
-	private ArrayList<Double> segRecurIntvWtAve;
+	private ArrayList<Integer> unsegRowIndex, unsegWtAvgListIndex;
 	private HSSFCellStyle boldStyle;
 	
 	private static double DURATION ;
-	private  static Boolean SEG_DEP_APERIODICITY ;
 	private  static String PROB_MODEL_VAL;
 	private String FILENAME;
 	private double MAG_67=6.7;
+	private String fltNames[];
 	
 	
-	public WriteTimeDepRupProbAndGain() {
+	public WriteTimeDepUnsegmentedProbAndGain() {
 		this(new UCERF2());
 	}
 	
 
-	public WriteTimeDepRupProbAndGain(UCERF2 ucerf2) {
+	public WriteTimeDepUnsegmentedProbAndGain(UCERF2 ucerf2) {
 		this.ucerf2 = ucerf2;
 		fillAdjustableParams();
+		
 		// Poisson 30 yrs
 		DURATION = 30;
-		 FILENAME = "RupProbs_Pois_30yr.xls";
+		FILENAME = "UnsegmentedRupProbs_Pois_30yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 		makeExcelSheet(ucerf2);
+		
 		// Poisson 5 yrs
-		DURATION = 5;
-		FILENAME = "RupProbs_Pois_5yr.xls";
+		/*DURATION = 5;
+		FILENAME = "UnsegmentedRupProbs_Pois_5yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 		makeExcelSheet(ucerf2);
+		
 		// Empirical 30 yrs
 		DURATION = 30;
-		FILENAME = "RupProbs_Empirical_30yr.xls";
+		FILENAME = "UnsegmentedRupProbs_Empirical_30yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_EMPIRICAL;
 		makeExcelSheet(ucerf2);
+		
 		// Empirical 5 yrs
 		DURATION = 5;
-		FILENAME = "RupProbs_Empirical_5yr.xls";
+		FILENAME = "UnsegmentedRupProbs_Empirical_5yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_EMPIRICAL;
 		makeExcelSheet(ucerf2);
 		
-		
-		// BPT 30 yrs seg Depenedent Aper
-		DURATION = 30;
-		FILENAME = "RupProbs_BPT_30yr_SegDepAper.xls";
-		SEG_DEP_APERIODICITY = new Boolean(true);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
-		//	BPT 5 yrs seg Depenedent Aper
-		DURATION = 5;
-		FILENAME = "RupProbs_BPT_5yr_SegDepAper.xls";
-		SEG_DEP_APERIODICITY = new Boolean(true);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
-		
-		// BPT 30 yrs seg Const Aper
-		DURATION = 30;
-		FILENAME = "RupProbs_BPT_30yr_ConstAper.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
-		
-		//	BPT 5 yrs seg const Aper
-		DURATION = 5;
-		FILENAME = "RupProbs_BPT_5yr_ConstAper.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
 		
 		// Prob Model
 		paramNames.add(UCERF2.PROB_MODEL_PARAM_NAME);
 		ParamOptions options = new ParamOptions();
 		options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 0.3);
-		options.addValueWeight(UCERF2.PROB_MODEL_BPT, 0.7);
-		paramValues.add(options);
-		
-		//	BPT parameter setting
-		paramNames.add(UCERF2.APERIODICITY_PARAM_NAME);
-		options = new ParamOptions();
-		options.addValueWeight(new Double(0.3), 0.2);
-		options.addValueWeight(new Double(0.5), 0.5);
-		options.addValueWeight(new Double(0.7), 0.3);
+		options.addValueWeight(UCERF2.PROB_MODEL_POISSON, 0.7);
 		paramValues.add(options);
 		
 		DURATION = 5;
-		FILENAME = "RupProbs_Emp_BPT_5yr.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
+		FILENAME = "UnsegmentedRupProbs_Emp_Pois_5yr.xls";
 		makeExcelSheet(ucerf2);
 		
 		DURATION = 30;
-		FILENAME = "RupProbs_Emp_BPT_30yr.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
-		makeExcelSheet(ucerf2);
-		
-		
-		paramNames.remove(UCERF2.PROB_MODEL_PARAM_NAME);
-		paramValues.remove(paramValues.size()-2);
-		//		BPT 30 yrs seg const Aper
-		DURATION = 30;
-		FILENAME = "RupProbs_BPT_30yr_ConstAperBranches.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
-		
-		//	BPT 5 yrs seg const Aper
-		DURATION = 5;
-		FILENAME = "RupProbs_BPT_5yr_ConstAperBranches.xls";
-		SEG_DEP_APERIODICITY = new Boolean(false);
-		PROB_MODEL_VAL = UCERF2.PROB_MODEL_BPT;
-		makeExcelSheet(ucerf2);
-		
-		
-		
+		FILENAME = "UnsegmentedRupProbs_Emp_Pois_30yr.xls";
+		makeExcelSheet(ucerf2);*/
 	}
 
 
@@ -183,16 +126,8 @@ public class WriteTimeDepRupProbAndGain {
 		rupProbSheet = wb.createSheet("Rupture Probability");
 		rupProbSheet67 = wb.createSheet("Rup Prob for Mag>6.7");
 		rupGainSheet = wb.createSheet("Rupture Gain");
-		segProbSheet = wb.createSheet("Segment Probability");
-		segGainSheet = wb.createSheet("Segment Gain");
-		segRateSheet = wb.createSheet("Segment Rate");
-		segRecurIntvSheet = wb.createSheet("Segment Recurrence Interval");
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(PROB_MODEL_VAL);
-		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration 
-		if(ucerf2.getAdjustableParameterList().containsParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME))
-			ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).setValue(SEG_DEP_APERIODICITY);
-		
-		
+		ucerf2.getTimeSpan().setDuration(DURATION); // Set duration 		
 		
 		// Save names of all adjustable parameters
 		ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
@@ -247,7 +182,7 @@ public class WriteTimeDepRupProbAndGain {
 	 *
 	 */
 	private void writeWeightAvMinMaxCols() {
-		int rupRowIndex = 0, segRowIndex=0;
+		int rupRowIndex = 0;
 		int colIndex = loginTreeBranchIndex+1;
 		
 		rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
@@ -259,33 +194,23 @@ public class WriteTimeDepRupProbAndGain {
 		rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
 		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
 		rupGainSheet.createRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
-		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
-		segProbSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
-		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
-		segGainSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
-		segRateSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
-		segRateSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
-		segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Weighted Average");
-		segRecurIntvSheet.createRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue("Min");
-		segRecurIntvSheet.createRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue("Max");
+		
 		++rupRowIndex;
-		++segRowIndex;
 		++rupRowIndex;
-		++segRowIndex;
 		
 		// loop over all faults
-		int totRupsIndex=0, totSegsIndex=0;
+		int totRupsIndex=0;
+		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.SEGMENTED_A_FAULT_MODEL);
+		ucerf2.updateForecast();
 		ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
-		for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex, ++segRowIndex) {
+		for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex) {
 			A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
 			
 			int numRups = sourceGen.getNumRupSources();
 			++rupRowIndex;
 			// loop over all ruptures
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex, ++totRupsIndex) {
+				//System.out.println("33333:"+sourceGen.getFaultSegmentData().getFaultName()+"="+rupRowIndex);
 				rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve.get(totRupsIndex));
 				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin.get(totRupsIndex));
 				rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax.get(totRupsIndex));
@@ -297,7 +222,17 @@ public class WriteTimeDepRupProbAndGain {
 				rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupGainMax.get(totRupsIndex));
 				++rupRowIndex;
 			}
-
+			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve.get(totRupsIndex));
+			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin.get(totRupsIndex));
+			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax.get(totRupsIndex));
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve67.get(totRupsIndex));
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin67.get(totRupsIndex));
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax67.get(totRupsIndex));
+			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGainWtAve.get(totRupsIndex));
+			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupGainMin.get(totRupsIndex));
+			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupGainMax.get(totRupsIndex));
+			++rupRowIndex;
+			++totRupsIndex;
 			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProbWtAve.get(totRupsIndex));
 			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+1)).setCellValue(rupProbMin.get(totRupsIndex));
 			rupProbSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupProbMax.get(totRupsIndex));
@@ -309,28 +244,6 @@ public class WriteTimeDepRupProbAndGain {
 			rupGainSheet.getRow(rupRowIndex).createCell((short)(colIndex+2)).setCellValue(rupGainMax.get(totRupsIndex));
 			++totRupsIndex;
 			++rupRowIndex;
-			
-			
-			FaultSegmentData faultSegData = sourceGen.getFaultSegmentData();
-			int numSegs = faultSegData.getNumSegments();
-			++segRowIndex;
-			
-			// loop over all segments
-			for(int segIndex=0; segIndex<numSegs; ++segIndex, ++totSegsIndex) {
-				segProbSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segProbWtAve.get(totSegsIndex));
-				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segProbMin.get(totSegsIndex));
-				segProbSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segProbMax.get(totSegsIndex));
-				segGainSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segGainWtAve.get(totSegsIndex));
-				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segGainMin.get(totSegsIndex));
-				segGainSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segGainMax.get(totSegsIndex));
-				segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRateWtAve.get(totSegsIndex));
-				segRateSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segRateMin.get(totSegsIndex));
-				segRateSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segRateMax.get(totSegsIndex));
-				segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(Math.round(segRecurIntvWtAve.get(totSegsIndex)));
-				segRecurIntvSheet.getRow(segRowIndex).createCell((short)(colIndex+1)).setCellValue(segRecurIntvMin.get(totSegsIndex));
-				segRecurIntvSheet.getRow(segRowIndex).createCell((short)(colIndex+2)).setCellValue(segRecurIntvMax.get(totSegsIndex));
-				++segRowIndex;
-			}
 		}
 	}
 	
@@ -363,6 +276,13 @@ public class WriteTimeDepRupProbAndGain {
 		options = new ParamOptions();
 		options.addValueWeight(new Double(1e-4), 0.5);
 		options.addValueWeight(new Double(1e10), 0.5);
+		paramValues.add(options);
+		
+		//	A-Fault solution type
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
 		paramValues.add(options);
 	
 	
@@ -404,24 +324,8 @@ public class WriteTimeDepRupProbAndGain {
 				
 				System.out.println("Doing run:"+(this.loginTreeBranchIndex+1));
 				ucerf2.updateForecast();
-				ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
+				ArrayList aFaultsList = ucerf2.get_A_FaultSourceGenerators();
 				if(this.loginTreeBranchIndex==0) {
-					
-					segProbWtAve = new ArrayList<Double>();
-					segProbMin = new ArrayList<Double>(); 
-					segProbMax = new ArrayList<Double>();
-					
-					segGainWtAve = new ArrayList<Double>();
-					segGainMin = new ArrayList<Double>(); 
-					segGainMax = new ArrayList<Double>();
-					
-					segRateWtAve = new ArrayList<Double>();
-					segRateMin = new ArrayList<Double>(); 
-					segRateMax = new ArrayList<Double>();
-					
-					segRecurIntvWtAve = new ArrayList<Double>();
-					segRecurIntvMin = new ArrayList<Integer>(); 
-					segRecurIntvMax = new ArrayList<Integer>();
 					
 					rupProbWtAve = new ArrayList<Double>();
 					rupProbMin = new ArrayList<Double>();
@@ -435,25 +339,24 @@ public class WriteTimeDepRupProbAndGain {
 					rupGainMin = new ArrayList<Double>();
 					rupGainMax = new ArrayList<Double>();
 					
+					unsegRowIndex = new ArrayList<Integer>();
+					unsegWtAvgListIndex = new ArrayList<Integer>();
 					
-					int rupRowIndex = 0, segRowIndex=0;
+					
+					int rupRowIndex = 0;
 					int colIndex = loginTreeBranchIndex;
 					rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Rupture Name");
 					rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Rupture Name");
 					rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Rupture Name");
-					segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
-					segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
-					segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
-					segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Segment Name");
 					++rupRowIndex;
-					++segRowIndex;
 					++rupRowIndex;
-					++segRowIndex;
-					
+					ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators=
+						(ArrayList<A_FaultSegmentedSourceGenerator>)aFaultsList;
+					fltNames = new String[aFaultGenerators.size()];
 					// loop over all faults
-					for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex, ++segRowIndex) {
+					for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex) {
 						A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
-						
+						fltNames[fltGenIndex] = sourceGen.getFaultSegmentData().getFaultName();
 						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
 						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
 						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
@@ -461,25 +364,48 @@ public class WriteTimeDepRupProbAndGain {
 						++rupRowIndex;
 						// loop over all ruptures
 						for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+							//System.out.println("111111: rupRowIndex="+rupRowIndex+","+sourceGen.getLongRupName(rupIndex));
 							rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
 							rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
 							rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
-							++rupRowIndex;
-							rupProbWtAve.add(0.0);
+							
+							
 							rupProbWtAve.add(0.0);
 							rupProbMin.add(Double.MAX_VALUE);
 							rupProbMax.add(0.0);
 							
-							rupProbWtAve67.add(0.0);
+							
 							rupProbWtAve67.add(0.0);
 							rupProbMin67.add(Double.MAX_VALUE);
 							rupProbMax67.add(0.0);
 							
-							rupGainWtAve.add(0.0);
+							
 							rupGainWtAve.add(0.0);
 							rupGainMin.add(Double.MAX_VALUE);
 							rupGainMax.add(0.0);
+							
+							++rupRowIndex;
 						}
+						unsegRowIndex.add(rupRowIndex); // row index for unsegmented
+						unsegWtAvgListIndex.add(rupProbWtAve.size());
+						//System.out.println("111111: rupRowIndex="+rupRowIndex+",Unsegmented");
+						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+						
+						rupProbWtAve.add(0.0);
+						rupProbMin.add(Double.MAX_VALUE);
+						rupProbMax.add(0.0);
+						
+						rupProbWtAve67.add(0.0);
+						rupProbMin67.add(Double.MAX_VALUE);
+						rupProbMax67.add(0.0);
+						
+						rupGainWtAve.add(0.0);
+						rupGainMin.add(Double.MAX_VALUE);
+						rupGainMax.add(0.0);
+						++rupRowIndex;
+						//System.out.println("111111: rupRowIndex="+rupRowIndex+",WtAve");
 						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
 						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
 						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Gain");
@@ -498,47 +424,11 @@ public class WriteTimeDepRupProbAndGain {
 						
 						++rupRowIndex;
 						
-						segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						FaultSegmentData faultSegData = sourceGen.getFaultSegmentData();
-						int numSegs = faultSegData.getNumSegments();
-						++segRowIndex;
-						// loop over all segments
-						for(int segIndex=0; segIndex<numSegs; ++segIndex) {
-							segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
-							segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
-							segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
-							segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(faultSegData.getSegmentName(segIndex));
-							++segRowIndex;
-							
-							segProbWtAve.add(0.0);
-							segProbMin.add(Double.MAX_VALUE);
-							segProbMax.add(0.0);
-							
-							segGainWtAve.add(0.0);
-							segGainMin.add(Double.MAX_VALUE);
-							segGainMax.add(0.0);
-							
-							segRateWtAve.add(0.0);
-							segRateMin.add(Double.MAX_VALUE);
-							segRateMax.add(0.0);
-							
-							segRecurIntvWtAve.add(0.0);
-							segRecurIntvMin.add(Integer.MAX_VALUE);
-							segRecurIntvMax.add(0);
-						}
-						
 					}
 					rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
-					segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
-					segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
-					segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
-					segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
-					
+										
 					// write adjustable parameters
 					// add a row for each parameter name. Also add a initial blank row for writing Branch names
 					HSSFRow row = this.adjustableParamsSheet.createRow(0);
@@ -557,132 +447,26 @@ public class WriteTimeDepRupProbAndGain {
 				}
 				
 				loginTreeBranchIndex++;
-				int rupRowIndex = 0, segRowIndex=0;
+				int rupRowIndex = 0;
 				int colIndex = loginTreeBranchIndex;
 				rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
-				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
-				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
-				segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
-				segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				adjustableParamsSheet.createRow(0).createCell((short)colIndex).setCellValue("Branch "+loginTreeBranchIndex);
 				
 				++rupRowIndex;
-				++segRowIndex;
+		
 				++rupRowIndex;
-				++segRowIndex;
 				
-				// loop over all faults
-				int totRupsIndex=0, totSegsIndex=0;
-				for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex, ++segRowIndex) {
-					A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
-					
-					int numRups = sourceGen.getNumRupSources();
-					++rupRowIndex;
-					// loop over all ruptures
-					double rupProb, rupGain, rupProb67;
-					for(int rupIndex=0; rupIndex<numRups; ++rupIndex, ++totRupsIndex) {
-						rupProb = sourceGen.getRupSourceProb(rupIndex);
-						
-						// wt and min/max columns
-						rupProbWtAve.set(totRupsIndex, rupProbWtAve.get(totRupsIndex)+newWt*rupProb);
-						if(rupProbMin.get(totRupsIndex) > rupProb) rupProbMin.set(totRupsIndex, rupProb);
-						if(rupProbMax.get(totRupsIndex) < rupProb) rupProbMax.set(totRupsIndex, rupProb);
-						rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
-						
-						rupProb67 = sourceGen.getRupSourceProbAboveMag(rupIndex, MAG_67);
-//						 wt and min/max columns
-						rupProbWtAve67.set(totRupsIndex, rupProbWtAve67.get(totRupsIndex)+newWt*rupProb67);
-						if(rupProbMin67.get(totRupsIndex) > rupProb67) rupProbMin67.set(totRupsIndex, rupProb67);
-						if(rupProbMax67.get(totRupsIndex) < rupProb67) rupProbMax67.set(totRupsIndex, rupProb67);
-						rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
-						
-						rupGain = sourceGen.getRupSourcProbGain(rupIndex);
-						rupGainWtAve.set(totRupsIndex, rupGainWtAve.get(totRupsIndex)+newWt*rupGain);
-						if(rupGainMin.get(totRupsIndex) > rupGain) rupGainMin.set(totRupsIndex, rupGain);
-						if(rupGainMax.get(totRupsIndex) < rupGain) rupGainMax.set(totRupsIndex, rupGain);
-						rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
-						
-						++rupRowIndex;
-					}
-					
-					rupProb = sourceGen.getTotFaultProb();
-					// wt and min/max columns
-					rupProbWtAve.set(totRupsIndex, rupProbWtAve.get(totRupsIndex)+newWt*rupProb);
-					if(rupProbMin.get(totRupsIndex) > rupProb) rupProbMin.set(totRupsIndex, rupProb);
-					if(rupProbMax.get(totRupsIndex) < rupProb) rupProbMax.set(totRupsIndex, rupProb);
-					rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
-					
-					rupProb67 = sourceGen.getTotFaultProb(MAG_67);
-					// wt and min/max columns
-					rupProbWtAve67.set(totRupsIndex, rupProbWtAve67.get(totRupsIndex)+newWt*rupProb67);
-					if(rupProbMin67.get(totRupsIndex) > rupProb67) rupProbMin67.set(totRupsIndex, rupProb67);
-					if(rupProbMax67.get(totRupsIndex) < rupProb67) rupProbMax67.set(totRupsIndex, rupProb67);
-					rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
-					
-					rupGain = sourceGen.getTotFaultProbGain();
-					rupGainWtAve.set(totRupsIndex, rupGainWtAve.get(totRupsIndex)+newWt*rupGain);
-					if(rupGainMin.get(totRupsIndex) > rupGain) rupGainMin.set(totRupsIndex, rupGain);
-					if(rupGainMax.get(totRupsIndex) < rupGain) rupGainMax.set(totRupsIndex, rupGain);
-					rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
-					
-					++totRupsIndex;
-					++rupRowIndex;
-					
-					
-					FaultSegmentData faultSegData = sourceGen.getFaultSegmentData();
-					int numSegs = faultSegData.getNumSegments();
-					++segRowIndex;
-					double segProb, segGain, segRate;
-					int segRecurIntv;
-					// loop over all segments
-					for(int segIndex=0; segIndex<numSegs; ++segIndex, ++totSegsIndex) {
-						segProb = sourceGen.getSegProb(segIndex);
-						//	wt and min/max columns
-						segProbWtAve.set(totSegsIndex, segProbWtAve.get(totSegsIndex)+newWt*segProb);
-						if(segProbMin.get(totSegsIndex) > segProb) segProbMin.set(totSegsIndex, segProb);
-						if(segProbMax.get(totSegsIndex) < segProb) segProbMax.set(totSegsIndex, segProb);
-						segProbSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segProb);
-
-						segGain = sourceGen.getSegProbGain(segIndex);
-						//	wt and min/max columns
-						segGainWtAve.set(totSegsIndex, segGainWtAve.get(totSegsIndex)+newWt*segGain);
-						if(segGainMin.get(totSegsIndex) > segGain) segGainMin.set(totSegsIndex, segGain);
-						if(segGainMax.get(totSegsIndex) < segGain) segGainMax.set(totSegsIndex, segGain);
-						segGainSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segGain);
-						segGainSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segGain);
-						
-						segRate = sourceGen.getFinalSegmentRate(segIndex);
-						//	wt and min/max columns
-						segRateWtAve.set(totSegsIndex, segRateWtAve.get(totSegsIndex)+newWt*segRate);
-						if(segRateMin.get(totSegsIndex) > segRate) segRateMin.set(totSegsIndex, segRate);
-						if(segRateMax.get(totSegsIndex) < segRate) segRateMax.set(totSegsIndex, segRate);
-						segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRate);
-						segRateSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRate);
-						
-						
-						segRecurIntv = Math.round((float) (1/sourceGen.getFinalSegmentRate(segIndex)));
-						//	wt and min/max columns
-						segRecurIntvWtAve.set(totSegsIndex, segRecurIntvWtAve.get(totSegsIndex)+newWt*segRecurIntv);
-						if(segRecurIntvMin.get(totSegsIndex) > segRecurIntv) segRecurIntvMin.set(totSegsIndex, segRecurIntv);
-						if(segRecurIntvMax.get(totSegsIndex) < segRecurIntv) segRecurIntvMax.set(totSegsIndex, segRecurIntv);
-						segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRecurIntv);
-						segRecurIntvSheet.getRow(segRowIndex).createCell((short)colIndex).setCellValue(segRecurIntv);
-						
-						
-						++segRowIndex;
-					}
-				}
-				
+				if(ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.SEGMENTED_A_FAULT_MODEL))
+					rupRowIndex = doForSegmented(
+						(ArrayList<A_FaultSegmentedSourceGenerator>)aFaultsList, newWt, rupRowIndex, colIndex);
+				else 
+					rupRowIndex = doForUnsegmented((ArrayList<UnsegmentedSource>)aFaultsList, newWt, colIndex);
 				rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(newWt);
 				rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(newWt);
-				segProbSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
-				segGainSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
-				segRateSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
-				segRecurIntvSheet.createRow(segRowIndex).createCell((short)colIndex).setCellValue(newWt);
-				
+			
 				// Write adjustable parameters
 				// add a row for each parameter name. Also add a initial blank row for writing Branch names 
 				ParameterList paramList = ucerf2.getAdjustableParameterList();
@@ -706,8 +490,160 @@ public class WriteTimeDepRupProbAndGain {
 			}
 		}
 	}
+
+
+	private int doForSegmented(ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators, double newWt, int rupRowIndex, int colIndex) {
+		// loop over all faults
+		int totRupsIndex=0;
+		for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex) {
+			A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
+
+			int numRups = sourceGen.getNumRupSources();
+			++rupRowIndex;
+			// loop over all ruptures
+			double rupProb, rupGain, rupProb67;
+			for(int rupIndex=0; rupIndex<numRups; ++rupIndex, ++totRupsIndex) {
+				rupProb = sourceGen.getRupSourceProb(rupIndex);
+
+				// wt and min/max columns
+				rupProbWtAve.set(totRupsIndex, rupProbWtAve.get(totRupsIndex)+newWt*rupProb);
+				if(rupProbMin.get(totRupsIndex) > rupProb) rupProbMin.set(totRupsIndex, rupProb);
+				if(rupProbMax.get(totRupsIndex) < rupProb) rupProbMax.set(totRupsIndex, rupProb);
+				rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
+
+				rupProb67 = sourceGen.getRupSourceProbAboveMag(rupIndex, MAG_67);
+//				wt and min/max columns
+				rupProbWtAve67.set(totRupsIndex, rupProbWtAve67.get(totRupsIndex)+newWt*rupProb67);
+				if(rupProbMin67.get(totRupsIndex) > rupProb67) rupProbMin67.set(totRupsIndex, rupProb67);
+				if(rupProbMax67.get(totRupsIndex) < rupProb67) rupProbMax67.set(totRupsIndex, rupProb67);
+				rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
+
+				rupGain = sourceGen.getRupSourcProbGain(rupIndex);
+				rupGainWtAve.set(totRupsIndex, rupGainWtAve.get(totRupsIndex)+newWt*rupGain);
+				if(rupGainMin.get(totRupsIndex) > rupGain) rupGainMin.set(totRupsIndex, rupGain);
+				if(rupGainMax.get(totRupsIndex) < rupGain) rupGainMax.set(totRupsIndex, rupGain);
+				rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
+
+				++rupRowIndex;
+			}
+
+			++totRupsIndex; // skip the unsegmented 
+			++rupRowIndex;
+			rupProb = sourceGen.getTotFaultProb();
+			// wt and min/max columns
+			rupProbWtAve.set(totRupsIndex, rupProbWtAve.get(totRupsIndex)+newWt*rupProb);
+			if(rupProbMin.get(totRupsIndex) > rupProb) rupProbMin.set(totRupsIndex, rupProb);
+			if(rupProbMax.get(totRupsIndex) < rupProb) rupProbMax.set(totRupsIndex, rupProb);
+			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
+
+			rupProb67 = sourceGen.getTotFaultProb(MAG_67);
+			// wt and min/max columns
+			rupProbWtAve67.set(totRupsIndex, rupProbWtAve67.get(totRupsIndex)+newWt*rupProb67);
+			if(rupProbMin67.get(totRupsIndex) > rupProb67) rupProbMin67.set(totRupsIndex, rupProb67);
+			if(rupProbMax67.get(totRupsIndex) < rupProb67) rupProbMax67.set(totRupsIndex, rupProb67);
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
+
+			rupGain = sourceGen.getTotFaultProbGain();
+			rupGainWtAve.set(totRupsIndex, rupGainWtAve.get(totRupsIndex)+newWt*rupGain);
+			if(rupGainMin.get(totRupsIndex) > rupGain) rupGainMin.set(totRupsIndex, rupGain);
+			if(rupGainMax.get(totRupsIndex) < rupGain) rupGainMax.set(totRupsIndex, rupGain);
+			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
+
+			++totRupsIndex;
+			++rupRowIndex;
+
+
+		}
+		return rupRowIndex;
+	}
+	
+	private int doForUnsegmented(ArrayList<UnsegmentedSource> unsegmentedSourceList, double newWt, int colIndex) {
+		// loop over all faults
+		int rupRowIndex=0;
+		for(int fltGenIndex=0; fltGenIndex<fltNames.length; ++fltGenIndex) {
+			
+			rupRowIndex= this.unsegRowIndex.get(fltGenIndex);
+			int wtAveIndex = unsegWtAvgListIndex.get(fltGenIndex);
+			// loop over all ruptures
+			double rupProb, rupGain, rupProb67;
+			
+			// wt and min/max columns
+			if(fltNames[fltGenIndex].equals("San Jacinto")) {
+				UnsegmentedSource unsegmentedSource1 = getUnsegmentedSource("San Jacinto (SB to C)", unsegmentedSourceList);
+				UnsegmentedSource unsegmentedSource2 = getUnsegmentedSource("San Jacinto (CC to SM)", unsegmentedSourceList);
+				
+				double rupProb1 = unsegmentedSource1.computeTotalProb();
+				double rupProb2 = unsegmentedSource2.computeTotalProb();
+				rupProb = 1-(1-rupProb1)*(1-rupProb2);
+				
+				double rupProb67_1 = unsegmentedSource1.computeTotalProbAbove(MAG_67);
+				double rupProb67_2 = unsegmentedSource2.computeTotalProbAbove(MAG_67);
+				rupProb67 = 1-(1-rupProb67_1)*(1-rupProb67_2);
+				
+				double rupGain1 = unsegmentedSource1.getSourceGain();
+				double rupGain2 = unsegmentedSource2.getSourceGain();
+				rupGain = rupProb/(1-(1-rupProb1/rupGain1)*(1-rupProb2/rupGain2));
+			} else {
+				UnsegmentedSource unsegmentedSource = getUnsegmentedSource(fltNames[fltGenIndex], unsegmentedSourceList);
+				rupProb = unsegmentedSource.computeTotalProb();
+				rupProb67 = unsegmentedSource.computeTotalProbAbove(this.MAG_67);
+				rupGain = unsegmentedSource.getSourceGain();
+			}
+			rupProbWtAve.set(wtAveIndex, rupProbWtAve.get(wtAveIndex)+newWt*rupProb);
+			if(rupProbMin.get(wtAveIndex) > rupProb) rupProbMin.set(wtAveIndex, rupProb);
+			if(rupProbMax.get(wtAveIndex) < rupProb) rupProbMax.set(wtAveIndex, rupProb);
+			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
+
+			
+			//wt and min/max columns
+			
+			rupProbWtAve67.set(wtAveIndex, rupProbWtAve67.get(wtAveIndex)+newWt*rupProb67);
+			if(rupProbMin67.get(wtAveIndex) > rupProb67) rupProbMin67.set(wtAveIndex, rupProb67);
+			if(rupProbMax67.get(wtAveIndex) < rupProb67) rupProbMax67.set(wtAveIndex, rupProb67);
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
+
+			// gain
+			
+			rupGainWtAve.set(wtAveIndex, rupGainWtAve.get(wtAveIndex)+newWt*rupGain);
+			if(rupGainMin.get(wtAveIndex) > rupGain) rupGainMin.set(wtAveIndex, rupGain);
+			if(rupGainMax.get(wtAveIndex) < rupGain) rupGainMax.set(wtAveIndex, rupGain);
+			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
+
+			++rupRowIndex;
+			++wtAveIndex;
+			// wt and min/max columns
+			rupProbWtAve.set(wtAveIndex, rupProbWtAve.get(wtAveIndex)+newWt*rupProb);
+			if(rupProbMin.get(wtAveIndex) > rupProb) rupProbMin.set(wtAveIndex, rupProb);
+			if(rupProbMax.get(wtAveIndex) < rupProb) rupProbMax.set(wtAveIndex, rupProb);
+			rupProbSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb);
+
+			
+			// wt and min/max columns
+			rupProbWtAve67.set(wtAveIndex, rupProbWtAve67.get(wtAveIndex)+newWt*rupProb67);
+			if(rupProbMin67.get(wtAveIndex) > rupProb67) rupProbMin67.set(wtAveIndex, rupProb67);
+			if(rupProbMax67.get(wtAveIndex) < rupProb67) rupProbMax67.set(wtAveIndex, rupProb67);
+			rupProbSheet67.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupProb67);
+
+			rupGainWtAve.set(wtAveIndex, rupGainWtAve.get(wtAveIndex)+newWt*rupGain);
+			if(rupGainMin.get(wtAveIndex) > rupGain) rupGainMin.set(wtAveIndex, rupGain);
+			if(rupGainMax.get(wtAveIndex) < rupGain) rupGainMax.set(wtAveIndex, rupGain);
+			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
+
+		}
+		return (rupRowIndex+3);
+	}
+	
+	
+	private UnsegmentedSource getUnsegmentedSource(String srcName, 
+			ArrayList<UnsegmentedSource> srcList) {
+		for(int i=0; i<srcList.size(); ++i) {
+			if(srcList.get(i).getFaultSegmentData().getFaultName().equals(srcName))
+				return srcList.get(i);
+		}
+		return null;
+	}
 	
 	public static void main(String []args) {
-		WriteTimeDepRupProbAndGain rupProbWriter = new WriteTimeDepRupProbAndGain();
+		WriteTimeDepUnsegmentedProbAndGain rupProbWriter = new WriteTimeDepUnsegmentedProbAndGain();
 	}
 }
