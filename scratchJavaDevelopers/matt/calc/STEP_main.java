@@ -273,25 +273,27 @@ public class STEP_main {
     	  ListIterator seqIt = forecastModel.getAfterShockZone().getGridLocationsIterator();
     	  while (seqIt.hasNext()){
     		  seqLoc = (Location)seqIt.next();
-    		  if (bgLoc.equalsLocation(seqLoc)){
-    			  int nextSeqInd = seqIt.nextIndex()-1;
-    			  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(nextSeqInd);
-    			  int next_bgInd = backGroundIt.nextIndex()-1;
+    		  if (seqLoc != null){
+    			  if (bgLoc.equalsLocation(seqLoc)){
+    				  int nextSeqInd = seqIt.nextIndex()-1;
+    				  seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(nextSeqInd);
+    				  int next_bgInd = backGroundIt.nextIndex()-1;
     			 
-    			  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(next_bgInd);
-    			  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
-    			  seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;
-    			  if (seqSumOver5 > bgSumOver5) {
-    				  HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(next_bgInd);
-    				  Location loc= hypoMagDistAtLoc.getLocation();
-    				  hypList.set(next_bgInd, new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),loc));
-    				  bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),next_bgInd);
-    			      // record the index of this aftershock sequence in an array in
-    				  // the background so we know to save the sequence (or should it just be archived somehow now?)
-    				  bgGrid.setSeqIndAtNode(next_bgInd,modelLoop);
-    				  // The above may not be necessary here I set a flag
-    				  // to true that the model has been used in a forecast
-    				  forecastModel.set_UsedInForecast(true);
+    				  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(next_bgInd);
+    				  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);
+    				  seqSumOver5 = seqDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);;
+    				  if (seqSumOver5 > bgSumOver5) {
+    					  HypoMagFreqDistAtLoc hypoMagDistAtLoc= hypList.get(next_bgInd);
+    					  Location loc= hypoMagDistAtLoc.getLocation();
+    					  hypList.set(next_bgInd, new HypoMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),loc));
+    					  bgGrid.setMagFreqDistAtLoc(seqDistAtLoc.getFirstMagFreqDist(),next_bgInd);
+    					  // record the index of this aftershock sequence in an array in
+    					  // the background so we know to save the sequence (or should it just be archived somehow now?)
+    					  bgGrid.setSeqIndAtNode(next_bgInd,modelLoop);
+    					  // The above may not be necessary here I set a flag
+    					  // to true that the model has been used in a forecast
+    					  forecastModel.set_UsedInForecast(true);
+    				  }
     			  }
     		  }
     	  }
@@ -301,7 +303,10 @@ public class STEP_main {
     createStepSources(hypList);
     createRateFile(sourceList);
     /**
-     * no remove all model elements
+     * now remove all model elements that are newer than
+     * 7 days (or whatever is defined in RegionDefaults)
+     * -OR- did not produce rates higher than the background
+     * level anywhere.
      */
    // PurgeMainshockList.removeModels(STEP_AftershockForecastList);
     //createRateFile(sourceList);

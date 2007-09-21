@@ -70,6 +70,7 @@ public final class DistDecayFromRupCalc {
   public static double[] getDensity(ObsEqkRupture mainshock,
                              EvenlyGriddedGeographicRegionAPI aftershockZone) {
     Location pointRupture;
+    Location gLoc;
     double[] nodePerc = null;
 
     //get the iterator of all the locations within that region
@@ -81,7 +82,7 @@ public final class DistDecayFromRupCalc {
     double[] nodeDistFromFault = new double[numLocs];
     double[] invDist = new double[numLocs];
     nodePerc = new double[numLocs];
-
+    
     if (mainshock.getRuptureSurface() == null) {
       // this is a point source fault so get the sum squared distance
       // from all grid nodes to the point source.
@@ -100,21 +101,31 @@ public final class DistDecayFromRupCalc {
       EvenlyGriddedSurfaceAPI ruptureSurface = mainshock.getRuptureSurface();
 
       while (zoneIT.hasNext()) {
-        nodeDistFromFault[ind++] = getRupDist(ruptureSurface,
+    	  gLoc = (Location) zoneIT.next();
+    	  if (gLoc!=null){
+    		  nodeDistFromFault[ind++] = getRupDist(ruptureSurface,
                                               (Location) zoneIT.next());
-        totDistFromFault = totDistFromFault +
-            Math.pow(nodeDistFromFault[ind - 1], decayParam);
+    		  totDistFromFault = totDistFromFault +
+    		  	Math.pow(nodeDistFromFault[ind - 1], decayParam);
+    	    	  }
+    	  else
+    		  nodeDistFromFault[ind++] = -1.0;
       }
     }
 
     for (int indLoop = 0; indLoop < numLocs; ++indLoop) {
-      invDist[indLoop] = totDistFromFault /
-          Math.pow(nodeDistFromFault[indLoop], decayParam);
-      sumInvDist = sumInvDist + invDist[indLoop];
+    	if (nodeDistFromFault[indLoop] > 0){
+    		invDist[indLoop] = totDistFromFault /
+    			Math.pow(nodeDistFromFault[indLoop], decayParam);
+    		sumInvDist = sumInvDist + invDist[indLoop];
+    	}
     }
 
     for (int indLoop = 0; indLoop < ind - 1; ++indLoop) {
-      nodePerc[indLoop] = invDist[indLoop] / sumInvDist;
+    	if (nodeDistFromFault[indLoop] > 0)
+    		nodePerc[indLoop] = invDist[indLoop] / sumInvDist;
+    	else
+    		nodePerc[indLoop] = 0;
     }
 
     return nodePerc;

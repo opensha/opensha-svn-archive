@@ -27,12 +27,16 @@ public class PurgeMainshockList {
 	           
 			msAge = mainshockModel.getDaysSinceMainshockStart();
 			//First check if the MS is too recent
-			if (msAge <= RegionDefaults.daysFromQDM_Cat)
+			if (msAge <= RegionDefaults.daysFromQDM_Cat){
 				finalModels.remove(msLoop);
+				--numMs;
+			}
 			// then make sure it is actually being used in a forecast
 			else if
-				(mainshockModel.get_UsedInForecast())
+				(!mainshockModel.get_UsedInForecast()){
 				finalModels.remove(msLoop);
+				--numMs;
+			}
 			else
 				++msLoop;
 		}	
@@ -40,12 +44,5 @@ public class PurgeMainshockList {
 	}
 	
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }
