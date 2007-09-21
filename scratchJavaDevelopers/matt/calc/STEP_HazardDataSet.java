@@ -1,5 +1,6 @@
 package scratchJavaDevelopers.matt.calc;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -10,7 +11,9 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;
+import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
@@ -32,9 +35,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	
 	private boolean willSiteClass = true;
 	private AttenuationRelationship attenRel;
-	private static final String STEP_BG_FILE_NAME = "backGround.txt";
+	private static final String STEP_BG_FILE_NAME = "STEP_backGround.txt";
 	private static final String STEP_HAZARD_OUT_FILE_NAME = "Step_hazard_probs.txt";
 	private static final double IML_VALUE = Math.log(0.126);
+	private static final String STEP_AFTERSHOCK_OBJECT_FILE = "STEP_AFTERSHOCKS";
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 	
 	
@@ -48,7 +52,19 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		STEP_HazardDataSet step = new STEP_HazardDataSet(false);
-		step.runSTEP();
+		//read the aftershock file
+		/*try {
+			ArrayList stepAftershockList = (ArrayList)FileUtils.loadFile(STEP_AFTERSHOCK_OBJECT_FILE);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		//while(true)
+		   step.runSTEP();
+	
 	}
 
 
@@ -56,7 +72,13 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	private void runSTEP(){
 	  STEP_main stepMain = new STEP_main();
 	  createShakeMapAttenRelInstance();
-	  SitesInGriddedRegion region = stepMain.getGriddedRegion();
+	  SitesInGriddedRectangularRegion region = null;
+	try {
+		region = new SitesInGriddedRectangularRegion(32.5,42.2,-124.8,-112.4,0.1);
+	} catch (RegionConstraintException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	  
 	  
 	  region.addSiteParams(attenRel.getSiteParamsIterator());
@@ -84,6 +106,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
       STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
       double[] stepBothProbVals = addStepData.addDataSet(bgVals,probVal);
       createFile(stepBothProbVals,region);
+      ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
+      //saving the STEP_Aftershock list object to the file
+      FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
 	}
 	
 	
@@ -93,13 +118,15 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	            // set the im as PGA
 	      attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_NAME);
 	}
+	
+	
 
 	 /**
 	   * craetes the output xyz files
 	   * @param probVals : Probablity values ArrayList for each Lat and Lon
 	   * @param fileName : File to create
 	   */
-	  private void createFile(double[] probVals,SitesInGriddedRegion region){
+	  private void createFile(double[] probVals,SitesInGriddedRectangularRegion region){
 	    int size = probVals.length;
 	    LocationList locList = region.getGridLocationsList();
 	    int numLocations = locList.size();
@@ -164,11 +191,11 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	   * @param eqkRupForecast : STEP Forecast
 	   * @returns the ArrayList of Probability values for the given region
 	   */
-	  private double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRegion region,
+	  private double[] getProbVals(AttenuationRelationship imr,SitesInGriddedRectangularRegion region,
 	                                     ArrayList sourceList){
 
 	    double[] probVals = new double[region.getNumGridLocs()];
-	    double MAX_DISTANCE = 200;
+	    double MAX_DISTANCE = 500;
 
 	    // declare some varibles used in the calculation
 	    double qkProb, distance;

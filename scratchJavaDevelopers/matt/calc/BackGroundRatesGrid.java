@@ -9,6 +9,7 @@ import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.data.region.*;
 import org.opensha.data.*;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.magdist.*;
 import org.opensha.util.FileUtils;
 
@@ -55,7 +56,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	  * creates locationlist of california boundary.
 	  * @return
 	  */
-	   LocationList locList = new LocationList();
+	   /*LocationList locList = new LocationList();
 	   locList.addLocation(new Location(41.998016,-124.210136));
 	   locList.addLocation(new Location(41.995640,-123.820290));
 	   locList.addLocation(new Location(41.997173,-123.726974));
@@ -996,9 +997,18 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	   locList.addLocation(new Location(41.950851,-124.209038));
 	   locList.addLocation(new Location(41.958057,-124.205978));
 	   locList.addLocation(new Location(41.983608,-124.203751));
-	   locList.addLocation(new Location(41.998016,-124.210136));
-	   SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
-	   this.setBackGroundRegion(region);
+	   locList.addLocation(new Location(41.998016,-124.210136));*/
+	   
+	   SitesInGriddedRectangularRegion region;
+	try {
+		region = new 
+		    SitesInGriddedRectangularRegion(32,43.3,-125.0,-112.4,RegionDefaults.gridSpacing);
+		this.setBackGroundRegion(region);
+	} catch (RegionConstraintException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	   
 		   /*locList.addLocation(new Location(42.009655,-124.407951));
 		   locList.addLocation(new Location(42.2,-114.130432));
 		   locList.addLocation(new Location(32.534878,-124.407951));
@@ -1026,7 +1036,6 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	    }
 
 	    hypoMagFreqDist = new ArrayList();
-	    backGroundSourceList = new ArrayList();
 	    double lat, lon;
 
 	    IncrementalMagFreqDist magFreqDist;
@@ -1063,9 +1072,6 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	        magFreqDist.set(i,rate);
 	      }
 	      Location loc = new Location(lat,lon,DEPTH);
-	      ptSource = new PointEqkSource(loc,magFreqDist,RegionDefaults.forecastLengthDays,
-	    		                        RAKE,DIP,minForecastMag);
-	      backGroundSourceList.add(ptSource);
 	      hypoMagFreqDist.add(new HypoMagFreqDistAtLoc(magFreqDist,loc));
 	    }
 	    backgroundSourcesAlreadyMade = true;

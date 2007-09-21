@@ -23,7 +23,7 @@ import org.opensha.data.region.GeographicRegionAPI;
  */
 
 
-public class ObsEqkRupList {
+public class ObsEqkRupList implements java.io.Serializable{
 
   /** Class name used for debugging purposes */
   protected final static String C = "ObsEqkRupList";

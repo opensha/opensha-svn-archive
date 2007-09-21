@@ -9,6 +9,7 @@ import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
@@ -43,7 +44,7 @@ public class STEP_main {
    * each object is a STEP_AftershockHypoMagFreqDistForecast
    */
   private static ArrayList STEP_AftershockForecastList =  new ArrayList();
-  private static ArrayList STEP_FinalModelList =  new ArrayList();
+
 
   public STEP_main() {
 	// System.out.println("11111");
@@ -63,8 +64,13 @@ public class STEP_main {
   * Returns the Gridded Region applicable for STEP forecast
   * @return
   */
- public SitesInGriddedRegion getGriddedRegion(){
-	 return (SitesInGriddedRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+ public SitesInGriddedRectangularRegion getGriddedRegion(){
+	 return (SitesInGriddedRectangularRegion)bgGrid.getEvenlyGriddedGeographicRegion();
+ }
+ 
+ 
+ public static ArrayList getSTEP_AftershockForecastList(){
+	 return STEP_AftershockForecastList;
  }
  
  /**

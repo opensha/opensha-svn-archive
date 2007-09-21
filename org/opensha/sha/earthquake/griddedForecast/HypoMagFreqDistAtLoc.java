@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.*;
  * @author Nitin Gupta
  * @version 1.0
  */
-public class HypoMagFreqDistAtLoc {
+public class HypoMagFreqDistAtLoc implements java.io.Serializable{
 
   private Location location;
   private IncrementalMagFreqDist[] magFreqDist;

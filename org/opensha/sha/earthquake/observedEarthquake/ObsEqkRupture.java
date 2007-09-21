@@ -19,7 +19,7 @@ import org.opensha.sha.surface.PointSurface;
  * @version 1.0
  */
 public class ObsEqkRupture
-    extends EqkRupture {
+    extends EqkRupture implements java.io.Serializable{
 
 
   private String eventId;
