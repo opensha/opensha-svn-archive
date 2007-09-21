@@ -1,5 +1,6 @@
 package org.opensha.sha.calc;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.net.*;
 import java.io.*;
@@ -14,6 +15,8 @@ import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.param.PropagationEffect;
+import org.opensha.param.DependentParameter;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 
 import org.opensha.exceptions.RegionConstraintException;
@@ -39,6 +42,10 @@ public class ScenarioShakeMapCalculator {
 
   //the propagation effect object
   private PropagationEffect propagationEffect;
+  private FileWriter fw ;
+  private DecimalFormat locFormat = new DecimalFormat("0.000000");
+  
+  //
 
   /**
    * class constructor that receives the propagation effect from the outside source and sets
@@ -85,6 +92,15 @@ public class ScenarioShakeMapCalculator {
 
     // get the selected attenuationRelation array size.
     int size = selectedAttenRels.size();
+    
+    if(D){
+	    try {
+			fw = new FileWriter("Test_PGV_Params_Settings.txt");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    }
 
     /**
      * Based on the selected IML@prob or Prob@IML the corresponding value is
@@ -92,6 +108,40 @@ public class ScenarioShakeMapCalculator {
      */
     for(int i=0;i<size;++i){ //iterate over all the selected AttenuationRelationships
       AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+      if(D){
+	    	  try {
+				fw.write("Lat"+"\t"+"Lon"+"\t");
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+	      ListIterator it = attenRel.getIML_AtExceedProbIndependentParamsIterator();
+	      while(it.hasNext()){
+	       ParameterAPI param = (ParameterAPI)it.next();
+	       try {
+			fw.write(param.getName()+"\t");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	      }
+	      it = ((DependentParameter)attenRel.getIntensityMeasure()).getIndependentParametersIterator();
+	      while(it.hasNext()){
+	          ParameterAPI param = (ParameterAPI)it.next();
+	          try {
+	   		fw.write(param.getName()+"\t");
+	   		} catch (IOException e) {
+	   			// TODO Auto-generated catch block
+	   			e.printStackTrace();
+	   		}
+	      }
+	      try {
+	    	fw.write("Mean(ln)"+"\t"+"Std Dev.\n");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+      }
       //resetting the Parameter change Listeners on the AttenuationRelationship
       //parameters. This allows the Server version of our application to listen to the
       //parameter changes.
@@ -150,7 +200,14 @@ public class ScenarioShakeMapCalculator {
       }
       sumZVals.add(new Double(attenRelsAvgValForSite));
     }
-
+    if(D){
+	    try {
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
     xyzDataSet = new ArbDiscretizedXYZ_DataSet(getSitesLat(griddedRegionSites),
         getSitesLon(griddedRegionSites),sumZVals);
@@ -321,10 +378,40 @@ public class ScenarioShakeMapCalculator {
 
     imr.setPropagationEffect(propagationEffect);
     if(D) {
-      System.out.println("Selected Site : " +imr.getSite().getLocation().toString());
-      System.out.println("--------------");
-      System.out.println(imr.getName()+" Params:\n"+imr.getAllParamMetadata().replaceAll(";","\n"));
-      System.out.println("--------------\n");
+      try {
+		Location loc = imr.getSite().getLocation();
+		fw.write(locFormat.format(loc.getLatitude())+"\t"+locFormat.format(loc.getLongitude())+"\t");
+		ListIterator it = imr.getIML_AtExceedProbIndependentParamsIterator();
+	      while(it.hasNext()){
+	       ParameterAPI param = (ParameterAPI)it.next();
+	       try {
+			fw.write(param.getValue()+"\t");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	      }
+	      it = ((DependentParameter)imr.getIntensityMeasure()).getIndependentParametersIterator();
+	      while(it.hasNext()){
+	          ParameterAPI param = (ParameterAPI)it.next();
+	          try {
+	   		fw.write(param.getValue()+"\t");
+	   		} catch (IOException e) {
+	   			// TODO Auto-generated catch block
+	   			e.printStackTrace();
+	   		}
+	      }
+	      try {
+			fw.write(imr.getMean()+"\t"+imr.getStdDev()+"\n");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    	  
+      } catch (IOException e) {
+  		// TODO Auto-generated catch block
+  		e.printStackTrace();
+  	  }
     }
     if(isProbAtIML)
       return imr.getExceedProbability();
