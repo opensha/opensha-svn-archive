@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
@@ -24,7 +25,7 @@ import org.opensha.util.FileUtils;
 public abstract class FaultsFetcher {
 	protected HashMap faultModels;
 	// DAO to access the fault section database
-	private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+	private PrefFaultSectionDataDB_DAO faultSectionDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 	protected DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
 	private final static String FAULT_MODEL_NAME_PREFIX = "-";
 	protected ArrayList<String> faultModelNames = new ArrayList<String>();
@@ -179,7 +180,7 @@ public abstract class FaultsFetcher {
 						faultSectionPrefData.getSectionId()==GLEN_IVY_STEPOVER_FAULT_SECTION_ID)  {
 					FaultSectionPrefData glenIvyStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, GLEN_IVY_STEPOVER_FAULT_SECTION_ID);
 					FaultSectionPrefData temeculaStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, TEMECULA_STEPOVER_FAULT_SECTION_ID);
-					faultSectionPrefData = faultSectionDAO.getFaultSection(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
+					faultSectionPrefData = faultSectionDAO.getFaultSectionPrefData(ELSINORE_COMBINED_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData.setAveLongTermSlipRate(glenIvyStepoverfaultSectionPrefData.getAveLongTermSlipRate()+temeculaStepoverfaultSectionPrefData.getAveLongTermSlipRate());
 					faultSectionPrefData.setSlipRateStdDev(glenIvyStepoverfaultSectionPrefData.getSlipRateStdDev()+temeculaStepoverfaultSectionPrefData.getSlipRateStdDev());
 				}
@@ -192,7 +193,7 @@ public abstract class FaultsFetcher {
 						faultSectionPrefData.getSectionId()==this.SJ_VALLEY_STEPOVER_FAULT_SECTION_ID)  {
 					FaultSectionPrefData anzaStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, SJ_ANZA_STEPOVER_FAULT_SECTION_ID);
 					FaultSectionPrefData valleyStepoverfaultSectionPrefData = this.deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, SJ_VALLEY_STEPOVER_FAULT_SECTION_ID);
-					faultSectionPrefData = faultSectionDAO.getFaultSection(this.SJ_COMBINED_STEPOVER_FAULT_SECTION_ID).getFaultSectionPrefData();
+					faultSectionPrefData = faultSectionDAO.getFaultSectionPrefData(this.SJ_COMBINED_STEPOVER_FAULT_SECTION_ID);
 					faultSectionPrefData.setAveLongTermSlipRate(anzaStepoverfaultSectionPrefData.getAveLongTermSlipRate()+valleyStepoverfaultSectionPrefData.getAveLongTermSlipRate());
 					faultSectionPrefData.setSlipRateStdDev(anzaStepoverfaultSectionPrefData.getSlipRateStdDev()+valleyStepoverfaultSectionPrefData.getSlipRateStdDev());
 				}
@@ -256,7 +257,8 @@ public abstract class FaultsFetcher {
 		ArrayList faultSectionsIdList = new ArrayList();
 		StringTokenizer tokenizer = new StringTokenizer(line,"\n,");
 		while(tokenizer.hasMoreTokens()) {
-			faultSectionsIdList.add(faultSectionDAO.getFaultSectionSummary(Integer.parseInt(tokenizer.nextToken().trim())));
+			FaultSectionPrefData faultSectionPrefData = faultSectionDAO.getFaultSectionPrefData(Integer.parseInt(tokenizer.nextToken().trim()));
+			faultSectionsIdList.add(new FaultSectionSummary(faultSectionPrefData.getSectionId(), faultSectionPrefData.getSectionName()));
 		}
 		return faultSectionsIdList;
 	}
