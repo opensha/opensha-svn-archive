@@ -81,7 +81,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		makeExcelSheet(ucerf2);
 		
 		// Poisson 5 yrs
-		/*DURATION = 5;
+		DURATION = 5;
 		FILENAME = "UnsegmentedRupProbs_Pois_5yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 		makeExcelSheet(ucerf2);
@@ -112,7 +112,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		
 		DURATION = 30;
 		FILENAME = "UnsegmentedRupProbs_Emp_Pois_30yr.xls";
-		makeExcelSheet(ucerf2);*/
+		makeExcelSheet(ucerf2);
 	}
 
 
@@ -271,6 +271,13 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
 		paramValues.add(options);
 		
+//		A-Fault solution type
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		paramValues.add(options);
+		
 		// Aprioti wt param
 		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
 		options = new ParamOptions();
@@ -278,12 +285,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		options.addValueWeight(new Double(1e10), 0.5);
 		paramValues.add(options);
 		
-		//	A-Fault solution type
-		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
-		options = new ParamOptions();
-		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
-		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
-		paramValues.add(options);
+		
 	
 	
 	}
