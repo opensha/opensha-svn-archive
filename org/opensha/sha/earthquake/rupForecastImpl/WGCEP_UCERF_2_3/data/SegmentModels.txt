@@ -45,7 +45,7 @@
 283:San Andreas (San Bernardino S)
 284:San Andreas (San Gorgonio Pass-Garnet HIll)
 295:San Andreas (Coachella) rev
-- Hayward-Rogers Creek
+- Hayward-Rodgers Creek
 25:Rodgers Creek
 68:Hayward (No)
 69:Hayward (So)

@@ -56,7 +56,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", 
 			"Green Valley Connected", "Mount Diablo Thrust"};
 	private String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
-			"Hayward-Rogers Creek", "Calaveras"};
+			"Hayward-Rodgers Creek", "Calaveras"};
 	
 	/**
 	 * Plot histograms of probability contributions from various branches

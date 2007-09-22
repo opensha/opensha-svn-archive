@@ -73,7 +73,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	public WriteTimeDepUnsegmentedProbAndGain(UCERF2 ucerf2) {
 		this.ucerf2 = ucerf2;
 		fillAdjustableParams();
-		/*PROB_MODEL_VAL =  UCERF2.PROB_MODEL_POISSON;
+		PROB_MODEL_VAL =  UCERF2.PROB_MODEL_POISSON;
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		// Poisson 30 yrs
 		DURATION = 30;
@@ -97,7 +97,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		DURATION = 5;
 		FILENAME = "UnsegmentedRupProbs_Empirical_5yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_EMPIRICAL;
-		makeExcelSheet(ucerf2);*/
+		makeExcelSheet(ucerf2);
 		
 		
 //		A-Fault solution type
@@ -532,7 +532,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	
 				
 		 String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
-				"Hayward-Rogers Creek", "Calaveras"};
+				"Hayward-Rodgers Creek", "Calaveras"};
 		 
 		fltNames = aFaultNames;
 		// loop over all faults
@@ -726,7 +726,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 			rupGainSheet.getRow(rupRowIndex).createCell((short)colIndex).setCellValue(rupGain);
 
 		}
-		return (rupRowIndex+3);
+		return (rupRowIndex+2);
 	}
 	
 	
