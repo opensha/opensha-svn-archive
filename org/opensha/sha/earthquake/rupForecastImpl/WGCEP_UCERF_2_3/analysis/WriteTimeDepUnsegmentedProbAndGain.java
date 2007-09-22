@@ -73,10 +73,10 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	public WriteTimeDepUnsegmentedProbAndGain(UCERF2 ucerf2) {
 		this.ucerf2 = ucerf2;
 		fillAdjustableParams();
-		PROB_MODEL_VAL =  UCERF2.PROB_MODEL_POISSON;
+		/*PROB_MODEL_VAL =  UCERF2.PROB_MODEL_POISSON;
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		// Poisson 30 yrs
-		/*DURATION = 30;
+		DURATION = 30;
 		FILENAME = "UnsegmentedRupProbs_Pois_30yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 		makeExcelSheet(ucerf2);
@@ -129,11 +129,12 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		options.addValueWeight(new Double(0.7), 0.3);
 		paramValues.add(options);
 		
-		
+		PROB_MODEL_VAL= UCERF2.PROB_MODEL_BPT;
 		DURATION = 5;
 		FILENAME = "RupProbs_AllFinalModels_5yr.xls";
 		makeExcelSheet(ucerf2);
 		
+		PROB_MODEL_VAL= UCERF2.PROB_MODEL_BPT;
 		DURATION = 30;
 		FILENAME = "RupProbs_AllFinalModels_30yr.xls";
 		makeExcelSheet(ucerf2);
@@ -224,7 +225,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		
 		// loop over all faults
 		int totRupsIndex=0;
-		boolean onlyUnsegmented = false;
+		boolean onlyUnsegmented = true;
 		
 		if(this.paramNames.contains(UCERF2.RUP_MODEL_TYPE_NAME)) {
 			onlyUnsegmented = false;
@@ -348,6 +349,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 				
 				
 				System.out.println("Doing run:"+(this.loginTreeBranchIndex+1));
+				ucerf2.getTimeSpan().setDuration(DURATION);
 				ucerf2.updateForecast();
 				ArrayList aFaultsList = ucerf2.get_A_FaultSourceGenerators();
 				if(this.loginTreeBranchIndex==0) {
@@ -377,7 +379,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 					++rupRowIndex;
 					if(ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.SEGMENTED_A_FAULT_MODEL))
 						rupRowIndex = doFirstBranchWhenSegmented(aFaultsList, rupRowIndex, colIndex);
-					else rupRowIndex = doFirstBranchWhenUnsegmented(aFaultsList, rupRowIndex, colIndex);
+					else rupRowIndex = doFirstBranchWhenUnsegmented(rupRowIndex, colIndex);
 						
 					rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
@@ -526,17 +528,19 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	}
 	
 	
-	private int doFirstBranchWhenUnsegmented(ArrayList aFaultsList, int rupRowIndex, int colIndex) {
-		ArrayList<UnsegmentedSource> unsegmentedSourceList=
-			(ArrayList<UnsegmentedSource>)aFaultsList;
-		fltNames = new String[(unsegmentedSourceList.size()-1)];
+	private int doFirstBranchWhenUnsegmented(int rupRowIndex, int colIndex) {
+	
+				
+		 String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
+				"Hayward-Rogers Creek", "Calaveras"};
+		 
+		fltNames = aFaultNames;
 		// loop over all faults
 		for(int fltGenIndex=0; fltGenIndex<fltNames.length; ++fltGenIndex, ++rupRowIndex) {
-			UnsegmentedSource sourceGen = unsegmentedSourceList.get(fltGenIndex);
-			fltNames[fltGenIndex] = sourceGen.getFaultSegmentData().getFaultName();
-			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+		
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(fltNames[fltGenIndex]);
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(fltNames[fltGenIndex]);
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(fltNames[fltGenIndex]);
 			
 			++rupRowIndex;
 			

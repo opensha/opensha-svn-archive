@@ -411,6 +411,7 @@ public class WriteTimeDepSegmentedProbAndGain {
 				
 				
 				System.out.println("Doing run:"+(this.loginTreeBranchIndex+1));
+				ucerf2.getTimeSpan().setDuration(DURATION);
 				ucerf2.updateForecast();
 				ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
 				if(this.loginTreeBranchIndex==0) {
