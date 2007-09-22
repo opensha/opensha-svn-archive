@@ -73,9 +73,10 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	public WriteTimeDepUnsegmentedProbAndGain(UCERF2 ucerf2) {
 		this.ucerf2 = ucerf2;
 		fillAdjustableParams();
-		
+		PROB_MODEL_VAL =  UCERF2.PROB_MODEL_POISSON;
+		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		// Poisson 30 yrs
-		DURATION = 30;
+		/*DURATION = 30;
 		FILENAME = "UnsegmentedRupProbs_Pois_30yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_POISSON;
 		makeExcelSheet(ucerf2);
@@ -96,22 +97,45 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		DURATION = 5;
 		FILENAME = "UnsegmentedRupProbs_Empirical_5yr.xls";
 		PROB_MODEL_VAL = UCERF2.PROB_MODEL_EMPIRICAL;
-		makeExcelSheet(ucerf2);
+		makeExcelSheet(ucerf2);*/
 		
+		
+//		A-Fault solution type
+		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
+		paramValues.add(options);
+		
+		// Aprioti wt param
+		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(1e-4), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
+		paramValues.add(options);
 		
 		// Prob Model
 		paramNames.add(UCERF2.PROB_MODEL_PARAM_NAME);
-		ParamOptions options = new ParamOptions();
+		options = new ParamOptions();
 		options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 0.3);
-		options.addValueWeight(UCERF2.PROB_MODEL_POISSON, 0.7);
+		options.addValueWeight(UCERF2.PROB_MODEL_BPT, 0.7);
 		paramValues.add(options);
 		
+		// Aperiodicity
+		paramNames.add(UCERF2.APERIODICITY_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.3), 0.2);
+		options.addValueWeight(new Double(0.5), 0.5);
+		options.addValueWeight(new Double(0.7), 0.3);
+		paramValues.add(options);
+		
+		
 		DURATION = 5;
-		FILENAME = "UnsegmentedRupProbs_Emp_Pois_5yr.xls";
+		FILENAME = "RupProbs_AllFinalModels_5yr.xls";
 		makeExcelSheet(ucerf2);
 		
 		DURATION = 30;
-		FILENAME = "UnsegmentedRupProbs_Emp_Pois_30yr.xls";
+		FILENAME = "RupProbs_AllFinalModels_30yr.xls";
 		makeExcelSheet(ucerf2);
 	}
 
@@ -200,6 +224,13 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		
 		// loop over all faults
 		int totRupsIndex=0;
+		boolean onlyUnsegmented = false;
+		
+		if(this.paramNames.contains(UCERF2.RUP_MODEL_TYPE_NAME)) {
+			onlyUnsegmented = false;
+		}
+		
+		
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.SEGMENTED_A_FAULT_MODEL);
 		ucerf2.updateForecast();
 		ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators = ucerf2.get_A_FaultSourceGenerators();
@@ -207,6 +238,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 			A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
 			
 			int numRups = sourceGen.getNumRupSources();
+			if(onlyUnsegmented) numRups= 0;
 			++rupRowIndex;
 			// loop over all ruptures
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex, ++totRupsIndex) {
@@ -245,6 +277,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 			++totRupsIndex;
 			++rupRowIndex;
 		}
+		if(onlyUnsegmented) ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 	}
 	
 		
@@ -270,24 +303,6 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
 		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
 		paramValues.add(options);
-		
-//		A-Fault solution type
-		paramNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
-		options = new ParamOptions();
-		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
-		options.addValueWeight(UCERF2.UNSEGMENTED_A_FAULT_MODEL, 0.1);
-		paramValues.add(options);
-		
-		// Aprioti wt param
-		paramNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
-		options = new ParamOptions();
-		options.addValueWeight(new Double(1e-4), 0.5);
-		options.addValueWeight(new Double(1e10), 0.5);
-		paramValues.add(options);
-		
-		
-	
-	
 	}
 	
 	
@@ -317,6 +332,14 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 						ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_2_PARAM_NAME).setValue(UCERF2.MIN_A_FAULT_RATE_2_DEFAULT);	
 					}
 				}
+				
+				//	change BPT to Poisson for Unsegmented case
+				if(paramName.equalsIgnoreCase(UCERF2.PROB_MODEL_PARAM_NAME) &&
+						ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.UNSEGMENTED_A_FAULT_MODEL) &&
+						options.getValue(i).equals(UCERF2.PROB_MODEL_BPT)	) {
+					ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+				}
+				
 			} else {
 				if(i==0) newWt=weight;
 				else return;
@@ -352,81 +375,10 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 					rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Rupture Name");
 					++rupRowIndex;
 					++rupRowIndex;
-					ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators=
-						(ArrayList<A_FaultSegmentedSourceGenerator>)aFaultsList;
-					fltNames = new String[aFaultGenerators.size()];
-					// loop over all faults
-					for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex) {
-						A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
-						fltNames[fltGenIndex] = sourceGen.getFaultSegmentData().getFaultName();
-						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
-						int numRups = sourceGen.getNumRupSources();
-						++rupRowIndex;
-						// loop over all ruptures
-						for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
-							//System.out.println("111111: rupRowIndex="+rupRowIndex+","+sourceGen.getLongRupName(rupIndex));
-							rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
-							rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
-							rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
-							
-							
-							rupProbWtAve.add(0.0);
-							rupProbMin.add(Double.MAX_VALUE);
-							rupProbMax.add(0.0);
-							
-							
-							rupProbWtAve67.add(0.0);
-							rupProbMin67.add(Double.MAX_VALUE);
-							rupProbMax67.add(0.0);
-							
-							
-							rupGainWtAve.add(0.0);
-							rupGainMin.add(Double.MAX_VALUE);
-							rupGainMax.add(0.0);
-							
-							++rupRowIndex;
-						}
-						unsegRowIndex.add(rupRowIndex); // row index for unsegmented
-						unsegWtAvgListIndex.add(rupProbWtAve.size());
-						//System.out.println("111111: rupRowIndex="+rupRowIndex+",Unsegmented");
-						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
-						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
-						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+					if(ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).getValue().equals(UCERF2.SEGMENTED_A_FAULT_MODEL))
+						rupRowIndex = doFirstBranchWhenSegmented(aFaultsList, rupRowIndex, colIndex);
+					else rupRowIndex = doFirstBranchWhenUnsegmented(aFaultsList, rupRowIndex, colIndex);
 						
-						rupProbWtAve.add(0.0);
-						rupProbMin.add(Double.MAX_VALUE);
-						rupProbMax.add(0.0);
-						
-						rupProbWtAve67.add(0.0);
-						rupProbMin67.add(Double.MAX_VALUE);
-						rupProbMax67.add(0.0);
-						
-						rupGainWtAve.add(0.0);
-						rupGainMin.add(Double.MAX_VALUE);
-						rupGainMax.add(0.0);
-						++rupRowIndex;
-						//System.out.println("111111: rupRowIndex="+rupRowIndex+",WtAve");
-						rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
-						rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
-						rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Gain");
-						
-						rupProbWtAve.add(0.0);
-						rupProbMin.add(Double.MAX_VALUE);
-						rupProbMax.add(0.0);
-						
-						rupProbWtAve67.add(0.0);
-						rupProbMin67.add(Double.MAX_VALUE);
-						rupProbMax67.add(0.0);
-						
-						rupGainWtAve.add(0.0);
-						rupGainMin.add(Double.MAX_VALUE);
-						rupGainMax.add(0.0);
-						
-						++rupRowIndex;
-						
-					}
 					rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
 					rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Branch Weight");
@@ -492,6 +444,144 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 			}
 		}
 	}
+
+
+	private int doFirstBranchWhenSegmented(ArrayList aFaultsList, int rupRowIndex, int colIndex) {
+		ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators=
+			(ArrayList<A_FaultSegmentedSourceGenerator>)aFaultsList;
+		fltNames = new String[aFaultGenerators.size()];
+		// loop over all faults
+		for(int fltGenIndex=0; fltGenIndex<aFaultGenerators.size(); ++fltGenIndex, ++rupRowIndex) {
+			A_FaultSegmentedSourceGenerator sourceGen = aFaultGenerators.get(fltGenIndex);
+			fltNames[fltGenIndex] = sourceGen.getFaultSegmentData().getFaultName();
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			int numRups = sourceGen.getNumRupSources();
+			++rupRowIndex;
+			// loop over all ruptures
+			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+				//System.out.println("111111: rupRowIndex="+rupRowIndex+","+sourceGen.getLongRupName(rupIndex));
+				rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
+				rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
+				rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getLongRupName(rupIndex));
+				
+				
+				rupProbWtAve.add(0.0);
+				rupProbMin.add(Double.MAX_VALUE);
+				rupProbMax.add(0.0);
+				
+				
+				rupProbWtAve67.add(0.0);
+				rupProbMin67.add(Double.MAX_VALUE);
+				rupProbMax67.add(0.0);
+				
+				
+				rupGainWtAve.add(0.0);
+				rupGainMin.add(Double.MAX_VALUE);
+				rupGainMax.add(0.0);
+				
+				++rupRowIndex;
+			}
+			unsegRowIndex.add(rupRowIndex); // row index for unsegmented
+			unsegWtAvgListIndex.add(rupProbWtAve.size());
+			//System.out.println("111111: rupRowIndex="+rupRowIndex+",Unsegmented");
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			
+			rupProbWtAve.add(0.0);
+			rupProbMin.add(Double.MAX_VALUE);
+			rupProbMax.add(0.0);
+			
+			rupProbWtAve67.add(0.0);
+			rupProbMin67.add(Double.MAX_VALUE);
+			rupProbMax67.add(0.0);
+			
+			rupGainWtAve.add(0.0);
+			rupGainMin.add(Double.MAX_VALUE);
+			rupGainMax.add(0.0);
+			++rupRowIndex;
+			//System.out.println("111111: rupRowIndex="+rupRowIndex+",WtAve");
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Gain");
+			
+			rupProbWtAve.add(0.0);
+			rupProbMin.add(Double.MAX_VALUE);
+			rupProbMax.add(0.0);
+			
+			rupProbWtAve67.add(0.0);
+			rupProbMin67.add(Double.MAX_VALUE);
+			rupProbMax67.add(0.0);
+			
+			rupGainWtAve.add(0.0);
+			rupGainMin.add(Double.MAX_VALUE);
+			rupGainMax.add(0.0);
+			
+			++rupRowIndex;
+			
+		}
+		return rupRowIndex;
+	}
+	
+	
+	private int doFirstBranchWhenUnsegmented(ArrayList aFaultsList, int rupRowIndex, int colIndex) {
+		ArrayList<UnsegmentedSource> unsegmentedSourceList=
+			(ArrayList<UnsegmentedSource>)aFaultsList;
+		fltNames = new String[(unsegmentedSourceList.size()-1)];
+		// loop over all faults
+		for(int fltGenIndex=0; fltGenIndex<fltNames.length; ++fltGenIndex, ++rupRowIndex) {
+			UnsegmentedSource sourceGen = unsegmentedSourceList.get(fltGenIndex);
+			fltNames[fltGenIndex] = sourceGen.getFaultSegmentData().getFaultName();
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue(sourceGen.getFaultSegmentData().getFaultName());
+			
+			++rupRowIndex;
+			
+			unsegRowIndex.add(rupRowIndex); // row index for unsegmented
+			unsegWtAvgListIndex.add(rupProbWtAve.size());
+			//System.out.println("111111: rupRowIndex="+rupRowIndex+",Unsegmented");
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Unsegmented");
+			
+			rupProbWtAve.add(0.0);
+			rupProbMin.add(Double.MAX_VALUE);
+			rupProbMax.add(0.0);
+			
+			rupProbWtAve67.add(0.0);
+			rupProbMin67.add(Double.MAX_VALUE);
+			rupProbMax67.add(0.0);
+			
+			rupGainWtAve.add(0.0);
+			rupGainMin.add(Double.MAX_VALUE);
+			rupGainMax.add(0.0);
+			++rupRowIndex;
+			//System.out.println("111111: rupRowIndex="+rupRowIndex+",WtAve");
+			rupProbSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
+			rupProbSheet67.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Probability");
+			rupGainSheet.createRow(rupRowIndex).createCell((short)colIndex).setCellValue("Total Gain");
+			
+			rupProbWtAve.add(0.0);
+			rupProbMin.add(Double.MAX_VALUE);
+			rupProbMax.add(0.0);
+			
+			rupProbWtAve67.add(0.0);
+			rupProbMin67.add(Double.MAX_VALUE);
+			rupProbMax67.add(0.0);
+			
+			rupGainWtAve.add(0.0);
+			rupGainMin.add(Double.MAX_VALUE);
+			rupGainMax.add(0.0);
+			
+			++rupRowIndex;
+			
+		}
+		return rupRowIndex;
+	}
+
 
 
 	private int doForSegmented(ArrayList<A_FaultSegmentedSourceGenerator> aFaultGenerators, double newWt, int rupRowIndex, int colIndex) {
