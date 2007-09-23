@@ -46,7 +46,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out, 
 					agrd_mendos_out, agrd_wuscmp_out, agrd_wusext_out, area1new_agrid, 
 					area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
-					fltmmaxALLCNch_out4, fltmmaxALLCNgr_out4, fltmmaxCA2ch_out7, fltmmaxCA2gr_out7;
+					fltmmaxAll21ch_out5a, fltmmaxAll21gr_out5a, fltmmaxAll24ch_out5a, fltmmaxAll24gr_out5a;
 	
 	private final static double B_VAL = 0.8;
 	private final static double B_VAL_CREEPING = 0.9;
@@ -57,26 +57,20 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	private double maxFromMaxMagFiles;
 	
-	  public NSHMP_GridSourceGenerator() {
-		  	getLocationList();
-		    
-		    // trim the western edge of the RELM region where NSHMP area doesn't get to
-		    // (so we don't have to filter out zero rate bins in the RELM region)
-		    for(int i=0; i<locList.size();i++) {
-		    		if(locList.getLocationAt(i).getLongitude() < -125.001)
-		    			locList.getLocationAt(i).setLongitude(-125.0);
-		    }
-		    
-		    // make polygon from the location list
-		    createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+	public NSHMP_GridSourceGenerator() {
 
-		    setA_ValIndexForLocIndex();
-		    //System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
-		    //System.out.println("reading all files");
-		    readAllGridFiles();
-		    //System.out.println("done");
-		  
-		    /*  This is to output and check the sum 
+		getLocationList();
+
+		// make polygon from the location list
+		createEvenlyGriddedGeographicRegion(locList, GRID_SPACING);
+
+		setA_ValIndexForLocIndex();
+		//System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
+		//System.out.println("reading all files");
+		readAllGridFiles();
+		//System.out.println("done");
+
+		/*  This is to output and check the sum 
 		    Location loc;
 		    System.out.println("test_lat\ttest_lon\ttest_rate");
 		    for(int i=0;i<this.getNumGridLocs();i++) {
@@ -85,8 +79,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		    				(float)loc.getLongitude()+"\t"+
 		    				(float)sumOfAllAvals[i]);
 		    }
-		    */
-		    
+		 */
+
 	}
 	 
 	  
@@ -172,6 +166,14 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		
+		/* No longer needed
+		// check for bogus indices
+		for(int i=0;i<aValIndexForLocIndex.length;i++)
+			if (aValIndexForLocIndex[i] == -1)
+				System.out.println("Bogus index at "+i)
+		 */
+
 	}
 	
 	/**
@@ -196,30 +198,31 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		area4new_agrid = readGridFile(PATH+"area4new.agrid.asc",true);
 		mojave_agrid = readGridFile(PATH+"mojave.agrid.asc",true);
 		sangreg_agrid = readGridFile(PATH+"sangreg.agrid.asc",true);
-		fltmmaxALLCNch_out4 = readGridFile(PATH+"fltmmaxALLCNch.out4.asc",false);
-		fltmmaxALLCNgr_out4 = readGridFile(PATH+"fltmmaxALLCNgr.out4.asc",false);
-		fltmmaxCA2ch_out7 = readGridFile(PATH+"fltmmaxCA2ch.out7.asc",false);
-		fltmmaxCA2gr_out7 = readGridFile(PATH+"fltmmaxCA2gr.out7.asc",false);
+		fltmmaxAll21ch_out5a = readGridFile(PATH+"fltmmaxALL21ch.out5a.asc",false);
+		fltmmaxAll21gr_out5a = readGridFile(PATH+"fltmmaxALL21gr.out5a.asc",false);
+		fltmmaxAll24ch_out5a = readGridFile(PATH+"fltmmaxALL24ch.out5a.asc",false);
+		fltmmaxAll24gr_out5a = readGridFile(PATH+"fltmmaxALL24gr.out5a.asc",false);
 		
-		int numMags = fltmmaxALLCNch_out4.length;
+		int numMags = fltmmaxAll21ch_out5a.length;
 		
 		
 		// find maximum magitude from max mag files
 		maxFromMaxMagFiles = -1;
 		for(int i=0; i<numMags; ++i) {
-			if(fltmmaxALLCNch_out4[i] > maxFromMaxMagFiles) 
-				maxFromMaxMagFiles = fltmmaxALLCNch_out4[i];
-			if(fltmmaxALLCNgr_out4[i] > maxFromMaxMagFiles) 
-				maxFromMaxMagFiles = fltmmaxALLCNgr_out4[i];
-			if(fltmmaxCA2ch_out7[i] > maxFromMaxMagFiles) 
-				maxFromMaxMagFiles = fltmmaxCA2ch_out7[i];
-			if(fltmmaxCA2gr_out7[i] > maxFromMaxMagFiles) 
-				maxFromMaxMagFiles = fltmmaxCA2gr_out7[i];
+			if(fltmmaxAll21ch_out5a[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxAll21ch_out5a[i];
+			if(fltmmaxAll21gr_out5a[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxAll21gr_out5a[i];
+			if(fltmmaxAll24ch_out5a[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxAll24ch_out5a[i];
+			if(fltmmaxAll24gr_out5a[i] > maxFromMaxMagFiles) 
+				maxFromMaxMagFiles = fltmmaxAll24gr_out5a[i];
 		}
 
 		//System.out.println(maxFromMaxMagFiles);
-		/* find indices that are zeros in all files
+		/* find indices that are zeros in all files 
 		// NO LONGER NEEDED SINCE I TRIM THE RELM REGION
+		System.out.println("Looking for zeros ...");
 		for(int i=0; i<agrd_brawly_out.length;i++){
 			boolean allZero = true;
 			if(agrd_brawly_out[i] !=0) allZero = false;
@@ -246,6 +249,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			}
 		}
 		*/
+		
 	}
 	
 	/**
@@ -284,6 +288,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 				gridVals[i] = allGridVals[aValIndex];
 				if(addToSumOfAllAvals) sumOfAllAvals[i]+=gridVals[i];
 			}
+			else
+				throw new RuntimeException("Problem with indices!");
 		}
 		return gridVals;
 	}
@@ -300,6 +306,10 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */		
 	private GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
 											double bValue, boolean applyBulgeReduction) {
+		// TEMP fix problem on creeping section
+		if(maxMag < 3)
+			maxMag = 6;
+		
 		minMag += DELTA_MAG/2;
 		maxMag -= DELTA_MAG/2;
 		int numMag = Math.round((float)((maxMag-minMag)/DELTA_MAG+1));
@@ -341,13 +351,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 	
 	public IncrementalMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
-		/*double tot_aValue = 0;
-		int numLocs = getNumGridLocs();
-		for(int i=0; i<numLocs; i++)
-			if(region==null || region.isLocationInside(getGridLocation(i)))
-					tot_aValue += area1new_agrid[i]+area2new_agrid[i]+area3new_agrid[i]+
-						  area4new_agrid[i]+mojave_agrid[i]+sangreg_agrid[i];
-		return getMFD(6.5, C_ZONES_MAX_MAG, tot_aValue, B_VAL, false);*/
 		
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
@@ -406,23 +409,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
-		/*if(includeC_zones) { // if C-zones are included
-			if(this.C_ZONES_MAX_MAG>maxMagAtLoc) maxMagAtLoc = C_ZONES_MAX_MAG;
-		}
-		else {
-			if(applyMaxMagGrid) {
-				if(fltmmaxALLCNch_out4[locIndex] > maxMagAtLoc) 
-					maxMagAtLoc = fltmmaxALLCNch_out4[locIndex];
-				if(fltmmaxALLCNgr_out4[locIndex] > maxMagAtLoc) 
-					maxMagAtLoc = fltmmaxALLCNgr_out4[locIndex];
-				if(fltmmaxCA2ch_out7[locIndex] > maxMagAtLoc) 
-					maxMagAtLoc = fltmmaxCA2ch_out7[locIndex];
-				if(fltmmaxCA2gr_out7[locIndex] > maxMagAtLoc) 
-					maxMagAtLoc = fltmmaxCA2gr_out7[locIndex];
-			} else {
-				maxMagAtLoc = DEFAULT_MAX_MAG;
-			}
-		}*/
 		
 		// create summed MFD
 		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
@@ -430,22 +416,27 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 		// create and add each contributing MFD
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false), true);
-		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.0, agrd_mendos_out[locIndex], B_VAL, false), true);	
+		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false), true);	
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false), true);
 		if(applyMaxMagGrid) {	 // Apply Max Mag from files
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxCA2ch_out7[locIndex], 0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxCA2gr_out7[locIndex], 0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
+			
+			// 50% weight on the two different Mmax files:
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out5a[locIndex], 0.5*0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out5a[locIndex], 0.5*0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_out4[locIndex], 0.667*agrd_wuscmp_out[locIndex], B_VAL, false), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_out4[locIndex], 0.333*agrd_wuscmp_out[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll24ch_out5a[locIndex], 0.5*0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll24gr_out5a[locIndex], 0.5*0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNch_out4[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxALLCNgr_out4[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out5a[locIndex], 0.667*agrd_wuscmp_out[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out5a[locIndex], 0.333*agrd_wuscmp_out[locIndex], B_VAL, false), true);
+
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out5a[locIndex], 0.667*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out5a[locIndex], 0.333*agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		} else { // Apply default Mag Max
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wuscmp_out[locIndex], B_VAL, false), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wusext_out[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		}
 		if(includeC_zones) { // Include C-Zones
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false), true);
@@ -455,7 +446,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false), true);	
 		}	
-		
 		
 		return mfdAtLoc;
 	}
