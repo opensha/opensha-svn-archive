@@ -796,7 +796,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 	public static void main(String []args) {
-		
+		new LogicTreeMFDsPlotter(true, true);
 		
 		//LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
 		//mfdPlotter.plotMFDs();
