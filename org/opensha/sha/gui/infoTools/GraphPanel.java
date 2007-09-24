@@ -41,6 +41,7 @@ import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
+import org.jfree.chart.renderer.xy.StackedXYBarRenderer;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.Range;
@@ -400,6 +401,11 @@ public class GraphPanel extends JPanel {
     else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM)){
       XYBarRenderer HISTOGRAM_RENDERER = new XYBarRenderer();
       setRendererInPlot(color, functionIndex, HISTOGRAM_RENDERER);
+    }
+    //histograms
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR)){
+    	StackedXYBarRenderer STACK_BAR_RENDERER = new StackedXYBarRenderer();
+    	setRendererInPlot(color, functionIndex, STACK_BAR_RENDERER);
     }
 
   }

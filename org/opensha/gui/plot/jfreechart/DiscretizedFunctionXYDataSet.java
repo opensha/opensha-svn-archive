@@ -7,6 +7,7 @@ import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.TableXYDataset;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFuncList;
@@ -50,7 +51,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  * @version    1.2
  */
 
-public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements NamedObjectAPI, IntervalXYDataset  {
+public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements NamedObjectAPI, IntervalXYDataset, TableXYDataset  {
 
     /** Class name used for debug statements */
     protected final static String C = "DiscretizedFunctionXYDataSet";
@@ -147,6 +148,20 @@ public class DiscretizedFunctionXYDataSet extends AbstractXYDataset implements N
         }
         return num;
     }
+
+     
+     /**
+      * TableXYDataset - Returns the number of items in the series.
+      * This is needed to draw stacked bars. All the functions in the function list
+      * should have same number of X values and X-Values should also be same to draw
+      * bar charts.
+      * So, it returns the number of X-Values in first series of this list. It assumes
+      * that all other
+      * <p>
+      */
+      public int getItemCount( ) {
+        return getItemCount(0);
+     }
 
 
     /**

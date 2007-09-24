@@ -499,7 +499,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(6.7, "ProbabilityContributions_30yrs_WG02.xls");
+		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls");
 		//plotter.plotTotalProbHistogramsAboveMag(7.5, "ProbabilityContributions_30yrs_All.xls");
 	}
 

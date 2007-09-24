@@ -101,7 +101,8 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   public final static String LINE_AND_CIRCLES = "Line and Circles";
   public final static String LINE_AND_TRIANGLES = "Line and Triangles";
   public final static String HISTOGRAM = "Histograms";
-
+  public final static String STACKED_BAR = "Stacked Bar";
+  
   //parameter for tick label font size
   private  StringParameter tickFontSizeParam;
   public static final String tickFontSizeParamName = "Set tick label size";
