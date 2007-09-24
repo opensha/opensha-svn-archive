@@ -35,17 +35,20 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  *
  */
 public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
-	private final static double MIN_PROB= 0.05;
-	private final static double MAX_PROB= 0.95;
-	private final static double DELTA_PROB= 0.1;
+	private final static double MIN_PROB= 0.025;
+	private final static double MAX_PROB= 0.975;
+	private final static double DELTA_PROB= 0.05;
 	private final static int NUM_PROB= Math.round((float)((MAX_PROB-MIN_PROB)/DELTA_PROB))+1;
 	private final static String X_AXIS_LABEL = "Probability";
 	private final static String Y_AXIS_LABEL = "Contribution";
 	private final static String PLOT_LABEL = "Probability Contribution";
-
-	private final PlotCurveCharacterstics PLOT_HISTOGRAM1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
+	private final PlotCurveCharacterstics HISTOGRAM1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
 			new Color(0,0,0), 2); // black
-	private final PlotCurveCharacterstics PLOT_HISTOGRAM2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
+	private final PlotCurveCharacterstics HISTOGRAM2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
+			Color.GREEN, 2); // Green
+	private final PlotCurveCharacterstics STACKED_BAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
+			new Color(0,0,0), 2); // black
+	private final PlotCurveCharacterstics STACKED_BAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
 			Color.GREEN, 2); // Green
 
 	private ArrayList funcs;
@@ -284,8 +287,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			funcs.add(bptFunc);
 			funcs.add(empFunc);
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
-			plottingCurveChars.add(PLOT_HISTOGRAM1);
-			plottingCurveChars.add(PLOT_HISTOGRAM2);
+			plottingCurveChars.add(STACKED_BAR1);
+			plottingCurveChars.add(STACKED_BAR2);
 			GraphWindow graphWindow= new GraphWindow(this);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
@@ -329,7 +332,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			funcs = new ArrayList();
 			funcs.add(func);
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
-			plottingCurveChars.add(PLOT_HISTOGRAM1);
+			plottingCurveChars.add(this.HISTOGRAM1);
 			GraphWindow graphWindow= new GraphWindow(this);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
@@ -496,7 +499,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls");
+		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(6.7, "ProbabilityContributions_30yrs_WG02.xls");
+		//plotter.plotTotalProbHistogramsAboveMag(7.5, "ProbabilityContributions_30yrs_All.xls");
 	}
 
 }
