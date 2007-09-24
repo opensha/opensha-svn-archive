@@ -43,8 +43,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private final static String Y_AXIS_LABEL = "Contribution";
 	private final static String PLOT_LABEL = "Probability Contribution";
 
-	private final PlotCurveCharacterstics PLOT_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
+	private final PlotCurveCharacterstics PLOT_HISTOGRAM1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
 			new Color(0,0,0), 2); // black
+	private final PlotCurveCharacterstics PLOT_HISTOGRAM2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
+			Color.GREEN, 2); // Green
 
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;
@@ -215,6 +217,86 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	}
 
 	/**
+	 * Plot stacked histograms for BPT vs Empirical plots
+	 * @param fileName
+	 */
+	public void plotEmpiricalBPT_ComparisonTotalProbPlot(double mag, String fileName) {
+		int probModelColIndex = 25; // column index where Prob Model value is specified in file
+		int weightColIndex = 26; // logic tree branch weight  index column
+		
+		ArrayList<Integer> bptBranchIndices = new ArrayList<Integer>();
+		ArrayList<Integer> empiricalBranchIndices = new ArrayList<Integer>();
+		
+//		 Open the excel file
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // whole Region
+			int lastRowIndex = paramSettingsSheet.getLastRowNum();
+			System.out.println("Last row num="+lastRowIndex);
+		
+			// fill the branch numbers for BPT (or Poisson) and Empirical
+			for(int i=1; i<=lastRowIndex; ++i) {
+				String probModel = paramSettingsSheet.getRow(i).getCell((short)probModelColIndex).getStringCellValue();
+				if(probModel.equals(UCERF2.PROB_MODEL_BPT) || probModel.equals(UCERF2.PROB_MODEL_POISSON))
+					bptBranchIndices.add(i);
+				else empiricalBranchIndices.add(i);
+			}
+			
+			/*System.out.println("BPT branches:----------------");
+			for (int i=0; i<bptBranchIndices.size(); ++i)
+				System.out.println(bptBranchIndices.get(i));
+			
+			System.out.println("Empirical branches:----------------");
+			for (int i=0; i<empiricalBranchIndices.size(); ++i)
+				System.out.println(empiricalBranchIndices.get(i));*/
+			
+			// BPT/Poisson
+			EvenlyDiscretizedFunc bptFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
+			bptFunc.setInfo("Total Probability histogram plot for "+fileName+" for BPT/Poisson");
+			bptFunc.setTolerance(DELTA_PROB);
+		
+			// Empirical
+			EvenlyDiscretizedFunc empFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
+			empFunc.setInfo("Total Probability histogram plot for "+fileName+" for Empirical");
+			empFunc.setTolerance(DELTA_PROB);
+			
+			int totProbColIndex=getTotalProbColIndexForMag(mag);
+			HSSFSheet probSheet = wb.getSheetAt(1); // whole Region
+			
+			for (int i=0; i<bptBranchIndices.size(); ++i) { // populate BPT func
+				int branchNum=bptBranchIndices.get(i);
+				double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
+				double prob = probSheet.getRow(branchNum+1).getCell((short)totProbColIndex).getNumericCellValue();
+				bptFunc.add(prob, wt);
+			}
+			
+			for (int i=0; i<empiricalBranchIndices.size(); ++i) { // populate BPT func
+				int branchNum=empiricalBranchIndices.get(i);
+				double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
+				//System.out.println("Rowindex:"+(branchNum+i)+", colIndex="+totProbColIndex);
+				double prob = probSheet.getRow(branchNum+1).getCell((short)totProbColIndex).getNumericCellValue();
+				empFunc.add(prob, wt);
+			}
+			
+			// plot histograms 
+			funcs = new ArrayList();
+			funcs.add(bptFunc);
+			funcs.add(empFunc);
+			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
+			plottingCurveChars.add(PLOT_HISTOGRAM1);
+			plottingCurveChars.add(PLOT_HISTOGRAM2);
+			GraphWindow graphWindow= new GraphWindow(this);
+			graphWindow.setPlotLabel(PLOT_LABEL);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Plot Histogram of total Probs 
 	 * 
 	 * @param minMag
@@ -222,22 +304,14 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 */
 	public void plotTotalProbHistogramsAboveMag(double minMag, String fileName) {
 
-		boolean found = false;
-		int colIndex=-1;
-		// find the column based on the specfied magnitude
-		for(int magIndex=0; magIndex<this.mags.length && !found; ++magIndex) {
-			if(mags[magIndex]==minMag) {
-				colIndex = (magIndex+1)* sources.length;
-				found=true;
-			}
-		}
-		if(!found) throw new RuntimeException("Invalid minimum magnitude. Only 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 are allowed");
+		
+		int colIndex=getTotalProbColIndexForMag(minMag);
 
 		// Open the excel file
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			HSSFSheet sheet = wb.getSheetAt(1); // whole CA region
+			HSSFSheet sheet = wb.getSheetAt(1); // whole Region
 
 			int startRowIndex = 2;
 			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
@@ -255,7 +329,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			funcs = new ArrayList();
 			funcs.add(func);
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
-			plottingCurveChars.add(PLOT_HISTOGRAM);
+			plottingCurveChars.add(PLOT_HISTOGRAM1);
 			GraphWindow graphWindow= new GraphWindow(this);
 			graphWindow.setPlotLabel(PLOT_LABEL);
 			graphWindow.plotGraphUsingPlotPreferences();
@@ -263,6 +337,27 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	/**
+	 * Get Total Prob column index for a magnitiude
+	 * 
+	 * @param minMag
+	 * @return
+	 */
+	private int getTotalProbColIndexForMag(double minMag) {
+		boolean found = false;
+		int colIndex=-1;
+		// find the column based on the specfied magnitude
+		for(int magIndex=0; magIndex<this.mags.length && !found; ++magIndex) {
+			if(mags[magIndex]==minMag) {
+				colIndex = (magIndex+1)* sources.length;
+				found=true;
+			}
+		}
+		if(!found) throw new RuntimeException("Invalid minimum magnitude. Only 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 are allowed");
+		return colIndex;
 	}
 
 
@@ -401,7 +496,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-
+		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls");
 	}
 
 }
