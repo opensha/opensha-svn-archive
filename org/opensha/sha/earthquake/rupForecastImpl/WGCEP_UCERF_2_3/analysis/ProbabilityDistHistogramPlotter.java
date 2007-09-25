@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -62,7 +63,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	public final static String BACKGROUND = "Background";
 	public final static String TOTAL = "Total";
 	private String[] sources = { A_FAULTS, B_FAULTS, NON_CA_B_FAULTS, C_ZONES, BACKGROUND, TOTAL };
-	private UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+	private UCERF2_TimeDependentEpistemicList ucerf2EpistemicList;
 	private String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", 
 			"Green Valley Connected", "Mount Diablo Thrust"};
 	private String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
@@ -75,7 +76,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 */
 	public void generateProbContributionsExcelSheet(double duration, String fileName, GeographicRegion region) {
 
-
+		if(ucerf2EpistemicList==null)
+			ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+		
 		//	create a sheet that contains param settings for each logic tree branch
 		workbook  = new HSSFWorkbook();
 		createParamSettingsSheet();
@@ -276,6 +279,124 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}
 	}
 
+	
+	/**
+	 * It reads the input file as created by generateProbContributionsExcelSheet() method
+	 * and generates min, max, mean and a histogram function for each column in the sheet.
+	 * These values are then saved in a separate excel sheet
+	 * 
+	 * @param inputFileName
+	 * @param outputFileName
+	 */
+	public void mkAvgMinMaxSheet(String inputFileName, String outputFileName) {
+		
+		int lastColIndex;
+
+		// Open the excel file
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(inputFileName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			
+			int numSheets = wb.getNumberOfSheets();
+			
+			// list of all branch indices
+			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
+	
+			//	create a sheet that contains param settings for each logic tree branch
+			HSSFWorkbook newWorkbook  = new HSSFWorkbook();
+			
+			//	do for each sheet except parameter Settings sheet
+			for(int sheetIndex=1; sheetIndex<numSheets; ++sheetIndex) { 
+				HSSFSheet origSheet = wb.getSheetAt(sheetIndex); 
+				if(sheetIndex==1) lastColIndex = this.mags.length*this.sources.length;
+				else lastColIndex = mags.length;
+				HSSFSheet newSheet = newWorkbook.createSheet(wb.getSheetName(sheetIndex));
+				
+				int rowIndex=0;
+				
+				EvenlyDiscretizedFunc xValuesFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
+				// copy first 2 rows from original sheet to final sheet
+				for(; rowIndex<2; ++rowIndex) {
+					HSSFRow newRow = newSheet.createRow(rowIndex);
+					HSSFRow origRow = origSheet.getRow(rowIndex);
+					if(origRow == null) continue;
+					for(int colIndex=0; colIndex<=lastColIndex; ++colIndex) {
+						HSSFCell origCell = origRow.getCell((short)colIndex);
+						if(origCell==null) continue;
+						newRow.createCell((short)colIndex).setCellValue(origCell.getStringCellValue());
+					}
+				}
+				
+				rowIndex = 2;
+				// create min/max/avg rows
+				newSheet.createRow(rowIndex++).createCell((short)0).setCellValue("Min");
+				newSheet.createRow(rowIndex++).createCell((short)0).setCellValue("Max");
+				newSheet.createRow(rowIndex++).createCell((short)0).setCellValue("Avg");
+				
+				rowIndex = 6;
+				// now write all x values in first column
+				for(int i=0; i<xValuesFunc.getNum(); ++i)
+					newSheet.createRow(rowIndex++).createCell((short)0).setCellValue(xValuesFunc.getX(i));
+				
+				// write min, max, avg and Y values in all subsequent columns
+				for(int colIndex=1; colIndex<=lastColIndex; ++colIndex) {
+					double[] minMaxAvg = getMinMaxAvg(bIndices, colIndex, origSheet);
+					EvenlyDiscretizedFunc func = getFunc("", bIndices, wb.getSheetAt(0), colIndex, origSheet);
+					rowIndex = 2;
+					// create min/max/avg rows
+					newSheet.getRow(rowIndex++).createCell((short)colIndex).setCellValue(minMaxAvg[0]);
+					newSheet.createRow(rowIndex++).createCell((short)colIndex).setCellValue(minMaxAvg[1]);
+					newSheet.createRow(rowIndex++).createCell((short)colIndex).setCellValue(minMaxAvg[2]);
+					
+					rowIndex = 6;
+					// now write all x values in first column
+					for(int i=0; i<func.getNum(); ++i)
+						newSheet.createRow(rowIndex++).createCell((short)colIndex).setCellValue(func.getY(i));
+
+				}
+			}
+			
+			// write to output file
+			FileOutputStream fileOut = new FileOutputStream(outputFileName);
+			newWorkbook.write(fileOut);
+			fileOut.close();
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 *  Get min/max/avg for a column
+	 *  
+	 * @param bptBranchIndices
+	 * @param totProbColIndex
+	 * @param probSheet
+	 * @return
+	 */
+	private double[] getMinMaxAvg(ArrayList<Integer> branchIndices, 
+			int probColIndex, HSSFSheet probSheet) {
+
+		double totProb = 0.0;
+		double minProb = Double.MAX_VALUE;
+		double maxProb = Double.NEGATIVE_INFINITY;
+		
+		for (int i=0; i<branchIndices.size(); ++i) { 
+			int branchNum=branchIndices.get(i);
+			double prob = probSheet.getRow(branchNum+1).getCell((short)probColIndex).getNumericCellValue();
+			totProb+=prob;
+			if(prob>maxProb) maxProb = prob;
+			if(prob<minProb) minProb = prob;
+		}
+		double []minMaxAvg = new double[3];
+		minMaxAvg[0] = minProb;
+		minMaxAvg[1] = maxProb;
+		minMaxAvg[2] = totProb/branchIndices.size();
+		return minMaxAvg;
+	}
+	
+	
 	/**
 	 *  Get the evenly discretized func
 	 *  
@@ -298,10 +419,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		bptFunc.setTolerance(DELTA_PROB);
 
 		
-		for (int i=0; i<branchIndices.size(); ++i) { // populate BPT func
+		for (int i=0; i<branchIndices.size(); ++i) { // populate  func
 			int branchNum=branchIndices.get(i);
 			double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
 			double prob = probSheet.getRow(branchNum+1).getCell((short)probColIndex).getNumericCellValue();
+			if(prob>this.MAX_PROB) prob=MAX_PROB;
+			//System.out.println(prob);
 			bptFunc.add(prob, wt);
 		}
 		return bptFunc;
@@ -412,6 +535,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		HSSFSheet paramSettingsSheet = workbook.createSheet("Parameter Settings");
 		HSSFRow row;
+		if(ucerf2EpistemicList==null)
+			ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
 		ParameterList adjustableParams = ucerf2EpistemicList.getParameterList(0);
 		Iterator it = adjustableParams.getParametersIterator();
 		ArrayList<String> adjustableParamNames = new ArrayList<String>();
@@ -539,8 +664,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		
+		
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		plotter.plotHistogramsForMagAndSource(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
+		//plotter.plotHistogramsForMagAndSource(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
+
+		plotter.mkAvgMinMaxSheet("ProbabilityContributions_30yrs_All.xls", "ProbAnalysis_30yrs_All.xls");
 	}
 
 }
