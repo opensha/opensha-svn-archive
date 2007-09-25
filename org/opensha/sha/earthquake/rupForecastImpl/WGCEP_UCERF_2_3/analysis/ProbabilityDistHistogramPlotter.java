@@ -36,6 +36,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  *
  */
 public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
+	private final static String PATH = " org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 	private final static double MIN_PROB= 0.025;
 	private final static double MAX_PROB= 0.975;
 	private final static double DELTA_PROB= 0.05;
@@ -656,20 +657,21 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_All.xls", null);
-		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(30, "ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_All.xls", null);
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
 		
 		
-		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		//plotter.plotHistogramsForMagAndSource(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
 
-		plotter.mkAvgMinMaxSheet("ProbabilityContributions_30yrs_All.xls", "ProbAnalysis_30yrs_All.xls");
+		plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
+		plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
 	}
 
 }
