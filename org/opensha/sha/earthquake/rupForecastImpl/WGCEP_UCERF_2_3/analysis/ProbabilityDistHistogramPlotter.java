@@ -56,7 +56,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;
 	private HSSFWorkbook workbook;
 
-	private double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0};
+	private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0};
 	public final static String A_FAULTS = "A-Faults";
 	public final static String B_FAULTS = "B-Faults";
 	public final static String NON_CA_B_FAULTS = "Non-CA B-Faults";
@@ -87,8 +87,13 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		int numSources = sources.length; // A-Faults, B-Faults, Non-CA B-Faults, Background, C-Zones, Total
 
-		HSSFSheet allCA_RegionSheet = workbook.createSheet("Entire Region");
-		HSSFRow row1, row2;
+		// create sheet for each source
+//		 create sheet for each A-Fault
+		for(int i=0; i<sources.length; ++i) {
+			workbook.createSheet(sources[i]);
+		}
+		
+		HSSFRow row1=null;
 		
 		
 		// create sheet for each A-Fault
@@ -100,15 +105,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		for(int i=0; i<bFaultNames.length; ++i) {
 			workbook.createSheet(bFaultNames[i]);
 		}
-
-		// add column for each magnitude and each source
-		row1 = allCA_RegionSheet.createRow(0);
-		row2 = allCA_RegionSheet.createRow(1);
-		for(int magIndex=0; magIndex<mags.length; ++magIndex) {
-			int colIndex = magIndex*numSources+1;
-			row1.createCell((short)(colIndex)).setCellValue(" Mag "+mags[magIndex]);
-			for(int srcIndex=0; srcIndex<numSources; ++srcIndex) // each source for this magnitude
-				row2.createCell((short)(colIndex+srcIndex)).setCellValue(sources[srcIndex]);
+		
+		// create sheet for each Source-type
+		for(int i=0; i<sources.length; ++i) {
+			row1 = workbook.getSheet(sources[i]).createRow(0);
+			for(int magIndex=0; magIndex<mags.length; ++magIndex)
+				row1.createCell((short)(magIndex+1)).setCellValue(" Mag "+mags[magIndex]);
 		}
 		
 
@@ -135,8 +137,6 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		DiscretizedFuncAPI cZoneProbs =null;
 		for(int erfIndex=0; erfIndex<numERFs; ++erfIndex) {
 			System.out.println("Doing run "+(erfIndex+1)+" of "+numERFs);
-			row1 = allCA_RegionSheet.createRow(startRowIndex+erfIndex); 
-			row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
 			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getERF(erfIndex);
 			ucerf2.getTimeSpan().setDuration(duration);
 			ucerf2.updateForecast();
@@ -168,7 +168,24 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			}	
 			
 
-			// create sheet for each A-Fault
+			// each Source Type
+			for(int i=0; i<sources.length; ++i) {
+				row1 = workbook.getSheet(sources[i]).createRow(startRowIndex+erfIndex);
+				row1.createCell((short)0).setCellValue("Branch "+(erfIndex+1));
+				DiscretizedFuncAPI func=null;
+				if(sources[i].equals(this.A_FAULTS)) func = aFaultsProbs;
+				else if(sources[i].equals(this.B_FAULTS)) func = bFaultsProbs;
+				else if(sources[i].equals(this.NON_CA_B_FAULTS)) func = nonCA_B_FaultsProbs;
+				else if(sources[i].equals(this.BACKGROUND)) func = bckgroundProbs;
+				else if(sources[i].equals(this.C_ZONES)) func = cZoneProbs;
+				else if(sources[i].equals(this.TOTAL)) func = totalProbs;
+				
+				for(int magIndex=0; magIndex<mags.length; ++magIndex)
+					row1.createCell((short)(magIndex+1)).setCellValue(func.getY(magIndex));
+			}
+			
+
+			// each A-Fault
 			for(int i=0; i<aFaultNames.length; ++i) {
 				DiscretizedFuncAPI aFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(aFaultNames[i]).createRow(startRowIndex+erfIndex);
@@ -178,7 +195,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 					row1.createCell((short)(magIndex+1)).setCellValue(aFaultProbDist.getY(magIndex));
 			}
 			
-			//create sheet for each B-Fault
+			//each B-Fault
 			for(int i=0; i<bFaultNames.length; ++i) {
 				DiscretizedFuncAPI bFaultProbDist = getDiscretizedFunc();
 				row1 = workbook.getSheet(bFaultNames[i]).createRow(startRowIndex+erfIndex);
@@ -257,7 +274,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			// Empirical
 			empiricalBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_EMPIRICAL);
 					
-			int totProbColIndex=getColIndexForMagAndSource(mag, sourceType);
+			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheetAt(1); // whole Region
 			
 			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson", bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
@@ -442,13 +459,13 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	public void plotHistogramsForMagAndSource(double minMag, String fileName, String sourceType) {
 
 		
-		int colIndex=getColIndexForMagAndSource(minMag, sourceType);
+		int colIndex=getColIndexForMag(minMag);
 
 		// Open the excel file
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			HSSFSheet sheet = wb.getSheetAt(1); // whole Region
+			HSSFSheet sheet = wb.getSheet(sourceType); // whole Region
 
 			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
 			EvenlyDiscretizedFunc func = this.getFunc("Histogram plot for "+fileName+" for Mag>="+minMag, bIndices, wb.getSheetAt(0), colIndex, wb.getSheetAt(1));
@@ -468,22 +485,18 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 
 	/**
-	 * Get column index for a magnitiude for a particular source type
+	 * Get column index for a magnitiude
 	 * 
 	 * @param minMag
 	 * @return
 	 */
-	private int getColIndexForMagAndSource(double minMag, String sourceType) {
-		int offSet = -20;
-		for(int i=0; i<this.sources.length; ++i)
-			if(sources[i].equalsIgnoreCase(sourceType)) offSet = i+1;
-		if(offSet<0) throw new RuntimeException("Invalid source type");
+	private int getColIndexForMag(double minMag) {
 		boolean found = false;
 		int colIndex=-1;
 		// find the column based on the specfied magnitude
 		for(int magIndex=0; magIndex<this.mags.length && !found; ++magIndex) {
 			if(mags[magIndex]==minMag) {
-				colIndex = magIndex* sources.length+offSet;
+				colIndex = magIndex+1;
 				found=true;
 			}
 		}
@@ -657,7 +670,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
+		plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
