@@ -36,7 +36,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  *
  */
 public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
-	private final static String PATH = " org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
+	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 	private final static double MIN_PROB= 0.025;
 	private final static double MAX_PROB= 0.975;
 	private final static double DELTA_PROB= 0.05;
