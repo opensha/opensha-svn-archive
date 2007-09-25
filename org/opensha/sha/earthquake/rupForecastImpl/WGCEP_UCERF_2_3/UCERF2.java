@@ -1387,7 +1387,7 @@ public class UCERF2 extends EqkRupForecast {
 	/**
 	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
 	 * MFD for Karen Felzer's observed MFD and upper and lower confidence MFDs
-	 * (from Karen's email on 08/27/07). NOTE THAT THE WITH AFTERSHOCK VALUES WERE NOT UPDATED HERE
+	 * (from Table 21 of Appendix_I_v04.pdf sent by Karen via  email on 09/24/07).
 	 * @return
 	 */
 	public ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(boolean includeAftershocks) {
@@ -1395,11 +1395,11 @@ public class UCERF2 extends EqkRupForecast {
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		double[] cumRatesWith =     {7.4,      2.3,      0.73,      0.23,       0.07,       0.016};
-		double[] cumRatesLowWith =  {7.4-3.4,  2.3-1.1,  0.73-0.34, 0.23-0.11,  0.07-0.03,  0.016-0.011};
-		double[] cumRatesHighWith = {7.4+2.67, 2.3+0.84, 0.73+0.27, 0.23+0.084, 0.07+0.025, 0.016+0.0008};
+		double[] cumRatesLowWith =  {7.4-3.87,  2.3-1.1,  0.73-0.34, 0.23-0.11,  0.07-0.04,  0.016-0.014};
+		double[] cumRatesHighWith = {7.4+2.67, 2.3+0.84, 0.73+0.27, 0.23+0.12, 0.07+0.06, 0.016+0.022};
 		double[] cumRates = {    3.74,      1.48,      0.58,      0.22,      0.08,      0.02};
-		double[] cumRatesLow =  {3.74-1.47, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.014};
-		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.18, 0.22+0.10, 0.08+0.06, 0.02+0.025};
+		double[] cumRatesLow =  {3.74-1.51, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.017};
+		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.31, 0.22+0.11, 0.08+0.06, 0.02+0.024};
 
 
 		if(includeAftershocks) {
