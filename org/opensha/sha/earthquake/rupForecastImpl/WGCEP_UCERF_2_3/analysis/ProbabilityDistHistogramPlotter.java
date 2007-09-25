@@ -44,8 +44,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private final static String PLOT_LABEL = "Probability Contribution";
 	private final PlotCurveCharacterstics HISTOGRAM1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
 			new Color(0,0,0), 2); // black
-	private final PlotCurveCharacterstics HISTOGRAM2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
-			Color.GREEN, 2); // Green
+	
 	private final PlotCurveCharacterstics STACKED_BAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
 			new Color(0,0,0), 2); // black
 	private final PlotCurveCharacterstics STACKED_BAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
@@ -56,7 +55,13 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private HSSFWorkbook workbook;
 
 	private double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0};
-	private String[] sources = { "A-Faults", "B-Faults", "Non-CA B-Faults", "C-Zones", "Background", "Total" };
+	public final static String A_FAULTS = "A-Faults";
+	public final static String B_FAULTS = "B-Faults";
+	public final static String NON_CA_B_FAULTS = "Non-CA B-Faults";
+	public final static String C_ZONES = "C-Zones";
+	public final static String BACKGROUND = "Background";
+	public final static String TOTAL = "Total";
+	private String[] sources = { A_FAULTS, B_FAULTS, NON_CA_B_FAULTS, C_ZONES, BACKGROUND, TOTAL };
 	private UCERF2_TimeDependentEpistemicList ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
 	private String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", 
 			"Green Valley Connected", "Mount Diablo Thrust"};
@@ -191,8 +196,16 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}
 	}
 	
-	
-	public void getTotalProb(DiscretizedFuncAPI totalProbs, 
+	/**
+	 * Calculate Total prob
+	 * @param totalProbs
+	 * @param aFaultsProbs
+	 * @param bFaultsProbs
+	 * @param nonCA_B_FaultsProbs
+	 * @param cZoneProbs
+	 * @param bckgroundProbs
+	 */
+	private void getTotalProb(DiscretizedFuncAPI totalProbs, 
 			DiscretizedFuncAPI aFaultsProbs, 
 			DiscretizedFuncAPI bFaultsProbs, DiscretizedFuncAPI nonCA_B_FaultsProbs, 
 			DiscretizedFuncAPI cZoneProbs, DiscretizedFuncAPI bckgroundProbs) {
@@ -223,64 +236,28 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * Plot stacked histograms for BPT vs Empirical plots
 	 * @param fileName
 	 */
-	public void plotEmpiricalBPT_ComparisonTotalProbPlot(double mag, String fileName) {
-		int probModelColIndex = 25; // column index where Prob Model value is specified in file
-		int weightColIndex = 26; // logic tree branch weight  index column
+	public void plotEmpiricalBPT_ComparisonProbPlot(double mag, String fileName, String sourceType) {
+	
 		
-		ArrayList<Integer> bptBranchIndices = new ArrayList<Integer>();
-		ArrayList<Integer> empiricalBranchIndices = new ArrayList<Integer>();
+		ArrayList<Integer> bptBranchIndices;
+		ArrayList<Integer> empiricalBranchIndices;
 		
 //		 Open the excel file
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // whole Region
-			int lastRowIndex = paramSettingsSheet.getLastRowNum();
-			System.out.println("Last row num="+lastRowIndex);
-		
-			// fill the branch numbers for BPT (or Poisson) and Empirical
-			for(int i=1; i<=lastRowIndex; ++i) {
-				String probModel = paramSettingsSheet.getRow(i).getCell((short)probModelColIndex).getStringCellValue();
-				if(probModel.equals(UCERF2.PROB_MODEL_BPT) || probModel.equals(UCERF2.PROB_MODEL_POISSON))
-					bptBranchIndices.add(i);
-				else empiricalBranchIndices.add(i);
-			}
-			
-			/*System.out.println("BPT branches:----------------");
-			for (int i=0; i<bptBranchIndices.size(); ++i)
-				System.out.println(bptBranchIndices.get(i));
-			
-			System.out.println("Empirical branches:----------------");
-			for (int i=0; i<empiricalBranchIndices.size(); ++i)
-				System.out.println(empiricalBranchIndices.get(i));*/
-			
-			// BPT/Poisson
-			EvenlyDiscretizedFunc bptFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
-			bptFunc.setInfo("Total Probability histogram plot for "+fileName+" for BPT/Poisson");
-			bptFunc.setTolerance(DELTA_PROB);
-		
+			// BPT and Poisson
+			bptBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_BPT);
+			bptBranchIndices.addAll(getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON));
 			// Empirical
-			EvenlyDiscretizedFunc empFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
-			empFunc.setInfo("Total Probability histogram plot for "+fileName+" for Empirical");
-			empFunc.setTolerance(DELTA_PROB);
-			
-			int totProbColIndex=getTotalProbColIndexForMag(mag);
+			empiricalBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_EMPIRICAL);
+					
+			int totProbColIndex=getColIndexForMagAndSource(mag, sourceType);
 			HSSFSheet probSheet = wb.getSheetAt(1); // whole Region
 			
-			for (int i=0; i<bptBranchIndices.size(); ++i) { // populate BPT func
-				int branchNum=bptBranchIndices.get(i);
-				double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
-				double prob = probSheet.getRow(branchNum+1).getCell((short)totProbColIndex).getNumericCellValue();
-				bptFunc.add(prob, wt);
-			}
-			
-			for (int i=0; i<empiricalBranchIndices.size(); ++i) { // populate BPT func
-				int branchNum=empiricalBranchIndices.get(i);
-				double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
-				//System.out.println("Rowindex:"+(branchNum+i)+", colIndex="+totProbColIndex);
-				double prob = probSheet.getRow(branchNum+1).getCell((short)totProbColIndex).getNumericCellValue();
-				empFunc.add(prob, wt);
-			}
+			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson", bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical", empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
 			
 			// plot histograms 
 			funcs = new ArrayList();
@@ -298,17 +275,50 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 *  Get the evenly discretized func
+	 *  
+	 * @param fileName
+	 * @param bptBranchIndices
+	 * @param paramSettingsSheet
+	 * @param weightColIndex
+	 * @param totProbColIndex
+	 * @param probSheet
+	 * @return
+	 */
+	private EvenlyDiscretizedFunc getFunc(String metadata, ArrayList<Integer> branchIndices, 
+			HSSFSheet paramSettingsSheet, int probColIndex, HSSFSheet probSheet) {
+
+		int weightColIndex =  getColIndexForParam(paramSettingsSheet, "Branch Weight"); // logic tree branch weight  index column
+
+		// BPT/Poisson
+		EvenlyDiscretizedFunc bptFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
+		bptFunc.setInfo(metadata);
+		bptFunc.setTolerance(DELTA_PROB);
+
+		
+		for (int i=0; i<branchIndices.size(); ++i) { // populate BPT func
+			int branchNum=branchIndices.get(i);
+			double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
+			double prob = probSheet.getRow(branchNum+1).getCell((short)probColIndex).getNumericCellValue();
+			bptFunc.add(prob, wt);
+		}
+		return bptFunc;
+	}
 	
 	/**
-	 * Plot Histogram of total Probs 
+	 * Plot Histogram for a particular source or total prob 
 	 * 
 	 * @param minMag
 	 * @param fileName
+	 * @param sourceType It can be A_Faults, B_Faults, Non_CA_B_Faults, C-Zones, Background, Total.
+	 * These are constant values as defined in this class
 	 */
-	public void plotTotalProbHistogramsAboveMag(double minMag, String fileName) {
+	public void plotHistogramsForMagAndSource(double minMag, String fileName, String sourceType) {
 
 		
-		int colIndex=getTotalProbColIndexForMag(minMag);
+		int colIndex=getColIndexForMagAndSource(minMag, sourceType);
 
 		// Open the excel file
 		try {
@@ -316,19 +326,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(1); // whole Region
 
-			int startRowIndex = 2;
-			EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
-			func.setInfo("Total Probability histogram plot for "+fileName+" for Mag>="+minMag);
-			func.setTolerance(DELTA_PROB);
-
-			int numERFs = ucerf2EpistemicList.getNumERFs(); 
-			for(int i=0; i<numERFs; ++i) {
-				System.out.println("Doing run "+(i+1)+" of "+numERFs);
-				double wt= ucerf2EpistemicList.getERF_RelativeWeight(i);
-				double prob = sheet.getRow(startRowIndex+i).getCell((short)colIndex).getNumericCellValue();
-				func.add(prob, wt);
-			}
-
+			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
+			EvenlyDiscretizedFunc func = this.getFunc("Histogram plot for "+fileName+" for Mag>="+minMag, bIndices, wb.getSheetAt(0), colIndex, wb.getSheetAt(1));
+				
 			funcs = new ArrayList();
 			funcs.add(func);
 			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
@@ -344,24 +344,64 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 
 	/**
-	 * Get Total Prob column index for a magnitiude
+	 * Get column index for a magnitiude for a particular source type
 	 * 
 	 * @param minMag
 	 * @return
 	 */
-	private int getTotalProbColIndexForMag(double minMag) {
+	private int getColIndexForMagAndSource(double minMag, String sourceType) {
+		int offSet = -20;
+		for(int i=0; i<this.sources.length; ++i)
+			if(sources[i].equalsIgnoreCase(sourceType)) offSet = i+1;
+		if(offSet<0) throw new RuntimeException("Invalid source type");
 		boolean found = false;
 		int colIndex=-1;
 		// find the column based on the specfied magnitude
 		for(int magIndex=0; magIndex<this.mags.length && !found; ++magIndex) {
 			if(mags[magIndex]==minMag) {
-				colIndex = (magIndex+1)* sources.length;
+				colIndex = magIndex* sources.length+offSet;
 				found=true;
 			}
 		}
 		if(!found) throw new RuntimeException("Invalid minimum magnitude. Only 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 are allowed");
 		return colIndex;
 	}
+	
+	/**
+	 * Get a list of branch numbers which has the specified value of parameter specified by
+	 * paramName.
+	 * Indices start from 1.
+	 * @param paramName 
+	 * @param value null if all rows are required
+	 * @return
+	 */
+	private ArrayList<Integer> getBranchIndices(HSSFSheet sheet, String paramName, String value) {
+		int colIndex = getColIndexForParam(sheet, paramName); // column index where Prob Model value is specified in file
+		int lastRowIndex = sheet.getLastRowNum();
+		ArrayList<Integer> branchIndices = new ArrayList<Integer>();
+		// fill the branch numbers for BPT (or Poisson) and Empirical
+		for(int i=1; i<=lastRowIndex; ++i) {
+			String cellVal = sheet.getRow(i).getCell((short)colIndex).getStringCellValue();
+			if(value==null || cellVal.equals(value)) branchIndices.add(i);
+		}
+		return branchIndices;
+	}
+	
+	
+	/**
+	 * Get column index for specified parameter name from metadata sheet
+	 * 
+	 * @param paramName
+	 * @return
+	 */
+	private int getColIndexForParam(HSSFSheet sheet, String paramName) {
+		HSSFRow row = sheet.getRow(0);
+		int firsColIndex = row.getFirstCellNum();
+		int lastColIndex = row.getLastCellNum();
+		for(int i=firsColIndex; i<=lastColIndex; ++i)
+			if(row.getCell((short)i).getStringCellValue().equals(paramName)) return i;
+		throw new RuntimeException("Parameter "+paramName+" does not exist in the sheet");
+ 	}
 
 
 	/**
@@ -499,8 +539,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, "ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		plotter.plotEmpiricalBPT_ComparisonTotalProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls");
-		//plotter.plotTotalProbHistogramsAboveMag(7.5, "ProbabilityContributions_30yrs_All.xls");
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotHistogramsForMagAndSource(7.5, "ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
 	}
 
 }
