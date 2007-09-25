@@ -670,8 +670,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
 
-		plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
-		plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
+		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
+		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
+		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls", PATH+"ProbAnalysis_30yrs_NoCal.xls");
+		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls", PATH+"ProbAnalysis_30yrs_SoCal.xls");
 	}
 
 }
