@@ -56,7 +56,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;
 	private HSSFWorkbook workbook;
 
-	private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0};
+	private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25};
 	public final static String A_FAULTS = "A-Faults";
 	public final static String B_FAULTS = "B-Faults";
 	public final static String NON_CA_B_FAULTS = "Non-CA B-Faults";
@@ -670,14 +670,14 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
 		
 		
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
