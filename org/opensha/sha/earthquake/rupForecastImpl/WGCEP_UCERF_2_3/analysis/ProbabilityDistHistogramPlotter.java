@@ -317,7 +317,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
 
 			
-			HSSFSheet newSheet = wb.createSheet("Min/Max/Avg");
+			HSSFSheet newSheet = wb.createSheet("MinMaxAvg");
 			
 			newSheet.createRow(0); // Row to write Sheet name
 			newSheet.createRow(1); // row to write min/max/avg
@@ -333,10 +333,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				String sheetName = wb.getSheetName(sheetIndex); 
 				HSSFSheet origSheet = wb.getSheetAt(sheetIndex);
 				int startColIndex = 3*(sheetIndex-1)+1;
-				newSheet.getRow(0).getCell((short)(startColIndex)).setCellValue(sheetName);
-				newSheet.getRow(1).getCell((short)(startColIndex)).setCellValue("Min");
-				newSheet.getRow(1).getCell((short)(startColIndex+1)).setCellValue("Max");
-				newSheet.getRow(1).getCell((short)(startColIndex+2)).setCellValue("Avg");
+				newSheet.getRow(0).createCell((short)(startColIndex)).setCellValue(sheetName);
+				newSheet.getRow(1).createCell((short)(startColIndex)).setCellValue("Min");
+				newSheet.getRow(1).createCell((short)(startColIndex+1)).setCellValue("Max");
+				newSheet.getRow(1).createCell((short)(startColIndex+2)).setCellValue("Avg");
 				
 				// write min, max, avg and Y values in all subsequent columns
 				for(int colIndex=1; colIndex<=lastColIndex; ++colIndex) {
@@ -748,14 +748,14 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls", PATH+"ProbAnalysis_30yrs_NoCal.xls");
 		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls", PATH+"ProbAnalysis_30yrs_SoCal.xls");
 
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
+		/*plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_NoCal.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls");
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_SoCal.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_SoCal.xls");*/
 	}
 
 }
