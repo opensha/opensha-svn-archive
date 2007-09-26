@@ -297,6 +297,67 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}
 	}
 
+	/**
+	 * It reads the input file as created by generateProbContributionsExcelSheet() method
+	 * and generates one common sheet with min, max, mean for each column in each sheet.
+	 * These values are then saved in a sheet in the same excel file
+	 * 
+	 * @param inputFileName
+	 */
+	public void addMinMaxAvgSheet(String inputFileName) {
+
+		// Open the excel file
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(inputFileName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			
+			int numSheets = wb.getNumberOfSheets();
+			
+			// list of all branch indices
+			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
+
+			
+			HSSFSheet newSheet = wb.createSheet("Min/Max/Avg");
+			
+			newSheet.createRow(0); // Row to write Sheet name
+			newSheet.createRow(1); // row to write min/max/avg
+			final int startRowIndex = 2;
+			
+			// write all magnitudes
+			for(int magIndex=0; magIndex<this.mags.length; ++magIndex)
+				newSheet.createRow(magIndex+startRowIndex).createCell((short)0).setCellValue(mags[magIndex]);
+			
+			int lastColIndex = mags.length;
+			//	do for each sheet except parameter Settings sheet
+			for(int sheetIndex=1; sheetIndex<numSheets; ++sheetIndex) { 
+				String sheetName = wb.getSheetName(sheetIndex); 
+				HSSFSheet origSheet = wb.getSheetAt(sheetIndex);
+				int startColIndex = 3*(sheetIndex-1)+1;
+				newSheet.getRow(0).getCell((short)(startColIndex)).setCellValue(sheetName);
+				newSheet.getRow(1).getCell((short)(startColIndex)).setCellValue("Min");
+				newSheet.getRow(1).getCell((short)(startColIndex+1)).setCellValue("Max");
+				newSheet.getRow(1).getCell((short)(startColIndex+2)).setCellValue("Avg");
+				
+				// write min, max, avg and Y values in all subsequent columns
+				for(int colIndex=1; colIndex<=lastColIndex; ++colIndex) {
+					double[] minMaxAvg = getMinMaxAvg(bIndices, colIndex, origSheet);
+					HSSFRow row  = newSheet.getRow(startRowIndex+colIndex-1);
+					// create min/max/avg rows
+					row.createCell((short)startColIndex).setCellValue(minMaxAvg[0]);
+					row.createCell((short)(startColIndex+1)).setCellValue(minMaxAvg[1]);
+					row.createCell((short)(startColIndex+2)).setCellValue(minMaxAvg[2]);				
+				}
+			}
+			
+			// write to output file
+			FileOutputStream fileOut = new FileOutputStream(inputFileName);
+			wb.write(fileOut);
+			fileOut.close();
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * It reads the input file as created by generateProbContributionsExcelSheet() method
@@ -306,7 +367,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * @param inputFileName
 	 * @param outputFileName
 	 */
-	public void mkAvgMinMaxSheet(String inputFileName, String outputFileName) {
+	public void mkHistogramSheet(String inputFileName, String outputFileName) {
 		
 		int lastColIndex;
 
@@ -326,8 +387,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			//	do for each sheet except parameter Settings sheet
 			for(int sheetIndex=1; sheetIndex<numSheets; ++sheetIndex) { 
 				HSSFSheet origSheet = wb.getSheetAt(sheetIndex); 
-				if(sheetIndex==1) lastColIndex = this.mags.length*this.sources.length;
-				else lastColIndex = mags.length;
+				lastColIndex = mags.length;
 				HSSFSheet newSheet = newWorkbook.createSheet(wb.getSheetName(sheetIndex));
 				
 				int rowIndex=0;
@@ -677,16 +737,25 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
 		
 		
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
 
-		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
-		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
-		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls", PATH+"ProbAnalysis_30yrs_NoCal.xls");
-		//plotter.mkAvgMinMaxSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls", PATH+"ProbAnalysis_30yrs_SoCal.xls");
+		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
+		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
+		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls", PATH+"ProbAnalysis_30yrs_NoCal.xls");
+		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls", PATH+"ProbAnalysis_30yrs_SoCal.xls");
+
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_NoCal.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_SoCal.xls");
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_SoCal.xls");
 	}
 
 }
