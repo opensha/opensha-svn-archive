@@ -28,7 +28,7 @@ public class WriteTimeDepSegmentedProbAndGain {
 	
 	
 	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
-		"Rupture Gain, Segment Probability, Segment Gain, Segment Rate, and Segment Recurrence"+
+		"Rupture Gain, Segment Probability, Segment Prob for M³6.7, Segment Gain, Segment Rate, and Segment Recurrence"+
 		" Interval (each on a different sheet) for all Type-A fault segmented models,"+
 		" and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
@@ -40,9 +40,9 @@ public class WriteTimeDepSegmentedProbAndGain {
 		" branches. \"Gain\" is defined as the ratio of the probability to the Poisson probability.  Note" +
 		" that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
-		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
-		" Appendix N). The \"Segment Rate\" and \"Segment Recurrence Interval\" sheets give data on the annual"+
-		" rate of events and recurrence interval, respectively, on each segment.";
+		" the weight-averaged Poisson probability (the latter is more correct). The \"Segment Rate\" and"+
+		" \"Segment Recurrence Interval\" sheets give data on the long-term annual"+
+		" rate of events and recurrence interval, respectively, on each segment (i.e., the Empricial model does not influence these values).";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;

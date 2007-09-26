@@ -29,20 +29,18 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 	
 	
 	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
-		"Rupture Gain "+
-		"  (each on a different sheet) for all Type-A fault unsegmented models,"+
-		" and for various logic-tree branches."+
+		" andRupture Gain (each on a different sheet) for all Type-A fault (including unsegmented models, which is why segment "+
+		" rates are not listed) and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+
 		" sheet, where those that vary between branches are in bold typeface.  The total aggregated"+
 		" rupture probability for each fault is given at the bottom of the list for each fault."+
-		" The third-to-last column gives the weighted average value (over all logic tree branches, where the weights"+
-		" are given on row 155 on the rupture-related sheets.  The last"+
+		" The third-to-last column gives the weighted average value (over all logic tree branches), where the weights"+
+		" are given on row 154 on the rupture-related sheets (or row 31 if only unsegmented branches are used).  The last"+
 		" two columns give the Min and Max, respectively, among all the logic-tree"+
 		" branches. \"Gain\" is defined as the ratio of the probability to the Poisson probability.  Note" +
 		" that the weighted averages for the gains are"+
 		" the individual ratios averaged, which is not the same as the weight-averaged probability divided by"+
-		" the weight-averaged Poisson probability (the latter is more correct & what is listed in tables in"+
-		" Appendix N). ";
+		" the weight-averaged Poisson probability (the latter is more correct).";
 	private ArrayList<String> paramNames;
 	private ArrayList<ParamOptions> paramValues;
 	private int lastParamIndex;
