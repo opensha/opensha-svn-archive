@@ -2125,9 +2125,22 @@ public class UCERF2 extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		//testNSAF_TimePredProbs();
-		simulateSSAF_events();
+		//simulateSSAF_events();
 		
-		//UCERF2 erRateModel2_ERF = new UCERF2();
+		UCERF2 erRateModel2_ERF = new UCERF2();
+		erRateModel2_ERF.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+		erRateModel2_ERF.updateForecast();
+		EvenlyDiscretizedFunc cumMFD = erRateModel2_ERF.getTotalMFD().getCumRateDistWithOffset();
+		DiscretizedFuncAPI cumMFD_fromProb = cumMFD.deepClone();
+		erRateModel2_ERF.getTotalProb(cumMFD_fromProb, null);
+		for(int i=0; i <cumMFD_fromProb.getNum();i++){
+			cumMFD_fromProb.set(i,-Math.log(1-cumMFD_fromProb.getY(i))/erRateModel2_ERF.getTimeSpan().getDuration());
+			System.out.println(i+"\t"+cumMFD.getY(i)+"\t"+cumMFD_fromProb.getY(i)+"\t"+cumMFD.getY(i)/cumMFD_fromProb.getY(i));
+		}
+		//System.out.println(cumMFD.toString());
+		//System.out.println(cumMFD.toString());
+		
+		
 		//erRateModel2_ERF.makeMatlabNNLS_testScript();
 	}
 }
