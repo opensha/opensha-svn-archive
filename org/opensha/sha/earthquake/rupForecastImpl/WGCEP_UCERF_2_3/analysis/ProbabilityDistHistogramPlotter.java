@@ -88,7 +88,6 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		int numSources = sources.length; // A-Faults, B-Faults, Non-CA B-Faults, Background, C-Zones, Total
 
 		// create sheet for each source
-//		 create sheet for each A-Fault
 		for(int i=0; i<sources.length; ++i) {
 			workbook.createSheet(sources[i]);
 		}
@@ -157,17 +156,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			ucerf2.getTotal_NonCA_B_FaultsProb(nonCA_B_FaultsProbs, region);
 			getTotalProb(totalProbs, aFaultsProbs, bFaultsProbs, nonCA_B_FaultsProbs, cZoneProbs, bckgroundProbs);
 			
-			for(int magIndex=0; magIndex<mags.length; ++magIndex) {
-				int colIndex = magIndex*numSources+1;
-				row1.createCell((short)(colIndex++)).setCellValue(aFaultsProbs.getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(bFaultsProbs.getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(nonCA_B_FaultsProbs.getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(cZoneProbs.getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(bckgroundProbs.getY(magIndex));
-				row1.createCell((short)(colIndex++)).setCellValue(totalProbs.getY(magIndex));
-			}	
-			
-
+		
 			// each Source Type
 			for(int i=0; i<sources.length; ++i) {
 				row1 = workbook.getSheet(sources[i]).createRow(startRowIndex+erfIndex);
@@ -310,7 +299,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(inputFileName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			
+			HSSFSheet paramSettingSheet = wb.getSheetAt(0);
 			int numSheets = wb.getNumberOfSheets();
 			
 			// list of all branch indices
@@ -340,7 +329,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				
 				// write min, max, avg and Y values in all subsequent columns
 				for(int colIndex=1; colIndex<=lastColIndex; ++colIndex) {
-					double[] minMaxAvg = getMinMaxAvg(bIndices, colIndex, origSheet);
+					double[] minMaxAvg = getMinMaxAvg(paramSettingSheet, bIndices, colIndex, origSheet);
 					HSSFRow row  = newSheet.getRow(startRowIndex+colIndex-1);
 					// create min/max/avg rows
 					row.createCell((short)startColIndex).setCellValue(minMaxAvg[0]);
@@ -418,7 +407,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				
 				// write min, max, avg and Y values in all subsequent columns
 				for(int colIndex=1; colIndex<=lastColIndex; ++colIndex) {
-					double[] minMaxAvg = getMinMaxAvg(bIndices, colIndex, origSheet);
+					double[] minMaxAvg = getMinMaxAvg(wb.getSheetAt(0), bIndices, colIndex, origSheet);
 					EvenlyDiscretizedFunc func = getFunc("", bIndices, wb.getSheetAt(0), colIndex, origSheet);
 					rowIndex = 2;
 					// create min/max/avg rows
@@ -453,24 +442,27 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	 * @param probSheet
 	 * @return
 	 */
-	private double[] getMinMaxAvg(ArrayList<Integer> branchIndices, 
+	private double[] getMinMaxAvg(HSSFSheet paramSettingsSheet, ArrayList<Integer> branchIndices, 
 			int probColIndex, HSSFSheet probSheet) {
 
-		double totProb = 0.0;
+		double totProb = 0.0, totWt=0.0;
 		double minProb = Double.MAX_VALUE;
 		double maxProb = Double.NEGATIVE_INFINITY;
-		
+		int weightColIndex =  getColIndexForParam(paramSettingsSheet, "Branch Weight"); // logic tree branch weight  index column
+
 		for (int i=0; i<branchIndices.size(); ++i) { 
 			int branchNum=branchIndices.get(i);
+			double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
 			double prob = probSheet.getRow(branchNum+1).getCell((short)probColIndex).getNumericCellValue();
-			totProb+=prob;
+			totProb+=wt*prob;
+			totWt+=wt;
 			if(prob>maxProb) maxProb = prob;
 			if(prob<minProb) minProb = prob;
 		}
 		double []minMaxAvg = new double[3];
 		minMaxAvg[0] = minProb;
 		minMaxAvg[1] = maxProb;
-		minMaxAvg[2] = totProb/branchIndices.size();
+		minMaxAvg[2] = totProb/totWt;
 		return minMaxAvg;
 	}
 	
