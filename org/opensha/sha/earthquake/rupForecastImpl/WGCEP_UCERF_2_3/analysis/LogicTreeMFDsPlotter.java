@@ -388,6 +388,25 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	}
 	
 	/**
+	 * Get C-Zones MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_C_ZoneMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_C_ZoneMFD();
+	}
+	
+	/**
+	 * Get Background MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_BackgroundMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_BackgroundMFD();
+	}
+	
+	
+	/**
 	 * Get B_Faults Char MFD
 	 * @param ucerf2
 	 * @return
@@ -441,8 +460,8 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		readMFDsFromFile(path+TOT_MFD_FILENAME, this.totMFDsList, false);
 		nshmp02TotMFD = readMFDFromFile(path+NSHMP_02_MFD_FILENAME, true);
 		ucerf2.updateForecast();
-		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
-		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
+		cZoneMFD = getTotal_C_ZoneMFD(ucerf2);
+		bckMFD = getTotal_BackgroundMFD(ucerf2);
 		
 		// combined Logic Tree MFD
 		plotMFDs(null, null, true, true, true, true, true, false);

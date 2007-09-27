@@ -104,6 +104,30 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		else throw new RuntimeException("Unsupported region");
 	}
 	
+	/**
+	 * Get C-Zones MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_C_ZoneMFD(UCERF2 ucerf2) {
+		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
+		ucerf2.getTotal_C_ZoneProb(incrMFD, region);
+		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
+		return incrMFD;
+	}
+	
+	/**
+	 * Get Background MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_BackgroundMFD(UCERF2 ucerf2) {
+		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
+		ucerf2.getTotal_BackgroundProb(incrMFD, region);
+		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
+		return incrMFD;
+	}
+	
 
 	/**
 	 * Get Observed Incr MFD
@@ -133,10 +157,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	public static void main(String args[]) {
 		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		//plotter.plotMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH, true);
+		plotter.plotMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH, true);
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		plotter.plotMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH, true);
+		//plotter.plotMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH, true);
 	}
 	
 }
