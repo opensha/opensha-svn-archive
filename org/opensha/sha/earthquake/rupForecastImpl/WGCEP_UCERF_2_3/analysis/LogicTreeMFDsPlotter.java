@@ -47,7 +47,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 
-	private ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
+	protected ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
 	private final static String DEFAULT_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/";
@@ -55,17 +55,17 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BackGrdFrac0_1/";
 	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BFault_BVal0/";
 	
-	private final static String A_FAULTS_MFD_FILENAME = "A_Faults_MFDs.txt";
-	private final static String B_FAULTS_CHAR_MFD_FILENAME = "B_FaultsCharMFDs.txt";
-	private final static String B_FAULTS_GR_MFD_FILENAME = "B_FaultsGR_MFDs.txt";
-	private final static String NON_CA_B_FAULTS_MFD_FILENAME = "Non_CA_B_Faults_MFDs.txt";
-	private final static String TOT_MFD_FILENAME = "TotMFDs.txt";
+	protected final static String A_FAULTS_MFD_FILENAME = "A_Faults_MFDs.txt";
+	protected final static String B_FAULTS_CHAR_MFD_FILENAME = "B_FaultsCharMFDs.txt";
+	protected final static String B_FAULTS_GR_MFD_FILENAME = "B_FaultsGR_MFDs.txt";
+	protected final static String NON_CA_B_FAULTS_MFD_FILENAME = "Non_CA_B_Faults_MFDs.txt";
+	protected final static String TOT_MFD_FILENAME = "TotMFDs.txt";
 	private final static String NSHMP_02_MFD_FILENAME = "NSHMP02_MFDs.txt";
 	private final static String METADATA_EXCEL_SHEET = "Metadata.xls";
 	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
 	
 	
-	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLUE, 2); // A-Faults
 	private final PlotCurveCharacterstics PLOT_CHAR1_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
 		      Color.BLUE, 2); // A-Faults
@@ -75,7 +75,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLUE, 1); // A-Faults
 	
 	
-	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
 	private final PlotCurveCharacterstics PLOT_CHAR2_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
 		      Color.LIGHT_GRAY, 2); // B-Faults Char
@@ -85,7 +85,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.LIGHT_GRAY, 1); // B-Faults Char
 	
 	
-	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2); // B-Faults GR
 	private final PlotCurveCharacterstics PLOT_CHAR3_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
 		      Color.GREEN, 2); // B-Faults GR
@@ -94,12 +94,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final PlotCurveCharacterstics PLOT_CHAR3_3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
 		      Color.GREEN, 1); // B-Faults GR
 	
-	private final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR10 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.ORANGE, 2); // Non-CA B-Faults
 	
 	
 	
-	private final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR4 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.BLACK, 2); // Tot MFD
 	private final PlotCurveCharacterstics PLOT_CHAR4_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
 		      Color.BLACK, 2); // Tot MFD
@@ -109,32 +109,32 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		      Color.BLACK, 1); // Tot MFD
 	
 	
-	private final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR5 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.MAGENTA, 2); //background
 	private final PlotCurveCharacterstics PLOT_CHAR5_1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE,
 		      Color.MAGENTA, 2); //background
 	private final PlotCurveCharacterstics PLOT_CHAR5_2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE,
 		      Color.MAGENTA, 2); //background
 	
-	private final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR6 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.PINK, 2); // C-zone
 	
-	private final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR7 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.RED, 2); // best fit MFD
-	private final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+	protected final PlotCurveCharacterstics PLOT_CHAR8 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
 		      Color.RED, 5); // observed MFD
 	
-	private final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+	protected final PlotCurveCharacterstics PLOT_CHAR9 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      new Color(188, 143, 143), 2); // NSHMP 2002
 	
-	private ArrayList funcs;
-	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
+	protected ArrayList funcs;
+	protected ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	private boolean isCumulative;
 	private HSSFSheet excelSheet;
 	private ArrayList<String> adjustableParamNames;
 	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
 	//	 Eqk Rate Model 2 ERF
-	private UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
+	protected UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
 	
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
@@ -245,7 +245,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param fileName
 	 * @param mfdList
 	 */
-	private void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList, boolean isNSHMP02) {
+	protected void readMFDsFromFile(String fileName, ArrayList<IncrementalMagFreqDist> mfdList, boolean isNSHMP02) {
 		try {
 			FileReader fr = new FileReader(fileName);
 			BufferedReader br = new BufferedReader(fr);
@@ -754,7 +754,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param bFaultMFD
 	 * @param totMFD
 	 */
-	private void doWeightedSum(String constantParamName, Object value,
+	protected void doWeightedSum(String constantParamName, Object value,
 			SummedMagFreqDist aFaultTotMFD, SummedMagFreqDist bFaultTotCharMFD, SummedMagFreqDist bFaultTotGRMFD, 
 			SummedMagFreqDist nonCA_B_FaultsTotMFD, SummedMagFreqDist totMFD) {
 		
