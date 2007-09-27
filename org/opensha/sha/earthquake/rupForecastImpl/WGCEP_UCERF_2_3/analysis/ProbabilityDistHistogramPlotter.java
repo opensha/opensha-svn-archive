@@ -24,6 +24,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeDependentEpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
@@ -64,21 +65,25 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	public final static String BACKGROUND = "Background";
 	public final static String TOTAL = "Total";
 	private String[] sources = { A_FAULTS, B_FAULTS, NON_CA_B_FAULTS, C_ZONES, BACKGROUND, TOTAL };
-	private UCERF2_TimeDependentEpistemicList ucerf2EpistemicList;
+	private UCERF2_TimeIndependentEpistemicList ucerf2EpistemicList;
 	private String []bFaultNames = { "San Gregorio Connected", "Greenville Connected", 
 			"Green Valley Connected", "Mount Diablo Thrust"};
 	private String []aFaultNames = { "Elsinore", "Garlock", "San Jacinto", "N. San Andreas", "S. San Andreas",
 			"Hayward-Rodgers Creek", "Calaveras"};
+	
+	
 	
 	/**
 	 * Plot histograms of probability contributions from various branches
 	 * 
 	 * @param minMag
 	 */
-	public void generateProbContributionsExcelSheet(double duration, String fileName, GeographicRegion region) {
+	public void generateProbContributionsExcelSheet(boolean isTimeDependent, double duration, String fileName, GeographicRegion region) {
 
-		if(ucerf2EpistemicList==null)
-			ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+		if(ucerf2EpistemicList==null) { // UCERF epistemic list
+			if(isTimeDependent) ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
+			else ucerf2EpistemicList = new UCERF2_TimeIndependentEpistemicList();
+		}
 		
 		//	create a sheet that contains param settings for each logic tree branch
 		workbook  = new HSSFWorkbook();
@@ -601,8 +606,6 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		HSSFSheet paramSettingsSheet = workbook.createSheet("Parameter Settings");
 		HSSFRow row;
-		if(ucerf2EpistemicList==null)
-			ucerf2EpistemicList = new UCERF2_TimeDependentEpistemicList();
 		ParameterList adjustableParams = ucerf2EpistemicList.getParameterList(0);
 		Iterator it = adjustableParams.getParametersIterator();
 		ArrayList<String> adjustableParamNames = new ArrayList<String>();
@@ -722,17 +725,17 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
-		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_All.xls", null);
-		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
-		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
-		//plotter.generateProbContributionsExcelSheet(1, PATH+"ProbabilityContributions_1yr_All.xls", null);
-		plotter.generateProbContributionsExcelSheet(15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
-		
+		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(true, 5, PATH+"ProbabilityContributions_5yrs_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(true, 5, PATH+"ProbabilityContributions_5yrs_WG02.xls", new EvenlyGriddedWG02_Region());
+		//plotter.generateProbContributionsExcelSheet(true, 5, PATH+"ProbabilityContributions_5yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(true, 5, PATH+"ProbabilityContributions_5yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
+		//plotter.generateProbContributionsExcelSheet(true, 1, PATH+"ProbabilityContributions_1yr_All.xls", null);
+		//plotter.generateProbContributionsExcelSheet(true, 15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
+		plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
 		
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
