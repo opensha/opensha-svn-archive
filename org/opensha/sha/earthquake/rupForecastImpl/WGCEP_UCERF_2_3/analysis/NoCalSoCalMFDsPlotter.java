@@ -4,6 +4,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 
 import org.opensha.data.region.EvenlyGriddedNoCalRegion;
+import org.opensha.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
