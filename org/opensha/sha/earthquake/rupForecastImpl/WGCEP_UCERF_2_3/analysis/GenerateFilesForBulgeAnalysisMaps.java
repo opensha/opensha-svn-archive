@@ -92,8 +92,18 @@ public class GenerateFilesForBulgeAnalysisMaps {
 				  EvenlyDiscretizedFunc cumDist2  = mfdAtLoc2.getFirstMagFreqDist().getCumRateDist();
 
 				  Location loc = mfdAtLoc1.getLocation();
-				  fwRatio5.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)(cumDist1.getInterpolatedY(5.0)/cumDist2.getInterpolatedY(5.0))+"\n");
-				  fwRatio6_5.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)(cumDist1.getInterpolatedY(6.5)/cumDist2.getInterpolatedY(6.5))+"\n");
+				  
+				  double val1 = cumDist1.getInterpolatedY(5.0);
+				  double val2 = cumDist2.getInterpolatedY(5.0);
+				  double ratio=0;
+				  if(val2!=0) ratio = val1/val2;
+				  fwRatio5.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)ratio+"\n");
+				  
+				  val1 = cumDist1.getInterpolatedY(6.5);
+				  val2 = cumDist2.getInterpolatedY(6.5);
+				  ratio=0;
+				  if(val2!=0) ratio = val1/val2;
+				  fwRatio6_5.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)ratio+"\n");
 			  }
 			
 			  // close files
