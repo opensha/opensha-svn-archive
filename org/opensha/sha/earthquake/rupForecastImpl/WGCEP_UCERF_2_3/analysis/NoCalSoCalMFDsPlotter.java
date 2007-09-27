@@ -3,6 +3,10 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 
+import java.util.ArrayList;
+
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedNoCalRegion;
 import org.opensha.data.region.EvenlyGriddedSoCalRegion;
 import org.opensha.data.region.GeographicRegion;
@@ -88,6 +92,30 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		return incrMFD;
 	}
 	
+	/**
+	 * Get Observed Cum MFD
+	 * 
+	 * @param ucerf2
+	 * @return
+	 */
+	protected  ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(UCERF2 ucerf2) {
+		if(region instanceof EvenlyGriddedNoCalRegion) return ucerf2.getObsCumNoCalMFD();
+		else if (region instanceof EvenlyGriddedSoCalRegion) return ucerf2.getObsCumSoCalMFD();
+		else throw new RuntimeException("Unsupported region");
+	}
+	
+
+	/**
+	 * Get Observed Incr MFD
+	 * 
+	 * @param ucerf2
+	 * @return
+	 */
+	protected  ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(UCERF2 ucerf2) {
+		if(region instanceof EvenlyGriddedNoCalRegion) return ucerf2.getObsIncrNoCalMFD();
+		else if (region instanceof EvenlyGriddedSoCalRegion) return ucerf2.getObsIncrSoCalMFD();
+		else throw new RuntimeException("Unsupported region");
+	}
 	
 	/**
 	 * Convert Probs to Poisson rates
@@ -104,11 +132,11 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	
 	public static void main(String args[]) {
 		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
-		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		plotter.plotMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH, true);
+		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
+		//plotter.plotMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH, true);
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		//plotter.plotMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH, true);
+		plotter.plotMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH, true);
 	}
 	
 }

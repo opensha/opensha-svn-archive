@@ -130,7 +130,6 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private ArrayList funcs;
 	private ArrayList<PlotCurveCharacterstics> plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 	private boolean isCumulative;
-	private double  obs6_5CumRate;
 	private HSSFSheet excelSheet;
 	private ArrayList<String> adjustableParamNames;
 	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
@@ -148,8 +147,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		nonCA_B_FaultsMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
-		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
-		obs6_5CumRate = ucerf2.getObsCumMFD(includeAfterShocks).get(0).getY(6.5);
+		
 	}
 
 	
@@ -202,7 +200,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		saveMFDToFile(path+NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
 		// write metadata excel sheet
 		try {
-			FileOutputStream fileOut = new FileOutputStream(METADATA_EXCEL_SHEET);
+			FileOutputStream fileOut = new FileOutputStream(path+METADATA_EXCEL_SHEET);
 			wb.write(fileOut);
 			fileOut.close();
 		}catch(Exception e) {
@@ -311,6 +309,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 * @param weight
 	 */
 	private void calcMFDs() {
+		double obs6_5CumRate = getObsCumMFD(ucerf2).get(0).getY(6.5);
 		int numBranches = ucerf2List.getNumERFs();
 		for(int i=0; i<numBranches; ++i) {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
@@ -354,6 +353,29 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
 		
 		}
+	}
+	
+	/**
+	 * Get Observed Cum MFD
+	 * 
+	 * @param ucerf2
+	 * @return
+	 */
+	protected  ArrayList<EvenlyDiscretizedFunc> getObsCumMFD(UCERF2 ucerf2) {
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
+		return ucerf2.getObsCumMFD(includeAfterShocks);
+	}
+	
+
+	/**
+	 * Get Observed Incr MFD
+	 * 
+	 * @param ucerf2
+	 * @return
+	 */
+	protected  ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(UCERF2 ucerf2) {
+		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
+		return ucerf2.getObsIncrMFD(includeAfterShocks);
 	}
 	
 	/**
@@ -418,6 +440,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		readMFDsFromFile(path+NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList, false);
 		readMFDsFromFile(path+TOT_MFD_FILENAME, this.totMFDsList, false);
 		nshmp02TotMFD = readMFDFromFile(path+NSHMP_02_MFD_FILENAME, true);
+		ucerf2.updateForecast();
 		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
 		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
 		
@@ -656,16 +679,16 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			}
 			this.plottingFeaturesList.add(PLOT_CHAR9);
 		}
-//		 Karen's observed data
-		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
+		
+		//Karen's observed data
 		
 		ArrayList obsMFD;
 		if(this.isCumulative)  {
-			obsMFD = ucerf2.getObsCumMFD(includeAfterShocks);
+			obsMFD = getObsCumMFD(ucerf2);
 			metadata+="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
 		}
 		else  {
-			obsMFD = ucerf2.getObsIncrMFD(includeAfterShocks);
+			obsMFD = getObsIncrMFD(ucerf2);
 			metadata+="Average Total MFD";
 		}
 		addToFuncList(avgTotMFD, metadata, PLOT_CHAR4);

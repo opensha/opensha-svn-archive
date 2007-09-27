@@ -1364,6 +1364,33 @@ public class UCERF2 extends EqkRupForecast {
 	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrMFD(boolean includeAftershocks) {
 		boolean includeAfterShocks = areAfterShocksIncluded();
 		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = getObsCumMFD(includeAfterShocks);
+		return getIncrFromCumMFD(obsCumMFD);
+	}
+	
+	
+	/**
+	 * Get observed incremental MFD for No Cal region
+	 * @return
+	 */
+	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrNoCalMFD() {
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = this.getObsCumNoCalMFD();
+		return getIncrFromCumMFD(obsCumMFD);
+	}
+
+	/**
+	 * Get observed incremental MFD for So Cal region
+	 * @return
+	 */
+	public ArrayList<ArbitrarilyDiscretizedFunc> getObsIncrSoCalMFD() {
+		ArrayList<EvenlyDiscretizedFunc> obsCumMFD = this.getObsCumSoCalMFD();
+		return getIncrFromCumMFD(obsCumMFD);
+	}
+	/**
+	 * Get the incremental MFD from Cum MFD
+	 * @param obsCumMFD
+	 * @return
+	 */
+	private ArrayList<ArbitrarilyDiscretizedFunc> getIncrFromCumMFD(ArrayList<EvenlyDiscretizedFunc> obsCumMFD) {
 		ArrayList<ArbitrarilyDiscretizedFunc> obsIncrMFDList = new ArrayList<ArbitrarilyDiscretizedFunc>();
 		// Only get the best estimate because 95% conf bounds may not be legit 
 		for(int i=0; i<1; ++i) {
@@ -1381,6 +1408,72 @@ public class UCERF2 extends EqkRupForecast {
 			obsIncrMFDList.add(arbDiscFun);
 		}
 		return obsIncrMFDList;
+	}
+
+	
+	/**
+	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
+	 * MFD for Karen Felzer's observed MFD in NoCal Polygon 
+	 * and upper and lower confidence MFDs
+	 * ( sent by Karen via  email on 09/27/07).
+	 * @return
+	 */
+	public ArrayList<EvenlyDiscretizedFunc> getObsCumNoCalMFD() {
+		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] cumRates = {    1.32,      0.56,      0.25,      0.06,      0.03,      0.007};
+		double[] cumRatesLow =  {1.32-0.26, 0.56-0.18, 0.25-0.13, 0.06-0.03, 0.03-0.02, 0.007-0.0066};
+		double[] cumRatesHigh = {1.32+0.30, 0.56+0.23, 0.25+0.2, 0.06+0.05, 0.03+0.044, 0.007+0.026};
+
+
+		for(int i=5; i>=0; i--) {
+			obsCumMFD.set(i, cumRates[i]);
+			obsCumLowMFD.set(i, cumRatesLow[i]);
+			obsCumHighMFD.set(i, cumRatesHigh[i]);
+		}
+		obsCumMFD.setInfo("Cumulative MFD for observed catalog for No Cal polygon (from Karen Felzer's Sep 27, 2007 email)");
+		obsCumLowMFD.setInfo("Lower 95% confidence of cumulative MFD for No Cal polygon(from Karen Felzer's Sep 27, 2007 email)");
+		obsCumHighMFD.setInfo("Upper 95% confidence of cumulative MFD for No Cal polygon (from Karen Felzer's Sep 27, 2007 email)");
+
+		ArrayList obsCumList = new ArrayList();
+		obsCumList.add(obsCumMFD);
+		obsCumList.add(obsCumLowMFD);
+		obsCumList.add(obsCumHighMFD);
+		return obsCumList;
+	}
+	
+	
+	/**
+	 * This returns an ArrayList of EvenlyDiscretizedFunc that have cumulative 
+	 * MFD for Karen Felzer's observed MFD in SoCal Polygon 
+	 * and upper and lower confidence MFDs
+	 * ( sent by Karen via  email on 09/27/07).
+	 * @return
+	 */
+	public ArrayList<EvenlyDiscretizedFunc> getObsCumSoCalMFD() {
+		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
+		double[] cumRates = {    1.43,      0.77,      0.31,      0.16,      0.043,      0.014};
+		double[] cumRatesLow =  {1.43-0.27, 0.77-0.21, 0.31-0.13, 0.16-0.06, 0.043-0.03, 0.014-0.012};
+		double[] cumRatesHigh = {1.43+0.30, 0.77+0.25, 0.31+0.18, 0.16+0.09, 0.043+0.05, 0.014+0.03};
+
+
+		for(int i=5; i>=0; i--) {
+			obsCumMFD.set(i, cumRates[i]);
+			obsCumLowMFD.set(i, cumRatesLow[i]);
+			obsCumHighMFD.set(i, cumRatesHigh[i]);
+		}
+		obsCumMFD.setInfo("Cumulative MFD for observed catalog for So Cal polygon (from Karen Felzer's Sep 27, 2007 email)");
+		obsCumLowMFD.setInfo("Lower 95% confidence of cumulative MFD for So Cal polygon(from Karen Felzer's Sep 27, 2007 email)");
+		obsCumHighMFD.setInfo("Upper 95% confidence of cumulative MFD for So Cal polygon (from Karen Felzer's Sep 27, 2007 email)");
+
+		ArrayList obsCumList = new ArrayList();
+		obsCumList.add(obsCumMFD);
+		obsCumList.add(obsCumLowMFD);
+		obsCumList.add(obsCumHighMFD);
+		return obsCumList;
 	}
 
 
@@ -1446,6 +1539,7 @@ public class UCERF2 extends EqkRupForecast {
 		return obsCumList;
 	}
 
+	
 	
 	/**
 	 * Note that it calculates the WG02 region by including the complete San Gregorio
