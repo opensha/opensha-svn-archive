@@ -221,6 +221,15 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	}
 	
 	/**
+	 * Cum rate at 6.5
+	 * @param mfd
+	 * @return
+	 */
+	protected double getCumRateAt6_5(IncrementalMagFreqDist mfd) {
+		return mfd.getCumRate(6.5);
+	}
+	
+	/**
 	 * 
 	 * @param mfd
 	 */
@@ -232,11 +241,11 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	}
 	
 	public static void main(String args[]) {
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
+		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
-		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
+		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 	}
 	

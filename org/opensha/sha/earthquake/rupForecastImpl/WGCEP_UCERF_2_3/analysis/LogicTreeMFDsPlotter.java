@@ -334,7 +334,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			
 			int colNum = adjustableParamNames.size()+1;
 			// add a row for predicted and observed ratio
-			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getCumRate(6.5+UCERF2.DELTA_MAG/2)/obs6_5CumRate);
+			row.createCell((short)(colNum)).setCellValue(getCumRateAt6_5(totMFDsList.get(colIndex-1))/obs6_5CumRate);
 			++colNum;
 			row.createCell((short)(colNum)).setCellValue(ucerf2List.getERF_RelativeWeight(i));
 			++colNum;
@@ -353,6 +353,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			row.createCell((short)(colNum)).setCellValue(totMFDsList.get(colIndex-1).getTotalMomentRate());
 		
 		}
+	}
+	
+	/**
+	 * Cum rate at 6.5
+	 * @param mfd
+	 * @return
+	 */
+	protected double getCumRateAt6_5(IncrementalMagFreqDist mfd) {
+		return mfd.getCumRate(6.5+UCERF2.DELTA_MAG/2);
 	}
 	
 	/**
