@@ -23,6 +23,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	private final static String NO_CAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/NoCal/";
 	private final static String SO_CAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/SoCal/";
+	private final static double MIN_MAG = UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2;
+	private final static double MAX_MAG = UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2;
+	private final static int NUM_MAG = UCERF2.NUM_MAG;
 	
 	private GeographicRegion region;
 	
@@ -40,10 +43,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_A_FaultsMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotal_A_FaultsProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotal_A_FaultsProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 	/**
@@ -52,10 +55,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_B_FaultsCharMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotal_B_FaultsProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotal_B_FaultsProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 	/**
@@ -64,8 +67,8 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_B_FaultsGR_MFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		return cumMFD;
 	}
 
 	/**
@@ -74,10 +77,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotal_NonCA_B_FaultsProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotal_NonCA_B_FaultsProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 	/**
@@ -86,10 +89,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotalMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotalProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotalProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 	/**
@@ -110,10 +113,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_C_ZoneMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotal_C_ZoneProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotal_C_ZoneProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 	/**
@@ -122,10 +125,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_BackgroundMFD(UCERF2 ucerf2) {
-		IncrementalMagFreqDist incrMFD = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		ucerf2.getTotal_BackgroundProb(incrMFD, region);
-		convertProbToPoissonRates(incrMFD, ucerf2.getTimeSpan().getDuration());
-		return incrMFD;
+		IncrementalMagFreqDist cumMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		ucerf2.getTotal_BackgroundProb(cumMFD, region);
+		convertProbToPoissonRates(cumMFD, ucerf2.getTimeSpan().getDuration());
+		return cumMFD;
 	}
 	
 
@@ -147,9 +150,9 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @param incrMFD
 	 * @param duration
 	 */
-	private void convertProbToPoissonRates(IncrementalMagFreqDist incrMFD, double duration) {
-		for(int i=0; i <incrMFD.getNum();i++){
-			incrMFD.set(i,-Math.log(1-incrMFD.getY(i))/duration);
+	private void convertProbToPoissonRates(IncrementalMagFreqDist cumMFD, double duration) {
+		for(int i=0; i <cumMFD.getNum();i++){
+			cumMFD.set(i,-Math.log(1-cumMFD.getY(i))/duration);
 	
 		}
 	}
