@@ -219,8 +219,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	   * @param actionEvent
 	   */
 	  private void logicTreeCumMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
-		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false, true);
-		  logicTreeMFDsPlotter.plotMFDs();
+		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter();
+		  logicTreeMFDsPlotter.plotMFDs(null, true);
 	  }
 	  
 	  
@@ -230,8 +230,8 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	   * @param actionEvent
 	   */
 	  private void logicTreeIncrMFDplotMenu_actionPerformed(ActionEvent actionEvent) {
-		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(false, false);
-		  logicTreeMFDsPlotter.plotMFDs();
+		  LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter();
+		  logicTreeMFDsPlotter.plotMFDs(null, false);
 	  }
 	  
 	  /**

@@ -55,13 +55,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BackGrdFrac0_1/";
 	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BFault_BVal0/";
 	
-	private final static String A_FAULTS_MFD_FILENAME = DEFAULT_PATH+"A_Faults_MFDs.txt";
-	private final static String B_FAULTS_CHAR_MFD_FILENAME = DEFAULT_PATH+"B_FaultsCharMFDs.txt";
-	private final static String B_FAULTS_GR_MFD_FILENAME = DEFAULT_PATH+"B_FaultsGR_MFDs.txt";
-	private final static String NON_CA_B_FAULTS_MFD_FILENAME = DEFAULT_PATH+"Non_CA_B_Faults_MFDs.txt";
-	private final static String TOT_MFD_FILENAME = DEFAULT_PATH+"TotMFDs.txt";
-	private final static String NSHMP_02_MFD_FILENAME = DEFAULT_PATH+"NSHMP02_MFDs.txt";
-	private final static String METADATA_EXCEL_SHEET = DEFAULT_PATH+"Metadata.xls";
+	private final static String A_FAULTS_MFD_FILENAME = "A_Faults_MFDs.txt";
+	private final static String B_FAULTS_CHAR_MFD_FILENAME = "B_FaultsCharMFDs.txt";
+	private final static String B_FAULTS_GR_MFD_FILENAME = "B_FaultsGR_MFDs.txt";
+	private final static String NON_CA_B_FAULTS_MFD_FILENAME = "Non_CA_B_Faults_MFDs.txt";
+	private final static String TOT_MFD_FILENAME = "TotMFDs.txt";
+	private final static String NSHMP_02_MFD_FILENAME = "NSHMP02_MFDs.txt";
+	private final static String METADATA_EXCEL_SHEET = "Metadata.xls";
 	private final static String COMBINED_AVG_FILENAME = "CombinedAvgMFDs.txt";
 	
 	
@@ -134,15 +134,15 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private HSSFSheet excelSheet;
 	private ArrayList<String> adjustableParamNames;
 	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
-//	 Eqk Rate Model 2 ERF
+	//	 Eqk Rate Model 2 ERF
 	private UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
+	
 	/**
 	 * This method caclulates MFDs for all logic tree branches and saves them to files.
 	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
-	 * 
+	 * If path is null, default Path is used
 	 */
-	public LogicTreeMFDsPlotter (boolean reCalculate, boolean isCumulative) {
-		this.isCumulative = isCumulative;
+	public LogicTreeMFDsPlotter () {
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultGRMFDsList = new ArrayList<IncrementalMagFreqDist>();
@@ -150,74 +150,66 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		obs6_5CumRate = ucerf2.getObsCumMFD(includeAfterShocks).get(0).getY(6.5);
-		if(reCalculate) {
-			HSSFWorkbook wb  = new HSSFWorkbook();
-			excelSheet = wb.createSheet();
-			HSSFRow row;
-			ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
-			Iterator it = adjustableParams.getParametersIterator();
-			adjustableParamNames = new ArrayList<String>();
-			while(it.hasNext()) {
-				 ParameterAPI param = (ParameterAPI)it.next();
-				 adjustableParamNames.add(param.getName());
-			 }
-			// add column for each parameter name. Also add a initial blank row for writing figure names
-			 row = excelSheet.createRow(0); 
-			 for(int i=1; i<=adjustableParamNames.size(); ++i) {
-				if(i>0) row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
-			}
-			int colNum = adjustableParams.size()+1;
-			// add a row for predicted and observed ratio
-			row.createCell((short)(colNum)).setCellValue("M 6.5 pred/obs");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("Weight");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("A-Fault MoRate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("B-Faults Char MoRate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("B-Faults GR Mo Rate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("Non-CA B-Faults Mo Rate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("C-Zone MoRate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("Background MoRate");
-			++colNum;
-			row.createCell((short)(colNum)).setCellValue("Total MoRate");
-			calcMFDs();
-			saveMFDsToFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
-			saveMFDsToFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
-			saveMFDsToFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
-			saveMFDsToFile(NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList);
-			saveMFDsToFile(TOT_MFD_FILENAME, this.totMFDsList);
-			saveMFDToFile(NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
-			// write metadata excel sheet
-			try {
-				FileOutputStream fileOut = new FileOutputStream(METADATA_EXCEL_SHEET);
-				wb.write(fileOut);
-				fileOut.close();
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-		}  else {
-			readMFDsFromFile(A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
-			//for(int i=0; i<aFaultMFDsList.size(); ++i)
-				//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
-			readMFDsFromFile(B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
-			readMFDsFromFile(B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList, false);
-			readMFDsFromFile(NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList, false);
-			readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList, false);
-			nshmp02TotMFD = readMFDFromFile(NSHMP_02_MFD_FILENAME, true);
-		}
-		// calculate ratio of default settings and average value at Mag6.5
-		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false, false);
-		this.ucerf2.setParamDefaults();
-		ucerf2.updateForecast();
-		System.out.println("Ratio of Rates at preferred settings to Combined Logic tree rate (at Mag 6.5) = "+ucerf2.getTotalMFD().getY(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getY(6.5+UCERF2.DELTA_MAG/2));
-		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
-		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
 	}
+
+	
+	/**
+	 * If path is null, default path is used
+	 * @param path
+	 */
+	public void generateMFDsData(String path) {
+		if(path==null) path = DEFAULT_PATH;
+		HSSFWorkbook wb  = new HSSFWorkbook();
+		excelSheet = wb.createSheet();
+		HSSFRow row;
+		ParameterList adjustableParams = ucerf2.getAdjustableParameterList();
+		Iterator it = adjustableParams.getParametersIterator();
+		adjustableParamNames = new ArrayList<String>();
+		while(it.hasNext()) {
+			 ParameterAPI param = (ParameterAPI)it.next();
+			 adjustableParamNames.add(param.getName());
+		 }
+		// add column for each parameter name. Also add a initial blank row for writing figure names
+		 row = excelSheet.createRow(0); 
+		 for(int i=1; i<=adjustableParamNames.size(); ++i) {
+			if(i>0) row.createCell((short)i).setCellValue(adjustableParamNames.get(i-1));
+		}
+		int colNum = adjustableParams.size()+1;
+		// add a row for predicted and observed ratio
+		row.createCell((short)(colNum)).setCellValue("M 6.5 pred/obs");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("Weight");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("A-Fault MoRate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("B-Faults Char MoRate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("B-Faults GR Mo Rate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("Non-CA B-Faults Mo Rate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("C-Zone MoRate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("Background MoRate");
+		++colNum;
+		row.createCell((short)(colNum)).setCellValue("Total MoRate");
+		calcMFDs();
+		saveMFDsToFile(path+A_FAULTS_MFD_FILENAME, this.aFaultMFDsList);
+		saveMFDsToFile(path+B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList);
+		saveMFDsToFile(path+B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList);
+		saveMFDsToFile(path+NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList);
+		saveMFDsToFile(path+TOT_MFD_FILENAME, this.totMFDsList);
+		saveMFDToFile(path+NSHMP_02_MFD_FILENAME, Frankel02_AdjustableEqkRupForecast.getTotalMFD_InsideRELM_region(false));
+		// write metadata excel sheet
+		try {
+			FileOutputStream fileOut = new FileOutputStream(METADATA_EXCEL_SHEET);
+			wb.write(fileOut);
+			fileOut.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	/**
 	 * Save MFDs to file
@@ -323,13 +315,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		for(int i=0; i<numBranches; ++i) {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
 			 // if it is last paramter in list, save the MFDs
-			System.out.println("Doing run:"+(aFaultMFDsList.size()+1));
+			System.out.println("Doing run "+(aFaultMFDsList.size()+1)+" of "+numBranches);
 			ucerf2.updateForecast();
-			aFaultMFDsList.add(ucerf2.getTotal_A_FaultsMFD());
-			bFaultCharMFDsList.add(ucerf2.getTotal_B_FaultsCharMFD());
-			bFaultGRMFDsList.add(ucerf2.getTotal_B_FaultsGR_MFD());
-			this.nonCA_B_FaultsMFDsList.add(ucerf2.getTotal_NonCA_B_FaultsMFD());
-			totMFDsList.add(ucerf2.getTotalMFD());
+			aFaultMFDsList.add(getTotal_A_FaultsMFD(ucerf2));
+			bFaultCharMFDsList.add(getTotal_B_FaultsCharMFD(ucerf2));
+			bFaultGRMFDsList.add(getTotal_B_FaultsGR_MFD(ucerf2));
+			this.nonCA_B_FaultsMFDsList.add(getTotal_NonCA_B_FaultsMFD(ucerf2));
+			totMFDsList.add(getTotalMFD(ucerf2));
 			short colIndex = (short)totMFDsList.size();
 			HSSFRow row = this.excelSheet.createRow(colIndex);
 			// write to excel sheet
@@ -365,10 +357,69 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	}
 	
 	/**
+	 * Get A_Faults MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_A_FaultsMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_A_FaultsMFD();
+	}
+	
+	/**
+	 * Get B_Faults Char MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_B_FaultsCharMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_B_FaultsCharMFD();
+	}
+	
+	/**
+	 * Get B_Faults GR MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_B_FaultsGR_MFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_B_FaultsGR_MFD();
+	}
+
+	/**
+	 * Get Non CA B_Faults MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotal_NonCA_B_FaultsMFD();
+	}
+	
+	/**
+	 * Get Total MFD
+	 * @param ucerf2
+	 * @return
+	 */
+	protected IncrementalMagFreqDist getTotalMFD(UCERF2 ucerf2) {
+		return ucerf2.getTotalMFD();
+	}
+	
+	
+	/**
 	 * Plot MFDs for various different paramter settings
+	 * If path is null, default path is used
 	 *
 	 */
-	public void plotMFDs() {
+	public void plotMFDs(String path, boolean isCumulative) {
+		this.isCumulative = isCumulative;
+		
+		readMFDsFromFile(path+A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
+		//for(int i=0; i<aFaultMFDsList.size(); ++i)
+			//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
+		readMFDsFromFile(path+B_FAULTS_CHAR_MFD_FILENAME, this.bFaultCharMFDsList, false);
+		readMFDsFromFile(path+B_FAULTS_GR_MFD_FILENAME, this.bFaultGRMFDsList, false);
+		readMFDsFromFile(path+NON_CA_B_FAULTS_MFD_FILENAME, this.nonCA_B_FaultsMFDsList, false);
+		readMFDsFromFile(path+TOT_MFD_FILENAME, this.totMFDsList, false);
+		nshmp02TotMFD = readMFDFromFile(path+NSHMP_02_MFD_FILENAME, true);
+		cZoneMFD = this.ucerf2.getTotal_C_ZoneMFD();
+		bckMFD = this.ucerf2.getTotal_BackgroundMFD();
 		
 		// combined Logic Tree MFD
 		plotMFDs(null, null, true, true, true, true, true, false);
@@ -796,8 +847,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 	public static void main(String []args) {
-		 LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter(true, true);
-		  logicTreeMFDsPlotter.plotMFDs();
+		 LogicTreeMFDsPlotter  logicTreeMFDsPlotter = new LogicTreeMFDsPlotter();
+		 logicTreeMFDsPlotter.generateMFDsData(null);
+		  logicTreeMFDsPlotter.plotMFDs(null, true);
 		
 		//LogicTreeMFDsPlotter mfdPlotter = new LogicTreeMFDsPlotter(true);
 		//mfdPlotter.plotMFDs();
