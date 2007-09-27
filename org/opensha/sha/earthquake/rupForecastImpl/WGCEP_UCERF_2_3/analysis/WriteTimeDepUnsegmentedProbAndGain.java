@@ -26,7 +26,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
  *
  */
 public class WriteTimeDepUnsegmentedProbAndGain {
-	
+	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 	
 	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
 		" andRupture Gain (each on a different sheet) for all Type-A fault (including unsegmented models, which is why segment "+
@@ -190,7 +190,7 @@ public class WriteTimeDepUnsegmentedProbAndGain {
 		
 		// write  excel sheet
 		try {
-			FileOutputStream fileOut = new FileOutputStream(FILENAME);
+			FileOutputStream fileOut = new FileOutputStream(PATH+FILENAME);
 			wb.write(fileOut);
 			fileOut.close();
 		}catch(Exception e) {
