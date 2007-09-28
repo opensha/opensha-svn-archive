@@ -1176,6 +1176,14 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 		   }
 		   System.out.println((float)(1-totProb)+"\t"+faultNames[faultIndex]);
 	   }
+	   
+	   System.out.println("S. SAF Source 30-year Probabilities");
+	   // Loop over all faults
+	   int[] sources = ssaf_sources;
+	   for(int index=0; index<sources.length; index++){
+		   probSrc = getSource(sources[index]);
+		   System.out.println(probSrc.getName()+"\t"+(float)probSrc.computeTotalProb());
+	   }
   }
    
    

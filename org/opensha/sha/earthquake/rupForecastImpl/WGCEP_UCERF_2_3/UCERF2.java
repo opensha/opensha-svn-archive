@@ -1297,6 +1297,9 @@ public class UCERF2 extends EqkRupForecast {
 		allSources.addAll(sources);
 		nonCA_B_FaultsSummedMFD = fetcher.getSummedMFD();
 		reCalcNonCA_B_Fauts=false;
+//System.out.println("Non CA B-Faults");
+//for(int i=0; i <nonCA_bFaultSources.size(); i++)
+//	System.out.println(nonCA_bFaultSources.get(i).getName());
 	}
 
 
@@ -1717,6 +1720,22 @@ public class UCERF2 extends EqkRupForecast {
 			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
 			int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);
 			magProbDist.set(i, 1-Math.exp(-timeSpan.getDuration()*incrMFD.getCumRate(index)));
+		}
+	}
+
+	
+
+	// this assumes not time dependence
+	public void getTotal_BackgroundMFD(DiscretizedFuncAPI magFreqDist, GeographicRegion region) {
+		int numMags = magFreqDist.getNum();
+		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, applyBulgeReduction, applyMaxMagGrid);
+		for(int i=0; i<numMags; ++i) {
+			double minMag = magFreqDist.getX(i);
+			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
+			int index = (int) Math.ceil((minMag-MIN_MAG-1e-5)/this.DELTA_MAG);
+			magFreqDist.set(i, incrMFD.getCumRate(index));
 		}
 	}
 
