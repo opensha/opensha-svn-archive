@@ -51,7 +51,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			new Color(0,0,0), 2); // black
 	
 	private final PlotCurveCharacterstics STACKED_BAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
-			new Color(0,0,0), 2); // black
+			new Color(0,0,0), 1); // black
 	private final PlotCurveCharacterstics STACKED_BAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR,
 			Color.GREEN, 2); // Green
 
@@ -800,8 +800,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");*/
 		
-		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		//plotter.plotHistogramsForMagAndSource(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotEmpiricalBPT_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotHistogramsForMagAndSource(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		plotter.plotMagAreaComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 	}
 
