@@ -138,8 +138,10 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 * @return
 	 */
 	protected IncrementalMagFreqDist getTotal_BackgroundMFD(UCERF2 ucerf2) {
-		bckMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-		ucerf2.getTotal_BackgroundMFD(bckMFD, region);
+		if(bckMFD == null) {
+			bckMFD = new IncrementalMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+			ucerf2.getTotal_BackgroundMFD(bckMFD, region);
+		}
 		return bckMFD;
 	}
 	
@@ -287,8 +289,8 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
-		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(null);
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.CAL_PATH);
