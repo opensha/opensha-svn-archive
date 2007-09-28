@@ -46,7 +46,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	
 
 	private final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-		      Color.BLACK, 1); // Tot MFD
+		      Color.BLACK, 1); // Tot MFDs
 	private final PlotCurveCharacterstics PLOT_CHAR2 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
 		      Color.GREEN, 2); // median, 2.5%, 97.5%
 	private final PlotCurveCharacterstics PLOT_CHAR3 = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
@@ -63,11 +63,13 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	private ArrayList<ArbDiscrEmpiricalDistFunc> rateWtFuncList;
 	private UCERF2_TimeIndependentEpistemicList ucerf2List = new UCERF2_TimeIndependentEpistemicList();
 	
+	private boolean drawIndividualBranches;
 	/**
 	 *  it just reads the data from the file wihtout recalculation
 	 * 
 	 */
-	public PredictedTotalMFD_UncertPlotter () {
+	public PredictedTotalMFD_UncertPlotter (boolean drawIndividualBranches) {
+		this.drawIndividualBranches = drawIndividualBranches;
 		totMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		readMFDsFromFile(TOT_MFD_FILENAME, this.totMFDsList);
 		plotPredTotalMFD_Uncert();
@@ -132,6 +134,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		}
 		
 		doWeightedSum();
+		
 		
 		// mean MFD
 		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
@@ -204,9 +207,11 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 			double wt = ucerf2List.getERF_RelativeWeight(i);
 			
 			EvenlyDiscretizedFunc mfd  = totMFDsList.get(i).getCumRateDistWithOffset();
-			mfd.setInfo("Cumulative MFD for a logic tree branch");
-			//funcs.add(mfd);
-			//plottingFeaturesList.add(this.PLOT_CHAR1);
+			mfd.setInfo("Cumulative MFD for a logic tree branch :"+(i+1));
+			if(drawIndividualBranches) {
+				funcs.add(mfd);
+				plottingFeaturesList.add(this.PLOT_CHAR1);
+			}
 			for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 				rateWtFuncList.get(magIndex).set(mfd.getY(magIndex), wt);
 			}
@@ -285,7 +290,8 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	
 	
 	public static void main(String []args) {
-		PredictedTotalMFD_UncertPlotter mfdPlotter = new PredictedTotalMFD_UncertPlotter();
+		PredictedTotalMFD_UncertPlotter mfdPlotter1 = new PredictedTotalMFD_UncertPlotter(false);
+		PredictedTotalMFD_UncertPlotter mfdPlotter2 = new PredictedTotalMFD_UncertPlotter(true);
 	}
 }
 
