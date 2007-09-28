@@ -275,9 +275,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc ellB_Func = getFunc("Histogram Plot for Ellsworth B", ellB_BranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc hansBakunFunc = getFunc("Histogram Plot for Hans & Bakun", hansBakunBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			
+			EvenlyDiscretizedFunc ellB_Func = getFunc("Histogram Plot for Ellsworth B  for "+sourceType + " for fileName "+fileName, ellB_BranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc hansBakunFunc = getFunc("Histogram Plot for Hans & Bakun for "+sourceType + " for fileName "+fileName, hansBakunBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			this.addFuncs(hansBakunFunc, ellB_Func);
 			// plot histograms 
 			funcs = new ArrayList();
 			funcs.add(ellB_Func);
@@ -319,9 +319,11 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc func0_3 = getFunc("Histogram Plot for Aperiodicity = 0.3", aperiodicity0_3, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc func0_5 = getFunc("Histogram Plot for Aperiodicity = 0.5", aperiodicity0_5, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc func0_7 = getFunc("Histogram Plot for Aperiodicity = 0.7", aperiodicity0_7, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc func0_3 = getFunc("Histogram Plot for Aperiodicity = 0.3 for "+sourceType + " for fileName "+fileName, aperiodicity0_3, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc func0_5 = getFunc("Histogram Plot for Aperiodicity = 0.5 for "+sourceType + " for fileName "+fileName, aperiodicity0_5, paramSettingsSheet, totProbColIndex, probSheet);
+			addFuncs(func0_5, func0_3);
+			EvenlyDiscretizedFunc func0_7 = getFunc("Histogram Plot for Aperiodicity = 0.7 for "+sourceType + " for fileName "+fileName, aperiodicity0_7, paramSettingsSheet, totProbColIndex, probSheet);
+			addFuncs(func0_7, func0_5);
 			// plot histograms 
 			funcs = new ArrayList();
 			funcs.add(func0_3);
@@ -339,6 +341,60 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	/**
+	 * Plot Apriori and MoBal comparison histograms 
+	 * @param fileName
+	 */
+	public void plotAprioiMoBal_ComparisonPlot(double mag, String fileName, String sourceType) {
+	
+		
+		ArrayList<Integer> apriori;
+		ArrayList<Integer> moBal;
+		
+		
+//		 Open the excel file
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // 
+			// BPT and Poisson
+			moBal = getBranchIndices(paramSettingsSheet, UCERF2.REL_A_PRIORI_WT_PARAM_NAME, "1.0E-4");
+			apriori = getBranchIndices(paramSettingsSheet, UCERF2.REL_A_PRIORI_WT_PARAM_NAME, "1.0E10");
+					
+			int totProbColIndex=getColIndexForMag(mag);
+			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
+			
+			EvenlyDiscretizedFunc aprioriFunc = getFunc("Histogram Plot for Apriori for "+sourceType + " for fileName "+fileName, apriori, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc moBalFunc = getFunc("Histogram Plot for Mo Bal  for "+sourceType + " for fileName "+fileName, moBal, paramSettingsSheet, totProbColIndex, probSheet);
+			addFuncs(moBalFunc, aprioriFunc);
+			// plot histograms 
+			funcs = new ArrayList();
+			funcs.add(aprioriFunc);
+			funcs.add(moBalFunc);
+			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
+			plottingCurveChars.add(STACKED_BAR1);
+			plottingCurveChars.add(STACKED_BAR2);
+			GraphWindow graphWindow= new GraphWindow(this);
+			graphWindow.setPlotLabel(PLOT_LABEL);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * It updates func1 values. It adds values from func2 to func1
+	 * @param func1
+	 * @param func2
+	 */
+	private void addFuncs(EvenlyDiscretizedFunc func1, EvenlyDiscretizedFunc func2) {
+		for(int i=0; i<func1.getNum(); ++i)
+			func1.add(i, func2.getY(i));
 	}
 
 	/**
@@ -365,9 +421,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson", bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical", empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			
+			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson for "+sourceType + " for fileName "+fileName, bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical for "+sourceType + " for fileName "+fileName, empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			this.addFuncs(empFunc, bptFunc);
 			// plot histograms 
 			funcs = new ArrayList();
 			funcs.add(bptFunc);
@@ -587,15 +643,18 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		bptFunc.setInfo(metadata);
 		bptFunc.setTolerance(DELTA_PROB);
 
-		
+		int totProbWt=0, totWt=0;
 		for (int i=0; i<branchIndices.size(); ++i) { // populate  func
 			int branchNum=branchIndices.get(i);
 			double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
+			totWt+=wt;
 			double prob = probSheet.getRow(branchNum+1).getCell((short)probColIndex).getNumericCellValue();
+			totProbWt+=wt*prob;
 			if(prob>this.MAX_PROB) prob=MAX_PROB;
 			//System.out.println(prob);
 			bptFunc.add(prob, wt);
 		}
+		bptFunc.setName("Mean="+totProbWt/totWt);
 		return bptFunc;
 	}
 	
@@ -850,10 +909,18 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");*/
 		
-		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		//plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		plotter.plotAperiodicity_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		
+		plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+
+		plotter.plotAperiodicity_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 	}
 
 }
