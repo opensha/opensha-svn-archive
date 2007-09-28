@@ -1490,12 +1490,12 @@ public class UCERF2 extends EqkRupForecast {
 		EvenlyDiscretizedFunc obsCumMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumLowMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
 		EvenlyDiscretizedFunc obsCumHighMFD = new IncrementalMagFreqDist(5.0, 7.5, 6);
-		double[] cumRatesWith =     {7.4,      2.3,      0.73,      0.23,       0.07,       0.016};
-		double[] cumRatesLowWith =  {7.4-3.87,  2.3-1.1,  0.73-0.34, 0.23-0.11,  0.07-0.04,  0.016-0.014};
-		double[] cumRatesHighWith = {7.4+2.67, 2.3+0.84, 0.73+0.27, 0.23+0.12, 0.07+0.06, 0.016+0.022};
-		double[] cumRates = {    3.74,      1.48,      0.58,      0.22,      0.08,      0.02};
-		double[] cumRatesLow =  {3.74-1.51, 1.48-0.59, 0.58-0.23, 0.22-0.09, 0.08-0.04, 0.02-0.017};
-		double[] cumRatesHigh = {3.74+1.13, 1.48+0.45, 0.58+0.31, 0.22+0.11, 0.08+0.06, 0.02+0.024};
+		double[] cumRatesWith =     {7.5,      2.4,      0.74,      0.23,       0.07,       0.017};
+		double[] cumRatesLowWith =  {7.5-3.94,  2.4-1.1,  0.74-0.34, 0.23-0.11,  0.07-0.04,  0.017-0.013};
+		double[] cumRatesHighWith = {7.5+3.0, 2.4+0.95, 0.74+0.29, 0.23+0.12, 0.07+0.06, 0.017+0.022};
+		double[] cumRates = {    4.17,      1.65,      0.65,      0.24,      0.09,      0.02};
+		double[] cumRatesLow =  {4.17-1.95, 1.65-0.66, 0.65-0.26, 0.24-0.11, 0.09-0.04, 0.02-0.016};
+		double[] cumRatesHigh = {4.17+1.67, 1.65+0.66, 0.65+0.31, 0.24+0.11, 0.09+0.06, 0.02+0.024};
 
 
 		if(includeAftershocks) {

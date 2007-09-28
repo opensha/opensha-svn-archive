@@ -484,7 +484,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	 */
 	public void plotMFDs(String path, boolean isCumulative) {
 		this.isCumulative = isCumulative;
-		
+		if(path==null) path = DEFAULT_PATH;
 		readMFDsFromFile(path+A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);
 		//for(int i=0; i<aFaultMFDsList.size(); ++i)
 			//System.out.println(aFaultMFDsList.get(i).getCumRate(6.5));
