@@ -62,6 +62,8 @@ public class GenerateFilesForBulgeAnalysisMaps {
 			new RELM_ERF_ToGriddedHypoMagFreqDistForecast(nshmp2002, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 		//	minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
+	
+		generateNedsBulgeFiles("NSHMP2002", griddedHypoMagFeqDistForecast2);
 		generateRatioFiles("UCERF2", griddedHypoMagFeqDistForecast1, griddedHypoMagFeqDistForecast2);
 	  }
 	
