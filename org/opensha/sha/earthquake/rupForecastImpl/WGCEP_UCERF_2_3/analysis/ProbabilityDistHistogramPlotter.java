@@ -643,7 +643,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		bptFunc.setInfo(metadata);
 		bptFunc.setTolerance(DELTA_PROB);
 
-		int totProbWt=0, totWt=0;
+		double totProbWt=0, totWt=0;
 		for (int i=0; i<branchIndices.size(); ++i) { // populate  func
 			int branchNum=branchIndices.get(i);
 			double wt= paramSettingsSheet.getRow(branchNum).getCell((short)weightColIndex).getNumericCellValue();
