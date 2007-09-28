@@ -175,33 +175,43 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		readMFDsFromFile(path+TOT_MFD_FILENAME, this.totMFDsList, false);
 	
 		ucerf2.updateForecast();
-		
+		IncrementalMagFreqDist bckMFD = this.getTotal_BackgroundMFD(ucerf2);
+		IncrementalMagFreqDist cZonesMFD = this.getTotal_C_ZoneMFD(ucerf2);
 		funcs  = new ArrayList();
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();
 		
 		// Avg MFDs
-		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		SummedMagFreqDist avgNonCA_B_FaultsMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		SummedMagFreqDist avgAFaultMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG,NUM_MAG);
+		SummedMagFreqDist avgBFaultCharMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG,NUM_MAG);
+		SummedMagFreqDist avgBFaultGRMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG,NUM_MAG);
+		SummedMagFreqDist avgNonCA_B_FaultsMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		SummedMagFreqDist avgTotMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		
 		doWeightedSum(null, null, avgAFaultMFD, avgBFaultCharMFD, avgBFaultGRMFD, avgNonCA_B_FaultsMFD, avgTotMFD);
 		
 		// Add to function list
+		//System.out.println(avgAFaultMFD.toString());
+		//System.out.println(avgBFaultCharMFD.toString());
+		//System.out.println(avgNonCA_B_FaultsMFD.toString());
+		//System.out.println(bckMFD.toString());
+		//System.out.println(cZonesMFD.toString());
+		System.out.println(avgTotMFD.toString());
+		
+		/*for(int i=0; i<avgTotMFD.getNum(); ++i) {
+			if(Double.isInfinite(avgTotMFD.getY(i))) avgTotMFD.set(i, 100);
+		}*/
 		
 		addToFuncList(avgAFaultMFD, "Average A-Fault MFD", PLOT_CHAR1);
 		addToFuncList(avgBFaultCharMFD, "Average  B-Fault MFD", PLOT_CHAR3);
 		addToFuncList(avgNonCA_B_FaultsMFD, "Average Non-CA B-Fault MFD", PLOT_CHAR10);
-		addToFuncList(this.getTotal_BackgroundMFD(ucerf2), "Average Background MFD", PLOT_CHAR5);
-		addToFuncList(this.getTotal_C_ZoneMFD(ucerf2), "Average C-Zones MFD", PLOT_CHAR6);
+		addToFuncList(bckMFD, "Average Background MFD", PLOT_CHAR5);
+		addToFuncList(cZonesMFD, "Average C-Zones MFD", PLOT_CHAR6);
 	
 		
 		//Karen's observed data
-		
 		ArrayList obsMFD = getObsCumMFD(ucerf2);
 		String metadata="Average Total MFD, M6.5 Cum Ratio = "+avgTotMFD.getCumRate(6.5)/((EvenlyDiscretizedFunc)obsMFD.get(0)).getY(6.5);
-	
+
 		addToFuncList(avgTotMFD, metadata, PLOT_CHAR4);
 		
 		
@@ -242,15 +252,39 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		this.plottingFeaturesList.add(curveCharateristic);
 	}
 	
+	/**
+	 * Min Mag
+	 * @return
+	 */
+	protected double getMinMag() {
+		return MIN_MAG;
+	}
+	
+	/**
+	 * Max Mag
+	 * @return
+	 */
+	protected double getMaxMag() {
+		return MAX_MAG;
+	}
+	
+	/**
+	 * Get num Mag
+	 * @return
+	 */
+	protected int getNumMags() {
+		return NUM_MAG;
+	}
+	
 	public static void main(String args[]) {
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(null);
-		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.CAL_PATH);
+		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(null);
+		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.CAL_PATH);
 	}
 	

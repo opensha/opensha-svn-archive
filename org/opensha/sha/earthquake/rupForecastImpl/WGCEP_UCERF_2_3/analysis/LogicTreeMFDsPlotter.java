@@ -255,12 +255,13 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			while(line!=null) {
 				if(line.startsWith("#")) {
 					if(isNSHMP02) mfd = new IncrementalMagFreqDist(4.0, 9.0, 101);
-					else mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+					else mfd = new IncrementalMagFreqDist(getMinMag(), getMaxMag(), getNumMags());
 					mfdList.add(mfd);
 				} else {
 					StringTokenizer tokenizer = new StringTokenizer(line);
 					mag = Double.parseDouble(tokenizer.nextToken());
 					rate = Double.parseDouble(tokenizer.nextToken());
+					//if(!Double.isInfinite(rate))
 					mfd.set(mag, rate);
 				}
 				line = br.readLine();
@@ -270,6 +271,30 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Min Mag
+	 * @return
+	 */
+	protected double getMinMag() {
+		return UCERF2.MIN_MAG;
+	}
+	
+	/**
+	 * Max Mag
+	 * @return
+	 */
+	protected double getMaxMag() {
+		return UCERF2.MAX_MAG;
+	}
+	
+	/**
+	 * Get num Mag
+	 * @return
+	 */
+	protected int getNumMags() {
+		return UCERF2.NUM_MAG;
 	}
 	
 	/**
