@@ -13,6 +13,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -246,6 +248,50 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		for(int i=0; i<mags.length; ++i) func.set(mags[i], 1.0);
 		return func;
 	}
+	
+	
+	/**
+	 * Plot stacked histograms for Ellsworth B and Hans-Bakun 2002
+	 * @param fileName
+	 */
+	public void plotMagAreaComparisonProbPlot(double mag, String fileName, String sourceType) {
+	
+		
+		ArrayList<Integer> ellB_BranchIndices;
+		ArrayList<Integer> hansBakunBranchIndices;
+		
+//		 Open the excel file
+		try {
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // 
+			// Ellsworth B
+			ellB_BranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.MAG_AREA_RELS_PARAM_NAME, Ellsworth_B_WG02_MagAreaRel.NAME);
+			// Hans & Bakun 2002
+			hansBakunBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.MAG_AREA_RELS_PARAM_NAME, HanksBakun2002_MagAreaRel.NAME);
+					
+			int totProbColIndex=getColIndexForMag(mag);
+			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
+			
+			EvenlyDiscretizedFunc ellB_Func = getFunc("Histogram Plot for Ellsworth B", ellB_BranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc hansBakunFunc = getFunc("Histogram Plot for Hans & Bakun", hansBakunBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			
+			// plot histograms 
+			funcs = new ArrayList();
+			funcs.add(ellB_Func);
+			funcs.add(hansBakunFunc);
+			plottingCurveChars = new ArrayList<PlotCurveCharacterstics>();
+			plottingCurveChars.add(STACKED_BAR1);
+			plottingCurveChars.add(STACKED_BAR2);
+			GraphWindow graphWindow= new GraphWindow(this);
+			graphWindow.setPlotLabel(PLOT_LABEL);
+			graphWindow.plotGraphUsingPlotPreferences();
+			graphWindow.setVisible(true);
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Plot stacked histograms for BPT vs Empirical plots
@@ -261,7 +307,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		try {
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(fileName));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
-			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // whole Region
+			HSSFSheet paramSettingsSheet = wb.getSheetAt(0); // 
 			// BPT and Poisson
 			bptBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_BPT);
 			bptBranchIndices.addAll(getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON));
@@ -269,7 +315,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			empiricalBranchIndices = getBranchIndices(paramSettingsSheet, UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_EMPIRICAL);
 					
 			int totProbColIndex=getColIndexForMag(mag);
-			HSSFSheet probSheet = wb.getSheetAt(1); // whole Region
+			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
 			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson", bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
 			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical", empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
@@ -488,7 +534,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 		int weightColIndex =  getColIndexForParam(paramSettingsSheet, "Branch Weight"); // logic tree branch weight  index column
 
-		// BPT/Poisson
+		// 
 		EvenlyDiscretizedFunc bptFunc = new EvenlyDiscretizedFunc(MIN_PROB, MAX_PROB, NUM_PROB);
 		bptFunc.setInfo(metadata);
 		bptFunc.setTolerance(DELTA_PROB);
@@ -525,7 +571,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			HSSFSheet sheet = wb.getSheet(sourceType); // whole Region
 
 			ArrayList<Integer>  bIndices= getBranchIndices(wb.getSheetAt(0),  UCERF2.PROB_MODEL_PARAM_NAME,  null);
-			EvenlyDiscretizedFunc func = this.getFunc("Histogram plot for "+fileName+" for Mag>="+minMag, bIndices, wb.getSheetAt(0), colIndex, wb.getSheetAt(1));
+			EvenlyDiscretizedFunc func = this.getFunc("Histogram plot for "+fileName+" for Mag>="+minMag, bIndices, wb.getSheetAt(0), colIndex, sheet);
 				
 			funcs = new ArrayList();
 			funcs.add(func);
@@ -737,9 +783,6 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(true, 15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
 		
-		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		//plotter.plotHistogramsForMagAndSource(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.B_FAULTS);
-
 		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_All.xls", PATH+"ProbAnalysis_30yrs_All.xls");
 		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls", PATH+"ProbAnalysis_30yrs_WG02.xls");
 		//plotter.mkHistogramSheet(PATH+"ProbabilityContributions_30yrs_NoCal.xls", PATH+"ProbAnalysis_30yrs_NoCal.xls");
@@ -756,6 +799,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");*/
+		
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		//plotter.plotHistogramsForMagAndSource(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		plotter.plotMagAreaComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 	}
 
 }
