@@ -203,7 +203,7 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		//System.out.println(avgNonCA_B_FaultsMFD.toString());
 		//System.out.println(bckMFD.toString());
 		//System.out.println(cZonesMFD.toString());
-		System.out.println(avgTotMFD.toString());
+		//System.out.println(avgTotMFD.toString());
 		
 		/*for(int i=0; i<avgTotMFD.getNum(); ++i) {
 			if(Double.isInfinite(avgTotMFD.getY(i))) avgTotMFD.set(i, 100);
@@ -255,7 +255,7 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	 */
 	private void addToFuncList(IncrementalMagFreqDist mfd, String metadata, 
 			PlotCurveCharacterstics curveCharateristic) {
-		mfd.setName(metadata);
+		mfd.setInfo(metadata);
 		funcs.add(mfd);
 		this.plottingFeaturesList.add(curveCharateristic);
 	}
@@ -289,8 +289,8 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
-		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(null);
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.CAL_PATH);
