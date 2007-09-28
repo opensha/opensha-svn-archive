@@ -275,8 +275,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc ellB_Func = getFunc("Histogram Plot for Ellsworth B  for "+sourceType + " for fileName "+fileName, ellB_BranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc hansBakunFunc = getFunc("Histogram Plot for Hans & Bakun for "+sourceType + " for fileName "+fileName, hansBakunBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc ellB_Func = getFunc("Histogram Plot for Ellsworth B  for "+sourceType + " for fileName "+fileName+" at Mag="+mag, ellB_BranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc hansBakunFunc = getFunc("Histogram Plot for Hans & Bakun for "+sourceType + " for fileName "+fileName+" at Mag="+mag, hansBakunBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
 			this.addFuncs(hansBakunFunc, ellB_Func);
 			// plot histograms 
 			funcs = new ArrayList();
@@ -319,10 +319,10 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc func0_3 = getFunc("Histogram Plot for Aperiodicity = 0.3 for "+sourceType + " for fileName "+fileName, aperiodicity0_3, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc func0_5 = getFunc("Histogram Plot for Aperiodicity = 0.5 for "+sourceType + " for fileName "+fileName, aperiodicity0_5, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc func0_3 = getFunc("Histogram Plot for Aperiodicity = 0.3 for "+sourceType + " for fileName "+fileName+" at Mag="+mag, aperiodicity0_3, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc func0_5 = getFunc("Histogram Plot for Aperiodicity = 0.5 for "+sourceType + " for fileName "+fileName+" at Mag="+mag, aperiodicity0_5, paramSettingsSheet, totProbColIndex, probSheet);
 			addFuncs(func0_5, func0_3);
-			EvenlyDiscretizedFunc func0_7 = getFunc("Histogram Plot for Aperiodicity = 0.7 for "+sourceType + " for fileName "+fileName, aperiodicity0_7, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc func0_7 = getFunc("Histogram Plot for Aperiodicity = 0.7 for "+sourceType + " for fileName "+fileName+" at Mag="+mag, aperiodicity0_7, paramSettingsSheet, totProbColIndex, probSheet);
 			addFuncs(func0_7, func0_5);
 			// plot histograms 
 			funcs = new ArrayList();
@@ -367,8 +367,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc aprioriFunc = getFunc("Histogram Plot for Apriori for "+sourceType + " for fileName "+fileName, apriori, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc moBalFunc = getFunc("Histogram Plot for Mo Bal  for "+sourceType + " for fileName "+fileName, moBal, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc aprioriFunc = getFunc("Histogram Plot for Apriori for "+sourceType + " for fileName "+fileName+" at Mag="+mag, apriori, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc moBalFunc = getFunc("Histogram Plot for Mo Bal  for "+sourceType + " for fileName "+fileName+" at Mag="+mag, moBal, paramSettingsSheet, totProbColIndex, probSheet);
 			addFuncs(moBalFunc, aprioriFunc);
 			// plot histograms 
 			funcs = new ArrayList();
@@ -421,8 +421,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 			int totProbColIndex=getColIndexForMag(mag);
 			HSSFSheet probSheet = wb.getSheet(sourceType); // whole Region
 			
-			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson for "+sourceType + " for fileName "+fileName, bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
-			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical for "+sourceType + " for fileName "+fileName, empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc bptFunc = getFunc("Histogram Plot for BPT/Poisson for "+sourceType + " for fileName "+fileName+" at Mag="+mag, bptBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
+			EvenlyDiscretizedFunc empFunc = getFunc("Histogram Plot for Empirical for "+sourceType + " for fileName "+fileName+" at Mag="+mag, empiricalBranchIndices, paramSettingsSheet, totProbColIndex, probSheet);
 			this.addFuncs(empFunc, bptFunc);
 			// plot histograms 
 			funcs = new ArrayList();
