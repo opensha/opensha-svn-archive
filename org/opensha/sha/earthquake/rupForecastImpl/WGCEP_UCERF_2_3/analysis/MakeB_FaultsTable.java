@@ -41,7 +41,8 @@ import org.opensha.util.FileUtils;
  *
  */
 public class MakeB_FaultsTable {
-	private final static String FILENAME = "Non-CA_B-Faults.xls";
+	private final static String CA_B_FILENAME = "B-Faults.xls";
+	private final static String NON_CA_B_FILENAME = "Non-CA_B-Faults.xls";
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
 	private final static DecimalFormat AREA_LENGTH_FORMAT = new DecimalFormat("0.#");
 	private final static DecimalFormat MOMENT_FORMAT = new DecimalFormat("0.000E0");
@@ -57,10 +58,13 @@ public class MakeB_FaultsTable {
 	private UCERF2 ucerf2 = new UCERF2();
 	int rowIndex;
 	public MakeB_FaultsTable() {
-		workbook  = new HSSFWorkbook();
+		
 		ucerf2 = new UCERF2();
 		
-		/*makeNewSheet("B-Faults");
+		
+		/*workbook  = new HSSFWorkbook();
+		
+		makeNewSheet("B-Faults");
 		rowIndex=2;
 		makeData(false, "D2.1");
 		makeData(false, "D2.4");
@@ -81,17 +85,24 @@ public class MakeB_FaultsTable {
 			String faultName = bFaultNamesIt.next();
 			int rId = nameRowMapping.get(faultName);
 			sheet.getRow(rId).createCell((short)12).setCellValue(nameFaultModelMapping.get(faultName));
+		}
+//		 write  excel sheet
+		try {
+			FileOutputStream fileOut = new FileOutputStream(this.CA_B_FILENAME);
+			workbook.write(fileOut);
+			fileOut.close();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}*/
 		
+		workbook  = new HSSFWorkbook();
 		rowIndex=2;
 		makeNewSheet("Non-CA B-Faults");
 		makeNonCAB_FaultsData();
-
-	
 		
 //		 write  excel sheet
 		try {
-			FileOutputStream fileOut = new FileOutputStream(FILENAME);
+			FileOutputStream fileOut = new FileOutputStream(this.NON_CA_B_FILENAME);
 			workbook.write(fileOut);
 			fileOut.close();
 		}catch(Exception e) {
@@ -129,7 +140,9 @@ private void makeNonCAB_FaultsData() {
 		HashMap<String, Double> sourceRateMapping = new HashMap<String, Double>();
 		HashMap<String, Double> sourceProb6_7Mapping = new HashMap<String, Double>();
 		HashMap<String, Double> sourceEmpMapping = new HashMap<String, Double>();
-
+		HashMap<String, Double> sourceLengthMapping = new HashMap<String, Double>();
+		HashMap<String, Double> sourceAreaMapping = new HashMap<String, Double>();
+		HashMap<String, Double> sourceMoRateMapping = new HashMap<String, Double>();
 		// Poisson
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
@@ -149,7 +162,7 @@ private void makeNonCAB_FaultsData() {
 			ArrayList<String> fileLines = FileUtils.loadJarFile(fileName);
 			int numLines = fileLines.size();
 			int rakeId, srcTypeId;
-			double mag=0;
+			double mag=0, dip, downDipWidth, upperSeisDepth, lowerSeisDepth, latitude, longitude, rake;
 			FaultTrace faultTrace;
 			String faultName;
 			for(int i=0; i<numLines; ) {
@@ -164,12 +177,15 @@ private void makeNonCAB_FaultsData() {
 				// mag, rate & wt
 				line = fileLines.get(i++);
 				tokenizer = new StringTokenizer(line);
+				double moRate;
 				if(srcTypeId==1) { // Char case
 					mag = Double.parseDouble(tokenizer.nextToken().trim());
 					double rate = Double.parseDouble(tokenizer.nextToken().trim());
-					double moRate = rate*MomentMagCalc.getMoment(mag);
+					moRate = rate*MomentMagCalc.getMoment(mag);
 					double wt = Double.parseDouble(tokenizer.nextToken().trim());
 					double wt2 = 1;
+					if(mag > 6.5) wt2 = 0.666;
+					moRate *= wt*wt2;
 				}
 				else if (srcTypeId==2) {
 					double aVal=Double.parseDouble(tokenizer.nextToken().trim());
@@ -178,13 +194,32 @@ private void makeNonCAB_FaultsData() {
 					double magUpper=Double.parseDouble(tokenizer.nextToken().trim());
 					double deltaMag=Double.parseDouble(tokenizer.nextToken());
 					mag=magUpper;
+					//System.out.println(faultName+","+magLower+","+magUpper);
+					if(magUpper!=magLower) {
+						magLower += deltaMag/2.0;
+						magUpper -= deltaMag/2.0;
+					}
+					else {
+						magLower=Math.round( (float)((magUpper-UCERF2.MIN_MAG)/deltaMag)) * deltaMag + UCERF2.MIN_MAG;
+						magUpper= magLower;
+					}
+					numMags = Math.round( (float)((magUpper-magLower)/deltaMag + 1.0) );
+		            //if(numMags==0) System.out.println(faultName+","+magLower+","+magUpper);
+					 moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(magLower, numMags, deltaMag, aVal, bVal);
+					double wt = Double.parseDouble(tokenizer.nextToken().trim());
+					double wt2 = 0.334;
+					moRate *= wt*wt2;
 				}	
+				
 				else throw new RuntimeException("Src type not supported");
 				if(sourceMagMapping.containsKey(faultName)) {
 					double mag1 = sourceMagMapping.get(faultName);
 					if(Math.abs(mag1-mag)>0.001) throw new RuntimeException("Wrong mags for source "+faultName+":"+mag1+","+mag);
+					double newMoRate = sourceMoRateMapping.get(faultName) + moRate;
+					sourceMoRateMapping.put(faultName, newMoRate);
 				} else {
 					sourceMagMapping.put(faultName, mag);
+					sourceMoRateMapping.put(faultName, moRate);
 					double rate=0;
 					double rate6_7=0, emp=0, num=0;
 					for(int srcId=0; srcId<nonCA_Sources_Poiss.size(); ++srcId) {
@@ -206,8 +241,13 @@ private void makeNonCAB_FaultsData() {
 				}
 
 				// dip, surface width, upper seis depth, surface length
+				// dip, surface width, upper seis depth, surface length
 				line = fileLines.get(i++);
 				tokenizer = new StringTokenizer(line);
+				dip = Double.parseDouble(tokenizer.nextToken().trim());
+				downDipWidth = Double.parseDouble(tokenizer.nextToken().trim());
+				upperSeisDepth = Double.parseDouble(tokenizer.nextToken().trim());
+				lowerSeisDepth = upperSeisDepth + downDipWidth*Math.sin((Math.toRadians(Math.abs(dip))));
 				
 				//fault trace
 				line = fileLines.get(i++);
@@ -215,7 +255,13 @@ private void makeNonCAB_FaultsData() {
 				faultTrace = new FaultTrace(faultName);
 				for(int locIndex=0; locIndex<numLocations; ++locIndex) {
 					line = fileLines.get(i++);
-				}				
+					tokenizer = new StringTokenizer(line);
+					latitude = Double.parseDouble(tokenizer.nextToken());
+					longitude =Double.parseDouble(tokenizer.nextToken());
+					faultTrace.addLocation(new Location(latitude, longitude));
+				}		
+				sourceLengthMapping.put(faultName, faultTrace.getTraceLength());
+				sourceAreaMapping.put(faultName, faultTrace.getTraceLength()*downDipWidth);
 			}
 			}catch (Exception e) {
 			e.printStackTrace();
@@ -234,6 +280,9 @@ private void makeNonCAB_FaultsData() {
 			row.createCell((short)5).setCellValue((float)rate);
 			row.createCell((short)6).setCellValue(sourceProb6_7Mapping.get(faultName));
 			row.createCell((short)7).setCellValue(sourceEmpMapping.get(faultName));
+			row.createCell((short)9).setCellValue(AREA_LENGTH_FORMAT.format(sourceAreaMapping.get(faultName)));
+			row.createCell((short)10).setCellValue(AREA_LENGTH_FORMAT.format(sourceLengthMapping.get(faultName)));
+			row.createCell((short)11).setCellValue(MOMENT_FORMAT.format(sourceMoRateMapping.get(faultName)));
 
 			rowIndex++;
 		}

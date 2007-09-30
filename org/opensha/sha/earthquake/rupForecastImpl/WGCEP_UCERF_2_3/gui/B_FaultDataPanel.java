@@ -64,7 +64,8 @@ public class B_FaultDataPanel extends JPanel {
  */
 class B_FaultDataTableModel extends AbstractTableModel {
 	// column names
-	private final static String[] columnNames = { "Name", "Mag", "Tot Rate", "Tot Prob", "Slip Rate (mm/yr)", "Area (sq-km)",
+	private final static String[] columnNames = { "Name", "Mag", "Tot Rate", "Tot Prob",
+		"Prob (M>=6.7)", "Slip Rate (mm/yr)", "Area (sq-km)",
 		"Length (km)", "Moment Rate", "Ave Aseismicity", "Mag Freq Dist"};
 	private ArrayList unsegmentedSourceList;
 	private final static DecimalFormat SLIP_RATE_FORMAT = new DecimalFormat("0.#####");
@@ -153,21 +154,23 @@ class B_FaultDataTableModel extends AbstractTableModel {
 			case 2:
 				return ""+(float)source.getMagFreqDist().getTotalIncrRate();
 			case 3:
+				return ""+(float)source.computeTotalProbAbove(6.7);
+			case 4:
 				return ""+(float)source.computeTotalProb();
-			case 4: 
+			case 5: 
 				// convert to mm/yr
 				return SLIP_RATE_FORMAT.format(faultSegmentData.getTotalAveSlipRate()*1e3);
-			case 5:
+			case 6:
 				// convert to sq km
 				return AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalArea()/1e6);
-			case 6:
+			case 7:
 				// convert to km
 				return AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalLength()/1e3);
-			case 7:
-				return MOMENT_FORMAT.format(source.getMomentRate());
 			case 8:
-				return ASEISMSIC_FORMAT.format(faultSegmentData.getTotalAveAseismicityFactor());
+				return MOMENT_FORMAT.format(source.getMomentRate());
 			case 9:
+				return ASEISMSIC_FORMAT.format(faultSegmentData.getTotalAveAseismicityFactor());
+			case 10:
 				ArrayList funcs = new ArrayList();
 				IncrementalMagFreqDist magFreqDist1 = source.getMagFreqDist();
 				magFreqDist1.setName("Mag Freq Dist");
@@ -203,7 +206,7 @@ class B_Faults_Table extends JTable {
 	public B_Faults_Table(TableModel dm) {
 		super(dm);
 		setColumnSelectionAllowed(true);
-		getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer(MFD));
+		getColumnModel().getColumn(10).setCellRenderer(new ButtonRenderer(MFD));
 		addMouseListener(new MouseListener(this));
 		// set width of first column 
 		//TableColumn col1 = getColumnModel().getColumn(1);
@@ -252,7 +255,7 @@ class MouseListener extends MouseAdapter  implements GraphWindowAPI {
         int row = table.rowAtPoint(p);
         int column = table.columnAtPoint(p); // This is the view column!
         TableModel tableModel = table.getModel();
-        if(column==9) { // edit slip rate
+        if(column==10) { // edit slip rate
         	funcs = (ArrayList)tableModel.getValueAt(row, column);
         	GraphWindow graphWindow= new GraphWindow(this);
     	    graphWindow.setPlotLabel("Mag Rate");
