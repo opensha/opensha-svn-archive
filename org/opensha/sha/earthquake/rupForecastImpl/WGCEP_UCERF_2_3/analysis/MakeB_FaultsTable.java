@@ -127,11 +127,17 @@ public class MakeB_FaultsTable {
 private void makeNonCAB_FaultsData() {
 	
 		HashMap<String, Double> sourceRateMapping = new HashMap<String, Double>();
+		HashMap<String, Double> sourceProb6_7Mapping = new HashMap<String, Double>();
+		HashMap<String, Double> sourceEmpMapping = new HashMap<String, Double>();
+
 		// Poisson
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		ucerf2.updateForecast();
-		ArrayList<ProbEqkSource> nonCA_Sources = ucerf2.getNonCA_B_FaultSources();
+		ArrayList<ProbEqkSource> nonCA_Sources_Poiss = ucerf2.getNonCA_B_FaultSources();
+		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_EMPIRICAL);
+		ucerf2.updateForecast();
+		ArrayList<ProbEqkSource> nonCA_Sources_Emp = ucerf2.getNonCA_B_FaultSources();
 
 		double duration = ucerf2.getTimeSpan().getDuration();
 		HSSFRow row;
@@ -171,31 +177,32 @@ private void makeNonCAB_FaultsData() {
 					double magLower=Double.parseDouble(tokenizer.nextToken().trim());
 					double magUpper=Double.parseDouble(tokenizer.nextToken().trim());
 					double deltaMag=Double.parseDouble(tokenizer.nextToken());
-					//System.out.println(faultName+","+magLower+","+magUpper);
-					if(magUpper!=magLower) {
-						magLower += deltaMag/2.0;
-						magUpper -= deltaMag/2.0;
-					}
-					else {
-						magLower=Math.round( (float)((magUpper-UCERF2.MIN_MAG)/deltaMag)) * deltaMag + UCERF2.MIN_MAG;
-						magUpper= magLower;
-					}
 					mag=magUpper;
 				}	
 				else throw new RuntimeException("Src type not supported");
 				if(sourceMagMapping.containsKey(faultName)) {
 					double mag1 = sourceMagMapping.get(faultName);
-					if(mag1==mag) throw new RuntimeException("Wrong mags for source "+faultName);
+					if(Math.abs(mag1-mag)>0.001) throw new RuntimeException("Wrong mags for source "+faultName+":"+mag1+","+mag);
 				} else {
 					sourceMagMapping.put(faultName, mag);
 					double rate=0;
-					for(int srcId=0; srcId<nonCA_Sources.size(); ++srcId) {
-						ProbEqkSource source = (ProbEqkSource)nonCA_Sources.get(srcId);
-						if(source.getName().equalsIgnoreCase(faultName+" GR") ||
-								source.getName().equalsIgnoreCase(faultName+" Char"))
-							rate+=1-Math.exp(-source.computeTotalProb()*duration);
+					double rate6_7=0, emp=0, num=0;
+					for(int srcId=0; srcId<nonCA_Sources_Poiss.size(); ++srcId) {
+						ProbEqkSource source_pois = (ProbEqkSource)nonCA_Sources_Poiss.get(srcId);
+						ProbEqkSource source_emp = (ProbEqkSource)nonCA_Sources_Emp.get(srcId);
+						if(source_pois.getName().equalsIgnoreCase(faultName+" GR") ||
+								source_pois.getName().equalsIgnoreCase(faultName+" Char")) {
+							double prob = source_pois.computeTotalProb();
+							rate+= -Math.log(1-prob)/duration;
+							rate6_7+= -Math.log(1-source_pois.computeTotalProbAbove(6.7))/duration;
+							emp+=source_emp.computeTotalProb()/prob;
+							++num;
+						}
+						
 					}
+					sourceProb6_7Mapping.put(faultName, 1-Math.exp(-rate6_7*duration));
 					sourceRateMapping.put(faultName, rate);
+					sourceEmpMapping.put(faultName, emp/num);
 				}
 
 				// dip, surface width, upper seis depth, surface length
@@ -225,6 +232,9 @@ private void makeNonCAB_FaultsData() {
 			row.createCell((short)3).setCellValue((float)rate);
 			row.createCell((short)4).setCellValue(MAG_FORMAT.format(mag));
 			row.createCell((short)5).setCellValue((float)rate);
+			row.createCell((short)6).setCellValue(sourceProb6_7Mapping.get(faultName));
+			row.createCell((short)7).setCellValue(sourceEmpMapping.get(faultName));
+
 			rowIndex++;
 		}
 	
