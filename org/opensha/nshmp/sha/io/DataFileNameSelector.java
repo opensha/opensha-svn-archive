@@ -14,7 +14,7 @@ import org.opensha.nshmp.util.GlobalConstants;
 public class DataFileNameSelector {
 
   public DataFileNameSelector() {}
-
+  
   private final static String filePath = GlobalConstants.DATA_FILE_PATH;
 
   /**

@@ -19,7 +19,7 @@ import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 public final class ZipCodeToLatLonConvertor {
 
   private static final String ZIP_CODE_TO_LAT_LON_FILE = GlobalConstants.
-      DATA_FILE_PATH + "2003-ZipCodes.txt";
+  DATA_FILE_PATH + "2003-ZipCodes.txt";
 
   /**
    * Returns the location for the selected zip code

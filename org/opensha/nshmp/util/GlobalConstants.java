@@ -27,7 +27,7 @@ public final class GlobalConstants {
   //public final static String DATA_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
   //public final static String DATA_FILE_PATH = "/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
   public final static String DATA_FILE_PATH = "/usr/local/tomcat/webapps/dataFiles/"; // path at gldwork.cr.usgs.gov
-  public final static String registrationName =
+	public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
   private final static String USGS_LOGO = "usgslogo.gif";
@@ -40,6 +40,7 @@ public final class GlobalConstants {
   public static final String CONTER_48_STATES = "Conterminous 48 States";
   public static final String ALASKA = "Alaska";
   public static final String HAWAII = "Hawaii";
+  //public static final String INDONESIA = "Western Indonesia (Preliminary)";
   public static final String PUERTO_RICO = "Puerto Rico";
   public static final String CULEBRA = "Culebra";
   public static final String ST_CROIX = "St. Croix";
@@ -50,6 +51,7 @@ public final class GlobalConstants {
   public static final String GUAM = "Guam";
 
   //static declaration of the data editions suppported within this framework.
+  //public static final String data_2007 = "2007 Data";
   public static final String data_1996 = "1996 Data";
   public static final String data_2002 = "2002 Data";
   public static final String data_1998 = "1998 Data";

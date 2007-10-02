@@ -12,8 +12,7 @@ import org.opensha.nshmp.util.GlobalConstants;
  * @version 1.0
  */
 public class DataFileNameSelectorForUHS {
-
-  private final static String filePath = GlobalConstants.DATA_FILE_PATH;
+	private final static String filePath = GlobalConstants.DATA_FILE_PATH;
 
   /**
    *

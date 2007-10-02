@@ -2,13 +2,17 @@ package org.opensha.nshmp.sha.data;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.nshmp.sha.calc.HazardDataCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
 /**
@@ -383,7 +387,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return
   */
  private Object connectToServlet(String funcName, ArrayList objectList) {
-   try {
+	 try {
      // make connection with servlet
      URL hazCalcServlet = new URL(HazardDataMinerServletMode.SERVLET_PATH);
      URLConnection servletConnection = hazCalcServlet.openConnection();
@@ -420,6 +424,4 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    }
    return null;
  }
-
-
 }

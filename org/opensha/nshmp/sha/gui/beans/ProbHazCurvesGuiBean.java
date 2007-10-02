@@ -542,6 +542,9 @@ public class ProbHazCurvesGuiBean
              selectedRegion.equals(GlobalConstants.HAWAII)) {
       supportedEditionList.add(GlobalConstants.data_1998);
     }
+    /*else if (selectedRegion.equals(GlobalConstants.INDONESIA)) {
+    	supportedEditionList.add(GlobalConstants.data_2007);
+    }*/
     else {
       supportedEditionList.add(GlobalConstants.data_2003);
     }

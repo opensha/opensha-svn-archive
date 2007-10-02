@@ -14,7 +14,6 @@ import org.opensha.nshmp.util.GlobalConstants;
 public class DataFileNameSelectorForHazardCurves {
 
   public DataFileNameSelectorForHazardCurves() {}
-
   private final static String filePath = GlobalConstants.DATA_FILE_PATH;
 
   /**
@@ -36,6 +35,9 @@ public class DataFileNameSelectorForHazardCurves {
     else if (selectedRegion.equals(GlobalConstants.HAWAII)) {
       return getFileNameForHawaii(selectedEdition, hazardCurveType);
     }
+    /*else if (selectedRegion.equals(GlobalConstants.INDONESIA)) {
+    	return getFileNameForIndonesia(selectedEdition, hazardCurveType);
+    }*/
     else {
       return getFileNameForPRVI(selectedEdition, hazardCurveType);
     }
@@ -229,5 +231,18 @@ public class DataFileNameSelectorForHazardCurves {
     }
     return null;
   }
+  
+  /*private String getFileNameForIndonesia(String selectedEdition, String hazardCurveType) {
+	  // selectedEdition is ignored for now, but included for future flexibility
+	  if(hazardCurveType.equals(GlobalConstants.PGA)) {
+		  return filePath + "2007-Java-HAZ-0_0sec-R2a.rnd";
+	  } else if (hazardCurveType.equals(GlobalConstants.IMT_ONE_SEC)) {
+		  return filePath + "2007-Java-HAZ-1_0sec-R2a.rnd";
+	  } else if (hazardCurveType.equals(GlobalConstants.IMT_POINT_TWO_SEC)) {
+		  return filePath + "2007-Java-HAZ-0_2sec-R2a.rnd";
+	  }
+	  
+	  return null;
+  }*/
 
 }

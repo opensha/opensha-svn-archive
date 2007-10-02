@@ -48,6 +48,10 @@ public final class RegionUtil {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
       supportedRegionList.add(GlobalConstants.ALASKA);
       supportedRegionList.add(GlobalConstants.HAWAII);
+      // Add this only for Hazard Curves
+      /*if(selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
+  		supportedRegionList.add(GlobalConstants.INDONESIA);
+  	  }*/
       supportedRegionList.add(GlobalConstants.PUERTO_RICO);
       supportedRegionList.add(GlobalConstants.CULEBRA);
       supportedRegionList.add(GlobalConstants.ST_CROIX);
@@ -103,6 +107,9 @@ public final class RegionUtil {
     else if (selectedGeographicRegion.equals(GlobalConstants.VIEQUES)) {
       return new RectangularGeographicRegion(18.07, 18.17, -65.6, -65.25);
     }
+    /*else if (selectedGeographicRegion.equals(GlobalConstants.INDONESIA)) {
+    	return new RectangularGeographicRegion(-10.0, 8.00, 92, 118);
+    }*/
 
     return null;
   }
