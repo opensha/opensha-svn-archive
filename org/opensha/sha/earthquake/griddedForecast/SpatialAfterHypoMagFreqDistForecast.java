@@ -46,7 +46,8 @@ public class SpatialAfterHypoMagFreqDistForecast
      */
     this.setMainShock(mainshock);
     this.region = aftershockZone;
-    this.afterShocks = afterShocks;
+    this.aftershocks = aftershocks;
+    this.aftershockZone = aftershockZone;
 
   }
 
@@ -81,47 +82,47 @@ public class SpatialAfterHypoMagFreqDistForecast
    * setAllGridedRJ_Parms
    */
   public void setAllGridedRJ_Parms() {
-    grid_Spa_aValue = (double[]) rjParms.get(1);
-    grid_Spa_bValue = (double[]) rjParms.get(2);
-    grid_Spa_pValue = (double[]) rjParms.get(3);
-    grid_Spa_cValue = (double[]) rjParms.get(5);
-    grid_Spa_kValue = (double[]) rjParms.get(4);
-    spaNodeCompletenessMag = (double[]) rjParms.get(6);
+    grid_Spa_aValue = (double[]) rjParms.get(0);
+    grid_Spa_bValue = (double[]) rjParms.get(1);
+    grid_Spa_pValue = (double[]) rjParms.get(2);
+    grid_Spa_cValue = (double[]) rjParms.get(4);
+    grid_Spa_kValue = (double[]) rjParms.get(3);
+    spaNodeCompletenessMag = (double[]) rjParms.get(5);
   }
 
   /**
    * set_Gridded_aValue
    */
   public void set_Gridded_Spa_aValue() {
-    grid_Spa_aValue = (double[]) rjParms.get(1);
+    grid_Spa_aValue = (double[]) rjParms.get(0);
   }
 
   /**
    * set_Gridded_bValue
    */
   public void set_Gridded_Spa_bValue() {
-    grid_Spa_bValue = (double[]) rjParms.get(2);
+    grid_Spa_bValue = (double[]) rjParms.get(1);
   }
 
   /**
    * set_Gridded_pValue
    */
   public void set_Gridded_Spa_pValue() {
-    grid_Spa_pValue = (double[]) rjParms.get(3);
+    grid_Spa_pValue = (double[]) rjParms.get(2);
   }
 
   /**
    * set_Gridded_cValue
    */
   public void set_Gridded_Spa_cValue() {
-    grid_Spa_cValue = (double[]) rjParms.get(5);
+    grid_Spa_cValue = (double[]) rjParms.get(4);
   }
 
   /**
    * set_Gridded_kValue
    */
   public void set_Gridded_Spa_kValue() {
-    grid_Spa_kValue = (double[]) rjParms.get(4);
+    grid_Spa_kValue = (double[]) rjParms.get(3);
   }
 
   /**
@@ -131,7 +132,7 @@ public class SpatialAfterHypoMagFreqDistForecast
    */
 
   public void calc_spaNodeCompletenessMag() {
-    spaNodeCompletenessMag = (double[]) rjParms.get(6);
+    spaNodeCompletenessMag = (double[]) rjParms.get(5);
   }
 
   /**

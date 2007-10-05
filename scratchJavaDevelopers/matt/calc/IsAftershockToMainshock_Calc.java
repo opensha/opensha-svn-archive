@@ -51,13 +51,13 @@ public class IsAftershockToMainshock_Calc {
     // if this event is not accepting aftershocks any more stop
     // here and return a false
     if (isStatic)
-      isInZone = false;
+      this.isInZone = false;
 
     // if it is accepting look and see if this event fits
     else {
-      isInZone = aftershockZone.isLocationInside(newEventLoc);
+      this.isInZone = aftershockZone.isLocationInside(newEventLoc);
 
-      if (isInZone) {
+      if (this.isInZone) {
         //if ( (double) mainshock.getMag() > (double) newEvent.getMag()) {
         //mainshockModel.addToAftershockList(newEvent);
       }
@@ -66,7 +66,7 @@ public class IsAftershockToMainshock_Calc {
       }
     }
 
-    return isInZone;
+    return this.isInZone;
   }
 }
 

@@ -1,5 +1,6 @@
 package scratchJavaDevelopers.matt.calc;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import org.opensha.sha.earthquake.*;
@@ -38,6 +39,8 @@ public class STEP_main {
   private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
   private BackGroundRatesGrid bgGrid = null;
   private ArrayList<PointEqkSource> sourceList;
+  private DecimalFormat locFormat = new DecimalFormat("0.0000");
+  
   /**
    * First load the active aftershock sequence objects from the last run
    * load: ActiveSTEP_AIC_AftershockForecastList
@@ -164,6 +167,8 @@ public class STEP_main {
             (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
         mainshock = mainshockModel.getMainShock();
         msMag = mainshock.getMag();
+        //if (msMag >= 7.0)
+        //	System.out.println(msLoop);
         
         // update the current time (as defined at the start of STEP_Main)
         // in this mainshock while we're at it.
@@ -180,7 +185,7 @@ public class STEP_main {
           }
 
           /**
-          * to be a mainshock an eveny must be most recent and largest "mainshock"
+          * to be a mainshock an event must be most recent and largest "mainshock"
           * with this new event as an aftershock.
           * Check to see if this mainshock is the largest mainshock for this event
           * (it will be the newest as the ms are in chrono order) if it is, keep
@@ -234,6 +239,9 @@ public class STEP_main {
           newForecastMod.set_isPrimary(false);
         }
         
+        //if (newMag >= 7.0)
+        //	System.out.println(newMag);
+        
         // add the new event to the list of mainshocks and increment the number
         // of total mainshocks (for the loop)
         STEP_AftershockForecastList.add(newForecastMod);
@@ -259,6 +267,8 @@ public class STEP_main {
       UpdateSTEP_Forecast updateModel = new UpdateSTEP_Forecast(forecastModel);
       updateModel.updateAIC_CombinedModelForecast();
       
+      
+      
       /**
        * after the forecasts have been made, compare the forecast to
        *  the background at each location and keep whichever total 
@@ -275,7 +285,20 @@ public class STEP_main {
       int bgRegionSize = bgLocList.size();
       LocationList aftershockZoneList = forecastModel.getAfterShockZone().getGridLocationsList();
       int asZoneSize = aftershockZoneList.size();
-
+      
+      
+      double t_seqSumOver4 = 0;
+      if (forecastModel.getMainShock().getMag() > 7.0){
+    	  HypoMagFreqDistAtLoc t_seqDistAtLoc;    	  
+    	  for (int as=0;as<asZoneSize;++as){
+    		  //t_seqLoc = aftershockZoneList.getLocationAt(as);
+    		  t_seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(as);
+    		  t_seqSumOver4 += t_seqDistAtLoc.getFirstMagFreqDist().getCumRate(0);
+              //System.out.println(t_seqDistAtLoc.getFirstMagFreqDist().getCumRate(0));
+    	  }
+    	//System.out.println("Total Forecast " +t_seqSumOver4); 
+      }
+      
       
       for(int k=0;k<bgRegionSize;++k){
     	  bgLoc = bgLocList.getLocationAt(k);
@@ -306,6 +329,7 @@ public class STEP_main {
       }
       //System.out.println("222222Size of Hype List ="+hypList.size());
     }
+    createRateFile(bgGrid);
     createStepSources(hypList);
     createRateFile(sourceList);
     /**
@@ -360,6 +384,7 @@ public class STEP_main {
 	  System.out.println("Creating STEP sources");
 	  sourceList = new ArrayList<PointEqkSource>();
 	  int size = hypoMagDist.size();
+	  System.out.println("NumSources in hypList = "+size);
 	  for(int i=0;i<size;++i){
 		  HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
 		  Location loc = hypoLocMagDist.getLocation();
@@ -394,4 +419,31 @@ public class STEP_main {
   	}
   	return stepHypForecastList;
   }
+  
+  private void createRateFile(BackGroundRatesGrid bggrid){
+	  Location bgLoc;
+	  HypoMagFreqDistAtLoc bgDistAtLoc;
+	  double bgSumOver5;
+	  
+	  try{
+	  FileWriter fr = new FileWriter(RegionDefaults.outputAftershockRatePath);
+	  
+	  LocationList bgLocList = bgGrid.getEvenlyGriddedGeographicRegion().getGridLocationsList();
+      int bgRegionSize = bgLocList.size();
+      for(int k=0;k<bgRegionSize;++k){
+    	  bgLoc = bgLocList.getLocationAt(k);
+    	  bgDistAtLoc = bgGrid.getHypoMagFreqDistAtLoc(k);
+		  bgSumOver5 = bgDistAtLoc.getFirstMagFreqDist().getCumRate(RegionDefaults.minCompareMag);  
+	    
+		  fr.write(locFormat.format(bgLoc.getLatitude())+"    "+locFormat.format(bgLoc.getLongitude())+"      "+bgSumOver5+"\n");
+      }
+      fr.close();
+      }catch(IOException ee){
+	      ee.printStackTrace();
+	    }
+      
+      
+
+  }
 }
+

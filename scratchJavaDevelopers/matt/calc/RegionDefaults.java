@@ -23,8 +23,12 @@ public class RegionDefaults {
    * to a region.  Default values are set.
    */
 
-  public static String cubeFilePath = "scratchJavaDevelopers/matt/calc/merge.nts";
-
+  public static String cubeFilePath = "/home/matthew/mProjects/TestJavaCode/merge.nts";
+  public static String outputHazardPath = "/home/matthew/mProjects/TestJavaCode/STEP_Probs.txt";
+  public static String backgroundHazardPath = "/home/matthew/mProjects/TestJavaCode/STEP_backGround.txt";
+  public static String STEP_AftershockObjectFile = "/home/matthew/mProjects/TestJavaCode/STEP_AftershockObj";
+  public static String outputAftershockRatePath = "/home/matthew/mProjects/TestJavaCode/TimeDepRates.txt";
+  
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;
   public static double maxForecastMag = 8.0;
@@ -58,7 +62,7 @@ public class RegionDefaults {
   
   // the minimum mag to be used when comparing the cummulative of the 
   // background to that of an individual sequence
-  public static int minCompareMag = 5;
+  public static int minCompareMag = 0;
 
 
 

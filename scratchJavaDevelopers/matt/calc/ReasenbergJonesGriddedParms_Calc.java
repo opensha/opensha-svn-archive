@@ -103,12 +103,12 @@ public class ReasenbergJonesGriddedParms_Calc {
      */
     public ArrayList getAllGriddedVals() {
       ArrayList RJParms = new ArrayList(5);
-      RJParms.add(1,grid_aVal);
-      RJParms.add(2,grid_bVal);
-      RJParms.add(3,grid_pVal);
-      RJParms.add(4,grid_kVal);
-      RJParms.add(5,grid_cVal);
-      RJParms.add(6,grid_Mc);
+      RJParms.add(0,grid_aVal);
+      RJParms.add(1,grid_bVal);
+      RJParms.add(2,grid_pVal);
+      RJParms.add(3,grid_kVal);
+      RJParms.add(4,grid_cVal);
+      RJParms.add(5,grid_Mc);
       return RJParms;
   }
 
@@ -153,7 +153,7 @@ public class ReasenbergJonesGriddedParms_Calc {
     if (totalCompleteEvents < 1000) this.searchRadius = 15;
     else if (totalCompleteEvents < 1500) this.searchRadius = 12;
     else if (totalCompleteEvents < 2000) this.searchRadius = 10;
-    else this.searchRadius = 7.5;
+    else this.searchRadius = 75;
 
 
     while (gridIt.hasNext()) {

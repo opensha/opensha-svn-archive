@@ -103,8 +103,8 @@ public final class DistDecayFromRupCalc {
       while (zoneIT.hasNext()) {
     	  gLoc = (Location) zoneIT.next();
     	  if (gLoc!=null){
-    		  nodeDistFromFault[ind++] = getRupDist(ruptureSurface,
-                                              (Location) zoneIT.next());
+    		  nodeDistFromFault[ind++] = getRupDist(ruptureSurface,gLoc);
+                                        //      (Location) zoneIT.next());
     		  totDistFromFault = totDistFromFault +
     		  	Math.pow(nodeDistFromFault[ind - 1], decayParam);
     	    	  }

@@ -103,6 +103,18 @@ public class STEP_AftershockForecast
   }
   
   /**
+   * I am not sure if this is correct, but no griddedMFDF is ever
+   * initialised if this is for the combined forecast, so this allows
+   * that to happen.
+   * 
+   * @param numInd
+   */
+  //public void initGriddedMagFreqDistForecast(int numInd){
+//	  griddedMagFreqDistForecast = new HypoMagFreqDistAtLoc[numInd];
+ // }
+  
+  
+  /**
    * setMagFreqDistAtLoc
    * 
    * @param forecastAtLoc

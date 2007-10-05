@@ -71,7 +71,11 @@ public class CountObsInGrid {
 		Location gridCenter;
 		LocationList cellLoc;
 		double gLong,gLat;
-		Location gridCorner[] = new Location[4];
+		Location gridCorner1;
+		Location gridCorner2;
+		Location gridCorner3;
+		Location gridCorner4;
+		
 		ObsEqkRupList cellEvents;
 		
 		
@@ -87,18 +91,15 @@ public class CountObsInGrid {
 			//create a Location for each corner of the cell
 			// add the corner to a LocationList and create a GeographicRegion
 			// so that we can see what events are inside the region.
-			gridCorner[0].setLatitude(gLat + RegionDefaults.gridSpacing/2);
-			gridCorner[0].setLongitude(gLong + RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner[0],0);
-			gridCorner[1].setLatitude(gLat - RegionDefaults.gridSpacing/2);
-			gridCorner[1].setLongitude(gLong + RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner[1],1);
-			gridCorner[2].setLatitude(gLat - RegionDefaults.gridSpacing/2);
-			gridCorner[2].setLongitude(gLong - RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner[2],2);
-			gridCorner[3].setLatitude(gLat + RegionDefaults.gridSpacing/2);
-			gridCorner[3].setLongitude(gLong - RegionDefaults.gridSpacing/2);
-			cellLoc.addLocationAt(gridCorner[3],3);
+			gridCorner1 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong + RegionDefaults.gridSpacing/2);
+			cellLoc.addLocationAt(gridCorner1,0);
+			gridCorner2 = new Location(gLat - RegionDefaults.gridSpacing/2,gLong + RegionDefaults.gridSpacing/2);
+			
+			cellLoc.addLocationAt(gridCorner2,1);
+			gridCorner3 = new Location(gLat - RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
+			cellLoc.addLocationAt(gridCorner3,2);
+			gridCorner4 = new Location(gLat + RegionDefaults.gridSpacing/2,gLong - RegionDefaults.gridSpacing/2);
+			cellLoc.addLocationAt(gridCorner4,3);
 			//this creates a GeographicRegion that is the cell for Loc gLoop
 			GeographicRegion gridRegion = new GeographicRegion(cellLoc);
 			

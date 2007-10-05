@@ -114,11 +114,13 @@ public void setNumGridLocs() {
         (this.mainShock.getMag() - this.genNodeCompletenessMag);
     double generic_k = Math.pow(10, rightSide);
     int numInd = kScaler.length;
-
+    double totK = 0;
     for (int indLoop = 0; indLoop < numInd - 1; ++indLoop) {
       grid_Gen_kVal[indLoop] = generic_k * this.kScaler[indLoop];
+      // test to see if kScaler is correct
+      //totK += this.kScaler[indLoop];
     }
-
+    //System.out.println("Total k scaler " +totK);
   }
 
   /**

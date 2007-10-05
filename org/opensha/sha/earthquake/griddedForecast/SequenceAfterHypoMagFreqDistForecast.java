@@ -35,7 +35,8 @@ public class SequenceAfterHypoMagFreqDistForecast
   private double dayStart, dayEnd;
   private ArrayList gridMagForecast;
   private HypoMagFreqDistAtLoc magDistLoc;
-
+  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  
   public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
                                               EvenlyGriddedGeographicRegionAPI
                                               aftershockZone,
@@ -46,6 +47,7 @@ public class SequenceAfterHypoMagFreqDistForecast
     this.setMainShock(mainshock);
     this.region = aftershockZone;
     this.afterShocks = aftershocks;
+    this.aftershockZone = aftershockZone;
 
     numGridLocs = aftershockZone.getNumGridLocs();
     grid_Seq_aVal = new double[numGridLocs];
@@ -54,7 +56,7 @@ public class SequenceAfterHypoMagFreqDistForecast
     grid_Seq_pVal = new double[numGridLocs];
     grid_Seq_kVal = new double[numGridLocs];
 
-    MaxLikeOmori_Calc omoriCalc = new MaxLikeOmori_Calc();
+    omoriCalc = new MaxLikeOmori_Calc();
 
   }
 
@@ -299,7 +301,7 @@ public class SequenceAfterHypoMagFreqDistForecast
     return seqNodeCompletenessMag;
   }
 
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
-  }
+  //public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+  //  return null;
+  //}
 }

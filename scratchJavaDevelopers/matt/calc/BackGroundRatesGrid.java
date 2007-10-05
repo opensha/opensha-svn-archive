@@ -1133,7 +1133,23 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	 */
 	
 	public void setMagFreqDistAtLoc(IncrementalMagFreqDist locDist, int ithLocation){
-		hypoMagFreqDist.set(ithLocation, locDist);
+		/**
+		 * changed Nitin's original definition here as hypoMagFreqDist needs a Location
+		 * and this was passing an IncrementalMagFreqDist
+		 */
+		/**
+		GutenbergRichterMagFreqDist tgrd = new GutenbergRichterMagFreqDist(4,8,.1);
+		if (locDist.getClass().isInstance(tgrd)){
+	        System.out.println("is GRDdist" + ithLocation);
+		}
+		**/
+		
+		HypoMagFreqDistAtLoc tmpFreqDistAtLoc = (HypoMagFreqDistAtLoc)this.hypoMagFreqDist.get(ithLocation);	
+		Location tmpLoc = tmpFreqDistAtLoc.getLocation();
+		HypoMagFreqDistAtLoc newFreqDistAtLoc = new HypoMagFreqDistAtLoc(locDist,tmpLoc);
+		
+		//hypoMagFreqDist.set(ithLocation, locDist);
+		hypoMagFreqDist.set(ithLocation, newFreqDistAtLoc);
 	}
 
 }

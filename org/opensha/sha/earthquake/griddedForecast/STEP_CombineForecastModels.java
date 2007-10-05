@@ -52,7 +52,7 @@ public class STEP_CombineForecastModels
   private GenericAfterHypoMagFreqDistForecast genElement;
   private SequenceAfterHypoMagFreqDistForecast seqElement = null;
   private SpatialAfterHypoMagFreqDistForecast spaElement = null;
-  private STEP_AftershockForecast combinedForecast;
+  private HypoMagFreqDistAtLoc combinedForecast[];
   //private double sampleSizeAIC;
   private EvenlyGriddedGeographicRegionAPI aftershockZone;
   private boolean existSeqElement = false, existSpaElement = false; 
@@ -145,6 +145,8 @@ public class STEP_CombineForecastModels
 	  // gridnode, for each model element created
 	  if (this.useSeqAndSpatial) {
 		  int numGridNodes = this.getAfterShockZone().getNumGridLocs();
+		
+		  combinedForecast = new HypoMagFreqDistAtLoc[numGridNodes];
 		  
 		  // first find the number observed number within each grid cell for AIC calcs
 		  CountObsInGrid numInGridCalc =  new CountObsInGrid(this.afterShocks,this.aftershockZone);
@@ -162,12 +164,13 @@ public class STEP_CombineForecastModels
 		   *  get the likelihood for each node, for each model element
 		   *  then calc the AICc score
 		   */
-		  int gLoop = 0;
+		  //int gLoop = 0;
 		  
 		  // is this correct to be iterating over region, an EvenlyGriddedAPI??
 		  ListIterator gridIt = this.region.getGridLocationsIterator();
 		  
-		  while ( gridIt.hasNext() ){
+		  //while ( gridIt.hasNext() ){
+		  for (int gLoop = 0; gLoop < numGridNodes; gLoop++){
 			  // first find the events that should be associated with this grid cell
 			  // gridSearchRadius is the radius used for calculating the Reasenberg & Jones params
 			  double radius = this.spaElement.getGridSearchRadius();
@@ -217,7 +220,7 @@ public class STEP_CombineForecastModels
 			  spaDist = this.spaElement.getHypoMagFreqDistAtLoc(gLoop).getFirstMagFreqDist();
 			  
 			  			  
-			  int numMags = (int)((genDist.getMaxX()-genDist.getMinX())/10)+1;
+			  int numMags = (int)((genDist.getMaxX()-genDist.getMinX())/genDist.getDelta())+1;
 			  combDist = new IncrementalMagFreqDist(RegionDefaults.minForecastMag,RegionDefaults.maxForecastMag,
 					  numMags);
 			  for (int mLoop = 0; mLoop < numMags; mLoop++){
@@ -229,12 +232,13 @@ public class STEP_CombineForecastModels
 
 			  HypoMagFreqDistAtLoc combHypoMagFreqDist = new HypoMagFreqDistAtLoc(combDist,genElement.getLocInGrid(gLoop));
 
-			  this.combinedForecast.setGriddedMagFreqDistAtLoc(combHypoMagFreqDist,gLoop++);
-			  
+			  this.combinedForecast[gLoop]=combHypoMagFreqDist;
+		  
 		  }
+	  
 	  }
 	  else{
-		  this.combinedForecast = genElement; //if there is no spatial or seq element just use the generic
+		  this.combinedForecast = genElement.griddedMagFreqDistForecast; //if there is no spatial or seq element just use the generic
 	  }
 		  
 	  
@@ -676,17 +680,17 @@ public class STEP_CombineForecastModels
   * this will return the AIC combined forecast at the location
   */
  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-	 return combinedForecast.getHypoMagFreqDistAtLoc(ithLocation);
+	 return combinedForecast[ithLocation];
   }
  
  /**
   * getHypoMagFreqDistAtLoc
   * this will return the AIC combined forecast at the location
   */
- public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(Location loc) {
-	 HypoMagFreqDistAtLoc locDist = combinedForecast.getHypoMagFreqDistAtLoc(loc);
+ /**public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(Location loc) {
+	 HypoMagFreqDistAtLoc locDist = combinedForecast[loc];
 	 return locDist;
-  }
+  }**/
  
  /**
   * getGriddedAIC_CombinedForecast
@@ -694,7 +698,7 @@ public class STEP_CombineForecastModels
   * AIC combined forecast
   */
  public HypoMagFreqDistAtLoc[] getGriddedAIC_CombinedForecast(){
-	 return combinedForecast.griddedMagFreqDistForecast;
+	 return combinedForecast;
  }
  
  /**

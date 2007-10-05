@@ -35,10 +35,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	
 	private boolean willSiteClass = true;
 	private AttenuationRelationship attenRel;
-	private static final String STEP_BG_FILE_NAME = "STEP_backGround.txt";
-	private static final String STEP_HAZARD_OUT_FILE_NAME = "Step_hazard_probs.txt";
+	private static final String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
+	private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
 	private static final double IML_VALUE = Math.log(0.126);
-	private static final String STEP_AFTERSHOCK_OBJECT_FILE = "STEP_AFTERSHOCKS";
+	private static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 	
 	
@@ -64,6 +64,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		}*/
 		//while(true)
 		   step.runSTEP();
+		   System.out.println("STEP is finito!");
 	
 	}
 
@@ -71,6 +72,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	
 	private void runSTEP(){
 	  STEP_main stepMain = new STEP_main();
+	  System.out.println("STEP earthquake rates are done.");
 	  createShakeMapAttenRelInstance();
 	  SitesInGriddedRectangularRegion region = null;
 	try {
