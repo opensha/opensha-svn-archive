@@ -690,6 +690,15 @@ public class A_FaultSegmentedSourceGenerator {
 			}	
 		}
 		
+		// This shows that the BPT seg probs is not that same as the final aggregate segment probs
+		/*
+		System.out.println(segmentData.getFaultName()+" seg probs:");
+		for(int i=0;i<num_seg;i++) {
+			double p1 = segProb[i];
+			double p2 = computeSegProbAboveMag(5, i);
+			System.out.println((float)p1+"\t"+(float)p2+"\t"+(float)(p1/p2));
+		}
+		*/
 		return this.sourceList;
 	}
 	
@@ -1432,7 +1441,8 @@ public class A_FaultSegmentedSourceGenerator {
 
 	/**
 	 * This computes the total final probability of a segment having an event larger than
-	 * or equal to the given magnitude.
+	 * or equal to the given magnitude.  Note that even if mag is set to low value, the result
+	 * here is different than that returned by getSegProb(seg) due to the internal inconsistency of the model
 	 */
 	public double computeSegProbAboveMag(double mag, int segIndex) {
 		double segProbAboveMag=1;
