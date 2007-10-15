@@ -30,7 +30,7 @@ public class HazardCurveCalculator {
 
   public final static String EXCEED_PROB_TEXT =
       "Frequency of Exceedance values " +
-      "less than\n10E-4 should be used with caution.";
+      "less than\n1E-4 should be used with caution.";
   private final static String PGA_TEXT = "Ground Motion";
   private final static String PROB_TEXT = "Frequency of Exceedance";
 

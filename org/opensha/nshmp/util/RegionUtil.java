@@ -96,7 +96,7 @@ public final class RegionUtil {
       return new RectangularGeographicRegion(18.27, 18.36, -65.39, -65.21);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_CROIX)) {
-      return new RectangularGeographicRegion(17.67, 17.8, -65.54, -64.93);
+      return new RectangularGeographicRegion(17.67, 17.8, -64.54, -64.93);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ST_JOHN)) {
       return new RectangularGeographicRegion(18.29, 18.38, -64.85, -64.65);

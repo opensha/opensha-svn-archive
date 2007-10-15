@@ -58,7 +58,7 @@ public class DataGenerator_HazardCurves
   private ArbitrarilyDiscretizedFunc hazardCurveFunction;
 
   private final static double EXP_TIME = 50.0;
-  private final static double FREQ_OF_EXCEED_WARNING = 10E-4;
+  private final static double FREQ_OF_EXCEED_WARNING = 1E-4;
   private static DecimalFormat percentageFormat = new DecimalFormat("0.00");
   private static DecimalFormat saValFormat = new DecimalFormat("0.0000");
   private static DecimalFormat annualExceedanceFormat = new DecimalFormat(
@@ -163,7 +163,7 @@ public class DataGenerator_HazardCurves
 		 
 		 // Disclaimer
 		 xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 1).setCellValue("FEX Values < 10E-4 Should Be Used With Caution");
+		 xlRow.createCell((short) 1).setCellValue("FEX Values < 1E-4 Should Be Used With Caution");
 		 
 		 headerStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
 		 ++startRow; // We would like a blank line.
