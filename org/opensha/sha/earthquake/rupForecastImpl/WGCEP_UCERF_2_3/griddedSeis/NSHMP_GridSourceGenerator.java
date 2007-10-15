@@ -5,7 +5,9 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -38,25 +40,25 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/griddedSeis/";
 	private final static String LAT_LON_FILENAME = PATH + "LonsLats.txt";
-	
+
 	private int[] aValIndexForLocIndex;
 	private double[] sumOfAllAvals;
 	private int numAvals;
 	// a-val and mmax values
 	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out, 
-					agrd_mendos_out, agrd_wuscmp_out, agrd_wusext_out, agrd_impext_out, area1new_agrid, 
-					area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
-					fltmmaxAll21ch_out6, fltmmaxAll21gr_out6, fltmmaxAll24ch_out6, fltmmaxAll24gr_out6;
-	
+	agrd_mendos_out, agrd_wuscmp_out, agrd_wusext_out, agrd_impext_out, area1new_agrid, 
+	area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
+	fltmmaxAll21ch_out6, fltmmaxAll21gr_out6, fltmmaxAll24ch_out6, fltmmaxAll24gr_out6;
+
 	private final static double B_VAL = 0.8;
 	private final static double B_VAL_CREEPING = 0.9;
 	private final static double DELTA_MAG = 0.1;
 
 	private final double C_ZONES_MAX_MAG = 7.6;
 	private final double DEFAULT_MAX_MAG=7.0;
-	
+
 	private double maxFromMaxMagFiles;
-	
+
 	public NSHMP_GridSourceGenerator() {
 
 		getLocationList();
@@ -82,51 +84,51 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		 */
 
 	}
-	 
-	  
-	 /**
-	  * Get all gridded sources
-	  * 
-	  * @param includeC_Zones
-	  * @param duration
-	  * @param applyBulgeReduction
-	  * @param applyMaxMagGrid
-	  * @return
-	  */ 
-	 public ArrayList<ProbEqkSource> getAllGriddedSources(boolean includeC_Zones, double duration, 
-			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+
+
+	/**
+	 * Get all gridded sources
+	 * 
+	 * @param includeC_Zones
+	 * @param duration
+	 * @param applyBulgeReduction
+	 * @param applyMaxMagGrid
+	 * @return
+	 */ 
+	public ArrayList<ProbEqkSource> getAllGriddedSources(boolean includeC_Zones, double duration, 
+			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
 		int numSources =  getNumSources();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
 			sources.add(getGriddedSource(i, includeC_Zones, duration, applyBulgeReduction, applyMaxMagGrid));
 		}
 		return sources;
-	 }
-	  
-	  
-	  /**
-	   * Get the griddedsource at a specified index
-	   * 
-	   * @param srcIndex
-	   * @return
-	   */
-	 public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
-			 boolean applyBulgeReduction, boolean applyMaxMagGrid) {
-		 SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
-		 return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
-	 }
-	 
-	 
-	 /**
-	  * Get the number of gridded sources
-	  *  
-	  * @return
-	  */
-	 public int getNumSources() {
-		 return this.getNumGridLocs();
-	 }
-	
-	
+	}
+
+
+	/**
+	 * Get the griddedsource at a specified index
+	 * 
+	 * @param srcIndex
+	 * @return
+	 */
+	public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
+			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
+		return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
+	}
+
+
+	/**
+	 * Get the number of gridded sources
+	 *  
+	 * @return
+	 */
+	public int getNumSources() {
+		return this.getNumGridLocs();
+	}
+
+
 	/**
 	 * This determins the index in each grid file that corresponds to the 
 	 * ith location in the RELM regions, setting the value to -1 if there is
@@ -139,7 +141,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int i=0;i<aValIndexForLocIndex.length;i++)
 			aValIndexForLocIndex[i] = -1;
 		numAvals = 0;
-		
+
 		try { 
 			// Region filename
 			InputStreamReader regionFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(LAT_LON_FILENAME));
@@ -166,7 +168,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		/* No longer needed
 		// check for bogus indices
 		for(int i=0;i<aValIndexForLocIndex.length;i++)
@@ -175,16 +177,16 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		 */
 
 	}
-	
+
 	/**
 	 * This reads all grid files into arrays
 	 *
 	 */
 	private void readAllGridFiles() {
-		
+
 		// 
 		sumOfAllAvals = new double[numAvals];
-		
+
 		agrd_cstcal_out = readGridFile(PATH+"agrd_cstcal.out.asc",true);
 		agrd_brawly_out = readGridFile(PATH+"agrd_brawly.out.asc",true);
 		agrd_creeps_out = readGridFile(PATH+"agrd_creeps.out.asc",true);
@@ -203,10 +205,10 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		fltmmaxAll21gr_out6 = readGridFile(PATH+"fltmmaxALL21gr.out6.asc",false);
 		fltmmaxAll24ch_out6 = readGridFile(PATH+"fltmmaxALL24ch.out6.asc",false);
 		fltmmaxAll24gr_out6 = readGridFile(PATH+"fltmmaxALL24gr.out6.asc",false);
-		
+
 		int numMags = fltmmaxAll21ch_out6.length;
-		
-		
+
+
 		// find maximum magitude from max mag files
 		maxFromMaxMagFiles = -1;
 		for(int i=0; i<numMags; ++i) {
@@ -249,10 +251,10 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	    				(float)sumOfAllAvals[i]);
 			}
 		}
-		*/
-		
+		 */
+
 	}
-	
+
 	/**
 	 * this reads an NSHMP grid file.  The boolean specifies whether to add this to a running 
 	 * total (sumOfAllAvals[i]).
@@ -280,7 +282,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		//now keep only the ones in the RELM region
 		double[] gridVals = new double[getNumGridLocs()];
 		for(int i=0;i<gridVals.length;i++) {
@@ -294,7 +296,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}
 		return gridVals;
 	}
-	
+
 	/**
 	 * This creates an NSHMP mag-freq distribution from their a-value, 
 	 * with an option to reduce rates at & above M 6.5 by a factor of three.
@@ -306,7 +308,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */		
 	private GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
-											double bValue, boolean applyBulgeReduction) {
+			double bValue, boolean applyBulgeReduction) {
 
 		minMag += DELTA_MAG/2;
 		maxMag -= DELTA_MAG/2;
@@ -315,7 +317,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 //		double moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(minMag, numMag, DELTA_MAG, aValue, bValue);
 //		mfd.scaleToTotalMomentRate(moRate);
 		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
-		
+
 //		apply bulge reduction at & above mag 6.5 if desired
 		if(applyBulgeReduction && mfd.getMaxX()>=6.5) {	
 			for(int i=mfd.getXIndex(6.5+DELTA_MAG/2); i<mfd.getNum(); ++i)
@@ -324,7 +326,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		return mfd;
 	}
 
-	
+
 	/**
 	 * This gets the total NSHMP mag-freq dist for the given array of a-values
 	 * @param minMag - NOT YET BIN CENTERED!
@@ -336,20 +338,20 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */
 	private GutenbergRichterMagFreqDist getTotalMFD(double minMag, double maxMag, double[] aValueArray, 
 			double bValue, boolean applyBulgeReduction) {
-		
+
 		double tot_aValue = 0;
 		for(int i=0; i<aValueArray.length; i++) tot_aValue += aValueArray[i];
 		return getMFD(minMag, maxMag, tot_aValue, bValue, applyBulgeReduction);
 	}
-	
-	
+
+
 	public IncrementalMagFreqDist getTotalC_ZoneMFD() {
 		return getTotalC_ZoneMFD_InRegion(null);
 	}
-	
-	
+
+
 	public IncrementalMagFreqDist getTotalC_ZoneMFD_InRegion(GeographicRegion region) {
-		
+
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
 		// create summed MFD
@@ -369,7 +371,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		return mfdAtLoc;
 	}
 
-	
+
 	/**
 	 * Note that applyBulgeReduction only applies to agrd_cstcal_out
 	 * Get Total MFD for Region. Set region to null if you want the entire region.
@@ -382,7 +384,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */
 	public SummedMagFreqDist getTotMFDForRegion(GeographicRegion region, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
-		
+
 		// create summed MFD
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		int numLocs = getNumGridLocs();
@@ -392,7 +394,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 						applyBulgeReduction,  applyMaxMagGrid), true);
 		return totMFD;
 	}
-	
+
 	/**
 	 * Note that applyBulgeReduction only applies to agrd_cstcal_out
 	 * @param locIndex
@@ -403,11 +405,11 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
 			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
-		
-		
+
+
 		// find max mag among all contributions
 		double maxMagAtLoc = C_ZONES_MAX_MAG-UCERF2.DELTA_MAG/2;
-		
+
 		// create summed MFD
 		int numMags = (int)Math.round((maxMagAtLoc-UCERF2.MIN_MAG)/DELTA_MAG) + 1;
 		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
@@ -420,7 +422,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out6[locIndex], 0.667*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out6[locIndex], 0.333*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		if(applyMaxMagGrid) {	 // Apply Max Mag from files
-			
+
 			// 50% weight on the two different Mmax files:
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out6[locIndex], 0.5*0.667*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out6[locIndex], 0.5*0.333*agrd_cstcal_out[locIndex], B_VAL, applyBulgeReduction), true);
@@ -446,16 +448,30 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false), true);	
 		}	
-		
+
 		return mfdAtLoc;
 	}
-	
+
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
 		//System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
 		//System.out.println(srcGen.getTotMFDForRegion(false, true, true));
-		double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
-		
-		for(int i=0; i<area1new_agrid.length; i++) System.out.println(area1new_agrid[i]);
+		//double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
+		//for(int i=0; i<area1new_agrid.length; i++) System.out.println(area1new_agrid[i]);
+		int numLocs = srcGen.getNumGridLocs();
+		DecimalFormat latLonFormat = new DecimalFormat("0.000");
+		try {
+			FileWriter fw = new FileWriter("BckFileForErdem.txt");
+			for(int locIndex=0; locIndex<numLocs; ++locIndex) {
+				Location loc = srcGen.getGridLocation(locIndex);
+				SummedMagFreqDist mfdAtLoc = srcGen.getTotMFD_atLoc(locIndex, true, true, true);
+				fw.write(latLonFormat.format(loc.getLatitude())+"\t"+
+						latLonFormat.format(loc.getLongitude())+"\t"+
+						(float)mfdAtLoc.getCumRate(UCERF2.MIN_MAG)+"\n");
+			}
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
