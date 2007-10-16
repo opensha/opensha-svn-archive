@@ -106,6 +106,22 @@ public class DeformationModelSummaryDB_DAO {
 	    return deformationModel;
 
 	  }
+	  
+	  /**
+	   * Get a deformation model based on deformation model Name
+	   * 
+	   * @param deformationModelName
+	   * @return
+	   * @throws QueryException
+	   */
+	  public DeformationModelSummary getDeformationModel(String deformationModelName) throws QueryException {
+		DeformationModelSummary deformationModel=null;
+	    String condition = " where "+DEF_MODEL_NAME+"='"+deformationModelName+"'";
+	    ArrayList deformationModelList=query(condition);
+	    if(deformationModelList.size()>0) deformationModel = (DeformationModelSummary)deformationModelList.get(0);
+	    return deformationModel;
+
+	  }
 
 	  /**
 	   * remove a deformation model from the database
