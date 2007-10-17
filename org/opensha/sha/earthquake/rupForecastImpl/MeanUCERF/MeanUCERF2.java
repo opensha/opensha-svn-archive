@@ -373,6 +373,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
+			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0, empiricalModelWt, duration));
 		}		
 		
@@ -397,12 +398,18 @@ public class MeanUCERF2 extends EqkRupForecast {
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
 		}
 		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.75, empiricalModelWt, duration));
+		}
+		
 		// Now calculate the B-Faults total MFD
 		bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		
 		double mag, rate;
 		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {
 			UnsegmentedSource source = bFaultSources.get(srcIndex);
+			System.out.println(source.getName());
 			int numRups = source.getNumRuptures();
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 				ProbEqkRupture rup = source.getRupture(rupIndex);
@@ -413,6 +420,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		}
 	}
 	
+
 	/**
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
