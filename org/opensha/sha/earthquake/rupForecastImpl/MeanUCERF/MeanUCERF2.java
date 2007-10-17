@@ -364,40 +364,42 @@ public class MeanUCERF2 extends EqkRupForecast {
 		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
 		
+		double duration = this.timeSpan.getDuration();
+		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0, empiricalModelWt, duration));
 		}		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt, duration));
 		}
 		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt, duration));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
 		}
 		
 		// Now calculate the B-Faults total MFD
 		bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-		double duration = this.timeSpan.getDuration();
+		
 		double mag, rate;
 		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {
 			UnsegmentedSource source = bFaultSources.get(srcIndex);

@@ -107,7 +107,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
-			double rupOffset, double weight, double empiricalModelWeight) {
+			double rupOffset, double weight, double empiricalModelWeight, double duration) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -203,7 +203,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
 				rupOffset,
 				segmentData.getAveRake(),
-				DEFAULT_DURATION,
+				duration,
 				segmentData.getFaultName());
 
 
