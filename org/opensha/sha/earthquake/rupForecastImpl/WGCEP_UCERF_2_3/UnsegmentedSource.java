@@ -106,10 +106,11 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * Note that not all derivative info is generate here (such as segSlipDist[])
 	 * 
 	 */
-	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, double rupOffset, double weight) {
+	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
+			double rupOffset, double weight, double empiricalModelWeight) {
 
 		this.isPoissonian = true;
-		empirical_weight = 0.3;
+		empirical_weight = empiricalModelWeight;
 		this.rupOffset = rupOffset;
 		this.mag_lowerGR = 6.5;
 		this.segmentData = segmentData;

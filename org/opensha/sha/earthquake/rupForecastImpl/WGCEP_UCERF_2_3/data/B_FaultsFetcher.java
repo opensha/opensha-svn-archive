@@ -117,8 +117,15 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	/**
 	 * Return a list of Ids of connected B-Type fault sections
 	 */
-	public ArrayList getConnectedFaultSectionsIdList() {
+	public ArrayList<Integer> getConnectedFaultSectionsIdList() {
 		return super.getAllFaultSectionsIdList();
+	}
+	
+	/**
+	 * Return a list of Names  B-Type fault sections that participate in connection
+	 */
+	public ArrayList<String> getConnectedFaultSectionsNamesList() {
+		return super.getAllFaultSectionsNamesList();
 	}
 	
 	/**

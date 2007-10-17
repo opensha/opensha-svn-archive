@@ -139,10 +139,40 @@ public abstract class FaultsFetcher {
 			// iterate over all sections in a segment
 			for(int j=0; j<segment.size(); ++j) {
 				int faultSectionId = ((FaultSectionSummary)segment.get(j)).getSectionId();
-				faultSectionIdList.add(new Integer(faultSectionId));
+				faultSectionIdList.add(faultSectionId);
 			}
 		}
 		return faultSectionIdList;
+	}
+	
+	/**
+	 * Return a list of names of all fault sections in any of faults defined in text file.
+	 * @return
+	 */
+	public ArrayList<String> getAllFaultSectionsNamesList() {
+		ArrayList<String> faultSectionsNamesList = new ArrayList<String>();
+		for(int i=0; i< this.faultModelNames.size(); ++i)
+			faultSectionsNamesList.addAll(getFaultSectionsNamesList((String)faultModelNames.get(i)));
+		return faultSectionsNamesList;
+	}
+	
+	/**
+	 * Get a list of fault section Names within the selected segment model
+	 * @return
+	 */
+	private ArrayList<String> getFaultSectionsNamesList(String faultModel) {
+		ArrayList segmentsList = (ArrayList)this.faultModels.get(faultModel);
+		ArrayList<String>  faultSectionsNamesList= new ArrayList<String>();
+		// iterate over all segment
+		for(int i=0; i<segmentsList.size(); ++i) {
+			ArrayList segment = (ArrayList)segmentsList.get(i);
+			// iterate over all sections in a segment
+			for(int j=0; j<segment.size(); ++j) {
+				String faultSectionName = ((FaultSectionSummary)segment.get(j)).getSectionName();
+				faultSectionsNamesList.add(faultSectionName);
+			}
+		}
+		return faultSectionsNamesList;
 	}
 	
 	

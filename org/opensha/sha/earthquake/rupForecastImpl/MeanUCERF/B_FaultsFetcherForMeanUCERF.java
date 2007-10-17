@@ -26,7 +26,8 @@ public class B_FaultsFetcherForMeanUCERF {
 	private ArrayList<FaultSegmentData> faultSegmentDataList2_1_Conn;
 	private ArrayList<FaultSegmentData> faultSegmentDataList2_2_Unconn;
 	private ArrayList<FaultSegmentData> faultSegmentDataList2_2_Conn;
-	private ArrayList<String> faultNamesList2_1_Unconn, faultNamesList2_1_Conn, faultNamesList2_2_Unconn, faultNamesList2_2_Conn;
+	private ArrayList<String> faultNamesList2_1_Unconn, faultNamesList2_1_Conn, participatingFaultNamesList2_1_Conn;
+	private ArrayList<String> faultNamesList2_2_Unconn, faultNamesList2_2_Conn, participatingFaultNamesList2_2_Conn;
 	
 	public B_FaultsFetcherForMeanUCERF(A_FaultsFetcher aFaultsFetcher, boolean isAseisReducesArea) {
 		
@@ -47,8 +48,11 @@ public class B_FaultsFetcherForMeanUCERF {
 		bFaultsFetcher.setDeformationModel(true, defModelSummary2_1, aFaultsFetcher);
 		faultSegmentDataList2_1_Conn = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		faultNamesList2_1_Conn = bFaultsFetcher.getAllFaultNames();
+		participatingFaultNamesList2_1_Conn = bFaultsFetcher.getConnectedFaultSectionsNamesList();
 		// Retain connected faults only
 		faultNamesList2_1_Conn.removeAll(faultNamesList2_1_Unconn);
+		faultNamesList2_1_Unconn.removeAll(participatingFaultNamesList2_1_Conn);
+		faultNamesList2_1_Conn.addAll(participatingFaultNamesList2_1_Conn);
 
 		// 2.4 and unconnected
 		bFaultsFetcher.setDeformationModel(false, defModelSummary2_2, aFaultsFetcher);
@@ -59,8 +63,13 @@ public class B_FaultsFetcherForMeanUCERF {
 		bFaultsFetcher.setDeformationModel(true, defModelSummary2_2, aFaultsFetcher);
 		faultSegmentDataList2_2_Conn = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		faultNamesList2_2_Conn = bFaultsFetcher.getAllFaultNames();
+		participatingFaultNamesList2_2_Conn = bFaultsFetcher.getConnectedFaultSectionsNamesList();
+
 		//  Retain connected faults only
 		faultNamesList2_2_Conn.removeAll(faultNamesList2_2_Unconn);
+		faultNamesList2_2_Unconn.removeAll(participatingFaultNamesList2_2_Conn);
+		faultNamesList2_2_Conn.addAll(participatingFaultNamesList2_2_Conn);
+
 	}
 	
 	
@@ -129,6 +138,11 @@ public class B_FaultsFetcherForMeanUCERF {
 			if(uniqueNames.contains(faultSegmentData.getFaultName()))
 				commonSegmentDataList.add(faultSegmentData);
 		}
+		for(int i=0; i<faultSegmentDataList2_1_Unconn.size(); ++i) {
+			FaultSegmentData faultSegmentData = faultSegmentDataList2_1_Unconn.get(i);
+			if(uniqueNames.contains(faultSegmentData.getFaultName()))
+				commonSegmentDataList.add(faultSegmentData);
+		}
 		return commonSegmentDataList;
 	}
 	
@@ -146,6 +160,12 @@ public class B_FaultsFetcherForMeanUCERF {
 			if(uniqueNames.contains(faultSegmentData.getFaultName()))
 				commonSegmentDataList.add(faultSegmentData);
 		}
+		
+		for(int i=0; i<faultSegmentDataList2_2_Unconn.size(); ++i) {
+			FaultSegmentData faultSegmentData = faultSegmentDataList2_2_Unconn.get(i);
+			if(uniqueNames.contains(faultSegmentData.getFaultName()))
+				commonSegmentDataList.add(faultSegmentData);
+		}
 		return commonSegmentDataList;
 	}
 	
@@ -160,6 +180,11 @@ public class B_FaultsFetcherForMeanUCERF {
 		ArrayList<FaultSegmentData> commonSegmentDataList = new ArrayList<FaultSegmentData>();
 		for(int i=0; i<faultSegmentDataList2_1_Conn.size(); ++i) {
 			FaultSegmentData faultSegmentData = faultSegmentDataList2_1_Conn.get(i);
+			if(commonNames.contains(faultSegmentData.getFaultName()))
+				commonSegmentDataList.add(faultSegmentData);
+		}
+		for(int i=0; i<faultSegmentDataList2_1_Unconn.size(); ++i) {
+			FaultSegmentData faultSegmentData = faultSegmentDataList2_1_Unconn.get(i);
 			if(commonNames.contains(faultSegmentData.getFaultName()))
 				commonSegmentDataList.add(faultSegmentData);
 		}

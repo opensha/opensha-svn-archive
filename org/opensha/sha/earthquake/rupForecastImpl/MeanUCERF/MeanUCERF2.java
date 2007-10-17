@@ -128,7 +128,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
-	private DoubleParameter rupOffset_Param;
+	private DoubleParameter rupOffsetParam;
 
 	
 	// Probability Model Param
@@ -187,7 +187,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		// add the change listener to parameters so that forecast can be updated
 		// whenever any paramater changes
 		//faultModelParam.addParameterChangeListener(this);
-		rupOffset_Param.addParameterChangeListener(this);
+		rupOffsetParam.addParameterChangeListener(this);
 		backSeisParam.addParameterChangeListener(this);
 		backSeisRupParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
@@ -214,9 +214,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 
 		// rup offset
-		rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+		rupOffsetParam = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
 				RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
-		rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+		rupOffsetParam.setInfo(RUP_OFFSET_PARAM_INFO);
 
 
 		// Probability Model Param
@@ -236,7 +236,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		// backgroud treated as point sources/finite soource
 		backSeisRupParam.setValue(BACK_SEIS_RUP_POINT);
 		// rup offset
-		rupOffset_Param.setValue(DEFAULT_RUP_OFFSET_VAL);
+		rupOffsetParam.setValue(DEFAULT_RUP_OFFSET_VAL);
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 
 	}
@@ -246,7 +246,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 */
 	private void createParamList() {
 		adjustableParams = new ParameterList();
-		adjustableParams.addParameter(rupOffset_Param);		
+		adjustableParams.addParameter(rupOffsetParam);		
 		adjustableParams.addParameter(backSeisParam);		
 		adjustableParams.addParameter(backSeisRupParam);		
 		adjustableParams.addParameter(probModelParam);		
@@ -344,8 +344,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 **/
 
 	public void updateForecast() {
+		getB_FaultSources();
 		parameterChangeFlag = false;
 	}
+
 
 	
 	/**
@@ -355,41 +357,44 @@ public class MeanUCERF2 extends EqkRupForecast {
 		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
 		B_FaultsFetcherForMeanUCERF bFaultsFetcher = new B_FaultsFetcherForMeanUCERF(aFaultsFetcher, true);
 		bFaultSources = new ArrayList<UnsegmentedSource> ();
-		double rupOffset = ((Double)this.rupOffset_Param.getValue()).doubleValue();
+		double rupOffset = ((Double)this.rupOffsetParam.getValue()).doubleValue();
+		double empiricalModelWt=0.0;
+		
+		String probModel = (String)this.probModelParam.getValue();
+		if(probModel.equals(PROB_MODEL_BPT) || probModel.equals(PROB_MODEL_POISSON) ) empiricalModelWt = 0;
+		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
+		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
 		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0, empiricalModelWt));
 		}		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt));
 		}
 		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
 		}
-		
-		
-		
 	}
 	
 	/**
