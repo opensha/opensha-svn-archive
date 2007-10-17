@@ -27,7 +27,7 @@ public class HanksBakun2002_MagAreaRel extends MagAreaRelationship {
      * @param area in km
      * @return median magnitude
      */
-    public double getMedianMag(double area){
+    public  double getMedianMag(double area){
     		if(area <= 537)
     			return  3.98 + Math.log(area)*lnToLog;
     		else 

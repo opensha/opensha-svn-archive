@@ -40,6 +40,8 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.B_FaultFixes;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
@@ -69,34 +71,29 @@ import org.opensha.util.FileUtils;
  */
 public class MeanUCERF2 extends EqkRupForecast {
 	//for Debug purposes
-	private static String  C = new String("EqkRateModel2_ERF");
+	private static String  C = new String("MeanUCERF2");
 	private boolean D = true;
 
 	// name of this ERF
-	public final static String NAME = new String("WGCEP Eqk Rate Model 2 ERF");
+	public final static String NAME = new String("UCERF2 - Single Branch");
 
 //	ArrayList allSourceNames;
 
-	public final static double MIN_MAG = 5.05;
-	public final static double MAX_MAG = 8.95;
-	public final static double DELTA_MAG = 0.1;
+	public final static double MIN_MAG = UCERF2.MIN_MAG;
+	public final static double MAX_MAG = UCERF2.MAX_MAG;
+	public final static double DELTA_MAG = UCERF2.DELTA_MAG;
 	public final static int NUM_MAG = (int)Math.round((MAX_MAG-MIN_MAG)/DELTA_MAG) + 1;
 
 	// public final static double B_FAULT_GR_MAG_LOWER = 6.5;
-	public final static double BACKGROUND_MAG_LOWER = 5.0;
+	public final static double BACKGROUND_MAG_LOWER = UCERF2.BACKGROUND_MAG_LOWER;
 	
 	// Fault Grid Spacing
-	public final static double GRID_SPACING = 1;
-	public final static double RUP_OFFSET = 1;
+	public final static double GRID_SPACING = UCERF2.GRID_SPACING;
 
-
-	public final static double BACK_SEIS_DEPTH = 5.0;
-
-	// this is the moment rate taken from A, B, and C sources and put into background seismicity
-	private double totMoRateReduction;
+	public final static double BACK_SEIS_DEPTH = UCERF2.BACK_SEIS_DEPTH;
 
 	// various summed MFDs
-	private SummedMagFreqDist bFaultCharSummedMFD, bFaultGR_SummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
+	private SummedMagFreqDist bFault_SummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD;
 	private ArrayList<IncrementalMagFreqDist>  cZonesMFD_List;
 
@@ -114,6 +111,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static String BACK_SEIS_INCLUDE = new String ("Include");
 	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
 	public final static String BACK_SEIS_ONLY = new String ("Only Background");
+	public final static String BACK_SEIS_INFO = new String ("Background includes C Zones here");
 	private ArrayList backSeisOptionsStrings = new ArrayList();
 	private StringParameter backSeisParam;
 
@@ -126,7 +124,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// For rupture offset lenth along fault parameter
 	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
-	private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
+	private Double DEFAULT_RUP_OFFSET_VAL= new Double(5);
 	private final static String RUP_OFFSET_PARAM_UNITS = "km";
 	private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
@@ -156,12 +154,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private final static int START_TIME_MAX = 2107;
 
 	// 
-	private double[] totalRelativeGriddedRates;
 	private EvenlyGriddedRELM_Region region = new EvenlyGriddedRELM_Region();
 
-	// A and B faults fetcher
-	private A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-	private B_FaultsFetcher bFaultsFetcher  = new B_FaultsFetcher();
 	private EmpiricalModel empiricalModel = new EmpiricalModel();
 
 	private ArrayList aFaultSourceGenerators; 
@@ -170,6 +164,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	
 
 	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+	private UCERF2 ucerf2 = new UCERF2();
 
 	/**
 	 *
@@ -198,15 +193,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisRupParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
 	}
-
-	/**
-	 * Get A-Faults fetcher
-	 * @return
-	 */
-	public A_FaultsFetcher getA_FaultsFetcher() {
-		return this.aFaultsFetcher;
-	}
-
 
 	/**
 	 * This intializes the adjustable parameters
@@ -293,53 +279,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 	}
 
 
-	
-
-	/**
-	 * Get a List of A_FaultSegmentedSorce objects. 
-	 * Returns a list of  UnsegmentedFaultSource in case of unsegmented.
-	 * 
-	 * @return
-	 */
-	public ArrayList get_A_FaultSourceGenerators() {
-		return this.aFaultSourceGenerators;
-	}
-
-	
-	/**
-	 * Get a List of Non-CA b Fault sources 
-	 * 
-	 * @return
-	 */
-	public ArrayList getNonCA_B_FaultSources() {
-		return this.nonCA_bFaultSources;
-	}
-
-	/**
-	 * Get a List of b Fault sources (objects of UnsegmentedFaultSource)
-	 * 
-	 * @return
-	 */
-	public ArrayList get_B_FaultSources() {
-		return this.bFaultSources;
-	}
-
-
-
-	/**
-	 * Get the list of all earthquake sources.
-	 *
-	 * @return ArrayList of Prob Earthquake sources
-	 */
-	public ArrayList  getSourceList(){
-		ArrayList sourceList = new ArrayList();
-		sourceList.addAll(allSources);
-		boolean bulgeReduction = true;
-		boolean maxMagGrid = true;
-		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
-		return sourceList;
-	}
-
 
 	/**
 	 * Return the name for this class
@@ -351,15 +290,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	}
 
 
-
-
-	public IncrementalMagFreqDist getTotal_B_FaultsCharMFD() {
-		return this.bFaultCharSummedMFD;
+	public IncrementalMagFreqDist getTotal_B_FaultsMFD() {
+		return this.bFaultSummedMFD;
 	}
-
-	public IncrementalMagFreqDist getTotal_B_FaultsGR_MFD() {
-		return this.bFaultGR_SummedMFD;
-	} 
 
 	public IncrementalMagFreqDist getTotal_NonCA_B_FaultsMFD() {
 		return this.nonCA_B_FaultsSummedMFD;
@@ -378,18 +311,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 		return this.cZoneSummedMFD;
 	}
 
-	/**
-	 * Return a list of MFDs, one for each C zone
-	 * @return
-	 */
-	public ArrayList<IncrementalMagFreqDist> getC_ZoneMFD_List() {
-		return this.cZonesMFD_List;
-	}
 
 	public IncrementalMagFreqDist getTotalMFD() {
 		SummedMagFreqDist totalMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
-		totalMFD.addIncrementalMagFreqDist(bFaultCharSummedMFD);
-		totalMFD.addIncrementalMagFreqDist(bFaultGR_SummedMFD);
+		totalMFD.addIncrementalMagFreqDist(bFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(totBackgroundMFD);
 		totalMFD.addIncrementalMagFreqDist(cZoneSummedMFD);
@@ -408,6 +333,51 @@ public class MeanUCERF2 extends EqkRupForecast {
 		parameterChangeFlag = false;
 	}
 
+	
+	/**
+	 * 
+	 */
+	private void getB_FaultSources() {
+		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
+		B_FaultsFetcherForMeanUCERF bFaultsFetcher = new B_FaultsFetcherForMeanUCERF(aFaultsFetcher, true);
+		bFaultSources = new ArrayList<UnsegmentedSource> ();
+		double rupOffset = ((Double)this.rupOffset_Param.getValue()).doubleValue();
+		
+		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+		}
+		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0));
+		}		
+		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25));
+		}
+		
+		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+		}
+		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25));
+		}
+		
+		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5));
+		}
+		
+		
+		
+	}
+	
 	/**
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
@@ -461,7 +431,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 
 	/**
-	 *  Function that must be ?
+	 *  
 	 *
 	 * @param  event  The Event which triggered this function call
 	 */

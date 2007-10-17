@@ -25,6 +25,8 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 
@@ -88,10 +90,134 @@ public class UnsegmentedSource extends ProbEqkSource {
 	protected LocationList surfaceLocList;
 	
 	private EmpiricalModel empiricalModel;
+	private double empirical_weight; // this is the weight to give to the empirical model
 
 	protected ArbitrarilyDiscretizedFunc origSlipRateFunc, predSlipRateFunc;
 	private ArrayList<ArbitrarilyDiscretizedFunc> magBasedUncorrSlipRateFuncs;
+	
+	private static HanksBakun2002_MagAreaRel magAreaRel1 = new HanksBakun2002_MagAreaRel();
+	private static Ellsworth_B_WG02_MagAreaRel magAreaRel2 = new Ellsworth_B_WG02_MagAreaRel();
 
+
+	
+	
+	/**
+	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
+	 * Note that not all derivative info is generate here (such as segSlipDist[])
+	 * 
+	 */
+	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, double rupOffset, double weight) {
+
+		this.isPoissonian = true;
+		empirical_weight = 0.3;
+		this.rupOffset = rupOffset;
+		this.mag_lowerGR = 6.5;
+		this.segmentData = segmentData;
+		double min_mag = UCERF2.MIN_MAG;
+		double max_mag = UCERF2.MAX_MAG;
+		int num_mag = UCERF2.NUM_MAG;
+		double delta_mag = (max_mag-min_mag)/(num_mag-1);
+		double charMagSigma=0.12;
+		double charMagTruncLevel = 2;
+		double fractCharVsGR = 0.6666;
+		this.moRateReduction = 0.1;  // fraction of slip rate reduction
+		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
+		this.empiricalModel = empiricalModel;
+		double b_valueGR_1=0.8, b_valueGR_2=0.0;
+		
+			
+		double sourceMag1 = magAreaRel1.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		sourceMag1 = Math.round(sourceMag1/delta_mag) * delta_mag;
+		double sourceMag2 = magAreaRel2.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		sourceMag2 = Math.round(sourceMag2/delta_mag) * delta_mag;
+
+
+
+		//OVERRIDE VALUES FOR SAF CREEPING SECTION WITH NSHMP VALUES
+		if(segmentData.getFaultName().equals("San Andreas (Creeping Segment)")) {
+			moRateReduction = 0.0;
+
+			// The following values come from the file "creepflt.1sta.in" sent by Steve Harmsen on 08/30/07
+			// this produces a total rate of 0.01095, hwereas that annoted in their file is 0.01079 (close enough)
+			mag_lowerGR = 6.0;
+			b_valueGR_1 = 0.91;
+			b_valueGR_2 = 0.91;
+			sourceMag1 = 6.7;
+			sourceMag2 = 6.7;
+			fractCharVsGR = 0;
+			moRate = 3.8593e16;  // correct units?
+
+		}
+
+		sourceMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
+
+		sourceMag = sourceMag1;
+		if(sourceMag <= mag_lowerGR) {
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate*weight*0.5, charMagTruncLevel, 2);
+			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+		}
+		else {
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate*fractCharVsGR*weight*0.5, charMagTruncLevel, 2);
+			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			// note half-bin offset of lower and upper GR mags in what follows
+			b_valueGR = b_valueGR_1;
+			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
+			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			b_valueGR = b_valueGR_2;
+			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
+			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+
+		}
+		
+		sourceMag = sourceMag2;
+		if(sourceMag <= mag_lowerGR) {
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate*weight*0.5, charMagTruncLevel, 2);
+			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+		}
+		else {
+			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+						sourceMag, charMagSigma, moRate*fractCharVsGR*weight*0.5, charMagTruncLevel, 2);
+			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			// note half-bin offset of lower and upper GR mags in what follows
+			b_valueGR = b_valueGR_1;
+			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
+			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			b_valueGR = b_valueGR_2;
+			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
+			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+
+		}
+
+		num_seg = segmentData.getNumSegments();
+
+		// create the source
+		updateAll(sourceMFD,
+				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
+				rupOffset,
+				segmentData.getAveRake(),
+				DEFAULT_DURATION,
+				segmentData.getFaultName());
+
+
+		// change the info in the MFDs
+		String new_info = "Source MFD\n"+sourceMFD.getInfo();
+		new_info += "|n\nRescaled to:\n\n\tMoment Rate: "+(float)sourceMFD.getTotalMomentRate()+"\n\n\tNew Total Rate: "+(float)sourceMFD.getCumRate(0);
+		sourceMFD.setInfo(new_info);
+
+	}
+	
+	
+	
+	
+	
+	
 
 	/**
 	 * Description:  The constructs the source as a fraction of charateristic (Gaussian) and GR
@@ -104,6 +230,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double fixRate, double meanMagCorrection, EmpiricalModel empiricalModel) {
 
 		this.isPoissonian = true;
+		empirical_weight = 1.0;
 		this.segmentData = segmentData;
 		this.magAreaRel = magAreaRel;
 		this.fixMag = fixMag; // change this by meanMagCorrection?
@@ -1028,7 +1155,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		// set probability
 	    double empiricalCorr=1;
 	    if(empiricalModel != null && includeEmpCorr) {
-	    	empiricalCorr = empiricalModel.getCorrection(rupSurf);
+	    	empiricalCorr = empiricalModel.getCorrection(rupSurf)*empirical_weight + (1-empirical_weight);
 	    }
 
 		double rate = ((Double)rates.get(iMag)).doubleValue() * empiricalCorr;
