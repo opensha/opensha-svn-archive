@@ -37,6 +37,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -191,6 +192,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisParam.addParameterChangeListener(this);
 		backSeisRupParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
+		this.parameterChangeFlag = true;
 	}
 
 	/**
@@ -336,15 +338,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		return totalMFD;
 	}
 
-
-	
-
 	/**
 	 * update the forecast
 	 **/
 
 	public void updateForecast() {
-		getB_FaultSources();
+		if(this.parameterChangeFlag) getB_FaultSources();
 		parameterChangeFlag = false;
 	}
 
@@ -394,6 +393,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt));
+		}
+		
+		// Now calculate the B-Faults total MFD
+		bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		double duration = this.timeSpan.getDuration();
+		double mag, rate;
+		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {
+			UnsegmentedSource source = bFaultSources.get(srcIndex);
+			int numRups = source.getNumRuptures();
+			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+				ProbEqkRupture rup = source.getRupture(rupIndex);
+				mag = rup.getMag();
+				rate = rup.getMeanAnnualRate(duration);
+				bFaultSummedMFD.add(mag, rate);
+			}
 		}
 	}
 	
@@ -463,6 +477,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-	
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
+		meanUCERF2.updateForecast();
+		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
 	}
 }
