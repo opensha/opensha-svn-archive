@@ -93,9 +93,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static double BACK_SEIS_DEPTH = UCERF2.BACK_SEIS_DEPTH;
 
 	// various summed MFDs
-	private SummedMagFreqDist bFault_SummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
+	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD;
-	private ArrayList<IncrementalMagFreqDist>  cZonesMFD_List;
 
 	/*
 	 * Static variables for input files
@@ -276,6 +275,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 */
 	public int getNumSources(){
 		return allSources.size() + nshmp_gridSrcGen.getNumSources();
+	}
+	
+
+	/**
+	 * Get the list of all earthquake sources.
+	 *
+	 * @return ArrayList of Prob Earthquake sources
+	 */
+	public ArrayList  getSourceList(){
+		ArrayList sourceList = new ArrayList();
+		sourceList.addAll(allSources);
+		boolean bulgeReduction = true;
+		boolean maxMagGrid = true;
+		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
+		return sourceList;
 	}
 
 
