@@ -40,7 +40,9 @@ public final class DataDisplayFormatter {
   }
 
   /**
-   * Formats the data to be displayed
+   * Formats the data to be displayed. This is used for output of the
+   * build code analysis options for Ss S1 and SMs and SDs values.
+   * 
    * @param function ArbitrarilyDiscretizedFunc
    * @param saString String
    * @param text1 String : First text to be displayed
@@ -62,10 +64,10 @@ public final class DataDisplayFormatter {
 
 		dataInfo += colPad(periodFormat.format(function.getX(0)),"Period",2) +
 			colPad(saValFormat.format(function.getY(0)),saString,2) +
-			text1 + ", " + siteClass + "\n";
+			"(" + text1 + ", " + siteClass + ")\n";
 		dataInfo += colPad(periodFormat.format(function.getX(1)),"Period",2) +
 			colPad(saValFormat.format(function.getY(1)),saString,2) +
-			text2+ ", " + siteClass + "\n";
+			"(" + text2+ ", " + siteClass + ")\n";
     /*dataInfo += periodFormat.format(function.getX(0)) + "     " +
         saValFormat.format(function.getY(0)) + "  " + text1 + "," +
         siteClass + "\n";
@@ -77,7 +79,8 @@ public final class DataDisplayFormatter {
   }
 
   /**
-   * Formats the data to be displayed
+   * Formats the data to be displayed. This is used for output of
+   * the hazard curves analysis option.
    * @param function ArbitrarilyDiscretizedFunc
    * @param saString String
    * @param text1 String : First text to be displayed
@@ -105,7 +108,8 @@ public final class DataDisplayFormatter {
   }
 
   /**
-   * Formats the data to be displayed
+   * Formats the data to be displayed. This is called when computing
+   * spectrum for the building code analysis options.
    * @param functions DiscretizedFuncList
    * @param siteClass String
    * @return String
