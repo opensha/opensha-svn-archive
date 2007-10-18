@@ -99,15 +99,32 @@ public class UnsegmentedSource extends ProbEqkSource {
 	private static Ellsworth_B_WG02_MagAreaRel magAreaRel2 = new Ellsworth_B_WG02_MagAreaRel();
 
 
+	/**
+	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
+	 * Note that not all derivative info is generate here (such as segSlipDist[])
+	 * 
+	 * this is used for making B-Faults sources for Average UCERF2
+	 * 
+	 */
+	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
+			double rupOffset,double weight, 
+			double empiricalModelWeight, double duration) {
+		this(segmentData, empiricalModel, rupOffset, 0.8, 0.0, weight, 
+				empiricalModelWeight, duration, segmentData.getTotalMomentRate(),
+				0.6666);
+		
+	}
 	
 	/**
+	 * this is used for making A-Faults sources for Average UCERF2
+	 * 
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
 	 * Note that not all derivative info is generate here (such as segSlipDist[])
 	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
-			double empiricalModelWeight, double duration, double moRate) {
+			double empiricalModelWeight, double duration, double moRate, double fractCharVsGR) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -120,7 +137,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double delta_mag = (max_mag-min_mag)/(num_mag-1);
 		double charMagSigma=0.12;
 		double charMagTruncLevel = 2;
-		double fractCharVsGR = 0.6666;
 		this.moRateReduction = 0.1;  // fraction of slip rate reduction
 		moRate = moRate*(1-moRateReduction); // this has been reduced by aseis
 		this.empiricalModel = empiricalModel;

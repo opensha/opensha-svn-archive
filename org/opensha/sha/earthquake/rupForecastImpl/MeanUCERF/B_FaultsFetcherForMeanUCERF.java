@@ -39,6 +39,7 @@ public class B_FaultsFetcherForMeanUCERF {
 		B_FaultsFetcher bFaultsFetcher = new B_FaultsFetcher();
 		
 		// 2.1 and Unconnected
+		aFaultsFetcher.setDeformationModel(defModelSummary2_1, false);
 		bFaultsFetcher.setDeformationModel(false, defModelSummary2_1, aFaultsFetcher);
 		faultSegmentDataList2_1_Unconn = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		faultNamesList2_1_Unconn = bFaultsFetcher.getAllFaultNames();
@@ -55,6 +56,7 @@ public class B_FaultsFetcherForMeanUCERF {
 		faultNamesList2_1_Conn.addAll(participatingFaultNamesList2_1_Conn);
 
 		// 2.4 and unconnected
+		aFaultsFetcher.setDeformationModel(defModelSummary2_2, false);
 		bFaultsFetcher.setDeformationModel(false, defModelSummary2_2, aFaultsFetcher);
 		faultSegmentDataList2_2_Unconn = bFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
 		faultNamesList2_2_Unconn = bFaultsFetcher.getAllFaultNames();
