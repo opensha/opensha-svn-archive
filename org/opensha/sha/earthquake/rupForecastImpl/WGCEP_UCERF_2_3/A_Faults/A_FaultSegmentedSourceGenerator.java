@@ -473,7 +473,25 @@ public class A_FaultSegmentedSourceGenerator {
 
 	}
 	
+	/**
+	 * Get Combined surface for a particular rupture index
+	 * @param rupIndex
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(int rupIndex) {
+		int[] segmentsInRup = getSegmentsInRup(rupIndex);
+		return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
+	}
 	
+	/**
+	 * Get Ave Rake for a particular rupture index
+	 * @param rupIndex
+	 * @return
+	 */
+	public double getAveRake(int rupIndex) {
+		int[] segmentsInRup = getSegmentsInRup(rupIndex);
+		return segmentData.getAveRake(segmentsInRup);
+	}
 	
 	
 	/**
@@ -505,15 +523,14 @@ public class A_FaultSegmentedSourceGenerator {
 		for(int i=0; i<num_rup; i++) {
 			rupProb[i]=(1-Math.exp(-duration*totRupRate[i]));
 			rupGain[i]=1.0;
-			// get list of segments in this rupture
-			int[] segmentsInRup = getSegmentsInRup(i);
+			
 			//System.out.println(this.segmentData.getFaultName()+"\t"+i+"\t"+this.segmentData.getAveRake(segmentsInRup));
 
 			// Create source if rate is greater than ~zero (or age of earth)
 			if (rupMagFreqDist[i].getTotalIncrRate() > MIN_RUP_RATE) {				
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
-						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-						segmentData.getAveRake(segmentsInRup),
+						getCombinedGriddedSurface(i),
+						getAveRake(i),
 						duration);
 				faultRupSrc.setName(this.getLongRupName(i));
 				

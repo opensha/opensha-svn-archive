@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import java.util.StringTokenizer;
@@ -48,6 +49,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.B_FaultFixes;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.GenerateTestExcelSheets;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.B_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
@@ -96,15 +98,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 	// various summed MFDs
 	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD;
-
-	/*
-	 * Static variables for input files
-	 */
-	//private final static String IN_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
-	private final static String IN_FILE_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/";
-	private final static String NON_CA_SOURCES_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
-	
-	private ArrayList allSources;
 
 	// background seismicity inlcude/exclude param
 	public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
@@ -158,12 +151,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	private EmpiricalModel empiricalModel = new EmpiricalModel();
 
-	private ArrayList aFaultSourceGenerators; 
-	private ArrayList<UnsegmentedSource> bFaultSources;
-	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
 	
+	private ArrayList<UnsegmentedSource> bFaultSources;
+	private ArrayList<UnsegmentedSource> aFaultUnsegmentedSources;
+	private ArrayList<FaultRuptureSource> aFaultSegmentedSources;
 
-	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
+	
+	private ArrayList<String> aFaultsBranchParamNames; // parameters that are adjusted for A_Faults
+	private ArrayList<ParamOptions> aFaultsBranchParamValues; // paramter values and their weights for A_Faults
+	private int lastParamIndex;
+	
+	private HashMap<String, SummedMagFreqDist> sourceMFDMapping;
+	private HashMap<String, Double> sourceRakeMapping;
+	private HashMap<String, StirlingGriddedSurface> sourceGriddedSurfaceMapping;
+
+	
 	private UCERF2 ucerf2 = new UCERF2();
 
 	/**
@@ -261,13 +263,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		if(iSource<allSources.size()) // everything but the grid sources
+		/*if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
 		else {
 			boolean bulgeReduction = true;
 			boolean maxMagGrid = true;
 			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
-		}
+		}*/
+		return null;
 	}
 
 	/**
@@ -276,7 +279,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size() + nshmp_gridSrcGen.getNumSources();
+		return -1;
 	}
 	
 
@@ -286,12 +289,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return ArrayList of Prob Earthquake sources
 	 */
 	public ArrayList  getSourceList(){
-		ArrayList sourceList = new ArrayList();
+		/*ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
 		boolean bulgeReduction = true;
 		boolean maxMagGrid = true;
 		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
-		return sourceList;
+		return sourceList;*/
+		return null;
 	}
 
 
@@ -343,16 +347,307 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 **/
 
 	public void updateForecast() {
-		if(this.parameterChangeFlag) getB_FaultSources();
+		if(this.parameterChangeFlag)  {
+			mkB_FaultSources();
+			mkA_FaultSources();
+		}
 		parameterChangeFlag = false;
+	}
+	
+	/**
+	 * Make A_Fault Sources
+	 *
+	 */
+	private void mkA_FaultSources() {
+		
+		// DO For Segmented sources
+		fillAdjustableParamsForA_Faults();
+		sourceMFDMapping = new HashMap<String, SummedMagFreqDist>();
+		sourceRakeMapping = new  HashMap<String, Double> ();
+		sourceGriddedSurfaceMapping = new HashMap<String, StirlingGriddedSurface>();
+		findBranches(0,1);
+		aFaultSegmentedSources = new ArrayList<FaultRuptureSource>();
+		double duration = timeSpan.getDuration();
+		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG); 
+		// iterate over all rupture sources
+		Iterator<String> it = sourceMFDMapping.keySet().iterator();
+		while(it.hasNext()) {
+			String name = it.next();
+			aFaultSummedMFD.addIncrementalMagFreqDist(sourceMFDMapping.get(name));
+			FaultRuptureSource faultRupSrc = new FaultRuptureSource(sourceMFDMapping.get(name), 
+					sourceGriddedSurfaceMapping.get(name),
+					sourceRakeMapping.get(name),
+					duration);
+			faultRupSrc.setName(name);
+			aFaultSegmentedSources.add(faultRupSrc);
+		}
+		
+		// make unsegmnted A-Fault Sources
+		mkUnsegmentedA_FaultSources();
+		
+		
+		
+	}
+
+	private void mkUnsegmentedA_FaultSources() {
+		double rupOffset = ((Double)this.rupOffsetParam.getValue()).doubleValue();
+		double empiricalModelWt=0.0;
+		double duration = this.timeSpan.getDuration();
+		String probModel = (String)this.probModelParam.getValue();
+		if(probModel.equals(PROB_MODEL_BPT) || probModel.equals(PROB_MODEL_POISSON) ) empiricalModelWt = 0;
+		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
+		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
+
+		// DO for unsegmented sources
+		aFaultUnsegmentedSources = new ArrayList<UnsegmentedSource>();
+		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
+		// get deformation model summaries
+		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
+		DeformationModelSummary defModelSummary2_2 = defModelSummaryDAO.getDeformationModel("D2.2");
+		DeformationModelSummary defModelSummary2_3 = defModelSummaryDAO.getDeformationModel("D2.3");
+		
+		double wt = 0.5;
+		aFaultsFetcher.setDeformationModel(defModelSummary2_1, true);
+		ArrayList<FaultSegmentData> faultSegmentList = aFaultsFetcher.getFaultSegmentDataList(true);
+		ArrayList<Double> moRateList = new ArrayList<Double>();
+		for(int i=0; i<faultSegmentList.size(); ++i)
+			moRateList.add(wt*faultSegmentList.get(i).getTotalMomentRate());
+		wt = 0.2;
+		aFaultsFetcher.setDeformationModel(defModelSummary2_2, true);
+		faultSegmentList = aFaultsFetcher.getFaultSegmentDataList(true);
+		for(int i=0; i<faultSegmentList.size(); ++i) {
+			double newMoRate = moRateList.get(i) + wt*faultSegmentList.get(i).getTotalMomentRate();
+			moRateList.set(i, newMoRate);
+		}
+		wt = 0.3;
+		aFaultsFetcher.setDeformationModel(defModelSummary2_3, true);
+		faultSegmentList = aFaultsFetcher.getFaultSegmentDataList(true);
+	
+		for(int i=0; i<faultSegmentList.size(); ++i) {
+			double newMoRate = moRateList.get(i) + wt*faultSegmentList.get(i).getTotalMomentRate();
+			moRateList.set(i, newMoRate);
+			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
+					empiricalModel, rupOffset, 0.0, 0.0,  1, empiricalModelWt,  duration, moRateList.get(i));
+			aFaultUnsegmentedSources.add(unsegmentedSource);
+			//			System.out.println(source.getName());
+			int numRups = unsegmentedSource.getNumRuptures();
+			double mag, rate;
+			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+				ProbEqkRupture rup = unsegmentedSource.getRupture(rupIndex);
+				mag = rup.getMag();
+				rate = rup.getMeanAnnualRate(duration);
+				aFaultSummedMFD.add(mag, 0.1*rate);
+			}
+		}
+		
+	}
+	
+	
+	/**
+	 * Calculate MFDs
+	 * 
+	 * @param paramIndex
+	 * @param weight
+	 */
+	private void findBranches(int paramIndex, double weight) {
+		ParamOptions options = this.aFaultsBranchParamValues.get(paramIndex);
+		String paramName = this.aFaultsBranchParamNames.get(paramIndex);
+		int numValues = options.getNumValues();
+		for(int i=0; i<numValues; ++i) {
+			double newWt;
+			if(ucerf2.getAdjustableParameterList().containsParameter(paramName)) {
+				ucerf2.getParameter(paramName).setValue(options.getValue(i));	
+				newWt = weight * options.getWeight(i);
+			} else {
+				if(i==0) newWt=weight;
+				else return;
+			}
+			if(paramIndex==lastParamIndex) { // if it is last paramter in list, make A_Faults
+				mkA_FaultSegmentedSourceGenerators(newWt);
+			} else { // recursion 
+				findBranches(paramIndex+1, newWt);
+			}
+		}
+	}
+	
+	
+	private void mkA_FaultSegmentedSourceGenerators(double weight) {
+		double relativeA_PrioriWeight = ((Double)ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).getValue()).doubleValue();
+		double relativeSegRateWeight = UCERF2.REL_SEG_RATE_WT_PARAM_DEFAULT;
+		double magSigma  = UCERF2.MAG_SIGMA_DEFAULT;
+		double magTruncLevel = UCERF2.TRUNC_LEVEL_DEFAULT;
+		boolean isAseisReducesArea = true;
+		double meanMagCorrection = UCERF2.MEAN_MAG_CORRECTION_DEFAULT;
+		boolean wtedInversion = true;
+		ParameterList rupModels = (ParameterList) (this.ucerf2.getParameter(UCERF2.SEGMENTED_RUP_MODEL_TYPE_NAME).getValue());
+
+		
+		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
+		
+		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)
+		ArrayList aFaultSegmentData = aFaultsFetcher.getFaultSegmentDataList(isAseisReducesArea);
+
+		double duration = timeSpan.getDuration();
+		double startYear = Double.NaN, aperiodicity = Double.NaN;
+		boolean isSegDependentAperiodicity = false;
+		String probModel = (String)ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).getValue();
+		
+		if(probModel.equals(PROB_MODEL_BPT)) { // for time dependence
+			startYear = this.timeSpan.getStartTimeYear();
+			isSegDependentAperiodicity = false;
+			aperiodicity = ((Double)ucerf2.getParameter(UCERF2.APERIODICITY_PARAM_NAME).getValue()).doubleValue();
+		}
+		
+		ParameterAPI param = ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		
+		double minA_FaultRate1, minA_FaultRate2;
+		if(((Double)param.getValue()).doubleValue()==1e10) {
+			minA_FaultRate1 = 0.0;
+			minA_FaultRate2 = 0.0;	
+		} else {
+			minA_FaultRate1 = UCERF2.MIN_A_FAULT_RATE_1_DEFAULT;
+			minA_FaultRate2 = UCERF2.MIN_A_FAULT_RATE_2_DEFAULT;	
+		}
+		
+		String slipModel = A_FaultSegmentedSourceGenerator.TAPERED_SLIP_MODEL;
+		double totMoRateReduction = 0.1;
+		
+		for(int i=0; i<aFaultSegmentData.size(); ++i) {
+			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);
+			ValueWeight[] aPrioriRates = aFaultsFetcher.getAprioriRupRates(segmentData.getFaultName(), (String)rupModels.getValue(segmentData.getFaultName()));
+
+			// set the min-rate constraint and correct bogus, indicator rates in aPrioriRates
+			double minRates[] = new double[aPrioriRates.length];
+			double minRateFrac1 = minA_FaultRate1; // for unknown ruptures
+			double minRateFrac2 = minA_FaultRate2; // for unlikely ruptures
+			double minRate = Double.MAX_VALUE;
+			for(int rup=0; rup<aPrioriRates.length; rup++) // find minimum, ignoring values less than zero which are indicators
+				if(aPrioriRates[rup].getValue() < minRate && aPrioriRates[rup].getValue() >= 0) minRate = aPrioriRates[rup].getValue();
+			for(int rup=0; rup<aPrioriRates.length; rup++) {
+				double rate = aPrioriRates[rup].getValue();
+				if(rate >= 0) minRates[rup] = minRate*minRateFrac1; // treat it as unknowns
+				else if (rate == -1) {
+					minRates[rup] = minRate*minRateFrac1;
+					aPrioriRates[rup].setValue(0.0);   // over ride bogus indicator value with zero
+				}
+				else if (rate == -2) {
+					minRates[rup] = minRate*minRateFrac2;
+					aPrioriRates[rup].setValue(0.0);   // over ride bogus indicator value with zero
+				}
+				else 
+					throw new RuntimeException("Problem with a-priori rates for fault "+segmentData.getFaultName());
+//				System.out.println(rup+"  "+(float)minRates[rup]+"  "+segmentData.getFaultName());
+			}
+
+			A_FaultSegmentedSourceGenerator aFaultSourceGenerator = new A_FaultSegmentedSourceGenerator(segmentData, 
+					ucerf2.getMagAreaRelationship(), slipModel, aPrioriRates, magSigma, 
+					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
+					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
+			ArrayList<FaultRuptureSource> sources = new ArrayList<FaultRuptureSource>();
+			if(probModel.equals(PROB_MODEL_POISSON)) // time Independent
+				sources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
+			else if(probModel.equals(PROB_MODEL_BPT)) 
+				sources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
+			 else // Empirical Model
+				sources.addAll(aFaultSourceGenerator.getTimeDepEmpiricalSources(duration, empiricalModel));
+			
+			String faultName = segmentData.getFaultName();
+			for(int srcIndex=0; srcIndex<sources.size(); ++srcIndex) {
+				FaultRuptureSource source  = sources.get(srcIndex);
+				String key = faultName +";"+source.getName();
+				if(!sourceMFDMapping.containsKey(key)) {
+					sourceMFDMapping.put(key, new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG));
+					sourceRakeMapping.put(key, aFaultSourceGenerator.getAveRake(srcIndex));
+					this.sourceGriddedSurfaceMapping.put(key, aFaultSourceGenerator.getCombinedGriddedSurface(srcIndex));
+				}
+				SummedMagFreqDist mfd = sourceMFDMapping.get(key);
+				int numRups = source.getNumRuptures();
+				for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+					ProbEqkRupture rupture = source.getRupture(rupIndex);
+					mfd.add(rupture.getMag(), rupture.getMeanAnnualRate(duration)*weight);
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * Paramters that are adjusted in the runs
+	 *
+	 */
+	private void fillAdjustableParamsForA_Faults() {
+		
+		ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).setValue(new Boolean(false));
+		this.aFaultsBranchParamNames = new ArrayList<String>();
+		this.aFaultsBranchParamValues = new ArrayList<ParamOptions>();
+		
+		// Deformation model
+		aFaultsBranchParamNames.add(UCERF2.DEFORMATION_MODEL_PARAM_NAME);
+		ParamOptions options = new ParamOptions();
+		options.addValueWeight("D2.1", 0.5);
+		options.addValueWeight("D2.2", 0.2);
+		options.addValueWeight("D2.3", 0.3);
+		aFaultsBranchParamValues.add(options);
+		
+		// Mag Area Rel
+		aFaultsBranchParamNames.add(UCERF2.MAG_AREA_RELS_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(Ellsworth_B_WG02_MagAreaRel.NAME, 0.5);
+		options.addValueWeight(HanksBakun2002_MagAreaRel.NAME, 0.5);
+		aFaultsBranchParamValues.add(options);
+		
+		// A-Fault solution type
+		aFaultsBranchParamNames.add(UCERF2.RUP_MODEL_TYPE_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(UCERF2.SEGMENTED_A_FAULT_MODEL, 0.9);
+		aFaultsBranchParamValues.add(options);
+		
+		// Apriori wt param
+		aFaultsBranchParamNames.add(UCERF2.REL_A_PRIORI_WT_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(1e-4), 0.5);
+		options.addValueWeight(new Double(1e10), 0.5);
+		aFaultsBranchParamValues.add(options);
+		
+		
+		// Prob Model
+		
+		aFaultsBranchParamNames.add(UCERF2.PROB_MODEL_PARAM_NAME);
+		options = new ParamOptions();
+		// see the option chosen for Prob Model
+		String probModel = (String)this.probModelParam.getValue();
+		if(probModel.equals(PROB_MODEL_BPT)){
+			options.addValueWeight(UCERF2.PROB_MODEL_BPT, 1.0);
+		} else if (probModel.equals(PROB_MODEL_POISSON) ) {
+			options.addValueWeight(UCERF2.PROB_MODEL_POISSON, 1.0);
+		}
+		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) {
+			options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 1.0);
+		}
+		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) {
+			options.addValueWeight(UCERF2.PROB_MODEL_BPT, 0.7);
+			options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 0.3);
+		}
+		aFaultsBranchParamValues.add(options);
+		
+		//	BPT parameter setting
+		aFaultsBranchParamNames.add(UCERF2.APERIODICITY_PARAM_NAME);
+		options = new ParamOptions();
+		options.addValueWeight(new Double(0.3), 0.2);
+		options.addValueWeight(new Double(0.5), 0.5);
+		options.addValueWeight(new Double(0.7), 0.3);
+		aFaultsBranchParamValues.add(options);
+		
+		lastParamIndex = aFaultsBranchParamNames.size()-1;
 	}
 
 
 	
 	/**
-	 * 
+	 * Make B-Faults sources and caluculate B-Faults Total Summed MFD
 	 */
-	private void getB_FaultSources() {
+	private void mkB_FaultSources() {
 		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
 		B_FaultsFetcherForMeanUCERF bFaultsFetcher = new B_FaultsFetcherForMeanUCERF(aFaultsFetcher, true);
 		bFaultSources = new ArrayList<UnsegmentedSource> ();
@@ -368,39 +663,53 @@ public class MeanUCERF2 extends EqkRupForecast {
 		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset, 0.8, 0.0, 0.5, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
 			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  1.0, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset,  0.8, 0.0, 1.0, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset, 0.8, 0.0, 0.25, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset,  0.8, 0.0,0.5, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.25, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset, 0.8, 0.0, 0.25, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.5, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset,  0.8, 0.0, 0.5, 
+					empiricalModelWt, duration,  faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
 		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), empiricalModel,  rupOffset,  0.75, empiricalModelWt, duration));
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset,  0.8, 0.0, 0.75, 
+					empiricalModelWt, duration, faultSegDataList.get(i).getTotalMomentRate()));
 		}
 		
 		// Now calculate the B-Faults total MFD
@@ -409,7 +718,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		double mag, rate;
 		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {
 			UnsegmentedSource source = bFaultSources.get(srcIndex);
-			System.out.println(source.getName());
+			//System.out.println(source.getName());
 			int numRups = source.getNumRuptures();
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 				ProbEqkRupture rup = source.getRupture(rupIndex);
@@ -491,5 +800,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.updateForecast();
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
+		System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
 	}
 }

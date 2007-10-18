@@ -100,14 +100,14 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 
 	
-	
 	/**
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
 	 * Note that not all derivative info is generate here (such as segSlipDist[])
 	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
-			double rupOffset, double weight, double empiricalModelWeight, double duration) {
+			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
+			double empiricalModelWeight, double duration, double moRate) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -124,7 +124,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.moRateReduction = 0.1;  // fraction of slip rate reduction
 		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
 		this.empiricalModel = empiricalModel;
-		double b_valueGR_1=0.8, b_valueGR_2=0.0;
 		
 			
 		double sourceMag1 = magAreaRel1.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate

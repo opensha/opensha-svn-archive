@@ -198,7 +198,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String REL_SEG_RATE_WT_PARAM_NAME = "Relative Wt On Segment Rates";
 	private final static Double REL_SEG_RATE_WT_PARAM_MIN = new Double(0);
 	private final static Double REL_SEG_RATE_WT_PARAM_MAX = new Double(Double.MAX_VALUE);
-	private final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(0);
+	public final static Double REL_SEG_RATE_WT_PARAM_DEFAULT = new Double(0);
 	private final static String REL_SEG_RATE_WT_PARAM_INFO = "Relative to that put on the sement slip rates";
 	private DoubleParameter relativeSegRateWeightParam; 
 
@@ -260,7 +260,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String MAG_SIGMA_PARAM_NAME = "Mag Sigma";
 	private final static Double MAG_SIGMA_MIN = new Double(0.0);
 	private final static Double MAG_SIGMA_MAX = new Double(1.0);
-	private final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
+	public final static Double MAG_SIGMA_DEFAULT = new Double(0.12);
 	private final static String MAG_SIGMA_INFO = "Standard Deviation for characteristic MFD";
 	private DoubleParameter magSigmaParam;
 
@@ -270,7 +270,7 @@ public class UCERF2 extends EqkRupForecast {
 	private final static String TRUNC_LEVEL_PARAM_UNITS = "Number of sigmas";
 	private final static Double TRUNC_LEVEL_MIN = new Double(0.0);
 	private final static Double TRUNC_LEVEL_MAX = new Double(6.0);
-	private final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
+	public final static Double TRUNC_LEVEL_DEFAULT = new Double(2.0);
 	private final static String TRUNC_LEVEL_INFO = "This defines the last non-zero value on the characteristic MFD";
 	private DoubleParameter truncLevelParam;
 
@@ -325,7 +325,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String MEAN_MAG_CORRECTION = "Mean Mag Correction";
 	private final static Double MEAN_MAG_CORRECTION_MIN = new Double(-0.5);
 	private final static Double MEAN_MAG_CORRECTION_MAX = new Double(0.5);
-	private final static Double MEAN_MAG_CORRECTION_DEFAULT = new Double(0.0);
+	public final static Double MEAN_MAG_CORRECTION_DEFAULT = new Double(0.0);
 	private final static String MEAN_MAG_CORRECTION_INFO = "Increment added to mean mag as additional epistemic uncertainity";
 	private DoubleParameter meanMagCorrectionParam;
 
@@ -874,7 +874,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * Get the selected Mag Area relationship
 	 * @return
 	 */
-	private MagAreaRelationship getMagAreaRelationship() {
+	public MagAreaRelationship getMagAreaRelationship() {
 		String magAreaRelName = (String)this.magAreaRelParam.getValue();
 		// iterate over all Mag Area relationships to find the selected one
 		for(int i=0; i<magAreaRelationships.size(); ++i) {
