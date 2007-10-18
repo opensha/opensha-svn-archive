@@ -122,7 +122,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		double charMagTruncLevel = 2;
 		double fractCharVsGR = 0.6666;
 		this.moRateReduction = 0.1;  // fraction of slip rate reduction
-		moRate = segmentData.getTotalMomentRate()*(1-moRateReduction); // this has been reduced by aseis
+		moRate = moRate*(1-moRateReduction); // this has been reduced by aseis
 		this.empiricalModel = empiricalModel;
 		
 			
