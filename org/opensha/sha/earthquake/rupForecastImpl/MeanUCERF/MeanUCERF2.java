@@ -96,8 +96,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static double BACK_SEIS_DEPTH = UCERF2.BACK_SEIS_DEPTH;
 
 	// various summed MFDs
-	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
-	private IncrementalMagFreqDist totBackgroundMFD;
+	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD;
+	private IncrementalMagFreqDist totBackgroundMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 
 	// background seismicity inlcude/exclude param
 	public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
@@ -155,17 +155,19 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private ArrayList<UnsegmentedSource> bFaultSources;
 	private ArrayList<UnsegmentedSource> aFaultUnsegmentedSources;
 	private ArrayList<FaultRuptureSource> aFaultSegmentedSources;
-
+	private ArrayList<ProbEqkSource> allSources;
+	private ArrayList<ProbEqkSource> backgroundSources; // includes C-Zones as well
 	
 	private ArrayList<String> aFaultsBranchParamNames; // parameters that are adjusted for A_Faults
 	private ArrayList<ParamOptions> aFaultsBranchParamValues; // paramter values and their weights for A_Faults
 	private int lastParamIndex;
 	
+	
 	private HashMap<String, SummedMagFreqDist> sourceMFDMapping;
 	private HashMap<String, Double> sourceRakeMapping;
 	private HashMap<String, StirlingGriddedSurface> sourceGriddedSurfaceMapping;
 
-	
+	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 	private UCERF2 ucerf2 = new UCERF2();
 
 	/**
@@ -195,6 +197,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisRupParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
 		this.parameterChangeFlag = true;
+		ucerf2.updateForecast();
 	}
 
 	/**
@@ -210,7 +213,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
 		backSeisOptionsStrings.add(BACK_SEIS_ONLY);
 		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
-
+		backSeisParam.setInfo(BACK_SEIS_INFO);
+		
 		// backgroud treated as point sources/finite sources
 		backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
 		backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
@@ -263,14 +267,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		/*if(iSource<allSources.size()) // everything but the grid sources
-			return (ProbEqkSource) allSources.get(iSource);
-		else {
-			boolean bulgeReduction = true;
-			boolean maxMagGrid = true;
-			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
-		}*/
-		return null;
+		return allSources.get(iSource);
 	}
 
 	/**
@@ -279,7 +276,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return -1;
+		return allSources.size();
 	}
 	
 
@@ -289,13 +286,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return ArrayList of Prob Earthquake sources
 	 */
 	public ArrayList  getSourceList(){
-		/*ArrayList sourceList = new ArrayList();
-		sourceList.addAll(allSources);
-		boolean bulgeReduction = true;
-		boolean maxMagGrid = true;
-		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
-		return sourceList;*/
-		return null;
+		return allSources;
 	}
 
 
@@ -348,8 +339,29 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	public void updateForecast() {
 		if(this.parameterChangeFlag)  {
-			mkB_FaultSources();
-			mkA_FaultSources();
+			String backSeis = (String)backSeisParam.getValue();
+			allSources = new ArrayList<ProbEqkSource>();
+			
+			// if only background is not selected
+			if(!backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+				mkA_FaultSources();
+				allSources.addAll(this.aFaultSegmentedSources);
+				allSources.addAll(this.aFaultUnsegmentedSources);
+			
+				mkB_FaultSources();
+				allSources.addAll(this.bFaultSources);
+			
+				if(nonCA_B_FaultsSummedMFD==null) nonCA_B_FaultsSummedMFD = ucerf2.getTotal_NonCA_B_FaultsMFD();
+				allSources.addAll(ucerf2.getNonCA_B_FaultSources());
+			}
+			if(!backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
+				if(cZoneSummedMFD == null) cZoneSummedMFD = ucerf2.getTotal_C_ZoneMFD();
+				if(totBackgroundMFD==null) totBackgroundMFD = ucerf2.getTotal_BackgroundMFD();
+				if(backgroundSources ==null);
+					backgroundSources = (this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), true, true));
+				allSources.addAll(backgroundSources);
+			}
+			
 		}
 		parameterChangeFlag = false;
 	}
