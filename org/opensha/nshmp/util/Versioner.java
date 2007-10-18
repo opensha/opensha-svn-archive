@@ -1,6 +1,7 @@
 package org.opensha.nshmp.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -67,6 +68,13 @@ public class Versioner {
 				
 				AppProperties.setProperty(AppProperties.PROXY_HOST, proxyHost);
 				AppProperties.setProperty(AppProperties.PROXY_PORT, proxyPort);
+				try {
+					AppProperties.saveProperties();
+				} catch (IOException iox) {
+					// Saving settings failed. Oh well, nothing lost nothing gained.
+					System.err.println("An I/O Exception occurred while attempting to " +
+							"save your connection settings.\n" + iox.getMessage());
+				}
 				setConnection();
 			}
 
@@ -174,6 +182,8 @@ public class Versioner {
 	private static void setConnection() {
 
 		// Set these such that the application has the best chance at succeeding
+		// These will set the application proxy host and port properties into the
+		// system so the java runtime will use them to connect.
 		AppProperties.setSystemProperty(AppProperties.PROXY_HOST);
 		AppProperties.setSystemProperty(AppProperties.PROXY_PORT);
 		try {

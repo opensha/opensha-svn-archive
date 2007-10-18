@@ -83,14 +83,15 @@ public class AppProperties {
 	 * Sets the property identified by the <code>key</code> to the value
 	 * of the property identified by the same key that is currently known 
 	 * by the application.  If the <code>key</code> is not currently set
-	 * (from a call to setProperty(Strink key, String value)), then nothing
+	 * (from a call to setProperty(String key, String value)), then nothing
 	 * is done by calling this method.
 	 * 
 	 * @param key The name of the property to set.
 	 */
 	public static void setSystemProperty(String key) {
 		String prop = PROPERTIES.getProperty(key);
-		if(prop!=null){System.getProperties().setProperty(key, prop);}
+		if(prop!=null){
+			System.getProperties().setProperty(key, prop);}
 	}
 	
 	/**
@@ -115,6 +116,10 @@ public class AppProperties {
 		} catch (IOException iox) {
 			System.err.println(iox.getMessage());
 		}
+	}
+	
+	public static void saveProperties() throws IOException {
+		PROPERTIES.storeToXML(new FileOutputStream(CONFIG), null);
 	}
 	
 	/**
