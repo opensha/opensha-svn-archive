@@ -170,7 +170,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		plottingFeaturesList.add(this.PLOT_CHAR2);
 		
 		// Karen's observed data
-		UCERF2 ucerf2 = (UCERF2)ucerf2List.getUCERF2(0);
+		UCERF2 ucerf2 = new UCERF2();
 		boolean includeAfterShocks = ucerf2.areAfterShocksIncluded();
 		
 		ArrayList obsMFD = ucerf2.getObsCumMFD(includeAfterShocks);		

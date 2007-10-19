@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.data.TimeSpan;
 import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
@@ -27,6 +28,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 	protected ArrayList<String> paramNames; // parameters that are adjusted for logic tree
 	protected ArrayList<ParamOptions> paramValues; // paramter values and their weights
 	private int lastParamIndex;
+	private final static double DURATION_DEFAULT = 30;
 	
 	public UCERF2_TimeIndependentEpistemicList() {
 		fillAdjustableParams(); // fill the parameters that will be adjusted for the logic tree
@@ -34,6 +36,10 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 		weights = new ArrayList<Double>();
 		paramList = new ArrayList<ParameterList>();
 		findBranches(0, 1);
+		// create the time-ind timespan object with start time and duration in years
+		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+		timeSpan.setDuration(DURATION_DEFAULT);
+		timeSpan.addParameterChangeListener(this);
 	}
 	
 	
@@ -189,27 +195,12 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 			Parameter param = (Parameter)it.next();
 			ucerf2.getParameter(param.getName()).setValue(param.getValue());
 		}
+		ucerf2.getTimeSpan().setDuration(this.timeSpan.getDuration());
 		ucerf2.updateForecast();
 		return ucerf2;
 	}
 	
-	/**
-	 * Get the UCERF2 in the list with the specified index. 
-	 * It returns the UN-UPDATED forecast
-	 * Index can range from 0 to getNumERFs-1
-	 * 
-	 * 
-	 * @param index : index of Eqk rup forecast to return
-	 * @return
-	 */
-	public UCERF2 getUCERF2(int index) {
-		Iterator it = paramList.get(index).getParametersIterator();
-		while(it.hasNext()) {
-			Parameter param = (Parameter)it.next();
-			ucerf2.getParameter(param.getName()).setValue(param.getValue());
-		}
-		return ucerf2;
-	}
+
 	
 	
 	
@@ -249,7 +240,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 		for(int i=0; i<numERFs; ++i) {
 			System.out.println("Weight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
 			System.out.println("Parameters of Branch "+i+":");
-			System.out.println(ucerf2EpistemicList.getUCERF2(i).getAdjustableParameterList().getParameterListMetadataString("\n"));
+			System.out.println(ucerf2EpistemicList.getParameterList(i).getParameterListMetadataString("\n"));
 			
 		}
 		

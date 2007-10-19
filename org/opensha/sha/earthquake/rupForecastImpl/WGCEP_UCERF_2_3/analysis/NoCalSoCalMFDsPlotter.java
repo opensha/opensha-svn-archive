@@ -27,7 +27,6 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	private final static String NO_CAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/NoCal/";
 	private final static String SO_CAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/SoCal/";
-	private final static String CAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/Cal/";
 	private final static double MIN_MAG = UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2;
 	private final static double MAX_MAG = UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2;
 	private final static int NUM_MAG = UCERF2.NUM_MAG;
@@ -285,15 +284,12 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	}
 	
 	public static void main(String args[]) {
-		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
-		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
+		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
+		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(null);
-		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.CAL_PATH);
-		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.CAL_PATH);
+		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 	}
 	
 }
