@@ -176,6 +176,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 
 	/**
 	 * Get the ERF in the list with the specified index. 
+	 * It returns the updated forecast
 	 * Index can range from 0 to getNumERFs-1
 	 * 
 	 * 
@@ -188,8 +189,29 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 			Parameter param = (Parameter)it.next();
 			ucerf2.getParameter(param.getName()).setValue(param.getValue());
 		}
+		ucerf2.updateForecast();
 		return ucerf2;
 	}
+	
+	/**
+	 * Get the UCERF2 in the list with the specified index. 
+	 * It returns the UN-UPDATED forecast
+	 * Index can range from 0 to getNumERFs-1
+	 * 
+	 * 
+	 * @param index : index of Eqk rup forecast to return
+	 * @return
+	 */
+	public UCERF2 getUCERF2(int index) {
+		Iterator it = paramList.get(index).getParametersIterator();
+		while(it.hasNext()) {
+			Parameter param = (Parameter)it.next();
+			ucerf2.getParameter(param.getName()).setValue(param.getValue());
+		}
+		return ucerf2;
+	}
+	
+	
 	
 	/**
 	 * Get the ParameterList for ERF at the specified index
@@ -227,7 +249,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 		for(int i=0; i<numERFs; ++i) {
 			System.out.println("Weight of Branch "+i+"="+ucerf2EpistemicList.getERF_RelativeWeight(i));
 			System.out.println("Parameters of Branch "+i+":");
-			System.out.println(ucerf2EpistemicList.getERF(i).getAdjustableParameterList().getParameterListMetadataString("\n"));
+			System.out.println(ucerf2EpistemicList.getUCERF2(i).getAdjustableParameterList().getParameterListMetadataString("\n"));
 			
 		}
 		

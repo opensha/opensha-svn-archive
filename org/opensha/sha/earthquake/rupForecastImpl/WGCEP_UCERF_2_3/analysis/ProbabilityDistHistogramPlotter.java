@@ -150,7 +150,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		DiscretizedFuncAPI cZoneProbs =null;
 		for(int erfIndex=0; erfIndex<numERFs; ++erfIndex) {
 			System.out.println("Doing run "+(erfIndex+1)+" of "+numERFs);
-			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getERF(erfIndex);
+			UCERF2 ucerf2 = (UCERF2)ucerf2EpistemicList.getUCERF2(erfIndex);
 			ucerf2.getTimeSpan().setDuration(duration);
 			ucerf2.updateForecast();
 			

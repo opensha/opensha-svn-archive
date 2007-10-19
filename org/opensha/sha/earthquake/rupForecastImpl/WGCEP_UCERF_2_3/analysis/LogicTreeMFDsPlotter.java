@@ -340,7 +340,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 			UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(i);
 			 // if it is last paramter in list, save the MFDs
 			System.out.println("Doing run "+(aFaultMFDsList.size()+1)+" of "+numBranches);
-			ucerf2.updateForecast();
+			//ucerf2.updateForecast();
 			aFaultMFDsList.add(getTotal_A_FaultsMFD(ucerf2));
 			bFaultCharMFDsList.add(getTotal_B_FaultsCharMFD(ucerf2));
 			bFaultGRMFDsList.add(getTotal_B_FaultsGR_MFD(ucerf2));
