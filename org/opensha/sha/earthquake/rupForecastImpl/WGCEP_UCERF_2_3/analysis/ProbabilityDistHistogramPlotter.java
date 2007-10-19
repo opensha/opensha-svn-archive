@@ -39,7 +39,7 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  *
  */
 public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
-	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
+	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/probContr0_1MagDisc/";
 	private final static double MIN_PROB= 0.025;
 	private final static double MAX_PROB= 0.975;
 	private final static double DELTA_PROB= 0.05;
@@ -61,7 +61,12 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;
 	private HSSFWorkbook workbook;
 
-	private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25};
+	//private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25};
+	private double mags[] = { 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 
+			6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 
+			7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 
+			8.0, 8.1, 8.2, 8.3
+	};
 	public final static String A_FAULTS = "A-Faults";
 	public final static String B_FAULTS = "B-Faults";
 	public final static String NON_CA_B_FAULTS = "Non-CA B-Faults";
@@ -880,7 +885,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	public static void main(String[] args) {
 		ProbabilityDistHistogramPlotter plotter = new ProbabilityDistHistogramPlotter();
-		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
+		plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_WG02.xls", new EvenlyGriddedWG02_Region());
 		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_NoCal.xls", new EvenlyGriddedNoCalRegion());
 		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_SoCal.xls", new EvenlyGriddedSoCalRegion());
@@ -920,6 +925,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 
 		plotter.plotAperiodicity_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 		plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 		*/
 		plotter.plotAperiodicity_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
