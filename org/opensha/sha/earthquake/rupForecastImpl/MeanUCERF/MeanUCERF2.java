@@ -85,7 +85,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static double MIN_MAG = UCERF2.MIN_MAG;
 	public final static double MAX_MAG = UCERF2.MAX_MAG;
 	public final static double DELTA_MAG = UCERF2.DELTA_MAG;
-	public final static int NUM_MAG = (int)Math.round((MAX_MAG-MIN_MAG)/DELTA_MAG) + 1;
+	public final static int NUM_MAG = UCERF2.NUM_MAG;
 
 	// public final static double B_FAULT_GR_MAG_LOWER = 6.5;
 	public final static double BACKGROUND_MAG_LOWER = UCERF2.BACKGROUND_MAG_LOWER;

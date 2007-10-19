@@ -143,6 +143,7 @@ public class FaultSectionData {
 	  FaultSectionPrefData faultSectionPrefData = new FaultSectionPrefData();
 	  faultSectionPrefData.setAseismicSlipFactor(getPrefForEstimate(aseismicSlipFactorEst));
 	  faultSectionPrefData.setAveDip(getPrefForEstimate(aveDipEst));
+	  faultSectionPrefData.setSlipRateStdDev(getSlipRateStdDev(aveLongTermSlipRateEst));
 	  faultSectionPrefData.setAveLongTermSlipRate(getPrefForEstimate(aveLongTermSlipRateEst));
 	  faultSectionPrefData.setAveLowerDepth(getPrefForEstimate(aveLowerDepthEst));
 	  faultSectionPrefData.setAveRake(getPrefForEstimate(aveRakeEst));
@@ -153,6 +154,14 @@ public class FaultSectionData {
 	  faultSectionPrefData.setShortName(this.shortName);
 	  faultSectionPrefData.setFaultTrace(this.faultTrace);
 	  return faultSectionPrefData;
+  }
+  
+  private double getSlipRateStdDev(EstimateInstances estimateInstance) {
+	  if(estimateInstance==null) return Double.NaN;
+	  Estimate estimate = estimateInstance.getEstimate();
+	  if(estimate instanceof NormalEstimate) {
+		  return ((NormalEstimate)estimate).getStdDev();
+	  }  else return Double.NaN;
   }
   
   /**
