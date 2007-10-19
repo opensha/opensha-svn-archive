@@ -111,7 +111,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double empiricalModelWeight, double duration) {
 		this(segmentData, empiricalModel, rupOffset, 0.8, 0.0, weight, 
 				empiricalModelWeight, duration, segmentData.getTotalMomentRate(),
-				0.6666);
+				0.67);
 		
 	}
 	

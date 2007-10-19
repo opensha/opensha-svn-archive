@@ -677,57 +677,34 @@ public class MeanUCERF2 extends EqkRupForecast {
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
 		
 		double duration = this.timeSpan.getDuration();
+		double wt = 0.5;
 		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset,  0.5, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
+		wt=1.0;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset, 1.0, 
-					empiricalModelWt, duration));
-		}		
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
+		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset, 0.25, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
-		
+		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset, 0.5, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
+		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset, 0.25, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
+		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset,  0.5, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
+		wt=0.75;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
-		for(int i=0; i<faultSegDataList.size(); ++i) {
-			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
-					empiricalModel,  rupOffset,  0.75, 
-					empiricalModelWt, duration));
-		}
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
 		
 		// Now calculate the B-Faults total MFD
 		bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
@@ -743,6 +720,24 @@ public class MeanUCERF2 extends EqkRupForecast {
 				rate = rup.getMeanAnnualRate(duration);
 				bFaultSummedMFD.add(mag, rate);
 			}
+		}
+	}
+
+	/**
+	 * MAe sources from FaultSegmentData List and to bFaultList
+	 * @param rupOffset
+	 * @param empiricalModelWt
+	 * @param duration
+	 * @param wt
+	 * @param faultSegDataList
+	 */
+	private void addToB_FaultSources(double rupOffset, double empiricalModelWt, double duration, double wt, ArrayList<FaultSegmentData> faultSegDataList) {
+		for(int i=0; i<faultSegDataList.size(); ++i) {
+			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
+			//System.out.println(faultSegDataList.get(i).getFaultName()+"\t"+wt);
+			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
+					empiricalModel,  rupOffset,  wt, 
+					empiricalModelWt, duration));
 		}
 	}
 	
@@ -816,11 +811,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.updateForecast();
-		System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
+		/*System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
+		*/
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
-		System.out.println(meanUCERF2.getTotal_C_ZoneMFD().getCumRateDistWithOffset());
+		/*System.out.println(meanUCERF2.getTotal_C_ZoneMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_NonCA_B_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_BackgroundMFD().getCumRateDistWithOffset());
-		System.out.println(meanUCERF2.getTotalMFD().getCumRateDistWithOffset());
+		System.out.println(meanUCERF2.getTotalMFD().getCumRateDistWithOffset());*/
 	}
 }
