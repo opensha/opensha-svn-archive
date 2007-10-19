@@ -594,8 +594,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 *
 	 */
 	private void fillAdjustableParamsForA_Faults() {
-		
-		ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).setValue(new Boolean(false));
+		if(ucerf2.getAdjustableParameterList().containsParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME))
+			ucerf2.getParameter(UCERF2.SEG_DEP_APERIODICITY_PARAM_NAME).setValue(new Boolean(false));
 		this.aFaultsBranchParamNames = new ArrayList<String>();
 		this.aFaultsBranchParamValues = new ArrayList<ParamOptions>();
 		
