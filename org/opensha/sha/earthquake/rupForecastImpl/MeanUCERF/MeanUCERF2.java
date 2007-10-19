@@ -746,7 +746,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
 	private void setTimespanParameter() {
-		if (this.probModelParam.getValue().equals(PROB_MODEL_BPT)) {
+		if (this.probModelParam.getValue().equals(PROB_MODEL_BPT) ||
+				probModelParam.getValue().equals(PROB_MODEL_WGCEP_PREF_BLEND)) {
 			// create the time-dep timespan object with start time and duration in years
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 			// set duration
