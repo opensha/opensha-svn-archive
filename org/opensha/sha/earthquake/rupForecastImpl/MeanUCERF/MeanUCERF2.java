@@ -111,7 +111,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	// background seismicity treated as param
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
-	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
+	//public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 
@@ -219,7 +219,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		
 		// backgroud treated as point sources/finite sources
 		backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
-		backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
+		//backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
 		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
 
 
