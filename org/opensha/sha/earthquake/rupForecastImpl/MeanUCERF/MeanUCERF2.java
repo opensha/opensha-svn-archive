@@ -341,6 +341,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	public void updateForecast() {
 		if(this.parameterChangeFlag)  {
+			ucerf2.setTimeSpan(this.timeSpan);
+			ucerf2.updateForecast();
 			String backSeis = (String)backSeisParam.getValue();
 			allSources = new ArrayList<ProbEqkSource>();
 			if(cZoneSummedMFD == null) cZoneSummedMFD = ucerf2.getTotal_C_ZoneMFD();
