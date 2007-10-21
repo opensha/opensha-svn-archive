@@ -345,9 +345,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 			ucerf2.updateForecast();
 			String backSeis = (String)backSeisParam.getValue();
 			allSources = new ArrayList<ProbEqkSource>();
-			if(cZoneSummedMFD == null) cZoneSummedMFD = ucerf2.getTotal_C_ZoneMFD();
-			if(totBackgroundMFD==null) totBackgroundMFD = ucerf2.getTotal_BackgroundMFD();
-			if(nonCA_B_FaultsSummedMFD==null) nonCA_B_FaultsSummedMFD = ucerf2.getTotal_NonCA_B_FaultsMFD();
+			cZoneSummedMFD = ucerf2.getTotal_C_ZoneMFD();
+			totBackgroundMFD = ucerf2.getTotal_BackgroundMFD();
+			nonCA_B_FaultsSummedMFD = ucerf2.getTotal_NonCA_B_FaultsMFD();
 
 			// if only background is not selected
 			if(!backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
@@ -444,7 +444,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			double newMoRate = moRateList.get(i) + wt*faultSegmentList.get(i).getTotalMomentRate();
 			moRateList.set(i, newMoRate);
 			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
-					empiricalModel, rupOffset, 0.0, 0.0,  1, empiricalModelWt,  duration, moRateList.get(i), 0);
+					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  duration, moRateList.get(i), 0);
 			aFaultUnsegmentedSources.add(unsegmentedSource);
 			//			System.out.println(source.getName());
 			int numRups = unsegmentedSource.getNumRuptures();
@@ -453,7 +453,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				ProbEqkRupture rup = unsegmentedSource.getRupture(rupIndex);
 				mag = rup.getMag();
 				rate = rup.getMeanAnnualRate(duration);
-				aFaultSummedMFD.add(mag, 0.1*rate); // apply weight of unsegmented model
+				aFaultSummedMFD.add(mag, rate); // apply weight of unsegmented model
 			}
 		}
 		
