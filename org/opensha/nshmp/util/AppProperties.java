@@ -98,7 +98,7 @@ public class AppProperties {
 	 * Sets the property as specified by calling the <code>setProperty</code> method
 	 * on the underlying <code>Properties</code> object.  The setting is then saved
 	 * out to the config file for persistence. Note that this only sets the property
-	 * for the application level.  If you require the propery to exist at the System
+	 * for the application level.  If you require the property to exist at the System
 	 * level as well, then you must also make a call to 
 	 * <code>setSystemProperty(String key)</code>.
 	 * 
