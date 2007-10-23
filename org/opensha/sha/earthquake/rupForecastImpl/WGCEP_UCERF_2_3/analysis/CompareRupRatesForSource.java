@@ -28,7 +28,8 @@ public class CompareRupRatesForSource {
 		erfList.getTimeSpan().setDuration(duration);
 		HashMap<Integer,Double> rupRateMapping = new HashMap<Integer,Double>();
 		for(int erfIndex=0; erfIndex<numERFs; ++erfIndex) {
-			UCERF2 ucerf2 = (UCERF2) erfList.getERF(erfIndex);
+			System.out.println("Doing "+erfIndex+ " of "+numERFs)
+;			UCERF2 ucerf2 = (UCERF2) erfList.getERF(erfIndex);
 			double wt = erfList.getERF_RelativeWeight(erfIndex);
 			int numSources = ucerf2.getNumSources();	
 			// Iterate over all sources
@@ -70,7 +71,7 @@ public class CompareRupRatesForSource {
 			int numRups = source.getNumRuptures();
 			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 				double rate=source.getRupture(rupIndex).getMeanAnnualRate(duration);
-				fw.write(source.getName()+"\t"+rate+"\n");
+				fw.write(rupIndex+"\t"+rate+"\n");
 			}
 		}
 		
