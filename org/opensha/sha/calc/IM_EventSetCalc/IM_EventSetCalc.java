@@ -393,7 +393,7 @@ public class IM_EventSetCalc
    * Creates a location using the given locations to find source cut-off disance.
    * @return
    */
-  protected void createSiteList() {
+  protected void computeDistanceCutoffStuff() {
      //gets the min lat, lon and max lat, lon from given set of locations.
     double minLon = Double.MAX_VALUE;
     double maxLon = Double.NEGATIVE_INFINITY;
@@ -654,7 +654,7 @@ public class IM_EventSetCalc
       ex.printStackTrace();
     }
 
-    calc.createSiteList();
+    calc.computeDistanceCutoffStuff();
     calc.getMeanSigma();
   }
 }
