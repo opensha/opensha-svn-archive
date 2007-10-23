@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.IM_EventSetCalc;
+package org.opensha.sha.calc.IM_EventSetCalc_v01;
 
 
 import java.util.*;
@@ -47,7 +47,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	private ArrayList stationIds;
 	private LocationList locList;
 	private ArrayList imtSupported;
-	private final static String EVENT_SET_FILE_CEA = "org/opensha/sha/calc/IM_EventSetCalc/eventSetFileCEA.txt";
+	private final static String EVENT_SET_FILE_CEA = "org/opensha/sha/calc/IM_EventSetCalc_v01/eventSetFileCEA.txt";
 	private final static String CB2006_TEST_FILE = "CB_2006_TestFile.txt";
 	private final static String BA2006_TEST_FILE = "BA_2006_TestFile.txt";
 	private final static String CY2006_TEST_FILE = "CY_2006_TestFile.txt";

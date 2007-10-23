@@ -90,19 +90,32 @@
       verbose="no"
       classpath="${dest}">
       <src path="${src}"/>
-      <include name="org/opensha/sha/calc/IM_EventSetCalc/IM_EventSetCalc.java"/>
+      <include name="org/opensha/sha/calc/IM_EventSetCalc_v01/IM_EventSetCalc.java"/>
     </javac>
   </target>
-	<target name="resource" />
+	<target name="resource">
+	
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles" overwrite="true">
+		  	      <fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles">
+		  	        <include name="**/*"/>
+		  	      </fileset>
+		  	 </copy>		  
+		  	      	
+		 <copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1" overwrite="true">
+		  	      <fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1">
+		  	      	 <include name="**/*"/>
+		  	      </fileset>
+		 </copy>		
+	</target>
   <target depends="javacompile" name="compile"/>
   <target depends="compile" name="make"/>
-	<target depends="resource" name="package"/>
+  <target depends="resource" name="package"/>
   <target depends="postcompilecleanup" name="postcompile"/>
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package">
-    <jar destfile="IM_EventSetCalc.jar" basedir="${dest}" manifest="IM_EventSetCalc_MANIFEST.MF">
+    <jar destfile="IM_EventSetCalc_v01.jar" basedir="${dest}" manifest="IM_EventSetCalc_MANIFEST_v01.MF">
       <include name="org/**"/>
     	<include name="etc/**"/>
       <include name="com/**"/>

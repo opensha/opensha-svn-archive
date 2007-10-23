@@ -7,6 +7,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
@@ -24,6 +25,9 @@ import org.opensha.util.*;
 import org.opensha.calc.RelativeLocation;
 import java.text.DecimalFormat;
 import java.lang.reflect.*;
+
+import javax.swing.UIManager;
+
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.data.TimeSpan;
@@ -50,7 +54,7 @@ public class IM_EventSetCalc
   protected EqkRupForecastAPI forecast;
 
   //supported Attenuations
-  protected ArrayList supportedAttenuationsList;
+  protected ArrayList chosenAttenuationsList;
 
   protected final static String MEAN = "mean";
   protected final static String SIGMA = "sigma";
@@ -69,6 +73,72 @@ public class IM_EventSetCalc
 
   protected String inputFileName = "MeanSigmaCalc_InputFile.txt";
   protected String dirName = "MeanSigma";
+  
+  /**
+   *  IMR Class Names
+   */
+  protected final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  protected final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  protected final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  protected final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
+  protected final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
+  protected final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  protected final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
+  protected final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+  protected final static String SEA_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel";
+  //protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
+  protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
+  protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
+  protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
+  protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
+  protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
+  //protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
+  protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
+  protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
+  protected final static String GOULET_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
+  
+  
+  /**
+   *  ArrayList that maps picklist attenRel string names to the real fully qualified
+   *  class names
+   */
+  private static ArrayList<String> attenRelClasses = new ArrayList<String>();
+  private static ArrayList<String> imNames = new ArrayList<String>();
+  
+  static {
+    imNames.add(CY_2006_AttenRel.NAME);
+    attenRelClasses.add(CY_2006_CLASS_NAME);
+    imNames.add(CB_2006_AttenRel.NAME);
+    attenRelClasses.add(CB_2006_CLASS_NAME);
+    imNames.add(BA_2006_AttenRel.NAME);
+    attenRelClasses.add(BOORE_2006_CLASS_NAME);
+    imNames.add(CS_2005_AttenRel.NAME);
+    attenRelClasses.add(CS_CLASS_NAME);
+    imNames.add(BJF_1997_AttenRel.NAME);
+    attenRelClasses.add(BJF_CLASS_NAME);
+    imNames.add(AS_1997_AttenRel.NAME);
+    attenRelClasses.add(AS_CLASS_NAME);
+    imNames.add(Campbell_1997_AttenRel.NAME);
+    attenRelClasses.add(C_CLASS_NAME);
+    imNames.add(SadighEtAl_1997_AttenRel.NAME);
+    attenRelClasses.add(SCEMY_CLASS_NAME);
+    imNames.add(Field_2000_AttenRel.NAME);
+    attenRelClasses.add(F_CLASS_NAME);
+    imNames.add(Abrahamson_2000_AttenRel.NAME);
+    attenRelClasses.add(A_CLASS_NAME);
+    imNames.add(CB_2003_AttenRel.NAME);
+    attenRelClasses.add(CB_CLASS_NAME);
+    imNames.add(BS_2003_AttenRel.NAME);
+    attenRelClasses.add(BS_2003_CLASS_NAME);
+    imNames.add(BC_2004_AttenRel.NAME);
+    attenRelClasses.add(BC_2004_CLASS_NAME);
+    imNames.add(GouletEtAl_2006_AttenRel.NAME);
+    attenRelClasses.add(GOULET_2006_CLASS_NAME);
+    imNames.add(ShakeMap_2003_AttenRel.NAME);
+    attenRelClasses.add(SM_CLASS_NAME);
+    imNames.add(SEA_1999_AttenRel.NAME);
+    attenRelClasses.add(SEA_CLASS_NAME);
+  }
 
   public IM_EventSetCalc(String inpFile,String outDir) {
     inputFileName = inpFile;
@@ -186,9 +256,11 @@ public class IM_EventSetCalc
    * @param str String
    */
   private void setIMR(String str) {
-    if(supportedAttenuationsList == null)
-      supportedAttenuationsList = new ArrayList();
-    createIMRClassInstance(str.trim());
+    if(chosenAttenuationsList == null)
+      chosenAttenuationsList = new ArrayList();
+    String imrName = str.trim();
+    int index = this.imNames.indexOf(imrName);
+    createIMRClassInstance(this.attenRelClasses.get(index));
   }
 
 
@@ -209,7 +281,6 @@ public class IM_EventSetCalc
    *
    */
   protected void createIMRClassInstance(String AttenRelClassName) {
-    String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
     try {
       Class listenerClass = Class.forName(
           "org.opensha.param.event.ParameterChangeWarningListener");
@@ -217,14 +288,14 @@ public class IM_EventSetCalc
           this};
       Class[] params = new Class[] {
           listenerClass};
-      Class imrClass = Class.forName(attenRelClassPackage + AttenRelClassName);
+      Class imrClass = Class.forName(AttenRelClassName);
       Constructor con = imrClass.getConstructor(params);
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI) con.newInstance(paramObjects);
       if(attenRel.getName().equals(USGS_Combined_2004_AttenRel.NAME))
     	  	throw new RuntimeException("Cannot use "+USGS_Combined_2004_AttenRel.NAME+" in calculation of Mean and Sigma");
       //setting the Attenuation with the default parameters
       attenRel.setParamDefaults();
-      supportedAttenuationsList.add(attenRel);
+      chosenAttenuationsList.add(attenRel);
     }
     catch (ClassCastException e) {
       e.printStackTrace();
@@ -247,85 +318,65 @@ public class IM_EventSetCalc
   }
 
   private void getERF(String line){
-    if(line.trim().equals(Frankel02_AdjustableEqkRupForecast.NAME))
+	String erfName = line.trim(); 
+    if(erfName.equals(Frankel02_AdjustableEqkRupForecast.NAME))
       createFrankel02Forecast();
-    else
-      createUCERF_Forecast();
+    else if (erfName.equals(WGCEP_UCERF1_EqkRupForecast.NAME))
+      createUCERF1_Forecast();
+    else if (erfName.equals(MeanUCERF2.NAME))
+        createMeanUCERF2_Forecast();
+    else throw new RuntimeException ("Unsupported ERF");
+    forecast.getTimeSpan().setDuration(1.0);
   }
 
   /**
    * Creating the instance of the Frankel02 forecast
    */
   private void createFrankel02Forecast(){
-
     forecast = new Frankel02_AdjustableEqkRupForecast();
-    forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-        forecast.getTimeSpan().setDuration(1.0);
   }
 
   /**
-   * Creating the instance of the Frankel02 forecast
+   * Creating the instance of the UCERF1 Forecast
    */
-  private void createUCERF_Forecast(){
+  private void createUCERF1_Forecast(){
     forecast = new WGCEP_UCERF1_EqkRupForecast();
     forecast.getAdjustableParameterList().getParameter(
-        WGCEP_UCERF1_EqkRupForecast.
-        BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_EXCLUDE);
-
-    forecast.getAdjustableParameterList().getParameter(
         WGCEP_UCERF1_EqkRupForecast.TIME_DEPENDENT_PARAM_NAME).setValue(new Boolean(false));
-
-    forecast.getTimeSpan().setDuration(1.0);
-
+  }
+  
+  /**
+   * Creating the instance of the UCERF2 - Single Branch Forecast
+   */
+  private void createMeanUCERF2_Forecast(){
+    forecast = new MeanUCERF2();
+    forecast.getAdjustableParameterList().getParameter(
+    		MeanUCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_POISSON);
   }
 
   private void toApplyBackGroud(boolean toApply){
-    if(toApply){
-      if(forecast instanceof Frankel02_AdjustableEqkRupForecast){
+    if(toApply){ // include background
         forecast.getAdjustableParameterList().getParameter(
             Frankel02_AdjustableEqkRupForecast.
             BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
                                      BACK_SEIS_INCLUDE);
-        forecast.getAdjustableParameterList().getParameter(
-            Frankel02_AdjustableEqkRupForecast.
-            BACK_SEIS_RUP_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                         BACK_SEIS_RUP_FINITE);
-      }
-      else{
-        forecast.getAdjustableParameterList().getParameter(
-            WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_NAME).setValue(WGCEP_UCERF1_EqkRupForecast.
-                                     BACK_SEIS_INCLUDE);
-        forecast.getAdjustableParameterList().getParameter(
-            WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_NAME).setValue(
-                WGCEP_UCERF1_EqkRupForecast.BACK_SEIS_RUP_FINITE);
-      }
+        if (!(forecast instanceof MeanUCERF2))
+         	forecast.getAdjustableParameterList().getParameter(
+        			Frankel02_AdjustableEqkRupForecast.
+        			BACK_SEIS_RUP_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
+        					BACK_SEIS_RUP_FINITE);
     }
-    else{
-      if(forecast instanceof Frankel02_AdjustableEqkRupForecast)
+    else{ // exclude background
         forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-      else
-        forecast.getAdjustableParameterList().getParameter(
-        Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
     }
   }
 
   private void setRupOffset(double rupOffset){
-    if (forecast instanceof Frankel02_AdjustableEqkRupForecast){
-      forecast.getAdjustableParameterList().getParameter(
+    forecast.getAdjustableParameterList().getParameter(
           Frankel02_AdjustableEqkRupForecast.
           RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
       forecast.updateForecast();
-    }
-    else{
-      forecast.getAdjustableParameterList().getParameter(
-          Frankel02_AdjustableEqkRupForecast.
-          RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
-      forecast.updateForecast();
-    }
-
   }
 
 
@@ -335,7 +386,7 @@ public class IM_EventSetCalc
    */
   protected void getMeanSigma() {
 
-    int numIMRs = supportedAttenuationsList.size();
+    int numIMRs = chosenAttenuationsList.size();
     File file = new File(dirName);
     file.mkdirs();
     this.generateSrcRupMetadataFile(forecast,
@@ -349,7 +400,7 @@ public class IM_EventSetCalc
     int numIMTs = supportedIMTs.size();
     for (int i = 0; i < numIMRs; ++i) {
       AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
-          supportedAttenuationsList.get(i);
+          chosenAttenuationsList.get(i);
       attenRel.setUserMaxDistance(sourceCutOffDistance);
       for (int j = 0; j < numIMTs; ++j) {
         String imtLine = (String) supportedIMTs.get(j);
@@ -641,6 +692,7 @@ public class IM_EventSetCalc
     }
 
     IM_EventSetCalc calc = new IM_EventSetCalc(args[0],args[1]);
+    //IM_EventSetCalc calc = new IM_EventSetCalc("org/opensha/sha/calc/IM_EventSetCalc_v02/ExampleInputFile.txt","org/opensha/sha/calc/IM_EventSetCalc_v02/test");
     try {
       calc.parseFile();
     }

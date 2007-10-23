@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.IM_EventSetCalc;
+package org.opensha.sha.calc.IM_EventSetCalc_v01;
 
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
