@@ -5,19 +5,19 @@ This application is run by typing the following on the command line:
 	java -jar -Xmx500M IM_EventSetCalc.jar [name of the inputfile] [output-files directory]
 
 where [name of the inputfile] is the input file and 
-[output-files directory] is a directory where the output files go. The location of the output directory is relative to the location of the jar file.
+[output-files directory] is a directory where the output files go. The user just needs to provide the relative path to the Jar file where user wants output-files directory to be created.
 
 For Example :
 
-java -jar -Xmx500M IM_EventSetCalc.jar ExampleInputFile.txt outputDir
+java -jar -Xmx500M IM_EventSetCalc.jar ExampleInputFile.txt SoCalEdison
 
-It will run the application IM_EventSetCalc.jar with the inputfile ExampleInputFile.txt, which must exists in the same location as the IM_EventSetCalc.jar application, and will create the output-files in the directory outputDir.
+It will run the application IM_EventSetCalc.jar with the inputfile ExampleInputFile.txt, which exists in the same location as the IM_EventSetCalc.jar application and create the output-files in the directory SoCalEdison, which too will be created in the same level as application IM_EventSetCalc.jar.
 
-An example input file is included in this directory as "ExampleInputFile.txt".
+An example input file is included in this directory as "ExampleInputFile.txt" (which happens to be identical to the input file in the "SoCalEdison" directory).
 
 Each line of the input file that starts with "#" is a comment that gets ignored by the program, it is just for user's information.
 
-The first choice is which of the following Earthquake Rupture Forecasts to use: NSHMP-2002 Earthquake Rupture Forecast (ERF) or WGCEP-UCERF-1.0 (2005). All adjustable parameters for these ERFs are hardwired (in the code) to default/official settings; only whether to include the background/grid sources and the offset for floating ruptures are set in the input file.  If "WGCEP-UCERF-1.0 (2005)" is chosen the timespan duration is hard coded as 1 year and this model will be treated as Time independent model.
+The first choice is whether to use NSHMP-2002 Earthquake Rupture Forecast (ERF) or WGCEP-UCERF-1.0 (2005). All adjustable parameters for these ERFs are hardwired (in the code) to default/official settings; only whether to include the background/grid sources and the offset for floating ruptures are set in the input file.  If "WGCEP-UCERF-1.0 (2005)" is chosen the timespan duration is hard coded as 1 year and this model will be treated as Time independent model.
 
 The next choices are which AttenuationRelationships and IMTs to support. If user chooses an IMT not supported by a AttenuationRelationship then the program will terminate with an error message.
 
@@ -87,7 +87,7 @@ For example :
   java -jar IM_EventSetCalcTest.jar  SoCalEdison
 
 where SoCalEdison is the input directory name where all the EventSet files are located for a given site and IMT.
-This tester application reads the EventSet files and generates an averaged annualized rate curve for the selected AttenuationRelationships.
+This tester application reads the EventSet files and generate a averaged annualized rate curve for the selected AttenuationRelationships.
 
 This calculation assumes all sources are Poissonian.
 
@@ -105,6 +105,6 @@ Future enhancements to this application
 
 1) Calculation of Inter/Intra event Sigma if the attenuation relationship provides this info.
 
-2) Allow the selection of any ERF (that OpenSHA supports), and the setting of any adjustable parameters (including start time and duration) for the chosen ERF (rather than the present hard coding of most of these).  Right now we only compute annualized rates for time-independent models.
+2) Allow the selection of any ERF (that OpenSHA supports), and the setting of any adjustable parameters (including start time and duration) for the chosen ERF (rather than the present hard coding of most of these).
 
 3) Make a GUI-based version of the application, which would both avoid the user from having to hand edit the input file, and more easily allow other parameters to be adjustable.
