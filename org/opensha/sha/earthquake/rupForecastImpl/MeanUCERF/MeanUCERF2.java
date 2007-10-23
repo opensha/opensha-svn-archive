@@ -69,6 +69,16 @@ import org.opensha.util.FileUtils;
 
 
 /**
+ * This was checked to make sure this is equal to the mean of what is returned from the 
+ * UCERF2 Epistemic List.  It was basically exact except for the following note.
+ * 
+ * Note that the length for unsegmented floating rupture used here is computed from the average area
+ * from Hanks and Bakun and Ellsworth B (divided by the DDW), and that this is the cause of any
+ * differences in hazard curves from this and the average of all logic tree branches in the
+ * UCERF2 Epistemic List (up to 1% in the test case looked at); for details see the method 
+ * getRupLength(mag) in the class UnsegmentedSurce for the constructor used here.
+ * 
+ * 
  * @author 
  *
  */
@@ -117,7 +127,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// For rupture offset lenth along fault parameter
 	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
-	private Double DEFAULT_RUP_OFFSET_VAL= new Double(5);
+	private Double DEFAULT_RUP_OFFSET_VAL= new Double(1);
 	private final static String RUP_OFFSET_PARAM_UNITS = "km";
 	private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
