@@ -1101,11 +1101,11 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.rake=rake;
 		this.duration = duration;
 		this.name = sourceName;
-		
+		ruptureList = new ArrayList<ProbEqkRupture>();
 		double totSrcRate=0, totSrcRateEmp=0; // for computing the source gain
 
 		// Make GR ruptures
-		for (int i=0; i<grMFD.getNum(); ++i){
+		for (int i=0; grMFD!=null && i<grMFD.getNum(); ++i){
 			double rate = grMFD.getY(i);
 			if(rate == 0) continue;	// skip zero rates
 			double mag = grMFD.getX(i);
@@ -1137,7 +1137,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	    if(empiricalModel != null) {
 	    	empiricalCorr = empiricalModel.getCorrection(surface)*empirical_weight + (1-empirical_weight); 
 	    }
-	    for (int i=0; i<charMFD.getNum(); ++i){
+	    for (int i=0; charMFD!=null && i<charMFD.getNum(); ++i){
 	    	double rate = charMFD.getY(i);
 	    	if(rate == 0) continue;	// skip zero rates
 	    	double mag = charMFD.getX(i);
