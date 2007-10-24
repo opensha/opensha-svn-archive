@@ -53,14 +53,15 @@ public class UnsegmentedSource extends ProbEqkSource {
 	//for Debug purposes
 	private static String C = new String("UnsegmentedSource");
 	private final static boolean D = false;
+	ArrayList<ProbEqkRupture> ruptureList;
 	private double rake;
 	protected double duration;
 	//these are the static static defined varibles to be used to find the number of ruptures.
 	private final static double RUPTURE_WIDTH =100.0;
 	private double rupOffset= UCERF2.RUP_OFFSET;
-	private int totNumRups;
+	private int totNumRups, totNumGR_rups, totNumChar_rups;
 	private EvenlyGriddedSurface surface;
-	private ArrayList mags, rates;
+	private ArrayList gr_mags, char_mags, gr_rates, char_rates;
 	public final static double DEFAULT_DURATION  = 1;
 	//name for this classs
 	protected String NAME = "Unsegmented Source";
@@ -91,6 +92,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	
 	private EmpiricalModel empiricalModel;
 	private double empirical_weight; // this is the weight to give to the empirical model
+	private double sourceGain;
 
 	protected ArbitrarilyDiscretizedFunc origSlipRateFunc, predSlipRateFunc;
 	private ArrayList<ArbitrarilyDiscretizedFunc> magBasedUncorrSlipRateFuncs;
@@ -164,58 +166,62 @@ public class UnsegmentedSource extends ProbEqkSource {
 			moRate = 3.8593e16;  // correct units?
 
 		}
-
+		IncrementalMagFreqDist tempCharMFD, tempGR_MFD;
 		sourceMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
+		charMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
+		grMFD = new SummedMagFreqDist(min_mag, max_mag, num_mag);
 
 		sourceMag = sourceMag1;
 		if(sourceMag <= mag_lowerGR) {
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			tempCharMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 						sourceMag, charMagSigma, moRate*weight*0.5, charMagTruncLevel, 2);
-			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			((SummedMagFreqDist) charMFD).addIncrementalMagFreqDist(tempCharMFD);
 		}
 		else {
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			tempCharMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 						sourceMag, charMagSigma, moRate*fractCharVsGR*weight*0.5, charMagTruncLevel, 2);
-			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			((SummedMagFreqDist) charMFD).addIncrementalMagFreqDist(tempCharMFD);
 			// note half-bin offset of lower and upper GR mags in what follows
 			b_valueGR = b_valueGR_1;
-			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+			tempGR_MFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
-			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			((SummedMagFreqDist)grMFD).addIncrementalMagFreqDist(tempGR_MFD);
 			b_valueGR = b_valueGR_2;
-			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+			tempGR_MFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
-			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			((SummedMagFreqDist)grMFD).addIncrementalMagFreqDist(tempGR_MFD);
 
 		}
 		
 		sourceMag = sourceMag2;
 		if(sourceMag <= mag_lowerGR) {
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			tempCharMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 						sourceMag, charMagSigma, moRate*weight*0.5, charMagTruncLevel, 2);
-			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			((SummedMagFreqDist) charMFD).addIncrementalMagFreqDist(tempCharMFD);
 		}
 		else {
-			charMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
+			tempCharMFD = new GaussianMagFreqDist(min_mag, max_mag, num_mag, 
 						sourceMag, charMagSigma, moRate*fractCharVsGR*weight*0.5, charMagTruncLevel, 2);
-			((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+			((SummedMagFreqDist) charMFD).addIncrementalMagFreqDist(tempCharMFD);
 			// note half-bin offset of lower and upper GR mags in what follows
 			b_valueGR = b_valueGR_1;
-			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+			tempGR_MFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
-			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			((SummedMagFreqDist)grMFD).addIncrementalMagFreqDist(tempGR_MFD);
 			b_valueGR = b_valueGR_2;
-			grMFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
+			tempGR_MFD = new GutenbergRichterMagFreqDist(min_mag, num_mag, delta_mag,
 					mag_lowerGR+delta_mag/2, sourceMag-delta_mag/2, moRate*(1-fractCharVsGR)*weight*0.5*0.5, b_valueGR);
-			((SummedMagFreqDist)sourceMFD).addIncrementalMagFreqDist(grMFD);
+			((SummedMagFreqDist)grMFD).addIncrementalMagFreqDist(tempGR_MFD);
 
 		}
+		((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(charMFD);
+		((SummedMagFreqDist) sourceMFD).addIncrementalMagFreqDist(grMFD);
+
 
 		num_seg = segmentData.getNumSegments();
 
 		// create the source
-		updateAll(sourceMFD,
-				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
+		mkRuptureList(segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
 				rupOffset,
 				segmentData.getAveRake(),
 				duration,
@@ -324,8 +330,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			visibleSourceMFD.set(i,sourceMFD.getY(i)*getProbVisible(sourceMFD.getX(i)));
 
 		// create the source
-		updateAll(sourceMFD,
-				segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
+		mkRuptureList(segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
 				rupOffset,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
@@ -1085,8 +1090,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	}
 
 
-	private void updateAll(IncrementalMagFreqDist magFreqDist,
-			EvenlyGriddedSurface surface,
+	private void mkRuptureList(EvenlyGriddedSurface surface,
 			double rupOffset,
 			double rake,
 			double duration,
@@ -1097,28 +1101,58 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.rake=rake;
 		this.duration = duration;
 		this.name = sourceName;
+		
+		double totSrcRate=0, totSrcRateEmp=0; // for computing the source gain
 
-		probEqkRupture = new ProbEqkRupture();
-		probEqkRupture.setAveRake(rake);
-
-		// get a list of mags and rates for non-zero rates
-		mags = new ArrayList();
-		rates = new ArrayList();
-		for (int i=0; i<magFreqDist.getNum(); ++i){
-			if(magFreqDist.getY(i) > 0){
-				//magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
-				mags.add(new Double(magFreqDist.getX(i)));
-				rates.add(new Double(magFreqDist.getY(i)));
+		// Make GR ruptures
+		for (int i=0; i<grMFD.getNum(); ++i){
+			double rate = grMFD.getY(i);
+			if(rate == 0) continue;	// skip zero rates
+			double mag = grMFD.getX(i);
+			double rupLen = getRupLength(mag);
+			int numRup = surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);;
+			rate /= numRup;
+			for(int r=0; r<numRup; r++) {
+				ProbEqkRupture rup = new ProbEqkRupture();
+				rup.setAveRake(rake);
+				rup.setMag(mag);
+				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,RUPTURE_WIDTH,rupOffset,r);
+				rup.setRuptureSurface(rupSurf);
+				// set probability
+			    double empiricalCorr=1;
+			    if(empiricalModel != null) {
+			    	empiricalCorr = empiricalModel.getCorrection(rupSurf)*empirical_weight + (1-empirical_weight); 
+			    }
+				double rupRate = rate * empiricalCorr;
+			    totSrcRate += rate;
+			    totSrcRateEmp += rupRate;
+				rup.setProbability(1- Math.exp(-duration*rupRate));
+				ruptureList.add(rup);
 			}
+			
 		}
+		totNumGR_rups = ruptureList.size();
 
-		// Determine number of ruptures
-		int numMags = mags.size();
-		totNumRups=0;
-		for(int i=0;i<numMags;++i){
-			double rupLen = getRupLength(((Double)mags.get(i)).doubleValue());
-			totNumRups += getNumRuptures(rupLen);
-		}
+		double empiricalCorr=1;
+	    if(empiricalModel != null) {
+	    	empiricalCorr = empiricalModel.getCorrection(surface)*empirical_weight + (1-empirical_weight); 
+	    }
+	    for (int i=0; i<charMFD.getNum(); ++i){
+	    	double rate = charMFD.getY(i);
+	    	if(rate == 0) continue;	// skip zero rates
+	    	double mag = charMFD.getX(i);
+	    	ProbEqkRupture rup = new ProbEqkRupture();
+	    	rup.setAveRake(rake);
+	    	rup.setMag(mag);
+	    	rup.setRuptureSurface(surface);
+	    	double rupRate = rate * empiricalCorr;
+	    	totSrcRate += rate;
+	    	totSrcRateEmp += rupRate;
+	    	rup.setProbability(1- Math.exp(-duration*rupRate));
+	    	ruptureList.add(rup);
+	    }
+	    totNumChar_rups = ruptureList.size()-totNumGR_rups;
+	    sourceGain = totSrcRateEmp/totSrcRate;
 	}
 
 	/**
@@ -1127,60 +1161,16 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public EvenlyGriddedSurface getSourceSurface() { return this.surface; }
 
-	public int getNumRuptures() { return totNumRups; }
+	public int getNumRuptures() { return ruptureList.size(); }
 
 	
 	/**
 	 * This gets the ProbEqkRupture object for the nth Rupture
 	 */
 	public ProbEqkRupture getRupture(int nthRupture){
-		return getRupture(nthRupture, true);
+		return ruptureList.get(nthRupture);
 	}
 
-	/**
-	 * This gets the ProbEqkRupture object for the nth Rupture
-	 */
-	private ProbEqkRupture getRupture(int nthRupture, boolean includeEmpCorr){
-		int numMags = mags.size();
-		double mag=0, rupLen=0;
-		int numRups=0, tempNumRups=0, iMag=-1;
-
-		if(nthRupture < 0 || nthRupture>=getNumRuptures())
-			throw new RuntimeException("Invalid rupture index. This index does not exist");
-
-		// this finds the magnitude for the nthRupture:
-		// alt would be to store a rup-mag mapping
-		for(int i=0;i<numMags;++i){
-			mag = ((Double)mags.get(i)).doubleValue();
-			iMag = i;
-			rupLen = getRupLength(mag);
-			if(D) System.out.println("mag="+mag+"; rupLen="+rupLen);
-			numRups = getNumRuptures(rupLen);
-			tempNumRups += numRups;
-			if(nthRupture < tempNumRups)
-				break;
-		}
-
-		// set rupture surface
-		GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,
-				RUPTURE_WIDTH,rupOffset,
-				nthRupture+numRups-tempNumRups);
-		probEqkRupture.setRuptureSurface(rupSurf);
-
-		probEqkRupture.setMag(mag);
-		// set probability
-	    double empiricalCorr=1;
-	    if(empiricalModel != null && includeEmpCorr) {
-	    	empiricalCorr = empiricalModel.getCorrection(rupSurf)*empirical_weight + (1-empirical_weight);
-	    }
-
-		double rate = ((Double)rates.get(iMag)).doubleValue() * empiricalCorr;
-		double prob = 1- Math.exp(-duration*rate/numRups);
-		probEqkRupture.setProbability(prob);
-
-
-		return probEqkRupture;
-	}
 	
 	
 	/**
@@ -1188,6 +1178,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * @return
 	 */
 	public double getSourceGain() {
+		return sourceGain;
+		/*
 		double totProb=0, totProbEmp=0;
 		ProbEqkRupture tempRup;
 		for(int i=0; i<getNumRuptures(); i++) {
@@ -1198,6 +1190,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 		}
 		return (1 - Math.exp(totProbEmp))/(1 - Math.exp(totProb));
+		*/
 	}
 
 
@@ -1206,7 +1199,13 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * @param yrs : timeSpan as specified in  Number of years
 	 */
 	public void setDuration(double yrs) {
-		//set the time span in yrs
+		double oldDuration = duration;
+		ProbEqkRupture rup;
+		for(int r=0; r<ruptureList.size(); r++) {
+			rup = ruptureList.get(r);
+			double oldRate = rup.getMeanAnnualRate(oldDuration);
+			rup.setProbability(1-Math.exp(-yrs*oldRate));
+		}
 		duration = yrs;
 	}
 
@@ -1231,13 +1230,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 		*/
 	}
 
-	/**
-	 * @param rupLen
-	 * @return the total number of ruptures associated with the given rupLen
-	 */
-	private int getNumRuptures(double rupLen){
-		return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);
-	}
 
 
 	/**
