@@ -84,7 +84,7 @@ public class UCERF2 extends EqkRupForecast {
 	
 	// Fault Grid Spacing
 	public final static double GRID_SPACING = 1;
-	public final static double RUP_OFFSET = 1;
+	public final static double RUP_OFFSET = 5;
 
 
 	public final static double BACK_SEIS_DEPTH = 5.0;
