@@ -70,13 +70,7 @@ import org.opensha.util.FileUtils;
 
 /**
  * This was checked to make sure this is equal to the mean of what is returned from the 
- * UCERF2 Epistemic List.  It was basically exact except for the following note.
- * 
- * Note that the length for unsegmented floating rupture used here is computed from the average area
- * from Hanks and Bakun and Ellsworth B (divided by the DDW), and that this is the cause of any
- * differences in hazard curves from this and the average of all logic tree branches in the
- * UCERF2 Epistemic List (up to 1% in the test case looked at); for details see the method 
- * getRupLength(mag) in the class UnsegmentedSurce for the constructor used here.
+ * UCERF2 Epistemic List.  
  * 
  * 
  * @author 

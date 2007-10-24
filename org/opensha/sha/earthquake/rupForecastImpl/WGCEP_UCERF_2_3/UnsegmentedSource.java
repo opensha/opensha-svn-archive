@@ -121,11 +121,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
 	 * Note that not all derivative info is generate here (such as segSlipDist[]).
 	 * 
-	 * Note also that the length for floating rupture used here is computed from the average area
-	 * from Hanks and Bakun and Ellsworth B (divided by the DDW), and that this is the cause of any
-	 * differences in hazard curves from this and the average of all logic tree branches in the
-	 * UCERF2 Epistemic List (up to 1% in the test case looked at).
-	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
@@ -1217,12 +1212,14 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 
 	/**
-	 * This returns the rupture length implied by the magAreaRel (length=area/DDW), or if the magAreaRel is null then
-	 * the Wells & Coppersmith (1994) "All" equation is used (the latter is what Frankel's 2002 code uses).
+	 * This returns the rupture length implied by the Wells & Coppersmith (1994) 
+	 * "All" equation is used (the latter is what Frankel's 2002 code uses).
 	 * @param mag
 	 * @return
 	 */
 	private double getRupLength(double mag){ 
+		return Math.pow(10.0,-3.22+0.69*mag);
+		/*
 		if(this.magAreaRel == null) {
 			//return Math.pow(10.0,-3.22+0.69*mag);
 			double area1 = magAreaRel1.getMedianArea(mag);
@@ -1231,6 +1228,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 		}
 		else
 			return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
+		*/
 	}
 
 	/**
