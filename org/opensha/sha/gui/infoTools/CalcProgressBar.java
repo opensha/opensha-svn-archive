@@ -143,7 +143,8 @@ public class CalcProgressBar extends JFrame {
     }*/
     // update the progress bar
     //if(update == true)
-    updateProgressBar((num*100)/totNum, num + "  of  " + Integer.toString(totNum) + "  Done");
+	if(totNum!=0)
+		updateProgressBar((num*100)/totNum, num + "  of  " + Integer.toString(totNum) + "  Done");
     //this.setVisible(true);
   }
 

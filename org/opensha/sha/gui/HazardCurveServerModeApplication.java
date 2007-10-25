@@ -20,7 +20,11 @@ import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.exceptions.WarningException;
 
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterConstraint;
+import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.DisaggregationCalculator;
@@ -1339,10 +1343,15 @@ public class HazardCurveServerModeApplication extends JFrame
             probVal = hazFunction.getInterpolatedY_inLogXLogYDomain(disaggregationVal);
           }
         }
+      
         disaggSuccessFlag = disaggCalc.disaggregate(Math.log(
             imlVal), site, imr, (EqkRupForecast) forecast);
         disaggCalc.setMaxZAxisForPlot(maxZAxis);
         disaggregationString = disaggCalc.getMeanAndModeInfo();
+      }
+      catch(WarningException warningException) {
+    	  setButtonsEnable(true);
+    	  JOptionPane.showMessageDialog(this, warningException.getMessage());
       }
       catch (Exception e) {
         setButtonsEnable(true);
