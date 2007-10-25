@@ -13,8 +13,8 @@
 # 
 WGCEP (2007) UCERF2 - Single Branch
 #
-# Second line indicates whether to include BackGround sources (true or false)
-true
+# Second line indicates how to handle background seismicity.  Options are "Include", "Exclude", and "Only Background".
+Exclude
 # Third line defines rupture offset for floating ruptures
 # (between 1 and 100 km; 5 km is generally best)
 5
@@ -43,10 +43,9 @@ true
 # "Goulet Et. Al. (2006)"
 # Click links at bottom of following link for some details:
 # http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
-Abrahamson & Silva (1997)
-Boore, Joyner & Fumal (1997)
-Sadigh et al (1997)
-Campbell and Bozorgnia (2003)
+Boore & Atkinson (2006)
+Chiou & Youngs (2006)
+Campbell & Bozorgnia (2006)
 #
 # Next, first choose the number of Intensity Measure Types to consider 
 # in this calculation, and then specify those Intensity Measure Types.  
