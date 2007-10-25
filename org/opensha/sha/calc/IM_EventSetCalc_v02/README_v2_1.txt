@@ -2,20 +2,19 @@ This program, IM_EventSetCalc, is a command-line application that gives the mean
 
 This application is run by typing the following on the command line:
 
-	java -jar -Xmx500M IM_EventSetCalc.jar [name of the inputfile] [output-files directory]
+	java -jar -Xmx500M IM_EventSetCalc_v2_1.jar [name of the inputfile] [output-files directory]
 
-where [name of the inputfile] is the input file and 
-[output-files directory] is a directory where the output files go. The location of the output directory is relative to the location of the jar file.
+where [name of the inputfile] is the input file and [output-files directory] is a directory where the output files go. The location of the output directory is relative to the location of the jar file.
 
 For Example :
 
-java -jar -Xmx500M IM_EventSetCalc.jar ExampleInputFile.txt ExampleOutputDir
+java -jar -Xmx500M IM_EventSetCalc_v2_1.jar ExampleInputFile_v2_1.txt ExampleOutputDir
 
-It will run the application IM_EventSetCalc.jar with the inputfile ExampleInputFile.txt, which must exists in the same location as the IM_EventSetCalc.jar application, and will create the output-files in the directory ExampleOutputDir.
+It will run the application IM_EventSetCalc_v2_1.jar with the inputfile ExampleInputFile_v2_1.txt, which must exists in the same location as the IM_EventSetCalc_v2_1.jar application, and will create the output-files in the directory ExampleOutputDir.
 
-An example input file is included in this directory as "ExampleInputFile.txt".
+An example input file is included in this directory as "ExampleInputFile_v2_1.txt".
 
-Each line of the input file that starts with "#" is a comment that gets ignored by the program, it is just for user's information.
+Each line of the input file that starts with "#" is a comment that gets ignored by the program (they are just for user's information).
 
 The first choice is which of the following Earthquake Rupture Forecasts to use: 
 
@@ -41,7 +40,7 @@ There are 3 types of output files generated:
 
 where i- corresponds to the ith site, and RuptureId and SourceId tell which rupture and source the line corresponds to.
 
-Different files are produced for each IMT/AttenuationRelationship pair.
+Different files are produced for each IMT/AttenuationRelationship pair (e.g., "AS1997_SA_0_2.txt" would be the result for spectral acceleration at 0.2 sec period using the Abrahamson and Silva (1997) attenuation relationship).
 
 2) A file giving Rupture-Distance (shortest distance to a point on the rupture surface) for each site in the following format:
 
@@ -81,3 +80,9 @@ Future enhancements to this application
 2) Allow the selection of any ERF (that OpenSHA supports), and the setting of any adjustable parameters (including start time and duration) for the chosen ERF (rather than the present hard coding of most of these).  Right now we only compute annualized rates for time-independent models.
 
 3) Make a GUI-based version of the application, which would both avoid the user from having to hand edit the input file, and more easily allow other parameters to be adjustable.
+
+4) Write mean and stddevs to separate output files.
+
+5) Provide more metadata
+
+6) Write fewer significant digits

@@ -62,7 +62,6 @@ Campbell & Bozorgnia (2006)
 # Identify those IMT's:
 PGA
 SA 0.2
-SA 1.0 
 # 
 # Next, give the number of sites and then the lat, lon, and  
 # Vs30 (m/sec) for each. If no Vs30 is given, then it will 

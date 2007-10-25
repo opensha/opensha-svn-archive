@@ -44,7 +44,7 @@ import org.opensha.data.TimeSpan;
  * @author Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class IM_EventSetCalc
+public class IM_EventSetCalc_v2_1
     implements ParameterChangeWarningListener {
 
   protected ArrayList willsSiteClassVals;
@@ -140,7 +140,7 @@ public class IM_EventSetCalc
     attenRelClasses.add(SEA_CLASS_NAME);
   }
 
-  public IM_EventSetCalc(String inpFile,String outDir) {
+  public IM_EventSetCalc_v2_1(String inpFile,String outDir) {
     inputFileName = inpFile;
     dirName = outDir ;
   }
@@ -164,10 +164,7 @@ public class IM_EventSetCalc
         if(line.startsWith("#") || line.equals("")) continue;
         if(j==0)getERF(line);
         if(j==1){
-        	  if(line.trim().equals("true"))
-             toApplyBackGroud(true);
-        	  else 
-        		toApplyBackGroud(false);
+             toApplyBackGroud(line.trim());
         }
         if(j==2){
           double rupOffset = Double.parseDouble(line.trim());
@@ -354,22 +351,20 @@ public class IM_EventSetCalc
     		MeanUCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_POISSON);
   }
 
-  private void toApplyBackGroud(boolean toApply){
-    if(toApply){ // include background
+  private void toApplyBackGroud(String toApply){
+    
         forecast.getAdjustableParameterList().getParameter(
             Frankel02_AdjustableEqkRupForecast.
-            BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                     BACK_SEIS_INCLUDE);
-        if (!(forecast instanceof MeanUCERF2))
+            BACK_SEIS_NAME).setValue(toApply);
+        if (forecast.getAdjustableParameterList().containsParameter(
+    			Frankel02_AdjustableEqkRupForecast.
+    			BACK_SEIS_RUP_NAME)) { 	
          	forecast.getAdjustableParameterList().getParameter(
         			Frankel02_AdjustableEqkRupForecast.
         			BACK_SEIS_RUP_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
         					BACK_SEIS_RUP_FINITE);
-    }
-    else{ // exclude background
-        forecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-    }
+        }
+   
   }
 
   private void setRupOffset(double rupOffset){
@@ -510,6 +505,7 @@ public class IM_EventSetCalc
         pd = st.nextToken().trim();
         if (pd != null && !pd.equals(""))
             imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
+        pd.replace('.', '_');
         meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
                                        imt + "_" + pd + ".txt");
       }
@@ -691,7 +687,7 @@ public class IM_EventSetCalc
       System.exit(0);
     }
 
-    IM_EventSetCalc calc = new IM_EventSetCalc(args[0],args[1]);
+    IM_EventSetCalc_v2_1 calc = new IM_EventSetCalc_v2_1(args[0],args[1]);
     //IM_EventSetCalc calc = new IM_EventSetCalc("org/opensha/sha/calc/IM_EventSetCalc_v02/ExampleInputFile.txt","org/opensha/sha/calc/IM_EventSetCalc_v02/test");
     try {
       calc.parseFile();
