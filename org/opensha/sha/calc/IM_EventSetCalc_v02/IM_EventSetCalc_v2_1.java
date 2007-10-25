@@ -509,9 +509,9 @@ implements ParameterChangeWarningListener {
 				pd = st.nextToken().trim();
 				if (pd != null && !pd.equals(""))
 					imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(Double.parseDouble(pd)));
-				pd.replace('.', '_');
+				String str = pd.replace('.', '_');
 				meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
-						imt + "_" + pd + ".txt");
+						imt + "_" + str + ".txt");
 			}
 			else
 				meanSigmaFile = new FileWriter(fileNamePrefixCommon + "_" +
