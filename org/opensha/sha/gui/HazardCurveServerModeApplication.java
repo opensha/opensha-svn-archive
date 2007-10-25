@@ -374,7 +374,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-  protected final static String version = "0.0.13";
+  protected final static String version = "0.0.14";
 
   protected final static String versionURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp_Version.txt";
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveServerModeApp.jar";
