@@ -90,7 +90,7 @@
       verbose="no"
       classpath="${dest}">
       <src path="${src}"/>
-      <include name="org/opensha/sha/calc/IM_EventSetCalc_v02/IM_EventSetCalc.java"/>
+      <include name="org/opensha/sha/calc/IM_EventSetCalc_v02/IM_EventSetCalc_v2_1.java"/>
     </javac>
   </target>
 	<target name="resource">
@@ -130,7 +130,7 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package">
-    <jar destfile="IM_EventSetCalc_v02.jar" basedir="${dest}" manifest="IM_EventSetCalc_MANIFEST_v02.MF">
+    <jar destfile="IM_EventSetCalc_v2_1.jar" basedir="${dest}" manifest="IM_EventSetCalc_MANIFEST_v02.MF">
       <include name="org/**"/>
       <include name="etc/**"/>
       <include name="nnls/**"/>

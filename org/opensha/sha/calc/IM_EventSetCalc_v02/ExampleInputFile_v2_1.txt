@@ -20,7 +20,7 @@ Exclude
 5
 #
 # Fourth line specifies number N of Attenuation Relations
-4 
+3
 # One the next N lines, identify the N attenuation 
 # relationships from the following options
 # (first three are latest but not final NGAs):
@@ -58,7 +58,7 @@ Campbell & Bozorgnia (2006)
 # relationship (the html documentation given above lists those that are supported)
 # 
 # Number of IMTs for which computation needs to be done
-3
+2
 # Identify those IMT's:
 PGA
 SA 0.2
