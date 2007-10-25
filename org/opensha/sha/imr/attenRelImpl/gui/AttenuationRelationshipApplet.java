@@ -188,6 +188,7 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
     protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
     protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
+    protected final static String CB_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
     //protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
     protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
     protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
@@ -207,6 +208,8 @@ public class AttenuationRelationshipApplet extends JFrame
      *  loader to load these
      */
     static {
+        imNames.add(CB_2008_AttenRel.NAME);
+        attenRelClasses.add(CB_2008_CLASS_NAME);
       imNames.add(CY_2006_AttenRel.NAME);
       attenRelClasses.add(CY_2006_CLASS_NAME);
       imNames.add(CB_2006_AttenRel.NAME);
