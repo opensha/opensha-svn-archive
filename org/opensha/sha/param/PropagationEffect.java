@@ -55,6 +55,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
     /** this distance measure for the DistanceJBParameter */
     protected double distanceJB;
+    protected boolean fix_dist_JB = false;
 
     /** this distance measure for the DistanceSeisParameter */
     protected double distanceSeis;
@@ -98,6 +99,18 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
         STALE = true;
     }
 
+    /**
+     * Setting this as true will change the calculated distanceJB value to 0.0 if it's less
+     * than half the distance between diagonally neighboring points on the rupture surface
+     * (otherwise it's never exactly zero everywhere above the entire surface).  This is useful
+     * where differences between 0.0 and 0.5 km are important. The default value is false.
+     * @param fixIt
+     */
+    public void fixDistanceJB(boolean fixIt) {
+    	fix_dist_JB = fixIt;
+    }
+    
+    
     /** Sets the EqkRupture object */
     public void setEqkRupture(EqkRupture eqkRupture) {
         this.eqkRupture = eqkRupture;
@@ -184,6 +197,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
       if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
           Location loc1 = site.getLocation();
+          Location loc2;
           distanceJB = Double.MAX_VALUE;
           distanceSeis = Double.MAX_VALUE;
           distanceRup = Double.MAX_VALUE;
@@ -191,6 +205,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
           double horzDist, vertDist, rupDist;
 
           EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+          int numLocs = rupSurf.getNumCols()*rupSurf.getNumRows();
 
           // flag to project to seisDepth if only one row and depth is below seisDepth
           boolean projectToDepth = false;
@@ -200,7 +215,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
           ListIterator it = rupSurf.getLocationsIterator();
           while( it.hasNext() ){
 
-            Location loc2 = (Location) it.next();
+            loc2 = (Location) it.next();
 
             // get the vertical distance
             vertDist = RelativeLocation.getVertDistance(loc1, loc2);
@@ -212,8 +227,8 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
               horzDist = RelativeLocation.getHorzDistance(loc1,loc2);
 
             // make point source correction if desired
-            if(eqkRupture.getRuptureSurface().getNumCols() == 1 &&
-                 eqkRupture.getRuptureSurface().getNumRows() == 1) {
+ 
+            if(numLocs == 1) {
               if(POINT_SRC_CORR) {
                   // Wells and Coppersmith L(M) for "all" focal mechanisms
                   // this correction comes from work by Ned Field and Bruce Worden
@@ -244,6 +259,26 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
           distanceRup = Math.pow(distanceRup,0.5);
           distanceSeis = Math.pow(distanceSeis,0.5);
+          
+          // fix distanceJB if needed
+          if(fix_dist_JB)
+        	  if(rupSurf.getNumCols() > 1 && rupSurf.getNumCols() > 1) {
+        		  double d1, d2,min_dist;
+        		  loc1 = rupSurf.getLocation(0, 0);
+        		  loc2 = rupSurf.getLocation(1, 1);
+                  if(APPROX_HORZ_DIST)
+                      d1 = RelativeLocation.getApproxHorzDistance(loc1, loc2);
+                    else
+                      d1 = RelativeLocation.getHorzDistance(loc1,loc2);
+        		  loc1 = rupSurf.getLocation(0, 1);
+        		  loc2 = rupSurf.getLocation(1, 0);
+                  if(APPROX_HORZ_DIST)
+                      d2 = RelativeLocation.getApproxHorzDistance(loc1, loc2);
+                    else
+                      d2 = RelativeLocation.getHorzDistance(loc1,loc2);
+                  min_dist = Math.min(d1, d1)/2;
+                  if(distanceJB<=min_dist) distanceJB = 0;
+        	  }
 
           if(D) {
             System.out.println(C+": distanceRup = " + distanceRup);

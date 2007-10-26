@@ -6,6 +6,7 @@ import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.calc.RelativeLocation;
 
 /**
@@ -31,7 +32,8 @@ public class DistanceJBParameter
     protected final static String C = "DistanceJBParameter";
     /** If true debug statements are printed out */
     protected final static boolean D = false;
-
+    
+    protected boolean fix_dist_JB = false;
 
     /** Hardcoded name */
     public final static String NAME = "DistanceJB";
@@ -87,21 +89,51 @@ public class DistanceJBParameter
         if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
             Location loc1 = site.getLocation();
+            Location loc2;
             double minDistance = 999999;
             double currentDistance;
 
-            ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
+            EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+            ListIterator it = rupSurf.getLocationsIterator();
+            int numLocs=0;
             while( it.hasNext() ){
 
-                Location loc2 = (Location) it.next();
+                loc2 = (Location) it.next();
                 currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
                 if( currentDistance < minDistance ) minDistance = currentDistance;
-
+                numLocs += 1;
             }
+            
+            // fix distanceJB if needed
+            if(fix_dist_JB)
+            	if(rupSurf.getNumCols() > 1 && rupSurf.getNumCols() > 1) {
+            		double d1, d2,min_dist;
+            		loc1 = rupSurf.getLocation(0, 0);
+            		loc2 = rupSurf.getLocation(1, 1);
+            		d1 = RelativeLocation.getHorzDistance(loc1,loc2);
+            		loc1 = rupSurf.getLocation(0, 1);
+            		loc2 = rupSurf.getLocation(1, 0);
+            		d2 = RelativeLocation.getHorzDistance(loc1,loc2);
+            		min_dist = Math.min(d1, d1)/2;
+            		if(minDistance<=min_dist) minDistance = 0;
+            	}
+            
             this.setValueIgnoreWarning( new Double( minDistance ) );
         }
         else this.setValue(null);
     }
+    
+    /**
+     * Setting this as true will change the calculated distanceJB value to 0.0 if it's less
+     * than half the distance between diagonally neighboring points on the rupture surface
+     * (otherwise it's never exactly zero everywhere above the entire surface).  This is useful
+     * where differences between 0.0 and 0.5 km are important. The default value is false.
+     * @param fixIt
+     */
+    public void fixDistanceJB(boolean fixIt) {
+    	fix_dist_JB = fixIt;
+    }
+
 
 
     /** This is used to determine what widget editor to use in GUI Applets.  */

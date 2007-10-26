@@ -10,6 +10,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.surface.*;
@@ -18,8 +19,7 @@ import org.opensha.util.FileUtils;
 /**
  * <b>Title:</b> CB_2008_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Campbell & Bozorgnia (2006, http://peer.berkeley.edu/lifelines/nga_docs/nov_13_06/Campbell-Bozorgnia_NGA_11-13-06.html) <p>
+ * <b>Description:</b> This implements the Attenuation Relationship published by Campbell & Bozorgnia (2008, Earthquake Spectra, pre-print) <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -49,19 +49,11 @@ import org.opensha.util.FileUtils;
  * not be less than that of PGA (the latter being given if so).
  * <p>
  * Verification :
- * This model has been tested with the test data provided by Campbell and Bozorgnia along with ther NGA report.
- * I took values as provided in the file and created a text file where each line has following info:<br>
- * Period (sec) 	Mag 	FType	FRV	 FNM   ZTOR	 DIP	Vs30  Z25   Rrup   Rjb   GMP   Sigma   Tau   Chi   SigTot <br>
- * Each element of the line is seperated by space. I read this file and provide the input parameters in
- * OpenSHA with these values. Then I compare the OpenSHA result with that given by Campbell and Bozorgnia in the test data file.
- * I am using JUnit testing to validate the implementation of the Campbell and Bozorgnia model. 
- * One can run the JUnit test and compare the OpenSHA results with the Campbell and Bozorgnia NGA model.
- * If any of the result show discrepancy then JUnit test will fail. When it fails it will 
- * also show for which input parameters the test failed.
+ * Need to add Junit tests.
  * </p>
  *
- * @author     Ned Field & Nitin Gupta
- * @created    Nov., 2006
+ * @author     Ned Field
+ * @created    Oct., 2008
  * @version    1.0
  */
 
@@ -82,7 +74,7 @@ public class CB_2008_AttenRel
   public final static String NAME = "Campbell & Bozorgnia (2008)";
   private final static String CB_2008_CoeffFile = "campbell_2008_coeff.txt";
   
-  double[] per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho,s_arb;
+  double[] per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho;
   
   double s_lnAF = 0.3;
   double n = 1.18;
@@ -96,6 +88,8 @@ public class CB_2008_AttenRel
   private String stdDevType, component;
   private boolean magSaturation;
   private boolean parameterChange;
+  
+  private PropagationEffect propagationEffect;
 
   // values for warning parameters
   protected final static Double MAG_WARN_MIN = new Double(4.0);
@@ -104,14 +98,14 @@ public class CB_2008_AttenRel
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
   protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
-  protected final static Double VS30_WARN_MIN = new Double(180.0);
+  protected final static Double VS30_WARN_MIN = new Double(150.0);
   protected final static Double VS30_WARN_MAX = new Double(1500.0);
   protected final static Double DEPTH_2pt5_WARN_MIN = new Double(0);
-  protected final static Double DEPTH_2pt5_WARN_MAX = new Double(6);
+  protected final static Double DEPTH_2pt5_WARN_MAX = new Double(10);
   protected final static Double DIP_WARN_MIN = new Double(15);
   protected final static Double DIP_WARN_MAX = new Double(90);
   protected final static Double RUP_TOP_WARN_MIN = new Double(0);
-  protected final static Double RUP_TOP_WARN_MAX = new Double(20);
+  protected final static Double RUP_TOP_WARN_MAX = new Double(15);
   
   // style of faulting options
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
@@ -162,6 +156,36 @@ public class CB_2008_AttenRel
 
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
+    
+    propagationEffect = new PropagationEffect();
+    propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
+    
+    
+    // write coeffs as a check
+    //  per,c0,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,k1,k2,k3,s_lny,t_lny,s_c,rho
+/*
+    System.out.print("\nper"); for(int i=0; i<per.length;i++) System.out.print("\t"+per[i]);
+    System.out.print("\nc0"); for(int i=0; i<c0.length;i++) System.out.print("\t"+c0[i]);
+    System.out.print("\nc1"); for(int i=0; i<c1.length;i++) System.out.print("\t"+c1[i]);
+    System.out.print("\nc2"); for(int i=0; i<c2.length;i++) System.out.print("\t"+c2[i]);
+    System.out.print("\nc3"); for(int i=0; i<c3.length;i++) System.out.print("\t"+c3[i]);
+    System.out.print("\nc4"); for(int i=0; i<c4.length;i++) System.out.print("\t"+c4[i]);
+    System.out.print("\nc5"); for(int i=0; i<c5.length;i++) System.out.print("\t"+c5[i]);
+    System.out.print("\nc6"); for(int i=0; i<c6.length;i++) System.out.print("\t"+c6[i]);
+    System.out.print("\nc7"); for(int i=0; i<c7.length;i++) System.out.print("\t"+c7[i]);
+    System.out.print("\nc8"); for(int i=0; i<c8.length;i++) System.out.print("\t"+c8[i]);
+    System.out.print("\nc9"); for(int i=0; i<c9.length;i++) System.out.print("\t"+c9[i]);
+    System.out.print("\nc10"); for(int i=0; i<c10.length;i++) System.out.print("\t"+c10[i]);
+    System.out.print("\nc11"); for(int i=0; i<c11.length;i++) System.out.print("\t"+c11[i]);
+    System.out.print("\nc12"); for(int i=0; i<c12.length;i++) System.out.print("\t"+c12[i]);
+    System.out.print("\nk1"); for(int i=0; i<k1.length;i++) System.out.print("\t"+k1[i]);
+    System.out.print("\nk2"); for(int i=0; i<k2.length;i++) System.out.print("\t"+k2[i]);
+    System.out.print("\nk3"); for(int i=0; i<k3.length;i++) System.out.print("\t"+k3[i]);
+    System.out.print("\ns_lny"); for(int i=0; i<s_lny.length;i++) System.out.print("\t"+s_lny[i]);
+    System.out.print("\nt_lny"); for(int i=0; i<t_lny.length;i++) System.out.print("\t"+t_lny[i]);
+    System.out.print("\ns_c"); for(int i=0; i<s_c.length;i++) System.out.print("\t"+s_c[i]);
+    System.out.print("\nrho"); for(int i=0; i<rho.length;i++) System.out.print("\t"+rho[i]);
+*/
 
   }
   
@@ -221,7 +245,6 @@ public class CB_2008_AttenRel
 		c4 = new double[size];
 		this.createCoeffArray(c4List, c4);
 		c4List = null;
-		
 		
 		//reading c5
 		String c5Line = coeff.get(6);
@@ -363,16 +386,6 @@ public class CB_2008_AttenRel
 		rho_sList = null;
 		
 		
-		//reading s_arb
-		String rho_tLine = coeff.get(21);
-		ArrayList rho_tList = new ArrayList<Double>();
-		st = new StringTokenizer(rho_tLine);
-		size =loadCoeffInArray(st,rho_tList);
-		s_arb = new double[size];
-		this.createCoeffArray(rho_tList, s_arb);
-		rho_tList = null;
-		
-		
 	  }catch(IOException e){
 		  System.out.println(CB_2008_CoeffFile+" file Not Found");
 		  e.printStackTrace();
@@ -449,20 +462,18 @@ public class CB_2008_AttenRel
 
   /**
    * This sets the two propagation-effect parameters (distanceRupParam and
-   * isOnHangingWallParam) based on the current site and eqkRupture.  The
-   * hanging-wall term is rake independent (i.e., it can apply to strike-slip or
-   * normal faults as well as reverse and thrust).  However, it is turned off if
-   * the dip is greater than 70 degrees.  It is also turned off for point sources
-   * regardless of the dip.  These specifications were determined from a series of
-   * discussions between Ned Field, Norm Abrahamson, and Ken Campbell.
+   * distRupMinusJB_OverRupParam) based on the current site and eqkRupture.  
    */
   protected void setPropagationEffectParams() {
 
     if ( (this.site != null) && (this.eqkRupture != null)) {
-
-      distanceRupParam.setValue(eqkRupture, site);
-      distRupMinusJB_OverRupParam.setValue(eqkRupture, site);
-
+   
+    	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
+//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
+    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
+    	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
+    	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);
     }
   }
 
@@ -516,6 +527,7 @@ public class CB_2008_AttenRel
 	  rJB = rRup - distRupMinusJB_OverRup*rRup;
 	  
 	  // set default value of basin depth based on the final value of vs30
+	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
 	  if(Double.isNaN(depthTo2pt5kmPerSec)){
 		  if(vs30 <= 2500)
 			  depthTo2pt5kmPerSec = 2;
@@ -545,24 +557,29 @@ public class CB_2008_AttenRel
    * @return    The stdDev value
    */
   public double getStdDev() {
-    if (intensityMeasureChanged) {
-      setCoeffIndex();  // intensityMeasureChanged is set to false in this method
-    }
+	  if (intensityMeasureChanged) {
+		  setCoeffIndex();  // intensityMeasureChanged is set to false in this method
+	  }
+	  
 	  // compute rJB
 	  rJB = rRup - distRupMinusJB_OverRup*rRup;
-	  
+
+
 	  // set default value of basin depth based on the final value of vs30
+	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
 	  if(Double.isNaN(depthTo2pt5kmPerSec)){
 		  if(vs30 <= 2500)
 			  depthTo2pt5kmPerSec = 2;
 		  else
 			  depthTo2pt5kmPerSec = 0;
 	  }
-	    
-	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,
-			  depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
-    component = (String)componentParam.getValue();
-    return getStdDev(iper, stdDevType, component, vs30, pga_rock);
+
+	  double pga_rock = Double.NaN;
+	  if(vs30 < k1[iper]) 
+		  pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
+	  
+	  component = (String)componentParam.getValue();
+	  return getStdDev(iper, stdDevType, component, vs30, pga_rock);
   }
 
   /**
@@ -618,13 +635,12 @@ public class CB_2008_AttenRel
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
+    stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-    stdDevIndependentParams.addParameter(componentParam);
- 
+
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    exceedProbIndependentParams.addParameterList(meanIndependentParams);
-    exceedProbIndependentParams.addParameter(stdDevTypeParam);
+    exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
     exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
     exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
@@ -918,7 +934,9 @@ public class CB_2008_AttenRel
     	 	      Math.max(rRup,Math.sqrt(distJB*distJB+1));
     else
     	 fhngr = (rRup-distJB)/rRup;
-    
+
+// if(pga_rock !=0) System.out.print((float)distJB+"\t"+(float)rRup+"\t"+fhngr+"\n");
+
     double fhngm;
     if(mag<=6.0)
     	  fhngm =0;
@@ -980,15 +998,17 @@ public class CB_2008_AttenRel
 		  double tau = t_lny[iper];
 
 		  // compute intra-event sigma
-		  double s_lnYb = Math.sqrt(s_lny[iper]*s_lny[iper]-s_lnAF*s_lnAF);
-		  double s_lnAb = Math.sqrt(s_lny[2]*s_lny[2]-s_lnAF*s_lnAF); // iper=2 is for PGA
-		  double alpha;
-		  if(vs30 < k1[iper])
-			  alpha = k2[iper]*rock_pga*((1/(rock_pga+c*Math.pow(vs30/k1[iper], n)))-1/(rock_pga+c));
-		  else
-			  alpha = 0;
-		  double sigma = Math.sqrt(s_lnYb*s_lnYb + s_lnAF*s_lnAF + alpha*alpha*s_lnAb*s_lnAb + 2*alpha*rho[iper]*s_lnYb*s_lnAb);
+		  double sigma;
+		  if(vs30 >= k1[iper])
+			  sigma = s_lny[iper];
+		  else {
+			  double s_lnYb = Math.sqrt(s_lny[iper]*s_lny[iper]-s_lnAF*s_lnAF);
+			  double s_lnAb = Math.sqrt(s_lny[2]*s_lny[2]-s_lnAF*s_lnAF); // iper=2 is for PGA
+			  double alpha = k2[iper]*rock_pga*((1/(rock_pga+c*Math.pow(vs30/k1[iper], n)))-1/(rock_pga+c));
+			  sigma = Math.sqrt(s_lnYb*s_lnYb + s_lnAF*s_lnAF + alpha*alpha*s_lnAb*s_lnAb + 2*alpha*rho[iper]*s_lnYb*s_lnAb);
+		  }
 
+		  // compute total sigma
 		  double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
 
 		  // compute multiplicative factor in case component is random horizontal
@@ -998,6 +1018,7 @@ public class CB_2008_AttenRel
 		  else
 			  random_ratio = 1;
 
+		  // return appropriate value
 		  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
 			  return sigma_total*random_ratio;
 		  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
@@ -1113,5 +1134,42 @@ public class CB_2008_AttenRel
   public URL getAttenuationRelationshipURL() throws MalformedURLException{
 	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2006.html");
   }   
+  
+  /**
+   * This tests DistJB numerical precision with respect to the f_hngR term.  Looks OK now.
+   * @param args
+   */
+  public static void main(String[] args) {
+
+	  Location loc1 = new Location(-0.1, 0.0, 0);
+	  Location loc2 = new Location(+0.1, 0.0, 0);
+	  FaultTrace faultTrace = new FaultTrace("test");
+	  faultTrace.addLocation(loc1);
+	  faultTrace.addLocation(loc2);	  
+	  StirlingGriddedSurface surface = new StirlingGriddedSurface(faultTrace, 45.0,0,10,1);
+	  EqkRupture rup = new EqkRupture();
+	  rup.setMag(7);
+	  rup.setAveRake(90);
+	  rup.setRuptureSurface(surface);
+	  
+	  CB_2008_AttenRel attenRel = new CB_2008_AttenRel(null);
+	  attenRel.setParamDefaults();
+	  attenRel.setIntensityMeasure("PGA");
+	  attenRel.setEqkRupture(rup);
+	  
+	  Site site = new Site();
+	  site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
+	  site.addParameter(attenRel.getParameter(attenRel.DEPTH_2pt5_NAME));
+	  
+	  Location loc;
+	  for(double dist=-0.3; dist<=0.3; dist+=0.01) {
+		  loc = new Location(0,dist);
+		  site.setLocation(loc);
+		  attenRel.setSite(site);
+//		  System.out.print((float)dist+"\t");
+		  attenRel.getMean();
+	  }
+	  
+  }
   
 }
