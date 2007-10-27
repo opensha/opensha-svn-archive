@@ -4,6 +4,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.data.TimeSpan;
@@ -43,7 +45,10 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	private final static String MOMENT_RATE="MomentRate-";
 	private final static String BACKGROUND = "Background";
 	private int lastParamIndex;
-	private ArrayList<ParameterList> logicTreeParamList;
+	
+	// ArrayList contains one Hashmap for each branch
+	// HashMap contains the name, Value pairs
+	private ArrayList<HashMap<String, Object>> logicTreeParamList;
 	private ParameterList paramList;
 	
 	
@@ -58,7 +63,9 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		
 		addBackgroundBranches();
 		// Backgroud is MagFreqDistParameter
-		paramList.addParameter(new MagFreqDistParameter(BACKGROUND));
+		ArrayList<String> allowedMagDists = new ArrayList<String>();
+		allowedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+		paramList.addParameter(new MagFreqDistParameter(BACKGROUND, allowedMagDists));
 		
 		
 		lastParamIndex = paramNames.size()-1;
@@ -67,7 +74,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(DURATION_DEFAULT);
 		timeSpan.addParameterChangeListener(this);
-		logicTreeParamList = new ArrayList<ParameterList>();
+		logicTreeParamList = new ArrayList<HashMap<String, Object>>();
 		fillParamsForEachBranch(0, 1);
 	}
 	
@@ -86,8 +93,16 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 			double newWt =  weight * options.getWeight(i);
 			paramList.getParameter(paramName).setValue(options.getValue(i));	
 			if(paramIndex==lastParamIndex) { // if it is last paramter in list, save paramList
-				logicTreeParamList.add((ParameterList)paramList.clone());
+				HashMap<String, Object> paramsHashMap = new HashMap<String, Object>();
+				Iterator<String> it = paramList.getParameterNamesIterator();
+				while(it.hasNext()) {
+					String pName = it.next();
+					Object val = paramList.getValue(pName);
+					paramsHashMap.put(pName, val);					
+				}
+				logicTreeParamList.add(paramsHashMap);
 				weights.add(newWt);
+				System.out.println(weights.size());
 			} else { // recursion 
 				fillParamsForEachBranch(paramIndex+1, newWt);
 			}
@@ -204,11 +219,11 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	 * @return
 	 */
 	public EqkRupForecastAPI getERF(int index) {
-		ParameterList paramList = this.logicTreeParamList.get(index);
+		HashMap<String, Object> paramList = this.logicTreeParamList.get(index);
 		// iterate over all parameters
 		for(int i=0; i<paramNames.size(); ++i) {
 			String paramName = paramNames.get(i);
-			Object value = paramList.getValue(paramName);
+			Object value = paramList.get(paramName);
 			// Background
 			if(paramName.equalsIgnoreCase(BACKGROUND)) {
 				yuccaMountainERF.setBackgroundMFD((GutenbergRichterMagFreqDist)value);
