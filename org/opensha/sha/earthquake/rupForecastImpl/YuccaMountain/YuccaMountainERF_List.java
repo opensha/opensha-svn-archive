@@ -259,9 +259,13 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 				func.set(this.bckPrefCumRate, prefProb);
 				func.set(this.bckMaxCumRate, maxProb);
 				DiscreteValueEstimate backgroundEstimate =  new DiscreteValueEstimate(func, true);
-				yuccaMountainERF.setBackgroundMFD(this.backgroundOptions.get(backgroundEstimate.getRandomValue()));
+				double randomValue = backgroundEstimate.getRandomValue();
+				//System.out.println("Background:"+randomValue);
+				yuccaMountainERF.setBackgroundMFD(this.backgroundOptions.get(randomValue));
+				continue;
 			}
 			
+			// do for all faults
 			Object value = adjustableParams.getValue(paramName);
 			if(!(value instanceof DiscreteValueEstimate)) continue;
 			DiscreteValueEstimate estimate = (DiscreteValueEstimate)value;
@@ -304,7 +308,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		YuccaMountainERF_List ymEpistemicList = new YuccaMountainERF_List();
 		int numERFs = ymEpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
-		for(int i=0; i<2; ++i) {
+		for(int i=0; i<5; ++i) {
 			ymEpistemicList.getERF(i);
 		}
 

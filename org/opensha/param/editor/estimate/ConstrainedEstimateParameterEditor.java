@@ -484,7 +484,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   probValsParamListEditor.setTitle("Probability ² Values");
 
    //setEstimateButton = new JButton("Set Estimate");
-   viewEstimateButton = new JButton("Plot Estimate");
+   viewEstimateButton = new JButton("Plot & Set Estimate");
    //setEstimateButton.addActionListener(this);
    viewEstimateButton.addActionListener(this);
 
