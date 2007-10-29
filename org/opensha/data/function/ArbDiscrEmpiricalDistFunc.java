@@ -175,12 +175,12 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public double getStdDev() {
-    	throw new RuntimeException("Need to confirm whether this is implemented correctly");
-    	/*double mean = getMean();
+    	//throw new RuntimeException("Need to confirm whether this is implemented correctly");
+    	double mean = getMean();
     	double stdDev=0;
     	for(int i=0; i<getNum(); ++i) stdDev+=Math.pow(mean-getX(i),2);
     	stdDev /=getNum();
-    	return Math.sqrt(stdDev);*/
+    	return Math.sqrt(stdDev);
     }
     
     /**

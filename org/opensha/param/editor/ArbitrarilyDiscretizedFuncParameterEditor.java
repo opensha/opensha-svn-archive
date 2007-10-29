@@ -259,6 +259,13 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
             xText += func.getX(i)  + "\n";
             yText += func.getY(i)  + "\n";
           }
+      
+          
+          if(!xText.equalsIgnoreCase("") && !isFocusListenerForX) {
+        	  xValsTextArea.addFocusListener(this);
+              isFocusListenerForX = true;
+          }
+          
           xValsTextArea.setText(xText);
           yValsTextArea.setText(yText);
         }

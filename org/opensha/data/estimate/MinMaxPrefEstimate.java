@@ -118,6 +118,7 @@ public class MinMaxPrefEstimate extends Estimate{
     if(!Double.isNaN(max)) return max;
     return Double.NaN;
   }
+  
 
  public String getName() {
    return NAME;

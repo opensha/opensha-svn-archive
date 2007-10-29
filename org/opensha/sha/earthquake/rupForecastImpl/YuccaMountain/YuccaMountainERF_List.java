@@ -9,18 +9,15 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.data.TimeSpan;
-import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.data.estimate.DiscreteValueEstimate;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
-import org.opensha.param.DoubleParameter;
 import org.opensha.param.IntegerParameter;
-import org.opensha.param.ParameterList;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.util.FileUtils;
 
 /**
@@ -55,7 +52,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
 	IntegerParameter numRealizationsParam;
 
-	private EstimateConstraint minMaxEstimateConstraint;
+	private EstimateConstraint discreteValueEstimateConstraint;
 
 
 	public YuccaMountainERF_List() {
@@ -68,8 +65,8 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 
 		// constraint that only allows Min/Max/Pref Estimate
 		ArrayList<String> allowedEstimates = new ArrayList<String>();
-		allowedEstimates.add(MinMaxPrefEstimate.NAME);
-		minMaxEstimateConstraint = new EstimateConstraint(allowedEstimates);
+		allowedEstimates.add(DiscreteValueEstimate.NAME);
+		discreteValueEstimateConstraint = new EstimateConstraint(allowedEstimates);
 
 		fillFaultsLogicTree();
 
@@ -98,20 +95,19 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 			for(int i=11; i<faultBranchesLines.size(); ) {
 				// get the source name
 				String sourceCodeNameLine = faultBranchesLines.get(i);
-				System.out.println(sourceCodeNameLine);
 				StringTokenizer st = new StringTokenizer(sourceCodeNameLine);
 				String srcCode = st.nextToken();		
 				++i;
 				++i;
 				String paramName = MAG+srcCode;
-				MinMaxPrefEstimate magEstimate = getMinMaxPrefEstimate(faultBranchesLines, i);
-				EstimateParameter magParam = new EstimateParameter(paramName,  minMaxEstimateConstraint, null, magEstimate);
+				DiscreteValueEstimate magEstimate = getDiscreteValueEstimate(faultBranchesLines, i);
+				EstimateParameter magParam = new EstimateParameter(paramName,  this.discreteValueEstimateConstraint, null, magEstimate);
 				this.adjustableParams.addParameter(magParam);
 
 				i+=4;
 				paramName = MOMENT_RATE+srcCode;
-				MinMaxPrefEstimate moRateEstimate = getMinMaxPrefEstimate(faultBranchesLines, i);
-				EstimateParameter moRateParam = new EstimateParameter(paramName,  minMaxEstimateConstraint, null, moRateEstimate);
+				DiscreteValueEstimate moRateEstimate = getDiscreteValueEstimate(faultBranchesLines, i);
+				EstimateParameter moRateParam = new EstimateParameter(paramName,  this.discreteValueEstimateConstraint, null, moRateEstimate);
 				this.adjustableParams.addParameter(moRateParam);
 				i+=3;
 			}
@@ -122,14 +118,15 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	}
 
 	/**
-	 * Get Min/Max/Pref Estimate based on lines in files
+	 * Get DiscreteValue Estimate based on lines in files
 	 * 
 	 * @param faultBranchesLines
 	 * @param lineIndex
 	 * @return
 	 */
-	private MinMaxPrefEstimate getMinMaxPrefEstimate(ArrayList<String> faultBranchesLines, 
+	private DiscreteValueEstimate getDiscreteValueEstimate(ArrayList<String> faultBranchesLines, 
 			int lineIndex) {
+		
 		StringTokenizer tokenizer = new StringTokenizer(faultBranchesLines.get(lineIndex));
 		double prefMag = Double.parseDouble(tokenizer.nextToken());
 		double prefWt = Double.parseDouble(tokenizer.nextToken());
@@ -139,11 +136,11 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		tokenizer = new StringTokenizer(faultBranchesLines.get(++lineIndex));
 		double maxMag = Double.parseDouble(tokenizer.nextToken());
 		double maxWt = Double.parseDouble(tokenizer.nextToken());
-
-		prefWt+=minWt;
-		maxWt+=prefWt;
-
-		return new MinMaxPrefEstimate(minMag, maxMag, prefMag, minWt, maxWt, prefWt);
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		func.set(minMag, minWt);
+		func.set(prefMag, prefWt);
+		func.set(maxMag, maxWt);
+		return new DiscreteValueEstimate(func, true);
 	}
 
 
@@ -182,11 +179,13 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 				++index;
 			}
 
-			prefWt+=minWt;
-			maxWt+=prefWt;
-
-			MinMaxPrefEstimate backgroundEst = new MinMaxPrefEstimate(minCumRate, maxCumRate, prefCumRate, minWt, maxWt, prefWt);
-			EstimateParameter backgroundParam = new EstimateParameter(BACKGROUND, minMaxEstimateConstraint, null, backgroundEst);
+			
+			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+			func.set(minCumRate, minWt);
+			func.set(prefCumRate, prefWt);			
+			func.set(maxCumRate, maxWt);
+			DiscreteValueEstimate backgroundEst = new DiscreteValueEstimate(func, true);
+			EstimateParameter backgroundParam = new EstimateParameter(BACKGROUND, this.discreteValueEstimateConstraint, null, backgroundEst);
 			this.adjustableParams.addParameter(backgroundParam);
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -211,6 +210,18 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	public int getNumERFs() {
 		return (Integer)numRealizationsParam.getValue();
 	}
+	
+	/**
+	 * Return the vector containing the Double values with
+	 * relative weights for each ERF
+	 * @return : ArrayList of Double values
+	 */
+	public ArrayList getRelativeWeightsList() {
+		ArrayList<Double> weightList = new ArrayList<Double>();
+		int numERFs = getNumERFs();
+		for(int i=0; i<numERFs; ++i) weightList.add(getERF_RelativeWeight(i));
+		return weightList;
+	}
 
 
 	/**
@@ -227,19 +238,26 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		while(it.hasNext()) {
 			String paramName = it.next();
 			Object value = adjustableParams.getValue(paramName);
+			if(!(value instanceof DiscreteValueEstimate)) continue;
+			
+			DiscreteValueEstimate estimate = (DiscreteValueEstimate)value;
+			double randomValue = estimate.getRandomValue();
+			
+			//System.out.println(paramName+"\t"+randomValue);
+			
 			// Background
 			if(paramName.equalsIgnoreCase(BACKGROUND)) {
-				yuccaMountainERF.setBackgroundMFD((GutenbergRichterMagFreqDist)value);
+				yuccaMountainERF.setBackgroundMFD(this.backgroundOptions.get(randomValue));
 			}
 			// Mag
 			if(paramName.startsWith(MAG)) {
 				String faultName = paramName.substring(MAG.length());
-				yuccaMountainERF.setMeanMagForSource(faultName, (Double)value);
+				yuccaMountainERF.setMeanMagForSource(faultName, randomValue);
 			}
 			// Moment Rate
 			if(paramName.startsWith(MOMENT_RATE)) {
 				String faultName = paramName.substring(MOMENT_RATE.length());
-				yuccaMountainERF.setMomentRateForSource(faultName, (Double)value);
+				yuccaMountainERF.setMomentRateForSource(faultName, randomValue);
 			}
 		}
 		yuccaMountainERF.getTimeSpan().setDuration(this.timeSpan.getDuration());
@@ -265,8 +283,8 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		YuccaMountainERF_List ymEpistemicList = new YuccaMountainERF_List();
 		int numERFs = ymEpistemicList.getNumERFs();
 		System.out.println("Num Branches="+numERFs);
-		for(int i=0; i<numERFs; ++i) {
-			System.out.println("Weight of Branch "+i+"="+ymEpistemicList.getERF_RelativeWeight(i));
+		for(int i=0; i<2; ++i) {
+			ymEpistemicList.getERF(i);
 		}
 
 	}
