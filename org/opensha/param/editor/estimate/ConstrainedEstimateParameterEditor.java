@@ -194,7 +194,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    }
 
   public void setParameter(ParameterAPI param)  {
-
+	 this.model = param; 
     String S = C + ": Constructor(): ";
     if ( D ) System.out.println( S + "Starting:" );
       // remove the previous editor
@@ -234,6 +234,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     //container.add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
     //    , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     setEstimateParams((String)chooseEstimateParam.getValue());
+   
+    
     if(model!=null) {
       Estimate estimate = (Estimate) model.getValue();
       if (estimate != null)

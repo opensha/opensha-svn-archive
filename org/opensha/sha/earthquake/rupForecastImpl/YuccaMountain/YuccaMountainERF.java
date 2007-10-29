@@ -189,8 +189,6 @@ public class YuccaMountainERF extends EqkRupForecast{
 					continue;
 				StringTokenizer st = new StringTokenizer(sourceName);
 				String srcCode = st.nextToken();
-				int srcCodeLength = srcCode.length();
-				String sourceNameString = sourceName.substring(srcCodeLength).trim();
 				++i;
 				String sourceDipInfo = fileLines.get(i);
 				st = new StringTokenizer(sourceDipInfo);
@@ -207,7 +205,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 				double seisMomentRate = Double.parseDouble(st.nextToken().trim());
 				++i;
 				int numSourceLocations = Integer.parseInt(fileLines.get(i));
-				FaultTrace fltTrace = new FaultTrace(sourceNameString);
+				FaultTrace fltTrace = new FaultTrace(srcCode);
 				int numLinesDone = i;
 				for(i=i+1;i<=(numLinesDone+numSourceLocations);++i){
 					String location = fileLines.get(i);
@@ -218,7 +216,7 @@ public class YuccaMountainERF extends EqkRupForecast{
 				}
 				--i;
 				EvenlyGriddedSurface surface = new StirlingGriddedSurface(fltTrace, dip,upperSeis,lowerSeis,DEFAULT_GRID_SPACING);
-				sourceNames.add(sourceNameString);
+				sourceNames.add(srcCode);
 				this.sourceMags.add(meanMag);
 				this.sourceMoRates.add(seisMomentRate);
 				this.sourceRakes.add(rake);
