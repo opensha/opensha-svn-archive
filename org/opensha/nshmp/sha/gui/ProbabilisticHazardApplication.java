@@ -718,9 +718,10 @@ public class ProbabilisticHazardApplication
         data +="Date = "+date +"\n\n";
     }
 
-	 data += guiBeanAPI.getData();
+	 data += guiBeanAPI.getData() + System.getProperty("line.separator");
 
-	 // Create the print job
+	
+	// Create the print job
     if (pjob != null) {
       Graphics pg = pjob.getGraphics();
       if (pg != null) {
@@ -729,6 +730,7 @@ public class ProbabilisticHazardApplication
       }
       pjob.end();
     }
+	 
   }
 
   private void analysisOptionSelectionCombo_itemStateChanged(ItemEvent
