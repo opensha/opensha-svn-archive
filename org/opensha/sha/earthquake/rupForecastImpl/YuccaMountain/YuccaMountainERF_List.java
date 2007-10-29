@@ -12,7 +12,10 @@ import org.opensha.data.TimeSpan;
 import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
+import org.opensha.param.DoubleParameter;
 import org.opensha.param.IntegerParameter;
+import org.opensha.param.ParameterList;
+import org.opensha.param.TreeBranchWeightsParameter;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
@@ -43,7 +46,10 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 
 	// This hashmap saves Background MFD corresponding to each CumRate
 	private HashMap<Double, GutenbergRichterMagFreqDist> backgroundOptions;
-
+	private final static String BACKGROUND1_PARAM_NAME = "Wt for Min Cum Rate Option";
+	private final static String BACKGROUND2_PARAM_NAME = "Wt for Pref Cum Rate Option";
+	private final static String BACKGROUND3_PARAM_NAME = "Wt for Max Cum Rate Option";
+	
 	//	 For num realizations parameter
 	private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
 	private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(1000);
@@ -53,6 +59,9 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	IntegerParameter numRealizationsParam;
 
 	private EstimateConstraint discreteValueEstimateConstraint;
+	
+	
+	private double bckPrefCumRate, bckMinCumRate, bckMaxCumRate;
 
 
 	public YuccaMountainERF_List() {
@@ -150,10 +159,11 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	 */
 	private void addBackgroundBranches() {
 		backgroundOptions = new HashMap<Double, GutenbergRichterMagFreqDist>();
+		
 		try {
 			ArrayList<String> backgroundLines = FileUtils.loadFile(BACKGROUND_LOGIC_TREE_FILE_NAME);
 			int index=0;
-			double prefCumRate=0, minCumRate=0, maxCumRate=0, prefWt=0, minWt=0, maxWt=0;
+			double prefWt=0, minWt=0, maxWt=0;
 			for(int i=6; i<backgroundLines.size(); ++i) {
 				String line = backgroundLines.get(i);
 				StringTokenizer tokenizer = new StringTokenizer(line);
@@ -167,26 +177,25 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 					new GutenbergRichterMagFreqDist(bValue, cumRate, minMag, maxMag, numMag);
 				backgroundOptions.put(cumRate, grMFD);
 				if(index == 0) {
-					prefCumRate = cumRate;
+					bckPrefCumRate = cumRate;
 					prefWt = weight;
 				} else if(index==1) {
-					minCumRate = cumRate;
+					bckMinCumRate = cumRate;
 					minWt = weight;
 				} else if(index==2) {
-					maxCumRate = cumRate;
+					bckMaxCumRate = cumRate;
 					maxWt = weight;
 				}
+				
 				++index;
 			}
-
 			
-			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-			func.set(minCumRate, minWt);
-			func.set(prefCumRate, prefWt);			
-			func.set(maxCumRate, maxWt);
-			DiscreteValueEstimate backgroundEst = new DiscreteValueEstimate(func, true);
-			EstimateParameter backgroundParam = new EstimateParameter(BACKGROUND, this.discreteValueEstimateConstraint, null, backgroundEst);
-			this.adjustableParams.addParameter(backgroundParam);
+			ParameterList backgroundParamList = new ParameterList();
+			backgroundParamList.addParameter(new DoubleParameter(BACKGROUND1_PARAM_NAME, 0.0, 1.0, new Double(minWt)));
+			backgroundParamList.addParameter(new DoubleParameter(BACKGROUND2_PARAM_NAME, 0.0, 1.0,new Double(prefWt)));
+			backgroundParamList.addParameter(new DoubleParameter(BACKGROUND3_PARAM_NAME, 0.0, 1.0, new Double(maxWt)));
+			
+			this.adjustableParams.addParameter(new TreeBranchWeightsParameter(BACKGROUND, backgroundParamList));
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -237,18 +246,30 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		Iterator<String> it = this.adjustableParams.getParameterNamesIterator();
 		while(it.hasNext()) {
 			String paramName = it.next();
+			
+			// Background
+			if(paramName.equalsIgnoreCase(BACKGROUND)) {
+				ParameterList paramList = (ParameterList)adjustableParams.getValue(paramName);
+				// min/max/prob background
+				double minProb = (Double)paramList.getValue(BACKGROUND1_PARAM_NAME);
+				double prefProb = (Double)paramList.getValue(BACKGROUND2_PARAM_NAME);
+				double maxProb = (Double)paramList.getValue(BACKGROUND3_PARAM_NAME);
+				ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+				func.set(this.bckMinCumRate, minProb);
+				func.set(this.bckPrefCumRate, prefProb);
+				func.set(this.bckMaxCumRate, maxProb);
+				DiscreteValueEstimate backgroundEstimate =  new DiscreteValueEstimate(func, true);
+				yuccaMountainERF.setBackgroundMFD(this.backgroundOptions.get(backgroundEstimate.getRandomValue()));
+			}
+			
 			Object value = adjustableParams.getValue(paramName);
 			if(!(value instanceof DiscreteValueEstimate)) continue;
-			
 			DiscreteValueEstimate estimate = (DiscreteValueEstimate)value;
 			double randomValue = estimate.getRandomValue();
 			
 			//System.out.println(paramName+"\t"+randomValue);
 			
-			// Background
-			if(paramName.equalsIgnoreCase(BACKGROUND)) {
-				yuccaMountainERF.setBackgroundMFD(this.backgroundOptions.get(randomValue));
-			}
+		
 			// Mag
 			if(paramName.startsWith(MAG)) {
 				String faultName = paramName.substring(MAG.length());
