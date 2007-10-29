@@ -368,7 +368,7 @@ public class DataGenerator_UHS
 	 ++startRow; // We would like a blank line.
 	 // Column Headers
 	 xlRow = xlSheet.createRow(startRow++);
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Grid Spacing Basis", "Period (sec)", "Ss (g)", "S1 (g)"};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Grid Spacing Basis", "Period (sec)", "Sa (g)", "Sd (inches)"};
 	 short[] colWidths = {4500, 4500, 3000, 5000, 3000, 3000, 3000};
 	 for(short i = 0; i < headers.length; ++i) {
 		 xlRow.createCell(i).setCellValue(headers[i]);
