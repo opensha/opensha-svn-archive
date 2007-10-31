@@ -455,7 +455,7 @@ public class BA_2008_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 2; i < period.length; i++) {
+    for (int i = 3; i < period.length; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
