@@ -1132,7 +1132,7 @@ public class CB_2008_AttenRel
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
   public URL getAttenuationRelationshipURL() throws MalformedURLException{
-	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2006.html");
+	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/CB_2008.html");
   }   
   
   /**

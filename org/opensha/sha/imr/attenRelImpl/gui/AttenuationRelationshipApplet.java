@@ -186,7 +186,8 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
     protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
     protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
-    protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
+    protected final static String BA_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
+    protected final static String BA_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel";
     protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
     protected final static String CB_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
     //protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
@@ -208,48 +209,50 @@ public class AttenuationRelationshipApplet extends JFrame
      *  loader to load these
      */
     static {
-        imNames.add(CB_2008_AttenRel.NAME);
-        attenRelClasses.add(CB_2008_CLASS_NAME);
-      imNames.add(CY_2006_AttenRel.NAME);
-      attenRelClasses.add(CY_2006_CLASS_NAME);
-      imNames.add(CB_2006_AttenRel.NAME);
-      attenRelClasses.add(CB_2006_CLASS_NAME);
-      imNames.add(BA_2006_AttenRel.NAME);
-      attenRelClasses.add(BOORE_2006_CLASS_NAME);
-      imNames.add(CS_2005_AttenRel.NAME);
-      attenRelClasses.add(CS_CLASS_NAME);
-      imNames.add(BJF_1997_AttenRel.NAME);
-      attenRelClasses.add(BJF_CLASS_NAME);
-      imNames.add(AS_1997_AttenRel.NAME);
-      attenRelClasses.add(AS_CLASS_NAME);
-      imNames.add(Campbell_1997_AttenRel.NAME);
-      attenRelClasses.add(C_CLASS_NAME);
-      imNames.add(SadighEtAl_1997_AttenRel.NAME);
-      attenRelClasses.add(SCEMY_CLASS_NAME);
-      imNames.add(Field_2000_AttenRel.NAME);
-      attenRelClasses.add(F_CLASS_NAME);
-      imNames.add(Abrahamson_2000_AttenRel.NAME);
-      attenRelClasses.add(A_CLASS_NAME);
-      imNames.add(CB_2003_AttenRel.NAME);
-      attenRelClasses.add(CB_CLASS_NAME);
-      imNames.add(BS_2003_AttenRel.NAME);
-      attenRelClasses.add(BS_2003_CLASS_NAME);
-      imNames.add(BC_2004_AttenRel.NAME);
-      attenRelClasses.add(BC_2004_CLASS_NAME);
-      imNames.add(GouletEtAl_2006_AttenRel.NAME);
-      attenRelClasses.add(GOULET_2006_CLASS_NAME);
-      imNames.add(ShakeMap_2003_AttenRel.NAME);
-      attenRelClasses.add(SM_CLASS_NAME);
-      imNames.add(SEA_1999_AttenRel.NAME);
-      attenRelClasses.add(SEA_CLASS_NAME);
+    	imNames.add(CB_2008_AttenRel.NAME);
+    	attenRelClasses.add(CB_2008_CLASS_NAME);
+    	imNames.add(BA_2008_AttenRel.NAME);
+    	attenRelClasses.add(BA_2008_CLASS_NAME);
+    	imNames.add(CY_2006_AttenRel.NAME);
+    	attenRelClasses.add(CY_2006_CLASS_NAME);
+    	imNames.add(CB_2006_AttenRel.NAME);
+    	attenRelClasses.add(CB_2006_CLASS_NAME);
+    	imNames.add(BA_2006_AttenRel.NAME);
+    	attenRelClasses.add(BA_2006_CLASS_NAME);
+    	imNames.add(CS_2005_AttenRel.NAME);
+    	attenRelClasses.add(CS_CLASS_NAME);
+    	imNames.add(BJF_1997_AttenRel.NAME);
+    	attenRelClasses.add(BJF_CLASS_NAME);
+    	imNames.add(AS_1997_AttenRel.NAME);
+    	attenRelClasses.add(AS_CLASS_NAME);
+    	imNames.add(Campbell_1997_AttenRel.NAME);
+    	attenRelClasses.add(C_CLASS_NAME);
+    	imNames.add(SadighEtAl_1997_AttenRel.NAME);
+    	attenRelClasses.add(SCEMY_CLASS_NAME);
+    	imNames.add(Field_2000_AttenRel.NAME);
+    	attenRelClasses.add(F_CLASS_NAME);
+    	imNames.add(Abrahamson_2000_AttenRel.NAME);
+    	attenRelClasses.add(A_CLASS_NAME);
+    	imNames.add(CB_2003_AttenRel.NAME);
+    	attenRelClasses.add(CB_CLASS_NAME);
+    	imNames.add(BS_2003_AttenRel.NAME);
+    	attenRelClasses.add(BS_2003_CLASS_NAME);
+    	imNames.add(BC_2004_AttenRel.NAME);
+    	attenRelClasses.add(BC_2004_CLASS_NAME);
+    	imNames.add(GouletEtAl_2006_AttenRel.NAME);
+    	attenRelClasses.add(GOULET_2006_CLASS_NAME);
+    	imNames.add(ShakeMap_2003_AttenRel.NAME);
+    	attenRelClasses.add(SM_CLASS_NAME);
+    	imNames.add(SEA_1999_AttenRel.NAME);
+    	attenRelClasses.add(SEA_CLASS_NAME);
 
 
-        //imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
+    	//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
-        try {
-          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (Exception e) {}
+    	try {
+    		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    	}
+    	catch (Exception e) {}
     }
 
 

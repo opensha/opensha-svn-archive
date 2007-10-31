@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
+  package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
