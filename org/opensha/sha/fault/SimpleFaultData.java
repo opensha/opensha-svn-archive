@@ -193,5 +193,17 @@ public class SimpleFaultData {
         return b.toString();
 
     }
+    
+    /**
+     * Clones the SimpleFaultData. Please note that FaultTrace is not completely cloned
+     */
+    public SimpleFaultData clone() {
+    	SimpleFaultData simpleFaultData = new SimpleFaultData();
+    	simpleFaultData.setUpperSeismogenicDepth(upperSeismogenicDepth);
+    	simpleFaultData.setLowerSeismogenicDepth(lowerSeismogenicDepth);
+    	simpleFaultData.setAveDip(aveDip);
+    	simpleFaultData.setFaultTrace(faultTrace);
+    	return simpleFaultData;
+    }
 
 }

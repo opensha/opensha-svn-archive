@@ -127,6 +127,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
 	private DoubleParameter rupOffsetParam;
+	
+	// for Cybershake Correction
+	public final static String CYBERSHAKE_DDW_CORR_PARAM_NAME ="Apply CyberShake DDW Corr";
+	public final static Boolean CYBERSHAKE_DDW_CORR_PARAM_DEFAULT= new Boolean(false);
+	private final static String CYBERSHAKE_DDW_CORR_PARAM_INFO = "Apply Down Dip Width Correction";
+	private BooleanParameter cybershakeDDW_CorrParam;
 
 	
 	// Probability Model Param
@@ -233,6 +239,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 		rupOffsetParam.setInfo(RUP_OFFSET_PARAM_INFO);
 
 
+		cybershakeDDW_CorrParam = new BooleanParameter(CYBERSHAKE_DDW_CORR_PARAM_NAME, CYBERSHAKE_DDW_CORR_PARAM_DEFAULT);
+		cybershakeDDW_CorrParam.setInfo(CYBERSHAKE_DDW_CORR_PARAM_INFO);
+		
 		// Probability Model Param
 		ArrayList<String> probModelOptions = new ArrayList<String>();
 		probModelOptions.add(this.PROB_MODEL_WGCEP_PREF_BLEND);
@@ -251,6 +260,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisRupParam.setValue(BACK_SEIS_RUP_POINT);
 		// rup offset
 		rupOffsetParam.setValue(DEFAULT_RUP_OFFSET_VAL);
+		cybershakeDDW_CorrParam.setValue(CYBERSHAKE_DDW_CORR_PARAM_DEFAULT);
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 
 	}
@@ -262,7 +272,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(rupOffsetParam);		
 		adjustableParams.addParameter(backSeisParam);		
-		adjustableParams.addParameter(backSeisRupParam);		
+		adjustableParams.addParameter(backSeisRupParam);
+		adjustableParams.addParameter(cybershakeDDW_CorrParam);
 		adjustableParams.addParameter(probModelParam);		
 	}
 
@@ -443,11 +454,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 		aFaultsFetcher.setDeformationModel(defModelSummary2_3, true);
 		faultSegmentList = aFaultsFetcher.getFaultSegmentDataList(true);
 	
+		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
+		
 		for(int i=0; i<faultSegmentList.size(); ++i) {
 			double newMoRate = moRateList.get(i) + wt*faultSegmentList.get(i).getTotalMomentRate();
 			moRateList.set(i, newMoRate);
 			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
-					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  duration, moRateList.get(i), 0);
+					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  duration, moRateList.get(i), 0, ddwCorr);
 			aFaultUnsegmentedSources.add(unsegmentedSource);
 			//			System.out.println(source.getName());
 			int numRups = unsegmentedSource.getNumRuptures();
@@ -683,33 +696,34 @@ public class MeanUCERF2 extends EqkRupForecast {
 		
 		double duration = this.timeSpan.getDuration();
 		double wt = 0.5;
+		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
 		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=1.0;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		wt=0.75;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		// Now calculate the B-Faults total MFD
 		bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
@@ -736,13 +750,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param wt
 	 * @param faultSegDataList
 	 */
-	private void addToB_FaultSources(double rupOffset, double empiricalModelWt, double duration, double wt, ArrayList<FaultSegmentData> faultSegDataList) {
+	private void addToB_FaultSources(double rupOffset, double empiricalModelWt, double duration, double wt, 
+			ArrayList<FaultSegmentData> faultSegDataList, boolean ddwCorr) {
 		for(int i=0; i<faultSegDataList.size(); ++i) {
 			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
 			//System.out.println(faultSegDataList.get(i).getFaultName()+"\t"+wt);
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
 					empiricalModel,  rupOffset,  wt, 
-					empiricalModelWt, duration));
+					empiricalModelWt, duration, ddwCorr));
 		}
 	}
 	

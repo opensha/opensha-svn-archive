@@ -27,6 +27,7 @@ import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 
@@ -97,9 +98,9 @@ public class UnsegmentedSource extends ProbEqkSource {
 	protected ArbitrarilyDiscretizedFunc origSlipRateFunc, predSlipRateFunc;
 	private ArrayList<ArbitrarilyDiscretizedFunc> magBasedUncorrSlipRateFuncs;
 	
-	private static HanksBakun2002_MagAreaRel magAreaRel1 = new HanksBakun2002_MagAreaRel();
-	private static Ellsworth_B_WG02_MagAreaRel magAreaRel2 = new Ellsworth_B_WG02_MagAreaRel();
-
+	private static HanksBakun2002_MagAreaRel hb_MagAreaRel = new HanksBakun2002_MagAreaRel();
+	private static Ellsworth_B_WG02_MagAreaRel ellB_magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
+	private static Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
 
 	/**
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
@@ -110,10 +111,10 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset,double weight, 
-			double empiricalModelWeight, double duration) {
+			double empiricalModelWeight, double duration, boolean applyCyberShakeDDW_Corr) {
 		this(segmentData, empiricalModel, rupOffset, 0.8, 0.0, weight, 
 				empiricalModelWeight, duration, segmentData.getTotalMomentRate(),
-				0.67);
+				0.67,  applyCyberShakeDDW_Corr);
 		
 	}
 	
@@ -126,7 +127,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
-			double empiricalModelWeight, double duration, double moRate, double fractCharVsGR) {
+			double empiricalModelWeight, double duration, double moRate, double fractCharVsGR, boolean applyCyberShakeDDW_Corr) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -144,9 +145,9 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.empiricalModel = empiricalModel;
 		
 			
-		double sourceMag1 = magAreaRel1.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		double sourceMag1 = hb_MagAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
 		sourceMag1 = Math.round(sourceMag1/delta_mag) * delta_mag;
-		double sourceMag2 = magAreaRel2.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
+		double sourceMag2 = ellB_magAreaRel.getMedianMag(segmentData.getTotalArea()/1e6);  // this area is reduced by aseis if appropriate
 		sourceMag2 = Math.round(sourceMag2/delta_mag) * delta_mag;
 
 
@@ -219,13 +220,21 @@ public class UnsegmentedSource extends ProbEqkSource {
 
 
 		num_seg = segmentData.getNumSegments();
-
+		StirlingGriddedSurface combinedGriddedSurface;
+		if (applyCyberShakeDDW_Corr) {
+			double ddwCorrFactor = somerville_magAreaRel.getMedianArea((sourceMag1+sourceMag2)/2)/(segmentData.getTotalArea()/1e6);
+			combinedGriddedSurface = segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING, ddwCorrFactor);
+		} else {
+			combinedGriddedSurface = segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING);
+		}
+		
 		// create the source
-		mkRuptureList(segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING),
+		mkRuptureList(combinedGriddedSurface,
 				rupOffset,
 				segmentData.getAveRake(),
 				duration,
-				segmentData.getFaultName());
+				segmentData.getFaultName(),
+				applyCyberShakeDDW_Corr);
 
 
 		// change the info in the MFDs
@@ -334,7 +343,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 				rupOffset,
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
-				segmentData.getFaultName());
+				segmentData.getFaultName(),
+				false);
 
 
 
@@ -1094,7 +1104,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double rupOffset,
 			double rake,
 			double duration,
-			String sourceName) {
+			String sourceName,
+			boolean applyCyberShakeDDW_Corr) {
 
 		this.surface=surface;
 		this.rupOffset = rupOffset;
@@ -1103,20 +1114,28 @@ public class UnsegmentedSource extends ProbEqkSource {
 		this.name = sourceName;
 		ruptureList = new ArrayList<ProbEqkRupture>();
 		double totSrcRate=0, totSrcRateEmp=0; // for computing the source gain
+		
+//		boolean floatsDownDip = false;
 
 		// Make GR ruptures
 		for (int i=0; grMFD!=null && i<grMFD.getNum(); ++i){
 			double rate = grMFD.getY(i);
 			if(rate == 0) continue;	// skip zero rates
 			double mag = grMFD.getX(i);
-			double rupLen = getRupLength(mag);
-			int numRup = surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);;
+			double rupArea  ;
+			if(applyCyberShakeDDW_Corr) rupArea = somerville_magAreaRel.getMedianArea(mag);
+			else rupArea  = hb_MagAreaRel.getMedianArea(mag);
+			double rup_width = Math.sqrt(rupArea);
+			if (rup_width > surface.getSurfaceWidth()) rup_width = surface.getSurfaceWidth();
+//			else floatsDownDip = true;
+			double rupLen = rupArea/rup_width;
+			int numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);;
 			rate /= numRup;
 			for(int r=0; r<numRup; r++) {
 				ProbEqkRupture rup = new ProbEqkRupture();
 				rup.setAveRake(rake);
 				rup.setMag(mag);
-				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,RUPTURE_WIDTH,rupOffset,r);
+				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,rup_width,rupOffset,r);
 				rup.setRuptureSurface(rupSurf);
 				// set probability
 			    double empiricalCorr=1;
@@ -1131,6 +1150,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			}
 			
 		}
+// if(floatsDownDip) System.out.println(segmentData.getFaultName());
 		totNumGR_rups = ruptureList.size();
 
 		double empiricalCorr=1;
@@ -1207,27 +1227,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 			rup.setProbability(1-Math.exp(-yrs*oldRate));
 		}
 		duration = yrs;
-	}
-
-
-	/**
-	 * This returns the rupture length implied by the Wells & Coppersmith (1994) 
-	 * "All" equation is used (the latter is what Frankel's 2002 code uses).
-	 * @param mag
-	 * @return
-	 */
-	private double getRupLength(double mag){ 
-		return Math.pow(10.0,-3.22+0.69*mag);
-		/*
-		if(this.magAreaRel == null) {
-			//return Math.pow(10.0,-3.22+0.69*mag);
-			double area1 = magAreaRel1.getMedianArea(mag);
-			double area2 = magAreaRel2.getMedianArea(mag);
-			return (area1+area2)/(2*surface.getSurfaceWidth());
-		}
-		else
-			return magAreaRel.getMedianArea(mag)/surface.getSurfaceWidth();
-		*/
 	}
 
 

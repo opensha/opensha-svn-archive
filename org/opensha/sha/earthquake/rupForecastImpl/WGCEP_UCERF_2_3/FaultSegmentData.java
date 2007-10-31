@@ -405,6 +405,29 @@ public class FaultSegmentData {
 		return faultSectionList;
 	}
 	
+	
+	/**
+	 * Get StirlingGriddedSurface for ALL Segments. 
+	 * It stitches together the segments and returns the resulting surface
+	 *  
+	 * 
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing, double increaseDDW_Factor) {		
+		ArrayList<SimpleFaultData> simpleFaultDataCloneList = new ArrayList<SimpleFaultData>();
+		for(int i=0; i<getNumSegments(); ++i) {
+			ArrayList<SimpleFaultData> sectionData = (ArrayList)this.simpleFaultDataList.get(i);
+			for(int index=0; index<sectionData.size(); ++index) {
+				SimpleFaultData simpleFaultDataClone = sectionData.get(index).clone();
+				simpleFaultDataClone.setLowerSeismogenicDepth(simpleFaultDataClone.getUpperSeismogenicDepth() +
+						(simpleFaultDataClone.getLowerSeismogenicDepth() -simpleFaultDataClone.getUpperSeismogenicDepth())* increaseDDW_Factor);
+				simpleFaultDataCloneList.add(simpleFaultDataClone);
+			}
+		}
+		return  new StirlingGriddedSurface(simpleFaultDataCloneList, gridSpacing);
+		
+	}
+	
 	/**
 	 * Get StirlingGriddedSurface for ALL Segments. 
 	 * It stitches together the segments and returns the resulting surface
