@@ -210,7 +210,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 		this.cybershakeDDW_CorrParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
 		this.parameterChangeFlag = true;
-		ucerf2.updateForecast();
 	}
 
 	/**
