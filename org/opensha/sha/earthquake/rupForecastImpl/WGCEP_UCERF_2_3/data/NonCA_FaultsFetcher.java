@@ -58,7 +58,9 @@ public class NonCA_FaultsFetcher {
 		GaussianMagFreqDist charMFD = null;
 		GutenbergRichterMagFreqDist grMFD = null;
 		summedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
-		
+		charSources = new ArrayList<FaultRuptureSource>();
+		grSources = new ArrayList<Frankel02_TypeB_EqkSource>();
+		lessThan6_5_Sources = new ArrayList<FaultRuptureSource>();
 		
 		
 		try {

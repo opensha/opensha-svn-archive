@@ -21,6 +21,7 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 
 //import cj.math.nnls.NNLSWrapper;
 import nnls.NNLSWrapper;
@@ -129,7 +130,8 @@ public class A_FaultSegmentedSourceGenerator {
 	when we call getTimeDependentSources() or getTimeIndependentSources() or getTimeDepEmpiricalSources() */
 	private HashMap<Integer, Integer> rupSrcMapping; 
 
-	
+	private static Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
+
 	/**
 	 * Description:
 	 * 
@@ -478,9 +480,13 @@ public class A_FaultSegmentedSourceGenerator {
 	 * @param rupIndex
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(int rupIndex) {
+	public StirlingGriddedSurface getCombinedGriddedSurface(int rupIndex, boolean applyCyberShakeDDW_Corr) {
 		int[] segmentsInRup = getSegmentsInRup(rupIndex);
-		return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
+		if(applyCyberShakeDDW_Corr) {
+			double ddwCorrFactor = somerville_magAreaRel.getMedianArea(rupMeanMag[rupIndex])/(rupArea[rupIndex]/1e6);
+			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING, ddwCorrFactor);
+		} else
+			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
 	}
 	
 	/**
@@ -529,7 +535,7 @@ public class A_FaultSegmentedSourceGenerator {
 			// Create source if rate is greater than ~zero (or age of earth)
 			if (rupMagFreqDist[i].getTotalIncrRate() > MIN_RUP_RATE) {				
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupMagFreqDist[i], 
-						getCombinedGriddedSurface(i),
+						getCombinedGriddedSurface(i, false),
 						getAveRake(i),
 						duration);
 				faultRupSrc.setName(this.getLongRupName(i));
@@ -560,7 +566,8 @@ public class A_FaultSegmentedSourceGenerator {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultRuptureSource> getTimeDepEmpiricalSources(double duration, EmpiricalModel empiricalModel) {
+	public ArrayList<FaultRuptureSource> getTimeDepEmpiricalSources(double duration, 
+			EmpiricalModel empiricalModel) {
 		
 		isTimeDeptendent= false;
 		
@@ -576,8 +583,8 @@ public class A_FaultSegmentedSourceGenerator {
 		rupProb = new double[num_rup];
 		double[] modRupRate = new double[num_rup];
 		for(int i=0; i<num_rup; i++) {
-			int[] segmentsInRup = getSegmentsInRup(i);
-			StirlingGriddedSurface rupSurf = segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
+			
+			StirlingGriddedSurface rupSurf = getCombinedGriddedSurface(i, false);
 			double empiricalCorr = empiricalModel.getCorrection(rupSurf);
 
 			modRupRate[i] = totRupRate[i]*empiricalCorr;
@@ -593,7 +600,7 @@ public class A_FaultSegmentedSourceGenerator {
 			if (totRupRate[i] > MIN_RUP_RATE) {				
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(modMagFreqDist, 
 						rupSurf,
-						segmentData.getAveRake(segmentsInRup),
+						getAveRake(i),
 						duration);
 				faultRupSrc.setName(this.getLongRupName(i));
 				
@@ -641,7 +648,9 @@ public class A_FaultSegmentedSourceGenerator {
 	 * 
 	 * @return
 	 */
-	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, double startYear, double aperiodicity, boolean applySegVariableAperiodicity) {
+	public ArrayList<FaultRuptureSource> getTimeDependentSources(double duration, 
+			double startYear, double aperiodicity, 
+			boolean applySegVariableAperiodicity) {
 
 		isTimeDeptendent= true;
 		
@@ -686,13 +695,10 @@ public class A_FaultSegmentedSourceGenerator {
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		rupSrcMapping = new  HashMap<Integer, Integer> (); 
 		for(int i=0; i<num_rup; i++) {
-			// get list of segments in this rupture
-			int[] segmentsInRup = getSegmentsInRup(i);
 			// Create source if prob is greater than ~zero
 			if (rupProb[i] > MIN_RUP_RATE) {		
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
-						segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING),
-						segmentData.getAveRake(segmentsInRup));
+						getCombinedGriddedSurface(i, false), getAveRake(i));
 				faultRupSrc.setName(this.getLongRupName(i));
 				rupSrcMapping.put(i, sourceList.size());
 				sourceList.add(faultRupSrc);

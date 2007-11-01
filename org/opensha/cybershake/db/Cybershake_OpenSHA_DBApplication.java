@@ -28,7 +28,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		CybershakeSiteInfo2DB sites = new CybershakeSiteInfo2DB(db);
 		
 		//USC
-		/*double USC_LAT = 34.019200;
+		System.out.println("Doing Site USC");
+		double USC_LAT = 34.019200;
 		double USC_LON = -118.28600;
 		int siteId = sites.getCybershakeSiteId("USC");
 		//siteId= sites.putCybershakeLocationInDB("USC", "USC", USC_LAT, USC_LON);
@@ -36,6 +37,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, USC_LAT, USC_LON);
 	    
 	    //PAS
+	    System.out.println("Doing Site PAS");
 	    double PAS_LAT = 34.148427;
 	    double PAS_LON = -118.17119;
 	    siteId = sites.getCybershakeSiteId("PAS");
@@ -44,6 +46,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, PAS_LAT, PAS_LON);
 
 	    //LADT
+	    System.out.println("Doing Site LADT");
 	    double LADT_LAT = 34.052041;
 	    double LADT_LON = -118.25713;
 	    siteId = sites.getCybershakeSiteId("LADT");
@@ -52,6 +55,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, LADT_LAT, LADT_LON);
 
 	    //LBP
+	    System.out.println("Doing Site LBP");
 	    double LBP_LAT = 33.754944;
 	    double LBP_LON = -118.22300;
 	    siteId = sites.getCybershakeSiteId("LBP");
@@ -61,6 +65,7 @@ public class Cybershake_OpenSHA_DBApplication {
 
 	    
 	    //WNGC
+	    System.out.println("Doing Site WNGC");
 	    double WNGC_LAT = 34.041823;
 	    double WNGC_LON = -118.06530;
 	    siteId = sites.getCybershakeSiteId("WNGC");
@@ -69,6 +74,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, WNGC_LAT, WNGC_LON);
 
 	    //SABD
+	    System.out.println("Doing Site SABD");
 	    double SABD_LAT = 33.754111;
 	    double SABD_LON = -117.86778;
 	    siteId = sites.getCybershakeSiteId("SABD");
@@ -77,6 +83,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SABD_LAT, SABD_LON);
 	    
 	    //SBSM
+	    System.out.println("Doing Site SBSM");
 	    double SBSM_LAT = 34.064986;
 	    double SBSM_LON = -117.29201;
 	    siteId = sites.getCybershakeSiteId("SBSM");
@@ -86,6 +93,7 @@ public class Cybershake_OpenSHA_DBApplication {
 
 	    
 	    //FFI
+	    System.out.println("Doing Site FFI");
 	    double FFI_LAT = 34.336030;
 	    double FFI_LON = -118.50862;
 	    siteId = sites.getCybershakeSiteId("FFI");
@@ -94,6 +102,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, FFI_LAT, FFI_LON);
 
 	    //CCP
+	    System.out.println("Doing Site CCP");
 	    double CCP_LAT = 34.054884;
 	    double CCP_LON = -118.41302;
 	    siteId = sites.getCybershakeSiteId("CCP");
@@ -102,17 +111,20 @@ public class Cybershake_OpenSHA_DBApplication {
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, CCP_LAT, CCP_LON);
 	    
 	    //SMCA
+	    System.out.println("Doing Site SMCA");
 	    double SMCA_LAT = 34.009092;
 	    double SMCA_LON = -118.48939;
 	    siteId = sites.getCybershakeSiteId("SMCA");
 	    //siteId = sites.putCybershakeLocationInDB("SMCA", "SMCA", SMCA_LAT, SMCA_LON);
 	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
-	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);*/
+	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
 		
 		//PTWN
+	    System.out.println("Doing Site PTWN");
 	    double PTWN_LAT = 34.14280;
 	    double PTWN_LON = -116.49771;
-	    int siteId = sites.putCybershakeLocationInDB("Pioneer Town", "PTWN", PTWN_LAT, PTWN_LON);
+	    siteId = sites.getCybershakeSiteId("PTWN");
+	    //int siteId = sites.putCybershakeLocationInDB("Pioneer Town", "PTWN", PTWN_LAT, PTWN_LON);
 	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
 
@@ -123,10 +135,11 @@ public class Cybershake_OpenSHA_DBApplication {
 	 */
 	public static void main(String[] args) {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
-		NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
-		//erfDB.insertForecaseInDB();
+		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
+		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
+		erfDB.insertForecaseInDB();
 		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
-		int erfId = erfDB.getInsertedERF_Id(forecast.getName());
+		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 		app.putSiteInfoInDB(forecast,erfId);
 	}
 

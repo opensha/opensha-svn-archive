@@ -408,15 +408,33 @@ public class FaultSegmentData {
 	
 	/**
 	 * Get StirlingGriddedSurface for ALL Segments. 
-	 * It stitches together the segments and returns the resulting surface
+	 * It stitches together the segments and returns the resulting surface.
+	 * It changes the DDW with the user provided increase factor
 	 *  
 	 * 
 	 * @return
 	 */
 	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing, double increaseDDW_Factor) {		
+		int segIndices[] = new int[this.getNumSegments()];
+		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
+		return getCombinedGriddedSurface(segIndices, gridSpacing, increaseDDW_Factor);
+		
+	}
+	
+	/**
+	 * Get StirlingGriddedSurface for selected Segment indices. 
+	 * It stitches together the segments and returns the resulting surface.
+	 * It changes the DDW with the user provided increase factor
+	 *  
+	 * @param segIndex List of Segment index to be included in the surface. The indices can have value from 0 to (getNumSegments()-1)
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing, double increaseDDW_Factor) {
 		ArrayList<SimpleFaultData> simpleFaultDataCloneList = new ArrayList<SimpleFaultData>();
-		for(int i=0; i<getNumSegments(); ++i) {
-			ArrayList<SimpleFaultData> sectionData = (ArrayList)this.simpleFaultDataList.get(i);
+		int lastSegmentIndex = getNumSegments()-1;
+		for(int i=0; i<segIndex.length; ++i) {
+			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
+			ArrayList<SimpleFaultData> sectionData = (ArrayList)this.simpleFaultDataList.get(segIndex[i]);
 			for(int index=0; index<sectionData.size(); ++index) {
 				SimpleFaultData simpleFaultDataClone = sectionData.get(index).clone();
 				simpleFaultDataClone.setLowerSeismogenicDepth(simpleFaultDataClone.getUpperSeismogenicDepth() +
@@ -425,7 +443,6 @@ public class FaultSegmentData {
 			}
 		}
 		return  new StirlingGriddedSurface(simpleFaultDataCloneList, gridSpacing);
-		
 	}
 	
 	/**

@@ -2,12 +2,23 @@ package org.opensha.cybershake.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ListIterator;
 
-public class ERF2DB implements ERF2DBAPI{
+import org.opensha.calc.RelativeLocation;
+import org.opensha.data.Location;
+import org.opensha.param.ParameterAPI;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.surface.EvenlyGridCenteredSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.surface.PointSurface;
+
+public  class ERF2DB implements ERF2DBAPI{
 	
-	
+	protected EqkRupForecast eqkRupForecast;
 	private DBAccess dbaccess;
-
 	
 	public ERF2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
@@ -181,5 +192,119 @@ public class ERF2DB implements ERF2DBAPI{
 		}
 	 return rupProb;
 	}
+	
+	  private void insertSrcRupInDB(){
+		  int numSources = eqkRupForecast.getNumSources();
+		  int erfId = this.getInserted_ERF_ID(eqkRupForecast.getName());
+		  for(int sourceId = 0;sourceId<numSources;++sourceId){
+			 System.out.println("Insert source "+(sourceId+1)+" of "+numSources);
+//			 get the ith source
+		     ProbEqkSource source  = (ProbEqkSource)eqkRupForecast.getSource(sourceId);
+		     int numRuptures = source.getNumRuptures();
+		     String sourceName = source.getName();
+		     for(int ruptureId=0;ruptureId<numRuptures;++ruptureId){
+		    	 //getting the rupture on the source and its gridCentered Surface
+		          ProbEqkRupture rupture = source.getRupture(ruptureId);
+		          double mag = rupture.getMag();
+		          double prob = rupture.getProbability();
+		          double aveRake = rupture.getAveRake();
+		          EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+//		        Local Strike for each grid centered location on the rupture
+		          double[] localStrikeList = this.getLocalStrikeList(rupture.getRuptureSurface());
+		          double dip =rupSurface.getAveDip();
+		          int numRows = rupSurface.getNumRows();
+		          int numCols = rupSurface.getNumCols();
+		    	  int numPoints = numRows*numCols;
+		    	  double gridSpacing = rupSurface.getGridSpacing();
+		    	  Location surfaceStartLocation = (Location)rupSurface.get(0, 0);
+		    	  Location surfaceEndLocation = (Location)rupSurface.get(0, numCols-1);
+		    	  double surfaceStartLat = surfaceStartLocation.getLatitude();
+		    	  double surfaceStartLon = surfaceStartLocation.getLongitude();
+		    	  double surfaceStartDepth = surfaceStartLocation.getDepth();
+		    	  double surfaceEndLat = surfaceEndLocation.getLatitude();
+		    	  double surfaceEndLon = surfaceEndLocation.getLongitude();
+		    	  double surfaceEndDepth = surfaceEndLocation.getDepth();
+		    	  insertERFRuptureInfo(erfId, sourceId, ruptureId, sourceName, null, 
+		    			                      mag, prob, gridSpacing, 
+		    			                      surfaceStartLat, surfaceStartLon, surfaceStartDepth, 
+		    			                      surfaceEndLat, surfaceEndLon, surfaceEndDepth,
+		    			                      numRows, numCols, numPoints);
+		    	  for(int k=0;k<numRows;++k){
+		    	      for (int j = 0; j < numCols; ++j) {
+		    	        Location loc = rupSurface.getLocation(k,j);
+		    	        insertRuptureSurface(erfId, sourceId, ruptureId, loc.getLatitude(),
+		    	        		                    loc.getLongitude(), loc.getDepth(), aveRake, dip,
+		    	        		                    localStrikeList[j]);
+		    	      }
+		    	  }
+		     }
+		  }
+	  }
+
+	  
+	  /**
+	   * Returns the local strike list for a given rupture
+	   * @param surface GriddedSurfaceAPI
+	   * @return double[]
+	   */
+	  private double[] getLocalStrikeList(EvenlyGriddedSurfaceAPI surface){
+	    int numCols = surface.getNumCols();
+	    double[] localStrike = null;
+	    //if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
+	    //horizontal locations on the rupture surface.
+	    //if it is a point surface then it will be just having one location so
+	    //in that we take the Ave. Strike for the Surface.
+	    if(! (surface instanceof PointSurface)){
+	      localStrike = new double[numCols - 1];
+	      for (int i = 0; i < numCols - 1; ++i) {
+	        Location loc1 = surface.getLocation(0, i);
+	        Location loc2 = surface.getLocation(0, i + 1);
+	        double strike = RelativeLocation.getAzimuth(loc1.getLatitude(),
+	            loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
+	        localStrike[i] = strike;
+	      }
+	    }
+	    else if(surface instanceof PointSurface) {
+	      localStrike = new double[1];
+	      localStrike[0]= surface.getAveStrike();
+	    }
+
+	    return localStrike;
+	  }	  
+	  
+	  
+	  public void insertForecaseInDB(){
+			 int erfId = insertERFId(eqkRupForecast.getName(), "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model");
+			  
+			  ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
+			  //adding the forecast parameters
+			  while(it.hasNext()){
+				  ParameterAPI param = (ParameterAPI)it.next();
+				  Object paramValue = param.getValue();
+				  if(paramValue instanceof String)
+					  paramValue = ((String)paramValue).replaceAll("'", "");
+				  String paramType = param.getType();
+				  paramType = paramType.replaceAll("Parameter", "");
+				  insertERFParams(erfId, param.getName(), paramValue.toString(), paramType,param.getUnits());
+			  }
+			  it = eqkRupForecast.getTimeSpan().getAdjustableParamsIterator();
+			  //adding the timespan parameters
+			  while(it.hasNext()){
+				  ParameterAPI param = (ParameterAPI)it.next();
+				  String paramType = param.getType();
+				  paramType = paramType.replaceAll("Parameter", "");
+				  insertERFParams(erfId, param.getName(), param.getValue().toString(), paramType,param.getUnits());
+			  }
+			  //inserts the rupture information in the database
+			  insertSrcRupInDB();
+		  }
+	  
+	  /**
+	   * returns the instance of the last inserted ERF
+	   * @return
+	   */
+	  public EqkRupForecastAPI getERF_Instance(){
+		  return this.eqkRupForecast;
+	  }
 	
 }
