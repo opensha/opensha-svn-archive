@@ -136,8 +136,10 @@ public class Cybershake_OpenSHA_DBApplication {
 	public static void main(String[] args) {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
+		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
-		erfDB.insertForecaseInDB();
+		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast";
+		erfDB.insertForecaseInDB(erfDescription);
 		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
 		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 		app.putSiteInfoInDB(forecast,erfId);

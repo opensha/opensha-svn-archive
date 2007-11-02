@@ -273,8 +273,8 @@ public  class ERF2DB implements ERF2DBAPI{
 	  }	  
 	  
 	  
-	  public void insertForecaseInDB(){
-			 int erfId = insertERFId(eqkRupForecast.getName(), "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model");
+	  public void insertForecaseInDB(String erfDescription){
+			 int erfId = insertERFId(eqkRupForecast.getName(), erfDescription);
 			  
 			  ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
 			  //adding the forecast parameters
