@@ -690,7 +690,7 @@ public class DBAccess implements Runnable{
     public int insertUpdateOrDeleteData(String query) throws java.sql.SQLException {
       Connection conn = getConnection();
       Statement stat = conn.createStatement();
-      System.out.println("Query = "+query);
+      //System.out.println("Query = "+query);
       int rows = stat.executeUpdate(query+";");
       stat.execute("commit;");
       freeConnection(conn);
@@ -707,7 +707,7 @@ public class DBAccess implements Runnable{
        Connection conn = getConnection();
        Statement stat = conn.createStatement();
        //gets the resultSet after running the query
-       System.out.println("Query = "+sql);
+       //System.out.println("Query = "+sql);
        ResultSet result = stat.executeQuery(sql+";");
        // create CachedRowSet and populate
        //CachedRowSetImpl crs = new CachedRowSetImpl();
