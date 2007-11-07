@@ -185,6 +185,11 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// whether we need to calculate MFDs for verification purposes
 	private boolean calcSummedMFDs = false;
+	
+	
+	private final static String A_FAULTS_FILENAME1= "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/Segmented_5km_Poiss_1yr.txt";
+	private final static String A_FAULTS_FILENAME2= "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/Segmented_5km_Poiss_30yr.txt";
+	
 
 	/**
 	 *
@@ -401,30 +406,42 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 *
 	 */
 	private void mkA_FaultSources() {
-		
-		// DO For Segmented sources
-		fillAdjustableParamsForA_Faults();
-		sourceMFDMapping = new HashMap<String, SummedMagFreqDist>();
-		sourceRakeMapping = new  HashMap<String, Double> ();
-		sourceGriddedSurfaceMapping = new HashMap<String, StirlingGriddedSurface>();
-		findBranches(0,1);
-		aFaultSegmentedSources = new ArrayList<FaultRuptureSource>();
-		double duration = timeSpan.getDuration();
-		if(calcSummedMFDs) aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG); 
-		// iterate over all rupture sources
-		Iterator<String> it = sourceMFDMapping.keySet().iterator();
-		while(it.hasNext()) {
-			String name = it.next();
-			if(calcSummedMFDs) aFaultSummedMFD.addIncrementalMagFreqDist(sourceMFDMapping.get(name));
-			FaultRuptureSource faultRupSrc = new FaultRuptureSource(sourceMFDMapping.get(name), 
-					sourceGriddedSurfaceMapping.get(name),
-					sourceRakeMapping.get(name),
-					duration);
-			faultRupSrc.setName(name);
-			//System.out.println("*******"+name+"\n"+sourceMFDMapping.get(name));
-			aFaultSegmentedSources.add(faultRupSrc);
+		String probModel = (String)this.probModelParam.getValue();		
+		double duration = this.timeSpan.getDuration();
+		double rupOffset = (Double)this.rupOffsetParam.getValue();
+		boolean cybershakeDDW_Corr = (Boolean)this.cybershakeDDW_CorrParam.getValue();
+
+		// read from pre-genearated A-Faults files
+		if(probModel.equalsIgnoreCase(this.PROB_MODEL_POISSON) && 
+				duration==1 && rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
+			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_FILENAME1);
+		} else if(probModel.equalsIgnoreCase(this.PROB_MODEL_POISSON) && 
+				duration==30 && rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
+			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_FILENAME2);
+		} else { 
+			// DO For Segmented sources
+			fillAdjustableParamsForA_Faults();
+			sourceMFDMapping = new HashMap<String, SummedMagFreqDist>();
+			sourceRakeMapping = new  HashMap<String, Double> ();
+			sourceGriddedSurfaceMapping = new HashMap<String, StirlingGriddedSurface>();
+			findBranches(0,1);
+			aFaultSegmentedSources = new ArrayList<FaultRuptureSource>();
+			if(calcSummedMFDs) aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG); 
+			// iterate over all rupture sources
+			Iterator<String> it = sourceMFDMapping.keySet().iterator();
+			while(it.hasNext()) {
+				String name = it.next();
+				if(calcSummedMFDs) aFaultSummedMFD.addIncrementalMagFreqDist(sourceMFDMapping.get(name));
+				FaultRuptureSource faultRupSrc = new FaultRuptureSource(sourceMFDMapping.get(name), 
+						sourceGriddedSurfaceMapping.get(name),
+						sourceRakeMapping.get(name),
+						duration);
+				faultRupSrc.setName(name);
+				//System.out.println("*******"+name+"\n"+sourceMFDMapping.get(name));
+				aFaultSegmentedSources.add(faultRupSrc);
+			}
 		}
-		
+
 		// make unsegmnted A-Fault Sources
 		mkUnsegmentedA_FaultSources();
 		
@@ -863,15 +880,15 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.calcSummedMFDs  =true;
+		meanUCERF2.setParameter(MeanUCERF2.BACK_SEIS_NAME, MeanUCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.updateForecast();
-		
-		System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
+		/*System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_C_ZoneMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_NonCA_B_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_BackgroundMFD().getCumRateDistWithOffset());
-		System.out.println(meanUCERF2.getTotalMFD().getCumRateDistWithOffset());
+		System.out.println(meanUCERF2.getTotalMFD().getCumRateDistWithOffset());*/
 		
 	}
 }
