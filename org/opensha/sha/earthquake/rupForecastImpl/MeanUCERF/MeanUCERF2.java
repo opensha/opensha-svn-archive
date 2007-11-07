@@ -187,8 +187,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private boolean calcSummedMFDs = false;
 	
 	
-	private final static String A_FAULTS_FILENAME1= "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/Segmented_5km_Poiss_1yr.txt";
-	private final static String A_FAULTS_FILENAME2= "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/Segmented_5km_Poiss_30yr.txt";
+	private final static String A_FAULTS_POISS_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/Segmented_5km_Poiss.txt";
 	
 
 	/**
@@ -412,12 +411,11 @@ public class MeanUCERF2 extends EqkRupForecast {
 		boolean cybershakeDDW_Corr = (Boolean)this.cybershakeDDW_CorrParam.getValue();
 
 		// read from pre-genearated A-Faults files
-		if(probModel.equalsIgnoreCase(this.PROB_MODEL_POISSON) && 
-				duration==1 && rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
-			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_FILENAME1);
-		} else if(probModel.equalsIgnoreCase(this.PROB_MODEL_POISSON) && 
-				duration==30 && rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
-			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_FILENAME2);
+		if(probModel.equalsIgnoreCase(this.PROB_MODEL_POISSON)
+				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
+			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_POISS_FILENAME);
+			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
+				aFaultSegmentedSources.get(i).setDuration(duration);
 		} else { 
 			// DO For Segmented sources
 			fillAdjustableParamsForA_Faults();
