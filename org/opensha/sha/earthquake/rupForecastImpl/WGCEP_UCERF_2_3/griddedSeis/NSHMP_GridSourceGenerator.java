@@ -71,6 +71,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		//System.out.println("numAvals="+numAvals+"; numLocs="+getNumGridLocs());
 		//System.out.println("reading all files");
 		readAllGridFiles();
+		
+		getFocalMechFractions();
 		//System.out.println("done");
 
 		/*  This is to output and check the sum 
@@ -610,6 +612,45 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		System.out.println("sangreg_agrid: "+num);
 
 	}
+	
+	/**
+	 * The computes the fraction of each focal mechanism type at each location for the randomly oriented seismicity.
+	 * All fixed-strike sources are ignored.  The fractions for deeps above M ~7.0 are not exactly correct.
+	 * 
+	 */
+	private void getFocalMechFractions() {
+		fracStrikeSlip = new double[this.getNumGridLocs()];
+		fracNormal = new double[this.getNumGridLocs()];
+		fracReverse = new double[this.getNumGridLocs()];
+		
+		double ss_rate, n_rate, rv_rate;
+		for(int loc=0; loc<this.getNumGridLocs();loc++) {
+			
+			ss_rate = 0;
+			n_rate = 0;
+			rv_rate = 0;
+			
+			ss_rate += 0.5*agrd_cstcal_out[loc];
+			rv_rate += 0.5*agrd_cstcal_out[loc];
+			
+			ss_rate += agrd_deeps_out[loc];
+			
+			ss_rate += 0.5*agrd_impext_out[loc];
+			n_rate  += 0.5*agrd_impext_out[loc];
+			
+			ss_rate += 0.5*agrd_wuscmp_out[loc];
+			rv_rate += 0.5*agrd_wuscmp_out[loc];
+
+			ss_rate += 0.5*agrd_wusext_out[loc];
+			n_rate  += 0.5*agrd_wusext_out[loc];
+
+			double total = ss_rate+n_rate+rv_rate;
+			fracStrikeSlip[loc] = ss_rate/total;
+			fracNormal[loc] = n_rate/total;
+			fracReverse[loc]= rv_rate/total;
+		}
+	}
+	
 
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
