@@ -550,6 +550,7 @@ public class UCERF2 extends EqkRupForecast {
 		magAreaRelationships.add(new HanksBakun2002_MagAreaRel());
 		magAreaRelationships.add(new Somerville_2006_MagAreaRel());
 		magAreaRelationships.add(new WGCEP_2007_PowLaw_MagAreaRel());
+		magAreaRelationships.add(new Shaw_2007_MagAreaRel());
 		//magAreaRelationships.add(new WC1994_MagAreaRelationship());
 		// array List of Mag Area Rel names
 		ArrayList magAreaNamesList = new ArrayList();

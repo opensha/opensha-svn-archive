@@ -451,6 +451,46 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 		return mfdAtLoc;
 	}
+	
+	public void writeNumSources() {
+		int numLocs = getNumGridLocs();
+		int num;
+		System.out.println("Total Num Locs = "+numLocs);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(agrd_brawly_out[i]>0) num+=1;
+		System.out.println("agrd_brawly_out: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(agrd_creeps_out[i]>0) num+=1;
+		System.out.println("agrd_creeps_out: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(agrd_deeps_out[i]>0) num+=1;
+		System.out.println("agrd_deeps_out: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(agrd_mendos_out[i]>0) num+=1;
+		System.out.println("agrd_mendos_out: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(agrd_impext_out[i]>0) num+=1;
+		System.out.println("agrd_impext_out: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(area1new_agrid[i]>0) num+=1;
+		System.out.println("area1new_agrid: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(area2new_agrid[i]>0) num+=1;
+		System.out.println("area2new_agrid: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(area3new_agrid[i]>0) num+=1;
+		System.out.println("area3new_agrid: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(area4new_agrid[i]>0) num+=1;
+		System.out.println("area4new_agrid: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(mojave_agrid[i]>0) num+=1;
+		System.out.println("mojave_agrid: "+num);
+		num=0;
+		for(int i=0; i<numLocs; i++) if(sangreg_agrid[i]>0) num+=1;
+		System.out.println("sangreg_agrid: "+num);
+
+	}
 
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
@@ -458,7 +498,15 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		//System.out.println(srcGen.getTotMFDForRegion(false, true, true));
 		//double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
 		//for(int i=0; i<area1new_agrid.length; i++) System.out.println(area1new_agrid[i]);
-		int numLocs = srcGen.getNumGridLocs();
+		
+		srcGen.writeNumSources();
+		
+		// test memory usage when creating all sources
+//		System.out.println("getting sources");
+//		ArrayList<ProbEqkSource> sources = srcGen.getAllGriddedSources(true, 1, true, true);
+
+		/*
+		// This makes the file for Erdem
 		DecimalFormat latLonFormat = new DecimalFormat("0.000");
 		try {
 			FileWriter fw = new FileWriter("BckFileForErdem.txt");
@@ -473,5 +521,6 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 }
