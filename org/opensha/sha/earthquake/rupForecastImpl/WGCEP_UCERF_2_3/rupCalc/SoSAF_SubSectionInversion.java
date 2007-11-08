@@ -3,15 +3,24 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.rupCalc;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import nnls.NNLSWrapper;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.data.Location;
 import org.opensha.data.ValueWeight;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -19,9 +28,11 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -34,7 +45,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  *
  */
 public class SoSAF_SubSectionInversion {
-	
+	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/Appendix_C_Table7_091807.xls";
+
 	private boolean D = true;
 	private final static int MAX_SUBSECTION_LEN = 10;
 	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
@@ -103,6 +115,8 @@ public class SoSAF_SubSectionInversion {
 	
 	// NNLS inversion solver - static to save time and memory
 	private static NNLSWrapper nnls = new NNLSWrapper();
+	
+
 
 	// list of sources
 //	private ArrayList<FaultRuptureSource> sourceList;
@@ -132,7 +146,7 @@ public class SoSAF_SubSectionInversion {
 		if(D) System.out.println("num_seg="+num_seg+"; num_rup="+num_rup);
 		
 		// make short rupture names
-		String[] rupNameShort = new String[num_rup];
+		rupNameShort = new String[num_rup];
 		for(int rup=0; rup<num_rup; rup++){
 			boolean isFirst = true;
 			for(int seg=0; seg < num_seg; seg++) {
@@ -176,6 +190,21 @@ public class SoSAF_SubSectionInversion {
 
 	}
 	
+	/**
+	 * Write Short Rup names to a file
+	 * 
+	 * @param fileName
+	 */
+	public void writeRupNames(String fileName) {
+		try{
+			FileWriter fw = new FileWriter("org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/rupCalc/"+fileName);
+			for(int i=0; i<rupNameShort.length; ++i)
+				fw.write(rupNameShort[i]+"\n");
+			fw.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public void doInversion() {
 
@@ -635,6 +664,50 @@ public class SoSAF_SubSectionInversion {
 	
 	// This gets the seg-rate constraints by associating locations from Appendix C to those sub-sections created here
 	private void computeSegRateConstraints() {
+		segRateConstraints   = new ArrayList<SegRateConstraint>();
+		try {				
+			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_RATE_FILE_NAME));
+			HSSFWorkbook wb = new HSSFWorkbook(fs);
+			HSSFSheet sheet = wb.getSheetAt(0);
+			int lastRowIndex = sheet.getLastRowNum();
+			double lat, lon, rate, sigma, lower95Conf, upper95Conf;
+			String siteName;
+			for(int r=1; r<=lastRowIndex; ++r) {	
+				
+				// read the event from the file
+				HSSFRow row = sheet.getRow(r);
+				if(row==null) continue;
+				HSSFCell cell = row.getCell( (short) 1);
+				if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_STRING) continue;
+				lat = cell.getNumericCellValue();
+				siteName = row.getCell( (short) 0).getStringCellValue().trim();
+				lon = row.getCell( (short) 2).getNumericCellValue();
+				rate = row.getCell( (short) 3).getNumericCellValue();
+				sigma =  row.getCell( (short) 4).getNumericCellValue();
+				lower95Conf = row.getCell( (short) 7).getNumericCellValue();
+				upper95Conf =  row.getCell( (short) 8).getNumericCellValue();
+				
+				// get Closest sub section
+				double minDist = Double.MAX_VALUE, dist;
+				int closestFaultSectionIndex=-1;
+				Location loc = new Location(lat,lon);
+				for(int sectionIndex=0; sectionIndex<subSectionList.size(); ++sectionIndex) {
+					dist  = subSectionList.get(sectionIndex).getFaultTrace().getMinHorzDistToLine(loc);
+					if(dist<minDist) {
+						minDist = dist;
+						closestFaultSectionIndex = sectionIndex;
+					}
+				}
+				if(minDist>2) continue; // closest fault section is at a distance of more than 2 km
+				
+				// add to Seg Rate Constraint list
+				SegRateConstraint segRateConstraint = new SegRateConstraint(subSectionList.get(closestFaultSectionIndex).getSectionName());
+				segRateConstraint.setSegRate(closestFaultSectionIndex, rate, sigma, lower95Conf, upper95Conf);
+				segRateConstraints.add(segRateConstraint);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -652,6 +725,20 @@ public class SoSAF_SubSectionInversion {
 //			System.out.println(i+"\t"+subSection.getSectionName()+"\t"+(float)subSection.getLength());
 //			System.out.println(subSection.getFaultTrace());
 		}
+		
+		// write rup names to a file
+		System.out.println("Writing file for short rupture names");
+		soSAF_SubSections.writeRupNames("ShortRupNames.txt");
+		
+		// computer and print seg Rate constraints
+		System.out.println("Writing Seg Rate constraints");
+		soSAF_SubSections.computeSegRateConstraints();
+		for(int i=0; i<soSAF_SubSections.segRateConstraints.size(); ++i) {
+			SegRateConstraint segRateConstraint = soSAF_SubSections.segRateConstraints.get(i);
+			System.out.println(segRateConstraint.getFaultName()+","+segRateConstraint.getMean());
+		}
+		
+		
 	}
 
 }
