@@ -129,6 +129,7 @@ public class SoSAF_SubSectionInversion {
 		num_seg = subSectionList.size();
 		rupInSeg = getRupInSegMatrix(num_seg);
 		num_rup = num_seg*(num_seg+1)/2;
+		if(D) System.out.println("num_seg="+num_seg+"; num_rup="+num_rup);
 		
 		// make short rupture names
 		String[] rupNameShort = new String[num_rup];
@@ -144,7 +145,7 @@ public class SoSAF_SubSectionInversion {
 					}
 				}
 			}
-//			if(D) System.out.println(rupNameShort[rup]);
+//			if(D) System.out.println(rup+"\t"+rupNameShort[rup]);
 		}
 
 		// compute rupture areas
@@ -500,7 +501,7 @@ public class SoSAF_SubSectionInversion {
 				segData = subSectionList.get(seg);
 				segArea[seg] += segData.getDownDipWidth()*segData.getLength(); // note this ignores aseismicity!
 				segSlipRate[seg] = segData.getAveLongTermSlipRate();
-				if(D) System.out.println(seg+" slip rate = "+segSlipRate[seg]);
+//				if(D) System.out.println(seg+" slip rate = "+segSlipRate[seg]);
 				segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg]*1e6, segSlipRate[seg]*1e-3); // area km-->m; slipRate mm/yr --> m/yr
 		}
 
@@ -648,7 +649,7 @@ public class SoSAF_SubSectionInversion {
 		ArrayList<FaultSectionPrefData> subsectionList = soSAF_SubSections.getAllSubsections();
 		for(int i=0; i<subsectionList.size(); ++i) {
 			FaultSectionPrefData subSection = subsectionList.get(i);
-			System.out.println(i+"\t"+subSection.getSectionName()+"\t"+(float)subSection.getLength());
+//			System.out.println(i+"\t"+subSection.getSectionName()+"\t"+(float)subSection.getLength());
 //			System.out.println(subSection.getFaultTrace());
 		}
 	}
