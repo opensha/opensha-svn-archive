@@ -2248,13 +2248,14 @@ public class UCERF2 extends EqkRupForecast {
 		UCERF2 erRateModel2_ERF = new UCERF2();
 		erRateModel2_ERF.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		erRateModel2_ERF.updateForecast();
-		EvenlyDiscretizedFunc cumMFD = erRateModel2_ERF.getTotalMFD().getCumRateDistWithOffset();
+		System.out.println(erRateModel2_ERF.getTotal_BackgroundMFD().getCumRateDistWithOffset());
+		/*EvenlyDiscretizedFunc cumMFD = erRateModel2_ERF.getTotalMFD().getCumRateDistWithOffset();
 		DiscretizedFuncAPI cumMFD_fromProb = cumMFD.deepClone();
 		erRateModel2_ERF.getTotalProb(cumMFD_fromProb, null);
 		for(int i=0; i <cumMFD_fromProb.getNum();i++){
 			cumMFD_fromProb.set(i,-Math.log(1-cumMFD_fromProb.getY(i))/erRateModel2_ERF.getTimeSpan().getDuration());
 			System.out.println(i+"\t"+cumMFD.getY(i)+"\t"+cumMFD_fromProb.getY(i)+"\t"+cumMFD.getY(i)/cumMFD_fromProb.getY(i));
-		}
+		}*/
 		//System.out.println(cumMFD.toString());
 		//System.out.println(cumMFD.toString());
 		

@@ -162,7 +162,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     this.fracReverse=fracReverse;
     this.fracStrikeSlip=fracStrikeSlip;
     
-    if((fracNormal+fracReverse+fracStrikeSlip) != 1)
+    if(Math.abs(1-(fracNormal+fracReverse+fracStrikeSlip)) > 1e-6)
     	throw new RuntimeException("fractions must sum to 1.0");
     
     int numMags = magFreqDist.getNum();

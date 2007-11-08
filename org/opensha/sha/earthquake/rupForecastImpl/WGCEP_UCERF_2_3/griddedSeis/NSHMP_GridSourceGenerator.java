@@ -142,7 +142,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(agrd_creeps_out[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6, agrd_creeps_out[locIndex], B_VAL_CREEPING, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-42.5, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-42.5, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -153,7 +153,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(area1new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-35, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-35, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -164,7 +164,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(area2new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-25, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-25, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -175,7 +175,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(area3new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-45, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-45, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -186,7 +186,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(area4new_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area4new_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-45, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-45, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -197,7 +197,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(mojave_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-47, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-47, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -208,7 +208,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
 			if(sangreg_agrid[locIndex] >0) {
 				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false);
-				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-67, duration, 10.0, 1.0,0.0,0.0));
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,360-67, duration, 10.0, 1.0,0.0,0.0));
 			}
 		}
 		return sources;
@@ -224,7 +224,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */ 
 	public ArrayList<ProbEqkSource> getAllRandomStrikeGriddedSources(double duration) {
-		int numSources =  getNumSources();
+		int numSources =  getNumGridLocs();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
 			sources.add(getRandomStrikeGriddedSource(i, duration));
@@ -251,9 +251,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 *  
 	 * @return
 	 */
-	public int getNumSources() {
+	/*public int getNumSources() {
 		return this.getNumGridLocs();
-	}
+	}*/
 
 
 	/**
@@ -663,7 +663,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			fracStrikeSlip[loc] = ss_rate/total;
 			fracNormal[loc] = n_rate/total;
 			fracReverse[loc]= rv_rate/total;
-			System.out.println(loc+"\t"+fracStrikeSlip[loc]+"\t"+fracNormal[loc]+"\t"+fracReverse[loc]);
+			//System.out.println(loc+"\t"+fracStrikeSlip[loc]+"\t"+fracNormal[loc]+"\t"+fracReverse[loc]);
 		}
 	}
 	
