@@ -101,6 +101,15 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	public ArrayList<ProbEqkSource> getAllFixedStrikeSources(double duration) {
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		
+		sources.addAll(getBrawleyFixedStrikeSources(duration));
+		sources.addAll(getMendosFixedStrikeSources(duration));
+		sources.addAll(getCreepsFixedStrikeSources(duration));
+		sources.addAll(getArea1FixedStrikeSources(duration));
+		sources.addAll(getArea2FixedStrikeSources(duration));
+		sources.addAll(getArea3FixedStrikeSources(duration));
+		sources.addAll(getArea4FixedStrikeSources(duration));
+		sources.addAll(getMojaveFixedStrikeSources(duration));
+		sources.addAll(getSangregFixedStrikeSources(duration));
 		
 		return sources;
 	}
@@ -644,10 +653,17 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			ss_rate += 0.5*agrd_wusext_out[loc];
 			n_rate  += 0.5*agrd_wusext_out[loc];
 
+			// zero out any very low relative rates
 			double total = ss_rate+n_rate+rv_rate;
+			if((ss_rate/total) < 1e-3) ss_rate = 0;
+			if((n_rate/total) < 1e-3) n_rate = 0;
+			if((rv_rate/total) < 1e-3) rv_rate = 0;
+			
+			total = ss_rate+n_rate+rv_rate;			
 			fracStrikeSlip[loc] = ss_rate/total;
 			fracNormal[loc] = n_rate/total;
 			fracReverse[loc]= rv_rate/total;
+			System.out.println(loc+"\t"+fracStrikeSlip[loc]+"\t"+fracNormal[loc]+"\t"+fracReverse[loc]);
 		}
 	}
 	
@@ -659,7 +675,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		//double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
 		//for(int i=0; i<area1new_agrid.length; i++) System.out.println(area1new_agrid[i]);
 		
-		srcGen.writeNumSources();
+		// srcGen.writeNumSources();
 		
 		// test memory usage when creating all sources
 //		System.out.println("getting sources");

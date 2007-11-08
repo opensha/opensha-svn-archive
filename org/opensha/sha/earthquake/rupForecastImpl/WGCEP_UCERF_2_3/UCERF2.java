@@ -895,13 +895,13 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		if(iSource<allSources.size()) // everything but the grid sources
+		//if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
-		else {
+//		else {
 //			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
-		}
+//			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+//		}
 	}
 
 	/**
@@ -910,7 +910,7 @@ public class UCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size() + nshmp_gridSrcGen.getNumSources();
+		return allSources.size(); /*+ nshmp_gridSrcGen.getNumSources();*/
 	}
 
 
@@ -968,6 +968,9 @@ public class UCERF2 extends EqkRupForecast {
 			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
 			//	totBackgroundMFD.set(i,0.33*totBackgroundMFD.getY(i));
 		}
+		allSources.addAll(this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+		allSources.addAll(this.nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
+
 		
 		this.reCalcBck = false; 
 
@@ -1346,7 +1349,8 @@ public class UCERF2 extends EqkRupForecast {
 		sourceList.addAll(allSources);
 //		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
 //		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(timeSpan.getDuration()));
+	//	sourceList.addAll(this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+	//	sourceList.addAll(this.nshmp_gridSrcGen.getAllFixedStrikeGriddedSources(timeSpan.getDuration()));
 		return sourceList;
 	}
 
