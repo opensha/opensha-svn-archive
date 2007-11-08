@@ -392,7 +392,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				allSources.addAll(nonCA_bFaultSources);
 			}
 			if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
-				backgroundSources = (this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), true, true));
+				backgroundSources = (this.nshmp_gridSrcGen.getAllGriddedSources(timeSpan.getDuration()));
 				allSources.addAll(backgroundSources);
 			}
 			

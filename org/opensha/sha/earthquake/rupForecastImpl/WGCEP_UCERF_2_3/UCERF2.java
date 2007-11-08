@@ -339,14 +339,14 @@ public class UCERF2 extends EqkRupForecast {
 	private StringParameter setForBckParam;
 
 	// NSHMP Bulge Reduction Param
-	public final static String BULGE_REDUCTION_PARAM_NAME = "NSHMP Bulge Reduction?";
-	private final static String BULGE_REDUCTION_PARAM_INFO = "This reduces california backgroud seis. rates by a factor of 3 for M>6.5";
-	private BooleanParameter bulgeReductionBooleanParam;
+//	public final static String BULGE_REDUCTION_PARAM_NAME = "NSHMP Bulge Reduction?";
+//	private final static String BULGE_REDUCTION_PARAM_INFO = "This reduces california backgroud seis. rates by a factor of 3 for M>6.5";
+//	private BooleanParameter bulgeReductionBooleanParam;
 
 	// NSHMP Max-Mag Grid Param
-	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
-	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
-	private BooleanParameter maxMagGridBooleanParam;
+//	public final static String MAX_MAG_GRID_PARAM_NAME = "Apply Max-Mag Grid?";
+//	private final static String MAX_MAG_GRID_PARAM_INFO = "This applies spatially variable mag-mags in background sies.";
+//	private BooleanParameter maxMagGridBooleanParam;
 
 	// Probability Model Param
 	public final static String PROB_MODEL_PARAM_NAME = "Probability Model";
@@ -641,11 +641,11 @@ public class UCERF2 extends EqkRupForecast {
 		setForBckParam.setInfo(SET_FOR_BCK_PARAM_INFO);
 		setForBckParam.addParameterChangeListener(this);
 
-		bulgeReductionBooleanParam = new BooleanParameter(BULGE_REDUCTION_PARAM_NAME,true);
-		bulgeReductionBooleanParam.setInfo(BULGE_REDUCTION_PARAM_INFO);
+//		bulgeReductionBooleanParam = new BooleanParameter(BULGE_REDUCTION_PARAM_NAME,true);
+//		bulgeReductionBooleanParam.setInfo(BULGE_REDUCTION_PARAM_INFO);
 
-		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
-		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
+//		this.maxMagGridBooleanParam = new BooleanParameter(MAX_MAG_GRID_PARAM_NAME,true);
+//		maxMagGridBooleanParam.setInfo(MAX_MAG_GRID_PARAM_INFO);
 
 		// Probability Model Param
 		ArrayList<String> probModelOptions = new ArrayList<String>();
@@ -742,8 +742,8 @@ public class UCERF2 extends EqkRupForecast {
 		c_ZoneWtParam.setValue(C_ZONE_WT_DEFAULT);
 		// set for background
 		setForBckParam.setValue(SET_FOR_BCK_PARAM_NSHMP07);
-		bulgeReductionBooleanParam.setValue(true);
-		maxMagGridBooleanParam.setValue(true);
+//		bulgeReductionBooleanParam.setValue(true);
+//		maxMagGridBooleanParam.setValue(true);
 
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 		aperiodicityParam.setValue(APERIODICITY_PARAM_DEFAULT);
@@ -819,8 +819,8 @@ public class UCERF2 extends EqkRupForecast {
 		}
 		else {
 			// the else case (SET_FOR_BCK_PARAM_NSHMP07) adds nothing here
-			adjustableParams.addParameter(bulgeReductionBooleanParam);
-			adjustableParams.addParameter(maxMagGridBooleanParam);
+//			adjustableParams.addParameter(bulgeReductionBooleanParam);
+//			adjustableParams.addParameter(maxMagGridBooleanParam);
 		}
 		adjustableParams.addParameter(probModelParam);
 		if(this.probModelParam.getValue().equals(PROB_MODEL_BPT)) { // if time dependent prob model is chosen
@@ -898,9 +898,9 @@ public class UCERF2 extends EqkRupForecast {
 		if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
 		else {
-			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), true, timeSpan.getDuration(), bulgeReduction, maxMagGrid);
+//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
 		}
 	}
 
@@ -958,9 +958,9 @@ public class UCERF2 extends EqkRupForecast {
 			((GutenbergRichterMagFreqDist) totBackgroundMFD).setAllButTotMoRate(MIN_MAG, magMax, totBackRate, bValue);
 		}
 		else { // the SET_FOR_BCK_PARAM_NSHMP07 case
-			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,bulgeReduction,maxMagGrid);
+//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+			totBackgroundMFD = nshmp_gridSrcGen.getTotMFDForRegion(null, false,true,true, true);
 			// totBackgroundMFD = getNSHMP02_Backgr_MFD();
 			// totBackgroundMFD.scaleToCumRate(5.0,totBackRate);
 
@@ -1344,9 +1344,9 @@ public class UCERF2 extends EqkRupForecast {
 	public ArrayList  getSourceList(){
 		ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
-		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(true, timeSpan.getDuration(), bulgeReduction, maxMagGrid));
+//		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+//		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		sourceList.addAll(this.nshmp_gridSrcGen.getAllGriddedSources(timeSpan.getDuration()));
 		return sourceList;
 	}
 
@@ -1713,9 +1713,9 @@ public class UCERF2 extends EqkRupForecast {
 	// this assumes not time dependence
 	public void getTotal_BackgroundProb(DiscretizedFuncAPI magProbDist, GeographicRegion region) {
 		int numMags = magProbDist.getNum();
-		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, applyBulgeReduction, applyMaxMagGrid);
+//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
 		for(int i=0; i<numMags; ++i) {
 			double minMag = magProbDist.getX(i);
 			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions
@@ -1729,9 +1729,9 @@ public class UCERF2 extends EqkRupForecast {
 	// this assumes not time dependence
 	public void getTotal_BackgroundMFD(DiscretizedFuncAPI magFreqDist, GeographicRegion region) {
 		int numMags = magFreqDist.getNum();
-		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, applyBulgeReduction, applyMaxMagGrid);
+//		boolean applyBulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
+//		boolean applyMaxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
+		IncrementalMagFreqDist incrMFD= this.nshmp_gridSrcGen.getTotMFDForRegion(region, false, true, true, true);
 		for(int i=0; i<numMags; ++i) {
 			double minMag = magFreqDist.getX(i);
 			// make sure it goes to next highest; 1e-5 is to avoid numerical inprecisions

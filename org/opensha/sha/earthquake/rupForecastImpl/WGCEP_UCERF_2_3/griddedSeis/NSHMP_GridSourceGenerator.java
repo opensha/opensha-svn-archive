@@ -16,7 +16,6 @@ import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -56,6 +55,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 	private final double C_ZONES_MAX_MAG = 7.6;
 	private final double DEFAULT_MAX_MAG=7.0;
+	
+	private double[] fracStrikeSlip,fracNormal,fracReverse;
 
 	private double maxFromMaxMagFiles;
 
@@ -85,9 +86,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 	}
 
-
+	
 	/**
-	 * Get all gridded sources
+	 * Get all fixed-strike gridded sources
 	 * 
 	 * @param includeC_Zones
 	 * @param duration
@@ -95,27 +96,142 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @param applyMaxMagGrid
 	 * @return
 	 */ 
-	public ArrayList<ProbEqkSource> getAllGriddedSources(boolean includeC_Zones, double duration, 
-			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+	public ArrayList<ProbEqkSource> getAllFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		
+		
+		return sources;
+	}
+	
+	
+	public ArrayList<ProbEqkSource> getBrawleyFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(agrd_brawly_out[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null, 157, duration, 10.0, 0.5,0.5,0));
+			}
+		}
+		return sources;
+	}
+
+	public ArrayList<ProbEqkSource> getMendosFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(agrd_mendos_out[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,90, duration, 10.0, 0.5,0.0,0.5));
+			}
+		}
+		return sources;
+	}
+	
+	public ArrayList<ProbEqkSource> getCreepsFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(agrd_creeps_out[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(5.0, 6, agrd_creeps_out[locIndex], B_VAL_CREEPING, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-42.5, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+
+	public ArrayList<ProbEqkSource> getArea1FixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(area1new_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-35, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+
+	public ArrayList<ProbEqkSource> getArea2FixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(area2new_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-25, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+	
+	public ArrayList<ProbEqkSource> getArea3FixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(area3new_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-45, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+
+	public ArrayList<ProbEqkSource> getArea4FixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(area4new_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, area4new_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-45, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+	
+	public ArrayList<ProbEqkSource> getMojaveFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(mojave_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, mojave_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-47, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+
+	public ArrayList<ProbEqkSource> getSangregFixedStrikeSources(double duration) {
+		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
+		for(int locIndex=0;locIndex<this.getNumGridLocs();locIndex++) {
+			if(sangreg_agrid[locIndex] >0) {
+				GutenbergRichterMagFreqDist mfd = getMFD(6.5, C_ZONES_MAX_MAG, sangreg_agrid[locIndex], B_VAL, false);
+				sources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfd, null,-67, duration, 10.0, 1.0,0.0,0.0));
+			}
+		}
+		return sources;
+	}
+
+
+	
+
+	/**
+	 * Get all random strike gridded sources
+	 * 
+	 * @param duration
+	 * @return
+	 */ 
+	public ArrayList<ProbEqkSource> getAllRandomStrikeGriddedSources(double duration) {
 		int numSources =  getNumSources();
 		ArrayList<ProbEqkSource> sources = new ArrayList<ProbEqkSource>();
 		for(int i=0; i<numSources; ++i) {
-			sources.add(getGriddedSource(i, includeC_Zones, duration, applyBulgeReduction, applyMaxMagGrid));
+			sources.add(getRandomStrikeGriddedSource(i, duration));
 		}
 		return sources;
 	}
 
 
 	/**
-	 * Get the griddedsource at a specified index
+	 * Get the random strike gridded source at a specified index (this ignores the fixed-strike contribution)
 	 * 
 	 * @param srcIndex
 	 * @return
 	 */
-	public ProbEqkSource getGriddedSource(int srcIndex, boolean includeC_Zones, double duration, 
-			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
-		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  includeC_Zones, applyBulgeReduction,  applyMaxMagGrid);
-		return new Point2Vert_SS_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0);
+	public ProbEqkSource getRandomStrikeGriddedSource(int srcIndex, double duration) {
+		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false);
+		return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, null, duration, 10.0,
+				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex]);
 	}
 
 
@@ -383,7 +499,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */
 	public SummedMagFreqDist getTotMFDForRegion(GeographicRegion region, boolean includeC_zones, 
-			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources) {
 
 		// create summed MFD
 		SummedMagFreqDist totMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
@@ -391,7 +507,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		for(int locIndex=0; locIndex<numLocs; ++locIndex)
 			if(region==null || region.isLocationInside(this.getGridLocation(locIndex)))
 				totMFD.addResampledMagFreqDist(getTotMFD_atLoc( locIndex,  includeC_zones, 
-						applyBulgeReduction,  applyMaxMagGrid), true);
+						applyBulgeReduction,  applyMaxMagGrid, includeFixedRakeSources), true);
 		return totMFD;
 	}
 
@@ -404,7 +520,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
-			boolean applyBulgeReduction, boolean applyMaxMagGrid) {
+			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources) {
 
 
 		// find max mag among all contributions
@@ -415,9 +531,12 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
 
 		// create and add each contributing MFD
-		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false), true);
-		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false), true);	
-		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false), true);
+		if(includeFixedRakeSources) {
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.5, agrd_brawly_out[locIndex], B_VAL, false), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.3, agrd_mendos_out[locIndex], B_VAL, false), true);	
+			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false), true);			
+		}
+		
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out6[locIndex], 0.667*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out6[locIndex], 0.333*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
@@ -440,7 +559,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wuscmp_out[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, DEFAULT_MAX_MAG, agrd_wusext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		}
-		if(includeC_zones) { // Include C-Zones
+		if(includeC_zones && includeFixedRakeSources) { // Include C-Zones
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area1new_agrid[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area2new_agrid[locIndex], B_VAL, false), true);
 			mfdAtLoc.addResampledMagFreqDist(getMFD(6.5, C_ZONES_MAX_MAG, area3new_agrid[locIndex], B_VAL, false), true);

@@ -566,56 +566,6 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	}
 	
 	
-	/**
-	 * Plot ethe MFDs after varying the NSHMP Bulge Parameter and Apply M-Max Grid parameter
-	 *
-	 */
-	private void plotBackgroundEffectsMFDs() {
-		
-		//		 BULGE PARAMETER EFFECT
-		SummedMagFreqDist avgTotMFD = doAverageMFDs(false, false, false, false, false, false);
-		SummedMagFreqDist modifiedTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-		ucerf2.setParamDefaults();
-		this.ucerf2.getParameter(UCERF2.BULGE_REDUCTION_PARAM_NAME).setValue(new Boolean(false));
-		ucerf2.updateForecast();
-		IncrementalMagFreqDist newBckMFD = ucerf2.getTotal_BackgroundMFD();
-		
-		for(int i=0; i< avgTotMFD.getNum(); ++i) {
-			double mag = avgTotMFD.getX(i);
-			modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
-		}
-		String metadata="Dotted Dashed Line - ";
-		metadata += "("+UCERF2.BULGE_REDUCTION_PARAM_NAME+"=false) ";
-		addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
-		addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-		addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), PLOT_CHAR4_1);	
-		GraphWindow graphWindow= new GraphWindow(this);
-	    graphWindow.setPlotLabel("Mag Freq Dist");
-	    graphWindow.plotGraphUsingPlotPreferences();
-	    graphWindow.setVisible(true);
-	    
-	    // APPLY MAX_MAG GRID parameter
-	    avgTotMFD = doAverageMFDs(false, false, false, false, false, false);
-	    modifiedTotMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
-	    ucerf2.setParamDefaults();
-	    this.ucerf2.getParameter(UCERF2.MAX_MAG_GRID_PARAM_NAME).setValue(new Boolean(false));
-	    ucerf2.updateForecast();
-	    newBckMFD = ucerf2.getTotal_BackgroundMFD();
-	    
-	    for(int i=0; i< avgTotMFD.getNum(); ++i) {
-	    	double mag = avgTotMFD.getX(i);
-	    	modifiedTotMFD.addResampledMagRate(mag, avgTotMFD.getY(i) - this.bckMFD.getY(mag) + newBckMFD.getY(mag), true);
-	    }
-	    metadata="Dotted Dashed Line - ";
-	    metadata += "("+UCERF2.MAX_MAG_GRID_PARAM_NAME+"=false) ";
-	    addToFuncList(bckMFD, "Solid Line - Background MFD", PLOT_CHAR5);
-	    addToFuncList(newBckMFD, metadata+"Background MFD", PLOT_CHAR5_1);
-	    addToFuncList(modifiedTotMFD, metadata+"Total MFD, M6.5 Cum Ratio = "+modifiedTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2)/avgTotMFD.getCumRate(6.5+UCERF2.DELTA_MAG/2), PLOT_CHAR4_1);	
-	    graphWindow= new GraphWindow(this);
-	    graphWindow.setPlotLabel("Mag Freq Dist");
-	    graphWindow.plotGraphUsingPlotPreferences();
-	    graphWindow.setVisible(true);
-	}
 	
 	/**
 	 *
