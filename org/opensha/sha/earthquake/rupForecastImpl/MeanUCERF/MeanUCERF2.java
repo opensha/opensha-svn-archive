@@ -762,7 +762,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
 		
 		// Now calculate the B-Faults total MFD
-		//bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		if(calcSummedMFDs) bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		
 		double mag, rate;
 		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {

@@ -14,9 +14,11 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -670,6 +672,29 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 	public static void main(String args[]) {
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
+		double duration = 30;
+		ArrayList<ProbEqkSource> allSources = new ArrayList<ProbEqkSource>();
+		allSources.addAll(srcGen.getAllRandomStrikeGriddedSources(duration));
+		allSources.addAll(srcGen.getAllFixedStrikeSources(duration));
+
+		// Now calculate the total MFD
+		SummedMagFreqDist mfd= new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
+
+		double mag, rate;
+		for(int srcIndex=0; srcIndex<allSources.size(); ++srcIndex) {
+			ProbEqkSource source = allSources.get(srcIndex);
+			//System.out.println(source.getName());
+			int numRups = source.getNumRuptures();
+			for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
+				ProbEqkRupture rup = source.getRupture(rupIndex);
+				mag = rup.getMag();
+				rate = rup.getMeanAnnualRate(duration);
+				mfd.add(mag, rate);
+			}
+		}
+		
+		System.out.println(mfd.getCumRateDistWithOffset());
+
 		//System.out.println(srcGen.getTotalC_ZoneMFD().getCumRateDist());
 		//System.out.println(srcGen.getTotMFDForRegion(false, true, true));
 		//double[] area1new_agrid  = srcGen.readGridFile(PATH+"area1new.agrid.asc",false);
