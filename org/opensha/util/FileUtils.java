@@ -155,10 +155,9 @@ public class FileUtils {
     * @param url
     * @return
     */
-   public static Object loadObjectFromURL(String url) {
+   public static Object loadObjectFromURL(URL url) {
      try {
-       URL forecastURL = new URL(url);
-       URLConnection uc = forecastURL.openConnection();
+       URLConnection uc = url.openConnection();
        ObjectInputStream tis = new ObjectInputStream( (InputStream) uc.
            getContent());
        Object obj = tis.readObject();

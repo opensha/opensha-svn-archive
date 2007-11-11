@@ -404,12 +404,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		// read from pre-genearated A-Faults files
 		if(probModel.equalsIgnoreCase(PROB_MODEL_POISSON)
 				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
-			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_POISS_FILENAME);
+			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObjectFromURL(FileUtils.class.getResource("/"+A_FAULTS_POISS_FILENAME));
 			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
 				aFaultSegmentedSources.get(i).setDuration(duration);
 		}  else if(probModel.equalsIgnoreCase(PROB_MODEL_EMPIRICAL)
 				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
-			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObject(A_FAULTS_EMPIRICAL_FILENAME);
+			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObjectFromURL(FileUtils.class.getResource("/"+A_FAULTS_EMPIRICAL_FILENAME));
 			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
 				aFaultSegmentedSources.get(i).setDuration(duration);
 		} else { 
