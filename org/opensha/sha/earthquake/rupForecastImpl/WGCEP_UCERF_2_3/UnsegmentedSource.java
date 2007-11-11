@@ -234,7 +234,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 				segmentData.getAveRake(),
 				duration,
 				segmentData.getFaultName(),
-				applyCyberShakeDDW_Corr);
+				applyCyberShakeDDW_Corr,
+				2);
 
 
 		// change the info in the MFDs
@@ -344,7 +345,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 				segmentData.getAveRake(),
 				DEFAULT_DURATION,
 				segmentData.getFaultName(),
-				false);
+				false,
+				2);
 
 
 
@@ -1100,12 +1102,25 @@ public class UnsegmentedSource extends ProbEqkSource {
 	}
 
 
+	/**
+	 * 
+	 * @param surface
+	 * @param rupOffset
+	 * @param rake
+	 * @param duration
+	 * @param sourceName
+	 * @param applyCyberShakeDDW_Corr
+	 * @param floaterType - 0 = only along strike ( rupture full DDW); 
+	 *                      1 = float along strike and down dip;
+	 *                      2 = float along strike & centered down dip
+	 */
 	private void mkRuptureList(EvenlyGriddedSurface surface,
 			double rupOffset,
 			double rake,
 			double duration,
 			String sourceName,
-			boolean applyCyberShakeDDW_Corr) {
+			boolean applyCyberShakeDDW_Corr,
+			int floaterType) {
 
 		this.surface=surface;
 		this.rupOffset = rupOffset;
@@ -1115,8 +1130,6 @@ public class UnsegmentedSource extends ProbEqkSource {
 		ruptureList = new ArrayList<ProbEqkRupture>();
 		double totSrcRate=0, totSrcRateEmp=0; // for computing the source gain
 		
-//		boolean floatsDownDip = false;
-
 		// Make GR ruptures
 		for (int i=0; grMFD!=null && i<grMFD.getNum(); ++i){
 			double rate = grMFD.getY(i);
@@ -1127,27 +1140,48 @@ public class UnsegmentedSource extends ProbEqkSource {
 			else rupArea  = hb_MagAreaRel.getMedianArea(mag);
 			double rup_width = Math.sqrt(rupArea);
 			if (rup_width > surface.getSurfaceWidth()) rup_width = surface.getSurfaceWidth();
-//			else floatsDownDip = true;
 			
 			double rupLen = rupArea/rup_width;
+			int numRup=-1, firstRupIndex=-1, lastRupIndex=-1, rupIndexOffset=-1;
+			double finalRupOffset=0, finalRupWidth=0;
 			
-			// float only along center of DDW extent - FAILED ATTEMPT!
-//			int numRup = surface.getNumSubsetSurfaces(rupLen,100,rupOffset); // rup width of 100 gets number floating along
-//			int tempNumRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
-//			int firstRupIndex = ((tempNumRup/numRup)/2)*numRup;
-//			int lastRupIndex = firstRupIndex+numRup;
+			if(floaterType == 2) {
+				// float only along center of DDW extent - FAILED ATTEMPT!
+				int numRupAlongAt1kmOffset = surface.getNumSubsetSurfaces(rupLen,100,1.0); // rup width of 100 gets number floating along
+				int totNumRupAt1kmOffset = surface.getNumSubsetSurfaces(rupLen,rup_width,1.0);
+				firstRupIndex = ((totNumRupAt1kmOffset/numRupAlongAt1kmOffset)/2)*numRupAlongAt1kmOffset;
+				lastRupIndex = firstRupIndex+numRupAlongAt1kmOffset;
+				rupIndexOffset = (int)Math.round(rupOffset);
+				numRup = surface.getNumSubsetSurfaces(rupLen,100,rupOffset);
+				finalRupOffset = 1;
+				finalRupWidth = rup_width;
+				// int testNumRup =0;				
+			}
+			else if(floaterType == 1) {
+				// float along strike and down dip
+				numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
+				firstRupIndex = 0;
+				lastRupIndex = numRup;
+				rupIndexOffset = 1;
+				finalRupOffset = rupOffset;	
+			}
+			else if (floaterType == 0) {
+				finalRupWidth = 100;
+				numRup = surface.getNumSubsetSurfaces(rupLen,finalRupWidth,rupOffset);
+				firstRupIndex = 0;
+				lastRupIndex = numRup;
+				rupIndexOffset = 1;
+				finalRupOffset = rupOffset;	
+			}
 			
-			// float down-dip alternative
-			int numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
-//			int firstRupIndex = 0;
-//			int lastRupIndex = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
+			
 			
 			rate /= numRup;
-			for(int r=0; r<numRup; r++) {
+			for(int r=firstRupIndex; r<lastRupIndex; r+=rupIndexOffset) {
 				ProbEqkRupture rup = new ProbEqkRupture();
 				rup.setAveRake(rake);
 				rup.setMag(mag);
-				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,rup_width,rupOffset,r);
+				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,finalRupWidth,finalRupOffset,r);
 				rup.setRuptureSurface(rupSurf);
 				// set probability
 			    double empiricalCorr=1;
@@ -1159,7 +1193,10 @@ public class UnsegmentedSource extends ProbEqkSource {
 			    totSrcRateEmp += rupRate;
 				rup.setProbability(1- Math.exp(-duration*rupRate));
 				ruptureList.add(rup);
+				//testNumRup += 1;
 			}
+			// if(testNumRup != numRup) throw  new RuntimeException("numRup="+numRup+"\ttestNumRup="+testNumRup);
+			// System.out.println((numRup/testNumRup)+"\tnumRup="+numRup+"\ttestNumRup="+testNumRup);
 			
 		}
 // if(floatsDownDip) System.out.println(segmentData.getFaultName());

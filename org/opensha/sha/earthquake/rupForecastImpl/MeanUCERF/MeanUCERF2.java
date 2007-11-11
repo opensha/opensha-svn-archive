@@ -873,9 +873,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.calcSummedMFDs  =true;
-		meanUCERF2.setParameter(MeanUCERF2.BACK_SEIS_NAME, MeanUCERF2.BACK_SEIS_EXCLUDE);
-		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
+//		meanUCERF2.calcSummedMFDs  =true;
+//		meanUCERF2.setParameter(MeanUCERF2.BACK_SEIS_NAME, MeanUCERF2.BACK_SEIS_EXCLUDE);
+//		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.updateForecast();
 		/*System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
