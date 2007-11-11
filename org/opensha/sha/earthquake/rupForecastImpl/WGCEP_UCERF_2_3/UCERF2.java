@@ -2119,7 +2119,8 @@ public class UCERF2 extends EqkRupForecast {
 		}*/
 		
 		if(paramName.equalsIgnoreCase(SET_FOR_BCK_PARAM_NAME) ||
-				paramName.equalsIgnoreCase(SEG_DEP_APERIODICITY_PARAM_NAME)) {
+				paramName.equalsIgnoreCase(SEG_DEP_APERIODICITY_PARAM_NAME) ||
+				paramName.equalsIgnoreCase(BACK_SEIS_NAME)) {
 			createParamList();
 		} else if(paramName.equalsIgnoreCase(PROB_MODEL_PARAM_NAME)) {
 			createParamList();
