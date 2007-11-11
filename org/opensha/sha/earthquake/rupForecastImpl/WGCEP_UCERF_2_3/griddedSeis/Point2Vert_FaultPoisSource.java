@@ -50,7 +50,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;
   private PointSurface ptSurface;
-  private FrankelGriddedSurface finiteFault;
+  private FrankelGriddedSurface finiteFaultSurface1;
+  private FrankelGriddedSurface finiteFaultSurface2; // this is used if isCrossHair is true
   
   private int numRuptures;
   private int ss_firstIndex;
@@ -59,6 +60,12 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   private int n_lastIndex;
   private int rv_firstIndex;
   private int rv_lastIndex;
+  
+  /**
+   * If Crosshair is set to true, we have 2 perpendicular faults 
+   * (one with 0 strike and other with strike of 90 degrees)
+   */
+  private boolean isCrossHair = false; 
 
 
   // to hold the non-zero mags, rates, and rupture surfaces
@@ -105,9 +112,10 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
    public Point2Vert_FaultPoisSource(Location loc, IncrementalMagFreqDist magFreqDist,
                                         MagLengthRelationship magLengthRelationship,
                                         double duration, double magCutOff,double fracStrikeSlip,
-                                        double fracNormal,double fracReverse){
+                                        double fracNormal,double fracReverse, boolean isCrossHair){
      this.magCutOff = magCutOff;
-
+     // whether to simulate it as 2 perpendicular faults
+     this.isCrossHair = isCrossHair;
      // make the prob qk rupture
      probEqkRupture = new ProbEqkRupture();
 
@@ -129,11 +137,11 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
                       MagLengthRelationship magLengthRelationship,
                       double duration,double fracStrikeSlip,
                       double fracNormal,double fracReverse) {
-
-     // get a random strike between -90 and 90
-     double strike = (Math.random()-0.5)*180.0;
-     if (strike < 0.0) strike +=360;
-// System.out.println(C+" random strike = "+strike);
+	 
+	 // If isCrosssHair is true, this strike is only used for point sources. Finite sources get strike of 0 and 90
+	 double strike = (Math.random()-0.5)*180.0;
+	 if (strike < 0.0) strike +=360;
+     // System.out.println(C+" random strike = "+strike);
      setAll(loc,magFreqDist,magLengthRelationship,strike,duration,fracStrikeSlip, fracNormal, fracReverse);
    }
 
@@ -191,17 +199,24 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     	numRuptures +=numMags;    	
     }
     
+    if(this.isCrossHair) numRuptures+=numRuptures;
 
+    double depth = 1.0;
     // make the point surface
-    ptSurface = new PointSurface(loc);
+    Location newLoc = (Location)loc.clone();
+    
+    newLoc.setDepth(depth); // Point source at 1 km depth
+    ptSurface = new PointSurface(newLoc);
     ptSurface.setAveDip(aveDip);
     ptSurface.setAveStrike(strike);
+     
     double maxMag = magFreqDist.getX(magFreqDist.getNum()-1);
     // make finite source if necessary
     if(maxMag > magCutOff) {
       Location loc1, loc2;
       Direction dir;
       double halfLength = magLengthRelationship.getMedianLength(maxMag)/2.0;
+      if(this.isCrossHair) strike = 0;
       loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
       dir = RelativeLocation.getDirection(loc1,loc);
       dir.setHorzDistance(dir.getHorzDistance()*2.0);
@@ -209,8 +224,20 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
       FaultTrace fault = new FaultTrace("");
       fault.addLocation(loc1);
       fault.addLocation(loc2);
-      finiteFault = new FrankelGriddedSurface(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
-   }
+      finiteFaultSurface1 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
+    
+      // Make second surface for cross Hair option
+      if(this.isCrossHair) strike = 90;
+      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+      dir = RelativeLocation.getDirection(loc1,loc);
+      dir.setHorzDistance(dir.getHorzDistance()*2.0);
+      loc2 = RelativeLocation.getLocation(loc1,dir);
+      fault = new FaultTrace("");
+      fault.addLocation(loc1);
+      fault.addLocation(loc2);
+      finiteFaultSurface2 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
+
+    }
   }
 
   /**
@@ -221,8 +248,19 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    if(this.finiteFault!=null) return finiteFault.getLocationList();
-    else return ptSurface.getLocationList();
+	LocationList locList = new LocationList();
+    
+	if(this.finiteFaultSurface1!=null) { 
+    	locList = finiteFaultSurface1.getLocationList();
+    }
+    
+    if(this.finiteFaultSurface2!=null) { 
+    	Iterator<Location> it = finiteFaultSurface2.getLocationsIterator();
+    	while(it.hasNext()) locList.addLocation(it.next());
+    }
+    
+    if(ptSurface!=null) locList.addLocation(ptSurface.getLocation());
+    return locList;
   }
 
 
@@ -240,7 +278,11 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
    * This makes and returns the nth probEqkRupture for this source.
    */
   public ProbEqkRupture getRupture(int nthRupture){
-	  
+	  boolean secondSurface = false;
+	  if(this.isCrossHair && nthRupture>=numRuptures/2) { // whether second surface needs to be used
+		  nthRupture -= numRuptures/2;
+		  secondSurface = true;
+	  }
 	  double fraction=Double.NaN;
 	  double rake = Double.NaN;
 	  int magIndex = -1;
@@ -263,28 +305,49 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 
     // set the magnitude
     double mag = magFreqDist.getX(magIndex);
+    // set the depth according to magnitude
+    double depth;
+    if(mag<=6.5) depth = 1.0;
+    else depth = 5.0;
     probEqkRupture.setMag(mag);
     probEqkRupture.setAveRake(rake);
-
+    if(this.isCrossHair) fraction/=2;
     // compute and set the probability
     double prob = 1 - Math.exp(-duration*fraction*magFreqDist.getY(magIndex));
     probEqkRupture.setProbability(prob);
-
+    
     // set the rupture surface
-    if(mag <= this.magCutOff)
-      probEqkRupture.setRuptureSurface(ptSurface);
-    else {
-      if(magIndex == magFreqDist.getNum()-1) {
-        probEqkRupture.setRuptureSurface(finiteFault);
-      }
-      else {
-        double rupLen = magLengthRelationship.getMedianLength(mag);
-        double startPoint = (double)finiteFault.getNumCols()/2.0 - 0.5 - rupLen/2.0;
-        GriddedSubsetSurface rupSurf = new GriddedSubsetSurface(1,Math.round((float)rupLen+1),
-                                                             0,Math.round((float)startPoint),
-                                                             finiteFault);
-        probEqkRupture.setRuptureSurface(rupSurf);
-      }
+    if(mag <= this.magCutOff) { // set the point surface
+    	if(ptSurface.getDepth()!=depth) ptSurface.setDepth(depth);
+    	probEqkRupture.setRuptureSurface(ptSurface);
+    }
+    else { // set finite surface
+    	FrankelGriddedSurface finiteFault;
+    	
+    	// set the appropriate surface in case of CrossHair option
+    	if(secondSurface) finiteFault = this.finiteFaultSurface2;
+    	else finiteFault  = this.finiteFaultSurface1;
+    	
+    	// set the appropriate depth in the surface
+    	if(finiteFault.getLocation(0, 0).getDepth()!=depth) {
+    		Iterator<Location> it = finiteFault.getLocationsIterator();
+    		while(it.hasNext()) {
+    			Location loc = it.next();
+    			loc.setDepth(depth);
+    		}
+    	}
+    	
+    	if(magIndex == magFreqDist.getNum()-1) {
+    		probEqkRupture.setRuptureSurface(finiteFault);
+    	}
+    	else {
+    		double rupLen = magLengthRelationship.getMedianLength(mag);
+    		double startPoint = (double)finiteFault.getNumCols()/2.0 - 0.5 - rupLen/2.0;
+    		GriddedSubsetSurface rupSurf = new GriddedSubsetSurface(1,Math.round((float)rupLen+1),
+    				0,Math.round((float)startPoint),
+    				finiteFault);
+    		probEqkRupture.setRuptureSurface(rupSurf);
+    	}
     }
 
     // return the ProbEqkRupture
@@ -359,7 +422,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 //    Point2Vert_SS_FaultPoisSource src = new Point2Vert_SS_FaultPoisSource(loc, dist,
 //                                       wc_rel,45, 1.0, 6.0, 5.0);
     Point2Vert_FaultPoisSource src = new Point2Vert_FaultPoisSource(loc, dist,
-                                       wc_rel, duration, 6.0,fracStrikeSlip,fracNormal,fracReverse);
+                                       wc_rel, duration, 6.0,fracStrikeSlip,fracNormal,fracReverse, false);
 
     System.out.println("num rups ="+src.getNumRuptures()+"\ttotProb="+src.computeTotalProb());
     ProbEqkRupture rup;

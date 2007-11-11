@@ -111,6 +111,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String BACK_SEIS_INCLUDE = new String ("Include");
 	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
 	public final static String BACK_SEIS_ONLY = new String ("Only Background");
+	public final static String BACK_SEIS_DEFAULT = BACK_SEIS_INCLUDE;
 	private ArrayList backSeisOptionsStrings = new ArrayList();
 	private StringParameter backSeisParam;
 
@@ -118,6 +119,8 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
 	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
+	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Crosshair Sources");
+	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_POINT;
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 
@@ -464,12 +467,13 @@ public class UCERF2 extends EqkRupForecast {
 		backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
 		backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
 		backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
+		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_DEFAULT);
 
 		// backgroud treated as point sources/finite sources
 		backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
 		backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
-		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
+		backSeisRupStrings.add(BACK_SEIS_RUP_CROSSHAIR);
+		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_DEFAULT);
 
 		// back seis Mmax
 		backSeisMaxMagParam = new DoubleParameter(BACK_SEIS_MAG_NAME, BACK_SEIS_MAG_MIN, BACK_SEIS_MAG_MAX,
@@ -679,9 +683,9 @@ public class UCERF2 extends EqkRupForecast {
 
 	// Set default value for parameters
 	public void setParamDefaults() {
-		backSeisParam.setValue(BACK_SEIS_INCLUDE);
+		backSeisParam.setValue(BACK_SEIS_DEFAULT);
 		// backgroud treated as point sources/finite soource
-		backSeisRupParam.setValue(BACK_SEIS_RUP_POINT);
+		backSeisRupParam.setValue(BACK_SEIS_RUP_DEFAULT);
 		// back seis Mmax
 		backSeisMaxMagParam.setValue(BACK_SEIS_MAG_DEFAULT);
 		// rup offset
@@ -804,7 +808,9 @@ public class UCERF2 extends EqkRupForecast {
 		adjustableParams.addParameter(bFaultB_ValParam);
 		adjustableParams.addParameter(bFaultsMinMagParam);
 		adjustableParams.addParameter(connectMoreB_FaultsParam);
-//		adjustableParams.addParameter(backSeisParam);		not needed for now
+		adjustableParams.addParameter(backSeisParam);	
+		if(!backSeisParam.getValue().equals(BACK_SEIS_EXCLUDE))
+			adjustableParams.addParameter(backSeisRupParam);
 		adjustableParams.addParameter(c_ZoneWtParam);
 		adjustableParams.addParameter(setForBckParam);
 		String setForBackground = (String)setForBckParam.getValue();
@@ -968,10 +974,25 @@ public class UCERF2 extends EqkRupForecast {
 			//for(int i=totBackgroundMFD.getXIndex(6.5);i<totBackgroundMFD.getNum();i++)
 			//	totBackgroundMFD.set(i,0.33*totBackgroundMFD.getY(i));
 		}
-		allSources.addAll(this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
-		allSources.addAll(this.nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
-
-		
+		String backSeis = (String)backSeisParam.getValue();
+		ArrayList<ProbEqkSource> backgroundSources;
+		// if background sources are included
+		if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE) || 
+				backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+			String backSeisRup = (String)this.backSeisRupParam.getValue();
+			if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_POINT)) {
+				nshmp_gridSrcGen.setAsPointSources(true);
+				backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());
+			} else if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_FINITE)) {
+				nshmp_gridSrcGen.setAsPointSources(false);
+				backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());	
+			} else { // Cross hair ruptures
+				nshmp_gridSrcGen.setAsPointSources(false);
+				backgroundSources = this.nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration());						
+			}
+			backgroundSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
+			allSources.addAll(backgroundSources);
+		}
 		this.reCalcBck = false; 
 
 //		System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());

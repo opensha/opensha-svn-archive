@@ -12,26 +12,12 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import java.util.StringTokenizer;
 
-
-
-import org.opensha.calc.FaultMomentCalc;
-import org.opensha.calc.MomentMagCalc;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+
 import org.opensha.data.TimeSpan;
 import org.opensha.data.ValueWeight;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.DiscretizedFuncList;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.data.region.EvenlyGriddedWG02_Region;
-import org.opensha.data.region.GeographicRegion;
-import org.opensha.exceptions.FaultException;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -41,29 +27,16 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.B_FaultFixes;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.EmpiricalModel;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.GenerateTestExcelSheets;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsFetcher;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.B_FaultsFetcher;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegmentTimeDepData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.UCERF1MfdReader;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
@@ -110,12 +83,15 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static String BACK_SEIS_ONLY = new String ("Only Background");
 	public final static String BACK_SEIS_INFO = new String ("Background includes C Zones here");
 	private ArrayList backSeisOptionsStrings = new ArrayList();
+	public final static String BACK_SEIS_DEFAULT = BACK_SEIS_INCLUDE;
 	private StringParameter backSeisParam;
 
 	// background seismicity treated as param
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
-	//public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
+	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
+	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Crosshair Sources");
+	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_POINT;
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 
@@ -232,13 +208,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
 		backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
 		backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
+		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_DEFAULT);
 		backSeisParam.setInfo(BACK_SEIS_INFO);
 		
 		// backgroud treated as point sources/finite sources
 		backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
-		//backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
-		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
+		backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
+		backSeisRupStrings.add(BACK_SEIS_RUP_CROSSHAIR);
+		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_DEFAULT);
 
 
 		// rup offset
@@ -263,9 +240,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// Set default value for parameters
 	public void setParamDefaults() {
-		backSeisParam.setValue(BACK_SEIS_INCLUDE);
+		backSeisParam.setValue(BACK_SEIS_DEFAULT);
 		// backgroud treated as point sources/finite soource
-		backSeisRupParam.setValue(BACK_SEIS_RUP_POINT);
+		backSeisRupParam.setValue(BACK_SEIS_RUP_DEFAULT);
 		// rup offset
 		rupOffsetParam.setValue(DEFAULT_RUP_OFFSET_VAL);
 		cybershakeDDW_CorrParam.setValue(CYBERSHAKE_DDW_CORR_PARAM_DEFAULT);
@@ -391,8 +368,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 				mkNonCA_B_FaultSources();
 				allSources.addAll(nonCA_bFaultSources);
 			}
-			if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
-				backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());
+			
+			// if background sources are included
+			if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE) || 
+					backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+				String backSeisRup = (String)this.backSeisRupParam.getValue();
+				if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_POINT)) {
+					nshmp_gridSrcGen.setAsPointSources(true);
+					backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());
+				} else if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_FINITE)) {
+					nshmp_gridSrcGen.setAsPointSources(false);
+					backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());	
+				} else { // Cross hair ruptures
+					nshmp_gridSrcGen.setAsPointSources(false);
+					backgroundSources = this.nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration());						
+				}
 				backgroundSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 				allSources.addAll(backgroundSources);
 			}
