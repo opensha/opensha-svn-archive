@@ -227,15 +227,17 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
       finiteFaultSurface1 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
     
       // Make second surface for cross Hair option
-      if(this.isCrossHair) strike = 90;
-      loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
-      dir = RelativeLocation.getDirection(loc1,loc);
-      dir.setHorzDistance(dir.getHorzDistance()*2.0);
-      loc2 = RelativeLocation.getLocation(loc1,dir);
-      fault = new FaultTrace("");
-      fault.addLocation(loc1);
-      fault.addLocation(loc2);
-      finiteFaultSurface2 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
+      if(this.isCrossHair) {
+    	  strike = 90;
+    	  loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
+    	  dir = RelativeLocation.getDirection(loc1,loc);
+    	  dir.setHorzDistance(dir.getHorzDistance()*2.0);
+    	  loc2 = RelativeLocation.getLocation(loc1,dir);
+    	  fault = new FaultTrace("");
+    	  fault.addLocation(loc1);
+    	  fault.addLocation(loc2);
+    	  finiteFaultSurface2 = new FrankelGriddedSurface(fault,aveDip,depth,depth,1.0);
+      }
 
     }
   }
