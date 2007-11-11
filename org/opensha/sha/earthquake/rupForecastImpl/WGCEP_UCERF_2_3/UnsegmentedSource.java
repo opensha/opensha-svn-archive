@@ -1128,8 +1128,20 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double rup_width = Math.sqrt(rupArea);
 			if (rup_width > surface.getSurfaceWidth()) rup_width = surface.getSurfaceWidth();
 //			else floatsDownDip = true;
+			
 			double rupLen = rupArea/rup_width;
-			int numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);;
+			
+			// float only along center of DDW extent - FAILED ATTEMPT!
+//			int numRup = surface.getNumSubsetSurfaces(rupLen,100,rupOffset); // rup width of 100 gets number floating along
+//			int tempNumRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
+//			int firstRupIndex = ((tempNumRup/numRup)/2)*numRup;
+//			int lastRupIndex = firstRupIndex+numRup;
+			
+			// float down-dip alternative
+			int numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
+//			int firstRupIndex = 0;
+//			int lastRupIndex = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
+			
 			rate /= numRup;
 			for(int r=0; r<numRup; r++) {
 				ProbEqkRupture rup = new ProbEqkRupture();
