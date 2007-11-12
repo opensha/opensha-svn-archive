@@ -37,6 +37,7 @@ public class FaultSectionPrefData {
 		sectionName= faultSectionPrefData.getSectionName();
 		shortName= faultSectionPrefData.getShortName();
 		aveLongTermSlipRate= faultSectionPrefData.getAveLongTermSlipRate();
+		slipRateStdDev=faultSectionPrefData.getSlipRateStdDev();
 		aveDip= faultSectionPrefData.getAveDip();
 		aveRake= faultSectionPrefData.getAveRake();
 		aveUpperDepth= faultSectionPrefData.getAveUpperDepth();

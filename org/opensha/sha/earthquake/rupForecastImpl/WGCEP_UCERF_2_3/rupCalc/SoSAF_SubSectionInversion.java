@@ -34,6 +34,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentDa
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EventRates;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
+import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -57,14 +58,14 @@ public class SoSAF_SubSectionInversion {
 	ArrayList<SegRateConstraint> segRateConstraints;
 	
 	// a-priori rate constraints
-	int[] aPriori_rup;
+	int[] aPriori_rupIndex;
 	double[] aPriori_rate, aPriori_wt;
 	
 	private static boolean MATLAB_TEST = false;
 	
 	private double minRates[]; // the minimum rate constraint for each rupture
 	private boolean wtedInversion;	// weight the inversion according to slip rate and segment rate uncertainties
-	private double relativeSegRate_wt, aPrioriRupWt;
+	private double relativeSegRateWt, relative_aPrioriRupWt;
 	
 	// slip model:
 	private String slipModelType;
@@ -74,6 +75,8 @@ public class SoSAF_SubSectionInversion {
 	public final static String TAPERED_SLIP_MODEL = "Tapered Ends ([Sin(x)]^0.5)";
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
+	
+	SummedMagFreqDist magFreqDist;
 	
 	private int[][] rupInSeg;
 	private double[][] segSlipInRup;
@@ -96,18 +99,6 @@ public class SoSAF_SubSectionInversion {
 	
 	public SoSAF_SubSectionInversion() {
 		
-		// set slip model as one of: CHAR_SLIP_MODEL, UNIFORM_SLIP_MODEL, WG02_SLIP_MODEL, TAPERED_SLIP_MODEL
-		slipModelType = TAPERED_SLIP_MODEL;
-		
-		// set the mag-area relationship
-		magAreaRel = new HanksBakun2002_MagAreaRel();
-		
-		// relative weights on the segment rates and a-priori rates
-		relativeSegRate_wt=1;
-		aPrioriRupWt = 1;
-		
-		// use segment slip-rate and event-rate uncertainties to weight inversion:
-		wtedInversion = false;
 		
 		// chop the SSAF into many sub-sections
 		computeAllSubsections();
@@ -136,21 +127,13 @@ public class SoSAF_SubSectionInversion {
 		}
 
 		// compute rupture areas
-		computeSegAndRupStuff();
-			
-		// compute rupture mean mags
-		if(slipModelType.equals(CHAR_SLIP_MODEL))
-			// getRupMeanMagsAssumingCharSlip();
-			throw new RuntimeException(CHAR_SLIP_MODEL+" is not yet supported");
-		else {
-			// compute from mag-area relationship
-			rupMeanMag = new double[num_rup];
-			rupMeanMo = new double[num_rup];
-			for(int rup=0; rup <num_rup; rup++) {
-				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6);
-				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
-			}
-		}
+		computeInitialStuff();
+		
+		// create the segRateConstraints
+		computeSegRateConstraints();
+		
+		// set the a-priori rup rates & wts
+		setAprioriRateData();
 	}
 	
 	
@@ -171,23 +154,42 @@ public class SoSAF_SubSectionInversion {
 		}
 	}
 	
-	public void doInversion() {
+	public void doInversion(String slipModelType, MagAreaRelationship magAreaRel, double relativeSegRateWt, 
+			double relative_aPrioriRupWt, boolean wtedInversion) {
 		
+		this.slipModelType = slipModelType;
+		this.magAreaRel = magAreaRel;
+		this.relativeSegRateWt = relativeSegRateWt;
+		this.relative_aPrioriRupWt = relative_aPrioriRupWt;
+		this.wtedInversion = wtedInversion;
+
+		// hard coded moment-rate reduction
+		moRateReduction=0;
+				
 		int numRowsBeforeSegRateData=-1, numRowsBeforeAprioriData=-1;
+		
+		// compute rupture mean mags
+		if(slipModelType.equals(CHAR_SLIP_MODEL))
+			// getRupMeanMagsAssumingCharSlip();
+			throw new RuntimeException(CHAR_SLIP_MODEL+" is not yet supported");
+		else {
+			// compute from mag-area relationship
+			rupMeanMag = new double[num_rup];
+			rupMeanMo = new double[num_rup];
+			for(int rup=0; rup <num_rup; rup++) {
+				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6);
+				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
+			}
+		}
 
 		// compute matrix of Dsr (slip on each segment in each rupture)
 		computeSegSlipInRupMatrix();
-			
-			
-		// NOW SOLVE THE INVERSE PROBLEM
 					
-		// get the segment rate constraints
-		computeSegRateConstraints();
+		// get the number of segment rate constraints
 		int numRateConstraints = segRateConstraints.size();
 		
-		// set the a-priori rates
-		setAprioriRateData();
-		int num_aPriori_constraints = aPriori_rup.length;
+		// get the number of a-priori rate constraints
+		int num_aPriori_constraints = aPriori_rupIndex.length;
 		
 		// set the minimum rupture rate constraints
 		setMinRates();
@@ -196,13 +198,13 @@ public class SoSAF_SubSectionInversion {
 		int totNumRows = num_seg;
 		
 		// add segment rate constrains if needed
-		if(relativeSegRate_wt > 0.0) {
+		if(relativeSegRateWt > 0.0) {
 			numRowsBeforeSegRateData = totNumRows;
 			totNumRows += numRateConstraints;
 		}
 		
 		// add a-priori rate constrains if needed
-		if(aPrioriRupWt > 0.0) {
+		if(relative_aPrioriRupWt > 0.0) {
 			numRowsBeforeAprioriData  = totNumRows;
 			totNumRows += num_aPriori_constraints;
 		}
@@ -221,7 +223,7 @@ public class SoSAF_SubSectionInversion {
 				C[row][col] = segSlipInRup[row][col];
 		}
 		// now fill in the segment rate constraints if requested
-		if(relativeSegRate_wt > 0.0) {
+		if(relativeSegRateWt > 0.0) {
 			SegRateConstraint constraint;
 			for(int i = 0; i < numRateConstraints; i ++) {
 				constraint = segRateConstraints.get(i);
@@ -233,14 +235,33 @@ public class SoSAF_SubSectionInversion {
 			}
 		}
 		// now fill in the a-priori rates if needed
-		if(aPrioriRupWt > 0.0) {
+		if(relative_aPrioriRupWt > 0.0) {
 			for(int i=0; i < num_aPriori_constraints; i++) {
 				int row = i+numRowsBeforeAprioriData;
-				int col = aPriori_rup[i];
+				int col = aPriori_rupIndex[i];
 				d[row] = aPriori_rate[i];
 				C[row][col]=1.0;
 			}
 		}
+
+		/*
+		// add the smoothness constraint
+		int num_smooth_constrints = 0;
+		int numRowsBeforeSmoothnessData = 0;
+		double relative_smoothnessWt=1;
+		if(relative_smoothnessWt > 0.0) {
+			int row = numRowsBeforeSmoothnessData;
+			for(int rup=0; rup < num_rup; rup++) {
+				// check to see if the last segment is used by the rupture (skip this last rupture if so)
+				if(rupInSeg[num_seg-1][rup] != 1) {
+					d[row] = 0;
+					C[row][rup]=1.0;
+					C[row][rup+1]=-11.0;
+					row += 1;
+				}
+			}
+		}
+		*/
 
 		// CORRECT IF MINIMUM RATE CONSTRAINT DESIRED
 		double[] Cmin = new double[totNumRows];  // the data vector
@@ -261,8 +282,8 @@ public class SoSAF_SubSectionInversion {
 				for(int col=0; col<num_rup; col++)
 					C[row][col] *= data_wt;
 			}
-			// now fill in the segment recurrence interval constraints if requested
-			if(relativeSegRate_wt > 0.0) {
+			// now fill in the segment recurrence interval wts if requested
+			if(relativeSegRateWt > 0.0) {
 				SegRateConstraint constraint;
 				for(int row = 0; row < numRateConstraints; row ++) {
 					constraint = segRateConstraints.get(row);
@@ -273,27 +294,41 @@ public class SoSAF_SubSectionInversion {
 						C[row+numRowsBeforeSegRateData][col] *= data_wt;
 				}
 			}
+			// now apply the a-priori wts
+			// now fill in the a-priori rates if needed
+			if(relative_aPrioriRupWt > 0.0) {
+				for(int i=0; i < num_aPriori_constraints; i++) {
+					int row = i+numRowsBeforeAprioriData;
+					int col = aPriori_rupIndex[i];
+					d[row] *= aPriori_wt[i];
+					C[row][col]=aPriori_wt[i];
+				}
+			}
+
 		}
 
 		// APPLY EQUATION-SET WEIGHTS
 		// for the a-priori rates:
-		if(aPrioriRupWt > 0.0) {
+		if(relative_aPrioriRupWt > 0.0) {
 			for(int i=0; i < num_aPriori_constraints; i++) {
 				int row = i+numRowsBeforeAprioriData;
-				int col = aPriori_rup[i];
-				d[row] *= aPrioriRupWt;
-				C[row][col] *= aPrioriRupWt;
+				int col = aPriori_rupIndex[i];
+				d[row] *= relative_aPrioriRupWt;
+				C[row][col] *= relative_aPrioriRupWt;
 			}
 		}
 		
 		// for the segment recurrence interval constraints if requested:
-		if(relativeSegRate_wt > 0.0) {
+		if(relativeSegRateWt > 0.0) {
 			for(int row = 0; row < numRateConstraints; row ++) {
-				d[row+numRowsBeforeSegRateData] *= relativeSegRate_wt;
+				d[row+numRowsBeforeSegRateData] *= relativeSegRateWt;
 				for(int col=0; col<num_rup; col++)
-					C[row+numRowsBeforeSegRateData][col] *= relativeSegRate_wt;
+					C[row+numRowsBeforeSegRateData][col] *= relativeSegRateWt;
 			}
 		}
+		
+//		for(int row=0;row<totNumRows; row++)
+//			System.out.println(row+"\t"+(float)d[row]);
 
 /*
 		// manual check of matrices
@@ -312,45 +347,16 @@ public class SoSAF_SubSectionInversion {
 			System.out.println("];");
 */
 
-
-
 		// SOLVE THE INVERSE PROBLEM
 		rupRateSolution = getNNLS_solution(C, d);
-
 
 		// CORRECT FINAL RATES IF MINIMUM RATE CONSTRAINT APPLIED
 		for(int rup=0; rup<num_rup;rup++)
 			rupRateSolution[rup] += minRates[rup];
-
-//		System.out.println("NNLS rates:");
-//		for(int rup=0; rup < rupRate.length; rup++)
-//		System.out.println((float) rupRateSolution[rup]);
-
-
-		/**/
-		if(D) {
-//			check slip rates to make sure they match exactly
-			double tempSlipRate;
-			//System.out.println("Check of segment slip rates for "+segmentData.getFaultName()+":");
-			for(int seg=0; seg < num_seg; seg++) {
-				tempSlipRate = 0;
-				for(int rup=0; rup < num_rup; rup++)
-					tempSlipRate += rupRateSolution[rup]*segSlipInRup[seg][rup];
-				double absFractDiff = Math.abs(tempSlipRate/(segSlipRate[seg]*(1-this.moRateReduction)) - 1.0);				
 				
-				System.out.println(seg+"\t"+(segSlipRate[seg]*(1-this.moRateReduction))+"\t"+(float)tempSlipRate+"\t"+absFractDiff);
-//				if(absFractDiff > 0.001)
-//					throw new RuntimeException("ERROR - slip rates differ!!!!!!!!!!!!");
-			}
-		}
-
+		// Compute final segment slip rates and event rates
+		computeFinalStuff();
 		
-		// Computer final segment slip rate
-//		computeFinalSegSlipRate();
-
-		// get final rate of events on each segment (this takes into account mag rounding of MFDs)
-//		computeFinalSegRates();		
-
 	}
 	
 	/**
@@ -449,32 +455,41 @@ public class SoSAF_SubSectionInversion {
 	}
 	
 	/**
-	 * compute rupArea (meters)
+	 * 
 	 */
-	private void computeSegAndRupStuff() {
+	private void computeInitialStuff() {
 		rupArea = new double[num_rup];
 		segArea = new double[num_seg];
 		segSlipRate = new double[num_seg];
 		segSlipRateStdDev = new double[num_seg];
 		segMoRate = new double[num_seg];
+		double minLength = Double.MAX_VALUE;
+		double maxLength = 0;
+		double minArea = Double.MAX_VALUE;
+		double maxArea = 0;
 		FaultSectionPrefData segData;
 		for(int seg=0; seg < num_seg; seg++) {
 				segData = subSectionList.get(seg);
-				segArea[seg] += segData.getDownDipWidth()*segData.getLength(); // note this ignores aseismicity!
-				segSlipRate[seg] = segData.getAveLongTermSlipRate();
-				segSlipRateStdDev[seg] = segData.getSlipRateStdDev();
-//				if(D) System.out.println(seg+" slip rate = "+segSlipRate[seg]);
-				segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg]*1e6, segSlipRate[seg]*1e-3); // area km-->m; slipRate mm/yr --> m/yr
-		}
+				segArea[seg] = segData.getDownDipWidth()*segData.getLength()*1e6*(1.0-segData.getAseismicSlipFactor()); // km --> m 
+				segSlipRate[seg] = segData.getAveLongTermSlipRate()*1e-3; // mm/yr --> m/yr
+				segSlipRateStdDev[seg] = segData.getSlipRateStdDev()*1e-3; // mm/yr --> m/yr
+//				System.out.println(seg+":  segData.getLength()=\t"+segData.getLength());
 
+
+//				if(D) System.out.println(seg+" slip rate = "+segSlipRate[seg]);
+				segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg], segSlipRate[seg]); // 
+				
+				if(segData.getLength() < minLength) minLength = segData.getLength();
+				if(segData.getLength() > maxLength) maxLength = segData.getLength();
+				if(segArea[seg]/1e6 < minArea) minArea = segArea[seg]/1e6;
+				if(segArea[seg]/1e6 > maxArea) maxArea = segArea[seg]/1e6;
+		}
+		if(D) System.out.println("minSegArea="+(float)minArea+"\nmaxSegArea="+(float)maxArea+"\nminSegLength="+(float)minLength+"\nmaxSegLength="+(float)maxLength);
+		
 		for(int rup=0; rup<num_rup; rup++){
 			rupArea[rup] = 0;
-			for(int seg=0; seg < num_seg; seg++) {
-				if(rupInSeg[seg][rup]==1) { // if this rupture is included in this segment	
-					segData = subSectionList.get(seg);
-					rupArea[rup] += segData.getDownDipWidth()*segData.getLength(); // note this ignores aseismicity!
-				}
-			}
+			for(int seg=0; seg < num_seg; seg++)
+				if(rupInSeg[seg][rup]==1)  rupArea[rup] += segArea[seg];
 		}
 	}
 	
@@ -533,7 +548,7 @@ public class SoSAF_SubSectionInversion {
 			mkTaperedSlipFuncs();
 			for(int rup=0; rup<num_rup; ++rup) {
 				double aveSlip = rupMeanMo[rup]/(rupArea[rup]*FaultMomentCalc.SHEAR_MODULUS);    // inlcudes aveSlipCorr
-
+//System.out.println(rup+"\t"+(float)aveSlip+" m");
 				double normBegin=0, normEnd, scaleFactor;
 				for(int seg=0; seg<num_seg; seg++) {
 					if(rupInSeg[seg][rup]==1) {
@@ -649,19 +664,19 @@ public class SoSAF_SubSectionInversion {
 	
 	private void setAprioriRateData() {
 		int num_constraints = 1;
-		aPriori_rup = new int[num_constraints];
+		aPriori_rupIndex = new int[num_constraints];
 		aPriori_rate = new double[num_constraints];
 		aPriori_wt = new double[num_constraints];
 		
 		// Set parkfield rate to ~25 years
-		aPriori_rup[0] = 171;
-		aPriori_rate[0] = 1/25;
-		aPriori_wt[0] = 0;
+		aPriori_rupIndex[0] = 171;
+		aPriori_rate[0] = 0.04; // 1/25
+		aPriori_wt[0] = 1.0/0.01; 
 	}
 
 	
 	private void setMinRates() {
-		minRates = new double[num_rup];
+		minRates = new double[num_rup]; // this sets them all to zero
 	}
 	
 	/**
@@ -718,6 +733,121 @@ public class SoSAF_SubSectionInversion {
 		
 		return x;
 	}
+	
+	/**
+	 * Computer Final Slip Rate for each segment (& aPrioriSegSlipRate)
+	 *
+	 */
+	private void computeFinalStuff() {
+		finalSegSlipRate = new double[num_seg];
+		finalSegRate = new double[num_seg];
+		for(int seg=0; seg < num_seg; seg++) {
+			finalSegSlipRate[seg] = 0;
+			finalSegRate[seg]=0.0;
+			for(int rup=0; rup < num_rup; rup++) 
+				if(rupInSeg[seg][rup]==1) {
+					finalSegSlipRate[seg] += rupRateSolution[rup]*segSlipInRup[seg][rup];
+					finalSegRate[seg]+=rupRateSolution[rup];
+				}
+//			double absFractDiff = Math.abs(finalSegSlipRate[seg]/(segSlipRate[seg]*(1-this.moRateReduction)) - 1.0);	
+		}
+		
+		magFreqDist = new SummedMagFreqDist(5,41,0.1);
+		magFreqDist.setTolerance(1.0); // set to large value so it becomes a histogram
+		for(int rup=0; rup<num_rup;rup++)
+			magFreqDist.add(rupMeanMag[rup], rupRateSolution[rup]);
+	}
+	
+	public void writeFinalStuff() {
+		
+		// write out rupture rates and mags
+		System.out.println("Final Rupture Rates & Mags:");
+		for(int rup=0; rup < num_rup; rup++)
+			System.out.println(rup+"\t"+(float)rupRateSolution[rup]+"\t"+(float)rupMeanMag[rup]);
+
+		// write out final segment slip rates
+			System.out.println("Segment Slip Rates: index, final, orig, and final/orig)");
+			for(int seg = 0; seg < num_seg; seg ++) {
+				double slipRate = segSlipRate[seg]*(1-this.moRateReduction);
+				System.out.println(seg+"\t"+(float)finalSegSlipRate[seg]+"\t"+(float)slipRate+"\t"+(float)(finalSegSlipRate[seg]/slipRate));
+			}
+		
+		// write out final segment event rates
+		if(relativeSegRateWt > 0.0) {
+			System.out.println("Segment Rates: index, final, orig, and final/orig)");
+			SegRateConstraint constraint;
+			for(int i = 0; i < segRateConstraints.size(); i ++) {
+				constraint = segRateConstraints.get(i);
+				int seg = constraint.getSegIndex();
+				System.out.println(seg+"\t"+(float)finalSegRate[seg]+"\t"+(float)constraint.getMean()+"\t"+(float)(finalSegRate[seg]/constraint.getMean()));
+			}
+		}
+		
+		// write out final rates for ruptures with an a-priori constraint
+		if(this.relative_aPrioriRupWt >0.0)
+			System.out.println("Segment Rates: index, final, orig, and final/orig)");
+			for(int i=0; i<this.aPriori_rate.length;i++)
+				System.out.println(aPriori_rupIndex[i]+"\t"+(float)rupRateSolution[aPriori_rupIndex[i]]+"\t"+aPriori_rate[i]+"\t"+
+						(float)(rupRateSolution[aPriori_rupIndex[i]]/aPriori_rate[i]));
+	}
+	
+
+	public void plotStuff() {
+		
+		// plot orig and final slip rates	
+		double min = 0, max = num_seg-1;
+		EvenlyDiscretizedFunc origSlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		EvenlyDiscretizedFunc finalSlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		for(int seg=0; seg<num_seg;seg++) {
+			origSlipRateFunc.set(seg,segSlipRate[seg]*(1-moRateReduction));
+			finalSlipRateFunc.set(seg,finalSegSlipRate[seg]);
+		}
+		ArrayList sr_funcs = new ArrayList();
+		origSlipRateFunc.setName("Orig Slip Rates");
+		finalSlipRateFunc.setName("Final Slip Rates");
+		sr_funcs.add(origSlipRateFunc);
+		sr_funcs.add(finalSlipRateFunc);
+		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "Slip Rates");   
+
+		// plot orig and final seg event rates	
+		int num = segRateConstraints.size();
+//		double min = 0, max = num_seg-1;
+		EvenlyDiscretizedFunc origEventRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		SegRateConstraint constraint;
+		for(int i = 0; i < num; i ++) {
+			constraint = segRateConstraints.get(i);
+			int seg = constraint.getSegIndex();
+			origEventRateFunc.set(seg,constraint.getMean());
+			finalEventRateFunc.set(seg,finalSegRate[seg]);
+		}		
+		ArrayList er_funcs = new ArrayList();
+		origEventRateFunc.setName("Orig Event Rates");
+		finalEventRateFunc.setName("Final Event Rates");
+		er_funcs.add(origEventRateFunc);
+		er_funcs.add(finalEventRateFunc);
+		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "Event Rates"); 
+		
+		
+		// plot the final rupture rates
+		// plot orig and final slip rates	
+		max = num_rup-1;
+		EvenlyDiscretizedFunc rupRateFunc = new EvenlyDiscretizedFunc(min, max, num_rup);
+		for(int rup=0; rup<num_rup;rup++) {
+			rupRateFunc.set(rup,rupRateSolution[rup]);
+		}
+		ArrayList rup_funcs = new ArrayList();
+		rupRateFunc.setName("Rupture Rates");
+		rup_funcs.add(rupRateFunc);
+		GraphiWindowAPI_Impl rup_graph = new GraphiWindowAPI_Impl(rup_funcs, "Rupture Rates");   
+
+
+		// plot MFD
+		ArrayList mfd_funcs = new ArrayList();
+		mfd_funcs.add(magFreqDist.getCumRateDistWithOffset());
+		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs, "Cumulative Mag Freq Dist");   
+
+	}
 
 	
 	/**
@@ -726,9 +856,18 @@ public class SoSAF_SubSectionInversion {
 	 */
 	public static void main(String []args) {
 		SoSAF_SubSectionInversion soSAF_SubSections = new  SoSAF_SubSectionInversion();
+		
+		
 		System.out.println("Starting Inversion");
-		soSAF_SubSections.doInversion();
+		String slipModelType = TAPERED_SLIP_MODEL;
+		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
+		double relativeSegRateWt=1;
+		double relative_aPrioriRupWt = 1;
+		boolean wtedInversion = true;
+		soSAF_SubSections.doInversion(slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, wtedInversion);
 		System.out.println("Done with Inversion");
+		soSAF_SubSections.writeFinalStuff();
+		soSAF_SubSections.plotStuff();
 		
 		
 /*		
