@@ -118,8 +118,8 @@ public class UCERF2 extends EqkRupForecast {
 	// background seismicity treated as param
 	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
-	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
-	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Crosshair Sources");
+	public final static String BACK_SEIS_RUP_FINITE = new String ("One Random Strike Fault");
+	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Two perpendicular faults");
 	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_POINT;
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
@@ -140,7 +140,15 @@ public class UCERF2 extends EqkRupForecast {
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
 	private DoubleParameter rupOffset_Param;
-
+	
+	// Floater Type
+	public final static String FLOATER_TYPE_PARAM_NAME = "Floater Type";
+	public final static String FULL_DDW_FLOATER = "Only along strike ( rupture full DDW)";
+	public final static String STRIKE_AND_DOWNDIP_FLOATER = "Along strike and down dip";
+	public final static String CENTERED_DOWNDIP_FLOATER = "Along strike & centered down dip";
+	public final static String FLOATER_TYPE_PARAM_DEFAULT = CENTERED_DOWNDIP_FLOATER;
+	private StringParameter floaterTypeParam;
+	
 	// rate for M>=5
 	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
@@ -353,7 +361,7 @@ public class UCERF2 extends EqkRupForecast {
 
 	// Probability Model Param
 	public final static String PROB_MODEL_PARAM_NAME = "Probability Model";
-	private final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
+	public final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
 	public final static String PROB_MODEL_POISSON = "Poisson";
 	public final static String PROB_MODEL_BPT = "BPT";
 	public final static String PROB_MODEL_EMPIRICAL = "Empirical";
@@ -676,8 +684,15 @@ public class UCERF2 extends EqkRupForecast {
 
 		// Segment Dependent Aperiodicity Param
 		segDepAperiodicityParam = new BooleanParameter(SEG_DEP_APERIODICITY_PARAM_NAME, SEG_DEP_APERIODICITY_PARAM_DEFAULT);
-		segDepAperiodicityParam.setInfo(SEG_DEP_APERIODICITY_PARAM_INFO);		
-
+		segDepAperiodicityParam.setInfo(SEG_DEP_APERIODICITY_PARAM_INFO);
+		
+		// Floater Type Param
+		ArrayList<String> floaterTypes = new ArrayList<String>();
+		floaterTypes.add(FULL_DDW_FLOATER);
+		floaterTypes.add(STRIKE_AND_DOWNDIP_FLOATER);
+		floaterTypes.add(CENTERED_DOWNDIP_FLOATER);
+		floaterTypeParam = new StringParameter(FLOATER_TYPE_PARAM_NAME, floaterTypes, FLOATER_TYPE_PARAM_DEFAULT);
+		
 	}
 
 
@@ -752,7 +767,8 @@ public class UCERF2 extends EqkRupForecast {
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 		aperiodicityParam.setValue(APERIODICITY_PARAM_DEFAULT);
 		defaultAperiodicityParam.setValue(DEF_APERIODICITY_PARAM_DEFAULT);
-		segDepAperiodicityParam.setValue(SEG_DEP_APERIODICITY_PARAM_DEFAULT);		
+		segDepAperiodicityParam.setValue(SEG_DEP_APERIODICITY_PARAM_DEFAULT);	
+		floaterTypeParam.setValue(FLOATER_TYPE_PARAM_DEFAULT);
 
 	}
 
@@ -805,6 +821,7 @@ public class UCERF2 extends EqkRupForecast {
 		adjustableParams.addParameter(truncLevelParam);
 		adjustableParams.addParameter(meanMagCorrectionParam);
 		adjustableParams.addParameter(percentCharVsGRParam);
+		adjustableParams.addParameter(this.floaterTypeParam);
 		adjustableParams.addParameter(bFaultB_ValParam);
 		adjustableParams.addParameter(bFaultsMinMagParam);
 		adjustableParams.addParameter(connectMoreB_FaultsParam);
@@ -901,13 +918,13 @@ public class UCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		//if(iSource<allSources.size()) // everything but the grid sources
+		if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
-//		else {
-//			boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//			boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-//			return nshmp_gridSrcGen.getGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
-//		}
+		else {
+			if(this.backSeisRupParam.getValue().equals(BACK_SEIS_RUP_CROSSHAIR))
+				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+			else return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+		}
 	}
 
 	/**
@@ -916,7 +933,9 @@ public class UCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size(); /*+ nshmp_gridSrcGen.getNumSources();*/
+		if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE))
+			return allSources.size() + nshmp_gridSrcGen.getNumSources();
+		else return allSources.size();
 	}
 
 
@@ -982,16 +1001,12 @@ public class UCERF2 extends EqkRupForecast {
 			String backSeisRup = (String)this.backSeisRupParam.getValue();
 			if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_POINT)) {
 				nshmp_gridSrcGen.setAsPointSources(true);
-				backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());
 			} else if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_FINITE)) {
 				nshmp_gridSrcGen.setAsPointSources(false);
-				backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());	
 			} else { // Cross hair ruptures
 				nshmp_gridSrcGen.setAsPointSources(false);
-				backgroundSources = this.nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration());						
 			}
-			backgroundSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
-			allSources.addAll(backgroundSources);
+			allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 		}
 		this.reCalcBck = false; 
 
@@ -1226,13 +1241,15 @@ public class UCERF2 extends EqkRupForecast {
 		aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		double duration = timeSpan.getDuration();
 		EmpiricalModel empiricalModel  = null;
+		int floaterType = getFloaterType();
 		if(this.probModelParam.getValue().equals(this.PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
 			
 		for(int i=0; i<aFaultSegmentData.size(); ++i) {
 			FaultSegmentData segmentData = (FaultSegmentData) aFaultSegmentData.get(i);	
 			UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 					fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel, 
-					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, meanMagCorrection, empiricalModel);
+					minMagGR, bValue, totMoRateReduction, Double.NaN, Double.NaN, 
+					meanMagCorrection, empiricalModel, floaterType);
 			source.setDuration(duration);
 //			the following isn't really correct (not a srcGen, but rather a src)
 			aFaultSourceGenerators.add(source);
@@ -1240,6 +1257,22 @@ public class UCERF2 extends EqkRupForecast {
 			aFaultSummedMFD.addIncrementalMagFreqDist(source.getMagFreqDist());   		
 		}
 		reCalcA_Faults=false;
+	}
+	
+	/**
+	 * Get the Types of floaters desired
+	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
+	 *                      STRIKE_AND_DOWNDIP_FLOATER (1) = float along strike and down dip;
+	 *                      CENTERED_DOWNDIP_FLOATER (2) = float along strike & centered down dip
+
+	 * @return
+	 */
+	private int getFloaterType() {
+		String floaterType = (String)floaterTypeParam.getValue();
+		if(floaterType.equalsIgnoreCase(FULL_DDW_FLOATER)) return UnsegmentedSource.FULL_DDW_FLOATER;
+		else if(floaterType.equalsIgnoreCase(STRIKE_AND_DOWNDIP_FLOATER)) return UnsegmentedSource.STRIKE_AND_DOWNDIP_FLOATER;
+		else if(floaterType.equalsIgnoreCase(CENTERED_DOWNDIP_FLOATER)) return UnsegmentedSource.CENTERED_DOWNDIP_FLOATER;
+		throw new RuntimeException("Unsupported Floating ruptures option");
 	}
 
 	private void mkB_FaultSources() {
@@ -1257,6 +1290,7 @@ public class UCERF2 extends EqkRupForecast {
 //		ArrayList B_faultGR_MFDs = new ArrayList();
 		bFaultCharSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
 		bFaultGR_SummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		int floaterType = getFloaterType();
 		bFaultSources = new ArrayList();
 		double duration = timeSpan.getDuration();
 		double fixMag, fixRate;
@@ -1287,7 +1321,8 @@ public class UCERF2 extends EqkRupForecast {
 				}
 				UnsegmentedSource source = new UnsegmentedSource( segmentData,  magAreaRel, 
 						fractCharVsGR,  MIN_MAG, MAX_MAG, NUM_MAG, magSigma, magTruncLevel,minMagGR, 
-						bValue, totMoRateReduction, fixMag, fixRate, meanMagCorrection, empiricalModel);
+						bValue, totMoRateReduction, fixMag, fixRate, 
+						meanMagCorrection, empiricalModel, floaterType);
 				source.setDuration(duration);
 				bFaultSources.add(source);
 				allSources.add(source);
@@ -1368,10 +1403,13 @@ public class UCERF2 extends EqkRupForecast {
 	public ArrayList  getSourceList(){
 		ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
-//		boolean bulgeReduction = ((Boolean)bulgeReductionBooleanParam.getValue()).booleanValue();
-//		boolean maxMagGrid = ((Boolean)maxMagGridBooleanParam.getValue()).booleanValue();
-	//	sourceList.addAll(this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
-	//	sourceList.addAll(this.nshmp_gridSrcGen.getAllFixedStrikeGriddedSources(timeSpan.getDuration()));
+
+		if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE) &&
+				this.backSeisRupParam.getValue().equals(BACK_SEIS_RUP_CROSSHAIR))
+			sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+		else if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE))
+			sourceList.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+
 		return sourceList;
 	}
 

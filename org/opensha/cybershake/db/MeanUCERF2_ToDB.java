@@ -4,6 +4,7 @@
 package org.opensha.cybershake.db;
 
 import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 
 /**
  * This Class creates an instances of Mean UCERF2 ERF to insert into the database
@@ -29,7 +30,7 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 		
 		// exclude Background seismicity
 	    eqkRupForecast.getAdjustableParameterList().getParameter(
-	    		MeanUCERF2.BACK_SEIS_NAME).setValue(MeanUCERF2.BACK_SEIS_EXCLUDE);
+	    		UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 	  
 	    // Rup offset
 	    eqkRupForecast.getAdjustableParameterList().getParameter(
@@ -43,8 +44,8 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 	    
 	    // Set Poisson Probability model
 	    eqkRupForecast.getAdjustableParameterList().getParameter(
-	    		MeanUCERF2.PROB_MODEL_PARAM_NAME).setValue(
-	    				MeanUCERF2.PROB_MODEL_POISSON);
+	    		UCERF2.PROB_MODEL_PARAM_NAME).setValue(
+	    				UCERF2.PROB_MODEL_POISSON);
 	    
 	    // duration
 	    eqkRupForecast.getTimeSpan().setDuration(1.0);

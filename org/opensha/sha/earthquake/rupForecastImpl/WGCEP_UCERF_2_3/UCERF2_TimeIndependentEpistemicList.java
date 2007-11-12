@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3;
 
 
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.Iterator;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
@@ -10,6 +11,8 @@ import org.opensha.data.TimeSpan;
 import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
+import org.opensha.param.StringParameter;
+import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.ParamOptions;
@@ -29,6 +32,7 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 	protected ArrayList<ParamOptions> logicTreeParamValues; // paramter values and their weights
 	private int lastParamIndex;
 	private final static double DURATION_DEFAULT = 30;
+	private StringParameter backSeisParam, backSeisRupParam, floaterTypeParam;
 	
 	public UCERF2_TimeIndependentEpistemicList() {
 		fillLogicTreeParams(); // fill the parameters that will be adjusted for the logic tree
@@ -36,10 +40,67 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 		weights = new ArrayList<Double>();
 		logicTreeParamList = new ArrayList<ParameterList>();
 		findBranches(0, 1);
+		// create and add adj params
+		initAdjParams();
 		// create the time-ind timespan object with start time and duration in years
 		timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
 		timeSpan.setDuration(DURATION_DEFAULT);
 		timeSpan.addParameterChangeListener(this);
+	}
+	
+	
+	/**
+	 * This intializes the adjustable parameters
+	 */
+	private void initAdjParams() {
+
+		// background seismicity include/exclude  
+		ArrayList<String> backSeisOptionsStrings = new ArrayList<String>();
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_EXCLUDE);
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_INCLUDE);
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_ONLY);
+		backSeisParam = new StringParameter(UCERF2.BACK_SEIS_NAME, backSeisOptionsStrings, UCERF2.BACK_SEIS_DEFAULT);
+		backSeisParam.addParameterChangeListener(this);
+		
+		// backgroud treated as point sources/finite sources
+		ArrayList<String> backSeisRupStrings = new ArrayList<String>();
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_POINT);
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_FINITE);
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_CROSSHAIR);
+		backSeisRupParam = new StringParameter(UCERF2.BACK_SEIS_RUP_NAME, backSeisRupStrings, UCERF2.BACK_SEIS_RUP_DEFAULT);
+
+		// Floater Type Param
+		ArrayList<String> floaterTypes = new ArrayList<String>();
+		floaterTypes.add(UCERF2.FULL_DDW_FLOATER);
+		floaterTypes.add(UCERF2.STRIKE_AND_DOWNDIP_FLOATER);
+		floaterTypes.add(UCERF2.CENTERED_DOWNDIP_FLOATER);
+		floaterTypeParam = new StringParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, floaterTypes, UCERF2.FLOATER_TYPE_PARAM_DEFAULT);
+	
+		createParamList();
+	}
+	
+	/**
+	 * Put parameters in theParameterList
+	 */
+	private void createParamList() {
+		adjustableParams = new ParameterList();
+		adjustableParams.addParameter(floaterTypeParam);
+		adjustableParams.addParameter(backSeisParam);	
+		if(!backSeisParam.getValue().equals(UCERF2.BACK_SEIS_EXCLUDE))
+			adjustableParams.addParameter(backSeisRupParam);
+	}
+	
+    /*  This is the main function of this interface. Any time a control
+     * If Backgroud seismicity is included, show BACK_SEIS_RUP parameter else hide it
+	 *
+	 * @param  event
+	 */
+	public void parameterChange(ParameterChangeEvent event) {
+		super.parameterChange(event);
+		String paramName = event.getParameterName();
+		if (paramName.equalsIgnoreCase(UCERF2.BACK_SEIS_NAME)) {
+			createParamList();
+		} 
 	}
 	
 	
@@ -195,14 +256,13 @@ public class UCERF2_TimeIndependentEpistemicList extends ERF_EpistemicList {
 			Parameter param = (Parameter)it.next();
 			ucerf2.getParameter(param.getName()).setValue(param.getValue());
 		}
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, backSeisParam.getValue());
+		if(this.adjustableParams.containsParameter(backSeisRupParam)) ucerf2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, this.backSeisRupParam.getValue());
+		ucerf2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, this.floaterTypeParam.getValue());
 		ucerf2.getTimeSpan().setDuration(this.timeSpan.getDuration());
 		ucerf2.updateForecast();
 		return ucerf2;
 	}
-	
-
-	
-	
 	
 	/**
 	 * Get the ParameterList for ERF at the specified index

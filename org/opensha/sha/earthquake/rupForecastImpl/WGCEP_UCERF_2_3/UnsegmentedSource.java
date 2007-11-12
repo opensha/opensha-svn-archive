@@ -102,19 +102,30 @@ public class UnsegmentedSource extends ProbEqkSource {
 	private static Ellsworth_B_WG02_MagAreaRel ellB_magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 	private static Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
 
+	
+	public final static int FULL_DDW_FLOATER = 0;
+	public final static int STRIKE_AND_DOWNDIP_FLOATER = 1;
+	public final static int CENTERED_DOWNDIP_FLOATER = 2;
+
+	
 	/**
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
 	 * Note that not all derivative info is generate here (such as segSlipDist[])
 	 * 
 	 * this is used for making B-Faults sources for Average UCERF2
 	 * 
+	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
+	 *                      STRIKE_AND_DOWNDIP_FLOATER (1) = float along strike and down dip;
+	 *                      CENTERED_DOWNDIP_FLOATER (2) = float along strike & centered down dip
+	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset,double weight, 
-			double empiricalModelWeight, double duration, boolean applyCyberShakeDDW_Corr) {
+			double empiricalModelWeight, double duration, 
+			boolean applyCyberShakeDDW_Corr, int floaterType) {
 		this(segmentData, empiricalModel, rupOffset, 0.8, 0.0, weight, 
 				empiricalModelWeight, duration, segmentData.getTotalMomentRate(),
-				0.67,  applyCyberShakeDDW_Corr);
+				0.67,  applyCyberShakeDDW_Corr, floaterType);
 		
 	}
 	
@@ -124,10 +135,15 @@ public class UnsegmentedSource extends ProbEqkSource {
 	 * Description:  The constructs the source for the average UCERF2 logic tree branch, where param values have been hard coded.
 	 * Note that not all derivative info is generate here (such as segSlipDist[]).
 	 * 
+	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
+	 *                      STRIKE_AND_DOWNDIP_FLOATER (1) = float along strike and down dip;
+	 *                      CENTERED_DOWNDIP_FLOATER (2) = float along strike & centered down dip
+	 * 
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData,  EmpiricalModel empiricalModel, 
 			double rupOffset, double b_valueGR_1, double b_valueGR_2,  double weight, 
-			double empiricalModelWeight, double duration, double moRate, double fractCharVsGR, boolean applyCyberShakeDDW_Corr) {
+			double empiricalModelWeight, double duration, double moRate, 
+			double fractCharVsGR, boolean applyCyberShakeDDW_Corr, int floaterType) {
 
 		this.isPoissonian = true;
 		empirical_weight = empiricalModelWeight;
@@ -235,7 +251,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				duration,
 				segmentData.getFaultName(),
 				applyCyberShakeDDW_Corr,
-				2);
+				floaterType);
 
 
 		// change the info in the MFDs
@@ -254,12 +270,16 @@ public class UnsegmentedSource extends ProbEqkSource {
 	/**
 	 * Description:  The constructs the source as a fraction of charateristic (Gaussian) and GR
 	 * 
+	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
+	 *                      STRIKE_AND_DOWNDIP_FLOATER (1) = float along strike and down dip;
+	 *                      CENTERED_DOWNDIP_FLOATER (2) = float along strike & centered down dip
 	 */
 	public UnsegmentedSource(FaultSegmentData segmentData, MagAreaRelationship magAreaRel, 
 			double fractCharVsGR, double min_mag, double max_mag, int num_mag, 
 			double charMagSigma, double charMagTruncLevel, 
 			double mag_lowerGR, double b_valueGR, double moRateReduction, double fixMag,
-			double fixRate, double meanMagCorrection, EmpiricalModel empiricalModel) {
+			double fixRate, double meanMagCorrection, EmpiricalModel empiricalModel,
+			int floaterType) {
 
 		this.isPoissonian = true;
 		empirical_weight = 1.0;
@@ -346,7 +366,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 				DEFAULT_DURATION,
 				segmentData.getFaultName(),
 				false,
-				2);
+				floaterType);
 
 
 
@@ -1145,7 +1165,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 			int numRup=-1, firstRupIndex=-1, lastRupIndex=-1, rupIndexOffset=-1;
 			double finalRupOffset=0, finalRupWidth=0;
 			
-			if(floaterType == 2) {
+			if(floaterType == CENTERED_DOWNDIP_FLOATER) {
 				// float only along center of DDW extent - FAILED ATTEMPT!
 				int numRupAlongAt1kmOffset = surface.getNumSubsetSurfaces(rupLen,100,1.0); // rup width of 100 gets number floating along
 				int totNumRupAt1kmOffset = surface.getNumSubsetSurfaces(rupLen,rup_width,1.0);
@@ -1157,15 +1177,16 @@ public class UnsegmentedSource extends ProbEqkSource {
 				finalRupWidth = rup_width;
 				// int testNumRup =0;				
 			}
-			else if(floaterType == 1) {
+			else if(floaterType == STRIKE_AND_DOWNDIP_FLOATER) {
 				// float along strike and down dip
 				numRup = surface.getNumSubsetSurfaces(rupLen,rup_width,rupOffset);
 				firstRupIndex = 0;
 				lastRupIndex = numRup;
 				rupIndexOffset = 1;
 				finalRupOffset = rupOffset;	
+				finalRupWidth = rup_width;
 			}
-			else if (floaterType == 0) {
+			else if (floaterType == FULL_DDW_FLOATER) {
 				finalRupWidth = 100;
 				numRup = surface.getNumSubsetSurfaces(rupLen,finalRupWidth,rupOffset);
 				firstRupIndex = 0;

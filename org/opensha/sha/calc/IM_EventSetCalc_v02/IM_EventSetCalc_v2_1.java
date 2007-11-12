@@ -6,6 +6,7 @@ import org.opensha.data.LocationList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
 import org.opensha.sha.earthquake.*;
@@ -350,7 +351,7 @@ implements ParameterChangeWarningListener {
 	private void createMeanUCERF2_Forecast(){
 		forecast = new MeanUCERF2();
 		forecast.getAdjustableParameterList().getParameter(
-				MeanUCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_POISSON);
+				UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 	}
 
 	private void toApplyBackGroud(String toApply){

@@ -60,8 +60,8 @@ public class CompareUCERF_SourceRates {
 		
 		// Mean UCERF 2
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.setParameter(MeanUCERF2.PROB_MODEL_PARAM_NAME, MeanUCERF2.PROB_MODEL_POISSON);
-		meanUCERF2.setParameter(MeanUCERF2.BACK_SEIS_NAME, MeanUCERF2.BACK_SEIS_EXCLUDE);
+		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.getTimeSpan().setDuration(duration);
 		fw = new FileWriter("MeanUCERF2.txt");
 		meanUCERF2.updateForecast();

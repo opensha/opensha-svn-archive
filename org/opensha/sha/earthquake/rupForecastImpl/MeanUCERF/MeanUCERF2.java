@@ -59,43 +59,19 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 //	ArrayList allSourceNames;
 
-	public final static double MIN_MAG = UCERF2.MIN_MAG;
-	public final static double MAX_MAG = UCERF2.MAX_MAG;
-	public final static double DELTA_MAG = UCERF2.DELTA_MAG;
-	public final static int NUM_MAG = UCERF2.NUM_MAG;
-
-	// public final static double B_FAULT_GR_MAG_LOWER = 6.5;
-	public final static double BACKGROUND_MAG_LOWER = UCERF2.BACKGROUND_MAG_LOWER;
-	
-	// Fault Grid Spacing
-	public final static double GRID_SPACING = UCERF2.GRID_SPACING;
-
-	public final static double BACK_SEIS_DEPTH = UCERF2.BACK_SEIS_DEPTH;
 
 	// various summed MFDs
 	private SummedMagFreqDist bFaultSummedMFD, aFaultSummedMFD;
 	private IncrementalMagFreqDist totBackgroundMFD, cZoneSummedMFD, nonCA_B_FaultsSummedMFD;
 
 	// background seismicity inlcude/exclude param
-	public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
-	public final static String BACK_SEIS_INCLUDE = new String ("Include");
-	public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
-	public final static String BACK_SEIS_ONLY = new String ("Only Background");
 	public final static String BACK_SEIS_INFO = new String ("Background includes C Zones here");
-	private ArrayList backSeisOptionsStrings = new ArrayList();
-	public final static String BACK_SEIS_DEFAULT = BACK_SEIS_INCLUDE;
 	private StringParameter backSeisParam;
 
 	// background seismicity treated as param
-	public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
-	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
-	public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
-	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Crosshair Sources");
-	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_POINT;
-	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 
-	// For rupture offset lenth along fault parameter
+	// For rupture offset length along fault parameter
 	public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
 	private Double DEFAULT_RUP_OFFSET_VAL= new Double(UCERF2.RUP_OFFSET);
 	private final static String RUP_OFFSET_PARAM_UNITS = "km";
@@ -103,6 +79,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	public final static double RUP_OFFSET_PARAM_MIN = 1;
 	public final static double RUP_OFFSET_PARAM_MAX = 100;
 	private DoubleParameter rupOffsetParam;
+	
+	// Floater Type param
+	private StringParameter floaterTypeParam;
 	
 	// for Cybershake Correction
 	public final static String CYBERSHAKE_DDW_CORR_PARAM_NAME ="Apply CyberShake DDW Corr";
@@ -112,15 +91,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	
 	// Probability Model Param
-	public final static String PROB_MODEL_PARAM_NAME = "Probability Model";
-	private final static String PROB_MODEL_PARAM_INFO = "Probability Model for Time Dependence";
-	public final static String PROB_MODEL_POISSON = "Poisson";
-	public final static String PROB_MODEL_BPT = "BPT";
-	public final static String PROB_MODEL_EMPIRICAL = "Empirical";
 	public final static String PROB_MODEL_WGCEP_PREF_BLEND = "WGCEP Preferred Blend";
 	public final static String PROB_MODEL_DEFAULT = PROB_MODEL_WGCEP_PREF_BLEND;
 	private StringParameter probModelParam;
-
 	
 	// Time duration
 	private final static double DURATION_DEFAULT = 30;
@@ -143,7 +116,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private ArrayList<FaultRuptureSource> aFaultSegmentedSources;
 	private ArrayList<ProbEqkSource> nonCA_bFaultSources;
 	private ArrayList<ProbEqkSource> allSources;
-	private ArrayList<ProbEqkSource> backgroundSources; // includes C-Zones as well
 	
 	private ArrayList<String> aFaultsBranchParamNames; // parameters that are adjusted for A_Faults
 	private ArrayList<ParamOptions> aFaultsBranchParamValues; // paramter values and their weights for A_Faults
@@ -193,6 +165,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		backSeisRupParam.addParameterChangeListener(this);
 		this.cybershakeDDW_CorrParam.addParameterChangeListener(this);
 		this.probModelParam.addParameterChangeListener(this);
+		this.floaterTypeParam.addParameterChangeListener(this);
 		this.parameterChangeFlag = true;
 	}
 
@@ -205,17 +178,19 @@ public class MeanUCERF2 extends EqkRupForecast {
 		// NETHOD AT THE END
 
 		// background seismicity include/exclude  
-		backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
-		backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
-		backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-		backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_DEFAULT);
+		ArrayList<String> backSeisOptionsStrings = new ArrayList<String>();
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_EXCLUDE);
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_INCLUDE);
+		backSeisOptionsStrings.add(UCERF2.BACK_SEIS_ONLY);
+		backSeisParam = new StringParameter(UCERF2.BACK_SEIS_NAME, backSeisOptionsStrings, UCERF2.BACK_SEIS_DEFAULT);
 		backSeisParam.setInfo(BACK_SEIS_INFO);
 		
 		// backgroud treated as point sources/finite sources
-		backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
-		backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
-		backSeisRupStrings.add(BACK_SEIS_RUP_CROSSHAIR);
-		backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_DEFAULT);
+		ArrayList<String> backSeisRupStrings = new ArrayList<String>();
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_POINT);
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_FINITE);
+		backSeisRupStrings.add(UCERF2.BACK_SEIS_RUP_CROSSHAIR);
+		backSeisRupParam = new StringParameter(UCERF2.BACK_SEIS_RUP_NAME, backSeisRupStrings, UCERF2.BACK_SEIS_RUP_DEFAULT);
 
 
 		// rup offset
@@ -227,24 +202,34 @@ public class MeanUCERF2 extends EqkRupForecast {
 		cybershakeDDW_CorrParam = new BooleanParameter(CYBERSHAKE_DDW_CORR_PARAM_NAME, CYBERSHAKE_DDW_CORR_PARAM_DEFAULT);
 		cybershakeDDW_CorrParam.setInfo(CYBERSHAKE_DDW_CORR_PARAM_INFO);
 		
+		// Floater Type Param
+		ArrayList<String> floaterTypes = new ArrayList<String>();
+		floaterTypes.add(UCERF2.FULL_DDW_FLOATER);
+		floaterTypes.add(UCERF2.STRIKE_AND_DOWNDIP_FLOATER);
+		floaterTypes.add(UCERF2.CENTERED_DOWNDIP_FLOATER);
+		floaterTypeParam = new StringParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, floaterTypes, UCERF2.FLOATER_TYPE_PARAM_DEFAULT);
+
+		
 		// Probability Model Param
 		ArrayList<String> probModelOptions = new ArrayList<String>();
-		probModelOptions.add(this.PROB_MODEL_WGCEP_PREF_BLEND);
-		probModelOptions.add(PROB_MODEL_POISSON);
-		probModelOptions.add(PROB_MODEL_BPT);
-		probModelOptions.add(PROB_MODEL_EMPIRICAL);
-		probModelParam = new StringParameter(PROB_MODEL_PARAM_NAME, probModelOptions, PROB_MODEL_DEFAULT);
-		probModelParam.setInfo(PROB_MODEL_PARAM_INFO);
+		probModelOptions.add(PROB_MODEL_WGCEP_PREF_BLEND);
+		probModelOptions.add(UCERF2.PROB_MODEL_POISSON);
+		probModelOptions.add(UCERF2.PROB_MODEL_BPT);
+		probModelOptions.add(UCERF2.PROB_MODEL_EMPIRICAL);
+		probModelParam = new StringParameter(UCERF2.PROB_MODEL_PARAM_NAME, probModelOptions, PROB_MODEL_DEFAULT);
+		probModelParam.setInfo(UCERF2.PROB_MODEL_PARAM_INFO);
 	}
 
 
 	// Set default value for parameters
 	public void setParamDefaults() {
-		backSeisParam.setValue(BACK_SEIS_DEFAULT);
+		backSeisParam.setValue(UCERF2.BACK_SEIS_DEFAULT);
 		// backgroud treated as point sources/finite soource
-		backSeisRupParam.setValue(BACK_SEIS_RUP_DEFAULT);
+		backSeisRupParam.setValue(UCERF2.BACK_SEIS_RUP_DEFAULT);
 		// rup offset
 		rupOffsetParam.setValue(DEFAULT_RUP_OFFSET_VAL);
+		// floater type
+		floaterTypeParam.setValue(UCERF2.FLOATER_TYPE_PARAM_DEFAULT);
 		cybershakeDDW_CorrParam.setValue(CYBERSHAKE_DDW_CORR_PARAM_DEFAULT);
 		probModelParam.setValue(PROB_MODEL_DEFAULT);
 
@@ -256,8 +241,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private void createParamList() {
 		adjustableParams = new ParameterList();
 		adjustableParams.addParameter(rupOffsetParam);		
+		adjustableParams.addParameter(floaterTypeParam);
 		adjustableParams.addParameter(backSeisParam);	
-		if(!backSeisParam.getValue().equals(BACK_SEIS_EXCLUDE))
+		if(!backSeisParam.getValue().equals(UCERF2.BACK_SEIS_EXCLUDE))
 			adjustableParams.addParameter(backSeisRupParam);
 		adjustableParams.addParameter(cybershakeDDW_CorrParam);
 		adjustableParams.addParameter(probModelParam);		
@@ -270,7 +256,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		return allSources.get(iSource);
+		if(iSource<allSources.size()) // everything but the grid sources
+			return (ProbEqkSource) allSources.get(iSource);
+		else {
+			if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
+				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+			else return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+		}
+
 	}
 
 	/**
@@ -279,7 +272,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		return allSources.size();
+		if(backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE))
+			return allSources.size() + nshmp_gridSrcGen.getNumSources();
+		else return allSources.size();
 	}
 	
 
@@ -289,7 +284,16 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return ArrayList of Prob Earthquake sources
 	 */
 	public ArrayList  getSourceList(){
-		return allSources;
+		ArrayList sourceList = new ArrayList();
+		sourceList.addAll(allSources);
+
+		if(backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE) &&
+				this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
+			sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+		else if(backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE))
+			sourceList.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+
+		return sourceList;
 	}
 
 
@@ -330,7 +334,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 
 	private IncrementalMagFreqDist getTotalMFD() {
-		SummedMagFreqDist totalMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		SummedMagFreqDist totalMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		totalMFD.addIncrementalMagFreqDist(bFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(aFaultSummedMFD);
 		totalMFD.addIncrementalMagFreqDist(totBackgroundMFD);
@@ -357,7 +361,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			}
 
 			// if only background is not selected
-			if(!backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+			if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
 				mkA_FaultSources();
 				allSources.addAll(this.aFaultSegmentedSources);
 				allSources.addAll(this.aFaultUnsegmentedSources);
@@ -370,21 +374,17 @@ public class MeanUCERF2 extends EqkRupForecast {
 			}
 			
 			// if background sources are included
-			if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE) || 
-					backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+			if(backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_INCLUDE) || 
+					backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
 				String backSeisRup = (String)this.backSeisRupParam.getValue();
-				if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_POINT)) {
+				if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 					nshmp_gridSrcGen.setAsPointSources(true);
-					backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());
-				} else if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_FINITE)) {
+				} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
 					nshmp_gridSrcGen.setAsPointSources(false);
-					backgroundSources = this.nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration());	
 				} else { // Cross hair ruptures
 					nshmp_gridSrcGen.setAsPointSources(false);
-					backgroundSources = this.nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration());						
 				}
-				backgroundSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
-				allSources.addAll(backgroundSources);
+				allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 			}
 			
 		}
@@ -402,12 +402,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		boolean cybershakeDDW_Corr = (Boolean)this.cybershakeDDW_CorrParam.getValue();
 
 		// read from pre-genearated A-Faults files
-		if(probModel.equalsIgnoreCase(PROB_MODEL_POISSON)
+		if(probModel.equalsIgnoreCase(UCERF2.PROB_MODEL_POISSON)
 				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
 			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObjectFromURL(FileUtils.class.getResource("/"+A_FAULTS_POISS_FILENAME));
 			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
 				aFaultSegmentedSources.get(i).setDuration(duration);
-		}  else if(probModel.equalsIgnoreCase(PROB_MODEL_EMPIRICAL)
+		}  else if(probModel.equalsIgnoreCase(UCERF2.PROB_MODEL_EMPIRICAL)
 				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
 			aFaultSegmentedSources = (ArrayList<FaultRuptureSource>)FileUtils.loadObjectFromURL(FileUtils.class.getResource("/"+A_FAULTS_EMPIRICAL_FILENAME));
 			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
@@ -420,7 +420,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			sourceGriddedSurfaceMapping = new HashMap<String, StirlingGriddedSurface>();
 			findBranches(0,1);
 			aFaultSegmentedSources = new ArrayList<FaultRuptureSource>();
-			if(calcSummedMFDs) aFaultSummedMFD = new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG); 
+			if(calcSummedMFDs) aFaultSummedMFD = new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG); 
 			// iterate over all rupture sources
 			Iterator<String> it = sourceMFDMapping.keySet().iterator();
 			while(it.hasNext()) {
@@ -448,8 +448,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 		double empiricalModelWt=0.0;
 		double duration = this.timeSpan.getDuration();
 		String probModel = (String)this.probModelParam.getValue();
-		if(probModel.equals(PROB_MODEL_BPT) || probModel.equals(PROB_MODEL_POISSON) ) empiricalModelWt = 0;
-		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
+		if(probModel.equals(UCERF2.PROB_MODEL_BPT) || probModel.equals(UCERF2.PROB_MODEL_POISSON) ) empiricalModelWt = 0;
+		else if(probModel.equals(UCERF2.PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
 
 		// DO for unsegmented sources
@@ -478,12 +478,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 		faultSegmentList = aFaultsFetcher.getFaultSegmentDataList(true);
 	
 		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
-		
+		int floaterType = this.getFloaterType();
 		for(int i=0; i<faultSegmentList.size(); ++i) {
 			double newMoRate = moRateList.get(i) + wt*faultSegmentList.get(i).getTotalMomentRate();
 			moRateList.set(i, newMoRate);
 			UnsegmentedSource unsegmentedSource = new UnsegmentedSource(faultSegmentList.get(i),  
-					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  duration, moRateList.get(i), 0, ddwCorr);
+					empiricalModel, rupOffset, 0.0, 0.0,  0.1, empiricalModelWt,  
+					duration, moRateList.get(i), 0, ddwCorr, floaterType);
 			aFaultUnsegmentedSources.add(unsegmentedSource);
 			//			System.out.println(source.getName());
 			if(calcSummedMFDs) {
@@ -500,6 +501,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 		
 	}
 	
+	/**
+	 * Get the Types of floaters desired
+	 * @param floaterType - FULL_DDW_FLOATER (0) = only along strike ( rupture full DDW); 
+	 *                      STRIKE_AND_DOWNDIP_FLOATER (1) = float along strike and down dip;
+	 *                      CENTERED_DOWNDIP_FLOATER (2) = float along strike & centered down dip
+
+	 * @return
+	 */
+	private int getFloaterType() {
+		String floaterType = (String)floaterTypeParam.getValue();
+		if(floaterType.equalsIgnoreCase(UCERF2.FULL_DDW_FLOATER)) return UnsegmentedSource.FULL_DDW_FLOATER;
+		else if(floaterType.equalsIgnoreCase(UCERF2.STRIKE_AND_DOWNDIP_FLOATER)) return UnsegmentedSource.STRIKE_AND_DOWNDIP_FLOATER;
+		else if(floaterType.equalsIgnoreCase(UCERF2.CENTERED_DOWNDIP_FLOATER)) return UnsegmentedSource.CENTERED_DOWNDIP_FLOATER;
+		throw new RuntimeException("Unsupported Floating ruptures option");
+	}
 	
 	/**
 	 * Calculate MFDs
@@ -554,7 +570,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		boolean isSegDependentAperiodicity = false;
 		String probModel = (String)ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).getValue();
 		
-		if(probModel.equals(PROB_MODEL_BPT)) { // for time dependence
+		if(probModel.equals(UCERF2.PROB_MODEL_BPT)) { // for time dependence
 			startYear = this.timeSpan.getStartTimeYear();
 			isSegDependentAperiodicity = false;
 			aperiodicity = ((Double)ucerf2.getParameter(UCERF2.APERIODICITY_PARAM_NAME).getValue()).doubleValue();
@@ -606,9 +622,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 					magTruncLevel, totMoRateReduction, meanMagCorrection,minRates, 
 					wtedInversion, relativeSegRateWeight, relativeA_PrioriWeight);
 			ArrayList<FaultRuptureSource> sources = new ArrayList<FaultRuptureSource>();
-			if(probModel.equals(PROB_MODEL_POISSON)) // time Independent
+			if(probModel.equals(UCERF2.PROB_MODEL_POISSON)) // time Independent
 				sources.addAll(aFaultSourceGenerator.getTimeIndependentSources(duration));
-			else if(probModel.equals(PROB_MODEL_BPT)) 
+			else if(probModel.equals(UCERF2.PROB_MODEL_BPT)) 
 				sources.addAll(aFaultSourceGenerator.getTimeDependentSources(duration, startYear, aperiodicity, isSegDependentAperiodicity));
 			 else // Empirical Model
 				sources.addAll(aFaultSourceGenerator.getTimeDepEmpiricalSources(duration, empiricalModel));
@@ -618,7 +634,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				FaultRuptureSource source  = sources.get(srcIndex);
 				String key = faultName +";"+source.getName();
 				if(!sourceMFDMapping.containsKey(key)) {
-					sourceMFDMapping.put(key, new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG));
+					sourceMFDMapping.put(key, new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG));
 					sourceRakeMapping.put(key, aFaultSourceGenerator.getAveRake(srcIndex));
 					this.sourceGriddedSurfaceMapping.put(key, aFaultSourceGenerator.getCombinedGriddedSurface(srcIndex, ddwCorr));
 				}
@@ -678,12 +694,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		options = new ParamOptions();
 		// see the option chosen for Prob Model
 		String probModel = (String)this.probModelParam.getValue();
-		if(probModel.equals(PROB_MODEL_BPT)){
+		if(probModel.equals(UCERF2.PROB_MODEL_BPT)){
 			options.addValueWeight(UCERF2.PROB_MODEL_BPT, 1.0);
-		} else if (probModel.equals(PROB_MODEL_POISSON) ) {
+		} else if (probModel.equals(UCERF2.PROB_MODEL_POISSON) ) {
 			options.addValueWeight(UCERF2.PROB_MODEL_POISSON, 1.0);
 		}
-		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) {
+		else if(probModel.equals(UCERF2.PROB_MODEL_EMPIRICAL)) {
 			options.addValueWeight(UCERF2.PROB_MODEL_EMPIRICAL, 1.0);
 		}
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) {
@@ -716,43 +732,44 @@ public class MeanUCERF2 extends EqkRupForecast {
 		double empiricalModelWt=0.0;
 		
 		String probModel = (String)this.probModelParam.getValue();
-		if(probModel.equals(PROB_MODEL_BPT) || probModel.equals(PROB_MODEL_POISSON) ) empiricalModelWt = 0;
-		else if(probModel.equals(PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
+		if(probModel.equals(UCERF2.PROB_MODEL_BPT) || probModel.equals(UCERF2.PROB_MODEL_POISSON) ) empiricalModelWt = 0;
+		else if(probModel.equals(UCERF2.PROB_MODEL_EMPIRICAL)) empiricalModelWt = 1;
 		else if(probModel.equals(PROB_MODEL_WGCEP_PREF_BLEND)) empiricalModelWt = 0.3;
 		
 		double duration = this.timeSpan.getDuration();
 		double wt = 0.5;
 		boolean ddwCorr = (Boolean)cybershakeDDW_CorrParam.getValue();
+		int floaterType = this.getFloaterType();
 		
 		ArrayList<FaultSegmentData> faultSegDataList = bFaultsFetcher.getB_FaultsCommonConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=1.0;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonNoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1ConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_1NoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.25;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2ConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.5;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsUniqueToF2_2NoConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		wt=0.75;
 		faultSegDataList  = bFaultsFetcher.getB_FaultsCommonWithUniqueConnOpts();
-		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr);
+		addToB_FaultSources(rupOffset, empiricalModelWt, duration, wt, faultSegDataList, ddwCorr, floaterType);
 		
 		// Now calculate the B-Faults total MFD
-		if(calcSummedMFDs) bFaultSummedMFD= new SummedMagFreqDist(MIN_MAG, MAX_MAG, NUM_MAG);
+		if(calcSummedMFDs) bFaultSummedMFD= new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG);
 		
 		double mag, rate;
 		for(int srcIndex=0; srcIndex<bFaultSources.size(); ++srcIndex) {
@@ -779,13 +796,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param faultSegDataList
 	 */
 	private void addToB_FaultSources(double rupOffset, double empiricalModelWt, double duration, double wt, 
-			ArrayList<FaultSegmentData> faultSegDataList, boolean ddwCorr) {
+			ArrayList<FaultSegmentData> faultSegDataList, boolean ddwCorr, int floaterType) {
 		for(int i=0; i<faultSegDataList.size(); ++i) {
 			if(faultSegDataList.get(i).getFaultName().equalsIgnoreCase("Mendocino")) continue;
 			//System.out.println(faultSegDataList.get(i).getFaultName()+"\t"+wt);
 			bFaultSources.add(new UnsegmentedSource(faultSegDataList.get(i), 
 					empiricalModel,  rupOffset,  wt, 
-					empiricalModelWt, duration, ddwCorr));
+					empiricalModelWt, duration, ddwCorr, floaterType));
 		}
 	}
 	
@@ -800,7 +817,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		double rupOffset = ((Double)this.rupOffsetParam.getValue()).doubleValue();
 
 		EmpiricalModel empiricalModel  = null;
-		if(this.probModelParam.getValue().equals(PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
+		if(this.probModelParam.getValue().equals(UCERF2.PROB_MODEL_EMPIRICAL)) empiricalModel = this.empiricalModel;
 		nonCA_bFaultSources = nonCA_B_Faultsfetcher.getSources(UCERF2.NON_CA_SOURCES_FILENAME, duration, magSigma, magTruncLevel,rupOffset, empiricalModel);
 	}
 	
@@ -809,7 +826,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * Creates the timespan object based on if it is time dependent or time independent model.
 	 */
 	private void setTimespanParameter() {
-		if (this.probModelParam.getValue().equals(PROB_MODEL_BPT) ||
+		if (this.probModelParam.getValue().equals(UCERF2.PROB_MODEL_BPT) ||
 				probModelParam.getValue().equals(PROB_MODEL_WGCEP_PREF_BLEND)) {
 			// create the time-dep timespan object with start time and duration in years
 			timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
@@ -845,13 +862,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 		String paramName = event.getParameterName();
 		if(paramName.equalsIgnoreCase(RUP_OFFSET_PARAM_NAME)) {
 			
-		} else if(paramName.equalsIgnoreCase(PROB_MODEL_PARAM_NAME)) {
+		} else if(paramName.equalsIgnoreCase(UCERF2.PROB_MODEL_PARAM_NAME)) {
 			createParamList();
 			setTimespanParameter();
 			timeSpanChange(new EventObject(timeSpan));
-		} else if (paramName.equalsIgnoreCase(BACK_SEIS_NAME)) {
+		} else if (paramName.equalsIgnoreCase(UCERF2.BACK_SEIS_NAME)) {
 			createParamList();
-		} else if(paramName.equalsIgnoreCase(BACK_SEIS_RUP_NAME)) { 
+		} else if(paramName.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_NAME)) { 
 
 		} 
 		parameterChangeFlag = true;

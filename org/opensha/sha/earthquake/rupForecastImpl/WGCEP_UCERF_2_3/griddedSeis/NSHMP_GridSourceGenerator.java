@@ -285,13 +285,13 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 
 
 	/**
-	 * Get the number of gridded sources
+	 * Get the number of Random Strike gridded sources
 	 *  
 	 * @return
 	 */
-	/*public int getNumSources() {
+	public int getNumSources() {
 		return this.getNumGridLocs();
-	}*/
+	}
 
 
 	/**
