@@ -59,28 +59,31 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		imr.setIntensityMeasure("PGA");
 		createUSGS_PGA_Function();
 		String dirName = HAZ_CURVES_DIRECTORY_NAME+"/PGA";
-		generateHazardCurves(dirName);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
 		
 		// Generate Hazard Curves for SA 0.2s
 		imr.setIntensityMeasure("SA");
 		createUSGS_SA_01_AND_02_Function();
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(0.2);
 		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_0.2sec";
-		generateHazardCurves(dirName);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
 		
 		// Generate hazard curves for SA 1.0s
 		imr.setIntensityMeasure("SA");
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(1.0);
 		createUSGS_SA_Function();
 		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_1sec";
-		generateHazardCurves(dirName);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
 	}
 	
 	/**
 	 * Generate hazard curves for a bunch of sites
 	 *
 	 */
-	private void generateHazardCurves(String dirName) {
+	private void generateHazardCurves(String dirName, double lat, double minLon, double maxLon) {
 		//		create directory for hazard curves
 		File file = new File(dirName);
 		if(!file.isDirectory()) file.mkdirs();
@@ -88,24 +91,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 			hazardCurveCalculator = new HazardCurveCalculator();
 		
 			// Do for First Lat
-			double lat=LAT1;
-			for(double lon=MIN_LON1; lon<=MAX_LON1; lon+=GRID_SPACING) {
-				String fileName = dirName+"/"+lat+"_"+lon+".txt";
-				System.out.println("Generating file:"+fileName);
-				Site site = new Site(new Location(lat, lon));
-				site.addParameter(VS_30_PARAM);
-				site.addParameter(DEPTH_2_5KM_PARAM);
-				DiscretizedFuncAPI hazFunc = this.function.deepClone();
-				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
-				FileWriter fw = new FileWriter(fileName);
-				for(int i=0; i<hazFunc.getNum(); ++i)
-					fw.write(hazFunc.getX(i)+"\t"+hazFunc.getY(i)+"\n");
-				fw.close();
-			}
-			
-			 // Do for second lat profiling
-			lat=LAT2;
-			for(double lon=MIN_LON2; lon<=MAX_LON2; lon+=GRID_SPACING) {
+			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING) {
 				String fileName = dirName+"/"+lat+"_"+lon+".txt";
 				System.out.println("Generating file:"+fileName);
 				Site site = new Site(new Location(lat, lon));
