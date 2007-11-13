@@ -58,6 +58,8 @@ public class NSHMP_FileWriter {
 
 		// Default parameters
 		ucerf2.setParamDefaults();
+		ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.updateForecast();
 		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_EllB_"+defModelName);
@@ -67,6 +69,8 @@ public class NSHMP_FileWriter {
 		writeNSHMP_SegmentedAfaultSrcFile(dirName+"/"+"aFault_MoBal_HB_"+defModelName);
 		// default with High apriori model weight
 		ucerf2.setParamDefaults();
+		ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.REL_A_PRIORI_WT_PARAM_NAME).setValue(new Double(1e10));
 		ucerf2.getParameter(UCERF2.MIN_A_FAULT_RATE_1_PARAM_NAME).setValue(new Double(0));
@@ -81,6 +85,8 @@ public class NSHMP_FileWriter {
 		
 		// UNSEGMENTED MODELS & B-FAULTS
 		ucerf2.setParamDefaults();
+		ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
 		ucerf2.updateForecast();
@@ -95,6 +101,8 @@ public class NSHMP_FileWriter {
 
 		// UNSTITCHED B-FAULTS
 		ucerf2.setParamDefaults();
+		ucerf2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
 		ucerf2.updateForecast();
@@ -196,7 +204,7 @@ public class NSHMP_FileWriter {
 	
 	public static void main(String[] args) {
 		NSHMP_FileWriter nshmpFileWriter = new NSHMP_FileWriter();
-		nshmpFileWriter.writeNSHMP_SrcFiles("NSHMP_Sep7");
+		nshmpFileWriter.writeNSHMP_SrcFiles("NSHMP_Nov13");
 	}
 	
 }
