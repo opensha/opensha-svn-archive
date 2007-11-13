@@ -160,9 +160,12 @@ public class FaultSectionPrefData {
 			return simpleFaultData;
 		}
 		else {
-			//adjust the lower seis depth according the aseis factor
-			double lowerDepth = getAveUpperDepth() + (1.0-aseismicSlipFactor)*(getAveLowerDepth()-getAveUpperDepth());
-			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), lowerDepth, getAveUpperDepth(), getFaultTrace());
+			//adjust the upper & lower seis depth according the aseis factor
+			double depthToReduce = aseismicSlipFactor*(getAveLowerDepth() - getAveUpperDepth());
+			double lowerDepth = getAveLowerDepth()-depthToReduce/2.0;
+			double upperDepth = getAveUpperDepth() + depthToReduce/2.0;
+			//System.out.println(depthToReduce+","+lowerDepth+","+upperDepth);
+			SimpleFaultData simpleFaultData = new SimpleFaultData(getAveDip(), lowerDepth, upperDepth, getFaultTrace());
 			return simpleFaultData;
 			
 		}
