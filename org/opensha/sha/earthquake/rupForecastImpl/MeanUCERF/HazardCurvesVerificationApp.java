@@ -5,6 +5,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.text.DecimalFormat;
 
 import org.opensha.data.Location;
 import org.opensha.data.Site;
@@ -33,6 +34,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 1.0);
 	private MeanUCERF2 meanUCERF2;
 	private AttenuationRelationshipAPI imr;
+	private DecimalFormat latLonFormat = new DecimalFormat("0.00");
 	private ArbitrarilyDiscretizedFunc function; // X-Values function
 	private HazardCurveCalculator hazardCurveCalculator;
 	
@@ -59,24 +61,24 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		imr.setIntensityMeasure("PGA");
 		createUSGS_PGA_Function();
 		String dirName = HAZ_CURVES_DIRECTORY_NAME+"/PGA";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate Hazard Curves for SA 0.2s
 		imr.setIntensityMeasure("SA");
 		createUSGS_SA_01_AND_02_Function();
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(0.2);
 		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_0.2sec";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate hazard curves for SA 1.0s
 		imr.setIntensityMeasure("SA");
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(1.0);
 		createUSGS_SA_Function();
 		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_1sec";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MIN_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MIN_LON2);
+		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
 	}
 	
 	/**
@@ -92,7 +94,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		
 			// Do for First Lat
 			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING) {
-				String fileName = dirName+"/"+lat+"_"+lon+".txt";
+				String fileName = dirName+"/"+latLonFormat.format(lat)+"_"+latLonFormat.format(lon)+".txt";
 				System.out.println("Generating file:"+fileName);
 				Site site = new Site(new Location(lat, lon));
 				site.addParameter(VS_30_PARAM);
