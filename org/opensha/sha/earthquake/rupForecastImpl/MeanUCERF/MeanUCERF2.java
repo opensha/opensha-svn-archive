@@ -890,7 +890,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		//meanUCERF2.calcSummedMFDs  =true;
+		meanUCERF2.calcSummedMFDs  =true;
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 		//meanUCERF2.getTimeSpan().setDuration(1.0);
