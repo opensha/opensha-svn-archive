@@ -98,6 +98,7 @@ public class ProbabilisticHazardApplication
   JMenuItem fileSaveMenu = new JMenuItem();
   JMenuItem fileAddProjNameMenu = new JMenuItem();
   JMenuItem helpAnalysisOptionExplainationMenu = new JMenuItem();
+  JMenuItem helpExcelFileFormatMenu = new JMenuItem();
   JMenu helpSiteLocationNotes = new JMenu();
   JMenu helpUS_TerritoryNotes = new JMenu();
   JMenuItem helpAbout = new JMenuItem();
@@ -206,6 +207,7 @@ public class ProbabilisticHazardApplication
     filePrintMenu.setText("Print");
     fileAddProjNameMenu.setText("Add Name & Date");
     helpAnalysisOptionExplainationMenu.setText("Analysis Option Explanation");
+    helpExcelFileFormatMenu.setText("Batch File Format");
     helpSiteLocationNotes.setText("Site Location Notes");
     helpUS_TerritoryNotes.setText("U.S. Territory Notes");
     helpAbout.setText("About");
@@ -243,6 +245,12 @@ public class ProbabilisticHazardApplication
           }
     });
 
+    helpExcelFileFormatMenu.addActionListener(new java.awt.event.ActionListener() {
+    	public void actionPerformed(ActionEvent e) {
+    		helpExcelFileFormatMenu_actionPerformed(e);
+    	}
+    });
+    
     siteLocNotesLatLonAcc.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         siteLocNotesLatLonAcc_actionPerformed(e);
@@ -352,6 +360,7 @@ public class ProbabilisticHazardApplication
     fileMenu.add(filePrintMenu);
     fileMenu.add(fileExitMenu);
     helpMenu.add(helpAnalysisOptionExplainationMenu);
+    helpMenu.add(helpExcelFileFormatMenu);
     helpMenu.add(helpSiteLocationNotes);
     helpMenu.add(helpUS_TerritoryNotes);
     helpMenu.add(helpAbout);
@@ -501,6 +510,31 @@ public class ProbabilisticHazardApplication
     analysisOptionExpFrame.setVisible(true);
   }
 
+  /**
+   * Help | Explain the batch file format.
+   */
+  void helpExcelFileFormatMenu_actionPerformed(ActionEvent event) {
+	  String batchFileHelp = "<h2>Batch files should be in Microsoft Excel format.</h2>" +
+	  
+	  "<p>These files consist of three basic columns. Latitude, Longitude, and Site Class (optional)." +
+	  "The columns should be in the first three columns in the spreadsheet in the first sheet in the workbook." +
+	  "Each column should contain relevant values.</p><ul>" +
+	  "<li>Latitude: Decimal value.</li>" +
+	  "<li>Longitude: Decimal value. (Use negative for Western longitudes.)</li>" +
+	  "<li>Site  Class (optional): Single Character (A-D). If not specified, then  'B' is used.</li>" +
+	  "</ul><p>Note: All fields must be properly formatted for their respective data types and formula values are not allowed. " +
+	  "Also, the first row in each column should be a header column. This value will be ignored even if you put valid inputs you would like calculated into it.</p>" +
+	  "<h3>Example</h3>" +
+	  "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">" +
+	  "<tr><th>Latitude</th><th>Longitude</th><th>Site Class</th></tr>" +
+	  "<tr><td>35.0</td><td>-118.2</td><td>C</td></tr>" +
+	  "<tr><td>34.2</td><td>-90.4</td><td>&nbsp</td></tr>" +
+	  "</table>";
+	  
+	  String batchFileTitle = "Excel (Batch) File Format";
+	  
+	  showMsgBox(batchFileHelp, batchFileTitle, 400, 500);
+  }
   /**
    * Help | Explaination to all the Analysis Options
    *
