@@ -44,7 +44,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	private double[] sumOfAllAvals;
 	private int numAvals;
 	// a-val and mmax values
-	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, agrd_deeps_out, 
+	private double[] agrd_brawly_out, agrd_creeps_out, agrd_cstcal_out, /*agrd_deeps_out,*/ 
 	agrd_mendos_out, agrd_wuscmp_out, agrd_wusext_out, agrd_impext_out, area1new_agrid, 
 	area2new_agrid, area3new_agrid, area4new_agrid,mojave_agrid, sangreg_agrid,
 	fltmmaxAll21ch_out6, fltmmaxAll21gr_out6, fltmmaxAll24ch_out6, fltmmaxAll24gr_out6;
@@ -355,7 +355,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		agrd_cstcal_out = readGridFile(PATH+"agrd_cstcal.out.asc",true);
 		agrd_brawly_out = readGridFile(PATH+"agrd_brawly.out.asc",true);
 		agrd_creeps_out = readGridFile(PATH+"agrd_creeps.out.asc",true);
-		agrd_deeps_out = readGridFile(PATH+"agrd_deeps.out.asc",true);
+		//agrd_deeps_out = readGridFile(PATH+"agrd_deeps.out.asc",true);
 		agrd_mendos_out = readGridFile(PATH+"agrd_mendos.out.asc",true);
 		agrd_wuscmp_out = readGridFile(PATH+"agrd_wuscmp.out.asc",true);
 		agrd_wusext_out = readGridFile(PATH+"agrd_wusext.out.asc",true);
@@ -586,7 +586,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 6.0, agrd_creeps_out[locIndex], B_VAL_CREEPING, false), true);			
 		}
 		
-		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false), true);
+		//mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, 7.2, agrd_deeps_out[locIndex], B_VAL, false), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21ch_out6[locIndex], 0.667*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		mfdAtLoc.addResampledMagFreqDist(getMFD(5.0, fltmmaxAll21gr_out6[locIndex], 0.333*agrd_impext_out[locIndex], B_VAL, applyBulgeReduction), true);
 		if(applyMaxMagGrid) {	 // Apply Max Mag from files
@@ -630,9 +630,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 		num=0;
 		for(int i=0; i<numLocs; i++) if(agrd_creeps_out[i]>0) num+=1;
 		System.out.println("agrd_creeps_out: "+num);
-		num=0;
-		for(int i=0; i<numLocs; i++) if(agrd_deeps_out[i]>0) num+=1;
-		System.out.println("agrd_deeps_out: "+num);
+		//num=0;
+		//for(int i=0; i<numLocs; i++) if(agrd_deeps_out[i]>0) num+=1;
+		//System.out.println("agrd_deeps_out: "+num);
 		num=0;
 		for(int i=0; i<numLocs; i++) if(agrd_mendos_out[i]>0) num+=1;
 		System.out.println("agrd_mendos_out: "+num);
@@ -680,7 +680,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 			ss_rate += 0.5*agrd_cstcal_out[loc];
 			rv_rate += 0.5*agrd_cstcal_out[loc];
 			
-			ss_rate += agrd_deeps_out[loc];
+			//ss_rate += agrd_deeps_out[loc];
 			
 			ss_rate += 0.5*agrd_impext_out[loc];
 			n_rate  += 0.5*agrd_impext_out[loc];
