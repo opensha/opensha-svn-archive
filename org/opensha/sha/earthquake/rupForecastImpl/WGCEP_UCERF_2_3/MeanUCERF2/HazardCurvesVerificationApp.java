@@ -22,6 +22,7 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
 
 /**
@@ -68,7 +69,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		imr.setIntensityMeasure("PGA");
 		createUSGS_PGA_Function();
 		String imtString = "PGA";
-		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
 		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate Hazard Curves for SA 0.2s
@@ -76,16 +77,16 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		createUSGS_SA_01_AND_02_Function();
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(0.2);
 		imtString = "SA_0.2sec";
-		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
+		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate hazard curves for SA 1.0s
 		imr.setIntensityMeasure("SA");
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(1.0);
 		createUSGS_SA_Function();
 		imtString = "SA_1sec";
-		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
+		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 	}
 	
 	/**
@@ -117,8 +118,11 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				Site site = new Site(new Location(lat, lon));
 				site.addParameter(VS_30_PARAM);
 				site.addParameter(DEPTH_2_5KM_PARAM);
-				DiscretizedFuncAPI hazFunc = this.function.deepClone();
+				DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
+				for(int i=0; i<numX_Vals; ++i)
+					hazFunc.set(Math.log(function.getX(i)), 1);
 				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
+	
 				twoPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
 				tenPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
 				
@@ -159,8 +163,9 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	 *
 	 */
 	private void setupIMR() {
-		imr = new CB_2006_AttenRel(this);
-		imr.setParamDefaults(); // default is rock site
+		//imr = new CB_2006_AttenRel(this);
+		imr = new BJF_1997_AttenRel(this);
+		imr.setParamDefaults();
 	}
 	
 
