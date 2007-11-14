@@ -70,7 +70,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		createUSGS_PGA_Function();
 		String imtString = "PGA";
 		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
+		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate Hazard Curves for SA 0.2s
 		imr.setIntensityMeasure("SA");
@@ -86,7 +86,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		createUSGS_SA_Function();
 		imtString = "SA_1sec";
 		//generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
-		//generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
+		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 	}
 	
 	/**
@@ -118,17 +118,24 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				Site site = new Site(new Location(lat, lon));
 				site.addParameter(VS_30_PARAM);
 				site.addParameter(DEPTH_2_5KM_PARAM);
+				
+				// do log of X axis values
 				DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
 				for(int i=0; i<numX_Vals; ++i)
 					hazFunc.set(Math.log(function.getX(i)), 1);
 				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
-	
-				twoPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
-				tenPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
+				
+				// unlog the X-Axis values
+				DiscretizedFuncAPI newFunc = new ArbitrarilyDiscretizedFunc();
+				for(int i=0; i<numX_Vals; ++i)
+					newFunc.set(function.getX(i), hazFunc.getY(i));
+				
+				twoPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
+				tenPercentProb = newFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
 				
 				sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
 				for(int i=0; i<numX_Vals; ++i)
-					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(function.getY(i));
+					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(newFunc.getY(i));
 
 				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
 				sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
