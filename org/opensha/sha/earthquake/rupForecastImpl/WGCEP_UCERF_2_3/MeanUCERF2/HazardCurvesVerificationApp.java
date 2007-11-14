@@ -163,8 +163,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	 *
 	 */
 	private void setupIMR() {
-		//imr = new CB_2006_AttenRel(this);
-		imr = new BJF_1997_AttenRel(this);
+		imr = new CB_2006_AttenRel(this);
 		imr.setParamDefaults();
 	}
 	
