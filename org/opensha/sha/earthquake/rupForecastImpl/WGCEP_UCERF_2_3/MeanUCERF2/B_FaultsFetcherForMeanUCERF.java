@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2;
 
 import java.util.ArrayList;
 

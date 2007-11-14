@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF;
+package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +32,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
  *
  */
 public class HazardCurvesVerificationApp implements ParameterChangeWarningListener {
-	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/MeanUCERF/HazardCurvesVerification";
+	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/MeanUCERF2/HazardCurvesVerification";
 	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
 	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 1.0);
 	private MeanUCERF2 meanUCERF2;
@@ -124,7 +124,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				
 				sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
 				for(int i=0; i<numX_Vals; ++i)
-					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(function.getX(i));
+					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(function.getY(i));
 
 				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
 				sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
@@ -148,7 +148,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, false);
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_CROSSHAIR);
 		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.getTimeSpan().setDuration(50.0);
 		meanUCERF2.updateForecast();

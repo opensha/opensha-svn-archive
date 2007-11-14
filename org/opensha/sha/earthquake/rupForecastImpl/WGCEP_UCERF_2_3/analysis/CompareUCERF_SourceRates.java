@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeIndependentEpistemicList;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 /**
  * This claas compares the sources rates of all ruptures for all logic tree branches

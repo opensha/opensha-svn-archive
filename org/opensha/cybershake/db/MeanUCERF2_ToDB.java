@@ -3,8 +3,8 @@
  */
 package org.opensha.cybershake.db;
 
-import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 /**
  * This Class creates an instances of Mean UCERF2 ERF to insert into the database

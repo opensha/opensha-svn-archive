@@ -7,8 +7,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF.MeanUCERF2;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
