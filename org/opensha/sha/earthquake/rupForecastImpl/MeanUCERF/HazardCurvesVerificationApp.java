@@ -4,9 +4,12 @@
 package org.opensha.sha.earthquake.rupForecastImpl.MeanUCERF;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -57,55 +60,79 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		System.out.println("Setting up IMR...");
 		setupIMR();
 		
+		//		create directory for hazard curves
+		File file = new File(HAZ_CURVES_DIRECTORY_NAME);
+		if(!file.isDirectory()) file.mkdirs();
+		
 		// Generate Hazard Curves for PGA
 		imr.setIntensityMeasure("PGA");
 		createUSGS_PGA_Function();
-		String dirName = HAZ_CURVES_DIRECTORY_NAME+"/PGA";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
+		String imtString = "PGA";
+		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate Hazard Curves for SA 0.2s
 		imr.setIntensityMeasure("SA");
 		createUSGS_SA_01_AND_02_Function();
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(0.2);
-		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_0.2sec";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
+		imtString = "SA_0.2sec";
+		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 		
 		// Generate hazard curves for SA 1.0s
 		imr.setIntensityMeasure("SA");
 		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(1.0);
 		createUSGS_SA_Function();
-		dirName = HAZ_CURVES_DIRECTORY_NAME+"/SA_1sec";
-		generateHazardCurves(dirName, LAT1, MIN_LON1, MAX_LON1);
-		generateHazardCurves(dirName, LAT2, MIN_LON2, MAX_LON2);
+		imtString = "SA_1sec";
+		generateHazardCurves(imtString, LAT1, MIN_LON1, MAX_LON1);
+		generateHazardCurves(imtString, LAT2, MIN_LON2, MAX_LON2);
 	}
 	
 	/**
 	 * Generate hazard curves for a bunch of sites
 	 *
 	 */
-	private void generateHazardCurves(String dirName, double lat, double minLon, double maxLon) {
-		//		create directory for hazard curves
-		File file = new File(dirName);
-		if(!file.isDirectory()) file.mkdirs();
+	private void generateHazardCurves(String imtString, double lat, double minLon, double maxLon) {
 		try {
-			hazardCurveCalculator = new HazardCurveCalculator();
-		
+			HSSFWorkbook wb  = new HSSFWorkbook();
+			HSSFSheet sheet = wb.createSheet(); // Sheet for displaying the Total Rates
+			sheet.createRow(0);
+			int numX_Vals = function.getNum();
+			for(int i=0; i<numX_Vals; ++i)
+				sheet.createRow(i+1).createCell((short)0).setCellValue(function.getX(i));
+			
+			int twoPercentProbRoIndex = numX_Vals+2;
+			int tenPercentProbRoIndex = numX_Vals+3;
+			
+			sheet.createRow(twoPercentProbRoIndex).createCell((short)0).setCellValue("2% Prob of Exceedance");
+			sheet.createRow(tenPercentProbRoIndex).createCell((short)0).setCellValue("10% Prob of Exceedance");
+			
+			hazardCurveCalculator = new HazardCurveCalculator(); 
+			String outputFileName = HAZ_CURVES_DIRECTORY_NAME+"/"+latLonFormat.format(lat)+"_"+imtString+".xls";
 			// Do for First Lat
-			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING) {
-				String fileName = dirName+"/"+latLonFormat.format(lat)+"_"+latLonFormat.format(lon)+".txt";
-				System.out.println("Generating file:"+fileName);
+			double twoPercentProb, tenPercentProb;
+			int colIndex=1;
+			for(double lon=minLon; lon<=maxLon; lon+=GRID_SPACING, ++colIndex) {
+				System.out.println("Doing Site:"+latLonFormat.format(lat)+","+latLonFormat.format(lon));
 				Site site = new Site(new Location(lat, lon));
 				site.addParameter(VS_30_PARAM);
 				site.addParameter(DEPTH_2_5KM_PARAM);
 				DiscretizedFuncAPI hazFunc = this.function.deepClone();
 				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
-				FileWriter fw = new FileWriter(fileName);
-				for(int i=0; i<hazFunc.getNum(); ++i)
-					fw.write(hazFunc.getX(i)+"\t"+hazFunc.getY(i)+"\n");
-				fw.close();
+				twoPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.02);
+				tenPercentProb = hazFunc.getFirstInterpolatedX_inLogXLogYDomain(0.1);
+				
+				sheet.getRow(0).createCell((short)colIndex).setCellValue(latLonFormat.format(lon));
+				for(int i=0; i<numX_Vals; ++i)
+					sheet.createRow(i+1).createCell((short)colIndex).setCellValue(function.getX(i));
+
+				sheet.createRow(twoPercentProbRoIndex).createCell((short)colIndex).setCellValue(twoPercentProb);
+				sheet.createRow(tenPercentProbRoIndex).createCell((short)colIndex).setCellValue(tenPercentProb);
+				
 			}
+			FileOutputStream fileOut = new FileOutputStream(outputFileName);
+			wb.write(fileOut);
+			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
