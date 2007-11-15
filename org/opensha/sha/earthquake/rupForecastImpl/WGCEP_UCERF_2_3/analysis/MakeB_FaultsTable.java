@@ -62,7 +62,7 @@ public class MakeB_FaultsTable {
 		ucerf2 = new UCERF2();
 		
 		
-		/*workbook  = new HSSFWorkbook();
+		workbook  = new HSSFWorkbook();
 		
 		makeNewSheet("B-Faults");
 		rowIndex=2;
@@ -93,7 +93,7 @@ public class MakeB_FaultsTable {
 			fileOut.close();
 		}catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 		workbook  = new HSSFWorkbook();
 		rowIndex=2;
