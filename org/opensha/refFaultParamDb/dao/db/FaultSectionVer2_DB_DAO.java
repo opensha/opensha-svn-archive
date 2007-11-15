@@ -240,6 +240,27 @@ public class FaultSectionVer2_DB_DAO {
   }
   
   /**
+   * Update Dip direction in database
+   * 
+   * @param faultSectionId
+   * @param dipDirection
+   */
+  public void updateDipDirection(int faultSectionId, float dipDirection) {
+	    String sql = "update "+TABLE_NAME+" set "+ 
+	    	DIP_DIRECTION+"="+dipDirection+
+	    " where "+SECTION_ID+"="+faultSectionId;
+    try {
+      //System.out.println(sql);
+      //System.exit(0);
+      dbAccess.insertUpdateOrDeleteData(sql);
+    }
+    catch(SQLException e) {
+      throw new InsertException(e.getMessage());
+    }
+
+  }
+  
+  /**
    * Get the fault section based on fault section Id
    * @param faultSectionId
    * @return
