@@ -32,7 +32,12 @@ public class GenerateFilesForBulgeAnalysisMaps {
 
 		// UCERF 2
 		UCERF2 ucerf2 = new UCERF2();
+	    // include background sources as point sources
+		ucerf2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(probModel);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		ucerf2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+
 		ucerf2.getTimeSpan().setDuration(duration);
 		ucerf2.updateForecast();
 		// min mag, maxMag, These are Centers of first and last bin
