@@ -299,6 +299,7 @@ public class SoSAF_SubSectionInversion {
 				Cmin[row]+=minRates[col]*C[row][col];
 			d[row] -= Cmin[row];
 		}
+		
 
 		// APPLY DATA WEIGHTS IF DESIRED
 		if(wtedInversion) {
@@ -318,7 +319,6 @@ public class SoSAF_SubSectionInversion {
 				}
 			}
 			// now apply the a-priori wts
-			// now fill in the a-priori rates if needed
 			if(relative_aPrioriRupWt > 0.0) {
 				for(int i=0; i < num_aPriori_constraints; i++) {
 					int row = i+firstRowAprioriData;
@@ -903,7 +903,7 @@ public class SoSAF_SubSectionInversion {
 		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
 		double relativeSegRateWt=1;
 		double relative_aPrioriRupWt = 1;
-		double relative_smoothnessWt = 1e5;
+		double relative_smoothnessWt = 1;
 		boolean wtedInversion = true;
 		soSAF_SubSections.doInversion(slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, relative_smoothnessWt, wtedInversion);
 		System.out.println("Done with Inversion");
