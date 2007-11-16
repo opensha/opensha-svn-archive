@@ -309,8 +309,8 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     double mag = magFreqDist.getX(magIndex);
     // set the depth according to magnitude
     double depth;
-    if(mag<=6.5) depth = 1.0;
-    else depth = 5.0;
+    if(mag<=6.5) depth = 5.0;
+    else depth = 1.0;
     probEqkRupture.setMag(mag);
     probEqkRupture.setAveRake(rake);
     if(this.isCrossHair) fraction/=2;

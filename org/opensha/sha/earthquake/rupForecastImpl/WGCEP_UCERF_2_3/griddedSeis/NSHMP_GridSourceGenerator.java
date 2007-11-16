@@ -707,6 +707,14 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	
 
 	public static void main(String args[]) {
+		
+		/**
+		 * This code gets MFD from all ruptures.
+		 * IMPORTANT: MFD from this piece of code will be differenct from
+		 * the MFD returned by getTotMFDForRegion() method because we do not
+		 * include "agrd_deeps" for making sources. 
+		 * 
+		 */
 		NSHMP_GridSourceGenerator srcGen = new NSHMP_GridSourceGenerator();
 		double duration = 30;
 		srcGen.setAsPointSources(false);
