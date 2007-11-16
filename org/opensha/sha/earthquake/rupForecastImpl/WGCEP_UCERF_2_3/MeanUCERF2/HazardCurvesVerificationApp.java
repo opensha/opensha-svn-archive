@@ -172,6 +172,9 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	private void setupIMR() {
 		imr = new CB_2006_AttenRel(this);
 		imr.setParamDefaults();
+		imr.getParameter(CB_2006_AttenRel.SIGMA_TRUNC_TYPE_NAME).setValue(CB_2006_AttenRel.SIGMA_TRUNC_TYPE_1SIDED);
+		imr.getParameter(CB_2006_AttenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(3.0);
+		
 	}
 	
 
