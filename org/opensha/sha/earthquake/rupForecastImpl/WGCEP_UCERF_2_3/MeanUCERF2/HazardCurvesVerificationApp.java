@@ -34,7 +34,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 public class HazardCurvesVerificationApp implements ParameterChangeWarningListener {
 	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/MeanUCERF2/HazardCurvesVerification";
 	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
-	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", (Double)null);
+	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 2.0);
 	private MeanUCERF2 meanUCERF2;
 	private AttenuationRelationshipAPI imr;
 	private DecimalFormat latLonFormat = new DecimalFormat("0.00");

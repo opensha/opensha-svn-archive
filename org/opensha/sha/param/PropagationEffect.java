@@ -262,7 +262,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
           
           // fix distanceJB if needed
           if(fix_dist_JB)
-        	  if(rupSurf.getNumCols() > 1 && rupSurf.getNumCols() > 1) {
+        	  if(rupSurf.getNumCols() > 1 && rupSurf.getNumRows() > 1) {
         		  double d1, d2,min_dist;
         		  loc1 = rupSurf.getLocation(0, 0);
         		  loc2 = rupSurf.getLocation(1, 1);
