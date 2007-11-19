@@ -124,9 +124,9 @@ public class DataGenerator_HazardCurves
   public void calculateHazardCurve(ArrayList<Location> locations, String hazCurveType, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 		 // Create the output sheet
-		 HSSFSheet xlSheet = xlOut.getSheet("Basic Hazard Curve");
+		 HSSFSheet xlSheet = xlOut.getSheet("Basic Hazard Curves");
 		 if(xlSheet==null)
-			 xlSheet = xlOut.createSheet("Basic Hazard Curve");
+			 xlSheet = xlOut.createSheet("Basic Hazard Curves");
 		 
 		 /* Write the header information */
 		 int startRow = xlSheet.getLastRowNum();
@@ -153,7 +153,7 @@ public class DataGenerator_HazardCurves
 		 
 		 // IMT
 		 xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 0).setCellValue("IMT Description:");
+		 xlRow.createCell((short) 0).setCellValue("Data Description:");
 		 xlRow.getCell((short) 0).setCellStyle(headerStyle);
 		 xlRow.createCell((short) 1).setCellValue(hazCurveType);
 		 
@@ -215,7 +215,7 @@ public class DataGenerator_HazardCurves
 			} finally {
 			 xlRow.createCell((short) 0).setCellValue(curLat);
 			 xlRow.createCell((short) 1).setCellValue(curLon);
-			 xlRow.createCell((short) 2).setCellValue("B/C");
+			 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
 			 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
 			 for(int j = 0; j < function.getNum(); ++j) {
 				 xlRow.createCell((short) 4).setCellValue(

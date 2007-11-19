@@ -130,9 +130,9 @@ public class DataGenerator_IRC
   public void calculateSsS1(ArrayList<Location> locations, String outFile) {
 	 HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("Residential Design");
+	 HSSFSheet xlSheet = xlOut.getSheet("Seismic Design Categories");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("Residential Design");
+		 xlSheet = xlOut.createSheet("Seismic Design Categories");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();

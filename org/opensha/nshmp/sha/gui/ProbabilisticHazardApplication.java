@@ -521,19 +521,23 @@ public class ProbabilisticHazardApplication
 	  "Each column should contain relevant values.</p><ul>" +
 	  "<li>Latitude: Decimal value.</li>" +
 	  "<li>Longitude: Decimal value. (Use negative for Western longitudes.)</li>" +
-	  "<li>Site  Class (optional): Single Character (A-D). If not specified, then  'B' is used.</li>" +
-	  "</ul><p>Note: All fields must be properly formatted for their respective data types and formula values are not allowed. " +
-	  "Also, the first row in each column should be a header column. This value will be ignored even if you put valid inputs you would like calculated into it.</p>" +
+	  "<li>Site  Class (optional): For SM and SD values and spectra only. Single Character (A-D). If not specified, then 'D' is used.</li>" +
+	  "</ul><p>All fields must be properly formatted for their respective data types and formula values are not allowed. " +
+	  "Also, the first row in each column should be a header column. This value will be ignored even if you put valid inputs you would like calculated into it." +
+	  "The number of rows is limited to 1,000.</p>" +
 	  "<h3>Example</h3>" +
 	  "<table border=\"1\" cellpadding=\"2\" cellspacing=\"0\">" +
 	  "<tr><th>Latitude</th><th>Longitude</th><th>Site Class</th></tr>" +
 	  "<tr><td>35.0</td><td>-118.2</td><td>C</td></tr>" +
 	  "<tr><td>34.2</td><td>-90.4</td><td>&nbsp</td></tr>" +
-	  "</table>";
+	  "</table>" +
+	  "<p>The Input Batch File can also be used for the Output File, without overwriting any data.</p>" +
+	  "<p>The \"Grid Spacing Basis\" column in the output provides the grid spacing, in degrees, of the underlying data points that are the basis for the " +
+	  "interpolated values returned. The other columns in the output should be self-explanatory.</p>";
 	  
 	  String batchFileTitle = "Excel (Batch) File Format";
 	  
-	  showMsgBox(batchFileHelp, batchFileTitle, 400, 500);
+	  showMsgBox(batchFileHelp, batchFileTitle, 400, 600);
   }
   /**
    * Help | Explaination to all the Analysis Options

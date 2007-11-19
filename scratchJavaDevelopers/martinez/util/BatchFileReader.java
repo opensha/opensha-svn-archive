@@ -69,8 +69,12 @@ public class BatchFileReader {
 				
 				// Make sure we have a valid cell
 				HSSFCell cell = row.getCell(columnNumber);
-				if(cell == null)
-					break;
+				if(cell == null) {
+					// The row was defined, so this "should" be defined.
+					// Since it is not, we give it a value of 0.
+					vals.add(0.0);
+					continue;
+				}
 				
 				// Get the current value
 				String s = getCellValue(cell);
@@ -94,6 +98,7 @@ public class BatchFileReader {
 	public ArrayList<String> getColumnStringVals(short columnNumber) {
 		return getColumnStringVals(columnNumber, activeSheet);
 	}
+	
 	public ArrayList<String> getColumnStringVals(short columnNumber, int sheetNumber) {
 		short maxRows = 32767;
 		ArrayList<String> vals = new ArrayList<String>();
@@ -113,8 +118,12 @@ public class BatchFileReader {
 				
 				// Make sure we have a valid cell
 				HSSFCell cell = row.getCell(columnNumber);
-				if(cell == null)
-					break;
+				if(cell == null) {
+					// The row was non-empty, so this cell "should" be defined.
+					// Since there is no value, it is defined as empty.
+					vals.add("");
+					continue;
+				}
 				
 				// Get the current value
 				String s = getCellValue(cell);

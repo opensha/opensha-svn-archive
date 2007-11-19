@@ -587,6 +587,13 @@ public class NEHRP_GuiBean
 				public void run() {
 					try {
 						ArrayList<Location> locations = locGuiBean.getBatchLocations();
+						if(locations.size() > 1000) {
+							// We have an arbitrary 1,000 row limit.  Die if too many.
+							JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+									"at one time.\nPlease reduce the number of rows in your input file and " +
+									"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
 						dataGenerator.calculateSsS1(locations, locGuiBean.getOutputFile());
 						application.setDataInWindow(getData());
 					} catch (NullPointerException npx) {
@@ -759,6 +766,13 @@ public class NEHRP_GuiBean
     			Thread t = new Thread(new Runnable() {
     				public void run() {
     	    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	    			if(locations.size() > 1000) {
+    						// We have an arbitrary 1,000 row limit.  Die if too many.
+    						JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+    								"at one time.\nPlease reduce the number of rows in your input file and " +
+    								"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+    						return;
+    					}
     	    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
     	    			String outfile = locGuiBean.getOutputFile();
     	    			dataGenerator.setSpectraType(spectraType);
@@ -810,6 +824,13 @@ public class NEHRP_GuiBean
 					Thread t = new Thread(new Runnable() {
 						public void run() {
 			    			ArrayList<Location> locations = locGuiBean.getBatchLocations();
+			    			if(locations.size() > 1000) {
+								// We have an arbitrary 1,000 row limit.  Die if too many.
+								JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+										"at one time.\nPlease reduce the number of rows in your input file and " +
+										"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+								return;
+							}
 			    			String outfile = locGuiBean.getOutputFile();
 			    			dataGenerator.setSpectraType(spectraType);
 			    			dataGenerator.setRegion(selectedRegion);
@@ -862,6 +883,13 @@ public class NEHRP_GuiBean
 					Thread t = new Thread(new Runnable() {
 						public void run() {
 							ArrayList<Location> locations = locGuiBean.getBatchLocations();
+							if(locations.size() > 1000) {
+								// We have an arbitrary 1,000 row limit.  Die if too many.
+								JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+										"at one time.\nPlease reduce the number of rows in your input file and " +
+										"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+								return;
+							}
 			    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
 			    			String outfile = locGuiBean.getOutputFile();
 			    			dataGenerator.setSpectraType(spectraType);
@@ -914,6 +942,13 @@ public class NEHRP_GuiBean
 				Thread t = new Thread(new Runnable() {
 					public void run() {
 						ArrayList<Location> locations = locGuiBean.getBatchLocations();
+						if(locations.size() > 1000) {
+							// We have an arbitrary 1,000 row limit.  Die if too many.
+							JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+									"at one time.\nPlease reduce the number of rows in your input file and " +
+									"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
 		    			ArrayList<String> conditions = locGuiBean.getBatchSiteConditions();
 		    			String outfile = locGuiBean.getOutputFile();
 		    			dataGenerator.setSpectraType(spectraType);

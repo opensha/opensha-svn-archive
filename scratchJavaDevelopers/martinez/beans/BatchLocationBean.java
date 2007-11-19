@@ -153,6 +153,13 @@ public class BatchLocationBean implements GuiBeanAPI, ParameterChangeListener, P
 		// Normalize the inputs
 		 for(int i = 0; i < siteConditions.size(); ++i) {
 			String val = siteConditions.get(i);
+			if("".equalsIgnoreCase(val)) {
+				val = "D";
+				int rowNum = i+1;
+				JOptionPane.showMessageDialog(null, "The site class for row "+ rowNum +
+						" was not defined.  Defaulting to 'Site Class D' instead.", "Undefined Site Class",
+						JOptionPane.ERROR_MESSAGE);
+			}
 			val = val.substring(val.length() -1, val.length()).toUpperCase();
 			if(siteClasses.contains(val)) {
 				val = "Site Class " + val;

@@ -418,6 +418,13 @@ public class IRC_GuiBean
         }
       } else if (locationMode == BatchLocationBean.BAT_MODE) {
     	  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+    	  if(locations.size() > 1000) {
+				// We have an arbitrary 1,000 row limit.  Die if too many.
+				JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+						"at one time.\nPlease reduce the number of rows in your input file and " +
+						"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
     	  String outFile = locGuiBean.getOutputFile();
     	  dataGenerator.calculateSsS1(locations, outFile);
       }

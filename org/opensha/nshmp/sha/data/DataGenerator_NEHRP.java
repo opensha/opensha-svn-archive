@@ -46,6 +46,7 @@ public class DataGenerator_NEHRP
 	protected String zipCode, lat, lon = "";
 
   private static final DecimalFormat saValFormat = new DecimalFormat("0.000");
+  private static final DecimalFormat faFvFormat = new DecimalFormat("0.00#");
   
   protected ArbitrarilyDiscretizedFunc saFunction;
 
@@ -238,9 +239,9 @@ public class DataGenerator_NEHRP
  public void calculateSsS1(ArrayList<Location> locations, String outFile) {
 	 HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("Ss & S1");
+	 HSSFSheet xlSheet = xlOut.getSheet("Ss & S1 Values");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("Ss & S1");
+		 xlSheet = xlOut.createSheet("Ss & S1 Values");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -393,9 +394,9 @@ public class DataGenerator_NEHRP
 		  ArrayList<String> siteConditions, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SM & SD");
+	 HSSFSheet xlSheet = xlOut.getSheet("SM & SD Values");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SM & SD");
+		 xlSheet = xlOut.createSheet("SM & SD Values");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -428,8 +429,8 @@ public class DataGenerator_NEHRP
 	 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * SM1");
 	 
 	 // Header row
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)"};
-	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000, 3000};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)", "Grid Spacing Basis"};
+	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 5000};
 	 ++startRow; // We want a blank row
 	 xlRow = xlSheet.createRow(startRow++);
 	 for(short i = 0; i < headers.length; ++i) {
@@ -451,24 +452,31 @@ public class DataGenerator_NEHRP
 		 double curLat = locations.get(i).getLatitude();
 		 double curLon = locations.get(i).getLongitude();
 		 
-		 Double curSMs = null; Double curSM1 = null; Double curSDs = null; Double curSD1 = null;
+		 Float curSMs = null; Float curSM1 = null; Float curSDs = null; Float curSD1 = null;
 		 
-		 Double curFa = Double.MAX_VALUE;
-		 Double curFv = Double.MAX_VALUE;
+		 Float curFa = Float.MAX_VALUE;
+		 Float curFv = Float.MAX_VALUE;
 		 
 		 String curCond = siteConditions.get(i);
 		 
-		 Double curSa = null;
-		 Double curSs = null;
+		 Float curSa = null;
+		 Float curSs = null;
+		 String curGridSpacing = "";
 		 try {
 			getCalculateSsS1Function(curLat, curLon);
 			
-			curSs = getSs();
-			curSa = getSa();
+			curSs = (float) getSs();
+			curSa = (float) getSa();
 			
-			curFa = calc.getFa(curCond, curSs);
-			curFv = calc.getFv(curCond, curSa);
-			double coef = (double) 2 / 3;
+			String reg1 = "^.*Data are based on a ";
+			String reg2 = " deg grid spacing.*$";
+			curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(saFunction.getInfo()).replaceAll("");
+			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+			curGridSpacing += " Degrees";
+			
+			curFa = Float.parseFloat(faFvFormat.format(calc.getFa(curCond, curSs)));
+			curFv = Float.parseFloat(faFvFormat.format(calc.getFv(curCond, curSa)));
+			float coef = (float) 2 / 3;
 			curSMs = curFa * curSs; curSM1 = curFv * curSa;
 			curSDs = coef*curSMs; curSD1 = coef*curSM1;
 			
@@ -485,8 +493,8 @@ public class DataGenerator_NEHRP
 				break;
 			}
 			
-			curSMs = Double.MAX_VALUE; curSM1 = Double.MAX_VALUE;
-			curSDs = Double.MAX_VALUE; curSD1 = Double.MAX_VALUE;
+			curSMs = Float.MAX_VALUE; curSM1 = Float.MAX_VALUE;
+			curSDs = Float.MAX_VALUE; curSD1 = Float.MAX_VALUE;
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -497,6 +505,7 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 6).setCellValue(Double.parseDouble(saValFormat.format(curSM1)));
 		 xlRow.createCell((short) 7).setCellValue(Double.parseDouble(saValFormat.format(curSDs)));
 		 xlRow.createCell((short) 8).setCellValue(Double.parseDouble(saValFormat.format(curSD1)));
+		 xlRow.createCell((short) 9).setCellValue(curGridSpacing);
 		} 
 	 } // for
 	 
@@ -527,9 +536,9 @@ public class DataGenerator_NEHRP
   public void calculateMapSpectrum(ArrayList<Location> locations, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 		 // Create the output sheet
-		 HSSFSheet xlSheet = xlOut.getSheet("Map Spectrum");
+		 HSSFSheet xlSheet = xlOut.getSheet("Map Spectra");
 		 if(xlSheet==null)
-			 xlSheet = xlOut.createSheet("Map Spectrum");
+			 xlSheet = xlOut.createSheet("Map Spectra");
 		 
 		 /* Write the header information */
 		 int startRow = xlSheet.getLastRowNum();
@@ -558,8 +567,8 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 1).setCellValue("MCE Response Spectra for Site Class B");
 		 
 		 // Header row
-		 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Period (sec)", "Sa (g)", "Sd (Inches)"};
-		 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000};
+		 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Grid Spacing Basis", "Period (sec)", "Sa (g)", "Sd (Inches)"};
+		 short[] colWidths = {4500, 4500, 3000, 5000, 3000, 3000, 3000};
 		 ++startRow; // We want a blank row
 		 xlRow = xlSheet.createRow(startRow++);
 		 for(short i = 0; i < headers.length; ++i) {
@@ -570,7 +579,7 @@ public class DataGenerator_NEHRP
 		 
 		 // Start plugging in the data
 		 int answer = 1;
-		 BatchProgress bp = new BatchProgress("Computing Map Spectrum", locations.size());
+		 BatchProgress bp = new BatchProgress("Computing Map Spectra", locations.size());
 		 bp.start();
 		 for(int i = 0; i < locations.size(); ++i) {
 			 bp.update(i+1);
@@ -579,7 +588,7 @@ public class DataGenerator_NEHRP
 			 double curLon = locations.get(i).getLongitude();
 			 DiscretizedFuncAPI saFunc = null;
 			 DiscretizedFuncAPI sdFunc = null;
-			 
+			 String curGridSpacing = "";
 			 try {
 				// Set the saFunction (ss,s1)
 				getCalculateSsS1Function(curLat, curLon);
@@ -588,6 +597,13 @@ public class DataGenerator_NEHRP
 				DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
 				saFunc = functions.get(1);
 				sdFunc = functions.get(0);
+				
+				String reg1 = "^.*Data are based on a ";
+				String reg2 = " deg grid spacing.*$";
+				curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(saFunction.getInfo()).replaceAll("");
+				curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+				curGridSpacing += " Degrees";
+				
 			} catch (RemoteException e) {
 				if(answer != 0) {
 					Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
@@ -605,12 +621,13 @@ public class DataGenerator_NEHRP
 			 xlRow.createCell((short) 0).setCellValue(curLat);
 			 xlRow.createCell((short) 1).setCellValue(curLon);
 			 xlRow.createCell((short) 2).setCellValue("B");
+			 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
 			 for(int j = 0; j < saFunc.getNum(); ++j) {
-				 xlRow.createCell((short) 3).setCellValue(
-						 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 				 xlRow.createCell((short) 4).setCellValue(
-						 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+						 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 				 xlRow.createCell((short) 5).setCellValue(
+						 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+				 xlRow.createCell((short) 6).setCellValue(
 						 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
 				 ++startRow;
 				 xlRow  = xlSheet.createRow(i+startRow);
@@ -786,9 +803,9 @@ public class DataGenerator_NEHRP
 		  ArrayList<String> siteConditions, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SM Spectrum");
+	 HSSFSheet xlSheet = xlOut.getSheet("SM Spectra");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SM Spectrum");
+		 xlSheet = xlOut.createSheet("SM Spectra");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -818,8 +835,8 @@ public class DataGenerator_NEHRP
 	 //xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
 	 
 	 // Header row
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
-	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Grid Spacing Basis", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
+	 short[] colWidths = {4500, 4500, 3000, 5000, 3000, 3000, 3000, 3000, 3000};
 	 ++startRow; // We want a blank row
 	 xlRow = xlSheet.createRow(startRow++);
 	 for(short i = 0; i < headers.length; ++i) {
@@ -833,7 +850,7 @@ public class DataGenerator_NEHRP
 	 
 	 // Start plugging in the data
 	 int answer = 1;
-	 BatchProgress bp = new BatchProgress("Computing SM Spectrum", locations.size());
+	 BatchProgress bp = new BatchProgress("Computing SM Spectra", locations.size());
 	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
 		 bp.update(i+1);
@@ -842,7 +859,7 @@ public class DataGenerator_NEHRP
 		 double curLon = locations.get(i).getLongitude();
 		 DiscretizedFuncAPI saFunc = null;
 		 DiscretizedFuncAPI sdFunc = null;
-		 
+		 String curGridSpacing = "";
 		 Float curFa = Float.MAX_VALUE;
 		 Float curFv = Float.MAX_VALUE;
 		 
@@ -865,6 +882,12 @@ public class DataGenerator_NEHRP
 		    saFunc = functions.get(1);
 		    sdFunc = functions.get(0);
 		    
+		    String reg1 = "^.*Data are based on a ";
+			String reg2 = " deg grid spacing.*$";
+			curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(saFunction.getInfo()).replaceAll("");
+			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+			curGridSpacing += " Degrees";
+		    
 		} catch (RemoteException e) {
 			if(answer != 0) {
 				Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Abort Run"};
@@ -882,14 +905,15 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
 		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
-		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
-		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
 		 for(int j = 0; j < saFunc.getNum(); ++j) {
-			 xlRow.createCell((short) 5).setCellValue(
-					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 6).setCellValue(
-					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 7).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+			 xlRow.createCell((short) 8).setCellValue(
 					 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
 			 ++startRow;
 			 xlRow = xlSheet.createRow(i+startRow);
@@ -924,9 +948,9 @@ public class DataGenerator_NEHRP
 		  ArrayList<String> siteConditions, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SD Spectrum");
+	 HSSFSheet xlSheet = xlOut.getSheet("SD Spectra");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SD Spectrum");
+		 xlSheet = xlOut.createSheet("SD Spectra");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -956,8 +980,8 @@ public class DataGenerator_NEHRP
 	 //xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
 	 
 	 // Header row
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
-	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Grid Spacing Basis", "Fa", "Fv", "Period (sec)", "Sa (g)", "Sd (inches)"};
+	 short[] colWidths = {4500, 4500, 3000, 5000, 3000, 3000, 3000, 3000, 3000};
 	 ++startRow; // We want a blank row
 	 xlRow = xlSheet.createRow(startRow++);
 	 for(short i = 0; i < headers.length; ++i) {
@@ -971,7 +995,7 @@ public class DataGenerator_NEHRP
 	 
 	 // Start plugging in the data
 	 int answer = 1;
-	 BatchProgress bp = new BatchProgress("Computing SD Spectrum", locations.size());
+	 BatchProgress bp = new BatchProgress("Computing SD Spectra", locations.size());
 	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
 		 bp.update(i+1);
@@ -980,7 +1004,7 @@ public class DataGenerator_NEHRP
 		 double curLon = locations.get(i).getLongitude();
 		 DiscretizedFuncAPI saFunc = null;
 		 DiscretizedFuncAPI sdFunc = null;
-		 
+		 String curGridSpacing = "";
 		 Float curFa = Float.MAX_VALUE;
 		 Float curFv = Float.MAX_VALUE;
 		 
@@ -992,6 +1016,12 @@ public class DataGenerator_NEHRP
 			
 			double curSs = getSs();
 			double curSa = getSa();
+			
+			String reg1 = "^.*Data are based on a ";
+			String reg2 = " deg grid spacing.*$";
+			curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(saFunction.getInfo()).replaceAll("");
+			curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+			curGridSpacing += " Degrees";
 			
 			curFa = (float) calc.getFa(curCond, curSs);
 			curFv = (float) calc.getFv(curCond, curSa);
@@ -1020,14 +1050,15 @@ public class DataGenerator_NEHRP
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
 		 xlRow.createCell((short) 2).setCellValue(curCond.substring(curCond.length()-1));
-		 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
-		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
+		 xlRow.createCell((short) 3).setCellValue(curGridSpacing);
+		 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(saValFormat.format(curFa)));
+		 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(saValFormat.format(curFv)));
 		 for(int j = 0; j < saFunc.getNum(); ++j) {
-			 xlRow.createCell((short) 5).setCellValue(
-					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 6).setCellValue(
-					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+					 Double.parseDouble(saValFormat.format(saFunc.getX(j))));
 			 xlRow.createCell((short) 7).setCellValue(
+					 Double.parseDouble(saValFormat.format(saFunc.getY(j))));
+			 xlRow.createCell((short) 8).setCellValue(
 					 Double.parseDouble(saValFormat.format(sdFunc.getY(j))));
 			 ++startRow;
 			 xlRow = xlSheet.createRow(i+startRow);
