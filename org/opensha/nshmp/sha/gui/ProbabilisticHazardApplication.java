@@ -537,7 +537,7 @@ public class ProbabilisticHazardApplication
 	  
 	  String batchFileTitle = "Excel (Batch) File Format";
 	  
-	  showMsgBox(batchFileHelp, batchFileTitle, 400, 600);
+	  showMsgBox(batchFileHelp, batchFileTitle, 400, 700);
   }
   /**
    * Help | Explaination to all the Analysis Options

@@ -495,6 +495,7 @@ public class DataGenerator_NEHRP
 			
 			curSMs = Float.MAX_VALUE; curSM1 = Float.MAX_VALUE;
 			curSDs = Float.MAX_VALUE; curSD1 = Float.MAX_VALUE;
+			curGridSpacing = "Location out of Region";
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -617,6 +618,8 @@ public class DataGenerator_NEHRP
 				}
 				saFunc = new ArbitrarilyDiscretizedFunc();
 				sdFunc = new ArbitrarilyDiscretizedFunc();
+				curGridSpacing = "Location out of Region";
+				++startRow;
 			} finally {
 			 xlRow.createCell((short) 0).setCellValue(curLat);
 			 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -901,6 +904,8 @@ public class DataGenerator_NEHRP
 			}
 			saFunc = new ArbitrarilyDiscretizedFunc();
 			sdFunc = new ArbitrarilyDiscretizedFunc();
+			curGridSpacing = "Location out of Region";
+			++startRow;
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
@@ -1046,6 +1051,8 @@ public class DataGenerator_NEHRP
 			}
 			saFunc = new ArbitrarilyDiscretizedFunc();
 			sdFunc = new ArbitrarilyDiscretizedFunc();
+			curGridSpacing = "Location out of Region";
+			++startRow;
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);

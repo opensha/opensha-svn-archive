@@ -415,6 +415,7 @@ public class DataGenerator_UHS
 			sdFunc = new ArbitrarilyDiscretizedFunc();
 			
 			curGridSpacing = "Location out of Region";
+			++startRow;
 		} finally {
 		 xlRow.createCell((short) 0).setCellValue(curLat);
 		 xlRow.createCell((short) 1).setCellValue(curLon);
