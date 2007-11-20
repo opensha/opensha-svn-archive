@@ -402,7 +402,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
 
 	  // Modify the funcName to notify server that you have current version
-	  funcName = funcName + "_V7";
+	  funcName = funcName + "_V8";
 
      // send the student object to the servlet using serialization
      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());

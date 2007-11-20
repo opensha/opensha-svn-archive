@@ -17,16 +17,20 @@ import org.opensha.util.ImageUtils;
  * @version 1.0
  */
 public final class GlobalConstants {
-	public static final String VERSION = "Version: 5.0.7 - 06/18/2007";
-	//public static final String SERVLET_PATH = "http://gldweb.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
-	//public static final String SERVLET_PATH = "http://geohazards.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	public static final String VERSION = "Version: 5.0.8 - 11/20/2007";
+	
+	// Live application settings.  We use geohazards as a proxy to gldplone. If that breaks we "can" connect directly.
+	public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
-	public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
-	//public static final String SERVLET_PATH = "http://gldjanus.cr.usgs.gov/GroundMotion/servlet/HazardCalcServlet";
-  //data files path
-  //public final static String DATA_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
-  //public final static String DATA_FILE_PATH = "/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
-  public final static String DATA_FILE_PATH = "/usr/local/tomcat/webapps/dataFiles/"; // path at gldwork.cr.usgs.gov
+	
+	// Development application settings.
+	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
+	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
+	
+	
+	//data files path
+	public final static String DATA_FILE_PATH = "/usr/local/tomcat/webapps/dataFiles/"; // path at gldplone (geohazards)
+  
 	public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
