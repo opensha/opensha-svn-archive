@@ -90,7 +90,7 @@ public class DoubleDiscreteConstraint
     /**
      *  Checks if the value is allowed by checking the list of doubles.
      *
-     * @param  d  value to check.
+     * @param  d_wted  value to check.
      * @return    True if the value is allowed, i.e. in the doubles list.
      */
     public boolean isAllowed( Object obj ) {
