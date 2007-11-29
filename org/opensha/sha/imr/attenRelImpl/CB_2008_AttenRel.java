@@ -535,17 +535,19 @@ public class CB_2008_AttenRel
 			  depthTo2pt5kmPerSec = 0;
 	  }
 	    
-	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,
+	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag, dip,
 			  depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
 	  
-	  double mean = getMean(iper, vs30, rRup, rJB, f_rv, f_nm, mag,
+	  double mean = getMean(iper, vs30, rRup, rJB, f_rv, f_nm, mag, dip,
 			  depthTop, depthTo2pt5kmPerSec, magSaturation, pga_rock);
 	  
-	  // make sure SA does not exceed PGA if per < 0.2 (page 11 of pre-print)
+// System.out.println(mean+"\t"+iper+"\t"+vs30+"\t"+rRup+"\t"+rJB+"\t"+f_rv+"\t"+f_nm+"\t"+mag+"\t"+dip+"\t"+depthTop+"\t"+depthTo2pt5kmPerSec+"\t"+magSaturation+"\t"+pga_rock);
+
+// make sure SA does not exceed PGA if per < 0.2 (page 11 of pre-print)
 	  if(iper < 4 || iper > 9 ) // not SA period between 0.02 and 0.15
 		  return mean;
 	  else {
-		  double pga_mean = getMean(2, vs30, rRup, rJB, f_rv, f_nm, mag,
+		  double pga_mean = getMean(2, vs30, rRup, rJB, f_rv, f_nm, mag, dip,
 				  depthTop, depthTo2pt5kmPerSec, magSaturation, pga_rock); // mean for PGA
 		  return Math.max(mean,pga_mean);
 	  }
@@ -576,10 +578,15 @@ public class CB_2008_AttenRel
 
 	  double pga_rock = Double.NaN;
 	  if(vs30 < k1[iper]) 
-		  pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
+		  pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, f_rv, f_nm, mag,dip,depthTop, depthTo2pt5kmPerSec, magSaturation, 0));
 	  
 	  component = (String)componentParam.getValue();
-	  return getStdDev(iper, stdDevType, component, vs30, pga_rock);
+	  
+	  double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock);
+	  
+//System.out.println(stdDev+"\t"+iper+"\t"+stdDevType+"\t"+component+"\t"+vs30+"\t"+pga_rock);
+
+	  return stdDev;
   }
 
   /**
@@ -897,7 +904,7 @@ public class CB_2008_AttenRel
    */
   public double getMean(int iper, double vs30, double rRup,
                             double distJB,double f_rv,
-                            double f_nm, double mag, double depthTop,
+                            double f_nm, double mag, double dip, double depthTop,
                             double depthTo2pt5kmPerSec,
                             boolean magSaturation, double pga_rock) {
 

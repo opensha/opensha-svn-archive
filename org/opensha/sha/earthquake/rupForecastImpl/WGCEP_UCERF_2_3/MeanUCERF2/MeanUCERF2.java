@@ -256,6 +256,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
+//		return this.aFaultSegmentedSources.get(114);
+		/**/
 		if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
 		else {
@@ -263,7 +265,6 @@ public class MeanUCERF2 extends EqkRupForecast {
 				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
 			else return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
 		}
-
 	}
 
 	/**
@@ -272,9 +273,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
+//		return 1;
+		/**/
 		if(backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE))
 			return allSources.size() + nshmp_gridSrcGen.getNumSources();
 		else return allSources.size();
+		
 	}
 	
 
@@ -439,8 +443,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 		// make unsegmnted A-Fault Sources
 		mkUnsegmentedA_FaultSources();
 		
-		
-		
+//		for(int i=0; i<aFaultSegmentedSources.size();i++)
+//			System.out.println(i+"\t"+aFaultSegmentedSources.get(i).getName());
 	}
 
 	private void mkUnsegmentedA_FaultSources() {
@@ -896,12 +900,13 @@ public class MeanUCERF2 extends EqkRupForecast {
 		//meanUCERF2.getTimeSpan().setDuration(1.0);
 		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
+		/*
 		System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_C_ZoneMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_NonCA_B_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_BackgroundMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotalMFD().getCumRateDistWithOffset());
-		
+		*/
 	}
 }
