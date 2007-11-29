@@ -287,19 +287,23 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
 	  }
 	  double fraction=Double.NaN;
 	  double rake = Double.NaN;
+	  double dip = Double.NaN;
 	  int magIndex = -1;
 	  if(nthRupture >= ss_firstIndex && nthRupture <= ss_lastIndex) {
 		  rake = 0;
+		  dip=90;
 		  magIndex = nthRupture-ss_firstIndex;
 		  fraction=fracStrikeSlip;
 	  }
 	  else if(nthRupture >= n_firstIndex && nthRupture <= n_lastIndex) {
 		  rake = -90;
+		  dip=50;
 		  magIndex = nthRupture-n_firstIndex;
 		  fraction=fracNormal;
 	  }
 	  else if(nthRupture >= rv_firstIndex && nthRupture <= rv_lastIndex) {
 		  rake = 90;
+		  dip=50;
 		  magIndex = nthRupture-rv_firstIndex;
 		  fraction=fracReverse;
 	  }
@@ -321,6 +325,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     // set the rupture surface
     if(mag <= this.magCutOff) { // set the point surface
     	if(ptSurface.getDepth()!=depth) ptSurface.setDepth(depth);
+    	ptSurface.setAveDip(dip);
     	probEqkRupture.setRuptureSurface(ptSurface);
     }
     else { // set finite surface
