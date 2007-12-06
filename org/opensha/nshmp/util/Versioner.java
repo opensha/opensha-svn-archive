@@ -11,20 +11,15 @@ public class Versioner {
 
 	private static final String CLIENT_VERSION = GlobalConstants.getCurrentVersion();
 
-	//private static final String PATH = 
-		//"http://gldweb.cr.usgs.gov/GroundMotionTool/index.html";
 	private static final String PATH = 
-		"http://geohazards.cr.usgs.gov/GroundMotionTool/index.html";
+		"http://geohazards.usgs.gov/GroundMotionTool/index.html";
 		
 	private static final String GET_CHANGES = 
 		"http://earthquake.usgs.gov/research/hazmaps/design/updates.php";
 
-//	private static String ERROR = 
-//		"Connection failed.  Our servers may be temporarily down for maintenance.\n" + 
-//		"If the problem persists please contact emartinez@usgs.gov for support.";
-
 	private static String START_READ =
 		"<!-- BEGIN RECENT REVISION -->";
+	
 	private static String END_READ = 
 		"<!-- END RECENT REVISION -->";
 
@@ -51,33 +46,9 @@ public class Versioner {
 		setConnection(); // Sets the version and connection status
 
 		if (!connection) {
-			// Ask if they would like to try to use a proxy
-			int ans = JOptionPane.showConfirmDialog(null, "Could not establish a " +
-				"connection to the server.\nIf you use a proxy to connect and would " +
-				"like to configure it now please click OK below.", "Connection Failure",
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-
-			// If yes, then configure the proxy settings and try to connect again
-			if (ans == JOptionPane.OK_OPTION) {
-				String proxyHost = JOptionPane.showInputDialog(null, "Please enter the " +
-						"name of the proxy server you wish to use.", "Proxy Host Name",
-						JOptionPane.INFORMATION_MESSAGE);
-				String proxyPort = JOptionPane.showInputDialog(null, "Please enter the " +
-					"port number to use on this proxy.", "Proxy Port Number",
-					JOptionPane.INFORMATION_MESSAGE);
-				
-				AppProperties.setProperty(AppProperties.PROXY_HOST, proxyHost);
-				AppProperties.setProperty(AppProperties.PROXY_PORT, proxyPort);
-				try {
-					AppProperties.saveProperties();
-				} catch (IOException iox) {
-					// Saving settings failed. Oh well, nothing lost nothing gained.
-					System.err.println("An I/O Exception occurred while attempting to " +
-							"save your connection settings.\n" + iox.getMessage());
-				}
-				setConnection();
-			}
-
+			// This method will interactively prompt the user for their proxy
+			// settings and then re-set the connection.
+			promptForProxy();
 		}
 		
 		setUpdates();    // Sets the updates
@@ -188,11 +159,14 @@ public class Versioner {
 		AppProperties.setSystemProperty(AppProperties.PROXY_PORT);
 		try {
 			URL url = new URL(PATH);
+			System.err.println("Connecting to server: " + PATH);
 			BufferedReader bin = new BufferedReader(
 												new InputStreamReader(
 												url.openStream()));
-	
+			
+			System.err.println("Communitcating with server...");
 			while ( (version = bin.readLine()) != null ) {
+				System.err.println("  Server says, \"" + version + "\"");
 				connection = true; // if we are reading the file, then connection succeeded.
 				if (version.startsWith("<!-- Version:")) {
 					int len = version.length();
@@ -202,7 +176,13 @@ public class Versioner {
 					break;
 				}
 			}
+			if(version == null) {
+				promptForProxy();
+			}
 			bin.close();
+			
+			System.err.println("\nAfter reading the server, version= \"" + version 
+					+ "\"");
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 			connection = false;
@@ -264,4 +244,33 @@ public class Versioner {
 		}
 	}
 
+	private static void promptForProxy() {
+		// Ask if they would like to try to use a proxy
+		int ans = JOptionPane.showConfirmDialog(null, "Could not establish a " +
+			"connection to the server.\nIf you use a proxy to connect and would " +
+			"like to configure it now please click OK below.", "Connection Failure",
+			JOptionPane.OK_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+
+		// If yes, then configure the proxy settings and try to connect again
+		if (ans == JOptionPane.OK_OPTION) {
+			
+			String proxyHost = JOptionPane.showInputDialog(null, "Please enter the " +
+					"name of the proxy server you wish to use.", "Proxy Host Name",
+					JOptionPane.INFORMATION_MESSAGE);
+			String proxyPort = JOptionPane.showInputDialog(null, "Please enter the " +
+				"port number to use on this proxy.", "Proxy Port Number",
+				JOptionPane.INFORMATION_MESSAGE);
+			
+			AppProperties.setProperty(AppProperties.PROXY_HOST, proxyHost);
+			AppProperties.setProperty(AppProperties.PROXY_PORT, proxyPort);
+			try {
+				AppProperties.saveProperties();
+			} catch (IOException iox) {
+				// Saving settings failed. Oh well, nothing lost nothing gained.
+				System.err.println("An I/O Exception occurred while attempting to " +
+						"save your connection settings.\n" + iox.getMessage());
+			}
+			setConnection();
+		}
+	}
 } // End of Class

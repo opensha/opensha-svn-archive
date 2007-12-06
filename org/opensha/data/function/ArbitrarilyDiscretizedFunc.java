@@ -248,7 +248,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * in sorted order. Returns null if no points present.
      * @return
      */
-    public Iterator getPointsIterator(){
+    public Iterator<DataPoint2D> getPointsIterator(){
         Set keys = points.keySet();
         if( keys != null ) return keys.iterator();
         else return null;
@@ -259,7 +259,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * in sorted order. Returns null if no points present.
      * @return
      */
-    public ListIterator getXValuesIterator(){
+    public ListIterator<Double> getXValuesIterator(){
         ArrayList<Double> list = new ArrayList<Double>();
         int max = points.size();
         for( int i = 0; i < max; i++){
@@ -273,7 +273,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * in sorted order along the x-axis. Returns null if no points present.
      * @return
      */
-    public ListIterator getYValuesIterator(){
+    public ListIterator<Double> getYValuesIterator(){
         ArrayList<Double> list = new ArrayList<Double>();
         int max = points.size();
         for( int i = 0; i < max; i++){

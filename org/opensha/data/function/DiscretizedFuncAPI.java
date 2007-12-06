@@ -193,7 +193,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * in sorted order.
      * @return
      */
-    public Iterator getPointsIterator();
+    public Iterator<DataPoint2D> getPointsIterator();
 
 
     /**
@@ -201,7 +201,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * in sorted order.
      * @return
      */
-    public ListIterator getXValuesIterator();
+    public ListIterator<Double> getXValuesIterator();
 
 
     /**
@@ -209,7 +209,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * in sorted order along the x-axis.
      * @return
      */
-    public ListIterator getYValuesIterator();
+    public ListIterator<Double> getYValuesIterator();
 
 
 
@@ -265,7 +265,8 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * Since there may be multiple y values with the same value, this
      * function just matches the first found starting at the x-min point
      * along the x-axis.
-     * @param y : Y value in the linear space coressponding to which we are required to find the interpolated
+     * @param y : Y value in the linear space corresponding to which we are 
+     * required to find the interpolated
      * x value in the log space.
      */
     public double getFirstInterpolatedX_inLogXLogYDomain(double y);

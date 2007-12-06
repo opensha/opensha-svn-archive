@@ -11,36 +11,46 @@ import scratchJavaDevelopers.martinez.VulnerabilityModels.VulnerabilityModel;
 
 /**
  * <strong>Title</strong>: LossCurveCalculator<br />
- * <strong>Description</strong>: Computes a loss curve (in the form of an <code>ArbitrarilyDiscretizedFunc</code> by
- * using the given hazFunc and vulnModel.  A loss curve represents the expected loss incurred by a structure at predefined
- * intensity measure levels (damage factors) given a particular hazard forecast model.
+ * <strong>Description</strong>: Computes a loss curve (in the form of an 
+ * <code>ArbitrarilyDiscretizedFunc</code> by using the given hazFunc and 
+ * vulnModel. A loss curve represents the expected loss incurred by a structure 
+ * at predefined intensity measure levels (damage factors) given a particular
+ * hazard forecast model.
  * 
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</code>
  *
  */
 public class LossCurveCalculator {
-
+   
 	/**
 	 * Creates a new Calculator
 	 *
 	 */
 	public LossCurveCalculator() {
-		
+	
 	}
 	
 	/**
-	 * Generates a loss curve based on the given <code>hazFunc</code> and <code>curVulnModel</code>.
-	 * @param hazFunc An <code>ArbitrarilyDiscretizedFunc</code> representing the hazard curve
-	 * @param curVulnModel The vulnerability model to use for calculation purposes.
-	 * @return The loss cuves associated with the given <code>hazFunc</code> and <code>curVulnModel</code>
+	 * Generates a loss curve based on the given <code>hazFunc</code> and 
+	 * <code>curVulnModel</code>.
+	 * 
+	 * @param hazFunc An <code>ArbitrarilyDiscretizedFunc</code> representing
+	 * the hazard curve.
+	 * @param curVulnModel The vulnerability model to use for calculation
+	 * purposes.
+	 * @return The loss curves associated with the given <code>hazFunc</code>
+	 * and <code>curVulnModel</code>.
 	 */
-	public ArbitrarilyDiscretizedFunc getLossCurve(ArbitrarilyDiscretizedFunc hazFunc, VulnerabilityModel curVulnModel) {
+	public ArbitrarilyDiscretizedFunc getLossCurve(
+			ArbitrarilyDiscretizedFunc hazFunc,
+			VulnerabilityModel curVulnModel) {
+		
 		ArbitrarilyDiscretizedFunc lossCurve = new ArbitrarilyDiscretizedFunc();
 		// Get the damage factors (these will be x values later)...
 		double[] dfs = curVulnModel.getDEMDFVals();
 		
 		// Get the probabilities of exceedance (hazard curve)...
-		ListIterator iter = hazFunc.getYValuesIterator();
+		ListIterator<Double> iter = hazFunc.getYValuesIterator();
 		ArrayList<Double> pelist = new ArrayList<Double>();
 		while(iter.hasNext())
 			pelist.add((Double) iter.next());

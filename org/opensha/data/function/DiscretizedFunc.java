@@ -24,7 +24,7 @@ import org.opensha.data.NamedObjectAPI;
  * <li>equals() - returns true if all three fields have the same values.
  * </ul>
  *
- * See the interface documentaion for further explanation of this framework<p>
+ * See the interface documentation for further explanation of this framework<p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -125,7 +125,7 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
     /**
      * Default equals for all Discretized Functions. Determines if two functions
      * are the same by comparing that the name and info are the same. Can
-     * be overridded by subclasses for different requirments
+     * be overridden by subclasses for different requirements
      */
     public boolean equals(DiscretizedFuncAPI function){
         if( !getName().equals(function.getName() )  ) return false;
