@@ -1,143 +1,215 @@
+/*
+ * This class simply wraps work done by Apache Software Foundation. I take no
+ * credit for this as all I have done is take the log of X before computing the
+ * probability. Here is the license from Apache:
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package scratchJavaDevelopers.martinez.LossCurveSandbox.math.distribution;
 
+import java.io.Serializable;
+
 import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.AbstractContinuousDistribution;
 import org.apache.commons.math.distribution.NormalDistribution;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
+import org.apache.commons.math.special.Erf;
 
 /**
- * <p>
- * This class serves as a wrapper class to the
- * <code>org.apache.commons.math.distribution.NormalDistributionImpl</code>
- * class. The underlying math for this class is handed off to the apache
- * implementation. The purpose of this class is to convert values provided by
- * the user from linear space into log space. Essentially a call to any method
- * in this class does the following:
- * </p>
- * <pre>
- * public Object foo(double val1, double val2) {
- * 	return super(java.lang.Math.log(val1), java.lang.Math.log(val2));
- * }
- * </pre>
- * <p>
- * As such, all values passed as arguments any method in this class should be
- * specified in linear space rather than log space. The conversion from linear
- * space to log space is done internally in this class and does
- * <strong>not</strong> need to be done by the user. Additionally, return values
- * will be specified back into linear space by taking <code>Math.exp(...)</code>
- * before returning.
- * </p>
- * 
- * <p><strong>ALL PARAMETERS SHOULD BE GIVEN IN LINEAR SPACE</strong></p>
- * 
- * @see org.apache.commons.math.distribution.NormalDistribution
- * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ * Default implementation of
+ * {@link org.apache.commons.math.distribution.NormalDistribution}.
+ *
+ * @version $Revision$ $Date$
  */
-public class LogNormalDistribution 
-		extends NormalDistributionImpl implements NormalDistribution {
-
-	// Variable used for static serialization
-	private static final long	serialVersionUID	= 0x0180B68;	
+public class LogNormalDistribution extends AbstractContinuousDistribution
+		implements NormalDistribution, Serializable {
+	 
+	/** Serializable version identifier */
+	private static final long serialVersionUID = 0x0180B68;
+	
+	/** The mean of this distribution. */
+	private double mean = 0;
+	 
+	/** The standard deviation of this distribution. */
+	private double standardDeviation = 1;
+	 
+	/**
+	 * Create a normal distribution using the given mean and standard deviation.
+	 * @param mean mean for this distribution
+	 * @param sd standard deviation for this distribution
+	 */
+	public LogNormalDistribution(double mean, double sd){
+		super();
+		setMean(mean);
+		setStandardDeviation(sd);
+	}
 	
 	/**
-	 * Instantiates a new instance of a <code>LogNormalDistribution</code>. Even
-	 * though this distribution is defined to exist in log space, parameters to
-	 * this constructor should be specified in linear space; the constructor will
-	 * internally convert the values to log space using 
-	 * <code>Math.log(...)</code>.
-	 * 
-	 * @param mean The mean (&mu;) parameter (in linear space).
-	 * @param sd The standard deviation (&sigma;) parameter (in linear space).
+	 * Creates normal distribution with the mean equal to zero and standard
+	 * deviation equal to one. 
 	 */
-	public LogNormalDistribution(double mean, double sd) {
-		super(Math.log(mean), Math.log(sd));
+	public LogNormalDistribution(){
+		this(0.0, 1.0);
 	}
 	
 	/**
-	 * For this distribution, X, this method returns P[X < x].
-	 * @param The value at which the CDF is evaluated (in linear space).
-	 * @return The CDF evaluated at <code>x</code>.
-	 * @throws MathException If the algorithm fails to converge.
-	 */
-	public double cumulativeProbability(double x) throws MathException {
-		return super.cumulativeProbability(Math.log(x));
-	}
-
-	/**
-	 * <p>
-	 * For a random variable X whose values are distributed according to this
-	 * distribution, this method returns P[x0 <= X <= x1].
-	 * </p>
-	 * <p>The default implementation uses the identity</p>
-	 * <p>P[x0 <= X <= x1] = P[X <= x1] - P[X <= x0]</p>
-	 * 
-	 * @param x0 The (inclusive) lower bound (in linear space).
-	 * @param x1 The (inclusive) upper bound (in linear space).
-	 * @return The probability that a random variable with this distribution will
-	 * take a value between <code>x0</code> and <code>x1</code>, including the
-	 * endpoints.
-	 * @throws MathException If the cumulative probability can not be computed
-	 * due to convergence or other numerical errors.
-	 * @throws IllegalArgumentException If log(x0) > log(x1).
-	 */
-	public double cumulativeProbability(double x0, double x1)
-			throws MathException {
-		return super.cumulativeProbability(Math.log(x0), Math.log(x1));
-	}
-	
-	/*
-	// Not sure if these three methods need to be overridden for log normal...
-	protected double getDomainLowerBound(double p) {
-		return super.getDomainLowerBound(Math.log(p));
-	}
-	
-	protected double getDomainUpperBound(double p) {
-		return super.getDomainUpperBound(Math.log(p));
-	}
-	
-	protected double getInitialDomain(double p) {
-		return super.getInitialDomain(Math.log)
-	}
-	*/
-	
-	/**
-	 * Access the mean (in linear space).
-	 * @return The mean (&mu;) for this distribution.
-	 */
+	 * Access the mean.
+	 * @return mean for this distribution
+	 */ 
 	public double getMean() {
-		return Math.exp(super.getMean());
+		return mean;
 	}
-	
-	/**
-	 * Access the standard deviation (in linear space).
-	 * @return The standard deviation (&sigma;) for this distribution.
-	 */
-	public double getStandardDeviation() {
-		return Math.exp(super.getStandardDeviation());
-	}
-	
-	/*
-	// Not sure if we need (or even can do) this. Hmm....
-	public double inverseCumulativeProbability(double p) {
-		return super.inverseCumulativeProbability(Math.log(p);
-	}
-	*/
 	
 	/**
 	 * Modify the mean.
-	 * @param mean The new mean (&mu;) for this distribution (in linear space).
+	 * @param mean for this distribution
 	 */
 	public void setMean(double mean) {
-		super.setMean(Math.log(mean));
+		this.mean = mean;
+	}
+	
+	/**
+	 * Access the standard deviation.
+	 * @return standard deviation for this distribution
+	 */
+	public double getStandardDeviation() {
+		return standardDeviation;
 	}
 	
 	/**
 	 * Modify the standard deviation.
-	 * @param sd The new standard deviation (&sigma;) for this distribution (in 
-	 * linear space).
-	 * @throws IllegalArgumentException If the log of <code>sd</code> is not
-	 * positive.
+	 * @param sd standard deviation for this distribution
+	 * @throws IllegalArgumentException if <code>sd</code> is not positive.
 	 */
 	public void setStandardDeviation(double sd) {
-		super.setStandardDeviation(Math.log(sd));
+		if (sd <= 0.0) {
+			throw new IllegalArgumentException(
+				"Standard deviation must be positive.");
+		} 
+		standardDeviation = sd;
+	}
+	
+	/**
+	 * For this disbution, X, this method returns P(X &lt; <code>x</code>).
+	 * @param x the value at which the CDF is evaluated.
+	 * @return CDF evaluted at <code>x</code>. 
+	 * @throws MathException if the algorithm fails to converge; unless
+	 * x is more than 20 standard deviations from the mean, in which case the
+	 * convergence exception is caught and 0 or 1 is returned.
+	 */
+	public double cumulativeProbability(double x) throws MathException {
+		// This is the only line changed to make this a "Log" distribution
+		x = Math.log(x);
+		try {
+			return 0.5 * (1.0 + Erf.erf((x - mean) /
+					(standardDeviation * Math.sqrt(2.0))));
+		} catch (MathException ex) {
+			if (x < (mean - 20 * standardDeviation)) { // JDK 1.5 blows at 38
+				return 0.0d;
+			} else if (x > (mean + 20 * standardDeviation)) {
+				return 1.0d;
+			} else {
+				throw ex;
+			}
+		}
+	}
+	
+	/**
+	 * For this distribution, X, this method returns the critical point x, such
+	 * that P(X &lt; x) = <code>p</code>.
+	 * <p>
+	 * Returns <code>Double.NEGATIVE_INFINITY</code> for p=0 and 
+	 * <code>Double.POSITIVE_INFINITY</code> for p=1.
+	 *
+	 * @param p the desired probability
+	 * @return x, such that P(X &lt; x) = <code>p</code>
+	 * @throws MathException if the inverse cumulative probability can not be
+	 * computed due to convergence or other numerical errors.
+	 * @throws IllegalArgumentException if <code>p</code> is not a valid
+	 * probability.
+	 */
+	public double inverseCumulativeProbability(final double p) 
+			throws MathException {
+		if (p == 0) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		if (p == 1) {
+			return Double.POSITIVE_INFINITY;
+		}
+		return super.inverseCumulativeProbability(p);
+	}
+	
+	/**
+	 * Access the domain value lower bound, based on <code>p</code>, used to
+	 * bracket a CDF root. This method is used by
+	 * {@link #inverseCumulativeProbability(double)} to find critical values.
+	 * 
+	 * @param p the desired probability for the critical value
+	 * @return domain value lower bound, i.e.
+	 * P(X &lt; <i>lower bound</i>) &lt; <code>p</code> 
+	 */
+	protected double getDomainLowerBound(double p) {
+		double ret;
+		 if (p < .5) {
+			 ret = -Double.MAX_VALUE;
+		} else {
+			ret = getMean();
+		}
+	
+		 return ret;
+	}
+	
+	/**
+	 * Access the domain value upper bound, based on <code>p</code>, used to
+	 * bracket a CDF root. This method is used by
+	 * {@link #inverseCumulativeProbability(double)} to find critical values.
+	 * 
+	 * @param p the desired probability for the critical value
+	 * @return domain value upper bound, i.e.
+	 * P(X &lt; <i>upper bound</i>) &gt; <code>p</code> 
+	 */
+	protected double getDomainUpperBound(double p) {
+		double ret;
+		if (p < .5) {
+			ret = getMean();
+		} else {
+			ret = Double.MAX_VALUE;
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Access the initial domain value, based on <code>p</code>, used to
+	 * bracket a CDF root. This method is used by
+	 * {@link #inverseCumulativeProbability(double)} to find critical values.
+	 * 
+	 * @param p the desired probability for the critical value
+	 * @return initial domain value
+	 */
+	protected double getInitialDomain(double p) {
+		double ret;
+		if (p < .5) {
+			ret = getMean() - getStandardDeviation();
+		} else if (p > .5) {
+			ret = getMean() + getStandardDeviation();
+		} else {
+			ret = getMean();
+		}
+		
+		return ret;
 	}
 }
