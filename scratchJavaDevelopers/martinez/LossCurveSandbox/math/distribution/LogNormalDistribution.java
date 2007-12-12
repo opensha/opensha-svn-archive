@@ -31,8 +31,13 @@ import org.apache.commons.math.special.Erf;
 /**
  * Default implementation of
  * {@link org.apache.commons.math.distribution.NormalDistribution}.
+ * 
+ * The conversion process used by this implementation will work for computing
+ * <strong>CDF<strong> (cumulative distribution function) only. The
+ * process for computing the PDF (probability density function) is different
+ * and not supported. One should be careful about this distinction when using
+ * this class to compute normal distributions in log space.
  *
- * @version $Revision$ $Date$
  */
 public class LogNormalDistribution extends AbstractContinuousDistribution
 		implements NormalDistribution, Serializable {
