@@ -19,6 +19,13 @@ import java.io.Serializable;
  * Of principle interest is supporting introspection of the bean class and
  * exposing all member variables via getter and setter methods.
  * </p>
+ * <p>
+ * As per the the JavaBeans specification, bean properties may be either
+ * bound, constrained, or both. If such a binding or constraint exists on a
+ * bean's property, then it is the responsibility of the <em>bean</em> to
+ * trigger these events before/after (as appropriate) updating the its 
+ * internal state.
+ * </p>
  * 
  * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
  */

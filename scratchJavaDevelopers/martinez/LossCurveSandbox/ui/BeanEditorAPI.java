@@ -1,5 +1,7 @@
 package scratchJavaDevelopers.martinez.LossCurveSandbox.ui;
 
+import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.BeanAPI;
+
 /**
  * Classes implementing the <code>BeanEditorAPI</code> provide basic
  * functionality to serve as a bridge between the user and the underlying bean.
@@ -42,4 +44,18 @@ public interface BeanEditorAPI {
 	 * @param message The message to present to the user.
 	 */
 	public void infoPrompt(String message);
+	
+	/**
+	 * Sets the underlying bean that this editor will manipulate to the given
+	 * <code>bean</code>.
+	 * 
+	 * @param bean The new bean to use with this editor.
+	 * @throws IllegalArgumentException If an inappropriate bean is given to the
+	 * editor.
+	 */
+	public void setBean(BeanAPI bean) throws IllegalArgumentException;
+	
+	// A getter method is suggested, but left up to sub-interface/class to
+	// declare such that an appropriate bean can be declared as the return value.
+	
 }
