@@ -99,7 +99,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 	 */
 	private void fillFaultsLogicTree() {
 		try {
-			ArrayList<String> faultBranchesLines = FileUtils.loadJarFile(FAULT_LOGIC_TREE_FILENAME);
+			ArrayList<String> faultBranchesLines = FileUtils.loadFile(FAULT_LOGIC_TREE_FILENAME);
 
 			for(int i=14; i<faultBranchesLines.size(); ) {
 				// get the source name
@@ -161,7 +161,7 @@ public class YuccaMountainERF_List  extends ERF_EpistemicList{
 		backgroundOptions = new HashMap<Double, GutenbergRichterMagFreqDist>();
 		
 		try {
-			ArrayList<String> backgroundLines = FileUtils.loadJarFile(BACKGROUND_LOGIC_TREE_FILE_NAME);
+			ArrayList<String> backgroundLines = FileUtils.loadFile(BACKGROUND_LOGIC_TREE_FILE_NAME);
 			int index=0;
 			double prefWt=0, minWt=0, maxWt=0;
 			for(int i=8; i<backgroundLines.size(); ++i) {
