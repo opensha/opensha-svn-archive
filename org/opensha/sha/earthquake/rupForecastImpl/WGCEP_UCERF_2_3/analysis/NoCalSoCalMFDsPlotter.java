@@ -284,12 +284,12 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	}
 	
 	public static void main(String args[]) {
-		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
-		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
+		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedNoCalRegion());
+		plotter.generateMFDsData(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
 		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.NO_CAL_PATH);
-		NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
+		//NoCalSoCalMFDsPlotter plotter = new NoCalSoCalMFDsPlotter(new EvenlyGriddedSoCalRegion());
 		//plotter.generateMFDsData(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
-		plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
+		//plotter.plotCumMFDs(NoCalSoCalMFDsPlotter.SO_CAL_PATH);
 	}
 	
 }
