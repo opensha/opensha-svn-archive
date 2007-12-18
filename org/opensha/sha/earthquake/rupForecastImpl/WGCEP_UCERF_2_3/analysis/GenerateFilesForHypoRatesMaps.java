@@ -21,7 +21,7 @@ import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecas
  * @author vipingupta
  *
  */
-public class GenerateFilesForBulgeAnalysisMaps {
+public class GenerateFilesForHypoRatesMaps {
 	
 	public static void main(String[] args) {
 		int duration = 30;

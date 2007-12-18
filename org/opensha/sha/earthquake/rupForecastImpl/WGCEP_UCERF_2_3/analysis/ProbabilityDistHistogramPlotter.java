@@ -897,7 +897,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
 		
 	
-		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
+		/*plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
@@ -908,22 +908,24 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
-		
-		/*plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
-		
-		plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-		plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-		plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-		plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-
-		plotter.plotAperiodicity_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-		plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
-		plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 		*/
-		//plotter.plotAperiodicity_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		//plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		//plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.TOTAL);
+		
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotEmpiricalBPT_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotMagAreaComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_WG02.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+
+		//plotter.plotAperiodicity_ComparisonProbPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		
+		
+		plotter.plotAperiodicity_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 		//plotter.plotAperiodicity_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 
 	}
