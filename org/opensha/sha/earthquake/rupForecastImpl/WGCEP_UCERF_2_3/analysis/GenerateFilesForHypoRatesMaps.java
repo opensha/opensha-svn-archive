@@ -12,6 +12,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
@@ -31,21 +32,21 @@ public class GenerateFilesForHypoRatesMaps {
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
 
 		// UCERF 2
-		UCERF2 ucerf2 = new UCERF2();
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 	    // include background sources as point sources
-		ucerf2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
-		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(probModel);
-		ucerf2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
-		ucerf2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
+		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
+		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(probModel);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_POINT);
 
-		ucerf2.getTimeSpan().setDuration(duration);
-		ucerf2.updateForecast();
+		meanUCERF2.getTimeSpan().setDuration(duration);
+		meanUCERF2.updateForecast();
 		// min mag, maxMag, These are Centers of first and last bin
 		double minMag=5.0, maxMag=9.00;
 		int numMag = 41; // number of Mag bins
 		//	 make GriddedHypoMFD Forecast from the EqkRupForecast
 		RELM_ERF_ToGriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast1 =
-			new RELM_ERF_ToGriddedHypoMagFreqDistForecast(ucerf2, evenlyGriddedRegion,
+			new RELM_ERF_ToGriddedHypoMagFreqDistForecast(meanUCERF2, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 
 		// minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
