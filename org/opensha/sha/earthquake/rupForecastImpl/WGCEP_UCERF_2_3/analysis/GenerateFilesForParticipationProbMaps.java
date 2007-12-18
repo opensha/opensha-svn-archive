@@ -224,13 +224,13 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	      // get the ith source
 	      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 	      int numRuptures = source.getNumRuptures();
-	      ArrayList<Integer> locIndices = new ArrayList<Integer>();
+	      
 	      //going over all the ruptures in the source
 	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 	        ProbEqkRupture rupture = source.getRupture(rupIndex);
 	        double mag = rupture.getMag();
 	        double meanAnnualRate = rupture.getMeanAnnualRate(duration);
-	        
+	        ArrayList<Integer> locIndices = new ArrayList<Integer>();
 	        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
 	        //getting the iterator for all points on the rupture
 	        ListIterator it = rupSurface.getAllByRowsIterator();
