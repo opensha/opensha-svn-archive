@@ -64,7 +64,7 @@ public class MakeB_FaultsTable {
 		
 		workbook  = new HSSFWorkbook();
 		
-		makeNewSheet("B-Faults");
+		makeCA_B_FaultsNewSheet("B-Faults");
 		rowIndex=2;
 		makeData(false, "D2.1");
 		makeData(false, "D2.4");
@@ -73,18 +73,18 @@ public class MakeB_FaultsTable {
 		while(bFaultNamesIt.hasNext()) {
 			String faultName = bFaultNamesIt.next();
 			int rId = nameRowMapping.get(faultName);
-			sheet.getRow(rId).createCell((short)12).setCellValue(nameFaultModelMapping.get(faultName));
+			sheet.getRow(rId).createCell((short)13).setCellValue(nameFaultModelMapping.get(faultName));
 		}
 		
 		rowIndex=2;
-		makeNewSheet("Connected B-Faults");
+		makeCA_B_FaultsNewSheet("Connected B-Faults");
 		makeData(true, "D2.1");
 		makeData(true, "D2.4");
 		bFaultNamesIt = nameRowMapping.keySet().iterator();
 		while(bFaultNamesIt.hasNext()) {
 			String faultName = bFaultNamesIt.next();
 			int rId = nameRowMapping.get(faultName);
-			sheet.getRow(rId).createCell((short)12).setCellValue(nameFaultModelMapping.get(faultName));
+			sheet.getRow(rId).createCell((short)13).setCellValue(nameFaultModelMapping.get(faultName));
 		}
 //		 write  excel sheet
 		try {
@@ -97,7 +97,7 @@ public class MakeB_FaultsTable {
 		
 		workbook  = new HSSFWorkbook();
 		rowIndex=2;
-		makeNewSheet("Non-CA B-Faults");
+		makeNonCA_B_FaultsNewSheet("Non-CA B-Faults");
 		makeNonCAB_FaultsData();
 		
 //		 write  excel sheet
@@ -111,7 +111,7 @@ public class MakeB_FaultsTable {
 
 	}
 	
-	private void makeNewSheet(String sheetName) {
+	private void makeNonCA_B_FaultsNewSheet(String sheetName) {
 		sheet = workbook.createSheet(sheetName);
 		HSSFRow row = sheet.createRow(0);
 		row.createCell((short)2).setCellValue("Ellsworth B");
@@ -130,6 +130,31 @@ public class MakeB_FaultsTable {
 		row.createCell((short)10).setCellValue("Length (km)");
 		row.createCell((short)11).setCellValue("Moment Rate (Newton-meters/yr)");
 		row.createCell((short)12).setCellValue("Fault Model");
+		nameRowMapping = new  HashMap<String, Integer>();
+		nameFaultModelMapping = new  HashMap<String, String>();
+
+	}
+	
+	private void makeCA_B_FaultsNewSheet(String sheetName) {
+		sheet = workbook.createSheet(sheetName);
+		HSSFRow row = sheet.createRow(0);
+		row.createCell((short)2).setCellValue("Ellsworth B");
+		row.createCell((short)3).setCellValue("Hans & Bakun 2002");
+		row  = sheet.createRow(1);
+		row.createCell((short)0).setCellValue("Index");
+		row.createCell((short)1).setCellValue("Name");
+		row.createCell((short)2).setCellValue("Mag");
+		row.createCell((short)3).setCellValue("Mag");
+		row.createCell((short)4).setCellValue("Poiss Prob  (Mag>=6.7)");
+		row.createCell((short)5).setCellValue("Mean Prob (Mag>=6.7)");
+		row.createCell((short)6).setCellValue("Min Prob (Mag>=6.7)");
+		row.createCell((short)7).setCellValue("Max Prob (Mag>=6.7)");
+		row.createCell((short)8).setCellValue("Empirical Correction");
+		row.createCell((short)9).setCellValue("Slip Rate (mm/yr)");
+		row.createCell((short)10).setCellValue("Area (sq-km)");
+		row.createCell((short)11).setCellValue("Length (km)");
+		row.createCell((short)12).setCellValue("Moment Rate (Newton-meters/yr)");
+		row.createCell((short)13).setCellValue("Fault Model");
 		nameRowMapping = new  HashMap<String, Integer>();
 		nameFaultModelMapping = new  HashMap<String, String>();
 
@@ -294,27 +319,56 @@ private void makeNonCAB_FaultsData() {
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(connectMoreB_Faults));
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 
-		// Poisson
+		// bVal = 0.8
+		ucerf2.getParameter(UCERF2.B_FAULTS_B_VAL_PARAM_NAME).setValue(0.8);
+		
+		// Poisson - bVal=0.8
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Poiss = ucerf2.get_B_FaultSources();
+		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Poiss_8 = ucerf2.get_B_FaultSources();
 
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		ArrayList<UnsegmentedSource> bFaultSourcesHB_Poiss = ucerf2.get_B_FaultSources();
+		ArrayList<UnsegmentedSource> bFaultSourcesHB_Poiss_8 = ucerf2.get_B_FaultSources();
 
-		// Empirical
+		// Empirical - bVal=0.8
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_EMPIRICAL);
 
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Emp = ucerf2.get_B_FaultSources();
+		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Emp_8 = ucerf2.get_B_FaultSources();
 
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
-		ArrayList<UnsegmentedSource> bFaultSourcesHB_Emp = ucerf2.get_B_FaultSources();
+		ArrayList<UnsegmentedSource> bFaultSourcesHB_Emp_8 = ucerf2.get_B_FaultSources();
+		
+		
+		//		 bVal = 0.0
+		ucerf2.getParameter(UCERF2.B_FAULTS_B_VAL_PARAM_NAME).setValue(0.0);
+		
+		// Poisson - bVal=0.0
+		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
+
+		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
+		ucerf2.updateForecast();
+		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Poiss_0 = ucerf2.get_B_FaultSources();
+
+		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
+		ucerf2.updateForecast();
+		ArrayList<UnsegmentedSource> bFaultSourcesHB_Poiss_0 = ucerf2.get_B_FaultSources();
+
+		// Empirical - bVal=0.0
+		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_EMPIRICAL);
+
+		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(Ellsworth_B_WG02_MagAreaRel.NAME);
+		ucerf2.updateForecast();
+		ArrayList<UnsegmentedSource> bFaultSourcesEllB_Emp_0 = ucerf2.get_B_FaultSources();
+
+		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
+		ucerf2.updateForecast();
+		ArrayList<UnsegmentedSource> bFaultSourcesHB_Emp_0 = ucerf2.get_B_FaultSources();
 
 
 		HSSFRow row;
@@ -323,13 +377,20 @@ private void makeNonCAB_FaultsData() {
 		if(defModelName.equalsIgnoreCase("D2.4")) faultModel="F2.2";
 		else if(defModelName.equalsIgnoreCase("D2.1")) faultModel="F2.1";
 		else throw new RuntimeException("Unsupported deformation model");
-
-		for(int i=0; i<bFaultSourcesEllB_Poiss.size(); ++i) {
-			UnsegmentedSource sourceEllB = bFaultSourcesEllB_Poiss.get(i);
-			UnsegmentedSource sourceHB = bFaultSourcesHB_Poiss.get(i);
-			UnsegmentedSource sourceEllB_Emp = bFaultSourcesEllB_Emp.get(i);
-			UnsegmentedSource sourceHB_Emp = bFaultSourcesHB_Emp.get(i);
-			FaultSegmentData faultSegmentData = sourceEllB.getFaultSegmentData();
+		double MAG = 6.7;
+		for(int i=0; i<bFaultSourcesEllB_Poiss_8.size(); ++i) {
+			
+			UnsegmentedSource sourceEllB_Poiss_8 = bFaultSourcesEllB_Poiss_8.get(i);
+			UnsegmentedSource sourceHB_Poiss_8 = bFaultSourcesHB_Poiss_8.get(i);
+			UnsegmentedSource sourceEllB_Emp_8 = bFaultSourcesEllB_Emp_8.get(i);
+			UnsegmentedSource sourceHB_Emp_8 = bFaultSourcesHB_Emp_8.get(i);
+			
+			UnsegmentedSource sourceEllB_Poiss_0 = bFaultSourcesEllB_Poiss_0.get(i);
+			UnsegmentedSource sourceHB_Poiss_0 = bFaultSourcesHB_Poiss_0.get(i);
+			UnsegmentedSource sourceEllB_Emp_0 = bFaultSourcesEllB_Emp_0.get(i);
+			UnsegmentedSource sourceHB_Emp_0 = bFaultSourcesHB_Emp_0.get(i);
+			
+			FaultSegmentData faultSegmentData = sourceEllB_Poiss_8.getFaultSegmentData();
 			row  = sheet.createRow(rowIndex);
 			String bFaultName = faultSegmentData.getFaultName();
 			if(connectMoreB_Faults && bFaultName.indexOf("Connected")==-1) continue;
@@ -342,21 +403,60 @@ private void makeNonCAB_FaultsData() {
 			}
 			nameRowMapping.put(bFaultName, rowIndex); // bFault and rowId mapping
 			nameFaultModelMapping.put(bFaultName, faultModel); // bFault and fault model mapping
+			
+			double probEllB_Poiss_8, probHB_Poiss_8, probEllB_Emp_8, probHB_Emp_8;
+			double probEllB_Poiss_0, probHB_Poiss_0, probEllB_Emp_0, probHB_Emp_0;
+			double minProb = Double.MAX_VALUE, maxProb = -1.0;
+			
+			probEllB_Poiss_8 = sourceEllB_Poiss_8.computeTotalProbAbove(MAG);
+			if(probEllB_Poiss_8<minProb) minProb = probEllB_Poiss_8;
+			if(probEllB_Poiss_8>maxProb) maxProb = probEllB_Poiss_8;
+			
+			probHB_Poiss_8 = sourceHB_Poiss_8.computeTotalProbAbove(MAG);
+			if(probHB_Poiss_8<minProb) minProb = probHB_Poiss_8;
+			if(probHB_Poiss_8>maxProb) maxProb = probHB_Poiss_8;
+			
+			probEllB_Emp_8 = sourceEllB_Emp_8.computeTotalProbAbove(MAG);
+			if(probEllB_Emp_8<minProb) minProb = probEllB_Emp_8;
+			if(probEllB_Emp_8>maxProb) maxProb = probEllB_Emp_8;
+			
+			probHB_Emp_8 = sourceHB_Emp_8.computeTotalProbAbove(MAG);
+			if(probHB_Emp_8<minProb) minProb = probHB_Emp_8;
+			if(probHB_Emp_8>maxProb) maxProb = probHB_Emp_8;
+			
+			probEllB_Poiss_0 = sourceEllB_Poiss_0.computeTotalProbAbove(MAG);
+			if(probEllB_Poiss_0<minProb) minProb = probEllB_Poiss_0;
+			if(probEllB_Poiss_0>maxProb) maxProb = probEllB_Poiss_0;
+			
+			probHB_Poiss_0 = sourceHB_Poiss_0.computeTotalProbAbove(MAG);
+			if(probHB_Poiss_0<minProb) minProb = probHB_Poiss_0;
+			if(probHB_Poiss_0>maxProb) maxProb = probHB_Poiss_0;
+			
+			probEllB_Emp_0 = sourceEllB_Emp_0.computeTotalProbAbove(MAG);
+			if(probEllB_Emp_0<minProb) minProb = probEllB_Emp_0;
+			if(probEllB_Emp_0>maxProb) maxProb = probEllB_Emp_0;
+			
+			probHB_Emp_0 = sourceHB_Emp_0.computeTotalProbAbove(MAG);
+			if(probHB_Emp_0<minProb) minProb = probHB_Emp_0;
+			if(probHB_Emp_0>maxProb) maxProb = probHB_Emp_0;
+			
+			double meanPoissonProb = (probEllB_Poiss_8+probHB_Poiss_8+probEllB_Poiss_0+probHB_Poiss_0)/4;
+			double meanProb = (probEllB_Poiss_8+probHB_Poiss_8+probEllB_Emp_8+probHB_Emp_8+
+					probEllB_Poiss_0+probHB_Poiss_0+probEllB_Emp_0+probHB_Emp_0)/8;
+			
 			//row.createCell((short)0).setCellValue(rowIndex-1);
 			row.createCell((short)1).setCellValue(bFaultName);
-			row.createCell((short)2).setCellValue(MAG_FORMAT.format(sourceEllB.getSourceMag()));
-			row.createCell((short)3).setCellValue((float)sourceEllB.getMagFreqDist().getTotalIncrRate());
-			row.createCell((short)4).setCellValue(MAG_FORMAT.format(sourceHB.getSourceMag()));
-			row.createCell((short)5).setCellValue((float)sourceHB.getMagFreqDist().getTotalIncrRate());
-			double avgProb6_7 = (sourceEllB.computeTotalProbAbove(6.7) + sourceHB.computeTotalProbAbove(6.7))/2;
-			row.createCell((short)6).setCellValue((float)avgProb6_7);
-			double emp1 = sourceEllB_Emp.computeTotalProb()/sourceEllB.computeTotalProb();
-			double emp2  = sourceHB_Emp.computeTotalProb()/sourceHB.computeTotalProb();
-			row.createCell((short)7).setCellValue((float)(emp1+emp2)/2);
-			row.createCell((short)8).setCellValue(SLIP_RATE_FORMAT.format(faultSegmentData.getTotalAveSlipRate()*1e3));
-			row.createCell((short)9).setCellValue(AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalArea()/1e6));
-			row.createCell((short)10).setCellValue(AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalLength()/1e3));
-			row.createCell((short)11).setCellValue(MOMENT_FORMAT.format(sourceEllB.getMomentRate()));
+			row.createCell((short)2).setCellValue(MAG_FORMAT.format(sourceEllB_Poiss_8.getSourceMag()));
+			row.createCell((short)3).setCellValue(MAG_FORMAT.format(sourceHB_Poiss_8.getSourceMag()));
+			row.createCell((short)4).setCellValue((float)meanPoissonProb);
+			row.createCell((short)5).setCellValue((float)meanProb);
+			row.createCell((short)6).setCellValue((float)minProb);
+			row.createCell((short)7).setCellValue((float)maxProb);
+			row.createCell((short)8).setCellValue((float)(meanProb/meanPoissonProb));
+			row.createCell((short)9).setCellValue(SLIP_RATE_FORMAT.format(faultSegmentData.getTotalAveSlipRate()*1e3));
+			row.createCell((short)10).setCellValue(AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalArea()/1e6));
+			row.createCell((short)11).setCellValue(AREA_LENGTH_FORMAT.format(faultSegmentData.getTotalLength()/1e3));
+			row.createCell((short)12).setCellValue(MOMENT_FORMAT.format(sourceEllB_Poiss_8.getMomentRate()));
 			++rowIndex;
 		}
 	}
