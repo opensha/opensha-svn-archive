@@ -818,7 +818,7 @@ public class SoSAF_SubSectionInversion {
 		finalSegEventRate = new double[num_seg];
 		for(int seg=0; seg < num_seg; seg++) {
 			finalSegSlipRate[seg] = 0;
-			finalSegEventRate[seg]=0.0;
+			finalSegEventRate[seg] = 0;
 			for(int rup=0; rup < num_rup; rup++) 
 				if(rupInSeg[seg][rup]==1) {
 					finalSegSlipRate[seg] += rupRateSolution[rup]*segSlipInRup[seg][rup];
@@ -952,12 +952,16 @@ public class SoSAF_SubSectionInversion {
 		EvenlyDiscretizedFunc origEventRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
 		SegRateConstraint constraint;
+		// fill in orig constraints
 		for(int i = 0; i < num; i ++) {
 			constraint = segRateConstraints.get(i);
 			int seg = constraint.getSegIndex();
 			origEventRateFunc.set(seg,constraint.getMean());
-			finalEventRateFunc.set(seg,finalSegEventRate[seg]);
 		}		
+		// now fill in final event rates
+		for(int seg=0;seg < num_seg; seg++)
+			finalEventRateFunc.set(seg,finalSegEventRate[seg]);
+		
 		ArrayList er_funcs = new ArrayList();
 		origEventRateFunc.setName("Orig Event Rates");
 		finalEventRateFunc.setName("Final Event Rates");

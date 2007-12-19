@@ -662,6 +662,8 @@ public class WriteTimeDepSegmentedProbAndGain {
 					// loop over all segments
 					for(int segIndex=0; segIndex<numSegs; ++segIndex, ++totSegsIndex) {
 						segProb = sourceGen.getSegProb(segIndex);
+	// use this if aggregate probs are desired enstead:
+	//					segProb = sourceGen.computeSegProbAboveMag(5.0, segIndex);
 						//	wt and min/max columns
 						segProbWtAve.set(totSegsIndex, segProbWtAve.get(totSegsIndex)+newWt*segProb);
 						if(segProbMin.get(totSegsIndex) > segProb) segProbMin.set(totSegsIndex, segProb);
