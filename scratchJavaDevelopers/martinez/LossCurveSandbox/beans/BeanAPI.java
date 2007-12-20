@@ -7,8 +7,8 @@ import java.io.Serializable;
  * Declaring a class to be a &ldquo;Bean&rdquo; requires that it implement this
  * interface. Classes that do not implement this interface should not be
  * considered a bean and bean editors should not accept them as such. This
- * interface has no methods or fields and serves only to identify the semantics
- * of a bean.
+ * interface has minimal methods and/or fields and serves primarily to identify
+ * the semantics of a bean.
  * </p>
  * <p>
  * To start, all beans should follow the official JavaBeans API specification
@@ -27,8 +27,12 @@ import java.io.Serializable;
  * internal state.
  * </p>
  * 
- * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
+ * @author 
+ * <a href="mailto:emartinez@usgs.gov?subject=NSHMP%20Application%20Question">
+ * Eric Martinez
+ * </a>
  */
 public interface BeanAPI extends Serializable {
-
+	
+	
 }

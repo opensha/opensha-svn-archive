@@ -1,15 +1,18 @@
 package scratchJavaDevelopers.martinez.LossCurveSandbox.ui.gui;
 
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeListener;
-import java.io.Serializable;
+import java.io.FilenameFilter;
 import java.util.TreeMap;
 
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-import scratchJavaDevelopers.martinez.LossCurveSandbox.ui.BeanEditorAPI;
+import scratchJavaDevelopers.martinez.LossCurveSandbox.ui.AbstractBeanEditor;
 
 /**
  * This is the base class that defines the most basic methods that an GUI Editor
@@ -21,12 +24,23 @@ import scratchJavaDevelopers.martinez.LossCurveSandbox.ui.BeanEditorAPI;
  * property is changed by an external object, the editor will be informed of the
  * change and can act appropriately.
  * 
- * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
- *
+ * @author  
+ * <a href="mailto:emartinez@usgs.gov?subject=NSHMP%20Application%20Question">
+ * Eric Martinez
+ * </a>
  */
-public abstract class AbstractGuiEditor implements Serializable, BeanEditorAPI,
-		PropertyChangeListener {
+public abstract class AbstractGuiEditor extends AbstractBeanEditor
+		implements PropertyChangeListener {
 
+	// Implementation side-effect for serialization.
+	private static final long serialVersionUID = 0xA4300C1;
+	
+	// The title displayed on a file chooser with this editor.
+	private static final String FILE_CHOOSER_TITLE = "Select a File";
+	
+	// The directory displayed when the file chooser is first opened.
+	private static String fileChooserStartDir = System.getProperty("user.dir");
+	
 	/**
 	 * The size of the screen. Useful for sizing and placing application windows.
 	 */
@@ -40,7 +54,7 @@ public abstract class AbstractGuiEditor implements Serializable, BeanEditorAPI,
 	public boolean boolPrompt(String question, boolean suggestion) {
 		
 		// Wrap the string nicely
-		question = wrapString(question);
+		question = wrapString(question, 50);
 
 		String [] options = new String[2];
 		int YES_OPTION = 0, NO_OPTION = 1;
@@ -59,40 +73,48 @@ public abstract class AbstractGuiEditor implements Serializable, BeanEditorAPI,
 	 * interface.
 	 */
 	public void infoPrompt(String message) {
-		message = wrapString(message);
+		message = wrapString(message, 50);
 		JOptionPane.showMessageDialog(null, message, "Information",
 				JOptionPane.INFORMATION_MESSAGE);
 		
 	}
 	
 	/**
-	 * Inserts new line characters at the nearest white-space character after
-	 * each 50 characters in the string.
+	 * Shows a file dialog pop-up to the user and asks for a file. The
+	 * <code>fileFilter</code> can be <code>null</code> in which case any file
+	 * can be selected. Otherwise the <code>fileFilter</code> will restrict which
+	 * files can be chosen by the user.
 	 * 
-	 * @param str The string to wrap.
-	 * @return The wrapped string.
+	 * @param fileFilter The file filter to apply when promping user for a file.
+	 * @return The fully qualified name of the file the user selected. If user
+	 * &ldquo;cancels&rdquo; the selection, then <code>null</code> is returned.
 	 */
-	protected String wrapString(String str) {
-		int breakLength = 50, breakPoint = 0;
-		StringBuffer buf = new StringBuffer();
+	public String getFileFromUser(FilenameFilter fileFilter) {
+		// If the window editor is null, then no harm no foul.
+		FileDialog chooser = new FileDialog(getWindowEditor(),
+				FILE_CHOOSER_TITLE, FileDialog.LOAD);
 		
-		// Wrap the question with a new line every 50 characters.
-		while(str.length() > breakLength) {
-		// Find a nice wrapping point
-		breakPoint = str.indexOf(" ", breakLength);
-		if(breakPoint == -1) { break; /* No more spaces... */ }
-		
-		// Append the sub string
-		buf.append(str.substring(0, breakPoint));
-		buf.append("\n");
-		
-		// Trim the question for the next iteration.
-		str = str.substring(breakPoint);
+		// Set the file filter.
+		if(fileFilter != null) {
+			chooser.setFilenameFilter(fileFilter);
 		}
-		// Append the rest of the question.
-		buf.append(str);
+	
+		// Set default directory to current directory.
+		chooser.setDirectory(fileChooserStartDir);
 		
-		return buf.toString();
+		// Show the dialog for user to select a file.
+		chooser.setVisible(true);
+		
+		String baseFile = chooser.getFile();
+		String baseDir  = chooser.getDirectory();
+		if(baseFile != null && baseDir != null) {
+			// Update current directory for next call
+			fileChooserStartDir = baseDir;
+			// Return the selected file
+			return baseDir + System.getProperty("file.separator") + baseFile;
+		} else {
+			return null;
+		}
 	}
 	
 	/**
@@ -119,5 +141,28 @@ public abstract class AbstractGuiEditor implements Serializable, BeanEditorAPI,
 	 * @return
 	 */
 	public abstract TreeMap<String, JMenuItem> getMenuOptions();
+	
+	/**
+	 * @return The JPanel suitable to be embedded into a larger application
+	 * window. This panel contains all the required components to modify the
+	 * underlying bean.
+	 */
+	public abstract JPanel getPanelEditor();
+	
+	/**
+	 * @return The top-level window version of the GUI editor. This editor can
+	 * be popped-up from a parent application or could possibly be an application
+	 * itself. This window will contain all the components required to  modify
+	 * the underlying bean and also a button to close the window (a confirm/
+	 * apply, etc.. button).
+	 */
+	public abstract JFrame getWindowEditor();
+	
+	/**
+	 * Instantiates and initializes the GUI components used by this editor such
+	 * that after a successful call to this method the editors are ready for
+	 * user interaction.
+	 */
+	protected abstract void initGuiEditors();
 
 }

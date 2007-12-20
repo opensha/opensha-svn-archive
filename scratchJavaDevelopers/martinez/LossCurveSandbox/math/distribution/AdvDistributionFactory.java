@@ -15,13 +15,15 @@ import org.apache.commons.math.distribution.TDistribution;
  * An <code>AdvDistributionFactory</code> is a simple extension of the apache
  * commons 
  * <code>org.apache.commons.math.distribution.DistributionFactoryImpl</code>
- * factory class. It provides the same create methods with wrapper accessors
+ * factory class. It provides the same create methods with wrapper acessors
  * such that all arguments take their object-equivalent form. This allows for
  * easier introspection and dynamic invocation. In addition to these wrappers,
  * this also provides a create method for a <code>LogNormalDistribution</code>.
  * 
- * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</code>.
- *
+ * @author   
+ * <a href="mailto:emartinez@usgs.gov?subject=NSHMP%20Application%20Question">
+ * Eric Martinez
+ * </a>
  */
 public class AdvDistributionFactory extends DistributionFactoryImpl {
 

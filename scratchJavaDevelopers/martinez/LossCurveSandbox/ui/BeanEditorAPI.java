@@ -1,5 +1,7 @@
 package scratchJavaDevelopers.martinez.LossCurveSandbox.ui;
 
+import java.io.Serializable;
+
 import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.BeanAPI;
 
 /**
@@ -11,10 +13,12 @@ import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.BeanAPI;
  * left to each implementation. Implementation depends on the intended
  * deployment of the editor (i.e. web/gui/text?).
  * 
- * @author <a href="mailto:emartinez@usgs.gov">Eric Martinez</a>
- *
+ * @author  
+ * <a href="mailto:emartinez@usgs.gov?subject=NSHMP%20Application%20Question">
+ * Eric Martinez
+ * </a>
  */
-public interface BeanEditorAPI {
+public interface BeanEditorAPI extends Serializable {
 	
 	/**
 	 * Presents the user with the question from the application and returns
@@ -30,7 +34,6 @@ public interface BeanEditorAPI {
 	 * implementation-dependent but should make intuitive sense.
 	 */
 	public boolean boolPrompt(String question, boolean suggestion);
-	
 	
 	/**
 	 * Alerts user that something has happened. These messages are informational
@@ -49,13 +52,13 @@ public interface BeanEditorAPI {
 	 * Sets the underlying bean that this editor will manipulate to the given
 	 * <code>bean</code>.
 	 * 
-	 * @param bean The new bean to use with this editor.
-	 * @throws IllegalArgumentException If an inappropriate bean is given to the
+	 * @param newBean The new bean to use with this editor.
+	 * @throws ClassCastException If an inappropriate bean is given to the
 	 * editor.
 	 */
-	public void setBean(BeanAPI bean) throws IllegalArgumentException;
+	public void setBean(BeanAPI newBean) throws ClassCastException;
 	
 	// A getter method is suggested, but left up to sub-interface/class to
 	// declare such that an appropriate bean can be declared as the return value.
-	
+
 }
