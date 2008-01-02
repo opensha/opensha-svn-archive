@@ -291,7 +291,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	
 	
 	public static void main(String []args) {
-		//PredictedTotalMFD_UncertPlotter mfdPlotter1 = new PredictedTotalMFD_UncertPlotter(false);
+		PredictedTotalMFD_UncertPlotter mfdPlotter1 = new PredictedTotalMFD_UncertPlotter(false);
 		PredictedTotalMFD_UncertPlotter mfdPlotter2 = new PredictedTotalMFD_UncertPlotter(true);
 	}
 }
