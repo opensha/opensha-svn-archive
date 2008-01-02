@@ -137,7 +137,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		
 		
 		// mean MFD
-		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		IncrementalMagFreqDist meanMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2, UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2, UCERF2. NUM_MAG);
 		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			meanMfd.set(magIndex, rateWtFuncList.get(magIndex).getMean());
 		}
@@ -145,7 +145,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		funcs.add(meanMfd);
 		plottingFeaturesList.add(this.PLOT_CHAR3);
 		//		 median MFD
-		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		IncrementalMagFreqDist medianMfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2, UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2, UCERF2. NUM_MAG);
 		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			medianMfd.set(magIndex, rateWtFuncList.get(magIndex).getMedian());
 		}
@@ -153,7 +153,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		funcs.add(medianMfd);
 		plottingFeaturesList.add(this.PLOT_CHAR2);
 		//		 97.5 percentile MFD
-		IncrementalMagFreqDist percentile97_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		IncrementalMagFreqDist percentile97_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2, UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2,UCERF2. NUM_MAG);
 		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			percentile97_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.975));
 		}
@@ -161,7 +161,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 		funcs.add(percentile97_5Mfd);
 		plottingFeaturesList.add(this.PLOT_CHAR2);
 		//		 2.5 percentile MFD
-		IncrementalMagFreqDist percentile2_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG,UCERF2. NUM_MAG);
+		IncrementalMagFreqDist percentile2_5Mfd = new IncrementalMagFreqDist(UCERF2.MIN_MAG-UCERF2.DELTA_MAG/2, UCERF2.MAX_MAG-UCERF2.DELTA_MAG/2,UCERF2. NUM_MAG);
 		for(int magIndex=0; magIndex<UCERF2.NUM_MAG; ++magIndex) {
 			percentile2_5Mfd.set(magIndex, rateWtFuncList.get(magIndex).getInterpolatedFractile(0.025));
 		}
@@ -216,6 +216,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 				rateWtFuncList.get(magIndex).set(mfd.getY(magIndex), wt);
 			}
 			
+			System.out.println(i+"\t"+mfd.getX(20)+"\t"+mfd.getY(20)+"\t"+wt);
 		}
 	}
 	
@@ -290,7 +291,7 @@ public class PredictedTotalMFD_UncertPlotter  implements GraphWindowAPI{
 	
 	
 	public static void main(String []args) {
-		PredictedTotalMFD_UncertPlotter mfdPlotter1 = new PredictedTotalMFD_UncertPlotter(false);
+		//PredictedTotalMFD_UncertPlotter mfdPlotter1 = new PredictedTotalMFD_UncertPlotter(false);
 		PredictedTotalMFD_UncertPlotter mfdPlotter2 = new PredictedTotalMFD_UncertPlotter(true);
 	}
 }

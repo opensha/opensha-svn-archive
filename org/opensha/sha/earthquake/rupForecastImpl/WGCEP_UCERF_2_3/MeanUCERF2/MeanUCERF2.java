@@ -439,6 +439,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				aFaultSegmentedSources.add(faultRupSrc);
 			}
 		}
+		//FileUtils.saveObjectInFile(this.A_FAULTS_POISS_FILENAME, aFaultSegmentedSources);
 		//FileUtils.saveObjectInFile(this.A_FAULTS_EMPIRICAL_FILENAME, aFaultSegmentedSources);
 		// make unsegmnted A-Fault Sources
 		mkUnsegmentedA_FaultSources();
@@ -894,10 +895,10 @@ public class MeanUCERF2 extends EqkRupForecast {
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
-		meanUCERF2.calcSummedMFDs  =true;
+		meanUCERF2.calcSummedMFDs  =false;
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-		//meanUCERF2.getTimeSpan().setDuration(1.0);
+		meanUCERF2.getTimeSpan().setDuration(30.0);
 		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
 		/*
