@@ -61,7 +61,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  * @author vipingupta
  *
  */
-public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
+public class UCERF2_GUI extends JFrame implements ActionListener{
 	
 	//private UCERF2 ucerf2= new UCERF2(); // erf to get the adjustable params
 	private ParameterListEditor editor; // editor
@@ -84,10 +84,10 @@ public class EqkRateModel2_ERF_GUI extends JFrame implements ActionListener{
 	private JScrollPane scrollPane = new JScrollPane();
 	
 	public static void main(String[] args) {
-		new EqkRateModel2_ERF_GUI();
+		new UCERF2_GUI();
 	}
 	
-	public EqkRateModel2_ERF_GUI() {
+	public UCERF2_GUI() {
 		
 		/*// listen to all parameters
 		ParameterList paramList = ucerf2.getAdjustableParameterList();
