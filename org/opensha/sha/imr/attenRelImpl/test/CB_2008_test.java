@@ -61,7 +61,7 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 
 			String fileName = fileList[i].getName();
 			
-			if(fileName.contains("README")) continue; // skip the README file
+			if(fileName.contains("README") || !fileName.contains(".TXT")) continue; // skip the README file
 			
 			boolean isMedian = false;
 			String testValString = "Std Dev";
@@ -82,7 +82,6 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 					testValString = "Std dev of geomteric mean";
 				}
 			}
-
 			int index1 = fileName.indexOf(".TXT");
 			String fltType = fileName.substring(index1-2, index1);
 			
