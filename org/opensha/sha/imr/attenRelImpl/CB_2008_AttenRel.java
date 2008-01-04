@@ -544,7 +544,7 @@ public class CB_2008_AttenRel
 // System.out.println(mean+"\t"+iper+"\t"+vs30+"\t"+rRup+"\t"+rJB+"\t"+f_rv+"\t"+f_nm+"\t"+mag+"\t"+dip+"\t"+depthTop+"\t"+depthTo2pt5kmPerSec+"\t"+magSaturation+"\t"+pga_rock);
 
 // make sure SA does not exceed PGA if per < 0.2 (page 11 of pre-print)
-	  if(iper < 4 || iper > 9 ) // not SA period between 0.02 and 0.15
+	  if(iper < 3 || iper > 11 ) // not SA period between 0.02 and 0.15
 		  return mean;
 	  else {
 		  double pga_mean = getMean(2, vs30, rRup, rJB, f_rv, f_nm, mag, dip,
