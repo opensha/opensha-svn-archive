@@ -9,7 +9,7 @@ FILES:
 	BA08_MEDIAN_NM.TXT - Median estimates of geometric mean for Normal (NM) faulting
 	BA08_MEDIAN_U.TXT - Median estimates of geometric mean for Unspecified (U) faulting
 	BA08_SIGTM_SS.TXT - Standard deviation of geometric mean for known faulting (evaluated for SS)
-	BA08_SIGTU_SS.TXT - Standard deviation of geometric mean for unspecified faulting (evaluated for SS)
+	BA08_SIGTU_UN.TXT - Standard deviation of geometric mean for unspecified faulting (evaluated for SS)
 
 PARAMETERS IN OUTPUT FILES:
 	Mw - Moment magnitude

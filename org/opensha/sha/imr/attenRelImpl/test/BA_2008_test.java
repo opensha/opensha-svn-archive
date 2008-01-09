@@ -61,7 +61,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 
 			String fileName = fileList[i].getName();
 			
-			if(fileName.contains("README")) continue; // skip the README file
+			if(fileName.contains("README") || !fileName.contains(".TXT")) continue; // skip the README file
 			
 			boolean isMedian = false;
 			String testValString = "Std Dev";
@@ -84,7 +84,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 
 			int index1 = fileName.indexOf(".TXT");
 			String fltType = fileName.substring(index1-2, index1);
-			
+			System.out.println(fileName);
 			if(fltType.equals("SS"))
 				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_STRIKE_SLIP);
 			else if(fltType.equals("RV"))
@@ -100,7 +100,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 				testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
 				int numLines = testDataLines.size();
 				for(int j=1;j<numLines;++j){
-					System.out.println("Doing "+j+" of "+numLines);
+					//System.out.println("Doing "+j+" of "+numLines);
 					String fileLine = (String)testDataLines.get(j);
 					StringTokenizer st = new StringTokenizer(fileLine);
 					double mag = Double.parseDouble(st.nextToken().trim());
@@ -171,22 +171,6 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 						String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
 						"BA-2008 attenuation with the following parameter settings:"+
 						"  PGV "+"\nMag ="+(float)mag+
-						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
-						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
-
-						//System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
-						//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
-						this.assertNull(failedResultMetadata,failedResultMetadata);
-					}
-					ba_2008.setIntensityMeasure(ba_2008.PGD_NAME);
-					if(isMedian) openSHA_Val = Math.exp(ba_2008.getMean());
-					else openSHA_Val = ba_2008.getStdDev();
-					tested_Val = Double.parseDouble(st.nextToken().trim());
-					results = this.compareResults(openSHA_Val, tested_Val);
-					if(results == false){
-						String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
-						"BA-2008 attenuation with the following parameter settings:"+
-						"  PGD "+"\nMag ="+(float)mag+
 						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
