@@ -34,7 +34,14 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 /**
- * This is used for plotting various logic tree MFDs
+ * This is used for plotting various logic tree MFDs. 
+ * It generates MFDs for each source type for each branch in UCERF2. The MFDs are saved in a text
+ * file. Actually, this class can generate the MFD files and also plot (using JFreeChart) after reading those files.
+ * 
+ * To Generate the files, use the generateMFDsData() method call.
+ * To plot the MFDs from files, use the method plotMFDs().
+ * 
+ * The main() function of this class provides valuable insight into this.
  * 
  * @author vipingupta
  *
@@ -46,12 +53,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	private final static String INCR_Y_AXIS_LABEL = "Incremental Rate (per year)";
 	
 	
-
 	protected ArrayList<IncrementalMagFreqDist> aFaultMFDsList, bFaultCharMFDsList, bFaultGRMFDsList, totMFDsList, nonCA_B_FaultsMFDsList;
 	private IncrementalMagFreqDist cZoneMFD, bckMFD, nshmp02TotMFD;
 	
 	private final static String DEFAULT_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/";
-	private final static String COUP_COEFF1_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/CoupCoeff1/";
 	private final static String BCK_FRAC_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BackGrdFrac0_1/";
 	private final static String BFAULT_BVAL_PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/logicTreeMFDs/BFault_BVal0/";
 	
@@ -136,11 +141,7 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	//	 Eqk Rate Model 2 ERF
 	protected UCERF2 ucerf2 = (UCERF2)ucerf2List.getERF(0);
 	
-	/**
-	 * This method caclulates MFDs for all logic tree branches and saves them to files.
-	 * However, if reCalculate is false, it just reads the data from the files wihtout recalculation
-	 * If path is null, default Path is used
-	 */
+
 	public LogicTreeMFDsPlotter () {
 		aFaultMFDsList = new ArrayList<IncrementalMagFreqDist>();
 		bFaultCharMFDsList = new ArrayList<IncrementalMagFreqDist>();
@@ -152,6 +153,10 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 
 	
 	/**
+	 * This method caclulates MFDs for all logic tree branches and saves them to files.
+	 * It also generates a metadata excel sheet that contains information about parameter settings
+	 * for each logic tree branch.
+	 * 
 	 * If path is null, default path is used
 	 * @param path
 	 */
@@ -478,7 +483,9 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 	/**
-	 * Plot MFDs for various different paramter settings
+	 * Plot MFDs using Jfreechart.  The boolean "isCumulative" decides whether to plot the
+	 * incremental MFDs or the cumulative MFDs.
+	 * 
 	 * If path is null, default path is used
 	 *
 	 */
@@ -568,14 +575,12 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	
 	
 	/**
-	 *
-	 * 
 	 * @param paramName Param Name whose value needs to remain constant. Can be null 
 	 * @param value Param Value for constant paramter. can be null
 	 * 
 	 * @return
 	 */
-	public void plotMFDs(String paramName, ArrayList values, boolean showAFaults, boolean showBFaults, boolean showNonCA_B_Faults, 
+	private void plotMFDs(String paramName, ArrayList values, boolean showAFaults, boolean showBFaults, boolean showNonCA_B_Faults, 
 			boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
 		String metadata;
 		SummedMagFreqDist avgTotMFD = doAverageMFDs(showAFaults, showBFaults, showNonCA_B_Faults, showCZones, showBackground, showNSHMP_TotMFD);
@@ -645,6 +650,18 @@ public class LogicTreeMFDsPlotter implements GraphWindowAPI {
 	    graphWindow.setVisible(true);
 	 }
 
+	/**
+	 *  Loop over all logic tree branches and calculated the Average MFD for each source type
+	 *  after applying the branch weight.
+	 * 
+	 * @param showAFaults - Whether to plot Type A Faults
+	 * @param showBFaults - Whether to plot Type B faults
+	 * @param showNonCA_B_Faults - Whether to plot Non-CA B-Faults
+	 * @param showCZones - Whether to plot C Zones
+	 * @param showBackground - Whether to plot the background
+	 * @param showNSHMP_TotMFD - Whether to show the MFD from NSHMP-2002
+	 * @return
+	 */
 	private SummedMagFreqDist doAverageMFDs(boolean showAFaults, boolean showBFaults, boolean showNonCA_B_Faults, boolean showCZones, boolean showBackground, boolean showNSHMP_TotMFD) {
 		funcs  = new ArrayList();
 		plottingFeaturesList = new ArrayList<PlotCurveCharacterstics>();

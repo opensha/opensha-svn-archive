@@ -13,8 +13,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeInd
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 
 /**
- * This claas compares the sources rates of all ruptures for all logic tree branches
- * of UCERF2 and avergae UCERF2
+ * This class compares the sources rates from logic tree UCERF2 with source rates from 
+ *  MeanUCERF2.
+ *  
+ *  It generates 2 text files: One for Logic Tree and other for MeanUCERF2.
+ *  Each file contains the source name and the corresponding annual rate for that source.
+ *  The rates for corresponding sources from 2 files can then be compared to
+ *  find if there are any discrepancies.
  * 
  * 
  * @author vipingupta
@@ -39,6 +44,7 @@ public class CompareUCERF_SourceRates {
 				ProbEqkSource source = ucerf2.getSource(srcIndex);
 				int numRups = source.getNumRuptures();
 				double meanAnnualRate = 0;
+				// iterate over each rupture in that source
 				for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {
 					meanAnnualRate+=source.getRupture(rupIndex).getMeanAnnualRate(duration);
 				}
@@ -62,6 +68,11 @@ public class CompareUCERF_SourceRates {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		/*
+		 * IMPORTANT NOTE: You need to set the Timespan only after setting the
+		 * Probability Model Parameter. If we first set the TimeSpan and then set 
+		 * Probability Model, it resets the previously set Timespan.
+		 */ 
 		meanUCERF2.getTimeSpan().setDuration(duration);
 		fw = new FileWriter("MeanUCERF2.txt");
 		meanUCERF2.updateForecast();

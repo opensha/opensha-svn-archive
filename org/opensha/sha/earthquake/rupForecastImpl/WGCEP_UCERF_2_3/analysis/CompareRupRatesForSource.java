@@ -11,8 +11,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.Mea
 
 
 /**
- * It chooses a source and then compares the rupture rates from Logic Tree UCERF2
- * and MeanUCERF2 for that source.
+ * It chooses a source and then  for each rupture in that source, it compares the rates  
+ *  from Logic Tree UCERF2 with the rate from MeanUCERF2.
  * 
  * 
  * @author vipingupta
@@ -36,6 +36,7 @@ public class CompareRupRatesForSource {
 			for(int srcIndex=0; srcIndex<numSources; ++srcIndex) {
 				ProbEqkSource source = ucerf2.getSource(srcIndex);
 				String srcName = source.getName();
+				// This filters the source by Name.
 				if(!srcName.equalsIgnoreCase("Sierra Madre")) continue;
 				int numRups = source.getNumRuptures();
 				for(int rupIndex=0; rupIndex<numRups; ++rupIndex) {

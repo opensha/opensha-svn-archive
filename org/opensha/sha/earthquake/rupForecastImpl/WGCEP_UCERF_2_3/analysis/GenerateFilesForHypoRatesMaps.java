@@ -17,7 +17,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.Mea
 import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
 /**
- * It generates statewide bulge analysis files that can be plotted using GMT.
+ * This class generates Statewide Rates files that are used to plot Statewide maps.
+ * These maps were made for UCERF2 report. The steps to create the maps were sent
+ * to Ned in an email (The email that listed the steps to make each figure in 
+ * UCERF2 report).
+ * 
  *  
  * @author vipingupta
  *

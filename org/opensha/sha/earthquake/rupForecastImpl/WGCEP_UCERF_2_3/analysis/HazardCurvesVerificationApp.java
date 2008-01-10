@@ -26,14 +26,26 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
 /**
- * This class creates a bunch of hazard curves using MeanUCERF2 
- * for verification with NSHMP
+ * This class creates a bunch of hazard curves using MeanUCERF2 for verification with NSHMP.
+ * The latitudes and longitudes were provided by Mark Petersen in an email.
+ * 
+ * We have 2 different latitudes (34.0, 37.7) and 3 Intensity Measure Types(IMT) (PGA, SA at 0.2 sec, SA at 1 sec). 
+ * A file is created for each combination. Hence it generates 6 spreadsheets.
+ * 
+ * IMPORTANT NOTE:  This was run on USGS Mac Server.
+ * Please note the method generateHazardCurves() in this class. The call to this 
+ * seems to be commented at various places (currently at 6 places). 
+ * This was done for using the Mac Server at USGS, Pasadena. We can uncomment one of the method calls 
+ * (and keeping the other 5 commented) and run the main() method. We can do this one by one with
+ * each method call. So, it enabled us to utilize 6 different processors of the Mac Server and hence faster
+ * results.
+ * 
  * 
  * @author vipingupta
  *
  */
 public class HazardCurvesVerificationApp implements ParameterChangeWarningListener {
-	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/MeanUCERF2/HazardCurvesVerification";
+	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/HazardCurvesVerification";
 	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
 	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 2.0);
 	private MeanUCERF2 meanUCERF2;
@@ -90,7 +102,10 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	}
 	
 	/**
-	 * Generate hazard curves for a bunch of sites
+	 * This method creates a spreadsheet for the provided latitude and IMT.
+	 * For the user provided latitude, it goes over all longitudes and calculates 2% Prob of Exceedance and
+	 * 10% probability of exceedance. 
+	 * For interpolation purposes, it uses Log-Log interpolation.
 	 *
 	 */
 	private void generateHazardCurves(String imtString, double lat, double minLon, double maxLon) {
@@ -123,9 +138,11 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 				DiscretizedFuncAPI hazFunc = new ArbitrarilyDiscretizedFunc();
 				for(int i=0; i<numX_Vals; ++i)
 					hazFunc.set(Math.log(function.getX(i)), 1);
+				
+				// Note here that hazardCurveCalculator accepts the Log of X-Values
 				this.hazardCurveCalculator.getHazardCurve(hazFunc, site, imr, meanUCERF2);
 				
-				// unlog the X-Axis values
+				// Unlog the X-Values before doing interpolation. The Y Values we get from hazardCurveCalculator are unmodified
 				DiscretizedFuncAPI newFunc = new ArbitrarilyDiscretizedFunc();
 				for(int i=0; i<numX_Vals; ++i)
 					newFunc.set(function.getX(i), hazFunc.getY(i));

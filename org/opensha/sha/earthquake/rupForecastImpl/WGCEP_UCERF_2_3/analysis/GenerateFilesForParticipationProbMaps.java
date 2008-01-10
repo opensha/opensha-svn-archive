@@ -28,7 +28,10 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import scratchJavaDevelopers.vipin.relm.RELM_ERF_ToGriddedHypoMagFreqDistForecast;
 
 /**
- * It generates statewide bulge analysis files that can be plotted using GMT.
+ * It generates the files from making Probability Participation Maps for UCERF2 report.
+ * The steps to create the maps were sent to Ned in an email (The email that listed the steps to make each figure in 
+ * UCERF2 report).
+ * 
  *  
  * @author vipingupta
  *
@@ -37,8 +40,12 @@ public class GenerateFilesForParticipationProbMaps {
 	
 	public static void main(String[] args) {
 		int duration = 30;
+		
+		// List of Magnitudes for which Maps need to be generates.
+		// To make map for new magnitude, just add that magnitude to this list
 		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
-		// region to view the rates
+
+		// Region
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
 
 		// UCERF 2
@@ -56,13 +63,16 @@ public class GenerateFilesForParticipationProbMaps {
 		int numMag = 41; // number of Mag bins
 
 		// FOR POISSON
+		//System.out.println("Poisson------------");
+		
 		ERF_ToGriddedParticipationRatesMFD_Forecast griddedHypoMagFeqDistForecast1 =
 			new ERF_ToGriddedParticipationRatesMFD_Forecast(meanUCERF2, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 		// minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
-		generateRatesFiles("UCERF2_Poiss", griddedHypoMagFeqDistForecast1, mags, duration);
+		generateProbabilityFiles("UCERF2_Poiss", griddedHypoMagFeqDistForecast1, mags, duration);
 	
 		// FOR PREFERRED BLEND
+		//System.out.println("Preferred Blend------------");
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);	
 		meanUCERF2.getTimeSpan().setDuration(duration);
 		meanUCERF2.updateForecast();
@@ -70,16 +80,17 @@ public class GenerateFilesForParticipationProbMaps {
 			new ERF_ToGriddedParticipationRatesMFD_Forecast(meanUCERF2, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 		// minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
-		generateRatesFiles("UCERF2_PrefBlend", griddedHypoMagFeqDistForecast2, mags, duration);
+		generateProbabilityFiles("UCERF2_PrefBlend", griddedHypoMagFeqDistForecast2, mags, duration);
 
+		// Generate Files with ratios of UCERF2 Poisson and UCERF2-Preffered Blend
 		generateRatioFiles("UCERF2_PrefBlend_Poiss", griddedHypoMagFeqDistForecast2, griddedHypoMagFeqDistForecast1, mags, duration);
 	}
 	
 	
 	/**
-	 * It generates 2 files:
-	 * 1. File that has ratio of cumulative rates at Mag 5 for each location
-	 * 2. File that has ratio of cumulative rates at Mag 6.5 for each location
+	 * For each magnitude in mags[] array and for each location,
+	 *  it finds the ratio of probabilities from the 2 forecasts.
+	 *  A separate  file is generated for each magnitude.
 	 * 
 	 * @param fileNamePrefix
 	 * @param griddedHypoMagFeqDistForecast1
@@ -124,10 +135,12 @@ public class GenerateFilesForParticipationProbMaps {
 	}
 	
 	 /**
-	   * This function generates as many files as the number of Mags
+	   * This function generates as many files as the number of Mags.
+	   * Each file has a list of latitude and longitudes and 
+	   * corrpesonding participation probability.
 	   */
-	  public  static void generateRatesFiles(String fileNamePrefix, 
-			  ERF_ToGriddedParticipationRatesMFD_Forecast griddedHypoMagFeqDistForecast,
+	  public  static void generateProbabilityFiles(String fileNamePrefix, 
+			  ERF_ToGriddedParticipationRatesMFD_Forecast participationRatesMFD_Forecast,
 			  double[] mags, double duration) {
 		  double predictedRate, probability;
 		  try {
@@ -136,10 +149,10 @@ public class GenerateFilesForParticipationProbMaps {
 			  for(int magIndex=0; magIndex<mags.length; ++magIndex) {
 				  fileWriters[magIndex] = new FileWriter(fileNamePrefix+"_Pred"+mags[magIndex]+".txt"); // predicted rates at Mag 5
 			  }
-			  int numLocs = griddedHypoMagFeqDistForecast.getNumHypoLocs();
+			  int numLocs = participationRatesMFD_Forecast.getNumHypoLocs();
 			  float latitude, longitude;
 			  for(int i=0; i<numLocs; ++i) {
-				  HypoMagFreqDistAtLoc mfdAtLoc = griddedHypoMagFeqDistForecast.getHypoMagFreqDistAtLoc(i);
+				  HypoMagFreqDistAtLoc mfdAtLoc = participationRatesMFD_Forecast.getHypoMagFreqDistAtLoc(i);
 				  Location loc = mfdAtLoc.getLocation();
 				  EvenlyDiscretizedFunc cumDist  = mfdAtLoc.getFirstMagFreqDist().getCumRateDist();
 				  latitude = (float)loc.getLatitude();
@@ -158,7 +171,12 @@ public class GenerateFilesForParticipationProbMaps {
 		  }
 	  }
 }
-
+/**
+ * This class finds the participation probability in each bin for a given gridded region
+ * 
+ * @author vipingupta
+ *
+ */
 class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDistForecast {
 	  private EqkRupForecast eqkRupForecast;
 	  private HypoMagFreqDistAtLoc magFreqDistForLocations[];
@@ -195,7 +213,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	  }
 
 	  /**
-	   * gets the Hypocenter Mag.
+	   * gets the Hypocenter MFD
 	   *
 	   * @param ithLocation int : Index of the location in the region
 	   * @return HypoMagFreqDistAtLoc Object using which user can retrieve the
@@ -210,6 +228,12 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	  
 	  /*
 	   * computes the Mag-Rate distribution for each location within the provided region.
+	   * Here is the algorithm it follows:
+	   * 1. Loop over each source
+	   * 2. Loop over each rupture in a source
+	   * 3. For each location on rupture surface, find the nearest location in gridded region.
+	   * 3. If the nearest location has not been encountered for the same rupture,
+	   * 	add the rupture rate to the rate of this nearest location
 	   */
 	  private SummedMagFreqDist[] calcMFD_ForGriddedRegion(double minMag, double maxMag, int numMagBins, double duration) {
 
@@ -219,7 +243,7 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	    SummedMagFreqDist[] summedMFDs = new SummedMagFreqDist[numLocations];
 	   
 	    for(int i=0; i<numLocations; ++i) summedMFDs[i] = new SummedMagFreqDist(minMag, maxMag, numMagBins);
-	    //Going over each and every source in the forecast
+	    //Going over each  source in the forecast
 	    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
 	      // get the ith source
 	      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -242,8 +266,12 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	          //returns -1 if location not in the region
 	          locIndex = region.getNearestLocationIndex(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
+	          //if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
+	        	//	  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)
+	        	//  System.out.println(sourceIndex+"\t"+rupIndex+"\t"+meanAnnualRate);
 	          locIndices.add(locIndex);
-	          summedMFDs[locIndex].addResampledMagRate(mag, meanAnnualRate, true);        }
+	          summedMFDs[locIndex].addResampledMagRate(mag, meanAnnualRate, true);       
+	          }
 	      }
 	    }
 	    return summedMFDs;

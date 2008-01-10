@@ -15,14 +15,13 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 
 
 /**
+ * * It compares the preferred values (slip rate, slip rate std dev, aseismic slip factor)
+ *  in fault section databse with the values in deformation model. 
+ *  If the values differ for any fault section, that section name and deformation model name is printed
+ *  This was done to check which fault sections differ in different deformation models
  * 
- * @author vipingupta
- * It compares the preferred values (slip rate, slip rate std dev, aseismic slip factor)
- *  in fault section databse with values in deformation model. 
- *  If the values differ for nay fault section
- * , that section name and deformation model name is printed
- *
- */
+ *  @author vipingupta
+  */
 public class CheckFaultSectionDatabase {
 	public static void main(String args[]) {
 		// slip rates and aseismic slip factors from fault section database
