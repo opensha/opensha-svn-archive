@@ -5,13 +5,10 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 
 import java.util.ArrayList;
 
-/**
- * @author vipingupta
- *
- */
+
 /**
  * Various parameter values and their corresponding weights.
- * This class is used to generate logic tree branches.
+ * This class is used to find various logic tree branches and the corresponding weights.
  * 
  * @author vipingupta
  *

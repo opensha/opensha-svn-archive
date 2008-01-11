@@ -18,8 +18,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 /**
- * This class is used to generate MFDs for NoCal and SoCal Regions.
- * This accepts a region and hence can be used to generate MFDs for any region
+ * This class is used to generate MFDs for NoCal and SoCal Regions. These MFDs were depicted
+ * in UCERF2 report. An email was sent to Ned that listed steps to generated the MFD figures.
+ *  
+ * This accepts a region and hence can be used to generate MFDs for any region.
  * 
  * @author vipingupta
  *
@@ -171,6 +173,16 @@ public class NoCalSoCalMFDsPlotter extends LogicTreeMFDsPlotter {
 	}
 	
 	
+	/**
+	 * Read MFDs from the text files and plot them using JFreeChart.
+	 * 
+	 * It assumes that MFDs have been pre-computed and written to a file. To genrate the file,
+	 * we can use the merhod generateMFDsData() in parent class.
+	 * 
+	 * The main() method clarifies how files can be generated and how MFDs can be plotted.
+	 * 
+	 *
+	 */
 	private void plotCumMFDs(String path) {
 		
 		readMFDsFromFile(path+A_FAULTS_MFD_FILENAME, this.aFaultMFDsList, false);

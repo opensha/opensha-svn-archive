@@ -33,7 +33,8 @@ import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
 /**
- *  this creates an excel sheet with B-Faults and various values associated with them
+ *  This creates an excel sheet with B-Faults and various values associated with them.
+ *  The sheet was used as a part of Supplemntal Data for UCERF2 report 
  *  After excel sheet is made, some things need to be done explicity like sorting by 
  *  name and then writing Ids of connected faults.
  *  
@@ -58,25 +59,28 @@ public class MakeB_FaultsTable {
 	private UCERF2 ucerf2 = new UCERF2();
 	int rowIndex;
 	public MakeB_FaultsTable() {
-		
+
 		ucerf2 = new UCERF2();
-		
-		
+
+
 		workbook  = new HSSFWorkbook();
-		
+
+		// Make a sheet excluding connecting B-Faults
 		makeCA_B_FaultsNewSheet("B-Faults");
 		rowIndex=2;
-		makeData(false, "D2.1");
-		makeData(false, "D2.4");
-	
+		makeData(false, "D2.1"); // do for Deformation Model 2.1
+		makeData(false, "D2.4"); // do for Deformation Model 2.4
+
+
 		Iterator<String> bFaultNamesIt = nameRowMapping.keySet().iterator();
 		while(bFaultNamesIt.hasNext()) {
 			String faultName = bFaultNamesIt.next();
 			int rId = nameRowMapping.get(faultName);
 			sheet.getRow(rId).createCell((short)13).setCellValue(nameFaultModelMapping.get(faultName));
 		}
-		
+
 		rowIndex=2;
+		// Make a sheet for only Connected B-Faults
 		makeCA_B_FaultsNewSheet("Connected B-Faults");
 		makeData(true, "D2.1");
 		makeData(true, "D2.4");
@@ -86,7 +90,7 @@ public class MakeB_FaultsTable {
 			int rId = nameRowMapping.get(faultName);
 			sheet.getRow(rId).createCell((short)13).setCellValue(nameFaultModelMapping.get(faultName));
 		}
-//		 write  excel sheet
+//		write  excel sheet
 		try {
 			FileOutputStream fileOut = new FileOutputStream(this.CA_B_FILENAME);
 			workbook.write(fileOut);
@@ -94,13 +98,13 @@ public class MakeB_FaultsTable {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		workbook  = new HSSFWorkbook();
 		rowIndex=2;
 		makeNonCA_B_FaultsNewSheet("Non-CA B-Faults");
 		makeNonCAB_FaultsData();
-		
-//		 write  excel sheet
+
+//		write  excel sheet
 		try {
 			FileOutputStream fileOut = new FileOutputStream(this.NON_CA_B_FILENAME);
 			workbook.write(fileOut);
@@ -110,7 +114,12 @@ public class MakeB_FaultsTable {
 		}
 
 	}
-	
+
+	/**
+	 * Make a sheet for Non-California B-Faults
+	 * 
+	 * @param sheetName
+	 */
 	private void makeNonCA_B_FaultsNewSheet(String sheetName) {
 		sheet = workbook.createSheet(sheetName);
 		HSSFRow row = sheet.createRow(0);
@@ -134,7 +143,7 @@ public class MakeB_FaultsTable {
 		nameFaultModelMapping = new  HashMap<String, String>();
 
 	}
-	
+
 	private void makeCA_B_FaultsNewSheet(String sheetName) {
 		sheet = workbook.createSheet(sheetName);
 		HSSFRow row = sheet.createRow(0);
@@ -159,9 +168,13 @@ public class MakeB_FaultsTable {
 		nameFaultModelMapping = new  HashMap<String, String>();
 
 	}
-	
-private void makeNonCAB_FaultsData() {
-	
+
+	/**
+	 * Write the excel sheet for Non-CA  B-Faults
+	 *
+	 */
+	private void makeNonCAB_FaultsData() {
+
 		HashMap<String, Double> sourceRateMapping = new HashMap<String, Double>();
 		HashMap<String, Double> sourceProb6_7Mapping = new HashMap<String, Double>();
 		HashMap<String, Double> sourceEmpMapping = new HashMap<String, Double>();
@@ -181,7 +194,10 @@ private void makeNonCAB_FaultsData() {
 		HSSFRow row;
 		HashMap<String, Double> sourceMagMapping = new HashMap<String, Double>();
 		String fileName = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/NearCA_NSHMP/NonCA_Faults.txt";
-		try {
+		
+		// The file reading has been copied from NonCA_FaultsFetcher class
+		
+ 		try {
 			//FileWriter fw = new FileWriter("NonCA_Sources.txt");
 			//fw.write("Total Yearly Rate\tTotal Moment Rate\tSource Name\n");
 			ArrayList<String> fileLines = FileUtils.loadJarFile(fileName);
@@ -212,7 +228,7 @@ private void makeNonCAB_FaultsData() {
 					if(mag > 6.5) wt2 = 0.666;
 					moRate *= wt*wt2;
 				}
-				else if (srcTypeId==2) {
+				else if (srcTypeId==2) { // GR Case
 					double aVal=Double.parseDouble(tokenizer.nextToken().trim());
 					double bVal=Double.parseDouble(tokenizer.nextToken().trim());
 					double magLower=Double.parseDouble(tokenizer.nextToken().trim());
@@ -229,13 +245,13 @@ private void makeNonCAB_FaultsData() {
 						magUpper= magLower;
 					}
 					numMags = Math.round( (float)((magUpper-magLower)/deltaMag + 1.0) );
-		            //if(numMags==0) System.out.println(faultName+","+magLower+","+magUpper);
-					 moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(magLower, numMags, deltaMag, aVal, bVal);
+					//if(numMags==0) System.out.println(faultName+","+magLower+","+magUpper);
+					moRate = Frankel02_AdjustableEqkRupForecast.getMomentRate(magLower, numMags, deltaMag, aVal, bVal);
 					double wt = Double.parseDouble(tokenizer.nextToken().trim());
 					double wt2 = 0.334;
 					moRate *= wt*wt2;
 				}	
-				
+
 				else throw new RuntimeException("Src type not supported");
 				if(sourceMagMapping.containsKey(faultName)) {
 					double mag1 = sourceMagMapping.get(faultName);
@@ -258,7 +274,7 @@ private void makeNonCAB_FaultsData() {
 							emp+=source_emp.computeTotalProb()/prob;
 							++num;
 						}
-						
+
 					}
 					sourceProb6_7Mapping.put(faultName, 1-Math.exp(-rate6_7*duration));
 					sourceRateMapping.put(faultName, rate);
@@ -273,7 +289,7 @@ private void makeNonCAB_FaultsData() {
 				downDipWidth = Double.parseDouble(tokenizer.nextToken().trim());
 				upperSeisDepth = Double.parseDouble(tokenizer.nextToken().trim());
 				lowerSeisDepth = upperSeisDepth + downDipWidth*Math.sin((Math.toRadians(Math.abs(dip))));
-				
+
 				//fault trace
 				line = fileLines.get(i++);
 				int numLocations = Integer.parseInt(line.trim());
@@ -288,10 +304,10 @@ private void makeNonCAB_FaultsData() {
 				sourceLengthMapping.put(faultName, faultTrace.getTraceLength());
 				sourceAreaMapping.put(faultName, faultTrace.getTraceLength()*downDipWidth);
 			}
-			}catch (Exception e) {
+		}catch (Exception e) {
 			e.printStackTrace();
 		}	
-		
+
 		Iterator<String> it = sourceMagMapping.keySet().iterator();
 		while(it.hasNext()) {
 			String faultName = it.next();
@@ -311,17 +327,25 @@ private void makeNonCAB_FaultsData() {
 
 			rowIndex++;
 		}
-	
+
 	}
-	
+
+	/**
+	 * Write to the excel sheet for B-Faults. This method loops overall logic tree branches for the
+	 * given deformation model and writes B-Fault associated data such as mean Prob, max Prob,
+	 * min Prob, empirical val, area, length, slip rate, moment rate.
+	 * 
+	 * @param connectMoreB_Faults Whether to connect more B-Faults
+	 * @param defModelName Deformation model for which data is generated
+	 */
 	private void makeData(boolean connectMoreB_Faults, String defModelName) {
-		
+
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(connectMoreB_Faults));
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue(defModelName);
 
 		// bVal = 0.8
 		ucerf2.getParameter(UCERF2.B_FAULTS_B_VAL_PARAM_NAME).setValue(0.8);
-		
+
 		// Poisson - bVal=0.8
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 
@@ -343,11 +367,11 @@ private void makeNonCAB_FaultsData() {
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
 		ucerf2.updateForecast();
 		ArrayList<UnsegmentedSource> bFaultSourcesHB_Emp_8 = ucerf2.get_B_FaultSources();
-		
-		
+
+
 		//		 bVal = 0.0
 		ucerf2.getParameter(UCERF2.B_FAULTS_B_VAL_PARAM_NAME).setValue(0.0);
-		
+
 		// Poisson - bVal=0.0
 		ucerf2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 
@@ -373,23 +397,23 @@ private void makeNonCAB_FaultsData() {
 
 		HSSFRow row;
 		String faultModel = null;
-		
+
 		if(defModelName.equalsIgnoreCase("D2.4")) faultModel="F2.2";
 		else if(defModelName.equalsIgnoreCase("D2.1")) faultModel="F2.1";
 		else throw new RuntimeException("Unsupported deformation model");
 		double MAG = 6.7;
 		for(int i=0; i<bFaultSourcesEllB_Poiss_8.size(); ++i) {
-			
+
 			UnsegmentedSource sourceEllB_Poiss_8 = bFaultSourcesEllB_Poiss_8.get(i);
 			UnsegmentedSource sourceHB_Poiss_8 = bFaultSourcesHB_Poiss_8.get(i);
 			UnsegmentedSource sourceEllB_Emp_8 = bFaultSourcesEllB_Emp_8.get(i);
 			UnsegmentedSource sourceHB_Emp_8 = bFaultSourcesHB_Emp_8.get(i);
-			
+
 			UnsegmentedSource sourceEllB_Poiss_0 = bFaultSourcesEllB_Poiss_0.get(i);
 			UnsegmentedSource sourceHB_Poiss_0 = bFaultSourcesHB_Poiss_0.get(i);
 			UnsegmentedSource sourceEllB_Emp_0 = bFaultSourcesEllB_Emp_0.get(i);
 			UnsegmentedSource sourceHB_Emp_0 = bFaultSourcesHB_Emp_0.get(i);
-			
+
 			FaultSegmentData faultSegmentData = sourceEllB_Poiss_8.getFaultSegmentData();
 			row  = sheet.createRow(rowIndex);
 			String bFaultName = faultSegmentData.getFaultName();
@@ -403,47 +427,47 @@ private void makeNonCAB_FaultsData() {
 			}
 			nameRowMapping.put(bFaultName, rowIndex); // bFault and rowId mapping
 			nameFaultModelMapping.put(bFaultName, faultModel); // bFault and fault model mapping
-			
+
 			double probEllB_Poiss_8, probHB_Poiss_8, probEllB_Emp_8, probHB_Emp_8;
 			double probEllB_Poiss_0, probHB_Poiss_0, probEllB_Emp_0, probHB_Emp_0;
 			double minProb = Double.MAX_VALUE, maxProb = -1.0;
-			
+
 			probEllB_Poiss_8 = sourceEllB_Poiss_8.computeTotalProbAbove(MAG);
 			if(probEllB_Poiss_8<minProb) minProb = probEllB_Poiss_8;
 			if(probEllB_Poiss_8>maxProb) maxProb = probEllB_Poiss_8;
-			
+
 			probHB_Poiss_8 = sourceHB_Poiss_8.computeTotalProbAbove(MAG);
 			if(probHB_Poiss_8<minProb) minProb = probHB_Poiss_8;
 			if(probHB_Poiss_8>maxProb) maxProb = probHB_Poiss_8;
-			
+
 			probEllB_Emp_8 = sourceEllB_Emp_8.computeTotalProbAbove(MAG);
 			if(probEllB_Emp_8<minProb) minProb = probEllB_Emp_8;
 			if(probEllB_Emp_8>maxProb) maxProb = probEllB_Emp_8;
-			
+
 			probHB_Emp_8 = sourceHB_Emp_8.computeTotalProbAbove(MAG);
 			if(probHB_Emp_8<minProb) minProb = probHB_Emp_8;
 			if(probHB_Emp_8>maxProb) maxProb = probHB_Emp_8;
-			
+
 			probEllB_Poiss_0 = sourceEllB_Poiss_0.computeTotalProbAbove(MAG);
 			if(probEllB_Poiss_0<minProb) minProb = probEllB_Poiss_0;
 			if(probEllB_Poiss_0>maxProb) maxProb = probEllB_Poiss_0;
-			
+
 			probHB_Poiss_0 = sourceHB_Poiss_0.computeTotalProbAbove(MAG);
 			if(probHB_Poiss_0<minProb) minProb = probHB_Poiss_0;
 			if(probHB_Poiss_0>maxProb) maxProb = probHB_Poiss_0;
-			
+
 			probEllB_Emp_0 = sourceEllB_Emp_0.computeTotalProbAbove(MAG);
 			if(probEllB_Emp_0<minProb) minProb = probEllB_Emp_0;
 			if(probEllB_Emp_0>maxProb) maxProb = probEllB_Emp_0;
-			
+
 			probHB_Emp_0 = sourceHB_Emp_0.computeTotalProbAbove(MAG);
 			if(probHB_Emp_0<minProb) minProb = probHB_Emp_0;
 			if(probHB_Emp_0>maxProb) maxProb = probHB_Emp_0;
-			
+
 			double meanPoissonProb = (probEllB_Poiss_8+probHB_Poiss_8+probEllB_Poiss_0+probHB_Poiss_0)/4;
 			double meanProb = (probEllB_Poiss_8+probHB_Poiss_8+probEllB_Emp_8+probHB_Emp_8+
 					probEllB_Poiss_0+probHB_Poiss_0+probEllB_Emp_0+probHB_Emp_0)/8;
-			
+
 			//row.createCell((short)0).setCellValue(rowIndex-1);
 			row.createCell((short)1).setCellValue(bFaultName);
 			row.createCell((short)2).setCellValue(MAG_FORMAT.format(sourceEllB_Poiss_8.getSourceMag()));
@@ -460,7 +484,7 @@ private void makeNonCAB_FaultsData() {
 			++rowIndex;
 		}
 	}
-	
+
 	public static void main(String []args) {
 		new MakeB_FaultsTable();
 	}

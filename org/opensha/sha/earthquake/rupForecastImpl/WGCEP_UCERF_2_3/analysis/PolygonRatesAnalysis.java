@@ -172,7 +172,7 @@ public class PolygonRatesAnalysis {
 	
 	
 	/**
-	 * Fro each C-zone, find the fraction that lies in each polygon
+	 * For each C-zone, find the fraction that lies in each polygon
 	 *
 	 */
 	public void mkC_ZonesFile() {

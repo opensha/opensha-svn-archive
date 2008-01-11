@@ -13,7 +13,12 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSou
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 
 /**
- * Write the files to be used by NSHMP
+ * Write the files to be used by NSHMP.
+ * 
+ * It creates an instance of UCERF2 and generates a bunch of files that are sent to Golden
+ * for NSHMP.  The method writeNSHMP_SrcFiles() accepts a directory name where all the files
+ * are generated. 
+ * 
  * 
  * @author vipingupta
  *
@@ -118,8 +123,7 @@ public class NSHMP_FileWriter {
 	
 
 	/**
-	 * Write files for each Segmented source for NSHMP with the current parameters
-	 * Separate file is generated for each source
+	 * Write a file that has data for each Segmented source for NSHMP with the current parameters
 	 * 
 	 * @param fileName
 	 */

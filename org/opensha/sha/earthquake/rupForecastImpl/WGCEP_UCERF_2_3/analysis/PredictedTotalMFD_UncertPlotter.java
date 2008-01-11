@@ -26,7 +26,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
  * This class reads the TotMFDs.txt file located in WGCEP_UCERF_2_3/data/logicTreeMFDs/
- * and make Total MFD Uncertainity plots. It assumes that the text file already exists.
+ * and make Total MFD Uncertainity plots. The plots were included in UCERF2 report and hence 
+ * steps to generate plots are available in an email to Ned.
+ * 
+ *  It assumes that the text file already exists.
  * The text file is created  by LogicTreeMFDsPlotter class.
  * 
  * 
