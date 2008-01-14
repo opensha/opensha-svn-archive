@@ -124,7 +124,7 @@ public class DataFileNameSelectorForUHS {
           String fileName = "1996-US-UHS-05-050-R2a.rnd";
           return filePath + fileName;
         }
-        else if (spectraType.equals(GlobalConstants.PE_5)) {
+        else if (spectraType.equals(GlobalConstants.PE_10)) {
           String fileName = "1996-US-UHS-10-050-R2a.rnd";
           return filePath + fileName;
         }

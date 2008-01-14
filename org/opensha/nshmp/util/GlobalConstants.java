@@ -20,12 +20,12 @@ public final class GlobalConstants {
 	public static final String VERSION = "Version: 5.0.8 - 11/20/2007";
 	
 	// Live application settings.  We use geohazards as a proxy to gldplone. If that breaks we "can" connect directly.
-	public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
+	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionTool/servlet/HazardCalcServlet";
 	
 	// Development application settings.
 	//public static final String SERVLET_PATH = "http://geohazards.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
-	//public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
+	public static final String SERVLET_PATH = "http://gldplone.cr.usgs.gov/GroundMotionDevel/servlet/HazardCalcDevel";
 	
 	
 	//data files path
