@@ -9,7 +9,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.Mea
 
 /**
  * Description: It write the source names and probabilities for the sources which have non-zero
- * above Mag 8
+ * probability above Magnitude 8
  * @author vipingupta
  *
  */

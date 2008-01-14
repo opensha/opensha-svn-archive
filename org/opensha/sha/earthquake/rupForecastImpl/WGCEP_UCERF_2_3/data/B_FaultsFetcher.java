@@ -20,9 +20,13 @@ import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 
 /**
- * @author vipingupta
+ * 
  * This class generates a list of B faults (faults which are not A faults and which have non zero slip
  * rate in deformation model) 
+ * 
+ * @author vipingupta
+ * 
+
  */
 public  class B_FaultsFetcher extends FaultsFetcher {
 	private A_FaultsFetcher aFaultsFetcher=null;
@@ -46,15 +50,19 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
 		 faultSectionPrefDAO.getAllFaultSectionPrefData();
 	}
-	
+
 	/**
-	 * Set the deformation model. This function needs to be called before any other function can be called.
-	 * @param fileName
+	 * Set the deformation model and specify whether more B-Faults need to be connected.
+	 * These parameters decide the filename to be read for B-Fault connections
+	 * 
+	 * @param isConnected Whether more B-Faults are conected ?
+	 * @param defModelSummary
+	 * @param aFaultsFetcher
 	 */
 	public void setDeformationModel(boolean isConnected, DeformationModelSummary defModelSummary, A_FaultsFetcher aFaultsFetcher) {
 		deformationModelId = defModelSummary.getDeformationModelId();
 		String fileName=null;
-		if(!isConnected)  { // if we do not have to connect B-Fsults
+		if(!isConnected)  { // if we do not have to connect B-Faults
 			fileName = B_CONNECT_MINIMAL;
 		} else { // if B-Faults need to be connected
 			String faultModelName = defModelSummary.getFaultModel().getFaultModelName();
@@ -71,7 +79,8 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	}
 	
 	/**
-	 * Get PrefFaultSectionData for B faults
+	 * Get PrefFaultSectionData for B-faults
+	 * 
 	 * @param deformationModelId
 	 * @return
 	 */
@@ -170,7 +179,8 @@ public  class B_FaultsFetcher extends FaultsFetcher {
 	}
 	
 	/**
-	 * This is used to generate a file after combining B-Faults. This file can then be viewed in SCEC-VDO
+	 * This is used to generate a file after combining B-Faults. 
+	 * This file can then be viewed in SCEC-VDO
 	 *
 	 */
 	public void test_writeFileAfterCombiningB_Faults(boolean isAseisReducesArea) {

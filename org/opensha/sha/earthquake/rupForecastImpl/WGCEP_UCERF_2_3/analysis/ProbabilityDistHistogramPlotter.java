@@ -38,7 +38,12 @@ import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
  * Mount Diablo Thrust) in different regions (WG02, NoCal, SoCal, RELM) and for different durations. 
  * The method generateProbContributionsExcelSheet() is used to make excel sheets.
  * 
- *The generated excel sheets can then be used to make histogram plots
+ * The generated excel sheets can then be used to make histogram plots and other plots for UCERF2 report.
+ * A detailed explanation for generating the excel sheets and figures for UCERF2 report was emailed to Ned.
+ * Since various excel sheets were generated, I ran this program multiple times on Mac Server. Every time I ran
+ * this program, I called generateProbContributionsExcelSheet() with different parameters. Please see
+ * the main() for different parameters which were passed to  generateProbContributionsExcelSheet().
+ * 
  * 
  * @author vipingupta
  *
@@ -66,6 +71,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 	private ArrayList<PlotCurveCharacterstics> plottingCurveChars;
 	private HSSFWorkbook workbook;
 
+	// Magnitudes for which calculations need to be done. 
 	private double mags[] = { 5.0, 5.25, 5.5, 5.75, 6.0, 6.25, 6.5, 6.7, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25};
 	/*private double mags[] = { 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 
 			6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 
@@ -457,8 +463,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 
 	/**
 	 * It reads the input file as created by generateProbContributionsExcelSheet() method
-	 * and generates one common sheet with min, max, mean for each column in each sheet.
-	 * These values are then saved in a sheet in the same excel file
+	 * and adds an additional sheet with min, max, mean for each column.
 	 * 
 	 * @param inputFileName
 	 */
@@ -721,7 +726,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 				found=true;
 			}
 		}
-		if(!found) throw new RuntimeException("Invalid minimum magnitude. Only 5.0, 6.0, 6.5, 6.7, 7.0, 7.5, 8.0 are allowed");
+		if(!found) throw new RuntimeException("Invalid minimum magnitude");
 		return colIndex;
 	}
 

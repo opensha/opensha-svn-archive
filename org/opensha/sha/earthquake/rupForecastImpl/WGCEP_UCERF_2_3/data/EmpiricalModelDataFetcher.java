@@ -12,7 +12,8 @@ import org.opensha.data.region.GeographicRegion;
 import org.opensha.util.FileUtils;
 
 /**
- * This class reads EmpiricalModelData.txt for time dependent forecast
+ * This class reads EmpiricalModelData.txt for time dependent forecast.
+ * This txt file was made based on Karen Felzer's appendix for UCERF2 report.
  * 
  * 
  * @author vipingupta

@@ -23,7 +23,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NS
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
- * Analyze the rate in various polygons as defined in Appendix I
+ * Analyze the rate in various polygons as defined in Appendix I of UCERF2 report
  * 
  * @author vipingupta
  *
@@ -49,7 +49,7 @@ public class PolygonRatesAnalysis {
 	}		
 
 	/**
-	 * Caluclate rates in polygons
+	 * Calculate rates in polygons
 	 *
 	 */
 	public void calcRatesInPolygons() {

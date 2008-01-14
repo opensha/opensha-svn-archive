@@ -9,6 +9,7 @@ import java.util.HashMap;
 /**
  * This class is used to hold the segment rates and ruptures rates after reading
  * from the excel File
+ * 
  * @author vipingupta
  *
  */
@@ -17,7 +18,7 @@ public class A_PrioriRupRates {
 	private HashMap<String, ArrayList> aPrioriRatesMap = new HashMap<String, ArrayList>();
 	private ArrayList<String> modelNames = new ArrayList<String>();
 	/**
-	 * constructor : Aceepts the segment name
+	 * constructor : Accepts the segment name
 	 * @param segmentName
 	 */
 	public A_PrioriRupRates(String faultName) {

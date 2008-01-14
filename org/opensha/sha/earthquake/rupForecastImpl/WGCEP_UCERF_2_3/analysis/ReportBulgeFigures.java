@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.EqkRateMod
 import org.opensha.sha.gui.infoTools.GraphWindow;
 
 /**
- * This class tries various parameter settings in UCERF2 and fins the effect of each parameter on Bulge
+ * This class tries various parameter settings in UCERF2 and finds the effect of each parameter on Bulge
  * @author vipingupta
  *
  */
@@ -83,7 +83,7 @@ public class ReportBulgeFigures {
 		double obsVal = ucerf2.getObsCumMFD(ucerf2.areAfterShocksIncluded()).get(0).getInterpolatedY(6.5);
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 
-		// figure 2
+		// figure 2 (Deformation Model set to 2.2)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.2");
@@ -93,7 +93,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.2");
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		
-		// figure 3
+		// figure 3 (Deformation Model set to 2.3)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.3");
@@ -103,7 +103,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.3");
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		
-		// figure 4
+		// figure 4 (Deformation Model set to 2.4)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.4");
@@ -113,7 +113,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(1+paramNames.indexOf(UCERF2.DEFORMATION_MODEL_PARAM_NAME)).createCell((short)fig).setCellValue("D2.4");
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		
-		// figure 5
+		// figure 5 (Deformation Model set to 2.5)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.5");
@@ -124,7 +124,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		
 		
-		// figure 6
+		// figure 6 (Deformation Model set to 2.6)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).setValue("D2.6");
@@ -135,7 +135,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		
 
-		//		 figure 7
+		// figure 7 (Unsegmented A-Faults)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.RUP_MODEL_TYPE_NAME).setValue(UCERF2.UNSEGMENTED_A_FAULT_MODEL);
@@ -155,7 +155,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		makeMFDsPlot("plot"+fig, ucerf2);
 
-		//		 figure 9
+		//		 figure 9 (Hans and Bakun Mag Area Relationship)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.MAG_AREA_RELS_PARAM_NAME).setValue(HanksBakun2002_MagAreaRel.NAME);
@@ -185,7 +185,7 @@ public class ReportBulgeFigures {
 		sheet.getRow(paramNames.size()+1).createCell((short)fig).setCellValue((ucerf2.getTotalMFD().getCumRate(6.5)/obsVal));
 		makeMFDsPlot("plot"+fig, ucerf2);*/
 
-		//		 figure 10
+		//		 figure 10 (More B-Faults not connected)
 		++fig;
 		ucerf2.setParamDefaults();
 		ucerf2.getParameter(UCERF2.CONNECT_B_FAULTS_PARAM_NAME).setValue(new Boolean(false));
@@ -290,7 +290,8 @@ public class ReportBulgeFigures {
 	//}
 
 	/**
-	 * It tries various parameter settings amnd tries to find minimum bulge
+	 * It tries various parameter settings (Various combination of values for Mag Area Relationship,
+	 * Rup Models, Slip Models, %Char vs GR, % moment rate reduction) and tries to find minimum bulge
 	 *
 	 */
 	public void findMinBulge() {

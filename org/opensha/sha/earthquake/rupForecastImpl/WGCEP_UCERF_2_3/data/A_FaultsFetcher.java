@@ -34,7 +34,9 @@ import org.opensha.util.FileUtils;
 
 /**
  *
- * This class read the  segments from a text file and then go to database to fetch the fault sections
+ * This class read the A-Faults segments from a text file. Then it fetches the fault sections from the database
+ * It also reads the table 7 (site name, event rate. sigma and 95% confidence bounds) in Appendix C of UCERF2 report 
+ * Additionally. it reads Time Dependent data (last event, slip, aperiodicity) for each segment from an excel sheet.
  * 
  * @author vipingupta
  *
@@ -54,19 +56,23 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	private final static String UNSEGMENTED_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_FaultUnsegmentedModels.txt";
 
 	private ArrayList<EventRates> eventRatesList; // Location list where event rates are available
-	
+
 	/**
 	 * 
-	 *
+	 * Default constructor
 	 */
 	public A_FaultsFetcher() {
 		aPrioriRupRatesMap = new HashMap<String,A_PrioriRupRates>();
 		this.readA_PrioriRupRates();
 	}
-	
+
 	/**
-	 * Set the file name for the segment models. This function needs to be called before any other function can be called.
-	 * @param fileName
+	 *  Set the Deformation Model to be used. 
+	 *  Also set whether A-Faults are segmented or unsegmented. Both these parameters decide the file
+	 *  to be read.
+	 * 
+	 * @param defModelSummary
+	 * @param isUnsegmented
 	 */
 	public void setDeformationModel(DeformationModelSummary defModelSummary, boolean isUnsegmented) {
 		deformationModelId = defModelSummary.getDeformationModelId();
@@ -83,7 +89,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		readSegEventRates();
 		readSegTimeDepData();
 	}
-	
+
 	/**
 	 * Read rupture rates and segment rates from Excel file
 	 *
@@ -133,15 +139,16 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				this.aPrioriRupRatesMap.put(faultName, aPrioriRupRates);
 				this.segmentNamesMap.put(faultName, ruptureNames);
 			}
-			
+
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	/**
-	 * Read the segment recurrence intervals
+	 * Read the segment recurrence intervals.
+	 *  also reads the table 7 (site name, event rate. sigma and 95% confidence bounds) in Appendix C of UCERF2 report 
 	 *
 	 */
 	private void readSegEventRates() {
@@ -179,10 +186,10 @@ public class A_FaultsFetcher extends FaultsFetcher{
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	/**
-	 * Read Time dependent data for each segment
+	 * Read Time dependent data (year of last event, slip, aperiodicity) for each segment
 	 *
 	 */
 	private void readSegTimeDepData() {
@@ -204,32 +211,32 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				ArrayList<SegmentTimeDepData> segTimeDepDataList = new ArrayList<SegmentTimeDepData>();
 				while(true) {
 					row = sheet.getRow(r++);
-					
+
 					if(row==null) break;
-					
+
 					// Segment name
 					cell = row.getCell( (short) 0);
 					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) break;
-					
+
 					++segIndex;
-					
+
 					// last event yr
 					cell = row.getCell( (short) 1);
 					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) lastEventYr = Double.NaN;
 					else lastEventYr = (int)cell.getNumericCellValue();
-					
+
 					// slip in MRE
 					cell = row.getCell( (short) 2);
 					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) slip = Double.NaN;
 					else slip = cell.getNumericCellValue();
-					
+
 					// apriodicity
 					cell = row.getCell( (short) 3);
 					if(cell==null || cell.getCellType()==HSSFCell.CELL_TYPE_BLANK) aperiodicity = Double.NaN;
 					else aperiodicity = cell.getNumericCellValue();
-					
+
 					//System.out.println(faultName+","+segIndex+","+lastEventYr+","+slip+","+aperiodicity);
-					
+
 					// Segment Time dependent data
 					SegmentTimeDepData segTimeDepData = new SegmentTimeDepData();
 					segTimeDepData.setAll(faultName, segIndex, lastEventYr, slip, aperiodicity);
@@ -237,14 +244,14 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				}
 				segTimeDepDataMap.put(faultName, segTimeDepDataList);
 			}
-			
+
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
 
-	
+
+
 	/**
 	 * Get time dependent data for selected fault.
 	 * 
@@ -254,8 +261,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	public  ArrayList<SegmentTimeDepData> getSegTimeDepData(String faultName) {
 		return this.segTimeDepDataMap.get(faultName);
 	}
-	
-	
+
+
 	/**
 	 * It gets the list of all event rates.
 	 * It gets them  from Tom Parson's excel sheet
@@ -265,7 +272,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	public ArrayList<EventRates> getEventRatesList() {
 		return this.eventRatesList;
 	}
-	
+
 	/**
 	 * Get closest fault section Id to this location. The fault section should be within 2 km distance of the location else it returns null
 	 * 
@@ -291,8 +298,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		if(minDist>2) return -1;
 		return closestFaultSection.getSectionId();
 	}
-	
-	
+
+
 	/**
 	 * Add a segRateConstraint object to the appropriate segRatesList in segEventRatesMap (a list for each segment)
 	 * @param faultSectiondId
@@ -320,10 +327,10 @@ public class A_FaultsFetcher extends FaultsFetcher{
 				}
 			}
 		}
-		
+
 		throw new RuntimeException ("The location cannot be mapped to a A-Fault segment");
 	}
-	
+
 	/**
 	 * Get recurrence intervals for selected segment model
 	 * @param selectedSegmentModel
@@ -332,7 +339,7 @@ public class A_FaultsFetcher extends FaultsFetcher{
 	public  ArrayList<SegRateConstraint> getSegRateConstraints(String faultName) {
 		return this.segEventRatesMap.get(faultName);
 	}
-	
+
 	/**
 	 * Get segment rate constraints for selected faultName and segment index. Returns an empty list, if there is no rate constraint for this segment
 	 * @param faultModel
@@ -350,8 +357,8 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		}
 		return segmentRates;
 	}
-	
-	
+
+
 	/**
 	 * Get apriori rupture rates
 	 * @param selectedSegmentModel
@@ -362,10 +369,10 @@ public class A_FaultsFetcher extends FaultsFetcher{
 		ArrayList<Double> aPrioriRates = aPrioriRatesList.getA_PrioriRates(rupModelType);
 		ValueWeight[] rupRates = new ValueWeight[aPrioriRates.size()];
 		for(int i=0; i<aPrioriRates.size(); ++i)
-				rupRates[i] = new ValueWeight(aPrioriRates.get(i), 1.0);
+			rupRates[i] = new ValueWeight(aPrioriRates.get(i), 1.0);
 		return rupRates;
 	}
-	
+
 	/**
 	 * Get a list of rup models(Eg. Min, Max, Geological Insight) for selected faultName
 	 * @param faultModel

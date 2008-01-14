@@ -22,7 +22,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 /**
- * It plots the MFDs from UCERF2.2 and compares them with MFDs from UCERF1
+ * It plots the MFDs from UCERF2 and compares them with MFDs from UCERF1
  * @author vipingupta
  *
  */
@@ -156,7 +156,9 @@ public class UCERF1ComparisonPlotter {
 		graphWindow.setVisible(true);
 	}
 	
-	//	plot all MFDs in one chart, but diff chart for diff faults
+	/**
+	 * plot all MFDs in one chart, but diff chart for diff faults
+	 */
 	public void plotA_FaultMFDs_forReport(String defModelName) {
 		
 		// It holds incr rates for each A-Fault

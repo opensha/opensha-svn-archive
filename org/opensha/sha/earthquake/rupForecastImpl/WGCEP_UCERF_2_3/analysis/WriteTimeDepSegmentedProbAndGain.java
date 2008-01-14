@@ -19,7 +19,12 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 
 /**
- * This class writes Ruptures probabilities and gains into an excel sheet. It loops over logic tree branches and writes prob and gains for each branch
+ * This class writes Ruptures probabilities and gains into an excel sheet. 
+ * It loops over logic tree branches and writes prob and gains for each branch.
+ * This class only writes for Segmented A-Faults case. The unsegmented branch in not computed in this case.
+ * The loop over unsegmented is done in WriteTimeDepUnsegmentedProbAndGain class.
+ * Currenly it loops over deformation model, Mag Area Rel, Relative A-Priori Wt, Prob Model and Aperiodicity Params
+ * It makes 12 excel sheets for different Parameter combinations.
  * 
  * @author vipingupta
  *
