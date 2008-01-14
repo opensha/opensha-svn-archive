@@ -41,6 +41,8 @@ public class FooClass {
 	public static void main(String [] args) {
 		
 		/**
+		 * Writes out matlab files for all vulnerabilities.
+		 */
 		VulnerabilityBean bean = VulnerabilityBean.getSharedInstance();
 		
 		Vector<VulnerabilityModel> models = bean.getAvailableModels();
@@ -65,8 +67,10 @@ public class FooClass {
 		}
 		
 		System.out.println("Done!");
-		*/
 		
+		/**
+		 *  Utilizes wills database for site class calculations.
+		 */ /** 
 		try {
 			WillsSiteClassCalculator calc = new WillsSiteClassCalculator();
 			Location loc = new Location(35.0, -118.11, 0.0);
@@ -82,7 +86,7 @@ public class FooClass {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		*/
 		
 		
 	}
