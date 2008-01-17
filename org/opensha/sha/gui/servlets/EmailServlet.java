@@ -19,7 +19,7 @@ import org.opensha.util.MailUtil;
 public class EmailServlet extends HttpServlet {
 
   //static Strings to send the mails
-  private static final String TO = "niting@usc.edu";
+  private static final String TO = "vgupta@usc.edu, kmilner@usc.edu";
   private static final String HOST = "email.usc.edu";
 
   //Process the HTTP Get request

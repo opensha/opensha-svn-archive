@@ -43,7 +43,7 @@ public class PrefFaultSectionDataDB_DAO {
 	public final static String DIP_DIRECTION = "Dip_Direction";
 	private DB_AccessAPI dbAccess;
 	private static HashMap cachedSections = new HashMap();
-	private static ArrayList faultSectionsList;
+	private static ArrayList<FaultSectionPrefData> faultSectionsList;
 	
 	public PrefFaultSectionDataDB_DAO(DB_AccessAPI dbAccess) {
 		setDB_Connection(dbAccess);
@@ -190,8 +190,8 @@ public class PrefFaultSectionDataDB_DAO {
 	 * @param condition
 	 * @return
 	 */
-	private ArrayList query(String condition) {
-		ArrayList faultSectionsList = new ArrayList();
+	private ArrayList<FaultSectionPrefData> query(String condition) {
+		ArrayList<FaultSectionPrefData> faultSectionsList = new ArrayList<FaultSectionPrefData>();
 		// this awkward sql is needed else we get "Invalid scale exception"
 		String sqlWithSpatialColumnNames =  "select "+SECTION_ID+
 		", ("+PREF_SLIP_RATE+"+0) "+PREF_SLIP_RATE+
