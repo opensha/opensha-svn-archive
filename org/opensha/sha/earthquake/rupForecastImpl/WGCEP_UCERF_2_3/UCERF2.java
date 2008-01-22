@@ -933,7 +933,8 @@ public class UCERF2 extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources(){
-		if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE))
+		if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE)||
+				backSeisParam.getValue().equals(UCERF2.BACK_SEIS_ONLY))
 			return allSources.size() + nshmp_gridSrcGen.getNumSources();
 		else return allSources.size();
 	}
@@ -1002,15 +1003,15 @@ public class UCERF2 extends EqkRupForecast {
 			String backSeisRup = (String)this.backSeisRupParam.getValue();
 			if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 				nshmp_gridSrcGen.setAsPointSources(true);
-				allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+				//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
 				
 			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
 				nshmp_gridSrcGen.setAsPointSources(false);
-				allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+				//allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
 
 			} else { // Cross hair ruptures
 				nshmp_gridSrcGen.setAsPointSources(false);
-				allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+				//allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
 
 			}
 			allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
@@ -1412,10 +1413,14 @@ public class UCERF2 extends EqkRupForecast {
 		ArrayList sourceList = new ArrayList();
 		sourceList.addAll(allSources);
 
-		if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE) &&
-				this.backSeisRupParam.getValue().equals(BACK_SEIS_RUP_CROSSHAIR))
+		
+		boolean isBackground = backSeisParam.getValue().equals(UCERF2.BACK_SEIS_INCLUDE) ||
+				backSeisParam.getValue().equals(UCERF2.BACK_SEIS_ONLY);
+		
+		if( isBackground &&
+				this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
 			sourceList.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
-		else if(backSeisParam.getValue().equals(BACK_SEIS_INCLUDE))
+		else if(isBackground)
 			sourceList.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
 
 		return sourceList;
