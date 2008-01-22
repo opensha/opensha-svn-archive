@@ -63,7 +63,7 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 	// Second Lat profiling
 	private final static double LAT2 = 37.7;
 	private final static double MIN_LON2 = -123.0;
-	private final static double MAX_LON2 = -120.0;
+	private final static double MAX_LON2 = -118.0;
 	
 	// grid spacing in degrees
 	private final static double GRID_SPACING = 0.05;
