@@ -996,18 +996,26 @@ public class UCERF2 extends EqkRupForecast {
 		String backSeis = (String)backSeisParam.getValue();
 		ArrayList<ProbEqkSource> backgroundSources;
 		// if background sources are included
-		if(backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE) || 
-				backSeis.equalsIgnoreCase(BACK_SEIS_ONLY)) {
+		// if background sources are included
+		if(backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_INCLUDE) || 
+				backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
 			String backSeisRup = (String)this.backSeisRupParam.getValue();
-			if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_POINT)) {
+			if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 				nshmp_gridSrcGen.setAsPointSources(true);
-			} else if(backSeisRup.equalsIgnoreCase(BACK_SEIS_RUP_FINITE)) {
+				allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+				
+			} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
 				nshmp_gridSrcGen.setAsPointSources(false);
+				allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+
 			} else { // Cross hair ruptures
 				nshmp_gridSrcGen.setAsPointSources(false);
+				allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+
 			}
 			allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 		}
+
 		this.reCalcBck = false; 
 
 //		System.out.println(totBackgroundMFD.getTotalMomentRate()+","+totBackgroundMFD.getTotalIncrRate());

@@ -383,10 +383,16 @@ public class MeanUCERF2 extends EqkRupForecast {
 				String backSeisRup = (String)this.backSeisRupParam.getValue();
 				if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_POINT)) {
 					nshmp_gridSrcGen.setAsPointSources(true);
+					allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+					
 				} else if(backSeisRup.equalsIgnoreCase(UCERF2.BACK_SEIS_RUP_FINITE)) {
 					nshmp_gridSrcGen.setAsPointSources(false);
+					allSources.addAll(nshmp_gridSrcGen.getAllRandomStrikeGriddedSources(timeSpan.getDuration()));
+
 				} else { // Cross hair ruptures
 					nshmp_gridSrcGen.setAsPointSources(false);
+					allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
+
 				}
 				allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 			}

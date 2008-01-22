@@ -191,7 +191,7 @@ public class CB_2008_AttenRel
   
   private void readCoeffFile(){
 	  try{
-		ArrayList<String> coeff= FileUtils.loadFile(CB_2008_CoeffFile);
+		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
 		//reading the Period
 		String perLine = coeff.get(0);
 		ArrayList period = new ArrayList<Double>();
