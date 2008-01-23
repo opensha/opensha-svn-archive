@@ -74,7 +74,8 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
         totLength += length;
         lastLoc = loc;
       }
-      return aveStrike/totLength;
+      throw new RuntimeException("This needs to be fixed for case where aximuths that cross the north direction (e.g., values of 10 & 350 average to 180");
+      //return aveStrike/totLength;
     }
 
     /*

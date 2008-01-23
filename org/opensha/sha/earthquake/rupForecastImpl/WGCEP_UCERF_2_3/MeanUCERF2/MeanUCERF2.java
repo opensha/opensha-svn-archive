@@ -398,6 +398,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 					//allSources.addAll(nshmp_gridSrcGen.getAllCrosshairGriddedSources(timeSpan.getDuration()));
 
 				}
+				
+				// Add C-zone sources
 				allSources.addAll(nshmp_gridSrcGen.getAllFixedStrikeSources(timeSpan.getDuration()));
 			}
 			
