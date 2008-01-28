@@ -22,6 +22,7 @@ public class AttenuationRelationshipsInstance {
    *  Temp until figure out way to dynamically load classes during runtime
    */
   public final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  public final static String BA_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel";
   public final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
   public final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
@@ -67,6 +68,17 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(BS_2003_CLASS_NAME);
     supportedAttenRelClasses.add(BC_2004_CLASS_NAME);
     supportedAttenRelClasses.add(GouletEtAl_2006_CLASS_NAME);
+  }
+  
+  /**
+   * This method takes in a custom list of IMR class names that are used when
+   * createIMRClassInstance is called.
+   * 
+   * @param classNames an ArrayList of IMR class names to be included.
+   */
+  
+  public void setIMR_ClassNames(ArrayList<String> classNames) {
+	  supportedAttenRelClasses = classNames;
   }
 
   /**

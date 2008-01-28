@@ -67,6 +67,19 @@ public class IMR_GuiBean extends ParameterListEditor
    parameterList = new ParameterList();
    init_imrParamListAndEditor();
  }
+ 
+ /**
+  * class constructor where IMRs can be specified
+  * @param api
+  * @param classNames
+  */
+ public IMR_GuiBean(IMR_GuiBeanAPI api, ArrayList<String> classNames) {
+   application  = api;
+   attenRelInstances.setIMR_ClassNames(classNames);
+   supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+   parameterList = new ParameterList();
+   init_imrParamListAndEditor();
+ }
 
  
  /**

@@ -178,7 +178,7 @@ public class HazardCurveServerModeApplication extends JFrame
   // Strings for control pick list
   protected final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
-  private final static String DISAGGREGATION_CONTROL = "Disaggregation";
+  protected final static String DISAGGREGATION_CONTROL = "Disaggregation";
   protected final static String EPISTEMIC_CONTROL = "Epistemic List Control";
   protected final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   protected final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
@@ -302,7 +302,7 @@ public class HazardCurveServerModeApplication extends JFrame
   JPanel buttonPanel = new JPanel();
   JCheckBox progressCheckBox = new JCheckBox();
   JButton addButton = new JButton();
-  JComboBox controlComboBox = new JComboBox();
+  protected JComboBox controlComboBox = new JComboBox();
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
   GridBagLayout gridBagLayout9 = new GridBagLayout();
@@ -314,17 +314,17 @@ public class HazardCurveServerModeApplication extends JFrame
   JPanel imtPanel = new JPanel();
   JSplitPane controlsSplit = new JSplitPane();
   JTabbedPane paramsTabbedPane = new JTabbedPane();
-  JPanel erfPanel = new JPanel();
+  protected JPanel erfPanel = new JPanel();
   GridBagLayout gridBagLayout15 = new GridBagLayout();
   GridBagLayout gridBagLayout13 = new GridBagLayout();
   GridBagLayout gridBagLayout12 = new GridBagLayout();
-  JPanel imrPanel = new JPanel();
+  protected JPanel imrPanel = new JPanel();
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
   //instances of various calculators
-  HazardCurveCalculatorAPI calc;
-  DisaggregationCalculatorAPI disaggCalc;
+  protected HazardCurveCalculatorAPI calc;
+  protected DisaggregationCalculatorAPI disaggCalc;
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
   protected CalcProgressBar startAppProgressClass;
