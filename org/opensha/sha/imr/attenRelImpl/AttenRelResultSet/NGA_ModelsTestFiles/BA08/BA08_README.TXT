@@ -4,12 +4,15 @@ MODEL:	Boore and Atkinson (2008)
 	Earthquake Spectra, Vol. 24, March (Final)
 
 FILES:
-	BA08_MEDIAN_SS.TXT - Median estimates of geometric mean for Strike-slip (SS) faulting
-	BA08_MEDIAN_RV.TXT - Median estimates of geometric mean for Reverse (RV) faulting
-	BA08_MEDIAN_NM.TXT - Median estimates of geometric mean for Normal (NM) faulting
-	BA08_MEDIAN_U.TXT - Median estimates of geometric mean for Unspecified (U) faulting
-	BA08_SIGTM_SS.TXT - Standard deviation of geometric mean for known faulting (evaluated for SS)
-	BA08_SIGTU_UN.TXT - Standard deviation of geometric mean for unspecified faulting (evaluated for SS)
+	BA08_MODEL.FOR - FORTRAN subroutine of BA08 NGA model for a single period
+	BA08_OPENSHA.FOR - FORTRAN program to evaluate BA08 NGA model
+	BA08_COEFS.TXT - ASCII table of BA08 model coefficients (Revised 01/04/08)
+	BA08_MEDIAN_SS.OUT - Median estimates of geometric mean for Strike-slip (SS) faulting
+	BA08_MEDIAN_RV.OUT - Median estimates of geometric mean for Reverse (RV) faulting
+	BA08_MEDIAN_NM.OUT - Median estimates of geometric mean for Normal (NM) faulting
+	BA08_MEDIAN_U.OUT - Median estimates of geometric mean for Unspecified (U) faulting
+	BA08_SIGTM_SS.OUT - Standard deviation of geometric mean for known faulting (evaluated for SS)
+	BA08_SIGTU_SS.OUT - Standard deviation of geometric mean for unspecified faulting (evaluated for SS)
 
 PARAMETERS IN OUTPUT FILES:
 	Mw - Moment magnitude

@@ -6,6 +6,7 @@ import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
 
@@ -23,6 +24,8 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 
 	private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
 
+	private double maxDiscrepancy = 0;
+	
 	//Tolerance to check if the results fall within the range.
 	private static double tolerence = 1; //default value for the tolerence
 
@@ -70,57 +73,62 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 				testValString = "Mean";
 			} else { // test Standard Deviation
 				isMedian = false;
-				
+				/* set whether we are testing Std dev of geomteric mean or 
+				 standard deviation of arbitrary horizontal component */
 				if(fileName.contains("SIGTM")) {
-					//Standard deviation of geometric mean for known faulting (evaluated for SS)
-					//ba_2008.getParameter(ba_2008.COMPONENT_NAME).setValue(ba_2008.COMPONENT_RANDOM_HORZ);
-					testValString = "Std Dev for known faulting";
+					// Std Dev of arbitrary horizontal component
+					ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(BA_2008_AttenRel.FLT_TYPE_STRIKE_SLIP);
+					testValString = "Std Dev of geometric mean for known faulting";
 				} else {
-					//Standard deviation of geometric mean for unspecified faulting (evaluated for SS)
-					//ba_2008.getParameter(ba_2008.COMPONENT_NAME).setValue(ba_2008.COMPONENT_GMRotI50);
-					testValString = "Std dev for unspecified faulting";
+					//Std dev of geomteric mean 
+					ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(BA_2008_AttenRel.FLT_TYPE_UNKNOWN);
+					testValString = "Std dev of geomteric mean for unspecified faulting";
 				}
 			}
-
 			int index1 = fileName.indexOf(".TXT");
 			String fltType = fileName.substring(index1-2, index1);
-			System.out.println(fileName);
-			if(fltType.equals("SS"))
+			fltType.replaceAll("_", "");
+			
+			if(fileName.contains("SS.TXT") && !fileName.contains("SIGTU"))
 				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_STRIKE_SLIP);
-			else if(fltType.equals("RV"))
+			else if(fileName.contains("RV.TXT"))
 				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_REVERSE);
-			else if(fltType.equals("NM"))
+			else if(fileName.contains("NM.TXT"))
 				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_NORMAL);
-			else if(fltType.equals("UN"))
-				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_UNKNOWN);
 			else 
-				throw new RuntimeException("Unknown Fault Type");
+				//throw new RuntimeException("Unknown Fault Type");
+				ba_2008.getParameter(ba_2008.FLT_TYPE_NAME).setValue(ba_2008.FLT_TYPE_UNKNOWN);
 			
 				try {
 				testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
 				int numLines = testDataLines.size();
 				for(int j=1;j<numLines;++j){
-					//System.out.println("Doing "+j+" of "+numLines);
+					System.out.println("Doing "+j+" of "+numLines);
 					String fileLine = (String)testDataLines.get(j);
 					StringTokenizer st = new StringTokenizer(fileLine);
 					double mag = Double.parseDouble(st.nextToken().trim());
 					((WarningDoubleParameter)ba_2008.getParameter(ba_2008.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
-
-					st.nextToken().trim(); // ignore Rrup
+					
+					//Rrup not used, skipping
+					st.nextToken();
+					//((WarningDoublePropagationEffectParameter)ba_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
 
 					double rjb = Double.parseDouble(st.nextToken().trim());
 					((WarningDoublePropagationEffectParameter)ba_2008.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
 					
 					st.nextToken().trim(); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
-					st.nextToken().trim(); // ignore Dip
-					st.nextToken().trim(); // ignore W, width of rup plane
-					st.nextToken().trim(); // ignore Depth Top
 					
+					st.nextToken(); // ignore dip
+					//ba_2008.getParameter(ba_2008.DIP_NAME).setValue(new Double(dip));
+					
+					st.nextToken(); // ignore W, width of rup plane
+					
+					st.nextToken(); // ignore Ztor, depth of top
 
 					double vs30 = Double.parseDouble(st.nextToken().trim());
 					((WarningDoubleParameter)ba_2008.getParameter(ba_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
 
-					st.nextToken().trim(); // ignore basin depth
+					st.nextToken(); // ignore Zsed, sediment/basin depth
 					
 					ba_2008.setIntensityMeasure(ba_2008.SA_NAME);
 					int num= period.length;
@@ -134,9 +142,10 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 						results = this.compareResults(openSHA_Val, tested_Val);
 						if(results == false){
 							String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
-							"BA-2008 attenuation with the following parameter settings:"+
+							"CB-2008 attenuation with the following parameter settings:"+
 							"  SA at period = "+period[k]+"\nMag ="+(float)mag+
-							"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
+							"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+							"\n"+
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 							//System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
@@ -153,9 +162,10 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 					results = this.compareResults(openSHA_Val, tested_Val);
 					if(results == false){
 						String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
-						"BA-2008 attenuation with the following parameter settings:"+
+						"CB-2008 attenuation with the following parameter settings:"+
 						"  PGA "+"\nMag ="+(float)mag+
-						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
+						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 						//System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
@@ -169,9 +179,10 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 					results = this.compareResults(openSHA_Val, tested_Val);
 					if(results == false){
 						String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
-						"BA-2008 attenuation with the following parameter settings:"+
+						"CB-2008 attenuation with the following parameter settings:"+
 						"  PGV "+"\nMag ="+(float)mag+
-						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+
+						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 						//System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
@@ -188,6 +199,8 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 				e.printStackTrace();
 			}
 		}
+		
+		System.out.println("Maximum Discrepancy: " + maxDiscrepancy);
 	}
 
 	/**
@@ -205,6 +218,9 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 		double result = 0;
 		if(targetVal!=0)
 			result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
+		
+		if (result > maxDiscrepancy)
+			maxDiscrepancy = result;
 
 		//System.out.println("Result: "+ result);
 		if(result < this.tolerence)

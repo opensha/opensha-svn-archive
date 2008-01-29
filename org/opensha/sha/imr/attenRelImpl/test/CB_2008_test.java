@@ -23,6 +23,8 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 
 	private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
 
+	private double maxDiscrepancy = 0;
+	
 	//Tolerance to check if the results fall within the range.
 	private static double tolerence = 1; //default value for the tolerence
 
@@ -217,6 +219,8 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 				e.printStackTrace();
 			}
 		}
+		
+		System.out.println("Maximum Discrepancy: " + maxDiscrepancy);
 	}
 
 	/**
@@ -235,6 +239,9 @@ public class CB_2008_test extends TestCase implements ParameterChangeWarningList
 		if(targetVal!=0)
 			result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
 
+		if (result > maxDiscrepancy)
+			maxDiscrepancy = result;
+		
 		//System.out.println("Result: "+ result);
 		if(result < this.tolerence)
 			return true;
