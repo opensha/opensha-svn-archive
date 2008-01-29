@@ -20,6 +20,14 @@ public class LocationParameter extends DependentParameter
   protected final static String C = "LocationParameter";
   /** If true print out debug statements. */
   protected final static boolean D = false;
+  
+  public static String DEFAULT_LATITUDE_LABEL = "Latitude";
+  public static String DEFAULT_LONGITUDE_LABEL = "Longitude";
+  public static String DEFAULT_DEPTH_LABEL = "Depth";
+  
+  public static double DEFAULT_LATITUDE = 34.0;
+  public static double DEFAULT_LONGITUDE = -118.0;
+  public static double DEFAULT_DEPTH = 0.0;
 
   protected final static String PARAM_TYPE ="LocationParameter";
 
@@ -48,7 +56,10 @@ public class LocationParameter extends DependentParameter
    * @param  name  Name of the parameter
    */
   public LocationParameter(String name) {
-    super(name,null,null,null);
+    this(name, LocationParameter.DEFAULT_LATITUDE_LABEL, LocationParameter.DEFAULT_LONGITUDE_LABEL, LocationParameter.DEFAULT_DEPTH_LABEL, null, 
+    		LocationParameter.DEFAULT_LATITUDE, 
+    		LocationParameter.DEFAULT_LONGITUDE,
+    		LocationParameter.DEFAULT_DEPTH);
   }
 
   /**
@@ -58,63 +69,12 @@ public class LocationParameter extends DependentParameter
    */
   public LocationParameter(String name, ArrayList locationList) throws
       ConstraintException {
-    super(name, new LocationConstraint(locationList), null, locationList.get(0));
-    location = (Location)locationList.get(0);
-  }
-
-  /**
-   *
-   * Creates a location parameter with constraint being list of locations and
-   * current value of the parameter from these list of locations.
-   * @param name String Name of the location parameter
-   * @param locationList ArrayList : List of allowed locations
-   * @param value Location : Parameter value, should be one of the allowed location
-   */
-  public LocationParameter(String name, ArrayList locationList, Location value) throws
-      ConstraintException {
-    super(name, new LocationConstraint(locationList), null, value);
-    location = value;
-  }
-
-  /**
-   * Creates a location parameter with constraint being list of locations and
-   * current value of the parameter from these list of locations.
-   * @param name String Name of the location parameter
-   * @param locationList ArrayList List of allowed locations
-   * @param units String Parameter units
-   * @param value Location : Parameter value, should be one of the allowed locations.
-   */
-  public LocationParameter(String name, ArrayList locationList, String units,
-                           Location value) throws ConstraintException {
-    super(name, new LocationConstraint(locationList), units, value);
-    location = value;
-  }
-
-
-  /**
-   * Creates a location parameter with constraint being list of locations and
-   * current value of the parameter from these list of locations.
-   * @param name String Parameter Name
-   * @param locationListConstraint LocationConstraint: Constraint on the location parameter
-   * @param units String Parameter units
-   * @param value Location Parameter value, should be one that is allowed by the constraint.
-   */
-  public LocationParameter(String name, LocationConstraint locationListConstraint,
-                           String units, Location value) throws ConstraintException{
-    super(name, locationListConstraint, units, value);
-    location = value;
-  }
-
-  /**
-   * Creates a location parameter with constraint being list of locations and
-   * current value of the parameter from these list of locations.
-   * @param name String Parameter Name
-   * @param locationListConstraint LocationConstraint: Constraint on the location parameter
-   */
-  public LocationParameter(String name, LocationConstraint locationListConstraint) throws ConstraintException {
-    super(name, locationListConstraint, null,locationListConstraint.getAllowedLocations().get(0));
-    Location loc = (Location)locationListConstraint.getAllowedLocations().get(0);
-    location = loc;
+    //super(name, new LocationConstraint(locationList), null, locationList.get(0));
+	  this(name, LocationParameter.DEFAULT_LATITUDE_LABEL, LocationParameter.DEFAULT_LONGITUDE_LABEL, LocationParameter.DEFAULT_DEPTH_LABEL, 
+    		new LocationConstraint(locationList), 
+    		((Location)locationList.get(0)).getLatitude(), 
+    		((Location)locationList.get(0)).getLongitude(), 
+    		((Location)locationList.get(0)).getDepth());
   }
 
   /**
@@ -126,61 +86,10 @@ public class LocationParameter extends DependentParameter
    */
   public LocationParameter(String name, LocationConstraint locationListConstraint,
                            Location value) throws ConstraintException{
-    super(name, locationListConstraint, null, value);
-    location = value;
-  }
-
-
-  /**
-   * Creates a location parameter as parameterlist parameter. This creates
-   * a location parameter that holds lat param,lon param and depth parameter
-   * in a parameterListParameter.
-   *
-   * @param locationParamName String Parameter Name
-   * @param latParamName String Name of the lat parameter
-   * @param lonParamName String Name of the lon parameter
-   * @param depthParamName String Name of the depth parameter
-   * @param latConstraint DoubleConstraint Constraint on latitude
-   * @param lonConstraint DoubleConstraint Constraint on longitude
-   * @param depthConstraint DoubleConstraint Constraint on depth
-   * @param latUnits String Lat param units
-   * @param lonUnits String Lon param units
-   * @param depthUnits String depth param units
-   * @param latValue Double lat param value, should be within the lat param constraint
-   * @param lonValue Double lon param value, should be within the lon param constraint
-   * @param depthValue Double depth param value, should be within the depth param constraint
-   */
-  public LocationParameter(String locationParamName,
-                           String latParamName, String lonParamName,
-                           String depthParamName,
-                           DoubleConstraint latConstraint,
-                           DoubleConstraint lonConstraint,
-                           DoubleConstraint depthConstraint,
-                           String latUnits, String lonUnits, String depthUnits,
-                           Double latValue,
-                           Double lonValue, Double depthValue) {
-
-    super(locationParamName,null,null,null);
-    latParam = new DoubleParameter(latParamName, latConstraint,
-                                   latUnits, latValue);
-    lonParam = new DoubleParameter(lonParamName, lonConstraint,
-                                   lonUnits, lonValue);
-    depthParam = new DoubleParameter(depthParamName,
-                                     depthConstraint, depthUnits, depthValue);
-
-    ParameterList paramList = new ParameterList();
-    paramList.addParameter(latParam);
-    paramList.addParameter(lonParam);
-    paramList.addParameter(depthParam);
-    locationParameterListParameter = new ParameterListParameter(
-      LOCATION_PARAMETER_LIST_PARAMETER_NAME,
-      paramList);
-    location = new Location(((Double)latParam.getValue()).doubleValue(),
-                                ((Double)lonParam.getValue()).doubleValue(),
-                                ((Double)depthParam.getValue()).doubleValue());
-    setValue(location);
-    //setting the independent parameters for the Location parameter
-    setIndependentParameters(paramList);
+    //super(name, locationListConstraint, null, value);
+    
+	  this(name, LocationParameter.DEFAULT_LATITUDE_LABEL, LocationParameter.DEFAULT_LONGITUDE_LABEL, LocationParameter.DEFAULT_DEPTH_LABEL,
+			  locationListConstraint, value.getLatitude(), value.getLongitude(), value.getDepth());
   }
 
 
@@ -189,92 +98,29 @@ public class LocationParameter extends DependentParameter
    * a location parameter that holds lat param,lon param and depth parameter
    * in a parameterListParameter.
    * @param locationParamName String Parameter Name
-   * @param latParamName String Name of the lat parameter
-   * @param lonParamName String Name of the lon parameter
-   * @param depthParamName String Name of the depth parameter
-   * @param minLat double minimum lat value
-   * @param maxLat double maximum lat value
-   * @param minLon double minimum lon value
-   * @param maxLon double maximum lon value
-   * @param minDepth double mimimum depth value
-   * @param maxDepth double maximum depth value
-   * @param latUnits String Latitude param units
-   * @param lonUnits String Longitude param units
-   * @param depthUnits String Depth param units
-   * @param latValue Double latitude value, should be within the minimum and
-   * maximum latitude range.
-   * @param lonValue Double longitude value, should be within the minimum and
-   * maximum longitude range.
-   * @param depthValue Double depth value, should be within the minimum and maximum
-   * depth range.
-   */
-  public LocationParameter(String locationParamName,
-                           String latParamName, String lonParamName,
-                           String depthParamName,
-                           double minLat,
-                           double maxLat,
-                           double minLon,
-                           double maxLon,
-                           double minDepth,
-                           double maxDepth,
-                           String latUnits, String lonUnits, String depthUnits,
-                           Double latValue,
-                           Double lonValue, Double depthValue) {
-    super(locationParamName,null,null,null);
-    latParam = new DoubleParameter(latParamName, new DoubleConstraint(minLat,maxLat),
-                                   latUnits, latValue);
-    lonParam = new DoubleParameter(lonParamName, new DoubleConstraint(minLon,maxLon),
-                                   lonUnits, lonValue);
-    depthParam = new DoubleParameter(depthParamName,
-                                     new DoubleConstraint(minDepth,maxDepth), depthUnits, depthValue);
-
-    ParameterList paramList = new ParameterList();
-    paramList.addParameter(latParam);
-    paramList.addParameter(lonParam);
-    paramList.addParameter(depthParam);
-    locationParameterListParameter = new ParameterListParameter(
-      LOCATION_PARAMETER_LIST_PARAMETER_NAME,
-      paramList);
-    location = new Location(((Double)latParam.getValue()).doubleValue(),
-                                ((Double)lonParam.getValue()).doubleValue(),
-                                ((Double)depthParam.getValue()).doubleValue());
-    setValue(location);
-    //setting the independent parameters for the Location parameter
-    setIndependentParameters(paramList);
-  }
-
-
-  /**
-   * Creates a location parameter as parameterlist parameter. This creates
-   * a location parameter that holds lat param,lon param and depth parameter
-   * in a parameterListParameter.
-   * @param locationParamName String Parameter Name
-   * @param latParamName String Name of the Lat param
-   * @param lonParamName String Name of the Lon param
+   * @param latParamName String Name of the lat param
+   * @param lonParamName String Name of the lon param
    * @param depthParamName String Name of the depth param
-   * @param latUnits String Latitudes param units
-   * @param lonUnits String Longitude param units
-   * @param depthUnits String Depth param  units
    * @param latValue Double valid Latitude value
    * @param lonValue Double valid longitude value
    * @param depthValue Double valid depth value
    */
   public LocationParameter(String locationParamName,
                            String latParamName, String lonParamName,
-                           String depthParamName,
-                           String latUnits, String lonUnits, String depthUnits,
+                           String depthParamName, LocationConstraint constraint,
                            Double latValue,
                            Double lonValue, Double depthValue) {
-    super(locationParamName,null,null,null);
+
+    super(locationParamName,constraint,null,null);
     latParam = new DoubleParameter(latParamName,
                                    new DoubleConstraint(Location.MIN_LAT,Location.MAX_LAT),
-                                   latUnits, latValue);
+                                   DECIMAL_DEGREES, latValue);
     lonParam = new DoubleParameter(lonParamName,
                                    new DoubleConstraint(Location.MIN_LON,Location.MAX_LON),
-                                   lonUnits, lonValue);
+                                   DECIMAL_DEGREES, lonValue);
     depthParam = new DoubleParameter(depthParamName,
-                                     new DoubleConstraint(Location.MIN_DEPTH,50.0),
-        depthUnits, depthValue);
+                                     new DoubleConstraint(Location.MIN_DEPTH,50),
+                                    KMS, depthValue);
 
     ParameterList paramList = new ParameterList();
     paramList.addParameter(latParam);
@@ -290,7 +136,7 @@ public class LocationParameter extends DependentParameter
     //setting the independent parameters for the Location parameter
     setIndependentParameters(paramList);
   }
-
+  
   /**
    * Creates a location parameter as parameterlist parameter. This creates
    * a location parameter that holds lat param,lon param and depth parameter
@@ -327,108 +173,6 @@ public class LocationParameter extends DependentParameter
     locationParameterListParameter = new ParameterListParameter(
       LOCATION_PARAMETER_LIST_PARAMETER_NAME,
       paramList);
-    location = new Location(((Double)latParam.getValue()).doubleValue(),
-                                ((Double)lonParam.getValue()).doubleValue(),
-                                ((Double)depthParam.getValue()).doubleValue());
-    setValue(location);
-    //setting the independent parameters for the Location parameter
-    setIndependentParameters(paramList);
-  }
-
-  /**
-   * Creates a location parameter as parameterlist parameter. This creates
-   * a location parameter that holds lat param,lon param and depth parameter
-   * in a parameterListParameter.
-   * @param locationParamName String Parameter Name
-   * @param latParamName String Name of the lat param
-   * @param lonParamName String Name of the lon param
-   * @param depthParamName String Name of the depth param
-   * @param latConstraint DoubleConstraint lat param constraint
-   * @param lonConstraint DoubleConstraint lon param constraint
-   * @param depthConstraint DoubleConstraint depth param constraint
-   * @param latValue Double valid latitude
-   * @param lonValue Double valid longitude
-   * @param depthValue Double valid depth
-   */
-  public LocationParameter(String locationParamName,
-                            String latParamName, String lonParamName,
-                            String depthParamName,
-                            DoubleConstraint latConstraint,
-                            DoubleConstraint lonConstraint,
-                            DoubleConstraint depthConstraint,
-                            Double latValue,
-                            Double lonValue, Double depthValue) {
-     super(locationParamName,null,null,null);
-     latParam = new DoubleParameter(latParamName, latConstraint,
-                                    DECIMAL_DEGREES, latValue);
-     lonParam = new DoubleParameter(lonParamName, lonConstraint,
-                                    DECIMAL_DEGREES, lonValue);
-     depthParam = new DoubleParameter(depthParamName,
-                                      depthConstraint, KMS, depthValue);
-
-     ParameterList paramList = new ParameterList();
-     paramList.addParameter(latParam);
-     paramList.addParameter(lonParam);
-     paramList.addParameter(depthParam);
-     locationParameterListParameter = new ParameterListParameter(
-      LOCATION_PARAMETER_LIST_PARAMETER_NAME,
-      paramList);
-     location = new Location(((Double)latParam.getValue()).doubleValue(),
-                                 ((Double)lonParam.getValue()).doubleValue(),
-                                 ((Double)depthParam.getValue()).doubleValue());
-     setValue(location);
-     //setting the independent parameters for the Location parameter
-     setIndependentParameters(paramList);
-  }
-
-  /**
-   * Creates a location parameter as parameterlist parameter. This creates
-   * a location parameter that holds lat param,lon param and depth parameter
-   * in a parameterListParameter.
-   * @param locationParamName String Parameter Name
-   * @param latParamName String Name of the Lat Param
-   * @param lonParamName String Name of the Lon param
-   * @param depthParamName String Name of the depth param
-   * @param minLat double minimum latitude
-   * @param maxLat double maximum latitude
-   * @param minLon double minimum longitude
-   * @param maxLon double maximum longitude
-   * @param minDepth double minimum depth
-   * @param maxDepth double maximum depth
-   * @param latValue Double default latitude value, should be within the min and
-   * max latitude range.
-   * @param lonValue Double default longitude value, should be within the min and
-   * max longitude range.
-   * @param depthValue Double default depth value, should be within the min and max
-   * depth range.
-   */
-  public LocationParameter(String locationParamName,
-                           String latParamName, String lonParamName,
-                           String depthParamName,
-                           double minLat,
-                           double maxLat,
-                           double minLon,
-                           double maxLon,
-                           double minDepth,
-                           double maxDepth,
-                           Double latValue,
-                           Double lonValue, Double depthValue) {
-    super(locationParamName,null,null,null);
-    latParam = new DoubleParameter(latParamName, new DoubleConstraint(minLat,maxLat),
-                                   DECIMAL_DEGREES, latValue);
-    lonParam = new DoubleParameter(lonParamName, new DoubleConstraint(minLon,maxLon),
-                                   DECIMAL_DEGREES, lonValue);
-    depthParam = new DoubleParameter(depthParamName,
-                                     new DoubleConstraint(minDepth,maxDepth), KMS, depthValue);
-
-    ParameterList paramList = new ParameterList();
-    paramList.addParameter(latParam);
-    paramList.addParameter(lonParam);
-    paramList.addParameter(depthParam);
-    locationParameterListParameter = new ParameterListParameter(
-      LOCATION_PARAMETER_LIST_PARAMETER_NAME,
-      paramList);
-
     location = new Location(((Double)latParam.getValue()).doubleValue(),
                                 ((Double)lonParam.getValue()).doubleValue(),
                                 ((Double)depthParam.getValue()).doubleValue());

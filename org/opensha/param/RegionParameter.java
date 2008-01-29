@@ -280,30 +280,24 @@ public class RegionParameter extends DependentParameter
    * @return    Exact copy of this object's state
    */
   public Object clone() {
-    LocationConstraint c1 = null;
-    LocationParameter param = null;
-    if (constraint != null){
-      c1 = (LocationConstraint) constraint.clone();
-      param = new LocationParameter(name, c1,(Location)value);
-    }
-    else{
-      if(value != null)
-        param = new LocationParameter(name,
-                                      (ParameterList)regionParameterListParameter.getValue(),
-                                      (Location)value);
-      else
-        param = new LocationParameter(name);
-    }
-    param.editable = true;
-    param.info = info;
-    return param;
+		RegionParameter param = null;
 
-  }
+		if (value != null)
+			param = new RegionParameter(name,
+					(RectangularGeographicRegion) value);
+		else
+			param = new RegionParameter(name);
+		param.editable = true;
+		param.info = info;
+		return param;
+
+	}
 
   /**
-   * Returns the ListIterator of the parameters included within this parameter
-   * @return
-   */
+	 * Returns the ListIterator of the parameters included within this parameter
+	 * 
+	 * @return
+	 */
   public ListIterator getParametersIterator(){
     return ((ParameterList)this.getValue()).getParametersIterator();
   }
