@@ -12,11 +12,15 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import org.opensha.data.ValueWeight;
+import org.opensha.exceptions.ConstraintException;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.DoubleConstraint;
 import org.opensha.param.DoubleDiscreteConstraint;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.DoubleValueWeightParameter;
+import org.opensha.param.LocationParameter;
+import org.opensha.param.RegionParameter;
 import org.opensha.param.WarningIntegerParameter;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.IntegerConstraint;
@@ -25,6 +29,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringConstraint;
 import org.opensha.param.StringParameter;
+import org.opensha.param.editor.LocationParameterEditor;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeFailEvent;
@@ -197,9 +202,40 @@ public class ParameterApplet
             list.addParameter( makeStringParameter() );
         list.addParameter(makeParameterListParameter());
         list.addParameter(makeDoubleValueWeightParameter());
+        list.addParameter( makeLocationParameter());
+        list.addParameter( makeRegionParameter());
         return list;
     }
 
+    private ParameterAPI makeLocationParameter() {
+  	  String name = "Name " + paramCount;
+        paramCount++;
+        LocationParameter param = new LocationParameter("Location Param", "Lat", "Lon", "Depth", 34.0, -120.0, 0.0);
+        param.addParameterChangeFailListener(this);
+        param.addParameterChangeListener(this);
+
+        return param;
+  }
+    
+    private ParameterAPI makeRegionParameter() {
+    	  String name = "Name " + paramCount;
+          paramCount++;
+          RegionParameter param = null;
+		try {
+			param = new RegionParameter("Region Param", "Kevin's/Sec", 34.0, 36.0, -120.0, -118.0);
+		} catch (ConstraintException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RegionConstraintException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+          param.addParameterChangeFailListener(this);
+          param.addParameterChangeListener(this);
+
+          return param;
+    }
+    
     private ParameterAPI makeDoubleValueWeightParameter() {
     	  String name = "Name " + paramCount;
           paramCount++;
