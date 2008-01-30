@@ -120,7 +120,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
 	public final static String BACK_SEIS_RUP_FINITE = new String ("One Random Strike Fault");
 	public final static String BACK_SEIS_RUP_CROSSHAIR = new String ("Two perpendicular faults");
-	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_POINT;
+	public final static String BACK_SEIS_RUP_DEFAULT = BACK_SEIS_RUP_CROSSHAIR;
 	private ArrayList backSeisRupStrings = new ArrayList();
 	private StringParameter backSeisRupParam;
 
