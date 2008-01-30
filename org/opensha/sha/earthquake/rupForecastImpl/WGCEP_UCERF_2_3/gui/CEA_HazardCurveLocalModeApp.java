@@ -68,9 +68,10 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
       ArrayList erf_Classes = new ArrayList();
 
       //adding the client based ERF's to the application
-      erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
       erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
+      erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      
       
       try {
         erfGuiBean = new ERF_GuiBean(erf_Classes);

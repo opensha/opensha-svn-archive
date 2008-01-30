@@ -382,8 +382,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      locations.add(hypoLocationsIt.next());
 
    hypoCenterLocationParam = new LocationParameter(
-       RUPTURE_HYPOLOCATIONS_PARAM_NAME,
-       locations, (Location) locations.get(0));
+       RUPTURE_HYPOLOCATIONS_PARAM_NAME, locations);
    hypoCenterLocationParam.addParameterChangeListener(this);
 
    //Hypocenter location parameter
