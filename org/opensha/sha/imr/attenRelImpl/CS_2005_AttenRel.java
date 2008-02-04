@@ -247,7 +247,7 @@ public class CS_2005_AttenRel
       b = coeffs.b2;
     }
     else if (vs30 < 760) {
-      b = coeffs.b2 - (vs30 - 520) * coeffs.b2 / 240;
+      b = coeffs.b2 - (vs30 - 520) * coeffs.b2 / 240.0;
     }
     else {
       b = 0.0;
@@ -276,7 +276,7 @@ public class CS_2005_AttenRel
 
       // set vs30 from the parameters
       if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
-        vs30 = 174;
+        vs30 = 174.0;
       }
       else {
         try {
@@ -291,13 +291,12 @@ public class CS_2005_AttenRel
       updateCoefficients();
 
       // set sigmaV
-      if (vs30 < 260) {
+      if (vs30 < 260.0) {
         sigmaV = coeffs.e1;
       }
-      else if (vs30 < 360) {
+      else if (vs30 < 360.0) {
         sigmaV = coeffs.e1 +
-            ( (coeffs.e3 - coeffs.e1) / Math.log(360 / 260)) *
-            Math.log(vs30 / 260);
+            ((coeffs.e3 - coeffs.e1) / Math.log(360.0/260.0))*Math.log(vs30/260.0);
       }
       else {
         sigmaV = coeffs.e3;
