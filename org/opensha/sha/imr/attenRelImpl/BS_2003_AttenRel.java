@@ -349,8 +349,8 @@ public class BS_2003_AttenRel
       }
       else if (vs30 < 360) {
         sigmaV = coeffs.e1 +
-            ( (coeffs.e3 - coeffs.e1) / Math.log(360 / 260)) *
-            Math.log(vs30 / 260);
+            ( (coeffs.e3 - coeffs.e1) / Math.log(360.0 / 260.0)) *
+            Math.log(vs30 / 260.0);
       }
       else {
         sigmaV = coeffs.e3;
