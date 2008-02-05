@@ -46,7 +46,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
  *
  */
 public class HazardCurvesVerificationApp implements ParameterChangeWarningListener {
-	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/HazardCurvesVerification";
+	private final static String HAZ_CURVES_DIRECTORY_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/HazardCurvesVerification/BA08_760";
 	private final static DoubleParameter VS_30_PARAM = new DoubleParameter("Vs30", 760.0);
 	private final static DoubleParameter DEPTH_2_5KM_PARAM = new DoubleParameter("Depth 2.5 km/sec", 2.0);
 	private MeanUCERF2 meanUCERF2;
@@ -192,7 +192,12 @@ public class HazardCurvesVerificationApp implements ParameterChangeWarningListen
 		imr.setParamDefaults();
 		imr.getParameter(BA_2008_AttenRel.SIGMA_TRUNC_TYPE_NAME).setValue(BA_2008_AttenRel.SIGMA_TRUNC_TYPE_1SIDED);
 		imr.getParameter(BA_2008_AttenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(3.0);
-		
+		/*
+		imr = new CB_2008_AttenRel(this);
+		imr.setParamDefaults();
+		imr.getParameter(CB_2008_AttenRel.SIGMA_TRUNC_TYPE_NAME).setValue(CB_2008_AttenRel.SIGMA_TRUNC_TYPE_1SIDED);
+		imr.getParameter(CB_2008_AttenRel.SIGMA_TRUNC_LEVEL_NAME).setValue(3.0);
+		*/
 	}
 	
 
