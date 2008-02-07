@@ -23,6 +23,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import java.awt.*;
 import javax.swing.*;
+
 import org.opensha.sha.earthquake.EqkRupForecast;
 import java.util.EventObject;
 import org.opensha.data.TimeSpan;
@@ -125,6 +126,10 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      } catch ( InstantiationException e ) {
        System.out.println(S + e.toString());
        throw new RuntimeException( S + e.toString() );
+     } catch (InvocationTargetException e) {
+    	 JOptionPane.showMessageDialog(this,"An ERF failed to load because it could not connect to a server, check your internet connection and firewall settings.","Internet Connection Problem",
+                 JOptionPane.OK_OPTION);
+    	 throw e;
      }
    }
 
