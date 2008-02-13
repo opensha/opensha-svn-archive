@@ -278,7 +278,9 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */
 	public ProbEqkSource getCrosshairGriddedSource(int srcIndex, double duration) {
-		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, false);
+		boolean includeDeeps = false;
+		// boolean includeDeeps = true;
+		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, includeDeeps);
 		return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
 				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex], true);
 	}
@@ -572,7 +574,8 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @return
 	 */
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex, boolean includeC_zones, 
-			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources, boolean include_agrd_deeps_out) {
+			boolean applyBulgeReduction, boolean applyMaxMagGrid, boolean includeFixedRakeSources, 
+			boolean include_agrd_deeps_out) {
 
 
 		// find max mag among all contributions

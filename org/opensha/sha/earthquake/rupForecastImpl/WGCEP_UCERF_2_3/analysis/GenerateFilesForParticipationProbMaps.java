@@ -43,7 +43,8 @@ public class GenerateFilesForParticipationProbMaps {
 		
 		// List of Magnitudes for which Maps need to be generates.
 		// To make map for new magnitude, just add that magnitude to this list
-		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
+//		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
+		double mags[] = { 7.1 };
 
 		// Region
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
@@ -51,7 +52,7 @@ public class GenerateFilesForParticipationProbMaps {
 		// UCERF 2
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 	    // include background sources as point sources
-		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
+		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(5.0));
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_INCLUDE);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_RUP_NAME, UCERF2.BACK_SEIS_RUP_CROSSHAIR);
@@ -63,7 +64,7 @@ public class GenerateFilesForParticipationProbMaps {
 		int numMag = 41; // number of Mag bins
 
 		// FOR POISSON
-		//System.out.println("Poisson------------");
+		System.out.println("Poisson------------");
 		
 		ERF_ToGriddedParticipationRatesMFD_Forecast griddedHypoMagFeqDistForecast1 =
 			new ERF_ToGriddedParticipationRatesMFD_Forecast(meanUCERF2, evenlyGriddedRegion,
@@ -72,7 +73,7 @@ public class GenerateFilesForParticipationProbMaps {
 		generateProbabilityFiles("UCERF2_Poiss", griddedHypoMagFeqDistForecast1, mags, duration);
 	
 		// FOR PREFERRED BLEND
-		//System.out.println("Preferred Blend------------");
+		System.out.println("Preferred Blend------------");
 		meanUCERF2.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(MeanUCERF2.PROB_MODEL_WGCEP_PREF_BLEND);	
 		meanUCERF2.getTimeSpan().setDuration(duration);
 		meanUCERF2.updateForecast();
@@ -266,9 +267,9 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	          //returns -1 if location not in the region
 	          locIndex = region.getNearestLocationIndex(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
-	          //if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
-	        	//	  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)
-	        	//  System.out.println(sourceIndex+"\t"+rupIndex+"\t"+meanAnnualRate);
+	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
+	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)
+//	        	  System.out.println(source.getName()+"\t"+sourceIndex+"\t"+rupIndex+"\t"+meanAnnualRate);
 	          locIndices.add(locIndex);
 	          summedMFDs[locIndex].addResampledMagRate(mag, meanAnnualRate, true);       
 	          }

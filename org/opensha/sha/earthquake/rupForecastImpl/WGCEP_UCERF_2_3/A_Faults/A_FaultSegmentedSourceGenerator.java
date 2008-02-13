@@ -129,6 +129,7 @@ public class A_FaultSegmentedSourceGenerator {
 	/*Create a Rupture-Source Mapping, This is needed because some sources are not put into SourceList 
 	when we call getTimeDependentSources() or getTimeIndependentSources() or getTimeDepEmpiricalSources() */
 	private HashMap<Integer, Integer> rupSrcMapping; 
+	private HashMap<Integer, Integer> srcRupMapping; 
 
 	private static Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
 
@@ -489,6 +490,18 @@ public class A_FaultSegmentedSourceGenerator {
 			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
 	}
 	
+	
+	/**
+	 * Get Combined surface for a particular rupture index
+	 * @param rupIndex
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurfaceForSource(int srcIndex, boolean applyCyberShakeDDW_Corr) {
+		return getCombinedGriddedSurface( srcRupMapping.get(srcIndex), applyCyberShakeDDW_Corr);
+	}
+
+	
+	
 	/**
 	 * Get Ave Rake for a particular rupture index
 	 * @param rupIndex
@@ -498,7 +511,17 @@ public class A_FaultSegmentedSourceGenerator {
 		int[] segmentsInRup = getSegmentsInRup(rupIndex);
 		return segmentData.getAveRake(segmentsInRup);
 	}
+
 	
+	/**
+	 * Get Ave Rake for a particular rupture index
+	 * @param rupIndex
+	 * @return
+	 */
+	public double getAveRakeForSource(int srcIndex) {
+		return getAveRake(srcRupMapping.get(srcIndex));
+	}
+
 	
 	/**
 	 * Get a list of time independent sources for the given duration
@@ -524,6 +547,7 @@ public class A_FaultSegmentedSourceGenerator {
 		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		rupSrcMapping = new  HashMap<Integer, Integer> (); 
+		srcRupMapping = new  HashMap<Integer, Integer> (); 
 		rupGain = new double[num_rup];
 		rupProb = new double[num_rup];
 		for(int i=0; i<num_rup; i++) {
@@ -543,6 +567,7 @@ public class A_FaultSegmentedSourceGenerator {
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
 				rupSrcMapping.put(i, sourceList.size());
+				srcRupMapping.put(sourceList.size(),i);
 				sourceList.add(faultRupSrc);
 				
 				/*
@@ -579,6 +604,7 @@ public class A_FaultSegmentedSourceGenerator {
 		// and if so the durations of each could simply be changed (rather than recreating the sources)
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		rupSrcMapping = new  HashMap<Integer, Integer> (); 
+		srcRupMapping = new  HashMap<Integer, Integer> ();
 		rupGain = new double[num_rup];
 		rupProb = new double[num_rup];
 		double[] modRupRate = new double[num_rup];
@@ -607,6 +633,7 @@ public class A_FaultSegmentedSourceGenerator {
 				if(faultRupSrc.getNumRuptures() == 0)
 					System.out.println(faultRupSrc.getName()+ " has zero ruptures");
 				rupSrcMapping.put(i, sourceList.size());
+				srcRupMapping.put(sourceList.size(),i);
 				sourceList.add(faultRupSrc);
 				
 				/*
@@ -694,13 +721,16 @@ public class A_FaultSegmentedSourceGenerator {
 		// now make the sources
 		this.sourceList = new ArrayList<FaultRuptureSource>();
 		rupSrcMapping = new  HashMap<Integer, Integer> (); 
+		srcRupMapping = new  HashMap<Integer, Integer> ();
 		for(int i=0; i<num_rup; i++) {
+ //if (rupProb[i] <= MIN_RUP_RATE) System.out.println(this.getLongRupName(i));
 			// Create source if prob is greater than ~zero
 			if (rupProb[i] > MIN_RUP_RATE) {		
 				FaultRuptureSource faultRupSrc = new FaultRuptureSource(rupProb[i], rupMagFreqDist[i], 
 						getCombinedGriddedSurface(i, false), getAveRake(i));
 				faultRupSrc.setName(this.getLongRupName(i));
 				rupSrcMapping.put(i, sourceList.size());
+				srcRupMapping.put(sourceList.size(),i);
 				sourceList.add(faultRupSrc);
 				/*
 				// this is a check to make sure the total prob from source is same as

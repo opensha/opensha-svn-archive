@@ -652,8 +652,15 @@ public class MeanUCERF2 extends EqkRupForecast {
 				String key = faultName +";"+source.getName();
 				if(!sourceMFDMapping.containsKey(key)) {
 					sourceMFDMapping.put(key, new SummedMagFreqDist(UCERF2.MIN_MAG, UCERF2.MAX_MAG, UCERF2.NUM_MAG));
-					sourceRakeMapping.put(key, aFaultSourceGenerator.getAveRake(srcIndex));
-					this.sourceGriddedSurfaceMapping.put(key, aFaultSourceGenerator.getCombinedGriddedSurface(srcIndex, ddwCorr));
+
+					sourceRakeMapping.put(key, aFaultSourceGenerator.getAveRakeForSource(srcIndex));
+					this.sourceGriddedSurfaceMapping.put(key, aFaultSourceGenerator.getCombinedGriddedSurfaceForSource(srcIndex, ddwCorr));
+
+// Debugging tests:					
+// StirlingGriddedSurface surf = 		aFaultSourceGenerator.getCombinedGriddedSurfaceForSource(srcIndex, ddwCorr);
+// if(faultName.equals("San Jacinto")) System.out.println(srcIndex+"\t"+key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
+// System.out.println(key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
+
 				}
 				SummedMagFreqDist mfd = sourceMFDMapping.get(key);
 				int numRups = source.getNumRuptures();
