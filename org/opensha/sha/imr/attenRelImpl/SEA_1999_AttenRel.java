@@ -52,8 +52,8 @@ public class SEA_1999_AttenRel
   // debugging stuff:
   private final static String C = "SEA_1999_AttenRel";
   private final static boolean D = false;
-  public final static String NAME = "SEA (Spudich et al., 1997)";
-  public final static String SHORT_NAME = "Spudich1997";
+  public final static String NAME = "SEA (Spudich et al., 1999)";
+  public final static String SHORT_NAME = "Spudich1999";
   private static final long serialVersionUID = 1234567890987654367L;
 
 
