@@ -1,34 +1,32 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.data.*;
+import nnls.NNLSWrapper;
+
+import org.opensha.calc.FaultMomentCalc;
+import org.opensha.calc.MomentMagCalc;
+import org.opensha.calc.RelativeLocation;
+import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
+import org.opensha.data.Site;
+import org.opensha.data.ValueWeight;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.calc.*;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.FaultSegmentData;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
-import org.opensha.sha.surface.*;
-import org.opensha.sha.magdist.*;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-
-//import cj.math.nnls.NNLSWrapper;
-import nnls.NNLSWrapper;
-
-import sun.tools.tree.ThisExpression;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.magdist.SummedMagFreqDist;
+import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <p>Title: A_FaultSource </p>
