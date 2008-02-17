@@ -99,6 +99,14 @@ public class ERF2GriddedSeisRatesCalc {
                                             double duration) {
     double delta = (maxMag-minMag)/(numMagBins-1);
     ArrayList cumMFDList  = calcCumMFD_ForGriddedRegion(minMag-delta, eqkRupForecast, region);
+/*
+// Debugging test  *************  
+int testIndex = 3792;
+ArbitrarilyDiscretizedFunc testFunc = (ArbitrarilyDiscretizedFunc)cumMFDList.get(testIndex);
+for(int m=0;m<testFunc.getNum();m++)
+    System.out.println("test3  "+testFunc.getX(m)+"\t"+testFunc.getY(m));
+// end debugging test ***************
+*/    
     // number of locations in this region
     int numLocs = cumMFDList.size();
     // list to save the mag freq dist for each location
@@ -114,16 +122,31 @@ public class ERF2GriddedSeisRatesCalc {
       for(int j=0; j<magFreqDist.getNum(); ++j ) {
         mag = magFreqDist.getX(j);
         // get interpolated rate
+//if((mag == 7.0 || mag==7.1) && i==testIndex) debug = true;
+//if((mag == 6.4) && i==testIndex) debug = true;
+//else debug = false;
         cumRate1 = getRateForMag(cumFunc, mag - delta/2);
+//debug = false;
         // get interpolated rate for the mag
         cumRate2 = getRateForMag(cumFunc, mag + delta/2);
         
         // set the rate in Incremental Mag Freq Dist
         magFreqDist.set(mag, (cumRate1-cumRate2)*duration);
+        
+// Dubugging test *******************
+//if(i==testIndex) System.out.println("test5\t"+mag+"\t"+cumRate1+"\t"+cumRate2);
       }
       //if(i==0) System.out.println("Mag Freq Dist::::\n"+magFreqDist.getMetadataString());
       
     }
+    
+/*    
+ // Debugging test    ***************
+IncrementalMagFreqDist test2Func = (IncrementalMagFreqDist)mfdList.get(testIndex);
+for(int m=0;m<testFunc.getNum();m++)
+    System.out.println("test4  "+test2Func.getX(m)+"\t"+test2Func.getY(m));
+// end debugging test **************
+*/
     
     
     /* test:
@@ -146,7 +169,11 @@ public class ERF2GriddedSeisRatesCalc {
   private double getRateForMag(ArbitrarilyDiscretizedFunc func, double mag) {
     if(mag<func.getMinX()) return func.getY(0);
     if(mag>func.getMaxX()) return 0.0;
-    return func.getInterpolatedY_inLogXLogYDomain(mag);
+//    int testIndex = func.getXIndex(mag);
+//    if(testIndex != -1)
+//    	return func.getY(testIndex);
+//    else
+    	return func.getInterpolatedY_inLogXLogYDomain(mag);
   }
 
   /**
@@ -211,7 +238,6 @@ public class ERF2GriddedSeisRatesCalc {
         magRateDist.add(magRateFunction);
       }
     }
-
     return magRateDist;
   }
 
@@ -469,7 +495,18 @@ public class ERF2GriddedSeisRatesCalc {
           if(locIndex < 0)
             continue;
           String magString = magFormat.format(mag);
-          funcs[locIndex].set(Double.parseDouble(magString), ptRate);        }
+
+          funcs[locIndex].set(Double.parseDouble(magString), ptRate); 
+/*
+// Debugging for location of interest: 37,-121.4
+          if(locIndex == 3792 & Double.parseDouble(magString) == 5.05) {
+//          if(sourceIndex == 5783 & Double.parseDouble(magString) == 5.05) {
+        	  System.out.println(sourceIndex+"\t"+mag+"\t"+(float)ptRate+"\t"+Double.parseDouble(magString)+"\t"+
+        			  (float)funcs[locIndex].getY(Double.parseDouble(magString))+"\t"+ptLoc.toString());
+          }
+// End Debugging
+*/   
+         }
       }
     }
     return funcs;

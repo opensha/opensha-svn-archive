@@ -34,8 +34,14 @@ public class GenerateFilesForHypoRatesMaps {
 
 		// region to view the rates
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
-
+/*
+	Location locOfInterest = new Location(37,-121.4);
+	int indexOfInterest = evenlyGriddedRegion.getNearestLocationIndex(locOfInterest);
+	System.out.println("indexOfInterest= "+indexOfInterest+"\t"+locOfInterest.toString()+"\t"+
+			evenlyGriddedRegion.getGridLocation(indexOfInterest));
+*/	
 		// UCERF 2
+System.out.println("UCERF2");
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 	    // include background sources as point sources
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME, new Double(10.0));
@@ -49,14 +55,16 @@ public class GenerateFilesForHypoRatesMaps {
 		double minMag=5.0, maxMag=9.00;
 		int numMag = 41; // number of Mag bins
 		//	 make GriddedHypoMFD Forecast from the EqkRupForecast
+
 		RELM_ERF_ToGriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast1 =
 			new RELM_ERF_ToGriddedHypoMagFreqDistForecast(meanUCERF2, evenlyGriddedRegion,
 					minMag, maxMag, numMag, duration); 
 
 		// minLat=31.5, maxLat=43.0, minLon=-125.4, MaxLon=-113.1
 		generateNedsBulgeFiles("UCERF2", griddedHypoMagFeqDistForecast1);
-		
+
 		// NSHMP 2002
+System.out.println("NSHMP02");
 		EqkRupForecast nshmp2002 = new Frankel02_AdjustableEqkRupForecast();
 	    // include background sources as point sources
 		nshmp2002.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,

@@ -43,8 +43,8 @@ public class GenerateFilesForParticipationProbMaps {
 		
 		// List of Magnitudes for which Maps need to be generates.
 		// To make map for new magnitude, just add that magnitude to this list
-//		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
-		double mags[] = { 7.1 };
+		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
+//		double mags[] = { 7.1 };
 
 		// Region
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
@@ -267,8 +267,8 @@ class ERF_ToGriddedParticipationRatesMFD_Forecast  extends GriddedHypoMagFreqDis
 	          //returns -1 if location not in the region
 	          locIndex = region.getNearestLocationIndex(ptLoc);
 	          if(locIndices.contains(locIndex) || locIndex<0) continue;
-	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
-	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)
+//	          if(Math.abs(region.getGridLocation(locIndex).getLatitude()-33.3)<1e-6 && 
+//	        		  Math.abs(region.getGridLocation(locIndex).getLongitude()+116.1)<1e-6)
 //	        	  System.out.println(source.getName()+"\t"+sourceIndex+"\t"+rupIndex+"\t"+meanAnnualRate);
 	          locIndices.add(locIndex);
 	          summedMFDs[locIndex].addResampledMagRate(mag, meanAnnualRate, true);       

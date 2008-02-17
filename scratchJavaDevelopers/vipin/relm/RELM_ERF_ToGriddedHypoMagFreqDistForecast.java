@@ -78,6 +78,7 @@ public class RELM_ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFr
       magFreqDistArray[0].set(0, magFreqDistArray[0].getIncrRate(1)*1.2); //Ned conveyed this in an email dated Nov 14, 2006 at 7:13 AM
       magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
     }
+    
   }
 
   /**

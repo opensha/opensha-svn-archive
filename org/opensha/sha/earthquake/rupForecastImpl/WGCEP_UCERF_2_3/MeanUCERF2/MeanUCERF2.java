@@ -40,6 +40,8 @@ import org.opensha.sha.magdist.*;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
+import org.opensha.data.Location;
+
 
 /**
  * This was checked to make sure this is equal to the mean of what is returned from the 
@@ -261,9 +263,23 @@ public class MeanUCERF2 extends EqkRupForecast {
 		if(iSource<allSources.size()) // everything but the grid sources
 			return (ProbEqkSource) allSources.get(iSource);
 		else {
-			if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR))
-				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
-			else return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+			if(this.backSeisRupParam.getValue().equals(UCERF2.BACK_SEIS_RUP_CROSSHAIR)) {
+				return nshmp_gridSrcGen.getCrosshairGriddedSource(iSource - allSources.size(), timeSpan.getDuration());				
+			}
+			else {
+/*/ Debugging 
+				Location locOfInterest = new Location(37,-121.4);
+				int indexOfInterest = nshmp_gridSrcGen.getNearestLocationIndex(locOfInterest);
+				if((iSource - allSources.size()) == indexOfInterest) {
+					System.out.println("indexOfInterest= "+indexOfInterest+"\t"+locOfInterest.toString()+"\t"+
+							nshmp_gridSrcGen.getGridLocation(indexOfInterest)+"\tsrcIndex="+iSource);
+//					ProbEqkSource src = nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+//					for(int r=0; r<src.getNumRuptures(); r++)
+//						System.out.println(src.getRupture(r).getMag()+"\t"+src.getRupture(r).getMeanAnnualRate(timeSpan.getDuration()));
+				}
+// Debugging */
+				return nshmp_gridSrcGen.getRandomStrikeGriddedSource(iSource - allSources.size(), timeSpan.getDuration());
+			}
 		}
 	}
 

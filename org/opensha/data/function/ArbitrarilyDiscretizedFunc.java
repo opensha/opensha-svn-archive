@@ -423,7 +423,10 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     /**
      * This function interpolates the y-axis value corresponding to the given value of x.
      * the interpolation of the Y value is done in the log space for x and y values.
-     * The Y value returned is in the linear space but the interpolation is done in the log space.
+     * The Y value returned is in the linear space but the interpolation is done in the log space.  If 
+     * both bounding y values are zero, then zero is returned.  If only one of the bounding y values is zero,
+     * that value is converted to Double.MIN_VALUE.  If the interpolated y value is Double.MIN_VALUE, it 
+     * is converted to 0.0.
      * @param x : X value in the linear space corresponding to which we are required to find the interpolated
      * y value in log space.
      * @return y(this  is the interpolated y in linear space based on the given x value)
@@ -450,6 +453,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       double y1 = getY(x1);
       double y2 = getY(x2);
       if(y1==0 && y2==0) return 0;
+      if(y1==0) y1 = Double.MIN_VALUE;
+      if(y2==0) y2 = Double.MIN_VALUE;
       double logY1=Math.log(y1);
       double logY2=Math.log(y2);
       x1 = Math.log(x1);
@@ -457,8 +462,58 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       x = Math.log(x);
       //using the linear interpolation equation finding the value of y for given x
       double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
-      return Math.exp(y);
+      double expY = Math.exp(y);
+      if (expY == Double.MIN_VALUE) expY = 0.0;
+      return expY;
     }
+    
+ /*  THIS WAS FOR DEBUGGING WHERE ERRORS OCCURRED IF ONLY ONE Y-VALUE WAS 0.0
+    public double getInterpolatedY_inLogXLogYDomain(double x, boolean debug){
+        // finds the size of the point array
+        int max=points.size();
+        double x1=Double.NaN;
+        double x2=Double.NaN;
+        //if passed parameter(x value) is not within range then throw exception
+        if(x>getX(max-1) || x<getX(0))
+          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
+        //if x value is equal to the maximum value of all given X's then return the corresponding Y value
+        if(x==getX(max-1))
+          return getY(x);
+        //finds the X values within which the the given x value lies
+        for(int i=0;i<max-1;++i) {
+          x1=getX(i);
+          x2=getX(i+1);
+          if(x>=x1 && x<=x2)
+            break;
+        }
+        //finding the y values for the coressponding x values
+        double y1 = getY(x1);
+        double y2 = getY(x2);
+        if(y1==0 && y2==0) return 0;
+        if(y1==0) y1 = Double.MIN_VALUE;
+        if(y2==0) y2 = Double.MIN_VALUE;
+        double logY1=Math.log(y1);
+        double logY2=Math.log(y2);
+if(debug) {
+	System.out.println("tol="+this.tolerance);
+	System.out.print(x1+"\t"+x2+"\t"+x+"\t");
+}
+        x1 = Math.log(x1);
+        x2 = Math.log(x2);
+        x = Math.log(x);
+        //using the linear interpolation equation finding the value of y for given x
+        double y= ((logY2-logY1)*(x-x1))/(x2-x1) + logY1;
+        double expY = Math.exp(y);
+        if (expY == Double.MIN_VALUE) expY = 0.0;
+if(debug) {
+    System.out.println(y1+"\t"+y2+"\t"+logY1+"\t"+logY2+"\t"+x1+"\t"+x2+"\t"+x+
+    		"\t"+y+"\t"+Math.exp(x1)+"\t"+Math.exp(x2)+"\t"+Math.exp(x)+"\t"+expY+"\t"+Double.MIN_VALUE);
+        }
+
+		return expY;
+
+      }
+*/
 
     /**
      * This function interpolates the y-axis value corresponding to the given value of x.
