@@ -279,7 +279,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 */
 	public ProbEqkSource getCrosshairGriddedSource(int srcIndex, double duration) {
 		boolean includeDeeps = false;
-		// boolean includeDeeps = true;
+		//boolean includeDeeps = true;
 		SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex,  false, true,  true, false, includeDeeps);
 		return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, magCutOff,
 				fracStrikeSlip[srcIndex],fracNormal[srcIndex],fracReverse[srcIndex], true);
