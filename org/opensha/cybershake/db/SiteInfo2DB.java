@@ -35,8 +35,11 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (e.getMessage().contains("Duplicate")) {
+				System.out.println("Duplicate");
+			} else {
+				e.printStackTrace();
+			}
 		}		
 		return getSiteId(siteShortName);
 		
@@ -126,11 +129,15 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		(float)cutOffDistance+"','"+(float)maxLat+"','"+maxLatSrcId+"','"+maxLatRupId+"','"+(float)maxLon+"','"+
 		maxLatSrcId+"','"+maxLonRupId+"','"+(float)minLat+"','"+minLatSrcId+"','"+minLatRupId+"','"+
 		(float)minLon+"','"+minLonSrcId+"','"+minLonRupId+"')";
+		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (e.getMessage().contains("Duplicate")) {
+				System.out.println("Duplicate");
+			} else {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -148,12 +155,52 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 //		generate the SQL to be inserted in the Sites table
 		String sql = "INSERT into CyberShake_Site_Ruptures VALUES('"+siteId+"','"+erfId+"','"+
 		sourceId+"','"+ruptureId+"','"+cutOffDistance+"')";
+		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			if (e.getMessage().contains("Duplicate")) {
+				System.out.println("Duplicate");
+			} else {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+	}
+	
+	/**
+	 * Find out if the given rupture is already in the database
+	 * @param erfID
+	 * @param sourceID
+	 * @param rupID
+	 * @return
+	 */
+	public boolean isRupInDB(int erfID, int sourceID, int rupID) {
+		long start = 0;
+		if (Cybershake_OpenSHA_DBApplication.timer) {
+			start = System.currentTimeMillis();
+		}
+		String sql = "SELECT * FROM Ruptures WHERE ERF_ID="+erfID+" and Source_ID="+sourceID+" and Rupture_ID="+rupID;
+		try {
+			ResultSet rs = dbaccess.selectData(sql);
+			if (Cybershake_OpenSHA_DBApplication.timer) {
+				System.out.println("Got the select result at " + (System.currentTimeMillis() - start) + " milliseconds");
+			}
+			boolean result = rs.next();
+			if (Cybershake_OpenSHA_DBApplication.timer) {
+				long total = (System.currentTimeMillis() - start);
+				System.out.println("Took " + total + " miliseconds to check if the rupture exists!!");
+			}
+		    return result;
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if (Cybershake_OpenSHA_DBApplication.timer) {
+			long total = (System.currentTimeMillis() - start);
+			System.out.println("Took " + total + " miliseconds to check if the rupture exists!!");
+		}
+		return false;
 	}
 
 	/**
@@ -309,5 +356,15 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		 return loc;
 	}
 	
-	
+	/**
+	 * tester main function
+	 * @param args
+	 */
+	public static void main(String args[]) {
+		DBAccess db = new DBAccess("intensity.usc.edu","CyberShake");
+		SiteInfo2DB siteDB = new SiteInfo2DB(db);
+		siteDB.isRupInDB(33, 0, 9);
+		System.out.println("DONE!");
+		db.destroy();
+	}
 }

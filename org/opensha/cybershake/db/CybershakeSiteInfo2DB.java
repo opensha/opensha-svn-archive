@@ -1,5 +1,8 @@
 package org.opensha.cybershake.db;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -17,9 +20,12 @@ public class CybershakeSiteInfo2DB {
 	
 	private static final double CUT_OFF_DISTANCE = 200;
 	private SiteInfo2DBAPI site2db;
+	private ERF2DBAPI erf2db = null;
+	BufferedWriter out = null;
 	
 	public CybershakeSiteInfo2DB(DBAccess db){
 		site2db = new SiteInfo2DB(db);
+		erf2db = new ERF2DB(db);
 	}
 	
 	
@@ -66,41 +72,144 @@ public class CybershakeSiteInfo2DB {
 	 * @param locLon
 	 */
 	public void putCyberShakeLocationSrcRupInfo(EqkRupForecastAPI eqkRupForecast,int erfId,
-			int siteId,double locLat,double locLon){
-		Location loc = new Location(locLat,locLon);
-		CircularGeographicRegion region = new CircularGeographicRegion(loc,CUT_OFF_DISTANCE);
-		int numSources = eqkRupForecast.getNumSources();
-
-	    //Going over each and every source in the forecast
-	    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
-	      // get the ith source
-	      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
-	      int numRuptures = source.getNumRuptures();
-
-	      //going over all the ruptures in the source
-	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
-	        ProbEqkRupture rupture = source.getRupture(rupIndex);
-
-	        EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
-
-	        //getting the iterator for all points on the rupture
-	        ListIterator it = rupSurface.getAllByRowsIterator();
-	        //looping over all the rupture pt locations and if any of those lies
-	        //within the provided distance range then include the rupture in the list.
-	        while (it.hasNext()) {
-	          Location ptLoc = (Location) it.next();
-	          if (region.isLocationInside(ptLoc)) {
-	        	  this.site2db.insertSite_RuptureInfo(siteId, erfId, sourceIndex, rupIndex, CUT_OFF_DISTANCE);
-	        	  break;
-	          }
-	        }
-	      }
-	    }
+			int siteId,double locLat,double locLon) {
+		putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
+				siteId, locLat, locLon, false);
 	}
 	
 	/**
-	 * Computes the regional bounds for the given cybershake and puts in the database. Also put the ruptureId and
-	 * sourceId from ERF that dictates the min/max lat/lon for the region.
+	 * Finds all the ruptures that have any location on their surface within Cybershake location
+	 * circular regional bounds.
+	 * @param erf
+	 * @param erfId
+	 * @param siteId
+	 * @param locLat
+	 * @param locLon
+	 * @param make sure rupture is in DB, and if not, add it
+	 */
+	public void putCyberShakeLocationSrcRupInfo(
+			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
+			double locLat, double locLon, boolean checkAddRup) {
+		putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
+				siteId, locLat, locLon, false, "");
+	}
+	
+	/**
+	 * Finds all the ruptures that have any location on their surface within Cybershake location
+	 * circular regional bounds.
+	 * @param erf
+	 * @param erfId
+	 * @param siteId
+	 * @param locLat
+	 * @param locLon
+	 * @param make sure rupture is in DB, and if not, add it
+	 * @param filename to log to (no logging if empty
+	 */
+	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(
+			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
+			double locLat, double locLon, boolean checkAddRup, String addLogFileName) {
+		Location loc = new Location(locLat, locLon);
+		CircularGeographicRegion region = new CircularGeographicRegion(loc,
+				CUT_OFF_DISTANCE);
+		int numSources = eqkRupForecast.getNumSources();
+		
+		ArrayList<int[]> newRups = new ArrayList<int[]>();
+
+		// Going over each and every source in the forecast
+		for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+			// get the ith source
+			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+			int numRuptures = source.getNumRuptures();
+
+			// going over all the ruptures in the source
+			for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
+				
+				ProbEqkRupture rupture = source.getRupture(rupIndex);
+
+				EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(
+						rupture.getRuptureSurface());
+
+				// getting the iterator for all points on the rupture
+				ListIterator it = rupSurface.getAllByRowsIterator();
+				// looping over all the rupture pt locations and if any of those
+				// lies
+				// within the provided distance range then include the rupture
+				// in the list.
+				long start = 0;
+				if (Cybershake_OpenSHA_DBApplication.timer) {
+					start = System.currentTimeMillis();
+				}
+				while (it.hasNext()) {
+					Location ptLoc = (Location) it.next();
+					if (region.isLocationInside(ptLoc)) {
+						if (Cybershake_OpenSHA_DBApplication.timer) {
+							System.out.println("Found one inside at " + (System.currentTimeMillis() - start) + " milliseconds");
+						}
+						//check if the rupture is there
+						if (checkAddRup) {
+							if (!this.site2db.isRupInDB(erfId, sourceIndex, rupIndex)) { //it's not in the database
+								System.out.println("Rupture " + sourceIndex + " " + rupIndex + " not in DB, adding...");
+								//log it
+								int newRupToAdd[] = {sourceIndex, rupIndex};
+								newRups.add(newRupToAdd);
+								if (addLogFileName.length() > 0) {
+									try {
+										if (out == null)
+											out = new BufferedWriter(new FileWriter(addLogFileName));
+										out.append(sourceIndex + " " + rupIndex + "\n");
+										out.flush();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+								//add it
+								erf2db.insertSrcRupInDB(eqkRupForecast, erfId, sourceIndex, rupIndex);
+								//flush log in case something bad happens
+								if (addLogFileName.length() > 0) {
+									try {
+										out.flush();
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+						long start2 = 0;
+						if (Cybershake_OpenSHA_DBApplication.timer) {
+							System.out.println("Done checking at " + (System.currentTimeMillis() - start) + " milliseconds");
+							start2 = System.currentTimeMillis();
+						}
+						this.site2db.insertSite_RuptureInfo(siteId, erfId,
+								sourceIndex, rupIndex, CUT_OFF_DISTANCE);
+						if (Cybershake_OpenSHA_DBApplication.timer) {
+							long total2 = (System.currentTimeMillis() - start2);
+					    	System.out.println("Took " + total2 + " miliseconds to insert site rupture info!");
+						}
+						break;
+					}
+				}
+				if (Cybershake_OpenSHA_DBApplication.timer) {
+					long total = (System.currentTimeMillis() - start);
+					System.out.println("Took " + total + " miliseconds to check and insert site rupture info!");
+				}
+			}
+		}
+		return newRups;
+	}
+	
+	public void closeWriter() {
+		try {
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Computes the regional bounds for the given cybershake and puts in the
+	 * database. Also put the ruptureId and sourceId from ERF that dictates the
+	 * min/max lat/lon for the region.
+	 * 
 	 * @param eqkRupForecast
 	 * @param erfId
 	 * @param siteId
@@ -175,12 +284,19 @@ public class CybershakeSiteInfo2DB {
 	          }
 	        }
 	      }
-	    }	
-	    
+	    }
+	    long start = 0;
+	    if (Cybershake_OpenSHA_DBApplication.timer) {
+	    	start = System.currentTimeMillis();
+	    }
 	    site2db.insertSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
 	    		                         maxLat, maxLatSrcId, maxLatRupId, minLat,
 	    		                         minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
 	    		                         maxLonRupId, minLon, minLonSrcId, minLonRupId);
+	    if (Cybershake_OpenSHA_DBApplication.timer) {
+	    	long total = (System.currentTimeMillis() - start);
+	    	System.out.println("Took " + total + " miliseconds to insert regional bounds!");
+	    }
 	}
 	
 	

@@ -1,5 +1,7 @@
 package org.opensha.cybershake.db;
 
+import java.util.ArrayList;
+
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 
 
@@ -15,6 +17,8 @@ public class Cybershake_OpenSHA_DBApplication {
 	private static String HOST_NAME = "intensity.usc.edu";
 	private static String DATABASE_NAME = "CyberShake";
 	private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
+	
+	public static boolean timer = false;
 	
 	/**
 	 * putting the Cybershake location information in the database
@@ -131,19 +135,78 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	/**
+	 * puts a list of Cybershake location information into the database
+	 * @param list of locations (SiteInsert's)
+	 * @param forecast
+	 * @param erfId
+	 * @param siteDB object
+	 */
+	private void putSiteListInfoInDB(ArrayList<SiteInsert> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB){
+		ArrayList<int[]> newRups = new ArrayList<int[]>();
+		int i=0;
+		int numSites = sites.size();
+		for (SiteInsert newsite : sites) {
+			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
+			System.out.println("Putting location into DB");
+			int siteId= siteDB.putCybershakeLocationInDB(newsite.name, newsite.short_name, newsite.lat, newsite.lon);
+			siteId = siteDB.getCybershakeSiteId(newsite.short_name);
+			System.out.println("Putting regional bounds into DB");
+			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon);
+			System.out.println("Putting Source Rupture info into DB");
+			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, true, "newRupsForScott.txt"));
+		}
+		System.out.println("New ruptures...");
+		for (int[] rup : newRups) {
+			System.out.println(rup[0] + " " + rup[1]);
+		}
+	}
+	
+	private String getPercent(int small, int big) {
+		double percent = (double)((int)(((double)small / (double)big * 10000) + 0.5)) / 100d;
+		return Double.toString(percent);
+	}
+	
+	/**
+	 * Gets site info DB object
+	 * @return CybershakeSiteInfo2DB
+	 */
+	private CybershakeSiteInfo2DB getSiteInfoObject() {
+		return new CybershakeSiteInfo2DB(db);
+	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
+		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
 		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast";
 		// this puts the ERF into database, 
-		erfDB.insertForecaseInDB(erfDescription);
+		//erfDB.insertForecaseInDB(erfDescription);
 		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
+		System.out.println("ERF NAME: " + forecast.getName());
 		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
-		app.putSiteInfoInDB(forecast,erfId);
+		System.out.println("ERF ID: " + erfId);
+		//make sites
+		ArrayList<SiteInsert> site_list = new ArrayList<SiteInsert>();
+		//                            lat,        lon,       name,    shortname
+//		site_list.add(new SiteInsert(33.79844, -117.39802, "Gavilan", "GAVI"));
+//		site_list.add(new SiteInsert(33.96200, -117.37745, "Mockingbird", "MBRD"));
+//		site_list.add(new SiteInsert(33.99014, -117.46292, "Pedley", "PEDL"));
+//		site_list.add(new SiteInsert(34.59946, -117.83157, "Lovejoy Buttes", "LBUT"));
+//		site_list.add(new SiteInsert(34.41973, -118.09137, "Aliso", "ALIS"));
+//		site_list.add(new SiteInsert(34.34609, -117.97474, "Pacifico", "PACI"));
+		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
+		
+		//app.putSiteInfoInDB(forecast,erfId);
+		System.out.println("Adding locations...");
+		CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
+		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
+		siteDB.closeWriter();
+		System.out.println("****DONE****");
+		db.destroy();
 	}
-
 }

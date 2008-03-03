@@ -466,7 +466,7 @@ public class ERF2RuptureForSTF_Generator {
   }
 
   /**
-   * Creates the String represenation for the Prob Eqk Rupture
+   * Creates the String represenation for the Prob Eqk Rupture, SRF file format
    * @return String
    */
   private String ruptureString(ProbEqkRupture rupture) {

@@ -1,5 +1,8 @@
 package org.opensha.cybershake.db;
 
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
+
 public interface ERF2DBAPI {
 	
 	
@@ -73,5 +76,14 @@ public interface ERF2DBAPI {
 	 * @return
 	 */
 	public double getRuptureProb(int erfId,int sourceId,int rupId);
+	
+	/**
+	 * Insert the specified rupture from the given forecast
+	 * @param forecast
+	 * @param erfID
+	 * @param sourceID
+	 * @param rupID
+	 */
+	public void insertSrcRupInDB(EqkRupForecastAPI forecast, int erfID, int sourceID, int rupID);
 
 }

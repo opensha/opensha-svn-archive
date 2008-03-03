@@ -240,6 +240,55 @@ public  class ERF2DB implements ERF2DBAPI{
 		     }
 		  }
 	  }
+	  
+	/**
+	 * Insert the specified rupture from the given forecast
+	 * @param forecast
+	 * @param erfID
+	 * @param sourceID
+	 * @param rupID
+	 */
+	public void insertSrcRupInDB(EqkRupForecastAPI forecast, int erfID, int sourceID, int rupID) {
+		ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
+		String sourceName = source.getName();
+		// getting the rupture on the source and its gridCentered Surface
+		ProbEqkRupture rupture = source.getRupture(rupID);
+		double mag = rupture.getMag();
+		double prob = rupture.getProbability();
+		double aveRake = rupture.getAveRake();
+		EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(
+				rupture.getRuptureSurface());
+		// Local Strike for each grid centered location on the rupture
+		double[] localStrikeList = this.getLocalStrikeList(rupture
+				.getRuptureSurface());
+		double dip = rupSurface.getAveDip();
+		int numRows = rupSurface.getNumRows();
+		int numCols = rupSurface.getNumCols();
+		int numPoints = numRows * numCols;
+		double gridSpacing = rupSurface.getGridSpacing();
+		Location surfaceStartLocation = (Location) rupSurface.get(0, 0);
+		Location surfaceEndLocation = (Location) rupSurface.get(0, numCols - 1);
+		double surfaceStartLat = surfaceStartLocation.getLatitude();
+		double surfaceStartLon = surfaceStartLocation.getLongitude();
+		double surfaceStartDepth = surfaceStartLocation.getDepth();
+		double surfaceEndLat = surfaceEndLocation.getLatitude();
+		double surfaceEndLon = surfaceEndLocation.getLongitude();
+		double surfaceEndDepth = surfaceEndLocation.getDepth();
+		System.out.println("Inserting rupture into database...");
+		insertERFRuptureInfo(erfID, sourceID, rupID, sourceName, null, mag,
+				prob, gridSpacing, surfaceStartLat, surfaceStartLon,
+				surfaceStartDepth, surfaceEndLat, surfaceEndLon,
+				surfaceEndDepth, numRows, numCols, numPoints);
+		System.out.println("Inserting rupture surface points into database...");
+		for (int k = 0; k < numRows; ++k) {
+			for (int j = 0; j < numCols; ++j) {
+				Location loc = rupSurface.getLocation(k, j);
+				insertRuptureSurface(erfID, sourceID, rupID, loc
+						.getLatitude(), loc.getLongitude(), loc.getDepth(),
+						aveRake, dip, localStrikeList[j]);
+			}
+		}
+	}
 
 	  
 	  /**
