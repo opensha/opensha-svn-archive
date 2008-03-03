@@ -21,7 +21,8 @@ public class CybershakeSiteInfo2DB {
 	private static final double CUT_OFF_DISTANCE = 200;
 	private SiteInfo2DBAPI site2db;
 	private ERF2DBAPI erf2db = null;
-	BufferedWriter out = null;
+	private BufferedWriter out = null;
+	private boolean logging = false;
 	
 	public CybershakeSiteInfo2DB(DBAccess db){
 		site2db = new SiteInfo2DB(db);
@@ -79,13 +80,13 @@ public class CybershakeSiteInfo2DB {
 	
 	/**
 	 * Finds all the ruptures that have any location on their surface within Cybershake location
-	 * circular regional bounds.
+	 * circular regional bounds with option to add ruptures that are not already in database.
 	 * @param erf
 	 * @param erfId
 	 * @param siteId
 	 * @param locLat
 	 * @param locLon
-	 * @param make sure rupture is in DB, and if not, add it
+	 * @param checkAddRup make sure rupture is in DB, and if not, add it
 	 */
 	public void putCyberShakeLocationSrcRupInfo(
 			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
@@ -96,14 +97,14 @@ public class CybershakeSiteInfo2DB {
 	
 	/**
 	 * Finds all the ruptures that have any location on their surface within Cybershake location
-	 * circular regional bounds.
+	 * circular regional bounds with option to add ruptures that are not already in database (with logging).
 	 * @param erf
 	 * @param erfId
 	 * @param siteId
 	 * @param locLat
 	 * @param locLon
-	 * @param make sure rupture is in DB, and if not, add it
-	 * @param filename to log to (no logging if empty
+	 * @param checkAddRup make sure rupture is in DB, and if not, add it
+	 * @param addLogFileName filename to log to (no logging if empty)
 	 */
 	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(
 			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
@@ -154,8 +155,10 @@ public class CybershakeSiteInfo2DB {
 								newRups.add(newRupToAdd);
 								if (addLogFileName.length() > 0) {
 									try {
-										if (out == null)
+										if (out == null) {
 											out = new BufferedWriter(new FileWriter(addLogFileName));
+											logging = true;
+										}
 										out.append(sourceIndex + " " + rupIndex + "\n");
 										out.flush();
 									} catch (IOException e) {
@@ -198,10 +201,13 @@ public class CybershakeSiteInfo2DB {
 	}
 	
 	public void closeWriter() {
-		try {
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (logging) {
+			try {
+				out.close();
+				logging = false;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
