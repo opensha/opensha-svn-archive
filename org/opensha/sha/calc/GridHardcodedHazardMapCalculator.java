@@ -56,7 +56,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	boolean loadERFFromFile = false;
 	boolean lessPrints = false;
 	ArrayList<Long> curveTimes = new ArrayList<Long>();
-	boolean skipPoints = true;
+	boolean skipPoints = false;
 	int skipFactor = 10;
 	
 	SitesInGriddedRegionAPI sites;
@@ -397,7 +397,8 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					} catch (RuntimeException e) {
 						System.err.println("BAD SKIP INT PARSE");
 					}
-				}
+				} else
+					calc.skipPoints = false;
 				calc.loadERFFromFile = true;
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
