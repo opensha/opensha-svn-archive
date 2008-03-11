@@ -13,7 +13,7 @@ import java.util.HashMap;
  * @author vipingupta
  *
  */
-public class A_PrioriRupRates {
+public class A_PrioriRupRates  implements java.io.Serializable {
 	private String faultName;
 	private HashMap<String, ArrayList> aPrioriRatesMap = new HashMap<String, ArrayList>();
 	private ArrayList<String> modelNames = new ArrayList<String>();

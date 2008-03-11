@@ -7,7 +7,7 @@ package org.opensha.refFaultParamDb.vo;
  * @author vipingupta
  *
  */
-public class DeformationModelSummary {
+public class DeformationModelSummary  implements java.io.Serializable {
 	private int deformationModelId;
 	private String deformationModelName;
 	private FaultModelSummary faultModel;

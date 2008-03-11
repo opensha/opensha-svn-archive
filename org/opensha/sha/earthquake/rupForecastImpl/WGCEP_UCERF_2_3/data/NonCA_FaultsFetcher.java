@@ -36,7 +36,7 @@ import org.opensha.util.FileUtils;
  * @author vipingupta
  *
  */
-public class NonCA_FaultsFetcher {
+public class NonCA_FaultsFetcher  implements java.io.Serializable {
 	
 	
 	private ArrayList<FaultRuptureSource> charSources = new ArrayList<FaultRuptureSource>();

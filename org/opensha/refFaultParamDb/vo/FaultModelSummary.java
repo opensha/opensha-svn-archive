@@ -9,7 +9,7 @@ package org.opensha.refFaultParamDb.vo;
  * @version 1.0
  */
 
-public class FaultModelSummary {
+public class FaultModelSummary  implements java.io.Serializable {
   private int faultModelId;
   private String faultModelName;
   private Contributor contributor;

@@ -9,7 +9,7 @@ package org.opensha.refFaultParamDb.vo;
  * @version 1.0
  */
 
-public class Contributor {
+public class Contributor  implements java.io.Serializable {
 
   private int id=-1; // contributor ID
   private String name; // contributor name

@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * @author vipingupta
  *
  */
-public class SegRateConstraint {
+public class SegRateConstraint  implements java.io.Serializable {
 	private String faultName; // fault name
 	private int segIndex; // segment index
 	private double meanSegRate; // mean Segment rate

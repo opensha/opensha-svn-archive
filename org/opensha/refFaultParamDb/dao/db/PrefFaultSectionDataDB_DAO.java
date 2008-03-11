@@ -28,7 +28,7 @@ import org.opensha.sha.fault.FaultTrace;
  * @version 1.0
  *
  */
-public class PrefFaultSectionDataDB_DAO {
+public class PrefFaultSectionDataDB_DAO  implements java.io.Serializable {
 	private final static String TABLE_NAME = "Pref_Fault_Section_Data";
 	public final static String SECTION_ID = "Section_Id";
 	public final static String PREF_SLIP_RATE = "Pref_Slip_Rate";

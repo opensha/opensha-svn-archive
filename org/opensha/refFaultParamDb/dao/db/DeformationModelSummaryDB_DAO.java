@@ -19,7 +19,7 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
  * @author vipingupta
  *
  */
-public class DeformationModelSummaryDB_DAO {
+public class DeformationModelSummaryDB_DAO  implements java.io.Serializable {
 	private final static String SEQUENCE_NAME="Def_Model_Summary_Sequence";
 	  private final static String TABLE_NAME="Deformation_Model_Summary";
 	  private final static String DEF_MODEL_ID="Deformation_Model_Id";

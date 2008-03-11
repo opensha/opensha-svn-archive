@@ -10,7 +10,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data;
  * @author vipingupta
  *
  */
-public class EventRates {
+public class EventRates  implements java.io.Serializable {
 	private String siteName;
 	private double latitude;
 	private double longitude;

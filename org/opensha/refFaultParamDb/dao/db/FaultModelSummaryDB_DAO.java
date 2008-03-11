@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 
 
-public class FaultModelSummaryDB_DAO  {
+public class FaultModelSummaryDB_DAO   implements java.io.Serializable {
   private final static String SEQUENCE_NAME="Fault_Model_Summary_Sequence";
   private final static String TABLE_NAME="Fault_Model_Summary";
   private final static String FAULT_MODEL_ID="Fault_Model_Id";

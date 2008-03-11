@@ -19,8 +19,7 @@ import java.io.IOException;
  * @author Edward Field, Vipin Gupta and Nitin Gupta
  * @version 1.0
  */
-public class ServerDB_Access
-    implements DB_AccessAPI {
+public class ServerDB_Access     implements java.io.Serializable, DB_AccessAPI {
 
 
   //used for debugging

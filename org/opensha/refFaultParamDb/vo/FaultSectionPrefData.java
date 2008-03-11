@@ -14,7 +14,7 @@ import org.opensha.sha.fault.SimpleFaultData;
  * @author vipingupta
  *
  */
-public class FaultSectionPrefData {
+public class FaultSectionPrefData  implements java.io.Serializable {
 	private int sectionId=-1;
 	private String sectionName;
 	private String shortName;

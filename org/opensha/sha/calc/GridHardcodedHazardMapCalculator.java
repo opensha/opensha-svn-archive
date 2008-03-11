@@ -2,6 +2,7 @@ package org.opensha.sha.calc;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,8 +13,13 @@ import java.util.ArrayList;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.region.CustomSitesInGriddedRegion;
+import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.data.region.EvenlyGriddedSoCalRegion;
+import org.opensha.data.region.GeographicRegion;
+import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
@@ -49,6 +55,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	boolean showResult = true;
 	boolean windowOpened = false;
 	boolean loadERFFromFile = false;
+	boolean lessPrints = false;
 	ArrayList<Long> curveTimes = new ArrayList<Long>();
 	
 	SitesInGriddedRegionAPI sites;
@@ -99,6 +106,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			
 			// add parameters to sites from IMR
 			sites.addSiteParams(imr.getSiteParamsIterator());
+			//sites.setSiteParamsForRegionFromServlet(true);
 
 			// create the ERF
 			System.out.println("Creating Forecast");
@@ -113,9 +121,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					System.out.println("Took " + getTime(start_erf) + " seconds to load ERF.");
 				}
 			} else { // create a new forecast, but you have to update the forecast
-				//erf = new Frankel96_AdjustableEqkRupForecast();
+				erf = new Frankel96_AdjustableEqkRupForecast();
 				//erf = new UCERF2();
-				erf = new MeanUCERF2();
+				//erf = new MeanUCERF2();
 				System.out.println("Updating Forecast");
 				long start_erf = 0;
 				if (timer) {
@@ -158,14 +166,20 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			System.out.println("Starting Curve Calculations");
 			
 			// loop through each site in this job's portion of the map
-			for(int j = startIndex; j < numSites && j < endIndex; ++j){
-				if (timer && j != startIndex) {
+			int j = 0;
+			
+			for(j = startIndex; j < numSites && j < endIndex; ++j){
+				boolean print = true;
+				if (lessPrints && j % 100 != 0)
+					print = false;
+				if (print && timer && j != startIndex) {
 					curveTimes.add(System.currentTimeMillis() - start_curve);
 					System.out.println("Took " + getTime(start_curve) + " seconds to calculate curve.");
 					start_curve = System.currentTimeMillis();
 				}
 				
-				System.out.println("Doing site " + (j - startIndex + 1) + " of " + (endIndex - startIndex) + " (index: " + j + " of " + numSites + " total)");
+				if (print)
+					System.out.println("Doing site " + (j - startIndex + 1) + " of " + (endIndex - startIndex) + " (index: " + j + " of " + numSites + " total)");
 				try {
 					// get the site at the given index. it should already have all parameters set
 					site = sites.getSite(j);
@@ -177,10 +191,12 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				// take the log of the hazard function and to send to the calculator
 				ArbitrarilyDiscretizedFunc logHazFunction = getLogFunction(hazFunction);
 
-				System.out.println("Calculating Hazard Curve");
+				if (print)
+					System.out.println("Calculating Hazard Curve");
 				// actually calculate the curve from the log hazard function, site, IMR, and ERF
 				calc.getHazardCurve(logHazFunction,site,imr,erf);
-				System.out.println("Calculated a curve!");
+				if (print)
+					System.out.println("Calculated a curve!");
 				
 				// get the location from the site for output file naming
 				String lat = decimalFormat.format(site.getLocation().getLatitude());
@@ -189,10 +205,16 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				hazFunction = unLogFunction(hazFunction, logHazFunction);
 
 				// write the result to the file
-				System.out.println("Writing Results to File");
+				if (print)
+					System.out.println("Writing Results to File");
 				String prefix = "";
+				String jobDir = lat + "/";
 				if (debug)
-					prefix = GridHardcodedHazardMapCalculator.DEBUG_RESULT_FOLDER;
+					prefix += GridHardcodedHazardMapCalculator.DEBUG_RESULT_FOLDER;
+				prefix += jobDir;
+				File dir = new File(prefix);
+				if (!dir.exists())
+					dir.mkdir();
 				FileWriter fr = new FileWriter(prefix + lat + "_" + lon + ".txt");
 				for (int i = 0; i < numPoints; ++i)
 					fr.write(hazFunction.getX(i) + " " + hazFunction.getY(i) + "\n");
@@ -208,7 +230,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					windowOpened = true;
 				}
 			}
-			if (timer) {
+			if (lessPrints && j % 100 != 0 && timer) {
 				curveTimes.add(System.currentTimeMillis() - start_curve);
 				System.out.println("Took " + getTime(start_curve) + " seconds to calculate curve.");
 				start_curve = System.currentTimeMillis();
@@ -337,8 +359,13 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	 * @param args: startIndex endIndex
 	 */
 	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
+		
 		// create site object
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(new EvenlyGriddedRELM_Region().getGridLocationsList(), 1);
+		GeographicRegion region = new RELM_TestingRegion();
+		
+		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), .025);
+		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
 		
 		if (args.length >= 2) { // this is from the command line and is real
 			// get start and end index of sites to do within region from command line
@@ -347,7 +374,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			try {
 				// run the calculator with debugging disabled
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, false);
+				calc.loadERFFromFile = true;
 				calc.calculateCurves();
+				System.out.println("Total execution time: " + calc.getTime(start));
 			} catch (RuntimeException e) {
 				// something bad happened, exit with code 1
 				e.printStackTrace();
@@ -358,14 +387,18 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		} else { // this is just a test
 			// hard coded indices
 			int startIndex = 0;
-			int endIndex = 3000;
+			int endIndex = 1;
 			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getNumGridLocs());
 			try {
 				//sites = new SitesInGriddedRectangularRegion(34.0, 35.0, -118.0, -117.0, .5);
 				// run the calculator with debugging enabled
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
 				calc.showResult = false;
+				calc.timer = true;
+				calc.lessPrints = true;
+				calc.loadERFFromFile = true;
 				calc.calculateCurves();
+				System.out.println("Total execution time: " + calc.getTime(start));
 				// if nothing was calculated, just exit
 				if (!calc.isWindowOpened())
 					System.exit(0);

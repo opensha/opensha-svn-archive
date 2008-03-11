@@ -8,7 +8,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data;
  * @author vipingupta
  *
  */
-public class SegmentTimeDepData {
+public class SegmentTimeDepData  implements java.io.Serializable {
 
 	private String faultName;
 	private int segIndex;

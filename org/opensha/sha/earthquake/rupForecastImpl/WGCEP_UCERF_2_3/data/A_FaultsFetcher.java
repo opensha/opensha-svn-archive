@@ -41,7 +41,7 @@ import org.opensha.util.FileUtils;
  * @author vipingupta
  *
  */
-public class A_FaultsFetcher extends FaultsFetcher{
+public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializable {
 	private final static String RUP_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/A_Faults_aPrioriRates.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/Appendix_C_Table7_091807.xls";
 	private final static String SEG_TIME_DEP_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/SegmentTimeDepData_v06.xls";

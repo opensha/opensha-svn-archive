@@ -28,7 +28,7 @@ import org.opensha.sha.surface.StirlingGriddedSurface;
  * 
 
  */
-public  class B_FaultsFetcher extends FaultsFetcher {
+public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializable {
 	private A_FaultsFetcher aFaultsFetcher=null;
 	private ArrayList bFaultNames; 
 	private ArrayList bFaultIds;
