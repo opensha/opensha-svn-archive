@@ -56,6 +56,8 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	boolean loadERFFromFile = false;
 	boolean lessPrints = false;
 	ArrayList<Long> curveTimes = new ArrayList<Long>();
+	boolean skipPoints = true;
+	int skipFactor = 10;
 	
 	SitesInGriddedRegionAPI sites;
 	int startIndex;
@@ -168,6 +170,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			int j = 0;
 			
 			for(j = startIndex; j < numSites && j < endIndex; ++j){
+				// if we're skipping some of them, then check if this shoul be skipped
+				if (skipPoints && j % skipFactor != 0)
+					continue;
 				boolean print = true;
 				if (lessPrints && j % 100 != 0)
 					print = false;
@@ -229,7 +234,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					windowOpened = true;
 				}
 			}
-			if (lessPrints && j % 100 != 0 && timer) {
+			if ((lessPrints && j % 100 != 0 || !lessPrints) && timer) {
 				curveTimes.add(System.currentTimeMillis() - start_curve);
 				System.out.println("Took " + getTime(start_curve) + " seconds to calculate curve.");
 				start_curve = System.currentTimeMillis();
@@ -373,6 +378,26 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			try {
 				// run the calculator with debugging disabled
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, false);
+				if (args.length >=3) {
+					try {
+						boolean timer = Boolean.parseBoolean(args[2]);
+						calc.timer = timer;
+					} catch (RuntimeException e) {
+						System.err.println("BAD BOOLEAN PARSE!");
+					}
+				}
+				if (args.length >=4) {
+					try {
+						int skip = Integer.parseInt(args[3]);
+						if (skip > 1) {
+							calc.skipPoints = true;
+							calc.skipFactor = skip;
+						}
+						//calc.timer = timer;
+					} catch (RuntimeException e) {
+						System.err.println("BAD SKIP INT PARSE");
+					}
+				}
 				calc.loadERFFromFile = true;
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
@@ -389,6 +414,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			int endIndex = 1;
 			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getNumGridLocs());
 			try {
+				System.err.println("RUNNING FROM DEBUG MODE!");
 				//sites = new SitesInGriddedRectangularRegion(34.0, 35.0, -118.0, -117.0, .5);
 				// run the calculator with debugging enabled
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
