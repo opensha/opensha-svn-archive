@@ -13,7 +13,7 @@ import org.opensha.data.*;
  *  <b>Title:</b> SimpleFaultData<p>
  *  <b>Description:</b> This object contains all the fault-related information needed
  *  by a SimpleGriddedFaultFactory.  This does not check whether the values make sense
- *  (e.g., it doesn not check that 0²aveDip²90) because these will get checked in the
+ *  (e.g., it doesn not check that 0ï¿½aveDipï¿½90) because these will get checked in the
  *  classes that use this data (and we don't want duplicate these checks). <p>
  *
  *
@@ -22,7 +22,7 @@ import org.opensha.data.*;
  * @version    1.0
  */
 
-public class SimpleFaultData {
+public class SimpleFaultData  implements java.io.Serializable {
 
     /**
      *  Description of the Field

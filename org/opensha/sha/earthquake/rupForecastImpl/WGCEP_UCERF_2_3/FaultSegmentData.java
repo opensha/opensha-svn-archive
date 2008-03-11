@@ -18,7 +18,7 @@ import org.opensha.sha.surface.StirlingGriddedSurface;
  * @author Vipin Gupta and Ned Field
  *
  */
-public class FaultSegmentData {
+public class FaultSegmentData implements java.io.Serializable {
 	private ArrayList sectionToSegmentData;
 	
 	 /* The following is an ArrayList of ArrrayLists of SimpleFaultData 

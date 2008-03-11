@@ -21,8 +21,8 @@ public class MakeXYZFromHazardMapDir {
 
 	public MakeXYZFromHazardMapDir(String dirName, boolean isProbAt_IML, double val, String outFileName, boolean sort) throws IOException {
 		// get and list the dir
-		File dir = new File(dirName);
-		File[] fileList=dir.listFiles();
+		File masterDir = new File(dirName);
+		File[] dirList=masterDir.listFiles();
 		
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFileName));
 		
@@ -34,47 +34,55 @@ public class MakeXYZFromHazardMapDir {
 		double maxLon = -9999;
 		
 		if (sort)
-			Arrays.sort(fileList, new FileComparator());
+			Arrays.sort(dirList, new FileComparator());
 
 		// for each file in the list
-		for(File file : fileList){
-			//only taking the files into consideration
-			if(file.isFile()){
-				String fileName = file.getName();
-				//files that ends with ".txt"
-				if(fileName.endsWith(".txt")){
-					int index = fileName.indexOf("_");
-					int firstIndex = fileName.indexOf(".");
-					int lastIndex = fileName.lastIndexOf(".");
-					// Hazard data files have 3 "." in their names
-					//And leaving the rest of the files which contains only 1"." in their names
-					if(firstIndex != lastIndex){
+		for(File dir : dirList){
+			// make sure it's a subdirectory
+			if (dir.isDirectory() && !dir.getName().endsWith(".")) {
+				File[] subDirList=dir.listFiles();
+				for(File file : subDirList) {
+					//only taking the files into consideration
+					if(file.isFile()){
+						String fileName = file.getName();
+						//files that ends with ".txt"
+						if(fileName.endsWith(".txt")){
+							int index = fileName.indexOf("_");
+							int firstIndex = fileName.indexOf(".");
+							int lastIndex = fileName.lastIndexOf(".");
+							// Hazard data files have 3 "." in their names
+							//And leaving the rest of the files which contains only 1"." in their names
+							if(firstIndex != lastIndex){
 
-						//getting the lat and Lon values from file names
-						Double latVal = new Double(fileName.substring(0,index).trim());
-						Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
-						// handle the file
-						double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
-//						out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
-						out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
-						
-						if (latVal < minLat)
-							minLat = latVal;
-						else if (latVal > maxLat)
-							maxLat = latVal;
-						if (lonVal < minLon)
-							minLon = lonVal;
-						else if (lonVal > maxLon)
-							maxLon = lonVal;
-						
-						if (count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
-							System.out.println("Processed " + count + " curves");
-							out.flush();
+								//getting the lat and Lon values from file names
+								Double latVal = new Double(fileName.substring(0,index).trim());
+								Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+								// handle the file
+								double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
+//								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
+								out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+								
+								if (latVal < minLat)
+									minLat = latVal;
+								else if (latVal > maxLat)
+									maxLat = latVal;
+								if (lonVal < minLon)
+									minLon = lonVal;
+								else if (lonVal > maxLon)
+									maxLon = lonVal;
+								
+								if (count % MakeXYZFromHazardMapDir.WRITES_UNTIL_FLUSH == 0) {
+									System.out.println("Processed " + count + " curves");
+									out.flush();
+								}
+							}
 						}
 					}
+					count++;
 				}
 			}
-			count++;
+			
+			
 		}
 		
 		out.close();

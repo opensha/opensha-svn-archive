@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author vipingupta
  *
  */
-public class ParamOptions {
+public class ParamOptions  implements java.io.Serializable {
 	private ArrayList values = new ArrayList();
 	private ArrayList<Double> weights = new ArrayList<Double>();
 	

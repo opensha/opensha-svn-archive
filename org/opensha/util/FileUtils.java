@@ -149,6 +149,21 @@ public class FileUtils {
        fileOut.close();
      }catch(Exception e ) { e.printStackTrace(); }
    }
+   
+   /**
+    * save the serialized object into the specified file
+    * @param fileName
+    * @param obj
+ * @throws IOException 
+    */
+   public static void saveObjectInFileThrow(String fileName, Object obj) throws IOException {
+       // write  object to the file
+       FileOutputStream fileOut = new FileOutputStream(fileName);
+       ObjectOutputStream objectStream = new ObjectOutputStream(fileOut);
+       objectStream.writeObject(obj);
+       objectStream.close();
+       fileOut.close();
+   }
 
    /**
     * return a object read from the URL

@@ -10,7 +10,7 @@ import org.opensha.sha.surface.GriddedSurfaceAPI;
  * 
  * @author field
  */
-public class EmpiricalModel {
+public class EmpiricalModel  implements java.io.Serializable {
 	private EmpiricalModelDataFetcher empiricalModelDataFetcher = new EmpiricalModelDataFetcher();
 	
 	/**
