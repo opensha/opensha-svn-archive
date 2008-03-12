@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.region.EvenlyGriddedCaliforniaRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
@@ -183,9 +184,11 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				}
 				
 				if (print)
-					System.out.println("Doing site " + (j - startIndex + 1) + " of " + (endIndex - startIndex) + " (index: " + j + " of " + numSites + " total)");
+					System.out.println("Doing site " + (j - startIndex + 1) + " of " + (endIndex - startIndex) + " (index: " + j + " of " + numSites + " total) ");
 				try {
-					// get the site at the given index. it should already have all parameters set
+					// get the site at the given index. it should already have all parameters set.
+					// it will read the sites along latitude lines, starting with the southernmost
+					// latitude in the region, and going west to east along that latitude line.
 					site = sites.getSite(j);
 				} catch (RegionConstraintException e) {
 					System.out.println("No More Sites!");
@@ -209,8 +212,6 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				hazFunction = unLogFunction(hazFunction, logHazFunction);
 
 				// write the result to the file
-				if (print)
-					System.out.println("Writing Results to File");
 				String prefix = "";
 				String jobDir = lat + "/";
 				if (debug)
@@ -219,7 +220,10 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				File dir = new File(prefix);
 				if (!dir.exists())
 					dir.mkdir();
-				FileWriter fr = new FileWriter(prefix + lat + "_" + lon + ".txt");
+				String outFileName = prefix + lat + "_" + lon + ".txt";
+				if (print)
+					System.out.println("Writing Results to File: " + outFileName);
+				FileWriter fr = new FileWriter(outFileName);
 				for (int i = 0; i < numPoints; ++i)
 					fr.write(hazFunction.getX(i) + " " + hazFunction.getY(i) + "\n");
 				fr.close();
@@ -367,8 +371,11 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		
 		// create site object
 		GeographicRegion region = new RELM_TestingRegion();
+		//GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
+		//GeographicRegion region = new EvenlyGriddedSoCalRegion();
 		
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), .025);
+		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.09);
+		sites.setSameSiteParams();
 		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
 		
 		if (args.length >= 2) { // this is from the command line and is real
@@ -412,7 +419,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		} else { // this is just a test
 			// hard coded indices
 			int startIndex = 0;
-			int endIndex = 1;
+			int endIndex = 5;
 			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getNumGridLocs());
 			try {
 				System.err.println("RUNNING FROM DEBUG MODE!");
@@ -421,8 +428,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
 				calc.showResult = false;
 				calc.timer = true;
-				calc.lessPrints = true;
+				calc.lessPrints = false;
 				calc.loadERFFromFile = true;
+				calc.skipPoints = false;
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
 				// if nothing was calculated, just exit
