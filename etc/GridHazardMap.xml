@@ -185,7 +185,7 @@
 		<mkdir dir="${dest}"/>
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
-		<jar destfile="ERF.jar" basedir="${dest}">
+		<jar destfile="opensha_gridHazMapGenerator.jar" basedir="${dest}">
 			<include name="org/**"/>
 			<include name="etc/**"/>
 			<include name="com/**"/>
