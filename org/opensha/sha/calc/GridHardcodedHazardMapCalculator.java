@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.opensha.data.Site;
+import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
@@ -33,6 +34,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.Mea
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.util.FileUtils;
 
@@ -99,7 +101,8 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			double maxDistance =  200.0;
 			
 			// create IMR
-			AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
+			//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
+			AttenuationRelationshipAPI imr = new BJF_1997_AttenRel(this);
 			// set the Intensity Measure Type
 			imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 			// set default parameters
@@ -132,11 +135,18 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				}
 				
 				// update the forecast
+				TimeSpan time = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+				time.setStartTime(2007);
+				time.setDuration(50);
+				erf.setTimeSpan(time);
 				erf.updateForecast();
 				if (timer) {
 					System.out.println("Took " + getTime(start_erf) + " seconds to update forecast.");
 				}
 			}
+			
+			System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " from " + erf.getTimeSpan().getStartTimeYear());
+			
 			
 
 			// create the calculator object used for every curve
@@ -373,7 +383,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		//GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
 		//GeographicRegion region = new EvenlyGriddedSoCalRegion();
 		
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.09);
+		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.05);
 		sites.setSameSiteParams();
 		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
 		
