@@ -144,8 +144,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					System.out.println("Took " + getTime(start_erf) + " seconds to update forecast.");
 				}
 			}
-			
-			System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " from " + erf.getTimeSpan().getStartTimeYear());
+			System.out.println("Selected ERF: " + erf.getName());
+			System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " " + erf.getTimeSpan().getDurationUnits() + " from " + erf.getTimeSpan().getStartTimeYear());
+			System.out.println("Selected IMR: " + imr.getName());
 			
 			
 
