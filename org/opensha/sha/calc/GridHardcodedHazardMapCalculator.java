@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.region.EvenlyGriddedCaliforniaRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
