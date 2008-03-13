@@ -384,7 +384,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		//GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
 		//GeographicRegion region = new EvenlyGriddedSoCalRegion();
 		
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.05);
+		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.1);
 		sites.setSameSiteParams();
 		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
 		
