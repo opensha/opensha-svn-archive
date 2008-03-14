@@ -12,4 +12,8 @@ public class SiteInsert {
 		this.name = name;
 		this.short_name = short_name;
 	}
+	
+	public String toString() {
+		return "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tAbbr: " + short_name;
+	}
 }

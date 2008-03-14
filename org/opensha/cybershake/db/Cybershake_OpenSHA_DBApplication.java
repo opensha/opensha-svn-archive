@@ -1,8 +1,12 @@
 package org.opensha.cybershake.db;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.util.FileUtils;
 
 
 /**
@@ -174,10 +178,40 @@ public class Cybershake_OpenSHA_DBApplication {
 		return new CybershakeSiteInfo2DB(db);
 	}
 	
+	public ArrayList<SiteInsert> getSiteListFromFile(String fileName) throws FileNotFoundException, IOException {
+		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
+		
+		System.out.println("Loading sites from " + fileName);
+		
+		ArrayList<String> lines = FileUtils.loadFile(fileName);
+		for (String line : lines) {
+			StringTokenizer tok = new StringTokenizer(line);
+			
+			// get the Longitude from the file
+			double lon = Double.parseDouble(tok.nextToken());
+			// get the Latitude from the file
+			double lat = Double.parseDouble(tok.nextToken());
+			// short name
+			String shortName = tok.nextToken().trim();
+			// long name
+			//String longName = tok.nextToken().trim();
+			String longName = shortName;
+			
+			SiteInsert site = new SiteInsert(lat, lon, longName, shortName);
+			System.out.println(site);
+			sites.add(site);
+		}
+		
+		System.out.println("Loaded " + sites.size() + " sites!");
+		
+		return sites;
+	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		boolean doIt = false;
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
@@ -191,7 +225,25 @@ public class Cybershake_OpenSHA_DBApplication {
 		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 		System.out.println("ERF ID: " + erfId);
 		//make sites
-		ArrayList<SiteInsert> site_list = new ArrayList<SiteInsert>();
+		ArrayList<SiteInsert> site_list;
+		try {
+			site_list = app.getSiteListFromFile("/home/kevin/CyberShake/broadband_sites.txt");
+			//app.putSiteInfoInDB(forecast,erfId);
+			if (doIt) {
+				System.out.println("Adding locations...");
+				CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
+				app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
+				siteDB.closeWriter();
+			}
+			System.out.println("****DONE****");
+			db.destroy();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//                            lat,        lon,       name,    shortname
 //		site_list.add(new SiteInsert(33.79844, -117.39802, "Gavilan", "GAVI"));
 //		site_list.add(new SiteInsert(33.96200, -117.37745, "Mockingbird", "MBRD"));
@@ -199,14 +251,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new SiteInsert(34.59946, -117.83157, "Lovejoy Buttes", "LBUT"));
 //		site_list.add(new SiteInsert(34.41973, -118.09137, "Aliso", "ALIS"));
 //		site_list.add(new SiteInsert(34.34609, -117.97474, "Pacifico", "PACI"));
-		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
+//		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
 		
-		//app.putSiteInfoInDB(forecast,erfId);
-		System.out.println("Adding locations...");
-		CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
-		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
-		siteDB.closeWriter();
-		System.out.println("****DONE****");
-		db.destroy();
+		
 	}
 }
