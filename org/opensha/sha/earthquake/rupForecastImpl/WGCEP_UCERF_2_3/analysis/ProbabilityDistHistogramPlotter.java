@@ -18,10 +18,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_Mag
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.region.EvenlyGriddedNoCalRegion;
-import org.opensha.data.region.EvenlyGriddedSoCalRegion;
-import org.opensha.data.region.EvenlyGriddedWG02_Region;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.data.region.*;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -907,7 +904,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(true, 1, PATH+"ProbabilityContributions_1yr_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(true, 15, PATH+"ProbabilityContributions_15yrs_All.xls", null);
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
-
+		//plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new EvenlyGriddedWG07_LA_Box_Region());
 
 		/*plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
@@ -921,6 +918,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
 		 */
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_LA_Box.xls");
 
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		//plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
@@ -937,7 +935,7 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.plotAprioiMoBal_ComparisonPlot(6.7, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 
 
-		plotter.plotAperiodicity_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
+		//plotter.plotAperiodicity_ComparisonProbPlot(7.0, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 		//plotter.plotAperiodicity_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.A_FAULTS);
 
 	}
