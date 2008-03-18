@@ -476,17 +476,17 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 //		GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
 //		GeographicRegion region = new EvenlyGriddedSoCalRegion();
 		
-		double gridSpacing = 1;
+		double gridSpacing = 0.1;
 		
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacing);
+//		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacing);
 		
-//		SitesInGriddedRegionAPI sites = null;
-//		try {
-//			sites = new SitesInGriddedRectangularRegion(33.5, 34.8, -120.0, -116.0, .1);
-//		} catch (RegionConstraintException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		SitesInGriddedRegionAPI sites = null;
+		try {
+			sites = new SitesInGriddedRectangularRegion(33.5, 34.8, -120.0, -116.0, gridSpacing);
+		} catch (RegionConstraintException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		sites.setSameSiteParams();
 		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
