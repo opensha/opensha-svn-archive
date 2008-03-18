@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import org.opensha.data.Site;
 import org.opensha.data.TimeSpan;
@@ -26,16 +28,21 @@ import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
+import org.opensha.param.Parameter;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.FileUtils;
 
 
@@ -67,6 +74,9 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	boolean debug;
 	// location to store output files if debugging
 	static final String DEBUG_RESULT_FOLDER = "/home/kevin/OpenSHA/condor/test_results/";
+	
+	boolean useCVM = false;
+	String cvmFileName = "";
 
 	/**
 	 * Sets variables for calculation of hazard curves in hazard map
@@ -126,8 +136,20 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				}
 			} else { // create a new forecast, but you have to update the forecast
 				erf = new Frankel96_AdjustableEqkRupForecast();
-				//erf = new UCERF2();
-				//erf = new MeanUCERF2();
+				
+				
+//				erf = new MeanUCERF2();
+//				ParameterAPI backgroundParam = erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME);
+//				backgroundParam.setValue(UCERF2.BACK_SEIS_INCLUDE);
+//				System.out.println("Background Seismicity: " + backgroundParam.getValue());
+				
+				
+//				erf = new Frankel02_AdjustableEqkRupForecast();
+//				ParameterAPI backgroundParam = erf.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME);
+//				backgroundParam.setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+//				System.out.println("Background Seismicity: " + backgroundParam.getValue());
+				
+				
 				System.out.println("Updating Forecast");
 				long start_erf = 0;
 				if (timer) {
@@ -145,7 +167,10 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				}
 			}
 			System.out.println("Selected ERF: " + erf.getName());
-			System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " " + erf.getTimeSpan().getDurationUnits() + " from " + erf.getTimeSpan().getStartTimeYear());
+			try {
+				System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " " + erf.getTimeSpan().getDurationUnits() + " from " + erf.getTimeSpan().getStartTimeYear());
+			} catch (RuntimeException e1) {
+			}
 			System.out.println("Selected IMR: " + imr.getName());
 			
 			
@@ -175,6 +200,23 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				start_curve = System.currentTimeMillis();
 			}
 			
+			// use the CVM
+			ArrayList<String> cvmStr = null;
+			SiteTranslator siteTranslator = new SiteTranslator();
+			ArrayList<ParameterAPI> defaultSiteParams = null;
+			if (useCVM) {
+				System.out.println("Loading CVM from " + cvmFileName);
+				cvmStr = FileUtils.loadFile(cvmFileName);
+				
+				Iterator it = imr.getSiteParamsIterator();
+				
+				defaultSiteParams = new ArrayList<ParameterAPI>();
+				while (it.hasNext()) {
+					ParameterAPI param = (ParameterAPI)it.next();
+					defaultSiteParams.add((ParameterAPI)param.clone());
+				}
+			}
+			
 			System.out.println("Starting Curve Calculations");
 			
 			// loop through each site in this job's portion of the map
@@ -200,9 +242,44 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 					// it will read the sites along latitude lines, starting with the southernmost
 					// latitude in the region, and going west to east along that latitude line.
 					site = sites.getSite(j);
+					if (useCVM) {
+						String cvm = cvmStr.get(j - startIndex);
+						StringTokenizer tok = new StringTokenizer(cvm);
+						double lat = Double.parseDouble(tok.nextToken());
+						double lon = Double.parseDouble(tok.nextToken());
+						String type = tok.nextToken();
+						double depth = Double.parseDouble(tok.nextToken());
+						
+						if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
+							if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
+								System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
+							}
+						}
+						
+						Iterator it = site.getParametersIterator();
+						while(it.hasNext()){
+					         ParameterAPI tempParam = (ParameterAPI)it.next();
+
+					         //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+					         boolean flag = siteTranslator.setParameterValue(tempParam,type,depth);
+					         if (!flag) {
+					        	 for (ParameterAPI param : defaultSiteParams) {
+					        		 if (tempParam.getName().equals(param.getName())) {
+					        			 tempParam.setValue(param.getValue());
+					        		 }
+					        	 }
+					         }
+						}
+					}
 				} catch (RegionConstraintException e) {
 					System.out.println("No More Sites!");
 					break;
+				}
+				Iterator it = site.getParametersIterator();
+				System.out.println("Site Parameters:");
+				while (it.hasNext()) {
+					ParameterAPI param = (ParameterAPI)it.next();
+					System.out.println(param.getName() + ": " + param.getValue());
 				}
 
 				// take the log of the hazard function and to send to the calculator
@@ -220,6 +297,21 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				String lon = decimalFormat.format(site.getLocation().getLongitude());
 				// convert the hazard function back from log values
 				hazFunction = unLogFunction(hazFunction, logHazFunction);
+				
+				// see if it's empty\
+				if (hazFunction.getY(0) == 0 && hazFunction.getY(3) == 0) {
+					System.err.println("ERROR: Empty hazard curve!");
+					System.err.println("Site index: " + j);
+					System.err.println("Site Location: " + site.getLocation().getLatitude() + " " + site.getLocation().getLongitude());
+					Iterator it2 = site.getParametersIterator();
+					System.err.println("Site Parameters:");
+					while (it2.hasNext()) {
+						ParameterAPI param = (ParameterAPI)it2.next();
+						System.err.println(param.getName() + ": " + param.getValue());
+					}
+//					System.err.println("SKIPPING!!!");
+//					continue;
+				}
 
 				// write the result to the file
 				String prefix = "";
@@ -381,10 +473,21 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		
 		// create site object
 		GeographicRegion region = new RELM_TestingRegion();
-		//GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
-		//GeographicRegion region = new EvenlyGriddedSoCalRegion();
+//		GeographicRegion region = new EvenlyGriddedCaliforniaRegion();
+//		GeographicRegion region = new EvenlyGriddedSoCalRegion();
 		
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 0.1);
+		double gridSpacing = 1;
+		
+		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacing);
+		
+//		SitesInGriddedRegionAPI sites = null;
+//		try {
+//			sites = new SitesInGriddedRectangularRegion(33.5, 34.8, -120.0, -116.0, .1);
+//		} catch (RegionConstraintException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		
 		sites.setSameSiteParams();
 		//SitesInGriddedRegionAPI sites = new CustomSitesInGriddedRegion(region.getGridLocationsList(), 1);
 		
@@ -403,7 +506,11 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 						System.err.println("BAD BOOLEAN PARSE!");
 					}
 				}
-				if (args.length >=4) {
+				if (args.length >=4 && args[3].toLowerCase().contains("cvm")) {
+					calc.useCVM = true;
+					calc.cvmFileName = args[3];
+					calc.skipPoints = false;
+				} else {
 					try {
 						int skip = Integer.parseInt(args[3]);
 						if (skip > 1) {
@@ -413,9 +520,12 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 						//calc.timer = timer;
 					} catch (RuntimeException e) {
 						System.err.println("BAD SKIP INT PARSE");
+						calc.skipPoints = false;
 					}
-				} else
-					calc.skipPoints = false;
+				}
+				if (args.length >=4) {
+					
+				}
 				calc.loadERFFromFile = true;
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
@@ -429,18 +539,21 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		} else { // this is just a test
 			// hard coded indices
 			int startIndex = 0;
-			int endIndex = 5;
+			int endIndex = 100;
 			System.out.println("Doing sites " + startIndex + " to " + endIndex + " of " + sites.getNumGridLocs());
 			try {
 				System.err.println("RUNNING FROM DEBUG MODE!");
-				//sites = new SitesInGriddedRectangularRegion(34.0, 35.0, -118.0, -117.0, .5);
 				// run the calculator with debugging enabled
 				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
 				calc.showResult = false;
 				calc.timer = true;
 				calc.lessPrints = false;
-				calc.loadERFFromFile = true;
+				calc.loadERFFromFile = false;
 				calc.skipPoints = false;
+				calc.skipFactor = 200;
+				calc.useCVM = true;
+				//calc.cvmFileName = "/home/kevin/OpenSHA/condor/RELM_0.1.cvm";
+				calc.cvmFileName = "/home/kevin/OpenSHA/condor/jobs/jobTest/000000_000100.cvm";
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
 				// if nothing was calculated, just exit
