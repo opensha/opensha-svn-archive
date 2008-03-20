@@ -3,9 +3,14 @@ package scratchJavaDevelopers.kevin;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
@@ -236,6 +241,26 @@ public class HazardMapJobCreator {
 	}
 	
 	public static void main(String args[]) {
+        try {
+        	String metadataFileName = args[0];
+    		SAXReader reader = new SAXReader();
+			Document document = reader.read(new File(metadataFileName));
+			Element jobParams = document.getRootElement().element("gridJobParameters");
+			
+			String rp_host = jobParams.attribute("rp_host").getValue();
+			String rp_storagePath = jobParams.attribute("rp_storagePath").getValue();
+			String rp_javaPath = jobParams.attribute("rp_javaPath").getValue();
+			String rp_batchScheduler = jobParams.attribute("rp_batchScheduler").getValue();
+			String repo_host = jobParams.attribute("repo_host").getValue();
+			String repo_storagePath = jobParams.attribute("repo_storagePath").getValue();
+		} catch (MalformedURLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (DocumentException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
 		String outputDir = "/home/kevin/OpenSHA/condor/jobs/jobTest/";
 		// SDSC
 //		String remoteJobDir = "/gpfs/projects/scec/CyberShake2007/opensha/kevin/meetingMap";
@@ -248,7 +273,7 @@ public class HazardMapJobCreator {
 		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), 1);
 		
 		try {
-			sites = new SitesInGriddedRectangularRegion(33.5, 34.8, -120.0, -116.0, .05);
+			sites = new SitesInGriddedRectangularRegion(33.5, 34.8, -120.0, -116.0, .02);
 		} catch (RegionConstraintException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
