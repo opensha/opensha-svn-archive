@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.metadata.XMLSaveable;
 
 /**
  *  <b>Title:</b> LocationList<p>
@@ -31,12 +33,14 @@ import org.opensha.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public class LocationList implements java.io.Serializable{
+public class LocationList implements java.io.Serializable, XMLSaveable{
 
 	private static final long serialVersionUID = 0xA9F494E;
 	
     /** Class name used for debugging purposes */
     protected final static String C = "LocationList";
+    
+    public static final String XML_METADATA_NAME = "LocationList";
     /** if true print out debugging statements */
     protected final static boolean D = false;
 
@@ -254,5 +258,27 @@ public class LocationList implements java.io.Serializable{
       }
       return min;
     }
+    
+    public Element toXMLMetadata(Element root) {
+    	Element locs = root.addElement(LocationList.XML_METADATA_NAME);
+  	  	for (int i=0; i<this.size(); i++) {
+  	  		Location loc = this.getLocationAt(i);
+  	  		locs = loc.toXMLMetadata(locs);
+  	  	}
+  	  	
+  	  	return root;
+    }
+    
+    public static LocationList fromXMLMetadata(Element locationElement) {
+    	LocationList locs = new LocationList();
+    	Iterator<Element> it = locationElement.elementIterator();
+    	while (it.hasNext()) {
+    		Element el = it.next();
+    		if (el.getName().equals(Location.XML_METADATA_NAME)) {
+    			locs.addLocation(Location.fromXMLMetadata(el));
+    		}
+    	}
 
+    	return locs;
+    }
 }

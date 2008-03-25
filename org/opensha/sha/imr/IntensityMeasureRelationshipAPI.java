@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
+import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.*;
@@ -20,7 +21,7 @@ import org.opensha.sha.param.*;
  */
 
 public interface IntensityMeasureRelationshipAPI
-    extends NamedObjectAPI {
+    extends NamedObjectAPI, XMLSaveable {
 
   /**
    *  Returns a reference to the current Site object of the IMR

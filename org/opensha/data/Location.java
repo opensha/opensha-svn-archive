@@ -1,7 +1,9 @@
 package org.opensha.data;
 import java.text.DecimalFormat;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.metadata.XMLSaveable;
 
 
 /**
@@ -23,12 +25,17 @@ import org.opensha.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public class Location implements java.io.Serializable {
+public class Location implements java.io.Serializable, XMLSaveable {
 
 	private static final long serialVersionUID = 0xCE5BF55;
 	
     /** Class name used for debugging strings  */
     protected final static String C = "Location";
+    
+    public final static String XML_METADATA_NAME = "Location";
+    public final static String XML_METADATA_LONGITUDE = "Longitude";
+    public final static String XML_METADATA_LATITUDE = "Latitude";
+    public final static String XML_METADATA_DEPTH = "Depth";
 
     /**  Boolean for debugging, if true debugging statements printed out */
     protected final static boolean D = false;
@@ -250,6 +257,23 @@ public class Location implements java.io.Serializable {
      */
     public int hashCode() {
       return (int)(latitude+longitude+depth);
+    }
+    
+    public Element toXMLMetadata(Element root) {
+    	Element xml = root.addElement(Location.XML_METADATA_NAME);
+    	xml.addAttribute(Location.XML_METADATA_LATITUDE, this.getLatitude() + "");
+    	xml.addAttribute(Location.XML_METADATA_LONGITUDE, this.getLongitude() + "");
+    	xml.addAttribute(Location.XML_METADATA_DEPTH, this.getDepth() + "");
+    	
+    	return root;
+    }
+    
+    public static Location fromXMLMetadata(Element root) {
+    	double lat = Double.parseDouble(root.attribute(Location.XML_METADATA_LATITUDE).getValue());
+    	double lon = Double.parseDouble(root.attribute(Location.XML_METADATA_LONGITUDE).getValue());
+    	double depth = Double.parseDouble(root.attribute(Location.XML_METADATA_DEPTH).getValue());
+    	
+    	return new Location(lat, lon, depth);
     }
 
     public static void main(String[] args) {

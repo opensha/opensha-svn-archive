@@ -1,12 +1,17 @@
 package org.opensha.sha.imr;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import org.dom4j.Element;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
+import org.opensha.metadata.MetadataLoader;
 import org.opensha.param.*;
+import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.*;
+
 
 /**
  *  <b>Title:</b> IntensityMeasureRelationship<p>
@@ -36,6 +41,8 @@ public abstract class IntensityMeasureRelationship
     implements IntensityMeasureRelationshipAPI {
 
   private final static String NAME = "Intensity Measure Relationship";
+  
+  public final static String XML_METADATA_NAME = "IMR";
 
   /** Classname constant used for debugging statements */
   protected final static String C = "IntensityMeasureRelationship";
@@ -489,6 +496,27 @@ public abstract class IntensityMeasureRelationship
    */
   public ListIterator getSupportedIntensityMeasuresIterator() {
     return supportedIMParams.getParametersIterator();
-
+  }
+  
+  public Element toXMLMetadata(Element root) {
+	  Element xml = root.addElement(IntensityMeasureRelationship.XML_METADATA_NAME);
+	  xml.addAttribute("className", this.getClass().getName());
+	  ListIterator paramIt = this.getOtherParamsIterator();
+	  Element paramsElement = xml.addElement(Parameter.XML_GROUP_METADATA_NAME);
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  paramsElement = param.toXMLMetadata(paramsElement);
+	  }
+	  return root;
+  }
+  
+  public static IntensityMeasureRelationship fromXMLMetadata(Element root, ParameterChangeWarningListener listener) throws InvocationTargetException {
+	  String className = root.attribute("className").getValue();
+	  System.out.println("Loading IMR: " + className);
+	  ArrayList<Object> args = new ArrayList<Object>();
+	  ArrayList<String> argNames = new ArrayList<String>();
+	  args.add(listener);
+	  argNames.add(ParameterChangeWarningListener.class.getName());
+	  return (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
   }
 }

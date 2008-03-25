@@ -2,6 +2,7 @@ package org.opensha.sha.param;
 
 import java.util.*;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
@@ -1017,4 +1018,10 @@ public class MagFreqDistParameter
     public StringConstraint getGRFixOptions() { return this.grFixOptions; }
     public StringConstraint getYCSetAllButOptions() { return this.ycSetAllButOptions; }
     public StringConstraint getGaussianDistSetAllButOptions() { return this.gdSetAllButOptions; }
+
+    
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

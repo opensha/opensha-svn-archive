@@ -3,6 +3,7 @@
  */
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.data.ValueWeight;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
@@ -458,4 +459,10 @@ public class DoubleValueWeightParameter extends DependentParameter
         param.info = info;
         return param;
     }
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

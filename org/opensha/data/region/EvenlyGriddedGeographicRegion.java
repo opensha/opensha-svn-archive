@@ -2,8 +2,11 @@ package org.opensha.data.region;
 
 import java.util.*;
 
+import org.dom4j.Element;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
+import org.opensha.metadata.XMLSaveable;
+
 import java.io.IOException;
 import java.io.FileWriter;
 
@@ -35,10 +38,12 @@ import java.io.FileWriter;
  */
 
 public class EvenlyGriddedGeographicRegion
-    extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
-
+    extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI, XMLSaveable {
   private final static String C = "EvenlyGriddedGeographicRegion";
   private final static boolean D = false;
+  
+  public final static String XML_METADATA_NAME = "evenlyGriddedGeographicRegion";
+  public final static String XML_METADATA_GRID_SPACING_NAME = "gridSpacing";
 
   protected double gridSpacing;
 
@@ -571,6 +576,22 @@ public class EvenlyGriddedGeographicRegion
    */
   public double getMaxGridLon() {
     return niceMaxLon;
+  }
+  
+  public Element toXMLMetadata(Element root) {
+	  Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
+	  xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
+	  xml = super.toXMLMetadata(xml);
+	  int asdf = 5;
+	  
+	  return root;
+  }
+  
+  public static EvenlyGriddedGeographicRegion fromXMLMetadata(Element root) {
+	  double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
+	  LocationList outline = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME)).getRegionOutline();
+	  
+	  return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
   }
 
   /*

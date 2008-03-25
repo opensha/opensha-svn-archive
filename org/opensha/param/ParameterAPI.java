@@ -1,8 +1,10 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
+import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.event.ParameterChangeEvent;
 
 
@@ -55,7 +57,7 @@ import org.opensha.param.event.ParameterChangeEvent;
  * @version    1.0
  */
 
-public interface ParameterAPI extends NamedObjectAPI, Comparable {
+public interface ParameterAPI extends NamedObjectAPI, Comparable, XMLSaveable {
 
     /** Every parameter has a name, this function gets that name. */
     public String getName();
@@ -107,6 +109,13 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException;
+    
+    /**
+     * Sets the value of this parameter from am XML element
+     * @param el
+     * @return
+     */
+    public boolean setValueFromXMLMetadata(Element el);
 
 
      /** Needs to be called by subclasses when field change fails due to constraint problems. */

@@ -263,7 +263,14 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
   * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
   */
  public void setDefaultSiteParams(ArrayList defaultSiteParams){
-   this.defaultSiteParams = defaultSiteParams;
+   //this.defaultSiteParams = defaultSiteParams;
+	if (this.defaultSiteParams != null)
+		this.defaultSiteParams.clear();
+	else
+		this.defaultSiteParams = new ArrayList<ParameterAPI>();
+	for (ParameterAPI param : (ArrayList<ParameterAPI>)defaultSiteParams) {
+		this.defaultSiteParams.add((ParameterAPI)param.clone());
+	}
  }
 
 

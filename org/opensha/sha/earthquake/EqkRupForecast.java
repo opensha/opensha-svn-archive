@@ -5,11 +5,16 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.metadata.MetadataLoader;
+import org.opensha.metadata.XMLSaveable;
+import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
+import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.event.TimeSpanChangeListener;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
@@ -19,10 +24,13 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.util.HashMap;
 import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.param.StringParameter;
 import org.opensha.param.BooleanParameter;
+
 
 
 /**
@@ -33,7 +41,7 @@ import org.opensha.param.BooleanParameter;
  */
 
 public abstract class EqkRupForecast implements EqkRupForecastAPI,
-    TimeSpanChangeListener,ParameterChangeListener{
+    TimeSpanChangeListener,ParameterChangeListener, XMLSaveable{
 
   // adjustable params for each forecast
   protected ParameterList adjustableParams = new ParameterList();
@@ -371,5 +379,53 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
       GeographicRegion region) {
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
     return seisRates.getMagRateDistForRegion(minMag,this,region);
+  }
+  
+  public static final String XML_METADATA_NAME = "ERF";
+  
+  public Element toXMLMetadata(Element root) {
+	  Element xml = root.addElement(EqkRupForecast.XML_METADATA_NAME);
+	  xml.addAttribute("className", this.getClass().getName());
+	  ListIterator paramIt = this.getAdjustableParameterList().getParametersIterator();
+	  Element paramsElement = xml.addElement(Parameter.XML_GROUP_METADATA_NAME);
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  paramsElement = param.toXMLMetadata(paramsElement);
+	  }
+	  xml = timeSpan.toXMLMetadata(xml);
+	  
+	  return root;
+  }
+  
+  public static EqkRupForecast fromXMLMetadata(Element root) throws InvocationTargetException {
+	  String className = root.attribute("className").getValue();
+	  System.out.println("Loading ERF: " + className);
+	  EqkRupForecast erf = (EqkRupForecast)MetadataLoader.createClassInstance(className);
+	  
+	  // add params
+	  System.out.println("Setting params...");
+	  Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
+	  ListIterator paramIt = erf.getAdjustableParameterList().getParametersIterator();
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  System.out.println("Setting param " + param.getName());
+		  Iterator<Element> it = paramsElement.elementIterator();
+		  while (it.hasNext()) {
+			  Element el = it.next();
+			  if (param.getName().equals(el.attribute("name").getValue())) {
+				  System.out.println("Found a match!");
+				  if (param.setValueFromXMLMetadata(el)) {
+					  System.out.println("Parameter set successfully!");
+				  } else {
+					  System.out.println("Parameter could not be set from XML!");
+					  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+				  }
+			  }
+		  }
+	  }
+	  
+	  erf.setTimeSpan(TimeSpan.fromXMLMetadata(root.element("TimeSpan")));
+	  
+	  return erf;
   }
 }

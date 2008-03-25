@@ -1,5 +1,6 @@
 package org.opensha.param.estimate;
 
+import org.dom4j.Element;
 import org.opensha.param.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.estimate.Estimate;
@@ -176,5 +177,11 @@ public EstimateParameter( String name, String units, double min, double max, Arr
     throw new java.lang.UnsupportedOperationException(
         "Method clone() not yet implemented.");
   }
+
+
+public boolean setValueFromXMLMetadata(Element el) {
+	// TODO Auto-generated method stub
+	return false;
+}
 
 }

@@ -1,5 +1,6 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
@@ -182,6 +183,10 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
     return getDependentParamMetadataString();
   }
 
+public boolean setValueFromXMLMetadata(Element el) {
+	// TODO Auto-generated method stub
+	return false;
+}
 
 }
 

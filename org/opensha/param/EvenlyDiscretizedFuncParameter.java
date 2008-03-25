@@ -1,5 +1,6 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.editor.ParameterListEditor;
@@ -233,6 +234,12 @@ public class EvenlyDiscretizedFuncParameter extends DependentParameter
     metadata +=" ]";
     return metadata;
   }
+
+
+public boolean setValueFromXMLMetadata(Element el) {
+	// TODO Auto-generated method stub
+	return false;
+}
 
 
 }

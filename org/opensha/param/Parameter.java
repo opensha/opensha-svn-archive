@@ -1,7 +1,9 @@
 package org.opensha.param;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.exceptions.EditableException;
@@ -39,6 +41,8 @@ public abstract class Parameter
 
     /** Class name used for debug statements and building the parameter type for getType(). */
     protected final static String C = "Parameter";
+    public final static String XML_GROUP_METADATA_NAME = "Parameters";
+    public final static String XML_METADATA_NAME = "Parameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
@@ -445,5 +449,28 @@ public abstract class Parameter
     /** Returns a copy so you can't edit or damage the origial. */
     public abstract Object clone();
 
-
+    public Element toXMLMetadata(Element root) {
+  	  Element xml = root.addElement(Parameter.XML_METADATA_NAME);
+  	xml.addAttribute("name", getName());
+  	xml.addAttribute("type", getType());
+  	xml.addAttribute("units", getUnits());
+  	Object val = getValue();
+  	if (val == null)
+  		xml.addAttribute("value", "");
+  	else
+  		xml.addAttribute("value", val.toString());
+  	  return root;
+    }
+    
+//    public boolean setValueFromXMLMetadata(Element el) {
+//    	String value = el.attribute("value").getValue();
+//    	
+//    	if (this.setValueFromString(value)) {
+//    		return true;
+//    	} else {
+//    		System.err.println(this.getType() + " " + this.getName() + " could not be set to " + value);
+//    		System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
+//    		return false;
+//    	}
+//    }
 }

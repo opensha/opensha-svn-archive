@@ -1,6 +1,8 @@
 package org.opensha.param;
 
 import java.util.*;
+
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 
 
@@ -84,6 +86,14 @@ public class BooleanParameter extends DependentParameter
     param.editable = true;
     param.info = info;
     return param;
+  }
+
+  /**
+   * Parses the XML element for a boolean value
+   */
+  public boolean setValueFromXMLMetadata(Element el) {
+	this.setValue(Boolean.parseBoolean(el.attributeValue("value")));
+	return true;
   }
 
 }

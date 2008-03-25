@@ -1,6 +1,8 @@
 package org.opensha.param;
 
 import java.util.*;
+
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.data.Location;
 
@@ -417,6 +419,12 @@ public class LocationParameter extends DependentParameter
       //similar to constraint string parameter.
       return super.getMetadataString();
   }
+
+
+public boolean setValueFromXMLMetadata(Element el) {
+	// TODO Auto-generated method stub
+	return false;
+}
 
 
 }

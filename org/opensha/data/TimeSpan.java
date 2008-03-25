@@ -3,6 +3,8 @@ package org.opensha.data;
 import java.util.*;
 import java.io.Serializable;
 
+import org.dom4j.Attribute;
+import org.dom4j.Element;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
@@ -97,6 +99,8 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 
     /** The name of this class, used for debug statements */
     protected final static String C = "TimeSpan";
+    
+    public final static String XML_METADATA_NAME = "TimeSpan";
 
     /** Static boolean whether to print out debugging statements */
     protected final static boolean D = false;
@@ -353,6 +357,25 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      */
     public String getStartTimePrecision() {
       return (String) startTimePrecisionParam.getValue();
+    }
+    
+    public int getStartTimeFromType(String type) {
+    	if (type.equals(START_DAY))
+    		return getStartTimeDay();
+    	else if (type.equals(START_HOUR))
+			return getStartTimeHour();
+    	else if (type.equals(START_MILLISECOND))
+			return getStartTimeMillisecond();
+    	else if (type.equals(START_MINUTE))
+			return getStartTimeMinute();
+    	else if (type.equals(START_MONTH))
+			return getStartTimeMonth();
+    	else if (type.equals(START_SECOND))
+			return getStartTimeSecond();
+    	else if (type.equals(START_YEAR))
+			return getStartTimeYear();
+    	else
+    		throw new RuntimeException("Type '" + type + "' is not a valid start time precision!");
     }
 
 
@@ -1053,6 +1076,101 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
                     ( TimeSpanChangeListener ) changeListeners.get( i );
         listener.timeSpanChange( event );
       }
+    }
+    
+    public Element toXMLMetadata(Element root) {
+    	Element xml = root.addElement(TimeSpan.XML_METADATA_NAME);
+    	String precision = this.getStartTimePrecision();
+    	xml.addAttribute("startTimePrecision", precision);
+    	
+    	ArrayList<String> timeTypes = new ArrayList<String>();
+    	timeTypes.add(TimeSpan.START_DAY);
+    	timeTypes.add(TimeSpan.START_HOUR);
+    	timeTypes.add(TimeSpan.START_MILLISECOND);
+    	timeTypes.add(TimeSpan.START_MINUTE);
+    	timeTypes.add(TimeSpan.START_MONTH);
+    	timeTypes.add(TimeSpan.START_SECOND);
+    	timeTypes.add(TimeSpan.START_YEAR);
+    	
+    	Element startTimes = xml.addElement("startTimes");
+    	int time = 0;
+    	// set day
+    	for (String type : timeTypes) {
+    		try {
+    			time = this.getStartTimeFromType(type);
+    			startTimes.addAttribute(type.replaceAll(" ", ""), time + "");
+    		} catch (RuntimeException e) {
+    		}
+    	}
+    	
+    	
+    	xml.addAttribute("duration", this.getDuration() + "");
+    	xml.addAttribute("durationUnits", this.getDurationUnits());
+    	return root;
+      }
+    
+    public static TimeSpan fromXMLMetadata(Element el) {
+    	String precision = el.attribute("startTimePrecision").getValue();
+    	String units = el.attribute("durationUnits").getValue();
+    	double duration = Double.parseDouble(el.attribute("duration").getValue());
+    	
+    	TimeSpan span = new TimeSpan(precision, units);
+    	span.setDuration(duration, units);
+    	Element startTimes = el.element("startTimes");
+    	
+    	int count = startTimes.attributeCount();
+    	
+    	int num = 0;
+    	int year = -1;
+    	int month = -1;
+    	int day = -1;
+    	int hour = -1;
+    	int minute = -1;
+    	int second = -1;
+    	int millisecond = -1;
+    	
+    	for (int i=0; i<count; i++) {
+    		Attribute att = startTimes.attribute(i);
+    		if (att.getName().equals(TimeSpan.START_DAY.replaceAll(" ", ""))) {
+    			day = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_HOUR.replaceAll(" ", ""))) {
+    			hour = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_MILLISECOND.replaceAll(" ", ""))) {
+    			millisecond = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_MINUTE.replaceAll(" ", ""))) {
+    			minute = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_MONTH.replaceAll(" ", ""))) {
+    			month = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_SECOND.replaceAll(" ", ""))) {
+    			second = Integer.parseInt(att.getValue());
+    			num++;
+    		} else if (att.getName().equals(TimeSpan.START_YEAR.replaceAll(" ", ""))) {
+    			year = Integer.parseInt(att.getValue());
+    			num++;
+    		}
+    	}
+    	
+    	if (num == 1)
+    		span.setStartTime(year);
+    	else if (num == 2)
+    		span.setStartTime(year, month);
+    	else if (num == 3)
+    		span.setStartTime(year, month, day);
+    	else if (num == 4)
+    		span.setStartTime(year, month, day, hour);
+    	else if (num == 5)
+    		span.setStartTime(year, month, day, hour, minute);
+    	else if (num == 6)
+    		span.setStartTime(year, month, day, hour, minute, second);
+    	else if (num == 7)
+    		span.setStartTime(year, month, day, hour, minute, second, millisecond);
+    	
+    	return span;
     }
 }
 

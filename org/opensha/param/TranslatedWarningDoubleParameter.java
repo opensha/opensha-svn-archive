@@ -1,5 +1,6 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.param.translate.*;
 import java.util.*;
 import org.opensha.param.event.*;
@@ -643,6 +644,16 @@ public class TranslatedWarningDoubleParameter
     public TranslatorAPI getTrans() {
         return trans;
     }
+
+	public Element toXMLMetadata(Element root) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 
 }

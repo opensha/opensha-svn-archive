@@ -57,6 +57,7 @@ public class MakeXYZFromHazardMapDir {
 								//getting the lat and Lon values from file names
 								Double latVal = new Double(fileName.substring(0,index).trim());
 								Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
 								// handle the file
 								double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
 //								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
@@ -113,9 +114,18 @@ public class MakeXYZFromHazardMapDir {
 	            //final iml value returned after interpolation in log space
 				return func.getInterpolatedY_inLogXLogYDomain(val);
 	            // for  IML_AT_PROB
-	          else //interpolating the iml value in log space entered by the user to get the final iml for the
+	          else { //interpolating the iml value in log space entered by the user to get the final iml for the
 	            //corresponding prob.
-	        	  return func.getFirstInterpolatedX_inLogXLogYDomain(val);
+	        	  double out;
+				try {
+					out = func.getFirstInterpolatedX_inLogXLogYDomain(val);
+					return out;
+				} catch (RuntimeException e) {
+					System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
+					//return 0d;
+					return Double.NaN;
+				}
+	          }
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -164,7 +174,10 @@ public class MakeXYZFromHazardMapDir {
 	
 	public static void main(String args[]) {
 		try {
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir("/home/kevin/OpenSHA/condor/test_results", true, 0.05, "xyzCurves.txt", false);
+//			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
+			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/hpc_0.2_noCVM/curves";
+//			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, "xyzCurves.txt", false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

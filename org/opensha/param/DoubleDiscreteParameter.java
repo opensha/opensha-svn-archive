@@ -1,6 +1,8 @@
 package org.opensha.param;
 
 import java.util.ArrayList;
+
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 
 /**
@@ -323,5 +325,10 @@ public class DoubleDiscreteParameter
         param.info = info;
         return param;
     }
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

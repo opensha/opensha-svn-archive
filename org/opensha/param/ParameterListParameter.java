@@ -1,6 +1,8 @@
 package org.opensha.param;
 
 import java.util.*;
+
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 
 
@@ -181,6 +183,11 @@ public class ParameterListParameter extends DependentParameter
   public String getMetadataString() {
     return getDependentParamMetadataString();
   }
+
+public boolean setValueFromXMLMetadata(Element el) {
+	// TODO Auto-generated method stub
+	return false;
+}
 
 
 }

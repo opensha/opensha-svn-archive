@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import org.opensha.data.TimeSpan;
+import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.util.FileUtils;
 
@@ -13,6 +17,19 @@ public class ERFSaveAndSerializeTest {
 	
 	public ERFSaveAndSerializeTest() {
 		EqkRupForecastAPI erf = new MeanUCERF2();
+		ParameterAPI backgroundParam = erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME);
+		backgroundParam.setValue(UCERF2.BACK_SEIS_INCLUDE);
+		System.out.println("Background Seismicity: " + backgroundParam.getValue());
+		
+//		EqkRupForecastAPI erf = new Frankel02_AdjustableEqkRupForecast();
+//		ParameterAPI backgroundParam = erf.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME);
+//		backgroundParam.setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+//		System.out.println("Background Seismicity: " + backgroundParam.getValue());
+		
+		TimeSpan time = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+		time.setStartTime(2007);
+		time.setDuration(30);
+		erf.setTimeSpan(time);
 		erf.updateForecast();
 		//System.out.println("Sources: " + erf.getNumSources());
 		try {

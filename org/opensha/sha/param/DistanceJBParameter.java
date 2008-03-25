@@ -2,6 +2,7 @@ package org.opensha.sha.param;
 
 import java.util.*;
 
+import org.dom4j.Element;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
@@ -187,5 +188,11 @@ public class DistanceJBParameter
         return param;
 
     }
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

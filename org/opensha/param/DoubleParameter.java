@@ -1,5 +1,6 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
 import org.opensha.exceptions.ParameterException;
@@ -475,4 +476,17 @@ public class DoubleParameter
         param.info = info;
         return param;
     }
+
+    /**
+     * Parses the given XML element for a double value and sets it
+     */
+	public boolean setValueFromXMLMetadata(Element el) {
+		try {
+			Double val = Double.parseDouble(el.attributeValue("value"));
+			this.setValue(val);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+	}
 }

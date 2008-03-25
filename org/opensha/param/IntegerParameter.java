@@ -1,5 +1,6 @@
 package org.opensha.param;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 
 /**
@@ -444,5 +445,17 @@ public class IntegerParameter
         param.info = info;
         return param;
     }
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		try {
+			int val = Integer.parseInt(el.attributeValue("value"));
+			this.setValue(val);
+			return true;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 }

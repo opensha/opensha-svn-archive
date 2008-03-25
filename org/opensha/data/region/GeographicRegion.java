@@ -3,7 +3,9 @@ package org.opensha.data.region;
 import java.util.ListIterator;
 import java.awt.Polygon;
 
+import org.dom4j.Element;
 import org.opensha.data.*;
+import org.opensha.metadata.XMLSaveable;
 import org.opensha.calc.RelativeLocation;
 
 /**
@@ -21,7 +23,7 @@ import org.opensha.calc.RelativeLocation;
  * @version 1.0
  */
 
-public class GeographicRegion implements GeographicRegionAPI,java.io.Serializable{
+public class GeographicRegion implements GeographicRegionAPI,java.io.Serializable, XMLSaveable{
 
   protected LocationList locList;
 
@@ -36,6 +38,9 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
 
   private final static String C = "GeographicRegion";
   private final static boolean D = false;
+  
+  public final static String XML_METADATA_NAME = "GeographicRegion";
+  public final static String XML_METADATA_OUTLINE_NAME = "OutlineLocations";
   
   // name for this region
   private String name;
@@ -244,4 +249,18 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
   public void setName(String name) {
 	  this.name = name;
   }
+  
+  public Element toXMLMetadata(Element root) {
+	  Element xml = root.addElement(GeographicRegion.XML_METADATA_NAME);
+	  LocationList list = this.getRegionOutline();
+	  xml = list.toXMLMetadata(xml);
+	  
+	  return root;
+  }
+  
+  public static GeographicRegion fromXMLMetadata(Element geographicElement) {
+	  LocationList list = LocationList.fromXMLMetadata(geographicElement.element(LocationList.XML_METADATA_NAME));
+	  return new GeographicRegion(list);
+  }
+  
 }

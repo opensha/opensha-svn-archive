@@ -2,6 +2,7 @@ package org.opensha.param;
 
 import java.util.ArrayList;
 
+import org.dom4j.Element;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
 import org.opensha.exceptions.ParameterException;
@@ -277,5 +278,11 @@ public class StringParameter
         return param;
 
     }
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		this.setValue(el.attributeValue("value"));
+		return true;
+	}
 
 }
