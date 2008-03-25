@@ -155,7 +155,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 //		generate the SQL to be inserted in the Sites table
 		String sql = "INSERT into CyberShake_Site_Ruptures VALUES('"+siteId+"','"+erfId+"','"+
 		sourceId+"','"+ruptureId+"','"+cutOffDistance+"')";
-		System.out.println(sql);
+		//System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
@@ -182,6 +182,41 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			start = System.currentTimeMillis();
 		}
 		String sql = "SELECT * FROM Ruptures WHERE ERF_ID="+erfID+" and Source_ID="+sourceID+" and Rupture_ID="+rupID;
+		try {
+			ResultSet rs = dbaccess.selectData(sql);
+			if (Cybershake_OpenSHA_DBApplication.timer) {
+				System.out.println("Got the select result at " + (System.currentTimeMillis() - start) + " milliseconds");
+			}
+			boolean result = rs.next();
+			if (Cybershake_OpenSHA_DBApplication.timer) {
+				long total = (System.currentTimeMillis() - start);
+				System.out.println("Took " + total + " miliseconds to check if the rupture exists!!");
+			}
+		    return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (Cybershake_OpenSHA_DBApplication.timer) {
+			long total = (System.currentTimeMillis() - start);
+			System.out.println("Took " + total + " miliseconds to check if the rupture exists!!");
+		}
+		return false;
+	}
+	
+	/**
+	 * Find out if the given rupture is already in the database
+	 * @param erfID
+	 * @param sourceID
+	 * @param rupID
+	 * @param siteID
+	 * @return
+	 */
+	public boolean isSiteRupInDB(int erfID, int sourceID, int rupID, int siteID) {
+		long start = 0;
+		if (Cybershake_OpenSHA_DBApplication.timer) {
+			start = System.currentTimeMillis();
+		}
+		String sql = "SELECT * FROM CyberShake_Site_Ruptures WHERE ERF_ID="+erfID+" and Source_ID="+sourceID+" and Rupture_ID="+rupID+" and CS_Site_ID="+siteID;
 		try {
 			ResultSet rs = dbaccess.selectData(sql);
 			if (Cybershake_OpenSHA_DBApplication.timer) {

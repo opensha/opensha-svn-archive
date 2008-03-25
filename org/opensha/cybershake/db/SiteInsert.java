@@ -14,6 +14,6 @@ public class SiteInsert {
 	}
 	
 	public String toString() {
-		return "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tAbbr: " + short_name;
+		return "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tABBR: " + short_name;
 	}
 }

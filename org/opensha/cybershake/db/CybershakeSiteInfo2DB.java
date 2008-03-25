@@ -148,6 +148,11 @@ public class CybershakeSiteInfo2DB {
 						}
 						//check if the rupture is there
 						if (checkAddRup) {
+							//check if it's a dup
+							if (this.site2db.isSiteRupInDB(erfId, sourceIndex, rupIndex, siteId)) {
+								System.out.println("It's a duplicate...skipping!");
+								continue;
+							}
 							if (!this.site2db.isRupInDB(erfId, sourceIndex, rupIndex)) { //it's not in the database
 								System.out.println("Rupture " + sourceIndex + " " + rupIndex + " not in DB, adding...");
 								//log it

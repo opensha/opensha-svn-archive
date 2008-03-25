@@ -82,6 +82,16 @@ public interface SiteInfo2DBAPI {
 	public boolean isRupInDB(int erfID, int sourceID, int rupID);
 	
 	/**
+	 * Find out if the given rupture is already in the database
+	 * @param erfID
+	 * @param sourceID
+	 * @param rupID
+	 * @param siteID
+	 * @return
+	 */
+	public boolean isSiteRupInDB(int erfID, int sourceID, int rupID, int siteID);
+	
+	/**
 	 * 
 	 * @returns the Arraylist of all cybershake site locations
 	 */
