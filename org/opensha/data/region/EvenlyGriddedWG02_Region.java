@@ -49,7 +49,7 @@ public class EvenlyGriddedWG02_Region extends EvenlyGriddedGeographicRegion {
 							RelativeLocation.getApproxHorzDistance(37.19,-120.61, 39.02, -122.08))/2;
 		
 		double wg02Height = (RelativeLocation.getApproxHorzDistance(36.43, -122.09, 37.19,-120.61)+
-							RelativeLocation.getApproxHorzDistance(37.19,-120.61, 39.02, -122.08))/2;
+							RelativeLocation.getApproxHorzDistance(38.23, -123.61, 39.02, -122.08))/2;
 		System.out.println(wg02Length+"\t"+wg02Height+"\n");
 		
 		// LA locations from Google Earth

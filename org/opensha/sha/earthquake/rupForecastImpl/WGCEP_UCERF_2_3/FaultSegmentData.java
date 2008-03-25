@@ -45,6 +45,11 @@ public class FaultSegmentData implements java.io.Serializable {
   	 * All data provided in the get methods are in SI units, which generally differs from the
   	 * units in the input.
   	 * 
+  	 * This has special treatment for the San Jacinto and Elsinore faults, where the overlapping sections are
+  	 * removed when creating the combined gridded surface.  Specifically, the sections containing "stepover" in the
+  	 * name are not included if both stepovers are included in the list of segments.  This only influences what's
+  	 * returned from the getCombinedGriddedSurface(*) methods.
+  	 * 
   	 * @param sectionToSegmentData - an ArrayList containing N ArrayLists (one for each segment), 
   	 * where the arrayList for each segment contains some number of FaultSectionPrefData objects.
   	 * It is assumed that these are in proper order such that concatenating the FaultTraces will produce
@@ -464,12 +469,42 @@ public class FaultSegmentData implements java.io.Serializable {
 	 * @param segIndex List of Segment index to be included in the surface. The indices can have value from 0 to (getNumSegments()-1)
 	 * @return
 	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing) {
+	public StirlingGriddedSurface getCombinedGriddedSurface(int[] segIndex, double gridSpacing) {
 		ArrayList<SimpleFaultData> simpleFaultData = new ArrayList<SimpleFaultData>();
 		int lastSegmentIndex = getNumSegments()-1;
+		
+		// determine whether stepover needs to be fixed
+		boolean fixStepOver = false;
+		if(faultName.equals("San Jacinto") || faultName.equals("Elsinore"))
+			for(int i=0; i<segIndex.length-1; ++i) 
+				if(segIndex[i] == 1 && segIndex[i+1] == 2) fixStepOver = true;  // both segments 1 & 2 used
+		
+		// undo fix if unsegmented model was chosen
+		if(fixStepOver) {
+			int numSectionsOnSeg1 = ((ArrayList)this.simpleFaultDataList.get(2)).size();
+			if(numSectionsOnSeg1 == 1) fixStepOver = false;
+		}
+	
+/*		
+		if(faultName.equals("Elsinore")) {
+			for(int i=0; i<segIndex.length; ++i) System.out.print(segIndex[i]+"("+getSegmentName(segIndex[i])+";"+
+					((ArrayList)this.simpleFaultDataList.get(segIndex[i])).size()+")+");
+			System.out.print("\n");
+		}
+*/
 		for(int i=0; i<segIndex.length; ++i) {
 			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
-			simpleFaultData.addAll((ArrayList)this.simpleFaultDataList.get(segIndex[i]));
+
+			if(fixStepOver && segIndex[i]==1) {
+//				System.out.println("Fix: using only first simpleFaultData for segment "+i+" of "+faultName);
+				simpleFaultData.add((SimpleFaultData) ((ArrayList)this.simpleFaultDataList.get(segIndex[i])).get(0));
+			}
+			else if(fixStepOver && segIndex[i]==2) {
+//				System.out.println("Fix: using only second simpleFaultData for segment "+i+" of "+faultName+" (has "+((ArrayList)this.simpleFaultDataList.get(segIndex[i])).size()+")+");
+				simpleFaultData.add((SimpleFaultData) ((ArrayList)this.simpleFaultDataList.get(segIndex[i])).get(1));
+			}
+			else
+				simpleFaultData.addAll((ArrayList)this.simpleFaultDataList.get(segIndex[i]));
 		}
 		return  new StirlingGriddedSurface(simpleFaultData, gridSpacing);
 	}
@@ -574,6 +609,8 @@ public class FaultSegmentData implements java.io.Serializable {
 			totalMoRateIgnoringAseis+=segMoRateIgnoringAseis[seg];
 			totalLength+=segLength[seg];
 		}
+//		if(faultName.equals("San Jacinto") || faultName.equals("Elsinore"))
+//				System.out.println(faultName+"\tnumSegments="+this.getNumSegments());
 		return ;
 	}
 	

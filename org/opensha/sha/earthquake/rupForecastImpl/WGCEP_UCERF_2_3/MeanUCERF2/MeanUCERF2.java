@@ -36,6 +36,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis.Param
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
+import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
@@ -384,7 +385,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				nonCA_B_FaultsSummedMFD = ucerf2.getTotal_NonCA_B_FaultsMFD();
 			}
 
-			// if only background is not selected
+			// if "background only" is not selected
 			if(!backSeis.equalsIgnoreCase(UCERF2.BACK_SEIS_ONLY)) {
 				mkA_FaultSources();
 				allSources.addAll(this.aFaultSegmentedSources);
@@ -672,10 +673,19 @@ public class MeanUCERF2 extends EqkRupForecast {
 					sourceRakeMapping.put(key, aFaultSourceGenerator.getAveRakeForSource(srcIndex));
 					this.sourceGriddedSurfaceMapping.put(key, aFaultSourceGenerator.getCombinedGriddedSurfaceForSource(srcIndex, ddwCorr));
 
-// Debugging tests:					
-// StirlingGriddedSurface surf = 		aFaultSourceGenerator.getCombinedGriddedSurfaceForSource(srcIndex, ddwCorr);
-// if(faultName.equals("San Jacinto")) System.out.println(srcIndex+"\t"+key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
-// System.out.println(key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
+// Debugging tests:		
+/*
+ StirlingGriddedSurface surf = 		aFaultSourceGenerator.getCombinedGriddedSurfaceForSource(srcIndex, ddwCorr);
+ 
+ if(faultName.equals("San Jacinto") && srcIndex==17 ){
+	 FaultTrace ft = surf.getFaultTrace();
+	 for(int loc=0; loc <ft.size(); loc++)
+		 System.out.println((float)ft.getLocationAt(loc).getLatitude()+"\t"+(float)ft.getLocationAt(loc).getLongitude());
+//	 aFaultSourceGenerator.writeSegmentsInSource(srcIndex);
+ }
+ */
+ //if(faultName.equals("San Jacinto")) System.out.println(srcIndex+"\t"+key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
+ //System.out.println(key+"\t"+surf.getLocation(0, 0).toString()+"\t"+surf.getLocation(0, surf.getNumCols()-1).toString());
 
 				}
 				SummedMagFreqDist mfd = sourceMFDMapping.get(key);
@@ -932,10 +942,12 @@ public class MeanUCERF2 extends EqkRupForecast {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.calcSummedMFDs  =false;
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-		meanUCERF2.getTimeSpan().setDuration(30.0);
-		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
+//		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+//		meanUCERF2.getTimeSpan().setDuration(30.0);
+//		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
+//		for(int src=0; src<meanUCERF2.getNumSources(); src++)
+//			System.out.println(src+"\t"+meanUCERF2.getSource(src).getName());
 		/*
 		System.out.println(meanUCERF2.getTotal_A_FaultsMFD().getCumRateDistWithOffset());
 		System.out.println(meanUCERF2.getTotal_B_FaultsMFD().getCumRateDistWithOffset());

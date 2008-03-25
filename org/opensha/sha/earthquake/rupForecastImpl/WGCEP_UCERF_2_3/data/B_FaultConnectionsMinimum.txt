@@ -14,9 +14,9 @@
 # (but we keep it here for format consistency with files for A faults)
 #
 - Green Valley Connected
+3:Concord
 1:Green Valley (So)
 71:Green Valley (No)
-3:Concord
 - Greenville Connected
 6:Greenville (No)
 7:Greenville (So) 

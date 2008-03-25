@@ -489,7 +489,14 @@ public class A_FaultSegmentedSourceGenerator {
 		} else
 			return segmentData.getCombinedGriddedSurface(segmentsInRup, DEFAULT_GRID_SPACING);
 	}
-	
+
+	/*
+	public void writeSegmentsInSource(int srcIndex) {
+		int[] segmentsInRup = getSegmentsInRup(srcRupMapping.get(srcIndex));
+		for(int s=0; s<segmentsInRup.length;s++) System.out.println(s+"\t"+segmentsInRup[s]);
+		
+	}
+*/
 	
 	/**
 	 * Get Combined surface for a particular rupture index
