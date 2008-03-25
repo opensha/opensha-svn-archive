@@ -14,7 +14,7 @@
 - Elsinore
 237:Whittier, alt 2
 296,297 :Elsinore (Glen Ivy) rev; Elsinore (Glen Ivy stepover)
-299, 298:Elsinore (Temecula) rev; Elsinore (Temecula stepover)
+298,299 :Elsinore (Temecula stepover) rev; Elsinore (Temecula)
 102:Elsinore (Julian)
 103:Elsinore (Coyote Mountain)
 - Garlock
