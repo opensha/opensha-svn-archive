@@ -5,9 +5,11 @@ import org.opensha.metadata.XMLSaveable;
 
 public class HazardMapJob implements XMLSaveable {
 	
-	public static final String HPC_HOST_NAME = "hpc.usc.edu";
-	public static final String HPC_BATCH_SCHEDULER = "jobmanager-pbs";
-	public static final String HPC_JAVA_PATH = "/usr/bin/java";
+	public static final String HPC_NAME = "HPC";
+	public static final GridJobPreset HPC_PRESET = new GridJobPreset(HazardMapJob.HPC_NAME, "hpc.usc.edu", "jobmanager-pbs", "/usr/bin/java", "/auto/scec-00/kmilner/hazMaps/");
+	
+	public static final String DYNAMIC_NAME = "Dynamic";
+	public static final GridJobPreset DYNAMIC_PRESET = new GridJobPreset(HazardMapJob.DYNAMIC_NAME, "dynamic.usc.edu", "jobmanager-pbs", "/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/opensha/kmilner/hazMaps/");
 	
 	public static final String XML_METADATA_NAME = "hazardMapJob";
 	

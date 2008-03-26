@@ -132,7 +132,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	private ERF_GuiBean erfGuiBean;
 	private IMR_GuiBean imrGuiBean;
 	private IMT_GuiBean imtGuiBean;
-	private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
+	private SitesInGriddedRegionGuiBean sitesGuiBean;
+	private GridParametersGuiBean gridGuiBean;
 
 	private boolean isStandalone = false;
 	private JPanel mainPanel = new JPanel();
@@ -147,6 +148,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	private BorderLayout borderLayout2 = new BorderLayout();
 	private GridBagLayout gridBagLayout = new GridBagLayout();
 	private JPanel gridRegionSitePanel = new JPanel();
+	private JPanel gridParamPanel = new JPanel();
 
 
 	private JPanel imrSelectionPanel = new JPanel();
@@ -239,7 +241,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 					JOptionPane.OK_OPTION);
 			return;
 		}
-
+		this.initGridParameters_GuiBean();
 	}
 
 
@@ -253,6 +255,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		buttonPanel.setLayout(borderLayout3);
 		eqkRupPanel.setLayout(gridBagLayout);
+		gridParamPanel.setLayout(gridBagLayout);
 		imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		imrPanel.setLayout(borderLayout2);
 		imtPanel.setLayout(gridBagLayout);
@@ -306,6 +309,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
 		parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
 		parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
+		parameterTabbedPanel.addTab( "Grid Parameters", gridParamPanel );
 		mainSplitPane.setDividerLocation(550);
 		imr_IMTSplit.setDividerLocation(300);
 		imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -399,7 +403,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		// get the selected IMR
 		attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
-		sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean();
+		sitesGuiBean = new SitesInGriddedRegionGuiBean();
 		sitesGuiBean.addSiteParams(attenRel.getSiteParamsIterator());
 		// show the sitebean in JPanel
 		gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -474,6 +478,12 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 	}
 
+	private void initGridParameters_GuiBean() {
+		gridGuiBean = new GridParametersGuiBean();
+		gridParamPanel.add(gridGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+				GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+	}
+
 
 
 
@@ -527,10 +537,10 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 * It will provide a pick list of interesting regions
 	 */
 	private void initRegionsOfInterestControl() {
-		if(this.regionsOfInterest==null)
-			regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
-		regionsOfInterest.pack();
-		regionsOfInterest.setVisible(true);
+//		if(this.regionsOfInterest==null)
+//			regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
+//		regionsOfInterest.pack();
+//		regionsOfInterest.setVisible(true);
 	}
 
 	/**
@@ -648,9 +658,9 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 
 
 		try {
-			
+
 			int steps = 6;
-			
+
 			calcProgress.setProgressMessage("Saving ERF");
 			calcProgress.updateProgress(0, steps);
 
@@ -663,33 +673,33 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 
 			calcProgress.setProgressMessage("Saving IMR");
 			calcProgress.updateProgress(1, steps);
-			
+
 			IntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 			root = imr.toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Saving Region");
 			calcProgress.updateProgress(2, steps);
-			
+
 			SitesInGriddedRectangularRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
 
 			root = griddedRegionSites.toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Saving Job Params");
 			calcProgress.updateProgress(3, steps);
-			
+
 			String jobName = datasetIdText.getText();
 			if (jobName.equals(""))
 				jobName = System.currentTimeMillis() + "";
-			
-			String rp_host = HazardMapJob.HPC_HOST_NAME;
-			String rp_batchScheduler = HazardMapJob.HPC_BATCH_SCHEDULER;
-			String rp_javaPath = HazardMapJob.HPC_JAVA_PATH;
-			String rp_storagePath = "/auto/scec-00/kmilner/hazMaps/" + jobName;
-			String repo_host = "host.com";
-			String repo_storagePath = "/path/to/repo";
-			int sitesPerJob = 100;
+
+			String rp_host = this.gridGuiBean.get_rp_host();
+			String rp_batchScheduler = this.gridGuiBean.get_rp_batchScheduler();
+			String rp_javaPath = this.gridGuiBean.get_rp_javaPath();
+			String rp_storagePath = this.gridGuiBean.get_rp_storagePath() + jobName;
+			String repo_host = this.gridGuiBean.get_repo_host();
+			String repo_storagePath = this.gridGuiBean.get_repo_storagePath();
+			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
 			boolean useCVM = false;
-			boolean saveERF = true;
+			boolean saveERF = this.gridGuiBean.get_saveERF();
 			String metadataFileName = jobName + ".xml";
 			HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
 
@@ -697,19 +707,19 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 
 			calcProgress.setProgressMessage("Saving Calculation Params");
 			calcProgress.updateProgress(4, steps);
-			
+
 			Element calcParams = root.addElement("calculationParameters");
 			if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
 			else maxDistance = new Double(distanceControlPanel.getDistance());
 			calcParams.addAttribute("maxSourceDistance", maxDistance + "");
 			calcParams.addAttribute("intesityMeasureType", imtGuiBean.getSelectedIMT());
 			calcParams.addAttribute("emailAddress", email);
-			
+
 			//root = imtGuiBean.getIntensityMeasure().toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Writing to File");
 			calcProgress.updateProgress(5, steps);
-			
+
 			XMLWriter writer;
 
 			OutputFormat format = OutputFormat.createPrettyPrint();
@@ -720,7 +730,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			writer = new XMLWriter(new FileWriter("output.xml"), format);
 			writer.write(document);
 			writer.close();
-			
+
 			calcProgress.setProgressMessage("");
 			calcProgress.updateProgress(6, steps);
 

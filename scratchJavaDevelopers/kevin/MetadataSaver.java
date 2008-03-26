@@ -56,10 +56,10 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		}
 		
 		String jobName = "verify_UCERF";
-		String rp_host = HazardMapJob.HPC_HOST_NAME;
-		String rp_batchScheduler = HazardMapJob.HPC_BATCH_SCHEDULER;
-		String rp_javaPath = HazardMapJob.HPC_JAVA_PATH;
-		String rp_storagePath = "/auto/scec-00/kmilner/hazMaps/verify_0.02_noCVM_UCERF";
+		String rp_host = HazardMapJob.HPC_PRESET.rp_host;
+		String rp_batchScheduler = HazardMapJob.HPC_PRESET.rp_batchScheduler;
+		String rp_javaPath = HazardMapJob.HPC_PRESET.rp_javaPath;
+		String rp_storagePath = HazardMapJob.HPC_PRESET.rp_storagePath + "verify_0.02_noCVM_UCERF";
 		String repo_host = "host.com";
 		String repo_storagePath = "/path/to/repo";
 		int sitesPerJob = 100;
