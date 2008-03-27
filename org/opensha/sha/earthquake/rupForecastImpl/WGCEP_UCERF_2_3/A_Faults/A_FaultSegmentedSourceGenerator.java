@@ -964,7 +964,7 @@ public class A_FaultSegmentedSourceGenerator {
 			else if(rake>45 && rake<135) rakeStr="2"; // Reverse
 			else if(rake>-135 && rake<-45) rakeStr="3"; // Normal
 			else throw new RuntimeException("Invalid Rake:"+rake+", index="+rupIndex+", name="+getLongRupName(rupIndex));
-			strBuffer.append(rakeStr+"\t"+"1"+"\t"+this.getLongRupName(rupIndex)+"\n");
+			strBuffer.append(rakeStr+"\t"+"1"+"\t"+segmentData.getFaultName()+";"+this.getLongRupName(rupIndex)+"\n");
 			// get the rate needed by NSHMP code (rate assuming no aleatory uncertainty)
 			double fixRate = rupMoRate[rupIndex]/MomentMagCalc.getMoment(rupMeanMag[rupIndex]);
 			strBuffer.append((float)this.getRupMeanMag(rupIndex)+"\t"+(float)fixRate+"\t"+wt+"\n");
