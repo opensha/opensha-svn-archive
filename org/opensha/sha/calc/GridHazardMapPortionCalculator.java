@@ -198,33 +198,38 @@ public class GridHazardMapPortionCalculator {
 					// latitude in the region, and going west to east along that latitude line.
 					site = sites.getSite(j);
 					if (useCVM) {
-						String cvm = cvmStr.get(j - startIndex);
-						StringTokenizer tok = new StringTokenizer(cvm);
-						double lat = Double.parseDouble(tok.nextToken());
-						double lon = Double.parseDouble(tok.nextToken());
-						String type = tok.nextToken();
-						double depth = Double.parseDouble(tok.nextToken());
-						
-						if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
-							if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
-								System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
-								System.err.println("CVM Location: " + lat + ", " + lon + " REAL Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
-							}
-						}
-						
-						Iterator it = site.getParametersIterator();
-						while(it.hasNext()){
-					         ParameterAPI tempParam = (ParameterAPI)it.next();
+						if ((j - startIndex) >= cvmStr.size()) {
+							System.err.println("WARNING: CVM index out of bounds! (index: " + j + ")");
+							System.err.println("Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+						} else {
+							String cvm = cvmStr.get(j - startIndex);
+							StringTokenizer tok = new StringTokenizer(cvm);
+							double lat = Double.parseDouble(tok.nextToken());
+							double lon = Double.parseDouble(tok.nextToken());
+							String type = tok.nextToken();
+							double depth = Double.parseDouble(tok.nextToken());
 
-					         //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-					         boolean flag = siteTranslator.setParameterValue(tempParam,type,depth);
-					         if (!flag) {
-					        	 for (ParameterAPI param : defaultSiteParams) {
-					        		 if (tempParam.getName().equals(param.getName())) {
-					        			 tempParam.setValue(param.getValue());
-					        		 }
-					        	 }
-					         }
+							if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
+								if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
+									System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
+									System.err.println("CVM Location: " + lat + ", " + lon + " REAL Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+								}
+							}
+
+							Iterator it = site.getParametersIterator();
+							while(it.hasNext()){
+								ParameterAPI tempParam = (ParameterAPI)it.next();
+
+								//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+								boolean flag = siteTranslator.setParameterValue(tempParam,type,depth);
+								if (!flag) {
+									for (ParameterAPI param : defaultSiteParams) {
+										if (tempParam.getName().equals(param.getName())) {
+											tempParam.setValue(param.getValue());
+										}
+									}
+								}
+							}
 						}
 					}
 				} catch (RegionConstraintException e) {
