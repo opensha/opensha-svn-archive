@@ -695,13 +695,14 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			String rp_batchScheduler = this.gridGuiBean.get_rp_batchScheduler();
 			String rp_javaPath = this.gridGuiBean.get_rp_javaPath();
 			String rp_storagePath = this.gridGuiBean.get_rp_storagePath() + jobName;
+			String rp_globusrsl = this.gridGuiBean.get_rp_globusrsl();
 			String repo_host = this.gridGuiBean.get_repo_host();
 			String repo_storagePath = this.gridGuiBean.get_repo_storagePath();
 			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
 			boolean useCVM = false;
 			boolean saveERF = this.gridGuiBean.get_saveERF();
 			String metadataFileName = jobName + ".xml";
-			HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
+			HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 			root = job.toXMLMetadata(root);
 

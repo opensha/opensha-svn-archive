@@ -62,6 +62,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private StringParameter rp_batchScheduler = new StringParameter("Resource Provider Batch Scheduler");
 	private StringParameter rp_javaPath = new StringParameter("Resource Provider Java Path");
 	private StringParameter rp_storagePath = new StringParameter("Resource Provider Storage Path");
+	private StringParameter rp_globusrsl = new StringParameter("Globus RSL Params");
 	private StringParameter repo_host = new StringParameter("Data Storage Host-Name");
 	private StringParameter repo_storagePath = new StringParameter("Data Storage Path");
 	private IntegerParameter sitesPerJob = new IntegerParameter("Site Per Job", 0, Integer.MAX_VALUE);
@@ -93,6 +94,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this.rp_batchScheduler.setValue(firstPreset.rp_batchScheduler);
 		this.rp_javaPath.setValue(firstPreset.rp_javaPath);
 		this.rp_storagePath.setValue(firstPreset.rp_storagePath);
+		this.rp_globusrsl.setValue(firstPreset.rp_globusrsl);
 		
 		this.repo_host.setValue("host.com");
 		this.repo_storagePath.setValue("/path/to/repo");
@@ -108,6 +110,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		parameterList.addParameter(rp_batchScheduler);
 		parameterList.addParameter(rp_javaPath);
 		parameterList.addParameter(rp_storagePath);
+		parameterList.addParameter(rp_globusrsl);
 		parameterList.addParameter(repo_host);
 		parameterList.addParameter(repo_storagePath);
 		parameterList.addParameter(sitesPerJob);
@@ -175,6 +178,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 					this.rp_batchScheduler.setValue(preset.rp_batchScheduler);
 					this.rp_javaPath.setValue(preset.rp_javaPath);
 					this.rp_storagePath.setValue(preset.rp_storagePath);
+					this.rp_globusrsl.setValue(preset.rp_globusrsl);
 					editorPanel.removeAll();
 				    addParameters();
 					editorPanel.validate();
@@ -199,6 +203,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	
 	public String get_rp_storagePath() {
 		return (String)this.rp_storagePath.getValue();
+	}
+	
+	public String get_rp_globusrsl() {
+		return (String)this.rp_globusrsl.getValue();
 	}
 	
 	public String get_repo_host() {

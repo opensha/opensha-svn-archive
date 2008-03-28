@@ -60,13 +60,14 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		String rp_batchScheduler = HazardMapJob.HPC_PRESET.rp_batchScheduler;
 		String rp_javaPath = HazardMapJob.HPC_PRESET.rp_javaPath;
 		String rp_storagePath = HazardMapJob.HPC_PRESET.rp_storagePath + "verify_0.02_noCVM_UCERF";
+		String rp_globusrsl = "(jobtype=single)(maxwalltime=60)";
 		String repo_host = "host.com";
 		String repo_storagePath = "/path/to/repo";
 		int sitesPerJob = 100;
 		boolean useCVM = false;
 		boolean saveERF = true;
 		String metadataFileName = jobName + ".xml";
-		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
+		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 		root = erf.toXMLMetadata(root);
 		root = imr.toXMLMetadata(root);

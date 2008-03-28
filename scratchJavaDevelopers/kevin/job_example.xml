@@ -12,12 +12,12 @@
       <startTimes/>
     </TimeSpan>
   </ERF>
-  <IMR className="org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel">
+  <IMR className="org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel">
     <Parameters>
       <Parameter name="Gaussian Truncation" type="ConstrainedStringParameter" units="" value="None"/>
       <Parameter name="Truncation Level" type="ConstrainedDoubleParameter" units="Std Dev" value="2.0"/>
       <Parameter name="Component" type="ConstrainedStringParameter" units="" value="Average Horizontal"/>
-      <Parameter name="Std Dev Type" type="ConstrainedStringParameter" units="" value="Total"/>
+      <Parameter name="Std Dev Type" type="ConstrainedStringParameter" units="" value="Total (Mag Dependent)"/>
     </Parameters>
   </IMR>
   <evenlyGriddedGeographicRegion gridSpacing="0.1">
@@ -30,6 +30,6 @@
       </LocationList>
     </GeographicRegion>
   </evenlyGriddedGeographicRegion>
-  <hazardMapJob jobName="1206405828048" rp_host="hpc.usc.edu" rp_storagePath="/auto/scec-00/kmilner/hazMaps/1206405828048" rp_javaPath="/usr/bin/java" rp_batchScheduler="jobmanager-pbs" repo_host="host.com" repo_storagePath="/path/to/repo" sitesPerJob="100" useCVM="false" saveERF="true" metadataFileName="1206405828048.xml"/>
-  <calculationParameters maxSourceDistance="200.0" intesityMeasureType="PGA" emailAddress="dsagdsa@sadfdsa.cas"/>
+  <hazardMapJob jobName="1206729550914" rp_host="hpc.usc.edu" rp_storagePath="/auto/scec-00/kmilner/hazMaps/1206729550914" rp_javaPath="/usr/bin/java" rp_batchScheduler="jobmanager-pbs" rp_globusrsl="(jobtype=single)(maxwalltime=60)" repo_host="host.com" repo_storagePath="/path/to/repo" sitesPerJob="100" useCVM="false" saveERF="true" metadataFileName="1206729550914.xml"/>
+  <calculationParameters maxSourceDistance="200.0" intesityMeasureType="PGA" emailAddress="sadgdsa@dsafds.com"/>
 </OpenSHA>

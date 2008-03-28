@@ -46,7 +46,8 @@ public class HazardMapJobCreator {
 	// hpc
 //	public String executable = "/usr/bin/java";
 //	public String globusscheduler = "hpc.usc.edu/jobmanager-pbs";
-	public String globusrsl = "(jobtype=single)(maxwalltime=180)(project=TG-MCA03T012)";
+//	public String globusrsl = "(jobtype=single)(maxwalltime=180)(project=TG-MCA03T012)";
+	public String globusrsl = "(queue=mpi)(jobtype=single)(maxwalltime=60)";
 	
 	// dynamic
 //	public String executable = "/usr/java/jdk1.5.0_10/bin/java";
@@ -111,7 +112,7 @@ public class HazardMapJobCreator {
 			System.out.println("Creating " + jobFileName);
 			FileWriter fr = new FileWriter(outputDir + jobFileName);
 			fr.write("universe = globus" + "\n");
-			fr.write("globusrsl = " + globusrsl + "\n");
+			fr.write("globusrsl = " + job.rp_globusrsl + "\n");
 			fr.write("globusscheduler = " + globusscheduler + "\n");
 			fr.write("should_transfer_files = yes" + "\n");
 			fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
@@ -277,7 +278,7 @@ public class HazardMapJobCreator {
 			fr.write("condor_submit " + jobNames.get(i) + "\n");
 			all.write("condor_submit " + jobNames.get(i) + "\n");
 			fr.write("sleep 2\n");
-			all.write("sleep 2\n");
+			all.write("sleep 1\n");
 			i++;
 		}
 		if (fr != null)
@@ -566,6 +567,7 @@ public class HazardMapJobCreator {
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[1];
 			args[0] = "scratchJavaDevelopers/kevin/job_example.xml";
+			args[0] = "/home/kevin/OpenSHA/condor/jobs/01667_ucerf/output.xml";
 			outputDir = "/home/kevin/OpenSHA/condor/jobs/";
 		}
 		

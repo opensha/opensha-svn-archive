@@ -6,10 +6,10 @@ import org.opensha.metadata.XMLSaveable;
 public class HazardMapJob implements XMLSaveable {
 	
 	public static final String HPC_NAME = "HPC";
-	public static final GridJobPreset HPC_PRESET = new GridJobPreset(HazardMapJob.HPC_NAME, "hpc.usc.edu", "jobmanager-pbs", "/usr/bin/java", "/auto/scec-00/kmilner/hazMaps/");
+	public static final GridJobPreset HPC_PRESET = new GridJobPreset(HazardMapJob.HPC_NAME, "hpc.usc.edu", "jobmanager-pbs", "/usr/bin/java", "/auto/scec-00/kmilner/hazMaps/", "(jobtype=single)(maxwalltime=60)");
 	
 	public static final String DYNAMIC_NAME = "Dynamic";
-	public static final GridJobPreset DYNAMIC_PRESET = new GridJobPreset(HazardMapJob.DYNAMIC_NAME, "dynamic.usc.edu", "jobmanager-pbs", "/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/opensha/kmilner/hazMaps/");
+	public static final GridJobPreset DYNAMIC_PRESET = new GridJobPreset(HazardMapJob.DYNAMIC_NAME, "dynamic.usc.edu", "jobmanager-pbs", "/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/opensha/kmilner/hazMaps/", "(queue=mpi)(jobtype=single)(maxwalltime=60)");
 	
 	public static final String XML_METADATA_NAME = "hazardMapJob";
 	
@@ -19,6 +19,7 @@ public class HazardMapJob implements XMLSaveable {
 	String rp_batchScheduler;
 	String rp_javaPath;
 	String rp_storagePath;
+	String rp_globusrsl;
 	String repo_host;
 	String repo_storagePath;
 	int sitesPerJob;
@@ -27,13 +28,14 @@ public class HazardMapJob implements XMLSaveable {
 	String metadataFileName;
 	
 	public HazardMapJob(String jobName, String rp_host, String rp_batchScheduler,
-			String rp_javaPath, String rp_storagePath, String repo_host, String repo_storagePath,
+			String rp_javaPath, String rp_storagePath, String rp_globusrsl, String repo_host, String repo_storagePath,
 			int sitesPerJob, boolean useCVM, boolean saveERF, String metadataFileName) {
 		this.jobName = jobName;
 		this.rp_host = rp_host;
 		this.rp_batchScheduler = rp_batchScheduler;
 		this.rp_javaPath = rp_javaPath;
 		this.rp_storagePath = rp_storagePath;
+		this.rp_globusrsl = rp_globusrsl;
 		this.repo_host = repo_host;
 		this.repo_storagePath = repo_storagePath;
 		this.sitesPerJob = sitesPerJob;
@@ -49,6 +51,7 @@ public class HazardMapJob implements XMLSaveable {
 		xml.addAttribute("rp_storagePath", this.rp_storagePath);
 		xml.addAttribute("rp_javaPath", this.rp_javaPath);
 		xml.addAttribute("rp_batchScheduler", this.rp_batchScheduler);
+		xml.addAttribute("rp_globusrsl", this.rp_globusrsl);
 		xml.addAttribute("repo_host", this.repo_host);
 		xml.addAttribute("repo_storagePath", this.repo_storagePath);
 		xml.addAttribute("sitesPerJob", this.sitesPerJob + "");
@@ -67,6 +70,7 @@ public class HazardMapJob implements XMLSaveable {
 		String rp_storagePath = jobParams.attribute("rp_storagePath").getValue();
 		String rp_javaPath = jobParams.attribute("rp_javaPath").getValue();
 		String rp_batchScheduler = jobParams.attribute("rp_batchScheduler").getValue();
+		String rp_globusrsl = jobParams.attribute("rp_globusrsl").getValue();
 		String repo_host = jobParams.attribute("repo_host").getValue();
 		String repo_storagePath = jobParams.attribute("repo_storagePath").getValue();
 		int sitesPerJob = Integer.parseInt(jobParams.attribute("sitesPerJob").getValue());
@@ -74,6 +78,6 @@ public class HazardMapJob implements XMLSaveable {
 		boolean saveERF = Boolean.parseBoolean(jobParams.attribute("saveERF").getValue());
 		String metadataFileName = jobParams.attribute("metadataFileName").getValue();
 		
-		return new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
+		return new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
 	}
 }
