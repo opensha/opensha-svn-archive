@@ -131,7 +131,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			}
 		}
 		
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, imt, maxDistance, outputDir);
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, maxDistance, outputDir);
 		
 		calculator.timer = this.timer;
 		calculator.lessPrints = this.lessPrints;

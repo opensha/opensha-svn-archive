@@ -76,7 +76,6 @@ public class GridHazardMapPortionCalculator {
 	EqkRupForecastAPI erf;
 	AttenuationRelationshipAPI imr;
 	double maxDistance;
-	String imt;
 	String outputDir;
 
 	/**
@@ -88,13 +87,12 @@ public class GridHazardMapPortionCalculator {
 	 * @param maxDistance - maximum source distance for calculation
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
-	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf, AttenuationRelationshipAPI imr, String imt, double maxDistance, String outputDir) {
+	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf, AttenuationRelationshipAPI imr, double maxDistance, String outputDir) {
 		this.sites = sites;
 		
 		this.erf = erf;
 		this.imr = imr;
 		this.maxDistance = maxDistance;
-		this.imt = imt;
 		this.outputDir = outputDir;
 		
 		// show timing results if debug mode and timer is selected
@@ -122,13 +120,18 @@ public class GridHazardMapPortionCalculator {
 			//sites.setSiteParamsForRegionFromServlet(true);
 			
 			System.out.println("Selected ERF: " + erf.getName());
+			System.out.println("ERF Params:");
+			Iterator erfIt = erf.getAdjustableParamsIterator();
+			while (erfIt.hasNext()) {
+				ParameterAPI param = (ParameterAPI)erfIt.next();
+				System.out.println(param.getName() + ": " + param.getValue());
+			}
 			try {
 				System.out.println("Time Span: " + erf.getTimeSpan().getDuration() + " " + erf.getTimeSpan().getDurationUnits() + " from " + erf.getTimeSpan().getStartTimeYear());
 			} catch (RuntimeException e1) {
 			}
 			System.out.println("Selected IMR: " + imr.getName());
-			
-			
+			System.out.println("IMT: " + imr.getIntensityMeasure().getName());
 
 			// create the calculator object used for every curve
 			HazardCurveCalculator calc = new HazardCurveCalculator();
@@ -138,7 +141,7 @@ public class GridHazardMapPortionCalculator {
 			System.out.println("Setting up Hazard Function");
 			IMT_Info imtInfo = new IMT_Info();
 			// get the default function for the specified IMT
-			ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imt);
+			ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
 			
 			// total number of sites for the entire map
 		    numSites = sites.getNumGridLocs();

@@ -3,6 +3,7 @@ package org.opensha.sha.imr;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
@@ -43,6 +44,7 @@ public abstract class IntensityMeasureRelationship
   private final static String NAME = "Intensity Measure Relationship";
   
   public final static String XML_METADATA_NAME = "IMR";
+  public final static String XML_METADATA_IMT_NAME = "IntensityMeasure";
 
   /** Classname constant used for debugging statements */
   protected final static String C = "IntensityMeasureRelationship";
@@ -507,6 +509,15 @@ public abstract class IntensityMeasureRelationship
 		  Parameter param = (Parameter)paramIt.next();
 		  paramsElement = param.toXMLMetadata(paramsElement);
 	  }
+	  String imt = this.getIntensityMeasure().getName();
+	  Element imtElem = xml.addElement(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+	  imtElem.addAttribute("Type", imt);
+	  ParameterAPI period = this.getParameter(AttenuationRelationship.PERIOD_NAME);
+	  if (period != null)
+		  imtElem.addAttribute(AttenuationRelationship.PERIOD_NAME.replaceAll(" ", ""), period.getValue().toString());
+	  ParameterAPI damping = this.getParameter(AttenuationRelationship.DAMPING_NAME);
+	  if (damping != null)
+		  imtElem.addAttribute(AttenuationRelationship.DAMPING_NAME.replaceAll(" ", ""), damping.getValue().toString());
 	  return root;
   }
   
@@ -517,6 +528,49 @@ public abstract class IntensityMeasureRelationship
 	  ArrayList<String> argNames = new ArrayList<String>();
 	  args.add(listener);
 	  argNames.add(ParameterChangeWarningListener.class.getName());
-	  return (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
+	  IntensityMeasureRelationship imr = (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
+	  
+	  // add params
+	  System.out.println("Setting params...");
+	  Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
+	  ListIterator paramIt = imr.getOtherParamsIterator();
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  System.out.println("Setting param " + param.getName());
+		  Iterator<Element> it = paramsElement.elementIterator();
+		  while (it.hasNext()) {
+			  Element el = it.next();
+			  if (param.getName().equals(el.attribute("name").getValue())) {
+				  System.out.println("Found a match!");
+				  if (param.setValueFromXMLMetadata(el)) {
+					  System.out.println("Parameter set successfully!");
+				  } else {
+					  System.out.println("Parameter could not be set from XML!");
+					  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+				  }
+			  }
+		  }
+	  }
+	  
+	  // set IMT
+	  Element imtElem = root.element(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
+	  if (imtElem != null) {
+		  imr.setIntensityMeasure(imtElem.attribute("Type").getValue());
+		  Attribute period = imtElem.attribute(AttenuationRelationship.PERIOD_NAME.replaceAll(" ", ""));
+		  if (period != null) {
+			  ParameterAPI periodParam = imr.getParameter(AttenuationRelationship.PERIOD_NAME);
+			  if (periodParam != null)
+				  periodParam.setValue(Double.parseDouble(period.getValue()));
+		  }
+
+		  Attribute damping = imtElem.attribute(AttenuationRelationship.DAMPING_NAME.replaceAll(" ", ""));
+		  if (damping != null) {
+			  ParameterAPI dampingParam = imr.getParameter(AttenuationRelationship.DAMPING_NAME);
+			  if (dampingParam != null)
+				  dampingParam.setValue(Double.parseDouble(damping.getValue()));
+		  }
+	  }
+	  
+	  return imr;
   }
 }

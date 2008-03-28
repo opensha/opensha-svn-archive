@@ -16,6 +16,7 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 
 public class MetadataLoader implements ParameterChangeWarningListener {
@@ -89,6 +90,8 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        Document document = reader.read(new File("output.xml"));
 	        IntensityMeasureRelationship imr = IntensityMeasureRelationship.fromXMLMetadata(document.getRootElement().element(IntensityMeasureRelationship.XML_METADATA_NAME), new MetadataLoader());
 	        System.out.println("Name: " + imr.getName());
+	        System.out.println("IMT: " + imr.getIntensityMeasure().getName());
+	        System.out.println("Period: " + imr.getParameter(AttenuationRelationship.PERIOD_NAME).getValue());
 	        EqkRupForecast erf = EqkRupForecast.fromXMLMetadata(document.getRootElement().element(EqkRupForecast.XML_METADATA_NAME));
 	        System.out.println("Name: " + erf.getName());
 	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());

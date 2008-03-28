@@ -19,6 +19,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.*;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
@@ -675,6 +676,20 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			calcProgress.updateProgress(1, steps);
 
 			IntensityMeasureRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+			String imt = (String)(imtGuiBean.getIntensityMeasure().getName());
+			if (imt == null)
+				System.out.println("NULL IMT!!!");
+			imr.setIntensityMeasure(imt);
+			ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.DAMPING_NAME);
+			if (dampingParam != null) {
+				double damping = (Double)dampingParam.getValue();
+				imr.getParameter(AttenuationRelationship.DAMPING_NAME).setValue(damping);
+			}
+			ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME);
+			if (periodParam != null) {
+				double period = (Double)periodParam.getValue();
+				imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+			}
 			root = imr.toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Saving Region");

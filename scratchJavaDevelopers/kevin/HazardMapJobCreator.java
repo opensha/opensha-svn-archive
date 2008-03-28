@@ -567,7 +567,7 @@ public class HazardMapJobCreator {
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[1];
 			args[0] = "scratchJavaDevelopers/kevin/job_example.xml";
-			args[0] = "/home/kevin/OpenSHA/condor/jobs/01667_ucerf/output.xml";
+			args[0] = "/home/kevin/OpenSHA/condor/jobs/field_ucerf_nocvm/output.xml";
 			outputDir = "/home/kevin/OpenSHA/condor/jobs/";
 		}
 		

@@ -125,12 +125,8 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		// load IMR
 		//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
 		AttenuationRelationship imr = (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(root.element("IMR"), this);
-		// set the Intensity Measure Type
-		imr.setIntensityMeasure(imt);
-		// set default parameters
-		imr.setParamDefaults();
 
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, imt, maxDistance, outputDir);
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, maxDistance, outputDir);
 
 		calculator.timer = this.timer;
 		calculator.lessPrints = this.lessPrints;

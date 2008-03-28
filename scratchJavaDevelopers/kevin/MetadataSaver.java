@@ -39,10 +39,13 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 //		erf.setTimeSpan(span);
 
 		AttenuationRelationship imr = new BJF_1997_AttenRel(this);
-		// set the Intensity Measure Type
-		imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 		// set default parameters
 		imr.setParamDefaults();
+		// set the Intensity Measure Type
+//		imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+		imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
+		imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+                Double(0.5));
 		
 //		GeographicRegion region = new RELM_TestingRegion();
 //		EvenlyGriddedGeographicRegion gridded = new EvenlyGriddedGeographicRegion(region.getRegionOutline(), 0.1);
