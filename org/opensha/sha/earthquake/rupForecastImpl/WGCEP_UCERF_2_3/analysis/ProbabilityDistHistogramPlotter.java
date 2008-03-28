@@ -906,7 +906,8 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		//plotter.generateProbContributionsExcelSheet(false, 30, PATH+"ProbabilityContributions_Pois_30yrs_All.xls", null);
 		 //plotter.generateProbContributionsExcelSheet(true, 30, PATH+"ProbabilityContributions_30yrs_LA_Box.xls", new EvenlyGriddedWG07_LA_Box_Region());
 
-		/*plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
+		/**/
+		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_WG02.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_5yrs_WG02.xls");
@@ -917,8 +918,9 @@ public class ProbabilityDistHistogramPlotter implements GraphWindowAPI {
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_1yr_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_15yrs_All.xls");
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_Pois_30yrs_All.xls");
-		 */
 		plotter.addMinMaxAvgSheet(PATH+"ProbabilityContributions_30yrs_LA_Box.xls");
+		 
+		
 
 		//plotter.plotEmpiricalBPT_ComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);
 		//plotter.plotMagAreaComparisonProbPlot(7.5, PATH+"ProbabilityContributions_30yrs_All.xls", ProbabilityDistHistogramPlotter.TOTAL);

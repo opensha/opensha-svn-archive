@@ -17,7 +17,7 @@ import org.opensha.util.FileUtils;
 
 public class MakeXYZFromHazardMapDir {
 	
-	public static int WRITES_UNTIL_FLUSH = 100;
+	public static int WRITES_UNTIL_FLUSH = 1000;
 
 	public MakeXYZFromHazardMapDir(String dirName, boolean isProbAt_IML, double val, String outFileName, boolean sort) throws IOException {
 		// get and list the dir
@@ -175,9 +175,11 @@ public class MakeXYZFromHazardMapDir {
 	public static void main(String args[]) {
 		try {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
-			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/hpc_0.2_noCVM/curves";
+			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/01667/boore_cvm/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, "xyzCurves.txt", false);
+//			String outfile = "xyzCurves.txt";
+			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/01667/boore_cvm/xyzCurves.txt";
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, outfile, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
