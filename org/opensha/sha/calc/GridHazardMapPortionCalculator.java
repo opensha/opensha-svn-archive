@@ -178,7 +178,7 @@ public class GridHazardMapPortionCalculator {
 			int j = 0;
 			
 			for(j = startIndex; j < numSites && j < endIndex; ++j){
-				// if we're skipping some of them, then check if this shoul be skipped
+				// if we're skipping some of them, then check if this should be skipped
 				if (skipPoints && j % skipFactor != 0)
 					continue;
 				boolean print = true;
