@@ -102,7 +102,6 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 	public Element writeCalculationParams(Element root) {
 		Element xml = root.addElement("calculationParameters");
 		xml.addAttribute("maxSourceDistance", "200");
-		xml.addAttribute("intesityMeasureType", AttenuationRelationship.PGA_NAME);
 		
 		return root;
 	}

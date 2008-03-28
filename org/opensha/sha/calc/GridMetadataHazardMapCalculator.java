@@ -119,9 +119,6 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		Element calcParams = root.element("calculationParameters");
 		double maxDistance =  Double.parseDouble(calcParams.attribute("maxSourceDistance").getValue());
 
-		// intensity measure type
-		String imt = calcParams.attribute("intesityMeasureType").getValue();
-
 		// load IMR
 		//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
 		AttenuationRelationship imr = (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(root.element("IMR"), this);

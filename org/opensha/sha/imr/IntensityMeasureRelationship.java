@@ -529,7 +529,7 @@ public abstract class IntensityMeasureRelationship
 	  args.add(listener);
 	  argNames.add(ParameterChangeWarningListener.class.getName());
 	  IntensityMeasureRelationship imr = (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
-	  
+	  imr.setParamDefaults();
 	  // add params
 	  System.out.println("Setting params...");
 	  Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);

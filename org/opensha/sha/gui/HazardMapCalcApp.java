@@ -728,7 +728,6 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
 			else maxDistance = new Double(distanceControlPanel.getDistance());
 			calcParams.addAttribute("maxSourceDistance", maxDistance + "");
-			calcParams.addAttribute("intesityMeasureType", imtGuiBean.getSelectedIMT());
 			calcParams.addAttribute("emailAddress", email);
 
 			//root = imtGuiBean.getIntensityMeasure().toXMLMetadata(root);
