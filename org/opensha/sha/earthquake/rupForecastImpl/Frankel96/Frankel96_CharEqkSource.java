@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.Frankel96;
 
 import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
@@ -67,6 +68,8 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   public LocationList getAllSourceLocs() {
     return this.surface.getLocationList();
   }
+  
+  public EvenlyGriddedSurfaceAPI getSourceSurface() { return this.surface; }
 
 
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -110,6 +111,9 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    public LocationList getAllSourceLocs() {
      return this.surface.getLocationList();
    }
+   
+   public EvenlyGriddedSurfaceAPI getSourceSurface() { return this.surface; }
+
 
 
 

@@ -8,7 +8,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
-import org.opensha.sha.surface.PointSurface;
 import org.opensha.sha.surface.*;
 
 // temp for testing
@@ -183,6 +182,12 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     if(this.finiteFault!=null) return finiteFault.getLocationList();
     else return ptSurface.getLocationList();
   }
+  
+  public EvenlyGriddedSurfaceAPI getSourceSurface() {
+	    if(this.finiteFault!=null) return finiteFault;
+	    else return ptSurface;
+	  }
+
 
 
 

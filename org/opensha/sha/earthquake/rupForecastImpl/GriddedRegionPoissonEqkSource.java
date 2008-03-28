@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
 import org.opensha.sha.magdist.*;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.data.function.*;
@@ -95,6 +96,9 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    public LocationList getAllSourceLocs() {
      return this.region.getGridLocationsList();
    }
+   
+   public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+
 
 
 

@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
 import org.opensha.sha.magdist.*;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 import org.opensha.data.function.*;
 import org.opensha.calc.RelativeLocation;
@@ -127,7 +128,8 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    locList.addLocation(this.location);
    return locList;
  }
-
+ 
+ public EvenlyGriddedSurfaceAPI getSourceSurface() { return probEqkRupture.getRuptureSurface(); }
 
 
   /**

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.LocationList;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <p>Title: EqkSourceAPI</p>
@@ -72,5 +73,11 @@ public interface EqkSourceAPI extends NamedObjectAPI{
    * of this source
    */
    public LocationList getAllSourceLocs();
+
+   /**
+    * This gives the entire surface of the source
+    * @return
+    */
+   public EvenlyGriddedSurfaceAPI getSourceSurface();
 
 }

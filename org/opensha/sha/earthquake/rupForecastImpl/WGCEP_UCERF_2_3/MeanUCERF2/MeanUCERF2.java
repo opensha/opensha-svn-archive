@@ -5,7 +5,9 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -15,6 +17,7 @@ import java.util.Iterator;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 
+import org.opensha.data.LocationList;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.ValueWeight;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
@@ -24,6 +27,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.earthquake.EqkSourceAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
@@ -38,6 +42,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.NonCA_Fau
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
@@ -934,7 +939,33 @@ public class MeanUCERF2 extends EqkRupForecast {
 		parameterChangeFlag = true;
 	}
 	
-
+	
+	public void writeFaultSourceSurfaceOutlines() {
+		ArrayList<EqkSourceAPI> allFltSources = new ArrayList<EqkSourceAPI>();
+		allFltSources.addAll(aFaultSegmentedSources);
+		allFltSources.addAll(aFaultUnsegmentedSources);
+		allFltSources.addAll(bFaultSources);
+		allFltSources.addAll(nonCA_bFaultSources);
+		try {
+			FileWriter fw = new FileWriter("meanUCERF2_FltSrcSurfOutln.txt");
+			for(int isrc=0; isrc<allFltSources.size(); isrc++) {
+				EqkSourceAPI source = allFltSources.get(isrc);
+				LocationList locList = source.getSourceSurface().getSurfacePerimeterLocsList();
+				System.out.println("# "+source.getName());
+				fw.write("# "+source.getName()+"\n");
+				for(int i=0;i<locList.size();i++) {
+					Location loc = locList.getLocationAt(i);
+//					System.out.println((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth());
+					fw.write((float)loc.getLatitude()+"\t"+(float)loc.getLongitude()+"\t"+(float)loc.getDepth()+"\n");
+				}
+			}
+			fw.close();
+	    }
+		catch (FileNotFoundException ex) {
+		}
+		catch (IOException ex) {
+		}
+	}
 
 
 	// this is temporary for testing purposes
@@ -946,6 +977,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 //		meanUCERF2.getTimeSpan().setDuration(30.0);
 //		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
+		meanUCERF2.writeFaultSourceSurfaceOutlines();
 //		for(int src=0; src<meanUCERF2.getNumSources(); src++)
 //			System.out.println(src+"\t"+meanUCERF2.getSource(src).getName());
 		/*

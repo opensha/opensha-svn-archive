@@ -58,6 +58,8 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
     /** Common debug string that most Java classes implement */
     public String toString();
 
+    /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+    public LocationList getSurfacePerimeterLocsList();
 
     /**
      * Returns the Metadata for the surface

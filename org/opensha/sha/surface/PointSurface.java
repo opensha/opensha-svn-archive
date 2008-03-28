@@ -382,6 +382,16 @@ public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
 
       return surfaceMetadata;
     }
+    
+
+    /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+    public LocationList getSurfacePerimeterLocsList() {
+  	  LocationList locList = new LocationList();
+  	  locList.addLocation(this.getLocation());
+ 	  return locList;
+    }
+
+
 
 
     /**

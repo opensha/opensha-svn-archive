@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.opensha.calc.magScalingRelations.*;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
@@ -247,6 +248,8 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
    public LocationList getAllSourceLocs() {
      return this.faultSurface.getLocationList();
    }
+   
+   public EvenlyGriddedSurfaceAPI getSourceSurface() { return this.faultSurface; }
 
   /**
    * @return the total num of rutures for all magnitudes

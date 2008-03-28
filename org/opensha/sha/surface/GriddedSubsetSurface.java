@@ -3,7 +3,6 @@ package org.opensha.sha.surface;
 import java.util.*;
 import org.opensha.exceptions.LocationException;
 import org.opensha.sha.fault.*;
-import org.opensha.data.Location;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 
@@ -259,6 +258,19 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     public double getSurfaceWidth() {
       return getGridSpacing() * (getNumRows()-1);
     }
+    
+
+    /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+    public LocationList getSurfacePerimeterLocsList() {
+  	  LocationList locList = new LocationList();
+  	  for(int c=0;c<getNumCols();c++) locList.addLocation(getLocation(0, c));
+  	  for(int r=0;r<getNumRows();r++) locList.addLocation(getLocation(r, getNumCols()-1));
+  	  for(int c=getNumCols()-1;c>=0;c--) locList.addLocation(getLocation(getNumRows()-1, c));
+  	  for(int r=getNumRows()-1;r>=0;r--) locList.addLocation(getLocation(r, 0));
+  	  return locList;
+    }
+
+
 
     /**
      * Returns the Surface Metadata with the following info:

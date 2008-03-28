@@ -4,6 +4,7 @@ import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.*;
 import org.opensha.sha.surface.*;
@@ -170,6 +171,9 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     }
     return locList;
   }
+  
+  public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
+
 
 
 

@@ -2,6 +2,7 @@ package org.opensha.sha.surface;
 
 import java.util.ListIterator;
 import org.opensha.data.*;
+
 import java.util.Iterator;
 import org.opensha.exceptions.LocationException;
 
@@ -178,6 +179,17 @@ public class GriddedSurface extends Container2D
     b.append('\n' + superStr);
 
     return b.toString();
+  }
+
+
+  /** get a list of locations that constitutes the perimeter (forst row, last col, last row, and first col) */
+  public LocationList getSurfacePerimeterLocsList() {
+	  LocationList locList = new LocationList();
+	  for(int c=0;c<getNumCols();c++) locList.addLocation(getLocation(0, c));
+	  for(int r=0;r<getNumRows();r++) locList.addLocation(getLocation(r, getNumCols()-1));
+	  for(int c=getNumCols()-1;c>=0;c--) locList.addLocation(getLocation(getNumRows()-1, c));
+	  for(int r=getNumRows()-1;r>=0;r--) locList.addLocation(getLocation(r, 0));
+	  return locList;
   }
 
 

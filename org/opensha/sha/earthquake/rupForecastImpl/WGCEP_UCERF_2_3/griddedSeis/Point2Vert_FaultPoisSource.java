@@ -8,7 +8,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.surface.FrankelGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
-import org.opensha.sha.surface.PointSurface;
 import org.opensha.sha.surface.*;
 
 // temp for testing
@@ -265,6 +264,7 @@ public class Point2Vert_FaultPoisSource extends ProbEqkSource implements java.io
     return locList;
   }
 
+  public EvenlyGriddedSurfaceAPI getSourceSurface() { throw new RuntimeException("method not supported (not sure what to return)"); }
 
 
 
