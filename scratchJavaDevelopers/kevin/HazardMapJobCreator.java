@@ -11,9 +11,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -301,10 +304,9 @@ public class HazardMapJobCreator {
 	public void createJarTransferInputFile (String outputDir, String remoteJobDir) {
 		try {
 			FileWriter fr = new FileWriter(outputDir + "/test.in");
-			String hostnameandpath = "scecit18.usc.edu/home/dmeyers/proj/ogale/run_3_24_08/";
 			
 			fr.write("\n");
-			fr.write("gsiftp://"+ hostnameandpath +"opensha_gridHazMapGenerator.jar");
+			fr.write("gsiftp://"+ outputDir +"opensha_gridHazMapGenerator.jar");
 			fr.write("\n");
 			fr.write("gsiftp://");
 			fr.write(job.rp_host);
@@ -313,7 +315,7 @@ public class HazardMapJobCreator {
 			fr.write("\n");
 			fr.write("\n");
 			
-			fr.write("gsiftp://"+ hostnameandpath +"ERF.jar");
+			fr.write("gsiftp://"+ outputDir +"ERF.jar");
 			fr.write("\n");
 			fr.write("gsiftp://");
 			fr.write(job.rp_host);
@@ -322,7 +324,7 @@ public class HazardMapJobCreator {
 			fr.write("\n");
 			fr.write("\n");
 			
-			fr.write("gsiftp://"+ hostnameandpath +"erf.obj");
+			fr.write("gsiftp://"+ outputDir +"erf.obj");
 			fr.write("\n");
 			fr.write("gsiftp://");
 			fr.write(job.rp_host);
@@ -350,7 +352,7 @@ public class HazardMapJobCreator {
 		    Collections.sort(arr);
 		    
 		    for (int i = 0; i < children.length; i++) {
-		    	fr.write("gsiftp://"+ hostnameandpath +arr.get(i));
+		    	fr.write("gsiftp://"+ outputDir +arr.get(i));
 				fr.write("\n");
 				fr.write("gsiftp://");
 				fr.write(job.rp_host);
@@ -505,10 +507,10 @@ public class HazardMapJobCreator {
 				fr = new BufferedReader (new FileReader (outputDir+"/"+(String)arr.get(i)));
 				line = fr.readLine();line = fr.readLine();
 				while ((line = fr.readLine()) != null) {
-					fw.write("gsiftp://hpc-login1.usc.edu/auto/scec-00/dpmeyers/proj/openSHA/ogale/verificationMap/");
+					fw.write("gsiftp://"+ job.rp_host +job.rp_storagePath+"/");
 					fw.write(line);
 					fw.write("\n");
-					fw.write("gsiftp://scecit18.usc.edu/home/dmeyers/proj/ogale/run_3_24_08/"+line);
+					fw.write("gsiftp://"+ outputDir +line);
 					fw.write("\n\n");
 				}
 				fr.close();
@@ -526,7 +528,7 @@ public class HazardMapJobCreator {
 		String exefile = "/usr/local/vds-1.4.7/bin/kickstart";
 		FileWriter fr = null;
 		String name = null;
-		job.rp_storagePath = "/home/dmeyers/proj/ogale/run_3_24_08";
+
 		try {
 			for (int i = 0; i < numberOfJobs; i++) {
 				name = jobName+(i+1);
@@ -559,6 +561,35 @@ public class HazardMapJobCreator {
 		System.out.println (e);
 	}		
 	}
+	
+	public void createUniqueDirOnRemote (String dirName) {
+		String jobName = "HPC_cdir";
+		try {
+			FileWriter fr = new FileWriter(outputDir + jobName+".sub");
+			fr.write ("\n\n");
+			fr.write("environment = GLOBUS_LOCATION=/usr/local/vdt/globus;LD_LIBRARY_PATH=/usr/local/vdt/globus/lib;\n");
+			fr.write ("arguments = -n dirmanager -N Pegasus::dirmanager:1.0 -R hpc /auto/rcf-104/dpmeyers/proj/pegasus-2.0.0RC1/bin/dirmanager");
+			fr.write (" --create --dir "+dirName+"\n");
+			fr.write("copy_to_spool = false\n");
+			fr.write ("error = "+jobName+".err\n");
+			fr.write("executable = /auto/rcf-104/dpmeyers/proj/vds-1.4.7/bin/kickstart\n");
+			fr.write("globusrsl = (jobtype=single)\n");
+			fr.write ("globusscheduler = "+job.rp_host+"/jobmanager-fork\n");
+			fr.write ("log = "+jobName+".log\n");
+			fr.write ("output = "+jobName+".out\n");			
+			fr.write("periodic_release = (NumSystemHolds <= 3)\n");
+			fr.write("periodic_remove = (NumSystemHolds > 3)\n");
+			fr.write("remote_initialdir = " + job.rp_storagePath + "\n");
+			fr.write("transfer_error = true\n");
+			fr.write("transfer_executable = false\n");
+			fr.write("transfer_output = true\n");
+			fr.write("universe = globus\n");
+			fr.write("queue\n");
+			fr.close();
+		} catch (Exception e) {
+			System.out.println (e);
+		}		
+	}	
 	
 	public static void main(String args[]) {
 		
@@ -637,13 +668,24 @@ public class HazardMapJobCreator {
 				creator.createJobs();
 				creator.createSubmitScripts(24);
 				
-/*				
+				// Mahesh code
+				
+				String remoteJobDir = job.rp_storagePath;
+				DateFormat myformat = new SimpleDateFormat("MM_dd_yyyy_HH_mm_ss");  
+				StringBuffer buf = new StringBuffer ();
+				buf.append(remoteJobDir+"/");
+				buf.append(myformat.format(new Date()));
+				remoteJobDir = new String (buf);
+				System.out.println(remoteJobDir);				
+				
+				creator.createUniqueDirOnRemote (remoteJobDir);
 				creator.createJarTransferToHostInputFile(outputDir, remoteJobDir);
 				creator.createDAG (outputDir, creator.getNumberOfJobs());
 				creator.createJarTransferJobFile();
 				creator.createJarTransferInputFile(outputDir, remoteJobDir);
 				creator.createTransferOutputJobFiles (creator.getNumberOfJobs());
-				*/
+				// Mahesh code
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
