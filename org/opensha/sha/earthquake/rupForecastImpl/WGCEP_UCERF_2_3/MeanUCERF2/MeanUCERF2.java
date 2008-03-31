@@ -438,7 +438,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		double duration = this.timeSpan.getDuration();
 		double rupOffset = (Double)this.rupOffsetParam.getValue();
 		boolean cybershakeDDW_Corr = (Boolean)this.cybershakeDDW_CorrParam.getValue();
-
+/*
 		// read from pre-genearated A-Faults files
 		if(probModel.equalsIgnoreCase(UCERF2.PROB_MODEL_POISSON)
 				&& rupOffset==5 && !cybershakeDDW_Corr && !calcSummedMFDs) {
@@ -451,6 +451,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 			for(int i=0; i<aFaultSegmentedSources.size(); ++i)
 				aFaultSegmentedSources.get(i).setDuration(duration);
 		} else { 
+*/	
 			// DO For Segmented sources
 			fillAdjustableParamsForA_Faults();
 			sourceMFDMapping = new HashMap<String, SummedMagFreqDist>();
@@ -472,7 +473,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 				//System.out.println("*******"+name+"\n"+sourceMFDMapping.get(name));
 				aFaultSegmentedSources.add(faultRupSrc);
 			}
-		}
+//		}
 		//FileUtils.saveObjectInFile(this.A_FAULTS_POISS_FILENAME, aFaultSegmentedSources);
 		//FileUtils.saveObjectInFile(this.A_FAULTS_EMPIRICAL_FILENAME, aFaultSegmentedSources);
 		// make unsegmnted A-Fault Sources
@@ -939,7 +940,14 @@ public class MeanUCERF2 extends EqkRupForecast {
 		parameterChangeFlag = true;
 	}
 	
-	
+
+	public void writeB_FaultMgt67probs() {
+		for(int isrc=0; isrc<bFaultSources.size(); isrc++) {
+			UnsegmentedSource source = bFaultSources.get(isrc);
+			System.out.println(source.getName()+"\t"+source.computeTotalProbAbove(6.7));
+		}
+	}
+
 	public void writeFaultSourceSurfaceOutlines() {
 		ArrayList<EqkSourceAPI> allFltSources = new ArrayList<EqkSourceAPI>();
 		allFltSources.addAll(aFaultSegmentedSources);
@@ -977,7 +985,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 //		meanUCERF2.getTimeSpan().setDuration(30.0);
 //		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
-		meanUCERF2.writeFaultSourceSurfaceOutlines();
+		meanUCERF2.writeB_FaultMgt67probs();
+//		meanUCERF2.writeFaultSourceSurfaceOutlines();
 //		for(int src=0; src<meanUCERF2.getNumSources(); src++)
 //			System.out.println(src+"\t"+meanUCERF2.getSource(src).getName());
 		/*

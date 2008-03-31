@@ -43,8 +43,7 @@ public class GenerateFilesForParticipationProbMaps {
 		
 		// List of Magnitudes for which Maps need to be generates.
 		// To make map for new magnitude, just add that magnitude to this list
-		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.2, 7.5, 7.7, 8.0};
-//		double mags[] = { 7.1 };
+		double mags[] = { 5.0, 6.0, 6.5, 6.7, 7.1, 7.2, 7.5, 7.7, 8.0};
 
 		// Region
 		EvenlyGriddedRELM_TestingRegion evenlyGriddedRegion  = new EvenlyGriddedRELM_TestingRegion();
