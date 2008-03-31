@@ -562,20 +562,22 @@ public abstract class IntensityMeasureRelationship
 	  
 	  System.out.println("Setting site params...");
 	  Element siteParamsElement = root.element(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
-	  paramIt = imr.getSiteParamsIterator();
-	  while (paramIt.hasNext()) {
-		  Parameter param = (Parameter)paramIt.next();
-		  System.out.println("Setting param " + param.getName());
-		  Iterator<Element> it = siteParamsElement.elementIterator();
-		  while (it.hasNext()) {
-			  Element el = it.next();
-			  if (param.getName().equals(el.attribute("name").getValue())) {
-				  System.out.println("Found a match!");
-				  if (param.setValueFromXMLMetadata(el)) {
-					  System.out.println("Parameter set successfully!");
-				  } else {
-					  System.out.println("Parameter could not be set from XML!");
-					  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+	  if (siteParamsElement != null) {
+		  paramIt = imr.getSiteParamsIterator();
+		  while (paramIt.hasNext()) {
+			  Parameter param = (Parameter)paramIt.next();
+			  System.out.println("Setting param " + param.getName());
+			  Iterator<Element> it = siteParamsElement.elementIterator();
+			  while (it.hasNext()) {
+				  Element el = it.next();
+				  if (param.getName().equals(el.attribute("name").getValue())) {
+					  System.out.println("Found a match!");
+					  if (param.setValueFromXMLMetadata(el)) {
+						  System.out.println("Parameter set successfully!");
+					  } else {
+						  System.out.println("Parameter could not be set from XML!");
+						  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+					  }
 				  }
 			  }
 		  }
