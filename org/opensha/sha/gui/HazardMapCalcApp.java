@@ -24,6 +24,7 @@ import org.opensha.param.event.*;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.exceptions.ParameterException;
@@ -695,7 +696,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			calcProgress.setProgressMessage("Saving Region");
 			calcProgress.updateProgress(2, steps);
 
-			SitesInGriddedRectangularRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+			SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
 
 			root = griddedRegionSites.toXMLMetadata(root);
 

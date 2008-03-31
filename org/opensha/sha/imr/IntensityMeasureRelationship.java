@@ -45,6 +45,7 @@ public abstract class IntensityMeasureRelationship
   
   public final static String XML_METADATA_NAME = "IMR";
   public final static String XML_METADATA_IMT_NAME = "IntensityMeasure";
+  public final static String XML_METADATA_SITE_PARAMETERS_NAME = "SiteParameters";
 
   /** Classname constant used for debugging statements */
   protected final static String C = "IntensityMeasureRelationship";
@@ -509,6 +510,12 @@ public abstract class IntensityMeasureRelationship
 		  Parameter param = (Parameter)paramIt.next();
 		  paramsElement = param.toXMLMetadata(paramsElement);
 	  }
+	  paramIt = this.getSiteParamsIterator();
+	  Element siteParamsElement = xml.addElement(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  siteParamsElement = param.toXMLMetadata(siteParamsElement);
+	  }
 	  String imt = this.getIntensityMeasure().getName();
 	  Element imtElem = xml.addElement(IntensityMeasureRelationship.XML_METADATA_IMT_NAME);
 	  imtElem.addAttribute("Type", imt);
@@ -530,6 +537,7 @@ public abstract class IntensityMeasureRelationship
 	  argNames.add(ParameterChangeWarningListener.class.getName());
 	  IntensityMeasureRelationship imr = (IntensityMeasureRelationship)MetadataLoader.createClassInstance(className, args, argNames);
 	  imr.setParamDefaults();
+	  
 	  // add params
 	  System.out.println("Setting params...");
 	  Element paramsElement = root.element(Parameter.XML_GROUP_METADATA_NAME);
@@ -538,6 +546,27 @@ public abstract class IntensityMeasureRelationship
 		  Parameter param = (Parameter)paramIt.next();
 		  System.out.println("Setting param " + param.getName());
 		  Iterator<Element> it = paramsElement.elementIterator();
+		  while (it.hasNext()) {
+			  Element el = it.next();
+			  if (param.getName().equals(el.attribute("name").getValue())) {
+				  System.out.println("Found a match!");
+				  if (param.setValueFromXMLMetadata(el)) {
+					  System.out.println("Parameter set successfully!");
+				  } else {
+					  System.out.println("Parameter could not be set from XML!");
+					  System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+				  }
+			  }
+		  }
+	  }
+	  
+	  System.out.println("Setting site params...");
+	  Element siteParamsElement = root.element(IntensityMeasureRelationship.XML_METADATA_SITE_PARAMETERS_NAME);
+	  paramIt = imr.getSiteParamsIterator();
+	  while (paramIt.hasNext()) {
+		  Parameter param = (Parameter)paramIt.next();
+		  System.out.println("Setting param " + param.getName());
+		  Iterator<Element> it = siteParamsElement.elementIterator();
 		  while (it.hasNext()) {
 			  Element el = it.next();
 			  if (param.getName().equals(el.attribute("name").getValue())) {

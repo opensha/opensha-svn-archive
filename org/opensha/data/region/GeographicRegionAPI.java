@@ -3,6 +3,7 @@ package org.opensha.data.region;
 import org.opensha.data.Location;
 import java.util.ListIterator;
 import org.opensha.data.LocationList;
+import org.opensha.metadata.XMLSaveable;
 
 /**
  * <p>Title: GeographicRegionAPI</p>
@@ -13,7 +14,7 @@ import org.opensha.data.LocationList;
  * @author Nitin Gupta
  * @version 1.0
  */
-public interface GeographicRegionAPI {
+public interface GeographicRegionAPI extends XMLSaveable {
 
     /**
      * This method checks whether the given location is inside the region by

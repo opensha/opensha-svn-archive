@@ -23,7 +23,7 @@ import org.opensha.calc.RelativeLocation;
  * @version 1.0
  */
 
-public class GeographicRegion implements GeographicRegionAPI,java.io.Serializable, XMLSaveable{
+public class GeographicRegion implements GeographicRegionAPI,java.io.Serializable {
 
   protected LocationList locList;
 

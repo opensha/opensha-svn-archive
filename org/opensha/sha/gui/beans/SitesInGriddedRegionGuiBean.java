@@ -48,6 +48,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String MAX_LATITUDE =  "Max  Latitude";
 	public final static String GRID_SPACING =  "Grid Spacing";
 	public final static String SITE_PARAM_NAME = "Set Site Params";
+	public final static String REGION_SELECT_NAME = "Region Type/Preset";
 
 	public final static String DEFAULT = "Default  ";
 
@@ -92,7 +93,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	SiteTranslator siteTrans = new SiteTranslator();
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
-	private SitesInGriddedRectangularRegion gridRectRegion;
+	private SitesInGriddedRegionAPI gridRectRegion;
 	
 	public final static String RECTANGULAR_NAME = "Rectangular Region";
 	public final static String CUSTOM_NAME = "Custom Region";
@@ -109,12 +110,13 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 		ArrayList<String> presetsStr = new ArrayList<String>();
 		presetsStr.add(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
-		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
+//		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
 		presetsStr.add(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME);
 		presetsStr.add(SitesInGriddedRegionGuiBean.SO_CAL_NAME);
 		presetsStr.add(SitesInGriddedRegionGuiBean.NO_CAL_NAME);
 		
-		regionSelect = new StringParameter("Region Type/Preset", presetsStr);
+		regionSelect = new StringParameter(REGION_SELECT_NAME, presetsStr);
+		regionSelect.setValue(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
 		regionSelect.addParameterChangeListener(this);
 		
 		//defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
@@ -217,7 +219,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 					!paramName.equalsIgnoreCase(MAX_LATITUDE) &&
 					!paramName.equalsIgnoreCase(MAX_LONGITUDE) &&
 					!paramName.equalsIgnoreCase(GRID_SPACING) &&
-					!paramName.equalsIgnoreCase(SITE_PARAM_NAME))
+					!paramName.equalsIgnoreCase(SITE_PARAM_NAME) &&
+					!paramName.equalsIgnoreCase(REGION_SELECT_NAME))
 				parameterList.removeParameter(paramName);
 		}
 		//removing the existing sites Params from the gridded Region sites
@@ -362,15 +365,29 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 * @return
 	 */
 	private void createAndUpdateSites() throws RegionConstraintException {
+		if (regionSelect == null)
+			System.out.println("REGION SELECT NULL");
+		if (regionSelect.getValue() == null)
+			System.out.println("REGION SELECT VALUE NULL");
+		String name = (String)(regionSelect.getValue());
+		double gridSpacingD = ((Double)gridSpacing.getValue()).doubleValue();
+		if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME)) {
+			double minLatitude= ((Double)minLat.getValue()).doubleValue();
+			double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
+			double minLongitude=((Double)minLon.getValue()).doubleValue();
+			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
+			//checkLatLonParamValues();
+			gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
+					maxLatitude,minLongitude,maxLongitude,
+					gridSpacingD);
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME)) {
+			gridRectRegion = new SitesInGriddedRegion(new RELM_TestingRegion().getRegionOutline(), gridSpacingD);
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.NO_CAL_NAME)) {
+			gridRectRegion = new SitesInGriddedRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), gridSpacingD);
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.SO_CAL_NAME)) {
+			gridRectRegion = new SitesInGriddedRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), gridSpacingD);
+		}
 
-		double minLatitude= ((Double)minLat.getValue()).doubleValue();
-		double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
-		double minLongitude=((Double)minLon.getValue()).doubleValue();
-		double maxLongitude=((Double)maxLon.getValue()).doubleValue();
-		//checkLatLonParamValues();
-		gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
-				maxLatitude,minLongitude,maxLongitude,
-				((Double)gridSpacing.getValue()).doubleValue());
 	}
 
 
@@ -378,7 +395,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return the object for the SitesInGriddedRectangularRegion class
 	 */
-	public SitesInGriddedRectangularRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
+	public SitesInGriddedRegionAPI getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
 		updateGriddedSiteParams();
 		if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
@@ -425,7 +442,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 						!tempParam.getName().equalsIgnoreCase(this.MAX_LONGITUDE) &&
 						!tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
 						!tempParam.getName().equalsIgnoreCase(this.GRID_SPACING) &&
-						!tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME)){
+						!tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME) &&
+						!tempParam.getName().equalsIgnoreCase(this.REGION_SELECT_NAME)){
 
 					//removing the existing site Params from the List and adding the
 					//new Site Param with site as being defaults

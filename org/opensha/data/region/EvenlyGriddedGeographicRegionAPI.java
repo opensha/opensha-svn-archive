@@ -4,6 +4,7 @@ import java.util.ListIterator;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
+import org.opensha.metadata.XMLSaveable;
 
 
 /**
@@ -100,7 +101,7 @@ import org.opensha.data.Location;
  * @version 1.0
  */
 
-public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,java.io.Serializable{
+public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,java.io.Serializable,XMLSaveable{
 
 
 

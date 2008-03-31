@@ -38,7 +38,7 @@ import java.io.FileWriter;
  */
 
 public class EvenlyGriddedGeographicRegion
-    extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI, XMLSaveable {
+    extends GeographicRegion implements EvenlyGriddedGeographicRegionAPI {
   private final static String C = "EvenlyGriddedGeographicRegion";
   private final static boolean D = false;
   
@@ -582,7 +582,6 @@ public class EvenlyGriddedGeographicRegion
 	  Element xml = root.addElement(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 	  xml.addAttribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME, this.getGridSpacing()+"");
 	  xml = super.toXMLMetadata(xml);
-	  int asdf = 5;
 	  
 	  return root;
   }
