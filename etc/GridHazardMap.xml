@@ -6,8 +6,8 @@
   directories. For example, the JBuilder output directory might be "classes"
   and the Ant output directory might be "classes.ant".
 -->
-<project basedir="." default="jarfile" name="OpenSHA_build">
-	<property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home"/>
+<project basedir="." default="jarfile" name="GridOpenSHA_build">
+	<property name="jdk.home" value="/usr/lib/jvm/java-1.5.0-sun"/>
 	<property name="dest" value="../classes.ant"/>
 	<property name="Required.Libraries.home" value="../lib"/>
 	<property name="src" value="../"/>
@@ -50,14 +50,14 @@
 		<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
 		<pathelement location="${Required.Libraries.home}/Jama-1.0.2.jar"/>
 		<pathelement location="${Required.Libraries.home}/jh.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/jce.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/jsse.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/laf.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/sunrsasign.jar"/>
-		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/ui.jar"/>
+		<pathelement location="${jdk.home}/lib/charsets.jar"/>
+		<pathelement location="${jdk.home}/lib/classes.jar"/>
+		<pathelement location="${jdk.home}/lib/dt.jar"/>
+		<pathelement location="${jdk.home}/lib/jce.jar"/>
+		<pathelement location="${jdk.home}/lib/jsse.jar"/>
+		<pathelement location="${jdk.home}/lib/laf.jar"/>
+		<pathelement location="${jdk.home}/lib/sunrsasign.jar"/>
+		<pathelement location="${jdk.home}/lib/ui.jar"/>
 		<pathelement location="${jdk.home}/lib/dt.jar"/>
 		<pathelement location="${jdk.home}/lib/ext/apple_provider.jar"/>
 		<pathelement location="${jdk.home}/lib/ext/ldapsec.jar"/>
@@ -80,7 +80,6 @@
 	</patternset>
 	<target name="javacompile">
 		<javac
-      bootclasspathref="project.class.path"
       debug="true"
       deprecation="false"
       optimize="true"
@@ -94,6 +93,7 @@
       memoryInitialSize="512m"
       memoryMaximumSize="1024m"
       classpath="${dest}:${Required.Libraries.home}">
+			<classpath refid="project.class.path"/>
 			<src path="${src}"/>
 			<include name="org/**"/>
 			<include name="nnls/**"/>
@@ -176,6 +176,7 @@
 		<unjar src="${Required.Libraries.home}/sdoapi.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/ojdbc14.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
 	</target>
 	<target depends="javacompile" name="compile"/>
 	<target depends="compile" name="make"/>
@@ -184,7 +185,7 @@
 	<target name="init">
 		<mkdir dir="${dest}"/>
 	</target>
-	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
+	<target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
 		<jar destfile="opensha_gridHazMapGenerator.jar" basedir="${dest}">
 			<include name="org/**"/>
 			<include name="etc/**"/>
