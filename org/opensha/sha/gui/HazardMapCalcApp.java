@@ -661,7 +661,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 
 		try {
 
-			int steps = 6;
+			int steps = 7;
 
 			calcProgress.setProgressMessage("Saving ERF");
 			calcProgress.updateProgress(0, steps);
@@ -699,9 +699,18 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
 
 			root = griddedRegionSites.toXMLMetadata(root);
+			
+			calcProgress.setProgressMessage("Saving Discretized Function");
+			calcProgress.updateProgress(3, steps);
+			
+			if (!useCustomX_Values) {
+				function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
+			}
+			
+			root = function.toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Saving Job Params");
-			calcProgress.updateProgress(3, steps);
+			calcProgress.updateProgress(4, steps);
 
 			String jobName = datasetIdText.getText();
 			if (jobName.equals(""))
@@ -723,7 +732,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			root = job.toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Saving Calculation Params");
-			calcProgress.updateProgress(4, steps);
+			calcProgress.updateProgress(5, steps);
 
 			Element calcParams = root.addElement("calculationParameters");
 			if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
@@ -735,7 +744,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			//root = imtGuiBean.getIntensityMeasure().toXMLMetadata(root);
 
 			calcProgress.setProgressMessage("Writing to File");
-			calcProgress.updateProgress(5, steps);
+			calcProgress.updateProgress(6, steps);
 
 			XMLWriter writer;
 
@@ -749,7 +758,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			writer.close();
 
 			calcProgress.setProgressMessage("");
-			calcProgress.updateProgress(6, steps);
+			calcProgress.updateProgress(7, steps);
 
 //			root = this.writeCalculationParams(root);
 		} catch (InvocationTargetException e1) {

@@ -12,6 +12,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.data.TimeSpan;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RELM_TestingRegion;
@@ -24,6 +26,7 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -122,8 +125,18 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		// load IMR
 		//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
 		AttenuationRelationship imr = (AttenuationRelationship)AttenuationRelationship.fromXMLMetadata(root.element("IMR"), this);
+		
+		Element hazFuncElem = root.element(DiscretizedFunc.XML_METADATA_NAME);
+		ArbitrarilyDiscretizedFunc hazFunction = null;
+		if (hazFuncElem == null) {
+			IMT_Info imtInfo = new IMT_Info();
+			// get the default function for the specified IMT
+			hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
+		} else {
+			hazFunction = DiscretizedFunc.fromXMLMetadata(hazFuncElem);
+		}
 
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, maxDistance, outputDir);
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, maxDistance, outputDir);
 
 		calculator.timer = this.timer;
 		calculator.lessPrints = this.lessPrints;

@@ -79,6 +79,7 @@ public class GridHazardMapPortionCalculator {
 	AttenuationRelationshipAPI imr;
 	double maxDistance;
 	String outputDir;
+	ArbitrarilyDiscretizedFunc hazFunction;
 
 	/**
 	 * Sets variables for calculation of hazard curves in hazard map
@@ -89,13 +90,14 @@ public class GridHazardMapPortionCalculator {
 	 * @param maxDistance - maximum source distance for calculation
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
-	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf, AttenuationRelationshipAPI imr, double maxDistance, String outputDir) {
+	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf, AttenuationRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction, double maxDistance, String outputDir) {
 		this.sites = sites;
 		
 		this.erf = erf;
 		this.imr = imr;
 		this.maxDistance = maxDistance;
 		this.outputDir = outputDir;
+		this.hazFunction = hazFunction;
 		
 		// show timing results if debug mode and timer is selected
 		timer = true;
@@ -139,11 +141,6 @@ public class GridHazardMapPortionCalculator {
 			HazardCurveCalculator calc = new HazardCurveCalculator();
 			// set maximum source distance
 			calc.setMaxSourceDistance(maxDistance);
-
-			System.out.println("Setting up Hazard Function");
-			IMT_Info imtInfo = new IMT_Info();
-			// get the default function for the specified IMT
-			ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
 			
 			// total number of sites for the entire map
 		    numSites = sites.getNumGridLocs();

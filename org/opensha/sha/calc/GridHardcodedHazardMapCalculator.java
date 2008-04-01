@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.opensha.data.TimeSpan;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
@@ -14,6 +15,7 @@ import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
+import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
@@ -131,7 +133,11 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			}
 		}
 		
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, maxDistance, outputDir);
+		IMT_Info imtInfo = new IMT_Info();
+		// get the default function for the specified IMT
+		ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
+		
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, maxDistance, outputDir);
 		
 		calculator.timer = this.timer;
 		calculator.lessPrints = this.lessPrints;

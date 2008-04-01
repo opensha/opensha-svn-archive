@@ -1,5 +1,8 @@
 package org.opensha.data.function;
 
+import java.util.Iterator;
+
+import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.data.NamedObjectAPI;
 
@@ -38,6 +41,10 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
     protected final static String C = "DiscretizedFunc";
     /** if true print out debugging statements */
     protected final static boolean D = false;
+    
+    public final static String XML_METADATA_NAME = "discretizedFunction";
+    public final static String XML_METADATA_POINTS_NAME = "Points";
+    public final static String XML_METADATA_POINT_NAME = "Point";
 
 
     /**
@@ -139,6 +146,55 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
 
         if( !getInfo().equals(function.getInfo() )  ) return false;
         return true;
+    }
+    
+    public Element toXMLMetadata(Element root) {
+    	Element xml = root.addElement(DiscretizedFunc.XML_METADATA_NAME);
+    	
+    	xml.addAttribute("info", this.getInfo());
+    	xml.addAttribute("name", this.getName());
+    	
+    	xml.addAttribute("tolerance", this.getTolerance() + "");
+    	xml.addAttribute("xAxisName", this.getXAxisName());
+    	xml.addAttribute("yAxisName", this.getYAxisName());
+    	xml.addAttribute("num", this.getNum() + "");
+    	
+    	Element points = xml.addElement(DiscretizedFunc.XML_METADATA_POINTS_NAME);
+    	for (int i=0; i<this.getNum(); i++) {
+    		Element point = points.addElement(DiscretizedFunc.XML_METADATA_POINT_NAME);
+    		point.addAttribute("x", this.getX(i) + "");
+    		point.addAttribute("y", this.getY(i) + "");
+    	}
+    	
+    	return root;
+    }
+    
+    public static ArbitrarilyDiscretizedFunc fromXMLMetadata(Element funcElem) {
+    	ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    	
+    	String info = funcElem.attributeValue("info");
+    	String name = funcElem.attributeValue("name");
+    	String xAxisName = funcElem.attributeValue("xAxisName");
+    	String yAxisName = funcElem.attributeValue("yAxisName");
+    	
+    	double tolerance = Double.parseDouble(funcElem.attributeValue("tolerance"));
+    	
+    	func.setInfo(info);
+    	func.setName(name);
+    	func.setXAxisName(xAxisName);
+    	func.setYAxisName(yAxisName);
+    	func.setTolerance(tolerance);
+    	
+    	Element points = funcElem.element(DiscretizedFunc.XML_METADATA_POINTS_NAME);
+    	Iterator<Element> it = points.elementIterator();
+    	while (it.hasNext()) {
+    		Element point = it.next();
+    		double x = Double.parseDouble(point.attributeValue("x"));
+    		double y = Double.parseDouble(point.attributeValue("y"));
+    		func.set(x, y);
+    	}
+    	
+		return func;
     }
 
 }
