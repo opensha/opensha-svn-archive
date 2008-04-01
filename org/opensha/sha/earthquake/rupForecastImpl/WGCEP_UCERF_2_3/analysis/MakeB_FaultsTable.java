@@ -465,8 +465,8 @@ public class MakeB_FaultsTable {
 			if(probHB_Emp_0>maxProb) maxProb = probHB_Emp_0;
 
 			double meanPoissonProb = (probEllB_Poiss_8+probHB_Poiss_8+probEllB_Poiss_0+probHB_Poiss_0)/4;
-			double meanProb = (0.7)*(probEllB_Poiss_8+probHB_Poiss_8+probEllB_Poiss_0+probHB_Poiss_0)+
-				(0.3)*(probEllB_Emp_8+probHB_Emp_8+probEllB_Emp_0+probHB_Emp_0);
+			double meanProb = (0.7)*(probEllB_Poiss_8+probHB_Poiss_8+probEllB_Poiss_0+probHB_Poiss_0)/4+
+				(0.3)*(probEllB_Emp_8+probHB_Emp_8+probEllB_Emp_0+probHB_Emp_0)/4;
 
 			//row.createCell((short)0).setCellValue(rowIndex-1);
 			row.createCell((short)1).setCellValue(bFaultName);
