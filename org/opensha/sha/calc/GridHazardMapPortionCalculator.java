@@ -45,6 +45,7 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.FileUtils;
 
@@ -72,6 +73,7 @@ public class GridHazardMapPortionCalculator {
 	
 	boolean useCVM = false;
 	String cvmFileName = "";
+	boolean basinFromCVM = false;
 	
 	EqkRupForecastAPI erf;
 	AttenuationRelationshipAPI imr;
@@ -210,7 +212,11 @@ public class GridHazardMapPortionCalculator {
 							double lat = Double.parseDouble(tok.nextToken());
 							double lon = Double.parseDouble(tok.nextToken());
 							String type = tok.nextToken();
-							double depth = Double.parseDouble(tok.nextToken());
+							double depth;
+							if (basinFromCVM)
+								depth = Double.parseDouble(tok.nextToken());
+							else
+								depth = Double.NaN;
 
 							if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
 								if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
@@ -222,6 +228,9 @@ public class GridHazardMapPortionCalculator {
 							Iterator it = site.getParametersIterator();
 							while(it.hasNext()){
 								ParameterAPI tempParam = (ParameterAPI)it.next();
+								
+								if (!basinFromCVM && (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)))
+									continue;
 
 								//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
 								boolean flag = siteTranslator.setParameterValue(tempParam,type,depth);

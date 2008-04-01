@@ -389,6 +389,22 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}
 
 	}
+	
+	/**
+	 * 
+	 * @return boolean specifying use of Wills Site Types from the CVM in calculation
+	 */
+	public boolean isSiteTypeFromCVM() {
+		return ((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM) || ((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE);
+	}
+	
+	/**
+	 * 
+	 * @return boolean specifying use of Basin Depth from the CVM in calculation
+	 */
+	public boolean isBasinDepthFromCVM() {
+		return ((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM);
+	}
 
 
 	/**
@@ -398,25 +414,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public SitesInGriddedRegionAPI getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
 		updateGriddedSiteParams();
-		if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
-			//if the site params does not need to be set from the CVM
-			gridRectRegion.setSameSiteParams();
-
-		//if the site Params needs to be set from the WILLS Site type and SCEC basin depth
-		else{
-			try{
-				setSiteParamsFromCVM();
-			}catch(Exception e){
-				throw new RuntimeException("Server is down , please try again later");
-			}
-			ArrayList defaultSiteParams = new ArrayList();
-			for(int i=0;i<siteParams.size();++i){
-				ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
-				tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());
-				defaultSiteParams.add(tempParam);
-			}
-			gridRectRegion.setDefaultSiteParams(defaultSiteParams);
-		}
+		
 		return gridRectRegion;
 	}
 

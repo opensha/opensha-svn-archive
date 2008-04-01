@@ -131,6 +131,15 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		calculator.skipFactor = this.skipFactor;
 		calculator.useCVM = this.useCVM;
 		calculator.cvmFileName = this.cvmFileName;
+		
+		if (useCVM) {
+			Attribute basinAttribute = calcParams.attribute("basinFromCVM");
+			if (basinAttribute != null) {
+				calculator.basinFromCVM = Boolean.parseBoolean(basinAttribute.getValue());
+			} else {
+				calculator.basinFromCVM = true;
+			}
+		}
 
 		if (timer) {
 			System.out.println(getTime(start) + " seconds total pre-calculator overhead");
@@ -160,13 +169,17 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 	 */
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
+		
+		String outputDir = "";
 
 		if (args.length < 3) { // this is a debug run
 			System.err.println("RUNNING FROM DEBUG MODE!");
-			args = new String[3];
+			args = new String[4];
 			args[0] = 0 + "";
 			args[1] = 5 + "";
 			args[2] = "output.xml";
+			args[3] = "cvm_test.cvm";
+			outputDir = "/home/kevin/OpenSHA/condor/test_results/";
 		}
 		// get start and end index of sites to do within region from command line
 		int startIndex = Integer.parseInt(args[0]);
@@ -181,6 +194,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 			}
 			calc.skipPoints = false;
 			calc.timer = true;
+			calc.outputDir = outputDir;
 			calc.calculateCurves(metadataFileName);
 			System.out.println("Total execution time: " + calc.getTime(start));
 		} catch (Exception e) {

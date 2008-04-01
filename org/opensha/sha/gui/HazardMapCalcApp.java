@@ -715,7 +715,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			String repo_host = this.gridGuiBean.get_repo_host();
 			String repo_storagePath = this.gridGuiBean.get_repo_storagePath();
 			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
-			boolean useCVM = false;
+			boolean useCVM = sitesGuiBean.isSiteTypeFromCVM();
 			boolean saveERF = this.gridGuiBean.get_saveERF();
 			String metadataFileName = jobName + ".xml";
 			HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, sitesPerJob, useCVM, saveERF, metadataFileName);
@@ -730,6 +730,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			else maxDistance = new Double(distanceControlPanel.getDistance());
 			calcParams.addAttribute("maxSourceDistance", maxDistance + "");
 			calcParams.addAttribute("emailAddress", email);
+			calcParams.addAttribute("basinFromCVM", sitesGuiBean.isBasinDepthFromCVM() + "");
 
 			//root = imtGuiBean.getIntensityMeasure().toXMLMetadata(root);
 
