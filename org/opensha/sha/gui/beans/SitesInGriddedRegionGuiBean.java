@@ -49,6 +49,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String GRID_SPACING =  "Grid Spacing";
 	public final static String SITE_PARAM_NAME = "Set Site Params";
 	public final static String REGION_SELECT_NAME = "Region Type/Preset";
+	public final static String NUM_SITES_NAME = "Number Of Sites";
 
 	public final static String DEFAULT = "Default  ";
 
@@ -84,6 +85,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			new Double(-90), new Double(90), new Double(34.7));
 	private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
 			new Double(.01666),new Double(1.0),new String("Degrees"),new Double(.1));
+	private IntegerParameter numSites = new IntegerParameter(NUM_SITES_NAME);
 
 
 	//StringParameter to set site related params
@@ -126,6 +128,12 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		maxLat.addParameterChangeFailListener(this);
 		maxLon.addParameterChangeFailListener(this);
 		gridSpacing.addParameterChangeFailListener(this);
+		
+		minLat.addParameterChangeListener(this);
+		minLon.addParameterChangeListener(this);
+		maxLat.addParameterChangeListener(this);
+		maxLon.addParameterChangeListener(this);
+		gridSpacing.addParameterChangeListener(this);
 
 		//creating the String Param for user to select how to get the site related params
 		ArrayList siteOptions = new ArrayList();
@@ -143,7 +151,11 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		parameterList.addParameter(minLat);
 		parameterList.addParameter(maxLat);
 		parameterList.addParameter(gridSpacing);
+		parameterList.addParameter(numSites);
 		parameterList.addParameter(siteParam);
+		
+		updateNumSites();
+		
 		editorPanel.removeAll();
 		addParameters();
 		createAndUpdateSites();
@@ -220,7 +232,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 					!paramName.equalsIgnoreCase(MAX_LONGITUDE) &&
 					!paramName.equalsIgnoreCase(GRID_SPACING) &&
 					!paramName.equalsIgnoreCase(SITE_PARAM_NAME) &&
-					!paramName.equalsIgnoreCase(REGION_SELECT_NAME))
+					!paramName.equalsIgnoreCase(REGION_SELECT_NAME) &&
+					!paramName.equalsIgnoreCase(NUM_SITES_NAME))
 				parameterList.removeParameter(paramName);
 		}
 		//removing the existing sites Params from the gridded Region sites
@@ -323,6 +336,37 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				"Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
 		);
 	}
+	
+	private boolean updateNumSites() {
+		String name = (String)(regionSelect.getValue());
+		SitesInGriddedRegionAPI region = null;
+		double gridSpacingD = ((Double)gridSpacing.getValue()).doubleValue();
+		if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME)) {
+			double minLatitude= ((Double)minLat.getValue()).doubleValue();
+			double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
+			double minLongitude=((Double)minLon.getValue()).doubleValue();
+			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
+			//checkLatLonParamValues();
+			try {
+				region= new SitesInGriddedRectangularRegion(minLatitude,
+						maxLatitude,minLongitude,maxLongitude,
+						gridSpacingD);
+			} catch (RegionConstraintException e1) {
+				e1.printStackTrace();
+			}
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME)) {
+			region = new SitesInGriddedRegion(new RELM_TestingRegion().getRegionOutline(), gridSpacingD);
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.NO_CAL_NAME)) {
+			region = new SitesInGriddedRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), gridSpacingD);
+		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.SO_CAL_NAME)) {
+			region = new SitesInGriddedRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), gridSpacingD);
+		}
+		if (region != null) {
+			numSites.setValue(region.getNumGridLocs());
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * This function is called when value a parameter is changed
@@ -330,10 +374,16 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 */
 	public void parameterChange(ParameterChangeEvent e){
 		ParameterAPI param = ( ParameterAPI ) e.getSource();
+		
+		boolean update = false;
+		
+		if (param == regionSelect || param == minLat || param == maxLat || param == minLon || param == maxLon || param == gridSpacing) {
+			update = updateNumSites();
+		}
 
 		if(param.getName().equals(SITE_PARAM_NAME))
 			setSiteParamsVisible();
-		else if (param == regionSelect) {
+		else if (param == regionSelect || update) {
 			String name = (String)(regionSelect.getValue());
 			parameterList.clear();
 			parameterList.addParameter(regionSelect);
@@ -349,6 +399,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			}
 			
 			parameterList.addParameter(gridSpacing);
+			parameterList.addParameter(numSites);
 			parameterList.addParameter(siteParam);
 			
 			editorPanel.removeAll();
@@ -441,7 +492,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 						!tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
 						!tempParam.getName().equalsIgnoreCase(this.GRID_SPACING) &&
 						!tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME) &&
-						!tempParam.getName().equalsIgnoreCase(this.REGION_SELECT_NAME)){
+						!tempParam.getName().equalsIgnoreCase(this.REGION_SELECT_NAME) &&
+						!tempParam.getName().equalsIgnoreCase(this.NUM_SITES_NAME)){
 
 					//removing the existing site Params from the List and adding the
 					//new Site Param with site as being defaults
