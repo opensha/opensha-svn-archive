@@ -4,7 +4,10 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
+import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
+
 import java.awt.event.*;
 /**
  * <p>Title: SitesOfInterest </p>
@@ -23,7 +26,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
   private ArrayList maxLatVector = new ArrayList();
   private ArrayList minLonVector = new ArrayList();
   private ArrayList maxLonVector = new ArrayList();
-  private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
+  private ParameterListEditor regionGuiBean;
 
   /**
    * Constructor
@@ -32,7 +35,10 @@ public class RegionsOfInterestControlPanel extends JFrame {
    * @param siteGuiBean : site gui bean to set the lat and lon
    */
   public RegionsOfInterestControlPanel(Component parent,
-                                       SitesInGriddedRectangularRegionGuiBean regionGuiBean) {
+		  ParameterListEditor regionGuiBean) {
+	  if (!(regionGuiBean instanceof SitesInGriddedRectangularRegionGuiBean || regionGuiBean instanceof SitesInGriddedRegionGuiBean)) {
+		  throw new RuntimeException("The ParameterListEditor given to the RegionsOfInterestControlPanel is not an instance of SitesInGriddedRegionGuiBean or SitesInGriddedRectangularRegionGuiBean!");
+	  }
     try {
       this.regionGuiBean = regionGuiBean;
 
@@ -103,6 +109,9 @@ public class RegionsOfInterestControlPanel extends JFrame {
    */
   private void setLatAndLon() {
     int index = this.regionsComboBox.getSelectedIndex();
+    if (regionGuiBean instanceof SitesInGriddedRegionGuiBean) {
+    	regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.REGION_SELECT_NAME).setValue(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
+    }
     // set the lat and lon in the editor
     regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).setValue(minLatVector.get(index));
     regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
