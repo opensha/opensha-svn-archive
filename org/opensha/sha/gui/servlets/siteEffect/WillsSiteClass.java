@@ -23,6 +23,7 @@ public final class WillsSiteClass {
   //ArrayList for computing the lat and lons for the given gridded region
   ArrayList locations ;
   String willsSiteClassFile;
+  boolean loadFromJar = false;
   //gridSpacing for the VS30 file and adding a small value to it.
   public final static double GRID_SPACING_FOR_VS30_IN_FILE= .0166;
 
@@ -79,6 +80,10 @@ public final class WillsSiteClass {
     while(it.hasNext())
       locations.add(it.next());
   }
+  
+  public void setLoadFromJar(boolean jar) {
+	  loadFromJar = jar;
+  }
 
 
 
@@ -93,7 +98,11 @@ public final class WillsSiteClass {
     try {
 
       //open the File Input Stream to read the file
-      FileReader input = new FileReader(willsSiteClassFile);
+    	InputStreamReader input;
+      if (loadFromJar)
+    	  input = new InputStreamReader(this.getClass().getResourceAsStream(willsSiteClassFile));
+      else
+    	  input = new FileReader(willsSiteClassFile);
       BufferedReader iBuf= new BufferedReader(input);
       String str;
       // parsing the file line by line

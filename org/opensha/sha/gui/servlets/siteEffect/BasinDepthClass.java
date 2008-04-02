@@ -23,7 +23,7 @@ public final class BasinDepthClass {
   //ArrayList for computing the lat and lons for the given gridded region
   ArrayList locations ;
   String basinDepthFile;
-
+  boolean loadFromJar = false;
   /**
    * Class constructor
    * @param minLon
@@ -77,6 +77,9 @@ public final class BasinDepthClass {
       locations.add(it.next());
   }
 
+  public void setLoadFromJar(boolean jar) {
+	  loadFromJar = jar;
+  }
 
 
   /**
@@ -91,7 +94,11 @@ public final class BasinDepthClass {
     try {
 
       //open the File Input Stream to read the file
-      FileReader input = new FileReader(basinDepthFile);
+    	InputStreamReader input;
+      if (loadFromJar)
+    	  input = new InputStreamReader(this.getClass().getResourceAsStream(basinDepthFile));
+      else
+    	  input = new FileReader(basinDepthFile);
       BufferedReader iBuf= new BufferedReader(input);
       String str;
       // parsing the file line by line

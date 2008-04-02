@@ -71,8 +71,8 @@ public class HazardMapJobCreator {
 	
 	boolean cvmFromFile = true;
 	boolean divertFromSCECToMain = false;
-	String willsFileName = "etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
-	String basinFileName = "etc/cvmfiles/basindepth_OpenSHA.txt";
+	String willsFileName = "/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
+	String basinFileName = "/etc/cvmfiles/basindepth_OpenSHA.txt";
 	
 	ArrayList<String> jobNames = new ArrayList<String>();
 	
@@ -231,8 +231,10 @@ public class HazardMapJobCreator {
 			
 			if (cvmFromFile) {
 				WillsSiteClass wills = new WillsSiteClass(locs, willsFileName);
+				wills.setLoadFromJar(true);
 				willsSiteClassList=  wills.getWillsSiteClass();
 				BasinDepthClass basin = new BasinDepthClass(locs, basinFileName);
+				basin.setLoadFromJar(true);
 				basinDepth = basin.getBasinDepth();
 			} else {
 				willsSiteClassList= ConnectToCVM.getWillsSiteTypeFromCVM(locs);

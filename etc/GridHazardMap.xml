@@ -97,6 +97,7 @@
 			<src path="${src}"/>
 			<include name="org/**"/>
 			<include name="nnls/**"/>
+			<include name="scratchJavaDevelopers/kevin/**"/>
 		</javac>
 	</target>
 	<target name="rmi">
@@ -131,6 +132,9 @@
 		</exec>
 	</target>
 	<target name="resource">
+		<copy todir="${dest}/etc/cvmfiles" overwrite="true">
+			<fileset dir="${src}/etc/cvmfiles"/>
+		</copy>
 		<copy todir="${dest}/etc/img" overwrite="true">
 			<fileset dir="${src}/etc/img"/>
 		</copy>
@@ -194,6 +198,7 @@
 			<include name="campbell_2008_coeff.txt"/>
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
+			<include name="scratchJavaDevelopers/kevin/**"/>
 		</jar>
 		<antcall target="postcompile" />
 	</target>
