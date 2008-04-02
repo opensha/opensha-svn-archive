@@ -352,7 +352,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 						maxLatitude,minLongitude,maxLongitude,
 						gridSpacingD);
 			} catch (RegionConstraintException e1) {
-				e1.printStackTrace();
+//				e1.printStackTrace();
 			}
 		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME)) {
 			region = new SitesInGriddedRegion(new RELM_TestingRegion().getRegionOutline(), gridSpacingD);
