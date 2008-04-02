@@ -70,8 +70,8 @@ public class HazardMapJobCreator {
 	int endIndex;
 	
 	boolean cvmFromFile = true;
-	String willsFileName = "etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
-	String basinFileName = "etc/cvmfiles/basindepth_OpenSHA.txt";
+	String willsFileName = "/home/eworks/jquake/jQuake/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
+	String basinFileName = "/home/eworks/jquake/jQuake/etc/cvmfiles/basindepth_OpenSHA.txt";
 	
 	ArrayList<String> jobNames = new ArrayList<String>();
 	
@@ -306,34 +306,19 @@ public class HazardMapJobCreator {
 			FileWriter fr = new FileWriter(outputDir + "/test.in");
 			
 			fr.write("\n");
-			fr.write("gsiftp://"+ outputDir +"opensha_gridHazMapGenerator.jar");
-			fr.write("\n");
-			fr.write("gsiftp://");
-			fr.write(job.rp_host);
-			fr.write(remoteJobDir+"/");
-			fr.write("opensha_gridHazMapGenerator.jar");
+			fr.write("gsiftp://"+ job.submitHost + job.submitHostPathToDependencies +"/opensha_gridHazMapGenerator.jar\n");
+			fr.write("gsiftp://"+job.rp_host+remoteJobDir+"/"+"opensha_gridHazMapGenerator.jar");
 			fr.write("\n");
 			fr.write("\n");
 			
-			fr.write("gsiftp://"+ outputDir +"ERF.jar");
+			fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/big_job_test_1_ERF.obj");
 			fr.write("\n");
-			fr.write("gsiftp://");
-			fr.write(job.rp_host);
-			fr.write(remoteJobDir+"/");
-			fr.write("ERF.jar");			
-			fr.write("\n");
-			fr.write("\n");
-			
-			fr.write("gsiftp://"+ outputDir +"erf.obj");
-			fr.write("\n");
-			fr.write("gsiftp://");
-			fr.write(job.rp_host);
-			fr.write(remoteJobDir+"/");
-			fr.write("erf.obj");			
+			fr.write("gsiftp://"+job.rp_host + remoteJobDir+"/"+"big_job_test_1_ERF.obj");
 			fr.write("\n");
 			fr.write("\n");
 			fr.write("\n");
 
+			
 			File dir = new File(outputDir);
 			String[] children = dir.list();
 			
@@ -352,7 +337,7 @@ public class HazardMapJobCreator {
 		    Collections.sort(arr);
 		    
 		    for (int i = 0; i < children.length; i++) {
-		    	fr.write("gsiftp://"+ outputDir +arr.get(i));
+		    	fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/"+arr.get(i));
 				fr.write("\n");
 				fr.write("gsiftp://");
 				fr.write(job.rp_host);
@@ -361,6 +346,15 @@ public class HazardMapJobCreator {
 				fr.write("\n");
 				fr.write("\n");		    	
 		    }
+		    
+		    fr.write("gsiftp://"+ job.submitHost + job.submitHostPath + "/"+job.jobName +"/big_job_test_1.xml");
+		    fr.write("\n");
+		    fr.write("gsiftp://");
+		    fr.write(job.rp_host);
+		    fr.write(remoteJobDir+"/");
+		    fr.write("big_job_test_1.xml");
+		    fr.write("\n");
+		    fr.write("\n");		    
 			
 			fr.close();
 		} catch (Exception e) {
@@ -376,7 +370,7 @@ public class HazardMapJobCreator {
 		
 		FilenameFilter filter = new FilenameFilter() {
 	        public boolean accept(File dir, String name) {
-	            return name.endsWith(".sub");
+	            return name.startsWith ("Job") && name.endsWith(".sub");
 	        }
 	    };
 	    String[] children = dir.list(filter);
@@ -391,9 +385,15 @@ public class HazardMapJobCreator {
 		try {
 			BufferedOutputStream fos = new BufferedOutputStream (new FileOutputStream(outputDir+"/main.dag"));
 			StringBuffer str = new StringBuffer ();
-			
-			str.append("\n");
-			str.append("\n");			
+
+			// code for create directory job
+            str.append("\n");
+            str.append("\n");
+//            str.append("Job ");
+//            str.append("create_dir ");
+//            str.append ("HPC_cdir.sub");			
+//			str.append("\n");
+//			str.append("\n");			
 			// main job
 			str.append("Job ");
 			str.append("jar_transfer ");
@@ -411,29 +411,43 @@ public class HazardMapJobCreator {
 			}
 			str.append("\n");
 			
-			for (int i = 0; i < numberOfJobs; i++) {
-				str.append("Job ");
-				str.append(jobName1).append(i+1).append(" ").append("tx_jars_2HOST_"+(i+1)+".sub");
-				str.append("\n");
-			}
-			str.append("\n");			
+//			for (int i = 0; i < numberOfJobs; i++) {
+//				str.append("Job ");
+//				str.append(jobName1).append(i+1).append(" ").append("tx_jars_2HOST_"+(i+1)+".sub");
+//				str.append("\n");
+//			}
+//			str.append("\n");			
 			
 			// parent child relationship
-			str.append("PARENT ");
-			str.append("jar_transfer ");
-			str.append("CHILD ");
 			
-			for (int i = 0; i < numberOfJobs; i++) {
-				str.append(jobName).append(i+1).append(" ");
+			
+			for (int i = numberOfJobs; i > 0 ; i--) {
+				str.append("PARENT ");
+				str.append("jar_transfer ");
+				str.append("CHILD ");
+				str.append(jobName).append(i).append("\n");	
+				
+//				str.append("PARENT ");
+//				str.append(jobName).append(i).append(" ");
+//				str.append("CHILD ");
+//				str.append(jobName1).append(i).append(" ");
+//				str.append("\n");				
 			}
 			str.append("\n");	
-			for (int i = 0; i < numberOfJobs; i++) {
-				str.append("PARENT ");
-				str.append(jobName).append(i+1).append(" ");
-				str.append("CHILD ");
-				str.append(jobName1).append(i+1).append(" ");
-				str.append("\n");	
-			}			
+//			for (int i = 0; i < numberOfJobs; i++) {
+//				str.append("PARENT ");
+//				str.append(jobName).append(i+1).append(" ");
+//				str.append("CHILD ");
+//				str.append(jobName1).append(i+1).append(" ");
+//				str.append("\n");	
+//			}		
+			
+//			str.append("\n");
+//            str.append("PARENT ");
+//            str.append("create_dir ");
+//            str.append("CHILD ");
+//            str.append("jar_transfer");
+//            str.append("\n");			
 			
 			fos.write(str.toString().getBytes());
 			fos.close();
@@ -510,7 +524,7 @@ public class HazardMapJobCreator {
 					fw.write("gsiftp://"+ job.rp_host +job.rp_storagePath+"/");
 					fw.write(line);
 					fw.write("\n");
-					fw.write("gsiftp://"+ outputDir +line);
+					fw.write("gsiftp://"+ job.repo_host + job.repo_storagePath +"/"+line);
 					fw.write("\n\n");
 				}
 				fr.close();
@@ -533,7 +547,6 @@ public class HazardMapJobCreator {
 			for (int i = 0; i < numberOfJobs; i++) {
 				name = jobName+(i+1);
 				fr = new FileWriter(outputDir + name+".sub");		
-				fr = new FileWriter(outputDir + name+".sub");
 				
 				fr.write ("\n\n");
 				fr.write("environment = GLOBUS_LOCATION=/usr/local/vdt/globus;LD_LIBRARY_PATH=/usr/local/vdt/globus/lib;" + "\n");
@@ -541,19 +554,20 @@ public class HazardMapJobCreator {
 				fr.write("copy_to_spool = false" + "\n");
 				fr.write("error = " + name + ".err" + "\n");
 				fr.write("executable = " + exefile + "\n");
-		
+				fr.write("globusrsl ="+ job.rp_globusrsl +"\n");
+				fr.write ("globusscheduler = "+job.rp_host+"/"+job.rp_batchScheduler+"\n");		
 				fr.write("input = " + name + ".in" + "\n");
 				fr.write("log = " + name + ".log" + "\n");
 				fr.write("output = " + name + ".out" + "\n");
 				
 				fr.write ("periodic_release = (NumSystemHolds <= 3)" + "\n");
 				fr.write ("periodic_remove = (NumSystemHolds > 3)" + "\n");			
-				fr.write("remote_initialdir = " + job.rp_storagePath + "\n");
+				fr.write("remote_initialdir = " + job.repo_storagePath + "\n");
 				
 				fr.write("transfer_error = true" + "\n");
 				fr.write("transfer_executable = false" + "\n");
 				fr.write("transfer_output = true" + "\n");
-				fr.write("universe = scheduler" + "\n");
+				fr.write("universe = globus" + "\n");
 				fr.write("queue" + "\n\n");
 				fr.close();
 			}
@@ -618,6 +632,9 @@ public class HazardMapJobCreator {
 			System.out.println("repo_storagePath = " + job.repo_storagePath);
 			System.out.println("sitesPerJob = " + job.sitesPerJob);
 			System.out.println("useCVM = " + job.useCVM);
+			System.out.println("submitHost = " + job.submitHost);
+			System.out.println("submitHostPath = " + job.submitHostPath+"/"+job.jobName);
+			System.out.println("submitHostPathToDependencies = " + job.submitHostPathToDependencies);
 			
 			outputDir = outputDir + job.jobName + "/";
 //			String outputDir = "/home/kevin/OpenSHA/condor/jobs/benchmark_RELM_UCERF_0.1_Purdue/";
@@ -671,19 +688,20 @@ public class HazardMapJobCreator {
 				// Mahesh code
 				
 				String remoteJobDir = job.rp_storagePath;
+/*				
 				DateFormat myformat = new SimpleDateFormat("MM_dd_yyyy_HH_mm_ss");  
 				StringBuffer buf = new StringBuffer ();
 				buf.append(remoteJobDir+"/");
 				buf.append(myformat.format(new Date()));
 				remoteJobDir = new String (buf);
 				System.out.println(remoteJobDir);				
-				
+*/				
 				creator.createUniqueDirOnRemote (remoteJobDir);
-				creator.createJarTransferToHostInputFile(outputDir, remoteJobDir);
+//				creator.createJarTransferToHostInputFile(outputDir, remoteJobDir);
 				creator.createDAG (outputDir, creator.getNumberOfJobs());
 				creator.createJarTransferJobFile();
 				creator.createJarTransferInputFile(outputDir, remoteJobDir);
-				creator.createTransferOutputJobFiles (creator.getNumberOfJobs());
+//				creator.createTransferOutputJobFiles (creator.getNumberOfJobs());
 				// Mahesh code
 				
 			} catch (IOException e) {
