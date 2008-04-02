@@ -70,8 +70,9 @@ public class HazardMapJobCreator {
 	int endIndex;
 	
 	boolean cvmFromFile = true;
-	String willsFileName = "/home/eworks/jquake/jQuake/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
-	String basinFileName = "/home/eworks/jquake/jQuake/etc/cvmfiles/basindepth_OpenSHA.txt";
+	boolean divertFromSCECToMain = false;
+	String willsFileName = "etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
+	String basinFileName = "etc/cvmfiles/basindepth_OpenSHA.txt";
 	
 	ArrayList<String> jobNames = new ArrayList<String>();
 	
@@ -110,12 +111,23 @@ public class HazardMapJobCreator {
 			
 			String globusscheduler = job.rp_host + "/" + job.rp_batchScheduler;
 			
+			String globusrsl = job.rp_globusrsl;
+			if (divertFromSCECToMain) {
+				if (job.rp_host.toLowerCase().contains("hpc.usc.edu")) {
+					if (globusrsl.toLowerCase().contains("(queue=scec)")) {
+						if (jobs % 20 == 0) {
+							globusrsl = globusrsl.replace("(queue=scec)", "");
+						}
+					}
+				}
+			}
+			
 			String jobFileName = jobFilePrefix + ".sub";
 			jobNames.add(jobFileName);
 			System.out.println("Creating " + jobFileName);
 			FileWriter fr = new FileWriter(outputDir + jobFileName);
 			fr.write("universe = globus" + "\n");
-			fr.write("globusrsl = " + job.rp_globusrsl + "\n");
+			fr.write("globusrsl = " + globusrsl + "\n");
 			fr.write("globusscheduler = " + globusscheduler + "\n");
 			fr.write("should_transfer_files = yes" + "\n");
 			fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
@@ -192,6 +204,11 @@ public class HazardMapJobCreator {
 	}
 	
 	private String createCVMJobFile(String jobName, int startIndex, int endIndex) {
+		boolean forCPT = false;
+		
+		if (job.sitesPerJob < 50000) // in case i forget to change forCPT to false when doing a regular run
+			forCPT = false;
+		
 		String fileName = jobName + ".cvm";
 		LocationList locs = new LocationList();
 		
@@ -249,9 +266,37 @@ public class HazardMapJobCreator {
 			for (int i=0; i< willsSiteClassList.size(); i++) {
 				//System.out.println("Site Type: " + willsSiteClassList.get(i));
 				//System.out.println("Site Basin: " + basinDepth.get(i));
-				fr.write(locs.getLocationAt(i).getLatitude() + "\t");
-				fr.write(locs.getLocationAt(i).getLongitude() + "\t");
-				fr.write(willsSiteClassList.get(i) + "\t" + basinDepth.get(i) + "\n");
+				double lat = locs.getLocationAt(i).getLatitude();
+				double lon = locs.getLocationAt(i).getLongitude();
+				if (forCPT) {
+					lat = lat * 1000d;
+					lat = (double)Math.rint(lat);
+					lat = lat / 1000d;
+					lon = lon * 1000d;
+					lon = (double)Math.rint(lon);
+					lon = lon / 1000d;
+				}
+				fr.write(lat + "\t");
+				fr.write(lon + "\t");
+				if (forCPT) {
+					int num = 0;
+					if (((String)willsSiteClassList.get(i)).equals("E"))
+						num = 7;
+					else if (((String)willsSiteClassList.get(i)).equals("DE"))
+						num = 6;
+					else if (((String)willsSiteClassList.get(i)).equals("D"))
+						num = 5;
+					else if (((String)willsSiteClassList.get(i)).equals("CD"))
+						num = 4;
+					else if (((String)willsSiteClassList.get(i)).equals("C"))
+						num = 3;
+					else if (((String)willsSiteClassList.get(i)).equals("BC"))
+						num = 2;
+					else if (((String)willsSiteClassList.get(i)).equals("B"))
+						num = 1;
+					fr.write(num + "\t" + basinDepth.get(i) + "\n");
+				} else
+					fr.write(willsSiteClassList.get(i) + "\t" + basinDepth.get(i) + "\n");
 				fr.flush();
 				cvmVals++;
 			}
@@ -635,6 +680,13 @@ public class HazardMapJobCreator {
 			System.out.println("submitHost = " + job.submitHost);
 			System.out.println("submitHostPath = " + job.submitHostPath+"/"+job.jobName);
 			System.out.println("submitHostPathToDependencies = " + job.submitHostPathToDependencies);
+			
+			if (outputDir.length() == 0) { // we're not debugging
+				outputDir = job.submitHostPath;
+			}
+			
+			if (!outputDir.endsWith("/"))
+				outputDir = outputDir + "/";
 			
 			outputDir = outputDir + job.jobName + "/";
 //			String outputDir = "/home/kevin/OpenSHA/condor/jobs/benchmark_RELM_UCERF_0.1_Purdue/";
