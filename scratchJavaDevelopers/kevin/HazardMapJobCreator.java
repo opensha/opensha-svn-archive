@@ -659,7 +659,7 @@ public class HazardMapJobCreator {
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[1];
 			args[0] = "scratchJavaDevelopers/kevin/job_example.xml";
-			args[0] = "/home/kevin/OpenSHA/condor/jobs/field_ucerf_nocvm/output.xml";
+			args[0] = "output.xml";
 			outputDir = "/home/kevin/OpenSHA/condor/jobs/";
 		}
 		
@@ -669,7 +669,7 @@ public class HazardMapJobCreator {
 			Document document = reader.read(new File(metadata));
 			Element root = document.getRootElement();
 			
-			HazardMapJob job = HazardMapJob.fromXMLMetadata(root);
+			HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
 			
 			System.out.println("rp_host = " + job.rp_host);
 			System.out.println("rp_storagePath = " + job.rp_storagePath);

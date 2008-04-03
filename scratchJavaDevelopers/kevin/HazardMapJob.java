@@ -79,8 +79,7 @@ public class HazardMapJob implements XMLSaveable {
 		return root;
 	}
 	
-	public static HazardMapJob fromXMLMetadata(Element root) {
-		Element jobParams = root.element(HazardMapJob.XML_METADATA_NAME);
+	public static HazardMapJob fromXMLMetadata(Element jobParams) {
 		
 		String jobName = jobParams.attribute("jobName").getValue();
 		String rp_host = jobParams.attribute("rp_host").getValue();

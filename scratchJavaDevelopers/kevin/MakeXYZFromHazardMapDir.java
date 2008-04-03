@@ -12,14 +12,13 @@ import java.util.Comparator;
 import java.util.StringTokenizer;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.gui.servlets.HazardMapCalcServlet;
 import org.opensha.util.FileUtils;
 
 public class MakeXYZFromHazardMapDir {
 	
 	public static int WRITES_UNTIL_FLUSH = 1000;
 
-	public MakeXYZFromHazardMapDir(String dirName, boolean isProbAt_IML, double val, String outFileName, boolean sort) throws IOException {
+	public MakeXYZFromHazardMapDir(String dirName, boolean isProbAt_IML, double val, String outFileName, boolean sort, boolean latFirst) throws IOException {
 		// get and list the dir
 		File masterDir = new File(dirName);
 		File[] dirList=masterDir.listFiles();
@@ -61,7 +60,10 @@ public class MakeXYZFromHazardMapDir {
 								// handle the file
 								double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
 //								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
-								out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
+								if (latFirst)
+									out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
+								else
+									out.write(lonVal + "     " + latVal + "     " + writeVal + "\n");
 								
 								if (latVal < minLat)
 									minLat = latVal;
@@ -89,6 +91,7 @@ public class MakeXYZFromHazardMapDir {
 		out.close();
 		System.out.println("DONE");
 		System.out.println("MinLat: " + minLat + " MaxLat: " + maxLat + " MinLon: " + minLon + " MaxLon " + maxLon);
+		System.out.println(count + " curves processed!");
 	}
 
 
@@ -175,11 +178,11 @@ public class MakeXYZFromHazardMapDir {
 	public static void main(String args[]) {
 		try {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
-			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/01667/boore_cvm/curves";
+			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
 //			String outfile = "xyzCurves.txt";
-			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/01667/boore_cvm/xyzCurves.txt";
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, outfile, false);
+			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, outfile, false, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

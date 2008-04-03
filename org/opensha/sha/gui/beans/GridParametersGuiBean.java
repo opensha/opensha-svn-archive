@@ -96,8 +96,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this.rp_storagePath.setValue(firstPreset.rp_storagePath);
 		this.rp_globusrsl.setValue(firstPreset.rp_globusrsl);
 		
-		this.repo_host.setValue("host.com");
-		this.repo_storagePath.setValue("/path/to/repo");
+		this.repo_host.setValue(HazardMapJob.DEFAULT_REPO_HOST);
+		this.repo_storagePath.setValue(HazardMapJob.DEFAULT_REPO_STORAGE_PATH);
 		this.sitesPerJob.setValue(100);
 		
 		presets = new StringParameter("Resource Provider Presets", presetsStr);

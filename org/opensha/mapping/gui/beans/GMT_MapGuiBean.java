@@ -182,7 +182,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
       try {
         imgName = gmtMap.makeMapUsingServlet(xyzVals, " ", metadataAsHTML, dirName);
         metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
-           "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
+           "\">" + "here" + "</a>" +" (" + gmtMap.getGMTFilesWebAddress() + ") to download files. They will be deleted at midnight</p>";
       }
       catch (GMT_MapException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
