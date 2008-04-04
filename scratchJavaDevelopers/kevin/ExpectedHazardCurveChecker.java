@@ -16,10 +16,20 @@ import org.opensha.sha.gui.servlets.HazardMapCalcServlet;
 import org.opensha.util.FileUtils;
 
 public class ExpectedHazardCurveChecker {
+	
+	String curveDir;
+	String expectedDir;
 
-	public static int WRITES_UNTIL_FLUSH = 1000;
-
-	public ExpectedHazardCurveChecker(String curveDir, String expectedDir) throws IOException {
+	public ExpectedHazardCurveChecker(String curveDir, String expectedDir){
+		
+		this.curveDir = curveDir;
+		this.expectedDir = expectedDir;
+		
+	}
+	
+	public ArrayList<int[]> checkCurves() throws IOException {
+		ArrayList<int[]> badJobs = new ArrayList<int[]>();
+		
 		// get and list the dir
 		File masterDir = new File(expectedDir);
 		File[] dirList=masterDir.listFiles();
@@ -48,6 +58,20 @@ public class ExpectedHazardCurveChecker {
 						File newFile = new File(curveDir + line.trim());
 						if (!newFile.exists()) {
 							System.out.println("Not Complete: " + fileName);
+							
+							//get the indices
+							StringTokenizer tok = new StringTokenizer(file.getName(), "_.");
+							
+							// "Job"
+							tok.nextToken();
+							int start = Integer.parseInt(tok.nextToken());
+							int end = Integer.parseInt(tok.nextToken());
+							
+							System.out.println("Start: " + start + " End: " + end);
+							
+							int indices[] = {start, end};
+							badJobs.add(indices);
+							
 							bad = true;
 							break;
 						}
@@ -60,6 +84,8 @@ public class ExpectedHazardCurveChecker {
 		}
 
 		System.out.println("DONE");
+		
+		return badJobs;
 	}
 
 	private static class FileComparator implements Comparator {
@@ -103,14 +129,16 @@ public class ExpectedHazardCurveChecker {
 	public static void main(String args[]) {
 		try {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
-			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/UCERF/dynamic/";
+			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/01667/ucerf_field_nocvm/curves/";
 //			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/UCERF/hpc/";
 			String expectedDir = "/home/kevin/OpenSHA/condor/oldRuns/verifyMap/UCERF/expected/";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
 //			String outfile = "xyzCurves.txt";
 			ExpectedHazardCurveChecker maker = new ExpectedHazardCurveChecker(curveDir, expectedDir);
+			maker.checkCurves();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 }
+

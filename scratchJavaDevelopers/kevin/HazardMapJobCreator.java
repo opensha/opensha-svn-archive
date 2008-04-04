@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -15,8 +16,10 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -70,6 +73,7 @@ public class HazardMapJobCreator {
 	int endIndex;
 	
 	boolean cvmFromFile = true;
+	boolean skipCVMFiles = false;
 	boolean divertFromSCECToMain = false;
 	String willsFileName = "/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
 	String basinFileName = "/etc/cvmfiles/basindepth_OpenSHA.txt";
@@ -92,6 +96,94 @@ public class HazardMapJobCreator {
 //		this.globusscheduler = rp_host + "/" + rp_batchScheduler;
 	}
 	
+	public void createJob(int start, int end) throws IOException {
+		
+		String regionName = addLeadingZeros(start) + "_" + addLeadingZeros(end);
+		String jobFilePrefix = "Job_" + regionName;
+		String cvmFileName = "";
+		if (job.useCVM) {
+			cvmFileName = createCVMJobFile(regionName, start, end);
+		}
+		
+		String globusscheduler = job.rp_host + "/" + job.rp_batchScheduler;
+		
+		String globusrsl = job.rp_globusrsl;
+//		if (divertFromSCECToMain) {
+//			if (job.rp_host.toLowerCase().contains("hpc.usc.edu")) {
+//				if (globusrsl.toLowerCase().contains("(queue=scec)")) {
+//					if (jobs % 20 == 0) {
+//						globusrsl = globusrsl.replace("(queue=scec)", "");
+//					}
+//				}
+//			}
+//		}
+		
+		String jobFileName = jobFilePrefix + ".sub";
+		jobNames.add(jobFileName);
+		System.out.println("Creating " + jobFileName);
+		FileWriter fr = new FileWriter(outputDir + jobFileName);
+		fr.write("universe = globus" + "\n");
+		fr.write("globusrsl = " + globusrsl + "\n");
+		fr.write("globusscheduler = " + globusscheduler + "\n");
+		fr.write("should_transfer_files = yes" + "\n");
+		fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
+		fr.write("executable = " + job.rp_javaPath + "\n");
+		fr.write("arguments = -cp " + job.rp_storagePath + "/opensha_gridHazMapGenerator.jar org.opensha.sha.calc.GridMetadataHazardMapCalculator " + start + " " + end + " " + job.metadataFileName + " " + cvmFileName + "\n");
+		fr.write("copy_to_spool = false" + "\n");
+		fr.write("output = " + jobFilePrefix + ".out" + "\n");
+		fr.write("error = " + jobFilePrefix + ".err" + "\n");
+		fr.write("log = " + jobFilePrefix + ".log" + "\n");
+		fr.write("transfer_executable = false" + "\n");
+		fr.write("transfer_error = true" + "\n");
+		fr.write("transfer_output = true" + "\n");
+		fr.write("notification = never" + "\n");
+		fr.write("remote_initialdir = " + job.rp_storagePath + "\n");
+		fr.write("queue" + "\n\n");
+		
+//		fr.write("universe = java" + "\n");
+//		fr.write("executable = /opt/jdk1.6.0/jre/bin/java\n");
+//		fr.write("jar_files = /usr/rmt_share/scratch96/k/kevinm/benchmark_RELM_UCERF_0.1_3/opensha_gridHazMapGenerator.jar\n");
+//		fr.write("should_transfer_files = yes" + "\n");
+//		fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
+//		fr.write("arguments = org.opensha.sha.calc.GridHardcodedHazardMapCalculator " + i + " " + jobEndIndex + " true " + cvmFileName + "\n");
+//		fr.write("requirements = (HasCTSS=?=True) && (CanReachInternet==True) && (JavaVersion==\"1.6.0\")\n");
+//		fr.write("copy_to_spool = false" + "\n");
+//		fr.write("output = " + jobFilePrefix + ".out" + "\n");
+//		fr.write("error = " + jobFilePrefix + ".err" + "\n");
+//		fr.write("log = " + jobFilePrefix + ".log" + "\n");
+//		fr.write("transfer_executable = false" + "\n");
+//		fr.write("transfer_error = true" + "\n");
+//		fr.write("transfer_output = true" + "\n");
+//		fr.write("periodic_release = (NumSystemHolds <= 3)\n");
+//		fr.write("periodic_remove = (NumSystemHolds > 3)\n");
+//		fr.write("notification = never" + "\n");
+//		fr.write("remote_initialdir = /usr/rmt_share/scratch96/k/kevinm/benchmark_RELM_UCERF_0.1_3/\n");
+//		fr.write("queue" + "\n\n");
+		
+		
+		fr.close();
+		
+		// create the expected files
+		int curveJobEndIndex = end-1;
+		if (curveJobEndIndex > this.endIndex)
+			curveJobEndIndex = this.endIndex;
+		fr = new FileWriter(outputDir + jobFilePrefix + ".txt");
+		fr.write("# globusscheduler = " + globusscheduler + "\n");
+		fr.write("# remote_initialdir = " + job.rp_storagePath + "\n");
+		for (int j=start; j<=curveJobEndIndex; j++) {
+			try {
+				Location loc = sites.getSite(j).getLocation();
+				String lat = decimalFormat.format(loc.getLatitude());
+				String lon = decimalFormat.format(loc.getLongitude());
+				String jobDir = lat + "/";
+				fr.write(jobDir + lat + "_" + lon + ".txt\n");
+			} catch (RegionConstraintException e) {
+				e.printStackTrace();
+			}
+		}
+		fr.close();
+	}
+	
 	public void createJobs() throws IOException {
 		System.out.println("Creating jobs for " + sites.getNumGridLocs() + " sites!");
 		
@@ -101,92 +193,8 @@ public class HazardMapJobCreator {
 		int jobs = 0;
 		long start = System.currentTimeMillis();
 		for (int i=startIndex; i<=endIndex; i+=job.sitesPerJob) {
-			int jobEndIndex = i + job.sitesPerJob;
-			String regionName = addLeadingZeros(i) + "_" + addLeadingZeros(jobEndIndex);
-			String jobFilePrefix = "Job_" + regionName;
-			String cvmFileName = "";
-			if (job.useCVM) {
-				cvmFileName = createCVMJobFile(regionName, i, jobEndIndex);
-			}
-			
-			String globusscheduler = job.rp_host + "/" + job.rp_batchScheduler;
-			
-			String globusrsl = job.rp_globusrsl;
-			if (divertFromSCECToMain) {
-				if (job.rp_host.toLowerCase().contains("hpc.usc.edu")) {
-					if (globusrsl.toLowerCase().contains("(queue=scec)")) {
-						if (jobs % 20 == 0) {
-							globusrsl = globusrsl.replace("(queue=scec)", "");
-						}
-					}
-				}
-			}
-			
-			String jobFileName = jobFilePrefix + ".sub";
-			jobNames.add(jobFileName);
-			System.out.println("Creating " + jobFileName);
-			FileWriter fr = new FileWriter(outputDir + jobFileName);
-			fr.write("universe = globus" + "\n");
-			fr.write("globusrsl = " + globusrsl + "\n");
-			fr.write("globusscheduler = " + globusscheduler + "\n");
-			fr.write("should_transfer_files = yes" + "\n");
-			fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
-			fr.write("executable = " + job.rp_javaPath + "\n");
-			fr.write("arguments = -cp " + job.rp_storagePath + "/opensha_gridHazMapGenerator.jar org.opensha.sha.calc.GridMetadataHazardMapCalculator " + i + " " + jobEndIndex + " " + job.metadataFileName + " " + cvmFileName + "\n");
-			fr.write("copy_to_spool = false" + "\n");
-			fr.write("output = " + jobFilePrefix + ".out" + "\n");
-			fr.write("error = " + jobFilePrefix + ".err" + "\n");
-			fr.write("log = " + jobFilePrefix + ".log" + "\n");
-			fr.write("transfer_executable = false" + "\n");
-			fr.write("transfer_error = true" + "\n");
-			fr.write("transfer_output = true" + "\n");
-			fr.write("notification = never" + "\n");
-			fr.write("remote_initialdir = " + job.rp_storagePath + "\n");
-			fr.write("queue" + "\n\n");
-			
-//			fr.write("universe = java" + "\n");
-//			fr.write("executable = /opt/jdk1.6.0/jre/bin/java\n");
-//			fr.write("jar_files = /usr/rmt_share/scratch96/k/kevinm/benchmark_RELM_UCERF_0.1_3/opensha_gridHazMapGenerator.jar\n");
-//			fr.write("should_transfer_files = yes" + "\n");
-//			fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
-//			fr.write("arguments = org.opensha.sha.calc.GridHardcodedHazardMapCalculator " + i + " " + jobEndIndex + " true " + cvmFileName + "\n");
-//			fr.write("requirements = (HasCTSS=?=True) && (CanReachInternet==True) && (JavaVersion==\"1.6.0\")\n");
-//			fr.write("copy_to_spool = false" + "\n");
-//			fr.write("output = " + jobFilePrefix + ".out" + "\n");
-//			fr.write("error = " + jobFilePrefix + ".err" + "\n");
-//			fr.write("log = " + jobFilePrefix + ".log" + "\n");
-//			fr.write("transfer_executable = false" + "\n");
-//			fr.write("transfer_error = true" + "\n");
-//			fr.write("transfer_output = true" + "\n");
-//			fr.write("periodic_release = (NumSystemHolds <= 3)\n");
-//			fr.write("periodic_remove = (NumSystemHolds > 3)\n");
-//			fr.write("notification = never" + "\n");
-//			fr.write("remote_initialdir = /usr/rmt_share/scratch96/k/kevinm/benchmark_RELM_UCERF_0.1_3/\n");
-//			fr.write("queue" + "\n\n");
-			
-			
-			fr.close();
+			createJob(i, i + job.sitesPerJob);
 			jobs++;
-			
-			// create the expected files
-			int curveJobEndIndex = jobEndIndex-1;
-			if (curveJobEndIndex > this.endIndex)
-				curveJobEndIndex = this.endIndex;
-			fr = new FileWriter(outputDir + jobFilePrefix + ".txt");
-			fr.write("# globusscheduler = " + globusscheduler + "\n");
-			fr.write("# remote_initialdir = " + job.rp_storagePath + "\n");
-			for (int j=i; j<=curveJobEndIndex; j++) {
-				try {
-					Location loc = sites.getSite(j).getLocation();
-					String lat = decimalFormat.format(loc.getLatitude());
-					String lon = decimalFormat.format(loc.getLongitude());
-					String jobDir = lat + "/";
-					fr.write(jobDir + lat + "_" + lon + ".txt\n");
-				} catch (RegionConstraintException e) {
-					e.printStackTrace();
-				}
-			}
-			fr.close();
 		}
 		System.out.println("Tobal Jobs Created: " + jobs);
 		long duration = System.currentTimeMillis() - start;
@@ -203,6 +211,61 @@ public class HazardMapJobCreator {
 		System.out.println("Estimated time (based on 200,000 curves): " + new DecimalFormat(	"###.##").format(estimatedMins) + " mins");
 	}
 	
+	public void createRestartJobs(String originalDir) throws IOException {
+		
+		File outDir = new File(originalDir);
+		File dirList[] = outDir.listFiles();
+		
+		Arrays.sort(dirList, new FileNameComparator());
+		
+		ArrayList<int[]> badJobs = new ArrayList<int[]>(); 
+		
+		for (File file : dirList) {
+			if (file.getName().endsWith(".sub") && file.getName().startsWith("Job_")) {
+				String outFileName = file.getAbsolutePath().replace(".sub", ".out");
+				File outFile = new File(outFileName);
+				boolean good = false;
+				System.out.println("Checking " + file.getName());
+				if (outFile.exists()) {
+					try {
+						ArrayList<String> lines = FileUtils.loadFile(outFileName);
+						for (String line : lines) {
+							if (line.contains("DONE")) {
+								good = true;
+								break;
+							}
+						}
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+				if (!good) {
+					StringTokenizer tok = new StringTokenizer(file.getName(), "_.");
+					
+					// "Job"
+					tok.nextToken();
+					int start = Integer.parseInt(tok.nextToken());
+					int end = Integer.parseInt(tok.nextToken());
+					
+					System.out.println("Start: " + start + " End: " + end);
+					
+					int indices[] = {start, end};
+					badJobs.add(indices);
+				}
+			}
+		}
+		
+		for (int[] badJob : badJobs) {
+			createJob(badJob[0], badJob[1]);
+		}
+		
+	}
+	
 	private String createCVMJobFile(String jobName, int startIndex, int endIndex) {
 		boolean forCPT = false;
 		
@@ -210,6 +273,10 @@ public class HazardMapJobCreator {
 			forCPT = false;
 		
 		String fileName = jobName + ".cvm";
+		
+		if (skipCVMFiles) // we're skipping creation of the CVM files
+			return fileName;
+		
 		LocationList locs = new LocationList();
 		
 		if (endIndex > this.endIndex)
@@ -652,6 +719,19 @@ public class HazardMapJobCreator {
 		}		
 	}	
 	
+	/**
+	 * Creates condor submit jobs and DAG from the given xml file (first argument).
+	 * 
+	 * The 2nd optional argument is a boolean that, if true, will not actually create
+	 * CVM files but assume that they are already created in the job directory (or will
+	 * be moved there after the job creation is completed)
+	 * 
+	 * The 3rd optional argument is a boolean that, if true, treats this as a
+	 * restart of a failed run.It will check to see if any of the jobs failed, and create
+	 * submission files in jobName_restart
+	 * 
+	 * @param args - XML_File.xml [skipCVMfiles] [restart]
+	 */
 	public static void main(String args[]) {
 		
 		String outputDir = "";
@@ -683,6 +763,22 @@ public class HazardMapJobCreator {
 			System.out.println("submitHostPath = " + job.submitHostPath+"/"+job.jobName);
 			System.out.println("submitHostPathToDependencies = " + job.submitHostPathToDependencies);
 			
+			boolean restart = false;
+			boolean skipCVMFiles = false;
+			
+			if (args.length >= 2) {
+				skipCVMFiles = Boolean.parseBoolean(args[1]);
+				if (skipCVMFiles)
+					System.out.println("Skipping CVM File Creation!");
+			}
+			
+			if (args.length >= 3) {
+				restart = Boolean.parseBoolean(args[2]);
+				if (restart) {
+					System.out.println("Restarting an old run!");
+				}
+			}
+			
 			if (outputDir.length() == 0) { // we're not debugging
 				outputDir = job.submitHostPath;
 			}
@@ -690,7 +786,16 @@ public class HazardMapJobCreator {
 			if (!outputDir.endsWith("/"))
 				outputDir = outputDir + "/";
 			
-			outputDir = outputDir + job.jobName + "/";
+			outputDir = outputDir + job.jobName;
+			
+			String originalDir = "";
+			
+			if (restart) {
+				originalDir = outputDir + "/";
+				outputDir = outputDir + "_RESTART/";
+			} else
+				outputDir = outputDir + "/";
+			
 //			String outputDir = "/home/kevin/OpenSHA/condor/jobs/benchmark_RELM_UCERF_0.1_Purdue/";
 			// SDSC
 //			String remoteJobDir = "/gpfs/projects/scec/CyberShake2007/opensha/kevin/meetingMap";
@@ -735,8 +840,13 @@ public class HazardMapJobCreator {
 			HazardMapJobCreator creator = new HazardMapJobCreator(outputDir, sites, job);
 //			HazardMapJobCreator creator = new HazardMapJobCreator(outputDir, sites, 1700, 2199, job);
 			
+			creator.skipCVMFiles = skipCVMFiles;
+			
 			try {
-				creator.createJobs();
+				if (restart)
+					creator.createRestartJobs(originalDir);
+				else
+					creator.createJobs();
 				creator.createSubmitScripts(24);
 				
 				// Mahesh code
