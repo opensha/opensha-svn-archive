@@ -130,9 +130,9 @@ public class HazardMapJobCreator {
 		fr.write("executable = " + job.rp_javaPath + "\n");
 		fr.write("arguments = -cp " + job.rp_storagePath + "/opensha_gridHazMapGenerator.jar org.opensha.sha.calc.GridMetadataHazardMapCalculator " + start + " " + end + " " + job.metadataFileName + " " + cvmFileName + "\n");
 		fr.write("copy_to_spool = false" + "\n");
-		fr.write("output = " + jobFilePrefix + ".out" + "\n");
-		fr.write("error = " + jobFilePrefix + ".err" + "\n");
-		fr.write("log = " + jobFilePrefix + ".log" + "\n");
+		fr.write("output = out/" + jobFilePrefix + ".out" + "\n");
+		fr.write("error = err/" + jobFilePrefix + ".err" + "\n");
+		fr.write("log = log/" + jobFilePrefix + ".log" + "\n");
 		fr.write("transfer_executable = false" + "\n");
 		fr.write("transfer_error = true" + "\n");
 		fr.write("transfer_output = true" + "\n");
