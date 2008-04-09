@@ -189,8 +189,9 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[4];
 			args[0] = 0 + "";
-			args[1] = 5 + "";
+			args[1] = 1 + "";
 			args[2] = "output.xml";
+			args[2] = "cvm_test.xml";
 			args[3] = "cvm_test.cvm";
 			outputDir = "/home/kevin/OpenSHA/condor/test_results/";
 		}

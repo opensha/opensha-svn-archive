@@ -84,7 +84,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
 			new Double(-90), new Double(90), new Double(34.7));
 	private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-			new Double(.01666),new Double(1.0),new String("Degrees"),new Double(.1));
+			new Double(.001),new Double(1.0),new String("Degrees"),new Double(.1));
 	private IntegerParameter numSites = new IntegerParameter(NUM_SITES_NAME);
 
 

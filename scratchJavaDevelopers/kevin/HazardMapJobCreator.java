@@ -79,6 +79,7 @@ public class HazardMapJobCreator {
 	String basinFileName = "/etc/cvmfiles/basindepth_OpenSHA.txt";
 	
 	ArrayList<String> jobNames = new ArrayList<String>();
+	ArrayList<String> cvmNames = new ArrayList<String>();
 	
 	public int nameLength = 6;
 	
@@ -103,6 +104,7 @@ public class HazardMapJobCreator {
 		String cvmFileName = "";
 		if (job.useCVM) {
 			cvmFileName = createCVMJobFile(regionName, start, end);
+			cvmNames.add(cvmFileName);
 		}
 		
 		String globusscheduler = job.rp_host + "/" + job.rp_batchScheduler;
@@ -222,13 +224,15 @@ public class HazardMapJobCreator {
 		
 		for (File file : dirList) {
 			if (file.getName().endsWith(".sub") && file.getName().startsWith("Job_")) {
-				String outFileName = file.getAbsolutePath().replace(".sub", ".out");
-				File outFile = new File(outFileName);
+				String outFileDir = file.getParentFile().getAbsolutePath() + "/out/";
+				String outFileName = file.getName().replace(".sub", ".out");
+				String outFilePath = outFileDir + outFileName;
+				File outFile = new File(outFilePath);
 				boolean good = false;
 				System.out.println("Checking " + file.getName());
 				if (outFile.exists()) {
 					try {
-						ArrayList<String> lines = FileUtils.loadFile(outFileName);
+						ArrayList<String> lines = FileUtils.loadFile(outFilePath);
 						for (String line : lines) {
 							if (line.contains("DONE")) {
 								good = true;
@@ -414,6 +418,36 @@ public class HazardMapJobCreator {
 		return str;
 	}
 	
+	public void createMakeDirJob() {
+		try {
+			FileWriter fr = new FileWriter(outputDir + "mkdir.sub");
+			
+			fr.write("universe = globus" + "\n");
+			fr.write("executable = /bin/mkdir" + "\n");
+			fr.write("arguments = -p " + job.rp_storagePath + "\n");
+			fr.write("notification = NEVER" + "\n");
+			fr.write("globusrsl = (jobtype=single)" + "\n");
+			fr.write("globusscheduler = " + job.rp_host + "/jobmanager-fork" + "\n");
+			fr.write("copy_to_spool = false" + "\n");
+			fr.write("error = mkdir.err" + "\n");
+			fr.write("log = mkdir.log" + "\n");
+			fr.write("output = mkdir.out" + "\n");
+			fr.write("transfer_executable = false" + "\n");
+			fr.write("transfer_error = true" + "\n");
+			fr.write("transfer_output = true" + "\n");
+			fr.write("periodic_release = (NumSystemHolds <= 3)" + "\n");
+			fr.write("periodic_remove = (NumSystemHolds > 3)" + "\n");
+			fr.write("remote_initialdir = /tmp" + "\n");
+			fr.write("queue" + "\n");
+			fr.write("" + "\n");
+			
+			fr.flush();
+			fr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void createJarTransferInputFile (String outputDir, String remoteJobDir) {
 		try {
@@ -425,48 +459,30 @@ public class HazardMapJobCreator {
 			fr.write("\n");
 			fr.write("\n");
 			
-			fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/big_job_test_1_ERF.obj");
+			fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/" + job.jobName + "_ERF.obj");
 			fr.write("\n");
-			fr.write("gsiftp://"+job.rp_host + remoteJobDir+"/"+"big_job_test_1_ERF.obj");
+			fr.write("gsiftp://"+job.rp_host + remoteJobDir+"/"+ job.jobName + "_ERF.obj");
 			fr.write("\n");
 			fr.write("\n");
 			fr.write("\n");
-
-			
-			File dir = new File(outputDir);
-			String[] children = dir.list();
-			
-			FilenameFilter filter = new FilenameFilter() {
-		        public boolean accept(File dir, String name) {
-		            return name.endsWith(".cvm");
-		        }
-		    };
-		    children = dir.list(filter);
 		    
-		    ArrayList arr = new ArrayList ();
-		    for (int i = 0; i < children.length; i++) {
-		    	arr.add(children[i]);
-		    }
-		    
-		    Collections.sort(arr);
-		    
-		    for (int i = 0; i < children.length; i++) {
-		    	fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/"+arr.get(i));
+		    for (String name : cvmNames) {
+		    	fr.write("gsiftp://"+ job.submitHost + job.submitHostPath +"/" +job.jobName +"/"+name);
 				fr.write("\n");
 				fr.write("gsiftp://");
 				fr.write(job.rp_host);
 				fr.write(remoteJobDir+"/");
-				fr.write(arr.get(i)+"");			
+				fr.write(name+"");			
 				fr.write("\n");
 				fr.write("\n");		    	
 		    }
 		    
-		    fr.write("gsiftp://"+ job.submitHost + job.submitHostPath + "/"+job.jobName +"/big_job_test_1.xml");
+		    fr.write("gsiftp://"+ job.submitHost + job.submitHostPath + "/"+job.jobName +"/" + job.jobName + ".xml");
 		    fr.write("\n");
 		    fr.write("gsiftp://");
 		    fr.write(job.rp_host);
 		    fr.write(remoteJobDir+"/");
-		    fr.write("big_job_test_1.xml");
+		    fr.write(job.jobName + ".xml");
 		    fr.write("\n");
 		    fr.write("\n");		    
 			
@@ -501,6 +517,9 @@ public class HazardMapJobCreator {
 			StringBuffer str = new StringBuffer ();
 
 			// code for create directory job
+            str.append("\n");
+            str.append("\n");
+            str.append("Job create_dir mkdir.sub");
             str.append("\n");
             str.append("\n");
 //            str.append("Job ");
@@ -556,12 +575,12 @@ public class HazardMapJobCreator {
 //				str.append("\n");	
 //			}		
 			
-//			str.append("\n");
-//            str.append("PARENT ");
-//            str.append("create_dir ");
-//            str.append("CHILD ");
-//            str.append("jar_transfer");
-//            str.append("\n");			
+			str.append("\n");
+            str.append("PARENT ");
+            str.append("create_dir ");
+            str.append("CHILD ");
+            str.append("jar_transfer");
+            str.append("\n");			
 			
 			fos.write(str.toString().getBytes());
 			fos.close();
@@ -737,9 +756,10 @@ public class HazardMapJobCreator {
 		String outputDir = "";
 		if (args.length == 0) {
 			System.err.println("RUNNING FROM DEBUG MODE!");
-			args = new String[1];
+			args = new String[2];
 			args[0] = "scratchJavaDevelopers/kevin/job_example.xml";
 			args[0] = "output.xml";
+			args[1] = "true"; //skip cvm
 			outputDir = "/home/kevin/OpenSHA/condor/jobs/";
 		}
 		
@@ -860,6 +880,7 @@ public class HazardMapJobCreator {
 				remoteJobDir = new String (buf);
 				System.out.println(remoteJobDir);				
 */				
+				creator.createMakeDirJob();
 				creator.createUniqueDirOnRemote (remoteJobDir);
 //				creator.createJarTransferToHostInputFile(outputDir, remoteJobDir);
 				creator.createDAG (outputDir, creator.getNumberOfJobs());

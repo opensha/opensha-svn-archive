@@ -21,7 +21,7 @@ class FileNameComparator implements Comparator {
 
 
 
-		return c.compare(invertFileName(f1.getName()), invertFileName(f2.getName()));
+		return c.compare(f1.getName(), f2.getName());
 	}
 
 	public String invertFileName(String fileName) {

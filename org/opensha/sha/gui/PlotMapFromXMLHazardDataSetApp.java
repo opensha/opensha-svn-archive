@@ -173,6 +173,10 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			jbInit();
 			this.initIML_ProbGuiBean();
 			this.initMapGuiBean();
+			fileSource.setValue(SOURCE_SERVER);
+			sourceEdit.refreshParamEditor();
+//			this.par
+			selectPanel.add(serverSelectPanel, BorderLayout.CENTER);
 			addDataInfo();
 			fillLatLonAndGridSpacing();
 		}
@@ -263,8 +267,6 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 
 //		localSelectPanel.add(comp)
 
-		fileSource.setValue(SOURCE_LOCAL);
-		selectPanel.add(localSelectPanel, BorderLayout.CENTER);
 //		dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0
 //		,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 6, 0, 37), 18, 1));
 //		dataSetPanel.add(refreshButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0

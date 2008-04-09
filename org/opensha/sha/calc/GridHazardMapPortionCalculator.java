@@ -210,9 +210,13 @@ public class GridHazardMapPortionCalculator {
 							double lon = Double.parseDouble(tok.nextToken());
 							String type = tok.nextToken();
 							double depth;
-							if (basinFromCVM)
-								depth = Double.parseDouble(tok.nextToken());
-							else
+							if (basinFromCVM) {
+								String depthStr = tok.nextToken();
+								if (depthStr.contains("NaN")) {
+									depth = Double.NaN;
+								} else
+									depth = Double.parseDouble(depthStr);
+							} else
 								depth = Double.NaN;
 
 							if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
@@ -221,16 +225,40 @@ public class GridHazardMapPortionCalculator {
 									System.err.println("CVM Location: " + lat + ", " + lon + " REAL Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
 								}
 							}
+							
+							boolean skipBasin = false;
+							if ((depth + "").contains("NaN"))
+								skipBasin = true;
+							
+							boolean skipType = false;
+							if (type.contains("NA"))
+								skipType = true;
 
 							Iterator it = site.getParametersIterator();
 							while(it.hasNext()){
 								ParameterAPI tempParam = (ParameterAPI)it.next();
 								
-								if (!basinFromCVM && (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)))
-									continue;
+								boolean flag = false;
+								
+								// this is a basin depth
+								if (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+									if (skipBasin) {
+//										System.out.println("****SKIPPING A BASIN SET!!!!");
+										flag = false;
+									} else {
+										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+										flag = siteTranslator.setParameterValue(tempParam,type,depth);
+									}
+								} else { // this is a site type/vs30
+									if (skipType) {
+//										System.out.println("****SKIPPING A TYPE SET!!!!");
+										flag = false;
+									} else {
+										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+										flag = siteTranslator.setParameterValue(tempParam,type,depth);
+									}
+								}
 
-								//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-								boolean flag = siteTranslator.setParameterValue(tempParam,type,depth);
 								if (!flag) {
 									for (ParameterAPI param : defaultSiteParams) {
 										if (tempParam.getName().equals(param.getName())) {

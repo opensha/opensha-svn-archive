@@ -65,6 +65,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private StringParameter rp_globusrsl = new StringParameter("Globus RSL Params");
 	private StringParameter repo_host = new StringParameter("Data Storage Host-Name");
 	private StringParameter repo_storagePath = new StringParameter("Data Storage Path");
+	private StringParameter submitHost = new StringParameter("Submit Host-Name");
+	private StringParameter submitHostPath = new StringParameter("Submit Host Path");
+	private StringParameter submitHostPathToDependencies = new StringParameter("Submit Host Dependencies Path");
 	private IntegerParameter sitesPerJob = new IntegerParameter("Site Per Job", 0, Integer.MAX_VALUE);
 	private BooleanParameter saveERF = new BooleanParameter("Save ERF to File?", true);
 
@@ -100,6 +103,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this.repo_storagePath.setValue(HazardMapJob.DEFAULT_REPO_STORAGE_PATH);
 		this.sitesPerJob.setValue(100);
 		
+		submitHost.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST);
+		submitHostPath.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST_PATH);
+		submitHostPathToDependencies.setValue(HazardMapJob.DEFAULT_DEPENDENCY_PATH);
+		
 		presets = new StringParameter("Resource Provider Presets", presetsStr);
 		presets.addParameterChangeListener(this);
 
@@ -113,6 +120,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		parameterList.addParameter(rp_globusrsl);
 		parameterList.addParameter(repo_host);
 		parameterList.addParameter(repo_storagePath);
+		parameterList.addParameter(submitHost);
+		parameterList.addParameter(submitHostPath);
+		parameterList.addParameter(submitHostPathToDependencies);
 		parameterList.addParameter(sitesPerJob);
 		parameterList.addParameter(saveERF);
 		editorPanel.removeAll();
@@ -223,5 +233,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	
 	public boolean get_saveERF() {
 		return (Boolean)this.saveERF.getValue();
+	}
+	
+	public String get_submitHost() {
+		return (String)this.submitHost.getValue();
+	}
+	
+	public String get_submitHostPath() {
+		return (String)this.submitHostPath.getValue();
+	}
+	
+	public String get_submitHostPathToDependencies() {
+		return (String)this.submitHostPathToDependencies.getValue();
 	}
 }
