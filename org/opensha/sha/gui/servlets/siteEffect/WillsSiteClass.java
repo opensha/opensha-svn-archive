@@ -25,7 +25,7 @@ public final class WillsSiteClass {
   String willsSiteClassFile;
   boolean loadFromJar = false;
   //gridSpacing for the VS30 file and adding a small value to it.
-  public final static double GRID_SPACING_FOR_VS30_IN_FILE= .0166;
+  public final static double GRID_SPACING_FOR_VS30_IN_FILE= .018;
 
   /**
    * Class constructor
