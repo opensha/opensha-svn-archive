@@ -19,8 +19,11 @@ import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -387,14 +390,16 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 		dataSetCombo.removeAllItems();
 		serverRegions.clear();
 		
+		Collections.sort(serverDocs, new HazardXMLDocumentComparator());
+		
 		for (Document doc : serverDocs) {
 			if (doc == null)
 				System.out.println("DOC IS NULL!");
 			Element root = doc.getRootElement();
 			if (root == null)
 				System.out.println("ROOT IS NULL!");
-			XMLWriter writer;
-
+//			XMLWriter writer;
+//
 //			OutputFormat format = OutputFormat.createPrettyPrint();
 //			try {
 //				writer = new XMLWriter(System.out, format);
@@ -619,6 +624,8 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			//sending the user which dataSet is selected
 			toServlet.writeObject(jobName);
 			
+			toServlet.writeObject(mapGuiBean.getGMTObject());
+			
 			toServlet.writeObject(isProbAt_IML);
 			
 			toServlet.writeObject(value);
@@ -631,14 +638,17 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 
 			Object output = fromServlet.readObject();
 			if (!(output instanceof Boolean)) {
-				String metadata = "You can download the jpg or postscript files for:\n\t"+
-				jobName+"\n\n"+
-				"From (respectively):";
-				
-				XYZ_DataSetAPI xyzData = (XYZ_DataSetAPI)output;
-				
-				mapGuiBean.makeMap(xyzData,metadata);
+				String imgName=output.toString();
+				fromServlet.close();
+				// show the map in  a new window
+				String metadata = "Temp Metadata!\n";
+				String link = imgName.substring(0, imgName.lastIndexOf('/'));
+				metadata +="<br><p>Click:  "+"<a href=\""+link+"\">"+link+"</a>"+"  to download files.</p>";
+				String metadataAsHTML = metadata.replaceAll("\n","<br>");
+				ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadataAsHTML, true);
 			}
+
+			
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -824,6 +834,23 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			}
 		}
 
+	}
+	
+	class HazardXMLDocumentComparator implements Comparator {
+		private Collator c = Collator.getInstance();
+
+		public int compare(Object o1, Object o2) {
+			if(o1 == o2)
+				return 0;
+
+			Document doc1 = (Document) o1;
+			Document doc2 = (Document) o2;
+			
+			String name1 = doc1.getRootElement().element(HazardMapJob.XML_METADATA_NAME).attributeValue("jobName");
+			String name2 = doc2.getRootElement().element(HazardMapJob.XML_METADATA_NAME).attributeValue("jobName");
+
+			return c.compare(name1, name2);
+		}
 	}
 
 }
