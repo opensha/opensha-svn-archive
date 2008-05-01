@@ -437,31 +437,39 @@ public class FaultSegmentData implements java.io.Serializable {
 	public StirlingGriddedSurface getCombinedGriddedSurface(int []segIndex, double gridSpacing, double increaseDDW_Factor) {
 		ArrayList<SimpleFaultData> simpleFaultDataCloneList = new ArrayList<SimpleFaultData>();
 		int lastSegmentIndex = getNumSegments()-1;
+		
+		// determine whether stepover needs to be fixed
+		boolean fixStepOver = false;
+		if(faultName.equals("San Jacinto") || faultName.equals("Elsinore"))
+			for(int i=0; i<segIndex.length-1; ++i) 
+				if(segIndex[i] == 1 && segIndex[i+1] == 2) fixStepOver = true;  // both segments 1 & 2 used
+		
+		// undo fix if unsegmented model was chosen
+		if(fixStepOver) {
+			int numSectionsOnSeg1 = ((ArrayList)this.simpleFaultDataList.get(2)).size();
+			if(numSectionsOnSeg1 == 1) fixStepOver = false;
+		}
+		
+		
 		for(int i=0; i<segIndex.length; ++i) {
 			if(segIndex[i]<0 || segIndex[i]>lastSegmentIndex) throw new RuntimeException ("Segment indices should can have value from  0 to "+lastSegmentIndex);
+			
 			ArrayList<SimpleFaultData> sectionData = (ArrayList)this.simpleFaultDataList.get(segIndex[i]);
 			for(int index=0; index<sectionData.size(); ++index) {
 				SimpleFaultData simpleFaultDataClone = sectionData.get(index).clone();
 				simpleFaultDataClone.setLowerSeismogenicDepth(simpleFaultDataClone.getUpperSeismogenicDepth() +
 						(simpleFaultDataClone.getLowerSeismogenicDepth() -simpleFaultDataClone.getUpperSeismogenicDepth())* increaseDDW_Factor);
+				
+				// if fixStepOver, then skip second section (index=1) of first segment and first section (index=0) of second segment
+				if(fixStepOver && segIndex[i]==1 && index == 1) break;
+				if(fixStepOver && segIndex[i]==2 && index == 0) break;
+				
 				simpleFaultDataCloneList.add(simpleFaultDataClone);
 			}
 		}
 		return  new StirlingGriddedSurface(simpleFaultDataCloneList, gridSpacing);
 	}
 	
-	/**
-	 * Get StirlingGriddedSurface for ALL Segments. 
-	 * It stitches together the segments and returns the resulting surface
-	 *  
-	 * 
-	 * @return
-	 */
-	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing) {
-		int segIndices[] = new int[this.getNumSegments()];
-		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
-		return getCombinedGriddedSurface(segIndices, gridSpacing);
-	}
 	
 	/**
 	 * Get StirlingGriddedSurface for selected Segment indices. It stitches together the segments and returns the resulting surface
@@ -508,6 +516,24 @@ public class FaultSegmentData implements java.io.Serializable {
 		}
 		return  new StirlingGriddedSurface(simpleFaultData, gridSpacing);
 	}
+	
+
+	
+	
+	
+	/**
+	 * Get StirlingGriddedSurface for ALL Segments. 
+	 * It stitches together the segments and returns the resulting surface
+	 *  
+	 * 
+	 * @return
+	 */
+	public StirlingGriddedSurface getCombinedGriddedSurface(double gridSpacing) {
+		int segIndices[] = new int[this.getNumSegments()];
+		for(int i=0; i<segIndices.length; ++i) segIndices[i] = i;
+		return getCombinedGriddedSurface(segIndices, gridSpacing);
+	}
+
 	
 	/**
 	 * Get Ave rake for the ALL Segments
