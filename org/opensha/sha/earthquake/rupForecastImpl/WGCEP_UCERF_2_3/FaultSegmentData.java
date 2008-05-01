@@ -461,8 +461,8 @@ public class FaultSegmentData implements java.io.Serializable {
 						(simpleFaultDataClone.getLowerSeismogenicDepth() -simpleFaultDataClone.getUpperSeismogenicDepth())* increaseDDW_Factor);
 				
 				// if fixStepOver, then skip second section (index=1) of first segment and first section (index=0) of second segment
-				if(fixStepOver && segIndex[i]==1 && index == 1) break;
-				if(fixStepOver && segIndex[i]==2 && index == 0) break;
+				if(fixStepOver && segIndex[i]==1 && index == 1) continue;
+				if(fixStepOver && segIndex[i]==2 && index == 0) continue;
 				
 				simpleFaultDataCloneList.add(simpleFaultDataClone);
 			}
