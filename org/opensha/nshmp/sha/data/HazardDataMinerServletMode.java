@@ -1,5 +1,7 @@
 package org.opensha.nshmp.sha.data;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +16,7 @@ import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.HazardDataCalc;
 import org.opensha.nshmp.util.GlobalConstants;
+import org.opensha.nshmp.util.AppProperties;
 
 /**
  * <p>Title:HazardDataMinerServletMode.java </p>
@@ -401,6 +404,24 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      // Specify the content type that we will send binary data
      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
 
+     // Optionally use authentication.
+     // At this time, user must specify authentication manually in config file.
+     	if(AppProperties.getProperty("useAuth") != null) {
+     		String username = AppProperties.getProperty("username");
+     		String password = AppProperties.getProperty("password");
+     		
+     		String asciiAuth = username + ":" + password;
+     	
+     		System.err.println("Setting proxy authentication: " + asciiAuth);
+     		
+     		String enc64Auth = new String(
+     				Base64.encodeBase64(asciiAuth.getBytes())
+     			);
+     		
+     		servletConnection.setRequestProperty("Proxy-Authorization", "Basic " +
+     				enc64Auth);
+     	}
+     	
 	  // Modify the funcName to notify server that you have current version
 	  funcName = funcName + "_V8";
 
@@ -427,4 +448,5 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    }
    return null;
  }
+
 }

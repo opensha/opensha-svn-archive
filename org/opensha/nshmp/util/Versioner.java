@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.swing.JOptionPane;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class Versioner {
 
@@ -159,10 +162,31 @@ public class Versioner {
 		AppProperties.setSystemProperty(AppProperties.PROXY_PORT);
 		try {
 			URL url = new URL(PATH);
+			URLConnection conn = url.openConnection();
+			
+		 // Optionally use authentication.
+	     // At this time, user must specify authentication manually in config file.
+	     	if(AppProperties.getProperty("useAuth") != null) {
+	     		String username = AppProperties.getProperty("username");
+	     		String password = AppProperties.getProperty("password");
+	     		
+	     		String asciiAuth = username + ":" + password;
+	     	
+	     		System.err.println("Setting proxy authentication: " + asciiAuth);
+	     		
+	     		String enc64Auth = new String(
+	     				Base64.encodeBase64(asciiAuth.getBytes())
+	     			);
+	     		
+	     		conn.setRequestProperty("Proxy-Authorization", "Basic " +
+	     				enc64Auth);
+	     	}
+		     	
+		     	
 			System.err.println("Connecting to server: " + PATH);
 			BufferedReader bin = new BufferedReader(
 												new InputStreamReader(
-												url.openStream()));
+												conn.getInputStream()));
 			
 			System.err.println("Communitcating with server...");
 			while ( (version = bin.readLine()) != null ) {
