@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.data.Location;
+import org.opensha.data.LocationList;
+import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.util.FileUtils;
 
@@ -195,9 +199,14 @@ public class Cybershake_OpenSHA_DBApplication {
 			String shortName = tok.nextToken().trim();
 			// long name
 			//String longName = tok.nextToken().trim();
-			String longName = shortName;
+			//String longName = shortName;
+			String longName = line.substring(line.indexOf(tok.nextToken()));
 			
 			SiteInsert site = new SiteInsert(lat, lon, longName, shortName);
+			//if (!(site.short_name.equals("PDU") || site.short_name.equals("TAB"))) {
+			if (!site.short_name.equals("PDU")) {
+				continue;
+			}
 			System.out.println(site);
 			sites.add(site);
 		}
@@ -207,43 +216,95 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
+	public void insertNewERFWithOldSites(ArrayList<SiteInsert> sites, ERF2DB erf2db, String name, String description) {
+		// get a new ERF-ID
+		int erfID = erf2db.insertERFId(name, description);
+		
+		SiteInfo2DB siteInfoDB = null;
+		
+		int i=0;
+		int numSites = sites.size();
+		CybershakeSiteInfo2DB cyberSiteDB = this.getSiteInfoObject();
+		cyberSiteDB.setForceAddRuptures(true);
+		EqkRupForecastAPI erf = erf2db.getERF_Instance();
+		for (SiteInsert site : sites) {
+			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
+			if (site.id < 0) {
+				if (siteInfoDB == null)
+					siteInfoDB = new SiteInfo2DB(db);
+				site.id = siteInfoDB.getSiteId(site.short_name);
+			}
+			System.out.println("Putting Source Rupture info into DB");
+			cyberSiteDB.putCyberShakeLocationSrcRupInfo(erf, erfID, site.id, site.lat, site.lon);
+		}
+	}
+	
+	public void insertNewERFForAllSites(ERF2DB erf2db, String name, String description) {
+		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
+		
+		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
+		ArrayList<String> shortNames = siteInfoDB.getAllSites();
+		
+		for (String shortName : shortNames) {
+			int siteID = siteInfoDB.getSiteId(shortName);
+			Location loc = siteInfoDB.getLocationForSite(shortName);
+			SiteInsert site = new SiteInsert(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
+			sites.add(site);
+			System.out.println("New Site: " + site);
+		}
+		
+//		this.insertNewERFWithOldSites(sites, cyberShakeSiteInfoDB, erf2db, name, description);
+	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		boolean doIt = false;
+		boolean doIt = true;
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
+		String erfName = erfDB.getERF_Instance().getName();
 		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast";
+		
+		LocationList corners = new LocationList();
+		corners.addLocation(new Location(34.19, -116.60));
+		corners.addLocation(new Location(35.33, -118.75));
+		corners.addLocation(new Location(34.13, -119.63));
+		corners.addLocation(new Location(33.00, -117.50));
+		double gridSpacing = 0.2;
+		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(corners, gridSpacing);
+		
+//		erfDB.insertForecaseInDB(erfDescription, region);
+		erfDB.insertSrcRupInDB(region, 134, 312);
+		
+//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		// this puts the ERF into database, 
 		//erfDB.insertForecaseInDB(erfDescription);
-		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
-		System.out.println("ERF NAME: " + forecast.getName());
-		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
-		System.out.println("ERF ID: " + erfId);
-		//make sites
-		ArrayList<SiteInsert> site_list;
-		try {
-			site_list = app.getSiteListFromFile("/home/kevin/CyberShake/broadband_sites.txt");
-			//app.putSiteInfoInDB(forecast,erfId);
-			if (doIt) {
-				System.out.println("Adding locations...");
-				CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
-				app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
-				siteDB.closeWriter();
-			}
-			System.out.println("****DONE****");
-			db.destroy();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
+//		System.out.println("ERF NAME: " + forecast.getName());
+//		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
+//		System.out.println("ERF ID: " + erfId);
+//		//make sites
+//		ArrayList<SiteInsert> site_list;
+//		try {
+//			site_list = app.getSiteListFromFile("/home/kevin/CyberShake/broadband_sites.txt");
+//			//app.putSiteInfoInDB(forecast,erfId);
+//			if (doIt) {
+//				System.out.println("Adding locations...");
+//				CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
+//				app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
+//				siteDB.closeWriter();
+//			}
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		//                            lat,        lon,       name,    shortname
 //		site_list.add(new SiteInsert(33.79844, -117.39802, "Gavilan", "GAVI"));
 //		site_list.add(new SiteInsert(33.96200, -117.37745, "Mockingbird", "MBRD"));
@@ -253,6 +314,6 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new SiteInsert(34.34609, -117.97474, "Pacifico", "PACI"));
 //		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
 		
-		
+			db.destroy();
 	}
 }

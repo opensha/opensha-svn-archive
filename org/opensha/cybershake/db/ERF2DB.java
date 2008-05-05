@@ -2,10 +2,13 @@ package org.opensha.cybershake.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.calc.RelativeLocation;
 import org.opensha.data.Location;
+import org.opensha.data.region.CircularGeographicRegion;
+import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -115,6 +118,48 @@ public  class ERF2DB implements ERF2DBAPI{
 		}
 		
 	}
+	
+	/**
+	 * Inserts surface locations information for each rupture in table "Points"
+	 * @param erfName
+	 * @param sourceId
+	 * @param ruptureId
+	 * @param lat
+	 * @param lon
+	 * @param depth
+	 * @param rake
+	 * @param dip
+	 * @param strike
+	 */
+	public void insertRuptureSurface(ArrayList<Integer> erfId, ArrayList<Integer> sourceId, ArrayList<Integer> ruptureId, 
+			ArrayList<Double> lat, ArrayList<Double> lon, ArrayList<Double> depth, ArrayList<Double> rake, 
+			ArrayList<Double> dip, ArrayList<Double> strike) {
+//		generate the SQL to be inserted in the ERF_Metadata table
+		String sql = "INSERT into Points"+ 
+		             "(ERF_ID,Source_ID,Rupture_ID,Lat,Lon,Depth,Rake,Dip,Strike)";
+		int size = erfId.size();
+		sql += " VALUES";
+		for (int i=0; i<size; i++) {
+			sql += "('"+erfId.get(i)+"','"+sourceId.get(i)+"','"+
+            ruptureId.get(i)+"','"+lat.get(i).floatValue()+"','"+lon.get(i).floatValue()+"','"+depth.get(i).floatValue()+"','"+
+            rake.get(i).floatValue()+"','"+dip.get(i).floatValue()+"','"+strike.get(i).floatValue()+"') ";
+			if ((i + 1) == size) { // this is the last one, no comma at end
+				
+			} else {
+				sql += ",";
+			}
+		}
+		
+//		System.out.println(sql);
+		            
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 	/**
 	 * 
@@ -193,18 +238,77 @@ public  class ERF2DB implements ERF2DBAPI{
 	 return rupProb;
 	}
 	
-	  private void insertSrcRupInDB(){
+	public void insertSrcRupInDB(){
+		this.insertSrcRupInDB(null, 0, 0);
+	}
+	
+	private boolean isInsideCutoffForRegion(EvenlyGriddedGeographicRegion region, ProbEqkRupture rupture) {
+		
+		long startTime = System.currentTimeMillis();
+		
+		CircularGeographicRegion circular;
+		
+		EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
+		
+		ListIterator it = rupSurface.getAllByRowsIterator();
+		
+		int numLocs = region.getNumGridLocs();
+		
+		while (it.hasNext()) {
+			Location ptLoc = (Location) it.next();
+			
+			for (int i=0; i<numLocs; i++) {
+				Location loc = region.getGridLocation(i);
+				circular = new CircularGeographicRegion(loc, CybershakeSiteInfo2DB.CUT_OFF_DISTANCE);
+				
+				if (circular.isLocationInside(ptLoc)) {
+					System.out.println("Took " + ((System.currentTimeMillis() - startTime) / 1000d) + " secs to FIND...inserting rupture...");
+					return true;
+				}
+			}
+		}
+		System.out.println("Took " + ((System.currentTimeMillis() - startTime) / 1000d) + " secs to NOT FIND");
+		return false;
+	}
+	
+	  public void insertSrcRupInDB(EvenlyGriddedGeographicRegion region, int startSource, int startRup){
 		  int numSources = eqkRupForecast.getNumSources();
 		  int erfId = this.getInserted_ERF_ID(eqkRupForecast.getName());
+		  
+		  // surface objects
+		  ArrayList<Integer> erfIds;
+    	  ArrayList<Integer> sourceIds;
+    	  ArrayList<Integer> ruptureIds; 
+    	  ArrayList<Double> lats;
+    	  ArrayList<Double> lons;
+    	  ArrayList<Double> depths;
+    	  ArrayList<Double> rakes; 
+    	  ArrayList<Double> dips;
+    	  ArrayList<Double> strikes;
+		  
+		  boolean forRegion = (region != null);
 		  for(int sourceId = 0;sourceId<numSources;++sourceId){
-			 System.out.println("Insert source "+(sourceId+1)+" of "+numSources);
+			  if (sourceId < startSource)
+				  continue;
 //			 get the ith source
 		     ProbEqkSource source  = (ProbEqkSource)eqkRupForecast.getSource(sourceId);
 		     int numRuptures = source.getNumRuptures();
+		     System.out.println("Insert source "+(sourceId+1)+" of "+numSources + " (" + numRuptures + " rups)");
 		     String sourceName = source.getName();
 		     for(int ruptureId=0;ruptureId<numRuptures;++ruptureId){
+		    	 if (ruptureId < startRup)
+		    		 continue;
+		    	 else
+		    		 startRup = 0;
+		    	 System.out.println("Inserting rupture " + (ruptureId+1) + " of " + numRuptures);
 		    	 //getting the rupture on the source and its gridCentered Surface
 		          ProbEqkRupture rupture = source.getRupture(ruptureId);
+		          
+		          if (forRegion) {
+			    	 if (!this.isInsideCutoffForRegion(region, rupture))
+			    		 continue;
+		          }
+		          
 		          double mag = rupture.getMag();
 		          double prob = rupture.getProbability();
 		          double aveRake = rupture.getAveRake();
@@ -229,14 +333,33 @@ public  class ERF2DB implements ERF2DBAPI{
 		    			                      surfaceStartLat, surfaceStartLon, surfaceStartDepth, 
 		    			                      surfaceEndLat, surfaceEndLon, surfaceEndDepth,
 		    			                      numRows, numCols, numPoints);
+		    	  System.out.println("Inserting Surface...");
+		    	  long startTime = System.currentTimeMillis();
+		    	  erfIds = new ArrayList<Integer>();
+		    	  sourceIds = new ArrayList<Integer>();
+		    	  ruptureIds = new ArrayList<Integer>(); 
+		    	  lats = new ArrayList<Double>();
+		    	  lons = new ArrayList<Double>();
+		    	  depths = new ArrayList<Double>();
+		    	  rakes = new ArrayList<Double>(); 
+		    	  dips = new ArrayList<Double>();
+		    	  strikes = new ArrayList<Double>();
 		    	  for(int k=0;k<numRows;++k){
 		    	      for (int j = 0; j < numCols; ++j) {
 		    	        Location loc = rupSurface.getLocation(k,j);
-		    	        insertRuptureSurface(erfId, sourceId, ruptureId, loc.getLatitude(),
-		    	        		                    loc.getLongitude(), loc.getDepth(), aveRake, dip,
-		    	        		                    localStrikeList[j]);
+		    	        erfIds.add(erfId);
+		    	        sourceIds.add(sourceId);
+		    	        ruptureIds.add(ruptureId);
+		    	        lats.add(loc.getLatitude());
+		    	        lons.add(loc.getLongitude());
+		    	        depths.add(loc.getDepth());
+		    	        rakes.add(aveRake);
+		    	        dips.add(dip);
+		    	        strikes.add(localStrikeList[j]);
 		    	      }
 		    	  }
+		    	  insertRuptureSurface(erfIds, sourceIds, ruptureIds, lats, lons, depths, rakes, dips, strikes);
+		    	  System.out.println("Inserted! (" + ((System.currentTimeMillis() - startTime) / 1000d) + " sec for surface)");
 		     }
 		  }
 	  }
@@ -321,8 +444,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	    return localStrike;
 	  }	  
 	  
-	  
-	  public void insertForecaseInDB(String erfDescription){
+	  public void insertForecaseInDB(String erfDescription, EvenlyGriddedGeographicRegion region){
 			 int erfId = insertERFId(eqkRupForecast.getName(), erfDescription);
 			  
 			  ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
@@ -345,7 +467,11 @@ public  class ERF2DB implements ERF2DBAPI{
 				  insertERFParams(erfId, param.getName(), param.getValue().toString(), paramType,param.getUnits());
 			  }
 			  //inserts the rupture information in the database
-			  insertSrcRupInDB();
+			  insertSrcRupInDB(region, 0, 0);
+		  }
+	  
+	  public void insertForecaseInDB(String erfDescription){
+			 this.insertForecaseInDB(erfDescription, null);
 		  }
 	  
 	  /**

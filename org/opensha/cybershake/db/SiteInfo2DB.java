@@ -276,7 +276,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 */
 	public ArrayList<String> getAllSites() {	
 //		 gets the last auto increment id from Sites table
-		 String sql = "SELECT CS_Short_Name from CyberShake_Sites";
+		 String sql = "SELECT CS_Short_Name from CyberShake_Sites ORDER BY CS_Site_ID";
 		 ArrayList<String> siteList = new ArrayList<String>();
 		 ResultSet rs =null;
 		try {

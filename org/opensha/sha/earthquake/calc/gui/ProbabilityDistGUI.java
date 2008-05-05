@@ -665,7 +665,7 @@ ParameterChangeListener{
 	   
 	   public static void main(String[] args) {
 		   ProbabilityDistGUI probDistGUI = new ProbabilityDistGUI();
-		   probDistGUI.show();
+		   probDistGUI.setVisible(true);
 	   }
 
 }

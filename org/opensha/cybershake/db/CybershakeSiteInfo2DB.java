@@ -18,11 +18,12 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 public class CybershakeSiteInfo2DB {
 
 	
-	private static final double CUT_OFF_DISTANCE = 200;
+	public static final double CUT_OFF_DISTANCE = 200;
 	private SiteInfo2DBAPI site2db;
 	private ERF2DBAPI erf2db = null;
 	private BufferedWriter out = null;
 	private boolean logging = false;
+	private boolean forceAddRuptures = false;
 	
 	public CybershakeSiteInfo2DB(DBAccess db){
 		site2db = new SiteInfo2DB(db);
@@ -117,6 +118,7 @@ public class CybershakeSiteInfo2DB {
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 
 		// Going over each and every source in the forecast
+		int count = 0;
 		for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -140,6 +142,7 @@ public class CybershakeSiteInfo2DB {
 				if (Cybershake_OpenSHA_DBApplication.timer) {
 					start = System.currentTimeMillis();
 				}
+				boolean log = addLogFileName.length() > 0;
 				while (it.hasNext()) {
 					Location ptLoc = (Location) it.next();
 					if (region.isLocationInside(ptLoc)) {
@@ -147,18 +150,23 @@ public class CybershakeSiteInfo2DB {
 							System.out.println("Found one inside at " + (System.currentTimeMillis() - start) + " milliseconds");
 						}
 						//check if the rupture is there
-						if (checkAddRup) {
+						if (checkAddRup || this.forceAddRuptures) {
 							//check if it's a dup
 							if (this.site2db.isSiteRupInDB(erfId, sourceIndex, rupIndex, siteId)) {
 								System.out.println("It's a duplicate...skipping!");
-								continue;
+								break;
 							}
-							if (!this.site2db.isRupInDB(erfId, sourceIndex, rupIndex)) { //it's not in the database
-								System.out.println("Rupture " + sourceIndex + " " + rupIndex + " not in DB, adding...");
+							if (this.forceAddRuptures || !this.site2db.isRupInDB(erfId, sourceIndex, rupIndex)) { //it's not in the database
+								if (this.forceAddRuptures) {
+									if (count % 100 == 0) {
+										System.out.println("Adding rupture " + count);
+									}
+								} else
+									System.out.println("Rupture " + sourceIndex + " " + rupIndex + " not in DB, adding...");
 								//log it
-								int newRupToAdd[] = {sourceIndex, rupIndex};
-								newRups.add(newRupToAdd);
-								if (addLogFileName.length() > 0) {
+								if (log) {
+									int newRupToAdd[] = {sourceIndex, rupIndex};
+									newRups.add(newRupToAdd);
 									try {
 										if (out == null) {
 											out = new BufferedWriter(new FileWriter(addLogFileName));
@@ -189,6 +197,7 @@ public class CybershakeSiteInfo2DB {
 						}
 						this.site2db.insertSite_RuptureInfo(siteId, erfId,
 								sourceIndex, rupIndex, CUT_OFF_DISTANCE);
+						count++;
 						if (Cybershake_OpenSHA_DBApplication.timer) {
 							long total2 = (System.currentTimeMillis() - start2);
 					    	System.out.println("Took " + total2 + " miliseconds to insert site rupture info!");
@@ -203,6 +212,10 @@ public class CybershakeSiteInfo2DB {
 			}
 		}
 		return newRups;
+	}
+	
+	public void setForceAddRuptures(boolean force) {
+		this.forceAddRuptures = force;
 	}
 	
 	public void closeWriter() {

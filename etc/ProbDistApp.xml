@@ -6,7 +6,7 @@
   directories. For example, the JBuilder output directory might be "classes"
   and the Ant output directory might be "classes.ant".
 -->
-<project basedir="." default="jarfile" name="JarForSCEC_VDO">
+<project basedir="." default="jarfile" name="ProbDistApp">
 	<property name="jdk.home" value="/usr/lib/jvm/java-1.5.0-sun"/>
 	<property name="dest" value="../classes.ant"/>
 	<property name="Required.Libraries.home" value="../lib"/>
@@ -93,48 +93,27 @@
 	      classpath="${dest}:${Required.Libraries.home}">
 				<classpath refid="project.class.path"/>
 			<src path="${src}"/>
-			<include name="nnls/**"/>
-			<include name="org/opensha/calc/**"/>
-			<include name="org/opensha/data/**"/>
-			<exclude name="org/opensha/data/tests/**"/>
-			<include name="org/opensha/data/exceptions/**"/>
-			<include name="org/opensha/gui/**"/>
-			<exclude name="org/opensha/gui/logTest/**"/>
 			<include name="org/opensha/param/**"/>
-			<include name="org/opensha/refFaultParamDb/vo/**"/>
-			<include name="org/opensha/refFaultParamDb/data/**"/>
-			<include name="org/opensha/refFaultParamDb/gui/**"/>
-			<include name="org/opensha/refFaultParamDb/dao/**"/>
-			<include name="org/opensha/sha/earthquake/rupForecastImpl/**"/>
-			<include name="org/opensha/sha/fault/*.java"/>
+			<include name="org/opensha/sha/earthquake/**"/>
+			<include name="org/opensha/data/**"/>
+			<include name="org/opensha/exceptions/**"/>
+			<include name="org/opensha/gui/infoTools/**"/>
+			<include name="org/opensha/gui/plot/**"/>
 			<include name="org/opensha/sha/gui/controls/**"/>
-			<include name="org/opensha/sha/gui/infoTools/**"/>
-			<exclude name="org/opensha/sha/gui/infoTools/LaunchHelpFromMenu.java"/>
-			<include name="org/opensha/sha/magdist/**"/>
-			<include name="org/opensha/sha/param/**"/>
-			<include name="org/opensha/sha/surface/**"/>
-			<include name="org/opensha/util/**"/>
-			<include name="scratchJavaDevelopers/interns/**"/>
-			<exclude name="org/opensha/util/tests/**"/>
+			<include name="org/opensha/util/ImageUtils/**"/>
 		</javac>
 	</target>
 	<target name="resource">
-
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/">
-				<include name="Frankel02/**"/>
-				<include name="Frankel96/**"/>
-				<include name="MeanUCERF/**"/>
-				<include name="step/**"/>
-				<include name="WG02/singleIterationWithModes.OpenSHA.30yr.txt"/>
-				<include name="WGCEP_UCERF_2_3/**"/>
-				<include name="WGCEP_UCERF1/**"/>
-			</fileset>
+		
+		<copy todir="${dest}/etc/img" overwrite="true">
+			<fileset dir="${src}/etc/img"/>
 		</copy>
 
 	</target>
 	<target name="unjarfiles">
-		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/jfreechart-1.0.2.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/jcommon-1.0.5.jar" dest="${dest}" />
 	</target>
 	<target depends="javacompile" name="compile"/>
 	<target depends="compile" name="make"/>
@@ -144,11 +123,15 @@
 		<mkdir dir="${dest}"/>
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
-		<jar destfile="OpenSHA_ForSCEC_VDO.jar" basedir="${dest}">
+		<jar destfile="ProbDistApp.jar" basedir="${dest}">
+			<include name="etc/**"/>
 			<include name="org/**"/>
-			<include name="nnls/**"/>
 			<include name="com/**"/>
-			<include name="scratchJavaDevelopers/interns/**"/>
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Version" value="1.0"/>
+				<attribute name="Main-Class" value="org.opensha.sha.earthquake.calc.gui.ProbabilityDistGUI"/>
+			</manifest>
 		</jar>
 		<antcall target="postcompile" />
 	</target>
