@@ -29,6 +29,17 @@ public interface SiteInfo2DBAPI {
 	public void insertSite_RuptureInfo(int siteId,int erfId,int sourceId,int ruptureId,double cutoffDistance);
 	
 	/**
+	 * Inserts thelist of rupture ids that correspond to a given site within given cutoff distance
+	 * inside the table Site_Ruptures.
+	 * @param siteId
+	 * @param erfId
+	 * @param sourceId
+	 * @param ruptureId - list of Rupture IDs
+	 * @param cutoffDistance
+	 */
+	public void insertSite_RuptureInfoList(int siteId, int erfId, int sourceId, ArrayList<Integer> ruptureId, double cutOffDistance);
+	
+	/**
 	 * Inserts the regional bounds (min/max lat/lon) for all cybershake sites in table Site_Region.
 	 * @param siteId
 	 * @param erfId

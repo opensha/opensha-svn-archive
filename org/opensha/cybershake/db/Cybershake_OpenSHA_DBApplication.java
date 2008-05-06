@@ -169,6 +169,25 @@ public class Cybershake_OpenSHA_DBApplication {
 		}
 	}
 	
+	public void putSiteListRupsIntoDB(ArrayList<SiteInsert> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
+		ArrayList<int[]> newRups = new ArrayList<int[]>();
+		int i=0;
+		int numSites = sites.size();
+		for (SiteInsert newsite : sites) {
+			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + " %)");
+			
+			int siteId = siteDB.getCybershakeSiteId(newsite.short_name);
+			System.out.println("Putting regional bounds into DB");
+			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon);
+			System.out.println("Putting Source Rupture info into DB");
+			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, true));
+		}
+		System.out.println("New ruptures...");
+		for (int[] rup : newRups) {
+			System.out.println(rup[0] + " " + rup[1]);
+		}
+	}
+	
 	private String getPercent(int small, int big) {
 		double percent = (double)((int)(((double)small / (double)big * 10000) + 0.5)) / 100d;
 		return Double.toString(percent);
@@ -216,6 +235,29 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
+	public ArrayList<SiteInsert> getAllSites() {
+		return this.getAllSites(0);
+	}
+	
+	public ArrayList<SiteInsert> getAllSites(int minIndex) {
+		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
+		
+		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
+		ArrayList<String> shortNames = siteInfoDB.getAllSites();
+		
+		for (String shortName : shortNames) {
+			int siteID = siteInfoDB.getSiteId(shortName);
+			if (siteID < minIndex)
+				continue;
+			Location loc = siteInfoDB.getLocationForSite(shortName);
+			SiteInsert site = new SiteInsert(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
+			sites.add(site);
+			System.out.println("New Site: " + site);
+		}
+		
+		return sites;
+	}
+	
 	public void insertNewERFWithOldSites(ArrayList<SiteInsert> sites, ERF2DB erf2db, String name, String description) {
 		// get a new ERF-ID
 		int erfID = erf2db.insertERFId(name, description);
@@ -240,18 +282,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public void insertNewERFForAllSites(ERF2DB erf2db, String name, String description) {
-		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
-		
-		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
-		ArrayList<String> shortNames = siteInfoDB.getAllSites();
-		
-		for (String shortName : shortNames) {
-			int siteID = siteInfoDB.getSiteId(shortName);
-			Location loc = siteInfoDB.getLocationForSite(shortName);
-			SiteInsert site = new SiteInsert(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
-			sites.add(site);
-			System.out.println("New Site: " + site);
-		}
+		ArrayList<SiteInsert> sites = this.getAllSites();
 		
 //		this.insertNewERFWithOldSites(sites, cyberShakeSiteInfoDB, erf2db, name, description);
 	}
@@ -269,16 +300,42 @@ public class Cybershake_OpenSHA_DBApplication {
 		String erfName = erfDB.getERF_Instance().getName();
 		String erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast";
 		
-		LocationList corners = new LocationList();
-		corners.addLocation(new Location(34.19, -116.60));
-		corners.addLocation(new Location(35.33, -118.75));
-		corners.addLocation(new Location(34.13, -119.63));
-		corners.addLocation(new Location(33.00, -117.50));
-		double gridSpacing = 0.2;
-		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(corners, gridSpacing);
+		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
+		System.out.println("ERF NAME: " + forecast.getName());
+		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
+		System.out.println("ERF ID: " + erfId);
 		
-//		erfDB.insertForecaseInDB(erfDescription, region);
-		erfDB.insertSrcRupInDB(region, 134, 312);
+		
+//		ArrayList<SiteInsert> sites = app.getAllSites(22);
+//		
+//		
+//		CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
+////		siteDB.setSkipToSource(125);
+////		siteDB.setSkipToRup(6);
+//		app.putSiteListRupsIntoDB(sites, forecast, erfId, siteDB);
+		
+		
+//		LocationList corners = new LocationList();
+//		corners.addLocation(new Location(34.19, -116.60));
+//		corners.addLocation(new Location(35.33, -118.75));
+//		corners.addLocation(new Location(34.13, -119.63));
+//		corners.addLocation(new Location(33.00, -117.50));
+//		double gridSpacing = 0.2;
+//		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(corners, gridSpacing);
+//		
+////		erfDB.insertForecaseInDB(erfDescription, region);
+//		erfDB.insertSrcRupInDB(region, 134, 312);
+		
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 120, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 121, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 122, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 123, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 124, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 126, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 127, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 129, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 130, true);
+//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 1231, true);
 		
 //		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		// this puts the ERF into database, 

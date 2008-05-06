@@ -275,17 +275,6 @@ public  class ERF2DB implements ERF2DBAPI{
 		  int numSources = eqkRupForecast.getNumSources();
 		  int erfId = this.getInserted_ERF_ID(eqkRupForecast.getName());
 		  
-		  // surface objects
-		  ArrayList<Integer> erfIds;
-    	  ArrayList<Integer> sourceIds;
-    	  ArrayList<Integer> ruptureIds; 
-    	  ArrayList<Double> lats;
-    	  ArrayList<Double> lons;
-    	  ArrayList<Double> depths;
-    	  ArrayList<Double> rakes; 
-    	  ArrayList<Double> dips;
-    	  ArrayList<Double> strikes;
-		  
 		  boolean forRegion = (region != null);
 		  for(int sourceId = 0;sourceId<numSources;++sourceId){
 			  if (sourceId < startSource)
@@ -294,7 +283,6 @@ public  class ERF2DB implements ERF2DBAPI{
 		     ProbEqkSource source  = (ProbEqkSource)eqkRupForecast.getSource(sourceId);
 		     int numRuptures = source.getNumRuptures();
 		     System.out.println("Insert source "+(sourceId+1)+" of "+numSources + " (" + numRuptures + " rups)");
-		     String sourceName = source.getName();
 		     for(int ruptureId=0;ruptureId<numRuptures;++ruptureId){
 		    	 if (ruptureId < startRup)
 		    		 continue;
@@ -309,59 +297,30 @@ public  class ERF2DB implements ERF2DBAPI{
 			    		 continue;
 		          }
 		          
-		          double mag = rupture.getMag();
-		          double prob = rupture.getProbability();
-		          double aveRake = rupture.getAveRake();
-		          EvenlyGriddedSurfaceAPI rupSurface = new EvenlyGridCenteredSurface(rupture.getRuptureSurface());
-//		        Local Strike for each grid centered location on the rupture
-		          double[] localStrikeList = this.getLocalStrikeList(rupture.getRuptureSurface());
-		          double dip =rupSurface.getAveDip();
-		          int numRows = rupSurface.getNumRows();
-		          int numCols = rupSurface.getNumCols();
-		    	  int numPoints = numRows*numCols;
-		    	  double gridSpacing = rupSurface.getGridSpacing();
-		    	  Location surfaceStartLocation = (Location)rupSurface.get(0, 0);
-		    	  Location surfaceEndLocation = (Location)rupSurface.get(0, numCols-1);
-		    	  double surfaceStartLat = surfaceStartLocation.getLatitude();
-		    	  double surfaceStartLon = surfaceStartLocation.getLongitude();
-		    	  double surfaceStartDepth = surfaceStartLocation.getDepth();
-		    	  double surfaceEndLat = surfaceEndLocation.getLatitude();
-		    	  double surfaceEndLon = surfaceEndLocation.getLongitude();
-		    	  double surfaceEndDepth = surfaceEndLocation.getDepth();
-		    	  insertERFRuptureInfo(erfId, sourceId, ruptureId, sourceName, null, 
-		    			                      mag, prob, gridSpacing, 
-		    			                      surfaceStartLat, surfaceStartLon, surfaceStartDepth, 
-		    			                      surfaceEndLat, surfaceEndLon, surfaceEndDepth,
-		    			                      numRows, numCols, numPoints);
-		    	  System.out.println("Inserting Surface...");
-		    	  long startTime = System.currentTimeMillis();
-		    	  erfIds = new ArrayList<Integer>();
-		    	  sourceIds = new ArrayList<Integer>();
-		    	  ruptureIds = new ArrayList<Integer>(); 
-		    	  lats = new ArrayList<Double>();
-		    	  lons = new ArrayList<Double>();
-		    	  depths = new ArrayList<Double>();
-		    	  rakes = new ArrayList<Double>(); 
-		    	  dips = new ArrayList<Double>();
-		    	  strikes = new ArrayList<Double>();
-		    	  for(int k=0;k<numRows;++k){
-		    	      for (int j = 0; j < numCols; ++j) {
-		    	        Location loc = rupSurface.getLocation(k,j);
-		    	        erfIds.add(erfId);
-		    	        sourceIds.add(sourceId);
-		    	        ruptureIds.add(ruptureId);
-		    	        lats.add(loc.getLatitude());
-		    	        lons.add(loc.getLongitude());
-		    	        depths.add(loc.getDepth());
-		    	        rakes.add(aveRake);
-		    	        dips.add(dip);
-		    	        strikes.add(localStrikeList[j]);
-		    	      }
-		    	  }
-		    	  insertRuptureSurface(erfIds, sourceIds, ruptureIds, lats, lons, depths, rakes, dips, strikes);
-		    	  System.out.println("Inserted! (" + ((System.currentTimeMillis() - startTime) / 1000d) + " sec for surface)");
+		          this.insertSrcRupInDB(eqkRupForecast, erfId, sourceId, ruptureId);
 		     }
 		  }
+	  }
+	  
+	  public void insertAllRupsForSourceRegionInDB(EvenlyGriddedGeographicRegion region, EqkRupForecastAPI forecast, int erfID, int sourceID, boolean skipDuplicates) {
+		  ProbEqkSource source  = (ProbEqkSource)forecast.getSource(sourceID);
+		  int numRuptures = source.getNumRuptures();
+		  SiteInfo2DB siteInfo = null;
+		  if (skipDuplicates)
+			  siteInfo = new SiteInfo2DB(this.dbaccess);
+		  for(int ruptureId=0;ruptureId<numRuptures;++ruptureId){
+			  if (skipDuplicates) {
+				  if (siteInfo.isRupInDB(erfID, sourceID, ruptureId)) {
+//					  System.out.println("It's already there!");
+					  continue;
+				  }
+			  }
+			  if (this.isInsideCutoffForRegion(region, source.getRupture(ruptureId))) {
+				  System.out.println("Found one that's not in there!");
+				  this.insertSrcRupInDB(forecast, erfID, sourceID, ruptureId);
+			  }
+		  }
+		  System.out.println("Done with source " + sourceID);
 	  }
 	  
 	/**
@@ -403,14 +362,38 @@ public  class ERF2DB implements ERF2DBAPI{
 				surfaceStartDepth, surfaceEndLat, surfaceEndLon,
 				surfaceEndDepth, numRows, numCols, numPoints);
 		System.out.println("Inserting rupture surface points into database...");
-		for (int k = 0; k < numRows; ++k) {
-			for (int j = 0; j < numCols; ++j) {
-				Location loc = rupSurface.getLocation(k, j);
-				insertRuptureSurface(erfID, sourceID, rupID, loc
-						.getLatitude(), loc.getLongitude(), loc.getDepth(),
-						aveRake, dip, localStrikeList[j]);
-			}
-		}
+//		for (int k = 0; k < numRows; ++k) {
+//			for (int j = 0; j < numCols; ++j) {
+//				Location loc = rupSurface.getLocation(k, j);
+//				insertRuptureSurface(erfID, sourceID, rupID, loc
+//						.getLatitude(), loc.getLongitude(), loc.getDepth(),
+//						aveRake, dip, localStrikeList[j]);
+//			}
+//		}
+		
+		ArrayList<Integer> erfIds = new ArrayList<Integer>();
+		ArrayList<Integer> sourceIds = new ArrayList<Integer>();
+		ArrayList<Integer> ruptureIds = new ArrayList<Integer>(); 
+		ArrayList<Double> lats = new ArrayList<Double>();
+		ArrayList<Double> lons = new ArrayList<Double>();
+		ArrayList<Double> depths = new ArrayList<Double>();
+		ArrayList<Double> rakes = new ArrayList<Double>(); 
+		ArrayList<Double> dips = new ArrayList<Double>();
+		ArrayList<Double> strikes = new ArrayList<Double>();
+  	  for(int k=0;k<numRows;++k){
+  	      for (int j = 0; j < numCols; ++j) {
+  	        Location loc = rupSurface.getLocation(k,j);
+  	        erfIds.add(erfID);
+  	        sourceIds.add(sourceID);
+  	        ruptureIds.add(rupID);
+  	        lats.add(loc.getLatitude());
+  	        lons.add(loc.getLongitude());
+  	        depths.add(loc.getDepth());
+  	        rakes.add(aveRake);
+  	        dips.add(dip);
+  	        strikes.add(localStrikeList[j]);
+  	      }
+  	  }
 	}
 
 	  

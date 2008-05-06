@@ -73,9 +73,9 @@ public class CybershakeSiteInfo2DB {
 	 * @param locLat
 	 * @param locLon
 	 */
-	public void putCyberShakeLocationSrcRupInfo(EqkRupForecastAPI eqkRupForecast,int erfId,
+	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(EqkRupForecastAPI eqkRupForecast,int erfId,
 			int siteId,double locLat,double locLon) {
-		putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
+		return putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
 				siteId, locLat, locLon, false);
 	}
 	
@@ -89,11 +89,11 @@ public class CybershakeSiteInfo2DB {
 	 * @param locLon
 	 * @param checkAddRup make sure rupture is in DB, and if not, add it
 	 */
-	public void putCyberShakeLocationSrcRupInfo(
+	public ArrayList<int[]> putCyberShakeLocationSrcRupInfo(
 			EqkRupForecastAPI eqkRupForecast, int erfId, int siteId,
 			double locLat, double locLon, boolean checkAddRup) {
-		putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
-				siteId, locLat, locLon, false, "");
+		return putCyberShakeLocationSrcRupInfo(eqkRupForecast, erfId, 
+				siteId, locLat, locLon, checkAddRup, "");
 	}
 	
 	/**
@@ -120,12 +120,23 @@ public class CybershakeSiteInfo2DB {
 		// Going over each and every source in the forecast
 		int count = 0;
 		for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+			
+			if (sourceIndex < this.skipSource)
+				continue;
+			this.skipSource = -1;
+			
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 			int numRuptures = source.getNumRuptures();
+			
+			ArrayList<Integer> rupsToAdd = new ArrayList<Integer>();
 
 			// going over all the ruptures in the source
 			for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
+				
+				if (rupIndex < this.skipRup)
+					continue;
+				this.skipRup = -1;
 				
 				ProbEqkRupture rupture = source.getRupture(rupIndex);
 
@@ -195,8 +206,10 @@ public class CybershakeSiteInfo2DB {
 							System.out.println("Done checking at " + (System.currentTimeMillis() - start) + " milliseconds");
 							start2 = System.currentTimeMillis();
 						}
-						this.site2db.insertSite_RuptureInfo(siteId, erfId,
-								sourceIndex, rupIndex, CUT_OFF_DISTANCE);
+//						System.out.println("Inserting Rupture " + sourceIndex + ", " + rupIndex + " for site " + siteId);
+						rupsToAdd.add(rupIndex);
+//						this.site2db.insertSite_RuptureInfo(siteId, erfId,
+//								sourceIndex, rupIndex, CUT_OFF_DISTANCE);
 						count++;
 						if (Cybershake_OpenSHA_DBApplication.timer) {
 							long total2 = (System.currentTimeMillis() - start2);
@@ -210,8 +223,28 @@ public class CybershakeSiteInfo2DB {
 					System.out.println("Took " + total + " miliseconds to check and insert site rupture info!");
 				}
 			}
+			
+			// add the list
+			if (rupsToAdd.size() > 0) {
+				System.out.println("Inserting " + rupsToAdd.size() + " ruptures for Site=" + siteId + " and source=" + sourceIndex);
+				
+				this.site2db.insertSite_RuptureInfoList(siteId, erfId, sourceIndex, rupsToAdd, CUT_OFF_DISTANCE);
+			}
+			
 		}
 		return newRups;
+	}
+	
+	private int skipSource = -1;
+	
+	public void setSkipToSource(int source) {
+		this.skipSource = source;
+	}
+	
+	private int skipRup = -1;
+	
+	public void setSkipToRup(int rup) {
+		this.skipRup = rup;
 	}
 	
 	public void setForceAddRuptures(boolean force) {
