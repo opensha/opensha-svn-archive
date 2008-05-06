@@ -26,6 +26,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.FileUtils;
 
@@ -34,10 +35,12 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 
 	
 	private boolean willSiteClass = true;
+	//private boolean willSiteClass = false;
 	private AttenuationRelationship attenRel;
 	private static final String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
 	private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
 	private static final double IML_VALUE = Math.log(0.126);
+	private static final double SA_PERIOD = 1;
 	private static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 	
@@ -116,10 +119,16 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	
 	private void createShakeMapAttenRelInstance(){
 		 // make the imr
-	      attenRel = new ShakeMap_2003_AttenRel(this);
+	      //attenRel = new ShakeMap_2003_AttenRel(this);
+	      attenRel = new BA_2006_AttenRel(this);
 	            // set the im as PGA
-	      attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_NAME);
+	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).PGA_NAME);
+	      //attenRel.setIntensityMeasure(((ShakeMap_2003_AttenRel)attenRel).SA_NAME, SA_PERIOD);
+	      attenRel.setParamDefaults();
+	      attenRel.setIntensityMeasure(((BA_2006_AttenRel)attenRel).SA_NAME, SA_PERIOD);
+	      
 	}
+	//}
 	
 	
 
