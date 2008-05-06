@@ -28,6 +28,8 @@ public class RegionDefaults {
   public static String backgroundHazardPath = "/home/matthew/mProjects/TestJavaCode/STEP_backGround.txt";
   public static String STEP_AftershockObjectFile = "/home/matthew/mProjects/TestJavaCode/STEP_AftershockObj";
   public static String outputAftershockRatePath = "/home/matthew/mProjects/TestJavaCode/TimeDepRates.txt";
+  //this is for Damage States
+  public static String outputHazCurvePath = "/home/matthew/mProjects/TestJavaCode/HazCurve_Probs.txt";
   
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;
@@ -68,4 +70,6 @@ public class RegionDefaults {
 
   public static final double RAKE=0.0;
   public static final double DIP=90.0;
+  
+  
 }
