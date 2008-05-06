@@ -69,6 +69,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private StringParameter submitHostPath = new StringParameter("Submit Host Path");
 	private StringParameter submitHostPathToDependencies = new StringParameter("Submit Host Dependencies Path");
 	private IntegerParameter sitesPerJob = new IntegerParameter("Site Per Job", 0, Integer.MAX_VALUE);
+//	private IntegerParameter threads = new IntegerParameter("Threads Per Job", 1, 16);
 	private BooleanParameter saveERF = new BooleanParameter("Save ERF to File?", true);
 
 	//SiteTranslator
@@ -102,6 +103,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this.repo_host.setValue(HazardMapJob.DEFAULT_REPO_HOST);
 		this.repo_storagePath.setValue(HazardMapJob.DEFAULT_REPO_STORAGE_PATH);
 		this.sitesPerJob.setValue(100);
+//		this.threads.setValue(1);
 		
 		submitHost.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST);
 		submitHostPath.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST_PATH);
@@ -124,6 +126,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		parameterList.addParameter(submitHostPath);
 		parameterList.addParameter(submitHostPathToDependencies);
 		parameterList.addParameter(sitesPerJob);
+//		parameterList.addParameter(threads);
 		parameterList.addParameter(saveERF);
 		editorPanel.removeAll();
 		addParameters();
@@ -230,6 +233,10 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public int get_sitesPerJob() {
 		return (Integer)this.sitesPerJob.getValue();
 	}
+	
+//	public int get_threadsPerJob() {
+//		return (Integer)this.threads.getValue();
+//	}
 	
 	public boolean get_saveERF() {
 		return (Boolean)this.saveERF.getValue();

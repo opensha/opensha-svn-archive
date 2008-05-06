@@ -1,5 +1,6 @@
 package scratchJavaDevelopers.kevin;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.metadata.XMLSaveable;
 
@@ -14,8 +15,8 @@ public class HazardMapJob implements XMLSaveable {
 	public static final String XML_METADATA_NAME = "hazardMapJob";
 	
 	public static final String DEFAULT_SUBMIT_HOST = "scecit18.usc.edu";
-	public static final String DEFAULT_SUBMIT_HOST_PATH = "/home/dmeyers/proj/openSHA";
-	public static final String DEFAULT_DEPENDENCY_PATH = "/home/dmeyers/proj/openSHA/dependencies";
+	public static final String DEFAULT_SUBMIT_HOST_PATH = "/home/kmilner/hazMapRuns";
+	public static final String DEFAULT_DEPENDENCY_PATH = "/home/kmilner/dependencies";
 	
 	public static final String DEFAULT_REPO_HOST = "hpc.usc.edu";
 	public static final String DEFAULT_REPO_STORAGE_PATH = "/TEMP/PATH";
@@ -93,6 +94,14 @@ public class HazardMapJob implements XMLSaveable {
 		String submitHostPath = jobParams.attribute("submitHostPath").getValue();
 		String submitHostPathToDependencies = jobParams.attribute("submitHostPathToDependencies").getValue();
 		int sitesPerJob = Integer.parseInt(jobParams.attribute("sitesPerJob").getValue());
+		
+		Attribute threadsAtt = jobParams.attribute("threadsPerJob");
+		int threadsPerJob;
+		if (threadsAtt == null)
+			threadsPerJob = 1;
+		else
+			threadsPerJob = Integer.parseInt(threadsAtt.getValue());
+		
 		boolean useCVM = Boolean.parseBoolean(jobParams.attribute("useCVM").getValue());
 		boolean saveERF = Boolean.parseBoolean(jobParams.attribute("saveERF").getValue());
 		String metadataFileName = jobParams.attribute("metadataFileName").getValue();

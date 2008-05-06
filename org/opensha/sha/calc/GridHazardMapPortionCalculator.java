@@ -313,8 +313,15 @@ public class GridHazardMapPortionCalculator {
 
 				// write the result to the file
 				String prefix = "";
+				String curveDir = "curves/";
 				String jobDir = lat + "/";
 				prefix += outputDir;
+				prefix += curveDir;
+				File curveDirFile = new File(prefix);
+				if (!curveDirFile.exists()) {
+					curveDirFile.mkdir();
+				}
+				
 				prefix += jobDir;
 				File dir = new File(prefix);
 				if (!dir.exists()) {
@@ -331,7 +338,7 @@ public class GridHazardMapPortionCalculator {
 				fr.close();
 //				chmod(outFile.getAbsolutePath());
 			}
-			if ((lessPrints && j % 100 != 0 || !lessPrints) && timer) {
+			if ((lessPrints && j % 100 != 0 || !lessPrints) && timer && j>0) {
 				curveTimes.add(System.currentTimeMillis() - start_curve);
 				System.out.println("Took " + getTime(start_curve) + " seconds to calculate curve.");
 				start_curve = System.currentTimeMillis();

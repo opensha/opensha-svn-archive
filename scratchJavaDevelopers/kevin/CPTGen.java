@@ -59,7 +59,7 @@ public class CPTGen {
 		colors.add(color7);
 //		colors.add(color8);
 		try {
-			new CPTGen(colors, 0.05, 0.65, "newcpt.cpt");
+			new CPTGen(colors, 1, 7, "newcpt.cpt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

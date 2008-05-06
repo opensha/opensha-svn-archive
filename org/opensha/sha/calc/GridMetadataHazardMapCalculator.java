@@ -1,6 +1,8 @@
 package org.opensha.sha.calc;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
@@ -55,11 +57,15 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 	boolean debug;
 	// location to store output files if debugging
 	static final String DEBUG_RESULT_FOLDER = "/home/kevin/OpenSHA/condor/test_results/";
+	
+	public static final String START_TIME_FILE = "startTime.txt";
 
 	boolean useCVM = false;
 	String cvmFileName = "";
 
 	String outputDir = "";
+	
+	String metadataFileName;
 
 	/**
 	 * Sets variables for calculation of hazard curves in hazard map
@@ -69,16 +75,17 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 	 * @param debug - flag to enable debugging mode. if true, the timer and graph window will be enabled
 	 * 		if hard coded in.
 	 */
-	public GridMetadataHazardMapCalculator(int startIndex, int endIndex, boolean debug) {
+	public GridMetadataHazardMapCalculator(String metadataFileName, int startIndex, int endIndex, boolean debug) {
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 		this.debug = debug;
+		this.metadataFileName = metadataFileName;
 
 		// show timing results if debug mode and timer is selected
 		timer = timer & debug;
 	}
 
-	public void calculateCurves(String metadataFileName) throws MalformedURLException, DocumentException, InvocationTargetException {
+	public void calculateCurves() throws MalformedURLException, DocumentException, InvocationTargetException {
 		File metadataFile = new File(metadataFileName);
 		System.out.println("Loading metadata from " + metadataFile.getAbsolutePath());
 		if (!metadataFile.exists())
@@ -176,9 +183,13 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 	/**
 	 * Main class to calculate hazard curves. If there are less than 2 arguments, it is considered to be
 	 * a test and timing messages will be displayed along with a graph window for the first 10 curves.
-	 * Otherwise, the first argument is the start index for the site and the sedond argument is the end
+	 * Otherwise, the first argument is the start index for the site and the second argument is the end
 	 * index.
-	 * @param args: startIndex endIndex metadataFileName (cvmFileName)
+	 * 
+	 * Additionally, if endIndex is the string "TEST" then this is considered to be the first job in a DAG
+	 * and will calculate 1 curve for each thread to make sure everything is working right.
+	 * 
+	 * @param args: startIndex endIndex metadataFileName [cvmFileName] [numThreads]
 	 */
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
@@ -197,11 +208,25 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		}
 		// get start and end index of sites to do within region from command line
 		int startIndex = Integer.parseInt(args[0]);
-		int endIndex = Integer.parseInt(args[1]);
+		int endIndex;
+		if (args[1].contains("TEST")) { // this is a single curve test run, the first job in the DAG
+			endIndex = startIndex + 1;
+			try {
+				FileWriter fw = new FileWriter(START_TIME_FILE);
+				fw.write(System.currentTimeMillis() + "");
+				fw.flush();
+				fw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			endIndex = Integer.parseInt(args[1]);
+		}
+		
 		try {
 			// run the calculator with debugging disabled
-			GridMetadataHazardMapCalculator calc = new GridMetadataHazardMapCalculator(startIndex, endIndex, false);
 			String metadataFileName = args[2];
+			GridMetadataHazardMapCalculator calc = new GridMetadataHazardMapCalculator(metadataFileName, startIndex, endIndex, false);
 			if (args.length >=4 && args[3].toLowerCase().contains("cvm")) {
 				calc.useCVM = true;
 				calc.cvmFileName = args[3];
@@ -209,7 +234,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 			calc.skipPoints = false;
 			calc.timer = true;
 			calc.outputDir = outputDir;
-			calc.calculateCurves(metadataFileName);
+			calc.calculateCurves();
 			System.out.println("Total execution time: " + calc.getTime(start));
 		} catch (Exception e) {
 			// something bad happened, exit with code 1
@@ -217,6 +242,8 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 			System.exit(1);
 		}
 		// exit without error
+		System.out.flush();
+		System.err.flush();
 		System.exit(0);
 	}
 

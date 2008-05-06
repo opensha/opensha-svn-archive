@@ -20,6 +20,7 @@ import org.dom4j.io.SAXReader;
 import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.util.FileUtils;
 
 import scratchJavaDevelopers.kevin.MakeXYZFromHazardMapDir;
@@ -61,8 +62,10 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 			}else if(functionDesired.equalsIgnoreCase(MAKE_MAP)){ // IF USER WANTS TO MAKE MAP
 				// get the set selected by the user
 				String selectedSet = (String)inputFromApplet.readObject();
+				GMT_MapGenerator map = (GMT_MapGenerator)inputFromApplet.readObject();
 				boolean isProbAt_IML = (Boolean)inputFromApplet.readObject();
 				double value = (Double)inputFromApplet.readObject();
+				String metadata = "TEMP META!";
 
 				String localDir = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapXMLDatasets/" + selectedSet;
 
@@ -96,9 +99,11 @@ public class HazardMapXMLViewerServlet  extends HttpServlet {
 							ee.printStackTrace();
 						}
 					}
-					ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
-					outputToApplet.writeObject(xyzData);
-					outputToApplet.close();
+					String mapLabel = getMapLabel(isProbAt_IML);
+					String jpgFileName  = map.makeMapUsingServlet(xyzData,mapLabel,metadata,null);
+			        ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
+			        outputToApplet.writeObject(jpgFileName);
+			        outputToApplet.close();
 					return;
 				} catch (IOException e1) {
 					e1.printStackTrace();
