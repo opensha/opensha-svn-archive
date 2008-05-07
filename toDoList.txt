@@ -1,6 +1,8 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
+
 Nitin's ToDo
 ------------
 1)Progress bar that states application starting based on christine comments- Done
