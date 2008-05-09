@@ -24,6 +24,7 @@ public class CPTGen {
 		write.write("F " + colF[0] + "\t" + colF[1] + "\t" + colF[2] +"\n");
 		write.write("N 127	127	127\n");
 		// this is a trivial comment to test Trac
+		// this is another one!
 		write.close();
 	}
 	
