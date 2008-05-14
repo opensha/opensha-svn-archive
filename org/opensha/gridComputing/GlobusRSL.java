@@ -1,0 +1,104 @@
+package org.opensha.gridComputing;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.dom4j.Attribute;
+import org.dom4j.Element;
+import org.opensha.metadata.XMLSaveable;
+
+public class GlobusRSL implements XMLSaveable {
+	
+	public static final String JOB_TYPE_NAME = "jobtype";
+	public static final String MAX_WALL_TIME_NAME = "maxwalltime";
+	public static final String QUEUE_NAME = "queue";
+	
+	public static final String SINGLE_JOB_TYPE = "single";
+	
+	public static final String XML_METADATA_NAME = "GlobusRSL";
+	
+	private ArrayList<String[]> pairs;
+	
+	private GlobusRSL(ArrayList<String[]> pairs) {
+		this.pairs = pairs;
+	}
+	
+	public GlobusRSL(String jobType, int maxWallTime) {
+		pairs = new ArrayList<String[]>();
+		this.addPair(GlobusRSL.JOB_TYPE_NAME, jobType);
+		this.addPair(GlobusRSL.MAX_WALL_TIME_NAME, maxWallTime + "");
+	}
+	
+	public void addPair(String name, String value) {
+		String pair[] = {name, value};
+		
+		// if this is a duplicate, remove the old one
+		for (String check[] : pairs) {
+			if (check[0].equals(pair[0])) {
+				pairs.remove(check);
+			}
+		}
+		if (value.length() > 0)
+			pairs.add(pair);
+	}
+	
+	public void setQueue(String queueName) {
+		this.addPair(GlobusRSL.QUEUE_NAME, queueName);
+	}
+	
+	public String getQueue() {
+		return this.getValue(GlobusRSL.QUEUE_NAME);
+	}
+	
+	public String getJobType() {
+		return this.getValue(GlobusRSL.JOB_TYPE_NAME);
+	}
+	
+	public int getMaxWallTime() {
+		String str = this.getValue(GlobusRSL.MAX_WALL_TIME_NAME);
+		if (str.length() == 0)
+			return -1;
+		return Integer.parseInt(str);
+	}
+	
+	public String getValue(String name) {
+		for (String pair[] : pairs) {
+			if (pair[0].equals(name))
+				return pair[1];
+		}
+		return "";
+	}
+	
+	public String getRSLString() {
+		String rsl = "";
+		
+		for (String pair[] : pairs) {
+			rsl += "(" + pair[0] + "=" + pair[1] + ")";
+		}
+		
+		return rsl;
+	}
+
+	public Element toXMLMetadata(Element root) {
+		Element xml = root.addElement(GlobusRSL.XML_METADATA_NAME);
+		
+		for (String pair[] : pairs) {
+			xml.addAttribute(pair[0], pair[1]);
+		}
+		
+		return root;
+	}
+	
+	public static GlobusRSL fromXMLMetadata(Element rslElem) {
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		
+		Iterator<Attribute> attIt = rslElem.attributeIterator();
+		while (attIt.hasNext()) {
+			Attribute att = attIt.next();
+			String pair[] = {att.getName(), att.getValue()};
+			pairs.add(pair);
+		}
+		
+		return new GlobusRSL(pairs);
+	}
+}

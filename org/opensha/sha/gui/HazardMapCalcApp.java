@@ -31,12 +31,16 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapJob;
+import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.gridComputing.GlobusRSL;
+import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.SubmitHost;
 
-import scratchJavaDevelopers.kevin.HazardMapJob;
 
 /**
  * <p>Title: HazardDataSetCalcCondorApp</p>
@@ -151,6 +155,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	private GridBagLayout gridBagLayout = new GridBagLayout();
 	private JPanel gridRegionSitePanel = new JPanel();
 	private JPanel gridParamPanel = new JPanel();
+	
+	private Document currentDoc = null;
 
 
 	private JPanel imrSelectionPanel = new JPanel();
@@ -180,6 +186,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	private JPanel imgPanel = new JPanel();
 	private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 	private JButton addButton = new JButton();
+	private JButton runButton = new JButton("Run!");
 	private JComboBox controlComboBox = new JComboBox();
 	private GridBagLayout gridBagLayout7 = new GridBagLayout();
 	private BorderLayout borderLayout3 = new BorderLayout();
@@ -268,10 +275,15 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		dataPanel.setLayout(gridBagLayout4);
 		imgPanel.setLayout(gridBagLayout7);
 		addButton.setBorder(null);
-		addButton.setText("Start Calc");
+		addButton.setText("Prepare Calc");
 		addButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addButton_actionPerformed(e);
+			}
+		});
+		runButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				runButton_actionPerformed(e);
 			}
 		});
 		controlComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -299,7 +311,10 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 				,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(43, 48, 0, 24), 35, 2));
 		dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(43, 7, 0, 15), 43, 12));
-		dataPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+		JPanel runPanel = new JPanel();
+		runPanel.add(addButton);
+		runPanel.add(runButton);
+		dataPanel.add(runPanel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 51, 81, 24), 79, 12));
 		buttonPanel.add(imgPanel, BorderLayout.SOUTH);
 		imgPanel.add(imgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -716,22 +731,17 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			if (jobName.equals(""))
 				jobName = System.currentTimeMillis() + "";
 
-			String rp_host = this.gridGuiBean.get_rp_host();
-			String rp_batchScheduler = this.gridGuiBean.get_rp_batchScheduler();
-			String rp_javaPath = this.gridGuiBean.get_rp_javaPath();
-			String rp_storagePath = this.gridGuiBean.get_rp_storagePath() + jobName;
-			String rp_globusrsl = this.gridGuiBean.get_rp_globusrsl();
-			String repo_host = this.gridGuiBean.get_repo_host();
-			String repo_storagePath = this.gridGuiBean.get_repo_storagePath();
-			String submitHost = this.gridGuiBean.get_submitHost();
-			String submitHostPath = this.gridGuiBean.get_submitHostPath();
-			String submitHostPathToDependencies = this.gridGuiBean.get_submitHostPathToDependencies();
 			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
+			int maxWallTime = this.gridGuiBean.get_maxWallTime();
 			boolean useCVM = sitesGuiBean.isSiteTypeFromCVM();
 			boolean saveERF = this.gridGuiBean.get_saveERF();
+			
 			String metadataFileName = jobName + ".xml";
 			
-			HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, submitHost, submitHostPath, submitHostPathToDependencies, sitesPerJob, useCVM, saveERF, metadataFileName);
+			ResourceProvider rp = this.gridGuiBean.get_resourceProvider();
+			SubmitHost submit = this.gridGuiBean.get_submitHost();
+			
+			HazardMapJob job = new HazardMapJob(jobName, rp, submit, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
 
 			root = job.toXMLMetadata(root);
 
@@ -753,9 +763,11 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			XMLWriter writer;
 
 			OutputFormat format = OutputFormat.createPrettyPrint();
-			writer = new XMLWriter(System.out, format);
-			writer.write(document);
-			writer.close();
+//			writer = new XMLWriter(System.out, format);
+//			writer.write(document);
+//			writer.close();
+			
+			this.currentDoc = document;
 
 			writer = new XMLWriter(new FileWriter("output.xml"), format);
 			writer.write(document);
@@ -782,6 +794,25 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			e1.printStackTrace();
 		}
 		calcProgress.setVisible(false);
+	}
+	
+	/**
+	 * This function is called when user runs the calculation
+	 * @param e
+	 */
+	void runButton_actionPerformed(ActionEvent e) {
+		if (currentDoc != null) {
+			try {
+				HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(currentDoc, false, false);
+				creator.prepareMap();
+			} catch (InvocationTargetException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	/**

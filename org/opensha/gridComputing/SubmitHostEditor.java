@@ -1,0 +1,103 @@
+package org.opensha.gridComputing;
+
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+public class SubmitHostEditor extends JDialog {
+	
+	JTextField name = new JTextField();
+	JTextField hostName = new JTextField();
+	JTextField path = new JTextField();
+	JTextField dependencyPath = new JTextField();
+	JTextField transferEnvironment = new JTextField();
+	JTextField transferArguments = new JTextField();
+	JTextField transferExecutable = new JTextField();
+	
+	SubmitHost submit;
+	
+	public SubmitHostEditor(SubmitHost submit) {
+		this.submit = submit;
+		ArrayList<JComponent> leftCol = new ArrayList<JComponent>();
+		ArrayList<JComponent> rightCol = new ArrayList<JComponent>();
+		
+		leftCol.add(new JLabel("Name"));
+		name.setText(submit.name);
+		rightCol.add(name);
+		
+		leftCol.add(new JLabel("Host Name"));
+		hostName.setText(submit.hostName);
+		rightCol.add(hostName);
+		
+		leftCol.add(new JLabel("Path"));
+		path.setText(submit.path);
+		rightCol.add(path);
+		
+		leftCol.add(new JLabel("Path To Dependencies"));
+		dependencyPath.setText(submit.dependencyPath);
+		rightCol.add(dependencyPath);
+		
+		leftCol.add(new JLabel("Globus Environment"));
+		transferEnvironment.setText(submit.transferEnvironment);
+		rightCol.add(transferEnvironment);
+		
+		leftCol.add(new JLabel("GridFTP Transfer Arguments"));
+		transferArguments.setText(submit.transferArguments);
+		rightCol.add(transferArguments);
+		
+		leftCol.add(new JLabel("Kickstart Executable Path"));
+		transferExecutable.setText(submit.transferExecutable);
+		rightCol.add(transferExecutable);
+		
+		this.createGUI(leftCol, rightCol);
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		this.setTitle("Submit Host");
+//		this.pack();
+	}
+	
+	public void createGUI(ArrayList<JComponent> leftCol, ArrayList<JComponent> rightCol) {
+		int num = leftCol.size();
+		
+		this.setLayout(new GridLayout(num, 2));
+		
+		for (int i=0; i<leftCol.size(); i++) {
+			JComponent left = leftCol.get(i);
+			JComponent right = rightCol.get(i);
+			
+			this.add(left);
+			this.add(right);
+		}
+		
+		this.setPreferredSize(new Dimension(200, 500));
+		this.setSize(new Dimension(500, 300));
+	}
+	
+	public SubmitHost getSubmitHost() {
+		String name = this.name.getText();
+		String hostName = this.hostName.getText();
+		String path = this.path.getText();
+		String dependencyPath = this.dependencyPath.getText();
+		String transferEnvironment = this.transferEnvironment.getText();
+		String transferArguments = this.transferArguments.getText();
+		String transferExecutable = this.transferExecutable.getText();
+		
+		return new SubmitHost(name, hostName, path, dependencyPath, transferEnvironment, transferArguments, transferExecutable);
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		SubmitHost submit = SubmitHost.INTENSITY;
+		SubmitHostEditor editor = new SubmitHostEditor(submit);
+		
+		editor.setVisible(true);
+
+	}
+
+}

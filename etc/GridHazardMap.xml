@@ -98,6 +98,7 @@
 			<include name="org/**"/>
 			<include name="nnls/**"/>
 			<include name="scratchJavaDevelopers/kevin/**"/>
+			<exclude name="org/opensha/nshmp/**"/>
 		</javac>
 	</target>
 	<target name="rmi">

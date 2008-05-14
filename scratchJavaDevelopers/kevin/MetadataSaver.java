@@ -14,8 +14,11 @@ import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.SubmitHost;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -59,18 +62,15 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 //		}
 		
 		String jobName = "verify_UCERF";
-		String rp_host = HazardMapJob.HPC_PRESET.rp_host;
-		String rp_batchScheduler = HazardMapJob.HPC_PRESET.rp_batchScheduler;
-		String rp_javaPath = HazardMapJob.HPC_PRESET.rp_javaPath;
-		String rp_storagePath = HazardMapJob.HPC_PRESET.rp_storagePath + "verify_0.02_noCVM_UCERF";
-		String rp_globusrsl = "(jobtype=single)(maxwalltime=60)";
-		String repo_host = HazardMapJob.DEFAULT_REPO_HOST;
-		String repo_storagePath = HazardMapJob.DEFAULT_REPO_STORAGE_PATH;
 		int sitesPerJob = 100;
 		boolean useCVM = false;
 		boolean saveERF = true;
 		String metadataFileName = jobName + ".xml";
-		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
+		int maxWallTime = 240;
+		ResourceProvider rp = ResourceProvider.ABE_GLIDE_INS();
+		SubmitHost submit = SubmitHost.SCECIT18;
+		HazardMapJob job = new HazardMapJob(jobName, rp, submit, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+//		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 		root = erf.toXMLMetadata(root);
 		root = imr.toXMLMetadata(root);

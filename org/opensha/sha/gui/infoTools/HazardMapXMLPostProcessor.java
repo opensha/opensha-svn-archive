@@ -13,10 +13,10 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.sha.calc.GridMetadataHazardMapCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.util.FileUtils;
 import org.opensha.util.MailUtil;
 
-import scratchJavaDevelopers.kevin.HazardMapJob;
 
 public class HazardMapXMLPostProcessor {
 	

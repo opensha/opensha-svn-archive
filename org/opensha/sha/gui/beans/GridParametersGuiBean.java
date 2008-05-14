@@ -1,28 +1,28 @@
 package org.opensha.sha.gui.beans;
 
-import java.util.*;
-import java.lang.reflect.*;
-import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.io.Serializable;
+import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
 
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
-import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.data.Site;
-import org.opensha.data.Location;
-import org.opensha.data.region.*;
-import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.ResourceProviderEditor;
+import org.opensha.gridComputing.SubmitHost;
+import org.opensha.gridComputing.SubmitHostEditor;
+import org.opensha.param.BooleanParameter;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.ParameterAPI;
+import org.opensha.param.ParameterConstraintAPI;
+import org.opensha.param.ParameterList;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeFailEvent;
+import org.opensha.param.event.ParameterChangeFailListener;
+import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.util.SiteTranslator;
 
-import org.opensha.exceptions.RegionConstraintException;
-
-import scratchJavaDevelopers.kevin.GridJobPreset;
-import scratchJavaDevelopers.kevin.HazardMapJob;
 
 /**
  * <p>Title:SitesInGriddedRectangularRegionGuiBean </p>
@@ -45,31 +45,25 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
 	// title for site paramter panel
 	public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
-
-	//Site Params ArrayList
-	ArrayList siteParams ;
-
-	//Static String for setting the site Params
-	public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
-	public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the CGS Preliminary Site Conditions Map of CA (web service)";
-	public final static String SET_SITES_USING_SCEC_CVM = "Use both CGS Map and SCEC Basin Depth (web services)";
-
-	ArrayList<GridJobPreset> presetsList = new ArrayList<GridJobPreset>();
 	
-	//StringParameter to set site related params
-	private StringParameter presets;
-	private StringParameter rp_host = new StringParameter("Resource Provider Host-Name");
-	private StringParameter rp_batchScheduler = new StringParameter("Resource Provider Batch Scheduler");
-	private StringParameter rp_javaPath = new StringParameter("Resource Provider Java Path");
-	private StringParameter rp_storagePath = new StringParameter("Resource Provider Storage Path");
-	private StringParameter rp_globusrsl = new StringParameter("Globus RSL Params");
-	private StringParameter repo_host = new StringParameter("Data Storage Host-Name");
-	private StringParameter repo_storagePath = new StringParameter("Data Storage Path");
-	private StringParameter submitHost = new StringParameter("Submit Host-Name");
-	private StringParameter submitHostPath = new StringParameter("Submit Host Path");
-	private StringParameter submitHostPathToDependencies = new StringParameter("Submit Host Dependencies Path");
+	public final static String CUSTOM_PARAM_NAME = "Custom";
+	
+	ResourceProvider currentRP = null;
+	ResourceProviderEditor currentRPEditor = null;
+	
+	SubmitHost currentSubmit = null;
+	SubmitHostEditor currentSubmitEditor = null;
+
+	ArrayList<ResourceProvider> rpList = new ArrayList<ResourceProvider>();
+	ArrayList<SubmitHost> submitList = new ArrayList<SubmitHost>();
+	
+	// Presets
+	private StringParameter rpPresets;
+	private StringParameter submitPresets;
+	
+	// Job Params
 	private IntegerParameter sitesPerJob = new IntegerParameter("Site Per Job", 0, Integer.MAX_VALUE);
-//	private IntegerParameter threads = new IntegerParameter("Threads Per Job", 1, 16);
+	private IntegerParameter maxWallTime = new IntegerParameter("Maximum Time Per Job", 0, 999);
 	private BooleanParameter saveERF = new BooleanParameter("Save ERF to File?", true);
 
 	//SiteTranslator
@@ -83,50 +77,48 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 */
 	public GridParametersGuiBean() {
 		
+		rpList.add(ResourceProvider.HPC());
+		rpList.add(ResourceProvider.ABE_GLIDE_INS());
+		rpList.add(ResourceProvider.ABE_NO_GLIDE_INS());
+		rpList.add(ResourceProvider.DYNAMIC());
 		
-		presetsList.add(HazardMapJob.HPC_PRESET);
-		presetsList.add(HazardMapJob.DYNAMIC_PRESET);
+		this.currentRP = rpList.get(0);
 		
-		ArrayList<String> presetsStr = new ArrayList<String>();
-		for (GridJobPreset preset : presetsList) {
-			presetsStr.add(preset.name);
+		ArrayList<String> rpPresetsStr = new ArrayList<String>();
+		for (ResourceProvider preset : rpList) {
+			rpPresetsStr.add(preset.name);
 		}
+		rpPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
 		
-		GridJobPreset firstPreset = presetsList.get(0);
 		
-		this.rp_host.setValue(firstPreset.rp_host);
-		this.rp_batchScheduler.setValue(firstPreset.rp_batchScheduler);
-		this.rp_javaPath.setValue(firstPreset.rp_javaPath);
-		this.rp_storagePath.setValue(firstPreset.rp_storagePath);
-		this.rp_globusrsl.setValue(firstPreset.rp_globusrsl);
+		submitList.add(SubmitHost.INTENSITY);
+		submitList.add(SubmitHost.SCECIT18);
 		
-		this.repo_host.setValue(HazardMapJob.DEFAULT_REPO_HOST);
-		this.repo_storagePath.setValue(HazardMapJob.DEFAULT_REPO_STORAGE_PATH);
+		this.currentSubmit = submitList.get(0);
+		
+		ArrayList<String> submitPresetsStr = new ArrayList<String>();
+		for (SubmitHost preset : submitList) {
+			submitPresetsStr.add(preset.name);
+		}
+		submitPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
+		
 		this.sitesPerJob.setValue(100);
-//		this.threads.setValue(1);
+		this.maxWallTime.setValue(240);
 		
-		submitHost.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST);
-		submitHostPath.setValue(HazardMapJob.DEFAULT_SUBMIT_HOST_PATH);
-		submitHostPathToDependencies.setValue(HazardMapJob.DEFAULT_DEPENDENCY_PATH);
+		rpPresets = new StringParameter("Resource Provider Presets", rpPresetsStr);
+		rpPresets.setValue(currentRP.name);
+		rpPresets.addParameterChangeListener(this);
 		
-		presets = new StringParameter("Resource Provider Presets", presetsStr);
-		presets.addParameterChangeListener(this);
+		submitPresets = new StringParameter("Submit Host Presets", submitPresetsStr);
+		submitPresets.setValue(currentSubmit.name);
+		submitPresets.addParameterChangeListener(this);
 
 		// add the longitude and latitude paramters
 		parameterList = new ParameterList();
-		parameterList.addParameter(presets);
-		parameterList.addParameter(rp_host);
-		parameterList.addParameter(rp_batchScheduler);
-		parameterList.addParameter(rp_javaPath);
-		parameterList.addParameter(rp_storagePath);
-		parameterList.addParameter(rp_globusrsl);
-		parameterList.addParameter(repo_host);
-		parameterList.addParameter(repo_storagePath);
-		parameterList.addParameter(submitHost);
-		parameterList.addParameter(submitHostPath);
-		parameterList.addParameter(submitHostPathToDependencies);
+		parameterList.addParameter(rpPresets);
+		parameterList.addParameter(submitPresets);
 		parameterList.addParameter(sitesPerJob);
-//		parameterList.addParameter(threads);
+		parameterList.addParameter(maxWallTime);
 		parameterList.addParameter(saveERF);
 		editorPanel.removeAll();
 		addParameters();
@@ -183,74 +175,69 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public void parameterChange(ParameterChangeEvent e){
 		ParameterAPI param = ( ParameterAPI ) e.getSource();
 
-		if(param == presets) {
-			for (GridJobPreset preset : presetsList) {
-				String name = (String)presets.getValue();
-				if (name.equals(preset.name)) {
-					this.rp_host.setValue(preset.rp_host);
-					this.rp_batchScheduler.setValue(preset.rp_batchScheduler);
-					this.rp_javaPath.setValue(preset.rp_javaPath);
-					this.rp_storagePath.setValue(preset.rp_storagePath);
-					this.rp_globusrsl.setValue(preset.rp_globusrsl);
-					editorPanel.removeAll();
-				    addParameters();
-					editorPanel.validate();
-					editorPanel.repaint();
-					break;
+		if(param == rpPresets) {
+			String name = (String)rpPresets.getValue();
+			if (name.equals(GridParametersGuiBean.CUSTOM_PARAM_NAME)) {
+				if (currentRPEditor == null) {
+					currentRPEditor = new ResourceProviderEditor(currentRP);
+					currentRPEditor.setLocationRelativeTo(this);
+				}
+				currentRPEditor.setVisible(true);
+			} else {
+				for (ResourceProvider preset : rpList) {
+					if (name.equals(preset.name)) {
+						this.currentRP = preset;
+						if (currentRPEditor != null) {
+							currentRPEditor.setVisible(false);
+							currentRPEditor = null;
+						}
+						break;
+					}
 				}
 			}
 		}
-	}
-	
-	public String get_rp_host() {
-		return (String)this.rp_host.getValue();
-	}
-	
-	public String get_rp_batchScheduler() {
-		return (String)this.rp_batchScheduler.getValue();
-	}
-	
-	public String get_rp_javaPath() {
-		return (String)this.rp_javaPath.getValue();
-	}
-	
-	public String get_rp_storagePath() {
-		return (String)this.rp_storagePath.getValue();
-	}
-	
-	public String get_rp_globusrsl() {
-		return (String)this.rp_globusrsl.getValue();
-	}
-	
-	public String get_repo_host() {
-		return (String)this.repo_host.getValue();
-	}
-	
-	public String get_repo_storagePath() {
-		return (String)this.repo_storagePath.getValue();
+		
+		if(param == submitPresets) {
+			String name = (String)submitPresets.getValue();
+			if (name.equals(GridParametersGuiBean.CUSTOM_PARAM_NAME)) {
+				if (currentSubmitEditor == null) {
+					currentSubmitEditor = new SubmitHostEditor(currentSubmit);
+					currentSubmitEditor.setLocationRelativeTo(this);
+				}
+				currentSubmitEditor.setVisible(true);
+			} else {
+				for (SubmitHost preset : submitList) {
+					if (name.equals(preset.name)) {
+						this.currentSubmit = preset;
+						if (currentSubmitEditor != null) {
+							currentSubmitEditor.setVisible(false);
+							currentSubmitEditor = null;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
 	}
 	
 	public int get_sitesPerJob() {
 		return (Integer)this.sitesPerJob.getValue();
 	}
 	
-//	public int get_threadsPerJob() {
-//		return (Integer)this.threads.getValue();
-//	}
+	public int get_maxWallTime() {
+		return (Integer)this.maxWallTime.getValue();
+	}
 	
 	public boolean get_saveERF() {
 		return (Boolean)this.saveERF.getValue();
 	}
 	
-	public String get_submitHost() {
-		return (String)this.submitHost.getValue();
+	public ResourceProvider get_resourceProvider() {
+		return this.currentRP;
 	}
 	
-	public String get_submitHostPath() {
-		return (String)this.submitHostPath.getValue();
-	}
-	
-	public String get_submitHostPathToDependencies() {
-		return (String)this.submitHostPathToDependencies.getValue();
+	public SubmitHost get_submitHost() {
+		return this.currentSubmit;
 	}
 }

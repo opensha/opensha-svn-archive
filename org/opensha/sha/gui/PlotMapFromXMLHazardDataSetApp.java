@@ -58,12 +58,12 @@ import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.sha.calc.hazardMap.HazardMapJob;
+import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 
-import scratchJavaDevelopers.kevin.HazardMapJob;
-import scratchJavaDevelopers.kevin.MakeXYZFromHazardMapDir;
 
 /**
  * <p>Title: PlotMapFromHazardDataSetApp </p>

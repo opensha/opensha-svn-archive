@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin;
+package org.opensha.sha.calc.hazardMap;
 
 import java.io.BufferedWriter;
 import java.io.File;

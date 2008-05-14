@@ -21,9 +21,9 @@ import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.util.FileUtils;
 
-import scratchJavaDevelopers.kevin.MakeXYZFromHazardMapDir;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
