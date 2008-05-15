@@ -23,6 +23,7 @@ import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.util.FileNameComparator;
 import org.opensha.util.FileUtils;
+import org.opensha.util.RunScript;
 
 
 public class HazardMapJobCreator {
@@ -46,12 +47,14 @@ public class HazardMapJobCreator {
 	boolean skipCVMFiles = false;
 	boolean divertFromSCECToMain = false;
 	
+	boolean stageOut = false;
+	
 	String willsFileName = "/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
 	String basinFileName = "/etc/cvmfiles/basindepth_OpenSHA.txt";
 	
 	boolean gravityLink = true;
 	
-	ArrayList<String> jobNames = new ArrayList<String>();
+	ArrayList<String> regionNames = new ArrayList<String>();
 	ArrayList<String> cvmNames = new ArrayList<String>();
 	
 	public static int nameLength = 7;
@@ -139,7 +142,7 @@ public class HazardMapJobCreator {
 		
 		String jobFileName = jobFilePrefix + ".sub";
 		if (!testJob)
-			jobNames.add(jobFileName);
+			regionNames.add(regionName);
 		System.out.println("Creating " + jobFileName);
 		FileWriter fr = new FileWriter(outputDir + jobFileName);
 		
@@ -178,30 +181,52 @@ public class HazardMapJobCreator {
 		
 		fr.close();
 		
+//		// create the expected files
+//		if (!testJob) {
+//			int curveJobEndIndex = end-1;
+//			if (curveJobEndIndex > this.endIndex)
+//				curveJobEndIndex = this.endIndex;
+//			fr = new FileWriter(outputDir + jobFilePrefix + ".txt");
+//			fr.write("# globusscheduler = " + globusscheduler + "\n");
+//			fr.write("# remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
+//			for (int j=start; j<=curveJobEndIndex; j++) {
+//				try {
+//					Location loc = sites.getSite(j).getLocation();
+//					String lat = decimalFormat.format(loc.getLatitude());
+//					String lon = decimalFormat.format(loc.getLongitude());
+//					String jobDir = lat + "/";
+//					fr.write(jobDir + lat + "_" + lon + ".txt\n");
+//				} catch (RegionConstraintException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			fr.close();
+//		}
+		
 		// create the expected files
-		if (!testJob) {
+		if (!testJob && stageOut) {
 			int curveJobEndIndex = end-1;
 			if (curveJobEndIndex > this.endIndex)
 				curveJobEndIndex = this.endIndex;
-			fr = new FileWriter(outputDir + jobFilePrefix + ".txt");
-			fr.write("# globusscheduler = " + globusscheduler + "\n");
-			fr.write("# remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
+			ArrayList<String> outfiles = new ArrayList<String>();
 			for (int j=start; j<=curveJobEndIndex; j++) {
 				try {
 					Location loc = sites.getSite(j).getLocation();
 					String lat = decimalFormat.format(loc.getLatitude());
 					String lon = decimalFormat.format(loc.getLongitude());
-					String jobDir = lat + "/";
-					fr.write(jobDir + lat + "_" + lon + ".txt\n");
+					String jobDir = "curves/" + lat + "/";
+					String name = jobDir + lat + "_" + lon + ".txt";
+					outfiles.add(name);
 				} catch (RegionConstraintException e) {
 					e.printStackTrace();
 				}
 			}
-			fr.close();
+			String tarFileName = this.createStageOutZipJobFile(regionName, outfiles);
+			this.createStageOutPostJobFiles(regionName, tarFileName);
 		}
 	}
 	
-	public void createJobs() throws IOException {
+	public void createJobs(boolean stageOut) throws IOException {
 		System.out.println("Creating jobs for " + sites.getNumGridLocs() + " sites!");
 		
 		File outDir = new File(outputDir);
@@ -248,7 +273,7 @@ public class HazardMapJobCreator {
 		this.createJob(this.startIndex, -1);
 	}
 	
-	public void createRestartJobs(String originalDir) throws IOException {
+	public void createRestartJobs(String originalDir, boolean stageOut) throws IOException {
 		
 		this.setProgressIndeterminate(true);
 		this.updateProgressMessage("Finding jobs to be restarted");
@@ -430,7 +455,7 @@ public class HazardMapJobCreator {
 		int scripts = 0;
 		FileWriter fr = null;
 		FileWriter all = new FileWriter(outputDir + "submit_all.sh");
-		while (i < jobNames.size()) {
+		while (i < regionNames.size()) {
 			if (i % jobsPerScript == 0) {
 				if (fr != null)
 					fr.close();
@@ -439,8 +464,8 @@ public class HazardMapJobCreator {
 				fr = new FileWriter(fileName);
 				scripts++;
 			}
-			fr.write("condor_submit " + jobNames.get(i) + "\n");
-			all.write("condor_submit " + jobNames.get(i) + "\n");
+			fr.write("condor_submit Job_" + regionNames.get(i) + ".sub" + "\n");
+			all.write("condor_submit Job_" + regionNames.get(i) + ".sub" + "\n");
 			fr.write("sleep 2\n");
 			all.write("sleep 1\n");
 			i++;
@@ -463,10 +488,14 @@ public class HazardMapJobCreator {
 	
 	public void createMakeDirJob() throws IOException {
 		FileWriter fr = new FileWriter(outputDir + "mkdir.sub");
+		
+		String mainDir = job.rp.storagePath + "/" + job.jobName;
+		String tarDir = mainDir + "/tgz";
+		String tarInDir = mainDir + "/tgz_in";
 
 		fr.write("universe = globus" + "\n");
 		fr.write("executable = /bin/mkdir" + "\n");
-		fr.write("arguments = -v -p " + job.rp.storagePath + "/" + job.jobName + "\n");
+		fr.write("arguments = -v -p " + mainDir + " " + tarDir + " " + tarInDir + "\n");
 		fr.write("notification = NEVER" + "\n");
 		fr.write("globusrsl = (jobtype=single)" + "\n");
 		fr.write("globusscheduler = " + job.rp.hostName + "/" + job.rp.forkScheduler + "\n");
@@ -474,6 +503,35 @@ public class HazardMapJobCreator {
 		fr.write("error = mkdir.err" + "\n");
 		fr.write("log = mkdir.log" + "\n");
 		fr.write("output = mkdir.out" + "\n");
+		fr.write("transfer_executable = false" + "\n");
+		fr.write("transfer_error = true" + "\n");
+		fr.write("transfer_output = true" + "\n");
+		fr.write("periodic_release = (NumSystemHolds <= 3)" + "\n");
+		fr.write("periodic_remove = (NumSystemHolds > 3)" + "\n");
+		fr.write("remote_initialdir = /tmp" + "\n");
+		fr.write("queue" + "\n");
+		fr.write("" + "\n");
+
+		fr.flush();
+		fr.close();
+	}
+	
+	public void createStorageMakeDirJob() throws IOException {
+		FileWriter fr = new FileWriter(outputDir + "mkdirStorage.sub");
+		
+		String mainDir = job.storageHost.path + "/" + job.jobName;
+		String tgzDir = mainDir + "/tgz";
+
+		fr.write("universe = globus" + "\n");
+		fr.write("executable = /bin/mkdir" + "\n");
+		fr.write("arguments = -v -p " + mainDir + " " + tgzDir + "\n");
+		fr.write("notification = NEVER" + "\n");
+		fr.write("globusrsl = (jobtype=single)" + "\n");
+		fr.write("globusscheduler = " + job.storageHost.schedulerHostName + "/" + job.storageHost.forkScheduler + "\n");
+		fr.write("copy_to_spool = false" + "\n");
+		fr.write("error = mkdirStorage.err" + "\n");
+		fr.write("log = mkdirStorage.log" + "\n");
+		fr.write("output = mkdirStorage.out" + "\n");
 		fr.write("transfer_executable = false" + "\n");
 		fr.write("transfer_error = true" + "\n");
 		fr.write("transfer_output = true" + "\n");
@@ -498,10 +556,16 @@ public class HazardMapJobCreator {
 
 		fr.write("universe = globus" + "\n");
 		fr.write("executable = /bin/sh" + "\n");
-		fr.write("arguments = " + job.rp.storagePath + "/" + job.jobName + "/chmod.sh" + "\n");
+		if (stageOut)
+			fr.write("arguments = " + job.storageHost.path + "/" + job.jobName + "/chmod.sh" + "\n");
+		else
+			fr.write("arguments = " + job.rp.storagePath + "/" + job.jobName + "/chmod.sh" + "\n");
 		fr.write("notification = NEVER" + "\n");
 		fr.write("globusrsl = (jobtype=single)" + "\n");
-		fr.write("globusscheduler = " + job.rp.hostName + "/" + job.rp.forkScheduler + "\n");
+		if (stageOut)
+			fr.write("globusscheduler = " + job.storageHost.schedulerHostName + "/" + job.storageHost.forkScheduler + "\n");
+		else
+			fr.write("globusscheduler = " + job.rp.hostName + "/" + job.rp.forkScheduler + "\n");
 		fr.write("copy_to_spool = false" + "\n");
 		fr.write("error = chmod.err" + "\n");
 		fr.write("log = chmod.log" + "\n");
@@ -511,7 +575,10 @@ public class HazardMapJobCreator {
 		fr.write("transfer_output = true" + "\n");
 		fr.write("periodic_release = (NumSystemHolds <= 3)" + "\n");
 		fr.write("periodic_remove = (NumSystemHolds > 3)" + "\n");
-		fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
+		if (stageOut)
+			fr.write("remote_initialdir = " + job.storageHost.path + "/" + job.jobName + "\n");
+		else
+			fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
 		fr.write("queue" + "\n");
 		fr.write("" + "\n");
 
@@ -603,6 +670,18 @@ public class HazardMapJobCreator {
 				fr.write("\n");		    	
 		    }
 		    
+		    if (stageOut) {
+		    	for (String name : tarInFiles) {
+		    		fr.write("gsiftp://"+ job.submitHost.hostName + job.submitHost.path +"/" +job.jobName +"/"+name);
+					fr.write("\n");
+					fr.write("gsiftp://");
+					fr.write(gridFTPPath+"/");
+					fr.write(name+"");			
+					fr.write("\n");
+					fr.write("\n");	
+		    	}
+		    }
+		    
 		    fr.write("gsiftp://"+ job.submitHost.hostName + job.submitHost.path + "/"+job.jobName +"/" + job.metadataFileName);
 		    fr.write("\n");
 		    fr.write("gsiftp://");
@@ -614,7 +693,10 @@ public class HazardMapJobCreator {
 		    fr.write("gsiftp://"+ job.submitHost.hostName + job.submitHost.path + "/"+job.jobName +"/chmod.sh");
 		    fr.write("\n");
 		    fr.write("gsiftp://");
-		    fr.write(gridFTPPath+"/");
+		    if (stageOut)
+		    	fr.write(job.storageHost.gridFTPHostName + job.storageHost.path + "/" + job.jobName +"/");
+		    else
+		    	fr.write(gridFTPPath+"/");
 		    fr.write("chmod.sh");
 		    fr.write("\n");
 		    fr.write("\n");
@@ -627,25 +709,11 @@ public class HazardMapJobCreator {
 	
 	public void createDAG (String outputDir, int numberOfJobs) {
 		
-		boolean onHPC = job.rp.hostName.toLowerCase().contains("hpc.usc.edu");
+		boolean onHPC = job.rp.hostName.toLowerCase().contains("hpc.usc.edu") || (stageOut && (job.storageHost.schedulerHostName.toLowerCase().contains("hpc.usc.edu") || job.storageHost.gridFTPHostName.toLowerCase().contains("hpc.usc.edu")));
 
-		File dir = new File(outputDir);
-		String jobName = "hazard_";
-		String jobName1 = "transfer_";
-		
-		FilenameFilter filter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
-	            return name.startsWith ("Job") && name.endsWith(".sub");
-	        }
-	    };
-	    String[] children = dir.list(filter);
-	    
-	    ArrayList arr = new ArrayList ();
-	    for (int i = 0; i < children.length; i++) {
-	    	arr.add(children[i]);
-	    }
-	    
-	    Collections.sort(arr);		
+		String jobName = "curves_";
+		String tarJobName = "tar_";
+		String untarJobName = "untar_";
 		
 		try {
 			BufferedOutputStream fos = new BufferedOutputStream (new FileOutputStream(outputDir+"/main.dag"));
@@ -662,6 +730,13 @@ public class HazardMapJobCreator {
             str.append("Job create_dir mkdir.sub");
             str.append("\n");
             str.append("\n");
+            if (stageOut) {
+            	str.append("# This Job creates the direcory on the compute resource where all input files\n");
+                str.append("# and curves will be stored\n");
+                str.append("Job create_storage_dir mkdirStorage.sub");
+                str.append("\n");
+                str.append("\n");
+            }
 //            str.append("Job ");
 //            str.append("create_dir ");
 //            str.append ("HPC_cdir.sub");			
@@ -708,13 +783,18 @@ public class HazardMapJobCreator {
 			}
 			// child jobs
 			
-			int jobCnt = 1;
-			
 			str.append("# These are the actual hazard curve calculation jobs\n");
-			for (int i = 0; i < numberOfJobs; i++) {
-				str.append("Job ");
-				str.append(jobName).append(i+1).append(" ").append(arr.get(i));
-				str.append("\n");
+			str.append("# and any stage out jobs if needed\n");
+			int num = 1;
+			for (String region : regionNames) {
+				str.append("Job " + jobName + num + " " + "Job_" + region + ".sub" + "\n");
+				
+				if (stageOut) {
+					str.append("Job " + tarJobName + num + " " + job.submitHost.path + "/" + job.jobName + "/" + tgzSubDir + "/Tar_" + region + ".sub" + "\n");
+					str.append("Script Post " + tarJobName + num + " " + job.submitHost.path + "/" + job.jobName + "/" + stageOutScriptDir + "/StageOut_" + region + ".sh" + "\n");
+					str.append("Job " + untarJobName + num + " " + job.submitHost.path + "/" + job.jobName + "/" + tgzUnzipDir + "/UnTar_" + region + ".sub" + "\n");
+				}
+				num++;
 			}
 			str.append("\n");
 			
@@ -758,6 +838,16 @@ public class HazardMapJobCreator {
             str.append("transfer_input_files");
             str.append("\n");
             
+            if (stageOut) {
+            	str.append("\n");
+    			str.append("# This makes sure that the storage dir is created\n");
+                str.append("PARENT ");
+                str.append("create_storage_dir ");
+                str.append("CHILD ");
+                str.append("transfer_input_files");
+                str.append("\n");
+            }
+            
             str.append("\n");
             str.append("# This states that the test job should happen once everything has been transfered\n");
             str.append("PARENT ");
@@ -768,12 +858,29 @@ public class HazardMapJobCreator {
             
             str.append("\n");
             str.append("# These are the parent/child relationships that make the chmod job run only once all\n");
-			str.append("# hazard curve jobs have completed\n");
-            for (int i = numberOfJobs; i > 0 ; i--) {
-				str.append("PARENT " + jobName + i);
-				str.append(" CHILD ");
-				str.append("chmod\n");
-            }
+			str.append("# hazard curve jobs have completed and data stage out (if applicable) has completed\n");
+			
+			if (stageOut) {
+				for (int i = numberOfJobs; i > 0 ; i--) {
+					str.append("PARENT " + jobName + i);
+					str.append(" CHILD ");
+					str.append(tarJobName + i + "\n");
+					
+					str.append("PARENT " + tarJobName + i);
+					str.append(" CHILD ");
+					str.append(untarJobName + i + "\n");
+					
+					str.append("PARENT " + untarJobName + i);
+					str.append(" CHILD ");
+					str.append("chmod\n");
+	            }
+			} else {
+				for (int i = numberOfJobs; i > 0 ; i--) {
+					str.append("PARENT " + jobName + i);
+					str.append(" CHILD ");
+					str.append("chmod\n");
+	            }
+			}
             
             if (onHPC && gravityLink) { // set up gravity for automatic plotting
             	if (gravityLink) {
@@ -832,6 +939,7 @@ public class HazardMapJobCreator {
 			fr.write ("periodic_remove = (NumSystemHolds > 3)" + "\n");			
 			fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
 
+			fr.write("notification = NEVER" + "\n");
 			fr.write("transfer_error = true" + "\n");
 			fr.write("transfer_executable = false" + "\n");
 			fr.write("transfer_output = true" + "\n");
@@ -844,7 +952,187 @@ public class HazardMapJobCreator {
 	}
 	
 	public int getNumberOfJobs () {
-		return jobNames.size();
+		return regionNames.size();
+	}
+	
+	String tgzInDir = "tgz_in";
+	String tgzSubDir = "tgz_sub";
+	String stageOutScriptDir = "stage_out_sh";
+	String tgzUnzipDir = "tgz_un";
+	
+	ArrayList<String> tarInFiles = new ArrayList<String>();
+	
+	boolean firstStageOut = true;
+	
+	public String createStageOutZipJobFile(String regionName, ArrayList<String> outFiles) {
+		
+		String tarFileName = "tgz/" + regionName + ".tgz";
+		
+		String tarInputName = tgzInDir + "/Tar_" + regionName + ".in";
+		String tarScriptName = tgzSubDir + "/Tar_" + regionName + ".sub";
+		
+		File tgz_in = new File(outputDir + "/" + tgzInDir);
+		
+		if (!tgz_in.exists()) {
+			tgz_in.mkdir();
+			
+			File tgz_sub = new File(outputDir + "/" + tgzSubDir);
+			tgz_sub.mkdir();
+			
+			File tgz_sub_out = new File(outputDir + "/" + tgzSubDir + "/out");
+			tgz_sub_out.mkdir();
+			
+			File tgz_sub_log = new File(outputDir + "/" + tgzSubDir + "/log");
+			tgz_sub_log.mkdir();
+			
+			File tgz_sub_err = new File(outputDir + "/" + tgzSubDir + "/err");
+			tgz_sub_err.mkdir();
+		}
+		
+		try {
+			FileWriter fw = new FileWriter(outputDir + "/" + tarInputName);
+			for (String file : outFiles)
+				fw.write(file + "\n");
+			fw.close();
+			
+			FileWriter fr = new FileWriter(outputDir + "/" + tarScriptName);
+			
+
+			fr.write("universe = globus" + "\n");
+			fr.write("executable = /bin/tar" + "\n");
+			fr.write("arguments = " + "-czv --files-from " + tarInputName + " --file " + tarFileName + "\n");
+			fr.write("notification = NEVER" + "\n");
+			fr.write("globusrsl = (jobtype=single)" + "\n");
+			fr.write("globusscheduler = " + job.rp.hostName + "/" + job.rp.forkScheduler + "\n");
+			fr.write("copy_to_spool = false" + "\n");
+			fr.write("error = " + outputDir + "/" + tgzSubDir + "/err/" + regionName + ".err" + "\n");
+			fr.write("log = " + outputDir + "/" + tgzSubDir + "/log/" + regionName + ".log" + "\n");
+			fr.write("output = " + outputDir + "/" + tgzSubDir + "/out/" + regionName + ".out" + "\n");
+			fr.write("transfer_executable = false" + "\n");
+			fr.write("transfer_error = true" + "\n");
+			fr.write("transfer_output = true" + "\n");
+			fr.write("periodic_release = (NumSystemHolds <= 3)" + "\n");
+			fr.write("periodic_remove = (NumSystemHolds > 3)" + "\n");
+			fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
+			fr.write("queue" + "\n");
+			fr.write("" + "\n");
+
+			fr.flush();
+			fr.close();
+			
+			tarInFiles.add(tarInputName);
+			
+			// now make the submit file
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return tarFileName;
+	}
+	
+	public void createStageOutPostJobFiles(String regionName, String tarFileName) {
+		
+		File stageOutDir = new File(outputDir + "/" + stageOutScriptDir);
+		
+		if (!stageOutDir.exists()) {
+			stageOutDir.mkdir();
+			
+			File tgz_sub = new File(outputDir + "/" + tgzUnzipDir);
+			tgz_sub.mkdir();
+			
+			File tgz_sub_out = new File(outputDir + "/" + tgzUnzipDir + "/out");
+			tgz_sub_out.mkdir();
+			
+			File tgz_sub_log = new File(outputDir + "/" + tgzUnzipDir + "/log");
+			tgz_sub_log.mkdir();
+			
+			File tgz_sub_err = new File(outputDir + "/" + tgzUnzipDir + "/err");
+			tgz_sub_err.mkdir();
+		}
+		
+		// make the transfer script file
+		
+		String stageOutFile = outputDir + "/" + stageOutScriptDir + "/StageOut_" + regionName + ".sh";
+		
+		String source = job.rp.gridFTPHost + job.rp.storagePath + "/" + job.jobName + "/" + tarFileName;
+		String destFilePath = job.storageHost.path + "/" + job.jobName + "/" + tarFileName;
+		String dest = job.storageHost.gridFTPHostName + destFilePath;
+		
+		int streams = 1;
+		
+		try {
+			FileWriter fw = new FileWriter(stageOutFile);
+			
+			fw.write("#!/bin/sh" + "\n");
+			fw.write("" + "\n");
+			fw.write("globus-url-copy -vb -tcp-bs 2097152 -p " + streams + " gsiftp://" + source + " gsiftp://" + dest + "\n");
+			
+			if (firstStageOut) {
+				source = job.rp.gridFTPHost + job.rp.storagePath + "/" + job.jobName + "/" + job.metadataFileName;
+				dest = job.storageHost.gridFTPHostName + job.storageHost.path + "/" + job.jobName + "/" + job.metadataFileName;
+				fw.write("globus-url-copy -vb -tcp-bs 2097152 -p " + streams + " gsiftp://" + source + " gsiftp://" + dest + "\n");
+				firstStageOut = false;
+			}
+			
+			fw.close();
+			
+			// now make the untar job
+			
+			String unTarScriptName = tgzUnzipDir + "/UnTar_" + regionName + ".sub";
+			
+			FileWriter fr = new FileWriter(outputDir + "/" + unTarScriptName);
+			
+
+			fr.write("universe = globus" + "\n");
+			fr.write("executable = /bin/tar" + "\n");
+			fr.write("arguments = -xzvf " + destFilePath + "\n");
+			fr.write("notification = NEVER" + "\n");
+			fr.write("globusrsl = (jobtype=single)" + "\n");
+			fr.write("globusscheduler = " + job.storageHost.schedulerHostName + "/" + job.storageHost.batchScheduler + "\n");
+			fr.write("copy_to_spool = false" + "\n");
+			fr.write("error = " + outputDir + "/" + tgzUnzipDir + "/err/" + regionName + ".err" + "\n");
+			fr.write("log = " + outputDir + "/" + tgzUnzipDir + "/log/" + regionName + ".log" + "\n");
+			fr.write("output = " + outputDir + "/" + tgzUnzipDir + "/out/" + regionName + ".out" + "\n");
+			fr.write("transfer_executable = false" + "\n");
+			fr.write("transfer_error = true" + "\n");
+			fr.write("transfer_output = true" + "\n");
+			fr.write("periodic_release = (NumSystemHolds <= 3)" + "\n");
+			fr.write("periodic_remove = (NumSystemHolds > 3)" + "\n");
+			fr.write("remote_initialdir = " + job.storageHost.path + "/" + job.jobName + "\n");
+			fr.write("queue" + "\n");
+			fr.write("" + "\n");
+
+			fr.flush();
+			fr.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void setStageOut(boolean stageOut) {
+		this.stageOut = stageOut;
+	}
+	
+	// creates a shell script that will submit the DAG
+	public void createSubmitDAGScript(boolean run) {
+		try {
+			String scriptFileName = job.submitHost.path + "/" + job.jobName + "/submit_DAG.sh";
+			FileWriter fw = new FileWriter(scriptFileName);
+			fw.write("#!/bin/csh\n");
+			fw.write("cd "+outputDir+"\n");
+			if (stageOut) {
+				fw.write("/bin/chmod -R +x " + outputDir + "/" + stageOutScriptDir + "\n");
+			}
+			fw.write("condor_submit_dag main.dag\n");
+			fw.close();
+			if (run)
+				RunScript.runScript(new String[]{"sh", "-c", "sh "+scriptFileName});
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 //	public void createJarTransferToHostInputFile (String outputDir, String remoteJobDir) {
@@ -928,35 +1216,35 @@ public class HazardMapJobCreator {
 //		System.out.println (e);
 //	}		
 //	}
-	
-	public void createUniqueDirOnRemote (String dirName) {
-		String jobName = "HPC_cdir";
-		try {
-			FileWriter fr = new FileWriter(outputDir + jobName+".sub");
-			fr.write ("\n\n");
-			fr.write("environment = GLOBUS_LOCATION=/usr/local/vdt/globus;LD_LIBRARY_PATH=/usr/local/vdt/globus/lib;\n");
-			fr.write ("arguments = -n dirmanager -N Pegasus::dirmanager:1.0 -R hpc /auto/rcf-104/dpmeyers/proj/pegasus-2.0.0RC1/bin/dirmanager");
-			fr.write (" --create --dir "+dirName+"\n");
-			fr.write("copy_to_spool = false\n");
-			fr.write ("error = "+jobName+".err\n");
-			fr.write("executable = /auto/rcf-104/dpmeyers/proj/vds-1.4.7/bin/kickstart\n");
-			fr.write("globusrsl = (jobtype=single)\n");
-			fr.write ("globusscheduler = "+job.rp.hostName+"/" + job.rp.forkScheduler + "\n");
-			fr.write ("log = "+jobName+".log\n");
-			fr.write ("output = "+jobName+".out\n");			
-			fr.write("periodic_release = (NumSystemHolds <= 3)\n");
-			fr.write("periodic_remove = (NumSystemHolds > 3)\n");
-			fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
-			fr.write("transfer_error = true\n");
-			fr.write("transfer_executable = false\n");
-			fr.write("transfer_output = true\n");
-			fr.write("universe = globus\n");
-			fr.write("queue\n");
-			fr.close();
-		} catch (Exception e) {
-			System.out.println (e);
-		}		
-	}	
+//	
+//	public void createUniqueDirOnRemote (String dirName) {
+//		String jobName = "HPC_cdir";
+//		try {
+//			FileWriter fr = new FileWriter(outputDir + jobName+".sub");
+//			fr.write ("\n\n");
+//			fr.write("environment = GLOBUS_LOCATION=/usr/local/vdt/globus;LD_LIBRARY_PATH=/usr/local/vdt/globus/lib;\n");
+//			fr.write ("arguments = -n dirmanager -N Pegasus::dirmanager:1.0 -R hpc /auto/rcf-104/dpmeyers/proj/pegasus-2.0.0RC1/bin/dirmanager");
+//			fr.write (" --create --dir "+dirName+"\n");
+//			fr.write("copy_to_spool = false\n");
+//			fr.write ("error = "+jobName+".err\n");
+//			fr.write("executable = /auto/rcf-104/dpmeyers/proj/vds-1.4.7/bin/kickstart\n");
+//			fr.write("globusrsl = (jobtype=single)\n");
+//			fr.write ("globusscheduler = "+job.rp.hostName+"/" + job.rp.forkScheduler + "\n");
+//			fr.write ("log = "+jobName+".log\n");
+//			fr.write ("output = "+jobName+".out\n");			
+//			fr.write("periodic_release = (NumSystemHolds <= 3)\n");
+//			fr.write("periodic_remove = (NumSystemHolds > 3)\n");
+//			fr.write("remote_initialdir = " + job.rp.storagePath + "/" + job.jobName + "\n");
+//			fr.write("transfer_error = true\n");
+//			fr.write("transfer_executable = false\n");
+//			fr.write("transfer_output = true\n");
+//			fr.write("universe = globus\n");
+//			fr.write("queue\n");
+//			fr.close();
+//		} catch (Exception e) {
+//			System.out.println (e);
+//		}		
+//	}	
 	
 	/**
 	 * Creates condor submit jobs and DAG from the given xml file (first argument).

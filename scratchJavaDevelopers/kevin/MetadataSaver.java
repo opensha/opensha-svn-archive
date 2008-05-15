@@ -15,6 +15,7 @@ import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
@@ -69,7 +70,8 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		int maxWallTime = 240;
 		ResourceProvider rp = ResourceProvider.ABE_GLIDE_INS();
 		SubmitHost submit = SubmitHost.SCECIT18;
-		HazardMapJob job = new HazardMapJob(jobName, rp, submit, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+		StorageHost storage = StorageHost.HPC;
+		HazardMapJob job = new HazardMapJob(jobName, rp, submit, storage, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
 //		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 		root = erf.toXMLMetadata(root);

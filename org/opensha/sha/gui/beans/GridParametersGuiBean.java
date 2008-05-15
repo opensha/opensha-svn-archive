@@ -81,6 +81,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		rpList.add(ResourceProvider.ABE_GLIDE_INS());
 		rpList.add(ResourceProvider.ABE_NO_GLIDE_INS());
 		rpList.add(ResourceProvider.DYNAMIC());
+		rpList.add(ResourceProvider.ORNL());
 		
 		this.currentRP = rpList.get(0);
 		

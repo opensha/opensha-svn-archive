@@ -15,7 +15,7 @@ public class ResourceProvider implements XMLSaveable {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		rsl.setQueue("scec");
 		ResourceProvider HPC = new ResourceProvider("HPC", "hpc.usc.edu", "jobmanager-pbs", "jobmanager-fork",
-				"/usr/bin/java", "/auto/scec-00/kmilner/hazMaps",
+				"/usr/bin/java", "/home/scec-00/kmilner/hazMaps",
 				"", "hpc.usc.edu", "globus", rsl);
 		return HPC;
 	}
@@ -69,7 +69,6 @@ public class ResourceProvider implements XMLSaveable {
 	 */
 	public static final ResourceProvider ORNL() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
-		rsl.setQueue("mpi");
 		ResourceProvider DYNMAIC = new ResourceProvider("Oak Ridge Ntnl Labs", "tg-login.ornl.teragrid.org:2119", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/bin/java", "/scratch/kevinm/hazMaps",
 				"", "tg-gridftp.ornl.teragrid.org:2811", "globus", rsl);

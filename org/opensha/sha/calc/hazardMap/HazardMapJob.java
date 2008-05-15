@@ -2,6 +2,7 @@ package org.opensha.sha.calc.hazardMap;
 
 import org.dom4j.Element;
 import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
 import org.opensha.metadata.XMLSaveable;
 
@@ -21,6 +22,7 @@ public class HazardMapJob implements XMLSaveable {
 	
 	public ResourceProvider rp;
 	public SubmitHost submitHost;
+	public StorageHost storageHost;
 	
 //	public String repo_host = "";
 //	public String repo_storagePath = "";
@@ -34,11 +36,12 @@ public class HazardMapJob implements XMLSaveable {
 		
 	}
 	
-	public HazardMapJob(String jobName, ResourceProvider rp, SubmitHost submit,
+	public HazardMapJob(String jobName, ResourceProvider rp, SubmitHost submit, StorageHost storageHost,
 			int sitesPerJob, int maxWallTime, boolean useCVM, boolean saveERF, String metadataFileName) {
 		this.jobName = jobName;
 		this.rp = rp;
 		this.submitHost = submit;
+		this.storageHost = storageHost;
 		this.sitesPerJob = sitesPerJob;
 		this.maxWallTime = maxWallTime;
 		this.useCVM = useCVM;
@@ -57,6 +60,8 @@ public class HazardMapJob implements XMLSaveable {
 		
 		xml = rp.toXMLMetadata(xml);
 		xml = submitHost.toXMLMetadata(xml);
+		if (storageHost != null)
+			xml = storageHost.toXMLMetadata(xml);
 		
 		return root;
 	}
@@ -76,6 +81,13 @@ public class HazardMapJob implements XMLSaveable {
 		Element submitElem = jobParams.element(SubmitHost.XML_METADATA_NAME);
 		SubmitHost submit = SubmitHost.fromXMLMetadata(submitElem);
 		
-		return new HazardMapJob(jobName, rp, submit, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+		Element storageElem = jobParams.element(StorageHost.XML_METADATA_NAME);
+		StorageHost storage;
+		if (storageElem == null)
+			storage = null;
+		else
+			storage = StorageHost.fromXMLMetadata(storageElem);
+		
+		return new HazardMapJob(jobName, rp, submit, storage, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
 	}
 }

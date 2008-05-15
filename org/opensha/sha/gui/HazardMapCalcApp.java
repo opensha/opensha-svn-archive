@@ -39,6 +39,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GlobusRSL;
 import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
 
 
@@ -741,7 +742,9 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			ResourceProvider rp = this.gridGuiBean.get_resourceProvider();
 			SubmitHost submit = this.gridGuiBean.get_submitHost();
 			
-			HazardMapJob job = new HazardMapJob(jobName, rp, submit, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+			StorageHost storage = StorageHost.HPC;
+			
+			HazardMapJob job = new HazardMapJob(jobName, rp, submit, storage, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
 
 			root = job.toXMLMetadata(root);
 
@@ -804,7 +807,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		if (currentDoc != null) {
 			try {
 				HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(currentDoc, false, false);
-				creator.prepareMap();
+				creator.createDAG(true);
 			} catch (InvocationTargetException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
