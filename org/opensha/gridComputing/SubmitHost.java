@@ -13,7 +13,7 @@ public class SubmitHost implements XMLSaveable {
 			"-n transfer -N VDS::transfer:1.0 -i - -R local /usr/local/vds-1.4.7/bin/transfer  -f  base-uri se-mount-point",
 			"/usr/local/vds-1.4.7/bin/kickstart");
 	
-	public static final SubmitHost INTENSITY = new SubmitHost("Intensity", "intensity.usc.edu", "/scratch/opensha/kmilner", "/scratch/opensha/kmilner/dependencies",
+	public static final SubmitHost INTENSITY = new SubmitHost("Intensity", "intensity.usc.edu", "/scratch/opensha/kmilner/hazMapRuns", "/scratch/opensha/kmilner/dependencies",
 			"GLOBUS_LOCATION=/usr/scec/globus-4.0.4;LD_LIBRARY_PATH=/usr/scec/globus-4.0.4/lib;",
 			"-n transfer -N pegasus::transfer:1.0 -i - -R local /usr/scec/pegasus/pegasus-2.1.0cvs-20080130/bin/transfer  -f  base-uri se-mount-point",
 			"/usr/scec/pegasus/pegasus-2.1.0cvs-20080130/bin/kickstart");

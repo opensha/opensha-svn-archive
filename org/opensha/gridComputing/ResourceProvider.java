@@ -14,7 +14,7 @@ public class ResourceProvider implements XMLSaveable {
 	public static final ResourceProvider HPC() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		rsl.setQueue("scec");
-		ResourceProvider HPC = new ResourceProvider("HPC", "hpc.usc.edu", "jobmanager-pbs", "jobmanager-fork",
+		ResourceProvider HPC = new ResourceProvider("HPC (USC)", "hpc.usc.edu", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/bin/java", "/home/scec-00/kmilner/hazMaps",
 				"", "hpc.usc.edu", "globus", rsl);
 		return HPC;
@@ -34,7 +34,7 @@ public class ResourceProvider implements XMLSaveable {
 	 */
 	public static final ResourceProvider ABE_GLIDE_INS() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
-		ResourceProvider ABE_GLIDE_INS = new ResourceProvider("Abe (w/ Glide-Ins)", ABE_HOST, ABE_BATCH, ABE_FORK,
+		ResourceProvider ABE_GLIDE_INS = new ResourceProvider("Abe (NCSA) (w/ Glide-Ins)", ABE_HOST, ABE_BATCH, ABE_FORK,
 				ABE_JAVA, ABE_DIR, ABE_REQS, ABE_GRID_FTP, "vanilla", rsl);
 		return ABE_GLIDE_INS;
 	}
@@ -45,7 +45,7 @@ public class ResourceProvider implements XMLSaveable {
 	 */
 	public static final ResourceProvider ABE_NO_GLIDE_INS() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
-		ResourceProvider ABE_NO_GLIDE_INS = new ResourceProvider("Abe (w/o Glide-Ins)", ABE_HOST, ABE_BATCH, ABE_FORK,
+		ResourceProvider ABE_NO_GLIDE_INS = new ResourceProvider("Abe (NCSA) (w/o Glide-Ins)", ABE_HOST, ABE_BATCH, ABE_FORK,
 				ABE_JAVA, ABE_DIR, ABE_REQS, ABE_GRID_FTP, "globus", rsl);
 		return ABE_NO_GLIDE_INS;
 	}
@@ -57,7 +57,7 @@ public class ResourceProvider implements XMLSaveable {
 	public static final ResourceProvider DYNAMIC() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		rsl.setQueue("mpi");
-		ResourceProvider DYNMAIC = new ResourceProvider("Dynamic", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
+		ResourceProvider DYNMAIC = new ResourceProvider("Dynamic (USC/SCEC)", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/opensha/kmilner/hazMaps",
 				"", "dynamic.usc.edu", "globus", rsl);
 		return DYNMAIC;
@@ -69,10 +69,70 @@ public class ResourceProvider implements XMLSaveable {
 	 */
 	public static final ResourceProvider ORNL() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
-		ResourceProvider DYNMAIC = new ResourceProvider("Oak Ridge Ntnl Labs", "tg-login.ornl.teragrid.org:2119", "jobmanager-pbs", "jobmanager-fork",
+		ResourceProvider ORNL = new ResourceProvider("Oak Ridge National Labs", "tg-login.ornl.teragrid.org:2119", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/bin/java", "/scratch/kevinm/hazMaps",
 				"", "tg-gridftp.ornl.teragrid.org:2811", "globus", rsl);
-		return DYNMAIC;
+		return ORNL;
+	}
+	
+//	private static String LEAR_HOST = "tg-gatekeeper.purdue.teragrid.org";
+//	private static String LEAR_BATCH = "jobmanager-pbs";
+//	private static String LEAR_FORK = "jobmanager-fork";
+//	private static String LEAR_JAVA = "/opt/jdk1.6.0/bin/java";
+//	private static String LEAR_DIR = "/usr/rmt_share/scratch96/k/kevinm/hazMaps";
+//	private static String LEAR_REQS = "(FileSystemDomain==\"purdue.teragrid.org\")&&(Arch==\"X86_64\")&&(Disk>=0)&&(Memory>=0)&&(OpSys==\"LINUX\")";
+//	private static String LEAR_GRID_FTP = "tg-data.purdue.teragrid.org";
+//	
+//	/**
+//	 * Preset for running on LEAR with Glide-Ins as kmilner
+//	 * @return
+//	 */
+//	public static final ResourceProvider LEAR_GLIDE_INS() {
+//		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
+//		ResourceProvider LEAR_GLIDE_INS = new ResourceProvider("Lear (Purdue) (w/ Glide-Ins)", LEAR_HOST, LEAR_BATCH, LEAR_FORK,
+//				LEAR_JAVA, LEAR_DIR, LEAR_REQS, LEAR_GRID_FTP, "vanilla", rsl);
+//		return LEAR_GLIDE_INS;
+//	}
+//	
+//	/**
+//	 * Preset for running on LEAR without Glide-Ins as kmilner
+//	 * @return
+//	 */
+//	public static final ResourceProvider LEAR_NO_GLIDE_INS() {
+//		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
+//		ResourceProvider LEAR_NO_GLIDE_INS = new ResourceProvider("Lear (Purdue) (w/o Glide-Ins)", LEAR_HOST, LEAR_BATCH, LEAR_FORK,
+//				LEAR_JAVA, LEAR_DIR, LEAR_REQS, LEAR_GRID_FTP, "globus", rsl);
+//		return LEAR_NO_GLIDE_INS;
+//	}
+	
+	private static String STEELE_HOST = "tg-steele.purdue.teragrid.org";
+	private static String STEELE_BATCH = "jobmanager-pbs";
+	private static String STEELE_FORK = "jobmanager-fork";
+	private static String STEELE_JAVA = "/apps/steele/jdk1.6.0_05/bin/java";
+	private static String STEELE_DIR = "/usr/rmt_share/scratch96/k/kevinm/hazMaps";
+	private static String STEELE_REQS = "(FileSystemDomain==\"purdue.teragrid.org\")&&(Arch==\"X86_64\")&&(Disk>=0)&&(Memory>=0)&&(OpSys==\"LINUX\")";
+	private static String STEELE_GRID_FTP = "tg-data.purdue.teragrid.org";
+	
+	/**
+	 * Preset for running on STEELE with Glide-Ins as kmilner
+	 * @return
+	 */
+	public static final ResourceProvider STEELE_GLIDE_INS() {
+		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
+		ResourceProvider STEELE_GLIDE_INS = new ResourceProvider("Steele (Purdue) (w/ Glide-Ins)", STEELE_HOST, STEELE_BATCH, STEELE_FORK,
+				STEELE_JAVA, STEELE_DIR, STEELE_REQS, STEELE_GRID_FTP, "vanilla", rsl);
+		return STEELE_GLIDE_INS;
+	}
+	
+	/**
+	 * Preset for running on STEELE without Glide-Ins as kmilner
+	 * @return
+	 */
+	public static final ResourceProvider STEELE_NO_GLIDE_INS() {
+		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
+		ResourceProvider STEELE_NO_GLIDE_INS = new ResourceProvider("Steele (Purdue) (w/o Glide-Ins)", STEELE_HOST, STEELE_BATCH, STEELE_FORK,
+				STEELE_JAVA, STEELE_DIR, STEELE_REQS, STEELE_GRID_FTP, "globus", rsl);
+		return STEELE_NO_GLIDE_INS;
 	}
 	
 	public String name = "";
