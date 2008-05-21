@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfoliodb;
+package scratchJavaDevelopers.ISTI.portfoliodb;
 
 import java.util.List;
 import java.util.ArrayList;

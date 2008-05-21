@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfoliodb.gui;
+package scratchJavaDevelopers.ISTI.portfoliodb.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,7 +22,7 @@ import com.isti.util.IstiFileFilter;
 import com.isti.util.ValueTableModel;
 import com.isti.util.gui.GuiUtilFns;
 import com.isti.util.gui.ValueJTableModel;
-import scratchJavaDevelopers.isti.portfoliodb.PortfolioDatabase;
+import scratchJavaDevelopers.ISTI.portfoliodb.PortfolioDatabase;
 
 public class PortfolioDbImportTool
 {

@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal;
+package scratchJavaDevelopers.ISTI.portfolioeal;
 
 /**
  * This class is used to parse the parameters from a csv portfolio file.  If you wish

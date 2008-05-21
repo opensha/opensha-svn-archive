@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal.gui;
+package scratchJavaDevelopers.ISTI.portfolioeal.gui;
 
 import java.awt.*;
 

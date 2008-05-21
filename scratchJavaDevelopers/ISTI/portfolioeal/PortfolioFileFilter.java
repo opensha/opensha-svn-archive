@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal;
+package scratchJavaDevelopers.ISTI.portfolioeal;
 
 import java.io.File;
 import javax.swing.filechooser.FileFilter;

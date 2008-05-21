@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal;
+package scratchJavaDevelopers.ISTI.portfolioeal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.data.Site;
-import scratchJavaDevelopers.isti.portfolioeal.gui.PortfolioEALCalculatorView;
+import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.Parameter;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 

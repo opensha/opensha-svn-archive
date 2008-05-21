@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal;
+package scratchJavaDevelopers.ISTI.portfolioeal;
 
 import java.lang.reflect.Constructor;
 import java.rmi.RemoteException;
@@ -12,7 +12,7 @@ import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.ParameterException;
-import scratchJavaDevelopers.isti.portfolioeal.gui.PortfolioEALCalculatorView;
+import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.*;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF_API;

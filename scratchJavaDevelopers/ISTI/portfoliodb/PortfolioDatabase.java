@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfoliodb;
+package scratchJavaDevelopers.ISTI.portfoliodb;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,7 @@ import com.isti.util.DelimiterSeparatedValues;
 import com.isti.util.DelimiterSeparatedValuesTable;
 import com.isti.util.ValueTableModel;
 import com.isti.util.database.MySQLConnectionJDBC;
-import scratchJavaDevelopers.isti.portfoliodb.PortfolioAssetsTable;
+import scratchJavaDevelopers.ISTI.portfoliodb.PortfolioAssetsTable;
 
 public class PortfolioDatabase
 {

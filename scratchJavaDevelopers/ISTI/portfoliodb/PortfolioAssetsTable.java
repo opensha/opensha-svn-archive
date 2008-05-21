@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfoliodb;
+package scratchJavaDevelopers.ISTI.portfoliodb;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

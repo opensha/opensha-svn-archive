@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal.gui;
+package scratchJavaDevelopers.ISTI.portfolioeal.gui;
 import java.util.ArrayList;
 
 import org.opensha.sha.gui.beans.ERF_GuiBean;

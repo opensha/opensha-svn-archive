@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal;
+package scratchJavaDevelopers.ISTI.portfolioeal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

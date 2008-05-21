@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.isti.portfolioeal.gui;
+package scratchJavaDevelopers.ISTI.portfolioeal.gui;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.gui.BCR_Application;
