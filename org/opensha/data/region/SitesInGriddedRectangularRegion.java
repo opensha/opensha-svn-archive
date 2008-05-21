@@ -62,6 +62,12 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
       RegionConstraintException {
     super(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
+  
+  public SitesInGriddedRectangularRegion(GeographicRegion geo,
+		  double gridSpacing) throws
+		  RegionConstraintException {
+	  super(geo.getMinLat(), geo.getMaxLat(), geo.getMinLon(), geo.getMaxLon(), gridSpacing);
+  }
 
 
 

@@ -262,5 +262,39 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
 	  LocationList list = LocationList.fromXMLMetadata(geographicElement.element(LocationList.XML_METADATA_NAME));
 	  return new GeographicRegion(list);
   }
+
+
+public boolean isRectangular() {
+	if (this.locList.size() == 4) { // it might be a rectangular region
+		  int minLatHits = 0;
+		  int maxLatHits = 0;
+		  int minLonHits = 0;
+		  int maxLonHits = 0;
+		  
+		  double minLat = this.getMinLat();
+		  double maxLat = this.getMaxLat();
+		  double minLon = this.getMinLon();
+		  double maxLon = this.getMaxLon();
+		  
+		  for (int i=0; i<4; i++) {
+			  Location loc = locList.getLocationAt(i);
+			  double lat = loc.getLatitude();
+			  double lon = loc.getLongitude();
+			  if (lat == minLat)
+				  minLatHits++;
+			  else if (lat == maxLat)
+				  maxLatHits++;
+			  
+			  if (lon == minLon)
+				  minLonHits++;
+			  else if (lon == maxLon)
+				  maxLonHits++;
+		  }
+		  // it is a rectangular region if  the location list contains exactly 2 of each min/max lat/lon
+		  if (minLatHits == 2 && maxLatHits == 2 && minLonHits == 2 && maxLonHits == 2)
+			  return true;
+	}
+	return false;
+}
   
 }

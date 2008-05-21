@@ -93,4 +93,10 @@ public interface GeographicRegionAPI extends XMLSaveable {
      * @return
      */
     public double getMinHorzDistToRegion(Location loc) ;
+    
+    /**
+     * Returns true if the region is rectangular;
+     * @return
+     */
+    public boolean isRectangular();
 }

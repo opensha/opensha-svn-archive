@@ -5,6 +5,7 @@ import java.util.*;
 import org.dom4j.Element;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.metadata.XMLSaveable;
 
 import java.io.IOException;
@@ -588,7 +589,20 @@ public class EvenlyGriddedGeographicRegion
   
   public static EvenlyGriddedGeographicRegion fromXMLMetadata(Element root) {
 	  double gridSpacing = Double.parseDouble(root.attribute(EvenlyGriddedGeographicRegion.XML_METADATA_GRID_SPACING_NAME).getValue());
-	  LocationList outline = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME)).getRegionOutline();
+	  GeographicRegion geoRegion = GeographicRegion.fromXMLMetadata(root.element(GeographicRegion.XML_METADATA_NAME));
+	  LocationList outline = geoRegion.getRegionOutline();
+
+	  if (geoRegion.isRectangular()) {
+		  double minLat = geoRegion.getMinLat();
+		  double maxLat = geoRegion.getMaxLat();
+		  double minLon = geoRegion.getMinLon();
+		  double maxLon = geoRegion.getMaxLon();
+		  try {
+			  return new EvenlyGriddedRectangularGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
+		  } catch (RegionConstraintException e) {
+			  return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
+		  }
+	  }
 	  
 	  return new EvenlyGriddedGeographicRegion(outline, gridSpacing);
   }
