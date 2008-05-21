@@ -709,7 +709,9 @@ public class HazardMapJobCreator {
 	
 	public void createDAG (String outputDir, int numberOfJobs) {
 		
-		boolean onHPC = job.rp.hostName.toLowerCase().contains("hpc.usc.edu") || (stageOut && (job.storageHost.schedulerHostName.toLowerCase().contains("hpc.usc.edu") || job.storageHost.gridFTPHostName.toLowerCase().contains("hpc.usc.edu")));
+		boolean onHPC = job.rp.hostName.toLowerCase().contains("hpc.usc.edu") || 
+				(stageOut && (job.storageHost.schedulerHostName.toLowerCase().contains("hpc.usc.edu")
+					|| job.storageHost.gridFTPHostName.toLowerCase().contains("hpc.usc.edu")));
 
 		String jobName = "curves_";
 		String tarJobName = "tar_";
