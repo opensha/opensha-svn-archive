@@ -118,8 +118,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	public final static String WGCEP_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2";
 	public final static String WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2_TimeIndependentEpistemicList";
 	public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2";
-	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
-	public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
+//	public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
+//	public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
 
 	// Strings for control pick list
 	private final static String CONTROL_PANELS = "Control Panels";
@@ -313,6 +313,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(43, 7, 0, 15), 43, 12));
 		JPanel runPanel = new JPanel();
+		runPanel.setLayout(new GridLayout(1,2));
 		runPanel.add(addButton);
 		runPanel.add(runButton);
 		dataPanel.add(runPanel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
@@ -327,7 +328,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
 		parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
 		parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
-		parameterTabbedPanel.addTab( "Grid Parameters", gridParamPanel );
+		parameterTabbedPanel.addTab( "Grid Computing Parameters", gridParamPanel );
 		mainSplitPane.setDividerLocation(550);
 		imr_IMTSplit.setDividerLocation(300);
 		imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -469,8 +470,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
 		erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-		erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
-		erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
+//		erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
+//		erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
 		erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);
 		erf_Classes.add(WGCEP_UCERF_2_EPISTEMIC_LIST_CLASS_NAME);
 		erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
