@@ -14,8 +14,10 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.util.FileUtils;
 import org.opensha.util.RunScript;
@@ -60,6 +62,7 @@ public class HazardMapMetadataJobCreator {
 		String outputDir = this.createDirs(job, restart, debug);
 		// load the sites from metadata
 		SitesInGriddedRegionAPI sites = this.loadSites(root);
+		System.out.println("Loaded " + sites.getNumGridLocs() + " sites!");
 		// save the ERF to a file if needed
 		if (job.saveERF) {
 			this.saveERF(root, job, outputDir);
@@ -243,7 +246,16 @@ public class HazardMapMetadataJobCreator {
 		this.updateProgressMessage("Loading Sites");
 		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
-		SitesInGriddedRegionAPI sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+		SitesInGriddedRegionAPI sites = null;
+		if (region.isRectangular()) {
+			try {
+				sites = new SitesInGriddedRectangularRegion(region, region.getGridSpacing());
+			} catch (RegionConstraintException e) {
+				sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+			}
+		} else {
+			sites = new SitesInGriddedRegion(region.getRegionOutline(), region.getGridSpacing());
+		}
 
 		return sites;
 	}
