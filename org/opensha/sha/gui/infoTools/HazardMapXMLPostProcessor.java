@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -118,8 +119,9 @@ public class HazardMapXMLPostProcessor {
 			}
 			
 			String startTimeString = "";
+			Calendar startCal = null;
 			if (startTime > 0) {
-				Calendar startCal = Calendar.getInstance();
+				startCal = Calendar.getInstance();
 				startCal.setTimeInMillis(startTime);
 				startTimeString = startCal.getTime().toString();
 			} else {
@@ -144,6 +146,22 @@ public class HazardMapXMLPostProcessor {
 			"Dataset Id="+job.jobName+"\n"+
 			"Simulation Start Time="+startTimeString+"\n"+
 			"Simulation End Time="+endTimeString;
+			
+			if (startCal == null) {
+				mailMessage += "\nPerformance Statistics not Available";
+			} else {
+				long millis = endCal.getTimeInMillis() - startCal.getTimeInMillis();
+				double secs = (double)millis / 1000d;
+				double mins = secs / 60d;
+				double hours = mins / 60d;
+				
+				mailMessage += "\nTotal Run Time (including overhead):\n";
+				if (hours > 1)
+					mailMessage += new DecimalFormat(	"###.##").format(hours) + " hours = ";
+				mailMessage += new DecimalFormat(	"###.##").format(mins) + " minutes";
+				double curvesPerHour = (double)actualFiles / hours;
+				mailMessage += "\nCurves Per Hour (including overhead): " + curvesPerHour;
+			}
 			MailUtil.sendMail(HOST, FROM, emailAddress, mailSubject, mailMessage);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
