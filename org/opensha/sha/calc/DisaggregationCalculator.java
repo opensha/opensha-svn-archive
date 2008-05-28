@@ -512,8 +512,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 		  dist_binEdges[i+1] = dist_center[i] + deltaDist/2;
 	  }
  // hack test:
-//	  double[] temp = {0,1,2,5,10,20,50,100,200};
-//	  setDistanceRange(temp);
+	  double[] temp = {0,1,2,5,10,20,50,100,200};
+	  setDistanceRange(temp);
   }
   
  
@@ -838,9 +838,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
 
 
-    // add the legend
-    // 1st legent box has origin offset in Y by -2 inches (and X by minus some too)
-    gmtScriptLines.add("echo " + "\"" + dist_center[dist_center.length-1] + " " + mag_center[0] + " " + (0.8*z_tick) +
+    // add the legend boxes
+    // 1st legend box has origin offset in Y by -2 inches (and X by minus some too)
+    gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
                        "\"" + " > junk_data ; psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
                        region + " " +
                        projection + " " + verticalScaling + " -So0.3ib0 " +
@@ -850,7 +850,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     // each now has origin offset in the X direction
     for (int k = 1; k < NUM_E; ++k) {
-      gmtScriptLines.add("echo " + "\"" + dist_center[dist_center.length-1] + " " + mag_center[0] + " " + (0.8*z_tick) +
+      gmtScriptLines.add("echo " + "\"" + dist_binEdges[dist_binEdges.length-1] + " " + mag_binEdges[0] + " " + (0.8*z_tick) +
                          "\"" + " > junk_data ; psxyz junk_data " + "-P -X0.9i " +
                          region + " " +
                          projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
