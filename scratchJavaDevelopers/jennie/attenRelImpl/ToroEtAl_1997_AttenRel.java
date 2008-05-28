@@ -17,7 +17,7 @@ import org.opensha.util.FaultUtils;
  * <b>Title:</b> ToroEtAl_1997_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Toro et al. (1997), as described in SRL 1997 <p>
+ * developed by Toro et al. (1997) mid-continent, as described in SRL 1997 <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -73,19 +73,19 @@ public class ToroEtAl_1997_AttenRel
   // note that index 0 is for PGA 
   // the coefficients were originally for frequencies: 0.5, 1, 2.5, 5, 10, 25, 35, PGA
   
-  double[] period= { 0, 0.29, 0.04, 0.1, 0.2, 0.4, 1, 2};
-  double[] c1= { 2.2, 4, 3.68, 2.37, 1.73, 1.07, 0.09, -0.74};
-  double[] c2= { 0.81, 0.79, 0.8, 0.81, 0.84, 1.05, 1.42, 1.86};
-  double[] c3= { 0, 0, 0, 0, 0, -0.1, -0.2, -0.31};
-  double[] c4= { 1.27, 1.57, 1.46, 1.1, 0.98, 0.93, 0.9, 0.92};
-  double[] c5= { 1.16, 1.83, 1.77, 1.02, 0.66, 0.56, 0.49, 0.46};
-  double[] c6= { 0.0021, 0.0008, 0.0013, 0.004, 0.0042, 0.0033, 0.0023, 0.0017};
-  double[] c7= { 9.3, 11.1, 10.5, 8.3, 7.5, 7.1, 6.8, 6.9};
-  double[] m50= { 0.55, 0.62, 0.62, 0.59, 0.6, 0.63, 0.63, 0.61};
-  double[] m55= { 0.59, 0.63, 0.63, 0.61, 0.64, 0.68, 0.64, 0.62};
-  double[] m80= { 0.5, 0.5, 0.5, 0.5, 0.56, 0.64, 0.67, 0.66};
-  double[] r05= { 0.54, 0.62, 0.57, 0.5, 0.45, 0.45, 0.45, 0.45};
-  double[] r20= { 0.2, 0.35, 0.29, 0.17, 0.12, 0.12, 0.12, 0.12};
+  double[] period= { 0, 0, 0.29, 0.04, 0.1, 0.2, 0.4, 1, 2};
+  double[] c1= { 2.2, 2.2, 4, 3.68, 2.37, 1.73, 1.07, 0.09, -0.74};
+  double[] c2= { 0.81, 0.81, 0.79, 0.8, 0.81, 0.84, 1.05, 1.42, 1.86};
+  double[] c3= { 0, 0, 0, 0, 0, 0, -0.1, -0.2, -0.31};
+  double[] c4= { 1.27, 1.27, 1.57, 1.46, 1.1, 0.98, 0.93, 0.9, 0.92};
+  double[] c5= { 1.16, 1.16, 1.83, 1.77, 1.02, 0.66, 0.56, 0.49, 0.46};
+  double[] c6= { 0.0021, 0.0021, 0.0008, 0.0013, 0.004, 0.0042, 0.0033, 0.0023, 0.0017};
+  double[] c7= { 9.3, 9.3, 11.1, 10.5, 8.3, 7.5, 7.1, 6.8, 6.9};
+  double[] m50= { 0.55, 0.55, 0.62, 0.62, 0.59, 0.6, 0.63, 0.63, 0.61};
+  double[] m55= { 0.59, 0.59, 0.63, 0.63, 0.61, 0.64, 0.68, 0.64, 0.62};
+  double[] m80= { 0.5, 0.5, 0.5, 0.5, 0.5, 0.56, 0.64, 0.67, 0.66};
+  double[] r05= { 0.54, 0.54, 0.62, 0.57, 0.5, 0.45, 0.45, 0.45, 0.45};
+  double[] r20= { 0.2, 0.2, 0.35, 0.29, 0.17, 0.12, 0.12, 0.12, 0.12};
   
   
  // double a1 = 0.03;  // g
@@ -131,7 +131,7 @@ public class ToroEtAl_1997_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for (int i = 3; i < period.length ; i++) {
+    for (int i = 0; i < period.length ; i++) {
       indexFromPerHashMap.put(new Double(period[i]), new Integer(i));
     }
 
@@ -384,7 +384,7 @@ public class ToroEtAl_1997_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 1; i < period.length; i++) {
+    for (int i = 0; i < period.length; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
@@ -446,7 +446,7 @@ public class ToroEtAl_1997_AttenRel
 	  
 	// site response from Silva et al. 1996
 	
-	if (vs30 <= v1) {
+	if (vs30 < v1) {
 		Fsite = 0.2;
 	}
 	else {
