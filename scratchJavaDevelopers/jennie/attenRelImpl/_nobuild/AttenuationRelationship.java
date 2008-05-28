@@ -455,7 +455,6 @@ public abstract class AttenuationRelationship
   public final static String STD_DEV_TYPE_TOTAL = "Total";
   public final static String STD_DEV_TYPE_INTER = "Inter-Event";
   public final static String STD_DEV_TYPE_INTRA = "Intra-Event";
-  public final static String STD_DEV_TYPE_BASEMENT = "Basement rock";
   public final static String STD_DEV_TYPE_NONE = "None (zero)";
   public final static String STD_DEV_TYPE_TOTAL_MAG_DEP =
       "Total (Mag Dependent)";

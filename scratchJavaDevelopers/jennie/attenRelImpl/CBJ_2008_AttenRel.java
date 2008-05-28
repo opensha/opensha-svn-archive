@@ -116,6 +116,7 @@ public class CBJ_2008_AttenRel
   // change component default from that of parent
   String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
 
+  public final static String STD_DEV_TYPE_BASEMENT = "Basement rock";
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
