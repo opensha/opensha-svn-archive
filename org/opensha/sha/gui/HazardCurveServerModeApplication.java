@@ -1291,7 +1291,12 @@ public class HazardCurveServerModeApplication extends JFrame
       try {
         if (distanceControlPanel != null)
           disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-        disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
+        if (disaggregationControlPanel.isCustomDistBinning()) {
+        	double distBins[] = disaggregationControlPanel.getCustomBinEdges();
+        	disaggCalc.setDistanceRange(distBins);
+        } else {
+        	disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
+        }
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.setNumSourcestoShow(numSourcesForDisag);
         

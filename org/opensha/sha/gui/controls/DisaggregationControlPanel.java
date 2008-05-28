@@ -9,6 +9,7 @@ import org.opensha.param.event.*;
 import java.awt.event.*;
 import org.opensha.param.StringParameter;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 
 /**
@@ -68,6 +69,13 @@ public class DisaggregationControlPanel extends JFrame
   private DoubleParameter deltaMagParam = new DoubleParameter(DELTA_MAG_PARAM_NAME,new Double(0.5));
 
   //sets the Dist range for Disaggregation calculation
+  private static final String DIST_TYPE_PARAM_NAME = "Distance Binning Type";
+  private static final String CUSTOM_DIST_PARAM_NAME = "Comma Separated Custom Bin Edges";
+  private static final String CUSTOM_DIST_DEFAULT = "0,1,2,5,10,20,50,100,200";
+  private StringParameter distBinTypeSelector = null;
+  private StringParameter customDistBinParam = null;
+  private static final String DIST_TYPE_EVEN = "Even";
+  private static final String DIST_TYPE_CUSTOM = "Custom";
   private static final String MIN_DIST_PARAM_NAME = "Min Dist (bin center)";
   private static final String NUM_DIST_PARAM_NAME = "Num Dist";
   private static final String DELTA_DIST_PARAM_NAME = "Delta Dist";
@@ -137,6 +145,16 @@ public class DisaggregationControlPanel extends JFrame
       disaggregationIMLParam.addParameterChangeFailListener(this);
       sourceDisaggregationParam.addParameterChangeListener(this);
       
+      ArrayList<String> distBinTypes = new ArrayList<String>();
+      distBinTypes.add(DIST_TYPE_EVEN);
+      distBinTypes.add(DIST_TYPE_CUSTOM);
+      
+      distBinTypeSelector = new StringParameter(DIST_TYPE_PARAM_NAME, distBinTypes);
+      distBinTypeSelector.setValue(DIST_TYPE_EVEN);
+      distBinTypeSelector.addParameterChangeListener(this);
+      
+      customDistBinParam = new StringParameter(CUSTOM_DIST_PARAM_NAME);
+      customDistBinParam.setValue(CUSTOM_DIST_DEFAULT);
       
       ArrayList zAxisChoiceList = new ArrayList();
       zAxisChoiceList.add(Z_AXIS_MAX_CHOICE_FROM_DATA);
@@ -158,9 +176,16 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(minMagParam);
       paramList.addParameter(numMagParam);
       paramList.addParameter(deltaMagParam);
-      paramList.addParameter(minDistParam);
-      paramList.addParameter(numDistParam);
-      paramList.addParameter(deltaDistParam);
+      paramList.addParameter(distBinTypeSelector);
+//      String distType = (String)distBinTypeSelector.getValue(); 
+//      if (distType.equals(DIST_TYPE_EVEN)) {
+    	  paramList.addParameter(minDistParam);
+          paramList.addParameter(numDistParam);
+          paramList.addParameter(deltaDistParam);
+//      } else if (distType.equals(DIST_TYPE_CUSTOM)) {
+    	  paramList.addParameter(customDistBinParam);
+//      }
+      
       paramList.addParameter(zMaxChoiceParam);
       paramList.addParameter(zMaxParam);
 
@@ -245,6 +270,17 @@ public class DisaggregationControlPanel extends JFrame
   	else
   		paramListEditor.getParameterEditor(this.Z_AXIS_MAX_NAME).setVisible(true);
   }
+  
+  /**
+   * Makes ZAxisMax Parameter to be visible if Z-Max is specified manually
+   */
+  private void setCustomBinning(boolean custom){
+	  paramListEditor.getParameterEditor(this.MIN_DIST_PARAM_NAME).setVisible(!custom);
+	  paramListEditor.getParameterEditor(this.NUM_DIST_PARAM_NAME).setVisible(!custom);
+	  paramListEditor.getParameterEditor(this.DELTA_DIST_PARAM_NAME).setVisible(!custom);
+	  paramListEditor.getParameterEditor(this.CUSTOM_DIST_PARAM_NAME).setVisible(custom);
+	  
+  }
 
   /**
    *
@@ -254,11 +290,18 @@ public class DisaggregationControlPanel extends JFrame
     String paramName = e.getParameterName();
     if(paramName.equals(DISAGGREGATION_PARAM_NAME))
       setParamsVisible((String)disaggregationParameter.getValue());
-    if(paramName.equals(SOURCE_DISAGGR_PARAM_NAME))
+    else if(paramName.equals(SOURCE_DISAGGR_PARAM_NAME))
       showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
-    if(paramName.equals(this.Z_AXIS_MAX_CHOICE_NAME)){
+    else if(paramName.equals(this.Z_AXIS_MAX_CHOICE_NAME)){
     	showZMaxAxisParam();
-    }
+    } else if(paramName.equals(this.DIST_TYPE_PARAM_NAME)){
+    	String distType = (String)distBinTypeSelector.getValue(); 
+        if (distType.equals(DIST_TYPE_EVEN)) {
+        	setCustomBinning(false);
+        } else if (distType.equals(DIST_TYPE_CUSTOM)) {
+        	setCustomBinning(true);
+        }
+    } 
     	
   }
 
@@ -341,6 +384,8 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(SHOW_DISAGGR_BIN_RATE_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(DIST_TYPE_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(CUSTOM_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(Z_AXIS_MAX_CHOICE_NAME).setVisible(false);
       showNumSourcesParam(false);
       paramListEditor.getParameterEditor(this.Z_AXIS_MAX_NAME).setVisible(false);
@@ -370,10 +415,20 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(true);
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(true);
       paramListEditor.getParameterEditor(SHOW_DISAGGR_BIN_RATE_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(DIST_TYPE_PARAM_NAME).setVisible(true);
+      String distType = (String)distBinTypeSelector.getValue(); 
+      setCustomBinning(distType.equals(DIST_TYPE_CUSTOM));
       paramListEditor.getParameterEditor(Z_AXIS_MAX_CHOICE_NAME).setVisible(true);
       this.showZMaxAxisParam();
       showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
-      this.setSize(300,500);
+      Dimension curDims = this.getSize();
+      int width = 300;
+      int height = 500;
+      if (curDims.width > width)
+    	  width = curDims.width;
+      if (curDims.height > height)
+    	  height = curDims.height;
+      this.setSize(width,height);
     }
     this.repaint();
     this.validate();
@@ -434,5 +489,40 @@ public class DisaggregationControlPanel extends JFrame
    */
   public boolean isShowDisaggrBinDataSelected(){
     return ((Boolean)binRateDisaggregationParam.getValue()).booleanValue();
+  }
+  
+  /**
+   * Returns true if custom distance binning is selected
+   * @return
+   */
+  public boolean isCustomDistBinning() {
+	  String distType = (String)distBinTypeSelector.getValue(); 
+      return distType.equals(DIST_TYPE_CUSTOM);
+  }
+  
+  public double[] getCustomBinEdges() {
+	  String edgesStr = (String)customDistBinParam.getValue();
+	  
+	  StringTokenizer tok = new StringTokenizer(edgesStr, ", ;");
+	  
+	  ArrayList<Double> edgesList = new ArrayList<Double>();
+	  
+	  while (tok.hasMoreTokens()) {
+		  String tokStr = tok.nextToken();
+		  try {
+			double val = Double.parseDouble(tokStr);
+			  edgesList.add(val);
+		} catch (NumberFormatException e) {
+			System.err.println("Bin Edge '" + tokStr + "' is not a number!");
+		}
+	  }
+	  
+	  double edges[] = new double[edgesList.size()];
+	  
+	  for (int i=0; i<edgesList.size(); i++) {
+		  edges[i] = edgesList.get(i);
+	  }
+	  
+	  return edges;
   }
 }

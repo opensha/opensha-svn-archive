@@ -135,6 +135,13 @@ public interface DisaggregationCalculatorAPI extends Remote{
    */
   public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
       java.rmi.RemoteException;
+  
+  /**
+   * Setting up custom distance bins
+   * @param distBinEdges - a double array of the distance-bin edges (in correct order, from low to high)
+   */
+  public void setDistanceRange(double[] distBinEdges) throws
+      java.rmi.RemoteException;
 
   /**
    * Returns the Bin Data in the String format
