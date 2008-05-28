@@ -1,4 +1,4 @@
-package org.opensha.sha.imr.attenRelImpl;
+package scratchJavaDevelopers.jennie.attenRelImpl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -254,7 +254,7 @@ public class ToroEtAl_1997_AttenRel
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
     pgaParam.setValue(PGA_DEFAULT);
-    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+//    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
@@ -284,8 +284,8 @@ public class ToroEtAl_1997_AttenRel
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     exceedProbIndependentParams.addParameterList(meanIndependentParams);
-    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
-    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
+//    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
+//    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(

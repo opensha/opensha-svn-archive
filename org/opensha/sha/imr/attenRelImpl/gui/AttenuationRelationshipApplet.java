@@ -21,6 +21,9 @@ import org.opensha.util.*;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+
+import scratchJavaDevelopers.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
+
 import javax.help.*;
 import javax.help.CSH.DisplayHelpFromSource;
 
@@ -194,6 +197,7 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
     protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
     protected final static String GOULET_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
+    protected final static String TORO_97_CLASS_NAME="scratchJavaDevelopers.jennie.attenRelImpl.ToroEtAl_1997_AttenRel";
     /**
      *  ArrayList that maps picklist attenRel string names to the real fully qualified
      *  class names
@@ -245,6 +249,8 @@ public class AttenuationRelationshipApplet extends JFrame
     	attenRelClasses.add(SM_CLASS_NAME);
     	imNames.add(SEA_1999_AttenRel.NAME);
     	attenRelClasses.add(SEA_CLASS_NAME);
+    	imNames.add(ToroEtAl_1997_AttenRel.NAME);
+    	attenRelClasses.add(TORO_97_CLASS_NAME);
 
 
     	//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
