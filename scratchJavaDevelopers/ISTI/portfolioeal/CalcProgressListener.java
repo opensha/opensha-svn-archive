@@ -37,7 +37,6 @@ public class CalcProgressListener extends Thread implements ActionListener {
 	 * total and current ruptures, and updates the progress bar based on these numbers.
 	 * It uses a timer to synchronize its firing.
 	 */
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
 			totalRuptures = asset.getTotalRuptures();
