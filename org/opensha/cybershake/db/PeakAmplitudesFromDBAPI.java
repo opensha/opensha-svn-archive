@@ -27,7 +27,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @param rupVarId
 	 * @returns the IM Value for the particular IM type
 	 */
-	public double getIM_Value(int siteId,int erfId,int srcId,int rupId,int rupVarId, String imType);
+	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, String imType);
 	
 	
 }

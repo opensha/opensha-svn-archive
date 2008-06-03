@@ -42,11 +42,12 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,String erfName,
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,String erfName, int sgtVariation, int rvid,
 			                                     int srcId,int rupId,String imType){
 		
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
+		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
 		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
@@ -58,7 +59,7 @@ public class HazardCurveComputation {
 		int size = rupVariations.size();
 		for(int i=0;i<size;++i){
 			int rupVarId =  rupVariations.get(i);
-			double imVal = peakAmplitudes.getIM_Value(siteId, erfId, srcId, rupId, rupVarId, imType);
+			double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
 			function.set(imVal/CONVERSION_TO_G,1);
 		}
 		setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
@@ -77,18 +78,20 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,String imType){
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,int sgtVariation, int rvid, String imType){
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
+		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
 		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
 		
-		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(site);
+		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(site, erfId);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
+			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
-			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(site, srcId);
+			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(site, erfId, srcId);
 			int numRupSize = rupIdList.size();
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
@@ -98,7 +101,7 @@ public class HazardCurveComputation {
 				int size = rupVariations.size();
 				for(int i=0;i<size;++i){
 					int rupVarId =  rupVariations.get(i);
-					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, srcId, rupId, rupVarId, imType);
+					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
 					function.set(imVal/CONVERSION_TO_G,1);
 				}
 				setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);

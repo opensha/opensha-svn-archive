@@ -51,7 +51,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 */
 	public ArrayList<Integer> getRupVarationsForRupture(int erfId,int srcId, int rupId){
 		String sql = "SELECT Rup_Var_ID from Rupture_Variations where Source_ID = '"+srcId+"' "+
-		             "and ERF_ID =  '"+erfId +"' and Rup_Var_Scenario_ID='2' and Rupture_ID = '"+rupId+"'";
+		             "and ERF_ID =  '"+erfId +"' and Rup_Var_Scenario_ID='3' and Rupture_ID = '"+rupId+"'";
 		
 		ArrayList<Integer> rupVariationList = new ArrayList<Integer>();
 		ResultSet rs = null;
@@ -84,11 +84,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @param rupVarId
 	 * @returns the IM Value for the particular IM type
 	 */
-	public double getIM_Value(int siteId,int erfId,int srcId,int rupId,int rupVarId, String imType){
+	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, String imType){
 		String sql = "SELECT distinct IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
         "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '4' and Rup_Var_Scenario_ID='2'";
-		
+        "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
+//		System.out.println(sql);
 		double imVal = Double.NaN;
 		ResultSet rs = null;
 		try {

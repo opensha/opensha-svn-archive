@@ -114,7 +114,7 @@ public interface SiteInfo2DBAPI {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIdsForSite(String siteShortName);
+	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_ID);
 	
 	/**
 	 * 
@@ -122,7 +122,7 @@ public interface SiteInfo2DBAPI {
 	 * @param srcId
 	 * @returns the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIdsForSite(String siteShortName,int srcId);
+	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_ID, int srcId);
 	
 	/**
 	 * 
