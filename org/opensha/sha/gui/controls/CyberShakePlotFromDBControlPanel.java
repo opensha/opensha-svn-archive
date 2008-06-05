@@ -40,7 +40,7 @@ import java.text.DecimalFormat;
  *
  * @author Nitin Gupta
  * @since March 7,2006
- * @version 1.0
+ * @version 1.0 
  */
 public class CyberShakePlotFromDBControlPanel
     extends JFrame implements ParameterChangeListener{
