@@ -109,6 +109,9 @@ public class CyberShakePlotFromDBControlPanel
   private String selectedSite;
   private int selectedSrcId,selectedRupId;
   private String saPeriod;
+  private int sgtVariationID = 5;
+  private int rupVarScenID = 3;
+  private int erfID = 34;
 
 
   public CyberShakePlotFromDBControlPanel(CyberShakePlotControlPanelAPI app) {
@@ -243,7 +246,7 @@ public class CyberShakePlotFromDBControlPanel
    * site for which deterministic calculations can be done.
    */
   private void initSrcIndexParam(){
-    ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite);
+    ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite, erfID);
     selectedSrcId = ((Integer)srcIdList.get(0));
     int size = srcIdList.size();
     for(int i=0;i<size;++i)
@@ -258,7 +261,7 @@ public class CyberShakePlotFromDBControlPanel
    * site for which deterministic calculations can be done.
    */
   private void initRupIndexParam(){
-	 ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite, selectedSrcId);
+	 ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite, erfID, selectedSrcId);
 	 int size = rupIdList.size();
 	 for(int i=0;i<size;++i)
 	     rupIdList.set(i, ""+rupIdList.get(i));
@@ -307,7 +310,7 @@ public class CyberShakePlotFromDBControlPanel
    */
   private DiscretizedFuncAPI getHazardData(ArrayList imlVals) throws RuntimeException{
     DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite,
-    		                            Frankel02_AdjustableEqkRupForecast.NAME, saPeriod);
+    		                            Frankel02_AdjustableEqkRupForecast.NAME, sgtVariationID, rupVarScenID, saPeriod);
  
     return cyberShakeHazardData;
   }
@@ -321,7 +324,7 @@ public class CyberShakePlotFromDBControlPanel
   private DiscretizedFuncAPI getDeterministicData(ArrayList imlVals) throws
       RuntimeException {
     DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite,
-    		                                      Frankel02_AdjustableEqkRupForecast.NAME, selectedSrcId,
+    		                                      Frankel02_AdjustableEqkRupForecast.NAME, sgtVariationID, rupVarScenID, selectedSrcId,
     		                                      selectedRupId, saPeriod);
 
     return cyberShakeDeterminicticHazardCurve;
