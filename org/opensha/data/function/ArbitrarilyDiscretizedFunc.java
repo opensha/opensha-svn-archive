@@ -745,6 +745,21 @@ if(debug) {
       points.clear();
     }
 
+    public double[] getXVals() {
+		double[] d = new double[points.size()];
+		for (int i = 0; i < points.size(); ++i) {
+			d[i] = getX(i);
+		}
+		return d;
+	}
+
+	public double[] getYVals() {
+		double[] d = new double[points.size()];
+		for (int i = 0; i < points.size(); ++i) {
+			d[i] = getY(i);
+		}
+		return d;
+	}
     /*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {
 
