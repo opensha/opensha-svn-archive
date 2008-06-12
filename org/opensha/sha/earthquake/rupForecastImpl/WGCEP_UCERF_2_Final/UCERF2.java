@@ -33,8 +33,6 @@ import org.opensha.data.region.GeographicRegion;
 import org.opensha.exceptions.FaultException;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
@@ -48,6 +46,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.Event
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.NonCA_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegmentTimeDepData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.UCERF1MfdReader;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.fault.FaultTrace;
@@ -150,11 +149,11 @@ public class UCERF2 extends EqkRupForecast {
 	private StringParameter floaterTypeParam;
 	
 	// rate for M>=5
-	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
+	public final static String TOT_MAG_RATE_PARAM_NAME = "Total Mï¿½5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.6);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
+	private final static String TOT_MAG_RATE_INFO = "Total rate of Mï¿½5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 
 	// Aftershock/Foreshock Fraction
@@ -183,7 +182,7 @@ public class UCERF2 extends EqkRupForecast {
 	public final static String DEFORMATION_MODEL_PARAM_NAME = "Deformation Model";
 	private final static String DEFORMATION_MODEL_PARAM_INFO = "D2.1 to D2.3 use Fault Model 2.1, and D2.4 to D2.6 use Fault Model 2.2";
 	private StringParameter deformationModelsParam;
-	private DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelSummaryFinal deformationModelSummaryFinal = new DeformationModelSummaryFinal();
 	private ArrayList<DeformationModelSummary> deformationModelSummariesList;
 
 	// aseismic factor interpolated
@@ -573,7 +572,7 @@ public class UCERF2 extends EqkRupForecast {
 
 
 		// deformation model param
-		deformationModelSummariesList = this.deformationModelSummaryDB_DAO.getAllDeformationModels();
+		deformationModelSummariesList = this.deformationModelSummaryFinal.getAllDeformationModels();
 		// make a list of deformation model names
 		ArrayList deformationModelNames = new ArrayList();
 		for(int i=0; i<deformationModelSummariesList.size(); ++i) {
@@ -946,7 +945,7 @@ public class UCERF2 extends EqkRupForecast {
 	 */
 	private void  makeBackgroundGridSources() {
 
-		// get the total rate of M³5 events & b-value
+		// get the total rate of Mï¿½5 events & b-value
 		double rate = ((Double)totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
 

@@ -19,17 +19,12 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.ValueWeight;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
-import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.util.FileUtils;
 
 /**
@@ -51,7 +46,7 @@ public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializab
 	public final static String MIN_RATE_RUP_MODEL = "Min Rate Model";
 	public final static String MAX_RATE_RUP_MODEL = "Max Rate Model";
 	public final static String GEOL_INSIGHT_RUP_MODEL = "Geol Insight Solution";
-	private PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
+	private PrefFaultSectionDataFinal faultSectionPrefDataFinal = new PrefFaultSectionDataFinal();
 	private final static String A_FAULT_SEGMENTS_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/SegmentModels.txt";
 	private final static String UNSEGMENTED_MODEL = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/A_FaultUnsegmentedModels.txt";
 
@@ -284,7 +279,7 @@ public class A_FaultsFetcher extends FaultsFetcher implements java.io.Serializab
 		double minDist = Double.MAX_VALUE, dist;
 		FaultSectionPrefData closestFaultSection=null;
 		for(int i=0; i<faultSectionIdList.size(); ++i) {
-			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDAO.getFaultSectionPrefData(faultSectionIdList.get(i));
+			FaultSectionPrefData  prefFaultSectionData = faultSectionPrefDataFinal.getFaultSectionPrefData(faultSectionIdList.get(i));
 			//System.out.println(faultSectionIdList.get(i));
 			dist  = prefFaultSectionData.getFaultTrace().getMinHorzDistToLine(loc);
 			//System.out.println(prefFaultSectionData.getSectionId()+":"+dist);

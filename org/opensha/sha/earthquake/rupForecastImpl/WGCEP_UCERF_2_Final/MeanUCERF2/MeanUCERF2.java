@@ -23,8 +23,6 @@ import org.opensha.data.ValueWeight;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkSourceAPI;
@@ -39,6 +37,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults.A
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.analysis.ParamOptions;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.NonCA_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.magdist.*;
@@ -136,7 +135,8 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	private NSHMP_GridSourceGenerator nshmp_gridSrcGen = new NSHMP_GridSourceGenerator();
 	private UCERF2 ucerf2 = new UCERF2();
-	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+//	private DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+	private DeformationModelSummaryFinal defModelSummaryFinal = new DeformationModelSummaryFinal();
 	private NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
 
 	// whether we need to calculate MFDs for verification purposes
@@ -496,9 +496,9 @@ public class MeanUCERF2 extends EqkRupForecast {
 		aFaultUnsegmentedSources = new ArrayList<UnsegmentedSource>();
 		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
 		// get deformation model summaries
-		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
-		DeformationModelSummary defModelSummary2_2 = defModelSummaryDAO.getDeformationModel("D2.2");
-		DeformationModelSummary defModelSummary2_3 = defModelSummaryDAO.getDeformationModel("D2.3");
+		DeformationModelSummary defModelSummary2_1 = defModelSummaryFinal.getDeformationModel("D2.1");
+		DeformationModelSummary defModelSummary2_2 = defModelSummaryFinal.getDeformationModel("D2.2");
+		DeformationModelSummary defModelSummary2_3 = defModelSummaryFinal.getDeformationModel("D2.3");
 		
 		double wt = 0.5;
 		aFaultsFetcher.setDeformationModel(defModelSummary2_1, true);
@@ -599,7 +599,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 		
 		A_FaultsFetcher aFaultsFetcher = ucerf2.getA_FaultsFetcher();
-		DeformationModelSummary defModelSummary = defModelSummaryDAO.getDeformationModel((String)ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).getValue());
+		DeformationModelSummary defModelSummary = defModelSummaryFinal.getDeformationModel((String)ucerf2.getParameter(UCERF2.DEFORMATION_MODEL_PARAM_NAME).getValue());
 		aFaultsFetcher.setDeformationModel(defModelSummary, false);
 		
 		// this gets a list of FaultSegmentData objects (one for each A fault, and for the deformation model previously set)

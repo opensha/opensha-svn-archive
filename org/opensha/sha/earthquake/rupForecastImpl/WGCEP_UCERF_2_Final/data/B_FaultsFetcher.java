@@ -10,11 +10,11 @@ import java.util.Iterator;
 
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.PrefFaultSectionDataFinal;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.surface.StirlingGriddedSurface;
@@ -47,8 +47,8 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 	 */
 	public B_FaultsFetcher() {
 		// cache the PrefFaultSectionData
-		 PrefFaultSectionDataDB_DAO faultSectionPrefDAO = new PrefFaultSectionDataDB_DAO(DB_AccessAPI.dbConnection);
-		 faultSectionPrefDAO.getAllFaultSectionPrefData();
+		 PrefFaultSectionDataFinal faultSectionPrefDataFinal = new PrefFaultSectionDataFinal();
+		 faultSectionPrefDataFinal.getAllFaultSectionPrefData();
 	}
 
 	/**

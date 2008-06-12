@@ -5,12 +5,11 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF
 
 import java.util.ArrayList;
 
-import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.A_FaultsFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.B_FaultsFetcher;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 
 /**
  * This class gets B-Faults for Mean UCERF ERF.
@@ -32,7 +31,8 @@ public class B_FaultsFetcherForMeanUCERF {
 	public B_FaultsFetcherForMeanUCERF(A_FaultsFetcher aFaultsFetcher, boolean isAseisReducesArea) {
 		
 		// get deformation model summaries
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+//		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryFinal defModelSummaryDAO = new DeformationModelSummaryFinal();
 		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
 		DeformationModelSummary defModelSummary2_2 = defModelSummaryDAO.getDeformationModel("D2.4");
 
@@ -246,7 +246,8 @@ public class B_FaultsFetcherForMeanUCERF {
 	 */
 	public static void main(String[] args) {
 		A_FaultsFetcher aFaultsFetcher = new A_FaultsFetcher();
-		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+//		DeformationModelSummaryDB_DAO defModelSummaryDAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
+		DeformationModelSummaryFinal defModelSummaryDAO = new DeformationModelSummaryFinal();
 		DeformationModelSummary defModelSummary2_1 = defModelSummaryDAO.getDeformationModel("D2.1");
 		aFaultsFetcher.setDeformationModel(defModelSummary2_1, false);
 		
