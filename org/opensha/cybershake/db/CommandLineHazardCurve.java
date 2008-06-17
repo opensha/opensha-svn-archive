@@ -45,9 +45,9 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 	private static final DBAccess db = new DBAccess(HOSTNAME,DB_NAME); 
 	
 	public static void main(String[] args) {
-		if (args.length<1) {
+		if (args.length<3) {
 			System.out.println("Usage:  java CommandLineHazardCurve <site> <sgt_variation_id> <rup_var_scenario_id>");
-			return;
+			System.exit(1);
 		}
 		String siteName = args[0];
 		int sgtVariationID = Integer.parseInt(args[1]);

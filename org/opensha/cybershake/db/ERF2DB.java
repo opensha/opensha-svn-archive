@@ -28,6 +28,38 @@ public  class ERF2DB implements ERF2DBAPI{
 	}
 	
 	/**
+	 * Get a list of all ERFs in the database
+	 * @return
+	 */
+	public ArrayList<CybershakeERF> getAllERFs() {
+		ArrayList<CybershakeERF> erfs = new ArrayList<CybershakeERF>();
+
+		String sql = "SELECT ERF_ID,ERF_Name,ERF_Description from ERF_IDs order by ERF_ID desc";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				int id = rs.getInt("ERF_ID");
+				String name = rs.getString("ERF_Name");
+				String desc = rs.getString("ERF_Description");
+				erfs.add(new CybershakeERF(id, name, desc));
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+
+		return erfs;
+	}
+	
+	/**
 	 * Inserts ERF Parameters info in the "ERF_Metadata"
 	 * @param erfId
 	 * @param attrName
@@ -464,5 +496,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	  public EqkRupForecastAPI getERF_Instance(){
 		  return this.eqkRupForecast;
 	  }
+	  
+	  
 	
 }

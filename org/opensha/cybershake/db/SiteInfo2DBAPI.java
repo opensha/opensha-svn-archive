@@ -130,5 +130,18 @@ public interface SiteInfo2DBAPI {
 	 * @returns the Location for the given cybershake site location
 	 */
 	public Location getLocationForSite(String site);
+	
+	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(String shortName);
+	
+	/**
+	 * Gets all CybershakeSite's from the Database
+	 * @return
+	 */
+	public ArrayList<CybershakeSite> getAllSitesFromDB();
 
 }

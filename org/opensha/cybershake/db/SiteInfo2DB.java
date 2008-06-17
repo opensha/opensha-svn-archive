@@ -376,6 +376,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		int siteId = this.getSiteId(siteShortName);
 		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"' and ERF_ID = '" + erf_id + "' " +
 		             " group by Source_ID order by Source_ID asc";
+		System.out.println(sql);
 		ArrayList<Integer> srcIdList = new ArrayList<Integer>();
 		ResultSet rs = null;
 		try {
@@ -423,6 +424,78 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 				e.printStackTrace();
 			}
 		 return loc;
+	}
+	
+	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(String shortName) {
+		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Short_Name = '"+shortName+"'";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+		try {
+			rs.first();
+			double lat = rs.getDouble("CS_Site_Lat");	
+			double lon = rs.getDouble("CS_Site_Lon");
+			int id = rs.getInt("CS_Site_ID");
+			String longName = rs.getString("CS_Site_Name");
+			rs.close();
+
+			CybershakeSite site = new CybershakeSite(id, lat, lon, longName, shortName);
+			return site;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Gets all CybershakeSite's from the Database
+	 * @return
+	 */
+	public ArrayList<CybershakeSite> getAllSitesFromDB() {
+		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites";
+		ResultSet rs = null;
+		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			rs.first();
+			double lat = rs.getDouble("CS_Site_Lat");	
+			double lon = rs.getDouble("CS_Site_Lon");
+			int id = rs.getInt("CS_Site_ID");
+			String longName = rs.getString("CS_Site_Name");
+			String shortName = rs.getString("CS_Short_Name");
+
+			sites.add(new CybershakeSite(id, lat, lon, longName, shortName));
+			while (rs.next()) {
+				lat = rs.getDouble("CS_Site_Lat");	
+				lon = rs.getDouble("CS_Site_Lon");
+				id = rs.getInt("CS_Site_ID");
+				longName = rs.getString("CS_Site_Name");
+				shortName = rs.getString("CS_Short_Name");
+				
+				sites.add(new CybershakeSite(id, lat, lon, longName, shortName));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return sites;
 	}
 	
 	/**

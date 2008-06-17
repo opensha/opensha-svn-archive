@@ -1,10 +1,18 @@
 package org.opensha.cybershake.db;
 
+import java.util.ArrayList;
+
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 
 public interface ERF2DBAPI {
 	
+	
+	/**
+	 * Get a list of all ERFs in the database
+	 * @return
+	 */
+	public ArrayList<CybershakeERF> getAllERFs();
 	
 	/**
 	 * Inserts the ERF parameters info in the table "ERF_Metadata"

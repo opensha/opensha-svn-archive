@@ -1,35 +1,50 @@
 package org.opensha.sha.gui.controls;
 
-import java.awt.*;
-import javax.swing.*;
-import java.net.URL;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.net.URLConnection;
-import java.util.*;
-
-
-import org.opensha.param.editor.*;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
-import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import org.opensha.cybershake.db.CybershakeERF;
+import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.cybershake.db.DBAccess;
+import org.opensha.cybershake.db.ERF2DB;
+import org.opensha.cybershake.db.ERF2DBAPI;
 import org.opensha.cybershake.db.HazardCurveComputation;
-import org.opensha.cybershake.db.NSHMP2002_ToDB;
-import org.opensha.cybershake.db.SiteInfo2DBAPI;
+import org.opensha.cybershake.db.PeakAmplitudesFromDBAPI;
 import org.opensha.data.Location;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.sha.gui.beans.*;
-import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import java.lang.reflect.*;
+import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.param.DoubleDiscreteParameter;
+import org.opensha.param.ParameterList;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-
-import java.text.DecimalFormat;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
+import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: CyberShakePlotFromDBControlPanel </p>
@@ -40,35 +55,57 @@ import java.text.DecimalFormat;
  *
  * @author Nitin Gupta
  * @since March 7,2006
- * @version 1.0 
+ * @version 1.0
  */
 public class CyberShakePlotFromDBControlPanel
-    extends JFrame implements ParameterChangeListener{
+    extends JFrame implements ParameterChangeListener {
+	
+	public static final String ERF_NAME = MeanUCERF2.NAME;
 
 
   private static final boolean D = false;
   public static final String SITE_SELECTOR_PARAM = "CyberShake Site";
+  public static final String ERF_SELECTOR_PARAM = "Earthquake Rupture Forecast";
   public static final String SA_PERIOD_SELECTOR_PARAM = "SA Period";
   public static final String SRC_INDEX_PARAM = "Source Index";
   public static final String RUP_INDEX_PARAM = "Rupture Index";
+  public static final String SGT_VAR_PARAM = "SGT Variation ID";
+  public static final String RUP_VAR_SCENARIO_PARAM = "Rupture Variation Scenario ID";
 
   private static final String DETER_PROB_SELECTOR_PARAM = "Curve Type";
   private static final String PROB_CURVE = "Probabilistic Curve";
   private static final String DETER_CURVE = "Deterministic Curve";
+  
+  private static final String NONE_AVAILABLE_STRING = "None Available";
 
   JPanel guiPanel = new JPanel();
   JButton submitButton = new JButton();
   JButton paramSettingButton = new JButton();
   JLabel controlPanelLabel = new JLabel();
   BorderLayout borderLayout1 = new BorderLayout();
+  
+  int selectedSGTVariation = 5;
+  int selectedRupVarScenario = 3;
+  
+  CalcProgressBar calcProgress = null;
 
   //Curve type selector param
   private StringParameter curveTypeSelectorParam;
 
   //Site selection param
   private StringParameter siteSelectionParam;
+  
+  //source index parameter
+  private StringParameter sgtVarParam;
+
+  //rupture index parameter
+  private StringParameter rupVarScenarioParam;
+  
   //SA Period selection param
   private StringParameter saPeriodParam;
+  
+  //SA Period selection param
+  private StringParameter erfParam;
 
   //source index parameter
   private StringParameter srcIndexParam;
@@ -98,23 +135,26 @@ public class CyberShakePlotFromDBControlPanel
    */
   private CybershakeSiteInfo2DB csSites = new CybershakeSiteInfo2DB(db);
   
-  /**
-   * Handle to NSHMP 2002 ERF in DB
-   */
-  private NSHMP2002_ToDB erfDb = new NSHMP2002_ToDB(db);
+  private ERF2DBAPI erf2db = new ERF2DB(db);
   
   private HazardCurveComputation hazCurve = new HazardCurveComputation(db);
+  PeakAmplitudesFromDBAPI peakAmps2DB = hazCurve.getPeakAmpsAccessor();
   
   //current selection of site, srcId and rupId from the cyberShake database
-  private String selectedSite;
+  private CybershakeSite selectedSite;
+  private CybershakeERF selectedERF;
   private int selectedSrcId,selectedRupId;
   private String saPeriod;
-  private int sgtVariationID = 5;
-  private int rupVarScenID = 3;
-  private int erfID = 34;
+  
+  ArrayList<CybershakeSite> sites;
+  ArrayList<String> siteNames;
+  
+  ArrayList<CybershakeERF> erfs;
+  ArrayList<String> erfNames;
 
 
   public CyberShakePlotFromDBControlPanel(CyberShakePlotControlPanelAPI app) {
+	  this.setTitle("Plot CyberShake Data");
     application = app;
     try {
       jbInit();
@@ -127,13 +167,14 @@ public class CyberShakePlotFromDBControlPanel
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY());
+//    hazCurve.addProgressListener(this);
   }
 
   private void jbInit() throws Exception {
     getContentPane().setLayout(borderLayout1);
     guiPanel.setLayout(gridBagLayout1);
-    submitButton.setText("OK");
-    paramSettingButton.setText("Set Pathway-1 params");
+    submitButton.setText("Plot Curve");
+    paramSettingButton.setText("Set ERF Params in App for Comparison");
     paramSettingButton.setToolTipText("Sets the same parameters in the Pathway-1\n "+
         "application as in Cybershake calculations.");
     controlPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -176,7 +217,11 @@ public class CyberShakePlotFromDBControlPanel
    * hazard curve needs to be plotted.
    */
   private void initCyberShakeControlPanel(){
-    ArrayList siteList  = this.csSites.getCS_SitesList();
+    sites = this.csSites.getAllSitesFromDB();
+    siteNames = new ArrayList<String>();
+    for (CybershakeSite site : sites) {
+    	siteNames.add(site.id + ". " + site.name + " (" + site.short_name + ")");
+    }
   
 
     ArrayList supportedCurvesType = new ArrayList();
@@ -189,19 +234,36 @@ public class CyberShakePlotFromDBControlPanel
                                                  supportedCurvesType.get(0));
 
     paramList = new ParameterList();
+    
+    // erf param
+    erfs = erf2db.getAllERFs();
+    erfNames = new ArrayList<String>();
+    for (CybershakeERF erf : erfs) {
+    	erfNames.add(erf.id + ": " + erf.description);
+    }
+    erfParam = new StringParameter(ERF_SELECTOR_PARAM, erfNames, erfNames.get(0));
+    erfParam.addParameterChangeListener(this);
+    selectedERF = erfs.get(0);
+    
+    // sgt variations
+    initSGTVarIDsParam();
+    initRupVarScenarioIDsParam();
+    
+    
+    //rupVarScenarioIDs
 
     siteSelectionParam = new StringParameter(SITE_SELECTOR_PARAM,
-                                             siteList,(String)siteList.get(0));
-    initSA_PeriodParam();
+    		siteNames,siteNames.get(0));
+    selectedSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue()));
+    loadSA_PeriodParam();
     this.saPeriod = (String)saPeriodParam.getValue();
-    selectedSite = (String)siteSelectionParam.getValue();
     initSrcIndexParam();
-    String srcId = (String)this.srcIndexParam.getValue();
-    selectedSrcId = Integer.parseInt(srcId);
     initRupIndexParam();
-    selectedRupId = Integer.parseInt((String)this.rupIndexParam.getValue());
     paramList.addParameter(curveTypeSelectorParam);
     paramList.addParameter(siteSelectionParam);
+    paramList.addParameter(erfParam);
+    paramList.addParameter(sgtVarParam);
+    paramList.addParameter(rupVarScenarioParam);
     paramList.addParameter(saPeriodParam);
     paramList.addParameter(srcIndexParam);
     paramList.addParameter(rupIndexParam);
@@ -217,11 +279,29 @@ public class CyberShakePlotFromDBControlPanel
    * Creates the SA Period Parameter which allows the user to select the
    * SA Period for a given site for which hazard data needs to be plotted.
    */
-  private void initSA_PeriodParam(){
-    String siteName = (String)siteSelectionParam.getValue();
-    ArrayList<String> saPeriods = hazCurve.getSupportedSA_PeriodStrings();
+  private void loadSA_PeriodParam(){
+    ArrayList<String> saPeriods = new ArrayList<String>();
+    
+//    saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+    
+    // TEMPORARY HACK UNTIL PERIODS GET CHANGED ON NEW SERVER
+    if (this.selectedERF.id == 34) {
+    	saPeriods.add("SA_Period_2.0");
+    	saPeriods.add("SA_Period_3.00003");
+    	saPeriods.add("SA_Period_5.0");
+    	saPeriods.add("SA_Period_10.0");
+
+    } else {
+    	saPeriods = hazCurve.getSupportedSA_PeriodStrings();
+    }
+    
+//    if (saPeriods.size() == 0) {
+//    	System.out.println("No periods for these settings!");
+//    	saPeriods.add(NONE_AVAILABLE_STRING);
+//    }
+    saPeriod = saPeriods.get(0);
     saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
-        saPeriods,saPeriods.get(0));
+        saPeriods,saPeriod);
     saPeriodParam.addParameterChangeListener(this);
   }
 
@@ -240,13 +320,34 @@ public class CyberShakePlotFromDBControlPanel
     listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
     listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
   }
+  
+  private void initSGTVarIDsParam() {
+	  ArrayList<Integer> ids = peakAmps2DB.getSGTVarIDs();
+	  ArrayList<String> vals = new ArrayList<String>();
+	  for (int val : ids) {
+		  vals.add(val + "");
+	  }
+	  sgtVarParam = new StringParameter(SGT_VAR_PARAM, vals, vals.get(0));
+	  sgtVarParam.addParameterChangeListener(this);
+  }
+  
+  private void initRupVarScenarioIDsParam() {
+	  ArrayList<Integer> ids = peakAmps2DB.getRupVarScenarioIDs();
+	  ArrayList<String> vals = new ArrayList<String>();
+	  for (int val : ids) {
+		  vals.add(val + "");
+	  }
+	  rupVarScenarioParam = new StringParameter(RUP_VAR_SCENARIO_PARAM, vals, vals.get(0));
+	  rupVarScenarioParam.addParameterChangeListener(this);
+  }
 
   /**
    * Creates the Src Id selection parameter displaying all the src ids for a given Cybershake
    * site for which deterministic calculations can be done.
    */
   private void initSrcIndexParam(){
-    ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite, erfID);
+	  System.out.println("Updating SRC Indices with ERF ID="+selectedERF.id);
+    ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite.short_name, selectedERF.id);
     selectedSrcId = ((Integer)srcIdList.get(0));
     int size = srcIdList.size();
     for(int i=0;i<size;++i)
@@ -261,12 +362,22 @@ public class CyberShakePlotFromDBControlPanel
    * site for which deterministic calculations can be done.
    */
   private void initRupIndexParam(){
-	 ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite, erfID, selectedSrcId);
+	  System.out.println("Updating Rup Indices with ERF ID="+selectedERF.id);
+	 ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite.short_name, selectedERF.id, selectedSrcId);
 	 int size = rupIdList.size();
 	 for(int i=0;i<size;++i)
 	     rupIdList.set(i, ""+rupIdList.get(i));
 	 rupIndexParam = new StringParameter(RUP_INDEX_PARAM,rupIdList,(String)rupIdList.get(0));   
 	 rupIndexParam.addParameterChangeListener(this);
+  }
+  
+  private void reloadParams() {
+	  initSrcIndexParam();
+      initRupIndexParam();
+      this.loadSA_PeriodParam();
+      listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam);
+      listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
+      listEditor.replaceParameterForEditor(RUP_INDEX_PARAM,rupIndexParam);
   }
 
   /**
@@ -276,28 +387,39 @@ public class CyberShakePlotFromDBControlPanel
   public void parameterChange (ParameterChangeEvent e){
     String paramName = e.getParameterName();
     if(paramName.equals(SITE_SELECTOR_PARAM)){
-      selectedSite = (String)siteSelectionParam.getValue();
+    	selectedSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue()));
+//      selectedSite = (String)siteSelectionParam.getValue();
       //initSA_PeriodParam();
-      initSrcIndexParam();
-      initRupIndexParam();
-      listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );
-      listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
-      listEditor.replaceParameterForEditor(RUP_INDEX_PARAM,rupIndexParam);
+      this.reloadParams();
+    } else if (paramName.equals(ERF_SELECTOR_PARAM)) {
+    	selectedERF = erfs.get(erfNames.indexOf((String)erfParam.getValue()));
+    	this.reloadParams();
+    } else if (paramName.equals(SGT_VAR_PARAM)) {
+    	selectedSGTVariation = Integer.parseInt((String)sgtVarParam.getValue());
+    	this.reloadParams();
+    } else if (paramName.equals(RUP_VAR_SCENARIO_PARAM)) {
+    	selectedRupVarScenario = Integer.parseInt((String)rupVarScenarioParam.getValue());
+    	this.reloadParams();
     }
-    else if(paramName.equals(this.SRC_INDEX_PARAM)){
+    else if(paramName.equals(SRC_INDEX_PARAM)){
     	String srcId = (String)this.srcIndexParam.getValue();
         selectedSrcId = Integer.parseInt(srcId);
         initRupIndexParam();
         listEditor.replaceParameterForEditor(RUP_INDEX_PARAM,rupIndexParam);
     }
-    else if(paramName.equals(this.RUP_INDEX_PARAM))
+    else if(paramName.equals(RUP_INDEX_PARAM))
     	selectedRupId = Integer.parseInt((String)this.rupIndexParam.getValue());
     else if(paramName.equals(SA_PERIOD_SELECTOR_PARAM)){
     	saPeriod = (String)saPeriodParam.getValue();
     	System.out.println("SA Period = "+saPeriod);
     }
-    else if(paramName.equals(DETER_PROB_SELECTOR_PARAM))
-      this.makeParamVisible();
+    else if(paramName.equals(DETER_PROB_SELECTOR_PARAM)) {
+    	initSrcIndexParam();
+        initRupIndexParam();
+        listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
+        listEditor.replaceParameterForEditor(RUP_INDEX_PARAM,rupIndexParam);
+        this.makeParamVisible();
+    }
 
     listEditor.refreshParamEditor();
   }
@@ -308,9 +430,10 @@ public class CyberShakePlotFromDBControlPanel
    * @return ArrayList Hazard Data
    * @throws RuntimeException
    */
-  private DiscretizedFuncAPI getHazardData(ArrayList imlVals) throws RuntimeException{
-    DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite,
-    		                            Frankel02_AdjustableEqkRupForecast.NAME, sgtVariationID, rupVarScenID, saPeriod);
+  private DiscretizedFuncAPI getHazardData(ArrayList imlVals) {
+	  System.out.println("Computing a hazard curve for " + selectedSite);
+    DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite.short_name,
+    		this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, saPeriod);
  
     return cyberShakeHazardData;
   }
@@ -323,9 +446,9 @@ public class CyberShakePlotFromDBControlPanel
    */
   private DiscretizedFuncAPI getDeterministicData(ArrayList imlVals) throws
       RuntimeException {
-    DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite,
-    		                                      Frankel02_AdjustableEqkRupForecast.NAME, sgtVariationID, rupVarScenID, selectedSrcId,
-    		                                      selectedRupId, saPeriod);
+    DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite.short_name,
+    		this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario,
+    		                                      selectedSrcId, selectedRupId, saPeriod);
 
     return cyberShakeDeterminicticHazardCurve;
   }
@@ -355,29 +478,39 @@ public class CyberShakePlotFromDBControlPanel
    * @param actionEvent ActionEvent
    */
   private void submitButton_actionPerformed(ActionEvent actionEvent) {
-    ArrayList imlVals = application.getIML_Values();
-    DiscretizedFuncAPI curveData = null;
+	  ArrayList imlVals = application.getIML_Values();
+	  DiscretizedFuncAPI curveData = null;
 
-    if(isDeterministic){
-      curveData = getDeterministicData(imlVals);
-      String name = "Cybershake deterministic curve";
-      String infoString = "Site = "+ selectedSite+
-          "; SA-Period = "+saPeriod+"; SourceIndex = "+selectedSrcId+
-          "; RuptureIndex = "+selectedRupId;
-      curveData.setName(name);
-      curveData.setInfo(infoString);
-      application.addCybershakeCurveData(curveData);
-    }
-    else{
-      curveData = this.getHazardData(imlVals);
-      String name = "Cybershake hazard curve";
-      String infoString = "Site = "+ selectedSite+
-          "; SA-Period = "+saPeriod;
-      curveData.setName(name);
-      curveData.setInfo(infoString);
-      application.addCybershakeCurveData(curveData);
+	  if(isDeterministic){
+		  curveData = getDeterministicData(imlVals);
+		  String name = "Cybershake deterministic curve";
+		  String infoString = "Site = "+ selectedSite+
+		  "; SA-Period = "+saPeriod+"; SourceIndex = "+selectedSrcId+
+		  "; RuptureIndex = "+selectedRupId;
+		  curveData.setName(name);
+		  curveData.setInfo(infoString);
+		  application.addCybershakeCurveData(curveData);
+	  }
+	  else{
+//		  if (calcProgress == null)
+//			  calcProgress = new CalcProgressBar("CyberShake Calculation Progress", "Source");
+//		  calcProgress.setVisible(true);
+//		  calcProgress.displayProgressBar();
+		  curveData = this.getHazardData(imlVals);
+//		  calcProgress.setVisible(false);
+		  if (curveData == null) {
+			  JOptionPane.showMessageDialog(this,
+              "There are no Peak Amplitudes in the database for the selected paremters.\n ");
+			  return;
+		  }
+		  String name = "Cybershake hazard curve";
+		  String infoString = "Site = "+ selectedSite+
+		  "; SA-Period = "+saPeriod;
+		  curveData.setName(name);
+		  curveData.setInfo(infoString);
+		  application.addCybershakeCurveData(curveData);
 
-    }
+	  }
   }
 
 
@@ -387,7 +520,7 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void setSiteParams(){
     Site_GuiBean site = application.getSiteGuiBeanInstance();
-    String cyberShakeSite = (String)siteSelectionParam.getValue();
+    String cyberShakeSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue())).name;
     Location loc = csSites.getCyberShakeSiteLocation(cyberShakeSite);
     site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(loc.getLatitude()));
     site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(loc.getLongitude()));
@@ -400,13 +533,13 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void setEqkRupForecastParams(){
     ERF_GuiBean gui = application.getEqkRupForecastGuiBeanInstance();
-    gui.getERFParameterListEditor().getParameterEditor(gui.ERF_PARAM_NAME).setValue(Frankel02_AdjustableEqkRupForecast.NAME);
-    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
-    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+    ParameterListEditor editorList = gui.getERFParameterListEditor();
+    gui.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(selectedERF.name);
+    gui.getERFParameterListEditor().refreshParamEditor();
+    gui.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
+    gui.getParameter(MeanUCERF2.RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+    gui.getParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME).setValue(new Boolean(true));
+    gui.getParameter(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 
     TimeSpanGuiBean timespan = gui.getSelectedERFTimespanGuiBean();
     timespan.getTimeSpan().setDuration(1.0);
@@ -427,15 +560,14 @@ public class CyberShakePlotFromDBControlPanel
     EqkRuptureFromERFSelectorPanel rupGuiBean = (EqkRuptureFromERFSelectorPanel)erfRupSelGuiBean;
     rupGuiBean.showAllParamsForForecast(false);
     rupGuiBean.getParameterListEditor().getParameterEditor(rupGuiBean.ERF_PARAM_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.NAME);
+        setValue(ERF_NAME);
     ERF_GuiBean erfGuiBean = rupGuiBean.getERF_ParamEditor();
-
-    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
-    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
-    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
-        RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+    ParameterListEditor editorList = erfGuiBean.getERFParameterListEditor();
+    editorList.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(ERF_NAME);
+    editorList.getParameterEditor(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
+    editorList.getParameterEditor(MeanUCERF2.RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+    editorList.getParameterEditor(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME).setValue(new Boolean(true));
+    editorList.getParameterEditor(UCERF2.PROB_MODEL_PARAM_NAME).setValue(UCERF2.PROB_MODEL_POISSON);
 
     TimeSpanGuiBean timespan = erfGuiBean.getSelectedERFTimespanGuiBean();
     timespan.getTimeSpan().setDuration(1.0);
@@ -523,5 +655,22 @@ public class CyberShakePlotFromDBControlPanel
     function.set(2.13, 1);
     return function;
   }
+
+public void setProgressIndeterminate(boolean indeterminate) {
+	if (calcProgress != null)
+		calcProgress.setProgressIndeterminate(indeterminate);
+}
+
+public void setProgressMessage(String message) {
+	if (calcProgress != null)
+		calcProgress.setProgressMessage(message);
+}
+
+public void setProgress(int currentIndex, int total) {
+	if (calcProgress != null) {
+		System.out.println("Updating progress: " + currentIndex + " " + total);
+		calcProgress.updateProgress(currentIndex, total);
+	}
+}
 
 }

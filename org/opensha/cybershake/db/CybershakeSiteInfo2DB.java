@@ -380,8 +380,8 @@ public class CybershakeSiteInfo2DB {
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
-	public ArrayList<Integer> getSrcIDsForSite(String csSiteName, int erfId){
-		return site2db.getSrcIdsForSite(csSiteName, erfId);
+	public ArrayList<Integer> getSrcIDsForSite(String csSiteName, int erfID){;
+		return site2db.getSrcIdsForSite(csSiteName, erfID);
 	}
 	
 	/**
@@ -390,7 +390,7 @@ public class CybershakeSiteInfo2DB {
 	 * @param srcId
 	 * @returns the list of rupture ids 
 	 */
-	public ArrayList<Integer> getRupIDsForSite(String csSiteName,int erfID, int srcID){
+	public ArrayList<Integer> getRupIDsForSite(String csSiteName, int erfID, int srcID){
 		return site2db.getRupIdsForSite(csSiteName, erfID, srcID);
 	}
 	
@@ -402,6 +402,23 @@ public class CybershakeSiteInfo2DB {
 	 */
 	public Location getCyberShakeSiteLocation(String csSiteName){
 		return site2db.getLocationForSite(csSiteName);
+	}
+	
+	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(String shortName) {
+		return site2db.getSiteFromDB(shortName);
+	}
+	
+	/**
+	 * Gets all CybershakeSite's from the Database
+	 * @return
+	 */
+	public ArrayList<CybershakeSite> getAllSitesFromDB() {
+		return site2db.getAllSitesFromDB();
 	}
 	
 

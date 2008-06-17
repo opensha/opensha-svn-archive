@@ -149,11 +149,11 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @param erfId
 	 * @param siteDB object
 	 */
-	private void putSiteListInfoInDB(ArrayList<SiteInsert> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB){
+	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB){
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
-		for (SiteInsert newsite : sites) {
+		for (CybershakeSite newsite : sites) {
 			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
 			System.out.println("Putting location into DB");
 			int siteId= siteDB.putCybershakeLocationInDB(newsite.name, newsite.short_name, newsite.lat, newsite.lon);
@@ -169,11 +169,11 @@ public class Cybershake_OpenSHA_DBApplication {
 		}
 	}
 	
-	public void putSiteListRupsIntoDB(ArrayList<SiteInsert> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
+	public void putSiteListRupsIntoDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
-		for (SiteInsert newsite : sites) {
+		for (CybershakeSite newsite : sites) {
 			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + " %)");
 			
 			int siteId = siteDB.getCybershakeSiteId(newsite.short_name);
@@ -201,8 +201,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		return new CybershakeSiteInfo2DB(db);
 	}
 	
-	public ArrayList<SiteInsert> getSiteListFromFile(String fileName) throws FileNotFoundException, IOException {
-		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
+	public ArrayList<CybershakeSite> getSiteListFromFile(String fileName) throws FileNotFoundException, IOException {
+		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
 		
 		System.out.println("Loading sites from " + fileName);
 		
@@ -221,7 +221,7 @@ public class Cybershake_OpenSHA_DBApplication {
 			//String longName = shortName;
 			String longName = line.substring(line.indexOf(tok.nextToken()));
 			
-			SiteInsert site = new SiteInsert(lat, lon, longName, shortName);
+			CybershakeSite site = new CybershakeSite(lat, lon, longName, shortName);
 			//if (!(site.short_name.equals("PDU") || site.short_name.equals("TAB"))) {
 			if (!site.short_name.equals("PDU")) {
 				continue;
@@ -235,12 +235,12 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
-	public ArrayList<SiteInsert> getAllSites() {
+	public ArrayList<CybershakeSite> getAllSites() {
 		return this.getAllSites(0);
 	}
 	
-	public ArrayList<SiteInsert> getAllSites(int minIndex) {
-		ArrayList<SiteInsert> sites = new ArrayList<SiteInsert>();
+	public ArrayList<CybershakeSite> getAllSites(int minIndex) {
+		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
 		
 		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
 		ArrayList<String> shortNames = siteInfoDB.getAllSites();
@@ -250,7 +250,7 @@ public class Cybershake_OpenSHA_DBApplication {
 			if (siteID < minIndex)
 				continue;
 			Location loc = siteInfoDB.getLocationForSite(shortName);
-			SiteInsert site = new SiteInsert(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
+			CybershakeSite site = new CybershakeSite(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
 			sites.add(site);
 			System.out.println("New Site: " + site);
 		}
@@ -258,7 +258,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
-	public void insertNewERFWithOldSites(ArrayList<SiteInsert> sites, ERF2DB erf2db, String name, String description) {
+	public void insertNewERFWithOldSites(ArrayList<CybershakeSite> sites, ERF2DB erf2db, String name, String description) {
 		// get a new ERF-ID
 		int erfID = erf2db.insertERFId(name, description);
 		
@@ -269,7 +269,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		CybershakeSiteInfo2DB cyberSiteDB = this.getSiteInfoObject();
 		cyberSiteDB.setForceAddRuptures(true);
 		EqkRupForecastAPI erf = erf2db.getERF_Instance();
-		for (SiteInsert site : sites) {
+		for (CybershakeSite site : sites) {
 			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
 			if (site.id < 0) {
 				if (siteInfoDB == null)
@@ -282,7 +282,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public void insertNewERFForAllSites(ERF2DB erf2db, String name, String description) {
-		ArrayList<SiteInsert> sites = this.getAllSites();
+		ArrayList<CybershakeSite> sites = this.getAllSites();
 		
 //		this.insertNewERFWithOldSites(sites, cyberShakeSiteInfoDB, erf2db, name, description);
 	}

@@ -1,10 +1,12 @@
 package org.opensha.cybershake.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.util.ProgressListener;
 
 public class HazardCurveComputation {
 
@@ -14,6 +16,8 @@ public class HazardCurveComputation {
 	private ERF2DBAPI erfDB;
 	private SiteInfo2DBAPI siteDB;
 	private double CONVERSION_TO_G = 980;
+	
+	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 	
 	public HazardCurveComputation(DBAccess db){
 		peakAmplitudes = new PeakAmplitudesFromDB(db);
@@ -32,6 +36,15 @@ public class HazardCurveComputation {
 		return peakAmplitudes.getSupportedSA_PeriodList();
 	}
 	
+	/**
+	 * 
+	 * @returns the List of supported Peak amplitudes for a given site, ERF ID, SGT Var ID, and Rup Var ID
+	 */
+	public ArrayList<String> getSupportedSA_PeriodStrings(int siteID, int erfID, int sgtVariation, int rupVarID){
+		
+		return peakAmplitudes.getSupportedSA_PeriodList(siteID, erfID, sgtVariation, rupVarID);
+	}
+	
 
 	/**
 	 * Computes the Hazard Curve at the given site 
@@ -42,12 +55,10 @@ public class HazardCurveComputation {
 	 * @param rupId
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,String erfName, int sgtVariation, int rvid,
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,int erfId, int sgtVariation, int rvid,
 			                                     int srcId,int rupId,String imType){
 		
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
-		int erfId = erfDB.getInserted_ERF_ID(erfName);
-		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
 		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
@@ -70,7 +81,6 @@ public class HazardCurveComputation {
 		return hazardFunc;
 	}
 	
-	
 	/**
 	 * Computes the Hazard Curve at the given site 
 	 * @param imlVals
@@ -79,9 +89,21 @@ public class HazardCurveComputation {
 	 * @param imType
 	 */
 	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,int sgtVariation, int rvid, String imType){
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
+		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, imType);
+	}
+	
+	
+	/**
+	 * Computes the Hazard Curve at the given site 
+	 * @param imlVals
+	 * @param site
+	 * @param erfName
+	 * @param imType
+	 */
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,int erfId,int sgtVariation, int rvid, String imType){
+		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
@@ -89,6 +111,7 @@ public class HazardCurveComputation {
 		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(site, erfId);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
+			updateProgress(srcIndex, numSrcs);
 			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
 			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(site, erfId, srcId);
@@ -97,13 +120,22 @@ public class HazardCurveComputation {
 				int rupId = rupIdList.get(rupIndex);
 				double qkProb = erfDB.getRuptureProb(erfId, srcId, rupId);
 				ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
-				ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(erfId, srcId, rupId);
-				int size = rupVariations.size();
-				for(int i=0;i<size;++i){
-					int rupVarId =  rupVariations.get(i);
-					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
-					function.set(imVal/CONVERSION_TO_G,1);
+				ArrayList<Double> imVals;
+				try {
+					imVals = peakAmplitudes.getIM_Values(siteId, erfId, sgtVariation, rvid, srcId, rupId, imType);
+				} catch (SQLException e) {
+					return null;
 				}
+				for (double val : imVals) {
+					function.set(val/CONVERSION_TO_G,1);
+				}
+//				ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(erfId, srcId, rupId);
+//				int size = rupVariations.size();
+//				for(int i=0;i<size;++i){
+//					int rupVarId =  rupVariations.get(i);
+//					double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
+//					function.set(imVal/CONVERSION_TO_G,1);
+//				}
 				setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
 			}
 		}
@@ -130,5 +162,21 @@ public class HazardCurveComputation {
         return hazFunc;
     }
 
+    public PeakAmplitudesFromDBAPI getPeakAmpsAccessor() {
+    	return peakAmplitudes;
+    }
+    
+    public void addProgressListener(ProgressListener listener) {
+    	progressListeners.add(listener);
+    }
 	
+    public void removeProgressListener(ProgressListener listener) {
+    	progressListeners.remove(listener);
+    }
+    
+    private void updateProgress(int current, int total) {
+    	for (ProgressListener listener : progressListeners) {
+    		listener.setProgress(current, total);
+    	}
+    }
 }
