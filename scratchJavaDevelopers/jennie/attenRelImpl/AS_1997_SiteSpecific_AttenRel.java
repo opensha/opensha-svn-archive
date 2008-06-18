@@ -265,6 +265,7 @@ public class AS_1997_SiteSpecific_AttenRel
 	        as_1997_attenRel.SITE_TYPE_ROCK);
 	    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
 	        as_1997_attenRel.COMPONENT_AVE_HORZ);
+	    magParam.setValue(MAG_DEFAULT);
   }
   
   
