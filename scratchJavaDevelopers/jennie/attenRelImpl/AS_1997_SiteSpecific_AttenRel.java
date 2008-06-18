@@ -10,6 +10,7 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.param.DistanceRupParameter;
 
 /**
  * <b>Title:</b> AS_1997_SiteSpecific_AttenRel<p>
@@ -58,6 +59,10 @@ public class AS_1997_SiteSpecific_AttenRel
 
  
   protected AS_1997_AttenRel as_1997_attenRel;
+  
+  // this will be a pointer to that in as_1997_attenRel for local access 
+  protected DistanceRupParameter distanceRupParam;
+
   /**
    * The current set of coefficients based on the selected intensityMeasure
    */
@@ -208,6 +213,7 @@ public class AS_1997_SiteSpecific_AttenRel
     as_1997_attenRel.setIntensityMeasure(im);
     asRockSA = as_1997_attenRel.getMean();
     double  mag = ( (Double) magParam.getValue()).doubleValue();
+    double dist = ( (Double) distanceRupParam.getValue()).doubleValue();
 //    mag = ( (Double) as_1997_attenRel.getEqkRupture().getMag()).doubleValue();
 //    magTest = as_1997_attenRel.EqkRupture().getMag();
 //    magTest = as_1997_attenRel.
@@ -399,14 +405,16 @@ public class AS_1997_SiteSpecific_AttenRel
    */
   protected void initEqkRuptureParams() {
 
-    // Create magParam
-    super.initEqkRuptureParams();
+	  // Create magParam
+	  //super.initEqkRuptureParams();
 
-    eqkRuptureParams.clear();
-    ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();
-    while (it.hasNext()) {
-      eqkRuptureParams.addParameter( (Parameter) it.next());
-    }
+	  magParam = (WarningDoubleParameter) as_1997_attenRel.getParameter(MAG_NAME);
+
+	  eqkRuptureParams.clear();
+	  ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();
+	  while (it.hasNext()) {
+		  eqkRuptureParams.addParameter( (Parameter) it.next());
+	  }
   }
 
   /**
@@ -419,6 +427,8 @@ public class AS_1997_SiteSpecific_AttenRel
     while (it.hasNext()) {
       propagationEffectParams.addParameter( (Parameter) it.next());
     }
+    // this is a pointer to that in as_1997_attenRel for local access 
+    distanceRupParam = (DistanceRupParameter) as_1997_attenRel.getParameter(DistanceRupParameter.NAME);
 
   }
 
