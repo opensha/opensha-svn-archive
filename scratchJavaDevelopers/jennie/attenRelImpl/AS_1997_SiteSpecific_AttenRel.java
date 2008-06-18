@@ -207,16 +207,18 @@ public class AS_1997_SiteSpecific_AttenRel
     // get AS-1997 SA for rock
     as_1997_attenRel.setIntensityMeasure(im);
     asRockSA = as_1997_attenRel.getMean();
- //   mag = ( (Double) magParam.getValue()).doubleValue();
+    double  mag = ( (Double) magParam.getValue()).doubleValue();
 //    mag = ( (Double) as_1997_attenRel.getEqkRupture().getMag()).doubleValue();
-    magTest = as_1997_attenRel.getEqkRupture().getMag();
+//    magTest = as_1997_attenRel.EqkRupture().getMag();
+//    magTest = as_1997_attenRel.
+//    magTest = as_
     
     // get the amp factor
     double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
     double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
     double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
-    lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal)+mVal*magTest;   
+    lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal)+mVal*mag;   
 
     // return the result
     return lnAF + asRockSA;
