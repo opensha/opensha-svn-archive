@@ -9,6 +9,8 @@ import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.param.DistanceRupParameter;
+import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
 
 /**
  * <b>Title:</b> SiteSpecific_2006_AttenRel<p>
@@ -225,7 +227,7 @@ public class BC_2004_AttenRel
     as_1997_attenRel.setIntensityMeasure(im);
     asRockSA = as_1997_attenRel.getMean();
     
-    // get the amp factor
+        // get the amp factor
     double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
     double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
