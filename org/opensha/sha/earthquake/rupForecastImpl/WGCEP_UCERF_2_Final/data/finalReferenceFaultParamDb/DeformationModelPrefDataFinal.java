@@ -45,6 +45,7 @@ public class DeformationModelPrefDataFinal {
 	DeformationModelSummaryFinal deformationModelSummaryFinal; // keep copy of this for accessing more info about def models
 	
 	public DeformationModelPrefDataFinal() {
+		prefFaultSectionDataFinal = new PrefFaultSectionDataFinal();
 		readDataFromDatabase();
 	}
 	
