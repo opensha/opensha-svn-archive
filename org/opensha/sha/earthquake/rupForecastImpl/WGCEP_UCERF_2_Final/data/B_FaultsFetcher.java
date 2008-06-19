@@ -88,7 +88,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 		faultSegmentMap = new HashMap();
 		bFaultNames = new ArrayList();
 		bFaultIds = new ArrayList();
-		ArrayList faultSectionsInDefModel = deformationModelPrefDB_DAO.getFaultSectionIdsForDeformationModel(this.deformationModelId);
+		ArrayList faultSectionsInDefModel = deformationModelPrefDataFinal.getFaultSectionIdsForDeformationModel(this.deformationModelId);
 		ArrayList aFaultsList = this.aFaultsFetcher.getAllFaultSectionsIdList(); 
 		for(int i=0; i<faultSectionsInDefModel.size(); ++i) {
 			// if this is A type fault or a special fault, then do not process it
@@ -98,7 +98,7 @@ public  class B_FaultsFetcher extends FaultsFetcher  implements java.io.Serializ
 				continue;
 			}
 			int faultSectionId = ((Integer)faultSectionsInDefModel.get(i)).intValue();
-			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDB_DAO.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
+			FaultSectionPrefData faultSectionPrefData = deformationModelPrefDataFinal.getFaultSectionPrefData(this.deformationModelId, faultSectionId);
 			// add to B type faults only if slip is not 0 and not NaN
 			if(faultSectionPrefData.getAveLongTermSlipRate()==0.0 || Double.isNaN(faultSectionPrefData.getAveLongTermSlipRate())) continue;
 			bFaultNames.add(faultSectionPrefData.getSectionName());
