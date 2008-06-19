@@ -69,9 +69,17 @@ public class AS_1997_SiteSpecific_AttenRel
   
 //  private double mag;
   
+  //Functional Form
+  private StringParameter AF_FuncForm;
+  public final static String AF_FuncForm_NAME = "AF Functional Form";
+  public final static String AF_FuncForm_INFO = 
+	  "Intercept of the median regression model for the ground response analyses";
+//  private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-2,2);
+  public final static String AF_FuncForm_DEFAULT = "lnAF = a + b*ln(SaRock+c) + d*(Mag-6) +e*ln(Rup/20)";
+  
   //Intercept param
   private DoubleParameter AF_InterceptParam;
-  public final static String AF_INTERCEPT_PARAM_NAME = "AF Intercept";
+  public final static String AF_INTERCEPT_PARAM_NAME = "AF Intercept (a)";
   public final static String AF_INTERCEPT_PARAM_INFO = 
 	  "Intercept of the median regression model for the ground response analyses";
   private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-2,2);
@@ -79,7 +87,7 @@ public class AS_1997_SiteSpecific_AttenRel
   
   //Slope Param
   protected DoubleParameter AF_SlopeParam;
-  public final static String AF_SLOPE_PARAM_NAME = "AF Slope";
+  public final static String AF_SLOPE_PARAM_NAME = "AF Slope (b)";
   public final static String AF_SLOPE_PARAM_INFO = 
 	  "Slope of the median regression model for the ground response analyses";
   private DoubleConstraint AF_slopeParamConstraint = new DoubleConstraint(-1,1);
@@ -87,7 +95,7 @@ public class AS_1997_SiteSpecific_AttenRel
   
   //Additive reference acceleration param
   protected DoubleParameter AF_AddRefAccParam;
-  public final static String AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME = "AF Add. Ref. Acceleration";
+  public final static String AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME = "AF Add. Ref. Acceleration (c)";
   public final static String AF_ADDITIVE_REF_ACCELERATION_PARAM_INFO = 
 	  "Additive reference acceleration of the median regression model for the ground response " +
 	  "analyses. This parameter improves the linear model fit for low Sa(rock) / PGA(rock)" +
@@ -97,11 +105,19 @@ public class AS_1997_SiteSpecific_AttenRel
   
   //Mag reference param
   protected DoubleParameter AF_MagParam;
-  public final static String AF_MagPARAM_NAME = "AF Magnitude";
+  public final static String AF_MagPARAM_NAME = "AF Magnitude (d)";
   public final static String AF_MagPARAM_INFO = 
 	  "Slope of the regression for magnitude";
   private DoubleConstraint AFMagParamConstraint = new DoubleConstraint(-4,4);
   public final static double AF_MagParam_DEFAULT = 0.0;
+  
+  //Rup reference param
+  protected DoubleParameter AF_RupParam;
+  public final static String AF_RupPARAM_NAME = "AF Ruture Distance (e)";
+  public final static String AF_RupPARAM_INFO = 
+	  "Slope of the regression for rupture distance";
+  private DoubleConstraint AFRupParamConstraint = new DoubleConstraint(-4,4);
+  public final static double AF_RupParam_DEFAULT = 0.0;
   
   
   //Std. Dev AF param
@@ -190,10 +206,12 @@ public class AS_1997_SiteSpecific_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
+	  AF_FuncForm.setValue(AF_FuncForm_DEFAULT);
 	  AF_InterceptParam.setValue(site.getParameter(AF_INTERCEPT_PARAM_NAME).getValue());
 	  AF_AddRefAccParam.setValue(site.getParameter(AF_ADDITIVE_REF_ACCELERATION_PARAM_NAME).getValue());
 	  AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
 	  AF_MagParam.setValue(site.getParameter(AF_MagPARAM_NAME).getValue());
+	  AF_RupParam.setValue(site.getParameter(AF_RupPARAM_NAME).getValue());
 	  AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());  
 	  this.site = site;
 	  // set the location in as_1997_attenRel
@@ -224,7 +242,8 @@ public class AS_1997_SiteSpecific_AttenRel
     double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
     double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
-    lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal)+mVal*mag;   
+    double rVal = ((Double)AF_RupParam.getValue()).doubleValue();
+    lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal)+mVal*(mag-6)+rVal*Math.log(dist/20);   
 
     // return the result
     return lnAF + asRockSA;
@@ -240,7 +259,7 @@ public class AS_1997_SiteSpecific_AttenRel
 	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
 	  }
-	  return getStdDevForBC();
+	  return getStdDevForGoulet();
   }
   
   
@@ -255,15 +274,29 @@ public class AS_1997_SiteSpecific_AttenRel
 	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
 	  return Math.sqrt(stdDev);
   }
-
+  private double getStdDevForGoulet(){
+	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
+	  double cVal = ((Double)this.AF_AddRefAccParam.getValue()).doubleValue();
+	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
+//	  double tau = coeffs.tau;
+	  as_1997_attenRel.setIntensityMeasure(im);
+	  double asRockMean = as_1997_attenRel.getMean();
+	  double asRockStdDev = as_1997_attenRel.getStdDev();
+//	  double stdDev = Math.pow((bVal*asRockMean)/(asRockMean+cVal)+1, 2)*
+//	                  (Math.pow(asRockStdDev,2)-Math.pow(tau, 2))+Math.pow(stdDevAF,2)+Math.pow(tau,2);
+	  double stdDev = Math.pow((bVal*asRockMean)/(asRockMean+cVal)+1, 2)*(Math.pow(asRockStdDev,2))+Math.pow(stdDevAF,2);
+	  return Math.sqrt(stdDev);
+  }
  
   public void setParamDefaults() {
 
 	    //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
+//	    AF_FuncForm.setValue(this.AF_FuncForm_DEFAULT);
 	    AF_AddRefAccParam.setValue(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT);
 	    AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
 	    AF_SlopeParam.setValue(this.AF_SLOPE_PARAM_DEFAULT);
 	    AF_MagParam.setValue(this.AF_MagParam_DEFAULT);
+	    AF_RupParam.setValue(this.AF_RupParam_DEFAULT);
 	    AF_StdDevParam.setValue(this.AF_STD_DEV_DEFAULT);
 	    as_1997_attenRel.setParamDefaults();
 	    // re-set the site type to rock and component to ave horz
@@ -298,10 +331,12 @@ public class AS_1997_SiteSpecific_AttenRel
         meanIndependentParams.addParameter(param);
       }
     }
+    meanIndependentParams.addParameter(AF_FuncForm);
     meanIndependentParams.addParameter(AF_AddRefAccParam);
     meanIndependentParams.addParameter(AF_InterceptParam);
     meanIndependentParams.addParameter(AF_SlopeParam);
     meanIndependentParams.addParameter(AF_MagParam);
+    meanIndependentParams.addParameter(AF_RupParam);
     meanIndependentParams.addParameter(AF_StdDevParam);
     meanIndependentParams.addParameter(componentParam);
 
@@ -317,6 +352,7 @@ public class AS_1997_SiteSpecific_AttenRel
       }
     }
     
+    stdDevIndependentParams.addParameter(AF_FuncForm);
     stdDevIndependentParams.addParameter(AF_AddRefAccParam);
     stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
@@ -334,10 +370,12 @@ public class AS_1997_SiteSpecific_AttenRel
       }
     }
     
+    exceedProbIndependentParams.addParameter(AF_FuncForm);
     exceedProbIndependentParams.addParameter(AF_AddRefAccParam);
     exceedProbIndependentParams.addParameter(AF_InterceptParam);
     exceedProbIndependentParams.addParameter(AF_SlopeParam);
     exceedProbIndependentParams.addParameter(AF_MagParam);
+    exceedProbIndependentParams.addParameter(AF_RupParam);
     exceedProbIndependentParams.addParameter(AF_StdDevParam);
     exceedProbIndependentParams.addParameter(componentParam);
 
@@ -360,9 +398,18 @@ public class AS_1997_SiteSpecific_AttenRel
     // create and add the warning constraint:
     DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
     warn.setNonEditable();
-   
+
+    //make the AF functional form parameter
+    StringConstraint constraint = new StringConstraint();
+    constraint.addString(AF_FuncForm_DEFAULT);
+    constraint.setNonEditable();
+    this.AF_FuncForm = new StringParameter(this.AF_FuncForm_NAME, constraint,
+    		this.AF_FuncForm_DEFAULT);
+    AF_FuncForm.setInfo(COMPONENT_INFO);
+    AF_FuncForm.setNonEditable();
+    
     //make the AF intercept parameter
-    AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
+    this.AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
     		AF_InterceptparamConstraint,this.AF_INTERCEPT_PARAM_DEFAULT);
     AF_InterceptParam.setInfo(this.AF_INTERCEPT_PARAM_INFO);
     
@@ -380,6 +427,11 @@ public class AS_1997_SiteSpecific_AttenRel
     this.AF_MagParam = new DoubleParameter(this.AF_MagPARAM_NAME,
     		this.AFMagParamConstraint,this.AF_MagParam_DEFAULT);
     AF_MagParam.setInfo(this.AF_MagPARAM_INFO);
+
+    //make the AF Rup Parameter
+    this.AF_RupParam = new DoubleParameter(this.AF_RupPARAM_NAME,
+    		this.AFRupParamConstraint,this.AF_RupParam_DEFAULT);
+    AF_RupParam.setInfo(this.AF_RupPARAM_INFO);
     
     //make the AF Std. Dev.
     this.AF_StdDevParam = new DoubleParameter(this.AF_STD_DEV_PARAM_NAME,
@@ -389,10 +441,12 @@ public class AS_1997_SiteSpecific_AttenRel
     
      // add it to the siteParams list:
     siteParams.clear();
+    siteParams.addParameter(AF_FuncForm);
     siteParams.addParameter(AF_AddRefAccParam);
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_MagParam);
+    siteParams.addParameter(AF_RupParam);
     siteParams.addParameter(AF_StdDevParam);
 
 
