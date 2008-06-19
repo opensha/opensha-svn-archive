@@ -24,6 +24,8 @@ public class DeformationModelSummaryFinal {
 	  public DeformationModelSummaryFinal() {
 		  // do this once to create file, and then comment it out
 		  writeDeformationModelSummariesXML_File();
+		  
+		  readDeformationModelSummariesXML_File();
 	  }
 
 	  /**
@@ -70,8 +72,8 @@ public class DeformationModelSummaryFinal {
 	  private void writeDeformationModelSummariesXML_File() {
 			DeformationModelSummaryDB_DAO deformationModelSummaryDB_DAO = new DeformationModelSummaryDB_DAO(DB_AccessAPI.dbConnection);
 			ArrayList<DeformationModelSummary> deformationModelSummariesFromDatabaseList = deformationModelSummaryDB_DAO.getAllDeformationModels();
+			/*
 			DeformationModelSummary deformationModelSummary;
-/*			
 			// test to see the results
 			for(int i=0; i<deformationModelSummariesFromDatabaseList.size(); ++i) {
 				deformationModelSummary = (DeformationModelSummary) deformationModelSummariesFromDatabaseList.get(i);
@@ -82,6 +84,7 @@ public class DeformationModelSummaryFinal {
 			}
 */			
 			// Need to add code to write these to XML file ****************
+			
 			
 			//do this for now (until read from XML is implemented
 			deformationModelSummariesList = deformationModelSummariesFromDatabaseList;
