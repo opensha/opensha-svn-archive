@@ -33,7 +33,9 @@ import org.opensha.sha.fault.FaultTrace;
  */
 public class PrefFaultSectionDataFinal {
 	private static ArrayList<FaultSectionPrefData> faultSectionsList;
+	private static ArrayList<FaultSectionPrefData> dbFaultSectionsList = new ArrayList<FaultSectionPrefData>();
 	private static HashMap indexForID_Map;
+	private static HashMap dbMap;
 	
 	private static final String XML_DATA_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/finalReferenceFaultParamDb/PrefFaultSectionData.xml";
 	
@@ -41,6 +43,79 @@ public class PrefFaultSectionDataFinal {
 //		writeFaultSectionDataFromDatabaseTo_XML();
 		readFaultSectionDataFromXML();
 		
+	}
+	
+	int numSections = 0;
+	ArrayList<Integer> faultNums = new ArrayList<Integer>();
+	
+	private void test() {
+		System.out.println("TESTING!");
+		for (Integer num : faultNums) {
+			int i = num;
+//			System.out.println("Testint fault " + i);
+			FaultSectionPrefData dbFault = (FaultSectionPrefData)dbFaultSectionsList.get((Integer)dbMap.get(new Integer(i)));
+			FaultSectionPrefData fileFault = (FaultSectionPrefData)faultSectionsList.get((Integer)dbMap.get(new Integer(i)));
+			
+			if (dbFault.getSectionId() != fileFault.getSectionId())
+				System.out.println("ERROR: Id's not equal!");
+			
+			if (dbFault.getAseismicSlipFactor() != fileFault.getAseismicSlipFactor())
+				System.out.println("ERROR: Test Failed 1");
+			
+			if (dbFault.getAveDip() != fileFault.getAveDip())
+				System.out.println("ERROR: Test Failed 2");
+			
+//			if (dbFault.getAveLongTermSlipRate() != fileFault.getAveLongTermSlipRate()) {
+//				System.out.println("ERROR: Test Failed 3");
+//				System.out.println(dbFault.getAveLongTermSlipRate() + " " + dbFault.getAveLongTermSlipRate());
+//			}
+			
+			if (dbFault.getAveLowerDepth() != fileFault.getAveLowerDepth())
+				System.out.println("ERROR: Test Failed 4");
+			
+//			if (dbFault.getAveRake() != fileFault.getAveRake()) {
+//				System.out.println("ERROR: Test Failed 5");
+//				System.out.println(dbFault.getAveRake() + " " + dbFault.getAveRake());
+//			}
+			
+			if (dbFault.getAveUpperDepth() != fileFault.getAveUpperDepth())
+				System.out.println("ERROR: Test Failed 6");
+			
+			if (dbFault.getDipDirection() != fileFault.getDipDirection())
+				System.out.println("ERROR: Test Failed 7");
+			
+			if (dbFault.getSectionId() != fileFault.getSectionId())
+				System.out.println("ERROR: Test Failed 9");
+			
+			if (!dbFault.getSectionName().equals(fileFault.getSectionName()))
+				System.out.println("ERROR: Test Failed 10");
+			
+//			if (!dbFault.getShortName().equals(dbFault.getShortName()))
+//				System.out.println("ERROR: Test Failed 11");
+			
+			if (dbFault.getLength() != fileFault.getLength())
+				System.out.println("ERROR: Test Failed 12");
+			
+			if (dbFault.getDownDipWidth() != fileFault.getDownDipWidth())
+				System.out.println("ERROR: Test Failed 13");
+			
+			if (dbFault.getSlipRateStdDev() != fileFault.getSlipRateStdDev())
+				System.out.println("ERROR: Test Failed 14");
+			
+			FaultTrace dbTrace = dbFault.getFaultTrace();
+			FaultTrace fileTrace = fileFault.getFaultTrace();
+			
+			for (int j=0; j<dbTrace.getNumLocations(); j++) {
+				Location dbLoc = dbTrace.getLocationAt(j);
+				Location fileLoc = fileTrace.getLocationAt(j);
+				
+				if (!dbLoc.equals(fileLoc)) {
+					System.out.println("Loc on fault trace is bad!");
+					System.out.println(dbLoc);
+					System.out.println(fileLoc);
+				}
+			}
+		}
 	}
 
 
@@ -53,6 +128,7 @@ public class PrefFaultSectionDataFinal {
 		
 		// make the index to ID hashmap
 		indexForID_Map = new HashMap();
+		dbMap = new HashMap();
 		FaultSectionPrefData fspd;
 		for(int i=0; i<faultSectionDataListFromDatabase.size(); i++) {
 			fspd = (FaultSectionPrefData) faultSectionDataListFromDatabase.get(i);
@@ -60,7 +136,10 @@ public class PrefFaultSectionDataFinal {
 			root = fspd.toXMLMetadata(root);
 			
 			indexForID_Map.put(fspd.getSectionId(), new Integer(i));
+			dbMap.put(fspd.getSectionId(), new Integer(i));
 //			System.out.println(fspd.getSectionId()+"\t"+fspd.getSectionName());
+			faultNums.add(new Integer(fspd.getSectionId()));
+			dbFaultSectionsList.add(fspd);
 		}
 		
 		// save each fault section to an XML file (save all elements that have an associated set method in FaultSectionPrefData) 
@@ -150,6 +229,7 @@ public class PrefFaultSectionDataFinal {
 		FaultSectionPrefData faultSectionPrefData2 = test.getFaultSectionPrefData(id);
 		System.out.println(faultSectionPrefData2.getSectionId());
 		
+		test.test();
 	}
 
 }
