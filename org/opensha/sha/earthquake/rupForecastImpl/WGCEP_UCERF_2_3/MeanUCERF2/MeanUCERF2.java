@@ -976,88 +976,161 @@ public class MeanUCERF2 extends EqkRupForecast {
 		}
 	}
 	
-	public void writeUnsegMagAreas() {
+	
+	/**
+	 * This was created for an analysis of the cybershake correction on a rupture-by-rupture basis
+	 * 
+	 * @param filename
+	 */
+	public void writeRuptureData(String filename1, String filename2) {
 
 		Somerville_2006_MagAreaRel somerville_magAreaRel = new Somerville_2006_MagAreaRel();
 		try {
-			FileWriter fw = new FileWriter("CyberShakeMagAreaData.txt");
-			fw.write("Source_Name\tRup_Index\tRup_Mag\tRup Area\tRup_Length\tRup_DDW\t(Som_Area/Rup_Area)\tRup_Type\n");
+			FileWriter fw = new FileWriter(filename1);
+			fw.write("Source_Name\tRup_Index\tRup_Mag\tRup_Prob\tRup Area\tRup_Length\tRup_DDW\t(Som_Area/Rup_Area)\tRup_Type\n");
 			String FLOATING_RUP = "FLOATING";
 			String FULL_RUP = "FULL";
 
-
-			/**/
-		// unsegmented type-a faults
-		for(int i=0; i< aFaultUnsegmentedSources.size(); i++) {
-			UnsegmentedSource unsegmentedSource = aFaultUnsegmentedSources.get(i);
-			for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
-				ProbEqkRupture rup = unsegmentedSource.getRupture(r);
-				EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
-				double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
-				double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
-				fw.write(
-						unsegmentedSource.getName()+"\t"+
-						r+"\t"+
-						rup.getMag()+"\t"+
-						rupArea+"\t"+
-						surf.getSurfaceLength()+"\t"+
-						surf.getSurfaceWidth()+"\t"+
-						somArea/rupArea+"\t"+
-						FLOATING_RUP+"\n");
-			}
-		}
-			 
-			/*
-			 * 
-		// type-b faults
-		for(int i=0; i< bFaultSources.size(); i++) {
-			UnsegmentedSource unsegmentedSource = bFaultSources.get(i);
-			for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
-				ProbEqkRupture rup = unsegmentedSource.getRupture(r);
-				EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
-				System.out.println(surf.getSurfaceLength()*surf.getSurfaceWidth()+"\t"+rup.getMag()+"\t"+unsegmentedSource.getName());
-			}
-			 */
-
-		/*
-			//a-fault segmented
+			// segmented type-a faults
 			for(int i=0; i< aFaultSegmentedSources.size(); i++) {
-				double totRate=0, totMagTimesRat=0;
-				FaultRuptureSource unsegmentedSource = aFaultSegmentedSources.get(i);
+				FaultRuptureSource faultRuptureSource = aFaultSegmentedSources.get(i);
+				for(int r=0;r<faultRuptureSource.getNumRuptures();r++) {
+					ProbEqkRupture rup = faultRuptureSource.getRupture(r);
+					EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
+					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
+					fw.write(
+							faultRuptureSource.getName()+"\t"+
+							r+"\t"+
+							rup.getMag()+"\t"+
+							rup.getProbability()+"\t"+
+							rupArea+"\t"+
+							surf.getSurfaceLength()+"\t"+
+							surf.getSurfaceWidth()+"\t"+
+							somArea/rupArea+"\t"+
+							FULL_RUP+"\n");
+				}
+			}
+
+
+			// unsegmented type-a faults
+			for(int i=0; i< aFaultUnsegmentedSources.size(); i++) {
+				UnsegmentedSource unsegmentedSource = aFaultUnsegmentedSources.get(i);
 				for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
 					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
 					EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
-//					System.out.println(surf.getSurfaceLength()*surf.getSurfaceWidth()+"\t"+
-//					rup.getMag()+"\t"+rup.getMeanAnnualRate(getTimeSpan().getDuration())+"\t"+
-//					unsegmentedSource.getName());
-					totRate += rup.getMeanAnnualRate(getTimeSpan().getDuration());
-					totMagTimesRat += rup.getMeanAnnualRate(getTimeSpan().getDuration())*rup.getMag();
+					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
+					fw.write(
+							unsegmentedSource.getName()+"\t"+
+							r+"\t"+
+							rup.getMag()+"\t"+
+							rup.getProbability()+"\t"+
+							rupArea+"\t"+
+							surf.getSurfaceLength()+"\t"+
+							surf.getSurfaceWidth()+"\t"+
+							somArea/rupArea+"\t"+
+							FLOATING_RUP+"\n");
 				}
-				ProbEqkRupture rup = unsegmentedSource.getRupture(0);
-				System.out.println(rup.getRuptureSurface().getSurfaceLength()*rup.getRuptureSurface().getSurfaceWidth()+"\t"+
-						totMagTimesRat/totRate+"\t"+
-						unsegmentedSource.getName());
 			}
-		*/
+
+
+			// type-b faults
+			for(int i=0; i< bFaultSources.size(); i++) {
+				UnsegmentedSource unsegmentedSource = bFaultSources.get(i);
+				System.out.println(unsegmentedSource.getName()+"(\t"+i+" of "+bFaultSources.size()+")");
+				String type = FLOATING_RUP;
+				for(int r=0;r<unsegmentedSource.getNumRuptures();r++) {
+					if(r == unsegmentedSource.getNumGR_rups())
+						type = FULL_RUP;
+					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
+					EvenlyGriddedSurfaceAPI surf = rup.getRuptureSurface();
+					double rupArea = surf.getSurfaceLength()*surf.getSurfaceWidth();
+					double somArea = somerville_magAreaRel.getMedianArea(rup.getMag());
+					fw.write(
+							unsegmentedSource.getName()+"\t"+
+							r+"\t"+
+							rup.getMag()+"\t"+
+							rup.getProbability()+"\t"+
+							rupArea+"\t"+
+							surf.getSurfaceLength()+"\t"+
+							surf.getSurfaceWidth()+"\t"+
+							somArea/rupArea+"\t"+
+							type+"\n");
+				}
+			}
+			fw.close();
 		}
 		catch (FileNotFoundException ex) {
 		}
 		catch (IOException ex) {
 		}
+		
+
+		System.out.println("\n\n\n\n");
+
+
+		/**/
+		// compute the average-mag vs area for each segmented source
+		try {
+			FileWriter fw = new FileWriter(filename2);
+			fw.write("Rup_Area\tAve_Mag\tSource_Name\n");
+
+			//a-fault segmented
+			for(int i=0; i< aFaultSegmentedSources.size(); i++) {
+				double totRate=0, totMagTimesRat=0;
+				FaultRuptureSource segmentedSource = aFaultSegmentedSources.get(i);
+				for(int r=0;r<segmentedSource.getNumRuptures();r++) {
+					ProbEqkRupture rup = segmentedSource.getRupture(r);
+					totRate += rup.getMeanAnnualRate(getTimeSpan().getDuration());
+					totMagTimesRat += rup.getMeanAnnualRate(getTimeSpan().getDuration())*rup.getMag();
+				}
+				ProbEqkRupture rup = segmentedSource.getRupture(0);
+				fw.write(rup.getRuptureSurface().getSurfaceLength()*rup.getRuptureSurface().getSurfaceWidth()+"\t"+
+						(float)(totMagTimesRat/totRate)+"\t"+
+						segmentedSource.getName()+"\n");
+			}
+			//b-fault char
+			for(int i=0; i< bFaultSources.size(); i++) {
+				double totRate=0, totMagTimesRat=0;
+				UnsegmentedSource unsegmentedSource = bFaultSources.get(i);
+				System.out.println(unsegmentedSource.getName()+"(\t"+i+" of "+bFaultSources.size()+")");
+				for(int r=unsegmentedSource.getNumGR_rups();r<unsegmentedSource.getNumRuptures();r++) {
+					ProbEqkRupture rup = unsegmentedSource.getRupture(r);
+					totRate += rup.getMeanAnnualRate(getTimeSpan().getDuration());
+					totMagTimesRat += rup.getMeanAnnualRate(getTimeSpan().getDuration())*rup.getMag();
+				}
+				if(!(unsegmentedSource.getNumGR_rups() == unsegmentedSource.getNumRuptures())) {
+					ProbEqkRupture rup = unsegmentedSource.getRupture(unsegmentedSource.getNumGR_rups());
+					fw.write(rup.getRuptureSurface().getSurfaceLength()*rup.getRuptureSurface().getSurfaceWidth()+"\t"+
+							(float)(totMagTimesRat/totRate)+"\t"+
+							unsegmentedSource.getName()+"\n");
+				}
+			}	
+			fw.close();
+		}
+		catch (FileNotFoundException ex) {
+		}
+		catch (IOException ex) {
+		}
+
 	}
 
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		
 		meanUCERF2.calcSummedMFDs  =false;
+		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME,5.0);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
 		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, true);
-//		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
-//		meanUCERF2.getTimeSpan().setDuration(30.0);
-//		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
+		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+		meanUCERF2.getTimeSpan().setDuration(1.0);
+		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
-		meanUCERF2.writeUnsegMagAreas();
+		meanUCERF2.writeRuptureData("CyberShakeMagAreaData.txt", "CyberShakeAveMagVsAreaForCharSources.txt");
+		
 //		meanUCERF2.writeB_FaultMgt67probs();
 //		meanUCERF2.writeFaultSourceSurfaceOutlines();
 //		for(int src=0; src<meanUCERF2.getNumSources(); src++)
