@@ -3,9 +3,22 @@
  */
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
@@ -33,6 +46,8 @@ public class DeformationModelPrefDataFinal {
 	 * slipRate, slipRateStdDev, aseismicSlip
 	 */
 	
+	private static final String XML_DATA_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/finalReferenceFaultParamDb/DeformationModelPrefData.xml";
+	
 	// these will store the data for each deformation model
 	private static HashMap slipRateMap;
 	private static HashMap aseismicSlipMap;
@@ -46,11 +61,12 @@ public class DeformationModelPrefDataFinal {
 	
 	public DeformationModelPrefDataFinal() {
 		prefFaultSectionDataFinal = new PrefFaultSectionDataFinal();
-		readDataFromDatabase();
+//		writeDeformationModelSummariesXML_File();
+		readDeformationModelSummariesXML_File();
 	}
 	
 	
-	private void readDataFromDatabase() {
+	private void writeDeformationModelSummariesXML_File() {
 
 		// need one of these for each deformation model
 		HashMap faultSectionIdIndexMap;
@@ -63,10 +79,15 @@ public class DeformationModelPrefDataFinal {
 		faultSectionIdIndexMapMap = new HashMap();
 		faultSectionIdMap = new HashMap();
 		
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement( "DeformationModelPrefData" );
+		
 		DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
 		deformationModelSummaryFinal = new DeformationModelSummaryFinal();
 		ArrayList<DeformationModelSummary> deformationModelSummaryList = deformationModelSummaryFinal.getAllDeformationModels();
 		for(int i=0; i<deformationModelSummaryList.size();i++) {
+			
+			
 			DeformationModelSummary dmSummary = deformationModelSummaryList.get(i);
 //			System.out.println(dmSummary.getDeformationModelName()+",  "+dmSummary.getDeformationModelId());
 			int defModId = dmSummary.getDeformationModelId();
@@ -75,12 +96,25 @@ public class DeformationModelPrefDataFinal {
 			slipRateList = new double[faultSectionIdList.size()];
 			slipRateStdDevList = new double[faultSectionIdList.size()];
 			aseismicSlipList = new double[faultSectionIdList.size()];
+			
+			Element el = root.addElement("DeformationModel");
+			el.addAttribute("defModId", dmSummary.getDeformationModelId() + "");
+			
+			
+			
 			for(int j=0;j<faultSectionIdList.size();j++) {
 				int faultSectionId = ((Integer) faultSectionIdList.get(j)).intValue();
+				
 				faultSectionIdIndexMap.put(faultSectionId, new Integer(j));
 				slipRateList[j]=deformationModelPrefDB_DAO.getSlipRate(defModId, faultSectionId);
 				slipRateStdDevList[j]=deformationModelPrefDB_DAO.getSlipStdDev(defModId, faultSectionId);
 				aseismicSlipList[j] = deformationModelPrefDB_DAO.getAseismicSlipFactor(defModId, faultSectionId);
+				
+				Element faultSectionEl = el.addElement("FaultSectionDefModelData");
+				faultSectionEl.addAttribute("faultSectionId", faultSectionId + "");
+				faultSectionEl.addAttribute("slipRate", slipRateList[j] + "");
+				faultSectionEl.addAttribute("slipRateStdDev", slipRateStdDevList[j] + "");
+				faultSectionEl.addAttribute("aseismicSlip", aseismicSlipList[j] + "");
 			}
 			//now put these in the HashMaps
 			slipRateMap.put(defModId, slipRateList);
@@ -88,6 +122,20 @@ public class DeformationModelPrefDataFinal {
 			aseismicSlipMap.put(defModId, aseismicSlipList);
 			faultSectionIdIndexMapMap.put(defModId, faultSectionIdIndexMap);
 			faultSectionIdMap.put(defModId, faultSectionIdList);
+		}
+		
+		XMLWriter writer;
+
+		try {
+			OutputFormat format = OutputFormat.createPrettyPrint();
+
+			System.out.println("Writing Deformation Model Summary to " + XML_DATA_FILENAME);
+			writer = new XMLWriter(new FileWriter(XML_DATA_FILENAME), format);
+			writer.write(document);
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -124,6 +172,71 @@ public class DeformationModelPrefDataFinal {
 	 */
 	public ArrayList getFaultSectionIdsForDeformationModel(int deformationModelId) {
 		return (ArrayList) faultSectionIdMap.get(deformationModelId);
+	}
+	
+	/**
+	   * This reads the XML file containing the deformation model summaries and puts them into deformationModelSummariesList
+	   */
+	private void readDeformationModelSummariesXML_File() {
+		// need one of these for each deformation model
+		HashMap faultSectionIdIndexMap;
+		double[] slipRateList, slipRateStdDevList, aseismicSlipList;
+		
+		// these are where they are stored
+		slipRateMap = new HashMap();
+		aseismicSlipMap = new HashMap();
+		stdDevMap = new HashMap();
+		faultSectionIdIndexMapMap = new HashMap();
+		faultSectionIdMap = new HashMap();
+		
+		SAXReader reader = new SAXReader();
+		try {
+			Document document = reader.read(new File(XML_DATA_FILENAME));
+			Element root = document.getRootElement();
+
+			Iterator<Element> it = root.elementIterator();
+			while (it.hasNext()) {
+				Element el = it.next();
+				
+				int defModId = Integer.parseInt(el.attributeValue("defModId"));
+				
+				List<Element> elements = el.elements();
+				
+				int numSections = elements.size();
+				
+				ArrayList<Integer> faultSectionIdList = new ArrayList<Integer>(); 
+				faultSectionIdIndexMap = new HashMap();
+				slipRateList = new double[numSections];
+				slipRateStdDevList = new double[numSections];
+				aseismicSlipList = new double[numSections];
+				
+				int i = 0;
+				for (Element faultSection : elements) {
+					int faultSectionId = Integer.parseInt(faultSection.attributeValue("faultSectionId"));
+					faultSectionIdList.add(faultSectionId);
+					
+					faultSectionIdIndexMap.put(faultSectionId, new Integer(i));
+					slipRateList[i]=Double.parseDouble(faultSection.attributeValue("slipRate"));
+					slipRateStdDevList[i]=Double.parseDouble(faultSection.attributeValue("slipRateStdDev"));
+					aseismicSlipList[i] = Double.parseDouble(faultSection.attributeValue("aseismicSlip"));
+					
+					i++;
+				}
+				
+				//now put these in the HashMaps
+				slipRateMap.put(defModId, slipRateList);
+				stdDevMap.put(defModId, slipRateStdDevList);
+				aseismicSlipMap.put(defModId, aseismicSlipList);
+				faultSectionIdIndexMapMap.put(defModId, faultSectionIdIndexMap);
+				faultSectionIdMap.put(defModId, faultSectionIdList);
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	

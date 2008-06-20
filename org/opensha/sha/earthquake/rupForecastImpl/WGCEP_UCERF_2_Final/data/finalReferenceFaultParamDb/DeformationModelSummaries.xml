@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DeformationModelSummaries>
+  <DeformationModelSummary deformationModelId="82" deformationModelName="D2.1">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="41" faultModelName="F2.1">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+  <DeformationModelSummary deformationModelId="83" deformationModelName="D2.2">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="41" faultModelName="F2.1">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+  <DeformationModelSummary deformationModelId="84" deformationModelName="D2.3">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="41" faultModelName="F2.1">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+  <DeformationModelSummary deformationModelId="85" deformationModelName="D2.4">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="43" faultModelName="F2.2">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+  <DeformationModelSummary deformationModelId="86" deformationModelName="D2.5">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="43" faultModelName="F2.2">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+  <DeformationModelSummary deformationModelId="87" deformationModelName="D2.6">
+    <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    <FaultModelSummary faultModelId="43" faultModelName="F2.2">
+      <Contributor id="21" name="chris.wills" email="" firstName="" lastName=""/>
+    </FaultModelSummary>
+  </DeformationModelSummary>
+</DeformationModelSummaries>

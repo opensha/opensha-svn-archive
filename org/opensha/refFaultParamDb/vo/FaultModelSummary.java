@@ -1,5 +1,9 @@
 package org.opensha.refFaultParamDb.vo;
 
+import org.dom4j.Attribute;
+import org.dom4j.Element;
+import org.opensha.metadata.XMLSaveable;
+
 /**
  * <p>Title: FaultModel.java </p>
  * <p>Description: Various fault models available</p>
@@ -9,7 +13,9 @@ package org.opensha.refFaultParamDb.vo;
  * @version 1.0
  */
 
-public class FaultModelSummary  implements java.io.Serializable {
+public class FaultModelSummary  implements java.io.Serializable, XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "FaultModelSummary";
   private int faultModelId;
   private String faultModelName;
   private Contributor contributor;
@@ -48,5 +54,31 @@ public class FaultModelSummary  implements java.io.Serializable {
     this.faultModelName = faultModelName;
   }
 
-
+  public Element toXMLMetadata(Element root) {
+		
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("faultModelId", faultModelId + "");
+		el.addAttribute("faultModelName", faultModelName);
+		
+		// add the contributor
+		el = this.contributor.toXMLMetadata(el);
+		
+		return root;
+	}
+  
+  public static FaultModelSummary fromXMLMetadata(Element el) {
+	  Attribute idAtt = el.attribute("faultModelId");
+	  String name = el.attributeValue("faultModelName");
+	  
+	  Contributor cont = Contributor.fromXMLMetadata(el.element(Contributor.XML_METADATA_NAME));
+	  
+	  if (idAtt != null) {
+		  int id = Integer.parseInt(idAtt.getValue());
+		  
+		  return new FaultModelSummary(id, name, cont);
+	  }
+	  
+	  return new FaultModelSummary(name, cont);
+  }
 }

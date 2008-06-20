@@ -3,8 +3,13 @@
  */
 package org.opensha.refFaultParamDb.vo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import org.dom4j.Element;
+import org.opensha.data.Location;
+import org.opensha.metadata.XMLSaveable;
 import org.opensha.sha.fault.EqualLengthSubSectionsTrace;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.SimpleFaultData;
@@ -14,7 +19,10 @@ import org.opensha.sha.fault.SimpleFaultData;
  * @author vipingupta
  *
  */
-public class FaultSectionPrefData  implements java.io.Serializable {
+public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "FaultSectionPrefData";
+	
 	private int sectionId=-1;
 	private String sectionName;
 	private String shortName;
@@ -169,6 +177,81 @@ public class FaultSectionPrefData  implements java.io.Serializable {
 			return simpleFaultData;
 			
 		}
+	}
+
+	public Element toXMLMetadata(Element root) {
+		
+		Element el = root.addElement(XML_METADATA_NAME);
+		el.addAttribute("sectionId", this.getSectionId() + "");
+		el.addAttribute("sectionName", this.getSectionName());
+		el.addAttribute("shortName", this.getShortName());
+		el.addAttribute("aveLongTermSlipRate", this.getAveLongTermSlipRate() + "");
+		el.addAttribute("slipRateStdDev", this.getSlipRateStdDev() + "");
+		el.addAttribute("aveDip", this.getAveDip() + "");
+		el.addAttribute("aveRake", this.getAveRake() + "");
+		el.addAttribute("aveUpperDepth", this.getAveUpperDepth() + "");
+		el.addAttribute("aveLowerDepth", this.getAveLowerDepth() + "");
+		el.addAttribute("aseismicSlipFactor", this.getAseismicSlipFactor() + "");
+		el.addAttribute("dipDirection", this.getDipDirection() + "");
+		
+		FaultTrace trace = this.getFaultTrace();
+		
+		Element traceEl = el.addElement("FaultTrace");
+		traceEl.addAttribute("name", trace.getName());
+		
+		for (int j=0; j<trace.getNumLocations(); j++) {
+			Location loc = trace.getLocationAt(j);
+			Element locEl = traceEl.addElement("Location");
+			
+			locEl.addAttribute("lat", loc.getLatitude() + "");
+			locEl.addAttribute("lon", loc.getLongitude() + "");
+		}
+		return root;
+	}
+	
+	public static FaultSectionPrefData fromXMLMetadata(Element el) throws InvocationTargetException {
+		
+		int sectionId = Integer.parseInt(el.attributeValue("sectionId"));
+		String sectionName = el.attributeValue("sectionName");
+		String shortName = el.attributeValue("shortName");
+		double aveLongTermSlipRate = Double.parseDouble(el.attributeValue("aveLongTermSlipRate"));
+		double aveDip = Double.parseDouble(el.attributeValue("aveDip"));
+		double aveRake = Double.parseDouble(el.attributeValue("aveRake"));
+		double aveUpperDepth = Double.parseDouble(el.attributeValue("aveUpperDepth"));
+		double aveLowerDepth = Double.parseDouble(el.attributeValue("aveLowerDepth"));
+		double aseismicSlipFactor = Double.parseDouble(el.attributeValue("aseismicSlipFactor"));
+		float dipDirection = Float.parseFloat(el.attributeValue("dipDirection"));
+
+		Element traceEl = el.element("FaultTrace");
+
+		String traceName = traceEl.attributeValue("name");
+		
+		FaultTrace trace = new FaultTrace(traceName);
+		
+		Iterator<Element> traceIt = traceEl.elementIterator();
+		while (traceIt.hasNext()) {
+			Element locEl = traceIt.next();
+			
+			double lat = Double.parseDouble(locEl.attributeValue("lat"));
+			double lon = Double.parseDouble(locEl.attributeValue("lon"));
+			
+			trace.addLocation(new Location(lat, lon));
+		}
+		
+		FaultSectionPrefData data = new FaultSectionPrefData();
+		data.setSectionId(sectionId);
+		data.setSectionName(sectionName);
+		data.setShortName(shortName);
+		data.setAveLongTermSlipRate(aveLongTermSlipRate);
+		data.setAveDip(aveDip);
+		data.setAveRake(aveRake);
+		data.setAveUpperDepth(aveUpperDepth);
+		data.setAveLowerDepth(aveLowerDepth);
+		data.setAseismicSlipFactor(aseismicSlipFactor);
+		data.setDipDirection(dipDirection);
+		data.setFaultTrace(trace);
+		
+		return data;
 	}
 
 }
