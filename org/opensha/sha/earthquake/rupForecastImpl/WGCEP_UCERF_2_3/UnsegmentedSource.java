@@ -243,6 +243,22 @@ public class UnsegmentedSource extends ProbEqkSource {
 		} else {
 			combinedGriddedSurface = segmentData.getCombinedGriddedSurface(UCERF2.GRID_SPACING);
 		}
+/*		
+		// Test
+		if(segmentData.getFaultName().equals("Chino, alt 1")) {
+			double ddwCorrFactor = somerville_magAreaRel.getMedianArea((sourceMag1+sourceMag2)/2)/(segmentData.getTotalArea()/1e6);
+			System.out.println(
+					sourceMag1+"\t"+
+					sourceMag2+"\t"+
+					segmentData.getTotalArea()/1e6+"\t"+
+					combinedGriddedSurface.getSurfaceLength()*combinedGriddedSurface.getSurfaceWidth()+"\t"+
+					ddwCorrFactor*segmentData.getTotalArea()/1e6+"\t"+
+					ddwCorrFactor+"\t"+
+					somerville_magAreaRel.getMedianArea(6.65)+"\t"+
+					combinedGriddedSurface.getSurfaceLength()+"\t"+combinedGriddedSurface.getSurfaceWidth()+"\t"
+					);
+		}
+*/
 		
 		// create the source
 		mkRuptureList(combinedGriddedSurface,
@@ -1164,6 +1180,14 @@ public class UnsegmentedSource extends ProbEqkSource {
 			double rupLen = rupArea/rup_width;
 			int numRup=-1, firstRupIndex=-1, lastRupIndex=-1, rupIndexOffset=-1;
 			double finalRupOffset=0, finalRupWidth=0;
+		
+			
+			//Test
+//			if(sourceName.equals("Santa Monica, alt 1"))
+			//if(sourceName.equals("Puente Hills (Santa Fe Springs)"))
+//			if(sourceName.equals("Chino, alt 1"))
+//				System.out.println(rupArea+"\t"+rupLen+"\t"+rup_width+"\t"+surface.getSurfaceWidth()+"\t"+surface.getSurfaceLength());
+		
 			
 			if(floaterType == CENTERED_DOWNDIP_FLOATER) {
 				// float only along center of DDW extent - FAILED ATTEMPT!
@@ -1203,6 +1227,22 @@ public class UnsegmentedSource extends ProbEqkSource {
 				rup.setAveRake(rake);
 				rup.setMag(mag);
 				GriddedSubsetSurface rupSurf = surface.getNthSubsetSurface(rupLen,finalRupWidth,finalRupOffset,r);
+				
+				/* TEST
+				double tempAreaRatio = rupArea/(rupSurf.getSurfaceLength()*rupSurf.getSurfaceWidth());
+				double tol = 0.05;
+				if(tempAreaRatio>1+tol || tempAreaRatio>1+tol)
+					System.out.println(sourceName+"\t"+r+"\t"+mag+"\t"+rupArea+"\t"+
+							rupSurf.getSurfaceLength()*rupSurf.getSurfaceWidth()+"\t"+
+							tempAreaRatio+"\t"+
+							rupSurf.getSurfaceLength()+"\t"+
+							rupSurf.getSurfaceWidth()+"\t"+
+							surface.getSurfaceLength()*surface.getSurfaceWidth()+"\t"+
+							surface.getSurfaceLength()+"\t"+
+							surface.getSurfaceWidth());
+				*/
+//System.out.println(sourceName+"\t"+r+"\t"+mag+"\tFLOATER");
+				
 				rup.setRuptureSurface(rupSurf);
 				// set probability
 			    double empiricalCorr=1;
@@ -1227,6 +1267,7 @@ public class UnsegmentedSource extends ProbEqkSource {
 	    if(empiricalModel != null) {
 	    	empiricalCorr = empiricalModel.getCorrection(surface)*empirical_weight + (1-empirical_weight); 
 	    }
+//charMFD=null;
 	    for (int i=0; charMFD!=null && i<charMFD.getNum(); ++i){
 	    	double rate = charMFD.getY(i);
 	    	if(rate == 0) continue;	// skip zero rates
@@ -1240,6 +1281,8 @@ public class UnsegmentedSource extends ProbEqkSource {
 	    	totSrcRateEmp += rupRate;
 	    	rup.setProbability(1- Math.exp(-duration*rupRate));
 	    	ruptureList.add(rup);
+//System.out.println(sourceName+"\t"+i+"\t"+mag+"\tFULL");
+
 	    }
 	    totNumChar_rups = ruptureList.size()-totNumGR_rups;
 	    sourceGain = totSrcRateEmp/totSrcRate;
@@ -1377,6 +1420,14 @@ public class UnsegmentedSource extends ProbEqkSource {
 		Iterator it = this.surface.getAllByRowsIterator();
 		while(it.hasNext()) locList.addLocation((Location)it.next());
 		return locList;
+	}
+	
+	/**
+	 * This returns the number of GR (floating) ruptures, which are at the beginning of the
+	 * list (e.g., if this is zero then all are char (full-fault) ruptures)
+	 */
+	public int getNumGR_rups() {
+		return totNumGR_rups;
 	}
 
 }
