@@ -141,7 +141,7 @@ public class DeformationModelSummaryFinal {
 				Element el = it.next();
 				
 				DeformationModelSummary def = DeformationModelSummary.fromXMLMetadata(el);
-				System.out.println("Loaded Def Model: " + def.getDeformationModelName() + " " + def.getDeformationModelId());
+//				System.out.println("Loaded Def Model: " + def.getDeformationModelName() + " " + def.getDeformationModelId());
 				deformationModelSummariesList.add(def);
 			}
 		} catch (MalformedURLException e) {
