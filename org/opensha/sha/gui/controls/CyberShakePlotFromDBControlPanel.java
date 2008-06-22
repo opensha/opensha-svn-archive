@@ -656,21 +656,21 @@ public class CyberShakePlotFromDBControlPanel
     return function;
   }
 
-public void setProgressIndeterminate(boolean indeterminate) {
-	if (calcProgress != null)
-		calcProgress.setProgressIndeterminate(indeterminate);
-}
-
-public void setProgressMessage(String message) {
-	if (calcProgress != null)
-		calcProgress.setProgressMessage(message);
-}
-
-public void setProgress(int currentIndex, int total) {
-	if (calcProgress != null) {
-		System.out.println("Updating progress: " + currentIndex + " " + total);
-		calcProgress.updateProgress(currentIndex, total);
-	}
-}
+//public void setProgressIndeterminate(boolean indeterminate) {
+//	if (calcProgress != null)
+//		calcProgress.setProgressIndeterminate(indeterminate);
+//}
+//
+//public void setProgressMessage(String message) {
+//	if (calcProgress != null)
+//		calcProgress.setProgressMessage(message);
+//}
+//
+//public void setProgress(int currentIndex, int total) {
+//	if (calcProgress != null) {
+//		System.out.println("Updating progress: " + currentIndex + " " + total);
+//		calcProgress.updateProgress(currentIndex, total);
+//	}
+//}
 
 }

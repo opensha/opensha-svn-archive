@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.util.ProgressListener;
+//import org.opensha.util.ProgressListener;
 
 public class HazardCurveComputation {
 
@@ -17,7 +17,7 @@ public class HazardCurveComputation {
 	private SiteInfo2DBAPI siteDB;
 	private double CONVERSION_TO_G = 980;
 	
-	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
+//	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 	
 	public HazardCurveComputation(DBAccess db){
 		peakAmplitudes = new PeakAmplitudesFromDB(db);
@@ -111,7 +111,7 @@ public class HazardCurveComputation {
 		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(site, erfId);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
-			updateProgress(srcIndex, numSrcs);
+//			updateProgress(srcIndex, numSrcs);
 			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
 			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(site, erfId, srcId);
@@ -166,17 +166,17 @@ public class HazardCurveComputation {
     	return peakAmplitudes;
     }
     
-    public void addProgressListener(ProgressListener listener) {
-    	progressListeners.add(listener);
-    }
-	
-    public void removeProgressListener(ProgressListener listener) {
-    	progressListeners.remove(listener);
-    }
-    
-    private void updateProgress(int current, int total) {
-    	for (ProgressListener listener : progressListeners) {
-    		listener.setProgress(current, total);
-    	}
-    }
+//    public void addProgressListener(ProgressListener listener) {
+//    	progressListeners.add(listener);
+//    }
+//	
+//    public void removeProgressListener(ProgressListener listener) {
+//    	progressListeners.remove(listener);
+//    }
+//    
+//    private void updateProgress(int current, int total) {
+//    	for (ProgressListener listener : progressListeners) {
+//    		listener.setProgress(current, total);
+//    	}
+//    }
 }
