@@ -201,11 +201,10 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable 
 		
 		for (int j=0; j<trace.getNumLocations(); j++) {
 			Location loc = trace.getLocationAt(j);
-			Element locEl = traceEl.addElement("Location");
 			
-			locEl.addAttribute("lat", loc.getLatitude() + "");
-			locEl.addAttribute("lon", loc.getLongitude() + "");
+			traceEl = loc.toXMLMetadata(traceEl);
 		}
+		
 		return root;
 	}
 	
@@ -232,10 +231,7 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable 
 		while (traceIt.hasNext()) {
 			Element locEl = traceIt.next();
 			
-			double lat = Double.parseDouble(locEl.attributeValue("lat"));
-			double lon = Double.parseDouble(locEl.attributeValue("lon"));
-			
-			trace.addLocation(new Location(lat, lon));
+			trace.addLocation(Location.fromXMLMetadata(locEl));
 		}
 		
 		FaultSectionPrefData data = new FaultSectionPrefData();
