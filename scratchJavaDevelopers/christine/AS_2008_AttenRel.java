@@ -92,7 +92,7 @@ public class AS_2008_AttenRel
   
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2008)";
-  private final static String AS_2008_CoeffFile = "as_2008_coeff.txt";
+  private final static String AS_2008_CoeffFile = "scratchJavaDevelopers/christine/as_2008_coeff.txt";
   
   // Local variables declaration
   double[] per,VLIN,b,a1,a2,a8,a10,a12,a13,a14,a15,a16,a18,s1e,s2e,s1m,s2m,s3,s4,rho;
