@@ -72,6 +72,24 @@ public class AS_2008_AttenRel
   private static final long serialVersionUID = 1234567890987654358L;
 
 
+  /**
+   * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
+   * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
+   * This parameter is created in the initSiteParams() method here, but the
+   * warning constraint must be created and added in subclasses.
+   */
+   protected WarningDoubleParameter depthTo1pt0kmPerSecParam = null;
+   public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
+   public final static String DEPTH_1pt0_UNITS = "km";
+   public final static String DEPTH_1pt0_INFO =
+   "The depth to where shear-wave velocity = 1.0 km/sec";
+   public final static Double DEPTH_1pt0_DEFAULT = new Double("1.0");
+   protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
+   protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
+   // warning values set in subclasses
+
+   
+  
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2008)";
   private final static String AS_2008_CoeffFile = "as_2008_coeff.txt";
