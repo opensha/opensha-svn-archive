@@ -52,7 +52,7 @@ public class AttenuationRelationshipApplet extends JFrame
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.10.21";
+    protected final static String version = "0.10.22";
     //protected final static String version = "0";
     protected final static boolean D = false;
 
@@ -1170,7 +1170,7 @@ public class AttenuationRelationshipApplet extends JFrame
              */
             function = attenRel.getChoosenFunction();
           }catch(RuntimeException e){
-            //e.printStackTrace();
+            e.printStackTrace();
             JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
             return;
           }
