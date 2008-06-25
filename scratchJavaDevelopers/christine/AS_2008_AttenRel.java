@@ -78,7 +78,7 @@ public class AS_2008_AttenRel
    * This parameter is created in the initSiteParams() method here, but the
    * warning constraint must be created and added in subclasses.
    */
-   protected WarningDoubleParameter depthTo1pt0kmPerSecParam = null;
+   protected WarningDoubleParameter depthTo1pt0kmPerSecParam = new WarningDoubleParameter(DEPTH_1pt0_NAME, DEPTH_1pt0_DEFAULT);
    public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
    public final static String DEPTH_1pt0_UNITS = "km";
    public final static String DEPTH_1pt0_INFO =
