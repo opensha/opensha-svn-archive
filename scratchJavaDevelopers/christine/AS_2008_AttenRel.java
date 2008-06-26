@@ -109,7 +109,7 @@ public class AS_2008_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, depthTo1pt0kmPerSec,dip;
+  private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, dip;
   private String stdDevType, component;
   private boolean magSaturation;
   private boolean parameterChange;
@@ -519,15 +519,18 @@ private void readCoeffFile(){
 	  // compute rJB
 	  rJB = rRup - distRupMinusJB_OverRup*rRup;
 	  
-	  // set default value of basin depth based on the final value of vs30
-	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
-	  if(Double.isNaN(depthTo1pt0kmPerSec)){
-		  if(vs30 <= 2500)
-			  depthTo1pt0kmPerSec = 2;
-		  else
-			  depthTo1pt0kmPerSec = 0;
-	  }
-	    
+//	  // set default value of basin depth based on the final value of vs30
+//	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
+//	  if(Double.isNaN(depthTo1pt0kmPerSec)){
+//		  if(vs30 <= 2500)
+//			  depthTo1pt0kmPerSec = 2;
+//		  else
+//			  depthTo1pt0kmPerSec = 0;
+//	  }
+	  
+	  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
+
+	  
 	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 			  rupWidth, depthTop, depthTo1pt0kmPerSec, magSaturation, 0));
 	  
