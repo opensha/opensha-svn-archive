@@ -565,6 +565,7 @@ private void readCoeffFile(){
 
 	  // set default value of basin depth based on the final value of vs30
 	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
+	  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
 	  if(Double.isNaN(depthTo1pt0kmPerSec)){
 		  if(vs30 <= 2500)
 			  depthTo1pt0kmPerSec = 2;
@@ -1083,6 +1084,7 @@ private void readCoeffFile(){
 		  vs30 = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(DEPTH_1pt0_NAME)) {
+		  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
 		  if(val == null)
 			  depthTo1pt0kmPerSec = Double.NaN;  // can't set the defauly here because vs30 could still change
 		  else
