@@ -530,7 +530,6 @@ private void readCoeffFile(){
 	  
 	  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
 
-	  
 	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 			  rupWidth, depthTop, depthTo1pt0kmPerSec, magSaturation, 0));
 	  
