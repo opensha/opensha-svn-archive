@@ -22,36 +22,32 @@ import org.opensha.util.FileUtils;
 /**
  * <b>Title:</b> AS_2008_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship published by Abrahamson & Silva (2008, Earthquake Spectra, pre-print v06) <p>
+ * <b>Description:</b> This implements the Attenuation Relationship published by Abrahamson & Silva (see reference below) <p>
+ * <b>Reference:</b> Abrahamson, N. and Silva, W. (2008) "Summary of the Abrahamson & Silva NGA Ground-Motion Relations", Earthquake Spectra, 24(1) , pp. 67-97 <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>pgvParam - Peak Ground Velocity
  * <LI>saParam - Response Spectral Acceleration
- * </UL><p>
+ * </UL>
  * Other Independent Parameters:<p>
  * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>fltTypeParam - Style of faulting
- * <LI>rupTopDepthParam - Depth to top of rupture
- * <LI>dipParam - Rupture surface dip
- * <LI>distanceRupParam - Closest distance to surface projection of fault
- * <LI>distanceRupXParam - Horizontal distance from top edge of rupture
- * <li>distRupMinusJB_OverRupParam - used as a proxy for hanging wall effect
- * <LI>vs30Param 
- * <li>depthTo1pt0kmPerSecParam
- * <LI>componentParam - Component of shaking
+ * <LI>magParam - Moment magnitude
+ * <LI>fltTypeParam - Style of faulting (SS, REV, NORM)
+ * <LI>rupTopDepthParam - Depth to top of rupture (km)
+ * <LI>rupWidth - Down-dip rupture width (km)
+ * <LI>dipParam - Rupture surface dip (degrees)
+ * <LI>distanceRupParam - Closest distance to surface projection of fault (km)
+ * <LI>vs30Param - Average shear wave velocity of top 30 m of soil/rock (m/s)
+ * <li>depthTo1pt0kmPerSecParam - Depth to shear wave velocity Vs=1.0km/s (km)
+ * <LI>componentParam - Component of shaking - Only GMRotI50 is supported
  * <LI>stdDevTypeParam - The type of standard deviation
- * <li>
- * </UL></p>
+ * <LI>rX - Horizontal distance from top edge of rupture
+ * <LI>rJB - Joyner-Boore distance
+ * </UL>
  * <p>
- * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
- * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec SA should 
- * not be less than that of PGA (the latter being given if so).
- * <p>
- * Verification :
+ * Verification : Not done as of June 28 2008
  * </p>
  *
  * @author     Christine Goulet
@@ -60,10 +56,13 @@ import org.opensha.util.FileUtils;
  */
 
 
+
+
 public class AS_2008_AttenRel
     extends AttenuationRelationship implements
     AttenuationRelationshipAPI,
     NamedObjectAPI, ParameterChangeListener {
+
 
   // Debugging stuff
   private final static String C = "AS_2008_CG_AttenRel";
@@ -72,23 +71,53 @@ public class AS_2008_AttenRel
   private static final long serialVersionUID = 1234567890987654358L;
 
 
+  
+  
   /**
    * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
    * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
-   * This parameter is created in the initSiteParams() method here, but the
-   * warning constraint must be created and added in subclasses.
    */
    protected WarningDoubleParameter depthTo1pt0kmPerSecParam = new WarningDoubleParameter(DEPTH_1pt0_NAME, DEPTH_1pt0_DEFAULT);
-   public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
-   public final static String DEPTH_1pt0_UNITS = "km";
+   public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec (m)";
+   public final static String DEPTH_1pt0_UNITS = "m";
    public final static String DEPTH_1pt0_INFO =
-   "The depth to where shear-wave velocity = 1.0 km/sec";
+   "The depth (m) to where shear-wave velocity = 1.0 km/sec";
    public final static Double DEPTH_1pt0_DEFAULT = new Double("1.0");
    protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
    protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
-   // warning values set in subclasses
-
-   
+ 
+  /**
+   * Down-dip width of fault rupture plane
+   */
+   protected WarningDoubleParameter rupWidthParam = new WarningDoubleParameter(RUP_WIDTH_NAME, RUP_WIDTH_DEFAULT);
+   public final static String RUP_WIDTH_NAME = "FaultRup. Down-Dip Width (km)";
+   public final static String RUP_WIDTH_UNITS = "km";
+   public final static String RUP_WIDTH_INFO =
+   "Fault down-dip rupture width (km)";
+   protected final static Double RUP_WIDTH_MIN = new Double(1.0);
+   protected final static Double RUP_WIDTH_MAX = new Double(100.0);
+ 
+  /**
+   * Horizontal distance to top edge of fault rupture used in Abrahamson & Silva and Chiou & Youngs
+   */
+   protected WarningDoubleParameter distanceXParam = new WarningDoubleParameter(DISTANCE_X_NAME, DISTANCE_X_DEFAULT);
+   public final static String DISTANCE_X_NAME = "DistanceX (km)";
+   public final static String DISTANCE_X_UNITS = "km";
+   public final static String DISTANCE_X_INFO =
+   "Horizontal distance to top edge of rupture, measured ppd to strike (km)";
+   protected final static Double DISTANCE_X_MIN = new Double(0.0);
+   protected final static Double DISTANCE_X_MAX = new Double(200.0);
+ 
+   /**
+   * Joyner-Boore distance
+   */
+   protected WarningDoubleParameter distanceJBParam = new WarningDoubleParameter(DISTANCE_JB_NAME, DISTANCE_JB_DEFAULT);
+   public final static String DISTANCE_JB_NAME = "DistanceJB (km)";
+   public final static String DISTANCE_JB_UNITS = "km";
+   public final static String DISTANCE_JB_INFO =
+   "Joyner-Boore Distance (km)";
+   protected final static Double DISTANCE_JB_MIN = new Double(0.0);
+   protected final static Double DISTANCE_JB_MAX = new Double(200.0);
   
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2008)";
@@ -100,44 +129,67 @@ public class AS_2008_AttenRel
   double c1 = 6.75;
   double c4 = 4.5;
   double a3 = 0.265;
-  double a4 = -0.265;
+  double a4 = -0.231;
   double a5 = -0.398;
   double N = 1.18;
   double c = 1.88;
   double c2 = 50.0;
+  double sigmaamp=0.3;
     
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rJB, rRup, distRupMinusJB_OverRup, f_rv, f_nm, mag, depthTop, dip;
+  private double vs30, rRup, f_rv, f_nm, hw, vsm, mag, depthTop, dip;
   private String stdDevType, component;
-  private boolean magSaturation;
   private boolean parameterChange;
   
   private PropagationEffect propagationEffect;
 
   // values for warning parameters
-  protected final static Double MAG_WARN_MIN = new Double(4.0);
+  protected final static Double MAG_WARN_MIN = new Double(5.0);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
-  protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
-  protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
+  protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
+  protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
+  protected final static Double DISTANCE_X_WARN_MIN = new Double(0.0);
+  protected final static Double DISTANCE_X_WARN_MAX = new Double(200.0);
   protected final static Double VS30_WARN_MIN = new Double(150.0);
   protected final static Double VS30_WARN_MAX = new Double(1500.0);
   protected final static Double DEPTH_1pt0_WARN_MIN = new Double(0);
-  protected final static Double DEPTH_1pt0_WARN_MAX = new Double(10);
+  protected final static Double DEPTH_1pt0_WARN_MAX = new Double(10000);
   protected final static Double DIP_WARN_MIN = new Double(15);
   protected final static Double DIP_WARN_MAX = new Double(90);
   protected final static Double RUP_TOP_WARN_MIN = new Double(0);
   protected final static Double RUP_TOP_WARN_MAX = new Double(15);
-  
+  protected final static Double RUP_WIDTH_WARN_MIN = new Double(5);
+  protected final static Double RUP_WIDTH_WARN_MAX = new Double(100);
+    
   // style of faulting options
   public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
   public final static String FLT_TYPE_REVERSE = "Reverse";
   public final static String FLT_TYPE_NORMAL = "Normal";
   public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
+  // HWFlag of site (hangingwall side or footwall)
+  protected StringParameter flagHWParam = new StringParameter(HW_FLAG_NAME);
+  public final static String HW_FLAG_NAME = "Flag for site location.";
+  public final static String HW_FLAG_INFO = 
+	  "Select appropriate location of site relative to dip of fault.";
+  public final static String HW_FLAG_HW = "Hanging Wall Side";
+  public final static String HW_FLAG_FW = "Foot Wall Side";
+  public final static String HW_FLAG_DEFAULT = HW_FLAG_HW;
+
+  // VSFlag vs30 (measured or estimated)
+  protected StringParameter flagVSParam = new StringParameter(VS_FLAG_NAME);
+  public final static String VS_FLAG_NAME = "Flag for Vs30 value.";
+  public final static String VS_FLAG_INFO = 
+	  "Select how Vs30 was obtained.";
+  public final static String VS_FLAG_M = "Measured";
+  public final static String VS_FLAG_E = "Estimated";
+  public final static String VS_FLAG_DEFAULT = VS_FLAG_E;
+  
+  
   // change component default from that of parent
   String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
 
@@ -146,19 +198,12 @@ public class AS_2008_AttenRel
    */
   private DistanceRupParameter distanceRupParam = null;
   private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
-
-  
-  /**
-   * this is used to compute JB Distance value, used as a proxy for computing their
-   * hanging-wall term.
-   */
-  private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
-  private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
-
+  private final static Double DISTANCE_JB_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
+  private final static Double DISTANCE_X_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
+  protected final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
-
 
   /**
    *  This initializes several ParameterList objects.
@@ -186,7 +231,35 @@ public class AS_2008_AttenRel
     propagationEffect = new PropagationEffect();
     propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
  
+//per,VLIN,b,a1,a2,a8,a10,a12,a13,a14,a15,a16,a18,s1e,s2e,s1m,s2m,s3,s4,rho;
+
+    System.out.print("\nper"); for(int i=0; i<per.length;i++) System.out.print("\t"+per[i]);
+    System.out.print("\nVLIN"); for(int i=0; i<per.length;i++) System.out.print("\t"+VLIN[i]);
+    System.out.print("\nb"); for(int i=0; i<per.length;i++) System.out.print("\t"+b[i]);
+    System.out.print("\na1"); for(int i=0; i<per.length;i++) System.out.print("\t"+a1[i]);
+    System.out.print("\na2"); for(int i=0; i<per.length;i++) System.out.print("\t"+a2[i]);
+    System.out.print("\na8"); for(int i=0; i<per.length;i++) System.out.print("\t"+a8[i]);
+    System.out.print("\na10"); for(int i=0; i<per.length;i++) System.out.print("\t"+a10[i]);
+    System.out.print("\na12"); for(int i=0; i<per.length;i++) System.out.print("\t"+a12[i]);
+    System.out.print("\na13"); for(int i=0; i<per.length;i++) System.out.print("\t"+a13[i]);
+    System.out.print("\na14"); for(int i=0; i<per.length;i++) System.out.print("\t"+a14[i]);
+    System.out.print("\na15"); for(int i=0; i<per.length;i++) System.out.print("\t"+a15[i]);
+    System.out.print("\na16"); for(int i=0; i<per.length;i++) System.out.print("\t"+a16[i]);
+    System.out.print("\na18"); for(int i=0; i<per.length;i++) System.out.print("\t"+a18[i]);
+    System.out.print("\ns1e"); for(int i=0; i<per.length;i++) System.out.print("\t"+s1e[i]);
+    System.out.print("\ns2e"); for(int i=0; i<per.length;i++) System.out.print("\t"+s2e[i]);
+    System.out.print("\ns1m"); for(int i=0; i<per.length;i++) System.out.print("\t"+s1m[i]);
+    System.out.print("\ns2m"); for(int i=0; i<per.length;i++) System.out.print("\t"+s2m[i]);
+    System.out.print("\ns3"); for(int i=0; i<per.length;i++) System.out.print("\t"+s3[i]);
+    System.out.print("\ns4"); for(int i=0; i<per.length;i++) System.out.print("\t"+s4[i]);
+    System.out.print("\nrho"); for(int i=0; i<per.length;i++) System.out.print("\t"+rho[i]);
+
+
+    
+    
     }
+  
+  
   
   @SuppressWarnings("unchecked")
 private void readCoeffFile(){
@@ -394,12 +467,13 @@ private void readCoeffFile(){
 	  for(int i=0;i<c.length;++i)
 		  c[i] = coeff.get(i);
   }
-  
+
+
   /**
    *  This sets the eqkRupture related parameters (magParam
    *  and fltTypeParam) based on the eqkRupture passed in.
    *  The internally held eqkRupture object is also set as that
-   *  passed in.  Warning constraints are ingored.
+   *  passed in.  Warning constraints are ignored.
    *
    * @param  eqkRupture  The new eqkRupture value
    * @throws InvalidRangeException thrown if rake is out of bounds
@@ -431,6 +505,7 @@ private void readCoeffFile(){
 	  
   }
 
+  
   /**
    *  This sets the site-related parameter (siteTypeParam) based on what is in
    *  the Site object passed in (the Site object must have a parameter with
@@ -446,9 +521,9 @@ private void readCoeffFile(){
     vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
     depthTo1pt0kmPerSecParam.setValueIgnoreWarning(site.getParameter(this.DEPTH_1pt0_NAME).
                                       getValue());
+    
     this.site = site;
     setPropagationEffectParams();
-
   }
 
   /**
@@ -460,19 +535,14 @@ private void readCoeffFile(){
     if ( (this.site != null) && (this.eqkRupture != null)) {
    
     	propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
-//    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
-    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
-    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
-    	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
-    	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);
+////    	System.out.println(propagationEffect.getParamValue(distanceRupParam.NAME));
+//    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
+//    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
+//    	double dRupMinusJB_OverRup = (rRup-dist_jb)/rRup;
+//    	distRupMinusJB_OverRupParam.setValueIgnoreWarning(dRupMinusJB_OverRup);
     }
   }
 
-	double rX = rRup; // CG 20080624: need to add a new parameter rX somewhere else. Used as = to rRup to get going for now
-	double rupWidth = 10; // CG 20080624: need to add a new parameter rX somewhere else. Used as = 10 to get going for now
-
-  
-  
   /**
    * This function returns the array index for the coeffs corresponding to the chosen IMT
    */
@@ -497,7 +567,6 @@ private void readCoeffFile(){
     }
     parameterChange = true;
     intensityMeasureChanged = false;
-
   }
 
   /**
@@ -516,38 +585,29 @@ private void readCoeffFile(){
 		  setCoeffIndex();  // intensityMeasureChanged is set to false in this method
 	  }
 	  
-	  // compute rJB
-	  rJB = rRup - distRupMinusJB_OverRup*rRup;
-	  
-//	  // set default value of basin depth based on the final value of vs30
-//	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
-//	  if(Double.isNaN(depthTo1pt0kmPerSec)){
-//		  if(vs30 <= 2500)
-//			  depthTo1pt0kmPerSec = 2;
-//		  else
-//			  depthTo1pt0kmPerSec = 0;
-//	  }
-	  
+      double rX = (Double)distanceXParam.getValue();
+	  double rJB = (Double)distanceJBParam.getValue();
+	  double rupWidth = (Double)rupWidthParam.getValue();
 	  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
-
+	  
 	  double pga_rock = Math.exp(getMean(2, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
-			  rupWidth, depthTop, depthTo1pt0kmPerSec, magSaturation, 0));
+			  rupWidth, depthTop, depthTo1pt0kmPerSec,hw,  0));
 	  
 	  double mean = getMean(iper, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
-			  depthTop, depthTo1pt0kmPerSec, magSaturation, pga_rock);
+			  depthTop, depthTo1pt0kmPerSec, hw, pga_rock);
 	  
-// System.out.println(mean+"\t"+iper+"\t"+vs30+"\t"+rRup+"\t"+rJB+"\t"+f_rv+"\t"+f_nm+"\t"+mag+"\t"+dip+"\t"+depthTop+"\t"+depthTo1pt0kmPerSec+"\t"+magSaturation+"\t"+pga_rock);
+// System.out.println(mean+"\t"+iper+"\t"+vs30+"\t"+rRup+"\t"+rJB+"\t"+f_rv+"\t"+f_nm+"\t"+mag+"\t"+dip+"\t"+depthTop+"\t"+depthTo1pt0kmPerSec+"\t"+"\t"+pga_rock);
 
-// make sure SA does not exceed PGA if per < 0.2 (page 11 of pre-print)
+// CG: This was in CB. Need to check if it applies to AS: 
+//	  make sure SA does not exceed PGA if per < 0.2 (page 11 of pre-print CB)
 	  if(iper < 3 || iper > 11 ) // not SA period between 0.02 and 0.15
 		  return mean;
 	  else {
 		  double pga_mean = getMean(2, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
-				  depthTop, depthTo1pt0kmPerSec, magSaturation, pga_rock); // mean for PGA
+				  depthTop, depthTo1pt0kmPerSec, hw, pga_rock); // mean for PGA
 		  return Math.max(mean,pga_mean);
 	  }
   }
-
 
 
   /**
@@ -558,23 +618,23 @@ private void readCoeffFile(){
 		  setCoeffIndex();  // intensityMeasureChanged is set to false in this method
 	  }
 	  
-	  // compute rJB
-	  rJB = rRup - distRupMinusJB_OverRup*rRup;
-
-
-	  // set default value of basin depth based on the final value of vs30
-	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
+      double rX = (Double)distanceXParam.getValue();
+	  double rJB = (Double)distanceJBParam.getValue();
+	  double rupWidth = (Double)rupWidthParam.getValue();
 	  double depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
-	  if(Double.isNaN(depthTo1pt0kmPerSec)){
-		  if(vs30 <= 2500)
-			  depthTo1pt0kmPerSec = 2;
-		  else
-			  depthTo1pt0kmPerSec = 0;
-	  }
+
+//	  // set default value of basin depth based on the final value of vs30
+//	  // (must do this here because we get pga_rock below by passing in 1100 m/s)
+//	  if(Double.isNaN(depthTo1pt0kmPerSec)){
+//		  if(vs30 <= 2500)
+//			  depthTo1pt0kmPerSec = 2;
+//		  else
+//			  depthTo1pt0kmPerSec = 0;
+//	  }
 
 	  double pga_rock = Double.NaN;
 	  if(vs30 < VLIN[iper]) 
-		  pga_rock = Math.exp(getMean(2, 1100, rRup, rX, rJB, f_rv, f_nm, mag,dip, rupWidth, depthTop, depthTo1pt0kmPerSec, magSaturation, 0));
+		  pga_rock = Math.exp(getMean(2, 1100, rRup, rX, rJB, f_rv, f_nm, mag,dip, rupWidth, depthTop, depthTo1pt0kmPerSec, hw, 0));
 	  
 	  component = (String)componentParam.getValue();
 	  
@@ -592,11 +652,13 @@ private void readCoeffFile(){
   public void setParamDefaults() {
 
     vs30Param.setValue(VS30_DEFAULT);
+    flagVSParam.setValue(VS_FLAG_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     fltTypeParam.setValue(FLT_TYPE_DEFAULT);
+    flagHWParam.setValue(HW_FLAG_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
+    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
     saParam.setValue(SA_DEFAULT);
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
@@ -606,12 +668,12 @@ private void readCoeffFile(){
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
-
+    rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
+    
     
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     mag = ( (Double) magParam.getValue()).doubleValue();
     stdDevType = (String) stdDevTypeParam.getValue();
-    
   }
 
   /**
@@ -625,21 +687,26 @@ private void readCoeffFile(){
 
     // params that the mean depends upon
     meanIndependentParams.clear();
-    meanIndependentParams.addParameter(distanceRupParam);
-    meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
-    meanIndependentParams.addParameter(vs30Param);
-    meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
     meanIndependentParams.addParameter(magParam);
+    meanIndependentParams.addParameter(distanceRupParam);
+    meanIndependentParams.addParameter(distanceJBParam);
+    meanIndependentParams.addParameter(distanceXParam);
     meanIndependentParams.addParameter(fltTypeParam);
+    meanIndependentParams.addParameter(flagHWParam);
     meanIndependentParams.addParameter(rupTopDepthParam);
+    meanIndependentParams.addParameter(rupWidthParam);
     meanIndependentParams.addParameter(dipParam);
+    meanIndependentParams.addParameter(vs30Param);
+    meanIndependentParams.addParameter(flagVSParam);
+    meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
     meanIndependentParams.addParameter(componentParam);
-     
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameterList(meanIndependentParams);
     stdDevIndependentParams.addParameter(stdDevTypeParam);
+//    meanIndependentParams.addParameter(flagVSParam);
+
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
@@ -677,10 +744,25 @@ private void readCoeffFile(){
     depthTo1pt0kmPerSecParam.addParameterChangeWarningListener(warningListener);
     depthTo1pt0kmPerSecParam.setNonEditable();
 
+    StringConstraint constraintHW = new StringConstraint();
+    constraintHW.addString(HW_FLAG_HW);
+    constraintHW.addString(HW_FLAG_FW);
+    constraintHW.setNonEditable();
+    flagHWParam = new StringParameter(HW_FLAG_NAME, constraintHW, null);
+    flagHWParam.setInfo(HW_FLAG_INFO);
+    flagHWParam.setNonEditable();
+
+    StringConstraint constraintVS = new StringConstraint();
+    constraintVS.addString(VS_FLAG_M);
+    constraintVS.addString(VS_FLAG_E);
+    constraintVS.setNonEditable();
+    flagVSParam = new StringParameter(VS_FLAG_NAME, constraintVS, null);
+    flagVSParam.setInfo(VS_FLAG_INFO);
+    flagVSParam.setNonEditable();
+    
     siteParams.clear();
     siteParams.addParameter(vs30Param);
     siteParams.addParameter(depthTo1pt0kmPerSecParam);
-
   }
 
   /**
@@ -721,8 +803,6 @@ private void readCoeffFile(){
     fltTypeParam.setInfo(FLT_TYPE_INFO);
     fltTypeParam.setNonEditable();
 
-
-
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
     eqkRuptureParams.addParameter(fltTypeParam);
@@ -744,17 +824,8 @@ private void readCoeffFile(){
     distanceRupParam.addParameterChangeWarningListener(warningListener);
 
     distanceRupParam.setNonEditable();
-
-    //create distRupMinusJB_OverRupParam
-    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
-    DoubleConstraint warnJB = new DoubleConstraint(DISTANCE_MINUS_WARN_MIN, DISTANCE_MINUS_WARN_MAX);
-    distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
-    warn.setNonEditable();
-    distRupMinusJB_OverRupParam.setWarningConstraint(warnJB);
-    distRupMinusJB_OverRupParam.setNonEditable();
     
     propagationEffectParams.addParameter(distanceRupParam);
-    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
 
   }
 
@@ -876,13 +947,13 @@ private void readCoeffFile(){
    * @param iper
    * @param vs30
    * @param rRup
-   * @param distJB
+   * @param rJB
+   * @param rX
    * @param f_rv
    * @param f_nm
    * @param mag
    * @param depthTop
    * @param depthTo1pt0kmPerSec
-   * @param magSaturation
    * @param pga_rock
    * @return
    */
@@ -890,15 +961,17 @@ private void readCoeffFile(){
   
   
   public double getMean(int iper, double vs30, double rRup, 
-                            double distJB, double rX, double f_rv,
-                            double f_nm, double mag, double dip, double rupWidth, double depthTop,
-                            double depthTo1pt0kmPerSec,
-                            boolean magSaturation, double pga_rock) {
+                            double rJB, double rX, double f_rv,
+                            double f_nm, double mag, double dip, 
+                            double rupWidth, double depthTop,
+                            double depthTo1pt0kmPerSec, double hw,
+                            double pga_rock) {
 
+//	   System.out.print("\nper"); for(int i=0; i<per.length;i++) System.out.print("\t"+per[i]);
 
     double rR, v1, vs30Star, f1, f4, f5, f6, f8, f10;
     
-    //"Base model": f1 term, dependent on magnitude and distance
+    //"Base model": f1 term (eq. 2), dependent on magnitude and distance
     rR=Math.sqrt(Math.pow(rRup,2)+Math.pow(c4,2));
     
     if(mag<=c1)
@@ -906,8 +979,8 @@ private void readCoeffFile(){
     else
    			f1 = a1[iper]+a5*(mag-c1)+a8[iper]*Math.pow(8.5-mag,2)+(a2[iper]+a3*(mag-c1))*Math.log(rR);
 
-    //"Site response model": f5_pga1100 term and required computation for v1 and vs30Star
-    //Vs30 dependent term v1
+    //"Site response model": f5_pga1100 (eq. 5) term and required computation for v1 and vs30Star
+    //Vs30 dependent term v1 (eq. 6)
     if(per[iper]<=0.5)
     	v1=1500;
     else if(per[iper] > 0.5 && per[iper] <=1.0)
@@ -918,23 +991,23 @@ private void readCoeffFile(){
     	v1 = 700;
     	    	// CG 20080624 Need to add that for IM=PGV, v1=862 m/s
 
-    //Vs30 dependent term vs30Star
+    //Vs30 dependent term vs30Star (eq. 5)
     if(vs30<v1)
     	vs30Star = vs30;
     else
     	vs30Star = v1;
     
-    //f5_pga1100
+    //f5_pga1100 (eq. 4)
     if (vs30<VLIN[iper])
     	f5 = a10[iper]*Math.log(vs30Star/VLIN[iper])-b[iper]*Math.log(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N));
     else		
     	f5 = (a10[iper]+b[iper]*N)*Math.log(vs30Star / VLIN[iper]);
     
-    //"Hanging wall model": f4 term and required computation of T1, T2, T3, T4 and T5
+    //"Hanging wall model": f4 (eq. 7) term and required computation of T1, T2, T3, T4 and T5 (eqs. 8-12)
     double T1, T2, T3, T4, T5;
     
-    if (distJB<30)
-    	T1=1-distJB/30;
+    if (rJB<30)
+    	T1=1-rJB/30;
     else
     	T1=0;
     
@@ -960,16 +1033,20 @@ private void readCoeffFile(){
    else
 	   T5 = 1;
 	   
-   // f4 term
-   f4 = a14[iper]*T1*T2*T3*T4*T5;
-    
-   // "Depth to top of rupture model": f6 term
+   // f4 term: CG 20080628 Note this should be optimized so that f4 is only computed for HW=1. 
+   //Need to change the if structure a bit to do so, but it works now.
+   if(hw>0)
+	   f4 = a14[iper]*T1*T2*T3*T4*T5;
+   else
+	   f4=0;
+   
+   // "Depth to top of rupture model": f6 term (eq. 13)
    if(depthTop<10)
 	   f6 = a16[iper]*depthTop/10;
    else
 	   f6 = a16[iper];
 
-   // "Large distance model": f8 term and required T6 computation
+   // "Large distance model": f8 term (eq. 14) and required T6 computation (eq. 15)
    double T6;
 
    if(mag<5.5)
@@ -984,7 +1061,7 @@ private void readCoeffFile(){
    else
 	   f8=a18[iper]*(rRup - 100)*T6;
    
-   // "Soil depth model": f10 term and required z1Hat, a21, e2 and a22 computation
+   // "Soil depth model": f10 term (eq. 16) and required z1Hat, a21, e2 and a22 computation (eqs. 17-20)
    double z1Hat, e2, a21test, a21, a22;
    
    if(vs30<180)
@@ -1020,11 +1097,11 @@ private void readCoeffFile(){
 	   f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
 	   
    
-   // "Constant displacement model" : Td
+   // "Constant displacement model" : Td (eq. 21)
    double Td;
    		Td=Math.pow(-1.25+0.3*mag,10);
    		
-   // "Mean" 
+   // "Mean" : Sa (eqs. 22 and 1) 
    		double cgMean;
    		//if(per[iper]<Td)
    			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm + f5 + f4 + f6 + f8 + f10; 
@@ -1043,17 +1120,67 @@ private void readCoeffFile(){
   * @param component
   * @return
   */
-  public double getStdDev(int iper, String stdDevType, String component, double vs30, double rock_pga) {
+  public double getStdDev(int iper, String stdDevType, String component, double vs30, double pga_rock) {
 
 	  if (stdDevType.equals(STD_DEV_TYPE_NONE))
 		  return 0.0;
 	  else {
+		  // Compute sigma0 (eq. 27), tau0 (eq. 28) and dterm (eq. 26) 
+		  double  dterm, s1, s1PGA, s2, s2PGA,  sigma0, sigma0PGA, tau0, tau0PGA, sigmaB, sigmaBPGA, tauB, tauBPGA, sigma, tau;  
+		  
+		  // dterm (eq. 26)
+		  if(vs30>=VLIN[iper])
+			  dterm=0;
+		  else
+			  dterm=(-b[iper]*pga_rock/(pga_rock+c))+1/(pga_rock+c*Math.pow(vs30/VLIN[iper],N));
+
+		  // Define appropriate s1 and s2 values depending on how Vs30 was obtained (measured or estimated)
+		  if(vsm>0){
+			  s1=s1m[iper];
+			  s1PGA=s1m[2];
+			  s2=s2m[iper];				
+		  	  s2PGA=s2m[2];}
+		  else {
+			  s1=s1e[iper];
+			  s1PGA=s1e[2];
+			  s2=s2e[iper];
+		      s2PGA=s2e[2];}
+		  
+		  // Compute sigma0 (eq. 27)
+		  if(mag<5){
+			  sigma0=s1;
+		  	  sigma0PGA=s1PGA;}
+		  else if(mag>7){
+			  sigma0=s2;
+			  sigma0PGA=s2PGA;}
+		  else{
+			  sigma0=s1+0.5*(s2-s1)*(mag-5);
+			  sigma0PGA=s1PGA+0.5*(s2PGA-s1PGA)*(mag-5);}
+		  
+		  // Compute tau0 (eq. 28)
+		  if(mag<5){
+			  tau0=s3[iper];
+			  tau0PGA=s3[2];}
+		  else if(mag>7){
+			  tau0=s4[iper];
+			  tau0PGA=s4[2];}
+		  else{
+			  tau0=s3[iper]+0.5*(s4[iper]-s3[iper])*(mag-5);
+			  tau0PGA=s3[2]+0.5*(s4[2]-s3[2])*(mag-5);}
+
+		  // Compute sigmaB  (eq. 23)
+		      sigmaB=Math.sqrt(Math.pow(sigma0,2)-Math.pow(sigmaamp,2));
+			  sigmaBPGA=Math.sqrt(Math.pow(sigma0PGA,2)-Math.pow(sigmaamp,2));
+
+		  // Compute tauB
+			  tauB=tau0;
+			  tauBPGA=tau0PGA;
+
+	      // compute intra-event sigma
+			  sigma = Math.pow(sigma0,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2*dterm*sigmaB*sigmaBPGA*rho[iper];
 
 		  // get tau - inter-event term
-		  double tau =0;
-
-		  // compute intra-event sigma
-		  double sigma = 0;
+			  tau = Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2*dterm*tauB*tauBPGA*rho[iper];
 
 		  // compute total sigma
 		  double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
@@ -1075,9 +1202,6 @@ private void readCoeffFile(){
 	  parameterChange = true;
 	  if (pName.equals(DistanceRupParameter.NAME)) {
 		  rRup = ( (Double) val).doubleValue();
-	  }
-	  else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
-		  distRupMinusJB_OverRup = ( (Double) val).doubleValue();
 	  }
 	  else if (pName.equals(VS30_NAME)) {
 		  vs30 = ( (Double) val).doubleValue();
@@ -1107,6 +1231,24 @@ private void readCoeffFile(){
 			  f_nm = 0;
 		  }
 	  }
+	  else if (pName.equals(HW_FLAG_NAME)) {
+		  String flagHW = (String)flagHWParam.getValue();
+		  if (flagHW.equals(HW_FLAG_HW)) {
+			  hw = 1 ;
+		  }
+		  else if (flagHW.equals(HW_FLAG_FW)) {
+			  hw = 0;
+		  }
+	  }
+	  else if (pName.equals(VS_FLAG_NAME)) {
+		  String flagVS = (String)flagVSParam.getValue();
+		  if (flagVS.equals(VS_FLAG_E)) {
+			  vsm = 0 ;
+		  }
+		  else if (flagVS.equals(VS_FLAG_M)) {
+			  vsm = 1;
+		  }
+	  }
 	  else if (pName.equals(RUP_TOP_NAME)) {
 		  depthTop = ( (Double) val).doubleValue();
 	  }
@@ -1129,12 +1271,14 @@ private void readCoeffFile(){
    */
   public void resetParameterEventListeners(){
     distanceRupParam.removeParameterChangeListener(this);
-    distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
+    distanceJBParam.removeParameterChangeListener(this);
+    distanceXParam.removeParameterChangeListener(this);
     vs30Param.removeParameterChangeListener(this);
     depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
     fltTypeParam.removeParameterChangeListener(this);
     rupTopDepthParam.removeParameterChangeListener(this);
+    rupWidthParam.removeParameterChangeListener(this);
     dipParam.removeParameterChangeListener(this);
     stdDevTypeParam.removeParameterChangeListener(this);
     periodParam.removeParameterChangeListener(this);
@@ -1149,12 +1293,14 @@ private void readCoeffFile(){
   protected void initParameterEventListeners() {
 
     distanceRupParam.addParameterChangeListener(this);
-    distRupMinusJB_OverRupParam.addParameterChangeListener(this);
+    distanceJBParam.addParameterChangeListener(this);
+    distanceXParam.addParameterChangeListener(this);
     vs30Param.addParameterChangeListener(this);
     depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     fltTypeParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
+    rupWidthParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
@@ -1170,11 +1316,12 @@ private void readCoeffFile(){
   }   
   
   /**
-   * This tests DistJB numerical precision with respect to the f_hngR term.  Looks OK now.
+   * CG: This comment was for CB 2008. Need to check with Ned what's the reason behind it:
+   * This tests rJB numerical precision with respect to the f_hngR term.  Looks OK now.
    * @param args
    */
   public static void main(String[] args) {
-
+   
 	  Location loc1 = new Location(-0.1, 0.0, 0);
 	  Location loc2 = new Location(+0.1, 0.0, 0);
 	  FaultTrace faultTrace = new FaultTrace("test");
