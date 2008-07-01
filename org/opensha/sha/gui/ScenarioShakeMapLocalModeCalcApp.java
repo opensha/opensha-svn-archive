@@ -46,6 +46,7 @@ public class ScenarioShakeMapLocalModeCalcApp
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
   public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
+  public final static String WGCEP_MEAN_UCERF2_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
 
   /**
    * Initialize the ERF Gui Bean
@@ -58,6 +59,7 @@ public class ScenarioShakeMapLocalModeCalcApp
      *  The object class names for all the supported Eqk Rup Forecasts
      */
     erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+    erf_Classes.add(WGCEP_MEAN_UCERF2_CLASS_NAME);
     erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
     //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
     //   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);

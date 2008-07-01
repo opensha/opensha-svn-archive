@@ -140,7 +140,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 	private NonCA_FaultsFetcher nonCA_B_Faultsfetcher = new NonCA_FaultsFetcher();
 
 	// whether we need to calculate MFDs for verification purposes
-	private boolean calcSummedMFDs = false;
+	public boolean calcSummedMFDs = false;
 	
 	
 	private final static String A_FAULTS_POISS_FILENAME= "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/MeanUCERF2/Segmented_5km_Poiss.txt";
@@ -1119,8 +1119,21 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		
+		long startTime = System.currentTimeMillis();
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		meanUCERF2.calcSummedMFDs  =false;
+		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+//		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
+//		meanUCERF2.getTimeSpan().setDuration(30.0);
+//		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
+		meanUCERF2.updateForecast();
+		long endTime = System.currentTimeMillis();
+		double totTime = ((double)(endTime-startTime))/1000.0;
+		System.out.println("runtime = "+totTime);
+
+/*		
+		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.calcSummedMFDs  =false;
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME,5.0);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
@@ -1130,7 +1143,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
 		meanUCERF2.writeRuptureData("CyberShakeMagAreaData.txt", "CyberShakeAveMagVsAreaForCharSources.txt");
-		
+*/		
 //		meanUCERF2.writeB_FaultMgt67probs();
 //		meanUCERF2.writeFaultSourceSurfaceOutlines();
 //		for(int src=0; src<meanUCERF2.getNumSources(); src++)
