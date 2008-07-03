@@ -354,7 +354,7 @@ public class AS_1997_SiteSpecific_AttenRel
     
     stdDevIndependentParams.addParameter(AF_FuncForm);
     stdDevIndependentParams.addParameter(AF_AddRefAccParam);
-    stdDevIndependentParams.addParameter(AF_InterceptParam);
+//    stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
     stdDevIndependentParams.addParameter(AF_StdDevParam);
     stdDevIndependentParams.addParameter(componentParam);
