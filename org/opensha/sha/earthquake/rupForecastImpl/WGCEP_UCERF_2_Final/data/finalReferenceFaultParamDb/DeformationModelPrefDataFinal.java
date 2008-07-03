@@ -175,6 +175,23 @@ public class DeformationModelPrefDataFinal {
 	}
 	
 	/**
+	 * Get all Fault Section Pref data for a deformation model ID
+	 * @param deformationModelId
+	 * @return
+	 */
+	public ArrayList<FaultSectionPrefData> getAllFaultSectionPrefData(int deformationModelId) {
+		ArrayList<Integer> ids = this.getFaultSectionIdsForDeformationModel(deformationModelId);
+		
+		ArrayList<FaultSectionPrefData> sections = new ArrayList<FaultSectionPrefData>();
+		
+		for (int id : ids) {
+			sections.add(this.getFaultSectionPrefData(deformationModelId, id).clone());
+		}
+		
+		return sections;
+	}
+	
+	/**
 	   * This reads the XML file containing the deformation model summaries and puts them into deformationModelSummariesList
 	   */
 	private void readDeformationModelSummariesXML_File() {
@@ -238,7 +255,10 @@ public class DeformationModelPrefDataFinal {
 			e.printStackTrace();
 		}
 	}
-
+	
+	private void saveCompleteXMLFile() {
+		
+	}
 	
 	public static void main(String[] args) {
 		DeformationModelPrefDataFinal test = new DeformationModelPrefDataFinal();
