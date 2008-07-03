@@ -19,7 +19,7 @@ import org.opensha.sha.fault.SimpleFaultData;
  * @author vipingupta
  *
  */
-public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable {
+public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable, Cloneable {
 	
 	public static final String XML_METADATA_NAME = "FaultSectionPrefData";
 	
@@ -249,5 +249,13 @@ public class FaultSectionPrefData  implements java.io.Serializable, XMLSaveable 
 		
 		return data;
 	}
-
+	
+	public FaultSectionPrefData clone() {
+		
+		FaultSectionPrefData section = new FaultSectionPrefData();
+		
+		section.setFaultSectionPrefData(this);
+		
+		return section;
+	}
 }
