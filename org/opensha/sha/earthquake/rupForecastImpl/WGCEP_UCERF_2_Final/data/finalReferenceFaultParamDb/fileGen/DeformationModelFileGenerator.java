@@ -50,6 +50,23 @@ public class DeformationModelFileGenerator {
 			
 			ArrayList<FaultSectionPrefData> faultSections = defModels.getAllFaultSectionPrefData(id);
 			
+			ArrayList<FaultSectionPrefData> noSlips = new ArrayList<FaultSectionPrefData>();
+			
+			for (FaultSectionPrefData section : faultSections) {
+				// skip all sections with NaN slip rates
+				if (section.getAveLongTermSlipRate() == Double.NaN ||
+						(section.getAveLongTermSlipRate() + "").equals(Double.NaN + "")) {
+//					System.out.println("Skipping Fault " + section.getSectionName());
+					noSlips.add(section);
+				}
+			}
+			
+			int before = faultSections.size();
+			if (noSlips.size() > 0)
+				faultSections.removeAll(noSlips);
+			System.out.println("Removed " + (before - faultSections.size()) + " NaN Faults for "
+					+ summary.getDeformationModelName() + " (" + summary.getFaultModel().getFaultModelName() + ")");
+			
 			if (sort)
 				Collections.sort(faultSections, new FaultSectionNameComparator());
 			
@@ -112,11 +129,11 @@ public class DeformationModelFileGenerator {
 			fw.write("# Section Name" + "\n");
 			fw.write("# Ave Upper Seis Depth (km)" + "\n");
 			fw.write("# Ave Lower Seis Depth (km)" + "\n");
-			fw.write("# Ave Dip (degrees)" + "\n");
+			fw.write("# Ave Dip (degrees) defined by http://www.opensha.org/documentation/glossary/AkiRichardsDefn.html" + "\n");
 			fw.write("# Ave Long Term Slip Rate" + "\n");
 			fw.write("# Ave Long Term Slip Rate Standard Deviation" + "\n");
 			fw.write("# Ave Aseismic Slip Factor" + "\n");
-			fw.write("# Ave Rake" + "\n");
+			fw.write("# Ave Rake defined by http://www.opensha.org/documentation/glossary/AkiRichardsDefn.html" + "\n");
 //			fw.write("#Trace Length (derivative value) (km)" + "\n");
 			fw.write("# Num Trace Points" + "\n");
 			fw.write("# lat1 lon1 depth1" + "\n");
@@ -126,13 +143,13 @@ public class DeformationModelFileGenerator {
 			
 			for (FaultSectionPrefData section : sections) {
 				fw.write(section.getSectionName() + "\n");
-				fw.write(section.getAveUpperDepth() + "\n");
-				fw.write(section.getAveLowerDepth() + "\n");
-				fw.write(section.getAveDip() + "\n");
-				fw.write(section.getAveLongTermSlipRate() + "\n");
-				fw.write(section.getSlipRateStdDev() + "\n");
-				fw.write(section.getAseismicSlipFactor() + "\n");
-				fw.write(section.getAveRake() + "\n");
+				fw.write((float)section.getAveUpperDepth() + "\n");
+				fw.write((float)section.getAveLowerDepth() + "\n");
+				fw.write((float)section.getAveDip() + "\n");
+				fw.write((float)section.getAveLongTermSlipRate() + "\n");
+				fw.write((float)section.getSlipRateStdDev() + "\n");
+				fw.write((float)section.getAseismicSlipFactor() + "\n");
+				fw.write((float)section.getAveRake() + "\n");
 				
 				FaultTrace trace = section.getFaultTrace();
 				
