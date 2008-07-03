@@ -50,11 +50,11 @@ public class ToroEtAl_1997_AttenRel
     NamedObjectAPI, ParameterChangeListener {
 
 
-		public static void main(String[] args) {
-			// TODO Auto-generated method stub
-			System.out.println("Hello world!");
-
-		}
+//		public static void main(String[] args) {
+//			// TODO Auto-generated method stub
+//			System.out.println("Hello world!");
+//
+//		}
 
 	
 	
@@ -110,6 +110,8 @@ public class ToroEtAl_1997_AttenRel
   protected final static Double VS30_WARN_MIN = new Double(180.0);
   protected final static Double VS30_WARN_MAX = new Double(2500.0);
   
+  public final static String STD_DEV_TYPE_BASEMENT = "Basement rock";
+  
   /**
    * The DistanceRupParameter, closest distance to fault surface.
    */
@@ -138,6 +140,7 @@ public class ToroEtAl_1997_AttenRel
     initEqkRuptureParams();
     initPropagationEffectParams();
     initSiteParams();
+    initOtherParams();
 
     initIndependentParamLists(); // This must be called after the above
     initParameterEventListeners(); //add the change listeners to the parameters
@@ -254,7 +257,7 @@ public class ToroEtAl_1997_AttenRel
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
     pgaParam.setValue(PGA_DEFAULT);
-//    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
+    stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 
     vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
@@ -273,13 +276,14 @@ public class ToroEtAl_1997_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     meanIndependentParams.addParameter(distanceJBParam);
-    meanIndependentParams.addParameter(vs30Param);
+//    meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(magParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameter(distanceJBParam);
     stdDevIndependentParams.addParameter(magParam);
+    stdDevIndependentParams.addParameter(stdDevTypeParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
@@ -414,6 +418,27 @@ public class ToroEtAl_1997_AttenRel
 
   }
 
+  protected void initOtherParams() {
+
+	    // init other params defined in parent class
+	    super.initOtherParams();
+
+	    // the stdDevType Parameter
+	    StringConstraint stdDevTypeConstraint = new StringConstraint();
+	    stdDevTypeConstraint.addString(STD_DEV_TYPE_TOTAL);
+	    stdDevTypeConstraint.addString(STD_DEV_TYPE_BASEMENT);
+	    stdDevTypeConstraint.setNonEditable();
+	    stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
+	                                          stdDevTypeConstraint,
+	                                          STD_DEV_TYPE_DEFAULT);
+	    stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
+	    stdDevTypeParam.setNonEditable();
+
+	    // add these to the list
+	    otherParams.addParameter(stdDevTypeParam);
+
+	  }
+
 
   /**
    * get the name of this IMR
@@ -447,7 +472,7 @@ public class ToroEtAl_1997_AttenRel
 	// site response from Silva et al. 1996
 	
 	if (vs30 < v1) {
-		Fsite = 0.2;
+		Fsite = 0;
 	}
 	else {
 		Fsite = 0;
@@ -490,8 +515,14 @@ public class ToroEtAl_1997_AttenRel
 		  sigmae = 0.36 + 0.07*(mag-6.0);
 	  }
 	  
-	  return sigmatot = (Math.sqrt(sigmaaM*sigmaaM+sigmaaR*sigmaaR+sigmae*sigmae));
+	  sigmatot = (Math.sqrt(sigmaaM*sigmaaM+sigmaaR*sigmaaR+sigmae*sigmae));
 	  
+	    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_BASEMENT)) {
+	        return Math.sqrt(sigmatot*sigmatot-0.3*0.3);
+	      }
+	    else {
+	    	return sigmatot ;
+	    }	  
   }
 
   /**
