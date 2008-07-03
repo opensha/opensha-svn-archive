@@ -136,9 +136,9 @@ public class DeformationModelFileGenerator {
 			fw.write("# Ave Rake defined by http://www.opensha.org/documentation/glossary/AkiRichardsDefn.html" + "\n");
 //			fw.write("#Trace Length (derivative value) (km)" + "\n");
 			fw.write("# Num Trace Points" + "\n");
-			fw.write("# lat1 lon1 depth1" + "\n");
-			fw.write("# lat2 lon2 depth2" + "\n");
-			fw.write("# latN lonN depthN" + "\n");
+			fw.write("# lat1 lon1" + "\n");
+			fw.write("# lat2 lon2" + "\n");
+			fw.write("# latN lonN" + "\n");
 			fw.write("#********************************" + "\n");
 			
 			for (FaultSectionPrefData section : sections) {
@@ -158,7 +158,7 @@ public class DeformationModelFileGenerator {
 				for (int i=0; i<trace.getNumLocations(); i++) {
 					Location loc = trace.getLocationAt(i);
 					
-					fw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + loc.getDepth() + "\n");
+					fw.write(loc.getLatitude() + " " + loc.getLongitude() + "\n");
 				}
 				fw.write("\n");
 			}
@@ -203,9 +203,75 @@ public class DeformationModelFileGenerator {
 		}
 	}
 	
+	public void printComparisonTable() {
+		// slow but easy to program this way
+		ArrayList<Integer> differing = new ArrayList<Integer>();
+		
+		int max_model = 3;
+		
+		for (int i=0; i<deformationModelSummariesList.size(); i++) {
+			if (i == max_model)
+				break;
+			DeformationModelSummary summary = deformationModelSummariesList.get(i);
+			ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
+			
+			for (int j=0; j<sections.size(); j++) {
+				FaultSectionPrefData section = sections.get(j);
+				for (int k=0; k<deformationModelSummariesList.size(); k++) {
+					if (k == max_model)
+						break;
+					DeformationModelSummary summary2 = deformationModelSummariesList.get(k);
+					ArrayList<FaultSectionPrefData> sections2 = faulSectionIDListList.get(k);
+					
+					FaultSectionPrefData section2 = sections2.get(j);
+					
+					float slip1 = (float)section.getAveLongTermSlipRate();
+					float slip2 = (float)section2.getAveLongTermSlipRate();
+					
+					if (slip1 != slip2) {
+
+						boolean contains = false;
+
+						for (Integer theInt : differing) {
+							int l = theInt;
+							if (l == j) {
+								contains = true;
+								break;
+							}
+						}
+						if (!contains) {
+//							System.out.println(slip1 + " " + slip2);
+							differing.add(j);
+						}
+						break;
+					}
+				}
+			}
+			if (i > 0)
+//				System.out.print("ID\t");
+//			else
+				System.out.print("\t\t");
+			System.out.print(summary.getDeformationModelName());
+		}
+		for (Integer id : differing) {
+			System.out.println();
+//			System.out.print(faulSectionIDListList.get(0).get(id).getSectionId());
+			for (int i=0; i<deformationModelSummariesList.size(); i++) {
+				if (i == max_model)
+					break;
+				ArrayList<FaultSectionPrefData> sections = faulSectionIDListList.get(i);
+				float slip = (float)sections.get(id).getAveLongTermSlipRate();
+				float stdDev = (float)sections.get(id).getSlipRateStdDev();
+				System.out.print(slip + "(" + stdDev + ")" + "\t");
+			}
+			System.out.print(faulSectionIDListList.get(0).get(id).getSectionName());
+		}
+	}
+	
 	public static void main(String args[]) {
 		DeformationModelFileGenerator gen = new DeformationModelFileGenerator();
 		gen.saveToFiles();
+		gen.printComparisonTable();
 	}
 	
 	/**
