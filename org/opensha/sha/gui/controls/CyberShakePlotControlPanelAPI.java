@@ -3,6 +3,7 @@ package org.opensha.sha.gui.controls;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import java.util.ArrayList;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -64,6 +65,28 @@ public interface CyberShakePlotControlPanelAPI {
      * similar to selected for Cybershake.
      */
     public IMT_GuiBean getIMTGuiBeanInstance();
+    
+    /**
+     * It returns the IMT Gui bean, which allows the Cybershake control panel
+     * to set the same SA period value in the main application
+     * similar to selected for Cybershake.
+     */
+    public IMR_GuiBean getIMRGuiBeanInstance();
+    
+    /**
+     * Returns the Set Site Params from Web Services control panel.
+     */
+    public SetSiteParamsFromWebServicesControlPanel getCVMControl();
+    
+    /**
+     * sets the range for X and Y axis
+     * @param xMin : minimum value for X-axis
+     * @param xMax : maximum value for X-axis
+     * @param yMin : minimum value for Y-axis
+     * @param yMax : maximum value for Y-axis
+     *
+     */
+    public void setAxisRange(double xMin,double xMax, double yMin, double yMax);
 
     /**
      * Sets the hazard curve x-axis values (if user wants custom values x-axis values).
@@ -71,4 +94,10 @@ public interface CyberShakePlotControlPanelAPI {
      * @param func
      */
     public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func);
+    
+    /**
+     * tells the application if the yLog is selected
+     * @param yLog : boolean
+     */
+    public void setY_Log(boolean yLog);
 }

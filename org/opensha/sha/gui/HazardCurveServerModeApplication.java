@@ -1954,6 +1954,12 @@ public class HazardCurveServerModeApplication extends JFrame
     cvmControlPanel.pack();
     cvmControlPanel.setVisible(true);
   }
+  
+  public SetSiteParamsFromWebServicesControlPanel getCVMControl() {
+	  if(this.cvmControlPanel==null)
+	      cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
+	  return cvmControlPanel;
+  }
 
   /**
    * initialize the X values for the Hazard Curve control Panel
@@ -2561,6 +2567,16 @@ public class HazardCurveServerModeApplication extends JFrame
   public IMT_GuiBean getIMTGuiBeanInstance() {
     return imtGuiBean;
   }
+  
+  /**
+   * It returns the IMR Gui bean, which allows the Cybershake control panel
+   * to set the gaussian truncation value in the main application
+   * similar to selected for Cybershake.
+   */
+  public IMR_GuiBean getIMRGuiBeanInstance() {
+    return imrGuiBean;
+  }
+  
  
   /**
    * Updates the IMT_GuiBean to reflect the chnaged IM for the selected AttenuationRelationship.

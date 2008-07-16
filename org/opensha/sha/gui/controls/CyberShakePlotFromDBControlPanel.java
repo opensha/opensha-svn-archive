@@ -28,7 +28,9 @@ import org.opensha.cybershake.db.PeakAmplitudesFromDBAPI;
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.exceptions.ParameterException;
 import org.opensha.param.DoubleDiscreteParameter;
+import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
@@ -41,10 +43,12 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
 import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.imr.AttenuationRelationship;
 
 /**
  * <p>Title: CyberShakePlotFromDBControlPanel </p>
@@ -461,6 +465,7 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void paramSettingButton_actionPerformed(ActionEvent actionEvent) {
     setSiteParams();
+    setIMR_Params();
     boolean imtSet = setIMT_Params();
 
     if(!imtSet)
@@ -471,6 +476,8 @@ public class CyberShakePlotFromDBControlPanel
       setEqkSrcRupSelectorParams();
     else
       setEqkRupForecastParams();
+    
+    setPlotParams();
   }
 
   /**
@@ -481,11 +488,15 @@ public class CyberShakePlotFromDBControlPanel
 	  ArrayList imlVals = application.getIML_Values();
 	  DiscretizedFuncAPI curveData = null;
 
+	  String infoString = "Site: "+ sites.get(siteNames.indexOf((String)siteSelectionParam.getValue())) + ";\n";
+	  infoString += "ERF: " + this.selectedERF + ";\n";
+	  infoString += "SGT Variation ID: " + this.selectedSGTVariation + "; Rup Var Scenario ID: " + this.selectedRupVarScenario + ";\n";
+	  infoString += "SA Period: " + (String)saPeriodParam.getValue() + ";\n";
+
 	  if(isDeterministic){
 		  curveData = getDeterministicData(imlVals);
 		  String name = "Cybershake deterministic curve";
-		  String infoString = "Site = "+ selectedSite+
-		  "; SA-Period = "+saPeriod+"; SourceIndex = "+selectedSrcId+
+		  infoString += "SourceIndex = "+selectedSrcId+
 		  "; RuptureIndex = "+selectedRupId;
 		  curveData.setName(name);
 		  curveData.setInfo(infoString);
@@ -504,8 +515,6 @@ public class CyberShakePlotFromDBControlPanel
 			  return;
 		  }
 		  String name = "Cybershake hazard curve";
-		  String infoString = "Site = "+ selectedSite+
-		  "; SA-Period = "+saPeriod;
 		  curveData.setName(name);
 		  curveData.setInfo(infoString);
 		  application.addCybershakeCurveData(curveData);
@@ -525,6 +534,7 @@ public class CyberShakePlotFromDBControlPanel
     site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(loc.getLatitude()));
     site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(loc.getLongitude()));
     site.getParameterListEditor().refreshParamEditor();
+    application.getCVMControl().setSelectedIMRButton_actionPerformed(null);
   }
 
   /**
@@ -588,6 +598,43 @@ public class CyberShakePlotFromDBControlPanel
     rupGuiBean.setRuptureForSelectedSource(Integer.parseInt(rupIndex));
     rupGuiBean.showAllParamsForForecast(true);
   }
+  
+  private void setPlotParams() {
+	  float period = (float)this.getPeriodDouble();
+	  application.setY_Log(true);
+	  double xMin = 0.0;
+	  double xMax = 2;
+	  if (Math.abs(period - 3) < 0.05)
+	  	xMax = 2.0;
+	  else if (Math.abs(period - 5) < 0.05)
+		  	xMax = 1.0;
+	  else if (Math.abs(period - 10) < 0.05)
+		  	xMax = 0.5;
+	  double yMin = Double.parseDouble("1.0E-6");
+	  double yMax = 1.0;
+	  application.setAxisRange(xMin, xMax, yMin, yMax);
+  }
+  
+  private void setIMR_Params(){
+	  IMR_GuiBean imrGui = application.getIMRGuiBeanInstance();
+	  
+//	  AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED;
+	  
+	  try {
+		StringParameter truncTypeParam = (StringParameter)imrGui.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
+		
+		truncTypeParam.setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+		
+		DoubleParameter truncLevelParam = (DoubleParameter)imrGui.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME);
+		
+		truncLevelParam.setValue(3.0);
+		
+		imrGui.refreshParamEditor();
+	} catch (ParameterException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+  }
 
   /**
    * Select the IMT and SA Period in the OpenSHA application similar to that chosen
@@ -626,6 +673,12 @@ public class CyberShakePlotFromDBControlPanel
     }
     imtGui.refreshParamEditor();
     return true;
+  }
+  
+  private double getPeriodDouble() {
+	  String saPeriodString = saPeriod.substring(10);//trimming the "SA Period" string in front of the Period value
+	  DecimalFormat format = new DecimalFormat("0.00");
+	  return Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
   }
 
   /**

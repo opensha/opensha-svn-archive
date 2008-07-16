@@ -188,7 +188,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    * for choosen IMR's
    * @param e
    */
-  void setSelectedIMRButton_actionPerformed(ActionEvent e) {
+  public void setSelectedIMRButton_actionPerformed(ActionEvent e) {
     // get latitude and longitude
     Double lon = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
     Double lat = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
