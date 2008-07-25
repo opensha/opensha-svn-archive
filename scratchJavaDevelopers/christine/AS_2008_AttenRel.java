@@ -76,7 +76,7 @@ public class AS_2008_AttenRel
    public final static String DEPTH_1pt0_UNITS = "m";
    public final static String DEPTH_1pt0_INFO =
    "The depth (m) to where shear-wave velocity = 1.0 km/sec";
-   public final static Double DEPTH_1pt0_DEFAULT = new Double("1.0");
+   public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
    protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
    protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
  
@@ -224,30 +224,6 @@ public class AS_2008_AttenRel
     
     propagationEffect = new PropagationEffect();
     propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
- 
-//per,VLIN,b,a1,a2,a8,a10,a12,a13,a14,a15,a16,a18,s1e,s2e,s1m,s2m,s3,s4,rho;
-
-//    System.out.print("\nper"); for(int i=0; i<per.length;i++) System.out.print("\t"+per[i]);
-//    System.out.print("\nVLIN"); for(int i=0; i<per.length;i++) System.out.print("\t"+VLIN[i]);
-//    System.out.print("\nb"); for(int i=0; i<per.length;i++) System.out.print("\t"+b[i]);
-//    System.out.print("\na1"); for(int i=0; i<per.length;i++) System.out.print("\t"+a1[i]);
-//    System.out.print("\na2"); for(int i=0; i<per.length;i++) System.out.print("\t"+a2[i]);
-//    System.out.print("\na8"); for(int i=0; i<per.length;i++) System.out.print("\t"+a8[i]);
-//    System.out.print("\na10"); for(int i=0; i<per.length;i++) System.out.print("\t"+a10[i]);
-//    System.out.print("\na12"); for(int i=0; i<per.length;i++) System.out.print("\t"+a12[i]);
-//    System.out.print("\na13"); for(int i=0; i<per.length;i++) System.out.print("\t"+a13[i]);
-//    System.out.print("\na14"); for(int i=0; i<per.length;i++) System.out.print("\t"+a14[i]);
-//    System.out.print("\na15"); for(int i=0; i<per.length;i++) System.out.print("\t"+a15[i]);
-//    System.out.print("\na16"); for(int i=0; i<per.length;i++) System.out.print("\t"+a16[i]);
-//    System.out.print("\na18"); for(int i=0; i<per.length;i++) System.out.print("\t"+a18[i]);
-//    System.out.print("\ns1e"); for(int i=0; i<per.length;i++) System.out.print("\t"+s1e[i]);
-//    System.out.print("\ns2e"); for(int i=0; i<per.length;i++) System.out.print("\t"+s2e[i]);
-//    System.out.print("\ns1m"); for(int i=0; i<per.length;i++) System.out.print("\t"+s1m[i]);
-//    System.out.print("\ns2m"); for(int i=0; i<per.length;i++) System.out.print("\t"+s2m[i]);
-//    System.out.print("\ns3"); for(int i=0; i<per.length;i++) System.out.print("\t"+s3[i]);
-//    System.out.print("\ns4"); for(int i=0; i<per.length;i++) System.out.print("\t"+s4[i]);
-//    System.out.print("\nrho"); for(int i=0; i<per.length;i++) System.out.print("\t"+rho[i]);
-    
     }
   
   
@@ -697,10 +673,10 @@ return mean;
 
     // params that the mean depends upon
     meanIndependentParams.clear();
-    meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(distanceRupParam);
     meanIndependentParams.addParameter(distanceJBParam);
     meanIndependentParams.addParameter(distanceXParam);
+    meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(fltTypeParam);
     meanIndependentParams.addParameter(flagHWParam);
     meanIndependentParams.addParameter(rupTopDepthParam);
@@ -950,24 +926,7 @@ return mean;
   public String getShortName() {
     return SHORT_NAME;
   }
-
-//  // TODO check with Ned if this does what I want. goulet 20080715
-//  public int searchTdIndex (double Td) {
-// 		double[] TestTd = new double[21];
-// 		int indexForTd = 23;
-// 		for(int i=2;i<23;++i){
-//		  TestTd[i] = Math.abs(Td-per[i]);
-// 		}
-// 		for(int i=2;i<22;++i){
-//	  		  if(TestTd[i+1]<=TestTd[i]) {
-//		  		   indexForTd = i;
-//	  		  } else {
-//	  			   indexForTd = i;
-//	  		  }
-// 		}
-// 		return indexForTd;
-//  	}
-   
+ 
   
   /**
    * 
@@ -1165,27 +1124,11 @@ return mean;
 	  // "Constant displacement model" : Td (Eq. 21)
    		double Td=Math.pow(10,-1.25+0.3*mag);
 //   		double cgMean;
-   		if(iTd>0 && iTd<23){
-   		
    		double medSa1100BeforeTd =  f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f6 + amp1100 +f8;
 
 		double medSa1100WithTd = medSa1100BeforeTd;
 
-//		System.out.println("Line 1166, iTD " +iTd+" medSa1100BeforeTdMinus "+medSa1100BeforeTdMinus +" medSa1100BeforeTdPlus "+medSa1100BeforeTdPlus);
-//		System.out.println("Line 1167, per[iTD] " +per[iTd]+" per[iTd+1] "+per[iTd+1]);
-
- 		double medSa1100AtTd= Math.exp(Math.log(medSa1100BeforeTdPlus/medSa1100BeforeTdMinus)/Math.log(per[iTd])/per[iTd+1]*Math.log(Td/per[iTd])+Math.log(medSa1100BeforeTdMinus));
-//		System.out.println("medSa1100BeforeTdMinus "+medSa1100BeforeTdMinus +" medSa1100BeforeTdPlus "+medSa1100BeforeTdPlus +" medSa100AtTd "+ medSa1100AtTd);
-   		
-		   // If iTd is between 1 and 22 and per[iper]>per[iTd], then getMean returns medSa1100BeforeTd (Minus or Plus)
- 		if(per[iper]>=Td){
- 				medSa1100WithTd = medSa1100AtTd*Math.pow(Td/per[iper],2);
-// 	  			double cgMean = medSa1100WithTd*Math.exp(-amp1100 + f10 +f5); 
- 	  			double cgMean = Math.log(medSa1100WithTd)-amp1100 + f10 +f5; 
- 	  			System.out.println("cgMean Case 3, medSa1100WithTd, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
- 			}
-   		}
-   		
+  		
    // "Compute Mean"  - which is actually the median! Eq. 1 and 22
 			// TODO add flag for aftershock and term in equation below
 
@@ -1193,11 +1136,17 @@ return mean;
    // If iTd=0 AND per[iper} <0.0001 AND (vs30=1100), then return pga_rock
    // Else, then return Savs30
 		double cgMean;
-		if(iTd<1 && per[iper]<0.001 && vs30>=1100 && vs30<=1100){
-  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f6 + amp1100 +f8; 
+		if(per[iper]<Td && iTd<1 && per[iper]<0.001 && vs30>=1100 && vs30<=1100){
+  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + amp1100 + f6 +f8; 
   			System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
-   		} else {
-  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  +f5 + f4 + f6 + f8 + f10; 
+		}else if(per[iper]>=Td && iTd>0 && iTd<23){
+				double medSa1100AtTd= Math.exp(Math.log(medSa1100BeforeTdPlus/medSa1100BeforeTdMinus)/Math.log(per[iTd])/per[iTd+1]*Math.log(Td/per[iTd])+Math.log(medSa1100BeforeTdMinus));
+				medSa1100WithTd = medSa1100AtTd*Math.pow(Td/per[iper],2);
+// 	  			double cgMean = medSa1100WithTd*Math.exp(-amp1100 + f10 +f5); 
+ 	  			cgMean = Math.log(medSa1100WithTd)-amp1100 +f5 + f10; 
+ 	  			System.out.println("cgMean Case 3, per[iper]>=per[iTd], per[iper]= "+per[iper] + " >= per[iTd]= "+per[iTd]);
+ 			} else {
+  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6 + f8 + f10; 
   			System.out.println("cgMean Case 2,Sa, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
   		}
    			//System.out.println("pga_rock "+ pga_rock +"\t per "+ per[iper] +"\t f1 "+f1+"\t f4 "+f4+"\t f5 "+f5+"\t f6 "+f6+"\t f8 "+f8+"\t f10 "+f10+"\t a21 "+a21+"\t a22 "+a22+"\t z1hat "+z1Hat+"\t v1 "+v1);
