@@ -1180,7 +1180,8 @@ return mean;
 		   // If iTd is between 1 and 22 and per[iper]>per[iTd], then getMean returns medSa1100BeforeTd (Minus or Plus)
  		if(per[iper]>=Td){
  				medSa1100WithTd = medSa1100AtTd*Math.pow(Td/per[iper],2);
- 	  			double cgMean = medSa1100WithTd*Math.exp(-amp1100 + f10 +f5); 
+// 	  			double cgMean = medSa1100WithTd*Math.exp(-amp1100 + f10 +f5); 
+ 	  			double cgMean = Math.log(medSa1100WithTd)-amp1100 + f10 +f5; 
  	  			System.out.println("cgMean Case 3, medSa1100WithTd, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
  			}
    		}
