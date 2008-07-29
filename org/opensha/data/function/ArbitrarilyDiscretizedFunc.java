@@ -552,7 +552,36 @@ if(debug) {
       return Math.exp(y);
     }
 
-
+    private double extrapolate(double x1, double x2, double y1, double y2,
+    		double x) {
+    	// Create the linear regression function (slope and intercept)
+    	//System.out.printf("\textrapolating(%f, %f, %f, %f, %f)\n",
+    	//		x1, x2, y1, y2, x);
+    	double slope = (y2 - y1) / (x2 - x1);
+    	double intercept = y1 - (slope * x1);
+    	//System.out.printf("\tSlope is: %f\tIntercept is: %f\n",
+    	//		slope, intercept);
+    	return (slope * x) + intercept;
+    }
+    
+    public double getInterpExterpY_inLogYDomain(double x) {
+    	try {
+    		double v =  getInterpolatedY_inLogYDomain(x);
+    		//System.err.println("interpolating(" + x + ")...");
+    		return v;
+    	} catch (InvalidRangeException irx) {
+    		//System.err.println("extrapolating(" + x + ")...");
+    		// We gotta extrapolate...
+    		if(x < getX(0)) {
+    			return Math.exp(extrapolate(getX(0), getX(1), Math.log(getY(0)),
+    					Math.log(getY(1)), x));
+    		} else {
+    			int max = points.size();
+    			return Math.exp(extrapolate(getX(max-2), getX(max-1),
+    					Math.log(getY(max-2)), Math.log(getY(max-1)), x));
+    		}
+    	}
+    }
 
     /**
      * This function returns a new copy of this list, including copies
