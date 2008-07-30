@@ -27,11 +27,9 @@ public class HazardDataCalcServlet extends HttpServlet{
    ServletException, IOException {
 
      try {
-
        // get an input stream from the applet
        ObjectInputStream inputFromApplet = new ObjectInputStream(request.
            getInputStream());
-
        //get method name and method parameters
        String mathodName = (String) inputFromApplet.readObject();
        ArrayList parameters = (ArrayList) inputFromApplet.readObject();

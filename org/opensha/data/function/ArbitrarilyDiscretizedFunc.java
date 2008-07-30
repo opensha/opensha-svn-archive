@@ -1,3 +1,4 @@
+
 package org.opensha.data.function;
 
 import java.io.IOException;

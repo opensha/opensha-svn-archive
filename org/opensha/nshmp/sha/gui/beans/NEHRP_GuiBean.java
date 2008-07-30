@@ -224,7 +224,12 @@ public class NEHRP_GuiBean
     });
 
 
-    smSDButton.setText("Calculate SM & SD Values");
+    /*
+     * 07/29/08 -- EMM: The default is now 2007 which has a different process
+     * and uses different text.
+     */
+    //smSDButton.setText("Calculate SM & SD Values");
+    smSDButton.setText("Calculate SR and SD Values");
 		smSDButton.setToolTipText(smSDToolTip);
     smSDButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -406,6 +411,15 @@ public class NEHRP_GuiBean
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
 			
+      /*
+       * 07/29/08 -- EMM: The NEHRP 2007 editions uses different text for the
+       * site modified values button. We have to make sure the text is correct.
+       */
+      if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+    	  smSDButton.setText("Calculate SR and SD Values");
+      } else {
+    	  smSDButton.setText("Calculate SM and SD Values");
+      }
       try {
         createLocation();
       }
@@ -509,6 +523,7 @@ public class NEHRP_GuiBean
 
     ArrayList<String> supportedEditionList = new ArrayList<String>();
 
+    supportedEditionList.add(GlobalConstants.NEHRP_2007);
     supportedEditionList.add(GlobalConstants.NEHRP_2003);
     supportedEditionList.add(GlobalConstants.NEHRP_2000);
     supportedEditionList.add(GlobalConstants.NEHRP_1997);
@@ -757,7 +772,7 @@ public class NEHRP_GuiBean
 			smSDButton_doActions();
 		}
 	}
-
+  	
 	protected boolean smSDButton_doActions() {
 	  if (smSDButtonClicked) { return true; }
 		if (usingBatchMode() || ssButton_doActions()) {
@@ -778,15 +793,27 @@ public class NEHRP_GuiBean
     	    			dataGenerator.setSpectraType(spectraType);
     	    			dataGenerator.setRegion(selectedRegion);
     	    			dataGenerator.setEdition(selectedEdition);
-    	    			dataGenerator.calculateSMsSm1SDsSD1(locations, conditions, outfile);
+    	    			if (selectedEdition.equals(GlobalConstants.NEHRP_2007)){
+    	    				((DataGenerator_NEHRP) dataGenerator).
+    	    				calculateSRsSR1SDsSD1(locations, conditions,
+    	    						outfile);
+    	    			} else {
+	    	    			dataGenerator.calculateSMsSm1SDsSD1(locations,
+	    	    					conditions, outfile);
+    	    			}
     	    			application.setDataInWindow(getData());
     				}
     			});
     			t.start();
     		} else {
-		      	dataGenerator.calculateSMSsS1();
-		      	dataGenerator.calculatedSDSsS1();
-    		}
+    			if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+    				((DataGenerator_NEHRP) dataGenerator).calculateSRSsS1();
+    				dataGenerator.calculatedSDSsS1();
+    			} else {
+    				dataGenerator.calculateSMSsS1();
+    				dataGenerator.calculatedSDSsS1();
+    			}
+    			}
     	}
     	catch (RemoteException e) {
       	JOptionPane.showMessageDialog(this,

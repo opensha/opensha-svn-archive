@@ -19,7 +19,7 @@ import org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI;
 public class HazardDataCalc
     extends UnicastRemoteObject implements HazardDataCalcAPI {
 
-  public HazardDataCalc() throws RemoteException {}
+  public HazardDataCalc() throws RemoteException { }
 
   /**
    *
@@ -219,6 +219,13 @@ public class HazardDataCalc
     return calc.calculateSMSsS1(function, fa, fv, siteClass);
   }
 
+  public ArbitrarilyDiscretizedFunc computeSRSsS1(
+		  ArbitrarilyDiscretizedFunc function, float fa, float fv,
+		  String siteClass) throws RemoteException {
+	SRSsS1Calculator calc = new SRSsS1Calculator();
+	return calc.calculateSRSsS1(function, fa, fv, siteClass);
+  }
+  
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc

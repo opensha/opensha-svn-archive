@@ -66,6 +66,8 @@ public final class GlobalConstants {
       "2000 NEHRP Seismic Design Provisions";
   public static final String NEHRP_2003 =
       "2003 NEHRP Seismic Design Provisions";
+  public static final String NEHRP_2007 =
+	  "2008 NEHRP Seismic Design Provisions";
   public static final String ASCE_1998 = "1998 ASCE 7 Standard";
   public static final String ASCE_2002 = "2002 ASCE 7 Standard";
   public static final String ASCE_2005 = "2005 ASCE 7 Standard";

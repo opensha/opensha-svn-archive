@@ -40,6 +40,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   public final static String COMPUTE_SA = "computeSA";
   public final static String COMPUTE_SD_SS_S1 = "computeSDSsS1";
   public final static String COMPUTE_SM_SS_S1 = "computeSMSsS1";
+  public final static String COMPUTE_SR_SS_S1 = "computeSRSsS1"; // NEHRP 2007
   public final static String COMPUTE_SM_SPECTRUM = "computeSMSpectrum";
   public final static String COMPUTE_SD_SPECTRUM = "computeSDSpectrum";
   public final static String COMPUTE_MAP_SPECTRUM  = "computeMapSpectrum";
@@ -290,6 +291,16 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SS_S1, objectList);
  }
 
+ public ArbitrarilyDiscretizedFunc getSRSsS1(ArbitrarilyDiscretizedFunc func,
+		 float fa, float fv, String siteClass) {
+	 ArrayList<Object> objectList = new ArrayList<Object>();
+	 objectList.add(func);
+	 objectList.add(new Float(fa));
+	 objectList.add(new Float(fv));
+	 objectList.add(siteClass);
+	 return (ArbitrarilyDiscretizedFunc) connectToServlet(COMPUTE_SR_SS_S1,
+			 objectList);
+ }
  /**
   *
   * @param func ArbitrarilyDiscretizedFunc
@@ -424,9 +435,6 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      	
 	  // Modify the funcName to notify server that you have current version
 	  funcName = funcName + "_V8";
-
-	  System.out.println("Func is: " + funcName);
-	  System.out.println("Object is: " + objectList);
 	  
      // send the student object to the servlet using serialization
      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
@@ -437,9 +445,7 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
      outputToServlet.flush();
      outputToServlet.close();
 
-     // now read the connection again to get the vs30 as sent by the servlet
      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-     //ArrayList of Wills Site Class Values translated from the Vs30 Values.
      Object obj =  ois.readObject();
      ois.close();
      return obj;

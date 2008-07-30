@@ -36,7 +36,8 @@ import org.opensha.data.NamedObjectAPI;
 public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
     NamedObjectAPI,java.io.Serializable{
 
-
+	private static final long serialVersionUID = 0xB141F6E;
+	
     /** Class name used for debbuging */
     protected final static String C = "DiscretizedFunc";
     /** if true print out debugging statements */
@@ -147,6 +148,7 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
         if( !getInfo().equals(function.getInfo() )  ) return false;
         return true;
     }
+    
     
     public Element toXMLMetadata(Element root) {
     	Element xml = root.addElement(DiscretizedFunc.XML_METADATA_NAME);

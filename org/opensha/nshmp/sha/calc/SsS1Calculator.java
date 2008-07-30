@@ -60,34 +60,41 @@ public class SsS1Calculator {
   public ArbitrarilyDiscretizedFunc getSsS1(String selectedRegion,
                                             String selectedEdition,
                                             double latitude, double longitude) {
+    ArbitrarilyDiscretizedFunc function =  null;
 
-    NEHRP_Record record = new NEHRP_Record();
-    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
-    String fileName = dataFileSelector.getFileName(selectedRegion,
-        selectedEdition, latitude, longitude);
-    SiteInterpolation siteSaVals = new SiteInterpolation();
-    ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(
-        fileName, record,
-        latitude, longitude);
+	
+    if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+    	function = new ArbitrarilyDiscretizedFunc();
+    	function.setInfo("Method not implemented for 2007 data.");
+    } else {
+    	NEHRP_Record record = new NEHRP_Record();
+        DataFileNameSelector dataFileSelector = new DataFileNameSelector();
+        String fileName = dataFileSelector.getFileName(selectedRegion,
+            selectedEdition, latitude, longitude);
+        SiteInterpolation siteSaVals = new SiteInterpolation();
+        
+    	function = siteSaVals.getPeriodValuesForLocation(fileName, record,
+    			latitude, longitude);
 
-    gridSpacing = siteSaVals.getGridSpacing();
-
-    //set the info for the function being added
-    String info = "";
-    info += SsS1_TITLE + "\n";
-
-    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
-    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
-                                                  GlobalConstants.SITE_CLASS_B,
-                                                  Fa, Fv);
-    info += "Data are based on a " + gridSpacing + " deg grid spacing";
-    info +=
-        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text,
-        S1_Text,
-        GlobalConstants.SITE_CLASS_B);
-    function.setInfo(info);
+	    gridSpacing = siteSaVals.getGridSpacing();
+	
+	    //set the info for the function being added
+	    String info = "";
+	    info += SsS1_TITLE + "\n";
+	
+	    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
+	    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
+	    info +=
+	        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+	                                                  GlobalConstants.SITE_CLASS_B,
+	                                                  Fa, Fv);
+	    info += "Data are based on a " + gridSpacing + " deg grid spacing";
+	    info +=
+	        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text,
+	        S1_Text,
+	        GlobalConstants.SITE_CLASS_B);
+	    function.setInfo(info);
+    }
     return function;
   }
 
@@ -101,36 +108,41 @@ public class SsS1Calculator {
                                             String selectedEdition,
                                             double latitude, double longitude,
                                             String spectraType) {
-
-    NEHRP_Record record = new NEHRP_Record();
-    DataFileNameSelectorForFEMA dataFileSelector = new
-        DataFileNameSelectorForFEMA();
-    String fileName = dataFileSelector.getFileName(selectedRegion,
-        selectedEdition, latitude,
-        longitude, spectraType);
-    SiteInterpolation siteSaVals = new SiteInterpolation();
-    ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(
-        fileName, record,
-        latitude, longitude);
-
-    gridSpacing = siteSaVals.getGridSpacing();
-
-    //set the info for the function being added
-    String info = "";
-    info += SsS1_TITLE + "\n";
-
-    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
-    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
-                                                  GlobalConstants.SITE_CLASS_B,
-                                                  Fa, Fv);
-    info += "Data are based on a " + gridSpacing + " deg grid spacing";
-    info +=
-        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text,
-        S1_Text,
-        GlobalConstants.SITE_CLASS_B);
-    function.setInfo(info);
+	ArbitrarilyDiscretizedFunc function = null;
+	if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+		function = new ArbitrarilyDiscretizedFunc();
+		function.setInfo("Method not implemented for 2007 data");
+	} else {
+	    NEHRP_Record record = new NEHRP_Record();
+	    DataFileNameSelectorForFEMA dataFileSelector = new
+	        DataFileNameSelectorForFEMA();
+	    String fileName = dataFileSelector.getFileName(selectedRegion,
+	        selectedEdition, latitude,
+	        longitude, spectraType);
+	    SiteInterpolation siteSaVals = new SiteInterpolation();
+	    function = siteSaVals.getPeriodValuesForLocation(
+	        fileName, record,
+	        latitude, longitude);
+	
+	    gridSpacing = siteSaVals.getGridSpacing();
+	
+	    //set the info for the function being added
+	    String info = "";
+	    info += SsS1_TITLE + "\n";
+	
+	    //info += "Latitude = " + latLonFormat.format(latitude) + "\n";
+	    //info += "Longitude = " + latLonFormat.format(longitude) + "\n";
+	    info +=
+	        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+	                                                  GlobalConstants.SITE_CLASS_B,
+	                                                  Fa, Fv);
+	    info += "Data are based on a " + gridSpacing + " deg grid spacing";
+	    info +=
+	        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text,
+	        S1_Text,
+	        GlobalConstants.SITE_CLASS_B);
+	    function.setInfo(info);
+	}
     return function;
   }
 

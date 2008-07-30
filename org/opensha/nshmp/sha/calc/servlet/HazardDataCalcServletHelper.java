@@ -15,11 +15,10 @@ import java.lang.reflect.Method;
  * @version 1.0
  */
 public class HazardDataCalcServletHelper {
-  public Object getResult(String methodName, ArrayList objectsList) {
+	public Object getResult(String methodName, ArrayList objectsList) {
     boolean isCurrent = false;
 	 try {
       HazardDataCalc hazardDataCalc = new HazardDataCalc();
-
 	// Cycle these comments as you release new versions
 		//if (methodName.endsWith("_V4") ) {
 		//if (methodName.endsWith("_V5") ) {
@@ -64,7 +63,7 @@ public class HazardDataCalcServletHelper {
 		}
 
     } catch (Exception e) {
-      e.printStackTrace();
+      e.printStackTrace(System.out);
     	return null;
     } 
   }
