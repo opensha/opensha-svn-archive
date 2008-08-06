@@ -63,6 +63,8 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
   
   // this will be a pointer to that in toroEtAl_1997_attenRel for local access 
   protected DistanceJBParameter distanceJBParam;
+  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
+
 
   /**
    * The current set of coefficients based on the selected intensityMeasure
@@ -147,8 +149,8 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 
     toroEtAl_1997_attenRel = new ToroEtAl_1997_AttenRel(warningListener);
     // set the site type to rock
-    double rockVS = 2000.00;
-    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
+ //   double rockVS = 2000.00;
+ //   toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
     // set the component to ave horz
 //    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.COMPONENT_NAME).setValue(
 //        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
@@ -244,6 +246,10 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
     double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
     double rVal = ((Double)AF_RupParam.getValue()).doubleValue();
+    double minDist = 0.1;
+    if (dist <minDist) {
+    	dist = minDist;
+    }
     lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6)+rVal*Math.log(dist/20);   
 
     // return the result
@@ -301,11 +307,12 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	    AF_StdDevParam.setValue(this.AF_STD_DEV_DEFAULT);
 	    toroEtAl_1997_attenRel.setParamDefaults();
 	    // re-set the site type to rock and component to ave horz
-	    double rockVS = 2000.00;
-	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
+//	    double rockVS = 2000.00;
+//	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.VS30_NAME).setValue(rockVS);
 //	    toroEtAl_1997_attenRel.getParameter(toroEtAl_1997_attenRel.COMPONENT_NAME).setValue(
 //	        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
 	    magParam.setValue(MAG_DEFAULT);
+	    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
   }
   
   
@@ -323,14 +330,14 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     ListIterator it = toroEtAl_1997_attenRel.getMeanIndependentParamsIterator();
-    String ignoreStr1 = toroEtAl_1997_attenRel.VS30_NAME;
-    String ignoreStr2 = toroEtAl_1997_attenRel.COMPONENT_NAME;
+//    String ignoreStr1 = toroEtAl_1997_attenRel.VS30_NAME;
+//    String ignoreStr2 = toroEtAl_1997_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+ //     if (!ignoreStr1.equals(param.getName()) &&
+ //         !ignoreStr2.equals(param.getName())) {
         meanIndependentParams.addParameter(param);
-      }
+ //     }
     }
     meanIndependentParams.addParameter(AF_FuncForm);
     meanIndependentParams.addParameter(AF_AddRefAccParam);
@@ -339,7 +346,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     meanIndependentParams.addParameter(AF_MagParam);
     meanIndependentParams.addParameter(AF_RupParam);
     meanIndependentParams.addParameter(AF_StdDevParam);
-    meanIndependentParams.addParameter(componentParam);
+//    meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
@@ -347,10 +354,10 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     it = toroEtAl_1997_attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+ //     if (!ignoreStr1.equals(param.getName()) &&
+ //         !ignoreStr2.equals(param.getName())) {
         stdDevIndependentParams.addParameter(param);
-      }
+  //    }
     }
     
     stdDevIndependentParams.addParameter(AF_FuncForm);
@@ -358,17 +365,17 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 //    stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
     stdDevIndependentParams.addParameter(AF_StdDevParam);
-    stdDevIndependentParams.addParameter(componentParam);
+ //   stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     it = toroEtAl_1997_attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+ //     if (!ignoreStr1.equals(param.getName()) &&
+ //         !ignoreStr2.equals(param.getName())) {
         exceedProbIndependentParams.addParameter(param);
-      }
+ //     }
     }
     
     exceedProbIndependentParams.addParameter(AF_FuncForm);
@@ -378,7 +385,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     exceedProbIndependentParams.addParameter(AF_MagParam);
     exceedProbIndependentParams.addParameter(AF_RupParam);
     exceedProbIndependentParams.addParameter(AF_StdDevParam);
-    exceedProbIndependentParams.addParameter(componentParam);
+ //   exceedProbIndependentParams.addParameter(componentParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -397,8 +404,8 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     super.initSiteParams();
 
     // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
+ //   DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
+ //   warn.setNonEditable();
 
     //make the AF functional form parameter
     StringConstraint constraint = new StringConstraint();
@@ -511,24 +518,24 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
     super.initOtherParams();
 
     // the Component Parameter (not supporting AS_1997's vertical)
-    StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
-    constraint.setNonEditable();
-    componentParam = new StringParameter(COMPONENT_NAME, constraint,
-                                         COMPONENT_DEFAULT);
-    componentParam.setInfo(COMPONENT_INFO);
-    componentParam.setNonEditable();
+//    StringConstraint constraint = new StringConstraint();
+//    constraint.addString(COMPONENT_AVE_HORZ);
+//    constraint.setNonEditable();
+//    componentParam = new StringParameter(COMPONENT_NAME, constraint,
+//                                         COMPONENT_DEFAULT);
+//    componentParam.setInfo(COMPONENT_INFO);
+//    componentParam.setNonEditable();
     // add this to the list
     otherParams.clear();
-    otherParams.addParameter(componentParam);
-    Iterator it = toroEtAl_1997_attenRel.getOtherParamsIterator();
-    Parameter param;
-    while (it.hasNext()) {
-      param = (Parameter) it.next();
-      if (!COMPONENT_NAME.equals(param.getName())) {
-        otherParams.addParameter(param);
-      }
-    }
+//    otherParams.addParameter(componentParam);
+//    Iterator it = toroEtAl_1997_attenRel.getOtherParamsIterator();
+//    Parameter param;
+//    while (it.hasNext()) {
+//      param = (Parameter) it.next();
+//      if (!COMPONENT_NAME.equals(param.getName())) {
+//        otherParams.addParameter(param);
+//      }
+//    }
   }
 
   /**
