@@ -133,7 +133,7 @@ public class DeformationModelSummaryFinal {
 		deformationModelSummariesList = new ArrayList<DeformationModelSummary>();
 
 		try {
-			Document document = reader.read(new File(XML_DATA_FILENAME));
+			Document document = reader.read(DeformationModelSummaryFinal.class.getResource("/" + XML_DATA_FILENAME));
 			Element root = document.getRootElement();
 
 			Iterator<Element> it = root.elementIterator();
@@ -144,9 +144,6 @@ public class DeformationModelSummaryFinal {
 //				System.out.println("Loaded Def Model: " + def.getDeformationModelName() + " " + def.getDeformationModelId());
 				deformationModelSummariesList.add(def);
 			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

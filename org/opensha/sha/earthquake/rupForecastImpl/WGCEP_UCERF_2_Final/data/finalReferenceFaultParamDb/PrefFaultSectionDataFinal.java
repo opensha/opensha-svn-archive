@@ -172,7 +172,7 @@ public class PrefFaultSectionDataFinal {
 		faultSectionsList = new ArrayList<FaultSectionPrefData>();
 		indexForID_Map = new HashMap();
         try {
-			Document document = reader.read(new File(XML_DATA_FILENAME));
+			Document document = reader.read(PrefFaultSectionDataFinal.class.getResource("/" + XML_DATA_FILENAME));
 			Element root = document.getRootElement();
 			
 			Iterator<Element> it = root.elementIterator();
@@ -193,9 +193,6 @@ public class PrefFaultSectionDataFinal {
 				FaultSectionPrefData fspd = faultSectionsList.get(i);
 				indexForID_Map.put(fspd.getSectionId(), new Integer(i));
 			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

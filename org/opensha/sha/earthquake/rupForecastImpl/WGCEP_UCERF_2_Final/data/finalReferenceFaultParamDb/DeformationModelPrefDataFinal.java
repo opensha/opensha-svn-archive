@@ -148,7 +148,7 @@ public class DeformationModelPrefDataFinal {
 	public FaultSectionPrefData getFaultSectionPrefData(int deformationModelId, int faultSectionId) {
 
 		// first get the default preferred data
-		FaultSectionPrefData faultSectionPrefData = prefFaultSectionDataFinal.getFaultSectionPrefData(faultSectionId);
+		FaultSectionPrefData faultSectionPrefData = prefFaultSectionDataFinal.getFaultSectionPrefData(faultSectionId).clone();
 		
 		HashMap faultSectionIdIndexMap = (HashMap) faultSectionIdIndexMapMap.get(deformationModelId);
 		int indexForSectId = ((Integer) faultSectionIdIndexMap.get(faultSectionId)).intValue();
@@ -208,7 +208,7 @@ public class DeformationModelPrefDataFinal {
 		
 		SAXReader reader = new SAXReader();
 		try {
-			Document document = reader.read(new File(XML_DATA_FILENAME));
+			Document document = reader.read(DeformationModelPrefDataFinal.class.getResource("/" + XML_DATA_FILENAME));
 			Element root = document.getRootElement();
 
 			Iterator<Element> it = root.elementIterator();
@@ -247,9 +247,6 @@ public class DeformationModelPrefDataFinal {
 				faultSectionIdIndexMapMap.put(defModId, faultSectionIdIndexMap);
 				faultSectionIdMap.put(defModId, faultSectionIdList);
 			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
