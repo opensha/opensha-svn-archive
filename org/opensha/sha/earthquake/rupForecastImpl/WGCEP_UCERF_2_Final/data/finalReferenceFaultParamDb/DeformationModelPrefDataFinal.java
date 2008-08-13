@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -208,7 +209,8 @@ public class DeformationModelPrefDataFinal {
 		
 		SAXReader reader = new SAXReader();
 		try {
-			Document document = reader.read(DeformationModelPrefDataFinal.class.getResource("/" + XML_DATA_FILENAME));
+			URL xmlURL = DeformationModelPrefDataFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 
 			Iterator<Element> it = root.elementIterator();

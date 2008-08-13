@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -133,7 +134,8 @@ public class DeformationModelSummaryFinal {
 		deformationModelSummariesList = new ArrayList<DeformationModelSummary>();
 
 		try {
-			Document document = reader.read(DeformationModelSummaryFinal.class.getResource("/" + XML_DATA_FILENAME));
+			URL xmlURL = DeformationModelSummaryFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 
 			Iterator<Element> it = root.elementIterator();

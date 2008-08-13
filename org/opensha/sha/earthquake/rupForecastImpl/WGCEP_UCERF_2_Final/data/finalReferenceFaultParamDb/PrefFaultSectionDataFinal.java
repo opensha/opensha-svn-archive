@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -172,7 +173,8 @@ public class PrefFaultSectionDataFinal {
 		faultSectionsList = new ArrayList<FaultSectionPrefData>();
 		indexForID_Map = new HashMap();
         try {
-			Document document = reader.read(PrefFaultSectionDataFinal.class.getResource("/" + XML_DATA_FILENAME));
+			URL xmlURL = PrefFaultSectionDataFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 			
 			Iterator<Element> it = root.elementIterator();
