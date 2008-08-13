@@ -97,6 +97,7 @@
 			<src path="${src}"/>
 			<include name="org/**"/>
 			<include name="nnls/**"/>
+			<include name="scratchJavaDevelopers/interns/**"/>
 			<include name="scratchJavaDevelopers/kevin/**"/>
 			<exclude name="org/opensha/nshmp/**"/>
 		</javac>
@@ -156,14 +157,15 @@
 		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/"/>
 		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/data/">
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/">
 				<include name="**/*.txt"/>
 				<include name="**/*.xls"/>
+				<include name="**/*.xml"/>
 			</fileset>
 		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/griddedSeis/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/griddedSeis/">
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/">
 				<include name="**/*.txt"/>
 				<include name="**/*.asc"/>
 			</fileset>
@@ -199,7 +201,7 @@
 			<include name="campbell_2008_coeff.txt"/>
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
-			<include name="scratchJavaDevelopers/kevin/**"/>
+			<include name="scratchJavaDevelopers/**"/>
 		</jar>
 		<antcall target="postcompile" />
 	</target>
