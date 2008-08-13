@@ -1127,7 +1127,7 @@ return mean;
 	   f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
    }
   
-System.out.println("per[iper]="+per[iper]+" e2=" +e2+" a21test=" +a21test+" a21=" +a21+" a22=" +a22+" z1Hat= "+ z1Hat+" f10= "+ f10);
+//System.out.println("per[iper]="+per[iper]+" e2=" +e2+" a21test=" +a21test+" a21=" +a21+" a22=" +a22+" z1Hat= "+ z1Hat+" f10= "+ f10);
 
    
 //   double cgtest=Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
@@ -1150,7 +1150,7 @@ System.out.println("per[iper]="+per[iper]+" e2=" +e2+" a21test=" +a21test+" a21=
 		if(per[iper]<Td && iTd<1 && per[iper]<0.001 && vs30>=1100 && vs30<=1100){
 //  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + amp1100 + f6 +f8; 
   			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6; 
-System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
+//System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
 		}else if(per[iper]>=Td && iTd>0 && iTd<23){
 				double medSa1100AtTd= Math.exp(Math.log(medSa1100BeforeTdPlus/medSa1100BeforeTdMinus)/Math.log(per[iTd])/per[iTd+1]*Math.log(Td/per[iTd])+Math.log(medSa1100BeforeTdMinus));
 				medSa1100WithTd = medSa1100AtTd*Math.pow(Td/per[iper],2);
@@ -1160,7 +1160,7 @@ System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+
  			} else {
   			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6 + f8 + f10; 
 //System.out.println("cgMean Case 2,Sa, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " cgMean=" + Math.exp(cgMean));
-System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
+//System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
   		}
 //		System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
 
