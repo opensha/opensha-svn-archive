@@ -205,7 +205,7 @@ public interface HazardDataCalcAPI
    */
   public DiscretizedFuncList computeSMSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                               String siteClass) throws
+                                               String siteClass, String edition) throws
       RemoteException;
 
   /**
@@ -217,7 +217,7 @@ public interface HazardDataCalcAPI
    */
   public DiscretizedFuncList computeSDSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                               String siteClass) throws
+                                               String siteClass, String edition) throws
       RemoteException;
 
   /**

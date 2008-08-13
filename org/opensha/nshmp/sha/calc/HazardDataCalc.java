@@ -218,13 +218,6 @@ public class HazardDataCalc
     SMSsS1Calculator calc = new SMSsS1Calculator();
     return calc.calculateSMSsS1(function, fa, fv, siteClass);
   }
-
-  public ArbitrarilyDiscretizedFunc computeSRSsS1(
-		  ArbitrarilyDiscretizedFunc function, float fa, float fv,
-		  String siteClass) throws RemoteException {
-	SRSsS1Calculator calc = new SRSsS1Calculator();
-	return calc.calculateSRSsS1(function, fa, fv, siteClass);
-  }
   
   /**
    *
@@ -264,11 +257,11 @@ public class HazardDataCalc
    */
   public DiscretizedFuncList computeSMSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                               String siteClass) throws
+                                               String siteClass, String edition) throws
       RemoteException {
 
     SpectrumCalculator calc = new SpectrumCalculator();
-    return calc.calculateSMSpectrum(function, fa, fv, siteClass);
+    return calc.calculateSMSpectrum(function, fa, fv, siteClass, edition);
   }
 
   /**
@@ -280,11 +273,11 @@ public class HazardDataCalc
    */
   public DiscretizedFuncList computeSDSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                               String siteClass) throws
+                                               String siteClass, String edition) throws
       RemoteException {
 
     SpectrumCalculator calc = new SpectrumCalculator();
-    return calc.calculateSDSpectrum(function, fa, fv, siteClass);
+    return calc.calculateSDSpectrum(function, fa, fv, siteClass, edition);
   }
 
   /**

@@ -89,7 +89,7 @@ public class SpectrumCalculator {
 
     saTfunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.MCE_SPECTRUM_SD_Vs_T_GRAPH);
-    String title = "MCE Response Spectra for Site Class B";
+    String title = "MCE Response Spectrum for Site Class B";
     String subTitle = "Ss and S1 = Mapped Spectral Acceleration Values";
 
     String info = "";
@@ -116,30 +116,38 @@ public class SpectrumCalculator {
   public DiscretizedFuncList calculateSMSpectrum(ArbitrarilyDiscretizedFunc
                                                  saVals,
                                                  float fa, float fv,
-                                                 String siteClass) {
+                                                 String siteClass, String edition) {
 
     double tAcc = saVals.getX(0);
     double sAcc = fa * saVals.getY(0);
     double sVel = fv * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
-
+    boolean is2009 = GlobalConstants.NEHRP_2009.equals(edition);
     DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
 
-    String title = "Site Modified Response Spectra for Site Class " + siteClass;
+    String title = "Site Modified Response Spectrum for " + siteClass;
+    if (is2009) { title = "RTE Reponse Spectrum for " + siteClass + "\n" +
+    	"SRs = 1.5 * SDs and SR1 = 1.5 * SD1";
+    }
     String subTitle = "SMs = FaSs and SM1 = FvS1";
 
     String info = "";
     info += title + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
+    if (!is2009) {
+    	info += DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
                                                   fa, fv);
-
-    info +=
-        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
-    funcList.setInfo(info);
+        info +=
+            DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
+        funcList.setInfo(info);
+    } else {
+    	saTfunction.setName("RTE Spectrum Sa Vs T");
+	    info +=
+	        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass, true);
+    }
+	funcList.setInfo(info);
     return funcList;
   }
 
@@ -153,7 +161,7 @@ public class SpectrumCalculator {
   public DiscretizedFuncList calculateSDSpectrum(ArbitrarilyDiscretizedFunc
                                                  saVals,
                                                  float fa, float fv,
-                                                 String siteClass) {
+                                                 String siteClass, String edition) {
     float faVal = (2.0f / 3.0f) * fa;
     float fvVal = (2.0f / 3.0f) * fv;
 
@@ -161,23 +169,27 @@ public class SpectrumCalculator {
     double sAcc = faVal * saVals.getY(0);
     double sVel = fvVal * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
+    boolean is2009 = GlobalConstants.NEHRP_2009.equals(edition);
 
     DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);
 
-    String title = "Design Response Spectra for Site Class " + siteClass;
+    String title = "Design Response Spectrum for " + siteClass;
     String subTitle = "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
 
     String info = "";
     info += title + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
+    if (!is2009) {
+    	info += DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
                                                   fa, fv);
-
-    info +=
-        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
+	    info +=
+	        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
+    } else {
+	    info +=
+	        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass, true);
+    }
     funcList.setInfo(info);
 
     return funcList;

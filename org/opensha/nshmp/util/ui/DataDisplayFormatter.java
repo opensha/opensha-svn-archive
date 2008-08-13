@@ -57,10 +57,6 @@ public final class DataDisplayFormatter {
     String dataInfo = "";
 		dataInfo += "\n" + pad("Period", 2) + pad(saString,2) + "\n";
 		dataInfo += colPad("(sec)","Period",2) + colPad("(g)", saString, 2) + "\n";
-		/*
-    dataInfo += "\nPeriod     " + saString + "\n";
-    dataInfo += "(sec)       (g)\n";
-*/
 
 		dataInfo += colPad(periodFormat.format(function.getX(0)),"Period",2) +
 			colPad(saValFormat.format(function.getY(0)),saString,2) +
@@ -68,14 +64,49 @@ public final class DataDisplayFormatter {
 		dataInfo += colPad(periodFormat.format(function.getX(1)),"Period",2) +
 			colPad(saValFormat.format(function.getY(1)),saString,2) +
 			"(" + text2+ ", " + siteClass + ")\n";
-    /*dataInfo += periodFormat.format(function.getX(0)) + "     " +
-        saValFormat.format(function.getY(0)) + "  " + text1 + "," +
-        siteClass + "\n";
-    dataInfo += periodFormat.format(function.getX(1)) + "     " +
-        saValFormat.format(function.getY(1)) + "  " + text2 + "," +
-        siteClass + "\n";
-*/
-    return dataInfo;
+  
+		return dataInfo;
+  }
+  
+  public static String createFunctionInfoString(ArbitrarilyDiscretizedFunc func,
+		  String saText, String SsText, String S1Text, String siteClass, 
+		  boolean flag){
+	  
+	  StringBuffer info = new StringBuffer("\n");
+	  
+	  // CRs and CR1
+	  info.append(pad("Period", 2) + pad("CR", 2) + "\n");
+	  info.append(colPad("(sec)","Period", 2) + "\n");
+	  info.append(colPad(periodFormat.format(func.getX(0)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(6)), "CR", 2) + " (CRs)\n");
+	  info.append(colPad(periodFormat.format(func.getX(1)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(7)), "CR", 2) + " (CRs)\n\n");
+
+	  // Column headers
+	  info.append(pad("Period", 2) + pad(saText, 2) + "\n");
+	  // Column units
+	  info.append(colPad("(sec)","Period",2)+colPad("(g)",saText,2)+"\n");
+	  
+	  // SsUH, S1UH
+	  info.append(colPad(periodFormat.format(func.getX(0)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(2)), saText, 2) +" (SsUH)\n");
+	  info.append(colPad(periodFormat.format(func.getX(1)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(3)), saText,2)+" (S1UH)\n\n");
+	  
+	  // SsD, S1D
+	  info.append(colPad(periodFormat.format(func.getX(0)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(4)), saText, 2) + " (SsD)\n");
+	  info.append(colPad(periodFormat.format(func.getX(1)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(5)), saText, 2)+" (S1D)\n\n");
+	  
+	  // Ss and S1
+	  info.append(colPad(periodFormat.format(func.getX(0)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(0)), saText, 2) + " (Ss)\n");
+	  info.append(colPad(periodFormat.format(func.getX(1)), "Period", 2) +
+			  colPad(saValFormat.format(func.getY(1)), saText, 2) + " (S1)\n");
+	  
+	  // Return the information
+	  return info.toString();
   }
 
   /**
@@ -135,6 +166,27 @@ public final class DataDisplayFormatter {
     return dataInfo;
   }
 
+  /**
+   * Creates the info string for the 2009 function spectra.
+   * @param funcs
+   * @param siteClass
+   * @param flag
+   * @return
+   */
+  public static String createFunctionInfoString(DiscretizedFuncList funcs,
+		  String siteClass, boolean flag) {
+	  StringBuffer info = new StringBuffer("\n");
+	  info.append(colPad("Period", 6, 2) + colPad("Sa", 6, 2) + "\n");
+	  info.append(colPad("(sec)", 6, 2) + colPad("(g)", 6, 2) + "\n");
+	  ArbitrarilyDiscretizedFunc func=(ArbitrarilyDiscretizedFunc) funcs.get(1);
+	  int num = func.getNum();
+	  for (int i = 0; i < num; ++i) {
+		  info.append(colPad(saValFormat.format(func.getX(i)), "Period", 2) +
+				  colPad(saValFormat.format(func.getY(i)), 6, 2) + "\n");
+	  }
+	  return info.toString();
+  }
+  
 	public static String center(String str, int width) {
 		int strLen = str.length();
 		if (strLen >= width ) return str;

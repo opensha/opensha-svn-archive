@@ -1,8 +1,15 @@
 package org.opensha.nshmp.sha.calc;
 
+import gov.usgs.db.DBHazardConnection;
+import gov.usgs.util.MathUtils;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.StringTokenizer;
 
@@ -31,6 +38,28 @@ public class SsS1Calculator {
 
   //grid spacing in file
   protected float gridSpacing;
+  
+  protected Connection conn = null;
+  protected PreparedStatement query = null;
+  protected static final String STUB = "SELECT * FROM UH_DATA_2008 " +
+  		"WHERE LAT >= ? AND LAT <= ? AND LON >= ? AND LON <= ?" +
+  		"ORDER BY LAT DESC, LON ASC";
+  
+  protected static final String SSUH_COL = "SEC_0_2";
+  protected static final String S1UH_COL = "SEC_1_0";
+  protected static final String SSDET_COL = "SEC_0_2_DET";
+  protected static final String S1DET_COL = "SEC_1_0_DET";
+  protected static final String SSCR_COL = "SEC_0_2_CR";
+  protected static final String S1CR_COL = "SEC_1_0_CR";
+  
+  protected static final int SS_IDX = 0;
+  protected static final int S1_IDX = 1;
+  protected static final int SSUH_IDX = 2;
+  protected static final int S1UH_IDX = 3;
+  protected static final int SSDET_IDX = 4;
+  protected static final int S1DET_IDX = 5;
+  protected static final int SSCR_IDX = 6;
+  protected static final int S1CR_IDX = 7;
 
   /**
    * Some static String for the data printing
@@ -51,6 +80,15 @@ public class SsS1Calculator {
 
   protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
+  public SsS1Calculator() {
+	  try {
+		  conn = (new DBHazardConnection()).getConnection();
+		  query = conn.prepareStatement(STUB);
+	  } catch (SQLException sqx) {
+		  /* Ignore for now. */
+	  }
+	  
+  }
   /**
    *
    * @param latitude double
@@ -63,9 +101,89 @@ public class SsS1Calculator {
     ArbitrarilyDiscretizedFunc function =  null;
 
 	
-    if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
-    	function = new ArbitrarilyDiscretizedFunc();
-    	function.setInfo("Method not implemented for 2007 data.");
+    if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	try {
+    		gridSpacing = (float) 0.05; // We know this.
+    		double minLat = MathUtils.precisionFloor(latitude, gridSpacing);
+    		double maxLat = MathUtils.precisionCeil(latitude, gridSpacing);
+    		double minLng = MathUtils.precisionFloor(longitude, gridSpacing);
+    		double maxLng = MathUtils.precisionCeil(longitude, gridSpacing);
+	    	query.setDouble(1, minLat);
+	    	query.setDouble(2, maxLat);
+	    	query.setDouble(3, minLng);
+	    	query.setDouble(4, maxLng);
+	    	ResultSet results = query.executeQuery();
+	    	int numUsed = 0;
+	    	ArbitrarilyDiscretizedFunc [] r = new ArbitrarilyDiscretizedFunc[4];
+	    	while(results.next()) {
+	    		ArbitrarilyDiscretizedFunc h = new ArbitrarilyDiscretizedFunc();
+	    		h.set(0.2, 0.0); // Place holder for Ss value
+	    		h.set(1.0, 0.0); // Place holder for S1 value
+	    		h.set((double) SSUH_IDX, results.getDouble(SSUH_COL));
+	    		h.set((double) S1UH_IDX, results.getDouble(S1UH_COL));
+	    		h.set((double) SSDET_IDX, results.getDouble(SSDET_COL));
+	    		h.set((double) S1DET_IDX, results.getDouble(S1DET_COL));
+	    		h.set((double) SSCR_IDX, results.getDouble(SSCR_COL));
+	    		h.set((double) S1CR_IDX, results.getDouble(S1CR_COL));
+	    		r[numUsed++] = h;
+	    	}
+	    	
+	    	if (numUsed == 4) {
+	    		// Interpolate horizontally
+	    		ArbitrarilyDiscretizedFunc f1 = interpolateFuncs(r[0], r[1],
+	    				minLng, maxLng, longitude);
+	    		
+	    		ArbitrarilyDiscretizedFunc f2 = interpolateFuncs(r[2], r[3],
+	    				minLng, maxLng, longitude);
+	    		
+	    		// Interpolate vertically	    		
+	    		function = interpolateFuncs(f1, f2, maxLat, minLat, latitude);
+	    		
+	    	} else if (numUsed == 2) {
+	    		if (minLat == latitude) {
+	    			// Latitudes matched, interpolate with respect to longitude
+	    			function = interpolateFuncs(r[0], r[1], minLng, maxLng,
+	    					longitude);
+	    		} else {
+	    			// Longitudes matched, interpolate with respect to latitude
+	    			function = interpolateFuncs(r[0], r[1], maxLat, minLat,
+	    					latitude);
+	    		}
+	    	} else if (numUsed == 1) {
+	    		// Exact match, go with it.
+	    		function = r[0];
+	    	}
+	    	
+	    	// Manipulate the function values to match the proposed revisions.
+	    	double Sds = Math.max( ( (function.getY(SSDET_IDX) / 100) * 1.8 *
+	    			1.1), 1.5);
+	    	double Ss  = Math.min( (function.getY(SSUH_IDX) * 1.1 * 
+	    			function.getY(SSCR_IDX)), Sds);
+	    	
+	    	double Sd1 = Math.max( ( (function.getY(S1DET_IDX) / 100) * 1.8 *
+	    			1.3), 0.6);
+	    	double S1  = Math.min( (function.getY(S1UH_IDX) * 1.3 *
+	    			function.getY(S1CR_IDX)), Sd1);
+	    	
+	    	function.set(SS_IDX, Ss);
+	    	function.set(S1_IDX, S1);
+	    	
+	    	StringBuffer info = new StringBuffer(SsS1_TITLE + "\n");
+	    	info.append("By definition, Ss and S1 are for Site Class B\n");
+	    	info.append("Site Class B - Fa = 1.0, Fv = 1.0 "+
+	    			"(As per definition of Ss and S1)\n");
+	    	info.append("Data are based on a 0.05 deg grid spacing\n\n");
+	    	
+	    	info.append("Ss = min(CRs * Ss, SsD)\n");
+	    	info.append("S1 = min(CR1 * S1, S1D)\n");
+	    	info.append(DataDisplayFormatter.createFunctionInfoString(function,
+	    			SA, Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B, true)
+	    		);
+	    	
+	    	function.setInfo(info.toString());
+    	} catch (SQLException sqx) {
+    		sqx.printStackTrace(System.err);
+    	}
     } else {
     	NEHRP_Record record = new NEHRP_Record();
         DataFileNameSelector dataFileSelector = new DataFileNameSelector();
@@ -98,6 +216,25 @@ public class SsS1Calculator {
     return function;
   }
 
+  private ArbitrarilyDiscretizedFunc interpolateFuncs(
+		  ArbitrarilyDiscretizedFunc f1, ArbitrarilyDiscretizedFunc f2,
+		  double p1, double p2, double p) {
+	  
+	  ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+	  double [] y1vals = f1.getYVals();
+	  double [] y2vals = f2.getYVals();
+	  double weight = (p - p1) / (p2 - p1);
+	  int numVals = y1vals.length;
+	  
+	  for (int i = 0; i < numVals; ++i) {
+		  double newVal = y1vals[i] + (weight * (y2vals[i] - y1vals[i]));
+		  func.set(i, newVal);
+	  }
+	  
+	  return func;
+		  
+  }
+  
   /**
    *
    * @param latitude double
@@ -109,9 +246,10 @@ public class SsS1Calculator {
                                             double latitude, double longitude,
                                             String spectraType) {
 	ArbitrarilyDiscretizedFunc function = null;
-	if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+	
+	if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
 		function = new ArbitrarilyDiscretizedFunc();
-		function.setInfo("Method not implemented for 2007 data");
+		function.setInfo("Method not implemented for 2009 data");
 	} else {
 	    NEHRP_Record record = new NEHRP_Record();
 	    DataFileNameSelectorForFEMA dataFileSelector = new

@@ -262,10 +262,10 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
-                                           float fa, float fv, String siteClass) throws
+                                           float fa, float fv, String siteClass, String edition) throws
       RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSMSpectrum(func, fa, fv, siteClass);
+    return calc.computeSMSpectrum(func, fa, fv, siteClass, edition);
   }
 
   /**
@@ -276,10 +276,10 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
-                                           float fa, float fv, String siteClass) throws
+                                           float fa, float fv, String siteClass, String edition) throws
       RemoteException {
     HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSDSpectrum(func, fa, fv, siteClass);
+    return calc.computeSDSpectrum(func, fa, fv, siteClass, edition);
   }
 
   /**

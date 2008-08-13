@@ -167,8 +167,7 @@ public class NEHRP_GuiBean
       createGroundMotionParameter();
       jbInit();
 
-    }
-    catch (Exception exception) {
+    } catch (Exception exception) {
       exception.printStackTrace();
     }
 
@@ -240,15 +239,23 @@ public class NEHRP_GuiBean
     responseSpecBorder.setTitleColor(Color.RED);
     responseSpectraButtonPanel.setLayout(gridBagLayout3);
 
+    /*
+     *  08/13/08 -- EMM: Default is now 2009 which does not have this button. 
+     */
+	mapSpecButton.setVisible(false);
     mapSpecButton.setText("      Map Spectrum      ");
-		mapSpecButton.setToolTipText(mapSpecToolTip);
+	mapSpecButton.setToolTipText(mapSpecToolTip);
     mapSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         mapSpecButton_actionPerformed(actionEvent);
       }
     });
 
-    smSpecButton.setText(" Site Modified Spectrum ");
+    /*
+     *  08/13/08 -- EMM: Default is now 2009 which is labeled differently.
+     */
+    //smSpecButton.setText(" Site Modified Spectrum ");
+    smSpecButton.setText("       RTE Spectrum     ");
 		smSpecButton.setToolTipText(smSpecToolTip);
     smSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -415,9 +422,13 @@ public class NEHRP_GuiBean
        * 07/29/08 -- EMM: The NEHRP 2007 editions uses different text for the
        * site modified values button. We have to make sure the text is correct.
        */
-      if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
+      if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	  mapSpecButton.setVisible(false);
+    	  smSpecButton.setText("       RTE Spectrum     ");
     	  smSDButton.setText("Calculate SR and SD Values");
       } else {
+    	  mapSpecButton.setVisible(true);
+    	  smSpecButton.setText(" Site Modified Spectrum ");
     	  smSDButton.setText("Calculate SM and SD Values");
       }
       try {
@@ -523,7 +534,7 @@ public class NEHRP_GuiBean
 
     ArrayList<String> supportedEditionList = new ArrayList<String>();
 
-    supportedEditionList.add(GlobalConstants.NEHRP_2007);
+    supportedEditionList.add(GlobalConstants.NEHRP_2009);
     supportedEditionList.add(GlobalConstants.NEHRP_2003);
     supportedEditionList.add(GlobalConstants.NEHRP_2000);
     supportedEditionList.add(GlobalConstants.NEHRP_1997);
@@ -793,27 +804,16 @@ public class NEHRP_GuiBean
     	    			dataGenerator.setSpectraType(spectraType);
     	    			dataGenerator.setRegion(selectedRegion);
     	    			dataGenerator.setEdition(selectedEdition);
-    	    			if (selectedEdition.equals(GlobalConstants.NEHRP_2007)){
-    	    				((DataGenerator_NEHRP) dataGenerator).
-    	    				calculateSRsSR1SDsSD1(locations, conditions,
-    	    						outfile);
-    	    			} else {
-	    	    			dataGenerator.calculateSMsSm1SDsSD1(locations,
+	    	    		dataGenerator.calculateSMsSm1SDsSD1(locations,
 	    	    					conditions, outfile);
-    	    			}
     	    			application.setDataInWindow(getData());
     				}
     			});
     			t.start();
     		} else {
-    			if (selectedEdition.equals(GlobalConstants.NEHRP_2007)) {
-    				((DataGenerator_NEHRP) dataGenerator).calculateSRSsS1();
-    				dataGenerator.calculatedSDSsS1();
-    			} else {
-    				dataGenerator.calculateSMSsS1();
-    				dataGenerator.calculatedSDSsS1();
-    			}
-    			}
+				dataGenerator.calculateSMSsS1();
+				dataGenerator.calculatedSDSsS1();
+			}
     	}
     	catch (RemoteException e) {
       	JOptionPane.showMessageDialog(this,

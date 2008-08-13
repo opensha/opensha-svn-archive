@@ -124,6 +124,10 @@ public class DataGenerator_NEHRP
     return saFunction.getY(1);
   }
 
+	public ArbitrarilyDiscretizedFunc getSaFunction() {
+		return saFunction;
+	}
+	
   /**
    * Gets the data for SsS1 in case Territory.
    * Territory is when user is not allowed to enter any zip code or Lat-Lon
@@ -182,7 +186,7 @@ public class DataGenerator_NEHRP
         dataEdition,
         lat, lon);
 	if ( function == null ) {
-		System.out.println("Server returned Null function");
+		System.err.println("Server returned Null function");
 		throw new RemoteException("Given lat/lon pair ("+lat +"/"+lon+") failed to return data.");
 	}
 		this.lat = "" + lat; //newline
@@ -356,27 +360,23 @@ public class DataGenerator_NEHRP
     addDataInfo(function.getInfo());
 	*/
   }
-
-  public void calculateSRSsS1() throws RemoteException {
-	  addDataInfo(getCalculateSRSsS1Function().getInfo());
-  }
   
   public ArbitrarilyDiscretizedFunc getCalculateSMSsS1Function() throws RemoteException {
 	
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction, faVal,
         fvVal, siteClass);
+    if (dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	function.setInfo(
+    		function.getInfo()
+    			.replaceAll("SMs", "SRs")
+    			.replaceAll("SM1", "SR1")
+    			.replaceAll("Spectral Response Accelerations SRs",
+    					"RTE Spectral Response Accelerations SRS")
+    		);
+    }
 		
 	return(function);
-  }
-  
-  public ArbitrarilyDiscretizedFunc getCalculateSRSsS1Function()
-  		throws RemoteException {
-	  HazardDataMinerServletMode miner = new HazardDataMinerServletMode();
-	  ArbitrarilyDiscretizedFunc function = miner.getSRSsS1(saFunction, faVal,
-			  fvVal, siteClass);
-	  
-	  return function;
   }
   
   /**
@@ -399,171 +399,27 @@ public class DataGenerator_NEHRP
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
         fvVal, siteClass);
-	
+    if (dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	function.setInfo(
+    		function.getInfo()
+    			.replaceAll("SMs", "SRs")
+    			.replaceAll("SM1", "SR1")
+    		);
+    }
 	return(function);
-  }
-  
-  public void calculateSRsSR1SDsSD1(ArrayList<Location> locations,
-		  ArrayList<String> siteConditions, String outFile) {
-	  
-	  HSSFWorkbook xlOut = getOutputFile(outFile);
-		 // Create the output sheet
-		 HSSFSheet xlSheet = xlOut.getSheet("SR & SD Values");
-		 if(xlSheet==null)
-			 xlSheet = xlOut.createSheet("SR & SD Values");
-		 
-		 /* Write the header information */
-		 int startRow = xlSheet.getLastRowNum();
-		// Put an empty row in case there is already data
-		 startRow = (startRow==0)?0:startRow+2;  
-		 
-		 // Create a header style
-		 HSSFFont headerFont = xlOut.createFont();
-		 headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		 HSSFCellStyle headerStyle = xlOut.createCellStyle();
-		 headerStyle.setFont(headerFont);
-
-		 // Geographic Region
-		 HSSFRow xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 0).setCellValue("Geographic Region:");
-		 xlRow.getCell((short) 0).setCellStyle(headerStyle);
-		 xlRow.createCell((short) 1).setCellValue(geographicRegion);
-		 
-		 // Data Edition
-		 xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 0).setCellValue("Data Edition:");
-		 xlRow.getCell((short) 0).setCellStyle(headerStyle);
-		 xlRow.createCell((short) 1).setCellValue(dataEdition);
-		 
-		 // Data Generation Explanation
-		 xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 1).setCellValue("SRs = Fa*Ss");
-		 xlRow.createCell((short) 2).setCellValue("SR1 = Fv*S1");
-		 xlRow = xlSheet.createRow(startRow++);
-		 xlRow.createCell((short) 1).setCellValue("SDs = 2/3 * SMs");
-		 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * SM1");
-		 
-		 // Header row
-		 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", 
-				 "Site Class", "Fa", "Fv", "SMs (g)", "SM1 (g)", "SDs (g)", 
-				 "SD1 (g)", "Grid Spacing Basis"};
-		 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 
-				 3000, 3000, 3000, 5000};
-		 ++startRow; // We want a blank row
-		 xlRow = xlSheet.createRow(startRow++);
-		 for(short i = 0; i < headers.length; ++i) {
-			 xlRow.createCell(i).setCellValue(headers[i]);
-			 xlRow.getCell(i).setCellStyle(headerStyle);
-			 xlSheet.setColumnWidth(i, colWidths[i]);
-		 }
-		 
-		 // A calculator
-		 FaFvCalc calc = new FaFvCalc();
-		 
-		 // Start plugging in the data
-		 int answer = 1;
-		 BatchProgress bp = new BatchProgress("Computing SRs, Sr1, SDs and SD1",
-				 locations.size());
-		 bp.start();
-		 for(int i = 0; i < locations.size(); ++i) {
-			 bp.update(i+1);
-			 xlRow = xlSheet.createRow(i+startRow);
-			 double curLat = locations.get(i).getLatitude();
-			 double curLon = locations.get(i).getLongitude();
-			 
-			 Float curSRs = null; Float curSR1 = null;
-			 Float curSDs = null; Float curSD1 = null;
-			 
-			 Float curFa = Float.MAX_VALUE;
-			 Float curFv = Float.MAX_VALUE;
-			 
-			 String curCond = siteConditions.get(i);
-			 
-			 Float curSa = null;
-			 Float curSs = null;
-			 String curGridSpacing = "";
-			 try {
-				getCalculateSsS1Function(curLat, curLon);
-				
-				curSs = (float) getSs();
-				curSa = (float) getSa();
-				
-				String reg1 = "^.*Data are based on a ";
-				String reg2 = " deg grid spacing.*$";
-				curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(
-						saFunction.getInfo()).replaceAll("");
-				curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(
-						curGridSpacing).replaceAll("");
-				curGridSpacing += " Degrees";
-				
-				curFa = Float.parseFloat(faFvFormat.format(calc.getFa(curCond,
-						curSs)));
-				curFv = Float.parseFloat(faFvFormat.format(calc.getFv(curCond,
-						curSa)));
-				float coef = (float) 2 / 3;
-				curSRs = curFa * curSs; curSR1 = curFv * curSa;
-				curSDs = coef*curSRs; curSD1 = coef*curSR1;
-				
-				
-			} catch (RemoteException e) {
-				if(answer != 0) {
-					Object[] options = {"Suppress Future Warnings",
-							"Continue Calculations", "Abort Run"};
-					answer = JOptionPane.showOptionDialog(null, 
-							"Failed to retrieve information for:\nLatitude: " +
-							curLat + "\nLongitude: " + curLon,
-							"Data Mining Error", 0, JOptionPane.ERROR_MESSAGE,
-							null, options, options[0]);
-				}
-				if(answer == 2) {
-					bp.update(locations.size());
-					break;
-				}
-				
-				curSRs = Float.MAX_VALUE; curSR1 = Float.MAX_VALUE;
-				curSDs = Float.MAX_VALUE; curSD1 = Float.MAX_VALUE;
-				curGridSpacing = "Location out of Region";
-			} finally {
-			 xlRow.createCell((short) 0).setCellValue(curLat);
-			 xlRow.createCell((short) 1).setCellValue(curLon);
-			 xlRow.createCell((short) 2).setCellValue(curCond.substring(
-					 curCond.length()-1));
-			 xlRow.createCell((short) 3).setCellValue(Double.parseDouble(
-					 saValFormat.format(curFa)));
-			 xlRow.createCell((short) 4).setCellValue(Double.parseDouble(
-					 saValFormat.format(curFv)));
-			 xlRow.createCell((short) 5).setCellValue(Double.parseDouble(
-					 saValFormat.format(curSRs)));
-			 xlRow.createCell((short) 6).setCellValue(Double.parseDouble(
-					 saValFormat.format(curSR1)));
-			 xlRow.createCell((short) 7).setCellValue(Double.parseDouble(
-					 saValFormat.format(curSDs)));
-			 xlRow.createCell((short) 8).setCellValue(Double.parseDouble(
-					 saValFormat.format(curSD1)));
-			 xlRow.createCell((short) 9).setCellValue(curGridSpacing);
-			} 
-		 } // for
-		 
-		 try {
-			FileOutputStream fos = new FileOutputStream(outFile);
-			xlOut.write(fos);
-			fos.close();
-			// Let the user know that we are done
-			dataInfo += "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
-		} catch (FileNotFoundException e) {
-			// Just ignore for now...
-		} catch (IOException e) {
-			// Just ignore for now...
-		}
   }
   
   public void calculateSMsSm1SDsSD1(ArrayList<Location> locations, 
 		  ArrayList<String> siteConditions, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SM & SD Values");
+	  String shtStr = "SM";
+	  if(dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+		  shtStr = "SR";
+	  }
+	 HSSFSheet xlSheet = xlOut.getSheet(shtStr + " & SD Values");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SM & SD Values");
+		 xlSheet = xlOut.createSheet(shtStr + " & SD Values");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -589,14 +445,14 @@ public class DataGenerator_NEHRP
 	 
 	 // Data Generation Explanation
 	 xlRow = xlSheet.createRow(startRow++);
-	 xlRow.createCell((short) 1).setCellValue("SMs = Fa*Ss");
-	 xlRow.createCell((short) 2).setCellValue("SM1 = Fv*S1");
+	 xlRow.createCell((short) 1).setCellValue(shtStr + "s = Fa*Ss");
+	 xlRow.createCell((short) 2).setCellValue(shtStr + "1 = Fv*S1");
 	 xlRow = xlSheet.createRow(startRow++);
-	 xlRow.createCell((short) 1).setCellValue("SDs = 2/3 * SMs");
-	 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * SM1");
+	 xlRow.createCell((short) 1).setCellValue("SDs = 2/3 * " + shtStr + "s");
+	 xlRow.createCell((short) 2).setCellValue("SD1 = 2/3 * " + shtStr + "1");
 	 
 	 // Header row
-	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", "SMs (g)", "SM1 (g)", "SDs (g)", "SD1 (g)", "Grid Spacing Basis"};
+	 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Fa", "Fv", shtStr + "s (g)", shtStr + "1 (g)", "SDs (g)", "SD1 (g)", "Grid Spacing Basis"};
 	 short[] colWidths = {4500, 4500, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 5000};
 	 ++startRow; // We want a blank row
 	 xlRow = xlSheet.createRow(startRow++);
@@ -611,7 +467,7 @@ public class DataGenerator_NEHRP
 	 
 	 // Start plugging in the data
 	 int answer = 1;
-	 BatchProgress bp = new BatchProgress("Computing SMs, Sm1, SDs and SD1", locations.size());
+	 BatchProgress bp = new BatchProgress("Computing " + shtStr + "s, " + shtStr + "1, SDs and SD1", locations.size());
 	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
 		 bp.update(i+1);
@@ -695,6 +551,7 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateMapSpectrum() throws RemoteException {
+	if (GlobalConstants.NEHRP_2009.equals(dataEdition)) {return;}
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
@@ -824,7 +681,7 @@ public class DataGenerator_NEHRP
   protected void getFunctionsForMapSpectrum(DiscretizedFuncList
                                             mapSpectrumFunctions) {
 
-    int numFunctions = mapSpectrumFunctions.size();
+	int numFunctions = mapSpectrumFunctions.size();
 
     int i = 0;
     for (; i < numFunctions; ++i) {
@@ -867,8 +724,9 @@ public class DataGenerator_NEHRP
     for (; i < numFunctions; ++i) {
       ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
           smSpectrumFunctions.get(i);
-      if (tempFunction.getName().equals(GlobalConstants.
-                                        SITE_MODIFIED_SA_Vs_T_GRAPH)) {
+      if (tempFunction.getName().equals(
+    		  GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH) ||
+    	  tempFunction.getName().equals("RTE Spectrum Sa Vs T")) {
         smSpectrumSaTFunction = tempFunction;
         break;
       }
@@ -942,17 +800,19 @@ public class DataGenerator_NEHRP
 
     ArrayList<DiscretizedFuncAPI> functions = new ArrayList<DiscretizedFuncAPI>();
 
-    if (isMapSpectrumFunctionNeeded) {
+    boolean is2009 = GlobalConstants.NEHRP_2009.equals(dataEdition);
+    
+    if (isMapSpectrumFunctionNeeded && !is2009) {
       functions.add(mapSpectrumSaTFunction);
       functions.add(mapSpectrumSaSdFunction);
     }
     if (isSDSpectrumFunctionNeeded) {
       functions.add(sdSpectrumSaTFunction);
-      functions.add(sdSpectrumSaSdFunction);
+      if (!is2009) {functions.add(sdSpectrumSaSdFunction);}
     }
     if (isSMSpectrumFunctionNeeded) {
       functions.add(smSpectrumSaTFunction);
-      functions.add(smSpectrumSaSdFunction);
+      if (!is2009) {functions.add(smSpectrumSaSdFunction);}
     }
     return functions;
   }
@@ -964,7 +824,7 @@ public class DataGenerator_NEHRP
   public void calculateSMSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
-        fvVal, siteClass);
+        fvVal, siteClass, dataEdition);
     addDataInfo(functions.getInfo());
     getFunctionsForSMSpectrum(functions);
   }
@@ -973,9 +833,13 @@ public class DataGenerator_NEHRP
 		  ArrayList<String> siteConditions, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 	 // Create the output sheet
-	 HSSFSheet xlSheet = xlOut.getSheet("SM Spectra");
+	  String shtStr = "SM";
+	  if (dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+		  shtStr = "SR";
+	  }
+	 HSSFSheet xlSheet = xlOut.getSheet(shtStr + " Spectra");
 	 if(xlSheet==null)
-		 xlSheet = xlOut.createSheet("SM Spectra");
+		 xlSheet = xlOut.createSheet(shtStr + " Spectra");
 	 
 	 /* Write the header information */
 	 int startRow = xlSheet.getLastRowNum();
@@ -1020,7 +884,7 @@ public class DataGenerator_NEHRP
 	 
 	 // Start plugging in the data
 	 int answer = 1;
-	 BatchProgress bp = new BatchProgress("Computing SM Spectra", locations.size());
+	 BatchProgress bp = new BatchProgress("Computing " + shtStr + " Spectra", locations.size());
 	 bp.start();
 	 for(int i = 0; i < locations.size(); ++i) {
 		 bp.update(i+1);
@@ -1047,7 +911,7 @@ public class DataGenerator_NEHRP
 
 		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
 		    DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, curFa,
-		        curFv, curCond);
+		        curFv, curCond, dataEdition);
 			
 		    saFunc = functions.get(1);
 		    sdFunc = functions.get(0);
@@ -1111,7 +975,7 @@ public class DataGenerator_NEHRP
   public void calculateSDSpectrum() throws RemoteException {
     HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
-        fvVal, siteClass);
+        fvVal, siteClass, dataEdition);
     addDataInfo(functions.getInfo());
     getFunctionsForSDSpectrum(functions);
   }
@@ -1200,7 +1064,7 @@ public class DataGenerator_NEHRP
 
 		    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
 		    DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, curFa,
-		        curFv, curCond);
+		        curFv, curCond, dataEdition);
 			
 		    saFunc = functions.get(1);
 		    sdFunc = functions.get(0);

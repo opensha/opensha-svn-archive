@@ -309,12 +309,13 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return DiscretizedFuncList
   */
  public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
-                                          float fa, float fv, String siteClass) {
+                                          float fa, float fv, String siteClass, String edition) {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
+   objectList.add(edition);
    return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SPECTRUM, objectList);
  }
 
@@ -326,12 +327,13 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   * @return DiscretizedFuncList
   */
  public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
-                                          float fa, float fv, String siteClass)  {
+                                          float fa, float fv, String siteClass, String edition)  {
    ArrayList<Object> objectList = new ArrayList<Object>();
    objectList.add(func);
    objectList.add(new Float(fa));
    objectList.add(new Float(fv));
    objectList.add(siteClass);
+   objectList.add(edition);
    return (DiscretizedFuncList)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SPECTRUM, objectList);
  }
 

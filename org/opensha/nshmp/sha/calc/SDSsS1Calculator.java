@@ -17,8 +17,8 @@ public class SDSsS1Calculator {
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
     function.set(saVals.getX(0), fa * saVals.getY(0) * 2.0 / 3.0);
     function.set(saVals.getX(1), fv * saVals.getY(1) * 2.0 / 3.0);
-    String title = "Spectral Response Accelerations SDs and SD1";
-    String subTitle = "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
+    String title = "Design Spectral Response Accelerations SDs and SD1\n";
+    String subTitle = title + "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
     String SA = "Sa";
     String text1 = "SDs";
     String text2 = "SD1";
