@@ -191,7 +191,7 @@ public class AS_2008_AttenRel
    * The DistanceRupParameter, closest distance to fault surface.
    */
   private DistanceRupParameter distanceRupParam = null;
-  private final static Double DISTANCE_RUP_DEFAULT = new Double(0);
+  private final static Double DISTANCE_RUP_DEFAULT = new Double(0.0);
   private final static Double DISTANCE_JB_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
   private final static Double DISTANCE_X_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
   protected final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
@@ -559,12 +559,12 @@ private void readCoeffFile(){
 
 	  // Returns the index of the period just below Td (Eq. 21)
 	  int iTd= searchTdIndex(mag);
-	  System.out.println("Inside getMean, mag= "+ mag+ " iTd= "+iTd);
+//System.out.println("Inside getMean, mag= "+ mag+ " iTd= "+iTd);
 
 	double pga_rock = Math.exp(getMean(1,0, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 		  rupWidth, depthTop, depthTo1pt0kmPerSec,hw,  0, 0, 0));
 	
-	  System.out.println("Inside getMean, pga_rock= "+ pga_rock);
+//System.out.println("Inside getMean, pga_rock= "+ pga_rock);
 	
 	double medSa1100BeforeTdMinus = Math.exp(getMean(iper,iTd, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 		  rupWidth, depthTop, depthTo1pt0kmPerSec,hw,  pga_rock, 0, 0));
@@ -572,13 +572,13 @@ private void readCoeffFile(){
 	double medSa1100BeforeTdPlus = Math.exp(getMean(iper,iTd+1, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 			  rupWidth, depthTop, depthTo1pt0kmPerSec,hw,  pga_rock, 0, 0));
 	  
-	System.out.println("Inside getMean, MedSa1100BeforeTd _Minus "+ medSa1100BeforeTdMinus +"\t _Plus "+medSa1100BeforeTdPlus);
+//System.out.println("Inside getMean, MedSa1100BeforeTd _Minus "+ medSa1100BeforeTdMinus +"\t _Plus "+medSa1100BeforeTdPlus);
 
 	double mean = getMean(iper,0, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
 			  depthTop, depthTo1pt0kmPerSec, hw, pga_rock, medSa1100BeforeTdMinus, medSa1100BeforeTdPlus);
 	  
-//System.out.println("Line 590, pga_r "+ pga_rock +"\t mean "+mean+"\t iper " +iper+"\t vs30 "+vs30+"\t rRup "+rRup+"\t rJB "+rJB+"\t frv "+f_rv+"\t fnm "+f_nm+"\t mag "+mag+"\t dip "+dip+"\t ztop "+depthTop+"\t z10 "+depthTo1pt0kmPerSec);
-//System.out.println("Line 600, iTd " +iTd + " MedSa1100BeforeTd _Minus "+ medSa1100BeforeTdMinus +"\t _Plus "+medSa1100BeforeTdPlus);
+// //System.out.println("Line 590, pga_r "+ pga_rock +"\t mean "+mean+"\t iper " +iper+"\t vs30 "+vs30+"\t rRup "+rRup+"\t rJB "+rJB+"\t frv "+f_rv+"\t fnm "+f_nm+"\t mag "+mag+"\t dip "+dip+"\t ztop "+depthTop+"\t z10 "+depthTo1pt0kmPerSec);
+// //System.out.println("Line 600, iTd " +iTd + " MedSa1100BeforeTd _Minus "+ medSa1100BeforeTdMinus +"\t _Plus "+medSa1100BeforeTdPlus);
 return mean; 
 
 
@@ -619,14 +619,17 @@ return mean;
 
 	  double pga_rock = Double.NaN;
 
-	  pga_rock = Math.exp(getMean(1, 0, 1100, rRup, rJB, rX, f_rv, f_nm, mag,dip, rupWidth, depthTop, depthTo1pt0kmPerSec, hw, 0,0,0));
-		 // System.out.println("Line 628, pga_rock"+"\t"+pga_rock);	  
+	 pga_rock = Math.exp(getMean(1,0, 1100, rRup, rJB, rX, f_rv, f_nm, mag, dip,
+				  rupWidth, depthTop, depthTo1pt0kmPerSec,hw,  0, 0, 0));
+			
+//System.out.println("Inside getStdDev, pga_rock= "+ pga_rock);
+			
 	  component = (String)componentParam.getValue();
 	  
 
 	  double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock);
 	  
-//System.out.println(stdDev+"\t"+iper+"\t"+stdDevType+"\t"+component+"\t"+vs30+"\t"+pga_rock);
+// //System.out.println(stdDev+"\t"+iper+"\t"+stdDevType+"\t"+component+"\t"+vs30+"\t"+pga_rock);
 
 	  return stdDev;
   }
@@ -955,7 +958,7 @@ return mean;
 			    iTd = i;
 		  }
 		}
-		//System.out.println("Inside searchTdIndex \t"+iTd +"mag \t" +mag);
+// //System.out.println("Inside searchTdIndex \t"+iTd +"mag \t" +mag);
 		return iTd;
 	}
 
@@ -974,7 +977,7 @@ return mean;
     	iper=iTd;
  //   } else if(iTd>=23){
     }
-//	System.out.println("iTd "+ iTd + "\t iper "+ iper );
+// //	System.out.println("iTd "+ iTd + "\t iper "+ iper );
     
     //"Base model": f1 term (Eq. 2), dependent on magnitude and distance
     rR=Math.sqrt(Math.pow(rRup,2)+Math.pow(c4,2)); // Eq. 3
@@ -984,6 +987,9 @@ return mean;
     } else {
    			f1 = a1[iper]+a5*(mag-c1)+a8[iper]*Math.pow(8.5-mag,2)+(a2[iper]+a3*(mag-c1))*Math.log(rR);
     }
+//System.out.println("a1= "+ a1[iper] +" a4= "+a4 +" mag= "+ mag +" c1="+c1+" a8= "+a8[iper]+" a2="+a2[iper]+" a3="+a3+" Rrup="+rRup+" R="+rR );
+    
+    
     //"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
     
     //Vs30 dependent term v1 (Eq. 6)
@@ -1014,6 +1020,7 @@ return mean;
     } else {		
     	f5 = (a10[iper]+b[iper]*N)*Math.log(vs30Star / VLIN[iper]);
     }
+
     //"Hanging wall model": f4 (Eq. 7) term and required computation of T1, T2, T3, T4 and T5 (Eqs. 8-12)
     if(hw>0){
     double T1, T2, T3, T4, T5;
@@ -1087,7 +1094,7 @@ return mean;
 	   z1Hat = Math.exp(5.394-4.48*Math.log(vs30/500));
    }
    // Eq. 19
-   if(per[iper]<0.35 || vs30>1000) {
+   if((per[iper]<0.35 && per[iper]>-1.0) || vs30>1000) {
 	   e2=0;
    } else if(per[iper]>=0.35 && per[iper]<2) {
 	   e2 = -0.25*Math.log(vs30/1000)*Math.log(per[iper]/0.35);
@@ -1107,7 +1114,7 @@ return mean;
    }
    
    // Eq. 20
-   if(per[iper]<2){
+   if(per[iper]<2 || per[iper]<=-1.0){
 	   a22 = 0;
    } else {
 	   a22 = 0.0625*(per[iper]-2);
@@ -1119,6 +1126,9 @@ return mean;
    } else {
 	   f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
    }
+  
+System.out.println("per[iper]="+per[iper]+" e2=" +e2+" a21test=" +a21test+" a21=" +a21+" a22=" +a22+" z1Hat= "+ z1Hat+" f10= "+ f10);
+
    
 //   double cgtest=Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
 	  // "Constant displacement model" : Td (Eq. 21)
@@ -1127,8 +1137,9 @@ return mean;
    		double medSa1100BeforeTd =  f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f6 + amp1100 +f8;
 
 		double medSa1100WithTd = medSa1100BeforeTd;
-
-  		
+		
+//System.out.println("f1= "+ f1+" f4= "+f4+" f5= "+ f5+" f6= "+ f6+" f8= "+ f8+" z1Hat= "+ z1Hat+" f10= "+ f10);
+		
    // "Compute Mean"  - which is actually the median! Eq. 1 and 22
 			// TODO add flag for aftershock and term in equation below
 
@@ -1137,20 +1148,23 @@ return mean;
    // Else, then return Savs30
 		double cgMean;
 		if(per[iper]<Td && iTd<1 && per[iper]<0.001 && vs30>=1100 && vs30<=1100){
-  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + amp1100 + f6 +f8; 
-  			System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
+//  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + amp1100 + f6 +f8; 
+  			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6; 
+System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
 		}else if(per[iper]>=Td && iTd>0 && iTd<23){
 				double medSa1100AtTd= Math.exp(Math.log(medSa1100BeforeTdPlus/medSa1100BeforeTdMinus)/Math.log(per[iTd])/per[iTd+1]*Math.log(Td/per[iTd])+Math.log(medSa1100BeforeTdMinus));
 				medSa1100WithTd = medSa1100AtTd*Math.pow(Td/per[iper],2);
 // 	  			double cgMean = medSa1100WithTd*Math.exp(-amp1100 + f10 +f5); 
  	  			cgMean = Math.log(medSa1100WithTd)-amp1100 +f5 + f10; 
- 	  			System.out.println("cgMean Case 3, per[iper]>=per[iTd], per[iper]= "+per[iper] + " >= per[iTd]= "+per[iTd]);
+//System.out.println("cgMean Case 3, per[iper]>=per[iTd], per[iper]= "+per[iper] + " >= per[iTd]= "+per[iTd]+ " cgMean=" + Math.exp(cgMean));
  			} else {
   			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6 + f8 + f10; 
-  			System.out.println("cgMean Case 2,Sa, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]);
+//System.out.println("cgMean Case 2,Sa, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " cgMean=" + Math.exp(cgMean));
+System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
   		}
-   			//System.out.println("pga_rock "+ pga_rock +"\t per "+ per[iper] +"\t f1 "+f1+"\t f4 "+f4+"\t f5 "+f5+"\t f6 "+f6+"\t f8 "+f8+"\t f10 "+f10+"\t a21 "+a21+"\t a22 "+a22+"\t z1hat "+z1Hat+"\t v1 "+v1);
-   			
+//		System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
+
+		
    		return cgMean;
    }
 
@@ -1167,15 +1181,35 @@ return mean;
 		  return 0.0;
 	  else {
 		  // Compute sigma0 (eq. 27), tau0 (eq. 28) and dterm (eq. 26) 
-		  double  dterm, s1, s1PGA, s2, s2PGA,  sigma0, sigma0PGA, tau0, tau0PGA, sigmaB, sigmaBPGA, tauB, tauBPGA, sigma, tau;  
+		  //NOTE: I created variables with the PGA suffix because it's easier to read the equations below (CGoulet)
+		  double  v1, vs30Star, dterm, s1, s1PGA, s2, s2PGA,  sigma0, sigma0PGA, tau0, tau0PGA, sigmaB, sigmaBPGA, tauB, tauBPGA, sigma, tau;  
 		  
-		  // dterm (eq. 26)
-		  if(vs30>=VLIN[iper])
+		    //Vs30 dependent term v1 (Eq. 6)
+		    if(per[iper]<=0.5 && per[iper]>-1.0) {
+		    	v1=1500;
+		    } else if(per[iper] > 0.5 && per[iper] <=1.0) {
+		    	v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
+		    } else if(per[iper] > 1.0 && per[iper] <2.0) {
+		    	v1=Math.exp(6.76-0.297*Math.log(per[iper]));
+		    } else if(per[iper]>=2.0) {
+		    	v1 = 700;
+		    } else { 
+		    	v1=862;
+		    }
+		    //Vs30 dependent term vs30Star (Eq. 5)
+		    if(vs30<v1) {
+		    	vs30Star = vs30;
+		    } else {
+		    	vs30Star = v1;
+		    }
+		  
+		  // dterm (eq. 26) ** The ES version has errors in this equation. I used the equation from Norms Excel spreadsheet, v19a
 			  dterm=0;
-		  else
-			  dterm=(-b[iper]*pga_rock/(pga_rock+c))+1/(pga_rock+c*Math.pow(vs30/VLIN[iper],N));
-
-		  // Define appropriate s1 and s2 values depending on how Vs30 was obtained (measured or estimated)
+			  if(vs30Star<VLIN[iper]){
+			  dterm=b[iper]*pga_rock*(-1/(pga_rock+c)+1/(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N)));
+			  }
+		  // Define appropriate s1 and s2 values depending on how Vs30 was obtained
+		  // measured or estimated), using the vsm flag defined above which is input in the GUI
 		  if(vsm>0){
 			  s1=s1m[iper];
 			  s1PGA=s1m[2];
@@ -1187,7 +1221,7 @@ return mean;
 			  s2=s2e[iper];
 		      s2PGA=s2e[2];}
 		  
-		  // Compute sigma0 (eq. 27)
+		  // Compute sigma0 (Eq. 27)
 		  if(mag<5){
 			  sigma0=s1;
 		  	  sigma0PGA=s1PGA;}
@@ -1198,7 +1232,7 @@ return mean;
 			  sigma0=s1+0.5*(s2-s1)*(mag-5);
 			  sigma0PGA=s1PGA+0.5*(s2PGA-s1PGA)*(mag-5);}
 		  
-		  // Compute tau0 (eq. 28)
+		  // Compute tau0 (Eq. 28)
 		  if(mag<5){
 			  tau0=s3[iper];
 			  tau0PGA=s3[2];}
@@ -1209,25 +1243,31 @@ return mean;
 			  tau0=s3[iper]+0.5*(s4[iper]-s3[iper])*(mag-5);
 			  tau0PGA=s3[2]+0.5*(s4[2]-s3[2])*(mag-5);}
 
-		  // Compute sigmaB  (eq. 23)
+		  // Compute sigmaB  (Eq. 23)
 		      sigmaB=Math.sqrt(Math.pow(sigma0,2)-Math.pow(sigmaamp,2));
 			  sigmaBPGA=Math.sqrt(Math.pow(sigma0PGA,2)-Math.pow(sigmaamp,2));
 
-		  // Compute tauB
+		  // Compute tauB (In text p. 81)
 			  tauB=tau0;
 			  tauBPGA=tau0PGA;
 
-	      // compute intra-event sigma
-			  sigma = Math.pow(sigma0,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2*dterm*sigmaB*sigmaBPGA*rho[iper];
+	      // compute intra-event sigma (Eq. 24)
+			  sigma = Math.sqrt(Math.pow(sigmaB,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2*dterm*sigmaB*sigmaBPGA*rho[iper]);
 
-		  // get tau - inter-event term
-			  tau = Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2*dterm*tauB*tauBPGA*rho[iper];
+		  // get tau - inter-event term (Eq. 25)
+			  tau = Math.sqrt(Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2*dterm*tauB*tauBPGA*rho[iper]);
 
 		  // compute total sigma
 		  double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
 
+//System.out.println("pga_rock="+ pga_rock +"\t dterm="+ dterm +"\t s0="+sigma0+"\t t0="+tau0+"\t sB="+sigmaB+"\t tB="+tauB+"\t s="+sigma+"\t t="+tau);
+
+//System.out.println("iper"+ iper +"\t per[iper]="+per[iper]);
+
+//System.out.println("pga_rock="+ pga_rock +"\t t0="+tau0+"\t sB="+sigmaB+"\t sBPGA="+sigmaBPGA+"\t s="+sigma+"\t t="+tau+"\t s_tot="+sigma_total);
 		  	  return sigma_total;	
 //			  return Double.NaN;   // just in case invalid stdDev given			  
+
 
 	  }
   }
