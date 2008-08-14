@@ -33,7 +33,7 @@ import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 public class DeformationModelSummaryFinal {
 	
 	private static ArrayList<DeformationModelSummary> deformationModelSummariesList;
-	private static final String XML_DATA_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/finalReferenceFaultParamDb/DeformationModelSummaries.xml";
+	private static final String XML_DATA_FILENAME = "DeformationModelSummaries.xml";
 
 	  public DeformationModelSummaryFinal() {
 		  // do this once to create file, and then comment it out
@@ -134,7 +134,7 @@ public class DeformationModelSummaryFinal {
 		deformationModelSummariesList = new ArrayList<DeformationModelSummary>();
 
 		try {
-			URL xmlURL = DeformationModelSummaryFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			URL xmlURL = DeformationModelSummaryFinal.class.getResource(XML_DATA_FILENAME);
 			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 

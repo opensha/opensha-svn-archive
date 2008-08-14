@@ -38,7 +38,7 @@ public class PrefFaultSectionDataFinal {
 	private static HashMap indexForID_Map;
 	private static HashMap dbMap;
 	
-	private static final String XML_DATA_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/finalReferenceFaultParamDb/PrefFaultSectionData.xml";
+	private static final String XML_DATA_FILENAME = "PrefFaultSectionData.xml";
 	
 	public PrefFaultSectionDataFinal() {
 //		writeFaultSectionDataFromDatabaseTo_XML();
@@ -173,7 +173,7 @@ public class PrefFaultSectionDataFinal {
 		faultSectionsList = new ArrayList<FaultSectionPrefData>();
 		indexForID_Map = new HashMap();
         try {
-			URL xmlURL = PrefFaultSectionDataFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			URL xmlURL = PrefFaultSectionDataFinal.class.getResource(XML_DATA_FILENAME);
 			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 			

@@ -47,7 +47,7 @@ public class DeformationModelPrefDataFinal {
 	 * slipRate, slipRateStdDev, aseismicSlip
 	 */
 	
-	private static final String XML_DATA_FILENAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/finalReferenceFaultParamDb/DeformationModelPrefData.xml";
+	private static final String XML_DATA_FILENAME = "DeformationModelPrefData.xml";
 	
 	// these will store the data for each deformation model
 	private static HashMap slipRateMap;
@@ -209,7 +209,7 @@ public class DeformationModelPrefDataFinal {
 		
 		SAXReader reader = new SAXReader();
 		try {
-			URL xmlURL = DeformationModelPrefDataFinal.class.getClass().getResource(File.separator + XML_DATA_FILENAME);
+			URL xmlURL = DeformationModelPrefDataFinal.class.getResource(XML_DATA_FILENAME);
 			Document document = reader.read(xmlURL);
 			Element root = document.getRootElement();
 
