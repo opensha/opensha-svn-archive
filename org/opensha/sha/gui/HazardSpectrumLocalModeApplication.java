@@ -24,6 +24,7 @@ import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.ERF_List;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -65,7 +66,7 @@ public class HazardSpectrumLocalModeApplication
   //ArrayList that stores the SA Period values for the IMR
   private ArrayList saPeriodVector;
 
-  protected final static String version = "0.0.14";
+  protected final static String version = "0.0.16";
 
   //Graph Title
   protected String TITLE = new String("Response Spectra Curves");
@@ -217,9 +218,9 @@ public class HazardSpectrumLocalModeApplication
     isHazardCalcDone = false;
     numERFsInEpistemicList = 0;
     ERF_API forecast = null;
-    ProbEqkRupture rupture = null;
+    EqkRupture rupture = null;
     if (!this.isProbCurve)
-      rupture = (ProbEqkRupture)this.erfRupSelectorGuiBean.getRupture();
+      rupture = this.erfRupSelectorGuiBean.getRupture();
 
     // get the selected forecast model
     try {
