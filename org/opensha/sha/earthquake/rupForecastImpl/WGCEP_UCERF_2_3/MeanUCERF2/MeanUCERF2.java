@@ -1119,7 +1119,7 @@ public class MeanUCERF2 extends EqkRupForecast {
 
 	// this is temporary for testing purposes
 	public static void main(String[] args) {
-		
+/*		
 		long startTime = System.currentTimeMillis();
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.calcSummedMFDs  =false;
@@ -1131,19 +1131,24 @@ public class MeanUCERF2 extends EqkRupForecast {
 		long endTime = System.currentTimeMillis();
 		double totTime = ((double)(endTime-startTime))/1000.0;
 		System.out.println("runtime = "+totTime);
-
-/*		
+*/
+/*		*/
 		MeanUCERF2 meanUCERF2 = new MeanUCERF2();
 		meanUCERF2.calcSummedMFDs  =false;
 		meanUCERF2.setParameter(UCERF2.RUP_OFFSET_PARAM_NAME,5.0);
 		meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
-		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, true);
+//		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, true);
+		meanUCERF2.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, false);
 		meanUCERF2.setParameter(UCERF2.PROB_MODEL_PARAM_NAME, UCERF2.PROB_MODEL_POISSON);
 		meanUCERF2.getTimeSpan().setDuration(1.0);
 		meanUCERF2.setParameter(UCERF2.FLOATER_TYPE_PARAM_NAME, UCERF2.CENTERED_DOWNDIP_FLOATER);
 		meanUCERF2.updateForecast();
-		meanUCERF2.writeRuptureData("CyberShakeMagAreaData.txt", "CyberShakeAveMagVsAreaForCharSources.txt");
-*/		
+		meanUCERF2.writeRuptureData("CyberShakeMagAreaDataNoCorr.txt", "CyberShakeAveMagVsAreaForCharSourcesNoCorr.txt");
+//		meanUCERF2.writeRuptureData("CyberShakeMagAreaData.txt", "CyberShakeAveMagVsAreaForCharSources.txt");
+		
+		
+		
+		
 //		meanUCERF2.writeB_FaultMgt67probs();
 //		meanUCERF2.writeFaultSourceSurfaceOutlines();
 //		for(int src=0; src<meanUCERF2.getNumSources(); src++)
