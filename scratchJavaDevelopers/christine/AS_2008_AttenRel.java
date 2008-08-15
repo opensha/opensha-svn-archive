@@ -542,7 +542,6 @@ private void readCoeffFile(){
    */
   public double getMean() {
 	  
-	  
 	  // check if distance is beyond the user specified max
 	  if (rRup > USER_MAX_DISTANCE) {
 		  return VERY_SMALL_MEAN;
@@ -948,7 +947,6 @@ return mean;
    */
   //@param rX
   
-  //TODO check this
   public int searchTdIndex (double mag) {
 		//double[] TestTd = new double[23];
 		int iTd = 22;
@@ -1143,7 +1141,7 @@ return mean;
    // "Compute Mean"  - which is actually the median! Eq. 1 and 22
 			// TODO add flag for aftershock and term in equation below
 
-		// The following logic is consisten with Norm's spreadsheet, nga_Sa_v19a.xls
+   // The following logic is consistent with Norm's spreadsheet, nga_Sa_v19a.xls
    // If iTd=0 AND per[iper} <0.0001 AND (vs30=1100), then return pga_rock
    // Else, then return Savs30
 		double cgMean;
@@ -1265,9 +1263,16 @@ return mean;
 //System.out.println("iper"+ iper +"\t per[iper]="+per[iper]);
 
 //System.out.println("pga_rock="+ pga_rock +"\t t0="+tau0+"\t sB="+sigmaB+"\t sBPGA="+sigmaBPGA+"\t s="+sigma+"\t t="+tau+"\t s_tot="+sigma_total);
-		  	  return sigma_total;	
-//			  return Double.NaN;   // just in case invalid stdDev given			  
-
+		  	  
+		  // return appropriate value
+		  if (stdDevType.equals(STD_DEV_TYPE_TOTAL))
+			  return sigma_total;
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+			  return sigma;
+		  else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+			  return tau;
+		  else
+			  return Double.NaN;   // just in case invalid stdDev given			  
 
 	  }
   }
