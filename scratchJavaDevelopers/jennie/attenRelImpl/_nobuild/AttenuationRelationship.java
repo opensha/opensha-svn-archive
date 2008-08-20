@@ -633,14 +633,80 @@ public abstract class AttenuationRelationship
                                    ": getExceedProbability(): " +
           "Intensity measure or value is null, unable to run this calculation."
           );
-    }
-
+    }  
+    
     // Calculate the standardized random variable
     double iml = ((Double) im.getValue()).doubleValue();
     double stdDev = getStdDev();
     double mean = getMean();
+    
+    double newPeriod = 0.01;
+    double oldPeriod;
+    oldPeriod = ((Double) periodParam.getValue()).doubleValue();
+  
+    periodParam.setValue(newPeriod);    
+    double pgaMean = getMean();
+    double pgaStdDev = getStdDev();
+    
+    periodParam.setValue(oldPeriod);
+    
+    double corrCoef = 0;  
+    
+    // WUS correlation coefficients
+    	
+    if (oldPeriod >= 0.0) {
+    	corrCoef = (Math.log(oldPeriod) - Math.log(1/35)) * (0.931 - 0.976) / (Math.log(0.05) - Math.log(1/35)) + 0.976;
+        if(oldPeriod >= 0.05) {
+        	corrCoef = (Math.log(oldPeriod) - Math.log(0.05)) * (0.633 - 0.931) / (Math.log(0.2) - Math.log(0.05)) + 0.931;
+            if(oldPeriod >= 0.2) {
+            	corrCoef = (Math.log(oldPeriod) - Math.log(0.2)) * (0.59 - 0.633) / (Math.log(2) - Math.log(0.2)) + 0.683;                	
+            }	
+        }
+    }
 
-    return getExceedProbability(mean, stdDev, iml);
+    double dEpsilon = 0.1;
+    double probSai = 0;
+    double probPGAj = 0;
+    double exceedprobCAVij = 0;
+    double epsilonSa = (iml-mean)/stdDev;
+    double epsilonSai, epsilonPGAj, sai, pgaj, mag, vs30;
+    double probSaPGA = 0;
+    double probSaPGACAV = 0;
+    
+    mag = ( (Double) magParam.getValue()).doubleValue();
+//    System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
+
+    // This should be changed so that it matches the site vs30 or site class
+    vs30 = 1100.0;
+    
+    
+    for(int i=1;i<=51;++i){
+    	epsilonSai = epsilonSa + (i-1)*dEpsilon;
+    	probSai = getExceedProbability(0,1,epsilonSai-dEpsilon/2)-getExceedProbability(0,1,epsilonSai+dEpsilon/2);
+ //   	sai = mean + stdDev*epsilonSai;
+    	for(int j=1;j<=51;++j){
+    		epsilonPGAj = -2.5 + (j-1)*dEpsilon;
+        	probPGAj = getExceedProbability(0,1,epsilonPGAj-dEpsilon/2)-getExceedProbability(0,1,epsilonPGAj+dEpsilon/2);
+        	pgaj = pgaMean + Math.sqrt(1-corrCoef*corrCoef)*pgaStdDev*epsilonPGAj + corrCoef*epsilonSai*pgaStdDev;
+        	double meanCAVij = -0.405 + 0.509*(pgaj+2.5) - 2.11/(pgaj+4.25) + 0.667*(mag-6.5) - 0.0947*(mag-6.5)*(mag-6.5) - 0.266*(Math.log(vs30)-6);
+        	double sigmaCAV = 0.46;
+        	exceedprobCAVij = getExceedProbability(meanCAVij,sigmaCAV,Math.log(0.16));
+        	probSaPGA = probSaPGA + probSai*probPGAj;
+        	probSaPGACAV = probSaPGACAV + probSai*probPGAj*exceedprobCAVij;
+ //       	if (mag == 5){
+//        	System.out.println("Mag: " + mag + ", j, PGAj: " +i+j+ pgaj + ", meanCAV: " + meanCAVij + ", exceedprob: " + exceedprobCAVij);
+//        	}
+
+    	}
+    }
+    
+    periodParam.setValue(oldPeriod);
+    
+    double unfilteredProb = getExceedProbability(mean, stdDev, iml);
+    
+    double filteredProb = unfilteredProb*probSaPGACAV/probSaPGA;
+    
+    return filteredProb;
   }
 
   /**
