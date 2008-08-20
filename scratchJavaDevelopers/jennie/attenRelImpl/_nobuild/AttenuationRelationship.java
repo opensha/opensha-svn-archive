@@ -672,6 +672,7 @@ public abstract class AttenuationRelationship
     double epsilonSai, epsilonPGAj, sai, pgaj, mag, vs30;
     double probSaPGA = 0;
     double probSaPGACAV = 0;
+	double pgaFlag = 1;
     
     mag = ( (Double) magParam.getValue()).doubleValue();
 //    System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
@@ -692,7 +693,13 @@ public abstract class AttenuationRelationship
         	double sigmaCAV = 0.46;
         	exceedprobCAVij = getExceedProbability(meanCAVij,sigmaCAV,Math.log(0.16));
         	probSaPGA = probSaPGA + probSai*probPGAj;
-        	probSaPGACAV = probSaPGACAV + probSai*probPGAj*exceedprobCAVij;
+        	if (pgaj >= 0.025){
+        		pgaFlag = 1;
+        	}
+        	else {
+        		pgaFlag = 2;
+        	}
+        	probSaPGACAV = probSaPGACAV + probSai*probPGAj*exceedprobCAVij*pgaFlag;
  //       	if (mag == 5){
 //        	System.out.println("Mag: " + mag + ", j, PGAj: " +i+j+ pgaj + ", meanCAV: " + meanCAVij + ", exceedprob: " + exceedprobCAVij);
 //        	}
