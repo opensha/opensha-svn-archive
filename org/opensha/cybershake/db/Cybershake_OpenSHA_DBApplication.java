@@ -24,7 +24,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	
 	private static String HOST_NAME = "intensity.usc.edu";
 	private static String DATABASE_NAME = "CyberShake";
-	private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
+	public static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
 	
 	public static boolean timer = false;
 	
