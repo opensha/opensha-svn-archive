@@ -365,6 +365,36 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		}
 		return rupList;
 	}
+	
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public void getSrcIfoForSite(String siteShortName, int erf_id, ArrayList<Integer> ids) {
+		int siteId = this.getSiteId(siteShortName);
+		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"' and ERF_ID = '" + erf_id + "' " +
+		             " group by Source_ID order by Source_ID asc";
+		System.out.println(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+			  int id = rs.getInt("Source_ID");
+			  ids.add(id);
+			  rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * 
@@ -505,7 +535,11 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	public static void main(String args[]) {
 		DBAccess db = new DBAccess("intensity.usc.edu","CyberShake");
 		SiteInfo2DB siteDB = new SiteInfo2DB(db);
-		siteDB.isRupInDB(33, 0, 9);
+//		siteDB.isRupInDB(33, 0, 9);
+		ArrayList<CybershakeSite> sites = siteDB.getAllSitesFromDB();
+		for (CybershakeSite site : sites) {
+			System.out.println(site);
+		}
 		System.out.println("DONE!");
 		db.destroy();
 	}
