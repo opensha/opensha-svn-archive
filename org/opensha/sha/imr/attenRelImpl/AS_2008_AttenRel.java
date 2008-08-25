@@ -1,8 +1,7 @@
-//package org.opensha.sha.imr.attenRelImpl;
-
-package scratchJavaDevelopers.christine;
+package org.opensha.sha.imr.attenRelImpl;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -64,7 +63,8 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// Name of IMR
 	public final static String NAME = "Abrahamson & Silva (2008)";
-	private final static String AS_2008_CoeffFile = "scratchJavaDevelopers/christine/as_2008_coeff.txt";
+	private final static String AS_2008_CoeffFile = "org" + File.separator + "opensha" + File.separator + "sha"
+			+ File.separator + "imr" + File.separator + "attenRelImpl" + File.separator + "as_2008_coeff.txt";
 
 	// Debugging stuff
 	private final static String C = "AS_2008_CG_AttenRel";
