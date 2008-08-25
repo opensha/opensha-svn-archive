@@ -52,7 +52,7 @@ import org.opensha.util.FileUtils;
  * </p>
  *
  * @author     Christine Goulet & Ned Field
- * @created    Jun., 2008
+ * @created    2008
  * @version    1.0
  */
 
