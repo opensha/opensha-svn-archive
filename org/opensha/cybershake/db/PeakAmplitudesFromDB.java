@@ -17,10 +17,14 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<String>  getSupportedSA_PeriodList(){
-		String sql = "SELECT IM_Type from PeakAmplitudes group by IM_Type";
+	public ArrayList<CybershakeIM>  getSupportedIMs(){
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		sql += "SELECT distinct IM_Type_ID from PeakAmplitudes";
+		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
-		ArrayList<String> saPeriodList = new ArrayList<String>();
+		System.out.println(sql);
+
+		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -31,27 +35,35 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  String saPeriod = rs.getString("IM_Type");	
-			  saPeriodList.add(saPeriod);
-			  rs.next();
+				int id = rs.getInt("IM_Type_ID");
+				String measure = rs.getString("IM_Type_Measure");
+				Double value = rs.getDouble("IM_Type_Value");
+				String units = rs.getString("IM_Type_Units");
+				ims.add(new CybershakeIM(id, measure, value, units));
+				rs.next();
 			}
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return saPeriodList;
+		return ims;
 	}
 	
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<String>  getSupportedSA_PeriodList(int siteID, int erfID, int sgtVariation, int rupVarID) {
+	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int sgtVariation, int rupVarID) {
 		String whereClause = "Site_ID="+siteID + " AND ERF_ID="+erfID + " AND SGT_Variation_ID="+sgtVariation + 
 			" AND Rup_Var_Scenario_ID="+rupVarID;
 		long startTime = System.currentTimeMillis();
-		String sql = "SELECT distinct IM_Type from PeakAmplitudes WHERE " + whereClause + " group by IM_Type";
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		sql += "SELECT distinct IM_Type_ID from PeakAmplitudes WHERE " + whereClause;
+		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
+		
+		System.out.println(sql);
+		
 //		System.out.println(sql);
-		ArrayList<String> saPeriodList = new ArrayList<String>();
+		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -62,9 +74,12 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-			  String saPeriod = rs.getString("IM_Type");
-			  saPeriodList.add(saPeriod);
-			  rs.next();
+				int id = rs.getInt("IM_Type_ID");
+				String measure = rs.getString("IM_Type_Measure");
+				Double value = rs.getDouble("IM_Type_Value");
+				String units = rs.getString("Units");
+				ims.add(new CybershakeIM(id, measure, value, units));
+				rs.next();
 			}
 			rs.close();
 		} catch (SQLException e) {
@@ -72,7 +87,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		}
 		long duration = System.currentTimeMillis() - startTime;
 		System.out.println("Total SA Period Select Time: " + ((double)duration / 1000) + " sec");
-		return saPeriodList;
+		return ims;
 	}
 	
 	/**
@@ -117,10 +132,10 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @param rupVarId
 	 * @returns the IM Value for the particular IM type
 	 */
-	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, String imType){
+	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, CybershakeIM im){
 		String sql = "SELECT distinct IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
         "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type = '"+imType+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
+        "and IM_Type_ID = '"+im.getID()+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
 //		System.out.println(sql);
 		double imVal = Double.NaN;
 		ResultSet rs = null;
@@ -149,10 +164,10 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @throws SQLException 
 	 * @returns the a list of IM Values for the particular IM type
 	 */
-	public ArrayList<Double> getIM_Values(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId, String imType) throws SQLException{
+	public ArrayList<Double> getIM_Values(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId, CybershakeIM im) throws SQLException{
 		String sql = "SELECT IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
         "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type = '"+imType+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
+        "and IM_Type_ID = '"+im.getID()+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
 //		System.out.println(sql);
 		double imVal = Double.NaN;
 		ResultSet rs = null;

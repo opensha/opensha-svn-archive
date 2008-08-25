@@ -8,12 +8,12 @@ public interface PeakAmplitudesFromDBAPI {
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<String>  getSupportedSA_PeriodList();
+	public ArrayList<CybershakeIM>  getSupportedIMs();
 	
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<String>  getSupportedSA_PeriodList(int siteID, int erfID, int sgtVariation, int rupVarID);
+	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int sgtVariation, int rupVarID);
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @param rupVarId
 	 * @returns the IM Value for the particular IM type
 	 */
-	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, String imType);
+	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, CybershakeIM im);
 	
 	/**
 	 * 
@@ -44,7 +44,7 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @throws SQLException 
 	 * @returns the a list of IM Values for the particular IM type
 	 */
-	public ArrayList<Double> getIM_Values(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId, String imType) throws SQLException;
+	public ArrayList<Double> getIM_Values(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId, CybershakeIM im) throws SQLException;
 	
 	/**
 	  * @return all possible SGT Variation IDs

@@ -18,8 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import org.opensha.cybershake.db.CybershakeERF;
+import org.opensha.cybershake.db.CybershakeIM;
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
+import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.ERF2DB;
 import org.opensha.cybershake.db.ERF2DBAPI;
@@ -70,7 +72,7 @@ public class CyberShakePlotFromDBControlPanel
   private static final boolean D = false;
   public static final String SITE_SELECTOR_PARAM = "CyberShake Site";
   public static final String ERF_SELECTOR_PARAM = "Earthquake Rupture Forecast";
-  public static final String SA_PERIOD_SELECTOR_PARAM = "SA Period";
+  public static final String SA_PERIOD_SELECTOR_PARAM = "IM Type";
   public static final String SRC_INDEX_PARAM = "Source Index";
   public static final String RUP_INDEX_PARAM = "Rupture Index";
   public static final String SGT_VAR_PARAM = "SGT Variation ID";
@@ -130,9 +132,7 @@ public class CyberShakePlotFromDBControlPanel
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   
   //Database connection 
-  private static String HOST_NAME = "intensity.usc.edu";
-  private static String DATABASE_NAME = "CyberShake";
-  private static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
+  private static final DBAccess db = Cybershake_OpenSHA_DBApplication.db;
   
   /**
    * Handle to Cybershake Sites info in DB
@@ -148,7 +148,9 @@ public class CyberShakePlotFromDBControlPanel
   private CybershakeSite selectedSite;
   private CybershakeERF selectedERF;
   private int selectedSrcId,selectedRupId;
-  private String saPeriod;
+  private ArrayList<CybershakeIM> ims;
+  private CybershakeIM im;
+  private String imString;
   
   ArrayList<CybershakeSite> sites;
   ArrayList<String> siteNames;
@@ -260,7 +262,7 @@ public class CyberShakePlotFromDBControlPanel
     		siteNames,siteNames.get(0));
     selectedSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue()));
     loadSA_PeriodParam();
-    this.saPeriod = (String)saPeriodParam.getValue();
+    this.imString = (String)saPeriodParam.getValue();
     initSrcIndexParam();
     initRupIndexParam();
     paramList.addParameter(curveTypeSelectorParam);
@@ -284,29 +286,29 @@ public class CyberShakePlotFromDBControlPanel
    * SA Period for a given site for which hazard data needs to be plotted.
    */
   private void loadSA_PeriodParam(){
-    ArrayList<String> saPeriods = new ArrayList<String>();
-    
-//    saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
-    
-    // TEMPORARY HACK UNTIL PERIODS GET CHANGED ON NEW SERVER
-    if (this.selectedERF.id == 34) {
-    	saPeriods.add("SA_Period_2.0");
-    	saPeriods.add("SA_Period_3.00003");
-    	saPeriods.add("SA_Period_5.0");
-    	saPeriods.add("SA_Period_10.0");
+	  ims = new ArrayList<CybershakeIM>();
 
-    } else {
-    	saPeriods = hazCurve.getSupportedSA_PeriodStrings();
-    }
-    
-//    if (saPeriods.size() == 0) {
-//    	System.out.println("No periods for these settings!");
-//    	saPeriods.add(NONE_AVAILABLE_STRING);
-//    }
-    saPeriod = saPeriods.get(0);
-    saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
-        saPeriods,saPeriod);
-    saPeriodParam.addParameterChangeListener(this);
+//	  saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+	  ims = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+	  
+	  ArrayList<String> imStrings = new ArrayList<String>();
+	  if (ims.size() > 0) {
+		  for (CybershakeIM newIM : ims) {
+			  imStrings.add(newIM.toString());
+		  }
+		  im = ims.get(0);
+		  imString = im.toString();
+		  this.submitButton.setEnabled(true);
+	  } else {
+		  imStrings.add("");
+		  imString = "";
+		  im = null;
+		  this.submitButton.setEnabled(false);
+	  }
+	  
+	  saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
+			  imStrings,imString);
+	  saPeriodParam.addParameterChangeListener(this);
   }
 
 
@@ -414,8 +416,16 @@ public class CyberShakePlotFromDBControlPanel
     else if(paramName.equals(RUP_INDEX_PARAM))
     	selectedRupId = Integer.parseInt((String)this.rupIndexParam.getValue());
     else if(paramName.equals(SA_PERIOD_SELECTOR_PARAM)){
-    	saPeriod = (String)saPeriodParam.getValue();
-    	System.out.println("SA Period = "+saPeriod);
+    	imString = (String)saPeriodParam.getValue();
+    	im = null;
+    	for (CybershakeIM newIM : ims) {
+    		if (newIM.toString().equals(imString)) {
+    			im = newIM;
+    		}
+    	}
+    	if (im == null)
+    		throw new RuntimeException("IM String not matched with an IM!");
+    	System.out.println("IM = "+imString);
     }
     else if(paramName.equals(DETER_PROB_SELECTOR_PARAM)) {
     	initSrcIndexParam();
@@ -437,7 +447,7 @@ public class CyberShakePlotFromDBControlPanel
   private DiscretizedFuncAPI getHazardData(ArrayList imlVals) {
 	  System.out.println("Computing a hazard curve for " + selectedSite);
     DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite.short_name,
-    		this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, saPeriod);
+    		this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, im);
  
     return cyberShakeHazardData;
   }
@@ -452,7 +462,7 @@ public class CyberShakePlotFromDBControlPanel
       RuntimeException {
     DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = hazCurve.computeDeterministicCurve(imlVals, selectedSite.short_name,
     		this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario,
-    		                                      selectedSrcId, selectedRupId, saPeriod);
+    		                                      selectedSrcId, selectedRupId, im);
 
     return cyberShakeDeterminicticHazardCurve;
   }
@@ -529,7 +539,7 @@ public class CyberShakePlotFromDBControlPanel
    */
   private void setSiteParams(){
     Site_GuiBean site = application.getSiteGuiBeanInstance();
-    String cyberShakeSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue())).name;
+    String cyberShakeSite = sites.get(siteNames.indexOf((String)siteSelectionParam.getValue())).short_name;
     Location loc = csSites.getCyberShakeSiteLocation(cyberShakeSite);
     site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(loc.getLatitude()));
     site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(loc.getLongitude()));
@@ -644,8 +654,7 @@ public class CyberShakePlotFromDBControlPanel
     IMT_GuiBean imtGui = application.getIMTGuiBeanInstance();
     DecimalFormat format = new DecimalFormat("0.00");
     imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
-    String saPeriodString = saPeriod.substring(10);//trimming the "SA Period" string in front of the Period value 
-    double saPeriodVal = Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
+    double saPeriodVal = this.im.getVal();
     DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
     ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
     int size = allowedVals.size();
@@ -676,9 +685,7 @@ public class CyberShakePlotFromDBControlPanel
   }
   
   private double getPeriodDouble() {
-	  String saPeriodString = saPeriod.substring(10);//trimming the "SA Period" string in front of the Period value
-	  DecimalFormat format = new DecimalFormat("0.00");
-	  return Double.parseDouble(format.format(Double.parseDouble(saPeriodString.trim())));
+	  return this.im.getVal();
   }
 
   /**

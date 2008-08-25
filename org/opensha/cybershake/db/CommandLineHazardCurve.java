@@ -70,7 +70,8 @@ public class CommandLineHazardCurve implements ParameterChangeWarningListener {
 		ArrayList<Double> imlVals = new ArrayList<Double>();
 		for(int i=0; i<function.getNum();++i)
 			imlVals.add(function.getX(i));
-		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, "SA_Period_3.00003");
+		CybershakeIM im = new CybershakeIM(21, "spectral acceleration", 3.00003, "cm per sec squared");
+		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals, siteName, ERF_NAME, sgtVariationID, rupVarID, im);
 		System.out.println("Writing out CS file.");
 		try {
 		    FileWriter fr = new FileWriter(siteName + "_cybershake.txt");

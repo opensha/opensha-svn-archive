@@ -31,18 +31,18 @@ public class HazardCurveComputation {
 	 * 
 	 * @returns the List of supported Peak amplitudes
 	 */
-	public ArrayList<String> getSupportedSA_PeriodStrings(){
+	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(){
 		
-		return peakAmplitudes.getSupportedSA_PeriodList();
+		return peakAmplitudes.getSupportedIMs();
 	}
 	
 	/**
 	 * 
 	 * @returns the List of supported Peak amplitudes for a given site, ERF ID, SGT Var ID, and Rup Var ID
 	 */
-	public ArrayList<String> getSupportedSA_PeriodStrings(int siteID, int erfID, int sgtVariation, int rupVarID){
+	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(int siteID, int erfID, int sgtVariation, int rupVarID){
 		
-		return peakAmplitudes.getSupportedSA_PeriodList(siteID, erfID, sgtVariation, rupVarID);
+		return peakAmplitudes.getSupportedIMs(siteID, erfID, sgtVariation, rupVarID);
 	}
 	
 
@@ -56,7 +56,7 @@ public class HazardCurveComputation {
 	 * @param imType
 	 */
 	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,int erfId, int sgtVariation, int rvid,
-			                                     int srcId,int rupId,String imType){
+			                                     int srcId,int rupId,CybershakeIM imType){
 		
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteId = siteDB.getSiteId(site);
@@ -88,7 +88,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,int sgtVariation, int rvid, String imType){
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,String erfName,int sgtVariation, int rvid, CybershakeIM imType){
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("for erfname: " + erfName + " found ERFID: " + erfId + "\n");
 		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, imType);
@@ -102,7 +102,7 @@ public class HazardCurveComputation {
 	 * @param erfName
 	 * @param imType
 	 */
-	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,int erfId,int sgtVariation, int rvid, String imType){
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,int erfId,int sgtVariation, int rvid, CybershakeIM imType){
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();

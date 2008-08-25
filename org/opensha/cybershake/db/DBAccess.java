@@ -48,7 +48,7 @@ public class DBAccess implements Runnable{
       
         String dbDriver = "com.mysql.jdbc.Driver";
         String dbServer = "jdbc:mysql://"+hostname+":"+3306+"/"+dbName;
-        String dbLogin = "scottcal";
+        String dbLogin = "cybershk_ro";
         String dbPassword = "CyberShake2007";
         int minConns =1;
         int maxConns = 100;
