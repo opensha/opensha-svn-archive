@@ -1,0 +1,253 @@
+package org.opensha.sha.param;
+
+import java.util.*;
+
+import org.dom4j.Element;
+import org.opensha.data.*;
+import org.opensha.data.region.GeographicRegion;
+import org.opensha.exceptions.*;
+import org.opensha.param.*;
+import org.opensha.sha.calc.*;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.calc.RelativeLocation;
+
+/**
+ * <b>Title:</b> DistanceX_Parameter<p>
+ *
+ * <b>Description:</b> Special subclass of PropagationEffectParameter.
+ * This finds the shortest distance to the rupture trace extended to infinity
+ * <p>
+ *
+  * @author Ned Field
+ * @version 1.0
+ */
+
+public class DistanceX_Parameter
+     extends WarningDoublePropagationEffectParameter
+     implements WarningParameterAPI
+{
+
+
+
+    /** Class name used in debug strings */
+    protected final static String C = "DistanceJBParameter";
+    /** If true debug statements are printed out */
+    protected final static boolean D = false;
+    
+    /** Hardcoded name */
+    public final static String NAME = "DistanceX";
+    /** Hardcoded units string */
+    private final static String UNITS = "km";
+    /** Hardcoded info string */
+    private final static String INFO = "Horizontal distance to top edge of rupture, measured ppd to strike; neg valuse are on the foot wall";
+    /** Hardcoded min allowed value */
+    private final static Double MIN = new Double(-1*Double.MAX_VALUE);
+    /** Hardcoded max allowed value */
+    private final static Double MAX = new Double(Double.MAX_VALUE);
+
+
+    /**
+     * No-Arg constructor that just calls init() with null constraints.
+     * All value are allowed.
+     */
+    public DistanceX_Parameter() { init(); }
+
+
+    /** Constructor that sets up constraints. This is a constrained parameter. */
+    public DistanceX_Parameter(ParameterConstraintAPI warningConstraint)
+        throws ConstraintException
+    {
+        if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
+            throw new ConstraintException(
+                C + " : Constructor(): " +
+                "Input constraint must be a DoubleConstraint"
+            );
+        }
+        init( (DoubleConstraint)warningConstraint );
+    }
+
+    /** Initializes the constraints, name, etc. for this parameter */
+    protected void init( DoubleConstraint warningConstraint){
+        this.warningConstraint = warningConstraint;
+        this.constraint = new DoubleConstraint(MIN,MAX);
+        this.constraint.setNullAllowed(false);
+        this.name = NAME;
+        this.constraint.setName( this.name );
+        this.units = UNITS;
+        this.info = INFO;
+        //setNonEditable();
+    }
+
+    /** Initializes the constraints, name, etc. for this parameter */
+    protected void init(){ init( null ); }
+
+    /**
+     * Note that this does not throw a warning
+     */
+    protected void calcValueFromSiteAndEqkRup(){
+    	if( ( this.site != null ) && ( this.eqkRupture != null ) ){
+
+    		Location siteLoc = site.getLocation();
+
+    		EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+    		
+    		// not sure what to do if point source, so I'll set value as NaN for now
+    		if(rupSurf.getNumCols() == 1)
+    			this.setValue(Double.NaN);
+    		
+    		// We should probably set something here here too if it's vertical strike-slip
+    		// (to avoid unnecessary calculations)
+
+    		// get points projected off the ends
+    		Location firstTraceLoc = rupSurf.getLocation(0, 0); 						// first trace point
+    		Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
+    		
+    		// get point projected from first trace point in opposite direction of the ave trace
+    		Direction dir = RelativeLocation.getDirection(lastTraceLoc, firstTraceLoc); 		
+    		dir.setHorzDistance(1000); // project to 1000 km
+    		Location projectedLoc1 = RelativeLocation.getLocation(firstTraceLoc, dir);
+
+    		
+    		// get point projected from last trace point in ave trace direction
+    		dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
+    		Location projectedLoc2 = RelativeLocation.getLocation(lastTraceLoc, dir);
+
+    		// point down dip by adding 90 degrees to the azimuth
+    		dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
+
+    		// get points projected in the down dip directions at the ends of the new trace
+    		Location projectedLoc3 = RelativeLocation.getLocation(projectedLoc1, dir);
+
+    		Location projectedLoc4 = RelativeLocation.getLocation(projectedLoc2, dir);
+
+    		LocationList locsForExtendedTrace = new LocationList();
+    		LocationList locsForRegion = new LocationList();
+
+    		locsForExtendedTrace.addLocation(projectedLoc1);
+    		locsForRegion.addLocation(projectedLoc1);
+    		for(int c=0; c<rupSurf.getNumCols(); c++) {
+    			locsForExtendedTrace.addLocation(rupSurf.getLocation(0, c));
+    			locsForRegion.addLocation(rupSurf.getLocation(0, c));     	
+    		}
+    		locsForExtendedTrace.addLocation(projectedLoc2);
+    		locsForRegion.addLocation(projectedLoc2);
+
+    		// finish the region
+    		locsForRegion.addLocation(projectedLoc4);
+    		locsForRegion.addLocation(projectedLoc3);
+    		
+    		// write these out if in debug mode
+    		if(D) {
+    			System.out.println("Projected Trace:");
+    			for(int l=0; l<locsForExtendedTrace.size(); l++) {
+    				Location loc = locsForExtendedTrace.getLocationAt(l);
+    					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+    			}
+    			System.out.println("Region:");
+       			for(int l=0; l<locsForRegion.size(); l++) {
+    				Location loc = locsForRegion.getLocationAt(l);
+    					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+    			}
+    		}
+
+    		GeographicRegion polygon = new GeographicRegion(locsForRegion);
+    		boolean isInside = polygon.isLocationInside(siteLoc);
+
+    		double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);
+
+    		if(isInside) 
+    			this.setValue(distToExtendedTrace);
+    		else 
+    			this.setValue(-distToExtendedTrace);
+    	}
+        else this.setValue(null);
+    }
+
+
+
+    /** This is used to determine what widget editor to use in GUI Applets.  */
+    public String getType() {
+        String type = "DoubleParameter";
+        // Modify if constrained
+        ParameterConstraintAPI constraint = this.constraint;
+        if (constraint != null) type = "Constrained" + type;
+        return type;
+    }
+
+
+    /**
+     *  Returns a copy so you can't edit or damage the origial.<P>
+     *
+     * Note: this is not a true clone. I did not clone Site or ProbEqkRupture.
+     * PE could potentially have a million points, way to expensive to clone. Should
+     * not be a problem though because once the PE and Site are set, they can not
+     * be modified by this class. The clone has null Site and PE parameters.<p>
+     *
+     * This will probably have to be changed in the future once the use of a clone is
+     * needed and we see the best way to implement this.
+     *
+     * @return    Exact copy of this object's state
+     */
+    public Object clone() {
+
+        DoubleConstraint c1 = null;
+        DoubleConstraint c2 = null;
+
+        if( constraint != null ) c1 = ( DoubleConstraint ) constraint.clone();
+        if( warningConstraint != null ) c2 = ( DoubleConstraint ) warningConstraint.clone();
+
+        Double val = null, val2 = null;
+        if( value != null ) {
+            val = ( Double ) this.value;
+            val2 = new Double( val.doubleValue() );
+        }
+
+        DistanceX_Parameter param = new DistanceX_Parameter(  );
+        param.info = info;
+        param.value = val2;
+        param.constraint = c1;
+        param.warningConstraint = c2;
+        param.name = name;
+        param.info = info;
+        param.site = site;
+        param.eqkRupture = eqkRupture;
+        if( !this.editable ) param.setNonEditable();
+
+        return param;
+
+    }
+
+
+	public boolean setValueFromXMLMetadata(Element el) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	/**
+	 * This performs simple tests
+	 * @param args
+	 */
+	  public static void main(String[] args) {
+		  MeanUCERF2 meanUCERF2 = new MeanUCERF2();
+		  meanUCERF2.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_EXCLUDE);
+		  meanUCERF2.updateForecast();
+//		  for(int s=0; s<meanUCERF2.getNumSources();s++)
+//			  System.out.println(s+"   "+meanUCERF2.getSource(s).getName());
+		  
+		  // sierra madre is src # 271
+		  ProbEqkRupture sierraMadreRup = meanUCERF2.getSource(271).getRupture(meanUCERF2.getSource(271).getNumRuptures()-1);
+		  
+		  Site site = new Site();
+		  site.setLocation(sierraMadreRup.getRuptureSurface().getLocation(0, 0));
+		  
+		  DistanceX_Parameter distX = new DistanceX_Parameter();
+		  distX.setValue(sierraMadreRup, site);
+		  
+	  }
+		   
+
+
+}
