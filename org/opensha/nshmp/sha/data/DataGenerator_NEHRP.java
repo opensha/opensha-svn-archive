@@ -192,7 +192,7 @@ public class DataGenerator_NEHRP
 		this.lat = "" + lat; //newline
 		this.lon = "" + lon; //newline
 		this.zipCode = "";
-    String location = "Lat - " + lat + "\nLon - " + lon;
+    String location = "Lat : " + lat + "\nLon : " + lon;
     createMetadataForPlots(location);
     saFunction = function;
 
@@ -701,8 +701,10 @@ public class DataGenerator_NEHRP
         mapSpectrumSaTFunction);
     mapSpectrumSaSdFunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_SD_GRAPH);
     String info = metadataForPlots;
-    info += "Site Class -" + siteClass + "\n";
-    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    info += siteClass + "\n";
+    if (!dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    }
 
     mapSpectrumSaSdFunction.setInfo(info);
     mapSpectrumSaTFunction.setInfo(info);
@@ -738,8 +740,10 @@ public class DataGenerator_NEHRP
         smSpectrumSaTFunction);
     smSpectrumSaSdFunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_SD_GRAPH);
     String info = metadataForPlots;
-    info += "Site Class -" + siteClass + "\n";
-    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    info += siteClass + "\n";
+    if (!dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    }
 
     smSpectrumSaSdFunction.setInfo(info);
     smSpectrumSaTFunction.setInfo(info);
@@ -776,8 +780,10 @@ public class DataGenerator_NEHRP
     sdSpectrumSaSdFunction.setName(GlobalConstants.
                                    DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
     String info = metadataForPlots;
-    info += "Site Class -" + siteClass + "\n";
-    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    info += siteClass + "\n";
+    if (!dataEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    }
     sdSpectrumSaSdFunction.setInfo(info);
     sdSpectrumSaTFunction.setInfo(info);
     sdSpectrumSaSdFunction.setYAxisName(GlobalConstants.SA);
