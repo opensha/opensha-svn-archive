@@ -635,6 +635,7 @@ NamedObjectAPI, ParameterChangeListener {
 //		System.out.println("Inside getStdDev, pga_rock= "+ pga_rock);
 
 		component = (String)componentParam.getValue();
+		stdDevType = (String) stdDevTypeParam.getValue();
 
 
 		double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock);
