@@ -236,6 +236,9 @@ NamedObjectAPI, ParameterChangeListener {
 
 		propagationEffect = new PropagationEffect();
 		propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
+		
+		// do this to set the primitive types for each parameter;
+		setParamDefaults();
 	}
 
 
@@ -634,10 +637,6 @@ NamedObjectAPI, ParameterChangeListener {
 
 //		System.out.println("Inside getStdDev, pga_rock= "+ pga_rock);
 
-		component = (String)componentParam.getValue();
-		stdDevType = (String) stdDevTypeParam.getValue();
-
-
 		double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock);
 
 //		//System.out.println(stdDev+"\t"+iper+"\t"+stdDevType+"\t"+component+"\t"+vs30+"\t"+pga_rock);
@@ -935,7 +934,7 @@ NamedObjectAPI, ParameterChangeListener {
 		constraint.addString(COMPONENT_GMRotI50);
 
 		componentParam = new StringParameter(COMPONENT_NAME, constraint,
-				COMPONENT_DEFAULT);
+				null);
 		componentParam.setInfo(COMPONENT_INFO);
 		componentParam.setNonEditable();
 
@@ -948,7 +947,7 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevTypeConstraint.setNonEditable();
 		stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
 				stdDevTypeConstraint,
-				STD_DEV_TYPE_DEFAULT);
+				null);
 		stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
 		stdDevTypeParam.setNonEditable();
 
@@ -1339,6 +1338,8 @@ NamedObjectAPI, ParameterChangeListener {
 		Object val = e.getNewValue();
 		parameterChange = true;
 		
+		System.out.println(pName+"\t"+val);
+		
 		if (pName.equals(MAG_NAME)) {
 			mag = ( (Double) val).doubleValue();
 		}
@@ -1425,6 +1426,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
 		distanceXParam.removeParameterChangeListener(this);
 		stdDevTypeParam.removeParameterChangeListener(this);
+		componentParam.removeParameterChangeListener(this);
 		periodParam.removeParameterChangeListener(this);
 
 
@@ -1452,6 +1454,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distanceXParam.addParameterChangeListener(this);
 		
 		stdDevTypeParam.addParameterChangeListener(this);
+		componentParam.addParameterChangeListener(this);
 		periodParam.addParameterChangeListener(this);
 	}
 
@@ -1490,6 +1493,7 @@ NamedObjectAPI, ParameterChangeListener {
 		Site site = new Site();
 		site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
 		site.addParameter(attenRel.getParameter(attenRel.DEPTH_1pt0_NAME));
+		site.addParameter(attenRel.getParameter(attenRel.VS_FLAG_NAME));
 
 		Location loc;
 		for(double dist=-0.3; dist<=0.3; dist+=0.01) {
