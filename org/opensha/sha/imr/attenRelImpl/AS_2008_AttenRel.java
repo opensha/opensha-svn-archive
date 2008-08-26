@@ -194,7 +194,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
 	protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
 	protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
-	protected final static Double DISTANCE_X_WARN_MIN = new Double(0.0);
+	protected final static Double DISTANCE_X_WARN_MIN = new Double(-200.0);
 	protected final static Double DISTANCE_X_WARN_MAX = new Double(200.0);
 	protected final static Double VS30_WARN_MIN = new Double(150.0);
 	protected final static Double VS30_WARN_MAX = new Double(1500.0);
