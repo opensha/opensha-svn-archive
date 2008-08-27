@@ -4,21 +4,14 @@
 package org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
-import org.opensha.data.region.GeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.magdist.SummedMagFreqDist;
 
 
 
@@ -33,7 +26,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 
 	private final static WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 
-	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/NSHMP_CEUS08/";
+	private final static String PATH = "org"+File.separator+"opensha"+File.separator+"sha"+File.separator+"earthquake"+File.separator+"rupForecastImpl"+File.separator+"NSHMP_CEUS08"+File.separator+"inputFiles"+File.separator;
 
 	// a-val and mmax values
 	private double[] adapt_cn_vals, charnCagrid1008_vals, adapt_cy_vals, gm_ab_6p6_7p1_vals, agrd_chrls3_6p8_vals,
