@@ -194,8 +194,8 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DISTANCE_JB_WARN_MAX = new Double(200.0);
 	protected final static Double DISTANCE_MINUS_WARN_MIN = new Double(0.0);
 	protected final static Double DISTANCE_MINUS_WARN_MAX = new Double(50.0);
-	protected final static Double DISTANCE_X_WARN_MIN = new Double(-200.0);
-	protected final static Double DISTANCE_X_WARN_MAX = new Double(200.0);
+	protected final static Double DISTANCE_X_WARN_MIN = new Double(-300.0);
+	protected final static Double DISTANCE_X_WARN_MAX = new Double(300.0);
 	protected final static Double VS30_WARN_MIN = new Double(150.0);
 	protected final static Double VS30_WARN_MAX = new Double(1500.0);
 	protected final static Double DEPTH_1pt0_WARN_MIN = new Double(0);
@@ -1079,11 +1079,20 @@ NamedObjectAPI, ParameterChangeListener {
 			} else {
 				T1=0;
 			}
-			if (rX<=rupWidth*Math.cos(Math.toRadians(dip))) {
-				T2 = 0.5+(rX/2*rupWidth*Math.cos(Math.toRadians(dip)));
+			double depthBot = depthTop + rupWidth*Math.cos(Math.toRadians(dip));
+			double rXB = (depthBot - depthTop)/Math.tan(Math.toRadians(dip));
+			if (rX<=rXB) {
+				T2 = 0.5 + rX / (2*rXB);
 			} else {
 				T2 = 1;
-			}	
+			}
+			
+			
+//			if (rX<=rupWidth*Math.cos(Math.toRadians(dip))) {
+//				T2 = 0.5+(rX/2*rupWidth*Math.cos(Math.toRadians(dip)));
+//			} else {
+//				T2 = 1;
+//			}	
 			if (rX>=depthTop) {
 				T3 = 1;
 			} else {
