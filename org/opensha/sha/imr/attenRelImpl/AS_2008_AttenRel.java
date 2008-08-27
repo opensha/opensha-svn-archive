@@ -1338,7 +1338,7 @@ NamedObjectAPI, ParameterChangeListener {
 		Object val = e.getNewValue();
 		parameterChange = true;
 		
-		System.out.println(pName+"\t"+val);
+//		System.out.println(pName+"\t"+val);
 		
 		if (pName.equals(MAG_NAME)) {
 			mag = ( (Double) val).doubleValue();
