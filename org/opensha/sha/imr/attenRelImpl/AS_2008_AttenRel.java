@@ -1261,9 +1261,12 @@ NamedObjectAPI, ParameterChangeListener {
 				vs30Star = v1;
 			}
 
-			// dterm (eq. 26) ** The ES version has errors in this equation. I used the equation from Norms Excel spreadsheet, v19a
+			// dterm (eq. 26) 
+			//** The published ES version has errors in this equation. Per Norm (2008-08-15, personal communication)
+			//			1) the test against VLIN should be made with vs30, but the computation with vs30Star 
+			//			2) The (-b*pga_rock) is to multiply both terms of the equations
 			dterm=0;
-			if(vs30Star<VLIN[iper]){
+			if(vs30<VLIN[iper]){
 				dterm=b[iper]*pga_rock*(-1/(pga_rock+c)+1/(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N)));
 			}
 			// Define appropriate s1 and s2 values depending on how Vs30 was obtained
@@ -1309,7 +1312,10 @@ NamedObjectAPI, ParameterChangeListener {
 			tauB=tau0;
 			tauBPGA=tau0PGA;
 
-			// compute intra-event sigma (Eq. 24)
+			// compute intra-event sigma (Eq. 24) 
+			//** The published ES version has errors in this equation. Per Norm (2008-08-15, personal communication):
+			//   1) use sigmaB instead of sigma0 in the first term.
+
 			sigma = Math.sqrt(Math.pow(sigmaB,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2*dterm*sigmaB*sigmaBPGA*rho[iper]);
 
 			// get tau - inter-event term (Eq. 25)
