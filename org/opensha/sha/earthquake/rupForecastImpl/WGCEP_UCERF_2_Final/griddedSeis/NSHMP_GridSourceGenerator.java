@@ -474,7 +474,7 @@ public class NSHMP_GridSourceGenerator extends EvenlyGriddedRELM_Region {
 	 * @param applyBulgeReduction
 	 * @return
 	 */		
-	private GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
+	public GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, 
 			double bValue, boolean applyBulgeReduction) {
 
 		minMag += DELTA_MAG/2;

@@ -142,9 +142,11 @@ public class EvenlyGriddedRectangularGeographicRegion
 
 
   /**
-   * This method checks whether the given location is within the region using the definition of
-   * insidedness(true if on lower or left-hand boundary, but false
-   * if on the upper or right-hand boundary)
+   * This method checks whether the given location is within the region.
+   * NOTE - This uses a different definition of insidedness (all boundary locations are included,
+   * whereas those on the upper and right-hand boundary are excluded in GeographicRegions).  This
+   * was changed because these edge points are included in the discretized region, and the
+   * getNearestLocationIndex(loc) method was therefore failing.
    * @param location Location
    * @return true if location if within the regional bounds false otherwise
    */
@@ -154,7 +156,7 @@ public class EvenlyGriddedRectangularGeographicRegion
 
     if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
 
-    if((tempLat >= minLat && tempLat < maxLat) && (tempLon >= minLon && tempLon < maxLon))
+    if((tempLat >= minLat && tempLat <= maxLat) && (tempLon >= minLon && tempLon <= maxLon))
       return true;
     return false;
 
@@ -209,6 +211,9 @@ public class EvenlyGriddedRectangularGeographicRegion
    * @param loc Location Location to which we have to find the nearest location.
    * @return int index of the nearest location. User can use this index to
    * retrive the location from the locationlist.
+   * 
+   * THERE IS A BUG HERE IN THAT THIS GRIDDED REGION HAS POINTS AT THE UPPER AND RIGHT BOUNDARIES, 
+   * YET THIS METHOD WILL FILTER THOSE OUT BECAUSE THE FAIL THE isLocationInside() TEST
    * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationIndex(Location)
    */
   public int getNearestLocationIndex(Location loc){
