@@ -783,7 +783,7 @@ public abstract class AttenuationRelationship
 	    // WUS correlation coefficients
 	    	
 	    if (oldPeriod >= 0.0) {
-	    	corrCoef = (Math.log(oldPeriod) - Math.log(1/35)) * (0.931 - 0.976) / (Math.log(0.05) - Math.log(1/35)) + 0.976;
+	    	corrCoef = Math.min((Math.log(oldPeriod) - Math.log(1/35)) * (0.931 - 0.976) / (Math.log(0.05) - Math.log(1/35)) + 0.976,1);
 	        if(oldPeriod >= 0.05) {
 	        	corrCoef = (Math.log(oldPeriod) - Math.log(0.05)) * (0.633 - 0.931) / (Math.log(0.2) - Math.log(0.05)) + 0.931;
 	            if(oldPeriod >= 0.2) {
