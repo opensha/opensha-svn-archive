@@ -625,6 +625,97 @@ public abstract class AttenuationRelationship
    * @exception  ParameterException  Description of the Exception
    * @exception  IMRException        Description of the Exception
    */
+  protected double getExceedProbabilityFiltered(double mean, double stdDev, double iml) throws
+  ParameterException, IMRException {
+
+	    
+	    double newPeriod = 0.01;
+	    double oldPeriod;
+	    oldPeriod = ((Double) periodParam.getValue()).doubleValue();
+	  
+	    periodParam.setValue(newPeriod);    
+	    double pgaMean = getMean();
+	    double pgaStdDev = getStdDev();
+	    
+	    periodParam.setValue(oldPeriod);
+	    
+	    double corrCoef = 0;  
+	    
+	    // WUS correlation coefficients
+	    	
+	    if (oldPeriod >= 0.0) {
+	    	corrCoef = Math.min((Math.log(oldPeriod) - Math.log(0.02857)) * (0.931 - 0.976) / (Math.log(0.05) - Math.log(0.02857)) + 0.976,1);
+	        if(oldPeriod >= 0.05) {
+	        	corrCoef = (Math.log(oldPeriod) - Math.log(0.05)) * (0.633 - 0.931) / (Math.log(0.2) - Math.log(0.05)) + 0.931;
+	            if(oldPeriod >= 0.2) {
+	            	corrCoef = (Math.log(oldPeriod) - Math.log(0.2)) * (0.59 - 0.633) / (Math.log(2) - Math.log(0.2)) + 0.683;                	
+	            }	
+	        }
+	    }
+
+	    double dEpsilon = 0.1;
+	    double probSai = 0;
+	    double probPGAj = 0;
+	    double exceedprobCAVij = 0;
+	    double epsilonSa = (iml-mean)/stdDev;
+	    double epsilonSai, epsilonPGAj, sai, pgaj, mag, vs30;
+	    double probSaPGA = 0;
+	    double probSaPGACAV = 0;
+		double pgaFlag = 1;
+	    
+	    mag = ( (Double) magParam.getValue()).doubleValue();
+//	    System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
+//	    System.out.println("Correct method, old T, new T" + oldPeriod + newPeriod);
+	    // This should be changed so that it matches the site vs30 or site class
+	    vs30 = 1100.0;
+	    
+	    
+	    for(int i=1;i<=51;++i){
+	    	epsilonSai = epsilonSa + (i-1)*dEpsilon;
+	    	probSai = getExceedProbability(0,1,epsilonSai-dEpsilon/2)-getExceedProbability(0,1,epsilonSai+dEpsilon/2);
+	 //   	sai = mean + stdDev*epsilonSai;
+	    	for(int j=1;j<=51;++j){
+	    		epsilonPGAj = -2.5 + (j-1)*dEpsilon;
+	        	probPGAj = getExceedProbability(0,1,epsilonPGAj-dEpsilon/2)-getExceedProbability(0,1,epsilonPGAj+dEpsilon/2);
+	        	pgaj = pgaMean + Math.sqrt(1-corrCoef*corrCoef)*pgaStdDev*epsilonPGAj + corrCoef*epsilonSai*pgaStdDev;
+	        	double meanCAVij = -0.405 + 0.509*(pgaj+2.5) - 2.11/(pgaj+4.25) + 0.667*(mag-6.5) - 0.0947*(mag-6.5)*(mag-6.5) - 0.266*(Math.log(vs30)-6);
+	        	double sigmaCAV = 0.46;
+	        	exceedprobCAVij = getExceedProbability(meanCAVij,sigmaCAV,Math.log(0.16));
+	        	probSaPGA = probSaPGA + probSai*probPGAj;
+	        	if (Math.exp(pgaj) >= 0.025){
+	        		pgaFlag = 1;
+	        	}
+	        	else {
+	        		pgaFlag = 0;
+	        	}
+	        	probSaPGACAV = probSaPGACAV + probSai*probPGAj*exceedprobCAVij*pgaFlag;
+//	        	if (mag == 5 & j ==1 & i == 1){
+//	        		System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
+//	        		System.out.println("Mag: " + mag + ", j, PGAj: " +i+j+ pgaj + ", meanCAV: " + meanCAVij + ", exceedprob: " + exceedprobCAVij + ", probSai: " + probSai + ", probPGAj: " +probPGAj);
+//	        	}
+
+	    	}
+	    }
+	    
+	    periodParam.setValue(oldPeriod);
+	    
+	    double unfilteredProb = getExceedProbability(mean, stdDev, iml);
+	    
+	    double filteredProb = unfilteredProb*probSaPGACAV/probSaPGA;
+	    
+//	    if (mag == 5){
+//	    System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
+//	    System.out.println(unfilteredProb + " " + probSaPGACAV + " " + probSaPGA + " " + filteredProb);
+//	    }
+	    
+	    if (unfilteredProb == 0.0) {
+	    	return unfilteredProb;
+	    } else {
+	    	return filteredProb;
+	    }
+	    	    
+}
+
   public double getExceedProbability() throws ParameterException, IMRException {
 
     // IS THIS REALLY NEEDED; IS IT SLOWING US DOWN?
@@ -633,20 +724,14 @@ public abstract class AttenuationRelationship
                                    ": getExceedProbability(): " +
           "Intensity measure or value is null, unable to run this calculation."
           );
-    }  
-    
+    }
+
     // Calculate the standardized random variable
     double iml = ((Double) im.getValue()).doubleValue();
     double stdDev = getStdDev();
     double mean = getMean();
-    
 
-//    if (CAV = Yes){
-    	return getExceedProbabilityFiltered(mean, stdDev, iml);
-//    }
-//    else {
-//    	return getExceedProbabilityUnfiltered(mean, stdDev, iml);
-//    }
+    return getExceedProbabilityFiltered(mean, stdDev, iml);
   }
 
   /**
@@ -764,94 +849,7 @@ public abstract class AttenuationRelationship
    * @throws ParameterException
    * @throws IMRException
    */
-  protected double getExceedProbabilityFiltered(double mean, double stdDev, double iml) throws
-  ParameterException, IMRException {
-
-	    
-	    double newPeriod = 0.01;
-	    double oldPeriod;
-	    oldPeriod = ((Double) periodParam.getValue()).doubleValue();
-	  
-	    periodParam.setValue(newPeriod);    
-	    double pgaMean = getMean();
-	    double pgaStdDev = getStdDev();
-	    
-	    periodParam.setValue(oldPeriod);
-	    
-	    double corrCoef = 0;  
-	    
-	    // WUS correlation coefficients
-	    	
-	    if (oldPeriod >= 0.0) {
-	    	corrCoef = Math.min((Math.log(oldPeriod) - Math.log(1/35)) * (0.931 - 0.976) / (Math.log(0.05) - Math.log(1/35)) + 0.976,1);
-	        if(oldPeriod >= 0.05) {
-	        	corrCoef = (Math.log(oldPeriod) - Math.log(0.05)) * (0.633 - 0.931) / (Math.log(0.2) - Math.log(0.05)) + 0.931;
-	            if(oldPeriod >= 0.2) {
-	            	corrCoef = (Math.log(oldPeriod) - Math.log(0.2)) * (0.59 - 0.633) / (Math.log(2) - Math.log(0.2)) + 0.683;                	
-	            }	
-	        }
-	    }
-
-	    double dEpsilon = 0.1;
-	    double probSai = 0;
-	    double probPGAj = 0;
-	    double exceedprobCAVij = 0;
-	    double epsilonSa = (iml-mean)/stdDev;
-	    double epsilonSai, epsilonPGAj, sai, pgaj, mag, vs30;
-	    double probSaPGA = 0;
-	    double probSaPGACAV = 0;
-		double pgaFlag = 1;
-	    
-	    mag = ( (Double) magParam.getValue()).doubleValue();
-//	    System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
-	    System.out.println("Correct method, old T, new T" + oldPeriod + newPeriod);
-	    // This should be changed so that it matches the site vs30 or site class
-	    vs30 = 1100.0;
-	    
-	    
-	    for(int i=1;i<=51;++i){
-	    	epsilonSai = epsilonSa + (i-1)*dEpsilon;
-	    	probSai = getExceedProbabilityUnfiltered(0,1,epsilonSai-dEpsilon/2)-getExceedProbabilityUnfiltered(0,1,epsilonSai+dEpsilon/2);
-	 //   	sai = mean + stdDev*epsilonSai;
-	    	for(int j=1;j<=51;++j){
-	    		epsilonPGAj = -2.5 + (j-1)*dEpsilon;
-	        	probPGAj = getExceedProbabilityUnfiltered(0,1,epsilonPGAj-dEpsilon/2)-getExceedProbabilityUnfiltered(0,1,epsilonPGAj+dEpsilon/2);
-	        	pgaj = pgaMean + Math.sqrt(1-corrCoef*corrCoef)*pgaStdDev*epsilonPGAj + corrCoef*epsilonSai*pgaStdDev;
-	        	double meanCAVij = -0.405 + 0.509*(pgaj+2.5) - 2.11/(pgaj+4.25) + 0.667*(mag-6.5) - 0.0947*(mag-6.5)*(mag-6.5) - 0.266*(Math.log(vs30)-6);
-	        	double sigmaCAV = 0.46;
-	        	exceedprobCAVij = getExceedProbabilityUnfiltered(meanCAVij,sigmaCAV,Math.log(0.16));
-	        	probSaPGA = probSaPGA + probSai*probPGAj;
-	        	if (Math.exp(pgaj) >= 0.025){
-	        		pgaFlag = 1;
-	        	}
-	        	else {
-	        		pgaFlag = 0;
-	        	}
-	        	probSaPGACAV = probSaPGACAV + probSai*probPGAj*exceedprobCAVij*pgaFlag;
-	        	if (mag == 5 & j ==1 & i == 1){
-	        		System.out.println("Mag: " + mag + ", Mean: " + mean + ", StdDev: " + stdDev + ", pgaMean: " + pgaMean + ", pgaStdDev: " + pgaStdDev + ", Correlation: " + corrCoef);
-	        		System.out.println("Mag: " + mag + ", j, PGAj: " +i+j+ pgaj + ", meanCAV: " + meanCAVij + ", exceedprob: " + exceedprobCAVij + ", probSai: " + probSai + ", probPGAj: " +probPGAj);
-	        	}
-
-	    	}
-	    }
-	    
-	    periodParam.setValue(oldPeriod);
-	    
-	    double unfilteredProb = getExceedProbabilityUnfiltered(mean, stdDev, iml);
-	    
-	    double filteredProb = unfilteredProb*probSaPGACAV/probSaPGA;
-	    
-	    if (mag == 5){
-	    System.out.println(unfilteredProb + " " + probSaPGACAV + " " + probSaPGA + " " + filteredProb);
-	    }
-	    return filteredProb;
-	    
-}
-  
-  
-  
-  protected double getExceedProbabilityUnfiltered(double mean, double stdDev, double iml) throws
+  protected double getExceedProbability(double mean, double stdDev, double iml) throws
       ParameterException, IMRException {
 
     if (stdDev != 0) {
@@ -904,14 +902,8 @@ public abstract class AttenuationRelationship
     while (it.hasNext()) {
 
       DataPoint2D point = (DataPoint2D) it.next();
-      
-//      if (CAV = yes){
-    	  point.setY(getExceedProbabilityFiltered(mean, stdDev, point.getX()));
-//      }
-//      else {
-//    	  point.setY(getExceedProbabilityUnfiltered(mean, stdDev, point.getX()));
-//      }
-      
+      point.setY(getExceedProbabilityFiltered(mean, stdDev, point.getX()));
+//      System.out.println("ExceedProb: " + getExceedProbabilityFiltered(mean, stdDev, point.getX()));
 
     }
 
