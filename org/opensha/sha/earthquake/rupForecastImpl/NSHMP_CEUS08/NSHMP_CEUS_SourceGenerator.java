@@ -6,6 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
@@ -14,11 +15,19 @@ import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
-
+/**
+ * TO DO
+ * 
+ * 1) make sure rup depths are handles correctly (presently 5km for M<6.5, and 1 km above); I sent an email to Harmsen
+ * 2) Need to figure out what to do if max-mag gets converted to below 5.0 (getMaxMagAtLoc() method)
+ * 2) add the the other charleston sources (& others)?
+ * 3) is default b-value correct?
+ */
 
 
 /**
@@ -33,7 +42,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 
 	private final static String PATH = "org"+File.separator+"opensha"+File.separator+"sha"+File.separator+"earthquake"+File.separator+"rupForecastImpl"+File.separator+"NSHMP_CEUS08"+File.separator+"inputFiles"+File.separator;
 	
-	private double MIN_MAG = 5.0, DELTA_MAG = 0.1, MAX_MAG_DEFAULT = 7;
+	private double MIN_MAG = 5.0, DELTA_MAG = 0.1, MAX_MAG_DEFAULT = 7, DEFAULT_B_VALUE=0.9;
 	// broad CEUS a-value files
 	double[] adapt_cn_vals, adapt_cy_vals;
 	
@@ -47,6 +56,8 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		// Charleston files ????
 	double[] 	agrd_chrls3_6p8_vals, agrd_chrls3_7p1_vals, agrd_chrls3_7p3_vals, agrd_chrls3_7p5_vals;
 	double[] 	charlnA_vals, charlnB_vals, charlnarrow_vals, charnCagrid1008_vals;
+	
+	int locIndexForSource[];
 	
 	double ptSrcMagCutOff = 6.0;
 	double fracStrikeSlip=1,fracNormal=0,fracReverse=0;
@@ -62,9 +73,22 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		// num points: 127755
 
 		readAllGridFiles();
+		
+		mkLocIndexForSource();
 	}
 
-
+	
+	/**
+	 * This returns the total number of sources (different from the number
+	 * of locs because some locs have zero a-values)
+	 * @return
+	 */
+	public int getNumSources() {
+		return locIndexForSource.length;
+	}
+	
+	
+	
 	/**
 	 * This reads all grid files into arrays
 	 *
@@ -77,15 +101,16 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		
 		gb_vals = readGridFile(PATH+"gb_vals.txt");
 		
-		gm_ab_6p6_7p1_vals = readGridFile(PATH+"gm_ab_6p6_7p1_vals.txt");
+		gm_ab_6p6_7p1_vals =   readGridFile(PATH+"gm_ab_6p6_7p1_vals.txt");
 		gm_ab_6p8_7p3_vals  = readGridFile(PATH+"gm_ab_6p8_7p3_vals.txt");
 		gm_ab_7p0_7p5_vals  = readGridFile(PATH+"gm_ab_7p0_7p5_vals.txt");
-		gm_ab_7p2_7p7_vals  = readGridFile(PATH+"gm_ab_7p2_7p7_vals.txt");
-		gm_j_6p6_7p1_vals  = readGridFile(PATH+"gm_j_6p6_7p1_vals.txt");
-		gm_j_6p8_7p3_vals  = readGridFile(PATH+"gm_j_6p8_7p3_vals.txt");
-		gm_j_7p0_7p5_vals  = readGridFile(PATH+"gm_j_7p0_7p5_vals.txt");
-		gm_j_7p2_7p7_vals = readGridFile(PATH+"gm_j_7p2_7p7_vals.txt");
+		gm_ab_7p2_7p7_vals  =  readGridFile(PATH+"gm_ab_7p2_7p7_vals.txt");
+		gm_j_6p6_7p1_vals  =  readGridFile(PATH+"gm_j_6p6_7p1_vals.txt");
+		gm_j_6p8_7p3_vals  =  readGridFile(PATH+"gm_j_6p8_7p3_vals.txt");
+		gm_j_7p0_7p5_vals  =  readGridFile(PATH+"gm_j_7p0_7p5_vals.txt");
+		gm_j_7p2_7p7_vals =   readGridFile(PATH+"gm_j_7p2_7p7_vals.txt");
 
+		/* comment out until needed
 		agrd_chrls3_6p8_vals  = readGridFile(PATH+"agrd_chrls3_6p8_vals.txt");
 		agrd_chrls3_7p1_vals  = readGridFile(PATH+"agrd_chrls3_7p1_vals.txt");
 		agrd_chrls3_7p3_vals  = readGridFile(PATH+"agrd_chrls3_7p3_vals.txt");
@@ -95,7 +120,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		charlnB_vals  = readGridFile(PATH+"charlnB_vals.txt");
 		charlnarrow_vals  = readGridFile(PATH+"charlnarrow_vals.txt");
 		charnCagrid1008_vals  = readGridFile(PATH+"charnCagrid1008_vals.txt");
-
+		 */
 	}
 
 	/**
@@ -107,7 +132,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	 */
 	public double[] readGridFile(String fileName) {
 		double[] allGridVals = new double[this.getNumGridLocs()];
-		System.out.println("    Working on "+fileName);
+//		System.out.println("    Working on "+fileName);
 		try { 
 			InputStreamReader ratesFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(fileName));
 			BufferedReader ratesFileBufferedReader = new BufferedReader(ratesFileReader);
@@ -137,23 +162,69 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	}
 	
 	public double getMaxMagAtLoc(int locIndex) {
+		
+		double maxMagAtLoc = convertMbToMw(gm_ab_6p6_7p1_vals[locIndex], 3); // type 3 is always greater
+		
+		double mag = convertMbToMw(gm_ab_6p8_7p3_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_ab_7p0_7p5_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_ab_7p2_7p7_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_j_6p6_7p1_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_j_6p8_7p3_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_j_7p0_7p5_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+		mag = convertMbToMw(gm_j_7p2_7p7_vals[locIndex], 3); // type 3 is always greater
+		if(mag>maxMagAtLoc) maxMagAtLoc = mag;
+		
+
+		/* OLD way before mb --> mw conversion
 		// find max mag among all contributions
 		double maxMagAtLoc = gm_ab_6p6_7p1_vals[locIndex];
 		if(gm_ab_6p8_7p3_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_ab_6p8_7p3_vals[locIndex];
 		if(gm_ab_7p0_7p5_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_ab_7p0_7p5_vals[locIndex];
-		if(gm_ab_7p2_7p7_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_ab_7p2_7p7_vals[locIndex];
+		if(gm_ab_7p2_7p7_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_j_6p6_7p1_vals[locIndex];
 		if(gm_j_6p6_7p1_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_j_6p6_7p1_vals[locIndex];
 		if(gm_j_6p8_7p3_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_j_6p8_7p3_vals[locIndex];
 		if(gm_j_7p0_7p5_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_j_7p0_7p5_vals[locIndex];
 		if(gm_j_7p2_7p7_vals[locIndex]>maxMagAtLoc) maxMagAtLoc = gm_j_7p2_7p7_vals[locIndex];
+		*/
 		
 //		System.out.println(maxMagAtLoc);
 		
-		if (maxMagAtLoc>0)
+//		if(maxMagAtLoc>0 && maxMagAtLoc<5)
+//			System.out.println(locIndex+"\t"+maxMagAtLoc);
+		
+		if (maxMagAtLoc>=5)
 			return maxMagAtLoc;
 		else
 			return MAX_MAG_DEFAULT;
 		
+	}
+	
+	/**
+	 * This converts Mb to Mw, using either the Johnson method (typeConversion=3)
+	 * or the Boore Atkinson method (typeConversion=4).
+	 * Johnson mags are always greater than Boore Atkinson mags
+	 */
+	public double convertMbToMw(double mb, int typeConversion) {
+		// Johnston:
+		if(typeConversion == 3)
+			return 1.14 + 0.24*mb+0.0933*mb*mb;
+		// Boore Atkinson:
+		else if (typeConversion == 4)
+			return 2.715 - 0.277*mb+0.127*mb*mb;
+		else
+			throw new RuntimeException("that conversion type is not supported");
 	}
 
 	public SummedMagFreqDist getTotMFD_atLoc(int locIndex) {
@@ -162,38 +233,37 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 
 		// create summed MFD
 		int numMags = (int) Math.round((maxMagAtLoc-MIN_MAG)/DELTA_MAG) + 1;
-		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(UCERF2.MIN_MAG, maxMagAtLoc, numMags);
+		SummedMagFreqDist mfdAtLoc = new SummedMagFreqDist(MIN_MAG, maxMagAtLoc, numMags);
 		
 		boolean allValuesZero = true;
 		
 		if(adapt_cn_vals[locIndex] > 0) {
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p6_7p1_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.01667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p8_7p3_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p0_7p5_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.08333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p2_7p7_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(convertMbToMw(gm_ab_6p6_7p1_vals[locIndex], 4), 4), adapt_cn_vals[locIndex], gb_vals[locIndex], 0.01667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_6p8_7p3_vals[locIndex], 4), adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_7p0_7p5_vals[locIndex], 4), adapt_cn_vals[locIndex], gb_vals[locIndex], 0.08333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_7p2_7p7_vals[locIndex], 4), adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p6_7p1_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.01667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p8_7p3_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p0_7p5_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.08333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p2_7p7_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);		
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_6p6_7p1_vals[locIndex], 3), adapt_cn_vals[locIndex], gb_vals[locIndex],  0.01667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_6p8_7p3_vals[locIndex], 3), adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_7p0_7p5_vals[locIndex], 3), adapt_cn_vals[locIndex], gb_vals[locIndex],  0.08333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_7p2_7p7_vals[locIndex], 3), adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);		
 			
 			allValuesZero = false;
 		}
 
 		if(adapt_cy_vals[locIndex] > 0) {
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p6_7p1_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p8_7p3_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p0_7p5_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex], 0.16667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p2_7p7_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_6p6_7p1_vals[locIndex], 4), adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_6p8_7p3_vals[locIndex], 4), adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_7p0_7p5_vals[locIndex], 4), adapt_cy_vals[locIndex], gb_vals[locIndex], 0.16667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_ab_7p2_7p7_vals[locIndex], 4), adapt_cy_vals[locIndex], gb_vals[locIndex], 0.0667), true);
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p6_7p1_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p8_7p3_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p0_7p5_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex],  0.16667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p2_7p7_vals[locIndex], adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0667), true);			
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_6p6_7p1_vals[locIndex], 3), adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0333), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_6p8_7p3_vals[locIndex], 3), adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_7p0_7p5_vals[locIndex], 3), adapt_cy_vals[locIndex], gb_vals[locIndex],  0.16667), true);
+			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, convertMbToMw(gm_j_7p2_7p7_vals[locIndex], 3), adapt_cy_vals[locIndex], gb_vals[locIndex],  0.0667), true);			
 
 			allValuesZero = false;
 		}
-
 
 		// for each branch separately: 
 		/*
@@ -236,35 +306,88 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	 */		
 	public GutenbergRichterMagFreqDist getMFD(double minMag, double maxMag, double aValue, double bValue, double weight) {
 		
-		System.out.println(minMag+"\t"+maxMag+"\t"+aValue+"\t"+bValue+"\t"+weight);
+//		System.out.println(minMag+"\t"+maxMag+"\t"+aValue+"\t"+bValue+"\t"+weight);
+
+		// check for a low maxMag
+		if (maxMag<5) maxMag = MAX_MAG_DEFAULT;
 
 		minMag += DELTA_MAG/2;
 		maxMag -= DELTA_MAG/2;
+		
+		// check for zero b-balue
+		double b_val;
+		if(bValue ==0) b_val = this.DEFAULT_B_VALUE;
+		else b_val = bValue;
+		
 		int numMag = Math.round((float)((maxMag-minMag)/DELTA_MAG+1));
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, bValue);
-		mfd.scaleToIncrRate(minMag, aValue*Math.pow(10,-bValue*minMag));
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(minMag, numMag, DELTA_MAG, 1.0, b_val);
+		mfd.scaleToIncrRate(minMag, weight*aValue*Math.pow(10,-bValue*minMag));
 
 		return mfd;
 	}
 
-
+	/**
+	 * Because we don't have sources where the a-values at a grid point are zero, 
+	 * this makes locIndexForSource[] which provides the loc index for each source, 
+	 * as well as the total number of sources.
+	 */
+	private void mkLocIndexForSource() {
+		ArrayList<Integer>  tempArrayList = new ArrayList<Integer>();
+		for(int i=0; i<this.getNumGridLocs(); i++) {
+			if((adapt_cn_vals[i]+adapt_cy_vals[i]) > 0)
+				tempArrayList.add(new Integer(i));
+		}
+		
+//		System.out.println("num locs:"+this.getNumGridLocs()+"; num sources:"+tempArrayList.size());
+		
+		locIndexForSource = new int[tempArrayList.size()];
+		for(int i=0; i<tempArrayList.size();i++)
+			locIndexForSource[i] = tempArrayList.get(i).intValue();
+		
+	}
+	
+	
 		public void test() {
 /*			
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p6_7p1_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.01667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_6p8_7p3_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p0_7p5_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.08333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_ab_7p2_7p7_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex], 0.0333), true);
+		gm_ab_6p6_7p1_vals,gm_ab_6p8_7p3_vals,gm_ab_7p0_7p5_vals, gm_ab_7p2_7p7_vals, 
+		gm_j_6p6_7p1_vals, gm_j_6p8_7p3_vals, gm_j_7p0_7p5_vals, gm_j_7p2_7p7_vals;
 
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p6_7p1_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.01667), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_6p8_7p3_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p0_7p5_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.08333), true);
-			mfdAtLoc.addResampledMagFreqDist(getMFD(MIN_MAG, gm_j_7p2_7p7_vals[locIndex], adapt_cn_vals[locIndex], gb_vals[locIndex],  0.0333), true);
+
 */
+			double m_min, m_max;
+			int numDiffs=0;
 			for(int i=0; i<this.getNumGridLocs(); i++) {
-				if(gm_ab_6p6_7p1_vals[i] == 0)
-					if(adapt_cn_vals[i] >0)
-						System.out.println(i);
+				m_min = 10;
+				m_max = -1;
+				if(gm_ab_6p6_7p1_vals[i]<m_min) m_min = gm_ab_6p6_7p1_vals[i];
+				if(gm_ab_6p6_7p1_vals[i]>m_max) m_max = gm_ab_6p6_7p1_vals[i];
+				
+				if(gm_ab_6p8_7p3_vals[i]<m_min) m_min = gm_ab_6p8_7p3_vals[i];
+				if(gm_ab_6p8_7p3_vals[i]>m_max) m_max = gm_ab_6p8_7p3_vals[i];
+				
+				if(gm_ab_7p0_7p5_vals[i]<m_min) m_min = gm_ab_7p0_7p5_vals[i];
+				if(gm_ab_7p0_7p5_vals[i]>m_max) m_max = gm_ab_7p0_7p5_vals[i];
+				
+				if(gm_ab_7p2_7p7_vals[i]<m_min) m_min = gm_ab_7p2_7p7_vals[i];
+				if(gm_ab_7p2_7p7_vals[i]>m_max) m_max = gm_ab_7p2_7p7_vals[i];
+				
+				if(gm_j_6p6_7p1_vals[i]<m_min) m_min = gm_j_6p6_7p1_vals[i];
+				if(gm_j_6p6_7p1_vals[i]>m_max) m_max = gm_j_6p6_7p1_vals[i];
+				
+				if(gm_j_6p8_7p3_vals[i]<m_min) m_min = gm_j_6p8_7p3_vals[i];
+				if(gm_j_6p8_7p3_vals[i]>m_max) m_max = gm_j_6p8_7p3_vals[i];
+				
+				if(gm_j_7p0_7p5_vals[i]<m_min) m_min = gm_j_7p0_7p5_vals[i];
+				if(gm_j_7p0_7p5_vals[i]>m_max) m_max = gm_j_7p0_7p5_vals[i];
+				
+				if(gm_j_7p2_7p7_vals[i]<m_min) m_min = gm_j_7p2_7p7_vals[i];
+				if(gm_j_7p2_7p7_vals[i]>m_max) m_max = gm_j_7p2_7p7_vals[i];
+				
+				if((m_max-m_min) > 0.01) numDiffs +=1;
+				
+				
 			}
+			System.out.println("num diffs = "+numDiffs);
 		}
 
 		
@@ -275,8 +398,9 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		 * @return
 		 */
 		public ProbEqkSource getRandomStrikeGriddedSource(int srcIndex, double duration) {
-			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex);
-			return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+			int locIndex = locIndexForSource[srcIndex];
+			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(locIndex);
+			return new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
 					fracStrikeSlip,fracNormal,fracReverse, false);
 		}
 
@@ -288,9 +412,10 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		 * @return
 		 */
 		public ProbEqkSource getPointGriddedSource(int srcIndex, double duration) {
-			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex);
+			int locIndex = locIndexForSource[srcIndex];
+			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(locIndex);
 			double magCutoff = 10;
-			return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, magCutoff,
+			return new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, magCutoff,
 					fracStrikeSlip,fracNormal,fracReverse, false);
 		}
 
@@ -301,10 +426,9 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		 * @return
 		 */
 		public ProbEqkSource getCrosshairGriddedSource(int srcIndex, double duration) {
-			boolean includeDeeps = false;
-			//boolean includeDeeps = true;
-			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(srcIndex);
-			return new Point2Vert_FaultPoisSource(this.getGridLocation(srcIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+			int locIndex = locIndexForSource[srcIndex];
+			SummedMagFreqDist mfdAtLoc = getTotMFD_atLoc(locIndex);
+			return new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
 					fracStrikeSlip,fracNormal,fracReverse, true);
 		}
 
@@ -312,13 +436,16 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	public static void main(String args[]) {
 		try {
 			NSHMP_CEUS_SourceGenerator srcGen = new NSHMP_CEUS_SourceGenerator();
+			srcGen.test();
 			
 //			srcGen.test();
 			
 //			for(int i=0; i< srcGen.getNumGridLocs(); i++)
-//				System.out.print(srcGen.getMaxMagAtLoc(i)+", ");
+//				srcGen.getMaxMagAtLoc(i);
+			
+//			System.out.print(srcGen.getMaxMagAtLoc(i)+", ");
 	
-			/* */
+			/* 
 			System.out.println("0\t"+srcGen.getMaxMagAtLoc(0));
 
 			Location loc = new Location(50.0,-113.7);
@@ -327,7 +454,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 			
 			SummedMagFreqDist mfd = srcGen.getTotMFD_atLoc(index);
 			System.out.println(mfd);
-			
+		*/	
 //			System.out.println(srcGen.getNumGridLats());
 //			System.out.println(srcGen.getNumGridLons());
 //			System.out.println(srcGen.getNumGridLocs());

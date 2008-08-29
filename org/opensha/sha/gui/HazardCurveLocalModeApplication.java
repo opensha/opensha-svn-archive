@@ -31,6 +31,7 @@ import org.opensha.util.FileUtils;
  
 public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
+  public final static String NSHMP08_CEUS_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.NSHMP_CEUS08.NSHMP08_CEUS_ERF";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
@@ -112,6 +113,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       ArrayList erf_Classes = new ArrayList();
 
       //adding the client based ERF's to the application
+      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
