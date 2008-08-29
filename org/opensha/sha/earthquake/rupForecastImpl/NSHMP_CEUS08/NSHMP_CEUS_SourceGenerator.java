@@ -24,8 +24,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 /**
  * TO DO
  * 
- * 1) make sure rup depths are handles correctly (presently 5km for M<6.5, and 1 km above); I sent an email to Harmsen
- * 2) Need to figure out what to do if max-mag gets converted to below 5.0 (getMaxMagAtLoc() method)
+ * 1) make sure rup depths are handled correctly (presently 5km for M<6.5, and 1 km above); I sent email to Harmsen
+ * 2) determine fraction of SS vs RV vs N
+ * 3) Need to figure out what to do if max-mag gets converted to below 5.0 (getMaxMagAtLoc() method)
  * 4) is default b-value correct?
  * 5) Charleston sources should have fixed strike and fault type?
  */
