@@ -17,6 +17,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.Point2Vert_FaultPoisSource;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -25,8 +26,8 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
  * 
  * 1) make sure rup depths are handles correctly (presently 5km for M<6.5, and 1 km above); I sent an email to Harmsen
  * 2) Need to figure out what to do if max-mag gets converted to below 5.0 (getMaxMagAtLoc() method)
- * 2) add the the other charleston sources (& others)?
- * 3) is default b-value correct?
+ * 4) is default b-value correct?
+ * 5) Charleston sources should have fixed strike and fault type?
  */
 
 
@@ -53,14 +54,19 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	double[] 	gm_ab_6p6_7p1_vals,gm_ab_6p8_7p3_vals,gm_ab_7p0_7p5_vals, gm_ab_7p2_7p7_vals, 
 				gm_j_6p6_7p1_vals, gm_j_6p8_7p3_vals, gm_j_7p0_7p5_vals, gm_j_7p2_7p7_vals;
 
-		// Charleston files ????
-	double[] 	agrd_chrls3_6p8_vals, agrd_chrls3_7p1_vals, agrd_chrls3_7p3_vals, agrd_chrls3_7p5_vals;
-	double[] 	charlnA_vals, charlnB_vals, charlnarrow_vals, charnCagrid1008_vals;
+		// Charleston a-value files
+	double[] 	agrd_chrls3_6p8_vals, agrd_chrls3_7p1_vals, agrd_chrls3_7p3_vals, agrd_chrls3_7p5_vals,
+	 			charlnA_vals, charlnB_vals, charlnarrow_vals, charnCagrid1008_vals;
 	
-	int locIndexForSource[];
+	int locIndexForSource[], locIndexForCharlSources[];
+	
+	double lastCharlDuration = -10;
+	int lastCharlType = -1;
 	
 	double ptSrcMagCutOff = 6.0;
 	double fracStrikeSlip=1,fracNormal=0,fracReverse=0;
+	
+	ArrayList<ProbEqkSource> CharlSources;
 
 
 	public NSHMP_CEUS_SourceGenerator() throws RegionConstraintException {
@@ -75,12 +81,17 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		readAllGridFiles();
 		
 		mkLocIndexForSource();
+		
+		mkLocIndexForCharlSources();
+		
+//		System.out.println("num Charl sources = "+this.locIndexForCharlSources.length);
 	}
 
 	
 	/**
 	 * This returns the total number of sources (different from the number
-	 * of locs because some locs have zero a-values)
+	 * of locs because some locs have zero a-values).  This does not include
+	 * the Charleston sources
 	 * @return
 	 */
 	public int getNumSources() {
@@ -110,7 +121,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		gm_j_7p0_7p5_vals  =  readGridFile(PATH+"gm_j_7p0_7p5_vals.txt");
 		gm_j_7p2_7p7_vals =   readGridFile(PATH+"gm_j_7p2_7p7_vals.txt");
 
-		/* comment out until needed
+		/* comment out until needed */
 		agrd_chrls3_6p8_vals  = readGridFile(PATH+"agrd_chrls3_6p8_vals.txt");
 		agrd_chrls3_7p1_vals  = readGridFile(PATH+"agrd_chrls3_7p1_vals.txt");
 		agrd_chrls3_7p3_vals  = readGridFile(PATH+"agrd_chrls3_7p3_vals.txt");
@@ -120,8 +131,9 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		charlnB_vals  = readGridFile(PATH+"charlnB_vals.txt");
 		charlnarrow_vals  = readGridFile(PATH+"charlnarrow_vals.txt");
 		charnCagrid1008_vals  = readGridFile(PATH+"charnCagrid1008_vals.txt");
-		 */
+		 
 	}
+	
 
 	/**
 	 * this reads an NSHMP grid file.  The boolean specifies whether to add this to a running 
@@ -295,6 +307,38 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 
 	}
 	
+	public ArbIncrementalMagFreqDist getTotCharl_MFD_atLoc(int locIndex) {
+		
+		// create summed MFD
+		double mMin = 6.8;
+		double mMax = 7.5;
+		double rate;
+		int numMags = (int) Math.round((mMax-mMin)/DELTA_MAG) + 1;
+		ArbIncrementalMagFreqDist mfdAtLoc = new ArbIncrementalMagFreqDist(mMin, mMax, numMags);
+		
+		// 	agrd_chrls3_6p8_vals, agrd_chrls3_7p1_vals, agrd_chrls3_7p3_vals, agrd_chrls3_7p5_vals;
+		// 	charlnA_vals, charlnB_vals, charlnarrow_vals, charnCagrid1008_vals;
+		
+		// M 6.8
+		rate = 0.1*(agrd_chrls3_6p8_vals[locIndex]+charnCagrid1008_vals[locIndex])*Math.pow(10,-1.0*6.8);
+		mfdAtLoc.set(6.8, rate);
+
+		// M 7.1
+		rate = 0.1*(agrd_chrls3_7p1_vals[locIndex]+charlnA_vals[locIndex])*Math.pow(10,-1.0*7.1);
+		mfdAtLoc.set(7.1, rate);
+
+		// M 7.3
+		rate = 0.225*(agrd_chrls3_7p3_vals[locIndex]+charlnarrow_vals[locIndex])*Math.pow(10,-1.0*7.3);
+		mfdAtLoc.set(7.3, rate);
+
+		// M 7.5
+		rate = 0.075*(agrd_chrls3_7p5_vals[locIndex]+charlnB_vals[locIndex])*Math.pow(10,-1.0*7.5);
+		mfdAtLoc.set(7.5, rate);
+
+		return mfdAtLoc;
+	}
+
+	
 	/**
 	 * This creates an NSHMP mag-freq distribution from their a-value etc, 
 	 * @param minMag
@@ -347,13 +391,78 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	}
 	
 	
+	
+	public ArrayList<ProbEqkSource> getCharlestonSourceList(double duration,int type) {
+		
+		// don't duplicate if nothing has changed
+		if(lastCharlDuration == duration && lastCharlType == type) {
+			return CharlSources;
+		}
+		else {
+			CharlSources = new ArrayList<ProbEqkSource>();
+			int locIndex;
+			for(int s=0;s<locIndexForCharlSources.length;s++) {
+				locIndex = locIndexForCharlSources[s];
+				ArbIncrementalMagFreqDist mfdAtLoc = getTotCharl_MFD_atLoc(locIndex);
+				if(type == 0) // point gridded source
+					CharlSources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, 10,
+							fracStrikeSlip,fracNormal,fracReverse, false));
+				else if (type == 1) // cross hair
+					CharlSources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+							fracStrikeSlip,fracNormal,fracReverse, true));
+				else // random strike
+					CharlSources.add(new Point2Vert_FaultPoisSource(this.getGridLocation(locIndex), mfdAtLoc, magLenRel, duration, ptSrcMagCutOff,
+							fracStrikeSlip,fracNormal,fracReverse, false));
+			}
+			return CharlSources;			
+		}
+	}
+	
+	/**
+	 * This stores the location indices and total number of Charleston sources
+	 */
+	private void mkLocIndexForCharlSources() {
+		ArrayList<Integer>  tempArrayList = new ArrayList<Integer>();
+		double rate;
+		for(int i=0; i<this.getNumGridLocs(); i++) {
+			rate = 	agrd_chrls3_6p8_vals[i] + agrd_chrls3_7p1_vals[i] + agrd_chrls3_7p3_vals[i] + agrd_chrls3_7p5_vals[i] +
+					charlnA_vals[i] + charlnB_vals[i] + charlnarrow_vals[i] + charnCagrid1008_vals[i];
+			if(rate > 0)
+				tempArrayList.add(new Integer(i));
+		}
+		
+//		System.out.println("num locs:"+this.getNumGridLocs()+"; num sources:"+tempArrayList.size());
+		
+		locIndexForCharlSources = new int[tempArrayList.size()];
+		for(int i=0; i<tempArrayList.size();i++)
+			locIndexForSource[i] = tempArrayList.get(i).intValue();
+		
+	}
+	
+	
+	
 		public void test() {
 /*			
 		gm_ab_6p6_7p1_vals,gm_ab_6p8_7p3_vals,gm_ab_7p0_7p5_vals, gm_ab_7p2_7p7_vals, 
 		gm_j_6p6_7p1_vals, gm_j_6p8_7p3_vals, gm_j_7p0_7p5_vals, gm_j_7p2_7p7_vals;
+		
+		agrd_chrls3_6p8_vals, agrd_chrls3_7p1_vals, agrd_chrls3_7p3_vals, agrd_chrls3_7p5_vals;
+		charlnA_vals, charlnB_vals, charlnarrow_vals, charnCagrid1008_vals
 
 
 */
+			int num;
+			System.out.println("num Locs: "+getNumGridLocs());
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_6p8_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p1_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p3_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(agrd_chrls3_7p5_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnA_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnB_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charlnarrow_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			num=0; for(int i=0; i<this.getNumGridLocs(); i++) if(charnCagrid1008_vals[i] > 0) num +=1;  System.out.println("char num: "+num);
+			
+			/*
 			double m_min, m_max;
 			int numDiffs=0;
 			for(int i=0; i<this.getNumGridLocs(); i++) {
@@ -388,6 +497,8 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 				
 			}
 			System.out.println("num diffs = "+numDiffs);
+			
+			*/
 		}
 
 		
@@ -436,7 +547,8 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 	public static void main(String args[]) {
 		try {
 			NSHMP_CEUS_SourceGenerator srcGen = new NSHMP_CEUS_SourceGenerator();
-			srcGen.test();
+			srcGen.getCharlestonSourceList(30, 0);
+			//srcGen.test();
 			
 //			srcGen.test();
 			

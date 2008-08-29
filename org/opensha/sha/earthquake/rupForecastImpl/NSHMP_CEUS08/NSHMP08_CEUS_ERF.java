@@ -32,7 +32,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
  * @Date : Aug, 2008
  * @version 1.0
  * 
- * TO DO:  Add the other sources (e.g., Charleston).  To do items in the source generator.
  */
 
 public class NSHMP08_CEUS_ERF extends EqkRupForecast {
@@ -56,6 +55,8 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 	int backSeisSourceType;
 
 	double duration;
+	
+	ArrayList<ProbEqkSource> charlestonSources;
 
 
 	/**
@@ -80,6 +81,8 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 
 		// add the change listeners
 		backSeisRupParam.addParameterChangeListener(this);
+		
+		charlestonSources = new ArrayList<ProbEqkSource>();
 
 	}
 
@@ -103,7 +106,7 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 	 * @return integer
 	 */
 	public int getNumSources() {
-		return sourceGen.getNumSources();
+		return sourceGen.getNumSources() + charlestonSources.size();
 	}
 
 	/**
@@ -147,6 +150,8 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 
 			parameterChangeFlag = false;
 		}
+		
+		charlestonSources = this.sourceGen.getCharlestonSourceList(duration, backSeisSourceType);
 
 	}
 	
@@ -156,12 +161,17 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 	 * @param iSource : index of the source needed
 	 */
 	public ProbEqkSource getSource(int iSource) {
-		if(backSeisSourceType == 0)
-			return sourceGen.getPointGriddedSource(iSource, duration);
-		else if (this.backSeisSourceType == 1)
-			return sourceGen.getCrosshairGriddedSource(iSource, duration);
-		else
-			return sourceGen.getRandomStrikeGriddedSource(iSource, duration);
+		
+		if(iSource<sourceGen.getNumSources())  {// everything but Charleston sources
+			if(backSeisSourceType == 0)
+				return sourceGen.getPointGriddedSource(iSource, duration);
+			else if (this.backSeisSourceType == 1)
+				return sourceGen.getCrosshairGriddedSource(iSource, duration);
+			else
+				return sourceGen.getRandomStrikeGriddedSource(iSource, duration);			
+		}
+		else 
+			return this.charlestonSources.get(iSource - sourceGen.getNumSources());				
 	}
 
 
@@ -171,6 +181,7 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 		NSHMP08_CEUS_ERF erf = new NSHMP08_CEUS_ERF();
 		erf.updateForecast();
 		System.out.println(erf.getNumSources());
+		/*
 		System.out.println("Starting loop over sources");
 		int check = 1000;
 		for(int i=0; i<erf.getNumSources();i++) {
@@ -181,6 +192,7 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 			erf.getSource(i);
 		}
 		System.out.println("Done with loop over sources");
+		*/
 		
 
 	}
