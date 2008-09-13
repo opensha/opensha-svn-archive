@@ -41,7 +41,7 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 	private boolean D = false;
 
 	// name of this ERF
-	public final static String NAME = new String("USGS NSHMP (2008) CEUS ERF (not complete!)");
+	public final static String NAME = new String("USGS NSHMP (2008) CEUS ERF (unverified)");
 
 	NSHMP_CEUS_SourceGenerator sourceGen;
 
@@ -54,7 +54,7 @@ public class NSHMP08_CEUS_ERF extends EqkRupForecast {
 
 	int backSeisSourceType;
 
-	double duration;
+	double duration=50;
 	
 	ArrayList<ProbEqkSource> charlestonSources;
 
