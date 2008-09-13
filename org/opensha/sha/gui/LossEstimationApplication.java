@@ -135,6 +135,7 @@ public class LossEstimationApplication extends JFrame
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
+  public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
@@ -1109,6 +1110,7 @@ public class LossEstimationApplication extends JFrame
         //adding the RMI based ERF's to the application
         //adding the client based ERF's to the application
         erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+        erf_Classes.add(WGCEP_AVG_UCERF_2_CLASS_NAME);
         erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
         erf_Classes.add(WGCEP_UCERF1_CLASS_NAME); 
         erf_Classes.add(WGCEP_UCERF_2_2_CLASS_NAME);
