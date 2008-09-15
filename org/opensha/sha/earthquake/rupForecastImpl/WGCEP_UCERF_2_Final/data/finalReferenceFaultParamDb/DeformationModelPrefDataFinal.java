@@ -6,6 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.fina
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
  * @author Ned Field
  *
  */
-public class DeformationModelPrefDataFinal {
+public class DeformationModelPrefDataFinal implements Serializable {
 	
 	/*
 	 * For each deformation model we need to store a faultSectionIdList and arrays of the following:

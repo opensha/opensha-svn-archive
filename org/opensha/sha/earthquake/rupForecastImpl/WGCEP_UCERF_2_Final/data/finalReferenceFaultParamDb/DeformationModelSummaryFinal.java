@@ -6,6 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.fina
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
  * @author Ned Field
  *
  */
-public class DeformationModelSummaryFinal {
+public class DeformationModelSummaryFinal implements Serializable {
 	
 	private static ArrayList<DeformationModelSummary> deformationModelSummariesList;
 	private static final String XML_DATA_FILENAME = "DeformationModelSummaries.xml";

@@ -6,6 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.fina
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +33,7 @@ import org.opensha.sha.fault.FaultTrace;
  * @version 1.0
  *
  */
-public class PrefFaultSectionDataFinal {
+public class PrefFaultSectionDataFinal implements Serializable {
 	private static ArrayList<FaultSectionPrefData> faultSectionsList;
 	private static ArrayList<FaultSectionPrefData> dbFaultSectionsList = new ArrayList<FaultSectionPrefData>();
 	private static HashMap indexForID_Map;
