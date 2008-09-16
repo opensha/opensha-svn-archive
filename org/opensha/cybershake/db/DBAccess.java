@@ -65,6 +65,29 @@ public class DBAccess implements Runnable{
 		}
 
     }
+    
+    /**
+     * Class default constructor
+     * Creates a new Connection Broker after reading the JDBC info from the
+     * data file.
+     * @throws IOException 
+     */
+    public DBAccess(String hostname,String dbName, String user, String pass) throws IOException {
+      
+        String dbDriver = "com.mysql.jdbc.Driver";
+        String dbServer = "jdbc:mysql://"+hostname+":"+3306+"/"+dbName;
+        String dbLogin = user;
+        String dbPassword = pass;
+        int minConns =1;
+        int maxConns = 100;
+        String logFileString ="cybershake_db_log_file";
+        double maxConnTime = 0.5;
+
+		setupBroker(dbDriver, dbServer, dbLogin, dbPassword, minConns,
+			            maxConns, logFileString, maxConnTime, false,
+			            DEFAULTMAXCHECKOUTSECONDS, DEFAULTDEBUGLEVEL);
+
+    }
 
 
     /**

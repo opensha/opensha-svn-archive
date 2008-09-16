@@ -1,12 +1,27 @@
 package scratchJavaDevelopers.kevin;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CPTGen {
+import javax.imageio.ImageIO;
 
+import org.opensha.util.cpt.CPT;
+
+public class CPTGen {
+	
+	String fileName = "";
+	
 	public CPTGen(ArrayList<int[]> colors, double min, double max, String outFile) throws IOException {
+		this(colors, min, max, new File(outFile));
+	}
+
+	public CPTGen(ArrayList<int[]> colors, double min, double max, File outFile) throws IOException {
+		fileName = outFile.getAbsolutePath();
+		
 		double step = (max - min) / ((double)colors.size() - 1d);
 		FileWriter write = new FileWriter(outFile);
 		int i=0;
@@ -26,6 +41,35 @@ public class CPTGen {
 		// this is a trivial comment to test Trac
 		// this is another one!
 		write.close();
+	}
+	
+	public CPTGen(ArrayList<int[]> colors, float min, float max, float inc, String outFile) throws IOException {
+		this(colors, min, max, File.createTempFile("opensha", "cpt"));
+		System.out.println("Loading from " + fileName);
+		CPT cpt = CPT.loadFromFile(new File(fileName));
+		FileWriter write = new FileWriter(outFile);
+		
+		for (float val=min; val<max; val+=inc) {
+			Color color = cpt.getColor((float)val);
+			int r = color.getRed();
+			int g = color.getGreen();
+			int b = color.getBlue();
+			
+			String line = val + "\t" + r + "\t" + g + "\t" + b + "\t" + (val+inc) + "\t" + r + "\t" + g + "\t" + b;
+			System.out.println(line);
+			write.write(line + "\n");
+		}
+		int colB[] = colors.get(0);
+		int colF[] = colors.get(colors.size() - 1);
+		write.write("B " + colB[0] + "\t" + colB[1] + "\t" + colB[2] +"\n");
+		write.write("F " + colF[0] + "\t" + colF[1] + "\t" + colF[2] +"\n");
+		write.write("N 127	127	127\n");
+		write.close();
+		
+		CPT newCPT = CPT.loadFromFile(new File(outFile));
+		BufferedImage bi = new BufferedImage(400, 50, BufferedImage.TYPE_INT_RGB);
+		newCPT.paintGrid(bi);
+		ImageIO.write(bi, "png", new File(outFile + ".png"));
 	}
 	
 	public double round(double num) {
@@ -61,7 +105,8 @@ public class CPTGen {
 		colors.add(color7);
 //		colors.add(color8);
 		try {
-			new CPTGen(colors, 1, 7, "newcpt.cpt");
+//			new CPTGen(colors, 0, 1.4, "newcpt.cpt");
+			new CPTGen(colors, 0f, 1.4f, 0.1f, "/home/kevin/CyberShake/scatterMap/cpt.cpt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

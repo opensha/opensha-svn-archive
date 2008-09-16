@@ -139,6 +139,13 @@ public interface SiteInfo2DBAPI {
 	public CybershakeSite getSiteFromDB(String shortName);
 	
 	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(int siteID);
+	
+	/**
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */

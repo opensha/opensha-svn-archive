@@ -22,8 +22,8 @@ import org.opensha.util.FileUtils;
 public class Cybershake_OpenSHA_DBApplication {
 
 	
-	private static String HOST_NAME = "focal.usc.edu";
-	private static String DATABASE_NAME = "CyberShake";
+	public static String HOST_NAME = "focal.usc.edu";
+	public static String DATABASE_NAME = "CyberShake";
 	public static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
 	
 	public static boolean timer = false;

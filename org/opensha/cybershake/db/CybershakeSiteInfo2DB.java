@@ -414,6 +414,15 @@ public class CybershakeSiteInfo2DB {
 	}
 	
 	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(int siteID) {
+		return site2db.getSiteFromDB(siteID);
+	}
+	
+	/**
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */

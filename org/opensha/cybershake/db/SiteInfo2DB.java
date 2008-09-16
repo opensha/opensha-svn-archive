@@ -488,6 +488,37 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	}
 	
 	/**
+	 * Gets a CybershakeSite from the Database
+	 * @param shortName
+	 * @return
+	 */
+	public CybershakeSite getSiteFromDB(int siteID) {
+		String sql = "SELECT CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Site_ID = "+siteID+"";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+		try {
+			rs.first();
+			double lat = rs.getDouble("CS_Site_Lat");	
+			double lon = rs.getDouble("CS_Site_Lon");
+			String longName = rs.getString("CS_Site_Name");
+			String shortName = rs.getString("CS_Short_Name");
+			rs.close();
+
+			CybershakeSite site = new CybershakeSite(siteID, lat, lon, longName, shortName);
+			return site;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
 	 * Gets all CybershakeSite's from the Database
 	 * @return
 	 */
