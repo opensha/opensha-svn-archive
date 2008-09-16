@@ -37,6 +37,9 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 
 	private static final boolean D= false;
 	
+	private boolean canceled = false;
+	private boolean exitOnCancel = false;
+	
 	private static final String ACTION_KEY = "theAction";
 
 	private JPanel passwordPanel = new JPanel();
@@ -60,8 +63,9 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 		}
 	};
 	
-	public UserAuthDialog(Frame owner){
+	public UserAuthDialog(Frame owner, boolean exitOnCancel) {
 		super(owner, "Enter Username and Password", true);
+		this.exitOnCancel = exitOnCancel;
 		init();
 		this.setLocationRelativeTo(owner);
 	}
@@ -163,19 +167,28 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 	
 	public static void main(String args[]) {
 		System.out.println("Start");
-		UserAuthDialog box = new UserAuthDialog(null);
+		UserAuthDialog box = new UserAuthDialog(null, true);
 		System.out.println("Middle");
 		box.setVisible(true);
 		System.out.println("End");
 		System.exit(0);
 	}
 	
+	public void setVisible(boolean visible) {
+		if (visible == true)
+			canceled = false;
+		super.setVisible(visible);
+	}
+	
 	public void continueAction() {
 		this.setVisible(false);
+		canceled = false;
 	}
 	
 	public void cancelAction() {
-		System.exit(0);
+		canceled = true;
+		if (exitOnCancel)
+			System.exit(0);
 	}
 
 	public void actionPerformed(ActionEvent e) {
