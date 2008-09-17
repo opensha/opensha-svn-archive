@@ -3,7 +3,9 @@ package scratchJavaDevelopers.jennie.attenRelImpl;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.*;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
@@ -12,7 +14,6 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.DistanceJBParameter;
-import scratchJavaDevelopers.christine.*;
 
 /**
  * <b>Title:</b> AS_2008_SiteSpecific_AttenRel<p>
@@ -84,7 +85,7 @@ public class AS_2008_SiteSpecific_AttenRel
   public final static String AF_INTERCEPT_PARAM_NAME = "AF Intercept (a)";
   public final static String AF_INTERCEPT_PARAM_INFO = 
 	  "Intercept of the median regression model for the ground response analyses";
-  private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-2,2);
+  private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-11,11);
   public final static double AF_INTERCEPT_PARAM_DEFAULT = 0;
   
   //Slope Param
@@ -92,7 +93,7 @@ public class AS_2008_SiteSpecific_AttenRel
   public final static String AF_SLOPE_PARAM_NAME = "AF Slope (b)";
   public final static String AF_SLOPE_PARAM_INFO = 
 	  "Slope of the median regression model for the ground response analyses";
-  private DoubleConstraint AF_slopeParamConstraint = new DoubleConstraint(-1,1);
+  private DoubleConstraint AF_slopeParamConstraint = new DoubleConstraint(-11,11);
   public final static double AF_SLOPE_PARAM_DEFAULT = 0;
   
   //Additive reference acceleration param
@@ -102,15 +103,15 @@ public class AS_2008_SiteSpecific_AttenRel
 	  "Additive reference acceleration of the median regression model for the ground response " +
 	  "analyses. This parameter improves the linear model fit for low Sa(rock) / PGA(rock)" +
 	  "values and leads to more relaistic predictons than quadratic models";
-  private DoubleConstraint AFaddRefAccParamConstraint = new DoubleConstraint(0,0.5);
-  public final static double AF_ADDITIVE_REF_ACCERLATION_DEFAULT = 0.03;
+  private DoubleConstraint AFaddRefAccParamConstraint = new DoubleConstraint(0,11);
+  public final static double AF_ADDITIVE_REF_ACCERLATION_DEFAULT = 0.0;
   
   //Mag reference param
   protected DoubleParameter AF_MagParam;
   public final static String AF_MagPARAM_NAME = "AF Magnitude (d)";
   public final static String AF_MagPARAM_INFO = 
 	  "Slope of the regression for magnitude";
-  private DoubleConstraint AFMagParamConstraint = new DoubleConstraint(-4,4);
+  private DoubleConstraint AFMagParamConstraint = new DoubleConstraint(-11,11);
   public final static double AF_MagParam_DEFAULT = 0.0;
   
   //Rup reference param
@@ -118,7 +119,7 @@ public class AS_2008_SiteSpecific_AttenRel
   public final static String AF_RupPARAM_NAME = "AF Distance (e)";
   public final static String AF_RupPARAM_INFO = 
 	  "Slope of the regression for distance";
-  private DoubleConstraint AFRupParamConstraint = new DoubleConstraint(-4,4);
+  private DoubleConstraint AFRupParamConstraint = new DoubleConstraint(-11,11);
   public final static double AF_RupParam_DEFAULT = 0.0;
   
   
@@ -129,7 +130,7 @@ public class AS_2008_SiteSpecific_AttenRel
 	  "Standard Deviation of the amplification factor from the ground response analyses" +
 	  " regression model";
   private DoubleConstraint AF_StdDevParamConstraint = new DoubleConstraint(0,1.0);
-  public final static double AF_STD_DEV_DEFAULT = 0.3;
+  public final static double AF_STD_DEV_DEFAULT = 0.0;
   
    
   /**
@@ -224,6 +225,26 @@ public class AS_2008_SiteSpecific_AttenRel
    * Calculates the mean
    * @return    The mean value
    */
+  
+  public double getAF(double rockSA, double mag, double dist) {
+	  double lnAF;
+	  if(dist<=1){
+		  dist=1;
+	  }
+	   // get the amp factor
+	    double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
+	    double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
+	    double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
+	    double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
+	    double rVal = ((Double)AF_RupParam.getValue()).doubleValue();
+//	    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal);
+//	    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6);
+	    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6)+rVal*Math.log(dist/20);  
+//	    System.out.println("rockSa: " + rockSA + " mag: " + mag + " dist: " + dist + " lnAF: " + lnAF);
+	    return lnAF;
+
+  }
+  
   public double getMean() throws IMRException {
 
     double rockSA, lnAF;
@@ -240,14 +261,17 @@ public class AS_2008_SiteSpecific_AttenRel
 //    magTest = as_
     
     // get the amp factor
-    double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
-    double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
-    double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
-    double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
-    double rVal = ((Double)AF_RupParam.getValue()).doubleValue();
+//    double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
+//    double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
+//    double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
+//    double mVal = ((Double)AF_MagParam.getValue()).doubleValue();
+//    double rVal = ((Double)AF_RupParam.getValue()).doubleValue();
 //    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal);
 //    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6);
-    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6)+rVal*Math.log(dist/20);   
+//    lnAF = aVal+bVal*Math.log(Math.exp(rockSA)+cVal)+mVal*(mag-6)+rVal*Math.log(dist/20);   
+    
+    lnAF = getAF(rockSA, mag, dist);
+//    System.out.println("rockSa: " + rockSA + " mag: " + mag + " dist: " + dist + " lnAF: " + lnAF);
 
     // return the result
     return lnAF + rockSA;
@@ -288,7 +312,7 @@ public class AS_2008_SiteSpecific_AttenRel
 	  double rockStdDev = as_2008_attenRel.getStdDev();
 //	  double stdDev = Math.pow((bVal*asRockMean)/(asRockMean+cVal)+1, 2)*
 //	                  (Math.pow(asRockStdDev,2)-Math.pow(tau, 2))+Math.pow(stdDevAF,2)+Math.pow(tau,2);
-	  double stdDev = Math.pow((bVal*rockMean)/(rockMean+cVal)+1, 2)*(Math.pow(rockStdDev,2))+Math.pow(stdDevAF,2);
+	  double stdDev = Math.pow((bVal*Math.exp(rockMean))/(Math.exp(rockMean)+cVal)+1, 2)*(Math.pow(rockStdDev,2))+Math.pow(stdDevAF,2);
 	  return Math.sqrt(stdDev);
   }
  
@@ -572,6 +596,93 @@ public class AS_2008_SiteSpecific_AttenRel
      * @return    The name value
      */
 
+  public DiscretizedFuncAPI getExceedProbabilities(
+	      DiscretizedFuncAPI intensityMeasureLevels
+	      ) throws ParameterException {
 
+	    double stdDev = getStdDev();
+	    double mean = getMean();
 
+	    Iterator it = intensityMeasureLevels.getPointsIterator();
+	    while (it.hasNext()) {
+
+	      DataPoint2D point = (DataPoint2D) it.next();
+	      point.setY(getExceedProbabilitySS(mean, stdDev, point.getX()));
+
+	    }
+
+	    return intensityMeasureLevels;
+	  }
+  protected double getExceedProbabilitySS(double mean, double stdDev, double iml) throws
+  ParameterException, IMRException {
+
+	  as_2008_attenRel.setIntensityMeasure(im);
+	  double rockMean = as_2008_attenRel.getMean();
+	  double rockStdDev = as_2008_attenRel.getStdDev();
+	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
+	  double mag = ( (Double) magParam.getValue()).doubleValue();
+	  double dist = ( (Double) distanceRupParam.getValue()).doubleValue();	
+	  
+	  if(dist<=1){
+		  dist=1;
+	  }
+	  
+//	  System.out.println("Mag: " + mag + " Dist: " + dist);
+//	  System.out.println("Mean: " + mean + " rockMean: " + rockMean + " lnAF: " + getAF(rockMean,mag, dist));
+	  
+	  double epsilon = 0;
+	  double dEpsilon = 0.01;
+	  double rockAFi = 0;
+	  double rockSai = 0;
+	  double probi = 0;
+	  double probexceedi = 0;
+	  double probTot = 0;
+	  double probTotSa = 0;
+	  double imlAFi = 0;
+	  
+	  for(int i=1;i<=1001;++i){
+		epsilon = -5 + (i-1)*dEpsilon;
+      	probi = getExceedProbability(0,1,epsilon-dEpsilon/2)-getExceedProbability(0,1,epsilon+dEpsilon/2);
+      	rockSai = rockMean + epsilon*rockStdDev;
+      	rockAFi = getAF(rockSai,mag,dist);
+      	imlAFi = iml-rockSai;
+      	probexceedi = getExceedProbability(rockAFi,stdDevAF,imlAFi);
+      	probTot = probTot + probi*probexceedi;
+      	probTotSa = probTotSa + probi;
+ //     	if (iml >= Math.log(0.1) && probexceedi>=0.01) {
+ //     	if(mag==6.050000000000004) {
+//         System.out.println("Mag: " + mag + " Dist: " + dist);
+//	      System.out.println("Mean: " + mean + " rockMean: " + rockMean + " lnAF: " + getAF(rockMean,mag, dist));      	
+//          System.out.println("epsilon: " + epsilon + " rockSai: " + rockSai + " rockAFi: " + rockAFi);
+//      	  System.out.println("iml: "+ iml +" probi: " + probi + " probexceedi: " + probexceedi + " probTot: " + probTot);
+//          System.out.println("rockMean: " + rockMean + " iml: " + iml + " imlAFi: " + imlAFi);
+//      	  System.out.println("rockAFi: " + rockAFi + " stdDevAF: " +stdDevAF + " imlAFi: " + imlAFi + " probexceedi: " + probexceedi);
+ //     	}
+//      	System.out.println("probTot: " + probTot + " exceedProb(rock): " + getExceedProbability(rockMean, rockStdDev, iml) + " exceedprob(soil): " + getExceedProbability(mean, stdDev, iml));
+//      	}
+      	}
+	  
+	  return probTot/probTotSa;
+	  
+	  
+}
+
+  public double getExceedProbability() throws ParameterException, IMRException {
+
+	    // IS THIS REALLY NEEDED; IS IT SLOWING US DOWN?
+	    if ( (im == null) || (im.getValue() == null)) {
+	      throw new ParameterException(C +
+	                                   ": getExceedProbability(): " +
+	          "Intensity measure or value is null, unable to run this calculation."
+	          );
+	    }
+
+	    // Calculate the standardized random variable
+	    double iml = ((Double) im.getValue()).doubleValue();
+	    double stdDev = getStdDev();
+	    double mean = getMean();
+
+	    return getExceedProbabilitySS(mean, stdDev, iml);
+	  }
+  
 }
