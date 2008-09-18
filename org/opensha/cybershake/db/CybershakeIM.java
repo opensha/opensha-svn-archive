@@ -1,6 +1,6 @@
 package org.opensha.cybershake.db;
 
-public class CybershakeIM {
+public class CybershakeIM implements Comparable<CybershakeIM> {
 	
 	private int id;
 	private String measure;
@@ -32,5 +32,17 @@ public class CybershakeIM {
 	
 	public String toString() {
 		return this.measure + ": " + this.val + " (" + this.units + ")";
+	}
+	
+	public boolean equals(CybershakeIM im) {
+		return id == im.id;
+	}
+
+	public int compareTo(CybershakeIM im) {
+		if (val > im.val)
+			return 1;
+		if (val < im.val)
+			return -1;
+		return 0;
 	}
 }

@@ -1,6 +1,7 @@
 package org.opensha.sha.gui.controls;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,12 +11,15 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 import org.opensha.cybershake.db.CybershakeERF;
@@ -53,7 +57,10 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
 /**
  * <p>Title: CyberShakePlotFromDBControlPanel </p>
@@ -87,12 +94,17 @@ extends JFrame implements ParameterChangeListener {
 
 	private static final String NONE_AVAILABLE_STRING = "None Available";
 	
+	String prevUser = "";
+	String prevPass = "";
+	
 	DiscretizedFuncAPI currentHazardCurve;
 
 	JPanel guiPanel = new JPanel();
 	JButton submitButton = new JButton();
 	JButton paramSettingButton = new JButton();
-	JButton commitButton = new JButton("Publish Curve");
+	JButton publishButton = new JButton("Publish Curve");
+	JButton robPlotButton = new JButton("Setup Rob Plot");
+	JButton tomPlotButton = new JButton("Setup Tom Plot");
 	JLabel controlPanelLabel = new JLabel();
 	BorderLayout borderLayout1 = new BorderLayout();
 
@@ -132,6 +144,8 @@ extends JFrame implements ParameterChangeListener {
 
 	//handle to the application using this control panel
 	private CyberShakePlotControlPanelAPI application;
+	
+	double prevIMVal = 3;
 
 	//if deterministic curve needs to be plotted
 	private boolean isDeterministic ;
@@ -144,6 +158,8 @@ extends JFrame implements ParameterChangeListener {
 	 * Handle to Cybershake Sites info in DB
 	 */
 	private CybershakeSiteInfo2DB csSites = new CybershakeSiteInfo2DB(db);
+	
+	HazardCurve2DB curve2db = new HazardCurve2DB(db);
 
 	private ERF2DBAPI erf2db = new ERF2DB(db);
 
@@ -154,7 +170,11 @@ extends JFrame implements ParameterChangeListener {
 	private CybershakeSite selectedSite;
 	private CybershakeERF selectedERF;
 	private int selectedSrcId,selectedRupId;
+	boolean curveInDB = false;
+	boolean ampsInDB = false;
 	private ArrayList<CybershakeIM> ims;
+	private ArrayList<Integer> dbCurves;
+	private ArrayList<Integer> ampCurves;
 	private CybershakeIM im;
 	private String imString;
 
@@ -184,37 +204,46 @@ extends JFrame implements ParameterChangeListener {
 
 	private void jbInit() throws Exception {
 		getContentPane().setLayout(borderLayout1);
-		guiPanel.setLayout(gridBagLayout1);
+		guiPanel.setLayout(new BorderLayout());
 		submitButton.setText("Plot Curve");
-		paramSettingButton.setText("Set ERF Params in App for Comparison");
+		paramSettingButton.setText("Set Params for Comparison");
 		paramSettingButton.setToolTipText("Sets the same parameters in the Pathway-1\n "+
 		"application as in Cybershake calculations.");
-		commitButton.setToolTipText("Put the hazard curve in the CyberShake database");
+		publishButton.setToolTipText("Put the hazard curve in the CyberShake database");
 		controlPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		controlPanelLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 		controlPanelLabel.setText("Cybershake Hazard Data Plot Control");
 		//creating the Site and SA Period selection for the Cybershake control panel
 		initCyberShakeControlPanel();
 		this.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
-		guiPanel.add(controlPanelLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-				, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(6, 10, 0, 12), 145, 23));
-		guiPanel.add(listEditor, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
-				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(0, 2, 0, 2), 386, 210));
-		guiPanel.add(submitButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-				, GridBagConstraints.CENTER, GridBagConstraints.NONE,
-				new Insets(0, 17, 1, 114), 20, 0));
-		guiPanel.add(paramSettingButton,
-				new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-						, GridBagConstraints.CENTER,
-						GridBagConstraints.NONE,
-						new Insets(0, 72, 1, 0), 5, 0));
-		guiPanel.add(commitButton,
-				new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-						, GridBagConstraints.CENTER,
-						GridBagConstraints.NONE,
-						new Insets(0, 72, 1, 0), 5, 0));
+		guiPanel.add(controlPanelLabel, BorderLayout.NORTH);
+		guiPanel.add(listEditor, BorderLayout.CENTER);
+		JPanel topButtonPanel = new JPanel();
+		JPanel bottomButtonPanel = new JPanel();
+		JPanel buttonPanel = new JPanel();
+		topButtonPanel.setLayout(new BoxLayout(topButtonPanel, BoxLayout.X_AXIS));
+		bottomButtonPanel.setLayout(new BoxLayout(bottomButtonPanel, BoxLayout.X_AXIS));
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		bottomButtonPanel.add(paramSettingButton);
+		bottomButtonPanel.add(publishButton);
+		bottomButtonPanel.add(submitButton);
+		topButtonPanel.add(new JLabel("Plot Format Helpers: "));
+		topButtonPanel.add(robPlotButton);
+		topButtonPanel.add(tomPlotButton);
+		buttonPanel.add(topButtonPanel);
+		buttonPanel.add(new JSeparator());
+		buttonPanel.add(bottomButtonPanel);
+		robPlotButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setRobPlotParams(e);
+			}
+		});
+		tomPlotButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setTomPlotParams(e);
+			}
+		});
+		guiPanel.add(buttonPanel, BorderLayout.SOUTH);
 		submitButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				submitButton_actionPerformed(e);
@@ -225,12 +254,13 @@ extends JFrame implements ParameterChangeListener {
 				paramSettingButton_actionPerformed(e);
 			}
 		});
-		commitButton.addActionListener(new java.awt.event.ActionListener() {
+		publishButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				commitButton_actionPerformed(e);
 			}
 		});
-		this.setSize(80,300);
+		publishButton.setEnabled(false);
+		this.setSize(400,600);
 	}
 
 
@@ -304,16 +334,83 @@ extends JFrame implements ParameterChangeListener {
 	 */
 	private void loadSA_PeriodParam(){
 		ims = new ArrayList<CybershakeIM>();
+		dbCurves = new ArrayList<Integer>();
+		ampCurves = new ArrayList<Integer>();
 
 //		saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
-		ims = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+		ArrayList<CybershakeIM> ampIms = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+		ArrayList<CybershakeIM> curveIms = curve2db.getSupportedIMs(selectedSite.id, this.selectedERF.id, selectedRupVarScenario, selectedSGTVariation);
+		
+		if (!isDeterministic) {
+			for (CybershakeIM curveIM : curveIms) {
+				System.out.println("Adding Curve IM: " + curveIM);
+				ims.add(curveIM);
+			}
+		}
+		
+		for (CybershakeIM ampIM : ampIms) {
+			boolean match = false;
+			for (CybershakeIM im : ims) {
+				if (im.equals(ampIM)) {
+					match = true;
+					break;
+				}
+			}
+			if (!match) {
+				ims.add(ampIM);
+			}
+		}
+		
+		Collections.sort(ims);
+		
+		if (!isDeterministic) {
+			for (CybershakeIM curveIM : curveIms) {
+				for (CybershakeIM im : ims) {
+					if (curveIM.equals(im)) {
+						dbCurves.add(ims.indexOf(im));
+						break;
+					}
+				}
+			}
+			
+			for (CybershakeIM ampIM : ampIms) {
+				for (CybershakeIM im : ims) {
+					if (ampIM.equals(im)) {
+						ampCurves.add(ims.indexOf(im));
+						break;
+					}
+				}
+			}
+		}
 
 		ArrayList<String> imStrings = new ArrayList<String>();
 		if (ims.size() > 0) {
 			for (CybershakeIM newIM : ims) {
 				imStrings.add(newIM.toString());
 			}
-			im = ims.get(0);
+			curveInDB = false;
+			ampsInDB = false;
+			int index = 0;
+			for (CybershakeIM im : ims) {
+				if (Math.abs(im.getVal() - prevIMVal) < 0.05) {
+					index = ims.indexOf(im);
+					break;
+				}
+			}
+			im = ims.get(index);
+			prevIMVal = im.getVal();
+			for (int id : dbCurves) {
+				if (id == index) {
+					curveInDB = true;
+					break;
+				}
+			}
+			for (int id : ampCurves) {
+				if (id == index) {
+					ampsInDB = true;
+					break;
+				}
+			}
 			imString = im.toString();
 			this.submitButton.setEnabled(true);
 		} else {
@@ -401,6 +498,7 @@ extends JFrame implements ParameterChangeListener {
 		listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam);
 		listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
 		listEditor.replaceParameterForEditor(RUP_INDEX_PARAM,rupIndexParam);
+		this.publishButton.setEnabled(false);
 	}
 
 	/**
@@ -438,6 +536,23 @@ extends JFrame implements ParameterChangeListener {
 			for (CybershakeIM newIM : ims) {
 				if (newIM.toString().equals(imString)) {
 					im = newIM;
+					prevIMVal = im.getVal();
+					int index = ims.indexOf(newIM);
+					ampsInDB = false;
+					curveInDB = false;
+					for (int id : dbCurves) {
+						if (id == index) {
+							curveInDB = true;
+							break;
+						}
+					}
+					for (int id : ampCurves) {
+						if (id == index) {
+							ampsInDB = true;
+							break;
+						}
+					}
+					break;
 				}
 			}
 			if (im == null)
@@ -462,9 +577,40 @@ extends JFrame implements ParameterChangeListener {
 	 * @throws RuntimeException
 	 */
 	private DiscretizedFuncAPI getHazardData(ArrayList imlVals) {
-		System.out.println("Computing a hazard curve for " + selectedSite);
-		DiscretizedFuncAPI cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite.short_name,
-				this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario, im);
+		DiscretizedFuncAPI cyberShakeHazardData = null;
+		boolean dbCurve = false;
+		
+		int siteID = this.selectedSite.id;
+		int erfID = this.selectedERF.id;
+		int rupVarID = this.selectedRupVarScenario;
+		int sgtID = this.selectedSGTVariation;
+		int imID = this.im.getID();
+		
+		if (curveInDB) {
+			dbCurve = true;
+			if (ampsInDB) {
+				// the curve and the amps are both in the database, promt the user
+				String message = "A hazard curve already exists for these parameters.\nDo you wish to plot this curve (otherwise curve\n" +
+						"will be recalculated)?";
+				int response = JOptionPane.showConfirmDialog(this, message, "Plot Existing Curve?", JOptionPane.YES_NO_OPTION);
+				if (response == JOptionPane.NO_OPTION) {
+					dbCurve = false;
+				}
+			}
+		}
+		
+		if (dbCurve) {
+			System.out.println("Computing a hazard curve from db for " + selectedSite);
+			int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, imID);
+			cyberShakeHazardData = curve2db.getHazardCurve(id);
+			this.publishButton.setEnabled(false);
+		} else {
+			System.out.println("Computing a hazard curve for " + selectedSite);
+			cyberShakeHazardData= hazCurve.computeHazardCurve(imlVals,selectedSite.short_name,
+					erfID, sgtID, rupVarID, im);
+			this.publishButton.setEnabled(true);
+			currentHazardCurve = cyberShakeHazardData;
+		}
 
 		return cyberShakeHazardData;
 	}
@@ -503,8 +649,90 @@ extends JFrame implements ParameterChangeListener {
 			setEqkSrcRupSelectorParams();
 		else
 			setEqkRupForecastParams();
-
-		setPlotParams();
+	}
+	
+	private void setRobPlotParams(ActionEvent actionEvent) {
+		this.setPlotLabels();
+		float period = (float)this.getPeriodDouble();
+		application.setY_Log(true);
+		double xMin = 0.0;
+		double xMax = 2;
+		if (Math.abs(period - 3) < 0.05)
+			xMax = 2.0;
+		else if (Math.abs(period - 5) < 0.05)
+			xMax = 1.0;
+		else if (Math.abs(period - 10) < 0.05)
+			xMax = 0.5;
+		double yMin = Double.parseDouble("1.0E-6");
+		double yMax = 1.0;
+		application.setAxisRange(xMin, xMax, yMin, yMax);
+	}
+	
+	private void setTomPlotParams(ActionEvent actionEvent) {
+		if (isDeterministic)
+			return;
+		float period = (float)this.getPeriodDouble();
+		double xMin = Double.parseDouble("1.0E-2");
+		double xMax = 3;
+		double yMin = Double.parseDouble("1.0E-5");
+		double yMax = 0.2;
+		application.setAxisRange(xMin, xMax, yMin, yMax);
+		
+		setSiteParams();
+		setEqkRupForecastParams();
+		application.setX_ValuesForHazardCurve(createUSGS_PGA_Function());
+		
+		ArrayList<PlotCurveCharacterstics> chars = application.getPlottingFeatures();
+		
+		// assume cybershake is first
+		if (chars.size() >= 1) {
+			PlotCurveCharacterstics csCurve = chars.get(0);
+			csCurve.setCurveColor(Color.RED);
+		}
+		// assume CB 2008 is next
+		if (chars.size() >= 2) {
+			PlotCurveCharacterstics csCurve = chars.get(1);
+			csCurve.setCurveColor(new Color(0, 100, 0));
+		}
+		// assume BA 2008 is next
+		if (chars.size() >= 3) {
+			PlotCurveCharacterstics csCurve = chars.get(2);
+			csCurve.setCurveColor(Color.BLACK);
+		}
+		
+		this.setPlotLabels();
+		
+		application.getButtonControlPanel().setTickLabelFontSize(14);
+		application.getButtonControlPanel().setPlotLabelFontSize(14);
+		application.getButtonControlPanel().setAxisLabelFontSize(14);
+		application.getGraphPanel().setPlotBackgroundColor(Color.white);
+		
+//		application.setProgressCheckBoxSelected(false);
+		
+//		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+//		func.set(0d, Double.parseDouble("1.0E-4"));
+//		func.set(10d, Double.parseDouble("1.0E-4"));
+//		application.addCybershakeCurveData(func);
+		
+//		imrGui.set
+		
+		application.setY_Log(true);
+		application.setX_Log(true);
+		application.getGraphPanel().setPlotBackgroundColor(Color.white);
+	}
+	
+	private void setPlotLabels() {
+		String name = this.selectedSite.name;
+		String short_name = this.selectedSite.short_name;
+		if (name.equals(short_name))
+			application.setPlotLabel(name);
+		else
+			application.setPlotLabel(name + " (" + short_name + ")");
+		float period = (float)im.getVal();
+		period = period * 100f;
+		period = (float)(int)(period + 0.5f) / 100f;
+		application.setXAxisLabel(period + "s SA (g)");
+		application.setYAxisLabel("Probability Rate (1/yr)");
 	}
 
 	/**
@@ -544,7 +772,6 @@ extends JFrame implements ParameterChangeListener {
 			String name = "Cybershake hazard curve";
 			curveData.setName(name);
 			curveData.setInfo(infoString);
-			currentHazardCurve = curveData;
 			application.addCybershakeCurveData(curveData);
 
 		}
@@ -640,22 +867,6 @@ extends JFrame implements ParameterChangeListener {
 		rupGuiBean.showAllParamsForForecast(true);
 	}
 
-	private void setPlotParams() {
-		float period = (float)this.getPeriodDouble();
-		application.setY_Log(true);
-		double xMin = 0.0;
-		double xMax = 2;
-		if (Math.abs(period - 3) < 0.05)
-			xMax = 2.0;
-		else if (Math.abs(period - 5) < 0.05)
-			xMax = 1.0;
-		else if (Math.abs(period - 10) < 0.05)
-			xMax = 0.5;
-		double yMin = Double.parseDouble("1.0E-6");
-		double yMax = 1.0;
-		application.setAxisRange(xMin, xMax, yMin, yMax);
-	}
-
 	private void setIMR_Params(){
 		IMR_GuiBean imrGui = application.getIMRGuiBeanInstance();
 
@@ -720,18 +931,59 @@ extends JFrame implements ParameterChangeListener {
 	}
 
 	private void putCurveInDB() throws IOException {
-		UserAuthDialog dialog = new UserAuthDialog(this, false);
 		
-		dialog.setVisible(true);
+		int siteID = this.selectedSite.id;
+		int erfID = this.selectedERF.id;
+		int rupVarID = this.selectedRupVarScenario;
+		int sgtID = this.selectedSGTVariation;
+		int imID = this.im.getID();
 		
-		String pass = new String(dialog.getPassword());
+		boolean overwrite = false;
 		
-		DBAccess db = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME, dialog.getUsername(), pass);
+		int id = curve2db.getHazardCurveID(siteID, erfID, rupVarID, sgtID, imID);
+		
+		// check to see if it's already in there
+		
+		if (id >= 0) {
+			String message = "A hazard curve already exists for these parameters.\nOverwite curve? (otherwise curve curve will\n" +
+			"be added with original curve left untouched)?";
+			int response = JOptionPane.showConfirmDialog(this, message, "Overwrite Existing Curve?", JOptionPane.YES_NO_CANCEL_OPTION);
+			if (response == JOptionPane.YES_OPTION) {
+				overwrite = true;
+			} else if (response == JOptionPane.CANCEL_OPTION) {
+				return;
+			}
+		}
+		
+		String user, pass;
+		
+		if (prevPass.length() == 0 && prevUser.length() == 0) {
+			UserAuthDialog dialog = new UserAuthDialog(this, false);
+			
+			dialog.setVisible(true);
+			
+			pass = new String(dialog.getPassword());
+			user = dialog.getUsername();
+		} else {
+			user = prevUser;
+			pass = prevPass;
+		}
+		
+		DBAccess db = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
+		
+		prevUser = user;
+		prevPass = pass;
 		
 		HazardCurve2DB curve2db = new HazardCurve2DB(db);
 		
-		curve2db.insertHazardCurve(this.selectedSite.id, this.selectedERF.id, this.selectedRupVarScenario, this.selectedSGTVariation,
-				this.im.getID(), currentHazardCurve);
+		if (overwrite)
+			curve2db.replaceHazardCurve(id, currentHazardCurve);
+		else
+			curve2db.insertHazardCurve(siteID, erfID, rupVarID, sgtID,
+					imID, currentHazardCurve);
+		this.loadSA_PeriodParam();
+		listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam);
+		this.publishButton.setEnabled(false);
 		db.destroy();
 	}
 

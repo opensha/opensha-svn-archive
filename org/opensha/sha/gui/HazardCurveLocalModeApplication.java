@@ -113,10 +113,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       ArrayList erf_Classes = new ArrayList();
 
       //adding the client based ERF's to the application
-      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
       erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
       erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
       erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);

@@ -2107,14 +2107,23 @@ public class HazardCurveServerModeApplication extends JFrame
   public void setAverageSelected(boolean isAvgSelected) {
     this.avgSelected = isAvgSelected;
   }
+  
+  public ButtonControlPanel getButtonControlPanel() {
+	  return buttonControlPanel;
+  }
 
   /**
    * tells the application if the xLog is selected
    * @param xLog : boolean
    */
   public void setX_Log(boolean xLog){
-    this.xLog = xLog;
-    drawGraph();
+	  if (xLog == this.xLog)
+		  return;
+	  this.xLog = xLog;
+	  if (xLog != this.buttonControlPanel.isXLogSelected()) {
+		  this.buttonControlPanel.setXLog(xLog);
+	  }
+	  drawGraph();
   }
 
   /**
@@ -2122,8 +2131,13 @@ public class HazardCurveServerModeApplication extends JFrame
    * @param yLog : boolean
    */
   public void setY_Log(boolean yLog){
-    this.yLog = yLog;
-    drawGraph();
+	  if (yLog == this.yLog)
+		  return;
+	  this.yLog = yLog;
+	  if (yLog != this.buttonControlPanel.isYLogSelected()) {
+		  this.buttonControlPanel.setYLog(yLog);
+	  }
+	  drawGraph();
   }
 
 
@@ -2403,6 +2417,10 @@ public class HazardCurveServerModeApplication extends JFrame
                                     JOptionPane.OK_OPTION);
       return;
     }
+  }
+  
+  public GraphPanel getGraphPanel() {
+	  return graphPanel;
   }
 
 

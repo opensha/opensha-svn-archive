@@ -161,6 +161,35 @@ public class HazardCurve2DB {
 		this.insertHazardCurve(id, hazardFunc);
 	}
 	
+	public void replaceHazardCurve(int curveID, DiscretizedFuncAPI hazardFunc) {
+		String sql = "DELETE FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + curveID;
+		System.out.println(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		
+		this.insertHazardCurve(curveID, hazardFunc);
+		
+		// update the curve date
+		Date now = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		String date = format.format(now);
+		
+		sql = "UPDATE Hazard_Curves SET Curve_Date='" + date + "' WHERE Hazard_Curve_ID="+curveID;
+		System.out.println(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+	}
+	
 	private int insertHazardCurveID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
 		
 		Date now = new Date();
@@ -202,6 +231,49 @@ public class HazardCurve2DB {
 		}
 	}
 	
+	/**
+	 * @returns the supported SA Period as list of strings.
+	 */
+	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation) {
+		String whereClause = "Site_ID="+siteID + " AND ERF_ID="+erfID + " AND SGT_Variation_ID="+sgtVariation + 
+			" AND Rup_Var_Scenario_ID="+rupVarID;
+		long startTime = System.currentTimeMillis();
+		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
+		sql += "SELECT distinct IM_Type_ID from Hazard_Curves WHERE " + whereClause;
+		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
+		
+//		System.out.println(sql);
+		
+//		System.out.println(sql);
+		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				int id = rs.getInt("IM_Type_ID");
+				String measure = rs.getString("IM_Type_Measure");
+				Double value = rs.getDouble("IM_Type_Value");
+				String units = rs.getString("Units");
+				CybershakeIM im = new CybershakeIM(id, measure, value, units);
+				ims.add(im);
+//				System.out.println(im);
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+		long duration = System.currentTimeMillis() - startTime;
+//		System.out.println("Total SA Period Select Time: " + ((double)duration / 1000) + " sec");
+		return ims;
+	}
+	
 	public static void main(String args[]) {
 		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.db);
 		
@@ -214,6 +286,10 @@ public class HazardCurve2DB {
 		
 		for (int id : hc.getAllHazardCurveIDs(34, 3, 5, 21)) {
 			System.out.println("Haz Curve For: " + id);
+		}
+		
+		for (CybershakeIM im : hc.getSupportedIMs(33, 34, 3, 5)) {
+			System.out.println(im);
 		}
 	}
 	

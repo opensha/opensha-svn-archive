@@ -1,6 +1,8 @@
 package org.opensha.sha.gui.controls;
 
 import org.opensha.data.function.DiscretizedFuncAPI;
+
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -8,6 +10,8 @@ import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.sha.gui.infoTools.ButtonControlPanel;
+import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
@@ -100,4 +104,36 @@ public interface CyberShakePlotControlPanelAPI {
      * @param yLog : boolean
      */
     public void setY_Log(boolean yLog);
+    
+    /**
+     * tells the application if the xLog is selected
+     * @param xLog : boolean
+     */
+    public void setX_Log(boolean xLog);
+    
+    /**
+    *
+    * sets  X Axis Label
+    */
+   public void setXAxisLabel(String xAxisLabel);
+
+   /**
+    *
+    * sets Y Axis Label
+    */
+   public void setYAxisLabel(String yAxisLabel);
+
+   /**
+    *
+    * sets plot Title
+    */
+   public void setPlotLabel(String plotTitle);
+   
+   public ArrayList getPlottingFeatures();
+   
+   public ButtonControlPanel getButtonControlPanel();
+   
+   public GraphPanel getGraphPanel();
+    
+//    public void setProgressCheckBoxSelected(boolean selected);
 }
