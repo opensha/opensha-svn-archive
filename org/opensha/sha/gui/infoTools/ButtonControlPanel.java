@@ -215,6 +215,10 @@ PlotColorAndLineTypeSelectorControlPanelAPI{
 	public void setXLog(boolean flag){
 		jCheckxlog.setSelected(flag);
 	}
+	
+	public boolean isXLogSelected() {
+		return jCheckxlog.isSelected();
+	}
 
 	/**
 	 * Sets the Y-Log CheckBox to be selected or deselected based on the flag
@@ -222,6 +226,10 @@ PlotColorAndLineTypeSelectorControlPanelAPI{
 	 */
 	public void setYLog(boolean flag){
 		jCheckylog.setSelected(flag);
+	}
+	
+	public boolean isYLogSelected() {
+		return jCheckylog.isSelected();
 	}
 
 	/**
