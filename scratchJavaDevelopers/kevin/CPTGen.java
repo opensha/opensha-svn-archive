@@ -44,7 +44,7 @@ public class CPTGen {
 	}
 	
 	public CPTGen(ArrayList<int[]> colors, float min, float max, float inc, String outFile) throws IOException {
-		this(colors, min, max, File.createTempFile("opensha", "cpt"));
+		this(colors, min, max - inc, File.createTempFile("opensha", "cpt"));
 		System.out.println("Loading from " + fileName);
 		CPT cpt = CPT.loadFromFile(new File(fileName));
 		FileWriter write = new FileWriter(outFile);
@@ -95,6 +95,8 @@ public class CPTGen {
 		int color5[] = {255, 127, 0};
 		int color6[] = {255, 0, 0};
 		int color7[] = {255, 0, 255};
+		int color8[] = {100, 0, 100};
+		int color9[] = {96, 57, 19};
 		
 		colors.add(color1);
 		colors.add(color2);
@@ -103,10 +105,11 @@ public class CPTGen {
 		colors.add(color5);
 		colors.add(color6);
 		colors.add(color7);
-//		colors.add(color8);
+		colors.add(color8);
+		colors.add(color9);
 		try {
 //			new CPTGen(colors, 0, 1.4, "newcpt.cpt");
-			new CPTGen(colors, 0f, 1.4f, 0.1f, "/home/kevin/CyberShake/scatterMap/cpt.cpt");
+			new CPTGen(colors, 0f, 1.4f, 0.1f, "/home/kevin/CyberShake/scatterMap/gmt/cpt.cpt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

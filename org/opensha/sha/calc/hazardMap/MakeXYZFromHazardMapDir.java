@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.StringTokenizer;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.util.FileUtils;
 
 public class MakeXYZFromHazardMapDir {
@@ -58,7 +59,7 @@ public class MakeXYZFromHazardMapDir {
 								Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
 								//System.out.println("Lat: " + latVal + " Lon: " + lonVal);
 								// handle the file
-								double writeVal = handleFile(latVal, lonVal, file.getAbsolutePath(), isProbAt_IML, val);
+								double writeVal = handleFile(file.getAbsolutePath(), isProbAt_IML, val);
 //								out.write(latVal + "\t" + lonVal + "\t" + writeVal + "\n");
 								if (latFirst)
 									out.write(latVal + "     " + lonVal + "     " + writeVal + "\n");
@@ -95,7 +96,7 @@ public class MakeXYZFromHazardMapDir {
 	}
 
 
-	public double handleFile(double lat, double lon, String fileName, boolean isProbAt_IML, double val) {
+	public double handleFile(String fileName, boolean isProbAt_IML, double val) {
 		try {
 			ArrayList fileLines = FileUtils.loadFile(fileName);
 			String dataLine;
@@ -112,29 +113,32 @@ public class MakeXYZFromHazardMapDir {
 				func.set(currentIML, currentProb);
 			}
 			
-			double interpolatedVal = 0;
-			if (isProbAt_IML)
-	            //final iml value returned after interpolation in log space
-				return func.getInterpolatedY_inLogXLogYDomain(val);
-	            // for  IML_AT_PROB
-	          else { //interpolating the iml value in log space entered by the user to get the final iml for the
-	            //corresponding prob.
-	        	  double out;
-				try {
-					out = func.getFirstInterpolatedX_inLogXLogYDomain(val);
-					return out;
-				} catch (RuntimeException e) {
-					System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
-					//return 0d;
-					return Double.NaN;
-				}
-	          }
+			return getCurveVal(func, isProbAt_IML, val);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return Double.NaN;
+	}
+	
+	public static double getCurveVal(DiscretizedFuncAPI func, boolean isProbAt_IML, double val) {
+		if (isProbAt_IML)
+			//final iml value returned after interpolation in log space
+			return func.getInterpolatedY_inLogXLogYDomain(val);
+		// for  IML_AT_PROB
+		else { //interpolating the iml value in log space entered by the user to get the final iml for the
+			//corresponding prob.
+			double out;
+			try {
+				out = func.getFirstInterpolatedX_inLogXLogYDomain(val);
+				return out;
+			} catch (RuntimeException e) {
+				System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
+				//return 0d;
+				return Double.NaN;
+			}
+		}
 	}
 
 	private static class FileComparator implements Comparator {

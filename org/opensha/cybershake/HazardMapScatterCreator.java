@@ -207,7 +207,7 @@ public class HazardMapScatterCreator {
 	public void writeScript(ArrayList<Symbol> symbols, String defaultSym, String script) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
-		double size = 0.15;
+		double size = 0.18;
 		
 		for (int i=0; i<vals.size(); i++) {
 			double val = vals.get(i);
@@ -227,9 +227,12 @@ public class HazardMapScatterCreator {
 			
 			if (sym.equals("c"))
 				theSize = 0.75 * theSize;
+			if (sym.equals("d"))
+				theSize = 0.85 * theSize;
 			
 			String colorStr = "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
-			String outline = "-W" + (float)(theSize * 0.4) + ",255/255/255";
+			String outline = "-W" + (float)(size * 0.09) + "i,255/255/255";
+//			String outline = "-W2,255/255/255";
 			
 			String line = "echo " + site.lon + " " + site.lat + " | ";
 			// arg 1: plot region
