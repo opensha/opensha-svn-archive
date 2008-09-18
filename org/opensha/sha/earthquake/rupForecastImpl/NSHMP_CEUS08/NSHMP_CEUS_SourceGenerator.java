@@ -162,8 +162,10 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 				//find index of this location
 				int index = getNearestLocationIndex(new Location(lat,lon));
 				
-				if(index == -1)
+				if(index == -1) {
+					System.err.println("Offending line: " + lineString);
 					throw new RuntimeException("Error in getting index for "+fileName + " (line " + line + ")");
+				}
 
 				allGridVals[index] = val;
 			}
@@ -551,8 +553,8 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 			NSHMP_CEUS_SourceGenerator srcGen = new NSHMP_CEUS_SourceGenerator();
 			ProbEqkSource src = srcGen.getCrosshairGriddedSource(60000, 50);
 			System.out.print(src.getName());
-			//srcGen.getCharlestonSourceList(30, 0);
-			//srcGen.test();
+			srcGen.getCharlestonSourceList(30, 0);
+			srcGen.test();
 			
 //			srcGen.test();
 			
