@@ -146,6 +146,7 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 		double[] allGridVals = new double[this.getNumGridLocs()];
 //		System.out.println("    Working on "+fileName);
 		try { 
+//			System.out.println("Reading Input File: " + fileName);
 			InputStreamReader ratesFileReader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(fileName));
 			BufferedReader ratesFileBufferedReader = new BufferedReader(ratesFileReader);
 
@@ -156,12 +157,13 @@ public class NSHMP_CEUS_SourceGenerator extends EvenlyGriddedRectangularGeograph
 				double lat = new Double(st.nextToken());
 				double val = new Double(st.nextToken());
 				
+//				System.out.println("Lat: " + lat + " Lon: " + lon + " Val: " + val);
 
 				//find index of this location
 				int index = getNearestLocationIndex(new Location(lat,lon));
 				
 				if(index == -1)
-					throw new RuntimeException("Error in getting index for "+fileName);
+					throw new RuntimeException("Error in getting index for "+fileName + " (line " + line + ")");
 
 				allGridVals[index] = val;
 			}
