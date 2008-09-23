@@ -105,7 +105,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	  "analyses. This parameter improves the linear model fit for low Sa(rock) / PGA(rock)" +
 	  "values and leads to more relaistic predictons than quadratic models";
   private DoubleConstraint AFaddRefAccParamConstraint = new DoubleConstraint(0,0.5);
-  public final static double AF_ADDITIVE_REF_ACCERLATION_DEFAULT = 0.03;
+  public final static double AF_ADDITIVE_REF_ACCERLATION_DEFAULT = 0.0;
   
   //Mag reference param
   protected DoubleParameter AF_MagParam;
@@ -131,7 +131,7 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 	  "Standard Deviation of the amplification factor from the ground response analyses" +
 	  " regression model";
   private DoubleConstraint AF_StdDevParamConstraint = new DoubleConstraint(0,1.0);
-  public final static double AF_STD_DEV_DEFAULT = 0.3;
+  public final static double AF_STD_DEV_DEFAULT = 0.0;
   
    
   /**
@@ -157,10 +157,10 @@ public class ToroEtAl_1997_SiteSpecific_AttenRel
 //        toroEtAl_1997_attenRel.COMPONENT_AVE_HORZ);
 
     // overide local params with those in toroEtAl_1997_attenRel
-//    this.sigmaTruncTypeParam = (StringParameter) toroEtAl_1997_attenRel.getParameter(
-//        toroEtAl_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
-//    this.sigmaTruncLevelParam = (DoubleParameter) toroEtAl_1997_attenRel.getParameter(
-//        toroEtAl_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
+    this.sigmaTruncTypeParam = (StringParameter) toroEtAl_1997_attenRel.getParameter(
+        toroEtAl_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
+    this.sigmaTruncLevelParam = (DoubleParameter) toroEtAl_1997_attenRel.getParameter(
+        toroEtAl_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
     this.exceedProbParam = (DoubleParameter) toroEtAl_1997_attenRel.getParameter(
         toroEtAl_1997_attenRel.EXCEED_PROB_NAME);
     this.stdDevTypeParam = (StringParameter) toroEtAl_1997_attenRel.getParameter(
