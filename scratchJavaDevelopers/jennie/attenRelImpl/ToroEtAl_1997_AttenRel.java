@@ -107,8 +107,8 @@ public class ToroEtAl_1997_AttenRel
   protected final static Double MAG_WARN_MAX = new Double(8);
   protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_JB_WARN_MAX = new Double(500.0);
-  protected final static Double VS30_WARN_MIN = new Double(180.0);
-  protected final static Double VS30_WARN_MAX = new Double(2500.0);
+//  protected final static Double VS30_WARN_MIN = new Double(180.0);
+//  protected final static Double VS30_WARN_MAX = new Double(2500.0);
   
   public final static String STD_DEV_TYPE_BASEMENT = "Basement rock";
   
@@ -176,7 +176,7 @@ public class ToroEtAl_1997_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
+//    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -250,7 +250,7 @@ public class ToroEtAl_1997_AttenRel
    */
   public void setParamDefaults() {
 
-    vs30Param.setValue(VS30_DEFAULT);
+ //   vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
     saParam.setValue(SA_DEFAULT);
@@ -259,7 +259,7 @@ public class ToroEtAl_1997_AttenRel
     pgaParam.setValue(PGA_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 
-    vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
+ //   vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
     rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
     mag = ( (Double) magParam.getValue()).doubleValue();
   }
@@ -288,8 +288,8 @@ public class ToroEtAl_1997_AttenRel
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
     exceedProbIndependentParams.addParameterList(meanIndependentParams);
-//    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
-//    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
+    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
+    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -310,7 +310,7 @@ public class ToroEtAl_1997_AttenRel
     this.site = propEffect.getSite();
     this.eqkRupture = propEffect.getEqkRupture();
 
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+//    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
 
@@ -328,14 +328,14 @@ public class ToroEtAl_1997_AttenRel
     super.initSiteParams();
 
     // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+//    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
+//    warn.setNonEditable();
+//    vs30Param.setWarningConstraint(warn);
+//    vs30Param.addParameterChangeWarningListener(warningListener);
+//    vs30Param.setNonEditable();
 
-    siteParams.clear();
-    siteParams.addParameter(vs30Param);
+//    siteParams.clear();
+//    siteParams.addParameter(vs30Param);
   }
 
   /**
@@ -469,7 +469,7 @@ public class ToroEtAl_1997_AttenRel
 	
 	lnY = c1[iper]+c2[iper]*magDiff+c3[iper]*magDiff*magDiff-c4[iper]*Math.log(rM)-(c5[iper]-c4[iper])*Math.max(Math.log(rM/100), 0)-c6[iper]*rM;
 	  
-	// site response from Silva et al. 1996
+	// site response from Silva et al. 1996 not implemented
 	
 	if (vs30 < v1) {
 		Fsite = 0;
@@ -537,9 +537,9 @@ public class ToroEtAl_1997_AttenRel
     if (pName.equals(DistanceJBParameter.NAME)) {
       rjb = ( (Double) val).doubleValue();
     }
-    else if (pName.equals(VS30_NAME)) {
-      vs30 = ( (Double) val).doubleValue();
-    }
+//    else if (pName.equals(VS30_NAME)) {
+//      vs30 = ( (Double) val).doubleValue();
+//    }
     else if (pName.equals(MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
     }
@@ -553,7 +553,7 @@ public class ToroEtAl_1997_AttenRel
    */
   public void resetParameterEventListeners(){
     distanceJBParam.removeParameterChangeListener(this);
-    vs30Param.removeParameterChangeListener(this);
+//    vs30Param.removeParameterChangeListener(this);
     magParam.removeParameterChangeListener(this);
     periodParam.removeParameterChangeListener(this);
 
@@ -567,7 +567,7 @@ public class ToroEtAl_1997_AttenRel
   protected void initParameterEventListeners() {
 
     distanceJBParam.addParameterChangeListener(this);
-    vs30Param.addParameterChangeListener(this);
+//    vs30Param.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);
   }
