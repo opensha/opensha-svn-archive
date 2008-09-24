@@ -62,7 +62,7 @@ AttenuationRelationshipAPI,
 NamedObjectAPI, ParameterChangeListener {
 
 	// Name of IMR
-	public final static String NAME = "Abrahamson & Silva (2008)";
+	public final static String NAME = "Abrahamson & Silva (2008) - Unverified!!";
 	private final static String AS_2008_CoeffFile = "org" + File.separator + "opensha" + File.separator + "sha"
 			+ File.separator + "imr" + File.separator + "attenRelImpl" + File.separator + "as_2008_coeff.txt";
 
@@ -204,7 +204,7 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DIP_WARN_MAX = new Double(90);
 	protected final static Double RUP_TOP_WARN_MIN = new Double(0);
 	protected final static Double RUP_TOP_WARN_MAX = new Double(15);
-	protected final static Double RUP_WIDTH_WARN_MIN = new Double(5);
+	protected final static Double RUP_WIDTH_WARN_MIN = new Double(1);
 	protected final static Double RUP_WIDTH_WARN_MAX = new Double(100);
 
 
@@ -480,7 +480,11 @@ NamedObjectAPI, ParameterChangeListener {
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValue(depth);
 		
-		rupWidthParam.setValue(surface.getSurfaceWidth());
+		double rupWidth = surface.getSurfaceWidth();
+		if(rupWidth>=1)
+			rupWidthParam.setValue(surface.getSurfaceWidth());
+		else
+			rupWidthParam.setValue(1.0);
 
 		dipParam.setValue(surface.getAveDip());
 
