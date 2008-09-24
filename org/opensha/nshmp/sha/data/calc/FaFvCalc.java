@@ -85,6 +85,7 @@ public class FaFvCalc {
         break;
       }
     }
+
     if (columnNumber == -1) {
       return Double.parseDouble( (String) data[rowNumber][columnNames.length -
                                 1]);

@@ -238,7 +238,14 @@ public class HazardDataMiner implements HazardDataMinerAPI{
     HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSDSsS1(func, fa, fv, siteClass);
   }
-
+  
+  public ArbitrarilyDiscretizedFunc getSDSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws
+		  RemoteException {
+	  HazardDataCalcAPI calc = getHazardDataCalcObject();
+	  return calc.computeSMSsS1(edition, region, zipCode, siteClass);
+  }
+  
   /**
    *
    * @param func ArbitrarilyDiscretizedFunc
@@ -254,6 +261,12 @@ public class HazardDataMiner implements HazardDataMinerAPI{
     return calc.computeSMSsS1(func, fa, fv, siteClass);
   }
 
+  public ArbitrarilyDiscretizedFunc getSMSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws
+		  RemoteException {
+	  HazardDataCalcAPI calc = getHazardDataCalcObject();
+	  return calc.computeSMSsS1(edition, region, zipCode, siteClass);
+  }
   /**
    *
    * @param func ArbitrarilyDiscretizedFunc

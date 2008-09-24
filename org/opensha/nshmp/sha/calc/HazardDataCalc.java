@@ -219,6 +219,13 @@ public class HazardDataCalc
     return calc.calculateSMSsS1(function, fa, fv, siteClass);
   }
   
+  public ArbitrarilyDiscretizedFunc computeSMSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws 
+		  RemoteException {
+	  SMSsS1Calculator calc = new SMSsS1Calculator();
+	  return calc.calculateSMSsS1(edition, region, zipCode, siteClass);
+  }
+  
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc
@@ -235,6 +242,11 @@ public class HazardDataCalc
     return calc.calculateSDSsS1(function, fa, fv, siteClass);
   }
 
+  public ArbitrarilyDiscretizedFunc computeSDSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws RemoteException {
+	  SDSsS1Calculator calc = new SDSsS1Calculator();
+	  return calc.calculateSDSsS1(edition, region, zipCode, siteClass);
+  }
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc

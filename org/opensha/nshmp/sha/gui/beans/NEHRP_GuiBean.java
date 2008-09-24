@@ -196,13 +196,17 @@ public class NEHRP_GuiBean
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
         groundMotionParam);
 		groundMotionParamEditor.getValueEditor().setToolTipText(
-			"The parameter shown is the only selectio available for new structures.");
+			"The parameter shown is the only selection available for new structures.");
     spectraType = (String) groundMotionParam.getValue();
   }
 
   protected ArrayList getSupportedSpectraTypes() {
     ArrayList<String> supportedSpectraTypes = new ArrayList<String>();
-    supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
+    if (selectedEdition.equals(GlobalConstants.NEHRP_2009)) {
+    	supportedSpectraTypes.add(GlobalConstants.RTE_GROUND_MOTION);
+    } else {
+    	supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
+    }
     return supportedSpectraTypes;
   }
 
@@ -227,8 +231,8 @@ public class NEHRP_GuiBean
      * 07/29/08 -- EMM: The default is now 2007 which has a different process
      * and uses different text.
      */
-    //smSDButton.setText("Calculate SM & SD Values");
-    smSDButton.setText("Calculate SR and SD Values");
+    smSDButton.setText("Calculate SM & SD Values");
+    //smSDButton.setText("Calculate SR and SD Values");
 		smSDButton.setToolTipText(smSDToolTip);
     smSDButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -242,7 +246,7 @@ public class NEHRP_GuiBean
     /*
      *  08/13/08 -- EMM: Default is now 2009 which does not have this button. 
      */
-	mapSpecButton.setVisible(false);
+	// mapSpecButton.setVisible(false); // 09/24/2008 -- EMM: Visible again for quick release.
     mapSpecButton.setText("      Map Spectrum      ");
 	mapSpecButton.setToolTipText(mapSpecToolTip);
     mapSpecButton.addActionListener(new ActionListener() {
@@ -254,8 +258,8 @@ public class NEHRP_GuiBean
     /*
      *  08/13/08 -- EMM: Default is now 2009 which is labeled differently.
      */
-    //smSpecButton.setText(" Site Modified Spectrum ");
-    smSpecButton.setText("       RTE Spectrum     ");
+    smSpecButton.setText(" Site Modified Spectrum ");
+    //smSpecButton.setText("       RTE Spectrum     ");
 		smSpecButton.setToolTipText(smSpecToolTip);
     smSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -417,7 +421,14 @@ public class NEHRP_GuiBean
     else if (paramName.equals(DataSetSelectionGuiBean.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
-			
+      ArrayList supportedGroundMotion = getSupportedSpectraTypes();
+      groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
+                                              supportedGroundMotion,
+                                              (String) supportedGroundMotion.get(
+          0));
+      groundMotionParamEditor.setParameter(groundMotionParam);
+      groundMotionParamEditor.refreshParamEditor();
+
       /*
        * 07/29/08 -- EMM: The NEHRP 2007 editions uses different text for the
        * site modified values button. We have to make sure the text is correct.
@@ -534,7 +545,7 @@ public class NEHRP_GuiBean
 
     ArrayList<String> supportedEditionList = new ArrayList<String>();
 
-    supportedEditionList.add(GlobalConstants.NEHRP_2009);
+    //supportedEditionList.add(GlobalConstants.NEHRP_2009);
     supportedEditionList.add(GlobalConstants.NEHRP_2003);
     supportedEditionList.add(GlobalConstants.NEHRP_2000);
     supportedEditionList.add(GlobalConstants.NEHRP_1997);
@@ -810,6 +821,18 @@ public class NEHRP_GuiBean
     				}
     			});
     			t.start();
+    		} else if(locGuiBean.getLocationMode()==BatchLocationBean.ZIP_MODE){ 
+    			dataGenerator.calculateSMSsS1(selectedEdition, selectedRegion, 
+    					locGuiBean.getZipCode(), 
+    					dataGenerator.getSelectedSiteClass()
+    				);
+    			
+    		
+    			dataGenerator.calculateSDSsS1(selectedEdition, selectedRegion,
+    					locGuiBean.getZipCode(),
+    					dataGenerator.getSelectedSiteClass()
+    				);
+    			
     		} else {
 				dataGenerator.calculateSMSsS1();
 				dataGenerator.calculatedSDSsS1();

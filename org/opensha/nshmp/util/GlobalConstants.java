@@ -384,6 +384,7 @@ public final class GlobalConstants {
 
   //supported Spectra types
   public static final String MCE_GROUND_MOTION = "MCE Ground Motion";
+  public static final String RTE_GROUND_MOTION = "RTE Ground Motion";
   public static final String PE_10 = "10 % PE in 50 years";
   public static final String PE_5 = "5 % PE in 50 years";
   public static final String PE_2 = "2 % PE in 50 years";

@@ -102,12 +102,34 @@ public interface DataGeneratorAPI_NEHRP {
    *
    */
   public void calculateSMSsS1() throws RemoteException;
+  
+  /**
+   * 
+   * @param edition
+   * @param region
+   * @param zipCode
+   * @param siteClass
+   * @throws RemoteException
+   */
+  public void calculateSMSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws RemoteException;
 
   /**
    *
    */
   public void calculatedSDSsS1() throws RemoteException;
 
+  /**
+   * 
+   * @param edition
+   * @param region
+   * @param zipCode
+   * @param siteClass
+   * @throws RemoteException
+   */
+  public void calculateSDSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws RemoteException;
+  
   /**
    * 
    * @param locations

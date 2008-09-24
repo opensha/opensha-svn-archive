@@ -27,6 +27,7 @@ import org.opensha.nshmp.sha.data.api.DataGeneratorAPI_NEHRP;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.GlobalConstants;
 
+import scratchJavaDevelopers.martinez.beans.BatchLocationBean;
 import scratchJavaDevelopers.martinez.util.BatchProgress;
 
 /**
@@ -379,6 +380,22 @@ public class DataGenerator_NEHRP
 	return(function);
   }
   
+  public void calculateSMSsS1(String edition,
+		  String region, String zipCode, String siteClass) 
+  		throws RemoteException {
+	 addDataInfo(getCalculateSMSsS1Function(edition, region, zipCode,
+			 siteClass).getInfo());
+  }
+  
+  public ArbitrarilyDiscretizedFunc getCalculateSMSsS1Function(String edition,
+		  String region, String zipCode, String siteClass) 
+  		throws RemoteException {
+	  HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+	  ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(edition, region,
+			  zipCode, siteClass);
+	  return function;
+  }
+  
   /**
    *
    *
@@ -407,6 +424,22 @@ public class DataGenerator_NEHRP
     		);
     }
 	return(function);
+  }
+  
+  public void calculateSDSsS1(String edition,
+		  String region, String zipCode, String siteClass) 
+  		throws RemoteException {
+	 addDataInfo(getCalculateSDSsS1Function(edition, region, zipCode,
+			 siteClass).getInfo());
+  }
+  
+  public ArbitrarilyDiscretizedFunc getCalculateSDSsS1Function(String edition,
+		  String region, String zipCode, String siteClass) 
+  		throws RemoteException {
+	  HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+	  ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(edition, region,
+			  zipCode, siteClass);
+	  return function;
   }
   
   public void calculateSMsSm1SDsSD1(ArrayList<Location> locations, 

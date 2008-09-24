@@ -161,6 +161,10 @@ public interface HazardDataMinerAPI {
                                               String siteClass) throws
       RemoteException ;
 
+  public ArbitrarilyDiscretizedFunc getSDSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws
+		  RemoteException;
+  
   /**
    *
    * @param func ArbitrarilyDiscretizedFunc
@@ -172,6 +176,10 @@ public interface HazardDataMinerAPI {
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException ;
+  
+  public ArbitrarilyDiscretizedFunc getSMSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws
+		  RemoteException;
 
   /**
    *

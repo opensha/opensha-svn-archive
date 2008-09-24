@@ -273,6 +273,19 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SD_SS_S1, objectList);
  }
 
+ public ArbitrarilyDiscretizedFunc getSDSsS1(String edition, String region,
+		 String zipCode, String siteClass) throws 
+		 RemoteException {
+	 ArrayList<Object> objectList = new ArrayList<Object>();
+	 objectList.add(edition);
+	 objectList.add(region);
+	 objectList.add(zipCode);
+	 objectList.add(siteClass);
+	 return (ArbitrarilyDiscretizedFunc) connectToServlet(
+			 HazardDataMinerServletMode.COMPUTE_SD_SS_S1, objectList);
+ 
+ }
+ 
  /**
   *
   * @param func ArbitrarilyDiscretizedFunc
@@ -289,6 +302,19 @@ public class HazardDataMinerServletMode implements HazardDataMinerAPI {
    objectList.add(new Float(fv));
    objectList.add(siteClass);
    return (ArbitrarilyDiscretizedFunc)connectToServlet(HazardDataMinerServletMode.COMPUTE_SM_SS_S1, objectList);
+ }
+ 
+ public ArbitrarilyDiscretizedFunc getSMSsS1(String edition, String region,
+		 String zipCode, String siteClass) throws 
+		 RemoteException {
+	 ArrayList<Object> objectList = new ArrayList<Object>();
+	 objectList.add(edition);
+	 objectList.add(region);
+	 objectList.add(zipCode);
+	 objectList.add(siteClass);
+	 return (ArbitrarilyDiscretizedFunc) connectToServlet(
+			 HazardDataMinerServletMode.COMPUTE_SM_SS_S1, objectList);
+ 
  }
 
  public ArbitrarilyDiscretizedFunc getSRSsS1(ArbitrarilyDiscretizedFunc func,

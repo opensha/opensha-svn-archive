@@ -119,10 +119,14 @@ public class SsS1Calculator {
 	    		ArbitrarilyDiscretizedFunc h = new ArbitrarilyDiscretizedFunc();
 	    		h.set(0.2, 0.0); // Place holder for Ss value
 	    		h.set(1.0, 0.0); // Place holder for S1 value
-	    		h.set((double) SSUH_IDX, results.getDouble(SSUH_COL));
-	    		h.set((double) S1UH_IDX, results.getDouble(S1UH_COL));
-	    		h.set((double) SSDET_IDX, results.getDouble(SSDET_COL));
-	    		h.set((double) S1DET_IDX, results.getDouble(S1DET_COL));
+	    		h.set((double) SSUH_IDX, results.getDouble(SSUH_COL) * 1.1);
+	    		h.set((double) S1UH_IDX, results.getDouble(S1UH_COL) * 1.3);
+	    		h.set((double) SSDET_IDX, Math.max(1.5,
+	    				(results.getDouble(SSDET_COL) / 100) * 1.8 * 1.1)
+	    			);
+	    		h.set((double) S1DET_IDX, Math.max(0.6,
+	    				(results.getDouble(S1DET_COL) / 100) * 1.8 * 1.3)
+	    			);
 	    		h.set((double) SSCR_IDX, results.getDouble(SSCR_COL));
 	    		h.set((double) S1CR_IDX, results.getDouble(S1CR_COL));
 	    		r[numUsed++] = h;
@@ -155,15 +159,12 @@ public class SsS1Calculator {
 	    	}
 	    	
 	    	// Manipulate the function values to match the proposed revisions.
-	    	double Sds = Math.max( ( (function.getY(SSDET_IDX) / 100) * 1.8 *
-	    			1.1), 1.5);
-	    	double Ss  = Math.min( (function.getY(SSUH_IDX) * 1.1 * 
-	    			function.getY(SSCR_IDX)), Sds);
-	    	
-	    	double Sd1 = Math.max( ( (function.getY(S1DET_IDX) / 100) * 1.8 *
-	    			1.3), 0.6);
-	    	double S1  = Math.min( (function.getY(S1UH_IDX) * 1.3 *
-	    			function.getY(S1CR_IDX)), Sd1);
+	    	double Ss  = Math.min( function.getY(SSDET_IDX),
+	    			function.getY(SSUH_IDX) * function.getY(SSCR_IDX)
+	    		);
+	    	double S1  = Math.min( function.getY(S1DET_IDX), 
+	    			function.getY(S1UH_IDX) * function.getY(S1CR_IDX)
+	    		);
 	    	
 	    	function.set(SS_IDX, Ss);
 	    	function.set(S1_IDX, S1);
@@ -319,6 +320,70 @@ public class SsS1Calculator {
     return function;
   }
 
+  public DiscretizedFuncList getSsS1FuncList(String edition, String region,
+		  String zipCode) {
+	DiscretizedFuncList funcList = new DiscretizedFuncList();
+	DataFileNameSelector fileSelector = new DataFileNameSelector();
+	String fileName = fileSelector.getFileName(edition);
+	BufferedReader bin = null;
+	
+	try {
+		bin = new BufferedReader(new FileReader(fileName));
+		// Ignore first 5 lines in file. This is header information.
+		for (int i = 0; i < 5; ++i) { bin.readLine(); }
+		
+		// Get some useful meta information
+		String line = bin.readLine();
+		String [] tokens = line.split("\\s+");
+		int numPeriods = Integer.parseInt(tokens[0]);
+		float [] saPeriods = new float[numPeriods];
+		for (int i = 1; i <= numPeriods; ++i) {
+			saPeriods[i-1] = Float.parseFloat(tokens[i]);
+		}
+		
+		// Find the line of interest
+		while ( (line = bin.readLine()) != null) {
+			tokens = line.split("\\s+");
+			if (tokens[0].equalsIgnoreCase(zipCode)) {
+				// This is the line we want, parse the data and break.
+				ArbitrarilyDiscretizedFunc funcCen = 
+					new ArbitrarilyDiscretizedFunc();
+				ArbitrarilyDiscretizedFunc funcMax = 
+					new ArbitrarilyDiscretizedFunc();
+				ArbitrarilyDiscretizedFunc funcMin = 
+					new ArbitrarilyDiscretizedFunc();
+				
+				funcCen.set(saPeriods[0], Double.parseDouble(tokens[5]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				funcCen.set(saPeriods[1], Double.parseDouble(tokens[6]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				
+				funcMax.set(saPeriods[0], Double.parseDouble(tokens[7]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				funcMax.set(saPeriods[1], Double.parseDouble(tokens[8]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				
+				funcMin.set(saPeriods[0], Double.parseDouble(tokens[9]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				funcMin.set(saPeriods[1], Double.parseDouble(tokens[10]) / 
+						GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+				
+				funcList.add(funcCen);
+				funcList.add(funcMax);
+				funcList.add(funcMin);
+				break; // Break out of the while loop
+			}
+		} // END: while(line!=null)
+		
+	} catch (IOException iox) {
+		/* Ignore for now. */
+	} finally {
+		try{bin.close();}catch(Exception ex){/*Ignore*/}
+	}
+	
+	return funcList;
+  }
+  
   /**
    *
    * @param zipCode

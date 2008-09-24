@@ -172,6 +172,9 @@ public interface HazardDataCalcAPI
                                                   String siteClass) throws
       RemoteException;
 
+  public ArbitrarilyDiscretizedFunc computeSMSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws RemoteException;
+  
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc
@@ -184,6 +187,18 @@ public interface HazardDataCalcAPI
                                                   float fa, float fv,
                                                   String siteClass) throws
       RemoteException;
+  
+  /**
+   * 
+   * @param edition
+   * @param region
+   * @param zipCode
+   * @param siteClass
+   * @return
+   * @throws RemoteException
+   */
+  public ArbitrarilyDiscretizedFunc computeSDSsS1(String edition, String region,
+		  String zipCode, String siteClass) throws RemoteException;
 
   /**
    *
