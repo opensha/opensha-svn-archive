@@ -155,6 +155,7 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 //		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 //		this.setLocation( (d.width - this.getSize().width) / 2,
 //				(d.height - this.getSize().height) / 2);
+		usernameText.requestFocusInWindow();
 	}
 	
 	public String getUsername() {
@@ -189,6 +190,12 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 		canceled = true;
 		if (exitOnCancel)
 			System.exit(0);
+		else
+			this.setVisible(false);
+	}
+	
+	public boolean isCanceled() {
+		return canceled;
 	}
 
 	public void actionPerformed(ActionEvent e) {
