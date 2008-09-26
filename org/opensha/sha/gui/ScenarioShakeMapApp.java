@@ -228,7 +228,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
     catch(Exception e) {
       step = 0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception during initializing the application.\n"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception during initializing the application.\n"+
           "Parameters values not yet set.");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -239,7 +239,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }catch(RuntimeException e){
       //e.printStackTrace();
       step = 0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Exception occured initializing the IMR with "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e, "Exception occured initializing the IMR with "+
           "default parameters value");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -251,7 +251,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
     catch (RegionConstraintException ex) {
       step = 0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
           "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
           "Parameters values have not been set yet.");
       bugWindow.setVisible(true);
@@ -552,7 +552,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
     catch(Exception ee){
       step = 0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),mapParametersInfo);
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ee,mapParametersInfo);
       bugWindow.setVisible(true);
       bugWindow.pack();
       return;
@@ -772,7 +772,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
     catch (RegionConstraintException ee) {
       step = 0;
-      /*ExceptionWindow bugWindow = new ExceptionWindow(this, ee.getStackTrace(),
+      /*ExceptionWindow bugWindow = new ExceptionWindow(this, ee,
           mapParametersInfo);
       bugWindow.setVisible(true);
       bugWindow.pack();*/

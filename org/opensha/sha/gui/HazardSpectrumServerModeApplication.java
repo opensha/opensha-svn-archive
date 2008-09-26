@@ -112,7 +112,7 @@ public class HazardSpectrumServerModeApplication
             addParameterChangeListener(this);
       }
       catch (InvocationTargetException e) {
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             "ERF's Initialization problem. Rest all parameters are default");
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -199,7 +199,7 @@ public class HazardSpectrumServerModeApplication
       calc = new SpectrumCalculator();
     }catch (Exception ex) {
         ExceptionWindow bugWindow = new ExceptionWindow(this,
-            ex.getStackTrace(), this.getParametersInfoAsString());
+            ex, this.getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }

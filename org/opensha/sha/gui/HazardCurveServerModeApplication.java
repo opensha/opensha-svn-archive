@@ -415,7 +415,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while creating the GUI.\n"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while creating the GUI.\n"+
           "No Parameters have been set");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -784,7 +784,7 @@ public class HazardCurveServerModeApplication extends JFrame
             System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
-            ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
+            ExceptionWindow bugWindow = new ExceptionWindow(this,ee,getParametersInfoAsString());
             bugWindow.setVisible(true);
             bugWindow.pack();
           }
@@ -810,7 +810,7 @@ public class HazardCurveServerModeApplication extends JFrame
         calcThread = null;
       }catch(Exception e){
         e.printStackTrace();
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
@@ -832,7 +832,7 @@ public class HazardCurveServerModeApplication extends JFrame
         }
         catch (Exception ex) {
           ExceptionWindow bugWindow = new ExceptionWindow(this,
-              ex.getStackTrace(), this.getParametersInfoAsString());
+              ex, this.getParametersInfoAsString());
           bugWindow.setVisible(true);
           bugWindow.pack();
         }
@@ -859,7 +859,7 @@ public class HazardCurveServerModeApplication extends JFrame
           createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
@@ -896,7 +896,7 @@ public class HazardCurveServerModeApplication extends JFrame
               //e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
               bugWindow.setVisible(true);
               bugWindow.pack();
             }
@@ -919,7 +919,7 @@ public class HazardCurveServerModeApplication extends JFrame
             }catch(Exception e){
               disaggTimer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
               bugWindow.setVisible(true);
               bugWindow.pack();
             }
@@ -1153,7 +1153,7 @@ public class HazardCurveServerModeApplication extends JFrame
       imtGuiBean.setIMT();
     }
     catch (Exception ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -1196,7 +1196,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -1226,7 +1226,7 @@ public class HazardCurveServerModeApplication extends JFrame
       catch (Exception e) {
         e.printStackTrace();
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -1265,7 +1265,7 @@ public class HazardCurveServerModeApplication extends JFrame
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
              }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
@@ -1303,7 +1303,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }
       catch (Exception e) {
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -1360,7 +1360,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }
       catch (Exception e) {
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -1416,7 +1416,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }
       catch (RemoteException ex) {
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -1498,7 +1498,7 @@ public class HazardCurveServerModeApplication extends JFrame
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
@@ -1519,7 +1519,7 @@ public class HazardCurveServerModeApplication extends JFrame
           //System.out.println("Num points:" +hazFunction.toString());
         }catch(Exception e){
           setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
           bugWindow.setVisible(true);
           bugWindow.pack();
           e.printStackTrace();
@@ -1689,7 +1689,7 @@ public class HazardCurveServerModeApplication extends JFrame
             addParameterChangeListener(this);
       }
       catch (InvocationTargetException e) {
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             "ERF's Initialization problem. Rest all parameters are default");
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -2451,7 +2451,7 @@ public class HazardCurveServerModeApplication extends JFrame
         calc.stopCalc();
         calc = null;
       }catch(RemoteException ee){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
@@ -2475,7 +2475,7 @@ public class HazardCurveServerModeApplication extends JFrame
     catch (Exception ex) {
       ex.printStackTrace();
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -2494,7 +2494,7 @@ public class HazardCurveServerModeApplication extends JFrame
     catch (Exception ex) {
       ex.printStackTrace();
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();

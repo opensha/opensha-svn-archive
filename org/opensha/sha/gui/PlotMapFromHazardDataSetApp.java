@@ -130,7 +130,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
       fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Problem occured "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Problem occured "+
           "while initializing the application");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -297,7 +297,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
       inputToServlet.close();
 
     }catch (Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e, getParametersInfo());
       bugWindow.setVisible(true);
       bugWindow.pack();
       System.out.println("Exception in connection with servlet:" +e);
@@ -552,7 +552,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
        ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadataAsHTML, true);
 
      }catch (Exception e) {
-       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+       ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfo());
        bugWindow.setVisible(true);
        bugWindow.pack();
        System.out.println("Exception in connection with servlet:" +e);

@@ -172,7 +172,7 @@ public class HazardSpectrumLocalModeApplication
       }
     }
     catch (Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
           "Exception occured while creating the GUI.\n" +
           "No Parameters have been set");
       bugWindow.setVisible(true);
@@ -199,7 +199,7 @@ public class HazardSpectrumLocalModeApplication
           disaggCalc = new DisaggregationCalculator();*/
     }catch(Exception e){
 
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),this.getParametersInfoAsString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,this.getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
  //     e.printStackTrace();
@@ -307,7 +307,7 @@ public class HazardSpectrumLocalModeApplication
     }
     catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -357,7 +357,7 @@ public class HazardSpectrumLocalModeApplication
       catch (Exception e) {
         e.printStackTrace();
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
@@ -497,7 +497,7 @@ public class HazardSpectrumLocalModeApplication
         createCalcInstance();
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
@@ -530,7 +530,7 @@ public class HazardSpectrumLocalModeApplication
             //e.printStackTrace();
             timer.stop();
             setButtonsEnable(true);
-            ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
+            ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
             bugWindow.setVisible(true);
             bugWindow.pack();
           }
@@ -600,7 +600,7 @@ public class HazardSpectrumLocalModeApplication
     }
     catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -635,7 +635,7 @@ public class HazardSpectrumLocalModeApplication
       }
       catch(RemoteException e){
 	    	  setButtonsEnable(true);
-	      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+	      ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
 	      bugWindow.setVisible(true);
 	      bugWindow.pack();
 	      e.printStackTrace();

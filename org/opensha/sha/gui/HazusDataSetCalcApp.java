@@ -143,7 +143,7 @@ public class HazusDataSetCalcApp extends JFrame
       jbInit();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while initializing the application "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while initializing the application "+
           "Parameters values have not been set yet.");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -158,7 +158,7 @@ public class HazusDataSetCalcApp extends JFrame
       this.initGriddedRegionGuiBean();
     }
     catch (RegionConstraintException ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex,
           "Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
           " Parameters values have not been set yet.");
       bugWindow.setVisible(true);

@@ -349,7 +349,7 @@ public class LossEstimationApplication extends JFrame
       }
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while creating the GUI.\n"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,"Exception occured while creating the GUI.\n"+
           "No Parameters have been set");
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -633,7 +633,7 @@ public class LossEstimationApplication extends JFrame
         calcThread = null;
       }catch(Exception e){
         e.printStackTrace();
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }
@@ -652,7 +652,7 @@ public class LossEstimationApplication extends JFrame
         }
         catch (Exception ex) {
           ExceptionWindow bugWindow = new ExceptionWindow(this,
-              ex.getStackTrace(), this.getParametersInfoAsString());
+              ex, this.getParametersInfoAsString());
           bugWindow.setVisible(true);
           bugWindow.pack();
         }
@@ -671,7 +671,7 @@ public class LossEstimationApplication extends JFrame
           createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
@@ -704,7 +704,7 @@ public class LossEstimationApplication extends JFrame
               //e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e,getParametersInfoAsString());
               bugWindow.setVisible(true);
               bugWindow.pack();
             }
@@ -922,7 +922,7 @@ public class LossEstimationApplication extends JFrame
     }
     catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e,
           getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
@@ -1585,7 +1585,7 @@ public class LossEstimationApplication extends JFrame
         calc.stopCalc();
         calc = null;
       }catch(RemoteException ee){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee,getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
       }

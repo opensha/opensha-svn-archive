@@ -143,7 +143,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       }
       catch (InvocationTargetException e) {
 
-        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e,
             "Problem occured " +
             "during initialization the ERF's. All parameters are set to default.");
         bugWindow.setVisible(true);
@@ -231,7 +231,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
           disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
 
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),this.getParametersInfoAsString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e,this.getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
  //     e.printStackTrace();
