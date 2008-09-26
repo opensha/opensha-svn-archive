@@ -26,6 +26,8 @@ public class HazardCurveLocalModeAppLauncher extends AppLauncher {
 		requiredFiles.add("f2jutil.jar");
 		requiredFiles.add("sdoapi.jar");
 		requiredFiles.add("ojdbc14.jar");
+		requiredFiles.add("jh.jar");
+		requiredFiles.add("dom4j.jar");
 	}
 	
 	public HazardCurveLocalModeAppLauncher(String[] args) {
