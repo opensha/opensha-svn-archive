@@ -671,7 +671,7 @@ extends JFrame implements ParameterChangeListener {
 	private void setTomPlotParams(ActionEvent actionEvent) {
 		if (isDeterministic)
 			return;
-		float period = (float)this.getPeriodDouble();
+//		float period = (float)this.getPeriodDouble();
 		double xMin = Double.parseDouble("1.0E-2");
 		double xMax = 3;
 		double yMin = Double.parseDouble("1.0E-5");
@@ -962,6 +962,9 @@ extends JFrame implements ParameterChangeListener {
 			
 			dialog.setVisible(true);
 			
+			if (dialog.isCanceled())
+				return;
+			
 			pass = new String(dialog.getPassword());
 			user = dialog.getUsername();
 		} else {
@@ -969,7 +972,26 @@ extends JFrame implements ParameterChangeListener {
 			pass = prevPass;
 		}
 		
-		DBAccess db = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
+		boolean fail = true;
+		DBAccess db = null;
+		while (fail) {
+			try {
+				db = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
+				fail = false;
+			} catch (IOException e) {
+				e.printStackTrace();
+				
+				UserAuthDialog dialog = new UserAuthDialog(this, false);
+				
+				if (dialog.isCanceled())
+					return;
+				
+				dialog.setVisible(true);
+				
+				pass = new String(dialog.getPassword());
+				user = dialog.getUsername();
+			}
+		}
 		
 		prevUser = user;
 		prevPass = pass;
