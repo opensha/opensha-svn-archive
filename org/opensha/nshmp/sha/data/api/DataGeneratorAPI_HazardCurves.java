@@ -62,6 +62,12 @@ public interface DataGeneratorAPI_HazardCurves {
   public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
       boolean logInterpolation) throws RemoteException;
 
+  public void calcSingleValueHazard(ArrayList<Location> locations, String imt,
+		  String outFile, double period, boolean logScale) throws RemoteException;
+  
+  public void calcSingleValueHazard(ArrayList<Location> locations, String imt,
+		  String outFile, double prob, double time, boolean logScale) throws RemoteException;
+  
   /**
    * Returns the Calculated Hazard curve function
    * @return ArrayList

@@ -98,29 +98,26 @@ public class SMSsS1Calculator {
 	  
 	  double fa = fafvcalc.getFa(siteClass, funcCen.getY(0));
 	  double fv = fafvcalc.getFv(siteClass, funcCen.getY(1));
-	  info += DataDisplayFormatter.createSubTitleString(
-			  "SMs = Fa x Ss and SM1 = Fv x S1", 
-			  siteClass, (float) fa, (float) fv
-		);
+	  info += "SMs = Fa x Ss and SM1 = Fv x S1\n" + siteClass + "\n";
 	  
 	  smCen.set(funcCen.getX(0), fa * funcCen.getY(0));
 	  smCen.set(funcCen.getX(1), fv * funcCen.getY(1));
 	  info += DataDisplayFormatter.createFunctionInfoString(smCen,"Centroid Sa",
-			  "SMs, Fa: " + fa, "SM1, Fv: " + fv, siteClass);
+			  "SMs, Fa = " + fa, "SM1, Fv = " + fv, "");
 	  
 	  fa = fafvcalc.getFa(siteClass, funcMax.getY(0));
 	  fv = fafvcalc.getFv(siteClass, funcMax.getY(1));
 	  smMax.set(funcMax.getX(0), fa * funcMax.getY(0));
 	  smMax.set(funcMax.getX(1), fv * funcMax.getY(1));
 	  info += DataDisplayFormatter.createFunctionInfoString(smMax, "Maximum Sa",
-			  "SMs, Fa: " + fa, "SM1, Fv: " + fv, siteClass);
+			  "SMs, Fa = " + fa, "SM1, Fv = " + fv, "");
 	  
 	  fa = fafvcalc.getFa(siteClass, funcMin.getY(0));
 	  fv = fafvcalc.getFv(siteClass, funcMin.getY(1));
 	  smMin.set(funcMin.getX(0), fa * funcMin.getY(0));
 	  smMin.set(funcMin.getX(1), fv * funcMin.getY(1));
 	  info += DataDisplayFormatter.createFunctionInfoString(smMin, "Minimum Sa",
-			  "SMs, Fa: " + fa, "SM1, Fv: " + fv, siteClass);
+			  "SMs, Fa = " + fa, "SM1, Fv = " + fv, "");
 	  
 	  function.set(smCen.getX(0), smCen.getY(0));
 	  function.set(smCen.getX(1), smCen.getY(1));

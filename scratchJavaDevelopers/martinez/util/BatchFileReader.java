@@ -79,7 +79,7 @@ public class BatchFileReader {
 				// Get the current value
 				String s = getCellValue(cell);
 				
-				if(s!=null) {
+				if(s!=null && !"".equals(s)) {
 					try {
 						// This could be a problem if there is text in the cell
 						vals.add(new Double(s));

@@ -464,23 +464,25 @@ public class SsS1Calculator {
           //info += "Zip Code - " + zipCode + "\n";
           //info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
           //info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
-          info +=
-              DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
-              GlobalConstants.SITE_CLASS_B,
-              Fa, Fv);
-          info += "Data are based on a " + gridSpacing + " deg grid spacing";
+          //info +=
+            //  DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+              //GlobalConstants.SITE_CLASS_B,
+              //Fa, Fv);
+          info += SsS1_SubTitle + "\n";
+          
+          info += "Data are based on a " + gridSpacing + " deg grid spacing\n";
           //info +=
           //    DataDisplayFormatter.createFunctionInfoString(function, SA,
           //    Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
           info +=
               DataDisplayFormatter.createFunctionInfoString(func1, CENTROID_SA,
-              Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
+              Ss_Text, S1_Text, "");
           info +=
               DataDisplayFormatter.createFunctionInfoString(func2, MAXIMUM_SA,
-              Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
+              Ss_Text, S1_Text, "");
           info +=
               DataDisplayFormatter.createFunctionInfoString(func3, MINIMUM_SA,
-              Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
+              Ss_Text, S1_Text, "");
           function.setInfo(info);
           break;
         }

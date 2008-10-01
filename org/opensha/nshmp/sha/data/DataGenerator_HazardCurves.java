@@ -121,6 +121,170 @@ public class DataGenerator_HazardCurves
     hazardCurveFunction = function;
   }
 
+  public void calcSingleValueHazard(ArrayList<Location> locations, String imt,
+		  String outFile, double period, boolean logScale) throws RemoteException {
+	HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+	double fex = 1 / period;
+	double prob = miner.getExceedProb(fex, EXP_TIME);
+	calcSingleValueHazard(locations, imt, outFile, prob, EXP_TIME, period, fex,
+		"The return period entered ("+period+") is out of range. " +
+		"The nearest return period within the range was used instead.", logScale);
+  }
+  
+  public void calcSingleValueHazard(ArrayList<Location> locations, String imt,
+		  String outFile, double prob, double time, boolean logScale) throws RemoteException {
+	  HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+	  double period = miner.getReturnPeriod(prob, time);
+	  double fex = 1 / period;
+	  
+	  calcSingleValueHazard(locations, imt, outFile, prob, EXP_TIME, period,fex,
+			  "The calculated return period ("+period+") " + "based on the " +
+			  "entered probability ("+prob+") and time (" +time+"), is out of "+
+			  "range. The nearest valid return period was used instead.", logScale);
+  }
+  
+  public void calcSingleValueHazard(ArrayList<Location> locations, String imt,
+		  String outFile, double prob, double time, double period, double fex,
+		  String warning, boolean logScale) throws RemoteException {
+	  
+	  // Open the workbook
+	  HSSFWorkbook xlOut = getOutputFile(outFile);
+	  
+	  // Fetch or create the sheet to enter data into
+	  HSSFSheet xlSheet = xlOut.getSheet("Hazard Values");
+	  if(xlSheet==null) { xlSheet = xlOut.createSheet("Hazard Values"); }
+	  
+	  // Write the header information
+	  int startRow = xlSheet.getLastRowNum();
+	  startRow = (startRow==0)?0:startRow+2;
+	  
+	  // Create a bold style for the header row
+	  HSSFFont headerFont = xlOut.createFont();
+	  headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+	  HSSFCellStyle headerStyle = xlOut.createCellStyle();
+	  headerStyle.setFont(headerFont);
+	  headerStyle.setWrapText(true);
+	  
+	  // Geographic Region
+	  HSSFRow xlRow = xlSheet.createRow(startRow++);
+	  xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+	  xlRow.getCell((short) 0).setCellStyle(headerStyle);
+	  xlRow.createCell((short) 1).setCellValue(geographicRegion);
+		 
+		// Data Edition
+		xlRow = xlSheet.createRow(startRow++);
+		xlRow.createCell((short) 0).setCellValue("Data Edition:");
+		xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		xlRow.createCell((short) 1).setCellValue(dataEdition);
+		
+		// IMT
+		xlRow = xlSheet.createRow(startRow++);
+		xlRow.createCell((short) 0).setCellValue("Data Description:");
+		xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		xlRow.createCell((short) 1).setCellValue(imt + " calculated for the " +
+				"B/C Boundary based on a 0.05 degree grid spacing.");
+
+		// Frequency of Exceedance
+		xlRow = xlSheet.createRow(startRow++);
+		xlRow.createCell((short) 0).setCellValue("Frequency of Exceedance");
+		xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		xlRow.createCell((short) 1).setCellValue("" + 
+				String.format("%5.4e", fex) + " per year");
+		
+		// Return period
+		xlRow = xlSheet.createRow(startRow++);
+		xlRow.createCell((short) 0).setCellValue("Return Period");
+		xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		xlRow.createCell((short) 1).setCellValue("" + period + " years");
+		
+		// Prob. Exceedance in Time
+		xlRow = xlSheet.createRow(startRow++);
+		xlRow.createCell((short) 0).setCellValue("Probability of Exceedance in"+
+				" Exposure Time");
+		xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		xlRow.createCell((short) 1).setCellValue("" + prob + "% in " + time +
+				" years");
+		 
+		 headerStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		 ++startRow; // We would like a blank line.
+		 // Column Headers
+		 xlRow = xlSheet.createRow(startRow++);
+		 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Ground Motion (g)", "Grid Spacing Basis"};
+		 short[] colWidths = {4500, 4500, 3000, 4500, 4500};
+		 for(short i = 0; i < headers.length; ++i) {
+			 xlRow.createCell(i).setCellValue(headers[i]);
+			 xlRow.getCell(i).setCellStyle(headerStyle);
+			 xlSheet.setColumnWidth(i, colWidths[i]);
+		 }
+		 
+		// Write the data information
+		 int answer = 1; double saVal = 0.0;
+		 BatchProgress bp = new BatchProgress("Computing Hazard Curves", locations.size());
+		 bp.start();
+		 for(int i = 0; i < locations.size(); ++i) {
+			 bp.update(i+1);
+			 xlRow = xlSheet.createRow(i+startRow);
+			 double curLat = locations.get(i).getLatitude();
+			 double curLon = locations.get(i).getLongitude();
+			 ArbitrarilyDiscretizedFunc function = null;
+			 String curGridSpacing = "";
+			 try {
+				 HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+				 function = miner.getBasicHazardcurve(
+				        geographicRegion, dataEdition,
+				        curLat, curLon, imt);
+				
+				try {
+					saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+				} catch (InvalidRangeException ex) {
+					double minY = function.getY(0);
+					int minRtnPeriod = (int) (1.0 / minY);
+					curGridSpacing = warning;
+					fex = minY;
+					period = minRtnPeriod;
+					prob = miner.getExceedProb(fex, EXP_TIME);
+					saVal = 0.0;
+					saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+				}
+			} catch (Exception e) {
+				if(answer != 0) {
+					Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Cancel Calculations"};
+					answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+								curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+								JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+				}
+				if(answer == 2) {
+					bp.update(locations.size());
+					break;
+				}
+				
+				function = new ArbitrarilyDiscretizedFunc();
+				curGridSpacing = "Location out of Region";
+				saVal = Double.MAX_VALUE;
+			} finally {
+			 xlRow.createCell((short) 0).setCellValue(curLat);
+			 xlRow.createCell((short) 1).setCellValue(curLon);
+			 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
+			 xlRow.createCell((short) 3).setCellValue(saVal);
+			 xlRow.createCell((short) 4).setCellValue("0.05 Degrees");
+			 xlRow.createCell((short) 5).setCellValue(curGridSpacing);
+			 xlRow = xlSheet.createRow(i+startRow);
+			}
+		} 
+		 
+		 try {
+			FileOutputStream fos = new FileOutputStream(outFile);
+			xlOut.write(fos);
+			fos.close();
+			// Let the user know that we are done
+			dataInfo = "Batch Completed!\nOutput sent to: " + outFile + "\n\n";
+		} catch (FileNotFoundException e) {
+			// Just ignore for now...
+		} catch (IOException e) {
+			// Just ignore for now...
+		}
+  }
+  
   public void calculateHazardCurve(ArrayList<Location> locations, String hazCurveType, String outFile) {
 	  HSSFWorkbook xlOut = getOutputFile(outFile);
 		 // Create the output sheet
@@ -316,10 +480,7 @@ public class DataGenerator_HazardCurves
 					"based on the\nentered probability ("+probExceed+") and time (" +
 					expTime+"), is out of range.\nThe nearest valid return period " +
 					"("+minRtnPeriod+") was used instead.";
-				/*String warnMsg = "\nThe return period entered ("+returnPd+") " +
-					"is out of range.\nThe nearest return period within the range " +
-					"("+minRtnPeriod+") is was used instead.";
-				*/
+				
 				dataInfo += warnMsg;
 				fex = minY;
 				returnPd = minRtnPeriod;

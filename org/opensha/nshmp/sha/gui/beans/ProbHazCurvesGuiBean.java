@@ -671,36 +671,64 @@ public class ProbHazCurvesGuiBean
    * @param e ActionEvent
    */
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
-	    if(locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
-	    	JOptionPane.showMessageDialog(null, "This option is not valid for the batch mode.",
-	    			"Invalid Mode", JOptionPane.ERROR_MESSAGE);
-	    	return;
-	    }
+	   // if(locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
+	    //	JOptionPane.showMessageDialog(null, "This option is not valid for the batch mode.",
+	    	//		"Invalid Mode", JOptionPane.ERROR_MESSAGE);
+	    	//return;
+	   // }
 		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
 		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
 			return;
 		}
 
-    boolean isLogInterpolation = true;
+	int locationMode = locGuiBean.getLocationMode();
+	
+
     //linear interpolation in case if the selected data edition is 1996 or 1998
-    if(selectedEdition.equals(GlobalConstants.data_1996) || selectedEdition.equals(GlobalConstants.data_1998))
-      isLogInterpolation = false;
+    final boolean isLogInterpolation = !(
+    		selectedEdition.equals(GlobalConstants.data_1996) || 
+    		selectedEdition.equals(GlobalConstants.data_1998)
+    	);
+    
     //else always perform the log interpolation
 
     if (!returnPdSelected) {
       try {
-        double exceedProb = Double.parseDouble(exceedProbVal);
-        double expTime = Double.parseDouble(expTimeVal);
-        dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(exceedProb,
-            expTime, isLogInterpolation);
-      }
-      catch(NumberFormatException eee){
+        final double exceedProb = Double.parseDouble(exceedProbVal);
+        final double expTime = Double.parseDouble(expTimeVal);
+        if (locationMode == BatchLocationBean.BAT_MODE) {
+      	  Thread t = new Thread(new Runnable() {
+      		  public void run() {
+      			  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+      			  if(locations.size() > 1000) {
+  						// We have an arbitrary 1,000 row limit.  Die if too many.
+  						JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+  								"at one time.\nPlease reduce the number of rows in your input file and " +
+  								"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+  						return;
+  					}
+      	    	  try {
+	                dataGenerator.calcSingleValueHazard(locations, imt,
+	                		  locGuiBean.getOutputFile(), exceedProb, expTime,
+	                		  isLogInterpolation);
+                } catch (RemoteException ex) {
+	                ex.printStackTrace(System.err);
+                }
+      	    	  application.setDataInWindow(getData());
+      		  }
+      	  });
+      	  t.start();
+        } else {
+        	dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(
+        			exceedProb, expTime, isLogInterpolation);
+        	application.setDataInWindow(getData());
+        }
+      } catch(NumberFormatException eee){
         JOptionPane.showMessageDialog(this,"Please enter a valid Exceed Prob. "+
                                       "and Exposure Time","Input Error",
             JOptionPane.ERROR_MESSAGE);
         return;
-      }
-      catch (RemoteException ee) {
+      } catch (RemoteException ee) {
         JOptionPane.showMessageDialog(this,
                                       ee.getMessage() + "\n" +
                                       "Please check your network connection",
@@ -708,33 +736,54 @@ public class ProbHazCurvesGuiBean
                                       JOptionPane.ERROR_MESSAGE);
         return;
       }
-    }
-    else {
+    } else { // Return period specified directly
       try {
-        double returnPd = Double.parseDouble(returnPeriod);
-        dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(returnPd,
-            isLogInterpolation);
-      }
-      catch(NumberFormatException eee){
+        final double returnPd = Double.parseDouble(returnPeriod);
+        if (locationMode == BatchLocationBean.BAT_MODE) {
+        	  Thread t = new Thread(new Runnable() {
+        		  public void run() {
+        			  ArrayList<Location> locations = locGuiBean.getBatchLocations();
+        			  if(locations.size() > 1000) {
+    						// We have an arbitrary 1,000 row limit.  Die if too many.
+    						JOptionPane.showMessageDialog(null, "Batch mode is currently limited to 1,000 records " +
+    								"at one time.\nPlease reduce the number of rows in your input file and " +
+    								"try again.", "Too Many Records", JOptionPane.ERROR_MESSAGE);
+    						return;
+    					}
+        	    	  try {
+	                    dataGenerator.calcSingleValueHazard(locations, imt,
+	                    		  locGuiBean.getOutputFile(), returnPd,
+	                    		  isLogInterpolation);
+                   } catch (RemoteException ex) {
+	                    ex.printStackTrace(System.err);
+                    }
+        	    	  application.setDataInWindow(getData());
+        		  }
+        	  });
+        	  t.start();
+          } else {
+            	dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(
+            			returnPd, isLogInterpolation);
+            	application.setDataInWindow(getData());
+          }
+      } catch(NumberFormatException eee){
         JOptionPane.showMessageDialog(this,"Please enter a valid Return Pd","Input Error",
             JOptionPane.ERROR_MESSAGE);
         return;
-      }
-      catch (RemoteException ee) {
+      } catch (RemoteException ee) {
         JOptionPane.showMessageDialog(this,
                                       ee.getMessage() + "\n" +
                                       "Please check your network connection",
                                       "Server Connection Error",
                                       JOptionPane.ERROR_MESSAGE);
         return;
-      }
-			catch (InvalidRangeException ex) {
+      } catch (InvalidRangeException ex) {
 							System.out.println(ex.getMessage());
 							ex.printStackTrace();
 					return;
 			}
     }
-    application.setDataInWindow(getData());
+    
   }
 
 

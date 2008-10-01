@@ -58,12 +58,23 @@ public final class DataDisplayFormatter {
 		dataInfo += "\n" + pad("Period", 2) + pad(saString,2) + "\n";
 		dataInfo += colPad("(sec)","Period",2) + colPad("(g)", saString, 2) + "\n";
 
+		String meta = "(" + text1;
+		if ( siteClass != null && !"".equals(siteClass)) {
+			meta += ", " + siteClass;
+		}
+		meta += ")\n";
+		
 		dataInfo += colPad(periodFormat.format(function.getX(0)),"Period",2) +
-			colPad(saValFormat.format(function.getY(0)),saString,2) +
-			"(" + text1 + ", " + siteClass + ")\n";
+			colPad(saValFormat.format(function.getY(0)),saString,2) + meta;
+		
+		meta = "(" + text2;
+		if ( siteClass != null && !"".equals(siteClass)) {
+			meta += ", " + siteClass;
+		}
+		meta += ")\n";
+		
 		dataInfo += colPad(periodFormat.format(function.getX(1)),"Period",2) +
-			colPad(saValFormat.format(function.getY(1)),saString,2) +
-			"(" + text2+ ", " + siteClass + ")\n";
+			colPad(saValFormat.format(function.getY(1)),saString,2) + meta;
   
 		return dataInfo;
   }
