@@ -235,7 +235,11 @@ public class DataGenerator_HazardCurves
 				        curLat, curLon, imt);
 				
 				try {
-					saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+					if (logScale) {
+						saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+					} else {
+						saVal = function.getFirstInterpolatedX(fex);
+					}
 				} catch (InvalidRangeException ex) {
 					double minY = function.getY(0);
 					int minRtnPeriod = (int) (1.0 / minY);
@@ -244,7 +248,11 @@ public class DataGenerator_HazardCurves
 					period = minRtnPeriod;
 					prob = miner.getExceedProb(fex, EXP_TIME);
 					saVal = 0.0;
-					saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+					if (logScale) {
+						saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
+					} else {
+						saVal = function.getFirstInterpolatedX(fex);
+					}
 				}
 			} catch (Exception e) {
 				if(answer != 0) {
