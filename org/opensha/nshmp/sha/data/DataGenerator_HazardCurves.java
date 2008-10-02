@@ -181,8 +181,7 @@ public class DataGenerator_HazardCurves
 		xlRow = xlSheet.createRow(startRow++);
 		xlRow.createCell((short) 0).setCellValue("Data Description:");
 		xlRow.getCell((short) 0).setCellStyle(headerStyle);
-		xlRow.createCell((short) 1).setCellValue(imt + " calculated for the " +
-				"B/C Boundary based on a 0.05 degree grid spacing.");
+		xlRow.createCell((short) 1).setCellValue(imt);
 
 		// Frequency of Exceedance
 		xlRow = xlSheet.createRow(startRow++);
