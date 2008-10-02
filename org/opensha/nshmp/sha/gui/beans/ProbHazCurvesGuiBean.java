@@ -671,18 +671,11 @@ public class ProbHazCurvesGuiBean
    * @param e ActionEvent
    */
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
-	   // if(locGuiBean.getLocationMode() == BatchLocationBean.BAT_MODE) {
-	    //	JOptionPane.showMessageDialog(null, "This option is not valid for the batch mode.",
-	    	//		"Invalid Mode", JOptionPane.ERROR_MESSAGE);
-	    	//return;
-	   // }
-		if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
-		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
-			return;
-		}
+	  
 
 	int locationMode = locGuiBean.getLocationMode();
-	
+	dataGenerator.setRegion(selectedRegion);
+   dataGenerator.setEdition(selectedEdition);
 
     //linear interpolation in case if the selected data edition is 1996 or 1998
     final boolean isLogInterpolation = !(
@@ -719,6 +712,12 @@ public class ProbHazCurvesGuiBean
       	  });
       	  t.start();
         } else {
+      	
+      	if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
+     		if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
+     			return;
+     		}
+     		
         	dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(
         			exceedProb, expTime, isLogInterpolation);
         	application.setDataInWindow(getData());
@@ -762,6 +761,10 @@ public class ProbHazCurvesGuiBean
         	  });
         	  t.start();
           } else {
+         	  if (!calcButtonClicked) hazCurveCalcButton_actionPerformed(e);
+       		  if (!calcButtonClicked) { //if call to hazCurvCalcButton exited abnormally
+       			  return;
+       		  }
             	dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(
             			returnPd, isLogInterpolation);
             	application.setDataInWindow(getData());

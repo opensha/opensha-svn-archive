@@ -227,13 +227,17 @@ public class DataGenerator_HazardCurves
 			 double curLat = locations.get(i).getLatitude();
 			 double curLon = locations.get(i).getLongitude();
 			 ArbitrarilyDiscretizedFunc function = null;
-			 String curGridSpacing = "";
+			 String curGridSpacing = ""; String extra = "";
 			 try {
 				 HazardDataMinerAPI miner = new HazardDataMinerServletMode();
 				 function = miner.getBasicHazardcurve(
 				        geographicRegion, dataEdition,
 				        curLat, curLon, imt);
-				
+				 String reg1 = "^.*Data are based on a ";
+				 String reg2 = " deg grid spacing.*$";
+				 curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(function.getInfo()).replaceAll("");
+				 curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+				 curGridSpacing += " Degrees";
 				try {
 					if (logScale) {
 						saVal = function.getFirstInterpolatedX_inLogXLogYDomain(fex);
@@ -243,7 +247,7 @@ public class DataGenerator_HazardCurves
 				} catch (InvalidRangeException ex) {
 					double minY = function.getY(0);
 					int minRtnPeriod = (int) (1.0 / minY);
-					curGridSpacing = warning;
+					extra = warning;
 					fex = minY;
 					period = minRtnPeriod;
 					prob = miner.getExceedProb(fex, EXP_TIME);
@@ -274,8 +278,8 @@ public class DataGenerator_HazardCurves
 			 xlRow.createCell((short) 1).setCellValue(curLon);
 			 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
 			 xlRow.createCell((short) 3).setCellValue(saVal);
-			 xlRow.createCell((short) 4).setCellValue("0.05 Degrees");
-			 xlRow.createCell((short) 5).setCellValue(curGridSpacing);
+			 xlRow.createCell((short) 4).setCellValue(curGridSpacing);
+			 xlRow.createCell((short) 5).setCellValue(extra);
 			 xlRow = xlSheet.createRow(i+startRow);
 			}
 		} 
