@@ -293,6 +293,14 @@ public class CPT extends ArrayList<CPTVal> {
 		BufferedReader in = new BufferedReader(new InputStreamReader(is));
 		return loadFromBufferedReader(in);
 	}
+	
+	private static Color loadColor(StringTokenizer tok) {
+		int R = Integer.parseInt(tok.nextToken());
+		int G = Integer.parseInt(tok.nextToken());
+		int B = Integer.parseInt(tok.nextToken());
+		
+		return new Color(R, G, B);
+	}
 
 	private static CPT loadFromBufferedReader(BufferedReader in)
 	throws IOException
@@ -300,51 +308,63 @@ public class CPT extends ArrayList<CPTVal> {
 		CPT cpt = new CPT();
 		String line;
 		int lineNumber = 0;
+		
+		boolean hasMin = false;
+		boolean hasMax = false;
+		
 		while (in.ready()) {
 			lineNumber++;
-			line = in.readLine();
+			line = in.readLine().trim();
+			
+			if (line.length() == 0)
+				continue;
 
 			StringTokenizer tok = new StringTokenizer(line);
 			int tokens = tok.countTokens();
-			if (line.charAt(0) == 'N') {
-				try {
-					tok.nextToken();
-					int R = Integer.parseInt(tok.nextToken());
-					int G = Integer.parseInt(tok.nextToken());
-					int B = Integer.parseInt(tok.nextToken());
-
-					cpt.setNanColor(R, G, B);
-				} catch (NumberFormatException e) {
-					System.out.println("Skipping line: " + lineNumber
-							+ "! (bad number parse)");
+			char firstChar = line.charAt(0);
+			
+			try {
+				switch (firstChar) {
+				case '#':
+					// comment
 					continue;
+				case 'N':
+					tok.nextToken();
+					cpt.setNanColor(loadColor(tok));
+					continue;
+				case 'B':
+					tok.nextToken();
+					cpt.setBelowMinColor(loadColor(tok));
+					hasMin = true;
+					continue;
+				case 'F':
+					tok.nextToken();
+					cpt.setAboveMaxColor(loadColor(tok));
+					hasMax = true;
+					continue;
+				default:
+					if (tokens < 8) {
+						System.out.println("Skipping line: " + lineNumber
+								+ "! (Comment or not properly formatted.): " + line);
+						continue;
+					}
+					float start = Float.parseFloat(tok.nextToken());
+					Color minColor = loadColor(tok);
+					float end = Float.parseFloat(tok.nextToken());
+					Color maxColor = loadColor(tok);
+					
+					CPTVal cpt_val = new CPTVal(start, minColor, end, maxColor);
+					cpt.add(cpt_val);
 				}
-			}
-			if (tokens < 8 || line.charAt(0) == '#') {
+			} catch (NumberFormatException e1) {
 				System.out.println("Skipping line: " + lineNumber
-						+ "! (Comment or not properly formatted.)");
+						+ "! (bad number parse): " + line);
 				continue;
 			}
-
-			try {
-				float start = Float.parseFloat(tok.nextToken());
-				int minR = Integer.parseInt(tok.nextToken());
-				int minG = Integer.parseInt(tok.nextToken());
-				int minB = Integer.parseInt(tok.nextToken());
-				float end = Float.parseFloat(tok.nextToken());
-				int maxR = Integer.parseInt(tok.nextToken());
-				int maxG = Integer.parseInt(tok.nextToken());
-				int maxB = Integer.parseInt(tok.nextToken());
-
-				CPTVal cpt_val = new CPTVal(start, minR, minG, minB, end, maxR,
-						maxG, maxB);
-				cpt.add(cpt_val);
-
-				// System.out.println("Lat: " + box.lat + " Lon: " + box.lon + "
-				// Val: " + box.val);
-			} catch (NumberFormatException e) {
+			
+			if (tokens < 8 || line.charAt(0) == '#') {
 				System.out.println("Skipping line: " + lineNumber
-						+ "! (bad number parse)");
+						+ "! (Comment or not properly formatted.): " + line);
 				continue;
 			}
 		}
@@ -352,8 +372,10 @@ public class CPT extends ArrayList<CPTVal> {
 //		Set the colors that will be taken when the file gets a value out of
 //		range to a default of the color associate with the minimum value in
 //		the range of the CPT file and similarly for the max
-		cpt.setBelowMinColor(cpt.getMinColor());
-		cpt.setAboveMaxColor(cpt.getMaxColor());
+		if (!hasMin)
+			cpt.setBelowMinColor(cpt.getMinColor());
+		if (!hasMax)
+			cpt.setAboveMaxColor(cpt.getMaxColor());
 
 		return cpt;
 	}
