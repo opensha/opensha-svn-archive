@@ -5,6 +5,8 @@ import java.sql.*;
 import java.text.*;
 import java.util.Date;
 
+import org.opensha.gui.UserAuthDialog;
+
 
 
 /**
@@ -87,6 +89,17 @@ public class DBAccess implements Runnable{
 			            maxConns, logFileString, maxConnTime, false,
 			            DEFAULTMAXCHECKOUTSECONDS, DEFAULTDEBUGLEVEL);
 
+    }
+    
+    public static DBAccess createWithAuthDialog(String host, String dbName) throws IOException {
+    	UserAuthDialog auth = new UserAuthDialog(null, true);
+		auth.setVisible(true);
+		
+		if (auth.isCanceled())
+			return null;
+		
+		DBAccess db = new DBAccess(host, dbName, auth.getUsername(), new String(auth.getPassword()));
+		return db;
     }
 
 

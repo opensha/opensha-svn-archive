@@ -93,5 +93,21 @@ public interface ERF2DBAPI {
 	 * @param rupID
 	 */
 	public void insertSrcRupInDB(EqkRupForecastAPI forecast, int erfID, int sourceID, int rupID);
+	
+	/**
+	 * Deletes a rupture
+	 * @param erfID
+	 * @param srcID
+	 * @param rupID
+	 */
+	public void deleteRupture(int erfID, int srcID, int rupID);
+	
+	/**
+	 * Returns the ID for a given rupture name
+	 * @param erfID
+	 * @param name
+	 * @return
+	 */
+	public int getSourceIDFromName(int erfID, String name);
 
 }

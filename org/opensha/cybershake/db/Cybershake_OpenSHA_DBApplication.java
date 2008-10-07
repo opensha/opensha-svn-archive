@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.gui.UserAuthDialog;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.util.FileUtils;
@@ -149,7 +150,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @param erfId
 	 * @param siteDB object
 	 */
-	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB){
+	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast,int erfId, CybershakeSiteInfo2DB siteDB, boolean checkAdd){
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
@@ -161,7 +162,7 @@ public class Cybershake_OpenSHA_DBApplication {
 			System.out.println("Putting regional bounds into DB");
 			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon);
 			System.out.println("Putting Source Rupture info into DB");
-			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, true, "newRupsForScott.txt"));
+			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, checkAdd, "newRupsForScott.txt"));
 		}
 		System.out.println("New ruptures...");
 		for (int[] rup : newRups) {
@@ -289,12 +290,17 @@ public class Cybershake_OpenSHA_DBApplication {
 	
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		boolean doIt = true;
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
+		UserAuthDialog auth = new UserAuthDialog(null, true);
+		auth.setVisible(true);
+		DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+		
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);
 		String erfName = erfDB.getERF_Instance().getName();
@@ -309,7 +315,7 @@ public class Cybershake_OpenSHA_DBApplication {
 //		ArrayList<SiteInsert> sites = app.getAllSites(22);
 //		
 //		
-//		CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
+		CybershakeSiteInfo2DB siteDB = new CybershakeSiteInfo2DB(db);
 ////		siteDB.setSkipToSource(125);
 ////		siteDB.setSkipToRup(6);
 //		app.putSiteListRupsIntoDB(sites, forecast, erfId, siteDB);
@@ -345,7 +351,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 //		System.out.println("ERF ID: " + erfId);
 //		//make sites
-//		ArrayList<SiteInsert> site_list;
+//		ArrayList<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
+//		site_list.add(new CybershakeSite(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
 //		try {
 //			site_list = app.getSiteListFromFile("/home/kevin/CyberShake/broadband_sites.txt");
 //			//app.putSiteInfoInDB(forecast,erfId);
@@ -371,6 +378,20 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new SiteInsert(34.34609, -117.97474, "Pacifico", "PACI"));
 //		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
 		
-			db.destroy();
+		boolean checkAdd = false;
+		
+		ArrayList<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
+//		site_list.add(new CybershakeSite(33.88110, -118.17568, "Lighthipe", "LTP"));
+//		site_list.add(new CybershakeSite(34.10647, -117.09822, "Seven Oaks Dam", "SVD"));
+		site_list.add(new CybershakeSite(34.557, -118.125, "Lake Palmdale", "LAPD"));
+//		site_list.add(new CybershakeSite(34.39865, -118.912, "Filmore Central Park", "FIL"));
+		
+		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
+		
+		db.destroy();
+		
+		System.out.println("Done!");
+		
+		System.exit(0);
 	}
 }

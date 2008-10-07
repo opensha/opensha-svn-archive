@@ -485,6 +485,28 @@ public  class ERF2DB implements ERF2DBAPI{
 			  insertSrcRupInDB(region, 0, 0);
 		  }
 	  
+	  public void deleteRupture(int erfID, int srcID, int rupID) {
+		  //generate the SQL to be inserted in the ERF_Metadata table
+		  String sql = "DELETE FROM Ruptures WHERE ERF_ID=" + erfID + " AND Source_ID=" + srcID + " AND Rupture_ID=" + rupID;
+		  try {
+			  dbaccess.insertUpdateOrDeleteData(sql);
+		  } catch (SQLException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+	  
+	  public void deleteRupturePoints(int erfID, int srcID, int rupID) {
+		//generate the SQL to be inserted in the ERF_Metadata table
+		  String sql = "DELETE FROM Points WHERE ERF_ID=" + erfID + " AND Source_ID=" + srcID + " AND Rupture_ID=" + rupID;
+		  try {
+			  dbaccess.insertUpdateOrDeleteData(sql);
+		  } catch (SQLException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+	  
 	  public void insertForecaseInDB(String erfDescription){
 			 this.insertForecaseInDB(erfDescription, null);
 		  }
@@ -497,6 +519,34 @@ public  class ERF2DB implements ERF2DBAPI{
 		  return this.eqkRupForecast;
 	  }
 	  
+	  public int getSourceIDFromName(int erfID, String name) {
+		  String sql = "SELECT distinct Source_ID from Ruptures WHERE ERF_ID=" + erfID + " AND Source_Name='" + name + "'";
+		  ResultSet rs = null;
+		  try {
+			  rs = dbaccess.selectData(sql);
+		  } catch (SQLException e1) {
+			  // TODO Auto-generated catch block
+			  e1.printStackTrace();
+		  }		 
+		  try {
+			  rs.first();
+			  int id = rs.getInt("Source_ID");
+			  rs.close();
+			  return id;
+		  } catch (SQLException e) {
+			  System.err.println("Couldn't get an ID for name: '" + name + "'");
+//			  e.printStackTrace();
+		  }
+		  return -1;
+	  }
 	  
+	  public static void main(String args[]) {
+		  DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		  ERF2DB erf2db = new ERF2DB(db);
+		  String name = "Ventura-Pitas Point";
+		  System.out.println(name + ": " + erf2db.getSourceIDFromName(34, name));
+		  
+		  db.destroy();
+	  }
 	
 }

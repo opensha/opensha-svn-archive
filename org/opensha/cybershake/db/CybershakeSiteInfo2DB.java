@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.data.Location;
@@ -96,6 +97,30 @@ public class CybershakeSiteInfo2DB {
 				siteId, locLat, locLon, checkAddRup, "");
 	}
 	
+	boolean match = true;
+	HashMap<Integer, Integer> sourceMap = null;
+	
+	private HashMap<Integer, Integer> getSourceMatchMap(EqkRupForecastAPI eqkRupForecast, int erfID) {
+		if (sourceMap == null) {
+			sourceMap = new HashMap<Integer, Integer>();
+			
+			for (int sourceID=0; sourceID<eqkRupForecast.getNumSources(); sourceID++) {
+				String name = eqkRupForecast.getSource(sourceID).getName();
+				
+				int csID = this.erf2db.getSourceIDFromName(erfID, name);
+				
+				if (csID >= 0) {
+					sourceMap.put(sourceID, csID);
+					System.out.println("Matched source " + sourceID + " with DB source " + csID);
+				} else {
+//					System.out.println("Source " + name + " not in DB!");
+				}
+			}
+		}
+		
+		return sourceMap;
+	}
+	
 	/**
 	 * Finds all the ruptures that have any location on their surface within Cybershake location
 	 * circular regional bounds with option to add ruptures that are not already in database (with logging).
@@ -124,6 +149,21 @@ public class CybershakeSiteInfo2DB {
 			if (sourceIndex < this.skipSource)
 				continue;
 			this.skipSource = -1;
+			
+			int csSource = sourceIndex;
+			if (match) {
+				HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfId);
+				if (map == null) {
+					System.err.println("WHAT?????????????");
+				}
+				System.out.print("Matching sourceID " + sourceIndex + "...");
+				if (map.containsKey(sourceIndex)) {
+					csSource = map.get(sourceIndex);
+					System.out.println(csSource);
+				} else {
+					System.out.println("it's not in there!");
+				}
+			}
 			
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -228,7 +268,7 @@ public class CybershakeSiteInfo2DB {
 			if (rupsToAdd.size() > 0) {
 				System.out.println("Inserting " + rupsToAdd.size() + " ruptures for Site=" + siteId + " and source=" + sourceIndex);
 				
-				this.site2db.insertSite_RuptureInfoList(siteId, erfId, sourceIndex, rupsToAdd, CUT_OFF_DISTANCE);
+				this.site2db.insertSite_RuptureInfoList(siteId, erfId, csSource, rupsToAdd, CUT_OFF_DISTANCE);
 			}
 			
 		}
@@ -428,6 +468,20 @@ public class CybershakeSiteInfo2DB {
 	 */
 	public ArrayList<CybershakeSite> getAllSitesFromDB() {
 		return site2db.getAllSitesFromDB();
+	}
+	
+	
+	public static void main(String args[]) {
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		
+		map.put(3, 5);
+		
+		System.out.println(map.get(3));
+		System.out.println(map.get(new Integer(3)));
+		
+//		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+		
+//		site2db.
 	}
 	
 

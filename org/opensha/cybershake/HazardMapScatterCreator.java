@@ -22,6 +22,8 @@ import org.opensha.util.cpt.CPT;
 
 public class HazardMapScatterCreator {
 	
+	public static final Color BLANK_COLOR = Color.WHITE;
+	
 	HazardCurve2DB curve2db;
 	CybershakeSiteInfo2DB site2db;
 	
@@ -29,6 +31,8 @@ public class HazardMapScatterCreator {
 	ArrayList<CybershakeSite> sites;
 	ArrayList<DiscretizedFuncAPI> funcs;
 	ArrayList<Double> vals;
+	
+	ArrayList<CybershakeSite> allSites = null;
 	
 	ArrayList<XYZComparison> comps = new ArrayList<XYZComparison>();
 	
@@ -204,44 +208,134 @@ public class HazardMapScatterCreator {
 		}
 	}
 	
-	public void writeScript(ArrayList<Symbol> symbols, String defaultSym, String script) throws IOException {
+	private String getSymbol(CybershakeSite site, ArrayList<Symbol> symbols, String defaultSym) {
+		String sym = defaultSym;
+		for (Symbol symbol : symbols) {
+			if (symbol.use(site.id)) {
+				sym = symbol.getSymbol();
+				break;
+			}
+		}
+		return sym;
+	}
+	
+	private double scaleSize(double size, String symbol) {
+		if (symbol.equals("c"))
+			size = 0.75 * size;
+		else if (symbol.equals("d"))
+			size = 0.85 * size;
+		return size;
+	}
+	
+	private String getGMTColorString(Color color) {
+		return "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
+	}
+	
+	private String getGMTSymbolLine(ArrayList<Symbol> symbols, String defaultSym, CybershakeSite site, double val, double size) {
+		
+		String sym = this.getSymbol(site, symbols, defaultSym);
+		double scaledSize = this.scaleSize(size, sym);
+		
+		Color color;
+		if (val < 0) {
+			color = BLANK_COLOR;
+			scaledSize = scaledSize * 0.5;
+		} else {
+			color = cpt.getColor((float)val);
+		}
+		
+		String colorStr = this.getGMTColorString(color);
+		String outline = "-W" + (float)(size * 0.09) + "i,255/255/255";
+//		String outline = "-W2,255/255/255";
+		
+		String line = "echo " + site.lon + " " + site.lat + " | ";
+		// arg 1: plot region
+		// arg 2: plot projection
+		// arg 3: ps file
+		line += "psxy $1 $2 -S" + sym + scaledSize + "i " + colorStr + " " + outline + " -O -K >> $3";
+		
+		return line;
+	}
+	
+	public String getGMTLabelLine(CybershakeSite site, double fontSize) {
+		double x = site.lon + (0.025);
+		double y = site.lat;
+		double angle = 0;
+		String fontno = "1";
+		String justify = "LM";
+		String text = site.short_name;
+		
+		String colorStr = this.getGMTColorString(Color.white);
+		
+		String line = "echo " + x + " " + y + " " + fontSize + " " + angle + " " + fontno + " " + justify + " " + text +  " | ";
+		
+		// arg 1: plot region
+		// arg 2: plot projection
+		// arg 3: ps file
+		line += "pstext $1 $2 " + colorStr + " -O -K >> $3";
+		
+		return line;
+	}
+	
+	private ArrayList<CybershakeSite> getAllSites() {
+		if (allSites == null) {
+			allSites = site2db.getAllSitesFromDB();
+		}
+		return allSites;
+	}
+	
+	public void writeScatterColoredScript(ArrayList<Symbol> symbols, String defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		double size = 0.18;
+		double fontSize = 10;
 		
-		for (int i=0; i<vals.size(); i++) {
-			double val = vals.get(i);
-			CybershakeSite site = sites.get(i);
-			
-			Color color = cpt.getColor((float)val);
-			
-			double theSize = size;
-			
-			String sym = defaultSym;
-			for (Symbol symbol : symbols) {
-				if (symbol.use(site.id)) {
-					sym = symbol.getSymbol();
+		for (CybershakeSite site : this.getAllSites()) {
+			double val = -1d;
+			for (int i=0; i<vals.size(); i++) {
+				CybershakeSite valSite = sites.get(i);
+				if (site.id == valSite.id) {
+					val = vals.get(i);
 					break;
 				}
 			}
+			if (writeEmptySites || val >=0) {
+				String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
+				
+				System.out.println(line);
+				write.write(line + "\n");
+				
+				if (labels) {
+					line = this.getGMTLabelLine(site, fontSize);
+					System.out.println(line);
+					write.write(line + "\n");
+				}
+			}
+		}
+		
+		write.close();
+	}
+	
+	public void writeScatterMarkerScript(ArrayList<Symbol> symbols, String defaultSym, String script, boolean labels) throws IOException {
+		FileWriter write = new FileWriter(script);
+		
+		double size = 0.18;
+		double fontSize = 10;
+		
+		for (CybershakeSite site : this.getAllSites()) {
+			double val = -1d;
+			String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
 			
-			if (sym.equals("c"))
-				theSize = 0.75 * theSize;
-			if (sym.equals("d"))
-				theSize = 0.85 * theSize;
-			
-			String colorStr = "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
-			String outline = "-W" + (float)(size * 0.09) + "i,255/255/255";
-//			String outline = "-W2,255/255/255";
-			
-			String line = "echo " + site.lon + " " + site.lat + " | ";
-			// arg 1: plot region
-			// arg 2: plot projection
-			// arg 3: ps file
-			line += "psxy $1 $2 -S" + sym + theSize + "i " + colorStr + " " + outline + " -O -K >> $3";
 			System.out.println(line);
 			write.write(line + "\n");
+			
+			if (labels) {
+				line = this.getGMTLabelLine(site, fontSize);
+				System.out.println(line);
+				write.write(line + "\n");
+			}
 		}
+		
 		write.close();
 	}
 	
@@ -267,20 +361,24 @@ public class HazardMapScatterCreator {
 		boolean isProbAt_IML = false;
 		double val = 0.0004;
 		
-		HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfID, rupVarScenID, sgtVarID, imTypeID, cpt, false, val);
+		HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfID, rupVarScenID, sgtVarID, imTypeID, cpt, isProbAt_IML, val);
 		
 //		map.addComparison("CB 2008", "/home/kevin/CyberShake/scatterMap/base_cb.txt");
 //		map.addComparison("BA 2008", "/home/kevin/CyberShake/scatterMap/base_ba.txt");
 //		map.printCurves();
-		map.printVals();
+//		map.printVals();
 		
 		ArrayList<Symbol> symbols = new ArrayList<Symbol>();
 		symbols.add(new Symbol("s", 18, 19));
 		symbols.add(new Symbol("d", 28, 36));
 		symbols.add(new Symbol("s", 37, 57));
 		
+		boolean writeEmptySites = true;
+		boolean labels = true;
+		
 		try {
-			map.writeScript(symbols, "c", "/home/kevin/CyberShake/scatterMap/gmt/scatter.sh");
+			map.writeScatterColoredScript(symbols, "c", "/home/kevin/CyberShake/scatterMap/gmt/scatter.sh", writeEmptySites, labels);
+			map.writeScatterMarkerScript(symbols, "c", "/home/kevin/CyberShake/scatterMap/gmt/scatter_mark.sh", labels);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
