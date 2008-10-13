@@ -28,6 +28,9 @@ import org.opensha.data.ValueWeight;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.exceptions.DiscretizedFuncException;
+import org.opensha.exceptions.MagFreqDistException;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelPrefDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -45,6 +48,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.util.RunScript;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 
 /**
  * This class does an inversion for the rate of events in an unsegmented model:
@@ -61,7 +65,12 @@ public class SoSAF_SubSectionInversion {
 
 
 	private boolean D = true;
-	private DeformationModelPrefDataDB_DAO deformationModelPrefDB_DAO = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
+//	private DeformationModelPrefDataDB_DAO deformationModelPrefDB = new DeformationModelPrefDataDB_DAO(DB_AccessAPI.dbConnection);
+	DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
+	
+	public final static double GAUSS_MFD_SIGMA = 0.12;
+	public final static double GAUSS_MFD_TRUNCATION = 2;
+	
 	private ArrayList<FaultSectionPrefData> subSectionList;
 	
 	private int num_seg, num_rup;
@@ -71,6 +80,9 @@ public class SoSAF_SubSectionInversion {
 	
 	private boolean transitionAseisAtEnds, transitionSlipRateAtEnds;
 	private int slipRateSmoothing;
+	
+	// this accounts for fact that ave slip from Gauss MFD is greater than the slip of the average mag
+	private double gaussMFD_slipCorr;
 
 	private   int maxSubsectionLength;
 	private int numSegForSmallestRups;  // this sets the number of segments for the smallest ruptures (either 1 or 2 for now).. e.g., if subsections are ~5km, then we want at least two rupturing at once.
@@ -92,9 +104,12 @@ public class SoSAF_SubSectionInversion {
 	private double minRupRate;
 	private boolean wtedInversion, applyProbVisible;	// weight the inversion according to slip rate and segment rate uncertainties
 	private double relativeSegRateWt, relative_aPrioriRupWt, relative_smoothnessWt;
+	private double relativeGR_constraintWt, grConstraintBvalue, smallestGR_constriantMag;
+
 	
 	private int  firstRowSegSlipRateData=-1,firstRowSegEventRateData=-1, firstRowAprioriData=-1, firstRowSmoothnessData=-1;
 	private int  lastRowSegSlipRateData=-1,lastRowSegEventRateData=-1, lastRowAprioriData=-1, lastRowSmoothnessData=-1;
+	private int firstRowGR_constraintData=-1, lastRowGR_constraintData=-1;
 	private int totNumRows;
 	
 	// slip model:
@@ -106,7 +121,7 @@ public class SoSAF_SubSectionInversion {
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
-	SummedMagFreqDist magFreqDist, smoothedMagFreqDist;
+	SummedMagFreqDist magFreqDist;
 	
 	ArrayList<SummedMagFreqDist> segmentNucleationMFDs;
 	ArrayList<SummedMagFreqDist> segmentParticipationMFDs;
@@ -134,6 +149,13 @@ public class SoSAF_SubSectionInversion {
 
 	public SoSAF_SubSectionInversion() {
 		
+		// compute slip correction for Gaussian MFD
+		GaussianMagFreqDist gDist1 = new GaussianMagFreqDist(5.0,9.0,41,7,this.GAUSS_MFD_SIGMA,1.0,this.GAUSS_MFD_TRUNCATION,2);
+		GaussianMagFreqDist gDist2 = new GaussianMagFreqDist(5.0,9.0,41,7,0.01,1.0,0.01,2);
+		gDist1.scaleToCumRate(0, 1.0);
+		gDist2.scaleToCumRate(0, 1.0);
+		gaussMFD_slipCorr = gDist1.getTotalMomentRate()/gDist2.getTotalMomentRate();
+		System.out.println("gaussMFD_slipCorr="+(float)gaussMFD_slipCorr+"\n");
 	}
 
 	
@@ -176,9 +198,11 @@ public class SoSAF_SubSectionInversion {
 						fw.write(s+"\t"+(float)mfd.getX(m)+"\t"+(float)Math.log10(mfd.getY(m))+"\n");
 					if( cmfd.getY(m) != 0.0)
 						cfw.write(s+"\t"+(float)cmfd.getX(m)+"\t"+(float)Math.log10(cmfd.getY(m))+"\n");
+//					System.out.println(s+"\t"+(float)cmfd.getX(m)+"\t"+(float)Math.log10(mfd.getY(m))+"\t"+(float)Math.log10(cmfd.getY(m))+"\n");
 				}
 			}	
 			fw.close();
+			cfw.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -237,7 +261,8 @@ public class SoSAF_SubSectionInversion {
 			String slipModelType, MagAreaRelationship magAreaRel, double relativeSegRateWt, 
 			double relative_aPrioriRupWt, double relative_smoothnessWt, boolean wtedInversion, double minRupRate,
 			boolean applyProbVisible, double moRateReduction, boolean transitionAseisAtEnds, 
-			boolean transitionSlipRateAtEnds, int slipRateSmoothing) {
+			boolean transitionSlipRateAtEnds, int slipRateSmoothing, double relativeGR_constraintWt,
+			double grConstraintBvalue) {
 		
 		this.maxSubsectionLength = maxSubsectionLength;
 		this.numSegForSmallestRups = numSegForSmallestRups;
@@ -254,6 +279,8 @@ public class SoSAF_SubSectionInversion {
 		this.transitionAseisAtEnds = transitionAseisAtEnds;
 		this.transitionSlipRateAtEnds = transitionSlipRateAtEnds;
 		this.slipRateSmoothing = slipRateSmoothing;
+		this.relativeGR_constraintWt = relativeGR_constraintWt;
+		this.grConstraintBvalue = grConstraintBvalue;
 		
 		if (numSegForSmallestRups != 1 &&  numSegForSmallestRups != 2)
 			throw new RuntimeException("Error: numSegForSmallestRups must be 1 or 2!");
@@ -273,7 +300,7 @@ public class SoSAF_SubSectionInversion {
 		// get the RupInSeg Matrix for the given number of segments
 		num_seg = subSectionList.size();
 		
-		// get the matrix giving what sub-sections are invovled in each rupture
+		// get the matrix giving what sub-sections are involved in each rupture
 		rupInSeg = getRupInSegMatrix(num_seg);
 		
 		num_rup = rupInSeg[1].length;
@@ -315,8 +342,10 @@ public class SoSAF_SubSectionInversion {
 			rupMeanMag = new double[num_rup];
 			rupMeanMo = new double[num_rup];
 			for(int rup=0; rup <num_rup; rup++) {
-				rupMeanMag[rup] = magAreaRel.getMedianMag(rupArea[rup]/1e6);
-				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup]);   // increased if magSigma >0
+				double mag = magAreaRel.getMedianMag(rupArea[rup]/1e6);
+				//round this to nearst 10th unit
+				rupMeanMag[rup] = ((double)Math.round(10*mag))/10.0;
+				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup])*this.gaussMFD_slipCorr;   // increased if magSigma >0
 			}
 		}
 		
@@ -337,6 +366,11 @@ public class SoSAF_SubSectionInversion {
 			minRates = new double[num_rup]; // this sets them all to zero
 			for(int rup=0; rup<num_rup; rup++) minRates[rup] = minRupRate;			
 		}
+		
+		// set the number of GR constraints and mag range
+		double largestGR_constriantMag = rupMeanMag[num_rup-1]; // the largest rupture
+		System.out.println("GR constraint mags: "+(float)smallestGR_constriantMag+"\t"+(float)largestGR_constriantMag+"\n");
+		int numGR_constraints = (int) Math.round((largestGR_constriantMag - smallestGR_constriantMag)/0.1);
 
 		// SET NUMBER OF ROWS AND IMPORTANT INDICES
 		
@@ -369,9 +403,18 @@ public class SoSAF_SubSectionInversion {
 			lastRowSmoothnessData = totNumRows-1;
 		}
 		
+		// add number of GR constaints
+		if(relativeGR_constraintWt>0) {
+			firstRowGR_constraintData = totNumRows;
+			totNumRows += numGR_constraints;
+			lastRowGR_constraintData = totNumRows-1;
+			
+		}
+		
 		System.out.println("\nfirstRowSegEventRateData="+firstRowSegEventRateData+
 				"\nfirstRowAprioriData="+firstRowAprioriData+
 				"\nfirstRowSmoothnessData="+firstRowSmoothnessData+
+				"\nfirstRowGR_constraintData="+firstRowGR_constraintData+
 				"\ntotNumRows="+totNumRows+"\n");
 			
 		C = new double[totNumRows][num_rup];
@@ -442,6 +485,25 @@ public class SoSAF_SubSectionInversion {
 			}
 		}
 //		System.out.println("num_smooth_constrints="+num_smooth_constrints);
+		// now fill in the a-priori rates if needed
+		if(relativeGR_constraintWt > 0.0) {
+			double deltaMag = 0.1;
+			// create a GR dist with the target moment rate & max mag as an estimate of absolute rates
+			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(5,41,deltaMag);
+			gr.setAllButTotCumRate(5, largestGR_constriantMag, totMoRate, grConstraintBvalue);
+			for(int i=0; i < numGR_constraints; i++) {
+				int row = i+firstRowGR_constraintData;
+				double mag1 = smallestGR_constriantMag + i*deltaMag;
+				double mag2 = mag1 + deltaMag;
+				d[row] = gr.getY(mag1)-gr.getY(mag2);  // I figure the diff is more robust and absolute values
+				for(int col=0; col<num_rup; col++)
+					if(rupMeanMag[col] < mag1+0.001 && rupMeanMag[col] > mag1-0.001)
+						C[row][col]=1.0;
+					else if(rupMeanMag[col] < mag2+0.001 && rupMeanMag[col] > mag2-0.001)
+						C[row][col]=-1.0;
+			}
+		}
+
 		
 		// copy un-wted data to wted versions (wts added below)
 		for(int row=0;row<totNumRows; row++){
@@ -508,6 +570,15 @@ public class SoSAF_SubSectionInversion {
 					C_wted[row][rup+1] *= full_wt[row];
 					row += 1;
 				}
+			}
+		}
+		// GR constraint wts
+		if(relativeGR_constraintWt > 0.0) {
+			for(int i=0; i < numGR_constraints; i++) {
+				int row = i+firstRowGR_constraintData;
+				full_wt[row] = relativeGR_constraintWt;
+				d_wted[row] *= full_wt[row];
+				for(int rup=0; rup < num_rup; rup++) C_wted[row][rup] *= full_wt[row];
 			}
 		}
 		
@@ -610,7 +681,7 @@ public class SoSAF_SubSectionInversion {
 		int lastNum=0;
 		for(int i=0; i<faultSectionIds.size(); ++i) {
 			FaultSectionPrefData faultSectionPrefData = 
-				deformationModelPrefDB_DAO.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
+				deformationModelPrefDB.getFaultSectionPrefData(deformationModelId, faultSectionIds.get(i));
 			subSectionList.addAll(faultSectionPrefData.getSubSectionsList(this.maxSubsectionLength));
 			// compute & write the number of subsections for this section
 			numSubSections[i] = subSectionList.size()-lastNum;
@@ -862,6 +933,7 @@ public class SoSAF_SubSectionInversion {
 		double maxArea = 0;
 		FaultSectionPrefData segData;
 		totMoRate = 0;
+		double aveSegDDW = 0, aveSegLength =0;
 		
 		for(int seg=0; seg < num_seg; seg++) {
 				segData = subSectionList.get(seg);
@@ -870,6 +942,9 @@ public class SoSAF_SubSectionInversion {
 				segSlipRateStdDev[seg] = segData.getSlipRateStdDev()*1e-3; // mm/yr --> m/yr
 				segMoRate[seg] = FaultMomentCalc.getMoment(segArea[seg], segSlipRate[seg]); // 
 				totMoRate += segMoRate[seg];
+				aveSegDDW += segData.getDownDipWidth();
+				aveSegLength += segData.getLength();
+				
 				
 				// keep min and max length and area
 				if(segData.getLength() < minLength) minLength = segData.getLength();
@@ -877,7 +952,18 @@ public class SoSAF_SubSectionInversion {
 				if(segArea[seg]/1e6 < minArea) minArea = segArea[seg]/1e6;
 				if(segArea[seg]/1e6 > maxArea) maxArea = segArea[seg]/1e6;
 		}
+		aveSegDDW /= num_seg;
+		aveSegLength /= num_seg;
+		
 		if(D) System.out.println("minSegArea="+(float)minArea+"\nmaxSegArea="+(float)maxArea+"\nminSegLength="+(float)minLength+"\nmaxSegLength="+(float)maxLength);
+		
+		System.out.println("\nAverage DDW & Length of sub-sections, and implied mag of "+numSegForSmallestRups+" of these rupturing:\n");
+		double mag = this.magAreaRel.getMedianMag(numSegForSmallestRups*aveSegDDW*aveSegLength);
+		// round and save this for the GR constraint
+		smallestGR_constriantMag = ((double)Math.round(mag*10.0))/10.0;
+		System.out.println("\t"+(float)aveSegDDW+"\t"+(float)aveSegLength+"\t"+
+				(float)mag+"\t"+smallestGR_constriantMag+"\n");
+		
 		
 		// compute rupture areas
 		for(int rup=0; rup<num_rup; rup++){
@@ -897,18 +983,9 @@ public class SoSAF_SubSectionInversion {
 		segSlipInRup = new double[num_seg][num_rup];
 		FaultSectionPrefData segData;
 		
-		// for case segment slip is independent of rupture, and equal to slip-rate * MRI
-		// note that we're using the event rates that include the min constraint (segRateFromAprioriWithMinRateConstr)
+		// for case segment slip is independent of rupture (constant), and equal to slip-rate * MRI
 		if(slipModelType.equals(CHAR_SLIP_MODEL)) {
 			throw new RuntimeException(CHAR_SLIP_MODEL+ " not yet supported");
-			/*
-			for(int seg=0; seg<num_seg; seg++) {
-				double segCharSlip = segmentData.getSegmentSlipRate(seg)*(1-moRateReduction)/segRateFromAprioriWithMinRateConstr[seg];
-				for(int rup=0; rup<num_rup; ++rup) {
-					segSlipInRup[seg][rup] = rupInSeg[seg][rup]*segCharSlip;
-				}
-			}
-			*/
 		}
 		// for case where ave slip computed from mag & area, and is same on all segments 
 		else if (slipModelType.equals(UNIFORM_SLIP_MODEL)) {
@@ -1003,6 +1080,40 @@ public class SoSAF_SubSectionInversion {
 				taperedSlipPDF.set(i,taperedSlipPDF.getY(i)/sum);
 //				System.out.println(taperedSlipCDF.getX(i)+"\t"+taperedSlipPDF.getY(i)+"\t"+taperedSlipCDF.getY(i));
 		}
+	}
+	
+	
+	/**
+	 * This computes the total event rate prediction error (ignoring wt given to this equation set),
+	 * meaning it will give a result even if the equation set wt was zero.
+	 * @return
+	 */
+	private double getTotEventRatePredErr() {
+		SegRateConstraint constraint;
+		double totPredErr=0;
+		for(int i = 0; i < segRateConstraints.size(); i ++) {
+			constraint = segRateConstraints.get(i);
+			int seg = constraint.getSegIndex();
+			double normResid = (finalSegEventRate[seg]-constraint.getMean())/constraint.getStdDevOfMean();
+			totPredErr += normResid*normResid;
+		}
+		return totPredErr;
+	}
+	
+	
+	/**
+	 * This gets the smoothness prediction error regardless of whether it was used in the inversion
+	 * @return
+	 */
+	private double getTotSmoothnessPredErr() {
+		double predErr=0;	
+		for(int rup=0; rup < num_rup; rup++) {
+			// check to see if the last segment is used by the rupture (skip this last rupture if so)
+			if(rupInSeg[num_seg-1][rup] != 1) {
+				predErr += (rupRateSolution[rup]-rupRateSolution[rup+1])*(rupRateSolution[rup]-rupRateSolution[rup+1]);
+			}
+		}
+		return predErr;
 	}
 
 	
@@ -1190,20 +1301,23 @@ public class SoSAF_SubSectionInversion {
 		// Compute the total Mag Freq Dist
 		magFreqDist = new SummedMagFreqDist(5,41,0.1);
 		for(int rup=0; rup<num_rup;rup++) {
-			if(rupMeanMag[rup] >= 5.0)
-				magFreqDist.addResampledMagRate(rupMeanMag[rup], rupRateSolution[rup], false);   // this  preserves moment rates
+
+//			double momentRate = MomentMagCalc.getMoment(rupMeanMag[rup])*rupRateSolution[rup];
+//			GaussianMagFreqDist gDist = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],0.12,momentRate,2.0,2);
+
+			GaussianMagFreqDist gDist = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],GAUSS_MFD_SIGMA,1.0,GAUSS_MFD_TRUNCATION,2); // dist w/ unit moment rate
+			gDist.scaleToCumRate(0, rupRateSolution[rup]);
+
+			magFreqDist.addIncrementalMagFreqDist(gDist);
 		}
 		magFreqDist.setInfo("Incremental Mag Freq Dist");
 		
-		// Now do it again using a gaussian MFD for each rupture; sigma=0.12 and trucated at +/- 2 sigma as in UCERF2
-		smoothedMagFreqDist = new SummedMagFreqDist(5,41,0.1);
-		for(int rup=0; rup<num_rup;rup++) {
-//			if(rupMeanMag[rup] >= 5.0)
-			double momentRate = MomentMagCalc.getMoment(rupMeanMag[rup])*rupRateSolution[rup];
-			GaussianMagFreqDist gDist = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],0.12,momentRate,2.0,2);
-			smoothedMagFreqDist.addIncrementalMagFreqDist(gDist);
-		}
-		smoothedMagFreqDist.setInfo("Smoothed Incremental Mag Freq Dist");
+		// check moment rate
+		double origMoRate = totMoRate*(1-moRateReduction);
+		double ratio = origMoRate/magFreqDist.getTotalMomentRate();
+		System.out.println("Moment Rates: from Fault Sections (possible reduced) = "+ (float)origMoRate+
+				";  from total MFD = "+(float)magFreqDist.getTotalMomentRate()+
+				",  ratio = "+(float)ratio+"\n");
 		
 		
 		// COMPUTE RATE AT WHICH SECTION BOUNDARIES CONSTITUTE RUPTURE ENDPOINTS
@@ -1229,16 +1343,23 @@ public class SoSAF_SubSectionInversion {
 		aveOfSegPartMFDs = new SummedMagFreqDist(5,41,0.1);
 		
 		SummedMagFreqDist segPartMFD, segNuclMFD;
-		double mag, rate;
+//		double mag, rate;
 		for(int seg=0; seg < num_seg; seg++) {
 			segPartMFD = new SummedMagFreqDist(5,41,0.1);
 			segNuclMFD = new SummedMagFreqDist(5,41,0.1);
 			for(int rup=0; rup < num_rup; rup++) {
 				if(this.rupInSeg[seg][rup] == 1) {
-					mag = this.rupMeanMag[rup];
-					rate = rupRateSolution[rup];
-					segNuclMFD.addResampledMagRate(mag, rate/numSegInRup[rup], false); // uniform probability that any sub-section will nucleate
-					segPartMFD.addResampledMagRate(mag, rate, false);
+//					mag = this.rupMeanMag[rup];
+//					rate = rupRateSolution[rup];
+//					segNuclMFD.addResampledMagRate(mag, rate/numSegInRup[rup], false); // uniform probability that any sub-section will nucleate
+//					segPartMFD.addResampledMagRate(mag, rate, false);
+					if(rupRateSolution[rup] > 0) {
+						GaussianMagFreqDist mfd = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],GAUSS_MFD_SIGMA,1.0,GAUSS_MFD_TRUNCATION,2); // dist w/ unit moment rate
+						mfd.scaleToCumRate(0, rupRateSolution[rup]);
+						segPartMFD.addIncrementalMagFreqDist(mfd);
+						mfd.scaleToCumRate(0, rupRateSolution[rup]/numSegInRup[rup]);
+						segNuclMFD.addIncrementalMagFreqDist(mfd);						
+					}
 				}
 			}
 			segmentNucleationMFDs.add(segNuclMFD);
@@ -1319,7 +1440,7 @@ public class SoSAF_SubSectionInversion {
 	public void writePredErrorInfo() {
 		
 		// First without equation weights
-		double totPredErr=0, slipRateErr=0, eventRateErr=0, aPrioriErr=0, smoothnessErr=0;
+		double totPredErr=0, slipRateErr=0, eventRateErr=0, aPrioriErr=0, smoothnessErr=0, grErr=0;
 		
 		for(int row=firstRowSegSlipRateData; row <= lastRowSegSlipRateData; row++)
 			slipRateErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
@@ -1332,15 +1453,31 @@ public class SoSAF_SubSectionInversion {
 		if(relative_smoothnessWt>0)
 			for(int row=firstRowSmoothnessData; row <= lastRowSmoothnessData; row++)
 				smoothnessErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
-		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr;
-		System.out.println("\nTotal Prediction Error =\t"+(float)totPredErr+"\n\t"+
-				"Slip Rate Err =\t\t"+(float)slipRateErr+"\trel. wt = 1.0\n\t"+
-				"Event Rate Err =\t"+(float)eventRateErr+"\trel. wt = "+relativeSegRateWt+"\n\t"+
-				"A Priori Err =\t\t"+(float)aPrioriErr+"\trel. wt = "+relative_aPrioriRupWt+"\n\t"+
-				"Smoothness Err =\t"+(float)smoothnessErr+"\trel. wt = "+relative_smoothnessWt+"\n\t");
+		if(relativeGR_constraintWt>0)
+			for(int row=firstRowGR_constraintData; row <= lastRowGR_constraintData; row++)
+				grErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
+		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr+grErr;
 		
+		// get alt versions in case equation wts zero
+		double eventRateErrAlt = getTotEventRatePredErr();
+		double smoothnessErrAlt = getTotSmoothnessPredErr();
+		
+		double aveSRnormResid = slipRateErr/num_seg;
+		double aveERnormResid = eventRateErrAlt/segRateConstraints.size();
+		
+		String resultsString = "\nTotal Prediction Error =\t"+(float)totPredErr+"\n\t"+
+				               "Slip Rate Err =\t\t"+(float)slipRateErr+"\trel. wt = 1.0"+
+				               "\tave norm resid = "+(float)aveSRnormResid+"\n\t"+
+				               "Event Rate Err =\t"+(float)eventRateErrAlt+"\trel. wt = "+relativeSegRateWt+
+				               "\tave norm resid = "+(float)aveERnormResid+"\n\t"+
+				               "A Priori Err =\t\t"+(float)aPrioriErr+"\trel. wt = "+relative_aPrioriRupWt+"\n\t"+
+				               "Smoothness Err =\t"+(float)smoothnessErrAlt+"\trel. wt = "+relative_smoothnessWt+"\n\t"+
+        					   "GR Err =\t"+(float)grErr+"\trel. wt = "+relativeGR_constraintWt+"\n\t";
+
+		System.out.println(resultsString);
+				
 		// Now with equation weights
-		totPredErr=0; slipRateErr=0; eventRateErr=0; aPrioriErr=0; smoothnessErr=0;
+		totPredErr=0; slipRateErr=0; eventRateErr=0; aPrioriErr=0; smoothnessErr=0; grErr=0;
 		for(int row=firstRowSegSlipRateData; row <= lastRowSegSlipRateData; row++)
 			slipRateErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*full_wt[row]*full_wt[row];
 		if(relativeSegRateWt >0)
@@ -1352,12 +1489,17 @@ public class SoSAF_SubSectionInversion {
 		if(relative_smoothnessWt>0)
 			for(int row=firstRowSmoothnessData; row <= lastRowSmoothnessData; row++)
 				smoothnessErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*full_wt[row]*full_wt[row];
-		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr;
+		if(relativeGR_constraintWt>0)
+			for(int row=firstRowGR_constraintData; row <= lastRowGR_constraintData; row++)
+				grErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*full_wt[row]*full_wt[row];
+		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr+grErr;
+
 		System.out.println("\nTotal Pred Err w/ Eq Wts =\t"+(float)totPredErr+"\n\t"+
 				"Slip Rate Err =\t\t"+(float)slipRateErr+"\trel. wt = 1.0\n\t"+
 				"Event Rate Err =\t"+(float)eventRateErr+"\trel. wt = "+relativeSegRateWt+"\n\t"+
 				"A Priori Err =\t\t"+(float)aPrioriErr+"\trel. wt = "+relative_aPrioriRupWt+"\n\t"+
-				"Smoothness Err =\t"+(float)smoothnessErr+"\trel. wt = "+relative_smoothnessWt+"\n\t");
+				"Smoothness Err =\t"+(float)smoothnessErr+"\trel. wt = "+relative_smoothnessWt+"\n\t"+
+				"GR Err =\t"+(float)grErr+"\trel. wt = "+relativeGR_constraintWt+"\n\t");
 			
 	}
 	
@@ -1385,11 +1527,12 @@ public class SoSAF_SubSectionInversion {
 		EvenlyDiscretizedFunc finalEventRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
 		for(int seg=0;seg < num_seg; seg++)
 			finalEventRateFunc.set(seg,finalSegEventRate[seg]);
-		finalEventRateFunc.setName("Final Event Rates");
+		finalEventRateFunc.setName("Final Paleoseismically Visible Event Rates");
 		er_funcs.add(finalEventRateFunc);
 
 		int num = segRateConstraints.size();
 		ArbitrarilyDiscretizedFunc func;
+		ArrayList obs_er_funcs = new ArrayList();
 		SegRateConstraint constraint;
 		for(int c=0;c<num;c++) {
 			func = new ArbitrarilyDiscretizedFunc();
@@ -1399,8 +1542,10 @@ public class SoSAF_SubSectionInversion {
 			func.set((double)seg, constraint.getMean());
 			func.set((double)seg+0.0001, constraint.getUpper95Conf());
 			func.setName(constraint.getFaultName());
+			obs_er_funcs.add(func);
 			er_funcs.add(func);
 		}
+//		er_funcs.add(obs_er_funcs);
 		
 		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "Event Rates"); 
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
@@ -1427,10 +1572,6 @@ public class SoSAF_SubSectionInversion {
 		EvenlyDiscretizedFunc cumMagFreqDist = magFreqDist.getCumRateDistWithOffset();
 		cumMagFreqDist.setInfo("Cumulative Mag Freq Dist");
 		mfd_funcs.add(cumMagFreqDist);
-		mfd_funcs.add(smoothedMagFreqDist);
-		EvenlyDiscretizedFunc SmoothedCumMagFreqDist = smoothedMagFreqDist.getCumRateDistWithOffset();
-		smoothedMagFreqDist.setInfo("Smoothed Cumulative Mag Freq Dist");
-		mfd_funcs.add(SmoothedCumMagFreqDist);	
 		// add average seg participation MFD
 		mfd_funcs.add(aveOfSegPartMFDs);
 		EvenlyDiscretizedFunc cumAveOfSegPartMFDs = aveOfSegPartMFDs.getCumRateDistWithOffset();
@@ -1445,14 +1586,31 @@ public class SoSAF_SubSectionInversion {
 		GR_dist.setName("GR Dist fit at M=6.5 and /w b=1");
 */
 		GutenbergRichterMagFreqDist gr = getGR_Dist_fit();
-		mfd_funcs.add(gr);
-		EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
-		cumGR.setName("Cum GR Dist fit at cum M=6.5, matched moment rate, and /w b=1");
-		mfd_funcs.add(cumGR);
+		if(gr != null) {
+			mfd_funcs.add(gr);
+			EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
+			cumGR.setName("Cum GR Dist fit at cum M=6.5, matched moment rate, and /w b=1");
+			mfd_funcs.add(cumGR);			
+		}
+		else System.out.println("WARNING - couldn't generate fitted GR dist (Mmax greater than 9?)\n");
+
 		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs, "Mag Freq Dists");   
 		mfd_graph.setYLog(true);
 		mfd_graph.setY_AxisRange(1e-5, 1);
 		mfd_graph.setX_AxisRange(5.5, 9.0);
+/*
+		ArrayList<PlotCurveCharacterstics> plotMFD_Chars = new ArrayList<PlotCurveCharacterstics>();
+//		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, new Color(0,0,0), 2));	
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR, new Color(0,0,0), 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		mfd_graph.setPlottingFeatures(plotMFD_Chars);
+*/
 		
 		// PLOT RATE AT WHICH SECTIONS ENDS REPRESENT RUPTURE ENDS
 		min = 0; max = num_seg;
@@ -1464,7 +1622,21 @@ public class SoSAF_SubSectionInversion {
 		rateOfRupEndsOnSegFunc.setName("Rate that section ends represent rupture ends");
 		seg_funcs.add(rateOfRupEndsOnSegFunc);
 		seg_funcs.add(finalSlipRateFunc);
-		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "Rate of Rupture Ends");   
+		seg_funcs.add(finalEventRateFunc);
+		// add paleoseismic obs
+		for(int i=0; i<obs_er_funcs.size();i++) seg_funcs.add(obs_er_funcs.get(i));
+		
+		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "Rate of Rupture Ends"); 
+		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
+		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
+		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 2));
+		for(int c=0;c<num;c++)
+			plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 6));
+		seg_graph.setPlottingFeatures(plotChars2);
+
+		
+		  
 
 
 	}
@@ -1473,13 +1645,18 @@ public class SoSAF_SubSectionInversion {
 	public GutenbergRichterMagFreqDist getGR_Dist_fit() {
 		double magMin = (double)Math.round(10*rupMeanMag[this.getParkfieldRuptureIndex()]) / 10;
 		double magMax = (double)Math.round(10*rupMeanMag[rupMeanMag.length-1]) / 10;
-// System.out.println("minMag="+magMin+"\tmaxMag="+magMax+"\ttotMoRate="+(float)totMoRate+"\tmfdMoRate="+(float)magFreqDist.getTotalMomentRate());
+//System.out.println("minMag="+magMin+"\tmaxMag="+magMax+"\ttotMoRate="+(float)totMoRate+"\tmfdMoRate="+(float)magFreqDist.getTotalMomentRate());
 		double cumRate = magFreqDist.getCumRate(6.5)*Math.pow(10, 6.5-magMin); // assumes b-value of 1
 		int num = (int)Math.round((9.0-magMin)/0.1 + 1);
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(magMin,num,0.1);
-		gr.setAllButMagUpper(magMin, totMoRate, cumRate, 1.0, false);
-		gr.setName("GR Dist fit at cum M=6.5, matched moment rate, and /w b=1");
-		return gr;
+		double moRate = totMoRate*(1-moRateReduction);
+		try {
+			gr.setAllButMagUpper(magMin, moRate, cumRate, 1.0, false);
+			gr.setName("GR Dist fit at cum M=6.5, matched moment rate, and /w b=1");
+			return gr;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	
@@ -1525,9 +1702,10 @@ public class SoSAF_SubSectionInversion {
 
 		
 /* */
+		long runTime = System.currentTimeMillis();
 		System.out.println("Starting Inversion");
 		
-		int maxSubsectionLength = 10;
+		int maxSubsectionLength = 14;
 		int numSegForSmallestRups = 1;
 		String deformationModel = "D2.1";
 		String slipModelType = TAPERED_SLIP_MODEL;
@@ -1536,19 +1714,23 @@ public class SoSAF_SubSectionInversion {
 		double relative_aPrioriRupWt = 1;
 		double relative_smoothnessWt = 1;
 		boolean wtedInversion = true;
-		double minRupRate = 0;
+		double minRupRate = 1e-6;
 		boolean applyProbVisibl = true;
 		double moRateReduction =0.1;
 		boolean transitionAseisAtEnds = true; 
 		boolean transitionSlipRateAtEnds = true;
 		int slipRateSmoothing = 0;
+		double relativeGR_constraintWt = 1e8;
+		double grConstraintBvalue = 0;
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
 				slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, 
 				relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisibl, moRateReduction,
-				transitionAseisAtEnds, transitionSlipRateAtEnds, slipRateSmoothing);
+				transitionAseisAtEnds, transitionSlipRateAtEnds, slipRateSmoothing, relativeGR_constraintWt,
+				grConstraintBvalue);
 
-		System.out.println("Done with Inversion");
+		runTime = (System.currentTimeMillis()-runTime)/1000;
+		System.out.println("Done with Inversion after "+runTime+" seconds.");
 		
 		soSAF_SubSections.writeFinalStuff();
 		soSAF_SubSections.writePredErrorInfo();
