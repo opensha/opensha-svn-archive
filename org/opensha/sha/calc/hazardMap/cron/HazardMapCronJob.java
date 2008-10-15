@@ -60,7 +60,7 @@ public class HazardMapCronJob {
 	public HazardMapCronJob(String confFile) throws DocumentException, IOException {
 		loadConfFile(confFile);
 		setupLogger();
-		logger.info("Starting Cron Job");
+		logger.info("~~~~~~~~~~##### Starting Cron Job #####~~~~~~~~~~");
 		logger.debug("Input Dir: " + inDir);
 		logger.debug("Processing Dir: " + processingDir);
 		logger.debug("Processed Dir: " + processedDir);
@@ -166,7 +166,7 @@ public class HazardMapCronJob {
 				logger.error("Unable to move to processed dir: " + file.getAbsolutePath(), e);
 			}
 		}
-		logger.info("***** Done processing " + files.size() + " file(s)...exiting");
+		logger.info("~~~~~~~~~~##### Done processing " + files.size() + " file(s)...exiting #####~~~~~~~~~~");
 //		ArrayList<String> this.loadInputFiles();
 	}
 	
