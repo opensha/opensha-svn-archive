@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OpenSHA>
+  <HazardMapCronJobConfiguration>
+    <Directories input="org/opensha/sha/calc/hazardMap/cron/test/in" processing="org/opensha/sha/calc/hazardMap/cron/test/processing" processed="org/opensha/sha/calc/hazardMap/cron/test/done" log="org/opensha/sha/calc/hazardMap/cron/test/log" failed="org/opensha/sha/calc/hazardMap/cron/test/failed"/>
+  </HazardMapCronJobConfiguration>
+</OpenSHA>
