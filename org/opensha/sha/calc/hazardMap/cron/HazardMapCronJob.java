@@ -47,7 +47,7 @@ public class HazardMapCronJob {
 	// LOGGING
 	// *************
 	public static final String LOG_FILE_NAME = "cron.log";
-	public static final String LOG_PATTERN = "%-5p [%d] (%F:%L) - %m%n";
+	private String logPattern = "%-5p [%d] (%F:%L) - %m%n";
 	protected static Logger logger = Logger.getLogger(HazardMapCronJob.class);
 	private static boolean log = false;
 	
@@ -71,9 +71,36 @@ public class HazardMapCronJob {
 	private void setupLogger() throws IOException {
 		String logFilePath = logDir + LOG_FILE_NAME;
 		boolean append = true;
-		RollingFileAppender fileAppender = new RollingFileAppender(new PatternLayout(LOG_PATTERN), logFilePath, append);
+		
+		//try to get the pid, must be specified with the vm argument: -Dpid=$$
+		//note that this is the PID of the shell, not this individual java process
+		String pattern = logPattern;
+		String pid = System.getProperty("pid");
+		String id = "";
+		if (pid != null && pid.length() != 0) {
+			id = pid;
+		} else {
+			// we generate our own id, epoch seconds
+			long timeID = System.currentTimeMillis();
+			// we don't care about milis, lets get down to seconds:
+			timeID = timeID / 1000l;
+			// now lets get down to minutes
+			double timeDoub = timeID / 60d;
+			long prefix = (long)(Math.floor(timeDoub) + 0.1);
+			double fraction = 1d - ((double)(prefix + 1l) - timeDoub);
+			fraction *= 10;
+			fraction = (int)fraction / 10d;
+			String fracStr = fraction + "";
+			if (fracStr.contains(".")) {
+				fracStr = fracStr.substring(fracStr.indexOf(".") + 1);
+			}
+			id = prefix + "." + fracStr;
+		}
+		pattern = id + " " + pattern;
+		
+		RollingFileAppender fileAppender = new RollingFileAppender(new PatternLayout(pattern), logFilePath, append);
 		fileAppender.setMaxFileSize("1MB");
-		ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout(LOG_PATTERN));
+		ConsoleAppender consoleAppender = new ConsoleAppender(new PatternLayout(pattern));
 		
 		logger.addAppender(fileAppender);
 		logger.addAppender(consoleAppender);
@@ -125,7 +152,7 @@ public class HazardMapCronJob {
 		ArrayList<File> files = loadInputFiles();
 		
 		if (files.size() == 0) {
-			logger.info("No input files found...exiting");
+			logger.info("~~~~~~~~~~##### No input files found...exiting #####~~~~~~~~~~");
 			return;
 		}
 		for (File file : files) {
@@ -190,8 +217,8 @@ public class HazardMapCronJob {
 	}
 	
 	private void handleSubmitOperation(CronOperation op) throws InvocationTargetException, IOException {
-//		HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(op.getDocument(), false, false, false, -1, -1);
-//		creator.createDAG(true);
+		HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(op.getDocument(), false, false, false, -1, -1);
+		creator.createDAG(true);
 	}
 	
 	private ArrayList<File> loadInputFiles(){

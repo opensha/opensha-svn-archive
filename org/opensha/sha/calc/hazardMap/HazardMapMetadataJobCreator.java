@@ -78,6 +78,7 @@ public class HazardMapMetadataJobCreator {
 			creator = new HazardMapJobCreator(outputDir, sites, startDAG, endDAG, job);
 		else
 			creator = new HazardMapJobCreator(outputDir, sites, job);
+		creator.logStart();
 		creator.addAllProgressListeners(progressListeners);
 		
 		boolean stageOut = true;
@@ -107,13 +108,16 @@ public class HazardMapMetadataJobCreator {
 		this.updateProgress(3, totalDAG);
 		creator.createCopyLinkJob();
 		this.updateProgress(4, totalDAG);
-		creator.createPostJob();
+		creator.createPrePostJob(true);
+		creator.createPrePostJob(false);
 		this.updateProgress(5, totalDAG);
 		creator.createDAG (outputDir, creator.getNumberOfJobs());
 		this.updateProgress(6, totalDAG);
 		creator.createJarTransferJobFile();
 		this.updateProgress(7, totalDAG);
 		creator.createJarTransferInputFile(outputDir, job.rp.storagePath);
+		
+		creator.logCompletion();
 
 		creator.createSubmitDAGScript(submit);
 	}
@@ -238,6 +242,9 @@ public class HazardMapMetadataJobCreator {
 		File logFile = new File(outputDir + "log/");
 		if (!logFile.exists())
 			logFile.mkdir();
+		File logSHFile = new File(outputDir + HazardMapJobCreator.LOG_SCRIPT_DIR_NAME + "/");
+		if (!logSHFile.exists())
+			logSHFile.mkdir();
 
 		return outputDir;
 	}
@@ -298,6 +305,12 @@ public class HazardMapMetadataJobCreator {
 		writer.close();
 	}
 
+	/**
+	 * Main class for creating and (optionally) starting hazard map work flows
+	 * 
+	 * args: matadata_file [submit]
+	 * @param args
+	 */
 	public static void main(String args[]) {
 		boolean skipCVMFiles = false;
 		boolean restart = false;
@@ -308,6 +321,11 @@ public class HazardMapMetadataJobCreator {
 			args[0] = "output.xml";
 			debug = true;
 		}
+		
+		boolean submit = false;
+		
+		if (args.length > 1)
+			submit = Boolean.parseBoolean(args[1]);
 
 		try {
 			String metadata = args[0];
@@ -315,7 +333,7 @@ public class HazardMapMetadataJobCreator {
 			Document document = reader.read(new File(metadata));
 
 			HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(document, skipCVMFiles, restart, debug, -1, -1);
-			creator.createDAG(false);
+			creator.createDAG(submit);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

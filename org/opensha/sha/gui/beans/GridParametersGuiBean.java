@@ -92,6 +92,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		rpPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
 		
 		
+		submitList.add(SubmitHost.AFTERSHOCK);
 		submitList.add(SubmitHost.INTENSITY);
 		submitList.add(SubmitHost.SCECIT18);
 		
