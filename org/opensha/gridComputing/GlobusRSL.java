@@ -33,11 +33,17 @@ public class GlobusRSL implements XMLSaveable {
 		String pair[] = {name, value};
 		
 		// if this is a duplicate, remove the old one
-		for (String check[] : pairs) {
+		boolean remove = false;
+		int i=0;
+		for (i=0; i<pairs.size(); i++) {
+			String check[] = pairs.get(i);
 			if (check[0].equals(pair[0])) {
-				pairs.remove(check);
+				remove = true;
+				break;
 			}
 		}
+		if (remove)
+			pairs.remove(i);
 		if (value.length() > 0)
 			pairs.add(pair);
 	}
@@ -59,6 +65,10 @@ public class GlobusRSL implements XMLSaveable {
 		if (str.length() == 0)
 			return -1;
 		return Integer.parseInt(str);
+	}
+	
+	public void setMaxWallTime(int wallTime) {
+		this.addPair(GlobusRSL.MAX_WALL_TIME_NAME, wallTime + "");
 	}
 	
 	public String getValue(String name) {

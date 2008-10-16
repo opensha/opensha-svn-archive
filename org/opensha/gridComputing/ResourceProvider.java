@@ -13,10 +13,10 @@ public class ResourceProvider implements XMLSaveable {
 	 */
 	public static final ResourceProvider HPC() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
-		rsl.setQueue("scec");
+//		rsl.setQueue("scec");
 		ResourceProvider HPC = new ResourceProvider("HPC (USC)", "hpc.usc.edu", "jobmanager-pbs", "jobmanager-fork",
-				"/usr/bin/java", "/home/scec-00/kmilner/hazMaps",
-				"", "hpc.usc.edu", "globus", rsl);
+				"/usr/bin/java", "/home/scec-00/tera3d/opensha/hazmaps",
+				"", "hpc.usc.edu", "grid", rsl);
 		return HPC;
 	}
 	

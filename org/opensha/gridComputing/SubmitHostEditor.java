@@ -15,6 +15,7 @@ public class SubmitHostEditor extends JDialog {
 	JTextField hostName = new JTextField();
 	JTextField path = new JTextField();
 	JTextField dependencyPath = new JTextField();
+	JTextField forkScheduler = new JTextField();
 	JTextField transferEnvironment = new JTextField();
 	JTextField transferArguments = new JTextField();
 	JTextField transferExecutable = new JTextField();
@@ -41,6 +42,10 @@ public class SubmitHostEditor extends JDialog {
 		leftCol.add(new JLabel("Path To Dependencies"));
 		dependencyPath.setText(submit.dependencyPath);
 		rightCol.add(dependencyPath);
+		
+		leftCol.add(new JLabel("Fork Scheduler"));
+		forkScheduler.setText(submit.forkScheduler);
+		rightCol.add(forkScheduler);
 		
 		leftCol.add(new JLabel("Globus Environment"));
 		transferEnvironment.setText(submit.transferEnvironment);
@@ -82,11 +87,12 @@ public class SubmitHostEditor extends JDialog {
 		String hostName = this.hostName.getText();
 		String path = this.path.getText();
 		String dependencyPath = this.dependencyPath.getText();
+		String forkScheduler = this.forkScheduler.getText();
 		String transferEnvironment = this.transferEnvironment.getText();
 		String transferArguments = this.transferArguments.getText();
 		String transferExecutable = this.transferExecutable.getText();
 		
-		return new SubmitHost(name, hostName, path, dependencyPath, transferEnvironment, transferArguments, transferExecutable);
+		return new SubmitHost(name, hostName, path, dependencyPath, forkScheduler, transferEnvironment, transferArguments, transferExecutable);
 	}
 
 	/**
