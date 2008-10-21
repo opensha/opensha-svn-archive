@@ -13,6 +13,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -94,8 +95,10 @@ public class MetadataLoader implements ParameterChangeWarningListener {
 	        System.out.println("Period: " + imr.getParameter(AttenuationRelationship.PERIOD_NAME).getValue());
 	        EqkRupForecast erf = EqkRupForecast.fromXMLMetadata(document.getRootElement().element(EqkRupForecast.XML_METADATA_NAME));
 	        System.out.println("Name: " + erf.getName());
-	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());
-	        System.out.println("TimeSpan: " + erf.getTimeSpan().getStartTimeYear() + ", " + erf.getTimeSpan().getDuration());
+//	        System.out.println("Background: " + erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).getValue());
+//	        System.out.println("TimeSpan: " + erf.getTimeSpan().getStartTimeYear() + ", " + erf.getTimeSpan().getDuration());
+	        HazardMapJob job = HazardMapJob.fromXMLMetadata(document.getRootElement().element(HazardMapJob.XML_METADATA_NAME));
+	        System.out.println(job.toString());
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (MalformedURLException e) {

@@ -87,7 +87,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		
 		ArrayList<String> rpPresetsStr = new ArrayList<String>();
 		for (ResourceProvider preset : rpList) {
-			rpPresetsStr.add(preset.name);
+			rpPresetsStr.add(preset.getName());
 		}
 		rpPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
 		
@@ -100,7 +100,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		
 		ArrayList<String> submitPresetsStr = new ArrayList<String>();
 		for (SubmitHost preset : submitList) {
-			submitPresetsStr.add(preset.name);
+			submitPresetsStr.add(preset.getName());
 		}
 		submitPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
 		
@@ -108,11 +108,11 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		this.maxWallTime.setValue(240);
 		
 		rpPresets = new StringParameter("Resource Provider Presets", rpPresetsStr);
-		rpPresets.setValue(currentRP.name);
+		rpPresets.setValue(currentRP.getName());
 		rpPresets.addParameterChangeListener(this);
 		
 		submitPresets = new StringParameter("Submit Host Presets", submitPresetsStr);
-		submitPresets.setValue(currentSubmit.name);
+		submitPresets.setValue(currentSubmit.getName());
 		submitPresets.addParameterChangeListener(this);
 
 		// add the longitude and latitude paramters
@@ -187,7 +187,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				currentRPEditor.setVisible(true);
 			} else {
 				for (ResourceProvider preset : rpList) {
-					if (name.equals(preset.name)) {
+					if (name.equals(preset.getName())) {
 						this.currentRP = preset;
 						if (currentRPEditor != null) {
 							currentRPEditor.setVisible(false);
@@ -209,7 +209,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				currentSubmitEditor.setVisible(true);
 			} else {
 				for (SubmitHost preset : submitList) {
-					if (name.equals(preset.name)) {
+					if (name.equals(preset.getName())) {
 						this.currentSubmit = preset;
 						if (currentSubmitEditor != null) {
 							currentSubmitEditor.setVisible(false);

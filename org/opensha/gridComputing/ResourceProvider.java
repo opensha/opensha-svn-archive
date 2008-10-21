@@ -24,12 +24,12 @@ public class ResourceProvider implements XMLSaveable {
 	private static String ABE_BATCH = "jobmanager-pbs";
 	private static String ABE_FORK = "jobmanager-fork";
 	private static String ABE_JAVA = "/usr/local/jdk1.5.0_12/bin/java";
-	private static String ABE_DIR = "/cfs/scratch/users/kmilner/hazMaps";
+	private static String ABE_DIR = "/cfs/scratch/users/tera3d/opensha/hazMapRuns";
 	private static String ABE_REQS = "(FileSystemDomain==\"abe.ncsa.teragrid.org\")&&(Arch==\"X86_64\")&&(Disk>=0)&&(Memory>=0)&&(OpSys==\"LINUX\")";
-	private static String ABE_GRID_FTP = "login-abe.ncsa.teragrid.org:2811";
+	private static String ABE_GRID_FTP = "gridftp-abe.ncsa.teragrid.org:2811";
 	
 	/**
-	 * Preset for running on ABE with Glide-Ins as kmilner
+	 * Preset for running on ABE with Glide-Ins as tera3d
 	 * @return
 	 */
 	public static final ResourceProvider ABE_GLIDE_INS() {
@@ -40,7 +40,7 @@ public class ResourceProvider implements XMLSaveable {
 	}
 	
 	/**
-	 * Preset for running on ABE without Glide-Ins as kmilner
+	 * Preset for running on ABE without Glide-Ins as tera3d
 	 * @return
 	 */
 	public static final ResourceProvider ABE_NO_GLIDE_INS() {
@@ -58,7 +58,7 @@ public class ResourceProvider implements XMLSaveable {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		rsl.setQueue("mpi");
 		ResourceProvider DYNMAIC = new ResourceProvider("Dynamic (USC/SCEC)", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
-				"/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/opensha/kmilner/hazMaps",
+				"/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/tera3d/opensha/hazMaps",
 				"", "dynamic.usc.edu", "globus", rsl);
 		return DYNMAIC;
 	}
@@ -135,16 +135,16 @@ public class ResourceProvider implements XMLSaveable {
 		return STEELE_NO_GLIDE_INS;
 	}
 	
-	public String name = "";
-	public String hostName = "";
-	public String batchScheduler = "";
-	public String forkScheduler = "";
-	public String javaPath = "";
-	public String storagePath = "";
-	public String requirements = "";
-	public String gridFTPHost = "";
-	public String universe = "";
-	public GlobusRSL globusRSL;
+	private String name = "";
+	private String hostName = "";
+	private String batchScheduler = "";
+	private String forkScheduler = "";
+	private String javaPath = "";
+	private String storagePath = "";
+	private String requirements = "";
+	private String gridFTPHost = "";
+	private String universe = "";
+	private GlobusRSL globusRSL;
 	
 	public ResourceProvider(String name, String hostName, String batchScheduler, String forkScheduler,
 			String javaPath, String storagePath, String requirements,
@@ -197,5 +197,72 @@ public class ResourceProvider implements XMLSaveable {
 		return new ResourceProvider(name, rp_host, rp_batchScheduler, rp_forkScheduler,
 				rp_javaPath, rp_storagePath, rp_requirements,
 				rp_globus_ftp_host, rp_universe, globusRSL);
+	}
+	
+	@Override
+	public String toString() {
+		String str = "";
+		
+		str += "Resource Provider" + "\n";
+		str += "\tname: " + name + "\n";
+		str += "\thostName: " + hostName + "\n";
+		str += "\tbatchScheduler: " + batchScheduler + "\n";
+		str += "\tforkScheduler: " + forkScheduler + "\n";
+		str += "\tjavaPath: " + javaPath + "\n";
+		str += "\tstoragePath: " + storagePath + "\n";
+		str += "\trequirements: " + requirements + "\n";
+		str += "\tgridFTPHost: " + gridFTPHost + "\n";
+		str += "\tuniverse: " + universe + "\n";
+		str += "\tGlobusRSL: " + globusRSL.getRSLString();
+		
+		return str;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public String getBatchScheduler() {
+		return batchScheduler;
+	}
+
+	public String getForkScheduler() {
+		return forkScheduler;
+	}
+
+	public String getJavaPath() {
+		return javaPath;
+	}
+
+	public String getStoragePath() {
+		return storagePath;
+	}
+
+	public String getRequirements() {
+		return requirements;
+	}
+
+	public String getGridFTPHost() {
+		return gridFTPHost;
+	}
+
+	public String getUniverse() {
+		return universe;
+	}
+
+	public GlobusRSL getGlobusRSL() {
+		return globusRSL;
+	}
+	
+	public boolean isGridUniverse() {
+		if (this.universe.toLowerCase().contains("globus"))
+			return true;
+		if (this.universe.toLowerCase().contains("grid"))
+			return true;
+		return false;
 	}
 }

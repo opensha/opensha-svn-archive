@@ -16,6 +16,7 @@ public class SubmitHostEditor extends JDialog {
 	JTextField path = new JTextField();
 	JTextField dependencyPath = new JTextField();
 	JTextField forkScheduler = new JTextField();
+	JTextField condorPath = new JTextField();
 	JTextField transferEnvironment = new JTextField();
 	JTextField transferArguments = new JTextField();
 	JTextField transferExecutable = new JTextField();
@@ -28,35 +29,39 @@ public class SubmitHostEditor extends JDialog {
 		ArrayList<JComponent> rightCol = new ArrayList<JComponent>();
 		
 		leftCol.add(new JLabel("Name"));
-		name.setText(submit.name);
+		name.setText(submit.getName());
 		rightCol.add(name);
 		
 		leftCol.add(new JLabel("Host Name"));
-		hostName.setText(submit.hostName);
+		hostName.setText(submit.getHostName());
 		rightCol.add(hostName);
 		
 		leftCol.add(new JLabel("Path"));
-		path.setText(submit.path);
+		path.setText(submit.getPath());
 		rightCol.add(path);
 		
 		leftCol.add(new JLabel("Path To Dependencies"));
-		dependencyPath.setText(submit.dependencyPath);
+		dependencyPath.setText(submit.getDependencyPath());
 		rightCol.add(dependencyPath);
 		
 		leftCol.add(new JLabel("Fork Scheduler"));
-		forkScheduler.setText(submit.forkScheduler);
+		forkScheduler.setText(submit.getForkScheduler());
 		rightCol.add(forkScheduler);
 		
+		leftCol.add(new JLabel("Condor Bin Path"));
+		condorPath.setText(submit.getCondorPath());
+		rightCol.add(condorPath);
+		
 		leftCol.add(new JLabel("Globus Environment"));
-		transferEnvironment.setText(submit.transferEnvironment);
+		transferEnvironment.setText(submit.getTransferEnvironment());
 		rightCol.add(transferEnvironment);
 		
 		leftCol.add(new JLabel("GridFTP Transfer Arguments"));
-		transferArguments.setText(submit.transferArguments);
+		transferArguments.setText(submit.getTransferArguments());
 		rightCol.add(transferArguments);
 		
 		leftCol.add(new JLabel("Kickstart Executable Path"));
-		transferExecutable.setText(submit.transferExecutable);
+		transferExecutable.setText(submit.getTransferExecutable());
 		rightCol.add(transferExecutable);
 		
 		this.createGUI(leftCol, rightCol);
@@ -88,11 +93,12 @@ public class SubmitHostEditor extends JDialog {
 		String path = this.path.getText();
 		String dependencyPath = this.dependencyPath.getText();
 		String forkScheduler = this.forkScheduler.getText();
+		String condorPath = this.condorPath.getText();
 		String transferEnvironment = this.transferEnvironment.getText();
 		String transferArguments = this.transferArguments.getText();
 		String transferExecutable = this.transferExecutable.getText();
 		
-		return new SubmitHost(name, hostName, path, dependencyPath, forkScheduler, transferEnvironment, transferArguments, transferExecutable);
+		return new SubmitHost(name, hostName, path, dependencyPath, forkScheduler, condorPath, transferEnvironment, transferArguments, transferExecutable);
 	}
 
 	/**

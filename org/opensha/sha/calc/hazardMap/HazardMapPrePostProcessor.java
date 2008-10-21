@@ -20,29 +20,33 @@ import org.opensha.util.MailUtil;
 
 
 public class HazardMapPrePostProcessor {
-	
+
 	static final String FROM = "OpenSHA";
 	static final String HOST = "email.usc.edu";
 	public static final String PRE_PROCESS = "PRE";
 	public static final String POST_PROCESS = "POST";
-	
+
 	public HazardMapPrePostProcessor(Element root, boolean pre) {
 		Element regionElement = root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME);
 		EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(regionElement);
-		
+
 		HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
-		
-		Element calcParams = root.element("calculationParameters");
-		String emailAddress =  calcParams.attribute("emailAddress").getValue();
-		
+
+		String emailAddress =  job.getEmail();
+
 		String mailSubject = "";
 		String mailMessage = "";
-		
+
+		String name = "'" + job.getJobName() + "'";
+
+		if (!job.getJobID().equals(job.getJobName()))
+			name += " (" + job.getJobID() + ")";
+
 		if (pre) {
-			mailSubject = "Grid Job " + job.jobName + " is Running!!";
+			mailSubject = "Grid Job " + name + " is Running!";
 			mailMessage = getPreProcessMessage(job, region);
 		} else {
-			mailSubject = "Grid Job " + job.jobName + " has Completed!";
+			mailSubject = "Grid Job " + name + " has Completed!";
 			mailMessage = getPostProcessMessage(job, region);
 		}
 		System.out.println("Sending message...");
@@ -52,28 +56,28 @@ public class HazardMapPrePostProcessor {
 		System.out.println(mailMessage);
 		MailUtil.sendMail(HOST, FROM, emailAddress, mailSubject, mailMessage);
 	}
-	
+
 	public static void main(String args[]) {
-		
+
 		if (args.length == 0) {
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[2];
 			args[0] = "output.xml";
 			args[1] = POST_PROCESS;
 		}
-		
+
 		String metadata = args[0];
 		SAXReader reader = new SAXReader();
-		
+
 		boolean pre = false;
 		if (args.length >= 2)
 			pre = args[1].equals(PRE_PROCESS);
-		
+
 		try {
 			System.out.println("Reading xml from " + metadata);
 			Document document = reader.read(new File(metadata));
 			Element root = document.getRootElement();
-			
+
 			System.out.println("Preparing message...");
 			new HazardMapPrePostProcessor(root, pre);
 			System.out.println("DONE!");
@@ -84,66 +88,68 @@ public class HazardMapPrePostProcessor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
-	
+
 	private String getPostProcessMessage(HazardMapJob job, EvenlyGriddedGeographicRegion region) {
 		File masterDir = new File("curves/");
 		File[] dirList=masterDir.listFiles();
-		
+
 		double minLat = Double.MAX_VALUE;
 		double minLon = Double.MAX_VALUE;
 		double maxLat = Double.MIN_VALUE;
 		double maxLon = -9999;
-		
-		int actualFiles = 0;
-		
-		// for each file in the list
-		for(File dir : dirList){
-			// make sure it's a subdirectory
-			if (dir.isDirectory() && !dir.getName().endsWith(".")) {
-				File[] subDirList=dir.listFiles();
-				for(File file : subDirList) {
-					//only taking the files into consideration
-					if(file.isFile()){
-						String fileName = file.getName();
-						//files that ends with ".txt"
-						if(fileName.endsWith(".txt")){
-							int index = fileName.indexOf("_");
-							int firstIndex = fileName.indexOf(".");
-							int lastIndex = fileName.lastIndexOf(".");
-							// Hazard data files have 3 "." in their names
-							//And leaving the rest of the files which contains only 1"." in their names
-							if(firstIndex != lastIndex){
 
-								//getting the lat and Lon values from file names
-								Double latVal = new Double(fileName.substring(0,index).trim());
-								Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
-								
-								
-								if (latVal < minLat)
-									minLat = latVal;
-								else if (latVal > maxLat)
-									maxLat = latVal;
-								if (lonVal < minLon)
-									minLon = lonVal;
-								else if (lonVal > maxLon)
-									maxLon = lonVal;
-								
+		int actualFiles = 0;
+
+		// for each file in the list
+		if (dirList != null) {
+			for(File dir : dirList){
+				// make sure it's a subdirectory
+				if (dir.isDirectory() && !dir.getName().endsWith(".")) {
+					File[] subDirList=dir.listFiles();
+					for(File file : subDirList) {
+						//only taking the files into consideration
+						if(file.isFile()){
+							String fileName = file.getName();
+							//files that ends with ".txt"
+							if(fileName.endsWith(".txt")){
+								int index = fileName.indexOf("_");
+								int firstIndex = fileName.indexOf(".");
+								int lastIndex = fileName.lastIndexOf(".");
+								// Hazard data files have 3 "." in their names
+								//And leaving the rest of the files which contains only 1"." in their names
+								if(firstIndex != lastIndex){
+
+									//getting the lat and Lon values from file names
+									Double latVal = new Double(fileName.substring(0,index).trim());
+									Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
+
+
+									if (latVal < minLat)
+										minLat = latVal;
+									else if (latVal > maxLat)
+										maxLat = latVal;
+									if (lonVal < minLon)
+										minLon = lonVal;
+									else if (lonVal > maxLon)
+										maxLon = lonVal;
+
+								}
 							}
 						}
+						actualFiles++;
 					}
-					actualFiles++;
 				}
+
+
 			}
-			
-			
 		}
-		
+
 		System.out.println("DONE");
 		System.out.println("MinLat: " + minLat + " MaxLat: " + maxLat + " MinLon: " + minLon + " MaxLon " + maxLon);
-		
+
 		// get the start time
 		long startTime = 0;
 		long endTime = System.currentTimeMillis();
@@ -165,7 +171,7 @@ public class HazardMapPrePostProcessor {
 				e.printStackTrace();
 			}
 		}
-		
+
 		String startTimeString = "";
 		Calendar startCal = null;
 		if (startTime > 0) {
@@ -175,19 +181,19 @@ public class HazardMapPrePostProcessor {
 		} else {
 			startTimeString = "Start Time Not Available!";
 		}
-		
+
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTimeInMillis(endTime);
 		String endTimeString = endCal.getTime().toString();
-		
+
 		String mailMessage = "THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
 		"Grid Computation complete\n"+
 		"Expected Num of Files="+region.getNumGridLocs()+"\n"+
 		"Files Generated="+actualFiles+"\n"+
-		"Dataset Id="+job.jobName+"\n"+
+		"Dataset Id="+job.getJobID()+"\n"+
 		"Simulation Start Time="+startTimeString+"\n"+
 		"Simulation End Time="+endTimeString;
-		
+
 		if (startCal == null) {
 			mailMessage += "\nPerformance Statistics not Available";
 		} else {
@@ -195,7 +201,7 @@ public class HazardMapPrePostProcessor {
 			double secs = (double)millis / 1000d;
 			double mins = secs / 60d;
 			double hours = mins / 60d;
-			
+
 			mailMessage += "\nTotal Run Time (including overhead):\n";
 			if (hours > 1)
 				mailMessage += new DecimalFormat(	"###.##").format(hours) + " hours = ";
@@ -203,18 +209,18 @@ public class HazardMapPrePostProcessor {
 			double curvesPerHour = (double)actualFiles / hours;
 			mailMessage += "\nCurves Per Hour (including overhead): " + curvesPerHour;
 		}
-		
+
 		return mailMessage;
 	}
-	
+
 	private String getPreProcessMessage(HazardMapJob job, EvenlyGriddedGeographicRegion region) {
 		// get the start time
 		long startTime = System.currentTimeMillis();
-		
+
 		Calendar startCal = Calendar.getInstance();
 		startCal.setTimeInMillis(startTime);
 		String startTimeString = startCal.getTime().toString();
-		
+
 		try {
 			FileWriter fw = new FileWriter(GridMetadataHazardMapCalculator.START_TIME_FILE);
 			fw.write(System.currentTimeMillis() + "");
@@ -223,16 +229,16 @@ public class HazardMapPrePostProcessor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		String mailMessage = "THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
 		"Grid Computation has Begun!\n"+
 		"Run time will depend on the datasets chosen, number of sites,\n"+
-		"and availiability of the selected grid resource: " + job.rp.name+"\n\n"+
+		"and availiability of the selected grid resource: " + job.getResources().getResourceProvider().getName()+"\n\n"+
 		"You will get another e-mail when the grid computation has completed.\n\n"+
 		"Expected Num of Files="+region.getNumGridLocs()+"\n"+
-		"Dataset Id="+job.jobName+"\n"+
+		"Dataset Id="+job.getJobID()+"\n"+
 		"Simulation Start Time="+startTimeString+"\n";
-		
+
 		return mailMessage;
 	}
 }

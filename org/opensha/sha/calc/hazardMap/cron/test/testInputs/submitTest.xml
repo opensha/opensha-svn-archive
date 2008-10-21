@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <OpenSHA>
-  <CronOperation operation="submit" id="1098594079758"/>
+  <CronOperation operation="submit" id="1224193165084"/>
   <ERF className="org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast">
     <Parameters>
       <Parameter name="Fault Model" type="ConstrainedStringParameter" units="" value="Frankel&apos;s"/>
@@ -90,12 +90,15 @@
       <Point x="10.0" y="1.0"/>
     </Points>
   </discretizedFunction>
-  <hazardMapJob jobName="t3d_test_1" sitesPerJob="100" maxWallTime="240" useCVM="false" saveERF="true" metadataFileName="t3d_test_1.xml">
-    <ResourceProvider name="HPC (USC)" hostName="hpc.usc.edu" batchScheduler="jobmanager-pbs" forkScheduler="jobmanager-fork" javaPath="/usr/bin/java" storagePath="/home/scec-00/tera3d/opensha/hazmaps" requirements="" gridFTPHost="hpc.usc.edu" universe="grid">
-      <GlobusRSL jobtype="single" maxwalltime="240"/>
-    </ResourceProvider>
-    <SubmitHost name="Aftershock" hostName="aftershock.usc.edu" path="org/opensha/sha/calc/hazardMap/cron/test/testDAGs" dependencyPath="/scratch/opensha/tera3d/dependencies" forkScheduler="jobmanager-fork" transferEnvironment="GLOBUS_LOCATION=/usr/local/globus/default;LD_LIBRARY_PATH=/usr/local/globus/default/lib;" transferArguments="-n transfer -N pegasus::transfer:1.0 -i - -R local /usr/local/pegasus/default/bin/transfer  -f  base-uri se-mount-point" transferExecutable="/usr/local/pegasus/default/bin/kickstart"/>
-    <StorageHost name="HPC" schedulerHostName="hpc.usc.edu" gridFTPHostName="hpc.usc.edu" path="/home/scec-00/tera3d/opensha/hazmaps" forkScheduler="jobmanager-fork" batchScheduler="jobmanager-pbs" javaPath="/usr/bin/java" jarPath="/home/scec-00/tera3d/opensha/hazmaps/hazMapProcessing.jar"/>
-  </hazardMapJob>
-  <calculationParameters maxSourceDistance="200.0" emailAddress="kmilner@usc.edu" basinFromCVM="false"/>
+  <GridJob jobID="1224193165084" jobName="Schema Test" email="kmilner@usc.edu" configFileName="1224193165084.xml">
+    <GridResources>
+      <!--<SubmitHost name="Aftershock" hostName="aftershock.usc.edu" path="/scratch/opensha/tera3d/hazMapRuns" dependencyPath="/scratch/opensha/tera3d/dependencies" forkScheduler="jobmanager-fork" condorPath="/usr/local/condor/default/bin/" transferEnvironment="GLOBUS_LOCATION=/usr/local/globus/default;LD_LIBRARY_PATH=/usr/local/globus/default/lib;" transferArguments="-n transfer -N pegasus::transfer:1.0 -i - -R local /usr/local/pegasus/default/bin/transfer  -f  base-uri se-mount-point" transferExecutable="/usr/local/pegasus/default/bin/kickstart"/>-->
+      <SubmitHost name="Aftershock" hostName="aftershock.usc.edu" path="org/opensha/sha/calc/hazardMap/cron/test/testDAGs" dependencyPath="/scratch/opensha/tera3d/dependencies" forkScheduler="jobmanager-fork" condorPath="/usr/local/condor/default/bin/" transferEnvironment="GLOBUS_LOCATION=/usr/local/globus/default;LD_LIBRARY_PATH=/usr/local/globus/default/lib;" transferArguments="-n transfer -N pegasus::transfer:1.0 -i - -R local /usr/local/pegasus/default/bin/transfer  -f  base-uri se-mount-point" transferExecutable="/usr/local/pegasus/default/bin/kickstart"/>
+      <ResourceProvider name="HPC (USC)" hostName="hpc.usc.edu" batchScheduler="jobmanager-pbs" forkScheduler="jobmanager-fork" javaPath="/usr/bin/java" storagePath="/home/scec-00/tera3d/opensha/hazmaps" requirements="" gridFTPHost="hpc.usc.edu" universe="grid">
+        <GlobusRSL jobtype="single" maxwalltime="240"/>
+      </ResourceProvider>
+      <StorageHost name="HPC" schedulerHostName="hpc.usc.edu" gridFTPHostName="hpc.usc.edu" path="/home/scec-00/tera3d/opensha/hazmaps" forkScheduler="jobmanager-fork" batchScheduler="jobmanager-pbs" javaPath="/usr/bin/java" jarPath="/home/scec-00/kmilner/hazMaps/hazMapProcessing.jar"/>
+    </GridResources>
+    <HazardMapCalculationParameters maxWallTime="40" sitesPerJob="100" maxSourceDistance="200.0" useCVM="false" basinFromCVM="false" serializeERF="true"/>
+  </GridJob>
 </OpenSHA>

@@ -7,16 +7,16 @@ public class StorageHost implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "StorageHost";
 	
-	public static final StorageHost HPC = new StorageHost("HPC", "hpc.usc.edu", "hpc.usc.edu", "/home/scec-00/tera3d/opensha/hazmaps", "jobmanager-fork", "jobmanager-pbs", "/usr/bin/java", "/home/scec-00/kmilner/hazMaps/hazMapProcessing.jar");
+	public static final StorageHost HPC = new StorageHost("HPC", "hpc.usc.edu", "hpc.usc.edu", "/home/scec-00/tera3d/opensha/hazmaps", "jobmanager-fork", "jobmanager-pbs", "/usr/bin/java", "/home/scec-00/tera3d/opensha/hazmaps/hazMapProcessing.jar");
 	
-	public String name = "";
-	public String schedulerHostName = "";
-	public String gridFTPHostName = "";
-	public String path = "";
-	public String forkScheduler = "";
-	public String batchScheduler = "";
-	public String javaPath = "";
-	public String jarPath = "";
+	private String name = "";
+	private String schedulerHostName = "";
+	private String gridFTPHostName = "";
+	private String path = "";
+	private String forkScheduler = "";
+	private String batchScheduler = "";
+	private String javaPath = "";
+	private String jarPath = "";
 	
 	public StorageHost(String name, String forkHostName, String gridFTPHostName, String path, String forkScheduler, String batchScheduler, String javaPath, String jarPath) {
 		this.name = name;
@@ -56,5 +56,54 @@ public class StorageHost implements XMLSaveable {
 		String jarPath = resourceProviderElem.attribute("jarPath").getValue();
 		
 		return new StorageHost(name, schedulerHostName, gridFTPHostName, path, forkScheduler, batchScheduler, javaPath, jarPath);
+	}
+	
+	@Override
+	public String toString() {
+		String str = "";
+		
+		str += "Storage Host" + "\n";
+		str += "\tname: " + name + "\n";
+		str += "\tschedulerHostName: " + schedulerHostName + "\n";
+		str += "\tgridFTPHostName: " + gridFTPHostName + "\n";
+		str += "\tpath: " + path + "\n";
+		str += "\tforkScheduler: " + forkScheduler + "\n";
+		str += "\tbatchScheduler: " + batchScheduler + "\n";
+		str += "\tjavaPath: " + javaPath + "\n";
+		str += "\tjarPath: " + jarPath;
+		
+		return str;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getSchedulerHostName() {
+		return schedulerHostName;
+	}
+
+	public String getGridFTPHostName() {
+		return gridFTPHostName;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public String getForkScheduler() {
+		return forkScheduler;
+	}
+
+	public String getBatchScheduler() {
+		return batchScheduler;
+	}
+
+	public String getJavaPath() {
+		return javaPath;
+	}
+
+	public String getJarPath() {
+		return jarPath;
 	}
 }

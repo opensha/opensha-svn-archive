@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -46,7 +47,7 @@ public class HazardMapCronJob {
 	// *************
 	// LOGGING
 	// *************
-	public static final String LOG_FILE_NAME = "cron.log";
+	private  String logFileName = null;
 	private String logPattern = "%-5p [%d] (%F:%L) - %m%n";
 	protected static Logger logger = Logger.getLogger(HazardMapCronJob.class);
 	private static boolean log = false;
@@ -69,7 +70,7 @@ public class HazardMapCronJob {
 	}
 	
 	private void setupLogger() throws IOException {
-		String logFilePath = logDir + LOG_FILE_NAME;
+		String logFilePath = logDir + getLogFileName();
 		boolean append = true;
 		
 		//try to get the pid, must be specified with the vm argument: -Dpid=$$
@@ -108,6 +109,16 @@ public class HazardMapCronJob {
 		logger.setLevel(Level.DEBUG);
 		
 		log = true;
+	}
+	
+	public String getLogFileName() {
+		if (logFileName == null) {
+			Date now = new Date();
+			SimpleDateFormat format = new SimpleDateFormat("yyyymmdd");
+			
+			logFileName = format.format(now) + ".txt";
+		}
+		return logFileName;
 	}
 	
 	private void loadConfFile(String confFile) throws MalformedURLException, DocumentException {

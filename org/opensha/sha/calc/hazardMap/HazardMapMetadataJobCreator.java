@@ -18,6 +18,11 @@ import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.gridComputing.GridJob;
+import org.opensha.gridComputing.GridResources;
+import org.opensha.gridComputing.ResourceProvider;
+import org.opensha.gridComputing.StorageHost;
+import org.opensha.gridComputing.SubmitHost;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.util.FileUtils;
 import org.opensha.util.RunScript;
@@ -56,19 +61,19 @@ public class HazardMapMetadataJobCreator {
 
 		// get the root element
 		Element root = metadata.getRootElement();
-		// load the job params from metadata
-		HazardMapJob job = this.loadJob(root, startDAG, endDAG);
-		// get and create the output directory (and subdirs)
-		String outputDir = this.createDirs(job, restart, debug);
 		// load the sites from metadata
 		SitesInGriddedRegionAPI sites = this.loadSites(root);
+		// load the job params from metadata
+		HazardMapJob job = this.loadJob(root, startDAG, endDAG, sites);
+		// get and create the output directory (and subdirs)
+		String outputDir = this.createDirs(job, restart, debug);
 		System.out.println("Loaded " + sites.getNumGridLocs() + " sites!");
 		// save the ERF to a file if needed
-		if (job.saveERF) {
+		if (job.getCalcParams().isSerializeERF()) {
 			this.saveERF(root, job, outputDir);
 		}
 		// write out new metadata file
-		String metadataFileName = outputDir + job.metadataFileName;
+		String metadataFileName = outputDir + job.getConfigFileName();
 		this.writeCalcMetadataFile(metadata, metadataFileName);
 
 		// initialize the job creator
@@ -81,10 +86,13 @@ public class HazardMapMetadataJobCreator {
 		creator.logStart();
 		creator.addAllProgressListeners(progressListeners);
 		
+		ResourceProvider rp = job.getResources().getResourceProvider();
+		StorageHost storageHost = job.getResources().getStorageHost();
+		
 		boolean stageOut = true;
 		// if it's already being computed on the storage host, don't stage out
-		if (job.rp.hostName.toLowerCase().contains(job.storageHost.schedulerHostName.toLowerCase())
-				|| job.rp.hostName.toLowerCase().contains(job.storageHost.gridFTPHostName.toLowerCase()))
+		if (rp.getHostName().toLowerCase().contains(storageHost.getSchedulerHostName().toLowerCase())
+				|| rp.getHostName().toLowerCase().contains(storageHost.getGridFTPHostName().toLowerCase()))
 			stageOut = false;
 		creator.setStageOut(stageOut);
 		
@@ -115,7 +123,7 @@ public class HazardMapMetadataJobCreator {
 		this.updateProgress(6, totalDAG);
 		creator.createJarTransferJobFile();
 		this.updateProgress(7, totalDAG);
-		creator.createJarTransferInputFile(outputDir, job.rp.storagePath);
+		creator.createJarTransferInputFile(outputDir, rp.getStoragePath());
 		
 		creator.logCompletion();
 
@@ -157,50 +165,39 @@ public class HazardMapMetadataJobCreator {
 	 * @param jobElem
 	 * @return
 	 */
-	private HazardMapJob loadJob(Element root, int start, int end) {
+	private HazardMapJob loadJob(Element root, int start, int end, SitesInGriddedRegionAPI sites) {
 
 		this.updateProgressMessage("Loading Job");
 
 		// extract element for job
-		Element jobElem = root.element(HazardMapJob.XML_METADATA_NAME);
+		Element jobElem = root.element(GridJob.XML_METADATA_NAME);
 
 		// load job from metadata
 		HazardMapJob job = HazardMapJob.fromXMLMetadata(jobElem);
+		
+		GridResources resources = job.getResources();
+		StorageHost storageHost = resources.getStorageHost();
+		ResourceProvider rp = resources.getResourceProvider();
+		SubmitHost submitHost = resources.getSubmitHost();
 
 		if (start >= 0 && end > start) { // this is a partial DAG
 			// create suffix for job name with indices
-			String suffix = "_" + HazardMapJobCreator.addLeadingZeros(start, HazardMapJobCreator.nameLength)
-			+ "_" + HazardMapJobCreator.addLeadingZeros(end, HazardMapJobCreator.nameLength);
+			int nameLength = HazardMapJobCreator.calcNameLength(sites);
+			String suffix = "_" + HazardMapJobCreator.addLeadingZeros(start, nameLength)
+			+ "_" + HazardMapJobCreator.addLeadingZeros(end, nameLength);
 
 			// add the suffix to the job name
-			job.jobName = job.jobName + suffix;
-
-			// remove trailing slashes
-			while (job.rp.storagePath.endsWith("/")) {
-				int endLine = job.rp.storagePath.length() - 2;
-				job.rp.storagePath = job.rp.storagePath.substring(0, endLine);
-			}
-
-			// change the remote directory for the partial DAG
-			job.rp.storagePath = job.rp.storagePath + suffix;
+			job.setJobID(job.getJobID() + suffix);
 
 			// rename the metadata file name
-			job.metadataFileName = job.jobName + ".xml";
+			job.setConfigFileName(job.getJobID() + ".xml");
 
 			// delete and reattach the job to the xml document
 			jobElem.detach();
 			root = job.toXMLMetadata(root);
 		}
 
-		System.out.println("rp_host = " + job.rp.hostName);
-		System.out.println("rp_storagePath = " + job.rp.storagePath);
-		System.out.println("rp_javaPath = " + job.rp.javaPath);
-		System.out.println("rp_batchScheduler = " + job.rp.batchScheduler);
-		System.out.println("sitesPerJob = " + job.sitesPerJob);
-		System.out.println("useCVM = " + job.useCVM);
-		System.out.println("submitHost = " + job.submitHost.hostName);
-		System.out.println("submitHostPath = " + job.submitHost.path+"/"+job.jobName);
-		System.out.println("submitHostPathToDependencies = " + job.submitHost.dependencyPath);
+		System.out.println(job.toString());
 
 		return job;
 	}
@@ -214,12 +211,12 @@ public class HazardMapMetadataJobCreator {
 		if (debug)
 			outputDir = DEBUG_FOLDER_NAME;
 		else
-			outputDir = job.submitHost.path;
+			outputDir = job.getResources().getSubmitHost().getPath();
 
 		if (!outputDir.endsWith("/"))
 			outputDir = outputDir + "/";
 
-		outputDir = outputDir + job.jobName;
+		outputDir = outputDir + job.getJobID();
 
 		if (restart) {
 			restartOriginalDir = outputDir + "/";
@@ -286,7 +283,7 @@ public class HazardMapMetadataJobCreator {
 		erf.updateForecast();
 
 		// save ERF to file
-		String erfFileName = job.jobName + "_ERF.obj";
+		String erfFileName = job.getJobID() + "_ERF.obj";
 		System.out.println("Saving ERF to " + erfFileName + "...");
 		FileUtils.saveObjectInFileThrow(outputDir + erfFileName, erf);
 

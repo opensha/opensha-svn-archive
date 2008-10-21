@@ -30,44 +30,40 @@ public class ResourceProviderEditor extends JDialog {
 		ArrayList<JComponent> rightCol = new ArrayList<JComponent>();
 		
 		leftCol.add(new JLabel("Name"));
-		name.setText(rp.name);
+		name.setText(rp.getName());
 		rightCol.add(name);
 		
 		leftCol.add(new JLabel("Host Name"));
-		hostName.setText(rp.hostName);
+		hostName.setText(rp.getHostName());
 		rightCol.add(hostName);
 		
 		leftCol.add(new JLabel("Batch Scheduler"));
-		batchScheduler.setText(rp.batchScheduler);
+		batchScheduler.setText(rp.getBatchScheduler());
 		rightCol.add(batchScheduler);
 		
 		leftCol.add(new JLabel("Fork Scheduler"));
-		forkScheduler.setText(rp.forkScheduler);
+		forkScheduler.setText(rp.getForkScheduler());
 		rightCol.add(forkScheduler);
 		
 		leftCol.add(new JLabel("Java Path"));
-		javaPath.setText(rp.javaPath);
+		javaPath.setText(rp.getJavaPath());
 		rightCol.add(javaPath);
 		
 		leftCol.add(new JLabel("Storage Path"));
-		storagePath.setText(rp.storagePath);
+		storagePath.setText(rp.getStoragePath());
 		rightCol.add(storagePath);
 		
 		leftCol.add(new JLabel("Requirements"));
-		requirements.setText(rp.requirements);
+		requirements.setText(rp.getRequirements());
 		rightCol.add(requirements);
 		
 		leftCol.add(new JLabel("GridFTP Host Name"));
-		gridFTPHost.setText(rp.gridFTPHost);
+		gridFTPHost.setText(rp.getGridFTPHost());
 		rightCol.add(gridFTPHost);
 		
 		leftCol.add(new JLabel("Condor Universe"));
-		universe.setText(rp.universe);
+		universe.setText(rp.getUniverse());
 		rightCol.add(universe);
-		
-		leftCol.add(new JLabel("Queue"));
-		queue.setText(rp.globusRSL.getQueue());
-		rightCol.add(queue);
 		
 		this.createGUI(leftCol, rightCol);
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -93,7 +89,7 @@ public class ResourceProviderEditor extends JDialog {
 	}
 	
 	public ResourceProvider getResourceProvider() {
-		int wallTime = rp.globusRSL.getMaxWallTime();
+		int wallTime = rp.getGlobusRSL().getMaxWallTime();
 		String queue = this.queue.getText();
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, wallTime);
 		if (queue.length() > 0)

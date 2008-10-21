@@ -14,11 +14,13 @@ import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.gridComputing.GridResources;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -34,9 +36,9 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		Element root = document.addElement( "OpenSHA" );
 
 
-		EqkRupForecast erf = new MeanUCERF2();
-//		EqkRupForecast erf = new Frankel02_AdjustableEqkRupForecast();
-		erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
+//		EqkRupForecast erf = new MeanUCERF2();
+		EqkRupForecast erf = new Frankel02_AdjustableEqkRupForecast();
+//		erf.getAdjustableParameterList().getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_INCLUDE);
 //		TimeSpan span = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
 //		span.setDuration(30);
 //		span.setStartTime(2017);
@@ -62,23 +64,30 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 //			e1.printStackTrace();
 //		}
 		
-		String jobName = "verify_UCERF";
+		String jobName = "Schema Test";
+		String jobID = System.currentTimeMillis() + "";
 		int sitesPerJob = 100;
+		double maxSourceDistance = 200;
 		boolean useCVM = false;
-		boolean saveERF = true;
-		String metadataFileName = jobName + ".xml";
-		int maxWallTime = 240;
-		ResourceProvider rp = ResourceProvider.ABE_GLIDE_INS();
-		SubmitHost submit = SubmitHost.SCECIT18;
+		boolean basinFromCVM = false;
+		boolean serializeERF = true;
+		String configFileName = jobID + ".xml";
+		int maxWallTime = 40;
+		ResourceProvider rp = ResourceProvider.HPC();
+		SubmitHost submit = SubmitHost.AFTERSHOCK;
 		StorageHost storage = StorageHost.HPC;
-		HazardMapJob job = new HazardMapJob(jobName, rp, submit, storage, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+		String email = "kmilner@usc.edu";
+		
+		GridResources resources = new GridResources(submit, rp, storage);
+		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, basinFromCVM, serializeERF);
+		
+		HazardMapJob job = new HazardMapJob(resources, calcParams, jobID, jobName, email, configFileName);
 //		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
 
 		root = erf.toXMLMetadata(root);
 		root = imr.toXMLMetadata(root);
 		root = gridded.toXMLMetadata(root);
 		root = job.toXMLMetadata(root);
-		root = this.writeCalculationParams(root);
 		
 
 		XMLWriter writer;

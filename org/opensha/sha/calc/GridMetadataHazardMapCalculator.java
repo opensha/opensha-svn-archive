@@ -23,8 +23,10 @@ import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.gridComputing.GridJob;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -135,8 +137,10 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		}
 
 		// max cutoff distance for calculator
-		Element calcParams = root.element("calculationParameters");
-		double maxDistance =  Double.parseDouble(calcParams.attribute("maxSourceDistance").getValue());
+//		Element calcParams = root.element("calculationParameters");
+		Element gridJobEl = root.element(GridJob.XML_METADATA_NAME);
+		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(gridJobEl);
+		double maxDistance =  calcParams.getMaxSourceDistance();
 
 		// load IMR
 		//AttenuationRelationshipAPI imr = new CB_2008_AttenRel(this);
@@ -162,12 +166,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		calculator.cvmFileName = this.cvmFileName;
 		
 		if (useCVM) {
-			Attribute basinAttribute = calcParams.attribute("basinFromCVM");
-			if (basinAttribute != null) {
-				calculator.basinFromCVM = Boolean.parseBoolean(basinAttribute.getValue());
-			} else {
-				calculator.basinFromCVM = true;
-			}
+			calculator.basinFromCVM = calcParams.isBasinFromCVM();
 		}
 
 		if (timer) {

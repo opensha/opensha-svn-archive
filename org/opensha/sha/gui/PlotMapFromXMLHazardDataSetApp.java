@@ -50,6 +50,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.gridComputing.GridJob;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
 import org.opensha.param.ParameterList;
@@ -58,7 +59,6 @@ import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
@@ -412,8 +412,8 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-			Element jobElem = root.element(HazardMapJob.XML_METADATA_NAME);
-			String jobName = jobElem.attributeValue("jobName");
+			Element jobElem = root.element(GridJob.XML_METADATA_NAME);
+			String jobName = jobElem.attributeValue("jobID");
 //			HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
 			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME));
 			serverRegions.add(region);
@@ -846,8 +846,8 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			Document doc1 = (Document) o1;
 			Document doc2 = (Document) o2;
 			
-			String name1 = doc1.getRootElement().element(HazardMapJob.XML_METADATA_NAME).attributeValue("jobName");
-			String name2 = doc2.getRootElement().element(HazardMapJob.XML_METADATA_NAME).attributeValue("jobName");
+			String name1 = doc1.getRootElement().element(GridJob.XML_METADATA_NAME).attributeValue("jobName");
+			String name2 = doc2.getRootElement().element(GridJob.XML_METADATA_NAME).attributeValue("jobName");
 
 			return c.compare(name1, name2);
 		}

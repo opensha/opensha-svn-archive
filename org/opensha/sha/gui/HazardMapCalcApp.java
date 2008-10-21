@@ -31,13 +31,16 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GlobusRSL;
+import org.opensha.gridComputing.GridResources;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
@@ -735,8 +738,13 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 
 			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
 			int maxWallTime = this.gridGuiBean.get_maxWallTime();
+			double maxSourceDistance;
 			boolean useCVM = sitesGuiBean.isSiteTypeFromCVM();
+			boolean basinFromCVM = sitesGuiBean.isBasinDepthFromCVM();
 			boolean saveERF = this.gridGuiBean.get_saveERF();
+			
+			if(distanceControlPanel == null ) maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+			else maxSourceDistance = new Double(distanceControlPanel.getDistance());
 			
 			String metadataFileName = jobName + ".xml";
 			
@@ -745,19 +753,12 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			
 			StorageHost storage = StorageHost.HPC;
 			
-			HazardMapJob job = new HazardMapJob(jobName, rp, submit, storage, sitesPerJob, maxWallTime, useCVM, saveERF, metadataFileName);
+			GridResources resources = new GridResources(submit, rp, storage);
+			HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, basinFromCVM, saveERF);
+			
+			HazardMapJob job = new HazardMapJob(resources, calcParams, jobName, jobName, email, metadataFileName);
 
 			root = job.toXMLMetadata(root);
-
-			calcProgress.setProgressMessage("Saving Calculation Params");
-			calcProgress.updateProgress(5, steps);
-
-			Element calcParams = root.addElement("calculationParameters");
-			if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
-			else maxDistance = new Double(distanceControlPanel.getDistance());
-			calcParams.addAttribute("maxSourceDistance", maxDistance + "");
-			calcParams.addAttribute("emailAddress", email);
-			calcParams.addAttribute("basinFromCVM", sitesGuiBean.isBasinDepthFromCVM() + "");
 
 			//root = imtGuiBean.getIntensityMeasure().toXMLMetadata(root);
 
