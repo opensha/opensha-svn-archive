@@ -4,6 +4,7 @@
 package org.opensha.sha.gui.infoTools;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jfree.data.Range;
@@ -338,5 +339,15 @@ public class GraphiWindowAPI_Impl implements GraphWindowAPI {
 		list.add(PLOT_CHAR6);
 		graphWindowImpl.setPlottingFeatures(list);
 	}
+	
+
+	public void saveAsPDF(String fileName) throws IOException {
+		graphWindow.saveAsPDF(fileName);
+	}
+
+	public void saveAsPNG(String fileName) throws IOException {
+		graphWindow.saveAsPNG(fileName);
+	}
+
 
 }

@@ -151,9 +151,9 @@ public class GutenbergRichterMagFreqDist
    * @param totMoRate     : total moment rate
    * @param totCumRate    : total cumulative rate
    * @param bValue        : b value
-   * @param relaxCumRate  : It is "true" or "false". It accounts for tha fact
+   * @param relaxTotMoRate  : It is "true" or "false". It accounts for tha fact
    * that due to magnitude discretization, the specified totCumRate and totMoRate
-   * cannot both be satisfied simultaneously. if it is true, it means that match
+   * cannot both be satisfied simultaneously. if it is false, it means that match
    * totMoRate exactly else it matches totCumRate exactly
    */
   public void setAllButMagUpper(double magLower, double totMoRate,

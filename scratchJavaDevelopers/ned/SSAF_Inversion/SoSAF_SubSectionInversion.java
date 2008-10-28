@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,6 +51,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.util.RunScript;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
+import org.opensha.sha.fault.FaultTrace;
 
 /**
  * This class does an inversion for the rate of events in an unsegmented model:
@@ -107,8 +109,8 @@ public class SoSAF_SubSectionInversion {
 	private double minRates[]; // the minimum rate constraint for each rupture
 	private double minRupRate;
 	private boolean wtedInversion, applyProbVisible;	// weight the inversion according to slip rate and segment rate uncertainties
-	private double relativeSegRateWt, relative_aPrioriRupWt, relative_smoothnessWt, relativeParkfieldSegRateConstraint;
-	private double relativeGR_constraintWt, grConstraintBvalue, smallestGR_constriantMag;
+	private double relativeSegRateWt, relative_aPrioriRupWt, relative_smoothnessWt, relative_aPrioriSegRateWt;
+	private double relativeGR_constraintWt, grConstraintBvalue, grConstraintRateScaleFactor, smallestGR_constriantMag;
 
 	
 	private int  firstRowSegSlipRateData=-1,firstRowSegEventRateData=-1, firstRowAprioriData=-1, firstRowSmoothnessData=-1;
@@ -125,7 +127,7 @@ public class SoSAF_SubSectionInversion {
 	
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
 	
-	SummedMagFreqDist magFreqDist;
+	SummedMagFreqDist magFreqDist, meanMagHistorgram, magHistorgram;
 	
 	ArrayList<SummedMagFreqDist> segmentNucleationMFDs;
 	ArrayList<SummedMagFreqDist> segmentParticipationMFDs;
@@ -160,6 +162,11 @@ public class SoSAF_SubSectionInversion {
 		gDist2.scaleToCumRate(0, 1.0);
 		gaussMFD_slipCorr = gDist1.getTotalMomentRate()/gDist2.getTotalMomentRate();
 //		System.out.println("gaussMFD_slipCorr="+(float)gaussMFD_slipCorr+"\n");
+
+// this was to print out the PDF for the paper	
+//		gDist1.scaleToCumRate(0, 1.0);
+//		System.out.println(gDist1.toString());
+		
 	}
 
 	
@@ -188,7 +195,7 @@ public class SoSAF_SubSectionInversion {
 	 * @param dirName
 	 * @param gmt_plot
 	 */
-	public void writeSegPartMFDsDataToFile(String dirName, boolean gmt_plot) {
+	public void plotOrWriteSegPartMFDs(String dirName, boolean gmt_plot) {
 		try{
 			FileWriter fw = new FileWriter(ROOT_PATH+dirName+"/segPartMFDsData.txt");
 			FileWriter cfw = new FileWriter(ROOT_PATH+dirName+"/segPartCumMFDsData.txt");
@@ -220,17 +227,17 @@ public class SoSAF_SubSectionInversion {
 			/**/
 			fw.write("/sw/bin/xyz2grd "+PATH+"segPartMFDsData.txt -G"+PATH+"temp.grd -I1.0/0.1 "+region+" -H1\n");
 			fw.write("/sw/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p HEADER_FONT_SIZE 22p\n");
-			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.0i  -Y3i  -JX6i/3i  -C"+ROOT_PATH+"final.cpt  -P -T  -E72 -K "+region+"  > "+PATH+"plot.ps\n");
-			fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"final.cpt -O -K -N70 >> "+PATH+"plot.ps\n");
-			fw.write("/sw/bin/psbasemap -B5.0:sub_section:/0.5:mag:eWnS:.Incremental_Participcation_MFD:  -JX6i/3i  "+region+" -K -O  >> "+PATH+"plot.ps\n");
+			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -X1.0i  -Y3i  -JX6i/3i  -C"+ROOT_PATH+"final.cpt  -P -T  -E72 -K "+region+"  > "+PATH+"plotSectMFDs.ps\n");
+			fw.write("/sw/bin/psscale -Ba1.0:log10_Rate: -D3i/-1i/6i/0.3ih -C"+ROOT_PATH+"final.cpt -O -K -N70 >> "+PATH+"plotSectMFDs.ps\n");
+			fw.write("/sw/bin/psbasemap -B5.0:sub_section:/0.5:mag:eWnS:.Incremental_Participcation_MFD:  -JX6i/3i  "+region+" -K -O  >> "+PATH+"plotSectMFDs.ps\n");
 			// now add cum MFD plot
 			fw.write("/sw/bin/xyz2grd "+PATH+"segPartCumMFDsData.txt -G"+PATH+"temp.grd -I1.0/0.1 "+region+" -H1\n");
-			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -Y4i  -JX6i/3i  -C"+ROOT_PATH+"final.cpt  -P -T  -E72 -K -O "+region+"  >> "+PATH+"plot.ps\n");
-			fw.write("/sw/bin/psbasemap -B5.0/0.5:mag:eWNs:.Cumulative_Participcation_MFD:  -JX6i/3i  "+region+"  -O  >> "+PATH+"plot.ps\n");
+			fw.write("/sw/bin/grdimage "+PATH+"temp.grd -Y4i  -JX6i/3i  -C"+ROOT_PATH+"final.cpt  -P -T  -E72 -K -O "+region+"  >> "+PATH+"plotSectMFDs.ps\n");
+			fw.write("/sw/bin/psbasemap -B5.0/0.5:mag:eWNs:.Cumulative_Participcation_MFD:  -JX6i/3i  "+region+"  -O  >> "+PATH+"plotSectMFDs.ps\n");
 			
 			// unfortunately neither of the following does not work from here (but do work from command line)
-	//fw.write("/Applications/Preview.app/*/MacOS/Preview plot.ps");
-	//		fw.write("/sw/bin/ps2pdf "+PATH+"plot.ps "+PATH+"plot.pdf\n");
+	//fw.write("/Applications/Preview.app/*/MacOS/Preview plotSectMFDs.ps");
+	//		fw.write("/sw/bin/ps2pdf "+PATH+"plot.ps "+PATH+"plotSectMFDs.pdf\n");
 			fw.close();
 			}catch(Exception e) {
 				e.printStackTrace();
@@ -342,7 +349,7 @@ public class SoSAF_SubSectionInversion {
 			double relative_aPrioriRupWt, double relative_smoothnessWt, boolean wtedInversion, double minRupRate,
 			boolean applyProbVisible, double moRateReduction, boolean transitionAseisAtEnds, 
 			boolean transitionSlipRateAtEnds, int slipRateSmoothing, double relativeGR_constraintWt,
-			double grConstraintBvalue, double relativeParkfieldSegRateConstraint) {
+			double grConstraintBvalue, double grConstraintRateScaleFactor, double relative_aPrioriSegRateWt) {
 		
 		this.maxSubsectionLength = maxSubsectionLength;
 		this.numSegForSmallestRups = numSegForSmallestRups;
@@ -361,7 +368,8 @@ public class SoSAF_SubSectionInversion {
 		this.slipRateSmoothing = slipRateSmoothing;
 		this.relativeGR_constraintWt = relativeGR_constraintWt;
 		this.grConstraintBvalue = grConstraintBvalue;
-		this.relativeParkfieldSegRateConstraint = relativeParkfieldSegRateConstraint;
+		this.grConstraintRateScaleFactor = grConstraintRateScaleFactor;
+		this.relative_aPrioriSegRateWt = relative_aPrioriSegRateWt;
 
 				
 		if (numSegForSmallestRups != 1 &&  numSegForSmallestRups != 2)
@@ -378,6 +386,13 @@ public class SoSAF_SubSectionInversion {
 		
 		if(slipRateSmoothing > 1)
 			smoothSlipRates(slipRateSmoothing);
+/*		
+		// print out subsection lengths, final slipRates, and aseis factors
+		for(int s=0; s < subSectionList.size(); s++)
+			System.out.println(s+"\t"+(float)subSectionList.get(s).getLength()+"\t"+
+					(float)subSectionList.get(s).getAveLongTermSlipRate()+"\t"+
+					(float)subSectionList.get(s).getAseismicSlipFactor());
+*/
 		
 		// get the RupInSeg Matrix for the given number of segments
 		num_seg = subSectionList.size();
@@ -453,7 +468,7 @@ public class SoSAF_SubSectionInversion {
 		double largestGR_constriantMag = rupMeanMag[num_rup-1]; // the largest rupture
 		if(relativeGR_constraintWt > 0)
 			System.out.println("\nGR constraint mags: "+(float)smallestGR_constriantMag+"\t"+(float)largestGR_constriantMag+"\n");
-		int numGR_constraints = (int) Math.round((largestGR_constriantMag - smallestGR_constriantMag)/0.1);
+		int numGR_constraints = (int) Math.round((largestGR_constriantMag - smallestGR_constriantMag)/0.1)+1;
 		
 		int numParkfieldSegRateConstaints = numSubSections[0];
 
@@ -496,7 +511,7 @@ public class SoSAF_SubSectionInversion {
 			
 		}
 		
-		if(relativeParkfieldSegRateConstraint>0) {
+		if(relative_aPrioriSegRateWt>0) {
 			firstRowParkSegConstraint = totNumRows;
 			totNumRows += numParkfieldSegRateConstaints;
 			lastRowParkSegConstraint = totNumRows-1;
@@ -577,35 +592,30 @@ public class SoSAF_SubSectionInversion {
 			}
 		}
 //		System.out.println("num_smooth_constrints="+num_smooth_constrints);
-		// now fill in the a-priori rates if needed
+		// now fill in the GR constraint if needed
 		if(relativeGR_constraintWt > 0.0) {
 			double deltaMag = 0.1;
 			// create a GR dist with the target moment rate & max mag as an estimate of absolute rates
 			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(5,41,deltaMag);
 			gr.setAllButTotCumRate(5, largestGR_constriantMag, totMoRate, grConstraintBvalue);
 			double totRate = gr.getTotCumRate();
-			double rateScaleFactor = 0.6;  // adjust this until residuals are minimized)
-			gr.scaleToCumRate(0, totRate*rateScaleFactor);
-			System.out.println(gr.toString());
+			gr.scaleToCumRate(0, totRate*grConstraintRateScaleFactor); // grConstraintRateScaleFactor adjusts the a-value up op down
+			System.out.println("GR Constraint's Incremental Rate At M=6.5:\t"+(float)gr.getIncrRate(6.5)+"\t");
 			for(int i=0; i < numGR_constraints; i++) {
 				int row = i+firstRowGR_constraintData;
-				double mag1 = smallestGR_constriantMag + i*deltaMag;
-				double mag2 = mag1 + deltaMag;
-				d[row] = gr.getY(mag1)-gr.getY(mag2);  
-				if(wtedInversion) {
-					data_wt[row] = Math.pow(10, grConstraintBvalue*(mag1-smallestGR_constriantMag)); // give the larger events higher weight so those rates don't wander
-System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
-				}
+				double mag = smallestGR_constriantMag + i*deltaMag;
+				d[row] = gr.getY(mag);
+//				if(wtedInversion) {
+//					data_wt[row] = Math.pow(10, grConstraintBvalue*(mag-smallestGR_constriantMag)); // give the larger events higher weight so those rates don't wander
+//System.out.println(mag+"\t"+(float)d[row]);
+//				}
 				for(int col=0; col<num_rup; col++)
-					if(rupMeanMag[col] < mag1+0.001 && rupMeanMag[col] > mag1-0.001)
+					if(rupMeanMag[col] < mag+0.001 && rupMeanMag[col] > mag-0.001)
 						C[row][col]=1.0;
-					else if(rupMeanMag[col] < mag2+0.001 && rupMeanMag[col] > mag2-0.001)
-						C[row][col]=-1.0;
 			}
-//			for(int r=num_rup-250;r<num_rup;r++) System.out.println(C[lastRowGR_constraintData][r]+"\t"+rupMeanMag[r]+"\t"+numSegInRup[r]);
 		}
 		// add the Parkfield seg-rate constraints
-		if(relativeParkfieldSegRateConstraint > 0.0) {
+		if(relative_aPrioriSegRateWt > 0.0) {
 			double rate = PARKFIELD_SEG_RATES;
 			int row = firstRowParkSegConstraint;
 			for(int seg=0; seg<numParkfieldSegRateConstaints; seg++) {
@@ -690,17 +700,17 @@ System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
 			for(int i=0; i < numGR_constraints; i++) {
 				int row = i+firstRowGR_constraintData;
 				full_wt[row] = relativeGR_constraintWt;
-				if(wtedInversion) full_wt[row] *= data_wt[row];
+//				if(wtedInversion) full_wt[row] *= data_wt[row];
 				d_wted[row] *= full_wt[row];
 				for(int rup=0; rup < num_rup; rup++) C_wted[row][rup] *= full_wt[row];
 			}
 		}
 		
 		// add the Parkfield seg-rate constraints
-		if(relativeParkfieldSegRateConstraint > 0.0) {
+		if(relative_aPrioriSegRateWt > 0.0) {
 			int row = firstRowParkSegConstraint;
 			for(int seg=0; seg<numParkfieldSegRateConstaints; seg++) {
-				full_wt[row] = relativeParkfieldSegRateConstraint;
+				full_wt[row] = relative_aPrioriSegRateWt;
 				d_wted[row] *= full_wt[row];
 				for(int rup=0; rup < num_rup; rup++)  
 					if(rupInSeg[seg][rup] == 1) C_wted[row][rup] *= full_wt[row];
@@ -814,7 +824,23 @@ System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
 			numSubSections[i] = subSectionList.size()-lastNum;
  //System.out.println(faultSectionPrefData.getSectionName()+"\t"+numSubSections[i]);
 			lastNum = subSectionList.size();
+			
+/*			
+			// write out section data
+			System.out.print(faultSectionPrefData.getSectionName()+"\t");
+			FaultTrace ft = faultSectionPrefData.getFaultTrace();
+			for(int l=0; l<ft.getNumLocations(); l++)	
+				System.out.print((float)ft.getLocationAt(l).getLatitude()+","+(float)ft.getLocationAt(l).getLongitude()+",");
+			System.out.println("\t"+(float)faultSectionPrefData.getAveDip()+"\t"+
+					(float)faultSectionPrefData.getDownDipWidth()+"\t"+
+					(float)faultSectionPrefData.getLength()+"\t"+
+					(float)faultSectionPrefData.getAveLongTermSlipRate()+"\t"+
+					(float)faultSectionPrefData.getSlipRateStdDev()+"\t"+
+					(float)faultSectionPrefData.getAseismicSlipFactor()+"\t");
+*/
 		}
+		
+		
 	}
 	
 	
@@ -1291,21 +1317,13 @@ System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
 				String name = subSectionList.get(closestFaultSectionIndex).getSectionName()+" --"+siteName;
 				SegRateConstraint segRateConstraint = new SegRateConstraint(name);
 				segRateConstraint.setSegRate(closestFaultSectionIndex, rate, sigma, lower95Conf, upper95Conf);
+// System.out.println(name+"\t"+closestFaultSectionIndex+"\t"+rate+"\t"+sigma+"\t"+lower95Conf+"\t"+upper95Conf);
 				segRateConstraints.add(segRateConstraint);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-/*		// Add parkfield constraints (THIS DOESN"T WORK BECAUSE OTHERS ARE PALEO VISIBLE)
-		double rate = 0.04, sigma = 0.0025, lower95Conf = 1/30.0,  upper95Conf = 1/20.0;
-		for(int s = 0; s < numSubSections[0]-1 ; s ++) {
-			String name = "Parkfield seg rate constraint for sub-section "+s;
-			SegRateConstraint segRateConstraint = new SegRateConstraint(name);
-			segRateConstraint.setSegRate(s, rate, sigma, lower95Conf, upper95Conf);
-			segRateConstraints.add(segRateConstraint);
-		}
-*/
 	}
 	
 	private int getParkfieldRuptureIndex() {
@@ -1440,24 +1458,28 @@ System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
 		
 		// Compute the total Mag Freq Dist
 		magFreqDist = new SummedMagFreqDist(5,41,0.1);
-		SummedMagFreqDist testMagFreqDist = new SummedMagFreqDist(5,41,0.1);
+		meanMagHistorgram = new SummedMagFreqDist(4,51,0.1);
+		magHistorgram = new SummedMagFreqDist(4,51,0.1);
 		for(int rup=0; rup<num_rup;rup++) {
-
-//			double momentRate = MomentMagCalc.getMoment(rupMeanMag[rup])*rupRateSolution[rup];
-//			GaussianMagFreqDist gDist = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],0.12,momentRate,2.0,2);
-
+			// add MFD of this rupture
 			GaussianMagFreqDist gDist = new GaussianMagFreqDist(5.0,9.0,41,rupMeanMag[rup],GAUSS_MFD_SIGMA,1.0,GAUSS_MFD_TRUNCATION,2); // dist w/ unit moment rate
 			gDist.scaleToCumRate(0, rupRateSolution[rup]);
-
 			magFreqDist.addIncrementalMagFreqDist(gDist);
-			testMagFreqDist.add(rupMeanMag[rup], rupRateSolution[rup]);
+
+			// add to mag historgrams
+			meanMagHistorgram.add(rupMeanMag[rup], 1.0);
+			gDist = new GaussianMagFreqDist(4.0,9.0,51,rupMeanMag[rup],GAUSS_MFD_SIGMA,1.0,GAUSS_MFD_TRUNCATION,2);
+			gDist.scaleToCumRate(0, 1.0); // this makes it a PDF
+			magHistorgram.addIncrementalMagFreqDist(gDist);
 		}
 		magFreqDist.setInfo("Incremental Mag Freq Dist");
+		meanMagHistorgram.setInfo("Mean Mag Histogram");
+		magHistorgram.setInfo("Mag Historgram (including aleatory variability)");
 		
-		System.out.println("\nTEST MFD\n"+testMagFreqDist.toString()+"\n");
+//		System.out.println("\nTEST MFD\n"+testMagFreqDist.toString()+"\n");
 		
-		for(int i=0; i<testMagFreqDist.getNum()-1; i++) System.out.println(testMagFreqDist.getX(i)+"-"+testMagFreqDist.getX(i+1)+"\t"+
-				(testMagFreqDist.getY(i)-testMagFreqDist.getY(i+1)));
+//		for(int i=0; i<testMagFreqDist.getNum()-1; i++) System.out.println(testMagFreqDist.getX(i)+"-"+testMagFreqDist.getX(i+1)+"\t"+
+//				(testMagFreqDist.getY(i)-testMagFreqDist.getY(i+1)));
 		
 		// check moment rate
 		double origMoRate = totMoRate*(1-moRateReduction);
@@ -1638,10 +1660,10 @@ System.out.println("R("+(float)mag1+")-R("+(float)mag2+")\t"+(float)d[row]);
 		if(relativeGR_constraintWt>0)
 			for(int row=firstRowGR_constraintData; row <= lastRowGR_constraintData; row++){
 				grErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
-double err = (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
-System.out.println(row+"\t"+(float)d_pred[row]);
+//double err = (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
+//System.out.println(row+"\t"+(float)d_pred[row]);
 			}
-		if(relativeParkfieldSegRateConstraint>0)
+		if(relative_aPrioriSegRateWt>0)
 			for(int row=firstRowParkSegConstraint; row <= lastRowParkSegConstraint; row++)
 				parkSegRateErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*data_wt[row]*data_wt[row];
 		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr+grErr+parkSegRateErr;
@@ -1661,7 +1683,7 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 				               "A Priori Err =\t\t"+(float)aPrioriErr+"\trel. wt = "+relative_aPrioriRupWt+"\n\t"+
 				               "Smoothness Err =\t"+(float)smoothnessErrAlt+"\trel. wt = "+relative_smoothnessWt+"\n\t"+
         					   "GR Err =\t"+(float)grErr+"\trel. wt = "+relativeGR_constraintWt+"\n\t"+
-        					   "Parkfield Seg Err =\t"+(float)parkSegRateErr+"\trel. wt = "+relativeParkfieldSegRateConstraint+"\n\t";
+        					   "Parkfield Seg Err =\t"+(float)parkSegRateErr+"\trel. wt = "+relative_aPrioriSegRateWt+"\n\t";
 
 		System.out.println(resultsString);
 				
@@ -1681,7 +1703,7 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		if(relativeGR_constraintWt>0)
 			for(int row=firstRowGR_constraintData; row <= lastRowGR_constraintData; row++)
 				grErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*full_wt[row]*full_wt[row];
-		if(relativeParkfieldSegRateConstraint>0)
+		if(relative_aPrioriSegRateWt>0)
 			for(int row=firstRowParkSegConstraint; row <= lastRowParkSegConstraint; row++)
 				parkSegRateErr += (d[row]-d_pred[row])*(d[row]-d_pred[row])*full_wt[row]*full_wt[row];
 		totPredErr = slipRateErr+eventRateErr+aPrioriErr+smoothnessErr+grErr+parkSegRateErr;
@@ -1692,27 +1714,59 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 				"A Priori Err =\t\t"+(float)aPrioriErr+"\trel. wt = "+relative_aPrioriRupWt+"\n\t"+
 				"Smoothness Err =\t"+(float)smoothnessErr+"\trel. wt = "+relative_smoothnessWt+"\n\t"+
 				"GR Err =\t"+(float)grErr+"\trel. wt = "+relativeGR_constraintWt+"\n\t"+
-				"Parkfield Seg Err =\t"+(float)parkSegRateErr+"\trel. wt = "+relativeParkfieldSegRateConstraint+"\n\t");
+				"Parkfield Seg Err =\t"+(float)parkSegRateErr+"\trel. wt = "+relative_aPrioriSegRateWt+"\n\t");
 			
 	}
 	
 
-	public void plotStuff() {
+	public void plotStuff(String dirName) {
 		
 		// plot orig and final slip rates	
 		double min = 0, max = num_seg-1;
 		EvenlyDiscretizedFunc origSlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		EvenlyDiscretizedFunc origUpper95_SlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
+		EvenlyDiscretizedFunc origLower95_SlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
 		EvenlyDiscretizedFunc finalSlipRateFunc = new EvenlyDiscretizedFunc(min, max, num_seg);
 		for(int seg=0; seg<num_seg;seg++) {
 			origSlipRateFunc.set(seg,segSlipRate[seg]*(1-moRateReduction));
+			double sigma = subSectionList.get(seg).getSlipRateStdDev()*1e-3;
+			origUpper95_SlipRateFunc.set(seg,(segSlipRate[seg]+1.96*sigma)*(1-moRateReduction));
+			origLower95_SlipRateFunc.set(seg,(segSlipRate[seg]-1.96*sigma)*(1-moRateReduction));
 			finalSlipRateFunc.set(seg,finalSegSlipRate[seg]);
 		}
 		ArrayList sr_funcs = new ArrayList();
 		origSlipRateFunc.setName("Orig Slip Rates");
+		origUpper95_SlipRateFunc.setName("Orig Upper 95% Confidence for Slip Rates");
+		origLower95_SlipRateFunc.setName("Orig Lower 95% Confidence for Slip Rates");
 		finalSlipRateFunc.setName("Final Slip Rates");
-		sr_funcs.add(origSlipRateFunc);
 		sr_funcs.add(finalSlipRateFunc);
-		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "Slip Rates");   
+		sr_funcs.add(origSlipRateFunc);
+		sr_funcs.add(origUpper95_SlipRateFunc);
+		sr_funcs.add(origLower95_SlipRateFunc);
+		GraphiWindowAPI_Impl sr_graph = new GraphiWindowAPI_Impl(sr_funcs, "");  
+		ArrayList<PlotCurveCharacterstics> sr_plotChars = new ArrayList<PlotCurveCharacterstics>();
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES, Color.BLACK, 4));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
+		sr_plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
+		sr_graph.setPlottingFeatures(sr_plotChars);
+		sr_graph.setX_AxisLabel("Subsection");
+		sr_graph.setY_AxisLabel("Slip Rate (m/sec)");
+		sr_graph.setY_AxisRange(0.0, 0.04);
+		sr_graph.setTickLabelFontSize(12);
+		sr_graph.setAxisAndTickLabelFontSize(14);
+		if(dirName != null) {
+			String filename = ROOT_PATH+dirName+"/slipRates";
+			try {
+				sr_graph.saveAsPDF(filename+".pdf");
+				sr_graph.saveAsPNG(filename+".png");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		
 
 		// plot orig and final seg event rates	
 		ArrayList er_funcs = new ArrayList();
@@ -1727,7 +1781,6 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		finalEventRateFunc.setName("Final Event Rates (dashed)");
 		er_funcs.add(finalPaleoVisibleEventRateFunc);
 		er_funcs.add(finalEventRateFunc);
-
 		int num = segRateConstraints.size();
 		ArbitrarilyDiscretizedFunc func;
 		ArrayList obs_er_funcs = new ArrayList();
@@ -1744,14 +1797,29 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 			er_funcs.add(func);
 		}
 //		er_funcs.add(obs_er_funcs);
-		
-		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, "Event Rates"); 
+		GraphiWindowAPI_Impl er_graph = new GraphiWindowAPI_Impl(er_funcs, ""); 
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE, Color.BLUE, 2));
+		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 2));
+		plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
 		for(int c=0;c<num;c++)
-			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 6));
+			plotChars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES, Color.RED, 1));
 		er_graph.setPlottingFeatures(plotChars);
+		er_graph.setX_AxisLabel("Subsection");
+		er_graph.setY_AxisLabel("Event Rate (per yr)");
+		er_graph.setYLog(true);
+		er_graph.setTickLabelFontSize(12);
+		er_graph.setAxisAndTickLabelFontSize(14);
+		if(dirName != null) {
+			String filename = ROOT_PATH+dirName+"/eventRates";
+			try {
+				er_graph.saveAsPDF(filename+".pdf");
+				er_graph.saveAsPNG(filename+".png");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 		
 		// plot the final rupture rates
 		max = num_rup-1;
@@ -1772,18 +1840,13 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		cumMagFreqDist.setInfo("Cumulative Mag Freq Dist");
 		mfd_funcs.add(cumMagFreqDist);
 		// add average seg participation MFD
-		mfd_funcs.add(aveOfSegPartMFDs);
+//		mfd_funcs.add(aveOfSegPartMFDs);
 		EvenlyDiscretizedFunc cumAveOfSegPartMFDs = aveOfSegPartMFDs.getCumRateDistWithOffset();
 		cumAveOfSegPartMFDs.setInfo("cumulative "+aveOfSegPartMFDs.getInfo());
-		mfd_funcs.add(cumAveOfSegPartMFDs);
+//		mfd_funcs.add(cumAveOfSegPartMFDs);
 // the following is just a check		
 //		System.out.println("orig/smoothed MFD moRate ="+ (float)(magFreqDist.getTotalMomentRate()/smoothedMagFreqDist.getTotalMomentRate()));
 		// add a GR dist matched at M=6.5 and with a bValue=1
-/*		ArbitrarilyDiscretizedFunc GR_dist = new ArbitrarilyDiscretizedFunc();
-		GR_dist.set(6.0,smoothedMagFreqDist.getIncrRate(6.5)*Math.pow(10,0.5));
-		GR_dist.set(8.25,smoothedMagFreqDist.getIncrRate(6.5)*Math.pow(10,-1.75));
-		GR_dist.setName("GR Dist fit at M=6.5 and /w b=1");
-*/
 		GutenbergRichterMagFreqDist gr = getGR_Dist_fit();
 		if(gr != null) {
 			mfd_funcs.add(gr);
@@ -1808,23 +1871,37 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		}
 		*/
 
-		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs, "Mag Freq Dists");   
+		GraphiWindowAPI_Impl mfd_graph = new GraphiWindowAPI_Impl(mfd_funcs, "Magnitude Frequency Distributions");   
 		mfd_graph.setYLog(true);
-		mfd_graph.setY_AxisRange(1e-5, 1);
-		mfd_graph.setX_AxisRange(5.5, 9.0);
-/*
+		mfd_graph.setY_AxisRange(1e-5, 0.2);
+		mfd_graph.setX_AxisRange(5.6, 8.7);
+		mfd_graph.setX_AxisLabel("Magnitude");
+		mfd_graph.setY_AxisLabel("Rate (per yr)");
+
 		ArrayList<PlotCurveCharacterstics> plotMFD_Chars = new ArrayList<PlotCurveCharacterstics>();
-//		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM, new Color(0,0,0), 2));	
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.STACKED_BAR, new Color(0,0,0), 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 3));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 3));
+		if(gr != null) {
+			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
+			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 1));
+		}
 		mfd_graph.setPlottingFeatures(plotMFD_Chars);
-*/
+		mfd_graph.setTickLabelFontSize(12);
+		mfd_graph.setAxisAndTickLabelFontSize(14);
+		if(dirName != null) {
+			String filename = ROOT_PATH+dirName+"/MFDs";
+			try {
+				mfd_graph.saveAsPDF(filename+".pdf");
+				mfd_graph.saveAsPNG(filename+".png");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+
+		
 		
 		// PLOT RATE AT WHICH SECTIONS ENDS REPRESENT RUPTURE ENDS
 		min = 0; max = num_seg;
@@ -1834,38 +1911,70 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		}
 		ArrayList seg_funcs = new ArrayList();
 		rateOfRupEndsOnSegFunc.setName("Rate that section ends represent rupture ends");
-		seg_funcs.add(rateOfRupEndsOnSegFunc);
 		seg_funcs.add(finalSlipRateFunc);
 		seg_funcs.add(finalPaleoVisibleEventRateFunc);
 		// add paleoseismic obs
 		for(int i=0; i<obs_er_funcs.size();i++) seg_funcs.add(obs_er_funcs.get(i));
+		seg_funcs.add(rateOfRupEndsOnSegFunc);
 		
-		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, "Rate of Rupture Ends"); 
+		GraphiWindowAPI_Impl seg_graph = new GraphiWindowAPI_Impl(seg_funcs, ""); 
 		ArrayList<PlotCurveCharacterstics> plotChars2 = new ArrayList<PlotCurveCharacterstics>();
 		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 2));
-		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
 		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 2));
 		for(int c=0;c<num;c++)
-			plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS, Color.RED, 6));
+			plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES, Color.RED, 1));
+		plotChars2.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLACK, 2));
 		seg_graph.setPlottingFeatures(plotChars2);
+		seg_graph.setX_AxisLabel("Subsection");
+		seg_graph.setY_AxisLabel("Rates");
+		seg_graph.setYLog(true);
+		seg_graph.setTickLabelFontSize(12);
+		seg_graph.setAxisAndTickLabelFontSize(14);
+		if(dirName != null) {
+			String filename = ROOT_PATH+dirName+"/endpointRates";
+			try {
+				seg_graph.saveAsPDF(filename+".pdf");
+				seg_graph.saveAsPNG(filename+".png");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+	}
+	
+	public void plotHistograms() {
+		
+		ArrayList funcs = new ArrayList();
+		funcs.add(meanMagHistorgram);
+		funcs.add(magHistorgram);
+		GraphiWindowAPI_Impl mHist_graph = new GraphiWindowAPI_Impl(funcs, "Mag Histograms");   
+//		mfd_graph.setYLog(true);
+//		mfd_graph.setY_AxisRange(1e-5, 1);
+		mHist_graph.setX_AxisRange(3.5, 9.0);
+		
+		// make a numSegInRupHistogram
+		SummedMagFreqDist numSegInRupHistogram = new SummedMagFreqDist(1.0,num_seg,1.0);
+		for(int r=0;r<numSegInRup.length;r++) numSegInRupHistogram.add((double)numSegInRup[r], 1.0);
+		numSegInRupHistogram.setName("Num Segments In Rupture Histogram");
+		ArrayList funcs2 = new ArrayList();
+		funcs2.add(numSegInRupHistogram);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs2, "Num Segments In Rupture Histogram");   
 
 		
-		  
-
 
 	}
 	
 	
 	public GutenbergRichterMagFreqDist getGR_Dist_fit() {
 		double magMin = (double)Math.round(10*rupMeanMag[this.getParkfieldRuptureIndex()]) / 10;
-		double magMax = (double)Math.round(10*rupMeanMag[rupMeanMag.length-1]) / 10;
-//System.out.println("minMag="+magMin+"\tmaxMag="+magMax+"\ttotMoRate="+(float)totMoRate+"\tmfdMoRate="+(float)magFreqDist.getTotalMomentRate());
 		double cumRate = magFreqDist.getCumRate(6.5)*Math.pow(10, 6.5-magMin); // assumes b-value of 1
 		int num = (int)Math.round((9.0-magMin)/0.1 + 1);
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(magMin,num,0.1);
 		double moRate = totMoRate*(1-moRateReduction);
 		try {
-			gr.setAllButMagUpper(magMin, moRate, cumRate, 1.0, false);
+			gr.setAllButMagUpper(magMin, moRate, cumRate, 1.0, true);
 			gr.setName("GR Dist fit at cum M=6.5, matched moment rate, and /w b=1");
 			return gr;
 		} catch (Exception e) {
@@ -1919,6 +2028,8 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		long runTime = System.currentTimeMillis();
 //		System.out.println("Starting Inversion");
 		
+		
+
 		int maxSubsectionLength = 7;
 		int numSegForSmallestRups = 2;
 		String deformationModel = "D2.1";
@@ -1930,35 +2041,56 @@ System.out.println(row+"\t"+(float)d_pred[row]);
 		double relative_smoothnessWt = 10;
 		boolean wtedInversion = true;
 		double minRupRate = 1e-6;
-		boolean applyProbVisibl = true;
+		boolean applyProbVisible = true;
 		double moRateReduction =0.1;
 		boolean transitionAseisAtEnds = true; 
 		boolean transitionSlipRateAtEnds = true;
 		int slipRateSmoothing = 5;
+//		double relativeGR_constraintWt = 0.0;
 		double relativeGR_constraintWt = 1e6;
+//		double grConstraintBvalue = 0;
+//		double grConstraintRateScaleFactor = 0.83;  // for case where b=0
 		double grConstraintBvalue = 1;
-		double relativeParkfieldSegRateConstraint = 100;
-		
-		String dirName = "Run8_Plots";
+		double grConstraintRateScaleFactor = 0.89;  // for case where b=1
+		double relative_aPrioriSegRateWt = 100;
+
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
 				slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, 
-				relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisibl, moRateReduction,
+				relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisible, moRateReduction,
 				transitionAseisAtEnds, transitionSlipRateAtEnds, slipRateSmoothing, relativeGR_constraintWt,
-				grConstraintBvalue, relativeParkfieldSegRateConstraint);
+				grConstraintBvalue, grConstraintRateScaleFactor, relative_aPrioriSegRateWt);
 
 		runTime = (System.currentTimeMillis()-runTime)/1000;
 		System.out.println("Done with Inversion after "+runTime+" seconds.");
 		
 		soSAF_SubSections.writeFinalStuff();
 		soSAF_SubSections.writePredErrorInfo();
-		soSAF_SubSections.plotStuff();
-		
-	    File file = new File(SoSAF_SubSectionInversion.ROOT_PATH+dirName);
-	    file.mkdirs();
+//		soSAF_SubSections.plotHistograms();
 
-		soSAF_SubSections.writeSegPartMFDsDataToFile(dirName, true);
+		
+		String dirName = "test";
+	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
+	    file.mkdirs();
+	    soSAF_SubSections.plotStuff(dirName);
+		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
 		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
+
+
+	/*
+		// this searches for the best GR constraint scale factor
+//		for(double scale = 0.87; scale <0.939; scale +=0.01) {  // last test for CASE 8 (used in paper)
+		for(double scale = 0.75; scale <0.9; scale +=0.01) {	// last test for CASE 9 (b=0)
+			System.out.println("\n********* RUN FOR SCALE "+(float)scale+" **********\n");
+			soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
+					slipModelType, magAreaRel, relativeSegRateWt, relative_aPrioriRupWt, 
+					relative_smoothnessWt, wtedInversion, minRupRate, applyProbVisible, moRateReduction,
+					transitionAseisAtEnds, transitionSlipRateAtEnds, slipRateSmoothing, relativeGR_constraintWt,
+					grConstraintBvalue, scale, relative_aPrioriSegRateWt);
+			//soSAF_SubSections.writeFinalStuff();
+			soSAF_SubSections.writePredErrorInfo();
+		}
+	*/
 		
 		
 /*		
