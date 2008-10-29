@@ -2047,7 +2047,7 @@ public class SoSAF_SubSectionInversion {
 		boolean transitionSlipRateAtEnds = true;
 		int slipRateSmoothing = 5;
 //		double relativeGR_constraintWt = 0.0;
-		double relativeGR_constraintWt = 1e6;
+		double relativeGR_constraintWt = 0;
 //		double grConstraintBvalue = 0;
 //		double grConstraintRateScaleFactor = 0.83;  // for case where b=0
 		double grConstraintBvalue = 1;
@@ -2072,9 +2072,9 @@ public class SoSAF_SubSectionInversion {
 		String dirName = "test";
 	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
 	    file.mkdirs();
-	    soSAF_SubSections.plotStuff(dirName);
-		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
-		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
+	    soSAF_SubSections.plotStuff(null);
+//		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
+//		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
 
 
 	/*
