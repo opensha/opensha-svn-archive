@@ -42,6 +42,10 @@ public class HazardMapMetadataJobCreator {
 	private boolean debug;
 	private int startDAG;
 	private int endDAG;
+	
+	private String logDirectory = "";
+	
+	
 
 	public HazardMapMetadataJobCreator(Document metadata, boolean skipCVMFiles, boolean restart, boolean debug, int startDAG, int endDAG) {
 		this.metadata = metadata;
@@ -83,6 +87,7 @@ public class HazardMapMetadataJobCreator {
 			creator = new HazardMapJobCreator(outputDir, sites, startDAG, endDAG, job);
 		else
 			creator = new HazardMapJobCreator(outputDir, sites, job);
+		creator.setLogDirectory(logDirectory);
 		creator.logStart();
 		creator.addAllProgressListeners(progressListeners);
 		
@@ -128,6 +133,10 @@ public class HazardMapMetadataJobCreator {
 		creator.logCompletion();
 
 		creator.createSubmitDAGScript(submit);
+	}
+	
+	public void setLogDirectory(String logDirectory) {
+		this.logDirectory = logDirectory;
 	}
 
 	public void addProgressListener(ProgressListener listener) {

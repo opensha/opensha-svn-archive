@@ -182,11 +182,14 @@ public class MakeXYZFromHazardMapDir {
 	public static void main(String args[]) {
 		try {
 //			String curveDir = "/home/kevin/OpenSHA/condor/test_results";
-			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
+//			String curveDir = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/curves";
 //			String curveDir = "/home/kevin/OpenSHA/condor/frankel_0.1";
+			String curveDir = "/home/kevin/CyberShake/baseMaps/ba2008/curves";
 //			String outfile = "xyzCurves.txt";
-			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
-			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.5, outfile, false, false);
+//			String outfile = "/home/kevin/OpenSHA/condor/oldRuns/statewide/test_30000_2/xyzCurves.txt";
+			String outfile = "/home/kevin/CyberShake/baseMaps/ba2008/xyzCurves_IML_0.002.txt";
+			boolean latFirst = true;
+			MakeXYZFromHazardMapDir maker = new MakeXYZFromHazardMapDir(curveDir, false, 0.002, outfile, false, latFirst);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

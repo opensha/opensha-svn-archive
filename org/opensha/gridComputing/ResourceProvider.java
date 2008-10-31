@@ -1,9 +1,12 @@
 package org.opensha.gridComputing;
 
-import org.dom4j.Element;
-import org.opensha.metadata.XMLSaveable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class ResourceProvider implements XMLSaveable {
+import org.dom4j.Element;
+
+public class ResourceProvider extends GridResource {
 	
 	public static final String XML_METADATA_NAME = "ResourceProvider";
 	
@@ -17,6 +20,9 @@ public class ResourceProvider implements XMLSaveable {
 		ResourceProvider HPC = new ResourceProvider("HPC (USC)", "hpc.usc.edu", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/bin/java", "/home/scec-00/tera3d/opensha/hazmaps",
 				"", "hpc.usc.edu", "grid", rsl);
+		HPC.addSuggestedQueue("main");
+		HPC.addSuggestedQueue("scec");
+		HPC.addSuggestedQueue("quick");
 		return HPC;
 	}
 	
@@ -57,10 +63,11 @@ public class ResourceProvider implements XMLSaveable {
 	public static final ResourceProvider DYNAMIC() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		rsl.setQueue("mpi");
-		ResourceProvider DYNMAIC = new ResourceProvider("Dynamic (USC/SCEC)", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
+		ResourceProvider DYNAMIC = new ResourceProvider("Dynamic (USC/SCEC)", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/tera3d/opensha/hazMaps",
 				"", "dynamic.usc.edu", "globus", rsl);
-		return DYNMAIC;
+		DYNAMIC.addSuggestedQueue("mpi");
+		return DYNAMIC;
 	}
 	
 	/**
@@ -145,6 +152,7 @@ public class ResourceProvider implements XMLSaveable {
 	private String gridFTPHost = "";
 	private String universe = "";
 	private GlobusRSL globusRSL;
+	ArrayList<String> suggestedQueues = new ArrayList<String>();
 	
 	public ResourceProvider(String name, String hostName, String batchScheduler, String forkScheduler,
 			String javaPath, String storagePath, String requirements,
@@ -173,6 +181,13 @@ public class ResourceProvider implements XMLSaveable {
 		xml.addAttribute("requirements", this.requirements);
 		xml.addAttribute("gridFTPHost", this.gridFTPHost);
 		xml.addAttribute("universe", this.universe);
+		if (suggestedQueues.size() > 0) {
+			Element queuesEl = xml.addElement("SuggestedQueues");
+			for (String queue : suggestedQueues) {
+				Element queueEl = queuesEl.addElement("Queue");
+				queueEl.addAttribute("name", queue);
+			}
+		}
 		
 		xml = this.globusRSL.toXMLMetadata(xml);
 		
@@ -194,9 +209,19 @@ public class ResourceProvider implements XMLSaveable {
 		Element rslElem = resourceProviderElem.element(GlobusRSL.XML_METADATA_NAME);
 		GlobusRSL globusRSL = GlobusRSL.fromXMLMetadata(rslElem);
 		
-		return new ResourceProvider(name, rp_host, rp_batchScheduler, rp_forkScheduler,
+		ResourceProvider rp = new ResourceProvider(name, rp_host, rp_batchScheduler, rp_forkScheduler,
 				rp_javaPath, rp_storagePath, rp_requirements,
 				rp_globus_ftp_host, rp_universe, globusRSL);
+		
+		Element queuesEl = resourceProviderElem.element("SuggestedQueues");
+		if (queuesEl != null) {
+			List<Element> list = queuesEl.elements("Queue");
+			for (Element queueEl : list) {
+				rp.addSuggestedQueue(queueEl.attributeValue("name"));
+			}
+		}
+		
+		return rp;
 	}
 	
 	@Override
@@ -214,6 +239,11 @@ public class ResourceProvider implements XMLSaveable {
 		str += "\tgridFTPHost: " + gridFTPHost + "\n";
 		str += "\tuniverse: " + universe + "\n";
 		str += "\tGlobusRSL: " + globusRSL.getRSLString();
+		if (suggestedQueues.size() > 0) {
+			str += "\n\tSuggestedQueues:";
+			for (String queue : suggestedQueues)
+				str += "\n\t\t" + queue;
+		}
 		
 		return str;
 	}
@@ -221,7 +251,11 @@ public class ResourceProvider implements XMLSaveable {
 	public String getName() {
 		return name;
 	}
-
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	public String getHostName() {
 		return hostName;
 	}
@@ -256,6 +290,14 @@ public class ResourceProvider implements XMLSaveable {
 
 	public GlobusRSL getGlobusRSL() {
 		return globusRSL;
+	}
+	
+	public ArrayList<String> getSuggestedQueues() {
+		return suggestedQueues;
+	}
+	
+	public void addSuggestedQueue(String queue) {
+		suggestedQueues.add(queue);
 	}
 	
 	public boolean isGridUniverse() {

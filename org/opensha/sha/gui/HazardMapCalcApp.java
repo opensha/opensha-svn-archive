@@ -34,6 +34,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
+import org.opensha.sha.calc.hazardMap.servlet.ManagementServletAccessor;
 import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
@@ -801,6 +802,8 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		calcProgress.setVisible(false);
 	}
 	
+	boolean useServlet = true;
+	
 	/**
 	 * This function is called when user runs the calculation
 	 * @param e
@@ -808,12 +811,21 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	void runButton_actionPerformed(ActionEvent e) {
 		if (currentDoc != null) {
 			try {
-				HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(currentDoc, false, false);
-				creator.createDAG(true);
+				if (useServlet) {
+					ManagementServletAccessor manage = new ManagementServletAccessor(ManagementServletAccessor.SERVLET_URL, false);
+					
+					manage.submit(currentDoc);
+				} else {
+					HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(currentDoc, false, false);
+					creator.createDAG(true);
+				}
 			} catch (InvocationTargetException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}

@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.gridComputing.GridResourcesList;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.ResourceProviderEditor;
+import org.opensha.gridComputing.StorageHost;
 import org.opensha.gridComputing.SubmitHost;
 import org.opensha.gridComputing.SubmitHostEditor;
 import org.opensha.param.BooleanParameter;
@@ -16,6 +18,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeFailEvent;
@@ -65,23 +68,45 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private IntegerParameter sitesPerJob = new IntegerParameter("Site Per Job", 0, Integer.MAX_VALUE);
 	private IntegerParameter maxWallTime = new IntegerParameter("Maximum Time Per Job", 0, 999);
 	private BooleanParameter saveERF = new BooleanParameter("Save ERF to File?", true);
+	
+	public static final String SUBMIT_HOST_PARAM_NAME = "Submit Host Presets";
 
 	//SiteTranslator
 	SiteTranslator siteTrans = new SiteTranslator();
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
 	private SitesInGriddedRectangularRegion gridRectRegion;
+	
+	public GridParametersGuiBean(GridResourcesList resources) {
+		this.init(resources);
+	}
 
 	/**
 	 * constuctor which builds up mapping between IMRs and their related sites
 	 */
 	public GridParametersGuiBean() {
 		
+		ArrayList<ResourceProvider> rpList = new ArrayList<ResourceProvider>();
+		
 		rpList.add(ResourceProvider.HPC());
 		rpList.add(ResourceProvider.ABE_GLIDE_INS());
 		rpList.add(ResourceProvider.ABE_NO_GLIDE_INS());
 		rpList.add(ResourceProvider.DYNAMIC());
 		rpList.add(ResourceProvider.ORNL());
+		
+		ArrayList<SubmitHost> submitList = new ArrayList<SubmitHost>();
+		
+		submitList.add(SubmitHost.AFTERSHOCK);
+		
+		ArrayList<StorageHost> storageList = new ArrayList<StorageHost>();
+		
+		storageList.add(StorageHost.HPC);
+		
+		this.init(new GridResourcesList(rpList, submitList, storageList));
+	}
+	
+	private void init(GridResourcesList resources) {
+		rpList = resources.getResourceProviders();
 		
 		this.currentRP = rpList.get(0);
 		
@@ -91,10 +116,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}
 		rpPresetsStr.add(GridParametersGuiBean.CUSTOM_PARAM_NAME);
 		
-		
-		submitList.add(SubmitHost.AFTERSHOCK);
-		submitList.add(SubmitHost.INTENSITY);
-		submitList.add(SubmitHost.SCECIT18);
+		submitList = resources.getSubmitHosts();
 		
 		this.currentSubmit = submitList.get(0);
 		
@@ -111,7 +133,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		rpPresets.setValue(currentRP.getName());
 		rpPresets.addParameterChangeListener(this);
 		
-		submitPresets = new StringParameter("Submit Host Presets", submitPresetsStr);
+		submitPresets = new StringParameter(SUBMIT_HOST_PARAM_NAME, submitPresetsStr);
 		submitPresets.setValue(currentSubmit.getName());
 		submitPresets.addParameterChangeListener(this);
 
@@ -130,6 +152,11 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setSubmitHostsVisible(boolean visible) {
+		ParameterEditor editor = this.getParameterEditor(SUBMIT_HOST_PARAM_NAME);
+		editor.setVisible(visible);
 	}
 
 	/**

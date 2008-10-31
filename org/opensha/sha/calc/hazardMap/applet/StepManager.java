@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin.hazMapApplet;
+package org.opensha.sha.calc.hazardMap.applet;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ public class StepManager {
 
 	protected StepsPanel panel;
 	
-	private Loadable parent, next;
+	protected Loadable parent, next;
 	
 	protected ArrayList<Step> steps = new ArrayList<Step>();
 	

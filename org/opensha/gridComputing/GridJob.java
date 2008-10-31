@@ -51,6 +51,10 @@ public class GridJob implements XMLSaveable {
 	public String getEmail() {
 		return email;
 	}
+	
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;

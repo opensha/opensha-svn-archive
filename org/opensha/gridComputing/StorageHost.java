@@ -1,9 +1,8 @@
 package org.opensha.gridComputing;
 
 import org.dom4j.Element;
-import org.opensha.metadata.XMLSaveable;
 
-public class StorageHost implements XMLSaveable {
+public class StorageHost extends GridResource {
 	
 	public static final String XML_METADATA_NAME = "StorageHost";
 	

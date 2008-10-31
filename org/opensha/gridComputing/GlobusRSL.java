@@ -1,5 +1,6 @@
 package org.opensha.gridComputing;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -7,7 +8,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.metadata.XMLSaveable;
 
-public class GlobusRSL implements XMLSaveable {
+public class GlobusRSL implements XMLSaveable, Serializable {
 	
 	public static final String JOB_TYPE_NAME = "jobtype";
 	public static final String MAX_WALL_TIME_NAME = "maxwalltime";

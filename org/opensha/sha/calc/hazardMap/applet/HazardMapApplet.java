@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin.hazMapApplet;
+package org.opensha.sha.calc.hazardMap.applet;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -39,6 +39,8 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 	CardLayout cl = new CardLayout();
 	
 	JPanel mainPanel = new JPanel(cl);
+	
+	DataSetSelector selector = null;
 	
 	public HazardMapApplet() {
 		super();
@@ -151,6 +153,12 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 	
 	public boolean isApplet() {
 		return this.isApplet;
+	}
+	
+	public DataSetSelector getSelector() {
+		if (selector == null)
+			selector = new DataSetSelector();
+		return selector;
 	}
 	
 	public static void main(String args[]) {

@@ -8,6 +8,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.opensha.util.XMLUtils;
 
 public class CronOperation {
 	
@@ -67,6 +68,29 @@ public class CronOperation {
 
 	public String getID() {
 		return id;
+	}
+	
+	public static Document createDocument(String operation, String id) {
+		Document doc = XMLUtils.createDocumentWithRoot();
+		
+		Element root = doc.getRootElement();
+		
+		Element cronEl = root.addElement(XML_ELEMENT_NAME);
+		
+		cronEl.addAttribute(XML_OPERATION_ATTRIBUTE_NAME, operation);
+		cronEl.addAttribute(XML_ID_ATTRIBUTE_NAME, id);
+		
+		return doc;
+	}
+	
+	public static Document appendSubmitOperation(Document doc) {
+		Element root = doc.getRootElement();
+		
+		Element cronEl = root.addElement(XML_ELEMENT_NAME);
+		
+		cronEl.addAttribute(XML_OPERATION_ATTRIBUTE_NAME, OP_SUBMIT);
+		
+		return doc;
 	}
 
 }

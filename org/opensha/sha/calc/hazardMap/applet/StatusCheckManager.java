@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin.hazMapApplet;
+package org.opensha.sha.calc.hazardMap.applet;
 
 import java.awt.BorderLayout;
 
@@ -12,12 +12,11 @@ public class StatusCheckManager extends StepManager {
 	
 	public StatusCheckManager(HazardMapApplet parent) {
 		super(parent, null, parent.getConsole());
-		selectStep = DataSetSelector.createStep();
+		selectStep = parent.getSelector().createStep();
 		
-		JPanel statusPanel = new JPanel(new BorderLayout());
-		statusPanel.add(new JLabel("Status"));
-		
+		StatusPanel statusPanel = new StatusPanel(parent);
 		statusStep = new Step(statusPanel, "Calculation Status");
+		statusStep.addStepActivatedListener(statusPanel);
 		
 		steps.add(selectStep);
 		steps.add(statusStep);

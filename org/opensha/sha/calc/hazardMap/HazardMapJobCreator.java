@@ -5,14 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -41,11 +39,16 @@ public class HazardMapJobCreator {
 
 	public static final String LOG_SCRIPT_DIR_NAME = "log_sh";
 
-	public static final String LOG_FILE_NAME = "log.txt";
+	private String logDir = "";
+	private String logFileName = "log.txt";
 
 	public static SimpleDateFormat LINUX_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 
 	// status messages
+	// No status
+	public static final String STATUS_NONE = "Not started or no status available";
+	// In cron inbox
+	public static final String STATUS_CRON_IN = "Waiting to be prepared";
 	// DAG creation begins
 	public static final String STATUS_CREATE_BEGIN = "Creating DAG";
 	// DAG has been created
@@ -135,6 +138,8 @@ public class HazardMapJobCreator {
 		retValScript = writeRetValScript();
 		
 		nameLength = calcNameLength(sites);
+		
+		logFileName = job.getJobID() + ".log";
 		
 //		this.executable = rp_javaPath;
 //		this.globusscheduler = rp_host + "/" + rp_batchScheduler;
@@ -1323,7 +1328,12 @@ public class HazardMapJobCreator {
 		try {
 			String scriptFileName = submitHost.getPath() + "/" + job.getJobID() + "/submit_DAG.sh";
 			FileWriter fw = new FileWriter(scriptFileName);
-			fw.write("#!/bin/csh\n");
+			fw.write("#!/bin/bash\n");
+			fw.write("" + "\n");
+			fw.write("if [ -f ~/.bash_profile ]; then" + "\n");
+			fw.write("\t. ~/.bash_profile" + "\n");
+			fw.write("fi" + "\n");
+			fw.write("" + "\n");
 			fw.write("cd "+outputDir+"\n");
 			if (stageOut) {
 				fw.write("/bin/chmod -R +x " + outputDir + "/" + stageOutScriptDir + "\n");
@@ -1339,7 +1349,9 @@ public class HazardMapJobCreator {
 			fw.close();
 			if (run) {
 				this.logMessage(STATUS_SUBMIT_DAG);
-				int retVal = RunScript.runScript(new String[]{"sh", "-c", "sh "+scriptFileName});
+				String outFile = this.logDir + this.logFileName + ".subout";
+				String errFile = this.logDir + this.logFileName + ".suberr";
+				int retVal = RunScript.runScript(new String[]{"sh", "-c", "sh "+scriptFileName}, outFile, errFile);
 				if (retVal == 0)
 					this.logMessage(STATUS_SUBMIT_DAG_SUCCESS);
 				else
@@ -1369,9 +1381,15 @@ public class HazardMapJobCreator {
 			e.printStackTrace();
 		}
 	}
-
-	public synchronized void logMessage(String message) throws IOException {
-		String logFileName = this.outputDir + LOG_FILE_NAME;
+	
+	public void setLogDirectory(String logDir) {
+		if (logDir.length() > 0 && !logDir.endsWith(File.separator))
+			logDir += File.separator;
+		System.out.println("Log directory: " + logDir);
+		this.logDir = logDir;
+	}
+	
+	public static void logMessage(String logFileName, String message) throws IOException {
 		File logFile = new File(logFileName);
 		if (!logFile.exists())
 			logFile.createNewFile();
@@ -1380,7 +1398,10 @@ public class HazardMapJobCreator {
 		stream.write(message.getBytes());
 		stream.flush();
 		stream.close();
-//		File logFile = new File
+	}
+
+	public synchronized void logMessage(String message) throws IOException {
+		logMessage(logDir + logFileName, message);
 	}
 
 	private String createLogShellScript(String dagStage, String message) {
@@ -1399,7 +1420,7 @@ public class HazardMapJobCreator {
 			fw.write("#!/bin/sh" + "\n");
 			fw.write("" + "\n");
 			addFirstArgRetValCheck(fw);
-			fw.write("echo [`date`] " + message + " >> " + this.outputDir + LOG_FILE_NAME + "\n");
+			fw.write("echo [`date`] " + message + " >> " + logDir + logFileName + "\n");
 
 			fw.close();
 		} catch (IOException e) {

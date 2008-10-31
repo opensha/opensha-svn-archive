@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin.hazMapApplet;
+package org.opensha.sha.calc.hazardMap.applet;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -128,6 +128,8 @@ public class StepsPanel extends JPanel implements ActionListener {
 		
 		this.currentStep = step;
 		this.currentStepIndex = index;
+		
+		step.setActivated();
 	}
 
 	public void actionPerformed(ActionEvent e) {

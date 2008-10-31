@@ -14,11 +14,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
+import org.opensha.sha.calc.hazardMap.servlet.StatusServlet;
 import org.opensha.util.FileUtils;
 
 public class HazardMapCronJob {
@@ -27,14 +25,6 @@ public class HazardMapCronJob {
 	// CONFIGURATION
 	// *************
 	//
-	// XML schema statics
-	public static final String CONF_MAIN_ELEMENT = "HazardMapCronJobConfiguration";
-	public static final String CONF_DIR_ELEMENT = "Directories";
-	public static final String CONF_INPUT_DIR = "input";
-	public static final String CONF_PROCESSING_DIR = "processing";
-	public static final String CONF_PROCESSED_DIR = "processed";
-	public static final String CONF_FAILED_DIR = "failed";
-	public static final String CONF_LOG_DIR = "log";
 	// conf file
 	private String confFile;
 	// directories
@@ -114,7 +104,7 @@ public class HazardMapCronJob {
 	public String getLogFileName() {
 		if (logFileName == null) {
 			Date now = new Date();
-			SimpleDateFormat format = new SimpleDateFormat("yyyymmdd");
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 			
 			logFileName = format.format(now) + ".txt";
 		}
@@ -123,40 +113,13 @@ public class HazardMapCronJob {
 	
 	private void loadConfFile(String confFile) throws MalformedURLException, DocumentException {
 		this.confFile = confFile;
-		SAXReader reader = new SAXReader();
-		Document document = reader.read(new File(confFile));
+		CronConfLoader conf = new CronConfLoader(confFile);
 		
-		// get the root element
-		Element root = document.getRootElement();
-		
-		// get the main conf element
-		Element confEl = root.element(CONF_MAIN_ELEMENT);
-		
-		// get the directories element
-		Element dirEl = confEl.element(CONF_DIR_ELEMENT);
-		
-		inDir = loadPathAttribute(dirEl, CONF_INPUT_DIR);
-		processingDir = loadPathAttribute(dirEl, CONF_PROCESSING_DIR);
-		processedDir = loadPathAttribute(dirEl, CONF_PROCESSED_DIR);
-		failedDir = loadPathAttribute(dirEl, CONF_FAILED_DIR);
-		logDir = loadPathAttribute(dirEl, CONF_LOG_DIR);
-	}
-	
-	private static String loadPathAttribute(Element el, String attName) {
-		String dir = el.attributeValue(attName);
-		
-		dir = dir.trim();
-		dir = dir.replace('/', File.separatorChar);
-		dir = dir.replace('\\', File.separatorChar);
-		
-		File dirFile = new File(dir);
-		
-		String path = dirFile.getAbsolutePath();
-		
-		if (!path.endsWith(File.separator))
-			path += File.separator;
-		
-		return path;
+		inDir = conf.getInDir();
+		processingDir = conf.getProcessingDir();
+		processedDir = conf.getProcessedDir();
+		failedDir = conf.getFailedDir();
+		logDir = conf.getLogDir();
 	}
 	
 	public void processOperations() {
@@ -229,7 +192,12 @@ public class HazardMapCronJob {
 	
 	private void handleSubmitOperation(CronOperation op) throws InvocationTargetException, IOException {
 		HazardMapMetadataJobCreator creator = new HazardMapMetadataJobCreator(op.getDocument(), false, false, false, -1, -1);
+		creator.setLogDirectory(StatusServlet.WORKFLOW_LOG_DIR);
 		creator.createDAG(true);
+	}
+	
+	private void handleCancelOperation(CronOperation op) {
+		
 	}
 	
 	private ArrayList<File> loadInputFiles(){

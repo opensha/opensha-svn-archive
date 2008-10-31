@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin.hazMapApplet;
+package org.opensha.sha.calc.hazardMap.applet;
 
 public interface Loadable {
 	

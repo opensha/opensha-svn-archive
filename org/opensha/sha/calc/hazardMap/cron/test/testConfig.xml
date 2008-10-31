@@ -2,6 +2,6 @@
 
 <OpenSHA>
   <HazardMapCronJobConfiguration>
-    <Directories input="org/opensha/sha/calc/hazardMap/cron/test/in" processing="org/opensha/sha/calc/hazardMap/cron/test/processing" processed="org/opensha/sha/calc/hazardMap/cron/test/done" log="org/opensha/sha/calc/hazardMap/cron/test/log" failed="org/opensha/sha/calc/hazardMap/cron/test/failed"/>
+    <Directories input="org/opensha/sha/calc/hazardMap/cron/test/in" processing="org/opensha/sha/calc/hazardMap/cron/test/processing" processed="org/opensha/sha/calc/hazardMap/cron/test/done" log="org/opensha/sha/calc/hazardMap/cron/test/log" failed="org/opensha/sha/calc/hazardMap/cron/test/failed" hazMaps="org/opensha/sha/calc/hazardMap/cron/test/testDAGs"/>
   </HazardMapCronJobConfiguration>
 </OpenSHA>

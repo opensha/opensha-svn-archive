@@ -1,9 +1,8 @@
 package org.opensha.gridComputing;
 
 import org.dom4j.Element;
-import org.opensha.metadata.XMLSaveable;
 
-public class SubmitHost implements XMLSaveable {
+public class SubmitHost extends GridResource {
 	
 	public static final String XML_METADATA_NAME = "SubmitHost";
 	
@@ -21,7 +20,7 @@ public class SubmitHost implements XMLSaveable {
 			"/usr/scec/pegasus/pegasus-2.1.0cvs-20080130/bin/kickstart");
 	
 	public static final SubmitHost AFTERSHOCK = new SubmitHost("Aftershock", "aftershock.usc.edu",
-			"/scratch/opensha/tera3d/hazMapRuns", "/scratch/opensha/tera3d/dependencies", "jobmanager-fork", "/usr/local/condor/default/bin/",
+			"/scratch/opensha/tera3d/hazMapRuns", "/home/aftershock/opensha/hazmaps/dependencies", "jobmanager-fork", "/usr/local/condor/default/bin/",
 			"GLOBUS_LOCATION=/usr/local/globus/default;LD_LIBRARY_PATH=/usr/local/globus/default/lib;",
 			"-n transfer -N pegasus::transfer:1.0 -i - -R local /usr/local/pegasus/default/bin/transfer  -f  base-uri se-mount-point",
 			"/usr/local/pegasus/default/bin/kickstart");
