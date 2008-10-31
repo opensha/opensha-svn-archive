@@ -63,6 +63,29 @@ public interface SiteInfo2DBAPI {
 			                             int minLonSrcId,int minLonRupId);
 	
 	/**
+	 * Updates the regional bounds (min/max lat/lon) for all cybershake sites in table Site_Region.
+	 * @param siteId
+	 * @param erfId
+	 * @param cutOffDistance
+	 * @param maxLat
+	 * @param maxLatSrcId
+	 * @param maxLatRupId
+	 * @param minLat
+	 * @param minLatSrcId
+	 * @param minLatRupId
+	 * @param maxLon
+	 * @param maxLonSrcId
+	 * @param maxLonRupId
+	 * @param minLon
+	 * @param minLonSrcId
+	 * @param minLonRupId
+	 */
+	public void updateSiteRegionalBounds(int siteId,int erfId,double cutOffDistance,double maxLat,int maxLatSrcId,
+			                             int maxLatRupId,double minLat,int minLatSrcId,int minLatRupId,
+			                             double maxLon,int maxLonSrcId,int maxLonRupId,double minLon,
+			                             int minLonSrcId,int minLonRupId);
+	
+	/**
 	 * Returns the site id of the cybershake site for the corresponding cybershake_short_site_name
 	 * @param cybershakeShortSiteName
 	 * @return

@@ -1,4 +1,4 @@
-package org.opensha.cybershake;
+package org.opensha.cybershake.plot;
 
 import java.awt.Color;
 import java.io.File;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
+import org.opensha.cybershake.HazardCurveFetcher;
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -18,43 +19,40 @@ import org.opensha.data.Location;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.util.FileUtils;
+import org.opensha.util.XYZClosestPointFinder;
 import org.opensha.util.cpt.CPT;
 
 public class HazardMapScatterCreator {
 	
 	public static final Color BLANK_COLOR = Color.WHITE;
 	
-	HazardCurve2DB curve2db;
-	CybershakeSiteInfo2DB site2db;
-	
-	ArrayList<Integer> ids;
 	ArrayList<CybershakeSite> sites;
 	ArrayList<DiscretizedFuncAPI> funcs;
 	ArrayList<Double> vals;
 	
 	ArrayList<CybershakeSite> allSites = null;
 	
-	ArrayList<XYZComparison> comps = new ArrayList<XYZComparison>();
+	ArrayList<XYZClosestPointFinder> comps = new ArrayList<XYZClosestPointFinder>();
+	ArrayList<String> compNames = new ArrayList<String>();
 	
 	CPT cpt;
 	
+	HazardCurveFetcher fetcher;
+	
 	public HazardMapScatterCreator(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID, CPT cpt, boolean isProbAt_IML, double val) {
 		this.cpt = cpt;
-		this.initDBConnections(db);
-		ids = curve2db.getAllHazardCurveIDs(erfID, rupVarScenarioID, sgtVarID, imTypeID);
-		sites = new ArrayList<CybershakeSite>();
-		funcs = new ArrayList<DiscretizedFuncAPI>();
-		for (int id : ids) {
-			sites.add(site2db.getSiteFromDB(curve2db.getSiteIDFromCurveID(id)));
-			DiscretizedFuncAPI curve = curve2db.getHazardCurve(id);
-			funcs.add(curve);
-		}
-		vals = this.getSiteValues(isProbAt_IML, val);
+		
+		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, imTypeID);
+		sites = fetcher.getCurveSites();
+		funcs = fetcher.getFuncs();
+		
+		vals = fetcher.getSiteValues(isProbAt_IML, val);
 	}
 	
 	public void addComparison(String name, String fileName) {
 		try {
-			comps.add(new XYZComparison(name, fileName));
+			comps.add(new XYZClosestPointFinder(fileName));
+			compNames.add(name);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,19 +60,6 @@ public class HazardMapScatterCreator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private ArrayList<Double> getSiteValues(boolean isProbAt_IML, double val) {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		for (DiscretizedFuncAPI func : funcs) {
-			vals.add(MakeXYZFromHazardMapDir.getCurveVal(func, isProbAt_IML, val));
-		}
-		return vals;
-	}
-	
-	private void initDBConnections(DBAccess db) {
-		curve2db = new HazardCurve2DB(db);
-		site2db = new CybershakeSiteInfo2DB(db);
 	}
 	
 	public void printScatterCommands(String symbol) {
@@ -94,8 +79,9 @@ public class HazardMapScatterCreator {
 		for (CurveSite cs : curveSites) {
 			System.out.println(cs.getSite());
 			System.out.println("CyberShake: " + cs.getVal());
-			for (XYZComparison comp : this.comps) {
-				System.out.println(comp.getName() + ": " + comp.getClosestVal(cs));
+			for (int i=0; i<comps.size(); i++) {
+				XYZClosestPointFinder comp = comps.get(i);
+				System.out.println(compNames.get(i) + ": " + comp.getClosestVal(cs.getSite().lat, cs.getSite().lon));
 			}
 			System.out.println();
 		}
@@ -135,54 +121,6 @@ public class HazardMapScatterCreator {
 
 		public double getVal() {
 			return val;
-		}
-	}
-	
-	class XYZComparison {
-		ArrayList<double[]> vals;
-		String name;
-		
-		public XYZComparison(String name, String fileName) throws FileNotFoundException, IOException {
-			this.name = name;
-			
-			ArrayList<String> lines = null;
-			lines = FileUtils.loadFile(fileName);
-			
-			vals = new ArrayList<double[]>();
-			
-			for (String line : lines) {
-				line = line.trim();
-				if (line.length() < 2)
-					continue;
-				StringTokenizer tok = new StringTokenizer(line);
-				double lat = Double.parseDouble(tok.nextToken());
-				double lon = Double.parseDouble(tok.nextToken());
-				double val = Double.parseDouble(tok.nextToken());
-				double doub[] = new double[3];
-				doub[0] = lat;
-				doub[1] = lon;
-				doub[2] = val;
-				vals.add(doub);
-			}
-		}
-		
-		public double getClosestVal(CurveSite site) {
-			double closest = 9999999;
-			double closeVal = 0;
-			
-			for (double val[] : vals) {
-				double dist = Math.pow(val[0] - site.getSite().lat, 2) + Math.pow(val[1] - site.getSite().lon, 2);
-				if (dist < closest) {
-					closest = dist;
-					closeVal = val[2];
-				}
-			}
-			
-			return closeVal;
-		}
-		
-		public String getName() {
-			return name;
 		}
 	}
 	
@@ -279,7 +217,7 @@ public class HazardMapScatterCreator {
 	
 	private ArrayList<CybershakeSite> getAllSites() {
 		if (allSites == null) {
-			allSites = site2db.getAllSitesFromDB();
+			allSites = fetcher.getAllSites();
 		}
 		return allSites;
 	}

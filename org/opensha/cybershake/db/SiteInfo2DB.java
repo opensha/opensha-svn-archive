@@ -140,6 +140,62 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			}
 		}
 	}
+	
+	/**
+	 * Inserts the regional bounds (min/max lat/lon) for all cybershake sites in table CyberShake_Site_Regions
+	 * @param siteId
+	 * @param erfId
+	 * @param cutOffDistance
+	 * @param maxLat
+	 * @param maxLatSrcId
+	 * @param maxLatRupId
+	 * @param minLat
+	 * @param minLatSrcId
+	 * @param minLatRupId
+	 * @param maxLon
+	 * @param maxLonSrcId
+	 * @param maxLonRupId
+	 * @param minLon
+	 * @param minLonSrcId
+	 * @param minLonRupId
+	 */
+	public void updateSiteRegionalBounds(int siteId, int erfId,
+			double cutOffDistance, double maxLat, int maxLatSrcId,
+			int maxLatRupId, double minLat, int minLatSrcId, int minLatRupId,
+			double maxLon, int maxLonSrcId, int maxLonRupId, double minLon,
+			int minLonSrcId, int minLonRupId) {
+		
+//		generate the SQL to be inserted in the Site_Region table
+//		String sql = "INSERT into CyberShake_Site_Regions VALUES('"+siteId+"','"+erfId+"','"+
+//		(float)cutOffDistance+"','"+(float)maxLat+"','"+maxLatSrcId+"','"+maxLatRupId+"','"+(float)maxLon+"','"+
+//		maxLatSrcId+"','"+maxLonRupId+"','"+(float)minLat+"','"+minLatSrcId+"','"+minLatRupId+"','"+
+//		(float)minLon+"','"+minLonSrcId+"','"+minLonRupId+"')";
+		String sql = "UPDATE CyberShake_Site_Regions ";
+		sql += "SET Max_Lat="+(float)maxLat+", ";
+		sql += "Max_Lat_Source_ID="+maxLatSrcId+", ";
+		sql += "Max_Lat_Rupture_ID="+maxLatRupId+", ";
+		sql += "Min_Lat="+(float)minLat+", ";
+		sql += "Min_Lat_Source_ID="+minLatSrcId+", ";
+		sql += "Min_Lat_Rupture_ID="+minLatRupId+", ";
+		sql += "Max_Lon="+(float)maxLon+", ";
+		sql += "Max_Lon_Source_ID="+maxLonSrcId+", ";
+		sql += "Max_Lon_Rupture_ID="+maxLonRupId+", ";
+		sql += "Min_Lon="+(float)minLon+", ";
+		sql += "Min_Lon_Source_ID="+minLonSrcId+", ";
+		sql += "Min_Lon_Rupture_ID="+minLonRupId+" ";
+		
+		sql += "WHERE CS_Site_ID=" + siteId + " AND ERF_ID=" + erfId + " AND Cutoff_Dist=" + cutOffDistance;
+		System.out.println(sql);
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			if (e.getMessage().contains("Duplicate")) {
+				System.out.println("Duplicate");
+			} else {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Inserts the rupture ids that correspond to a given site within given cutoff distance

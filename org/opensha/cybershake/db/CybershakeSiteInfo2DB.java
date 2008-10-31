@@ -121,6 +121,26 @@ public class CybershakeSiteInfo2DB {
 		return sourceMap;
 	}
 	
+	private int getCSSourceID(EqkRupForecastAPI eqkRupForecast, int erfID, int erfSourceID) {
+		int csSource = erfSourceID;
+		
+		if (match) {
+			HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfID);
+			if (map == null) {
+				System.err.println("WHAT?????????????");
+			}
+			System.out.print("Matching sourceID " + erfSourceID + "...");
+			if (map.containsKey(erfSourceID)) {
+				csSource = map.get(erfSourceID);
+				System.out.println(csSource);
+			} else {
+				System.out.println("it's not in there!");
+			}
+		}
+		
+		return csSource;
+	}
+	
 	/**
 	 * Finds all the ruptures that have any location on their surface within Cybershake location
 	 * circular regional bounds with option to add ruptures that are not already in database (with logging).
@@ -150,20 +170,7 @@ public class CybershakeSiteInfo2DB {
 				continue;
 			this.skipSource = -1;
 			
-			int csSource = sourceIndex;
-			if (match) {
-				HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfId);
-				if (map == null) {
-					System.err.println("WHAT?????????????");
-				}
-				System.out.print("Matching sourceID " + sourceIndex + "...");
-				if (map.containsKey(sourceIndex)) {
-					csSource = map.get(sourceIndex);
-					System.out.println(csSource);
-				} else {
-					System.out.println("it's not in there!");
-				}
-			}
+			int csSource = getCSSourceID(eqkRupForecast, erfId, sourceIndex);
 			
 			// get the ith source
 			ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -312,9 +319,10 @@ public class CybershakeSiteInfo2DB {
 	 * @param siteId
 	 * @param locLat
 	 * @param locLon
+	 * @param update - update bounds, don't reinsert
 	 */
 	public void putCyberShakeLocationRegionalBounds(EqkRupForecastAPI eqkRupForecast,int erfId, int siteId,
-			                                        double locLat,double locLon){
+			                                        double locLat,double locLon, boolean update){
 		
 		Location loc = new Location(locLat,locLon);
 		CircularGeographicRegion region = new CircularGeographicRegion(loc,CUT_OFF_DISTANCE);
@@ -335,6 +343,8 @@ public class CybershakeSiteInfo2DB {
 	      // get the ith source
 	      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 	      int numRuptures = source.getNumRuptures();
+	      
+	      int csSource = getCSSourceID(eqkRupForecast, erfId, sourceIndex);
 
 	      //going over all the ruptures in the source
 	      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
@@ -362,22 +372,22 @@ public class CybershakeSiteInfo2DB {
 	          if (lat < minLat){
 	            minLat = lat;
 	            minLatRupId = rupIndex;
-	            minLatSrcId = sourceIndex;
+	            minLatSrcId = csSource;
 	          }
 	          if (lat > maxLat){
 	            maxLat = lat;
 	            maxLatRupId = rupIndex;
-	            maxLatSrcId = sourceIndex;
+	            maxLatSrcId = csSource;
 	          }
 	          if (lon < minLon){
 	            minLon = lon;
 	            minLonRupId = rupIndex;
-	            minLonSrcId = sourceIndex;
+	            minLonSrcId = csSource;
 	          }
 	          if (lon > maxLon){
 	            maxLon = lon;
 	            maxLonRupId = rupIndex;
-	            maxLonSrcId = sourceIndex;
+	            maxLonSrcId = csSource;
 	          }
 	        }
 	      }
@@ -386,10 +396,17 @@ public class CybershakeSiteInfo2DB {
 	    if (Cybershake_OpenSHA_DBApplication.timer) {
 	    	start = System.currentTimeMillis();
 	    }
-	    site2db.insertSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
-	    		                         maxLat, maxLatSrcId, maxLatRupId, minLat,
-	    		                         minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
-	    		                         maxLonRupId, minLon, minLonSrcId, minLonRupId);
+	    if (update) {
+	    	site2db.updateSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
+                    maxLat, maxLatSrcId, maxLatRupId, minLat,
+                    minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
+                    maxLonRupId, minLon, minLonSrcId, minLonRupId);
+	    } else {
+	    	site2db.insertSiteRegionalBounds(siteId, erfId,CUT_OFF_DISTANCE,
+                    maxLat, maxLatSrcId, maxLatRupId, minLat,
+                    minLatSrcId, minLatRupId, maxLon, maxLonSrcId, 
+                    maxLonRupId, minLon, minLonSrcId, minLonRupId);
+	    }
 	    if (Cybershake_OpenSHA_DBApplication.timer) {
 	    	long total = (System.currentTimeMillis() - start);
 	    	System.out.println("Took " + total + " miliseconds to insert regional bounds!");

@@ -46,7 +46,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		double USC_LON = -118.28600;
 		int siteId = sites.getCybershakeSiteId("USC");
 		//siteId= sites.putCybershakeLocationInDB("USC", "USC", USC_LAT, USC_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, USC_LAT, USC_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, USC_LAT, USC_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, USC_LAT, USC_LON);
 	    
 	    //PAS
@@ -55,7 +55,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double PAS_LON = -118.17119;
 	    siteId = sites.getCybershakeSiteId("PAS");
 	    //siteId = sites.putCybershakeLocationInDB("PAS", "PAS",PAS_LAT ,PAS_LON );
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PAS_LAT, PAS_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PAS_LAT, PAS_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, PAS_LAT, PAS_LON);
 
 	    //LADT
@@ -64,7 +64,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double LADT_LON = -118.25713;
 	    siteId = sites.getCybershakeSiteId("LADT");
 	    //siteId= sites.putCybershakeLocationInDB("LADT", "LADT", LADT_LAT, LADT_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, LADT_LAT, LADT_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, LADT_LAT, LADT_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, LADT_LAT, LADT_LON);
 
 	    //LBP
@@ -73,7 +73,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double LBP_LON = -118.22300;
 	    siteId = sites.getCybershakeSiteId("LBP");
 	    //siteId = sites.putCybershakeLocationInDB("LBP", "LBP", LBP_LAT,LBP_LON );
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, LBP_LAT, LBP_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, LBP_LAT, LBP_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, LBP_LAT, LBP_LON);
 
 	    
@@ -83,7 +83,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double WNGC_LON = -118.06530;
 	    siteId = sites.getCybershakeSiteId("WNGC");
 	    //siteId = sites.putCybershakeLocationInDB("WNGC", "WNGC", WNGC_LAT,WNGC_LON );
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, WNGC_LAT, WNGC_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, WNGC_LAT, WNGC_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, WNGC_LAT, WNGC_LON);
 
 	    //SABD
@@ -92,7 +92,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double SABD_LON = -117.86778;
 	    siteId = sites.getCybershakeSiteId("SABD");
 	    //siteId = sites.putCybershakeLocationInDB("SABD", "SABD",SABD_LAT , SABD_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SABD_LAT, SABD_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SABD_LAT, SABD_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SABD_LAT, SABD_LON);
 	    
 	    //SBSM
@@ -101,7 +101,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double SBSM_LON = -117.29201;
 	    siteId = sites.getCybershakeSiteId("SBSM");
 	    //siteId = sites.putCybershakeLocationInDB("SBSM", "SBSM", SBSM_LAT, SBSM_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SBSM_LAT, SBSM_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SBSM_LAT, SBSM_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SBSM_LAT, SBSM_LON);
 
 	    
@@ -111,7 +111,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double FFI_LON = -118.50862;
 	    siteId = sites.getCybershakeSiteId("FFI");
 	    //siteId = sites.putCybershakeLocationInDB("FFI", "FFI", FFI_LAT, FFI_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, FFI_LAT, FFI_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, FFI_LAT, FFI_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, FFI_LAT, FFI_LON);
 
 	    //CCP
@@ -120,7 +120,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double CCP_LON = -118.41302;
 	    siteId = sites.getCybershakeSiteId("CCP");
 	    //siteId = sites.putCybershakeLocationInDB("CCP", "CCP", CCP_LAT, CCP_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, CCP_LAT, CCP_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, CCP_LAT, CCP_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, CCP_LAT, CCP_LON);
 	    
 	    //SMCA
@@ -129,7 +129,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double SMCA_LON = -118.48939;
 	    siteId = sites.getCybershakeSiteId("SMCA");
 	    //siteId = sites.putCybershakeLocationInDB("SMCA", "SMCA", SMCA_LAT, SMCA_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, SMCA_LAT, SMCA_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, SMCA_LAT, SMCA_LON);
 		
 		//PTWN
@@ -138,7 +138,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	    double PTWN_LON = -116.49771;
 	    siteId = sites.getCybershakeSiteId("PTWN");
 	    //int siteId = sites.putCybershakeLocationInDB("Pioneer Town", "PTWN", PTWN_LAT, PTWN_LON);
-	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
+	    sites.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, PTWN_LAT, PTWN_LON, false);
 	    sites.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, PTWN_LAT, PTWN_LON);
 
 	}
@@ -160,7 +160,7 @@ public class Cybershake_OpenSHA_DBApplication {
 			int siteId= siteDB.putCybershakeLocationInDB(newsite.name, newsite.short_name, newsite.lat, newsite.lon);
 			siteId = siteDB.getCybershakeSiteId(newsite.short_name);
 			System.out.println("Putting regional bounds into DB");
-			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon);
+			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon, false);
 			System.out.println("Putting Source Rupture info into DB");
 			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, checkAdd, "newRupsForScott.txt"));
 		}
@@ -179,13 +179,24 @@ public class Cybershake_OpenSHA_DBApplication {
 			
 			int siteId = siteDB.getCybershakeSiteId(newsite.short_name);
 			System.out.println("Putting regional bounds into DB");
-			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon);
+			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon, false);
 			System.out.println("Putting Source Rupture info into DB");
 			newRups.addAll(siteDB.putCyberShakeLocationSrcRupInfo(forecast, erfId, siteId, newsite.lat, newsite.lon, true));
 		}
 		System.out.println("New ruptures...");
 		for (int[] rup : newRups) {
 			System.out.println(rup[0] + " " + rup[1]);
+		}
+	}
+	
+	public void updateSiteRegionalBounds(ArrayList<CybershakeSite> sites, EqkRupForecastAPI forecast, int erfId, CybershakeSiteInfo2DB siteDB) {
+		int i=0;
+		int numSites = sites.size();
+		for (CybershakeSite newsite : sites) {
+			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + " %)");
+			int siteId = siteDB.getCybershakeSiteId(newsite.short_name);
+			System.out.println("Putting regional bounds into DB");
+			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon, true);
 		}
 	}
 	
@@ -382,11 +393,13 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		ArrayList<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
 //		site_list.add(new CybershakeSite(33.88110, -118.17568, "Lighthipe", "LTP"));
-//		site_list.add(new CybershakeSite(34.10647, -117.09822, "Seven Oaks Dam", "SVD"));
+		site_list.add(new CybershakeSite(34.10647, -117.09822, "Seven Oaks Dam", "SVD"));
 		site_list.add(new CybershakeSite(34.557, -118.125, "Lake Palmdale", "LAPD"));
-//		site_list.add(new CybershakeSite(34.39865, -118.912, "Filmore Central Park", "FIL"));
+		site_list.add(new CybershakeSite(34.39865, -118.912, "Filmore Central Park", "FIL"));
+//		site_list.add(new CybershakeSite(33.93088, -118.17881, "Seven Ten-Ninety Interchange ", "STNI"));
 		
-		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
+		app.updateSiteRegionalBounds(site_list, forecast, erfId, siteDB);
+//		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
 		
 		db.destroy();
 		
