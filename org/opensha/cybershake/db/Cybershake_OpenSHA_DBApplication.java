@@ -270,7 +270,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		return sites;
 	}
 	
-	public void insertNewERFWithOldSites(ArrayList<CybershakeSite> sites, ERF2DB erf2db, String name, String description) {
+	public void insertNewERFForSites(ArrayList<CybershakeSite> sites, ERF2DB erf2db, String name, String description) {
 		// get a new ERF-ID
 		int erfID = erf2db.insertERFId(name, description);
 		
@@ -296,7 +296,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	public void insertNewERFForAllSites(ERF2DB erf2db, String name, String description) {
 		ArrayList<CybershakeSite> sites = this.getAllSites();
 		
-//		this.insertNewERFWithOldSites(sites, cyberShakeSiteInfoDB, erf2db, name, description);
+//		this.insertNewERFForSites(sites, cyberShakeSiteInfoDB, erf2db, name, description);
 	}
 	
 	/**
@@ -398,8 +398,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		site_list.add(new CybershakeSite(34.39865, -118.912, "Filmore Central Park", "FIL"));
 //		site_list.add(new CybershakeSite(33.93088, -118.17881, "Seven Ten-Ninety Interchange ", "STNI"));
 		
-		app.updateSiteRegionalBounds(site_list, forecast, erfId, siteDB);
-//		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
+		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
 		
 		db.destroy();
 		
