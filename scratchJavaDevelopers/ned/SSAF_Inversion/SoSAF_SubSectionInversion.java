@@ -441,7 +441,7 @@ public class SoSAF_SubSectionInversion {
 				double mag = magAreaRel.getMedianMag(rupArea[rup]/1e6);
 				//round this to nearst 10th unit
 				rupMeanMag[rup] = ((double)Math.round(10*mag))/10.0;
-				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup])*this.gaussMFD_slipCorr;   // increased if magSigma >0
+				rupMeanMo[rup] = MomentMagCalc.getMoment(rupMeanMag[rup])*gaussMFD_slipCorr;   // increased if magSigma >0
 			}
 		}
 		
@@ -1840,7 +1840,7 @@ public class SoSAF_SubSectionInversion {
 		cumMagFreqDist.setInfo("Cumulative Mag Freq Dist");
 		mfd_funcs.add(cumMagFreqDist);
 		// add average seg participation MFD
-//		mfd_funcs.add(aveOfSegPartMFDs);
+		mfd_funcs.add(aveOfSegPartMFDs);
 		EvenlyDiscretizedFunc cumAveOfSegPartMFDs = aveOfSegPartMFDs.getCumRateDistWithOffset();
 		cumAveOfSegPartMFDs.setInfo("cumulative "+aveOfSegPartMFDs.getInfo());
 //		mfd_funcs.add(cumAveOfSegPartMFDs);
@@ -1881,6 +1881,7 @@ public class SoSAF_SubSectionInversion {
 		ArrayList<PlotCurveCharacterstics> plotMFD_Chars = new ArrayList<PlotCurveCharacterstics>();
 		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 3));
 		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 3));
+		plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.GREEN, 3));
 		if(gr != null) {
 			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.BLUE, 1));
 			plotMFD_Chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, Color.RED, 1));
@@ -2037,7 +2038,7 @@ public class SoSAF_SubSectionInversion {
 		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
 //		MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 		double relativeSegRateWt=1;
-		double relative_aPrioriRupWt = 100;
+		double relative_aPrioriRupWt = 0;
 		double relative_smoothnessWt = 10;
 		boolean wtedInversion = true;
 		double minRupRate = 1e-6;
@@ -2052,7 +2053,7 @@ public class SoSAF_SubSectionInversion {
 //		double grConstraintRateScaleFactor = 0.83;  // for case where b=0
 		double grConstraintBvalue = 1;
 		double grConstraintRateScaleFactor = 0.89;  // for case where b=1
-		double relative_aPrioriSegRateWt = 100;
+		double relative_aPrioriSegRateWt = 0;
 
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
@@ -2073,8 +2074,8 @@ public class SoSAF_SubSectionInversion {
 	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
 	    file.mkdirs();
 	    soSAF_SubSections.plotStuff(null);
-//		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
-//		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
+		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
+		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
 
 
 	/*

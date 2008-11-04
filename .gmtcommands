@@ -1,0 +1,13 @@
+# GMT common arguments shelf
+-B5.0:sub_section:/5:rupture:eWnS:.Rupture_Rates:
+-JX6i/7i
+-R/-1/83/-1/151
+-X1.25i
+-Y3i
+-y4i
+EOF
+
+EOF
+
+-y4i
+EOF
