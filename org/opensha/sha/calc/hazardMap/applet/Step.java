@@ -9,6 +9,8 @@ public class Step {
 	private JPanel panel;
 	private String title;
 	
+	private StepsPanel stepsPanel;
+	
 	ArrayList<StepActivatedListener> listeners = new ArrayList<StepActivatedListener>();
 	
 	public Step(JPanel panel, String title) {
@@ -40,5 +42,13 @@ public class Step {
 	
 	public void removeAllStepActivatedListeners() {
 		listeners.clear();
+	}
+
+	public StepsPanel getStepsPanel() {
+		return stepsPanel;
+	}
+
+	public void setStepsPanel(StepsPanel stepsPanel) {
+		this.stepsPanel = stepsPanel;
 	}
 }

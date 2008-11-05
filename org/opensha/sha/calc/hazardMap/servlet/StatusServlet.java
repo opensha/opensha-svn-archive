@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
+import java.text.Collator;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -91,8 +93,9 @@ public class StatusServlet extends ConfLoadingServlet {
 		
 		File dirList[] = dirFile.listFiles();
 		
-		ArrayList<String> ids = new ArrayList<String>();
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<DatasetID> datasets = new ArrayList<DatasetID>();
+		
+		ArrayList<String> foundLogFiles = new ArrayList<String>();
 		
 		for (File mapDir : dirList) {
 			if (!mapDir.isDirectory())
@@ -125,14 +128,90 @@ public class StatusServlet extends ConfLoadingServlet {
 				continue;
 			}
 			
+			boolean hasLogFile = false;
+			File logFile = new File(WORKFLOW_LOG_DIR + "/" + id[0] + ".log");
+			if (logFile.exists()) {
+				hasLogFile = true;
+				debug("This has a log file also: "+ logFile.getAbsolutePath());
+				foundLogFiles.add(logFile.getAbsolutePath());
+			}
+			
 			debug("Found dataset: " + datasetID);
-			ids.add(id[0]);
-			names.add(id[1]);
+			datasets.add(new DatasetID(id[0], id[1], hasLogFile, true));
 		}
 		
+		// now the log dir
+		dirFile = new File(WORKFLOW_LOG_DIR);
+		dirList = dirFile.listFiles();
+		
+		for (File logFile : dirList) {
+			if (!logFile.isFile())
+				continue;
+			if (!logFile.getName().trim().endsWith(".log"))
+				continue;
+			boolean skip = false;
+			for (String path : foundLogFiles) {
+				if (logFile.getAbsolutePath().equals(path)) {
+					skip = true;
+					break;
+				}
+			}
+			if (skip)
+				continue;
+			
+			debug("Proccessing log: " + logFile.getAbsolutePath());
+			
+			ArrayList<String> lines = FileUtils.loadFile(logFile.getAbsolutePath());
+			
+			String name = null;
+			String id = null;
+			
+			for (int i=0; i<lines.size(); i++) {
+				if (i > 4)
+					break;
+				
+				String line = lines.get(i).trim();
+				
+				if (line.startsWith(HazardMapJobCreator.LOG_COMMENT_ID_PREFIX)) {
+					id = line.replace(HazardMapJobCreator.LOG_COMMENT_ID_PREFIX, "").trim();
+					debug("Found id: " + id);
+					if (name != null)
+						break;
+					continue;
+				}
+				if (line.startsWith(HazardMapJobCreator.LOG_COMMENT_NAME_PREFIX)) {
+					name = line.replace(HazardMapJobCreator.LOG_COMMENT_NAME_PREFIX, "").trim();
+					debug("Found name: " + name);
+					if (id != null)
+						break;
+					continue;
+				}
+			}
+			if (name != null && id != null) {
+				boolean matched = false;
+				debug("Picked up log for " + name + " (id)");
+				for (DatasetID dataset : datasets) {
+					if (dataset.getID().equals(id)) {
+						matched = true;
+						dataset.setIsLogFile(true);
+						debug("Matched it!");
+						break;
+					}
+				}
+				if (!matched) {
+					datasets.add(new DatasetID(id, name, true, false));
+				}
+			} else {
+				debug("Bad log file!");
+			}
+		}
+		
+		
+		debug("Sorting dataset IDs...");
+		Collections.sort(datasets);
+		
 		debug("Sending dataset IDs...");
-		out.writeObject(ids);
-		out.writeObject(names);
+		out.writeObject(datasets);
 		
 		out.flush();
 		out.close();
@@ -184,32 +263,40 @@ public class StatusServlet extends ConfLoadingServlet {
 				line = line.trim();
 				if (line.length() == 0)
 					continue;
-				status = getStatus(line);
-				
-				debug("Status: " + status);
-				
-				if (match(status, HazardMapJobCreator.STATUS_TEST_JOB))
-					remote = false;
-				else if (match(status, HazardMapJobCreator.STATUS_TEST_JOB_REMOTE)) {
-					remote = true;
-					trans = 0;
+				if (line.startsWith("#"))
+					continue;
+				try {
+					String tmpStatus = getStatus(line);
+					
+//				debug("Status: " + tmpStatus);
+					
+					if (match(tmpStatus, HazardMapJobCreator.STATUS_TEST_JOB))
+						remote = false;
+					else if (match(tmpStatus, HazardMapJobCreator.STATUS_TEST_JOB_REMOTE)) {
+						remote = true;
+						trans = 0;
+					}
+					
+					if (tmpStatus.startsWith(HazardMapJobCreator.STATUS_WORKFLOW_BEGIN)) {
+						totalCurves = getNumberFromStatus(tmpStatus, lineNum);
+						tmpStatus = STATUS_WORKFLOW_BEGIN;
+					} else if (tmpStatus.startsWith(HazardMapJobCreator.STATUS_CURVE_CALCULATION_START)) {
+						ip += getNumberFromStatus(tmpStatus, lineNum);
+						tmpStatus = STATUS_CALCULATING;
+					} else if (tmpStatus.startsWith(HazardMapJobCreator.STATUS_CURVE_CALCULATION_END)) {
+						done += getNumberFromStatus(tmpStatus, lineNum);
+						tmpStatus = STATUS_CALCULATING;
+					} else if (remote && tmpStatus.startsWith(HazardMapJobCreator.STATUS_CURVE_RETRIEVED)) {
+						trans += getNumberFromStatus(tmpStatus, lineNum);
+						tmpStatus = STATUS_RETRIEVING;
+					}
+					
+					lastLine = line;
+					status = tmpStatus;
+				} catch (Exception e) {
+					debug("Bad status line: " + line);
+					debug(e.getMessage());
 				}
-				
-				if (status.startsWith(HazardMapJobCreator.STATUS_WORKFLOW_BEGIN)) {
-					totalCurves = this.getNumberFromStatus(status, lineNum);
-					status = STATUS_WORKFLOW_BEGIN;
-				} else if (status.startsWith(HazardMapJobCreator.STATUS_CURVE_CALCULATION_START)) {
-					ip += this.getNumberFromStatus(status, lineNum);
-					status = STATUS_CALCULATING;
-				} else if (status.startsWith(HazardMapJobCreator.STATUS_CURVE_CALCULATION_END)) {
-					done += this.getNumberFromStatus(status, lineNum);
-					status = STATUS_CALCULATING;
-				} else if (remote && status.startsWith(HazardMapJobCreator.STATUS_CURVE_RETRIEVED)) {
-					trans += this.getNumberFromStatus(status, lineNum);
-					status = STATUS_RETRIEVING;
-				}
-				
-				lastLine = line;
 			}
 			
 			debug("Final Status: " + status);
@@ -249,7 +336,7 @@ public class StatusServlet extends ConfLoadingServlet {
 	
 	public static int getNumberFromStatus(String status, int lineNum) {
 		status = status.trim();
-		System.out.println("Getting number status from: " + status);
+//		System.out.println("Getting number status from: " + status);
 		int strEnd = status.lastIndexOf(" ");
 		if (strEnd < 0)
 			throw new RuntimeException("Bad number line parse! (line " + lineNum + ")");
@@ -287,6 +374,11 @@ public class StatusServlet extends ConfLoadingServlet {
 	
 	public static String getLogFileName(String id) {
 		return WORKFLOW_LOG_DIR + "/" + id + ".log";
+	}
+	
+	public static String getIDFromLogFileName(String logFileName) {
+		logFileName = logFileName.trim();
+		return logFileName.replace(".log", "");
 	}
 
 }

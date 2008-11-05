@@ -53,7 +53,7 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 		System.out.println("Initializing...");
 		initInitialOptions();
 		
-		this.setSize(new Dimension(700, 550));
+		this.setSize(new Dimension(750, 650));
 	}
 	
 	private void initInitialOptions() {

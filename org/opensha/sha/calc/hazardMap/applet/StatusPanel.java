@@ -1,9 +1,14 @@
 package org.opensha.sha.calc.hazardMap.applet;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -11,9 +16,10 @@ import javax.swing.JSeparator;
 
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;
+import org.opensha.sha.calc.hazardMap.servlet.DatasetID;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServletAccessor;
 
-public class StatusPanel extends JPanel implements StepActivatedListener {
+public class StatusPanel extends JPanel implements StepActivatedListener, ActionListener {
 	
 	StatusServletAccessor statusAccessor = new StatusServletAccessor(StatusServletAccessor.SERVLET_URL);
 	
@@ -40,6 +46,8 @@ public class StatusPanel extends JPanel implements StepActivatedListener {
 	JPanel statusPanel = new JPanel();
 	JPanel datePanel = new JPanel();
 	JPanel barPanel = new JPanel();
+	
+	JButton refreshButton = new JButton("Refresh");
 	
 	public StatusPanel(HazardMapApplet parent) {
 		super(new BorderLayout());
@@ -76,17 +84,34 @@ public class StatusPanel extends JPanel implements StepActivatedListener {
 		
 		barPanel.setLayout(new BoxLayout(barPanel, BoxLayout.Y_AXIS));
 		
+		startProgress.setPreferredSize(new Dimension(300, 30));
+		calcProgress.setPreferredSize(new Dimension(300, 30));
+		retrieveProgress.setPreferredSize(new Dimension(300, 30));
+		
+		startProgress.setForeground(Color.BLUE);
+		calcProgress.setForeground(Color.GREEN);
+//		retrieveProgress.setForeground(new Color(0, 140, 0));
+		retrieveProgress.setForeground(new Color(255, 160, 0));
+//		retrieveProgress.setForeground(Color.ORANGE);
+		
 		barPanel.add(startProgress);
 		barPanel.add(new JSeparator());
 		barPanel.add(calcProgress);
 		barPanel.add(new JSeparator());
 		barPanel.add(retrieveProgress);
+		barPanel.add(refreshButton);
 		
-		this.add(barPanel, BorderLayout.CENTER);
+		refreshButton.addActionListener(this);
+		
+		JPanel panel = new JPanel();
+		
+		panel.add(barPanel);
+		
+		this.add(panel, BorderLayout.CENTER);
 	}
 	
 	private void loadStatus() {
-		String id[] = this.parent.getSelector().getSelectedID();
+		DatasetID id = this.parent.getSelector().getSelectedID();
 		
 		if (id == null) {
 			clearStatus();
@@ -94,8 +119,9 @@ public class StatusPanel extends JPanel implements StepActivatedListener {
 		}
 		
 		try {
-			CalculationStatus status = this.statusAccessor.getStatus(id[0]);
-			this.setStatus(status, id[0], id[0]);
+			CalculationStatus status = this.statusAccessor.getStatus(id.getID());
+			
+			this.setStatus(status, id.getID(), id.getName());
 		} catch (Exception e) {
 			clearStatus();
 			e.printStackTrace();
@@ -170,7 +196,14 @@ public class StatusPanel extends JPanel implements StepActivatedListener {
 
 	public void stepActivated(Step step) {
 		System.out.println("Activated!");
+		this.clearStatus();
 		this.loadStatus();
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == refreshButton) {
+			this.loadStatus();
+		}
 	}
 
 }

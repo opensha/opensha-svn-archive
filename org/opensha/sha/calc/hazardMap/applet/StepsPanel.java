@@ -79,6 +79,7 @@ public class StepsPanel extends JPanel implements ActionListener {
 		for (int i=0; i<steps.size(); i++) {
 			Step step = steps.get(i);
 			centerPanel.add(step.getPanel(), i+"");
+			step.setStepsPanel(this);
 		}
 		
 		this.loadStep(0);
@@ -86,6 +87,14 @@ public class StepsPanel extends JPanel implements ActionListener {
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(bottomPanel, BorderLayout.SOUTH);
 		this.add(centerPanel, BorderLayout.CENTER);
+	}
+	
+	public void setNextEnabled(boolean enabled) {
+		this.nextButton.setEnabled(enabled);
+	}
+	
+	public void setPreviousEnabled(boolean enabled) {
+		this.backButton.setEnabled(enabled);
 	}
 	
 	private void loadStep(int index) {

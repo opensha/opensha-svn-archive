@@ -12,7 +12,7 @@ public class StatusCheckManager extends StepManager {
 	
 	public StatusCheckManager(HazardMapApplet parent) {
 		super(parent, null, parent.getConsole());
-		selectStep = parent.getSelector().createStep();
+		selectStep = parent.getSelector().getStep();
 		
 		StatusPanel statusPanel = new StatusPanel(parent);
 		statusStep = new Step(statusPanel, "Calculation Status");

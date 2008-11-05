@@ -49,7 +49,7 @@ public class StatusServletAccessor extends ServletAccessor {
 		return status;
 	}
 	
-	public String[][] getDatasetIDs() throws IOException, ClassNotFoundException {
+	public ArrayList<DatasetID> getDatasetIDs() throws IOException, ClassNotFoundException {
 		URLConnection servletConnection = this.openServletConnection(false);
 		
 		ObjectOutputStream outputToServlet = new
@@ -71,19 +71,11 @@ public class StatusServletAccessor extends ServletAccessor {
 			throw new RuntimeException("ID List Request Failed: " + message);
 		}
 		
-		ArrayList<String> ids = (ArrayList<String>)idObj;
-		ArrayList<String> names = (ArrayList<String>)inputFromServlet.readObject();
+		ArrayList<DatasetID> ids = (ArrayList<DatasetID>)idObj;
 		
 		inputFromServlet.close();
 		
-		String ret[][] = new String[ids.size()][2];
-		
-		for (int i=0; i<ids.size(); i++) {
-			ret[i][0] = ids.get(i);
-			ret[i][1] = names.get(i);
-		}
-		
-		return ret;
+		return ids;
 	}
 
 	/**
@@ -103,8 +95,8 @@ public class StatusServletAccessor extends ServletAccessor {
 		
 		try {
 //			System.out.println(access.getStatus(id));
-			for (String dataID[] : access.getDatasetIDs()) {
-				System.out.println("ID: " + dataID[0] + " " + dataID[1]);
+			for (DatasetID dataID : access.getDatasetIDs()) {
+				System.out.println("ID: " + dataID.getID() + " " + dataID.getName());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
