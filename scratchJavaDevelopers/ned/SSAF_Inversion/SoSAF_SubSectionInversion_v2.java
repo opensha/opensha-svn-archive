@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scratchJavaDevelopers.ned.SSAF_Inversion;
+package scratchJavaDevelopers.pagem.SSAF_Inversion;
 
 import java.awt.Color;
 import java.io.BufferedWriter;
@@ -64,7 +64,7 @@ import org.opensha.sha.fault.FaultTrace;
  */
 public class SoSAF_SubSectionInversion_v2 {
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
-	public final static String ROOT_PATH = "/Users/pagem/eclipse/workspace/OpenSHA/scratchJavaDevelopers/ned/SSAF_Inversion/";
+	public final static String ROOT_PATH = "/Users/pagem/eclipse/workspace/OpenSHA/scratchJavaDevelopers/pagem/SSAF_Inversion/";
 
 
 	private boolean D = true;
