@@ -428,4 +428,14 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
 	  
 	  return erf;
   }
+  
+  /**
+   * This draws a random event set.  Non-poisson sources are not yet implemented
+   * @return
+   */
+  public ArrayList<ProbEqkRupture> drawRandomEventSet() {
+	  ArrayList<ProbEqkRupture> rupList = new ArrayList();
+	  for(int s=0; s<this.getNumSources(); s++) rupList.addAll(getSource(s).drawRandomEqkRuptures());
+	  return rupList;
+  }
 }
