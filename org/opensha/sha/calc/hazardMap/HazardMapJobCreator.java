@@ -79,8 +79,12 @@ public class HazardMapJobCreator {
 	public static final String WRAPPER_SCRIPT_NAME = "launch.sh";
 	public static final String RET_VAL_SCRIPT_NAME = "ret_val.sh";
 	
+	public static final String LOG_COMMENT_NAME_PREFIX = "#name: ";
+	public static final String LOG_COMMENT_ID_PREFIX = "#id: ";
+	
 	public static int NUM_JOB_RETRIES = 3;
-	public static int TAR_WALL_TIME = 30;
+	public static double TAR_WALL_TIME_PER_CURVE = 0.05;
+	public static int TAR_WALL_TIME_MIN = 5;
 
 	private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
 
@@ -1166,6 +1170,16 @@ public class HazardMapJobCreator {
 	ArrayList<String> tarInFiles = new ArrayList<String>();
 
 	boolean firstStageOut = true;
+	
+	public static int getTarWallTime(int sitesPerJob) {
+		double wt = (double)sitesPerJob * TAR_WALL_TIME_PER_CURVE + 2d;
+		
+		int wtInt = (int)(wt + 0.5);
+		
+		if (wtInt < TAR_WALL_TIME_MIN)
+			return TAR_WALL_TIME_MIN;
+		return wtInt;
+	}
 
 	public String createStageOutZipJobFile(String regionName, ArrayList<String> outFiles) {
 
@@ -1207,7 +1221,7 @@ public class HazardMapJobCreator {
 			fr.write("executable = " + executable + "\n");
 			fr.write("arguments = " + arguments + "\n");
 			fr.write("notification = NEVER" + "\n");
-			fr.write("globusrsl = (jobtype=single)(maxwalltime=" + TAR_WALL_TIME + ")" + "\n");
+			fr.write("globusrsl = (jobtype=single)(maxwalltime=" + getTarWallTime(job.getCalcParams().getSitesPerJob()) + ")" + "\n");
 			fr.write("globusscheduler = " + rp.getHostName() + "/" + rp.getBatchScheduler() + "\n");
 			fr.write("copy_to_spool = false" + "\n");
 			fr.write("error = " + outputDir + "/" + tgzSubDir + "/err/" + regionName + ".err" + "\n");
@@ -1296,7 +1310,7 @@ public class HazardMapJobCreator {
 			fr.write("executable = " + executable + "\n");
 			fr.write("arguments = " + arguments + "\n");
 			fr.write("notification = NEVER" + "\n");
-			fr.write("globusrsl = (jobtype=single)(maxwalltime=" + TAR_WALL_TIME + ")" + "\n");
+			fr.write("globusrsl = (jobtype=single)(maxwalltime=" + getTarWallTime(job.getCalcParams().getSitesPerJob()) + ")" + "\n");
 			fr.write("globusscheduler = " + storageHost.getSchedulerHostName() + "/" + storageHost.getBatchScheduler() + "\n");
 			fr.write("copy_to_spool = false" + "\n");
 			fr.write("error = " + outputDir + "/" + tgzUnzipDir + "/err/" + regionName + ".err" + "\n");
@@ -1366,6 +1380,8 @@ public class HazardMapJobCreator {
 
 	public void logStart() {
 		try {
+			writeToLogFile(logDir + logFileName, LOG_COMMENT_NAME_PREFIX + job.getJobName());
+			writeToLogFile(logDir + logFileName, LOG_COMMENT_ID_PREFIX + job.getJobID());
 			this.logMessage(STATUS_CREATE_BEGIN);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -1389,15 +1405,20 @@ public class HazardMapJobCreator {
 		this.logDir = logDir;
 	}
 	
-	public static void logMessage(String logFileName, String message) throws IOException {
+	public static void writeToLogFile(String logFileName, String message) throws IOException {
 		File logFile = new File(logFileName);
 		if (!logFile.exists())
 			logFile.createNewFile();
 		FileOutputStream stream = new FileOutputStream(logFile, true);
-		message = "[" + getCurrentDateString() + "] " + message + "\n";
+		message += "\n";
 		stream.write(message.getBytes());
 		stream.flush();
 		stream.close();
+	}
+	
+	public static void logMessage(String logFileName, String message) throws IOException {
+		message = "[" + getCurrentDateString() + "] " + message;
+		writeToLogFile(logFileName, message);
 	}
 
 	public synchronized void logMessage(String message) throws IOException {
