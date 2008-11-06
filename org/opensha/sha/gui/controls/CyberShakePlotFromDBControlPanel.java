@@ -466,27 +466,38 @@ extends JFrame implements ParameterChangeListener {
 	 * site for which deterministic calculations can be done.
 	 */
 	private void initSrcIndexParam(){
+		selectedSrcId = -1;
 		System.out.println("Updating SRC Indices with ERF ID="+selectedERF.id);
 		ArrayList srcIdList = this.csSites.getSrcIDsForSite(selectedSite.short_name, selectedERF.id);
-		selectedSrcId = ((Integer)srcIdList.get(0));
 		int size = srcIdList.size();
-		for(int i=0;i<size;++i)
-			srcIdList.set(i, ""+srcIdList.get(i));
+		if (size > 0) {
+			selectedSrcId = ((Integer)srcIdList.get(0));
+			
+			for(int i=0;i<size;++i)
+				srcIdList.set(i, ""+srcIdList.get(i));
+		} else {
+			srcIdList.add("" + selectedSrcId);
+		}
 
-		srcIndexParam = new StringParameter(SRC_INDEX_PARAM,srcIdList,(String)srcIdList.get(0));
+		srcIndexParam = new StringParameter(SRC_INDEX_PARAM,srcIdList,"" + selectedSrcId);
 		srcIndexParam.addParameterChangeListener(this);
 	}
 
 	/**
-	 * Creates the Rupture Id selection parameter displaying all the rup ids for a given Cybershake
+	 * Creates the Rupture Id sel = -1;ection parameter displaying all the rup ids for a given Cybershake
 	 * site for which deterministic calculations can be done.
 	 */
 	private void initRupIndexParam(){
 		System.out.println("Updating Rup Indices with ERF ID="+selectedERF.id);
 		ArrayList rupIdList = this.csSites.getRupIDsForSite(selectedSite.short_name, selectedERF.id, selectedSrcId);
 		int size = rupIdList.size();
-		for(int i=0;i<size;++i)
-			rupIdList.set(i, ""+rupIdList.get(i));
+		if (size > 0) {
+			for(int i=0;i<size;++i)
+				rupIdList.set(i, ""+rupIdList.get(i));
+		} else {
+			rupIdList.add(""+(-1));
+		}
+		
 		rupIndexParam = new StringParameter(RUP_INDEX_PARAM,rupIdList,(String)rupIdList.get(0));   
 		rupIndexParam.addParameterChangeListener(this);
 	}
