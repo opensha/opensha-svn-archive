@@ -26,9 +26,16 @@ public class CybershakeSiteInfo2DB {
 	private boolean logging = false;
 	private boolean forceAddRuptures = false;
 	
+	private boolean matchSourceNames = false;
+	HashMap<Integer, Integer> sourceMap = null;
+	
 	public CybershakeSiteInfo2DB(DBAccess db){
 		site2db = new SiteInfo2DB(db);
 		erf2db = new ERF2DB(db);
+	}
+	
+	public void setMatchSourceNames(boolean match) {
+		matchSourceNames = match;
 	}
 	
 	
@@ -97,9 +104,6 @@ public class CybershakeSiteInfo2DB {
 				siteId, locLat, locLon, checkAddRup, "");
 	}
 	
-	boolean match = true;
-	HashMap<Integer, Integer> sourceMap = null;
-	
 	private HashMap<Integer, Integer> getSourceMatchMap(EqkRupForecastAPI eqkRupForecast, int erfID) {
 		if (sourceMap == null) {
 			sourceMap = new HashMap<Integer, Integer>();
@@ -124,7 +128,7 @@ public class CybershakeSiteInfo2DB {
 	private int getCSSourceID(EqkRupForecastAPI eqkRupForecast, int erfID, int erfSourceID) {
 		int csSource = erfSourceID;
 		
-		if (match) {
+		if (matchSourceNames) {
 			HashMap<Integer, Integer> map = this.getSourceMatchMap(eqkRupForecast, erfID);
 			if (map == null) {
 				System.err.println("WHAT?????????????");

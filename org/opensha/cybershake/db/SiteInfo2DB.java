@@ -239,7 +239,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 				sql += ",";
 			}
 		}
-		//System.out.println(sql);
+		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {

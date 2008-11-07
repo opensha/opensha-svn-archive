@@ -151,6 +151,129 @@ public  class ERF2DB implements ERF2DBAPI{
 		
 	}
 	
+	public ArrayList<Integer> getRuptureIDs(int erfID, int sourceID) {
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+
+		String sql = "SELECT Rupture_ID from Ruptures WHERE ERF_ID=" + erfID + " AND Source_ID=" + sourceID + " order by Rupture_ID";
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while (!rs.isAfterLast()) {
+				int id = rs.getInt("Rupture_ID");
+				ids.add(id);
+				
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+
+		return ids;
+	}
+
+	public void loadSourceList(int erfID, ArrayList<Integer> ids, ArrayList<String> names) {
+		String sql = "SELECT distinct Source_ID,Source_Name from Ruptures WHERE ERF_ID=" + erfID + " order by Source_ID";
+//		System.out.println(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				int id = rs.getInt("Source_ID");
+//				System.out.println("Loaded source " + id);
+				ids.add(id);
+				if (names != null) {
+					String name = rs.getString("Source_Name");
+					names.add(name);
+				}
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+
+		return;
+	}
+	
+	public int calcNumPoints(int erfID, int sourceID, int ruptureID) {
+		String sql = "SELECT count(*) from Points WHERE ERF_ID=" + erfID + " AND Source_ID=" + sourceID + " AND Rupture_ID=" + ruptureID;
+//		sql = "SELECT * FROM (" + sql + ") A"; 
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		int num = -1;
+		try {
+			rs.first();
+			num = rs.getInt("count(*)");
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return num;
+	}
+	
+	public int getListedNumPoints(int erfID, int sourceID, int ruptureID) {
+		String sql = "SELECT Num_Points from Ruptures WHERE ERF_ID=" + erfID + " AND Source_ID=" + sourceID + " AND Rupture_ID=" + ruptureID;
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		int num = -1;
+		try {
+			rs.first();
+			num = rs.getInt("Num_Points");
+			rs.close();
+		} catch (SQLException e) {
+//			e.printStackTrace();
+		}
+		return num;
+	}
+
+	public ArrayList<int[]> checkNumPoints(int erfID) {
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		
+		this.loadSourceList(erfID, ids, null);
+		
+		ArrayList<int[]> bad = new ArrayList<int[]>();
+		
+		for (int sourceID : ids) {
+			System.out.println("Processing source " + sourceID);
+			ArrayList<Integer> rupIDs = this.getRuptureIDs(erfID, sourceID);
+			for (int ruptureID : rupIDs) {
+				int listNum = this.getListedNumPoints(erfID, sourceID, ruptureID);
+				int calcNum = this.calcNumPoints(erfID, sourceID, ruptureID);
+				
+				if (listNum != calcNum || listNum < 0) {
+					System.out.println(sourceID + " " + ruptureID + " " + listNum + "-->" + calcNum);
+					int asdf[] = {sourceID, ruptureID};
+					bad.add(asdf);
+				}
+			}
+		}
+		return bad;
+	}
+	
 	/**
 	 * Inserts surface locations information for each rupture in table "Points"
 	 * @param erfName
@@ -163,34 +286,83 @@ public  class ERF2DB implements ERF2DBAPI{
 	 * @param dip
 	 * @param strike
 	 */
-	public void insertRuptureSurface(ArrayList<Integer> erfId, ArrayList<Integer> sourceId, ArrayList<Integer> ruptureId, 
+	public void insertRuptureSurface(int erfId, ArrayList<Integer> sourceId, ArrayList<Integer> ruptureId, 
 			ArrayList<Double> lat, ArrayList<Double> lon, ArrayList<Double> depth, ArrayList<Double> rake, 
 			ArrayList<Double> dip, ArrayList<Double> strike) {
 //		generate the SQL to be inserted in the ERF_Metadata table
-		String sql = "INSERT into Points"+ 
-		             "(ERF_ID,Source_ID,Rupture_ID,Lat,Lon,Depth,Rake,Dip,Strike)";
-		int size = erfId.size();
-		sql += " VALUES";
-		for (int i=0; i<size; i++) {
-			sql += "('"+erfId.get(i)+"','"+sourceId.get(i)+"','"+
-            ruptureId.get(i)+"','"+lat.get(i).floatValue()+"','"+lon.get(i).floatValue()+"','"+depth.get(i).floatValue()+"','"+
-            rake.get(i).floatValue()+"','"+dip.get(i).floatValue()+"','"+strike.get(i).floatValue()+"') ";
-			if ((i + 1) == size) { // this is the last one, no comma at end
-				
-			} else {
-				sql += ",";
-			}
-		}
-		
-//		System.out.println(sql);
-		            
+		String sql = null;
+		int size = sourceId.size();
+		int maxInsertPoints = 1000;
 		try {
+			for (int i=0; i<size; i++) {
+
+				if (i % maxInsertPoints == 0) {
+					if (i > 0) {
+						dbaccess.insertUpdateOrDeleteData(sql);
+					}
+
+					sql = "INSERT into Points"+ 
+					"(ERF_ID,Source_ID,Rupture_ID,Lat,Lon,Depth,Rake,Dip,Strike) VALUES";
+				}
+				sql += "('"+erfId+"','"+sourceId.get(i)+"','"+
+				ruptureId.get(i)+"','"+lat.get(i).floatValue()+"','"+lon.get(i).floatValue()+"','"+depth.get(i).floatValue()+"','"+
+				rake.get(i).floatValue()+"','"+dip.get(i).floatValue()+"','"+strike.get(i).floatValue()+"') ";
+				if ((i + 1) == size || (i + 1) % maxInsertPoints == 0) { // this is the last one, no comma at end
+
+				} else {
+					sql += ",";
+				}
+			}
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			int num = sql.length() - 1;
+			if (num > 100)
+				System.out.println(sql.substring(0, 100) + " ... " + sql.substring(num - 30));
+			else
+				System.out.println(sql);
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Inserts surface locations information for each rupture in table "Points"
+	 * @param erfName
+	 * @param sourceId
+	 * @param ruptureId
+	 * @param lat
+	 * @param lon
+	 * @param depth
+	 * @param rake
+	 * @param dip
+	 * @param strike
+	 */
+	public void insertBatchRuptureSurface(int erfId, ArrayList<Integer> sourceId, ArrayList<Integer> ruptureId, 
+			ArrayList<Double> lat, ArrayList<Double> lon, ArrayList<Double> depth, ArrayList<Double> rake, 
+			ArrayList<Double> dip, ArrayList<Double> strike) {
 		
+		ArrayList<Integer> sourceIds = new ArrayList<Integer>();
+		ArrayList<Integer> ruptureIds = new ArrayList<Integer>(); 
+		ArrayList<Double> lats = new ArrayList<Double>();
+		ArrayList<Double> lons = new ArrayList<Double>();
+		ArrayList<Double> depths = new ArrayList<Double>();
+		ArrayList<Double> rakes = new ArrayList<Double>(); 
+		ArrayList<Double> dips = new ArrayList<Double>();
+		ArrayList<Double> strikes = new ArrayList<Double>();
+		
+		for (int i=0; i<sourceIds.size(); i++) {
+			if (i % 1000 == 0) {
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+				sourceIds.clear();
+			}
+		}
 	}
 
 	/**
@@ -403,7 +575,6 @@ public  class ERF2DB implements ERF2DBAPI{
 //			}
 //		}
 		
-		ArrayList<Integer> erfIds = new ArrayList<Integer>();
 		ArrayList<Integer> sourceIds = new ArrayList<Integer>();
 		ArrayList<Integer> ruptureIds = new ArrayList<Integer>(); 
 		ArrayList<Double> lats = new ArrayList<Double>();
@@ -415,7 +586,6 @@ public  class ERF2DB implements ERF2DBAPI{
   	  for(int k=0;k<numRows;++k){
   	      for (int j = 0; j < numCols; ++j) {
   	        Location loc = rupSurface.getLocation(k,j);
-  	        erfIds.add(erfID);
   	        sourceIds.add(sourceID);
   	        ruptureIds.add(rupID);
   	        lats.add(loc.getLatitude());
@@ -426,6 +596,7 @@ public  class ERF2DB implements ERF2DBAPI{
   	        strikes.add(localStrikeList[j]);
   	      }
   	  }
+  	  this.insertRuptureSurface(erfID, sourceIds, ruptureIds, lats, lons, depths, rakes, dips, strikes);
 	}
 
 	  
@@ -544,7 +715,16 @@ public  class ERF2DB implements ERF2DBAPI{
 		  DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		  ERF2DB erf2db = new ERF2DB(db);
 		  String name = "Ventura-Pitas Point";
-		  System.out.println(name + ": " + erf2db.getSourceIDFromName(34, name));
+//		  System.out.println(name + ": " + erf2db.getSourceIDFromName(34, name));
+		  ArrayList<int[]> bad = erf2db.checkNumPoints(35);
+		  
+		  if (bad.size() > 0) {
+			  for (int[] it : bad) {
+				  System.out.println("BAD: " + it[0] + " " + it[1]);
+			  }
+		  } else {
+			  System.out.println("All checks out!");
+		  }
 		  
 		  db.destroy();
 	  }
