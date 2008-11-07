@@ -1,7 +1,7 @@
 /**
  * 
  */
-package scratchJavaDevelopers.pagem.SSAF_Inversion;
+package scratchJavaDevelopers.ned.SSAF_Inversion;
 
 import java.awt.Color;
 import java.io.BufferedWriter;
