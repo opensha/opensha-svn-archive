@@ -1464,6 +1464,7 @@ public class SoSAF_SubSectionInversion_v3 {
 
 		numiter = 1000;
 		for (iter=1; iter <= numiter; iter++) {
+		  System.out.println("Iteration # "+iter);	
 		  T = 1/iter;  // Simulated annealing "temperature"
 		  
 		  // Pick neighbor of current model
@@ -2120,7 +2121,7 @@ public class SoSAF_SubSectionInversion_v3 {
 		String slipModelType = TAPERED_SLIP_MODEL;
 		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
 //		MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
-		double relativeSegRateWt=1e6;
+		double relativeSegRateWt = 1;
 		double relative_aPrioriRupWt = 0;
 		double relative_smoothnessWt = 0; //10 (Ned) or 10000(MP)
 		boolean wtedInversion = true;
