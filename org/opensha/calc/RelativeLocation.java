@@ -346,7 +346,7 @@ public final class RelativeLocation {
     }
 
     /**
-     * Helper method that calculates the angle between two locations
+     * Helper method that calculates the angle between two locations (value returned is between -180 and 180 degrees)
      * on the earth.<p>
      *
      * @param lat1               latitude of first point

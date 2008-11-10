@@ -77,6 +77,34 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
       throw new RuntimeException("This needs to be fixed for case where aximuths that cross the north direction (e.g., values of 10 & 350 average to 180");
       //return aveStrike/totLength;
     }
+    
+    /**
+     * This returns the strike direction (between -180 and 180 degrees) defined by the first and last points only
+     * @return
+     */
+    public double getStrikeDirection() {
+    	return RelativeLocation.getAzimuth(getLocationAt(0), getLocationAt(size()-1));
+     }
+
+    
+    
+    /**
+     * This returns the change in strike direction in going from this trace to the one passed in 
+     * (input_trace_azimuth-this_azimuth), where this accounts the change in sign for azimuths at
+     * 180 degrees.  The output is between -180 and 180 degress).
+     * @return
+     */
+    public double getStrikeDirectionDifference(FaultTrace trace) {
+    	double diff = trace.getStrikeDirection() - this.getStrikeDirection();
+    	if(diff>180)
+    		return diff-360;
+    	else if (diff<-180)
+    		return diff+360;
+    	else
+    		return diff;
+     }
+
+    
 
     /*
      * Calculates  minimum distance of this faultTrace from the user provided fault trace.
