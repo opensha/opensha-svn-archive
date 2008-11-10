@@ -1342,6 +1342,7 @@ public class SoSAF_SubSectionInversion {
 	 * plus any events smaller than parkfield to have zero rate
 	 */
 	private void setAprioriRupRates() {
+	
 				
 		double parkfieldMag = rupMeanMag[getParkfieldRuptureIndex()];
 		
@@ -1374,6 +1375,44 @@ public class SoSAF_SubSectionInversion {
 		aPriori_rate[num_constraints-1] = PARKFIELD_EVENT_RATE;
 		aPriori_wt[num_constraints-1] = 1; 
 
+	}
+	
+	
+	
+	private void setAprioriRupRates2() {
+
+		// make target GR dist
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(5,41,0.1);
+		gr.setAllButTotCumRate(5, rupMeanMag[num_rup-1], totMoRate, grConstraintBvalue);
+		
+		// get number of rups in each mag bin
+		meanMagHistorgram = new SummedMagFreqDist(4,51,0.1);
+		for(int rup=0; rup<num_rup;rup++) meanMagHistorgram.add(rupMeanMag[rup], 1.0);
+
+		aPriori_rupIndex = new int[num_rup];
+		aPriori_rate = new double[num_rup];
+		aPriori_wt = new double[num_rup];
+		
+		// set all rates according to GR
+		for(int r=0;r<num_rup;r++) {
+			double mag = rupMeanMag[r];
+			aPriori_rupIndex[r]=r;
+			aPriori_rate[r]=gr.getIncrRate(mag)/meanMagHistorgram.getIncrRate(mag);
+			aPriori_wt[r]=1.0;
+		}
+		
+		// set rates of those smaller than parkfield to zero
+		double parkfieldMag = rupMeanMag[getParkfieldRuptureIndex()];
+		for(int r=0;r<num_rup;r++)
+			if(rupMeanMag[r]<parkfieldMag) {
+				aPriori_rate[r] = 0.0;
+			}
+		
+		// set parkfield
+		aPriori_rate[getParkfieldRuptureIndex()] = PARKFIELD_EVENT_RATE;
+
+
+		
 	}
 
 	
@@ -2038,22 +2077,22 @@ public class SoSAF_SubSectionInversion {
 		MagAreaRelationship magAreaRel = new HanksBakun2002_MagAreaRel();
 //		MagAreaRelationship magAreaRel = new Ellsworth_B_WG02_MagAreaRel();
 		double relativeSegRateWt=1;
-		double relative_aPrioriRupWt = 0;
+		double relative_aPrioriRupWt = 100;
 		double relative_smoothnessWt = 10;
 		boolean wtedInversion = true;
-		double minRupRate = 1e-6;
+		double minRupRate = 0;
 		boolean applyProbVisible = true;
 		double moRateReduction =0.1;
 		boolean transitionAseisAtEnds = true; 
 		boolean transitionSlipRateAtEnds = true;
 		int slipRateSmoothing = 5;
-//		double relativeGR_constraintWt = 0.0;
+//		double relativeGR_constraintWt = 1e6;
 		double relativeGR_constraintWt = 0;
 //		double grConstraintBvalue = 0;
 //		double grConstraintRateScaleFactor = 0.83;  // for case where b=0
 		double grConstraintBvalue = 1;
 		double grConstraintRateScaleFactor = 0.89;  // for case where b=1
-		double relative_aPrioriSegRateWt = 0;
+		double relative_aPrioriSegRateWt = 100;
 
 
 		soSAF_SubSections.doInversion(maxSubsectionLength,numSegForSmallestRups,deformationModel,
@@ -2070,10 +2109,10 @@ public class SoSAF_SubSectionInversion {
 //		soSAF_SubSections.plotHistograms();
 
 		
-		String dirName = "test";
+		String dirName = "test1";
 	    File file = new File(soSAF_SubSections.ROOT_PATH+dirName);
 	    file.mkdirs();
-	    soSAF_SubSections.plotStuff(null);
+	    soSAF_SubSections.plotStuff(dirName);
 		soSAF_SubSections.plotOrWriteSegPartMFDs(dirName, true);
 		soSAF_SubSections.writeAndPlotNonZeroRateRups(dirName, true);
 
