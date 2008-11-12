@@ -23,9 +23,24 @@ public class HazardCurve2DB {
 	}
 	
 	public ArrayList<Integer> getAllHazardCurveIDs(int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
+		erfIDs.add(erfID);
 		
-		String sql = "SELECT Hazard_Curve_ID FROM Hazard_Curves WHERE ERF_ID=" + erfID + 
-					" AND Rup_Var_Scenario_ID=" + rupVarScenarioID + " AND SGT_Variation_ID=" + sgtVarID + 
+		return this.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
+	}
+	
+	public ArrayList<Integer> getAllHazardCurveIDs(ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+		
+		String sql = "SELECT Hazard_Curve_ID FROM Hazard_Curves WHERE ERF_ID in (";
+		boolean first = true;
+		for (int erfID : erfIDs) {
+			if (first)
+				first = false;
+			else
+				sql += ",";
+			sql += erfID;
+		}
+		sql += 	") AND Rup_Var_Scenario_ID=" + rupVarScenarioID + " AND SGT_Variation_ID=" + sgtVarID + 
 					" AND IM_Type_ID=" + imTypeID + " ORDER BY Curve_Date desc";
 		
 //		System.out.println(sql);
