@@ -823,7 +823,14 @@ extends JFrame implements ParameterChangeListener {
 	private void setEqkRupForecastParams(){
 		ERF_GuiBean gui = application.getEqkRupForecastGuiBeanInstance();
 		ParameterListEditor editorList = gui.getERFParameterListEditor();
-		gui.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(selectedERF.name);
+		String erfName = selectedERF.name;
+		if (erfName.endsWith("/08") || erfName.endsWith("/09")) {
+			// remove date tags
+			erfName = erfName.trim();
+			erfName = erfName.substring(0, erfName.lastIndexOf(" "));
+			erfName = erfName.trim();
+		}
+		gui.getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(erfName);
 		gui.getERFParameterListEditor().refreshParamEditor();
 		gui.getParameter(UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
 		gui.getParameter(MeanUCERF2.RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
