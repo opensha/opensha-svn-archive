@@ -38,8 +38,8 @@ public class ScatterComparisonCreator {
 	
 	ArrayList<XYTextAnnotation> annotations = new ArrayList<XYTextAnnotation>();
 	
-	public ScatterComparisonCreator(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
-		fetcher = new HazardCurveFetcher(db, erfID, rupVarScenarioID, sgtVarID, imTypeID);
+	public ScatterComparisonCreator(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+		fetcher = new HazardCurveFetcher(db, erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 		sites = fetcher.getCurveSites();
 	}
 	
@@ -153,7 +153,6 @@ public class ScatterComparisonCreator {
 	public static void main(String args[]) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		
-		int erfID = 34;
 		int rupVarScenID = 3;
 		int sgtVarID = 5;
 		int imTypeID = 21;
@@ -162,7 +161,10 @@ public class ScatterComparisonCreator {
 		double val = 0.0;
 		
 		System.out.println("Creating Scatter Creator");
-		ScatterComparisonCreator creator = new ScatterComparisonCreator(db, erfID, rupVarScenID, sgtVarID, imTypeID);
+		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
+		erfIDs.add(34);
+		erfIDs.add(35);
+		ScatterComparisonCreator creator = new ScatterComparisonCreator(db, erfIDs, rupVarScenID, sgtVarID, imTypeID);
 		
 		boolean two = true;
 		boolean ten = false;

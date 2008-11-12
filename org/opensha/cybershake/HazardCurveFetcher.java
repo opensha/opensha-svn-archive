@@ -1,9 +1,13 @@
 package org.opensha.cybershake;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
+import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
 import org.opensha.data.function.DiscretizedFuncAPI;
@@ -20,9 +24,9 @@ public class HazardCurveFetcher {
 	
 	ArrayList<CybershakeSite> allSites = null;
 	
-	public HazardCurveFetcher(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+	public HazardCurveFetcher(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
 		this.initDBConnections(db);
-		ids = curve2db.getAllHazardCurveIDs(erfID, rupVarScenarioID, sgtVarID, imTypeID);
+		ids = curve2db.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFuncAPI>();
 		for (int id : ids) {
@@ -63,5 +67,57 @@ public class HazardCurveFetcher {
 		}
 		return allSites;
 	}
-
+	
+	public void writeCurveToFile(DiscretizedFuncAPI curve, String fileName) throws IOException {
+		FileWriter fw = new FileWriter(fileName);
+		
+		for (int i = 0; i < curve.getNum(); ++i)
+			fw.write(curve.getX(i) + " " + curve.getY(i) + "\n");
+		
+		fw.close();
+	}
+	
+	public void saveAllCurvesToDir(String outDir) {
+		File outDirFile = new File(outDir);
+		
+		if (!outDirFile.exists())
+			outDirFile.mkdir();
+		
+		if (!outDir.endsWith(File.separator))
+			outDir += File.separator;
+		
+		ArrayList<DiscretizedFuncAPI> curves = this.getFuncs();
+		ArrayList<CybershakeSite> curveSites = this.getCurveSites();
+		
+		for (int i=0; i<curves.size(); i++) {
+			DiscretizedFuncAPI curve = curves.get(i);
+			CybershakeSite site = curveSites.get(i);
+			
+			String fileName = outDir + site.short_name + "_" + site.lat + "_" + site.lon + ".txt";
+			
+			System.out.println("Writing " + fileName);
+			
+			try {
+				this.writeCurveToFile(curve, fileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void main(String args[]) {
+		String outDir = "/home/kevin/CyberShake/curve_data";
+		
+		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		
+		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
+		erfIDs.add(34);
+		erfIDs.add(35);
+		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, erfIDs, 3, 5, 21);
+		
+		fetcher.saveAllCurvesToDir(outDir);
+		
+		System.exit(0);
+	}
 }
