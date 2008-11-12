@@ -1,0 +1,39 @@
+
+
+<project basedir="." default="compile" name="Compile">
+
+	<property name="dest" value="../classes"/>
+	<property name="src" value="../"/>
+
+	<target name="compile" depends="precompilecleanup,init">
+		<javac
+				debug="true"
+				deprecation="false"
+				optimize="true"
+				destdir="${dest}"
+				nowarn="true"
+				source="1.5"
+				target="1.5"
+				failonerror="yes"
+				verbose="no"
+				fork="yes"
+				memoryInitialSize="512m"
+				memoryMaximumSize="1024m">
+			
+			<src path="${src}"/>
+			<include name="scratchJavaDevelopers/**" />
+			<include name="org/**" />
+			<include name="com/**" />
+			<exclude name="**/_nobuild/**" />
+		</javac>
+	</target>
+
+	<target name="init">
+		<mkdir dir="${dest}"/>
+	</target>
+
+	<target name="precompilecleanup">
+		<delete dir="${dest}" failonerror="yes" verbose="no"/>
+	</target>
+
+</project>
