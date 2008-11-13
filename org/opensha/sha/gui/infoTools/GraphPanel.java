@@ -431,7 +431,7 @@ public class GraphPanel extends JPanel {
    */
   public void drawGraphPanel(String xAxisName, String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis, String title,
-                             ButtonControlPanel buttonControlPanel ) {
+                             PlotControllerAPI buttonControlPanel ) {
 
     // Starting
     String S = "drawGraphPanel(): ";
@@ -833,8 +833,8 @@ public class GraphPanel extends JPanel {
     chartPane.removeAll();
     //showing the data window
     if ( graphOn ) {
-
-      buttonControlPanel.setToggleButtonText( "Show Plot" );
+      if (buttonControlPanel != null)
+    	  buttonControlPanel.setToggleButtonText( "Show Plot" );
       graphOn = false;
 
       chartPane.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -843,8 +843,8 @@ public class GraphPanel extends JPanel {
     else {
       //showing the Plot window, if not null
       graphOn = true;
-
-      buttonControlPanel.setToggleButtonText("Show Data");
+      if (buttonControlPanel != null)
+    	  buttonControlPanel.setToggleButtonText("Show Data");
       // panel added here
       if(chartPanel !=null) {
         chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0

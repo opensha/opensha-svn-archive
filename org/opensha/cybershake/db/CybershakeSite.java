@@ -25,4 +25,11 @@ public class CybershakeSite {
 		else
 			return "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tABBR: " + short_name;
 	}
+	
+	public String getFormattedName() {
+		if (name.equals(short_name))
+			return name;
+		else
+			return name + " (" + short_name + ")";
+	}
 }

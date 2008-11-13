@@ -332,73 +332,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
 		System.out.println("ERF ID: " + erfId);
 		
-		
-//		ArrayList<SiteInsert> sites = app.getAllSites(22);
-//		
-//		
 		CybershakeSiteInfo2DB siteDB = new CybershakeSiteInfo2DB(db);
 		app.setSiteInfoObject(siteDB);
-////		siteDB.setSkipToSource(125);
-////		siteDB.setSkipToRup(6);
-//		app.putSiteListRupsIntoDB(sites, forecast, erfId, siteDB);
-		
-		
-//		LocationList corners = new LocationList();
-//		corners.addLocation(new Location(34.19, -116.60));
-//		corners.addLocation(new Location(35.33, -118.75));
-//		corners.addLocation(new Location(34.13, -119.63));
-//		corners.addLocation(new Location(33.00, -117.50));
-//		double gridSpacing = 0.2;
-//		EvenlyGriddedGeographicRegion region = new EvenlyGriddedGeographicRegion(corners, gridSpacing);
-//		
-////		erfDB.insertForecaseInDB(erfDescription, region);
-//		erfDB.insertSrcRupInDB(region, 134, 312);
-		
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 120, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 121, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 122, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 123, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 124, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 126, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 127, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 129, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 130, true);
-//		erfDB.insertAllRupsForSourceRegionInDB(region, forecast, erfId, 1231, true);
-		
-//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
-		// this puts the ERF into database, 
-		//erfDB.insertForecaseInDB(erfDescription);
-//		EqkRupForecastAPI forecast = erfDB.getERF_Instance();
-//		System.out.println("ERF NAME: " + forecast.getName());
-//		int erfId = erfDB.getInserted_ERF_ID(forecast.getName());
-//		System.out.println("ERF ID: " + erfId);
-//		//make sites
-//		ArrayList<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
-//		site_list.add(new CybershakeSite(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
-//		try {
-//			site_list = app.getSiteListFromFile("/home/kevin/CyberShake/broadband_sites.txt");
-//			//app.putSiteInfoInDB(forecast,erfId);
-//			if (doIt) {
-//				System.out.println("Adding locations...");
-//				CybershakeSiteInfo2DB siteDB = app.getSiteInfoObject();
-//				app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB);
-//				siteDB.closeWriter();
-//			}
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		//                            lat,        lon,       name,    shortname
-//		site_list.add(new SiteInsert(33.79844, -117.39802, "Gavilan", "GAVI"));
-//		site_list.add(new SiteInsert(33.96200, -117.37745, "Mockingbird", "MBRD"));
-//		site_list.add(new SiteInsert(33.99014, -117.46292, "Pedley", "PEDL"));
-//		site_list.add(new SiteInsert(34.59946, -117.83157, "Lovejoy Buttes", "LBUT"));
-//		site_list.add(new SiteInsert(34.41973, -118.09137, "Aliso", "ALIS"));
-//		site_list.add(new SiteInsert(34.34609, -117.97474, "Pacifico", "PACI"));
-//		site_list.add(new SiteInsert(34.29296, -117.34775, "Silverwood Lake", "SLVW"));
 		
 		///////////////// INSERT ERF //////////////////////
 		
@@ -423,8 +358,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		erfDB.insertSrcRupInDB(forecast, erfID, sourceID, ruptureID);
 		
 		// this inserts the site info
-		siteDB.setMatchSourceNames(false);
-		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
+//		siteDB.setMatchSourceNames(false);
+//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		
 		
 		/////////////// ADD SITES //////////////////////
@@ -437,6 +372,7 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new CybershakeSite(34.557, -118.125, "Lake Palmdale", "LAPD"));
 //		site_list.add(new CybershakeSite(34.39865, -118.912, "Filmore Central Park", "FIL"));
 //		site_list.add(new CybershakeSite(33.93088, -118.17881, "Seven Ten-Ninety Interchange ", "STNI"));
+//		site_list.add(new CybershakeSite(34.019200, -118.28600, "CyberShake Verification Test - USC", "TEST"));
 		
 //		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
 		

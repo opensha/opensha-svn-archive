@@ -26,7 +26,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
  */
 
 public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanelAPI,
-PlotColorAndLineTypeSelectorControlPanelAPI{
+PlotColorAndLineTypeSelectorControlPanelAPI, PlotControllerAPI{
 	private JCheckBox jCheckxlog = new JCheckBox();
 
 

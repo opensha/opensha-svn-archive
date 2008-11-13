@@ -49,6 +49,29 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return ims;
 	}
 	
+	public int countAmps(int siteID, int erfID, int sgtVariation, int rupVarID, CybershakeIM im) {
+		String sql = "SELECT count(*) from PeakAmplitudes where ERF_ID=" + erfID +" and Site_ID=" + siteID
+				+ " and IM_Type_ID="+im.getID()+" and Rup_Var_Scenario_ID="+rupVarID+" and SGT_Variation_ID=" + sgtVariation;
+//		System.out.println(sql);
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+		try {
+			rs.first();
+			int count = rs.getInt(1);
+			rs.close();
+			return count;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
@@ -248,6 +271,51 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		}
 		
 		return vars;
+	}
+	
+	public CybershakeIM getIMForPeriod(double period, int siteID, int erfID, int sgtVariation, int rupVarID) {
+		return this.getIMForPeriod(period, siteID, erfID, sgtVariation, rupVarID, null);
+	}
+	
+	public CybershakeIM getIMForPeriod(double period, int siteID, int erfID, int sgtVariation, int rupVarID, HazardCurve2DB curve2db) {
+		ArrayList<Double> periods = new ArrayList<Double>();
+		periods.add(period);
+		
+		return getIMForPeriods(periods, siteID, erfID, sgtVariation, rupVarID, curve2db).get(0);
+	}
+	
+	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int siteID, int erfID, int sgtVariation, int rupVarID) {
+		return this.getIMForPeriods(periods, siteID, erfID, sgtVariation, rupVarID, null);
+	}
+	
+	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int siteID, int erfID, int sgtVariation, int rupVarID, HazardCurve2DB curve2db) {
+		ArrayList<CybershakeIM> supported = this.getSupportedIMs(siteID, erfID, sgtVariation, rupVarID);
+		if (curve2db != null) {
+			supported.addAll(curve2db.getSupportedIMs(siteID, erfID, rupVarID, sgtVariation));
+		}
+		
+		ArrayList<CybershakeIM> matched = new ArrayList<CybershakeIM>();
+		
+		if (supported.size() == 0)
+			return null;
+		
+		for (double period : periods) {
+			CybershakeIM closest = null;
+			double dist = Double.POSITIVE_INFINITY;
+			
+			for (CybershakeIM im : supported) {
+				double val = Math.abs(period - im.getVal());
+//				System.out.println("Comparing " + val + " to " + im.getVal());
+				if (val < dist) {
+					closest = im;
+					dist = val;
+				}
+			}
+			System.out.println("Matched " + period + " with " + closest.getVal());
+			matched.add(closest);
+		}
+		
+		return matched;
 	}
 	
 }

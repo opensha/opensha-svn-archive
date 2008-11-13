@@ -140,6 +140,34 @@ public class HazardCurve2DB {
 		}
 	}
 	
+	public Date getDateForCurve(int hcID) {
+		String sql = "SELECT Curve_Date FROM Hazard_Curves WHERE Hazard_Curve_ID=" + hcID;
+
+//		System.out.println(sql);
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return null;
+			Date date = rs.getDate("Curve_Date");
+			rs.close();
+
+			return date;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public DiscretizedFuncAPI getHazardCurve(int id) {
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
 		
@@ -243,6 +271,69 @@ public class HazardCurve2DB {
 		} catch (SQLException e) {
 //			TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	public int getIMTypeIDForCurve(int curveID) {
+		String sql = "SELECT IM_Type_ID FROM Hazard_Curves WHERE Hazard_Curve_ID=" + curveID;
+
+//		System.out.println(sql);
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return -1;
+			int id = rs.getInt("IM_Type_ID");
+			rs.close();
+
+			return id;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public CybershakeIM getIMForCurve(int curveID) {
+		int imTypeID = getIMTypeIDForCurve(curveID);
+		
+		String sql = "SELECT IM_Type_ID, IM_Type_Measure, IM_Type_Value, Units FROM IM_Types WHERE IM_Type_ID=" + imTypeID;
+
+//		System.out.println(sql);
+
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return null;
+			int id = rs.getInt("IM_Type_ID");
+			String measure = rs.getString("IM_Type_Measure");
+			Double value = rs.getDouble("IM_Type_Value");
+			String units = rs.getString("Units");
+			CybershakeIM im = new CybershakeIM(id, measure, value, units);
+			
+			rs.close();
+
+			return im;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return null;
 		}
 	}
 	
