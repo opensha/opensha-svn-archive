@@ -359,9 +359,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 								System.out.println("It looks like you can't display windows, using less secure command line password input.");
 								BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 								
-								boolean gotIt = false;
 								boolean hasUser = false;
-								while (!gotIt) {
+								while (true) {
 									try {
 										if (hasUser)
 											System.out.print("Database Password: ");
@@ -369,10 +368,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 											System.out.print("Database Username: ");
 										String line = in.readLine().trim();
 										if (line.length() > 0) {
-											if (hasUser)
+											if (hasUser) {
 												pass = line;
-											else
+												break;
+											} else {
 												user = line;
+												hasUser = true;
+											}
 										}
 									} catch (IOException e1) {
 										// TODO Auto-generated catch block
