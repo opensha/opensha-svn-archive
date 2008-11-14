@@ -103,6 +103,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
 	
+	private double manualVs30  = -1;
+	
 	public HazardCurvePlotter(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID) {
 		this.db = db;
 		this.erfID = erfID;
@@ -580,20 +582,26 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				if( !flag ) {
 					System.err.println("Param " + tempParam.getName() + " not set for site! Not available from web service.");
 					if (tempParam.getName().equals(AttenuationRelationship.VS30_NAME)) {
-						BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-						System.out.print("Enter Vs30 value (or hit enter for default): ");
-						String line = in.readLine();
-						line = line.trim();
-						if (line.length() > 0) {
-							try {
-								double val = Double.parseDouble(line);
-								tempParam.setValue(val);
-								System.out.println(tempParam.getName() + " set to: " + tempParam.getValue());
-							} catch (Exception e) {
+						if (manualVs30 > 0) {
+							tempParam.setValue(manualVs30);
+							System.out.println("Using previously set Vs30 value of " + tempParam.getValue());
+						} else {
+							BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+							System.out.print("Enter Vs30 value (or hit enter for default, " + tempParam.getValue() + "): ");
+							String line = in.readLine();
+							line = line.trim();
+							if (line.length() > 0) {
+								try {
+									double val = Double.parseDouble(line);
+									tempParam.setValue(val);
+									System.out.println(tempParam.getName() + " set to: " + tempParam.getValue());
+								} catch (Exception e) {
+									System.out.println("Using default value: " + tempParam.getValue());
+								}
+							} else {
 								System.out.println("Using default value: " + tempParam.getValue());
 							}
-						} else {
-							System.out.println("Using default value: " + tempParam.getValue());
+							manualVs30 = (Double)tempParam.getValue();
 						}
 					} else {
 						System.out.println("Using default value: " + tempParam.getValue());
