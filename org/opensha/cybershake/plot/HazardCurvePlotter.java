@@ -1,7 +1,6 @@
 package org.opensha.cybershake.plot;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.ListIterator;
-
-import javax.swing.JFrame;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -454,12 +451,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	private void plotCurvesToPDF(String outFile) {
-		JFrame frame = new JFrame();
-		
-		frame.setContentPane(gp);
-		frame.pack();
-//		frame.setVisible(true);
-		
 		try {
 			System.out.println("Saving PDF to: " + outFile);
 			this.gp.saveAsPDF(outFile, plotWidth, plotHeight);
@@ -470,11 +461,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	private void plotCurvesToPNG(String outFile) {
-		JFrame frame = new JFrame();
-		
-		frame.setContentPane(gp);
-		frame.pack();
-		
 		try {
 			System.out.println("Saving PNG to: " + outFile);
 			ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
@@ -485,11 +471,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 	
 	private void plotCurvesToJPG(String outFile) {
-		JFrame frame = new JFrame();
-		
-		frame.setContentPane(gp);
-		frame.pack();
-		
 		try {
 			System.out.println("Saving JPG to: " + outFile);
 			ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
