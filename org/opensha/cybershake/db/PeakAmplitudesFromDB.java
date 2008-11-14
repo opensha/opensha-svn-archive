@@ -302,16 +302,20 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		for (double period : periods) {
 			CybershakeIM closest = null;
 			double dist = Double.POSITIVE_INFINITY;
+			double maxDist = 0.5;
 			
 			for (CybershakeIM im : supported) {
 				double val = Math.abs(period - im.getVal());
 //				System.out.println("Comparing " + val + " to " + im.getVal());
-				if (val < dist) {
+				if (val < dist && dist <= maxDist) {
 					closest = im;
 					dist = val;
 				}
 			}
-			System.out.println("Matched " + period + " with " + closest.getVal());
+			if (dist != Double.POSITIVE_INFINITY)
+				System.out.println("Matched " + period + " with " + closest.getVal());
+			else
+				System.out.println("NO MATCH FOR " + period + "!!!");
 			matched.add(closest);
 		}
 		

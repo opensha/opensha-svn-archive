@@ -230,7 +230,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		for (CybershakeIM im : ims) {
 			if (im == null) {
-				System.out.println("IM not found!");
+				System.out.println("IM not found for: site=" + siteName);
 				return false;
 			}
 			int curveID = curve2db.getHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, im.getID());
@@ -728,7 +728,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option force = new Option("f", "force-add", false, "Flag to add curves to db without prompt");
 		ops.addOption(force);
 		
-		Option help = new Option("help", false, "Display this message");
+		Option help = new Option("h", "help", false, "Display this message");
 		ops.addOption(help);
 		
 		Option output = new Option("o", "output-dir", true, "Output directory");
@@ -779,7 +779,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		} catch (MissingOptionException e) {
 			// TODO Auto-generated catch block
 			Options helpOps = new Options();
-			helpOps.addOption(new Option("help", false, "Display this message"));
+			helpOps.addOption(new Option("h", "help", false, "Display this message"));
 			try {
 				CommandLine cmd = parser.parse( helpOps, args);
 				
