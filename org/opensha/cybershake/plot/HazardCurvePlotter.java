@@ -1,6 +1,7 @@
 package org.opensha.cybershake.plot;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,6 +27,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
+import org.jfree.chart.ChartUtilities;
 import org.opensha.cybershake.db.CybershakeERF;
 import org.opensha.cybershake.db.CybershakeIM;
 import org.opensha.cybershake.db.CybershakeSite;
@@ -62,7 +64,20 @@ import scratchJavaDevelopers.kevin.XMLSaver.ERFSaver;
 
 public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
+	public static final String TYPE_PDF = "pdf";
+	public static final String TYPE_PNG = "png";
+	public static final String TYPE_JPG = "jpg";
+	public static final String TYPE_JPEG = "jepg";
+	
+	public static final String TYPE_DEFAULT = TYPE_PDF;
+	
 	private double maxSourceDistance = 200;
+	
+	public static final int PLOT_WIDTH_DEFAULT = 600;
+	public static final int PLOT_HEIGHT_DEFAULT = 500;
+	
+	private int plotWidth = PLOT_WIDTH_DEFAULT;
+	private int plotHeight = PLOT_HEIGHT_DEFAULT;
 	
 	private double minX = 0;
 	private double maxX = 2;
@@ -153,6 +168,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		str = str.trim();
 		ArrayList<String> vals = new ArrayList<String>();
 		for (String val : str.split(",")) {
+			val = val.trim();
 			vals.add(val);
 		}
 		return vals;
@@ -218,17 +234,39 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		String user = "";
 		String pass = "";
 		
-		String outDir = cmd.getOptionValue("o");
-		File outDirFile = new File(outDir);
-		if (!outDirFile.exists()) {
-			boolean success = outDirFile.mkdir();
-			if (!success) {
-				System.out.println("Directory doesn't exist and couldn't be created: " + outDir);
-				return false;
+		String outDir = "";
+		if (cmd.hasOption("o")) {
+			outDir = cmd.getOptionValue("o");
+			File outDirFile = new File(outDir);
+			if (!outDirFile.exists()) {
+				boolean success = outDirFile.mkdir();
+				if (!success) {
+					System.out.println("Directory doesn't exist and couldn't be created: " + outDir);
+					return false;
+				}
 			}
+			if (!outDir.endsWith(File.separator))
+				outDir += File.separator;
 		}
-		if (!outDir.endsWith(File.separator))
-			outDir += File.separator;
+		
+		ArrayList<String> types;
+		
+		if (cmd.hasOption("t")) {
+			String typeStr = cmd.getOptionValue("t");
+			
+			types = commaSplit(typeStr);
+		} else {
+			types = new ArrayList<String>();
+			types.add(TYPE_PDF);
+		}
+		
+		if (cmd.hasOption("w")) {
+			plotWidth = Integer.parseInt(cmd.getOptionValue("w"));
+		}
+		
+		if (cmd.hasOption("h")) {
+			plotHeight = Integer.parseInt(cmd.getOptionValue("h"));
+		}
 		
 		int periodNum = 0;
 		for (CybershakeIM im : ims) {
@@ -347,20 +385,32 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			Date date = curve2db.getDateForCurve(curveID);
 			String dateStr = dateFormat.format(date);
 			String periodStr = "SA_" + getPeriodStr(im.getVal()) + "sec";
-			String outFileName = siteName + "_" + "ERF" + erfID + "_" + periodStr + "_" + dateStr + ".pdf";
+			String outFileName = siteName + "_" + "ERF" + erfID + "_" + periodStr + "_" + dateStr;
 			String outFile = outDir + outFileName;
-			this.plotCurve(curveID, outFile);
+			this.plotCurve(curveID);
+			for (String type : types) {
+				type = type.toLowerCase();
+				
+				if (type.equals(TYPE_PDF))
+					plotCurvesToPDF(outFile + ".pdf");
+				else if (type.equals(TYPE_PNG))
+					plotCurvesToPNG(outFile + ".png");
+				else if (type.equals(TYPE_JPG) || type.equals(TYPE_JPEG))
+					plotCurvesToJPG(outFile + ".jpg");
+				else
+					System.err.println("Unknown plotting type: " + type + "...Skipping!");
+			}
 		}
 		
 		return true;
 	}
 	
-	public void plotCurve(int siteID, int imTypeID, String outFile) {
+	public void plotCurve(int siteID, int imTypeID) {
 		int curveID = curve2db.getHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, imTypeID);
-		this.plotCurve(curveID, outFile);
+		this.plotCurve(curveID);
 	}
 	
-	public void plotCurve(int curveID, String outFile) {
+	public void plotCurve(int curveID) {
 		System.out.println("Fetching Curve!");
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 		
@@ -400,6 +450,57 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		System.out.println("Plotting Curve!");
 		
+		plotCurvesToGraphPanel(chars, im, curves, title);
+	}
+
+	private void plotCurvesToPDF(String outFile) {
+		JFrame frame = new JFrame();
+		
+		frame.setContentPane(gp);
+		frame.pack();
+//		frame.setVisible(true);
+		
+		try {
+			System.out.println("Saving PDF to: " + outFile);
+			this.gp.saveAsPDF(outFile, plotWidth, plotHeight);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void plotCurvesToPNG(String outFile) {
+		JFrame frame = new JFrame();
+		
+		frame.setContentPane(gp);
+		frame.pack();
+		
+		try {
+			System.out.println("Saving PNG to: " + outFile);
+			ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void plotCurvesToJPG(String outFile) {
+		JFrame frame = new JFrame();
+		
+		frame.setContentPane(gp);
+		frame.pack();
+		
+		try {
+			System.out.println("Saving JPG to: " + outFile);
+			ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void plotCurvesToGraphPanel( ArrayList<PlotCurveCharacterstics> chars, CybershakeIM im,
+			ArrayList<DiscretizedFuncAPI> curves, String title) {
 		String periodStr = getPeriodStr(im.getVal());
 		
 		String xAxisName = periodStr + "s SA (g)";
@@ -419,21 +520,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		this.gp.validate();
 		this.gp.repaint();
-		
-		JFrame frame = new JFrame();
-		
-		frame.setContentPane(gp);
-		frame.setSize(600, 500);
-		frame.setVisible(true);
-		
-		try {
-			System.out.println("Saving PDF to: " + outFile);
-			this.gp.saveAsPDF(outFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		frame.setVisible(false);
 	}
 	
 	private String getPeriodStr(double period) {
@@ -757,11 +843,20 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option force = new Option("f", "force-add", false, "Flag to add curves to db without prompt");
 		ops.addOption(force);
 		
-		Option help = new Option("h", "help", false, "Display this message");
+		Option help = new Option("?", "help", false, "Display this message");
 		ops.addOption(help);
 		
 		Option output = new Option("o", "output-dir", true, "Output directory");
 		ops.addOption(output);
+		
+		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, and jpg. Multiple types can be comma separated (default is " + TYPE_DEFAULT + ")");
+		ops.addOption(type);
+		
+		Option width = new Option("w", "width", true, "Plot width (default = " + PLOT_WIDTH_DEFAULT + ")");
+		ops.addOption(width);
+		
+		Option height = new Option("h", "height", true, "Plot width (default = " + PLOT_HEIGHT_DEFAULT + ")");
+		ops.addOption(height);
 		
 		return ops;
 	}
