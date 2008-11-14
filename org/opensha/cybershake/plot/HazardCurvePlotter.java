@@ -246,6 +246,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				outDir += File.separator;
 		}
 		
+		if (cmd.hasOption("vs30")) {
+			String vsStr = cmd.getOptionValue("vs30");
+			manualVs30 = Integer.parseInt(vsStr);
+		}
+		
 		ArrayList<String> types;
 		
 		if (cmd.hasOption("t")) {
@@ -804,7 +809,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option erfFile = new Option("ef", "erf-file", true, "XML ERF description file for comparison");
 		ops.addOption(erfFile);
 		
-		Option attenRelFiles = new Option("af", "atten-rel-file", true, "XML Attenuation Relationship description file(s) for comparison. Multiple files should be comma separated");
+		Option attenRelFiles = new Option("af", "atten-rel-file", true, "XML Attenuation Relationship description file(s) for " + 
+				"comparison. Multiple files should be comma separated");
 		ops.addOption(attenRelFiles);
 		
 		Option site = new Option("s", "site", true, "Site short name");
@@ -815,7 +821,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		period.setRequired(true);
 		ops.addOption(period);
 		
-		Option pass = new Option("pf", "password-file", true, "Path to a file that contains the username and password for inserting curves into the database. Format should be \"user:pass\"");
+		Option pass = new Option("pf", "password-file", true, "Path to a file that contains the username and password for " + 
+				"inserting curves into the database. Format should be \"user:pass\"");
 		ops.addOption(pass);
 		
 		Option noAdd = new Option("n", "no-add", false, "Flag to not automatically calculate curves not in the database");
@@ -830,7 +837,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option output = new Option("o", "output-dir", true, "Output directory");
 		ops.addOption(output);
 		
-		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, and jpg. Multiple types can be comma separated (default is " + TYPE_DEFAULT + ")");
+		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, and jpg. Multiple types can be " + 
+				"comma separated (default is " + TYPE_DEFAULT + ")");
 		ops.addOption(type);
 		
 		Option width = new Option("w", "width", true, "Plot width (default = " + PLOT_WIDTH_DEFAULT + ")");
@@ -838,6 +846,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		Option height = new Option("h", "height", true, "Plot width (default = " + PLOT_HEIGHT_DEFAULT + ")");
 		ops.addOption(height);
+		
+		Option vs30 = new Option("v", "vs30", true, "Specify default Vs30 for sites with no Vs30 data, or leave blank " + 
+				"for default value. Otherwise, you will be prompted to enter vs30 interactively if needed.");
+		ops.addOption(vs30);
 		
 		return ops;
 	}

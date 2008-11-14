@@ -70,7 +70,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * <LI> Very-Firm-Soil	        if CD
  * <LI> Soft-Rock		if C
  * <LI> BC-Bounday              if BC
- * <LI> Firm-Rock		if BÊ
+ * <LI> Firm-Rock		if Bï¿½
  * </UL>
  *
  * ShakeMap_2003_AttenRel.WILLS_SITE_NAME (ShakeMap (2003))<p>
@@ -160,32 +160,12 @@ public class SiteTranslator
     // AttenuationRelationship.VS30_NAME
     // (e.g., used by BJF-1997 and Field-2000) site type
     else if (param.getName().equals(AttenuationRelationship.VS30_NAME)) {
-      if (wc.equals(WILLS_DE)) {
-        param.setValue(new Double(180));
-        return true;
-      }
-      else if (wc.equals(WILLS_D)) {
-        param.setValue(new Double(270));
-        return true;
-      }
-      else if (wc.equals(WILLS_CD)) {
-        param.setValue(new Double(360));
-        return true;
-      }
-      else if (wc.equals(WILLS_C)) {
-        param.setValue(new Double(560));
-        return true;
-      }
-      else if (wc.equals(WILLS_BC)) {
-        param.setValue(new Double(760));
-        return true;
-      }
-      else if (wc.equals(WILLS_B)) {
-        param.setValue(new Double(1000));
-        return true;
-      }
-      else {
+      double val = getVS30FromWillsClass(wc);
+      if (val <= 0 || val == Double.NaN || (val + "").equals(Double.NaN + ""))
         return false;
+      else {
+    	  param.setValue(new Double(val));
+          return true;
       }
     }
 
@@ -295,6 +275,30 @@ public class SiteTranslator
       throw new RuntimeException(C + " does not support the site type: " +
                                  param.getName());
     }
+  }
+  
+  public static double getVS30FromWillsClass(String willsClass) {
+	  if (willsClass.equals(WILLS_DE)) {
+		  return 180;
+	  }
+	  else if (willsClass.equals(WILLS_D)) {
+		  return 270;
+	  }
+	  else if (willsClass.equals(WILLS_CD)) {
+		  return 360;
+	  }
+	  else if (willsClass.equals(WILLS_C)) {
+		  return 560;
+	  }
+	  else if (willsClass.equals(WILLS_BC)) {
+		  return 760;
+	  }
+	  else if (willsClass.equals(WILLS_B)) {
+		  return 1000;
+	  }
+	  else {
+		  return Double.NaN;
+	  }
   }
 
 
