@@ -283,8 +283,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 									if (line.contains(":")) {
 										String split[] = line.split(":");
 										user = split[0];
-										user = split[1];
-										return false;
+										pass = split[1];
+										break;
 									}
 								}
 							} catch (FileNotFoundException e) {
