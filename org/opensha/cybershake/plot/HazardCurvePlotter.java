@@ -1,6 +1,7 @@
 package org.opensha.cybershake.plot;
 
 import java.awt.Color;
+import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -347,12 +348,38 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 								return false;
 							}
 						} else {
-							UserAuthDialog auth = new UserAuthDialog(null, true);
-							auth.setVisible(true);
-							if (auth.isCanceled())
-								return false;
-							user = auth.getUsername();
-							pass = new String(auth.getPassword());
+							try {
+								UserAuthDialog auth = new UserAuthDialog(null, true);
+								auth.setVisible(true);
+								if (auth.isCanceled())
+									return false;
+								user = auth.getUsername();
+								pass = new String(auth.getPassword());
+							} catch (HeadlessException e) {
+								System.out.println("It looks like you can't display windows, using less secure command line password input.");
+								BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+								
+								boolean gotIt = false;
+								boolean hasUser = false;
+								while (!gotIt) {
+									try {
+										if (hasUser)
+											System.out.print("Database Password: ");
+										else
+											System.out.print("Database Username: ");
+										String line = in.readLine().trim();
+										if (line.length() > 0) {
+											if (hasUser)
+												pass = line;
+											else
+												user = line;
+										}
+									} catch (IOException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+							}
 						}
 					}
 					
