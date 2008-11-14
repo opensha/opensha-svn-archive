@@ -228,11 +228,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		if (!outDir.endsWith(File.separator))
 			outDir += File.separator;
 		
+		int periodNum = 0;
 		for (CybershakeIM im : ims) {
 			if (im == null) {
-				System.out.println("IM not found for: site=" + siteName);
+				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
 				return false;
 			}
+			periodNum++;
 			int curveID = curve2db.getHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, im.getID());
 			
 			if (curveID < 0) {
