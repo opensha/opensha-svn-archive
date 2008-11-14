@@ -1016,8 +1016,17 @@ public class GraphPanel extends JPanel {
    * @throws IOException
    */
   public void saveAsPDF(String fileName) throws IOException {
-    int width = chartPanel.getWidth();
-    int height = chartPanel.getHeight();
+	  int width = chartPanel.getWidth();
+	  int height = chartPanel.getHeight();
+	  this.saveAsPDF(fileName, width, height);
+  }
+  
+  /**
+   * Allows the user to save the chart contents and metadata as PDF.
+   * This allows to preserve the color coding of the metadata.
+   * @throws IOException
+   */
+  public void saveAsPDF(String fileName, int width, int height) throws IOException {
     int textLength = metadataText.getStyledDocument().getLength();
     int totalLength = textLength + height;
     // step 1
@@ -1136,5 +1145,9 @@ public class GraphPanel extends JPanel {
 
   public void setSplitLocation(int l) {
 	  chartSplitPane.setDividerLocation(l);
+  }
+  
+  public ChartPanel getCartPanel() {
+	  return this.chartPanel;
   }
 }
