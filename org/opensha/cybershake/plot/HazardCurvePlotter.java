@@ -578,7 +578,26 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				//sets the site with whatever site Parameter Value user has choosen in the application
 				boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
 				if( !flag ) {
-					System.err.println("Param " + tempParam.getName() + " not set for site! Default value used!");
+					System.err.println("Param " + tempParam.getName() + " not set for site! Not available from web service.");
+					if (tempParam.getName().equals(AttenuationRelationship.VS30_NAME)) {
+						BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+						System.out.print("Enter Vs30 value (or hit enter for default): ");
+						String line = in.readLine();
+						line = line.trim();
+						if (line.length() > 0) {
+							try {
+								double val = Double.parseDouble(line);
+								tempParam.setValue(val);
+								System.out.println(tempParam.getName() + " set to: " + tempParam.getValue());
+							} catch (Exception e) {
+								System.out.println("Using default value: " + tempParam.getValue());
+							}
+						} else {
+							System.out.println("Using default value: " + tempParam.getValue());
+						}
+					} else {
+						System.out.println("Using default value: " + tempParam.getValue());
+					}
 				} else {
 					System.out.println("Param: "+tempParam.getName() + ", Value: " + tempParam.getValue());
 				}
