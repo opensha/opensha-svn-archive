@@ -1,39 +1,77 @@
 package scratchJavaDevelopers.ned.rupsInFaultSystem;
 
-import java.awt.Color;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
 import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.GraphiWindowAPI_Impl;
-import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.calc.RelativeLocation;
 
 public class CreateRupturesFromSections {
 	
+	/*
+	SubSectionsRupCalc
+
+DONE	getNumClusters()
+DONE	getCluster(i).getNumSubSections()
+DONE	getCluster(i).getRuptures().size()				mid method is ArrayList
+DONE	getCluster(clusterIndex).getAllSubSectionsIdList()	ArrayList<Integer>
+DONE	getCluster(clusterIndex).getRuptures()			ArrayList
+DONE	getRupList()								ArrayList<MultipleSectionRup>
+
+	 */
+	
 	ArrayList<FaultSectionPrefData> allFaultSectionPrefData;
 	double sectionDistances[][], sectionAngleDiffs[][];
-	double maxTotStrikeChange = 60;
 	String endPointNames[];
-	int num_sections, numSectEndPts, counter;
-	ArrayList<ArrayList> sectionConnectionsList, endToEndSectLinksList;
+	int num_sections, numSectEndPts, counter, numSubSections, minNumSubSectInRup;
+	ArrayList<ArrayList<Integer>> sectionConnectionsList, endToEndSectLinksList;
+	ArrayList<SectionCluster> sectionClusterList;
+	double maxJumpDist, maxAngle, maxTotStrikeChange, maxSubSectionLength;
+	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 
 	
-	CreateRupturesFromSections() {
-		getAllSections();
+	CreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, double maxSubSectionLength, int minNumSubSectInRup) {
+		this.maxJumpDist=maxJumpDist;
+		this.maxAngle=maxAngle;
+		maxTotStrikeChange=maxStrikeChange;
+		this.maxSubSectionLength=maxSubSectionLength;
+		this.minNumSubSectInRup=minNumSubSectInRup;
+		getAllSections(true);
+		computeConnectedSectionEndpointPairs();
+		computeEndToEndSectLinksList();
+		computeSectionClusters();
+
+		System.out.println("maxDist="+maxJumpDist+"\tmaxAngle="+maxAngle+"\tmaxStrikeChange="+
+				maxStrikeChange+"\tmaxSubSectionLength="+maxSubSectionLength+"\tminNumSubSectInRup="+minNumSubSectInRup);
+		System.out.println("numSubSections="+numSubSections+"\tgetRupList().size()="+getRupList().size());
+//		for(int i=0; i<sectionClusterList.size();i++)
+//		System.out.println("sectionClusterList.get(0).getRuptures().size()="+sectionClusterList.get(0).getRuptures().size());
+///			System.out.println("Cluster "+i+" has "+sectionClusterList.get(i).getNumSubSections()+" subsections");
+//		testClusters();
+	}
+	
+	public int getNumClusters() {
+		return sectionClusterList.size();
 	}
 	
 	
 	
-	private void getAllSections() {
+	  public ArrayList<MultipleSectionRupIDs> getRupList() {
+		  ArrayList<MultipleSectionRupIDs> rupList = new ArrayList<MultipleSectionRupIDs>();
+		  for(int i=0; i<sectionClusterList.size();i++)
+			  rupList.addAll(sectionClusterList.get(i).getRuptures());
+		  return rupList;
+	  }
+
+	
+	
+	
+	private void getAllSections(boolean includeSectionsWithNaN_slipRates) {
 		/** Set the deformation model
 		 * D2.1 = 82
 		 * D2.2 = 83
@@ -46,15 +84,34 @@ public class CreateRupturesFromSections {
 		
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelId);
-/*		
+/**/		
 		// remove those with no slip rate
-		System.out.println("Removing the following due to NaN slip rate:");
-		for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
-			if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
-				System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
-				allFaultSectionPrefData.remove(i);
-			}
-*/	
+		 if(!includeSectionsWithNaN_slipRates) {
+				System.out.println("Removing the following due to NaN slip rate:");
+				for(int i=allFaultSectionPrefData.size()-1; i>=0;i--)
+					if(Double.isNaN(allFaultSectionPrefData.get(i).getAveLongTermSlipRate())) {
+						System.out.println("\t"+allFaultSectionPrefData.get(i).getSectionName());
+						allFaultSectionPrefData.remove(i);
+					}	 
+		 }
+		 
+
+		 // make subsection data
+		 subSectionPrefDataList = new ArrayList<ArrayList<FaultSectionPrefData>>();
+		 numSubSections=0;
+		 for(int i=0; i<allFaultSectionPrefData.size(); ++i) {
+			 FaultSectionPrefData faultSectionPrefData = (FaultSectionPrefData)allFaultSectionPrefData.get(i);
+			 ArrayList subSectData = faultSectionPrefData.getSubSectionsList(maxSubSectionLength);
+			 numSubSections += subSectData.size();
+			 subSectionPrefDataList.add(subSectData);
+		 }
+		 
+//		 System.out.println("allFaultSectionPrefData.size()="+allFaultSectionPrefData.size()+";  subSectionPrefDataList.size()="+subSectionPrefDataList.size());
+
+		 
+		 // write index/names
+//		 for(int i=0;i<allFaultSectionPrefData.size();i++) System.out.println(i+"\t"+allFaultSectionPrefData.get(i).getSectionName());
+	
 //		System.out.println("size = "+allFaultSectionPrefData.size());
 		
 		num_sections = allFaultSectionPrefData.size();
@@ -65,13 +122,11 @@ public class CreateRupturesFromSections {
 		numSectEndPts = 2*num_sections;
 		sectionDistances = new double[numSectEndPts][numSectEndPts];
 		sectionAngleDiffs = new double[numSectEndPts][numSectEndPts];
-//		sectionAngleDiffs = new double[num_sections][num_sections];
 		endPointNames = new String[numSectEndPts];
 		
 		// loop over first fault section (A)
 		for(int a=0;a<allFaultSectionPrefData.size();a++) {
 			FaultSectionPrefData dataA = allFaultSectionPrefData.get(a);
-//if (dataA.getSectionName().equals("Burnt Mtn")) System.out.println("Burnt Mtn index ="+a);
 			int indexA_firstPoint = 2*a;
 			int indexA_lastPoint = indexA_firstPoint+1;
 			endPointNames[indexA_firstPoint] = dataA.getSectionName() +" -- first";
@@ -98,9 +153,6 @@ public class CreateRupturesFromSections {
 				sectionAngleDiffs[indexA_firstPoint][indexB_lastPoint] = getStrikeDirectionDifference(reverseAzimuth(dirA), reverseAzimuth(dirB));
 				sectionAngleDiffs[indexA_lastPoint][indexB_firstPoint] = getStrikeDirectionDifference(dirA, dirB);
 				sectionAngleDiffs[indexA_lastPoint][indexB_lastPoint] = getStrikeDirectionDifference(dirA, reverseAzimuth(dirB));
-
-				//sectionAngleDiffs[a][b] = dataA.getFaultTrace().getStrikeDirectionDifference(dataB.getFaultTrace());
-			
 			}
 		}
 	}
@@ -110,15 +162,15 @@ public class CreateRupturesFromSections {
 	 * For each section endpoint, this creates a list of endpoints on other sections that are both within 
 	 * the given distance and where the angle differences between sections is not larger than given.  This
 	 * generates and ArrayList of ArrayLists.
-	 * @param maxDist
+	 * @param maxJumpDist
 	 * @param maxAngle
 	 */
-	public void computeConnectedSectionEndpointPairs(double maxDist, double maxAngle) {
-		sectionConnectionsList = new ArrayList<ArrayList>();
+	private void computeConnectedSectionEndpointPairs() {
+		sectionConnectionsList = new ArrayList<ArrayList<Integer>>();
 		for(int i=0;i<numSectEndPts;i++) {
 			ArrayList<Integer> sectionConnections = new ArrayList<Integer>();
 			for(int j=0;j<numSectEndPts;j++)  // i+1 to avoid duplicates
-				if(sectionDistances[i][j] <= maxDist && getSectionIndexForEndPoint(i) != getSectionIndexForEndPoint(j)) 
+				if(sectionDistances[i][j] <= maxJumpDist && getSectionIndexForEndPoint(i) != getSectionIndexForEndPoint(j)) 
 					if(sectionAngleDiffs[i][j] <= maxAngle && sectionAngleDiffs[i][j] >= -maxAngle) {
 						sectionConnections.add(j);
 					}
@@ -134,23 +186,21 @@ public class CreateRupturesFromSections {
 	
 	   
 	/**
-	 * For each section, this adds neighboring sections as links unit until the ends are reached, at which 
+	 * For each section, this adds neighboring sections as links until the ends are reached, at which 
 	 * time this end-to-end link is saved if it doesn't already exist.  All branches are followed. For example,
 	 * three sections in a "Y" shape would lead to two end-to-end links, and four sections in an "X" shape would 
 	 * lead to four end-to-end links.  The result is put into endTEndSectLinksList, an ArrayList of ArrayList<Integer>
 	 * objects (where the latter lists all the section end points in the list).
 	 */
     private void computeEndToEndSectLinksList() {
-    	endToEndSectLinksList  = new ArrayList<ArrayList>();
+    	endToEndSectLinksList  = new ArrayList<ArrayList<Integer>>();
     	
     	System.out.println("sum_sections = "+num_sections);
     	
     	int oldNum=0;
         for(int sect=0; sect<num_sections; sect++) {
-//          for(int sect=76; sect<77; sect++) {
-
-  //      	System.out.println("sect = "+sect+"  "+allFaultSectionPrefData.get(sect).getSectionName());
-
+//        for(int sect=68; sect<69; sect++) {
+//      	System.out.println("sect = "+sect+"  "+allFaultSectionPrefData.get(sect).getSectionName());
 //        	System.out.println("\n\nfirst path");
     		ArrayList<ArrayList> firstConnectionsList = new ArrayList<ArrayList>();
     		int startPtIndex1 = sect*2;
@@ -181,18 +231,20 @@ public class CreateRupturesFromSections {
     				if(linkedSectionsList.contains(stitchedList))
     					System.out.println(num+" is a Duplicate Here !!!!!!!!!!!!!!!!!!!!");
 */
-    				if(!endToEndSectLinksList.contains(stitchedList))
+    				// reverse the list so we can check that one too
+    				ArrayList<Integer> reversedList = new ArrayList<Integer>();
+    				for(int n=stitchedList.size()-1; n>=0; n--) reversedList.add(stitchedList.get(n));
+    				
+    				// now add if we don't already have this
+    				if(!endToEndSectLinksList.contains(stitchedList) && !endToEndSectLinksList.contains(reversedList))
     					endToEndSectLinksList.add(stitchedList);
     				else
     					numRemoved += 1;
     			}
     		}
-    		
-    		
-
- 		
+		
 			int numNew = endToEndSectLinksList.size()-oldNum;
-			/*    
+			/*    write out contents of the list
 			System.out.println("\n"+numNew+" in list for "+
     				allFaultSectionPrefData.get(sect).getSectionName()+" (section "+sect+"), "+numRemoved+" removed as duplicates  ******************");
 			for(int k=oldNum; k<endToEndSectLinksList.size(); k++) {
@@ -203,12 +255,108 @@ public class CreateRupturesFromSections {
 			}
 			*/
 			oldNum = endToEndSectLinksList.size();
-
     	}
-//        System.out.println("linkedSectionsList.size()="+linkedSectionsList.size());
-    	
+/*
+        System.out.println("endToEndSectLinksList=");
+        for(int i=0;i<endToEndSectLinksList.size(); i++)
+        	System.out.println(i+"\t"+endToEndSectLinksList.get(i));
+*/	
     }
     
+    
+    private void computeSectionClusters() {
+    	sectionClusterList = new ArrayList<SectionCluster>();
+    	// duplicate the following because it will get modified 
+    	ArrayList<ArrayList<Integer>> tempEndToEndSectList = (ArrayList<ArrayList<Integer>>)endToEndSectLinksList.clone();
+
+    	int clusterCounter=0;
+    	while(tempEndToEndSectList.size() > 0) {
+System.out.println("Working on cluster "+clusterCounter);
+//    		System.out.println("sectionClusterList.size()="+sectionClusterList.size()+";  tempEndToEndSectList.size()"+tempEndToEndSectList.size());
+    		SectionCluster cluster = new SectionCluster();
+    		tempEndToEndSectList = cluster.CreateCluster(tempEndToEndSectList, subSectionPrefDataList,minNumSubSectInRup);  // this removes the ones it takes from the list passed in
+    		sectionClusterList.add(cluster);
+    		clusterCounter +=1;
+    	}
+System.out.println("sectionClusterList.size()="+sectionClusterList.size());
+    }
+    
+    
+
+    private void testClusters() {
+    	// make sure that each section endpoint is part of one and only one cluster
+    	System.out.println("Testing clusters:");
+    	boolean allGood = true;
+//    	for(int i=0; i<numSectEndPts; i++) {
+        for(int i=0; i<numSectEndPts; i++) {
+    		int sum =0;
+    		for(int j=0;j<this.sectionClusterList.size(); j++) {
+//    		for(int j=0;j<6; j++) {
+    			ArrayList<Integer> indices = sectionClusterList.get(j).getSectionIndicesInCluster();
+//    			System.out.println(indices);
+    			if(indices.contains(new Integer(i)))
+    				sum+=1;
+    		}
+    		if(sum !=1) {
+    			System.out.println("sectEndPt "+i+" exists in "+sum+" clusters");
+    			allGood = false;
+    		}
+    	}
+    	System.out.println("\tallGood="+allGood);
+    }
+
+    
+    
+
+
+    /*
+    private void computeSectionClusters() {
+    	
+    	ArrayList<Integer> test = new ArrayList<Integer> ();
+    	test.add(new Integer(2));
+    	if(test.contains(new Integer(2))) System.out.println("It Works!!!!!!!!!!");
+    	
+    	sectionClusterList = new ArrayList<ArrayList<Integer>>();
+    	// add the first end-to-end link as the first cluster
+    	ArrayList<Integer> firstCluster = (ArrayList<Integer>)endToEndSectLinksList.get(0).clone();
+    	sectionClusterList.add(firstCluster);
+//    	System.out.println("endToEndSectLinksList.size()="+endToEndSectLinksList.size());
+//    	System.out.println("endToEndSectLinksList.get(0)="+endToEndSectLinksList.get(0));
+    	 
+    	for(int i=1; i< endToEndSectLinksList.size();i++) {
+//    		System.out.println("endToEndSectLinksList.get("+i+")="+endToEndSectLinksList.get(i));
+    		boolean newCluster = true;
+    		boolean done = false;
+    		ArrayList<Integer> endToEndLink = endToEndSectLinksList.get(i);
+    		// loop over clusters to see if this link is part of one (shares at least one section)
+    		for(int j=0; j<sectionClusterList.size() && !done; j++) {
+    			ArrayList<Integer> cluster = sectionClusterList.get(j);
+    			// loop over sections in the link
+    			for(int k=0; k<endToEndLink.size() && !done; k++) {
+    				if(cluster.contains(endToEndLink.get(k))) { // if the section index is in this cluster add the link to the cluster
+//    					System.out.println("Got one!");
+    					for(int l=0; l<endToEndLink.size(); l++)
+    						if (!cluster.contains(endToEndLink.get(l))) cluster.add(endToEndLink.get(l));
+    					newCluster = false;
+    					done = true;
+    				}
+    			}
+    			
+    		}
+    		if(newCluster) sectionClusterList.add((ArrayList<Integer>)endToEndLink.clone());
+    	}
+
+		System.out.println("Num Clusters = "+sectionClusterList.size());
+    	for(int cl=0;cl< sectionClusterList.size(); cl++)
+    		System.out.println("\t"+cl+" has"+sectionClusterList.get(cl).size()+" sections");
+    		
+    	System.out.println("sectionClusterList=");
+        for(int i=0;i<sectionClusterList.size(); i++)
+        	System.out.println(i+"\t"+sectionClusterList.get(i));
+ 
+
+    }
+    */
     
     private void addConnections(Integer endPtID, ArrayList currentList, ArrayList<ArrayList> finalList) {
     	ArrayList<Integer> sectionConnections = sectionConnectionsList.get(endPtID);
@@ -218,10 +366,10 @@ public class CreateRupturesFromSections {
     	
     	if(sectionConnections.size() == 0) {  // no more connections, so add it to the final list
     		finalList.add((ArrayList)currentList.clone());
-//    		System.out.println("\tDONE");
+    	//	System.out.println("\tDONE");
     	}
     	else {
-//    		System.out.println(sectionConnections.size()+" connections for "+this.endPointNames[endPtID]);
+    	//	System.out.println(sectionConnections.size()+" connections for "+this.endPointNames[endPtID]);
     		for(int i=0; i< sectionConnections.size(); i++) {
     			int connectedPtIndex = sectionConnections.get(i).intValue();
     			int otherPtIndex;
@@ -235,24 +383,30 @@ public class CreateRupturesFromSections {
     			double totalStrikeChange = Math.abs(sectionAngleDiffs[firstPt][connectedPtIndex]);
     			if(totalStrikeChange > maxTotStrikeChange) {
     				finalList.add((ArrayList)currentList.clone());
-    				System.out.println("NOTE - total strike became too large between "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
+//    				System.out.println("NOTE - total strike became too large between "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
     				continue;
     			}
     			
+    			// quit also if the list already has this point (two sections looping around on each other)
+    			if(currentList.contains(new Integer(connectedPtIndex))) {
+    				finalList.add((ArrayList)currentList.clone());
+//    				System.out.println("NOTE - quit due to looping "+endPointNames[firstPt]+" and "+endPointNames[connectedPtIndex]);
+    				continue;
+    			}
     			ArrayList newCurrentList = (ArrayList) currentList.clone();
     			newCurrentList.add(connectedPtIndex);
     			newCurrentList.add(otherPtIndex);
-//    			System.out.println("\tadded "+endPointNames[otherPtIndex]+" and "+endPointNames[connectedPtIndex]+" to "+
-//    					endPointNames[endPtID]+"  TOTAL STRIKE CHANGE = "+totalStrikeChange);
-//    			counter+=1;
-//    			if(counter<100)
+    	//		System.out.println("\tadded "+endPointNames[otherPtIndex]+" and "+endPointNames[connectedPtIndex]+" to "+
+    	//				endPointNames[endPtID]+"  TOTAL STRIKE CHANGE = "+totalStrikeChange);
+    	//		counter+=1;
+    	//		if(counter<100)
     			addConnections(otherPtIndex, newCurrentList, finalList);
     		}
     	}
     }
 
 	
-	public int getSectionIndexForEndPoint(int endPointIndex) {
+	private int getSectionIndexForEndPoint(int endPointIndex) {
 		if(endPointIndex % 2 != 0) return (endPointIndex-1)/2;  // test to see if it's odd
 		else return endPointIndex/2;
 	}
@@ -276,38 +430,47 @@ public class CreateRupturesFromSections {
 	
 	// Note that this produces erroneous zig-zag plot for traces that have multiple lats for a given lon 
 	// (functions force x values to monotonically increase)
-	public void plotAllEndToEndLinks() {
-		for(int i=0;i<this.endToEndSectLinksList.size();i++) {
-			ArrayList<Integer> link = endToEndSectLinksList.get(i);
-			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-			double minLat=1000, maxLat=-1000, minLon=1000, maxLon=-1000;
-			String name = new String();
-			for(int j=0; j<link.size(); j+=2) {
-				int sectIndex = getSectionIndexForEndPoint(link.get(j).intValue());
-				FaultTrace ft = allFaultSectionPrefData.get(sectIndex).getFaultTrace();
-				name += allFaultSectionPrefData.get(sectIndex).getSectionName() +"+";
-				for(int l=0; l<ft.size();l++) {
-					Location loc = ft.getLocationAt(l);
-					func.set(loc.getLongitude(), loc.getLatitude());
-					if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
-					if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
-					if(loc.getLatitude()<minLat) minLat = loc.getLatitude();
-					if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
-				}
+	public void plotAllSections(ArrayList<Integer> link) {
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		double minLat=1000, maxLat=-1000, minLon=1000, maxLon=-1000;
+		String name = new String();
+		for(int j=0; j<link.size(); j+=2) {
+			int sectIndex = getSectionIndexForEndPoint(link.get(j).intValue());
+			FaultTrace ft = allFaultSectionPrefData.get(sectIndex).getFaultTrace();
+			name += allFaultSectionPrefData.get(sectIndex).getSectionName() +"+";
+			for(int l=0; l<ft.size();l++) {
+				Location loc = ft.getLocationAt(l);
+				func.set(loc.getLongitude(), loc.getLatitude());
+				if(loc.getLongitude()<minLon) minLon = loc.getLongitude();
+				if(loc.getLongitude()>maxLon) maxLon = loc.getLongitude();
+				if(loc.getLatitude()<minLat) minLat = loc.getLatitude();
+				if(loc.getLatitude()>maxLat) maxLat = loc.getLatitude();
 			}
-			func.setName(name);
-			ArrayList funcs = new ArrayList();
-			funcs.add(func);
-			GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "");  
-			// make the axis range equal
-			if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
-			else maxLon = minLon + (maxLat-minLat);
-			graph.setAxisRange(minLon, maxLon, minLat, maxLat);
-			
+		}
+		func.setName(name);
+		ArrayList funcs = new ArrayList();
+		funcs.add(func);
+		GraphiWindowAPI_Impl graph = new GraphiWindowAPI_Impl(funcs, "");  
+		// make the axis range equal
+		if((maxLat-minLat) < (maxLon-minLon)) maxLat = minLat  + (maxLon-minLon);
+		else maxLon = minLon + (maxLat-minLat);
+		graph.setAxisRange(minLon, maxLon, minLat, maxLat);
+
+	}
+
+	public void plotAllEndToEndLinks() {
+		for(int i=0;i<endToEndSectLinksList.size();i++)
+			plotAllSections(endToEndSectLinksList.get(i));
+	}
+	
+	public void plotAllClusters() {
+		for(int i=0;i<sectionClusterList.size();i++) {
+			ArrayList<Integer> indices = sectionClusterList.get(i).getSectionIndicesInCluster();
+			if(indices.size()>6)
+				plotAllSections(indices);
 		}
 	}
 
-	
 	
 	
 	public void writeSectionDistances() {
@@ -385,7 +548,7 @@ public class CreateRupturesFromSections {
      * The output is between -180 and 180 degrees.
      * @return
      */
-    public double getStrikeDirectionDifference(double azimuth1, double azimuth2) {
+    private double getStrikeDirectionDifference(double azimuth1, double azimuth2) {
     	double diff = azimuth2 - azimuth1;
     	if(diff>180)
     		return diff-360;
@@ -401,7 +564,7 @@ public class CreateRupturesFromSections {
      * @return
      */
 
-    public double reverseAzimuth(double azimuth) {
+    private double reverseAzimuth(double azimuth) {
     	if(azimuth<0) return azimuth+180;
     	else return azimuth-180;
      }
@@ -413,9 +576,11 @@ public class CreateRupturesFromSections {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		CreateRupturesFromSections createRups = new CreateRupturesFromSections();
-		createRups.computeConnectedSectionEndpointPairs(5, 45);
-		createRups.computeEndToEndSectLinksList();
+		long startTime=System.currentTimeMillis();
+		CreateRupturesFromSections createRups = new CreateRupturesFromSections(10, 45, 60, 7, 2);
+		int runtime = (int)(System.currentTimeMillis()-startTime)/1000;
+		System.out.println("Run took "+runtime+" seconds");
+//		createRups.plotAllClusters();
 //		createRups.plotAllEndToEndLinks();
 //		createRups.writeBurntMtTrace();
 //		createRups.plotAllTraces(5, -45, 45);
