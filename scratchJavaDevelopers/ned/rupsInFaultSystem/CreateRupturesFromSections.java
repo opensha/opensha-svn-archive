@@ -61,8 +61,8 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	
 	
 	
-	  public ArrayList<MultipleSectionRupIDs> getRupList() {
-		  ArrayList<MultipleSectionRupIDs> rupList = new ArrayList<MultipleSectionRupIDs>();
+	  public ArrayList<ArrayList<Integer>> getRupList() {
+		  ArrayList<ArrayList<Integer>> rupList = new ArrayList<ArrayList<Integer>>();
 		  for(int i=0; i<sectionClusterList.size();i++)
 			  rupList.addAll(sectionClusterList.get(i).getRuptures());
 		  return rupList;
@@ -271,7 +271,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 
     	int clusterCounter=0;
     	while(tempEndToEndSectList.size() > 0) {
-System.out.println("Working on cluster "+clusterCounter);
+//System.out.println("Working on cluster "+clusterCounter);
 //    		System.out.println("sectionClusterList.size()="+sectionClusterList.size()+";  tempEndToEndSectList.size()"+tempEndToEndSectList.size());
     		SectionCluster cluster = new SectionCluster();
     		tempEndToEndSectList = cluster.CreateCluster(tempEndToEndSectList, subSectionPrefDataList,minNumSubSectInRup);  // this removes the ones it takes from the list passed in
