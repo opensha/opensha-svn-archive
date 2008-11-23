@@ -20,7 +20,7 @@ public class SectionCluster {
 	ArrayList<Integer> allSectEndPtsInCluster;
 	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 	ArrayList<Integer> allSubSectionsIdList;
-	ArrayList<MultipleSectionRupIDs> rupList;
+	ArrayList<ArrayList<Integer>> rupList;
 	int minNumSubSectInRup;
 	
 	/**
@@ -55,7 +55,7 @@ public class SectionCluster {
 		this.minNumSubSectInRup = minNumSubSectInRup;
 		
 		// make hashmap of endToEndSectLinksList to make it easier to remove those used from what's passed back
-		HashMap endToEndLinkdListHashMap = new HashMap();
+		HashMap<Integer, ArrayList<Integer>> endToEndLinkdListHashMap = new HashMap<Integer, ArrayList<Integer>>();
 		for(int i=0;i<endToEndSectLinksList.size();i++)
 			endToEndLinkdListHashMap.put(new Integer(i), endToEndSectLinksList.get(i));
 		
@@ -96,7 +96,7 @@ public class SectionCluster {
 		ArrayList<ArrayList<Integer>> unusedEndToEndSectLinksList = new ArrayList<ArrayList<Integer>>();
 		for(int i=1; i<endToEndSectLinksList.size();i++)
 			if(!linkIndicesToKeep.contains(i))
-				unusedEndToEndSectLinksList.add((ArrayList<Integer>)endToEndLinkdListHashMap.get(new Integer(i)));
+				unusedEndToEndSectLinksList.add(endToEndLinkdListHashMap.get(new Integer(i)));
 		
 		// compute subsection data
 		computeSubsectionData();
@@ -135,21 +135,53 @@ public class SectionCluster {
 		}
 	}
 	
-	public ArrayList<MultipleSectionRupIDs> getRuptures() {
+	public ArrayList<ArrayList<Integer>> getRuptures() {
 		  if(rupList== null)
 			  computeRupList();
 		  return rupList;
 	}
 
+	
+	
 	private void computeRupList() {
-		rupList = new ArrayList<MultipleSectionRupIDs>();
+		
+		int sectionIndex;
+
+		// Make HashMap giving a unique integer for each subsection ID, where the key is the latter
+		HashMap<Integer, Integer> indexForSubsectionID = new HashMap<Integer, Integer>();
+		int index=0;
+//		ArrayList<Integer> keys = new ArrayList<Integer>();
+		ArrayList<Integer> sectIndicesInCluster = getSectionIndicesInCluster();
+		for(int i=0; i<sectIndicesInCluster.size();i+=2) {
+			sectionIndex = sectIndicesInCluster.get(i).intValue()/2; // convert from endpoint index to section index
+			ArrayList<FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
+			for(int k=0; k< prefSubsectDataForSection.size();k++) {
+				Integer key = prefSubsectDataForSection.get(k).getSectionId();
+//				keys.add(key);
+				indexForSubsectionID.put(key, index); // is this the correct order?
+				index +=1;
+			}
+		}
+		
+		/* check this hashmap
+		System.out.println("key and value for indexForSubsectionID hashmap:");
+		for(int i=0; i<keys.size();i++)
+			System.out.println("\t"+keys.get(i)+"\t"+indexForSubsectionID.get(keys.get(i))); // the key should be this index
+		*/
+		// create a 2D array of ArrayList<ArrayList<Integer>> that will hold the ruptures for each combination
+		// of subsection endpoints
+		//int[][] numSubsectInRup = new int[indexForSubsectionID.size()][indexForSubsectionID.size()];
+		int numSS = indexForSubsectionID.size();
+		ArrayList<ArrayList<Integer>>[][] rupsForSubSectEndpoints = new ArrayList[numSS][numSS];
+		
+		
+		rupList = new ArrayList<ArrayList<Integer>>();
 		// loop over each end-to-end link list
 		for(int l=0; l<localEndToEndSectLinksList.size();l++) {
-System.out.println("\tWorking on Rups for link "+l+" of "+localEndToEndSectLinksList.size());
+//System.out.println("\tWorking on Rups for link "+l+" of "+localEndToEndSectLinksList.size());
 			// get the list of subsection IDs for this end-to-end link
 			ArrayList<Integer> endToEndLink = localEndToEndSectLinksList.get(l);
 			ArrayList<Integer> endToEndSubsectionIDs = new ArrayList<Integer>();
-			int sectionIndex;
 			for(int i=0; i< endToEndLink.size();i+=2) {
 				sectionIndex = endToEndLink.get(i).intValue()/2; // convert from endpoint index to section index
 				ArrayList<FaultSectionPrefData> prefSubsectDataForSection = subSectionPrefDataList.get(sectionIndex);
@@ -163,8 +195,33 @@ System.out.println("\tWorking on Rups for link "+l+" of "+localEndToEndSectLinks
 //					if(l==0) System.out.println("s="+s+"\tnumSubSectInRup="+numSubSectInRup);
 					ArrayList<Integer> id_list = new ArrayList<Integer>();
 					for(int t=0;t<numSubSectInRup;t++) id_list.add(endToEndSubsectionIDs.get(s+t));
-					MultipleSectionRupIDs rupIDs = new MultipleSectionRupIDs(id_list);
-					if(!rupList.contains(rupIDs)) rupList.add(rupIDs);
+					
+					// now we need to determine if we already have this rupture
+					int firstIndex = indexForSubsectionID.get(id_list.get(0));
+					int lastIndex  = indexForSubsectionID.get(id_list.get(id_list.size()-1));
+					
+					// get the list of  rupts from the HashMap
+					ArrayList<ArrayList<Integer>> rups = rupsForSubSectEndpoints[firstIndex][lastIndex];
+					if(rups == null){ // check this first for speed
+						rupList.add(id_list);
+						ArrayList<ArrayList<Integer>> newList = new ArrayList<ArrayList<Integer>>();
+						newList.add(id_list);
+						rupsForSubSectEndpoints[firstIndex][lastIndex] = newList;
+						rupsForSubSectEndpoints[lastIndex][firstIndex] = newList;
+						continue; // or break?
+					}
+					// create reverse order list since we will need to check that as well
+					ArrayList<Integer> id_list_reversed = new ArrayList<Integer>();
+					for(int n=id_list.size()-1;n>=0;n--) id_list_reversed.add(id_list.get(n));
+					if(!rups.contains(id_list) && !rups.contains(id_list_reversed)) {
+						rupList.add(id_list);
+						ArrayList<ArrayList<Integer>> list = rupsForSubSectEndpoints[firstIndex][lastIndex];
+						list.add(id_list);
+					}
+					//else do nothing
+					
+					// OLD WAY
+//					if(!rupList.contains(id_list)) rupList.add(id_list);
 					
 				}
 			}
