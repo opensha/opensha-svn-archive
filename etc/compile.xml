@@ -1,16 +1,17 @@
 
 
-<project basedir="." default="compile" name="Compile">
+<project basedir="." default="build" name="Compile">
 
 	<property name="dest" value="../classes"/>
+	<property name="tmpdest" value="../classes.temp"/>
 	<property name="src" value="../"/>
 
-	<target name="compile" depends="precompilecleanup,init">
+	<target name="compile">
 		<javac
 				debug="true"
 				deprecation="false"
 				optimize="true"
-				destdir="${dest}"
+				destdir="${tmpdest}"
 				nowarn="true"
 				source="1.5"
 				target="1.5"
@@ -19,7 +20,7 @@
 				fork="yes"
 				memoryInitialSize="512m"
 				memoryMaximumSize="1024m">
-			
+
 			<src path="${src}"/>
 			<include name="scratchJavaDevelopers/**" />
 			<include name="org/**" />
@@ -29,11 +30,23 @@
 	</target>
 
 	<target name="init">
-		<mkdir dir="${dest}"/>
+		<mkdir dir="${tmpdest}"/>
 	</target>
 
 	<target name="precompilecleanup">
-		<delete dir="${dest}" failonerror="yes" verbose="no"/>
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no"/>
 	</target>
+
+	<target name="build" depends="precompilecleanup,init,compile">
+		<delete dir="${dest}" failonerror="yes" verbose="no"/>
+
+		<move todir="${dest}">
+			<fileset dir="${tmpdest}"/>
+		</move>
+		
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no"/>
+	</target>
+
+
 
 </project>
