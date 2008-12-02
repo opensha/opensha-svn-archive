@@ -263,86 +263,95 @@ public class HazardMapScatterCreator {
 	}
 	
 	public static void main(String args[]) {
-		if (args.length == 0) {
-			System.err.println("RUNNING FROM DEBUG MODE!!!!");
-			args = new String[6];
-			
-			args[0] = "34,35";
-			args[1] = "3";
-			args[2] = "5";
-			args[3] = "21";
-			args[4] = "/home/kevin/CyberShake/scatterMap/cpt.cpt";
-			args[5] = "/home/kevin/CyberShake/scatterMap";
-		} else if (args.length != 6) {
-			System.err.println("USAGE: HazardMapScatterScreator <erfID(s)> <rupVarScenID> <sgtVarID> <imTypeID> <cptFile> <outPutDir>");
-			System.exit(1);
-		}
-		
-		String cptFile = args[4];
-		System.out.println("CPT File: " + cptFile);
-		CPT cpt = null;
 		try {
-			cpt = CPT.loadFromFile(new File(cptFile));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
-		
-		int rupVarScenID = Integer.parseInt(args[1]);
-		System.out.println("Rupture Variation Scenario ID: " + rupVarScenID);
-		int sgtVarID = Integer.parseInt(args[2]);
-		System.out.println("SGT Variation ID: " + sgtVarID);
-		int imTypeID = Integer.parseInt(args[3]);
-		System.out.println("IM Type ID: " + imTypeID);
-		
-		boolean isProbAt_IML = false;
-		double val = 0.0004;
-		
-		String erfStr = args[0];
-		erfStr = erfStr.trim();
-		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
-		for (String id : erfStr.split(",")) {
-			int idInt = Integer.parseInt(id);
-			erfIDs.add(idInt);
-			System.out.println("ERF ID: " + idInt);
-		}
-		
-		HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfIDs, rupVarScenID, sgtVarID, imTypeID, cpt, isProbAt_IML, val);
-		
+			if (args.length == 0) {
+				System.err.println("RUNNING FROM DEBUG MODE!!!!");
+				args = new String[6];
+				
+				args[0] = "34,35";
+				args[1] = "3";
+				args[2] = "5";
+				args[3] = "21";
+				args[4] = "/home/kevin/CyberShake/scatterMap/cpt.cpt";
+				args[5] = "/home/kevin/CyberShake/scatterMap";
+			} else if (args.length != 6) {
+				System.err.println("USAGE: HazardMapScatterScreator <erfID(s)> <rupVarScenID> <sgtVarID> <imTypeID> <cptFile> <outPutDir>");
+				System.exit(1);
+			}
+			
+			String cptFile = args[4];
+			System.out.println("CPT File: " + cptFile);
+			CPT cpt = null;
+			try {
+				cpt = CPT.loadFromFile(new File(cptFile));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(1);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(1);
+			}
+			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			
+			int rupVarScenID = Integer.parseInt(args[1]);
+			System.out.println("Rupture Variation Scenario ID: " + rupVarScenID);
+			int sgtVarID = Integer.parseInt(args[2]);
+			System.out.println("SGT Variation ID: " + sgtVarID);
+			int imTypeID = Integer.parseInt(args[3]);
+			System.out.println("IM Type ID: " + imTypeID);
+			
+			boolean isProbAt_IML = false;
+			double val = 0.0004;
+			
+			String erfStr = args[0];
+			erfStr = erfStr.trim();
+			ArrayList<Integer> erfIDs = new ArrayList<Integer>();
+			for (String id : erfStr.split(",")) {
+				int idInt = Integer.parseInt(id);
+				erfIDs.add(idInt);
+				System.out.println("ERF ID: " + idInt);
+			}
+			
+			HazardMapScatterCreator map = new HazardMapScatterCreator(db, erfIDs, rupVarScenID, sgtVarID, imTypeID, cpt, isProbAt_IML, val);
+			
 //		map.addComparison("CB 2008", "/home/kevin/CyberShake/scatterMap/base_cb.txt");
 //		map.addComparison("BA 2008", "/home/kevin/CyberShake/scatterMap/base_ba.txt");
 //		map.printCurves();
 //		map.printVals();
-		
-		ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
-		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, 3));
-		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, 2, 0.85));
-		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, 1, 0.75);
-		symbols.add(circle);
-		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, 4));
-		
-		boolean writeEmptySites = true;
-		boolean labels = true;
-		
-		String outputDir = args[5];
-		if (!outputDir.endsWith(File.separator))
-			outputDir += File.separator;
-		System.out.println("Output Directory: " + outputDir);
-		
-		try {
 			
-			map.writeScatterColoredScript(symbols, circle, outputDir + "scatter.sh", writeEmptySites, labels);
-			map.writeScatterMarkerScript(symbols, circle, outputDir + "scatter_mark.sh", labels);
-		} catch (IOException e) {
+			ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, 3));
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, 2, 0.85));
+			ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, 1, 0.75);
+			symbols.add(circle);
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, 4));
+			
+			boolean writeEmptySites = true;
+			boolean labels = true;
+			
+			String outputDir = args[5];
+			if (!outputDir.endsWith(File.separator))
+				outputDir += File.separator;
+			System.out.println("Output Directory: " + outputDir);
+			
+			try {
+				
+				map.writeScatterColoredScript(symbols, circle, outputDir + "scatter.sh", writeEmptySites, labels);
+				map.writeScatterMarkerScript(symbols, circle, outputDir + "scatter_mark.sh", labels);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			db.destroy();
+			System.exit(0);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
-		
-		db.destroy();
-		
 	}
 }
