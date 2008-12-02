@@ -260,19 +260,21 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public ArrayList<CybershakeSite> getAllSites(int minIndex) {
-		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
-		
 		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
+		
+		ArrayList<CybershakeSite> sites = siteInfoDB.getAllSitesFromDB();
+		
 		ArrayList<String> shortNames = siteInfoDB.getAllSites();
 		
-		for (String shortName : shortNames) {
-			int siteID = siteInfoDB.getSiteId(shortName);
-			if (siteID < minIndex)
-				continue;
-			Location loc = siteInfoDB.getLocationForSite(shortName);
-			CybershakeSite site = new CybershakeSite(siteID, loc.getLatitude(), loc.getLongitude(), "Unknown", shortName);
-			sites.add(site);
-			System.out.println("New Site: " + site);
+		if (minIndex > 0) {
+			ArrayList<CybershakeSite> clone = (ArrayList<CybershakeSite>)sites.clone();
+			
+			for (CybershakeSite site : sites) {
+				
+				if (site.id < minIndex)
+					clone.remove(site);
+			}
+			return clone;
 		}
 		
 		return sites;

@@ -128,17 +128,15 @@ public class HazardMapScatterCreator {
 		
 		String sym;
 		
-		int start;
-		int end;
+		int siteTypeID;
 		
-		public Symbol(String sym, int start, int end) {
+		public Symbol(String sym, int siteTypeID) {
 			this.sym = sym;
-			this.start = start;
-			this.end = end;
+			this.siteTypeID = siteTypeID;
 		}
 		
-		public boolean use(int id) {
-			return id >= start && id <= end;
+		public boolean use(CybershakeSite site) {
+			return site.type_id == siteTypeID;
 		}
 		
 		public String getSymbol() {
@@ -146,10 +144,12 @@ public class HazardMapScatterCreator {
 		}
 	}
 	
+	
+	
 	private String getSymbol(CybershakeSite site, ArrayList<Symbol> symbols, String defaultSym) {
 		String sym = defaultSym;
 		for (Symbol symbol : symbols) {
-			if (symbol.use(site.id)) {
+			if (symbol.use(site)) {
 				sym = symbol.getSymbol();
 				break;
 			}
@@ -222,13 +222,25 @@ public class HazardMapScatterCreator {
 		return allSites;
 	}
 	
-	public void writeScatterColoredScript(ArrayList<Symbol> symbols, String defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
+	public boolean shouldSkipSite(CybershakeSite site, ArrayList<Integer> exclusionSiteTypeIDs) {
+		for (int badTypeID : exclusionSiteTypeIDs) {
+			if (site.type_id == badTypeID) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void writeScatterColoredScript(ArrayList<Symbol> symbols, ArrayList<Integer> exclusionSiteTypeIDs, String defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		double size = 0.18;
 		double fontSize = 10;
 		
 		for (CybershakeSite site : this.getAllSites()) {
+			if (this.shouldSkipSite(site, exclusionSiteTypeIDs))
+				continue;
+			
 			double val = -1d;
 			for (int i=0; i<vals.size(); i++) {
 				CybershakeSite valSite = sites.get(i);
@@ -254,13 +266,16 @@ public class HazardMapScatterCreator {
 		write.close();
 	}
 	
-	public void writeScatterMarkerScript(ArrayList<Symbol> symbols, String defaultSym, String script, boolean labels) throws IOException {
+	public void writeScatterMarkerScript(ArrayList<Symbol> symbols, ArrayList<Integer> exclusionSiteTypeIDs, String defaultSym, String script, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		double size = 0.18;
 		double fontSize = 10;
 		
 		for (CybershakeSite site : this.getAllSites()) {
+			if (this.shouldSkipSite(site, exclusionSiteTypeIDs))
+				continue;
+			
 			double val = -1d;
 			String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
 			
@@ -334,9 +349,12 @@ public class HazardMapScatterCreator {
 //		map.printVals();
 		
 		ArrayList<Symbol> symbols = new ArrayList<Symbol>();
-		symbols.add(new Symbol("s", 18, 19));
-		symbols.add(new Symbol("d", 28, 36));
-		symbols.add(new Symbol("s", 37, 57));
+		symbols.add(new Symbol("s", 3));
+		symbols.add(new Symbol("d", 2));
+		symbols.add(new Symbol("c", 1));
+		
+		ArrayList<Integer> exclusionSiteTypeIDs = new ArrayList<Integer>();
+		exclusionSiteTypeIDs.add(4);
 		
 		boolean writeEmptySites = true;
 		boolean labels = true;
@@ -348,8 +366,8 @@ public class HazardMapScatterCreator {
 		
 		try {
 			
-			map.writeScatterColoredScript(symbols, "c", outputDir + "scatter.sh", writeEmptySites, labels);
-			map.writeScatterMarkerScript(symbols, "c", outputDir + "scatter_mark.sh", labels);
+			map.writeScatterColoredScript(symbols, exclusionSiteTypeIDs, "c", outputDir + "scatter.sh", writeEmptySites, labels);
+			map.writeScatterMarkerScript(symbols, exclusionSiteTypeIDs, "c", outputDir + "scatter_mark.sh", labels);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

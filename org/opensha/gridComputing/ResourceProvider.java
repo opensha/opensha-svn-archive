@@ -31,7 +31,7 @@ public class ResourceProvider extends GridResource {
 	private static String ABE_FORK = "jobmanager-fork";
 	private static String ABE_JAVA = "/usr/local/jdk1.5.0_12/bin/java";
 	private static String ABE_DIR = "/cfs/scratch/users/tera3d/opensha/hazMapRuns";
-	private static String ABE_REQS = "(FileSystemDomain==\"abe.ncsa.teragrid.org\")&&(Arch==\"X86_64\")&&(Disk>=0)&&(Memory>=0)&&(OpSys==\"LINUX\")";
+	private static String ABE_REQS = "(FileSystemDomain==\"abe-tera3d\")&&(Arch==\"X86_64\")&&(Disk!=0)&&(Memory!=0)&&(OpSys==\"LINUX\")";
 	private static String ABE_GRID_FTP = "gridftp-abe.ncsa.teragrid.org:2811";
 	
 	/**
@@ -52,7 +52,7 @@ public class ResourceProvider extends GridResource {
 	public static final ResourceProvider ABE_NO_GLIDE_INS() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		ResourceProvider ABE_NO_GLIDE_INS = new ResourceProvider("Abe (NCSA) (w/o Glide-Ins)", ABE_HOST, ABE_BATCH, ABE_FORK,
-				ABE_JAVA, ABE_DIR, ABE_REQS, ABE_GRID_FTP, "globus", rsl);
+				ABE_JAVA, ABE_DIR, ABE_REQS, ABE_GRID_FTP, "grid", rsl);
 		return ABE_NO_GLIDE_INS;
 	}
 	
@@ -65,7 +65,7 @@ public class ResourceProvider extends GridResource {
 		rsl.setQueue("mpi");
 		ResourceProvider DYNAMIC = new ResourceProvider("Dynamic (USC/SCEC)", "dynamic.usc.edu", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/java/jdk1.5.0_10/bin/java", "/nfs/dynamic-1/tera3d/opensha/hazMaps",
-				"", "dynamic.usc.edu", "globus", rsl);
+				"", "dynamic.usc.edu", "grid", rsl);
 		DYNAMIC.addSuggestedQueue("mpi");
 		return DYNAMIC;
 	}
@@ -78,7 +78,7 @@ public class ResourceProvider extends GridResource {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		ResourceProvider ORNL = new ResourceProvider("Oak Ridge National Labs", "tg-login.ornl.teragrid.org:2119", "jobmanager-pbs", "jobmanager-fork",
 				"/usr/bin/java", "/scratch/kevinm/hazMaps",
-				"", "tg-gridftp.ornl.teragrid.org:2811", "globus", rsl);
+				"", "tg-gridftp.ornl.teragrid.org:2811", "grid", rsl);
 		return ORNL;
 	}
 	
@@ -138,7 +138,7 @@ public class ResourceProvider extends GridResource {
 	public static final ResourceProvider STEELE_NO_GLIDE_INS() {
 		GlobusRSL rsl = new GlobusRSL(GlobusRSL.SINGLE_JOB_TYPE, 240);
 		ResourceProvider STEELE_NO_GLIDE_INS = new ResourceProvider("Steele (Purdue) (w/o Glide-Ins)", STEELE_HOST, STEELE_BATCH, STEELE_FORK,
-				STEELE_JAVA, STEELE_DIR, STEELE_REQS, STEELE_GRID_FTP, "globus", rsl);
+				STEELE_JAVA, STEELE_DIR, STEELE_REQS, STEELE_GRID_FTP, "grid", rsl);
 		return STEELE_NO_GLIDE_INS;
 	}
 	

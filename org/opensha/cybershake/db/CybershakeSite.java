@@ -6,17 +6,19 @@ public class CybershakeSite {
 	public double lon;
 	public String name;
 	public String short_name;
+	public int type_id;
 	
-	public CybershakeSite(int id, double lat, double lon, String name, String short_name) {
+	public CybershakeSite(int id, double lat, double lon, String name, String short_name, int type_id) {
 		this.id = id;
 		this.lat = lat;
 		this.lon = lon;
 		this.name = name;
 		this.short_name = short_name;
+		this.type_id = type_id;
 	}
 	
 	public CybershakeSite(double lat, double lon, String name, String short_name) {
-		this(-1, lat, lon, name, short_name);
+		this(-1, lat, lon, name, short_name, -1);
 	}
 	
 	public String toString() {

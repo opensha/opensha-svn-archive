@@ -518,7 +518,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @return
 	 */
 	public CybershakeSite getSiteFromDB(String shortName) {
-		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Short_Name = '"+shortName+"'";
+		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Site_Lat,CS_Site_Lon,CS_Site_Type_ID from CyberShake_Sites WHERE CS_Short_Name = '"+shortName+"'";
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -533,9 +533,10 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			double lon = rs.getDouble("CS_Site_Lon");
 			int id = rs.getInt("CS_Site_ID");
 			String longName = rs.getString("CS_Site_Name");
+			int typeID = rs.getInt("CS_Site_Type_ID");
 			rs.close();
 
-			CybershakeSite site = new CybershakeSite(id, lat, lon, longName, shortName);
+			CybershakeSite site = new CybershakeSite(id, lat, lon, longName, shortName, typeID);
 			return site;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -549,7 +550,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @return
 	 */
 	public CybershakeSite getSiteFromDB(int siteID) {
-		String sql = "SELECT CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites WHERE CS_Site_ID = "+siteID+"";
+		String sql = "SELECT CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon,CS_Site_Type_ID from CyberShake_Sites WHERE CS_Site_ID = "+siteID+"";
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -564,9 +565,10 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			double lon = rs.getDouble("CS_Site_Lon");
 			String longName = rs.getString("CS_Site_Name");
 			String shortName = rs.getString("CS_Short_Name");
+			int typeID = rs.getInt("CS_Site_Type_ID");
 			rs.close();
 
-			CybershakeSite site = new CybershakeSite(siteID, lat, lon, longName, shortName);
+			CybershakeSite site = new CybershakeSite(siteID, lat, lon, longName, shortName, typeID);
 			return site;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -579,7 +581,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @return
 	 */
 	public ArrayList<CybershakeSite> getAllSitesFromDB() {
-		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon from CyberShake_Sites";
+		String sql = "SELECT CS_Site_ID,CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon,CS_Site_Type_ID from CyberShake_Sites";
 		ResultSet rs = null;
 		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
 		try {
@@ -591,21 +593,17 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		
 		try {
 			rs.first();
-			double lat = rs.getDouble("CS_Site_Lat");	
-			double lon = rs.getDouble("CS_Site_Lon");
-			int id = rs.getInt("CS_Site_ID");
-			String longName = rs.getString("CS_Site_Name");
-			String shortName = rs.getString("CS_Short_Name");
-
-			sites.add(new CybershakeSite(id, lat, lon, longName, shortName));
-			while (rs.next()) {
-				lat = rs.getDouble("CS_Site_Lat");	
-				lon = rs.getDouble("CS_Site_Lon");
-				id = rs.getInt("CS_Site_ID");
-				longName = rs.getString("CS_Site_Name");
-				shortName = rs.getString("CS_Short_Name");
+			
+			while (!rs.isAfterLast()) {
+				double lat = rs.getDouble("CS_Site_Lat");	
+				double lon = rs.getDouble("CS_Site_Lon");
+				int id = rs.getInt("CS_Site_ID");
+				String longName = rs.getString("CS_Site_Name");
+				String shortName = rs.getString("CS_Short_Name");
+				int typeID = rs.getInt("CS_Site_Type_ID");
 				
-				sites.add(new CybershakeSite(id, lat, lon, longName, shortName));
+				sites.add(new CybershakeSite(id, lat, lon, longName, shortName, typeID));
+				rs.next();
 			}
 			rs.close();
 		} catch (SQLException e) {

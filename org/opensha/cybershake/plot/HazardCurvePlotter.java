@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,8 +47,6 @@ import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
-import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
@@ -77,14 +76,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private int plotWidth = PLOT_WIDTH_DEFAULT;
 	private int plotHeight = PLOT_HEIGHT_DEFAULT;
 	
-	private double minX = 0;
-	private double maxX = 2;
-	private double minY = Double.parseDouble("1.0E-6");
-	private double maxY = 1.0;
-	
-	private boolean xLog = false;
-	private boolean yLog = true;
-	
 	private DBAccess db;
 	private int erfID;
 	private int rupVarScenarioID;
@@ -93,8 +84,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private HazardCurve2DB curve2db;
 	
 	private GraphPanel gp;
-	
-	private String yAxisName = "Probability Rate (1/yr)";
 	
 	private EqkRupForecast erf = null;
 	private ArrayList<AttenuationRelationship> attenRels = new ArrayList<AttenuationRelationship>();
@@ -108,15 +97,15 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	HazardCurveCalculator calc;
 	
-	private boolean customAxis = true;
-	
 	CybershakeERF selectedERF;
-	
-	private ArrayList<Color> attenRelColors = new ArrayList<Color>();
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("MM_dd_yyyy");
 	
 	private double manualVs30  = -1;
+	
+	double currentPeriod = -1;
+	
+	HazardCurvePlotCharacteristics plotChars = HazardCurvePlotCharacteristics.createRobPlotChars();
 	
 	public HazardCurvePlotter(DBAccess db, int erfID, int rupVarScenarioID, int sgtVarID) {
 		this.db = db;
@@ -144,22 +133,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		curve2db = new HazardCurve2DB(this.db);
 		
-		setRobColors();
 		try {
 			calc = new HazardCurveCalculator();
 			calc.setMaxSourceDistance(maxSourceDistance);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	private void setRobColors() {
-		attenRelColors.clear();
-		attenRelColors.add(Color.blue);
-		attenRelColors.add(Color.green);
-		attenRelColors.add(Color.orange);
-		attenRelColors.add(Color.YELLOW);
-		attenRelColors.add(Color.RED);
 	}
 	
 	public static ArrayList<String> commaSplit(String str) {
@@ -192,6 +171,24 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		if (siteID < 0) {
 			System.err.println("Site '" + siteName + "' unknown!");
 			return false;
+		}
+		
+		if (cmd.hasOption("plot-chars-file")) {
+			String pFileName = cmd.getOptionValue("plot-chars-file");
+			System.out.println("Reading plot characteristics from " + pFileName);
+			try {
+				plotChars = HazardCurvePlotCharacteristics.fromXMLMetadata(pFileName);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				System.err.println("WARNING: plot characteristics file not found! Using default...");
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.err.println("WARNING: plot characteristics file parsing error! Using default...");
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		String periodStrs = cmd.getOptionValue("period");
@@ -398,7 +395,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					if (curveCalc == null)
 						curveCalc = new HazardCurveComputation(db);
 					
-					ArbitrarilyDiscretizedFunc func = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
+					ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
 					ArrayList<Double> imVals = new ArrayList<Double>();
 					for (int i=0; i<func.getNum(); i++)
 						imVals.add(func.getX(i));
@@ -446,7 +443,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
-		chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES, Color.BLACK, 1));
+		chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(), this.plotChars.getCyberShakeColor(), 1));
 		
 		
 		CybershakeIM im = curve2db.getIMForCurve(curveID);
@@ -472,12 +469,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		curve.setInfo(this.getCyberShakeCurveInfo(csSite, im));
 		
-		String title = csSite.name;
-		
-		if (!csSite.name.equals(csSite.short_name))
-			title += " (" + csSite.short_name + ")";
-		
-		
+		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
 		System.out.println("Plotting Curve!");
 		
@@ -516,19 +508,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 
 	private void plotCurvesToGraphPanel( ArrayList<PlotCurveCharacterstics> chars, CybershakeIM im,
 			ArrayList<DiscretizedFuncAPI> curves, String title) {
-		String periodStr = getPeriodStr(im.getVal());
 		
-		String xAxisName = periodStr + "s SA (g)";
+		String xAxisName = HazardCurvePlotCharacteristics.getReplacedXAxisLabel(plotChars.getXAxisLabel(), im.getVal());
 		
-		int periodInt = (int)(im.getVal() + 0.5);
-		if (periodInt == 5)
-			this.maxX = 1;
-		else if (periodInt == 10)
-			this.maxX = 0.5;
+		this.currentPeriod = im.getVal();
 		
 		this.gp.setCurvePlottingCharacterstic(chars);
 		
-		this.gp.drawGraphPanel(xAxisName, yAxisName, curves, xLog, yLog, customAxis, title, this);
+		this.gp.drawGraphPanel(xAxisName, plotChars.getYAxisLabel(), curves, plotChars.isXLog(), plotChars.isYLog(), plotChars.isCustomAxis(), title, this);
 		this.gp.setVisible(true);
 		
 		this.gp.togglePlot(null);
@@ -537,7 +524,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.gp.repaint();
 	}
 	
-	private String getPeriodStr(double period) {
+	public static String getPeriodStr(double period) {
 		int periodInt = (int)(period * 100 + 0.5);
 		
 		return (periodInt / 100) + "";
@@ -548,15 +535,21 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.setERFParams();
 		
 		int i = 0;
+		ArrayList<Color> colors = plotChars.getAttenRelColors();
 		for (AttenuationRelationship attenRel : attenRels) {
-			chars.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE, attenRelColors.get(i), 1));
+			Color color;
+			if (i >= colors.size())
+				color = colors.get(colors.size() - 1);
+			else
+				color = colors.get(i);
+			chars.add(new PlotCurveCharacterstics(this.plotChars.getAttenRelLineType(), color, 1));
 			
 			System.out.println("Setting params for Attenuation Relationship: " + attenRel.getName());
 			Site site = this.setAttenRelParams(attenRel, im);
 			
 			System.out.print("Calculating comparison curve for " + site.getLocation().getLatitude() + "," + site.getLocation().getLongitude() + "...");
 			try {
-				ArbitrarilyDiscretizedFunc curve = CyberShakePlotFromDBControlPanel.createUSGS_PGA_Function();
+				ArbitrarilyDiscretizedFunc curve = plotChars.getHazardFunc();
 				ArbitrarilyDiscretizedFunc logHazFunction = this.getLogFunction(curve);
 				calc.getHazardCurve(logHazFunction, site, attenRel, erf);
 				curve = this.unLogFunction(curve, logHazFunction);
@@ -740,19 +733,21 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public double getMaxX() {
-		return maxX;
+		if (currentPeriod > 0)
+			return plotChars.getXMax(currentPeriod);
+		return plotChars.getXMax();
 	}
 
 	public double getMaxY() {
-		return maxY;
+		return plotChars.getYMax();
 	}
 
 	public double getMinX() {
-		return minX;
+		return plotChars.getXMin();
 	}
 
 	public double getMinY() {
-		return minY;
+		return plotChars.getYMin();
 	}
 	
 	public int getAxisLabelFontSize() {
@@ -771,11 +766,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	}
 
 	public void setXLog(boolean flag) {
-		this.xLog = flag;
+		plotChars.setXLog(flag);
 	}
 
 	public void setYLog(boolean flag) {
-		this.yLog = flag;
+		plotChars.setYLog(flag);
 	}
 	
 	boolean xLogFlag = true;
@@ -879,6 +874,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option vs30 = new Option("v", "vs30", true, "Specify default Vs30 for sites with no Vs30 data, or leave blank " + 
 				"for default value. Otherwise, you will be prompted to enter vs30 interactively if needed.");
 		ops.addOption(vs30);
+		
+		Option plotChars = new Option("pl", "plot-chars-file", true, "Specify the path to a plot characteristics XML file");
+		ops.addOption(plotChars);
 		
 		return ops;
 	}
