@@ -200,8 +200,16 @@ public class HazardMapScatterCreator {
 		return allSites;
 	}
 	
+	private void writeInitScriptLines(FileWriter write) throws IOException {
+		write.write("#!/bin/bash" + "\n");
+		write.write("set -o errexit" + "\n");
+		write.write("\n");
+	}
+	
 	public void writeScatterColoredScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
+		
+		writeInitScriptLines(write);
 		
 		double size = 0.18;
 		double fontSize = 10;
@@ -237,6 +245,8 @@ public class HazardMapScatterCreator {
 	
 	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
+		
+		writeInitScriptLines(write);
 		
 		double size = 0.18;
 		double fontSize = 10;
