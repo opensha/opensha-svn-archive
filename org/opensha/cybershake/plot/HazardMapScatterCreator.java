@@ -168,7 +168,7 @@ public class HazardMapScatterCreator {
 		// arg 1: plot region
 		// arg 2: plot projection
 		// arg 3: ps file
-		line += "psxy $1 $2 -S" + sym + scaledSize + "i " + colorStr + " " + outline + " -O -K >> $3";
+		line += "psxy $1 $2 -S" + sym.getSymbol() + scaledSize + "i " + colorStr + " " + outline + " -O -K >> $3";
 		
 		return line;
 	}
@@ -271,8 +271,8 @@ public class HazardMapScatterCreator {
 			args[1] = "3";
 			args[2] = "5";
 			args[3] = "21";
-			args[4] = "/home/kevin/CyberShake/scatterMap/gmt/cpt.cpt";
-			args[5] = "/home/kevin/CyberShake/scatterMap/gmt";
+			args[4] = "/home/kevin/CyberShake/scatterMap/cpt.cpt";
+			args[5] = "/home/kevin/CyberShake/scatterMap";
 		} else if (args.length != 6) {
 			System.err.println("USAGE: HazardMapScatterScreator <erfID(s)> <rupVarScenID> <sgtVarID> <imTypeID> <cptFile> <outPutDir>");
 			System.exit(1);
