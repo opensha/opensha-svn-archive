@@ -124,54 +124,32 @@ public class HazardMapScatterCreator {
 		}
 	}
 	
-	public static class Symbol {
-		
-		String sym;
-		
-		int siteTypeID;
-		
-		public Symbol(String sym, int siteTypeID) {
-			this.sym = sym;
-			this.siteTypeID = siteTypeID;
-		}
-		
-		public boolean use(CybershakeSite site) {
-			return site.type_id == siteTypeID;
-		}
-		
-		public String getSymbol() {
-			return sym;
-		}
-	}
-	
-	
-	
-	private String getSymbol(CybershakeSite site, ArrayList<Symbol> symbols, String defaultSym) {
-		String sym = defaultSym;
-		for (Symbol symbol : symbols) {
+	private ScatterSymbol getSymbol(CybershakeSite site, ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
+		for (ScatterSymbol symbol : symbols) {
 			if (symbol.use(site)) {
-				sym = symbol.getSymbol();
-				break;
+				return symbol;
 			}
 		}
-		return sym;
+		return defaultSym;
 	}
 	
-	private double scaleSize(double size, String symbol) {
-		if (symbol.equals("c"))
-			size = 0.75 * size;
-		else if (symbol.equals("d"))
-			size = 0.85 * size;
-		return size;
+	private double scaleSize(double size, ScatterSymbol symbol) {
+//		if (symbol.equals("c"))
+//			size = 0.75 * size;
+//		else if (symbol.equals("d"))
+//			size = 0.85 * size;
+		return size * symbol.getScaleFactor();
 	}
 	
 	private String getGMTColorString(Color color) {
 		return "-G" + color.getRed() + "/" + color.getGreen() + "/" + color.getBlue();
 	}
 	
-	private String getGMTSymbolLine(ArrayList<Symbol> symbols, String defaultSym, CybershakeSite site, double val, double size) {
+	private String getGMTSymbolLine(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, CybershakeSite site, double val, double size) {
 		
-		String sym = this.getSymbol(site, symbols, defaultSym);
+		ScatterSymbol sym = this.getSymbol(site, symbols, defaultSym);
+		if (sym.getSymbol().equals(ScatterSymbol.SYMBOL_INVISIBLE))
+			return null;
 		double scaledSize = this.scaleSize(size, sym);
 		
 		Color color;
@@ -222,25 +200,13 @@ public class HazardMapScatterCreator {
 		return allSites;
 	}
 	
-	public boolean shouldSkipSite(CybershakeSite site, ArrayList<Integer> exclusionSiteTypeIDs) {
-		for (int badTypeID : exclusionSiteTypeIDs) {
-			if (site.type_id == badTypeID) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void writeScatterColoredScript(ArrayList<Symbol> symbols, ArrayList<Integer> exclusionSiteTypeIDs, String defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
+	public void writeScatterColoredScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script, boolean writeEmptySites, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		double size = 0.18;
 		double fontSize = 10;
 		
 		for (CybershakeSite site : this.getAllSites()) {
-			if (this.shouldSkipSite(site, exclusionSiteTypeIDs))
-				continue;
-			
 			double val = -1d;
 			for (int i=0; i<vals.size(); i++) {
 				CybershakeSite valSite = sites.get(i);
@@ -251,6 +217,9 @@ public class HazardMapScatterCreator {
 			}
 			if (writeEmptySites || val >=0) {
 				String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
+				
+				if (line == null)
+					continue;
 				
 				System.out.println(line);
 				write.write(line + "\n");
@@ -266,18 +235,19 @@ public class HazardMapScatterCreator {
 		write.close();
 	}
 	
-	public void writeScatterMarkerScript(ArrayList<Symbol> symbols, ArrayList<Integer> exclusionSiteTypeIDs, String defaultSym, String script, boolean labels) throws IOException {
+	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script, boolean labels) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		double size = 0.18;
 		double fontSize = 10;
 		
 		for (CybershakeSite site : this.getAllSites()) {
-			if (this.shouldSkipSite(site, exclusionSiteTypeIDs))
-				continue;
 			
 			double val = -1d;
 			String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
+			
+			if (line == null)
+				continue;
 			
 			System.out.println(line);
 			write.write(line + "\n");
@@ -348,13 +318,12 @@ public class HazardMapScatterCreator {
 //		map.printCurves();
 //		map.printVals();
 		
-		ArrayList<Symbol> symbols = new ArrayList<Symbol>();
-		symbols.add(new Symbol("s", 3));
-		symbols.add(new Symbol("d", 2));
-		symbols.add(new Symbol("c", 1));
-		
-		ArrayList<Integer> exclusionSiteTypeIDs = new ArrayList<Integer>();
-		exclusionSiteTypeIDs.add(4);
+		ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, 3));
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, 2, 0.85));
+		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, 1, 0.75);
+		symbols.add(circle);
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, 4));
 		
 		boolean writeEmptySites = true;
 		boolean labels = true;
@@ -366,8 +335,8 @@ public class HazardMapScatterCreator {
 		
 		try {
 			
-			map.writeScatterColoredScript(symbols, exclusionSiteTypeIDs, "c", outputDir + "scatter.sh", writeEmptySites, labels);
-			map.writeScatterMarkerScript(symbols, exclusionSiteTypeIDs, "c", outputDir + "scatter_mark.sh", labels);
+			map.writeScatterColoredScript(symbols, circle, outputDir + "scatter.sh", writeEmptySites, labels);
+			map.writeScatterMarkerScript(symbols, circle, outputDir + "scatter_mark.sh", labels);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
