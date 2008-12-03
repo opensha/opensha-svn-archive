@@ -182,12 +182,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				e.printStackTrace();
 				System.err.println("WARNING: plot characteristics file not found! Using default...");
 			} catch (RuntimeException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.err.println("WARNING: plot characteristics file parsing error! Using default...");
 			} catch (DocumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.err.println("WARNING: plot characteristics file parsing error! Using default...");
 			}
 		}
 		
@@ -217,11 +216,11 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					this.addAttenuationRelationshipComparision(attenRel);
 				}
 			} catch (DocumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.err.println("WARNING: Unable to parse ERF XML, not plotting comparison curves!");
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.err.println("WARNING: Unable to parse load comparison ERF, not plotting comparison curves!");
 			}
 		}
 		
@@ -269,6 +268,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		}
 		
 		int periodNum = 0;
+		boolean atLeastOne = false;
 		for (CybershakeIM im : ims) {
 			if (im == null) {
 				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
@@ -298,7 +298,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 									break;
 								}
 							} catch (IOException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -326,12 +325,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 									}
 								}
 							} catch (FileNotFoundException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 								System.out.println("Password file not found!");
 								return false;
 							} catch (IOException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 								System.out.println("Password file not found!");
 								return false;
@@ -374,7 +371,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 											}
 										}
 									} catch (IOException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 								}
@@ -386,7 +382,6 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					try {
 						writeDB = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME,Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 						return false;
 					}
@@ -419,18 +414,26 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			for (String type : types) {
 				type = type.toLowerCase();
 				
-				if (type.equals(TYPE_PDF))
-					plotCurvesToPDF(outFile + ".pdf");
-				else if (type.equals(TYPE_PNG))
-					plotCurvesToPNG(outFile + ".png");
-				else if (type.equals(TYPE_JPG) || type.equals(TYPE_JPEG))
-					plotCurvesToJPG(outFile + ".jpg");
-				else
-					System.err.println("Unknown plotting type: " + type + "...Skipping!");
+				try {
+					if (type.equals(TYPE_PDF)) {
+						plotCurvesToPDF(outFile + ".pdf");
+						atLeastOne = true;
+					} else if (type.equals(TYPE_PNG)) {
+						plotCurvesToPNG(outFile + ".png");
+						atLeastOne = true;
+					} else if (type.equals(TYPE_JPG) || type.equals(TYPE_JPEG)) {
+						plotCurvesToJPG(outFile + ".jpg");
+						atLeastOne = true;
+					} else
+						System.err.println("Unknown plotting type: " + type + "...Skipping!");
+				} catch (IOException e) {
+					e.printStackTrace();
+					return false;
+				}
 			}
 		}
 		
-		return true;
+		return atLeastOne;
 	}
 	
 	public void plotCurve(int siteID, int imTypeID) {
@@ -476,34 +479,19 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		plotCurvesToGraphPanel(chars, im, curves, title);
 	}
 
-	private void plotCurvesToPDF(String outFile) {
-		try {
-			System.out.println("Saving PDF to: " + outFile);
-			this.gp.saveAsPDF(outFile, plotWidth, plotHeight);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void plotCurvesToPDF(String outFile) throws IOException {
+		System.out.println("Saving PDF to: " + outFile);
+		this.gp.saveAsPDF(outFile, plotWidth, plotHeight);
 	}
 	
-	private void plotCurvesToPNG(String outFile) {
-		try {
-			System.out.println("Saving PNG to: " + outFile);
-			ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void plotCurvesToPNG(String outFile) throws IOException {
+		System.out.println("Saving PNG to: " + outFile);
+		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
 	}
 	
-	private void plotCurvesToJPG(String outFile) {
-		try {
-			System.out.println("Saving JPG to: " + outFile);
-			ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void plotCurvesToJPG(String outFile) throws IOException {
+		System.out.println("Saving JPG to: " + outFile);
+		ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
 	}
 
 	private void plotCurvesToGraphPanel( ArrayList<PlotCurveCharacterstics> chars, CybershakeIM im,
@@ -897,53 +885,59 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 		
-		Options options = createOptions();
-		
-		CommandLineParser parser = new GnuParser();
-		
-		if (args.length == 0) {
-			printUsage(options);
-		}
-		
 		try {
-			CommandLine cmd = parser.parse( options, args);
+			Options options = createOptions();
 			
-			if (cmd.hasOption("help")) {
-				printHelp(options);
+			CommandLineParser parser = new GnuParser();
+			
+			if (args.length == 0) {
+				printUsage(options);
 			}
 			
-			HazardCurvePlotter plotter = new HazardCurvePlotter(Cybershake_OpenSHA_DBApplication.db, cmd);
-			
-			boolean success = plotter.plotCurvesFromOptions(cmd);
-			
-			if (!success) {
-				System.out.println("FAIL!");
-				System.exit(1);
-			}
-		} catch (MissingOptionException e) {
-			// TODO Auto-generated catch block
-			Options helpOps = new Options();
-			helpOps.addOption(new Option("h", "help", false, "Display this message"));
 			try {
-				CommandLine cmd = parser.parse( helpOps, args);
+				CommandLine cmd = parser.parse( options, args);
 				
 				if (cmd.hasOption("help")) {
 					printHelp(options);
 				}
-			} catch (ParseException e1) {
+				
+				HazardCurvePlotter plotter = new HazardCurvePlotter(Cybershake_OpenSHA_DBApplication.db, cmd);
+				
+				boolean success = plotter.plotCurvesFromOptions(cmd);
+				
+				if (!success) {
+					System.out.println("FAIL!");
+					System.exit(1);
+				}
+			} catch (MissingOptionException e) {
 				// TODO Auto-generated catch block
+				Options helpOps = new Options();
+				helpOps.addOption(new Option("h", "help", false, "Display this message"));
+				try {
+					CommandLine cmd = parser.parse( helpOps, args);
+					
+					if (cmd.hasOption("help")) {
+						printHelp(options);
+					}
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
 //				e1.printStackTrace();
-			}
-			System.err.println(e.getMessage());
-			printUsage(options);
+				}
+				System.err.println(e.getMessage());
+				printUsage(options);
 //			e.printStackTrace();
-		} catch (ParseException e) {
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				printUsage(options);
+			}
+			
+			System.out.println("Done!");
+			System.exit(0);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			printUsage(options);
+			System.exit(1);
 		}
-		
-		System.out.println("Done!");
-		System.exit(0);
 	}
 }
