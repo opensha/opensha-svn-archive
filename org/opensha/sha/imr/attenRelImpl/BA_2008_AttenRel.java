@@ -253,7 +253,7 @@ public class BA_2008_AttenRel
 	  }
 	  
 	  // remember that pga4nl term uses coeff index 0
-	  double pga4nl = Math.exp(getMean(0, vs30, rjb, mag, fltType, 0.0));
+	  double pga4nl = Math.exp(getMean(0, 760, rjb, mag, fltType, 0.0));
 	  return getMean(iper, vs30, rjb, mag, fltType, pga4nl);
   }
 
