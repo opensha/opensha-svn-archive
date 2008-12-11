@@ -64,7 +64,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	public static final String TYPE_PDF = "pdf";
 	public static final String TYPE_PNG = "png";
 	public static final String TYPE_JPG = "jpg";
-	public static final String TYPE_JPEG = "jepg";
+	public static final String TYPE_JPEG = "jpeg";
 	
 	public static final String TYPE_DEFAULT = TYPE_PDF;
 	
