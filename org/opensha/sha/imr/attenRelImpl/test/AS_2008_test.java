@@ -116,9 +116,9 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 					st.nextToken();
 					//((WarningDoublePropagationEffectParameter)as_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
 					double rjb = Double.parseDouble(st.nextToken().trim());
-					System.out.println("Here");
+					System.out.println("Before rjb set");
 					((WarningDoublePropagationEffectParameter)as_2008.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
-					System.out.println("Here");
+					System.out.println("rjb is set");
 					st.nextToken().trim(); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 					
 					st.nextToken(); // ignore dip
@@ -132,7 +132,6 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 					((WarningDoubleParameter)as_2008.getParameter(as_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
 
 					st.nextToken(); // ignore Zsed, sediment/basin depth
-					System.out.println("Here0");
 					as_2008.setIntensityMeasure(as_2008.SA_NAME);
 					int num= period.length;
 					double openSHA_Val, tested_Val;
@@ -143,9 +142,7 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 						else openSHA_Val = as_2008.getStdDev();
 						tested_Val = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_Val, tested_Val);
-						System.out.println("Here1");
 						if(results == false){
-							System.out.println("Here2");
 							String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
 							"AS-2008 attenuation with the following parameter settings:"+
 							"  SA at period = "+period[k]+"\nMag ="+(float)mag+
