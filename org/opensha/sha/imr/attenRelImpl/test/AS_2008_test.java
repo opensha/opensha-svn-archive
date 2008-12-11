@@ -112,13 +112,23 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 					double mag = Double.parseDouble(st.nextToken().trim());
 					((WarningDoubleParameter)as_2008.getParameter(as_2008.MAG_NAME)).setValueIgnoreWarning(new Double(mag));
 					
-					//Rrup not used, skipping
-					st.nextToken();
+					//Rrup is used for this one
+					double rRup = Double.parseDouble(st.nextToken().trim());
 					//((WarningDoublePropagationEffectParameter)as_2008.getParameter(DistanceRupParameter.NAME)).setValueIgnoreWarning(new Double(rrup));
-					double rjb = Double.parseDouble(st.nextToken().trim());
-					System.out.println("Before rjb set");
-					((WarningDoublePropagationEffectParameter)as_2008.getParameter(DistanceJBParameter.NAME)).setValueIgnoreWarning(new Double(rjb));
-					System.out.println("rjb is set");
+					double dist_jb = Double.parseDouble(st.nextToken().trim());
+//					System.out.println("Before rjb get");
+					DistRupMinusJB_OverRupParameter param = (DistRupMinusJB_OverRupParameter)as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME);
+//					System.out.println("rjb param retreived");
+					double rupMinusJB = (rRup-dist_jb)/rRup;
+					if (rupMinusJB != Double.NaN && !(new String(rupMinusJB + "").contains("NaN"))) {
+//						System.out.println("setting to " + rupMinusJB + " (" + rRup + ", " + dist_jb + ")");
+//						param.setValueIgnoreWarning(new Double(rupMinusJB));
+						param.setValueIgnoreWarning(new Double(0.1));
+//						System.out.println("rjb is set");
+					} else {
+//						System.out.println("It's NaN!!!! Setting to default I guess..");
+						param.setValueIgnoreWarning(AS_2008_AttenRel.DISTANCE_RUP_MINUS_DEFAULT);
+					}
 					st.nextToken().trim(); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 					
 					st.nextToken(); // ignore dip
@@ -146,7 +156,7 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 							String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
 							"AS-2008 attenuation with the following parameter settings:"+
 							"  SA at period = "+period[k]+"\nMag ="+(float)mag+
-							"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+							"  vs30 = "+vs30+"  rjb = "+(float)dist_jb+"\n"+ " FaultType = "+fltType+
 							"\n"+
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
@@ -166,7 +176,7 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 						String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
 						"CB-2008 attenuation with the following parameter settings:"+
 						"  PGA "+"\nMag ="+(float)mag+
-						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+						"  vs30 = "+vs30+"  rjb = "+(float)dist_jb+"\n"+ " FaultType = "+fltType+
 						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
@@ -183,7 +193,7 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 						String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
 						"CB-2008 attenuation with the following parameter settings:"+
 						"  PGV "+"\nMag ="+(float)mag+
-						"  vs30 = "+vs30+"  rjb = "+(float)rjb+"\n"+ " FaultType = "+fltType+
+						"  vs30 = "+vs30+"  rjb = "+(float)dist_jb+"\n"+ " FaultType = "+fltType+
 						"\n"+
 						testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
@@ -232,6 +242,8 @@ public class AS_2008_test extends TestCase implements ParameterChangeWarningList
 
 
 	public void parameterChangeWarning(ParameterChangeWarningEvent e){
+		System.err.println("Parameter change warning!");
+		System.err.flush();
 		return;
 	}
 }
