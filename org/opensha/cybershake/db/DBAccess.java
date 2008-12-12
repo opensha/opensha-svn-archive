@@ -193,7 +193,13 @@ public class DBAccess implements Runnable{
                                            logAppend),true);
 
             } catch (IOException e2) {
-                throw new IOException("Can't open any log file");
+            	try {
+            		File tempFile = File.createTempFile("OpenSHA_db_access", ".log");
+            		System.err.println("WARNING: couldn't write to db log file, using temporary file: " + tempFile.getAbsolutePath());
+					log = new PrintWriter(new FileOutputStream(tempFile),true);
+				} catch (IOException e) {
+					throw new IOException("Can't open any log file");
+				}
             }
         }
 
