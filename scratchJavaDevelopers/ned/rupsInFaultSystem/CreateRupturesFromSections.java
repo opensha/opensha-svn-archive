@@ -35,7 +35,7 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	ArrayList<ArrayList<FaultSectionPrefData>> subSectionPrefDataList;
 
 	
-	CreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, double maxSubSectionLength, int minNumSubSectInRup) {
+	public CreateRupturesFromSections(double maxJumpDist, double maxAngle, double maxStrikeChange, double maxSubSectionLength, int minNumSubSectInRup) {
 		this.maxJumpDist=maxJumpDist;
 		this.maxAngle=maxAngle;
 		maxTotStrikeChange=maxStrikeChange;
@@ -57,6 +57,10 @@ DONE	getRupList()								ArrayList<MultipleSectionRup>
 	
 	public int getNumClusters() {
 		return sectionClusterList.size();
+	}
+	
+	public SectionCluster getCluster(int clusterIndex) {
+		return sectionClusterList.get(clusterIndex);
 	}
 	
 	
