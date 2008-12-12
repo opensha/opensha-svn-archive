@@ -145,7 +145,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 * hanging-wall term.
 	 */
 	private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
-	private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
+	public final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
 	
 	/**
 	 * Horizontal distance to top edge of fault rupture
