@@ -165,7 +165,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
     if(parameterChangeFlag) {
 
       // check if magDist is null
-      if(this.magDistParam==null)
+      if(this.magDistParam.getValue()==null)
           throw new RuntimeException("Magnitude Distribution is null");
 
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
@@ -173,7 +173,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
       if (depthUpper > depthLower)
-          throw new RuntimeException("Upper Seis Depth must be ² Lower Seis Depth");
+          throw new RuntimeException("Upper Seis Depth must be ï¿½ Lower Seis Depth");
 
       //gets the change in latitude for grid spacing specified
       double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);
@@ -192,18 +192,23 @@ public class PEER_AreaForecast extends EqkRupForecast{
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
        */
-      dist_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
+//      System.out.println(((GutenbergRichterMagFreqDist)magDistParam.getValue()).getName());
+//      dist_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
+      dist_GR = (GutenbergRichterMagFreqDist)magDistParam.getValue();
+      IncrementalMagFreqDist dist = new IncrementalMagFreqDist(dist_GR.getMinX(), dist_GR.getMaxX(), dist_GR.getNum());
 
-      double cumRate = dist_GR.getCumRate((int) 0);
-      cumRate /= numLocs;
-      dist_GR.scaleToCumRate(0,cumRate);
+//      double cumRate = dist_GR.getCumRate((int) 0);
+//      cumRate /= numLocs;
+      for(int i=0; i<dist.getNum();i++)
+    	  dist.set(i, dist_GR.getY(i)/numLocs);
+ //     dist_GR.scaleToCumRate(0,cumRate);
 
       double rake = ((Double) rakeParam.getValue()).doubleValue();
       double dip = ((Double) dipParam.getValue()).doubleValue();
 
       // Dip is hard wired at 90 degrees
       pointPoissonEqkSource = new PointEqkSource(new Location(),
-          dist_GR, timeSpan.getDuration(), rake, dip);
+          dist, timeSpan.getDuration(), rake, dip);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
                           "; dip="+ pointPoissonEqkSource.getRupture(0).getRuptureSurface().getAveDip());

@@ -741,32 +741,55 @@ public class HazardCurveServerModeApplication extends JFrame
         if(this.runAllPEER_Tests.runAllPEER_TestCases()){
           try{
             progressCheckBox.setSelected(false);
-            String peerDirName = "peer/";
+            String peerDirName = "PEER_TESTS/";
             //creating the peer directory in which we put all the peer related files
             File peerDir = new File(peerDirName);
             if(!peerDir.isDirectory()) { // if main directory does not exist
               boolean success = (new File(peerDirName)).mkdir();
             }
 
-            ArrayList testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
+//            ArrayList testCases = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
+            ArrayList testCases = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
 
-            int size = testCasesTwo.size();
+            int size = testCases.size();
             /*if(epistemicControlPanel == null)
               epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
             epistemicControlPanel.setCustomFractileValue(05);
             epistemicControlPanel.setVisible(false); */
+            //System.out.println("size="+testCases.size());
             setAverageSelected(true);
-            for(int i=18 ;i < size; ++i){
+            /* size=106 for Set 1
+             * 	  Case1:  0-6
+             *    Case2:  7-13
+             *    Case3:  14-20
+             *    Case4:  21-27
+             *    Case5   28-34
+             * 	  Case6:  35-41
+             *    Case7:  42-48
+             *    Case8a: 49-55
+             *    Case8b: 56-62
+             *    Case8c: 63-69
+             *    Case9a: 70-76
+             *    Case9b: 77-83
+             *    Case9c: 84-90
+             *    Case10: 91-95
+             *    Case11: 96-99
+             *    Case12: 100-106
+             *    
+             *    DOING ALL TAKES ~24 HOURS?
+             */
+          for(int i=0 ;i < size; ++i){
+//            for(int i=35 ;i < 35; ++i){
               System.out.println("Working on # "+(i+1)+" of "+size);
 
               // first do PGA
-              peerTestsControlPanel.setTestCaseAndSite((String)testCasesTwo.get(i));
+              peerTestsControlPanel.setTestCaseAndSite((String)testCases.get(i));
               addButton();
 
-              FileWriter peerFile=new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-PGA_OpenSHA.dat");
+              FileWriter peerFile=new FileWriter(peerDirName+(String)testCases.get(i)+"-PGA_OpenSHA.txt");
               DiscretizedFuncAPI func = (DiscretizedFuncAPI)functionList.get(0);
               for(int j=0; j<func.getNum();++j)
-                peerFile.write(func.get(j).getX()+" "+func.get(j).getY()+"\n");
+                peerFile.write(func.get(j).getX()+"\t"+func.get(j).getY()+"\n");
               peerFile.close();
               this.clearPlot(true);
 

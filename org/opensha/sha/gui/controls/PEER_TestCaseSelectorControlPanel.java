@@ -60,25 +60,25 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   public final static String TEST_CASE_FIVE ="Case5";
   public final static String TEST_CASE_SIX ="Case6";
   public final static String TEST_CASE_SEVEN ="Case7";
-  public final static String TEST_CASE_EIGHT_ONE ="Case8-noTrunc";
-  public final static String TEST_CASE_EIGHT_TWO ="Case8-2sigTrunc";
-  public final static String TEST_CASE_EIGHT_THREE ="Case8-3sigTrunc";
-  public final static String TEST_CASE_NINE_ONE ="Case9-Sa97";
-  public final static String TEST_CASE_NINE_TWO ="Case9-AS97";
-  public final static String TEST_CASE_NINE_THREE ="Case9-Ca97";
+  public final static String TEST_CASE_EIGHT_A ="Case8a";
+  public final static String TEST_CASE_EIGHT_B ="Case8b";
+  public final static String TEST_CASE_EIGHT_C ="Case8c";
+  public final static String TEST_CASE_NINE_A ="Case9a";
+  public final static String TEST_CASE_NINE_B ="Case9b";
+  public final static String TEST_CASE_NINE_C ="Case9c";
   public final static String TEST_CASE_TEN ="Case10";
   public final static String TEST_CASE_ELEVEN ="Case11";
   public final static String TEST_CASE_TWELVE ="Case12";
 
 
   //Sites Supported
-  public final static String SITE_ONE = "a";
-  public final static String SITE_TWO = "b";
-  public final static String SITE_THREE = "c";
-  public final static String SITE_FOUR = "d";
-  public final static String SITE_FIVE = "e";
-  public final static String SITE_SIX = "f";
-  public final static String SITE_SEVEN = "g";
+  public final static String SITE_ONE = "Site1";
+  public final static String SITE_TWO = "Site2";
+  public final static String SITE_THREE = "Site3";
+  public final static String SITE_FOUR = "Site4";
+  public final static String SITE_FIVE = "Site5";
+  public final static String SITE_SIX = "Site6";
+  public final static String SITE_SEVEN = "Site7";
 
    /* maximum permitted distance between fault and site to consider source in
   hazard analysis for that site; this default value is to allow all PEER test
@@ -199,25 +199,28 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     function.set(.001,1);
     function.set(.01,1);
     function.set(.05,1);
-    function.set(.15,1);
     function.set(.1,1);
+    function.set(.15,1);
     function.set(.2,1);
     function.set(.25,1);
     function.set(.3,1);
+    function.set(.35,1);
     function.set(.4,1);
+    function.set(.45,1);
     function.set(.5,1);
+    function.set(.55,1);
     function.set(.6,1);
     function.set(.7,1);
     //function.set(.75,1);
     function.set(.8,1);
     function.set(.9,1);
     function.set(1.0,1);
-    function.set(1.1,1);
-    function.set(1.2,1);
+//    function.set(1.1,1);
+//    function.set(1.2,1);
     //function.set(1.25,1);
-    function.set(1.3,1);
-    function.set(1.4,1);
-    function.set(1.5,1);
+//    function.set(1.3,1);
+//    function.set(1.4,1);
+//    function.set(1.5,1);
   }
 
   /**
@@ -294,27 +297,30 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    siteParams.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME).setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 
    //if the selected test case is number 8_1
-   if(selectedTest.equals(TEST_CASE_EIGHT_ONE)){
+   if(selectedTest.equals(TEST_CASE_EIGHT_A)){
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 8_2
-   if(selectedTest.equals(TEST_CASE_EIGHT_TWO)){
+   if(selectedTest.equals(TEST_CASE_EIGHT_B)){
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 8_3
-   if(selectedTest.equals(TEST_CASE_EIGHT_THREE)){
+   if(selectedTest.equals(TEST_CASE_EIGHT_C)){
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
    }
 
    //if the selected test case is number 9_1
-   if(selectedTest.equals(TEST_CASE_NINE_ONE)){
+   if(selectedTest.equals(TEST_CASE_NINE_A)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(SadighEtAl_1997_AttenRel.NAME);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
@@ -324,21 +330,21 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    }
 
    //if the selected test case is number 9_2
-   if(selectedTest.equals(TEST_CASE_NINE_TWO)){
+   if(selectedTest.equals(TEST_CASE_NINE_B)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0)); // this shouldn't matter
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
      imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
      siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
    }
 
    //if the selected test case is number 9_3
-   if(selectedTest.equals(TEST_CASE_NINE_THREE)){
+   if(selectedTest.equals(TEST_CASE_NINE_C)){
      imrGuiBean.getParameterList().getParameter(IMR_GuiBean.IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_TOTAL_MAG_DEP);
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_TOTAL_PGA_DEP);
      imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
      siteGuiBean.getParameterListEditor().getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
      siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
@@ -349,6 +355,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+     imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);  // needed because IMT gets reset to SA afer the above
    }
 
 
@@ -359,9 +366,30 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
      // set the ERF
      erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
+     
+     // set offset and fault grid spacing (these were determined by trial and error)
+     double gridSpacing;
+     if(selectedTest.equals(TEST_CASE_ONE) || selectedTest.equals(TEST_CASE_TWO) || selectedTest.equals(TEST_CASE_FOUR) || selectedTest.equals(TEST_CASE_NINE_B) ) {
+    	 gridSpacing = 0.05;
+     }
+     else if(selectedTest.equals(TEST_CASE_THREE)) {
+    	 gridSpacing = 0.25;
+     }
+     else {
+    	 gridSpacing = 0.5;
+     }
+     
+     // set the special cases (improvements found by hand using GUI)
+     if(selectedTest.equals(TEST_CASE_EIGHT_C) && selectedSite.equals(SITE_FIVE))
+    	 gridSpacing = 0.05;
+     if(selectedTest.equals(TEST_CASE_NINE_C) && selectedSite.equals(SITE_SEVEN))
+    	 gridSpacing = 0.1;
+     if(selectedTest.equals(TEST_CASE_TWO) && (selectedSite.equals(SITE_ONE) || selectedSite.equals(SITE_FOUR) || selectedSite.equals(SITE_SIX)))
+    	 gridSpacing = 0.025;
+      
 
      // set the common parameters like timespan
-     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(gridSpacing));
      erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
      erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
      erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
@@ -370,13 +398,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
      // magScalingSigma parameter is changed if the test case chosen is 3
      if(selectedTest.equals(TEST_CASE_THREE))
-       erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+       erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0.25));
 
      // set the rake for all cases
      if( selectedTest.equals(TEST_CASE_FOUR) ||
-         selectedTest.equals(TEST_CASE_NINE_ONE) ||
-         selectedTest.equals(TEST_CASE_NINE_TWO) ||
-         selectedTest.equals(TEST_CASE_NINE_THREE) ) {
+         selectedTest.equals(TEST_CASE_NINE_A) ||
+         selectedTest.equals(TEST_CASE_NINE_B) ||
+         selectedTest.equals(TEST_CASE_NINE_C) ) {
               erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
      }
      else {
@@ -386,14 +414,14 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      // set the Fault Parameter
      SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
      if( selectedTest.equals(TEST_CASE_FOUR) ||
-        selectedTest.equals(TEST_CASE_NINE_ONE) ||
-        selectedTest.equals(TEST_CASE_NINE_TWO) ||
-        selectedTest.equals(TEST_CASE_NINE_THREE) ) {
-             faultPanel.setAll(GRID_SPACING,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,FAULT_TYPE);
+        selectedTest.equals(TEST_CASE_NINE_A) ||
+        selectedTest.equals(TEST_CASE_NINE_B) ||
+        selectedTest.equals(TEST_CASE_NINE_C) ) {
+             faultPanel.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,FAULT_TYPE);
     }
     else {
 
-      faultPanel.setAll(GRID_SPACING,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,FAULT_TYPE);
+      faultPanel.setAll(gridSpacing,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,FAULT_TYPE);
     }
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
@@ -407,11 +435,14 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
      erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.RAKE_PARAM_NAME).setValue(new Double(0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     if(selectedTest.equals(TEST_CASE_TEN))
+     if(selectedTest.equals(TEST_CASE_TEN)) {
        erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-     else
-       erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+       erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
+     }
+     else {
+         erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+         erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(0.25));   	 
+     }
    }
 
    // set magFreqDist parameters using seperate method
@@ -480,7 +511,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
      // for area site 4
      if(selectedSite.equals(SITE_FOUR))
-       siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(36.874));
+       siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(36.875));
    }
  }
 
@@ -755,39 +786,40 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
        magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.495));
        magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
        magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
      }
 
 
      // mag dist parameters for test case 6
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)) {
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.995));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1000));
        magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
        magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
        magEditor.getParameter(MagFreqDistParameter.STD_DEV).setValue(new Double(0.25));
        magEditor.getParameter(MagFreqDistParameter.MEAN).setValue(new Double(6.2));
        magEditor.getParameter(MagFreqDistParameter.TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
-       magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
+       magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.19));
      }
      // mag dist parameters for test case 7
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_SEVEN)) {
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.0));
-       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10));
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10.005));
        magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1001));
        magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
+       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(0.49));
        magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.01));
-       magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.95));
-       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.005));
+       magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.945));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.445));
        magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
      }
 
      //mag dist parameters for the test case 8_1
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_A)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -796,7 +828,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      }
 
      //mag dist parameters for the test case 8_2
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_B)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -805,7 +837,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      }
 
      //mag dist parameters for the test case 8_3
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_C)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -814,7 +846,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      }
 
      //mag dist parameters for the test case 9_1
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_A)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -823,7 +855,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      }
 
      //mag dist parameters for the test case 9_2
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_B)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -832,7 +864,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      }
 
      //mag dist parameters for the test case 9_1
-     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
+     else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_C)) {
 
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
@@ -995,59 +1027,59 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_SEVEN));
 
      //test case-8_0sig
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_A+"-"+this.SITE_SEVEN));
 
      //test case-8_1sig
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_B+"-"+this.SITE_SEVEN));
 
      //test case-8_2sig
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_C+"-"+this.SITE_SEVEN));
 
 
      //test case-9_Sa97
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_A+"-"+this.SITE_SEVEN));
 
      //test case-9_SA97
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_B+"-"+this.SITE_SEVEN));
 
      //test case-9_Ca97
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_ONE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_TWO));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_THREE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_FOUR));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_FIVE));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_SIX));
-     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_SEVEN));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_C+"-"+this.SITE_SEVEN));
 
      //test case-10
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TEN+"-"+this.SITE_ONE));

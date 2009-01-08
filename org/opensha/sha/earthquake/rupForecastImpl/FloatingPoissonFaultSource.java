@@ -118,14 +118,24 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
       if(magScalingSigma == 0.0)
         addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 0.0, 1.0);
       else {
+    	  GaussianMagFreqDist gDist = new GaussianMagFreqDist(-3.0,3.0,25,0.0,1.0,1.0);
+    	  gDist.scaleToCumRate(0, 1.0);
+    	  for(int m=0; m<gDist.getNum(); m++) {
+    		  addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
+                      rupAspectRatio, rupOffset, rake, minMag, gDist.getX(m), gDist.getY(m));
+//    		  System.out.println(m+"\t"+gDist.getX(m)+"\t"+gDist.getY(m));
+    	  }
+    	  
 //        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma,
 //       respectively, are from WG99's Table 1.1
+    	  /*
         addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
                           rupAspectRatio, rupOffset, rake, minMag, 0.0, 0.6);
         addRupturesToList(magDist, faultSurface, magScalingRel,
                           magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 1.64, 0.2);
         addRupturesToList(magDist, faultSurface, magScalingRel,
                           magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, -1.64, 0.2);
+       */
       }
   }
 
@@ -203,7 +213,6 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
     if( D ) System.out.println(C+": ddw="+ddw);
 
     if( D ) System.out.println(C+": magScalingSigma="+magScalingSigma);
-
     for(int i=0;i<numMags;++i){
       mag = magDist.getX(i);
       // make sure it has a non-zero rate & the mag is >= minMag
@@ -218,8 +227,10 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
           rupLen *= rupWidth/ddw;
           rupWidth = ddw;
         }
+//System.out.println((float)mag+"\t"+(float)rupLen+"\t"+(float)rupWidth+"\t"+(float)(rupLen*rupWidth));
 
         numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
+//if(mag == 6.445)  System.out.println(rupLen+"\t"+rupWidth+"\t"+rupOffset+"\t"+mag+"\t"+numRup);
         rate = magDist.getY(mag);
         // Create the ruptures and add to the list
         for(int r=0; r < numRup; ++r) {

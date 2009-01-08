@@ -195,6 +195,8 @@ public class FloatingPoissonFaultERF extends EqkRupForecast{
           magScalingRel = new PEER_testsMagAreaRelationship();
 
        if (D) System.out.println(S+"  "+magScalingRel.getName());
+       
+//       System.out.println(((EvenlyGriddedSurface) faultParam.getValue()).getSurfaceLength());
 
        source = new FloatingPoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
                                              (EvenlyGriddedSurface) faultParam.getValue(),
