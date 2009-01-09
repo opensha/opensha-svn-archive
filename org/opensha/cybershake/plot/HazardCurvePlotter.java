@@ -245,7 +245,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		if (cmd.hasOption("vs30")) {
 			String vsStr = cmd.getOptionValue("vs30");
-			manualVs30 = Integer.parseInt(vsStr);
+			manualVs30 = Double.parseDouble(vsStr);
 		}
 		
 		ArrayList<String> types;
