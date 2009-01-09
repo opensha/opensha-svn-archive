@@ -123,13 +123,13 @@ public class AS_2008_test extends NGATest {
 						double rRup = Double.parseDouble(st.nextToken().trim());
 						dist_jb = Double.parseDouble(st.nextToken().trim());
 						System.out.println("rRup: " + rRup + " dist_jb: " + dist_jb);
-//						as_2008.getParameter(DistanceRupParameter.NAME).setValue(rRup);
-						as_2008.getParameter(DistanceRupParameter.NAME).setValue(dist_jb);
+						as_2008.getParameter(DistanceRupParameter.NAME).setValue(rRup);
+//						as_2008.getParameter(DistanceRupParameter.NAME).setValue(dist_jb);
 						//					System.out.println("Before rjb get");
 						DistRupMinusJB_OverRupParameter param = (DistRupMinusJB_OverRupParameter)as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME);
 						//					System.out.println("rjb param retreived");
 						double rupMinusJB = (rRup-dist_jb)/rRup;
-						if (rupMinusJB != Double.NaN && !(new String(rupMinusJB + "").contains("NaN"))) {
+						if (rRup != 0 && rupMinusJB != Double.NaN && !(new String(rupMinusJB + "").contains("NaN"))) {
 							//						System.out.println("setting to " + rupMinusJB + " (" + rRup + ", " + dist_jb + ")");
 							//						param.setValueIgnoreWarning(new Double(rupMinusJB));
 							param.setValueIgnoreWarning(new Double(0.1));
@@ -140,24 +140,25 @@ public class AS_2008_test extends NGATest {
 							param.setValueIgnoreWarning(AS_2008_AttenRel.DISTANCE_RUP_MINUS_DEFAULT);
 							System.out.println("New rupMinusJB (default): " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
 						}
-						double rx = Double.parseDouble(st.nextToken()); // ignore R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
+						double rx = Double.parseDouble(st.nextToken()); // R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
 						as_2008.getParameter(DistanceX_Parameter.NAME).setValue(new Double(rx));
 
-						double dip = Double.parseDouble(st.nextToken()); // ignore dip
+						double dip = Double.parseDouble(st.nextToken()); // dip
 						as_2008.getParameter(as_2008.DIP_NAME).setValue(new Double(dip));
 
-						double w = Double.parseDouble(st.nextToken()); // ignore W, width of rup plane
+						double w = Double.parseDouble(st.nextToken()); // W, width of rup plane
+						// not sure what i should do here....
 //						as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).setValue(new Double(w));
 						as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).setValue(new Double(AS_2008_AttenRel.RUP_WIDTH_DEFAULT));
 						as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).setValue(new Double(1.0));
 
-						double ztor = Double.parseDouble(st.nextToken()); // ignore Ztor, depth of top
+						double ztor = Double.parseDouble(st.nextToken()); // Ztor, depth of top
 						as_2008.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).setValue(new Double(ztor));
 
 						vs30 = Double.parseDouble(st.nextToken().trim());
 						((WarningDoubleParameter)as_2008.getParameter(as_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
 
-						double zsed = Double.parseDouble(st.nextToken()); // ignore Zsed, sediment/basin depth
+						double zsed = Double.parseDouble(st.nextToken()); // Zsed, sediment/basin depth
 						as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
 
 
