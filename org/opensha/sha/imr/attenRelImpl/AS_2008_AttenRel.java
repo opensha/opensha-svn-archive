@@ -85,8 +85,8 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String RUP_WIDTH_NAME = "Down-Dip Width";
 	public final static String RUP_WIDTH_UNITS = "km";
 	public final static String RUP_WIDTH_INFO = "Fault down-dip rupture width";
-	protected final static Double RUP_WIDTH_MIN = new Double(1.0);
-	protected final static Double RUP_WIDTH_MAX = new Double(100.0);
+	public final static Double RUP_WIDTH_MIN = new Double(1.0);
+	public final static Double RUP_WIDTH_MAX = new Double(100.0);
 	public final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
 
 
