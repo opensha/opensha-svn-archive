@@ -200,7 +200,7 @@ public class BA_2008_test extends TestCase implements ParameterChangeWarningList
 			}
 		}
 		
-		System.out.println("Maximum Discrepancy: " + maxDiscrepancy);
+		System.out.println("Maximum Discrepancy: " + (float)maxDiscrepancy +"%");
 	}
 
 	/**
