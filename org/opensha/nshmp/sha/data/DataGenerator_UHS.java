@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -78,7 +80,13 @@ public class DataGenerator_UHS
     int numPoints = saFunction.getNum();
     for (int i = 0; i < numPoints; ++i) {
       String periodVal = saFormat.format(saFunction.getX(i));
-      double period = Double.parseDouble(periodVal);
+      // double period = Double.parseDouble(periodVal);
+      double period;
+      try {
+    	  period = NumberFormat.getInstance().parse(periodVal).doubleValue();
+      } catch (ParseException pex) {
+    	  period = Double.parseDouble(periodVal);
+      }
       if (period == 0.2) {
         ss = saFunction.getY(i);
       }

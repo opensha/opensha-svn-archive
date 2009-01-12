@@ -522,7 +522,7 @@ public class DataGenerator_HazardCurves
 
 		String rPdMain = "Return Pd.";
 		String rPdSub = "(years)";
-		String rPdDat = "" + returnPd;
+		String rPdDat = "" + percentageFormat.format(returnPd);
 
 		String pExMain = "P.E.";
 		String pExSub = "%";
@@ -638,4 +638,187 @@ public class DataGenerator_HazardCurves
 	  }
 	  return xlsOut;
   }
+
+	public void calcSingleValueFEX(ArrayList<Location> locations, String imt,
+			String outputFile, double groundMotionVal, boolean isLogInterpolation)
+			throws RemoteException {
+		
+		String warning = "The given ground motion value (" + groundMotionVal + 
+				") is out of range. The nearest valid ground motion value was used instead.";
+		
+		// Open the workbook
+		  HSSFWorkbook xlOut = getOutputFile(outputFile);
+		  
+		  // Fetch or create the sheet to enter data into
+		  HSSFSheet xlSheet = xlOut.getSheet("Frequency of Exceedance");
+		  if(xlSheet==null) { xlSheet = xlOut.createSheet("Frequency of Exceedance"); }
+		  
+		  // Write the header information
+		  int startRow = xlSheet.getLastRowNum();
+		  startRow = (startRow==0)?0:startRow+2;
+		  
+		  // Create a bold style for the header row
+		  HSSFFont headerFont = xlOut.createFont();
+		  headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		  HSSFCellStyle headerStyle = xlOut.createCellStyle();
+		  headerStyle.setFont(headerFont);
+		  headerStyle.setWrapText(true);
+		  
+		  // Geographic Region
+		  HSSFRow xlRow = xlSheet.createRow(startRow++);
+		  xlRow.createCell((short) 0).setCellValue("Geographic Region:");
+		  xlRow.getCell((short) 0).setCellStyle(headerStyle);
+		  xlRow.createCell((short) 1).setCellValue(geographicRegion);
+			 
+			// Data Edition
+			xlRow = xlSheet.createRow(startRow++);
+			xlRow.createCell((short) 0).setCellValue("Data Edition:");
+			xlRow.getCell((short) 0).setCellStyle(headerStyle);
+			xlRow.createCell((short) 1).setCellValue(dataEdition);
+			
+			// IMT
+			xlRow = xlSheet.createRow(startRow++);
+			xlRow.createCell((short) 0).setCellValue("Data Description:");
+			xlRow.getCell((short) 0).setCellStyle(headerStyle);
+			xlRow.createCell((short) 1).setCellValue(imt);
+			
+			// Ground Motion
+			xlRow = xlSheet.createRow(startRow++);
+			xlRow.createCell((short) 0).setCellValue("Ground Motion");
+			xlRow.getCell((short) 0).setCellStyle(headerStyle);
+			xlRow.createCell((short) 1).setCellValue("" + groundMotionVal + " g");
+			 
+			 headerStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+			 ++startRow; // We would like a blank line.
+			 // Column Headers
+			 xlRow = xlSheet.createRow(startRow++);
+			 String[] headers = {"Latitude (Degrees)", "Longitude (Degrees)", "Site Class", "Frequency of Exceedance", "Return Period", "Probability", "Grid Spacing Basis"};
+			 short[] colWidths = {4500, 4500, 3000, 4500, 4500, 4500, 4500};
+			 for(short i = 0; i < headers.length; ++i) {
+				 xlRow.createCell(i).setCellValue(headers[i]);
+				 xlRow.getCell(i).setCellStyle(headerStyle);
+				 xlSheet.setColumnWidth(i, colWidths[i]);
+			 }
+			 
+			// Write the data information
+			 int answer = 1; double fex = 0.0;
+			 double returnPeriod = 0.0; double probExceed = 0.0;
+			 BatchProgress bp = new BatchProgress("Computing Frequencies", locations.size());
+			 bp.start();
+			 for(int i = 0; i < locations.size(); ++i) {
+				 bp.update(i+1);
+				 xlRow = xlSheet.createRow(i+startRow);
+				 double curLat = locations.get(i).getLatitude();
+				 double curLon = locations.get(i).getLongitude();
+				 ArbitrarilyDiscretizedFunc function = null;
+				 String curGridSpacing = ""; String extra = "";
+				 try {
+					 HazardDataMinerAPI miner = new HazardDataMinerServletMode();
+					 function = miner.getBasicHazardcurve(
+					        geographicRegion, dataEdition,
+					        curLat, curLon, imt);
+					 String reg1 = "^.*Data are based on a ";
+					 String reg2 = " deg grid spacing.*$";
+					 curGridSpacing = Pattern.compile(reg1, Pattern.DOTALL).matcher(function.getInfo()).replaceAll("");
+					 curGridSpacing = Pattern.compile(reg2, Pattern.DOTALL).matcher(curGridSpacing).replaceAll("");
+					 curGridSpacing += " Degrees";
+					try {
+						if (isLogInterpolation) {
+							fex = function.getInterpolatedY_inLogXLogYDomain(groundMotionVal);
+						} else {
+							fex = function.getInterpolatedY(groundMotionVal);
+						}
+					} catch (InvalidRangeException ex) {
+						// Ground motion was either too low or too high. Use
+						// corresponding end point instead.
+						if ( groundMotionVal <= function.getMinX() ) {
+							fex = function.getY(function.getMinX());
+						} else if ( groundMotionVal >= function.getMaxX() ) {
+							fex = function.getY(function.getMaxX());
+						}
+						extra = warning;
+					}
+					
+					returnPeriod = 1/fex;
+					probExceed   = 100 * (1 - Math.exp( (-1) * fex * EXP_TIME ));
+				} catch (Exception e) {
+					if(answer != 0) {
+						Object[] options = {"Suppress Future Warnings", "Continue Calculations", "Cancel Calculations"};
+						answer = JOptionPane.showOptionDialog(null, "Failed to retrieve information for:\nLatitude: " +
+									curLat + "\nLongitude: " + curLon, "Data Mining Error", 0, 
+									JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+					}
+					if(answer == 2) {
+						bp.update(locations.size());
+						break;
+					}
+					
+					function = new ArbitrarilyDiscretizedFunc();
+					curGridSpacing = "Location out of Region";
+					fex = Double.MAX_VALUE; probExceed = Double.MAX_VALUE;
+					returnPeriod = Double.MAX_VALUE;
+				} finally {
+				 xlRow.createCell((short) 0).setCellValue(curLat);
+				 xlRow.createCell((short) 1).setCellValue(curLon);
+				 xlRow.createCell((short) 2).setCellValue("B/C Boundary");
+				 xlRow.createCell((short) 3).setCellValue(String.format("%4.3e", fex));
+				 xlRow.createCell((short) 4).setCellValue(String.format("%5.2f years", returnPeriod));
+				 xlRow.createCell((short) 5).setCellValue(percentageFormat.format(probExceed)+ "% in "+EXP_TIME+" years");
+				 xlRow.createCell((short) 6).setCellValue(curGridSpacing);
+				 xlRow.createCell((short) 7).setCellValue(extra);
+				 xlRow = xlSheet.createRow(i+startRow);
+				}
+			} 
+			 
+			 try {
+				FileOutputStream fos = new FileOutputStream(outputFile);
+				xlOut.write(fos);
+				fos.close();
+				// Let the user know that we are done
+				dataInfo = "Batch Completed!\nOutput sent to: " + outputFile + "\n\n";
+			} catch (FileNotFoundException e) {
+				// Just ignore for now...
+			} catch (IOException e) {
+				// Just ignore for now...
+			}
+		
+	}
+	
+	public void calcSingleValueFEXUsingGroundMotion(double groundMotionVal,
+			boolean isLogInterpolation) throws RemoteException {
+		
+		// Find the frequency of exceedance (interpolated) based on the
+		// input ground motion value
+		double fex = Double.MIN_VALUE;
+		try {
+			if ( isLogInterpolation ) {
+				fex = hazardCurveFunction.getInterpolatedY_inLogXLogYDomain(
+						groundMotionVal);
+			} else {
+				fex = hazardCurveFunction.getInterpolatedY(groundMotionVal);
+			}
+		} catch (InvalidRangeException irx) {
+			// Ground motion was either too low or too high. Use
+			// corresponding end point instead.
+			dataInfo += "\nThe given ground motion value ("+groundMotionVal+") " +
+			"is out of range.\nThe nearest valid ground motion (";
+			if ( groundMotionVal <= hazardCurveFunction.getMinX() ) {
+				fex = hazardCurveFunction.getY(hazardCurveFunction.getMinX());
+				dataInfo += hazardCurveFunction.getMinX();
+			} else if ( groundMotionVal >= hazardCurveFunction.getMaxX() ) {
+				fex = hazardCurveFunction.getY(hazardCurveFunction.getMaxX());
+				dataInfo += hazardCurveFunction.getMaxX();
+			}
+			dataInfo += ") was used instead.";	
+		}
+		
+		// Set the remaining values using the default EXP_TIME. (50 years)
+		double expTime      = EXP_TIME;
+		double returnPeriod = 1 / fex;
+		// This formula was provided by Nico.
+		double probExceed   = 100 * (1 - Math.exp( (-1) * fex * expTime ));
+
+		addDataFromSingleHazardCurveValue(fex, returnPeriod, probExceed,
+				expTime, groundMotionVal);	
+	}
 }

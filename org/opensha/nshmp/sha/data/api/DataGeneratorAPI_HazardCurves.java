@@ -89,4 +89,10 @@ public interface DataGeneratorAPI_HazardCurves {
    * @param outputFile
    */
   public void calculateHazardCurve(ArrayList<Location> locations, String imt, String outputFile);
+
+public void calcSingleValueFEX(ArrayList<Location> locations, String imt,
+		String outputFile, double groundMotionVal, boolean isLogInterpolation) throws RemoteException;
+
+public void calcSingleValueFEXUsingGroundMotion(double groundMotionVal,
+		boolean isLogInterpolation) throws RemoteException;
 }
