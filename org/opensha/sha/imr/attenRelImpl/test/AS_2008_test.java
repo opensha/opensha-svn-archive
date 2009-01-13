@@ -66,6 +66,13 @@ public class AS_2008_test extends NGATest {
 			if(fileName.contains("README") || !fileName.contains(".OUT")) continue; // skip the README file
 
 			System.out.println("Testing file " + fileName);
+			
+			boolean skipAfterShocks = false;
+			
+			if (skipAfterShocks && fileName.contains("_AS_")) {
+				System.out.println("Skipping aftershock file: " + fileName);
+				continue;
+			}
 
 			boolean isMedian = false;
 			String testValString = "Std Dev";
@@ -101,6 +108,10 @@ public class AS_2008_test extends NGATest {
 				//throw new RuntimeException("Unknown Fault Type");
 				//				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(as_2008.FLT_TYPE_UNKNOWN);
 				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(AS_2008_AttenRel.FLT_TYPE_DEFAULT);
+			
+			boolean estVs30 = false;
+			if (fileName.contains("SIGEST"))
+				estVs30 = true;
 
 			try {
 				testDataLines = FileUtils.loadFile(fileList[i].getAbsolutePath());
@@ -163,8 +174,10 @@ public class AS_2008_test extends NGATest {
 						vs30 = Double.parseDouble(st.nextToken().trim());
 						((WarningDoubleParameter)as_2008.getParameter(as_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
 						
-						// not sure about this:
-						as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AS_2008_AttenRel.VS_FLAG_M);
+						if (estVs30)	// vs30 is estimated
+							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AS_2008_AttenRel.VS_FLAG_E);
+						else			// vs30 is measured
+							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AS_2008_AttenRel.VS_FLAG_M);
 
 						double zsed = Double.parseDouble(st.nextToken()); // Zsed, sediment/basin depth
 						as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
@@ -187,12 +200,25 @@ public class AS_2008_test extends NGATest {
 								"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 								"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
 								"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
-								"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
+//								"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 								"\n"+
 								testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 								System.out.println("Test number= "+i+" failed for "+failedResultMetadata);
 								//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+								System.out.println("\nOpenSHA params:");
+								System.out.print("SA period: " + as_2008.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
+								System.out.println(",\tMag: " + as_2008.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
+								System.out.print("Distance Rup: " + as_2008.getParameter(DistanceRupParameter.NAME).getValue());
+								System.out.println(",\t(Rrup - Rjb) / Rrup: " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
+								System.out.print("Fault Type: " + as_2008.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
+								System.out.println(",\tDistanceX: " + as_2008.getParameter(DistanceX_Parameter.NAME).getValue());
+								System.out.print("Dip: " + as_2008.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
+								System.out.println(",\tDown Dip Width: " + as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
+								System.out.print("Rupture Top Distance: " + as_2008.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
+								System.out.println(",\tVs30: " + as_2008.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
+								System.out.print("Vs30 flag: " + as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
+								System.out.println(",\tDepth to Vs = 1.0 km/sec: " + as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
 								this.assertNull(failedResultMetadata,failedResultMetadata);
 							}
 						}
@@ -256,6 +282,10 @@ public class AS_2008_test extends NGATest {
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				assertFalse(true);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
