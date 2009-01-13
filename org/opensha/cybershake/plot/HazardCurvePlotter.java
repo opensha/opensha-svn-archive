@@ -267,6 +267,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			plotHeight = Integer.parseInt(cmd.getOptionValue("h"));
 		}
 		
+		boolean calcOnly = cmd.hasOption("calc-only");
+		
 		int periodNum = 0;
 		boolean atLeastOne = false;
 		for (CybershakeIM im : ims) {
@@ -410,6 +412,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			String periodStr = "SA_" + getPeriodStr(im.getVal()) + "sec";
 			String outFileName = siteName + "_" + "ERF" + erfID + "_" + periodStr + "_" + dateStr;
 			String outFile = outDir + outFileName;
+			if (calcOnly)
+				continue;
 			this.plotCurve(curveID);
 			for (String type : types) {
 				type = type.toLowerCase();
@@ -862,6 +866,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option vs30 = new Option("v", "vs30", true, "Specify default Vs30 for sites with no Vs30 data, or leave blank " + 
 				"for default value. Otherwise, you will be prompted to enter vs30 interactively if needed.");
 		ops.addOption(vs30);
+		
+		Option calcOnly = new Option("c", "calc-only", false, "Only calculate and insert the CyberShake curves, don't make " + 
+				"plots. If a curve already exists, it will be skipped.");
+		ops.addOption(calcOnly);
 		
 		Option plotChars = new Option("pl", "plot-chars-file", true, "Specify the path to a plot characteristics XML file");
 		ops.addOption(plotChars);
