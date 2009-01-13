@@ -66,7 +66,7 @@ public class CB_2008_AttenRel
   // Debugging stuff
   private final static String C = "CB_2006_AttenRel";
   private final static boolean D = false;
-  public final static String SHORT_NAME = "CB2006";
+  public final static String SHORT_NAME = "CB2008";
   private static final long serialVersionUID = 1234567890987654358L;
 
 
