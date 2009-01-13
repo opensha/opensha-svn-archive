@@ -7,6 +7,7 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
@@ -22,6 +23,8 @@ public class AS_2008_test extends NGATest {
 	private AS_2008_AttenRel as_2008 = null;
 
 	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/AS08/";
+	
+	public static final boolean CONTINUE_ON_FAIL = true;
 
 	//	private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
 
@@ -187,6 +190,7 @@ public class AS_2008_test extends NGATest {
 						int num= period.length;
 						double openSHA_Val, tested_Val;
 						boolean results;
+						boolean skipTest = false;
 						for(int k=0;k<num;++k){
 							as_2008.getParameter(as_2008.PERIOD_NAME).setValue(new Double(period[k]));
 							if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
@@ -206,23 +210,20 @@ public class AS_2008_test extends NGATest {
 
 								System.out.println("Test number= "+i+" failed for "+failedResultMetadata);
 								//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
-								System.out.println("\nOpenSHA params:");
-								System.out.print("SA period: " + as_2008.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
-								System.out.println(",\tMag: " + as_2008.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
-								System.out.print("Distance Rup: " + as_2008.getParameter(DistanceRupParameter.NAME).getValue());
-								System.out.println(",\t(Rrup - Rjb) / Rrup: " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
-								System.out.print("Fault Type: " + as_2008.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
-								System.out.println(",\tDistanceX: " + as_2008.getParameter(DistanceX_Parameter.NAME).getValue());
-								System.out.print("Dip: " + as_2008.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
-								System.out.println(",\tDown Dip Width: " + as_2008.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
-								System.out.print("Rupture Top Distance: " + as_2008.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
-								System.out.println(",\tVs30: " + as_2008.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
-								System.out.print("Vs30 flag: " + as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
-								System.out.println(",\tDepth to Vs = 1.0 km/sec: " + as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
-								this.assertNull(failedResultMetadata,failedResultMetadata);
+								printOpenSHAParams(as_2008);
+								
+								if (CONTINUE_ON_FAIL) {
+									skipTest = true;
+									break;
+								} else {
+									this.assertNull(failedResultMetadata,failedResultMetadata);
+								}
 							}
 						}
-
+						
+						if (skipTest) {
+							continue;
+						}
 
 						as_2008.setIntensityMeasure(as_2008.PGA_NAME);
 						if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
@@ -241,7 +242,10 @@ public class AS_2008_test extends NGATest {
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 							System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
-							//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+							printOpenSHAParams(as_2008);
+//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+							if (CONTINUE_ON_FAIL)
+								continue;
 							this.assertNull(failedResultMetadata,failedResultMetadata);
 						}
 						as_2008.setIntensityMeasure(as_2008.PGV_NAME);
@@ -261,7 +265,10 @@ public class AS_2008_test extends NGATest {
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
 							System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+							printOpenSHAParams(as_2008);
 							//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+							if (CONTINUE_ON_FAIL)
+								continue;
 							this.assertNull(failedResultMetadata,failedResultMetadata);
 						}
 					} catch (NumberFormatException e) {
@@ -293,6 +300,22 @@ public class AS_2008_test extends NGATest {
 		}
 
 		System.out.println("Maximum Discrepancy: " + maxDiscrepancy);
+	}
+	
+	private void printOpenSHAParams(AttenuationRelationship attenRel) {
+		System.out.println("\nOpenSHA params:");
+		System.out.print("SA period: " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
+		System.out.println(",\tMag: " + attenRel.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
+		System.out.print("Distance Rup: " + attenRel.getParameter(DistanceRupParameter.NAME).getValue());
+		System.out.println(",\t(Rrup - Rjb) / Rrup: " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
+		System.out.print("Fault Type: " + attenRel.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
+		System.out.println(",\tDistanceX: " + attenRel.getParameter(DistanceX_Parameter.NAME).getValue());
+		System.out.print("Dip: " + attenRel.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
+		System.out.println(",\tDown Dip Width: " + attenRel.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
+		System.out.print("Rupture Top Distance: " + attenRel.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
+		System.out.println(",\tVs30: " + attenRel.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
+		System.out.print("Vs30 flag: " + attenRel.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
+		System.out.println(",\tDepth to Vs = 1.0 km/sec: " + attenRel.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
 	}
 
 	/**
