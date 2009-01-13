@@ -212,17 +212,10 @@ public class AS_2008_test extends NGATest {
 								//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 								printOpenSHAParams(as_2008);
 								
-								if (CONTINUE_ON_FAIL) {
-									skipTest = true;
-									break;
-								} else {
+								if (!CONTINUE_ON_FAIL) {
 									this.assertNull(failedResultMetadata,failedResultMetadata);
 								}
 							}
-						}
-						
-						if (skipTest) {
-							continue;
 						}
 
 						as_2008.setIntensityMeasure(as_2008.PGA_NAME);
@@ -244,9 +237,8 @@ public class AS_2008_test extends NGATest {
 							System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
 							printOpenSHAParams(as_2008);
 //							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
-							if (CONTINUE_ON_FAIL)
-								continue;
-							this.assertNull(failedResultMetadata,failedResultMetadata);
+							if (!CONTINUE_ON_FAIL)
+								this.assertNull(failedResultMetadata,failedResultMetadata);
 						}
 						as_2008.setIntensityMeasure(as_2008.PGV_NAME);
 						if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
