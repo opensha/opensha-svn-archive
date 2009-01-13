@@ -267,10 +267,16 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			plotHeight = Integer.parseInt(cmd.getOptionValue("h"));
 		}
 		
-		boolean calcOnly = cmd.hasOption("calc-only");
-		
 		int periodNum = 0;
 		boolean atLeastOne = false;
+		
+		boolean calcOnly = cmd.hasOption("calc-only");
+		
+		if (calcOnly) {
+			System.out.println("Calculating/inserting CyberShake curves only, no plotting.");
+			atLeastOne = true;
+		}
+		
 		for (CybershakeIM im : ims) {
 			if (im == null) {
 				System.out.println("IM not found for: site=" + siteName + " period=" + periods.get(periodNum));
