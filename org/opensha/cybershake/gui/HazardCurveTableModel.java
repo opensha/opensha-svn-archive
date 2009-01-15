@@ -14,7 +14,7 @@ import org.opensha.cybershake.db.SiteInfo2DB;
 
 public class HazardCurveTableModel extends AbstractTableModel {
 	
-	public static int NUM_COLUMNS = 9;
+	public static int NUM_COLUMNS = 10;
 	
 	HazardCurve2DB curve2db;
 	SiteInfo2DB site2db;
@@ -57,8 +57,8 @@ public class HazardCurveTableModel extends AbstractTableModel {
 	}
 	
 	// columns:
-	// 0: CurveID | 1: Site_ID | 2: Site_Short_Name | 3: Date | 4: ERF_ID | 5: IM_Type_ID | 6: SA Period |
-	//		 7: Rup_Var_Scen_ID | 8: SGT_Var_ID 
+	// 0: CurveID | 1: Site_ID | 2: Site Short Name | 3: Site Long Name | 4: Date | 5: ERF_ID | 6: IM_Type_ID |
+	//		 7: SA Period | 8: Rup_Var_Scen_ID | 9: SGT_Var_ID 
 
 	public String getColumnName(int col) {
 		if (col == 0) {
@@ -68,16 +68,18 @@ public class HazardCurveTableModel extends AbstractTableModel {
 		} else if (col == 2) {
 			return "Site Name";
 		} else if (col == 3) {
-			return "Date";
+			return "Site Long Name";
 		} else if (col == 4) {
-			return "ERF ID";
+			return "Date";
 		} else if (col == 5) {
-			return "IM Type ID";
+			return "ERF ID";
 		} else if (col == 6) {
-			return "SA Period";
+			return "IM Type ID";
 		} else if (col == 7) {
-			return "Rup Var Scen ID";
+			return "SA Period";
 		} else if (col == 8) {
+			return "Rup Var Scen ID";
+		} else if (col == 9) {
 			return "SGT Var ID";
 		}
 		
@@ -100,17 +102,20 @@ public class HazardCurveTableModel extends AbstractTableModel {
 			CybershakeSite site = siteID_NameMap.get(curve.getSiteID());
 			return site.short_name;
 		} else if (col == 3) {
-			return curve.getDate();
+			CybershakeSite site = siteID_NameMap.get(curve.getSiteID());
+			return site.name;
 		} else if (col == 4) {
-			return curve.getErfID();
+			return curve.getDate();
 		} else if (col == 5) {
-			return curve.getImTypeID();
+			return curve.getErfID();
 		} else if (col == 6) {
+			return curve.getImTypeID();
+		} else if (col == 7) {
 			CybershakeIM im = imTypeMap.get(curve.getImTypeID());
 			return im.getVal();
-		} else if (col == 7) {
-			return curve.getRupVarScenID();
 		} else if (col == 8) {
+			return curve.getRupVarScenID();
+		} else if (col == 9) {
 			return curve.getSgtVarID();
 		}
 		

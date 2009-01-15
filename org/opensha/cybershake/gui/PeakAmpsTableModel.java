@@ -14,7 +14,7 @@ import org.opensha.cybershake.db.SiteInfo2DB;
 
 public class PeakAmpsTableModel extends AbstractTableModel {
 	
-	public static int NUM_COLUMNS = 6;
+	public static int NUM_COLUMNS = 7;
 	
 	PeakAmplitudesFromDB amps2db;
 	SiteInfo2DB site2db;
@@ -83,7 +83,7 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 	}
 	
 	// columns:
-	// 0: Site_ID | 1: Site_Short_Name | 2: ERF_ID | 3: Rup_Var_Scen_ID | 4: SGT_Var_ID | 5: Count
+	// 0: Site_ID | 1: Site Short Name | 2: Site Long Name | 3: ERF_ID | 4: Rup_Var_Scen_ID | 5: SGT_Var_ID | 6: Count
 
 	public String getColumnName(int col) {
 		if (col == 0) {
@@ -91,12 +91,14 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		} else if (col == 1) {
 			return "Site Name";
 		} else if (col == 2) {
-			return "ERF ID";
+			return "Site Long Name";
 		} else if (col == 3) {
-			return "Rup Var Scen ID";
+			return "ERF ID";
 		} else if (col == 4) {
-			return "SGT Var ID";
+			return "Rup Var Scen ID";
 		} else if (col == 5) {
+			return "SGT Var ID";
+		} else if (col == 6) {
 			return "Count";
 		}
 		
@@ -121,12 +123,15 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 			CybershakeSite site = getSiteForRecord(amps);
 			return site.short_name;
 		} else if (col == 2) {
-			return amps.getErfID();
+			CybershakeSite site = getSiteForRecord(amps);
+			return site.name;
 		} else if (col == 3) {
-			return amps.getRupVarScenID();
+			return amps.getErfID();
 		} else if (col == 4) {
-			return amps.getSgtVarID();
+			return amps.getRupVarScenID();
 		} else if (col == 5) {
+			return amps.getSgtVarID();
+		} else if (col == 6) {
 			Integer count = countMap.get(amps.toString());
 			if (count == null) {
 				return "(not counted)";
