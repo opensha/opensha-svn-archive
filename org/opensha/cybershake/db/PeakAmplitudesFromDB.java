@@ -14,6 +14,100 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		this.dbaccess = dbaccess;
 	}
 	
+	public ArrayList<Integer> getPeakAmpSites() {
+		return getDistinctIntVal("Site_ID", null);
+	}
+	
+	public ArrayList<Integer> getDistinctIntVal(String selectCol, String whereClause) {
+		ArrayList<Integer> vals = new ArrayList<Integer>();
+		
+		String sql = "SELECT distinct " + selectCol + " FROM PeakAmplitudes";
+		
+		if (whereClause != null && whereClause.length() > 0) {
+			sql += " WHERE " + whereClause;
+		}
+		
+//		System.out.println(sql);
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			while(!rs.isAfterLast()){
+				int id = rs.getInt(selectCol);
+				vals.add(id);
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return vals;
+	}
+	
+	public boolean hasAmps(int siteID, int erfID, int rupVarScenID, int sgtVarID) {
+		String sql = "SELECT Site_ID FROM PeakAmplitudes WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID
+					+ " AND Rup_Var_Scenario_ID=" + rupVarScenID + " AND SGT_Variation_ID=" + sgtVarID
+					+ " LIMIT 1";
+		
+//		System.out.println(sql);
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return false;
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public ArrayList<CybershakePeakAmplitudeSiteRecord> getPeakAmpSiteRecords() {
+		ArrayList<CybershakePeakAmplitudeSiteRecord> amps = new ArrayList<CybershakePeakAmplitudeSiteRecord>();
+		
+		ArrayList<Integer> sites = this.getPeakAmpSites();
+		
+		ArrayList<Integer> rupVarScenIDs = this.getDistinctIntVal("Rup_Var_Scenario_ID", null);
+		ArrayList<Integer> sgtIDs = this.getDistinctIntVal("SGT_Variation_ID", null);
+		
+		for (int siteID : sites) {
+			// get all of the ERF_IDs
+			String whereClause = "Site_ID=" + siteID;
+			ArrayList<Integer> erfIDs = this.getDistinctIntVal("ERF_ID", whereClause);
+			for (int erfID : erfIDs) {
+				// get all rup var scen IDs
+				for (int rvID : rupVarScenIDs) {
+					// get all of the SGT var IDs
+					for (int sgtID : sgtIDs) {
+						if (hasAmps(siteID, erfID, rvID, sgtID)) {
+							CybershakePeakAmplitudeSiteRecord record = new CybershakePeakAmplitudeSiteRecord(siteID, erfID, rvID, sgtID);
+							amps.add(record);
+							System.out.println("Loaded " + record);
+						}
+					}
+				}
+			}
+		}
+		
+		return amps;
+	}
+	
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
@@ -51,7 +145,9 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	
 	public int countAmps(int siteID, int erfID, int sgtVariation, int rupVarID, CybershakeIM im) {
 		String sql = "SELECT count(*) from PeakAmplitudes where ERF_ID=" + erfID +" and Site_ID=" + siteID
-				+ " and IM_Type_ID="+im.getID()+" and Rup_Var_Scenario_ID="+rupVarID+" and SGT_Variation_ID=" + sgtVariation;
+				+" and Rup_Var_Scenario_ID="+rupVarID+" and SGT_Variation_ID=" + sgtVariation;
+		if (im != null)
+			sql += " and IM_Type_ID="+im.getID();
 //		System.out.println(sql);
 		ResultSet rs = null;
 		try {
@@ -321,6 +417,30 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		}
 		
 		return matched;
+	}
+	
+	public int deleteAmpsForSite(int siteId,int erfId,int sgtVariation, int rvid) {
+		String sql = "DELETE FROM PeakAmplitudes WHERE ERF_ID="+erfId +" AND Site_ID="+siteId+
+			" AND SGT_Variation_ID=" + sgtVariation + " and Rup_Var_Scenario_ID=" + rvid;
+		System.out.println(sql);
+		try {
+			return dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public static void main(String args[]) {
+		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
+		
+		amps.getPeakAmpSiteRecords();
+		
+		db.destroy();
+		
+		System.exit(0);
 	}
 	
 }

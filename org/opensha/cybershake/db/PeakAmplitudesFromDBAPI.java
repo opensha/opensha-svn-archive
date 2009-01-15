@@ -55,4 +55,14 @@ public interface PeakAmplitudesFromDBAPI {
 	 * @return all possible Rup Var Scenario IDs
 	 */
 	public ArrayList<Integer> getRupVarScenarioIDs();
+	
+	/**
+	 * delete all peak amplitudes for a given site, ERF ID, SGT Variation ID, and Rupture Variation ID
+	 * @param siteId
+	 * @param erfId
+	 * @param sgtVariation
+	 * @param rvid
+	 * @return
+	 */
+	public int deleteAmpsForSite(int siteId,int erfId,int sgtVariation, int rvid);
 }

@@ -311,6 +311,13 @@ public class Cybershake_OpenSHA_DBApplication {
 		this.insertNewERFForSites(sites, erf2db, name, description, false);
 	}
 	
+	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel) throws IOException {
+		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel);
+		auth.setVisible(true);
+		DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+		return db;
+	}
+	
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -320,9 +327,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
-		UserAuthDialog auth = new UserAuthDialog(null, true);
-		auth.setVisible(true);
-		DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+		DBAccess db = getAuthenticatedDBAccess(true);
 		
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db);

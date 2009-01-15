@@ -37,6 +37,7 @@ import org.opensha.cybershake.db.HazardCurve2DB;
 import org.opensha.cybershake.db.HazardCurveComputation;
 import org.opensha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.cybershake.db.SiteInfo2DB;
+import org.opensha.cybershake.gui.CyberShakeDBManagementApp;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;
@@ -323,15 +324,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 						if (cmd.hasOption("pf")) {
 							String pf = cmd.getOptionValue("pf");
 							try {
-								for (String line : (ArrayList<String>)FileUtils.loadFile(pf)) {
-									line = line.trim();
-									if (line.contains(":")) {
-										String split[] = line.split(":");
-										user = split[0];
-										pass = split[1];
-										break;
-									}
-								}
+								String user_pass[] = CyberShakeDBManagementApp.loadPassFile(pf);
+								user = user_pass[0];
+								pass = user_pass[1];
 							} catch (FileNotFoundException e) {
 								e.printStackTrace();
 								System.out.println("Password file not found!");
