@@ -78,7 +78,6 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		gui.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == reloadButton) {
 			this.model.reloadCurves();
@@ -105,7 +104,6 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		}
 	}
 
-	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		// if it's in the middle of a change, ignore
 		if (e.getValueIsAdjusting())

@@ -47,12 +47,10 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		this.fireTableDataChanged();
 	}
 
-	@Override
 	public int getColumnCount() {
 		return NUM_COLUMNS;
 	}
 
-	@Override
 	public int getRowCount() {
 		return amps.size();
 	}
@@ -68,7 +66,6 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 	// columns:
 	// 0: Site_ID | 1: Site_Short_Name | 2: ERF_ID | 3: Rup_Var_Scen_ID | 4: SGT_Var_ID | 5: Count
 
-	@Override
 	public String getColumnName(int col) {
 		if (col == 0) {
 			return "Site ID";
@@ -92,7 +89,6 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		return amps.get(row);
 	}
 
-	@Override
 	public Object getValueAt(int row, int col) {
 		CybershakePeakAmplitudeSiteRecord amps = getAmpsAtRow(row);
 		

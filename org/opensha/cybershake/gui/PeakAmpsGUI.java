@@ -90,7 +90,6 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 		return rows;
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == reloadButton) {
 			this.model.reloadAmps();
@@ -117,7 +116,6 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 		}
 	}
 
-	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		// if it's in the middle of a change, ignore
 		if (e.getValueIsAdjusting())

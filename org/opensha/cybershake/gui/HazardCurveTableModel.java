@@ -48,12 +48,10 @@ public class HazardCurveTableModel extends AbstractTableModel {
 		this.fireTableDataChanged();
 	}
 
-	@Override
 	public int getColumnCount() {
 		return NUM_COLUMNS;
 	}
 
-	@Override
 	public int getRowCount() {
 		return curves.size();
 	}
@@ -62,7 +60,6 @@ public class HazardCurveTableModel extends AbstractTableModel {
 	// 0: CurveID | 1: Site_ID | 2: Site_Short_Name | 3: Date | 4: ERF_ID | 5: IM_Type_ID | 6: SA Period |
 	//		 7: Rup_Var_Scen_ID | 8: SGT_Var_ID 
 
-	@Override
 	public String getColumnName(int col) {
 		if (col == 0) {
 			return "Curve ID";
@@ -92,7 +89,6 @@ public class HazardCurveTableModel extends AbstractTableModel {
 		return curves.get(row);
 	}
 
-	@Override
 	public Object getValueAt(int row, int col) {
 		CybershakeHazardCurveRecord curve = getCurveAtRow(row);
 		

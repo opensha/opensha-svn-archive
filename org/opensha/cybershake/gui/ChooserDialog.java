@@ -42,7 +42,6 @@ public class ChooserDialog extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == curves) {
 			app.showCurvesGUI();
