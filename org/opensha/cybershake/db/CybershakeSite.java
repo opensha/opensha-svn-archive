@@ -1,6 +1,12 @@
 package org.opensha.cybershake.db;
 
 public class CybershakeSite {
+	
+	public static final int TYPE_POI = 1;
+	public static final int TYPE_PRECARIOUS_ROCK = 2;
+	public static final int TYPE_BROADBAND_STATION = 3;
+	public static final int TYPE_TEST_SITE = 4;
+	
 	public int id;
 	public double lat;
 	public double lon;

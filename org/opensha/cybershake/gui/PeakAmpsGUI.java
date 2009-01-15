@@ -25,8 +25,6 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 
 	DBAccess db;
 	
-	PeakAmplitudesFromDB amps2db;
-	
 	JPanel mainPanel = new JPanel(new BorderLayout());
 	
 	JPanel bottomPanel = new JPanel();
@@ -42,7 +40,6 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 		super();
 		
 		this.db = db;
-		amps2db = new PeakAmplitudesFromDB(db);
 		
 		model = new PeakAmpsTableModel(db);
 		
@@ -100,9 +97,9 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 				CybershakePeakAmplitudeSiteRecord amps = model.getAmpsAtRow(row);
 				System.out.println("Deleting amps: " + amps);
 				
-				int success = this.amps2db.deleteAmpsForSite(amps.getSiteID(), amps.getErfID(), amps.getSgtVarID(), amps.getRupVarScenID());
-				if (success < 1)
-					System.err.println("Error deleting amps: " + amps);
+				int num = this.model.deleteAmps(amps);
+				if (num == 0)
+					System.err.println("Error deleting amps (or user cancelled): " + amps);
 			}
 			model.reloadAmps();
 		} else if (e.getSource() == countButton) {

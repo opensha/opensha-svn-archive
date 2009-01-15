@@ -332,11 +332,11 @@ public class HazardMapScatterCreator {
 //		map.printVals();
 			
 			ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, 3));
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, 2, 0.85));
-			ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, 1, 0.75);
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, CybershakeSite.TYPE_BROADBAND_STATION));
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, 0.85));
+			ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, 0.75);
 			symbols.add(circle);
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, 4));
+			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, CybershakeSite.TYPE_TEST_SITE));
 			
 			boolean writeEmptySites = true;
 			boolean labels = true;

@@ -3,6 +3,7 @@ package org.opensha.cybershake.gui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import org.opensha.cybershake.db.CybershakePeakAmplitudeSiteRecord;
@@ -63,6 +64,24 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		countMap.put(record.toString(), new Integer(count));
 	}
 	
+	public int deleteAmps(CybershakePeakAmplitudeSiteRecord record) {
+		// if it's not a test site, prompt the user
+		CybershakeSite site = getSiteForRecord(record);
+		if (site.type_id != CybershakeSite.TYPE_TEST_SITE) {
+			String title = "Really delete Peak Amplitudes?";
+			String message = "Site '" + site.getFormattedName() + "' is not a test site!\n\n" +
+					"Are you sure you want to delete the Amplitudes?";
+			int response = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+			
+			if (response != JOptionPane.YES_OPTION)
+				return -1;
+		}
+		
+		int num = this.amps2db.deleteAmpsForSite(record.getSiteID(), record.getErfID(), record.getSgtVarID(), record.getRupVarScenID());
+		
+		return num;
+	}
+	
 	// columns:
 	// 0: Site_ID | 1: Site_Short_Name | 2: ERF_ID | 3: Rup_Var_Scen_ID | 4: SGT_Var_ID | 5: Count
 
@@ -88,6 +107,10 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		row = this.getRowCount() - row - 1;
 		return amps.get(row);
 	}
+	
+	private CybershakeSite getSiteForRecord(CybershakePeakAmplitudeSiteRecord record) {
+		return siteID_NameMap.get(record.getSiteID());
+	}
 
 	public Object getValueAt(int row, int col) {
 		CybershakePeakAmplitudeSiteRecord amps = getAmpsAtRow(row);
@@ -95,7 +118,7 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		if (col == 0) {
 			return amps.getSiteID();
 		} else if (col == 1) {
-			CybershakeSite site = siteID_NameMap.get(amps.getSiteID());
+			CybershakeSite site = getSiteForRecord(amps);
 			return site.short_name;
 		} else if (col == 2) {
 			return amps.getErfID();
