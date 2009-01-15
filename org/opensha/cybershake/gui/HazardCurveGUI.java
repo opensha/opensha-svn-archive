@@ -102,6 +102,9 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		this.setContentPane(mainPanel);
 		
 		this.setSize(900, 600);
+		
+		this.setLocationRelativeTo(null);
+		
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 	

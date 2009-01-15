@@ -73,6 +73,9 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 		this.setContentPane(mainPanel);
 		
 		this.setSize(900, 600);
+		
+		this.setLocationRelativeTo(null);
+		
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 	

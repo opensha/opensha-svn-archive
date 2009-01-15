@@ -39,6 +39,8 @@ public class ChooserDialog extends JFrame implements ActionListener {
 		
 		this.setSize(400, 300);
 		
+		this.setLocationRelativeTo(null);
+		
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
