@@ -164,10 +164,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	
 	public boolean plotCurvesFromOptions(CommandLine cmd) {
 		String siteName = cmd.getOptionValue("site");
+		
 		SiteInfo2DB site2db = getSite2DB();
 		PeakAmplitudesFromDB amps2db = getAmps2DB();
 		
 		int siteID = site2db.getSiteId(siteName);
+		
+		System.out.println("Plotting curve(s) for site " + siteName + "=" + siteID);
+		this.setMaxSourceSiteDistance(siteID);
 		
 		if (siteID < 0) {
 			System.err.println("Site '" + siteName + "' unknown!");
@@ -441,6 +445,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return atLeastOne;
 	}
 	
+	public void setMaxSourceSiteDistance(int siteID) {
+		SiteInfo2DB site2db = this.getSite2DB();
+		
+		this.maxSourceDistance = site2db.getSiteCutoffDistance(siteID);
+		System.out.println("Max source distance for site " + siteID + " is " + this.maxSourceDistance);
+	}
+	
 	public void plotCurve(int siteID, int imTypeID) {
 		int curveID = curve2db.getHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, imTypeID);
 		this.plotCurve(curveID);
@@ -515,6 +526,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		this.gp.validate();
 		this.gp.repaint();
+	}
+	
+	public GraphPanel getGraphPanel() {
+		return this.gp;
 	}
 	
 	public static String getPeriodStr(double period) {
@@ -721,6 +736,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		attenRels.add(attenRel);
 	}
 	
+	public void clearAttenuationRelationshipComparisions() {
+		attenRels.clear();
+	}
+	
 	public void setERFComparison(EqkRupForecast erf) {
 		this.erf = erf;
 	}
@@ -805,6 +824,30 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		}
 		else
 			throw new RuntimeException("Unsupported IMT");
+	}
+	
+	public int getERFID() {
+		return erfID;
+	}
+
+	public void setERFID(int erfID) {
+		this.erfID = erfID;
+	}
+
+	public int getRupVarScenarioID() {
+		return rupVarScenarioID;
+	}
+
+	public void setRupVarScenarioID(int rupVarScenarioID) {
+		this.rupVarScenarioID = rupVarScenarioID;
+	}
+
+	public int getSGTVarID() {
+		return sgtVarID;
+	}
+
+	public void setSGTVarID(int sgtVarID) {
+		this.sgtVarID = sgtVarID;
 	}
 	
 	public static Options createOptions() {

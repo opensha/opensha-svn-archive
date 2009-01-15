@@ -4,10 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -17,10 +19,18 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.dom4j.DocumentException;
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
+import org.opensha.cybershake.plot.HazardCurvePlotter;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.gui.infoTools.GraphPanel;
+import org.opensha.sha.imr.AttenuationRelationship;
+
+import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
+import scratchJavaDevelopers.kevin.XMLSaver.ERFSaver;
 
 public class HazardCurveGUI extends JFrame implements ActionListener, ListSelectionListener {
 	
@@ -34,12 +44,25 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	
 	JButton deleteButton = new JButton("Delete Curve(s)");
 	JButton reloadButton = new JButton("Reload Curves");
+	JButton plotButton = new JButton("Plot Curve");
+	
+	JCheckBox plotComparisonsCheck = new JCheckBox("Plot Comparison Curves", false);
 	
 	HazardCurveTableModel model;
 	JTable table;
 	
 	boolean readOnly = false;
 	
+	private HazardCurvePlotter plotter = null;
+	
+	private static final String ERF_COMPARISON_FILE = "org/opensha/cybershake/conf/MeanUCERF.xml";
+	private static final String CB_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cb2008.xml";
+	private static final String BA_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/ba2008.xml";
+	
+	private EqkRupForecast erf = null;
+	private AttenuationRelationship cb2008 = null;
+	private AttenuationRelationship ba2008 = null;
+
 	public HazardCurveGUI(DBAccess db) {
 		super();
 		
@@ -61,7 +84,15 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		
 		reloadButton.addActionListener(this);
 		
+		plotButton.addActionListener(this);
+		plotButton.setEnabled(false);
+		plotComparisonsCheck.setEnabled(false);
+		
 		bottomPanel.add(reloadButton);
+		bottomPanel.add(new JSeparator());
+		bottomPanel.add(plotComparisonsCheck);
+		bottomPanel.add(new JSeparator());
+		bottomPanel.add(plotButton);
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(deleteButton);
 		
@@ -104,6 +135,13 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 					System.err.println("Error deleting curve " + curve.getCurveID());
 			}
 			model.reloadCurves();
+		} else if (e.getSource() == plotButton) {
+			ListSelectionModel lsm = table.getSelectionModel();
+			
+			int row = lsm.getMinSelectionIndex();
+			CybershakeHazardCurveRecord curve = model.getCurveAtRow(row);
+			
+			this.plotCurve(curve);
 		}
 	}
 
@@ -112,11 +150,73 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		if (e.getValueIsAdjusting())
 			return;
 		
-		if (table.getSelectionModel().isSelectionEmpty() || readOnly) {
+		ListSelectionModel lsm = table.getSelectionModel();
+		
+		if (lsm.isSelectionEmpty()) {
+			plotButton.setEnabled(false);
+			plotComparisonsCheck.setEnabled(false);
 			deleteButton.setEnabled(false);
 		} else {
-			deleteButton.setEnabled(true);
+			plotButton.setEnabled(lsm.getMinSelectionIndex() == lsm.getMaxSelectionIndex());
+			plotComparisonsCheck.setEnabled(plotButton.isEnabled());
+			deleteButton.setEnabled(!readOnly);
 		}
+	}
+	
+	private void plotCurve(CybershakeHazardCurveRecord curve) {
+		HazardCurvePlotter plotter = this.getPlotter(curve.getErfID(), curve.getRupVarScenID(), curve.getSgtVarID());
+		
+		plotter.setMaxSourceSiteDistance(curve.getSiteID());
+//		plotter.set
+		
+		plotter.plotCurve(curve.getCurveID());
+		
+		GraphPanel gp = plotter.getGraphPanel();
+		
+		JFrame graphWindow = new JFrame("CyberShake Hazard Curve");
+		graphWindow.setContentPane(gp);
+		graphWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		graphWindow.setSize(500, 700);
+		graphWindow.setLocationRelativeTo(this);
+		
+		graphWindow.setVisible(true);
+	}
+	
+	private HazardCurvePlotter getPlotter(int erfID, int rupVarScenID, int sgtVarID) {
+		if (plotter == null) {
+			plotter = new HazardCurvePlotter(db, erfID, rupVarScenID, sgtVarID);
+		} else {
+			plotter.setERFID(erfID);
+			plotter.setRupVarScenarioID(rupVarScenID);
+			plotter.setSGTVarID(sgtVarID);
+		}
+		if (this.plotComparisonsCheck.isSelected()) {
+			try {
+				if (erf == null) {
+					erf = ERFSaver.LOAD_ERF_FROM_FILE(ERF_COMPARISON_FILE);
+				}
+				plotter.setERFComparison(erf);
+				if (cb2008 == null) {
+					cb2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(CB_2008_ATTEN_REL_FILE);
+				}
+				plotter.addAttenuationRelationshipComparision(cb2008);
+				if (ba2008 == null) {
+					ba2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(BA_2008_ATTEN_REL_FILE);
+				}
+				plotter.addAttenuationRelationshipComparision(ba2008);
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			plotter.setERFComparison(null);
+			plotter.clearAttenuationRelationshipComparisions();
+		}
+		return plotter;
 	}
 
 }

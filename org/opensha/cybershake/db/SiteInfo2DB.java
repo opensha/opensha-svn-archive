@@ -73,6 +73,43 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	}
 	
 	/**
+	 * Returns the site id of the cybershake site for the corresponding cybershake_short_site_name
+	 * @param cybershakeShortSiteName
+	 * @return
+	 */
+	public double getSiteCutoffDistance(String cybershakeShortSiteName){
+		int id = this.getSiteId(cybershakeShortSiteName);
+		return this.getSiteCutoffDistance(id);
+	}
+	
+	/**
+	 * Returns the site id of the cybershake site for the corresponding cybershake_short_site_name
+	 * @param cybershakeShortSiteName
+	 * @return
+	 */
+	public double getSiteCutoffDistance(int siteID){
+//		 gets the last auto increment id from Sites table
+		 String sql = "SELECT Cutoff_Dist from CyberShake_Site_Regions where CS_Site_ID=" + siteID;
+		 ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+			try {
+				rs.first();
+				double dist = rs.getDouble("Cutoff_Dist");
+				rs.close();
+				return dist;
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		 return CybershakeSiteInfo2DB.CUT_OFF_DISTANCE;
+	}
+	
+	/**
 	 * Returns the site id the cybershake site with given lat and lon
 	 * @param lat
 	 * @param lon
