@@ -17,8 +17,12 @@ public class CyberShakeDBManagementApp {
 	
 	private ChooserDialog choose;
 	
+	private boolean readOnly = false;
+	
 	public CyberShakeDBManagementApp(DBAccess db) {
 		this.db = db;
+		
+		this.readOnly = db.isReadOnly();
 		
 		choose = new ChooserDialog(this);
 		
@@ -37,6 +41,10 @@ public class CyberShakeDBManagementApp {
 			amps = new PeakAmpsGUI(db);
 		}
 		amps.setVisible(true);
+	}
+	
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 	
 	public static String[] loadPassFile(String fileName) throws FileNotFoundException, IOException {
@@ -69,7 +77,7 @@ public class CyberShakeDBManagementApp {
 			// prompt for pass
 			while (db == null) {
 				try {
-					db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true);
+					db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, true);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

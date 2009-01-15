@@ -39,11 +39,14 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 	
 	private boolean canceled = false;
 	private boolean exitOnCancel = false;
+	private boolean allowReadOnly = false;
+	private boolean readOnly = false;
 	
 	private static final String ACTION_KEY = "theAction";
 
 	private JPanel passwordPanel = new JPanel();
 	private JButton continueButton = new JButton();
+	private JButton readOnlyButton = new JButton("Read Only");
 	private JPasswordField passwordText = new JPasswordField();
 	private JLabel jLabel5 = new JLabel();
 	private JButton cancelButton = new JButton();
@@ -64,7 +67,12 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 	};
 	
 	public UserAuthDialog(Frame owner, boolean exitOnCancel) {
+		this(owner, exitOnCancel, false);
+	}
+	
+	public UserAuthDialog(Frame owner, boolean exitOnCancel, boolean allowReadOnly) {
 		super(owner, "Enter Username and Password", true);
+		this.allowReadOnly = allowReadOnly;
 		this.exitOnCancel = exitOnCancel;
 		init();
 		this.setLocationRelativeTo(owner);
@@ -101,6 +109,9 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 		continueButton.setForeground(new Color(80, 80, 133));
 		continueButton.setText("Continue");
 		continueButton.addActionListener(this);
+		readOnlyButton.setFont(new java.awt.Font("Dialog", 1, 12));
+		readOnlyButton.setForeground(new Color(80, 80, 133));
+		readOnlyButton.addActionListener(this);
 		passwordText.setBackground(Color.white);
 		passwordText.setFont(new java.awt.Font("Dialog", 1, 12));
 		passwordText.setForeground(new Color(80, 80, 133));
@@ -143,6 +154,13 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 						, GridBagConstraints.CENTER,
 						GridBagConstraints.NONE,
 						new Insets(24, 25, 24, 0), 5, 0));
+		if (allowReadOnly) {
+			passwordPanel.add(readOnlyButton,
+				new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0
+						, GridBagConstraints.CENTER,
+						GridBagConstraints.NONE,
+						new Insets(24, 25, 24, 0), 5, 0));
+		}
 		
 		this.addEnterAction(this.passwordPanel);
 		this.addEnterAction(this.passwordText);
@@ -176,8 +194,10 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 	}
 	
 	public void setVisible(boolean visible) {
-		if (visible == true)
+		if (visible == true) {
 			canceled = false;
+			readOnly = false;
+		}
 		super.setVisible(visible);
 	}
 	
@@ -197,12 +217,19 @@ public class UserAuthDialog extends JDialog implements ActionListener {
 	public boolean isCanceled() {
 		return canceled;
 	}
+	
+	public boolean isReadOnly() {
+		return readOnly;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == continueButton) {
 			continueAction();
 		} else if (e.getSource() == cancelButton) {
 			cancelAction();
+		} else if (e.getSource() == readOnlyButton) {
+			this.readOnly = true;
+			continueAction();
 		}
 	}
 

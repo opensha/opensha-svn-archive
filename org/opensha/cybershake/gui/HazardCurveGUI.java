@@ -38,10 +38,13 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	HazardCurveTableModel model;
 	JTable table;
 	
+	boolean readOnly = false;
+	
 	public HazardCurveGUI(DBAccess db) {
 		super();
 		
 		this.db = db;
+		this.readOnly = db.isReadOnly();
 		curve2db = new HazardCurve2DB(db);
 		
 		model = new HazardCurveTableModel(db);
@@ -109,7 +112,7 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		if (e.getValueIsAdjusting())
 			return;
 		
-		if (table.getSelectionModel().isSelectionEmpty()) {
+		if (table.getSelectionModel().isSelectionEmpty() || readOnly) {
 			deleteButton.setEnabled(false);
 		} else {
 			deleteButton.setEnabled(true);

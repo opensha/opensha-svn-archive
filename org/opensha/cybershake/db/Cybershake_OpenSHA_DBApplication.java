@@ -311,11 +311,23 @@ public class Cybershake_OpenSHA_DBApplication {
 		this.insertNewERFForSites(sites, erf2db, name, description, false);
 	}
 	
-	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel) throws IOException {
-		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel);
+	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel, boolean allowReadOnly) throws IOException {
+		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel, allowReadOnly);
 		auth.setVisible(true);
-		DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+		auth.validate();
+		DBAccess db;
+		if (auth.isReadOnly()) {
+			db = new DBAccess(HOST_NAME,DATABASE_NAME);
+			db.setReadOnly(true);
+		} else {
+			db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+			db.setReadOnly(false);
+		}
 		return db;
+	}
+	
+	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel) throws IOException {
+		return getAuthenticatedDBAccess(exitOnCancel, false);
 	}
 	
 	/**

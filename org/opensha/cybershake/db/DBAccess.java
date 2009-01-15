@@ -18,6 +18,8 @@ import org.opensha.gui.UserAuthDialog;
  * modified by Vipin Gupta , Nitin Gupta
  */
 public class DBAccess implements Runnable{
+	private boolean readOnly = false;
+	
     private Thread runner;
 
     private Connection[] connPool;
@@ -52,6 +54,7 @@ public class DBAccess implements Runnable{
         String dbServer = "jdbc:mysql://"+hostname+":"+3306+"/"+dbName;
         String dbLogin = "cybershk_ro";
         String dbPassword = "CyberShake2007";
+        readOnly = true;
         int minConns =1;
         int maxConns = 100;
         String logFileString ="cybershake_db_log_file";
@@ -89,6 +92,14 @@ public class DBAccess implements Runnable{
 			            maxConns, logFileString, maxConnTime, false,
 			            DEFAULTMAXCHECKOUTSECONDS, DEFAULTDEBUGLEVEL);
 
+    }
+    
+    public boolean isReadOnly() {
+    	return readOnly;
+    }
+    
+    public void setReadOnly(boolean readOnly) {
+    	this.readOnly = readOnly;
     }
     
     public static DBAccess createWithAuthDialog(String host, String dbName) throws IOException {

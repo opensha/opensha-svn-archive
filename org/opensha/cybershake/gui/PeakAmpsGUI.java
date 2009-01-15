@@ -36,10 +36,13 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 	PeakAmpsTableModel model;
 	JTable table;
 	
+	private boolean readOnly = false;
+	
 	public PeakAmpsGUI(DBAccess db) {
 		super();
 		
 		this.db = db;
+		this.readOnly = db.isReadOnly();
 		
 		model = new PeakAmpsTableModel(db);
 		
@@ -120,7 +123,7 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 		
 		ListSelectionModel lsm = table.getSelectionModel();
 		
-		if (lsm.isSelectionEmpty()) {
+		if (lsm.isSelectionEmpty() || readOnly) {
 			deleteButton.setEnabled(false);
 			countButton.setEnabled(false);
 		} else {
