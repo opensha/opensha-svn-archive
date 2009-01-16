@@ -50,7 +50,6 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 		return date;
 	}
 
-	@Override
 	public int compareTo(CybershakeHazardCurveRecord o) {
 		if (o.getImTypeID() < this.getImTypeID())
 			return -1;

@@ -248,7 +248,6 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		model.reloadSites();
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addEditButton) {
 			if (edit) {
