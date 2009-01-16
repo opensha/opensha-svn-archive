@@ -28,9 +28,21 @@ public class HazardCurve2DB {
 		return this.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 	}
 	
+	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForSite(int siteID) {
+		return getAllHazardCurveRecords("Site_ID=" + siteID);
+	}
+	
 	public ArrayList<CybershakeHazardCurveRecord> getAllHazardCurveRecords() {
+		return getAllHazardCurveRecords(null);
+	}
+	
+	private ArrayList<CybershakeHazardCurveRecord> getAllHazardCurveRecords(String whereClause) {
 		
 		String sql = "SELECT * FROM Hazard_Curves";
+		
+		if (whereClause != null && whereClause.length() > 0) {
+			sql += " WHERE " + whereClause;
+		}
 		
 //		System.out.println(sql);
 		

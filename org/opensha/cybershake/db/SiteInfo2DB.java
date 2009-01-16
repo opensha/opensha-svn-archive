@@ -16,7 +16,6 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		this.dbaccess = dbaccess;
 	}
 	
-	
 	/**
 	 * Inserts the new site in the database table CyberShake_Sites
 	 * @param siteName
@@ -43,6 +42,26 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		}		
 		return getSiteId(siteShortName);
 		
+	}
+	
+	public void setSiteType(int siteID, int typeID) {
+		String sql = "UPDATE CyberShake_Sites SET CS_Site_Type_ID=" + typeID + " WHERE CS_Site_ID=" + siteID;
+		
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+	}
+	
+	public void setSiteLongName(int siteID, String longName) {
+		String sql = "UPDATE CyberShake_Sites SET CS_Site_Name='" + longName + "' WHERE CS_Site_ID=" + siteID;
+		
+		try {
+			dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
 	}
 
 	/**
@@ -650,17 +669,115 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		return sites;
 	}
 	
+	public ArrayList<CybershakeSiteType> getSiteTypes() {
+		ArrayList<CybershakeSiteType> types = new ArrayList<CybershakeSiteType>();
+		
+		String sql = "SELECT * from CyberShake_Site_Types";
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			rs.first();
+			
+			while (!rs.isAfterLast()) {
+				int id = rs.getInt("CS_Site_Type_ID");
+				String longName = rs.getString("CS_Site_Type_Name");
+				String shortName = rs.getString("CS_Site_Type_Short_Name");
+				
+				types.add(new CybershakeSiteType(id, shortName, longName));
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return types;
+	}
+	
+	public ArrayList<Integer> getERFsForSite(int siteID) {
+		ArrayList<Integer> erfs = new ArrayList<Integer>();
+		
+		String sql = "select distinct ERF_ID from CyberShake_Site_Ruptures where CS_Site_ID=" + siteID;
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			rs.first();
+			
+			while (!rs.isAfterLast()) {
+				int id = rs.getInt("ERF_ID");
+				
+				erfs.add(id);
+				rs.next();
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return erfs;
+	}
+	
+	public int deleteRupturesForSite(int siteId) {
+		String sql = "DELETE FROM CyberShake_Site_Ruptures WHERE CS_Site_ID="+siteId;
+		System.out.println(sql);
+		try {
+			return dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int deleteRegionsForSite(int siteId) {
+		String sql = "DELETE FROM CyberShake_Site_Regions WHERE CS_Site_ID="+siteId;
+		System.out.println(sql);
+		try {
+			return dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int deleteSiteRecord(int siteId) {
+		String sql = "DELETE FROM CyberShake_Sites WHERE CS_Site_ID="+siteId;
+		System.out.println(sql);
+		try {
+			return dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	/**
 	 * tester main function
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		DBAccess db = new DBAccess("intensity.usc.edu","CyberShake");
+		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		SiteInfo2DB siteDB = new SiteInfo2DB(db);
 //		siteDB.isRupInDB(33, 0, 9);
-		ArrayList<CybershakeSite> sites = siteDB.getAllSitesFromDB();
-		for (CybershakeSite site : sites) {
-			System.out.println(site);
+		ArrayList<CybershakeSiteType> types = siteDB.getSiteTypes();
+		for (CybershakeSiteType type : types) {
+			System.out.println(type);
 		}
 		System.out.println("DONE!");
 		db.destroy();

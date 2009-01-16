@@ -28,10 +28,16 @@ public class CybershakeSite {
 	}
 	
 	public String toString() {
-		if (id > 0)
-			return "ID: " + id + " Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tABBR: " + short_name;
-		else
-			return "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tABBR: " + short_name;
+		String str = "";
+		if (id >= 0)
+			str += "ID: " + id + "\t";
+		
+		str += "Lat: " + lat + "\tLon: " + lon + "\tName: " + name + "\tABBR: " + short_name;
+		
+		if (type_id >= 0)
+			str += "\tType ID: " + type_id;
+		
+		return str;
 	}
 	
 	public String getFormattedName() {

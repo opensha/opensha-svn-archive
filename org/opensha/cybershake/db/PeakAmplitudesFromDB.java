@@ -419,6 +419,18 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return matched;
 	}
 	
+	public int deleteAllAmpsForSite(int siteId) {
+		String sql = "DELETE FROM PeakAmplitudes WHERE Site_ID="+siteId;
+		System.out.println(sql);
+		try {
+			return dbaccess.insertUpdateOrDeleteData(sql);
+		} catch (SQLException e) {
+//			TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int deleteAmpsForSite(int siteId,int erfId,int sgtVariation, int rvid) {
 		String sql = "DELETE FROM PeakAmplitudes WHERE ERF_ID="+erfId +" AND Site_ID="+siteId+
 			" AND SGT_Variation_ID=" + sgtVariation + " and Rup_Var_Scenario_ID=" + rvid;

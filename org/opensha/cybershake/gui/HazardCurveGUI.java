@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,6 +25,7 @@ import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
+import org.opensha.cybershake.plot.HazardCurvePlotCharacteristics;
 import org.opensha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.infoTools.GraphPanel;
@@ -48,6 +50,11 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	
 	JCheckBox plotComparisonsCheck = new JCheckBox("Plot Comparison Curves", false);
 	
+	JComboBox plotStyleBox = new JComboBox();
+	
+	private static final String PLOT_STYLE_ROB = "Rob-Style Plot";
+	private static final String PLOT_STYLE_TOM = "Tom-Style Plot";
+	
 	HazardCurveTableModel model;
 	JTable table;
 	
@@ -64,7 +71,7 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	private AttenuationRelationship ba2008 = null;
 
 	public HazardCurveGUI(DBAccess db) {
-		super();
+		super("Hazard Curves");
 		
 		this.db = db;
 		this.readOnly = db.isReadOnly();
@@ -79,6 +86,7 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		
 		table.getSelectionModel().addListSelectionListener(this);
+		
 		deleteButton.addActionListener(this);
 		deleteButton.setEnabled(false);
 		
@@ -88,9 +96,15 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		plotButton.setEnabled(false);
 		plotComparisonsCheck.setEnabled(false);
 		
+		plotStyleBox.setEnabled(false);
+		plotStyleBox.addItem(PLOT_STYLE_ROB);
+		plotStyleBox.addItem(PLOT_STYLE_TOM);
+		
 		bottomPanel.add(reloadButton);
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(plotComparisonsCheck);
+		bottomPanel.add(new JSeparator());
+		bottomPanel.add(plotStyleBox);
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(plotButton);
 		bottomPanel.add(new JSeparator());
@@ -156,14 +170,18 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		ListSelectionModel lsm = table.getSelectionModel();
 		
 		if (lsm.isSelectionEmpty()) {
-			plotButton.setEnabled(false);
-			plotComparisonsCheck.setEnabled(false);
+			this.setPlottingElementsEnabled(false);
 			deleteButton.setEnabled(false);
 		} else {
-			plotButton.setEnabled(lsm.getMinSelectionIndex() == lsm.getMaxSelectionIndex());
-			plotComparisonsCheck.setEnabled(plotButton.isEnabled());
+			this.setPlottingElementsEnabled(lsm.getMinSelectionIndex() == lsm.getMaxSelectionIndex());
 			deleteButton.setEnabled(!readOnly);
 		}
+	}
+	
+	private void setPlottingElementsEnabled(boolean enabled) {
+		plotButton.setEnabled(enabled);
+		plotComparisonsCheck.setEnabled(enabled);
+		plotStyleBox.setEnabled(enabled);
 	}
 	
 	private void plotCurve(CybershakeHazardCurveRecord curve) {
@@ -218,6 +236,11 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		} else {
 			plotter.setERFComparison(null);
 			plotter.clearAttenuationRelationshipComparisions();
+		}
+		if (this.plotStyleBox.getSelectedItem() == PLOT_STYLE_ROB) {
+			plotter.setPlottingCharactersistics(HazardCurvePlotCharacteristics.createRobPlotChars());
+		} else if (this.plotStyleBox.getSelectedItem() == PLOT_STYLE_TOM) {
+			plotter.setPlottingCharactersistics(HazardCurvePlotCharacteristics.createTomPlotChars());
 		}
 		return plotter;
 	}

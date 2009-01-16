@@ -14,6 +14,7 @@ public class CyberShakeDBManagementApp {
 	
 	private HazardCurveGUI curves = null;
 	private PeakAmpsGUI amps = null;
+	private SitesGUI sites = null;
 	
 	private ChooserDialog choose;
 	
@@ -41,6 +42,13 @@ public class CyberShakeDBManagementApp {
 			amps = new PeakAmpsGUI(db);
 		}
 		amps.setVisible(true);
+	}
+	
+	public void showSitesGUI() {
+		if (sites == null) {
+			sites = new SitesGUI(db);
+		}
+		sites.setVisible(true);
 	}
 	
 	public boolean isReadOnly() {

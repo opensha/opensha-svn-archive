@@ -2,7 +2,7 @@ package org.opensha.cybershake.db;
 
 import java.util.Date;
 
-public class CybershakeHazardCurveRecord {
+public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardCurveRecord> {
 	
 	private int curveID;
 	private int siteID;
@@ -48,6 +48,15 @@ public class CybershakeHazardCurveRecord {
 
 	public Date getDate() {
 		return date;
+	}
+
+	@Override
+	public int compareTo(CybershakeHazardCurveRecord o) {
+		if (o.getImTypeID() < this.getImTypeID())
+			return -1;
+		else if (o.getImTypeID() > this.getImTypeID())
+			return 1;
+		return 0;
 	}
 
 }

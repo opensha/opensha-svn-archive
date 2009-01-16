@@ -19,7 +19,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 public class CybershakeSiteInfo2DB {
 
 	
-	public static final double CUT_OFF_DISTANCE = 200;
+	public static double CUT_OFF_DISTANCE = 200;
 	private SiteInfo2DBAPI site2db;
 	private ERF2DBAPI erf2db = null;
 	private BufferedWriter out = null;
@@ -204,7 +204,7 @@ public class CybershakeSiteInfo2DB {
 				if (Cybershake_OpenSHA_DBApplication.timer) {
 					start = System.currentTimeMillis();
 				}
-				boolean log = addLogFileName.length() > 0;
+				boolean log = addLogFileName != null && addLogFileName.length() > 0;
 				while (it.hasNext()) {
 					Location ptLoc = (Location) it.next();
 					if (region.isLocationInside(ptLoc)) {

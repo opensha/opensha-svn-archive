@@ -27,7 +27,6 @@ public class ChooserDialog extends JFrame implements ActionListener {
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		
 		sites.addActionListener(this);
-		sites.setEnabled(false);
 		amps.addActionListener(this);
 		curves.addActionListener(this);
 		
@@ -47,9 +46,10 @@ public class ChooserDialog extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == curves) {
 			app.showCurvesGUI();
-		}
-		if (e.getSource() == amps) {
+		} else if (e.getSource() == amps) {
 			app.showAmpsGUI();
+		}else if (e.getSource() == sites) {
+			app.showSitesGUI();
 		}
 	}
 	

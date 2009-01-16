@@ -785,6 +785,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		plotChars.setYLog(flag);
 	}
 	
+	public void setPlottingCharactersistics(HazardCurvePlotCharacteristics chars) {
+		this.plotChars = chars;
+	}
+	
 	boolean xLogFlag = true;
 	
 	/**

@@ -17,19 +17,21 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 	
 	public MeanUCERF2_ToDB(DBAccess db){
 		super(db);
-		createUCERF2ERF();
+		eqkRupForecast = createUCERF2ERF();
 	}
 	
 	 /**
 	  * Create NSHMP 02 ERF instance
 	  *
 	  */
-	  private void createUCERF2ERF() {
+	  public static EqkRupForecast createUCERF2ERF() {
 
 	    
-		eqkRupForecast = new MeanUCERF2();
+		  EqkRupForecast eqkRupForecast = new MeanUCERF2();
 		
 		eqkRupForecast = setMeanUCERF_CyberShake_Settings(eqkRupForecast);
+		
+		return eqkRupForecast;
 	  }
 	  
 	  public static EqkRupForecast setMeanUCERF_CyberShake_Settings(EqkRupForecast eqkRupForecast) {
