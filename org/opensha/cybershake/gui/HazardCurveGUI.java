@@ -3,8 +3,11 @@ package org.opensha.cybershake.gui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -215,21 +218,24 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		if (this.plotComparisonsCheck.isSelected()) {
 			try {
 				if (erf == null) {
-					erf = ERFSaver.LOAD_ERF_FROM_FILE(ERF_COMPARISON_FILE);
+					erf = ERFSaver.LOAD_ERF_FROM_FILE(this.getClass().getResource("/" + ERF_COMPARISON_FILE));
 				}
 				plotter.setERFComparison(erf);
 				if (cb2008 == null) {
-					cb2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(CB_2008_ATTEN_REL_FILE);
+					cb2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + CB_2008_ATTEN_REL_FILE));
 				}
 				plotter.addAttenuationRelationshipComparision(cb2008);
 				if (ba2008 == null) {
-					ba2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(BA_2008_ATTEN_REL_FILE);
+					ba2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + BA_2008_ATTEN_REL_FILE));
 				}
 				plotter.addAttenuationRelationshipComparision(ba2008);
 			} catch (DocumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

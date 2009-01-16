@@ -1,6 +1,9 @@
 package scratchJavaDevelopers.kevin.XMLSaver;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -44,10 +47,14 @@ public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 		return attenRel.toXMLMetadata(root);
 	}
 	
-	public static AttenuationRelationship LOAD_ATTEN_REL_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException {
+	public static AttenuationRelationship LOAD_ATTEN_REL_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException, MalformedURLException {
+		return LOAD_ATTEN_REL_FROM_FILE(new File(fileName).toURI().toURL());
+	}
+	
+	public static AttenuationRelationship LOAD_ATTEN_REL_FROM_FILE(URL file) throws DocumentException, InvocationTargetException, MalformedURLException {
 		SAXReader reader = new SAXReader();
 		
-		Document doc = reader.read(fileName);
+		Document doc = reader.read(file);
 		
 		Element el = doc.getRootElement().element(IntensityMeasureRelationship.XML_METADATA_NAME);
 		

@@ -225,7 +225,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				System.err.println("WARNING: Unable to parse ERF XML, not plotting comparison curves!");
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
-				System.err.println("WARNING: Unable to parse load comparison ERF, not plotting comparison curves!");
+				System.err.println("WARNING: Unable to load comparison ERF, not plotting comparison curves!");
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				System.err.println("WARNING: Unable to load comparison ERF, not plotting comparison curves!");
 			}
 		}
 		

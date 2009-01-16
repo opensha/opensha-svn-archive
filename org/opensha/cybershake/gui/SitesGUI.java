@@ -40,6 +40,8 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 	JTable table;
 	
 	private boolean readOnly = false;
+	
+	private SingleSiteAddEditGUI addGUI = null;
 
 	public SitesGUI(DBAccess db) {
 		super("CyberShake Sites");
@@ -102,20 +104,28 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 				}
 			}
 			
+			ArrayList<CybershakeSite> sitesToDelete = new ArrayList<CybershakeSite>();
+			
 			for (int row : rows) {
-				deleteSite(model.getSiteAtRow(row));
+				sitesToDelete.add(model.getSiteAtRow(row));
+			}
+			
+			for (CybershakeSite site : sitesToDelete) {
+				deleteSite(site);
 				model.reloadSites();
 			}
 		} else if (e.getSource() == insertButton) {
-			SingleSiteAddEditGUI add = new SingleSiteAddEditGUI(db, model, null);
+			if (addGUI == null)
+				addGUI = new SingleSiteAddEditGUI(db, model, null);
 			
-			add.setVisible(true);
+			addGUI.setVisible(true);
 		} else if (e.getSource() == editButton) {
 			ListSelectionModel lsm = table.getSelectionModel();
 			CybershakeSite site = model.getSiteAtRow(lsm.getMinSelectionIndex());
-			SingleSiteAddEditGUI add = new SingleSiteAddEditGUI(db, model, site);
 			
-			add.setVisible(true);
+			SingleSiteAddEditGUI edit = new SingleSiteAddEditGUI(db, model, site);
+			
+			edit.setVisible(true);
 		}
 	}
 	

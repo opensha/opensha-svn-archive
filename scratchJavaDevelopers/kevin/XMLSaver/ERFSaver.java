@@ -1,6 +1,9 @@
 package scratchJavaDevelopers.kevin.XMLSaver;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -9,6 +12,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.opensha.sha.calc.hazardMap.applet.Loadable;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 
@@ -96,14 +100,18 @@ public class ERFSaver extends XMLSaver {
 		return null;
 	}
 	
-	public static EqkRupForecast LOAD_ERF_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException {
+	public static EqkRupForecast LOAD_ERF_FROM_FILE(URL file) throws DocumentException, InvocationTargetException, MalformedURLException {
 		SAXReader reader = new SAXReader();
 		
-		Document doc = reader.read(fileName);
+		Document doc = reader.read(file);
 		
 		Element el = doc.getRootElement().element(EqkRupForecast.XML_METADATA_NAME);
 		
 		return EqkRupForecast.fromXMLMetadata(el);
+	}
+	
+	public static EqkRupForecast LOAD_ERF_FROM_FILE(String fileName) throws DocumentException, InvocationTargetException, MalformedURLException {
+		return LOAD_ERF_FROM_FILE(new File(fileName).toURI().toURL());
 	}
 	
 	/**
