@@ -1076,7 +1076,7 @@ public abstract class AttenuationRelationship
     // Dip Parameter:
     DoubleConstraint dipConstraint = new DoubleConstraint(DIP_MIN, DIP_MAX);
     dipConstraint.setNonEditable();
-    dipParam = new WarningDoubleParameter(DIP_NAME, dipConstraint);
+    dipParam = new WarningDoubleParameter(DIP_NAME, dipConstraint, DIP_UNITS);
     dipParam.setInfo(DIP_INFO);
 
     // Rake Parameter:
