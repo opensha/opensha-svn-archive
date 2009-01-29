@@ -24,7 +24,7 @@ public class AS_2008_test extends NGATest {
 
 	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/AS08/";
 	
-	public static final boolean CONTINUE_ON_FAIL = true;
+	public static final boolean CONTINUE_ON_FAIL = false;
 
 	//	private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
 
@@ -224,8 +224,8 @@ public class AS_2008_test extends NGATest {
 						tested_Val = Double.parseDouble(st.nextToken().trim());
 						results = this.compareResults(openSHA_Val, tested_Val);
 						if(results == false){
-							String failedResultMetadata = "Results from file "+fileName+"failed for  calculation for " +
-							"CB-2008 attenuation with the following parameter settings:"+
+							String failedResultMetadata = "Results from "+fileName+"failed for " +
+							"AS-2008 attenuation with the following parameter settings:"+
 							"  PGA "+"\nMag ="+(float)mag+
 							"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 							"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
@@ -247,7 +247,7 @@ public class AS_2008_test extends NGATest {
 						results = this.compareResults(openSHA_Val, tested_Val);
 						if(results == false){
 							String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
-							"CB-2008 attenuation with the following parameter settings:"+
+							"AS-2008 attenuation with the following parameter settings:"+
 							"  PGV "+"\nMag ="+(float)mag+
 							"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 							"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
@@ -296,18 +296,18 @@ public class AS_2008_test extends NGATest {
 	
 	private void printOpenSHAParams(AttenuationRelationship attenRel) {
 		System.out.println("\nOpenSHA params:");
-		System.out.print("SA period: " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
-		System.out.println(",\tMag: " + attenRel.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
-		System.out.print("Distance Rup: " + attenRel.getParameter(DistanceRupParameter.NAME).getValue());
-		System.out.println(",\t(Rrup - Rjb) / Rrup: " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
-		System.out.print("Fault Type: " + attenRel.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
-		System.out.println(",\tDistanceX: " + attenRel.getParameter(DistanceX_Parameter.NAME).getValue());
-		System.out.print("Dip: " + attenRel.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
-		System.out.println(",\tDown Dip Width: " + attenRel.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
-		System.out.print("Rupture Top Distance: " + attenRel.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
-		System.out.println(",\tVs30: " + attenRel.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
-		System.out.print("Vs30 flag: " + attenRel.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
-		System.out.println(",\tDepth to Vs = 1.0 km/sec: " + attenRel.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
+		System.out.println("SA period = " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
+		System.out.print("Mag = " + attenRel.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
+		System.out.print("\tRrup = " + attenRel.getParameter(DistanceRupParameter.NAME).getValue());
+		System.out.println("\t(Rrup-Rjb)/Rrup = " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
+		System.out.print("Fault Type = " + attenRel.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
+		System.out.print("\tDistanceX = " + attenRel.getParameter(DistanceX_Parameter.NAME).getValue());
+		System.out.println("\tDip = " + attenRel.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
+		System.out.print("DDWidth = " + attenRel.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
+		System.out.print("\tzTor = " + attenRel.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
+		System.out.print("\tVs30 = " + attenRel.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
+		System.out.println ("\tVs30 flag = " + attenRel.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
+		System.out.println("Depthto1km/sec = " + attenRel.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
 	}
 
 	/**
