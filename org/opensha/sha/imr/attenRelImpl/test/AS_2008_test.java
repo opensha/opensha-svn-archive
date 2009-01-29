@@ -296,7 +296,10 @@ public class AS_2008_test extends NGATest {
 	
 	private void printOpenSHAParams(AttenuationRelationship attenRel) {
 		System.out.println("\nOpenSHA params:");
-		System.out.println("SA period = " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
+		if (attenRel.getIntensityMeasure().getName().equals(AttenuationRelationship.SA_NAME))
+			System.out.println("SA period = " + attenRel.getParameter(AS_2008_AttenRel.PERIOD_NAME).getValue());
+		else
+			System.out.println("IM Type = " + attenRel.getIntensityMeasure().getName());
 		System.out.print("Mag = " + attenRel.getParameter(AS_2008_AttenRel.MAG_NAME).getValue());
 		System.out.print("\tRrup = " + attenRel.getParameter(DistanceRupParameter.NAME).getValue());
 		System.out.println("\t(Rrup-Rjb)/Rrup = " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
