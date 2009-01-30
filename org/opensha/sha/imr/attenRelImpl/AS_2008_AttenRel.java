@@ -38,8 +38,9 @@ import org.opensha.util.FileUtils;
  * <LI>rupWidth - Down-dip rupture width (km)
  * <LI>dipParam - Rupture surface dip (degrees)
  * <LI>vs30Param - Average shear wave velocity of top 30 m of soil/rock (m/s)
- * <LI>depthTo1pt0kmPerSecParam - Depth to shear wave velocity Vs=1.0km/s (km)
- * <LI>flagVSParam - how Vs30 was obtained
+ * <LI>depthTo1pt0kmPerSecParam - Depth to shear wave velocity Vs=1.0km/s (m)
+ * <LI>flagVSParam - how Vs30 was obtained (measured of estimated)
+ * <LI>flagAS - flag for aftershocks
  * <LI>distanceRupParam - Closest distance to surface projection of fault (km)
  * <LI>distRupMinusJB_OverRupParam =  - used as a proxy for hanging wall effect;
  * <LI>distanceXParam - Horz dist to inf extension of top edge of rupture; neg values are on the foot wall;
@@ -102,16 +103,14 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DISTANCE_JB_MAX = new Double(200.0);
 	 */
 
-	/* not needed (redundant with DistanceX)?
-	// HWFlag of site (hangingwall side or footwall)
-	protected StringParameter flagHWParam;
-	public final static String HW_FLAG_NAME = "Flag for site location.";
-	public final static String HW_FLAG_INFO = 
-		"Select appropriate location of site relative to dip of fault.";
-	public final static String HW_FLAG_HW = "Hanging Wall Side";
-	public final static String HW_FLAG_FW = "Foot Wall Side";
-	public final static String HW_FLAG_DEFAULT = HW_FLAG_HW;
-	 */
+//	// ASFlag of site (Aftershock = 1, Main shock = 0)
+//	protected StringParameter flagHWParam;
+//	public final static String AS_FLAG_NAME = "Flag for aftershock.";
+//	public final static String AS_FLAG_INFO = 
+//		"Select 1 for aftershocks, 0 for mainshocks, foreshocks and swarms.";
+//	public final static String AS_FLAG_AS = "Aftershock";
+//	public final static String AS_FLAG_MS = "Mainshock";
+//	public final static String AS_FLAG_DEFAULT = AS_FLAG_MS;
 
 	/**
 	 * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
@@ -603,7 +602,15 @@ NamedObjectAPI, ParameterChangeListener {
 		if(iper<iTd+1) {
 		mean = (getMean(iper,0, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
 				depthTop, depthTo1pt0kmPerSec, pga_rock,0, 0))+f10;
-				//System.out.println("Inside getMean, for iper<iTd+1 = "+ Math.exp(mean));
+				System.out.println("Inside getMean, for iper<iTd+1 = "+ Math.exp(mean));
+//			if(iper==0){
+//				double f51100 = getf5(iper, 1100.0, pga_rock);
+//				f5 = getf5(iper, vs30, pga_rock);
+//				System.out.println("From getf5 for PGV, f51100 = "+f51100+", f5="+f5);
+//				f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
+//				System.out.println("From getf10 for PGV, f10 = "+f10);
+//				mean = (mean  -f51100+f5 + f10);
+//			}
 		} else {
 			double medSa1100AtTd0 = Math.exp(Math.log(medSa1100WithTdPlus/medSa1100WithTdMinus)/Math.log(per[iTd+1]/per[iTd])*Math.log(Math.pow(10,-1.25+0.3*mag)/per[iTd]) + Math.log(medSa1100WithTdMinus));
 			double mean1100AtTd = (medSa1100AtTd0)*Math.pow(Math.pow(10,-1.25+0.3*mag)/per[iper],2);
@@ -1039,17 +1046,18 @@ NamedObjectAPI, ParameterChangeListener {
 		double vs30Star, v1, f5;
 		//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
 		//Vs30 dependent term v1 (Eq. 6)
-		if(per[iper]<=0.5 && per[iper]>-1.0) {
+		if(per[iper]==-1.0) {
+			v1 = 862.0;
+		} else if(per[iper]<=0.5 && per[iper]>-1.0) {
 			v1=1500.0;
 		} else if(per[iper] > 0.5 && per[iper] <=1.0) {
 			v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
 		} else if(per[iper] > 1.0 && per[iper] <2.0) {
 			v1=Math.exp(6.76-0.297*Math.log(per[iper]));
-		} else if(per[iper]>=2.0) {
-			v1 = 700.0;
 		} else { 
-			v1=862.0;
+			v1 = 700.0;
 		}
+
 		
 		//Vs30 dependent term vs30Star (Eq. 5)
 		if(vs30<v1) {
@@ -1074,19 +1082,18 @@ NamedObjectAPI, ParameterChangeListener {
 	double vs30Star, v1;
 	//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
 	//Vs30 dependent term v1 (Eq. 6)
-	if(per[iper]<=0.5 && per[iper]>-1.0) {
+	if(per[iper]==-1.0) {
+		v1 = 862.0;
+	} else if(per[iper]<=0.5 && per[iper]>-1.0) {
 		v1=1500.0;
 	} else if(per[iper] > 0.5 && per[iper] <=1.0) {
 		v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
 	} else if(per[iper] > 1.0 && per[iper] <2.0) {
 		v1=Math.exp(6.76-0.297*Math.log(per[iper]));
-	} else if(per[iper]>=2.0) {
-		v1 = 700.0;
 	} else { 
-		v1=862.0;
+		v1 = 700.0;
 	}
-	
-	//Vs30 dependent term vs30Star (Eq. 5)
+//Vs30 dependent term vs30Star (Eq. 5)
 	if(vs30<v1) {
 		vs30Star = vs30;
 	} else {
@@ -1094,19 +1101,21 @@ NamedObjectAPI, ParameterChangeListener {
 	}
 	
 	// Eq. 17
-	if(vs30<180) {
+	if(vs30<180.0) {
 		z1Hat = Math.exp(6.745);
-	} else if(vs30>=180 && vs30<=500) {
+	} else if(vs30>=180.0 && vs30<=500.0) {
 		z1Hat = Math.exp(6.745-1.35*Math.log(vs30/180.0));
 	} else {
 		z1Hat = Math.exp(5.394-4.48*Math.log(vs30/500.0));
 	}
+	
 	// Eq. 19
 	if((per[iper]<0.35 && per[iper]>-1.0) || vs30>1000.0) {
-		e2=0;
-	} else if(per[iper]>=0.35 && per[iper]<2) {
+//	if(per[iper]<0.35 || vs30>1000.0) {
+		e2=0.0;
+	} else if(per[iper]>=0.35 && per[iper]<2.0) {
 		e2 = -0.25*Math.log(vs30/1000)*Math.log(per[iper]/0.35);
-	} else if(per[iper]>=1.0 && per[iper]<=1.0) {
+	} else if(per[iper]==-1.0) {
 		e2 = -0.25*Math.log(vs30/1000)*Math.log(1.0/0.35);
 	} else {// if per[iper]>2.0
 		e2 = -0.25*Math.log(vs30/1000)*Math.log(2.0/0.35);
@@ -1114,32 +1123,40 @@ NamedObjectAPI, ParameterChangeListener {
 	
 
 	// Eq. 18
-	a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-
+//	if(per[iper]==-1.0) {
+//	   a21test = (a10[16] + b[16]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+//	} else {
+	   a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+//	}
+		
 	if(vs30>=1000.0){
 		a21=0.0;
-	} else if(a21test<0) {
+	} else if(a21test<0.0 && vs30<1000.0) {
 		a21=-(a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-	} else {
+//	} else if(per[iper]==-1.0){
+//		int tempiper=0;
+//		a21=-(a10[tempiper] + b[tempiper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+//		System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" a10="+a10[tempiper]+" b[iper]="+b[tempiper]+" N="+ N + " vs30Star="+ vs30Star +" v1="+v1+" c2="+c2);
+	}	else {
 		a21 = e2;
 	}
 
+	
 	// Eq. 20
-	if(per[iper]<2 || per[iper]<=-1.0){
+	if(per[iper]<2.0){
 		a22 = 0.0;
 	} else {
-		a22 = 0.0625*(per[iper]-2);
+		a22 = 0.0625*(per[iper]-2.0);
 	}
-	
 
 	// Eq. 16
 	if(depthTo1pt0kmPerSec>=200){
-		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2)) + a22*Math.log(depthTo1pt0kmPerSec/200);
+		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2)) + a22*Math.log(depthTo1pt0kmPerSec/200.0);
 	} else {
 		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
 	}
 	
-System.out.println("Outside main getMean a21 "+ a21 + "\t a22 "+ a22 +"\t f10 "+f10);
+System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
 	
 return f10;
 }
@@ -1175,7 +1192,9 @@ return f10;
 		//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
 
 		//Vs30 dependent term v1 (Eq. 6)
-		if(per[iper]<=0.5 && per[iper]>-1.0) {
+		if(per[iper]==-1.0) {
+			v1 = 862.0;
+		} else if(per[iper]<=0.5 && per[iper]>-1.0) {
 			v1=1500.0;
 		} else if(per[iper] > 0.5 && per[iper] <=1.0) {
 			v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
@@ -1184,20 +1203,18 @@ return f10;
 		} else { 
 			v1 = 700.0;
 		}
-		if(per[iper]==-1.0) {
-			v1 = 862.0;
-		}
-		// amp1100 is an intermediate parameter. It is used in Norm's spreadsheet (nga_Sa_v19a.xls) 
-		// and it simplifies the computations. it is called "site ampwrt VLIN for VS30=1100" in the spreadsheet.
-		// Line below commented on 2009-01-29
-		// double amp1100 = (a10[iper] +b[iper]*N)*Math.log(Math.min(v1,1100.0));
-
-		//Vs30 dependent term vs30Star (Eq. 5)
+	//Vs30 dependent term vs30Star (Eq. 5)
 		if(vs30<v1) {
 			vs30Star = vs30;
 		} else {
 			vs30Star = v1;
 		}
+
+	// amp1100 is an intermediate parameter. It is used in Norm's spreadsheet (nga_Sa_v19a.xls) 
+		// and it simplifies the computations. it is called "site ampwrt VLIN for VS30=1100" in the spreadsheet.
+		// Line below commented on 2009-01-29
+		// double amp1100 = (a10[iper] +b[iper]*N)*Math.log(Math.min(v1,1100.0));
+
 		//f5_pga1100 (Eq. 4)
 		if (vs30<VLIN[iper]) {
 			f5 = a10[iper]*Math.log(vs30Star/VLIN[iper])-b[iper]*Math.log(pga_rock+c)+b[iper]*Math.log(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N));
@@ -1274,51 +1291,6 @@ return f10;
 			f8=a18[iper]*(rRup - 100)*T6;
 		}
 
-//		// "Soil depth model": f10 term (eq. 16) and required z1Hat, a21, e2 and a22 computation (eqs. 17-20)
-//		double z1Hat, e2, a21test, a21, a22;
-//
-//		// Eq. 17
-//		if(vs30<180) {
-//			z1Hat = Math.exp(6.745);
-//		} else if(vs30>=180 && vs30<=500) {
-//			z1Hat = Math.exp(6.745-1.35*Math.log(vs30/180.0));
-//		} else {
-//			z1Hat = Math.exp(5.394-4.48*Math.log(vs30/500.0));
-//		}
-//		// Eq. 19
-//		if((per[iper]<0.35 && per[iper]>-1.0) || vs30>1000.0) {
-//			e2=0;
-//		} else if(per[iper]>=0.35 && per[iper]<2) {
-//			e2 = -0.25*Math.log(vs30/1000)*Math.log(per[iper]/0.35);
-//		} else {// if(per[iper]>=2)
-//			e2 = -0.25*Math.log(vs30/1000)*Math.log(2.0/0.35);
-//		}
-//
-//		// Eq. 18
-//		a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//
-//		if(vs30>=1000.0){
-//			a21=0.0;
-//		} else if(a21test<0) {
-//			a21=-(a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//		} else {
-//			a21 = e2;
-//		}
-//
-//		// Eq. 20
-//		if(per[iper]<2 || per[iper]<=-1.0){
-//			a22 = 0.0;
-//		} else {
-//			a22 = 0.0625*(per[iper]-2);
-//		}
-//
-//		// Eq. 16
-//		if(depthTo1pt0kmPerSec>=200){
-//			f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2)) + a22*Math.log(depthTo1pt0kmPerSec/200);
-//		} else {
-//			f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//		}
-
 		System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f1=" +f1+" f4=" +f4+" f6=" +f6+" f8=" +f8);
 
 
@@ -1385,7 +1357,7 @@ return f10;
 			//			2) The (-b*pga_rock) is to multiply both terms of the equations
 			dterm=0;
 			if(vs30<VLIN[iper]){
-				dterm=b[iper]*pga_rock*(-1/(pga_rock+c)+1/(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N)));
+				dterm=b[iper]*pga_rock*(-1.0/(pga_rock+c)+1.0/(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N)));
 			}
 			// Define appropriate s1 and s2 values depending on how Vs30 was obtained
 			// measured or estimated), using the vsm flag defined above which is input in the GUI
@@ -1408,19 +1380,19 @@ return f10;
 				sigma0=s2;
 				sigma0PGA=s2PGA;}
 			else{
-				sigma0=s1+0.5*(s2-s1)*(mag-5);
-				sigma0PGA=s1PGA+0.5*(s2PGA-s1PGA)*(mag-5);}
+				sigma0=s1+0.5*(s2-s1)*(mag-5.0);
+				sigma0PGA=s1PGA+0.5*(s2PGA-s1PGA)*(mag-5.0);}
 
 			// Compute tau0 (Eq. 28)
-			if(mag<5){
+			if(mag<5.0){
 				tau0=s3[iper];
 				tau0PGA=s3[2];}
-			else if(mag>7){
+			else if(mag>7.0){
 				tau0=s4[iper];
 				tau0PGA=s4[2];}
 			else{
-				tau0=s3[iper]+0.5*(s4[iper]-s3[iper])*(mag-5);
-				tau0PGA=s3[2]+0.5*(s4[2]-s3[2])*(mag-5);}
+				tau0=s3[iper]+0.5*(s4[iper]-s3[iper])*(mag-5.0);
+				tau0PGA=s3[2]+0.5*(s4[2]-s3[2])*(mag-5.0);}
 
 			// Compute sigmaB  (Eq. 23)
 			sigmaB=Math.sqrt(Math.pow(sigma0,2)-Math.pow(sigmaamp,2));
@@ -1434,10 +1406,10 @@ return f10;
 			//** The published ES version has errors in this equation. Per Norm (2008-08-15, personal communication):
 			//   1) use sigmaB instead of sigma0 in the first term.
 
-			sigma = Math.sqrt(Math.pow(sigmaB,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2*dterm*sigmaB*sigmaBPGA*rho[iper]);
+			sigma = Math.sqrt(Math.pow(sigmaB,2)+Math.pow(sigmaamp,2)+Math.pow(dterm,2)*Math.pow(sigmaBPGA,2)+2.0*dterm*sigmaB*sigmaBPGA*rho[iper]);
 
 			// get tau - inter-event term (Eq. 25)
-			tau = Math.sqrt(Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2*dterm*tauB*tauBPGA*rho[iper]);
+			tau = Math.sqrt(Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2.0*dterm*tauB*tauBPGA*rho[iper]);
 
 			// compute total sigma
 			double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
