@@ -577,32 +577,34 @@ NamedObjectAPI, ParameterChangeListener {
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
 
 		// Returns the index of the period just below Td (Eq. 21)
-		int iTd= searchTdIndex(mag);
-		//System.out.println("Inside getMean, mag= "+ mag+ " iTd= "+iTd);
+		double Td=Math.pow(10,-1.25+0.3*mag );
+		int iTd= searchTdIndex(Td);
+//		System.out.println("From searchTdIndex, Td = "+ per[iTd] +", mag= "+ mag+ " iTd= "+iTd);
 
 		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
 
-	System.out.println("From getMean, pga_rock= "+ pga_rock);
+	    //System.out.println("From getMean, pga_rock= "+ pga_rock);
 
 		double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
 
 		double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
-		System.out.println("From getMean, meanSa100TdMinus= "+ medSa1100WithTdMinus +" meanSa100TdPlus= "+ medSa1100WithTdPlus);
+//		System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
 
 		double f5 = getf5(iper, vs30, pga_rock);
-		System.out.println("From getf5, f5 = "+f5);
+//		System.out.println("From getf5, f5 = "+f5);
 
 		double f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-		System.out.println("From getf10, f10 = "+f10);
+//		System.out.println("From getf10, f10 = "+f10);
 
 		double mean = 0.0;
-		if(iper<iTd+1) {
+		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
 		mean = (getMean(iper,0, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
 				depthTop, depthTo1pt0kmPerSec, pga_rock,0, 0))+f10;
-				System.out.println("Inside getMean, for iper<iTd+1 = "+ Math.exp(mean));
+//				System.out.println("Inside getMean, for iper<iTd+1 = "+ Math.exp(mean));
+
 //			if(iper==0){
 //				double f51100 = getf5(iper, 1100.0, pga_rock);
 //				f5 = getf5(iper, vs30, pga_rock);
@@ -616,18 +618,14 @@ NamedObjectAPI, ParameterChangeListener {
 			double mean1100AtTd = (medSa1100AtTd0)*Math.pow(Math.pow(10,-1.25+0.3*mag)/per[iper],2);
 			double f51100 = getf5(iper, 1100.0, pga_rock);
 			f5 = getf5(iper, vs30, pga_rock);
-			System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
+			//System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
 			f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-			System.out.println("Inside getMean, f10 = "+f10);
+			//System.out.println("Inside getMean, f10 = "+f10);
 
 			mean = (Math.log(mean1100AtTd) -f51100+f5+f10);
-			System.out.println("Inside getMean mean1100atTd = " + mean1100AtTd + ", mean = "+mean);
-			//mean = 0.0;
+//			System.out.println("Inside getMean pga_rock=" +pga_rock+", mean1100atTd= " + mean1100AtTd + ", mean = "+mean);
 		}
-		//System.out.println("Line 600, iTd " +iTd + " \tTd "+ per(iTd));
 
-		//		//System.out.println("Line 590, pga_r "+ pga_rock +"\t mean "+mean+"\t iper " +iper+"\t vs30 "+vs30+"\t rRup "+rRup+"\t rJB "+rJB+"\t frv "+f_rv+"\t fnm "+f_nm+"\t mag "+mag+"\t dip "+dip+"\t ztop "+depthTop+"\t z10 "+depthTo1pt0kmPerSec);
-//		//System.out.println("Line 600, iTd " +iTd + " MedSa1100BeforeTd _Minus "+ medSa1100WithTdMinus +"\t _Plus "+medSa1100WithTdPlus);
 		return mean; 
 
 
@@ -1027,17 +1025,15 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	//@param rX
 
-	public int searchTdIndex (double mag) {
+	public int searchTdIndex (double Td) {
 		//double[] TestTd = new double[23];
 		int iTd = 22;
-		double Td=Math.pow(10,-1.25+0.3*mag );
-		for(int i=2;i<22;++i){
+		for(int i=2;i<=22;++i){
 			if (Td>= per[i] && Td< per[i+1] ) {
 				iTd = i;
-			}
 		}
-//		//System.out.println("Inside searchTdIndex \t"+iTd +"mag \t" +mag);
-		System.out.println("Inside searchTdIndex \t"+iTd +", mag \t" +mag);
+		}
+//		System.out.println("Inside searchTdIndex iTd = "+iTd +", Td = "+Td+", mag \t" +mag);
 		
 		return iTd;
 	}
@@ -1156,7 +1152,7 @@ NamedObjectAPI, ParameterChangeListener {
 		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
 	}
 	
-System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
+//System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
 	
 return f10;
 }
@@ -1173,7 +1169,7 @@ return f10;
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
 
 		double hw = 0;
-		if(rX>0) hw = 1;
+		if(rX<0) hw = 1;
 		
 		// Added 2001-09-29 to make sure Eq 9 works correctly (no negative number allowed for Rx
 		rX=Math.abs(rX);
@@ -1188,9 +1184,7 @@ return f10;
 		}
 //		System.out.println("a1= "+ a1[iper] +" a4= "+a4 +" mag= "+ mag +" c1="+c1+" a8= "+a8[iper]+" a2="+a2[iper]+" a3="+a3+" Rrup="+rRup+" R="+rR );
 
-
 		//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
-
 		//Vs30 dependent term v1 (Eq. 6)
 		if(per[iper]==-1.0) {
 			v1 = 862.0;
@@ -1203,18 +1197,13 @@ return f10;
 		} else { 
 			v1 = 700.0;
 		}
-	//Vs30 dependent term vs30Star (Eq. 5)
+		
+		//Vs30 dependent term vs30Star (Eq. 5)
 		if(vs30<v1) {
 			vs30Star = vs30;
 		} else {
 			vs30Star = v1;
 		}
-
-	// amp1100 is an intermediate parameter. It is used in Norm's spreadsheet (nga_Sa_v19a.xls) 
-		// and it simplifies the computations. it is called "site ampwrt VLIN for VS30=1100" in the spreadsheet.
-		// Line below commented on 2009-01-29
-		// double amp1100 = (a10[iper] +b[iper]*N)*Math.log(Math.min(v1,1100.0));
-
 		//f5_pga1100 (Eq. 4)
 		if (vs30<VLIN[iper]) {
 			f5 = a10[iper]*Math.log(vs30Star/VLIN[iper])-b[iper]*Math.log(pga_rock+c)+b[iper]*Math.log(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N));
@@ -1291,27 +1280,15 @@ return f10;
 			f8=a18[iper]*(rRup - 100)*T6;
 		}
 
-		System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f1=" +f1+" f4=" +f4+" f6=" +f6+" f8=" +f8);
+//		System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
 
 
-//		// "Constant displacement model" : Td (Eq. 21)
-//		double Td=Math.pow(10,-1.25+0.3*mag);
 
 		// "Compute Mean"  - which is actually the median! Eq. 1 and 22
 		// TODO add flag for aftershock and term in equation below
 
-		// The following logic is consistent with Norm's spreadsheet, nga_Sa_v19a.xls
-		// If iTd=0 AND per[iper} <0.0001 AND (vs30=1100), then return pga_rock
-		// Else, then return Savs30
 		double cgMean;
-//		if(per[iper]==0.0 && vs30==1100.0){
 			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm + f4 + f5 + f6 +f8; 
-//			System.out.println("cgMean Case 1,pga_rock, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
-//		} else {
-//			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm  + f4 + f5 + f6 + f8 ; 
-//			System.out.println("cgMean Case 2,Sa, per[iTd]= "+per[iTd]+" per[iper]= "+per[iper]+ " cgMean=" + Math.exp(cgMean));
-//			System.out.println("per[iper]= "+per[iper]+ " expcgMean=" + Math.exp(cgMean));
-//		}
 
 		return cgMean;
 	}
