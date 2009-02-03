@@ -346,6 +346,14 @@ public abstract class AttenuationRelationship
   protected final static Double MAG_MIN = new Double(0);
   protected final static Double MAG_MAX = new Double(10);
   // warning values are set in subclasses
+  
+  
+  /**
+   * Aftershock parameter, indicates whether or not an event is an aftershock
+   */
+  protected BooleanParameter aftershockParam = null;
+  public final static String AFTERSHOCK_NAME = "Aftershock";
+  public final static String AFTERSHOCK_INFO = "Indicates whether earthquake is an aftershock";
 
 
 
@@ -1090,6 +1098,10 @@ public abstract class AttenuationRelationship
     rupTopDepthParam = new WarningDoubleParameter(this.RUP_TOP_NAME, c,
                                            this.RUP_TOP_UNITS);
     rupTopDepthParam.setInfo(RUP_TOP_INFO);
+    
+    // create Aftershock parameter
+    aftershockParam = new BooleanParameter(AFTERSHOCK_NAME);
+    aftershockParam.setInfo(AFTERSHOCK_INFO);
 
   }
 
