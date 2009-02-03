@@ -208,7 +208,7 @@ public class AS_2008_test extends NGATest {
 								"\n"+
 								testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
-								System.out.println("Test number= "+i+" failed for "+failedResultMetadata);
+								System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for "+failedResultMetadata);
 								//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 								printOpenSHAParams(as_2008);
 								
@@ -234,35 +234,39 @@ public class AS_2008_test extends NGATest {
 							"\n"+
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
-							System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
+							System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for +"+failedResultMetadata);
 							printOpenSHAParams(as_2008);
 //							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 							if (!CONTINUE_ON_FAIL)
 								this.assertNull(failedResultMetadata,failedResultMetadata);
 						}
-						as_2008.setIntensityMeasure(as_2008.PGV_NAME);
-						if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
-						else openSHA_Val = as_2008.getStdDev();
-						tested_Val = Double.parseDouble(st.nextToken().trim());
-						results = this.compareResults(openSHA_Val, tested_Val);
-						if(results == false){
-							String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
-							"AS-2008 attenuation with the following parameter settings:"+
-							"  PGV "+"\nMag ="+(float)mag+
-							"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
-							"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
-							"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
-							"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
-							"\n"+
-							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
+						boolean doPGV = true;
+						if (doPGV) {
+							as_2008.setIntensityMeasure(as_2008.PGV_NAME);
+							if(isMedian) openSHA_Val = Math.exp(as_2008.getMean());
+							else openSHA_Val = as_2008.getStdDev();
+							tested_Val = Double.parseDouble(st.nextToken().trim());
+							results = this.compareResults(openSHA_Val, tested_Val);
+							if(results == false){
+								String failedResultMetadata = "Results from file "+fileName+"failed for calculation for " +
+								"AS-2008 attenuation with the following parameter settings:"+
+								"  PGV "+"\nMag ="+(float)mag+
+								"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
+								"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
+								"  ztor = "+(float)ztor+"  vs30 = "+(float)vs30+"\n\t"+ "zsed = "+(float)zsed+
+								"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
+								"\n"+
+								testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
 
-							System.out.println("Test number= "+i+" failed for +"+failedResultMetadata);
-							printOpenSHAParams(as_2008);
-							//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
-							if (CONTINUE_ON_FAIL)
-								continue;
-							this.assertNull(failedResultMetadata,failedResultMetadata);
+								System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for +"+failedResultMetadata);
+								printOpenSHAParams(as_2008);
+								//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
+								if (CONTINUE_ON_FAIL)
+									continue;
+								this.assertNull(failedResultMetadata,failedResultMetadata);
+							}
 						}
+						
 					} catch (NumberFormatException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
