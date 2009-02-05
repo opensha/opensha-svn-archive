@@ -64,7 +64,10 @@ public class NewWillsMap {
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
 			
-			file.seek(getFilePosition(loc.getLatitude(), loc.getLongitude()));
+			long seek = getFilePosition(loc.getLatitude(), loc.getLongitude());
+			System.out.println("Seeking to " + seek);
+			
+			file.seek(seek);
 			int val = file.readShort();
 //			System.out.println("Read: " + val);
 		}
