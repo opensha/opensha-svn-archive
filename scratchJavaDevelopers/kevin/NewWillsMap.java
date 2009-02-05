@@ -25,6 +25,7 @@ public class NewWillsMap {
 	public static final double yll_corner = 32.441345502265;
 	// yul = yll + size * ny
 	public static final double yul_corner = yll_corner + spacing * ny;
+	public static final double xur_corner = xll_corner + spacing * nx;
 	
 	EvenlyGriddedGeographicRegion region;
 	
@@ -63,6 +64,10 @@ public class NewWillsMap {
 		long start = System.currentTimeMillis();
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
+			
+			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
+					|| loc.getLongitude() < xur_corner)
+				System.out.println("NAN!");
 			
 			long seek = getFilePosition(loc.getLatitude(), loc.getLongitude());
 			System.out.println("Seeking to " + seek);
