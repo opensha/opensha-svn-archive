@@ -49,6 +49,13 @@ public class NewWillsMap {
 			}
 		}
 		printTime(time);
+		int setVals = 0;
+		int num = region.getGridLocationsList().size();
+		for (String val : vals) {
+			if (!val.toLowerCase().contains("nan"))
+				setVals++;
+		}
+		System.out.println("Set " + setVals + "/" + num);
 	}
 	
 	private void printTime(long time) {
@@ -62,12 +69,13 @@ public class NewWillsMap {
 		RandomAccessFile file = new RandomAccessFile(new File(BIN_FILE), "r");
 		
 		long start = System.currentTimeMillis();
+		int setVals = 0;
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
 			
 			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
 					|| loc.getLongitude() < xur_corner) {
-				System.out.println("NAN!");
+//				System.out.println("NAN!");
 				continue;
 			}
 			
@@ -76,9 +84,11 @@ public class NewWillsMap {
 			
 			file.seek(seek);
 			int val = file.readShort();
+			setVals++;
 //			System.out.println("Read: " + val);
 		}
 		long time = System.currentTimeMillis() - start;
+		System.out.println("Set " + setVals + "/" + num);
 		printTime(time);
 	}
 	
