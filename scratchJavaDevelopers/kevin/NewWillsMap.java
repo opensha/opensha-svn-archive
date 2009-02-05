@@ -33,6 +33,10 @@ public class NewWillsMap {
 	
 	public NewWillsMap(EvenlyGriddedGeographicRegion region) {
 		this.region = region;
+		System.out.println("XLL: " + xll_corner);
+		System.out.println("YLL: " + yll_corner);
+		System.out.println("YUL: " + yul_corner);
+		System.out.println("XUR: " + xur_corner);
 	}
 	
 	private void calcOld() {
