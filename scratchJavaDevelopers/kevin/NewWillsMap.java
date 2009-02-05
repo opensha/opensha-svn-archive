@@ -80,7 +80,7 @@ public class NewWillsMap {
 			}
 			
 			long seek = getFilePosition(loc.getLatitude(), loc.getLongitude());
-			System.out.println("Seeking to " + seek);
+//			System.out.println("Seeking to " + seek);
 			
 			file.seek(seek);
 			int val = file.readShort();
