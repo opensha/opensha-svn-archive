@@ -78,7 +78,7 @@ public class NewWillsMap {
 			Location loc = region.getGridLocation(i);
 			
 			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
-					|| loc.getLongitude() < xur_corner) {
+					|| loc.getLongitude() > xur_corner) {
 				System.out.println(loc.toString());
 				continue;
 			}
