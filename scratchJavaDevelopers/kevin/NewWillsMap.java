@@ -15,6 +15,7 @@ import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 public class NewWillsMap {
 	
 	public static final String BIN_FILE = "/home/scec-00/kmilner/wills/out.bin";
+//	public static final String BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	public static final int nx = 49867;
 	public static final int ny = 44016;
@@ -56,7 +57,7 @@ public class NewWillsMap {
 		int setVals = 0;
 		int num = region.getGridLocationsList().size();
 		for (String val : vals) {
-			if (!val.toLowerCase().contains("nan"))
+			if (!(val.toLowerCase().contains("nan") || val.toLowerCase().contains("na")))
 				setVals++;
 		}
 		System.out.println("Set " + setVals + "/" + num);
@@ -74,21 +75,35 @@ public class NewWillsMap {
 		
 		long start = System.currentTimeMillis();
 		int setVals = 0;
+		int modVal = 10000;
+		long prevSeek = 0;
+		int posSeeks = 0;
+		int negSeeks = 0;
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
 			
 			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
 					|| loc.getLongitude() > xur_corner) {
-//				System.out.println(loc.toString());
+				if (i % modVal == 0)
+					System.out.println("Skipping " + i + " for: " + loc.toString());
 				continue;
 			}
 			
 			long seek = getFilePosition(loc.getLatitude(), loc.getLongitude());
+			if (seek - prevSeek < 0)
+				negSeeks++;
+			else
+				posSeeks++;
+			prevSeek = seek;
+			if (i % modVal == 0) {
+				System.out.println("Seeking " + i + " to " + seek + " for " + loc.toString() + " pos: " + posSeeks + ", neg: " + negSeeks);
+			}
 //			System.out.println("Seeking to " + seek);
 			
 			file.seek(seek);
 			int val = file.readShort();
-			setVals++;
+			if (val > 0)
+				setVals++;
 //			System.out.println("Read: " + val);
 		}
 		long time = System.currentTimeMillis() - start;
