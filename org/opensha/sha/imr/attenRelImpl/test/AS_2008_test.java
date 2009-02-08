@@ -77,6 +77,7 @@ public class AS_2008_test extends NGATest {
 				continue;
 			}
 
+		
 			boolean isMedian = false;
 			String testValString = "Std Dev";
 			if(fileName.contains("MEDIAN"))  { // test mean
@@ -101,6 +102,14 @@ public class AS_2008_test extends NGATest {
 			String fltType = fileName.substring(index1-2, index1);
 			fltType.replaceAll("_", "");
 
+			// Added CG 2009-02-08
+			if(fileName.contains("HW"))  { 
+				as_2008.getParameter(as_2008.HW_FLAG_NAME).setValue(as_2008.HW_FLAG_HW);
+			} else if (fileName.contains("FW")) { 
+				as_2008.getParameter(as_2008.HW_FLAG_NAME).setValue(as_2008.HW_FLAG_FW);
+			}
+			//
+			
 			if(fileName.contains("SS.OUT") && !fileName.contains("SIGTU"))
 				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(as_2008.FLT_TYPE_STRIKE_SLIP);
 			else if(fileName.contains("RV.OUT"))
