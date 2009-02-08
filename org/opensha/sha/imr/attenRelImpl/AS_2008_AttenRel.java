@@ -41,6 +41,7 @@ import org.opensha.util.FileUtils;
  * <LI>depthTo1pt0kmPerSecParam - Depth to shear wave velocity Vs=1.0km/s (m)
  * <LI>flagVSParam - how Vs30 was obtained (measured of estimated)
  * <LI>flagAS - flag for aftershocks
+ * <LI>flagHW - flag for hanging wall
  * <LI>distanceRupParam - Closest distance to surface projection of fault (km)
  * <LI>distRupMinusJB_OverRupParam =  - used as a proxy for hanging wall effect;
  * <LI>distanceXParam - Horz dist to inf extension of top edge of rupture; neg values are on the foot wall;
@@ -133,6 +134,15 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String VS_FLAG_E = "Estimated";
 	public final static String VS_FLAG_DEFAULT = VS_FLAG_E;
 
+	// HWFlag (hanging wall or footwall)
+	protected StringParameter flagHWParam;
+	public final static String HW_FLAG_NAME = "Flag for Hanging wall.";
+	public final static String HW_FLAG_INFO = 
+		"Select location of site relative to fault.";
+	public final static String HW_FLAG_HW = "Hanging wall";
+	public final static String HW_FLAG_FW = "Foot wall";
+	public final static String HW_FLAG_DEFAULT = HW_FLAG_FW;
+
 	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
 	 */
@@ -159,7 +169,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// primitive form of parameters
 	private int iper;
-	double mag, f_rv, f_nm, depthTop, rupWidth, dip;
+	double mag, f_rv, f_nm, depthTop, rupWidth, dip, hw;
 	double vs30, vsm, depthTo1pt0kmPerSec;
 	private double rRup, distRupMinusJB_OverRup, rX;
 	private String component, stdDevType;
@@ -529,6 +539,7 @@ NamedObjectAPI, ParameterChangeListener {
 	    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
 	    	distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
 	    	
+			flagHWParam.setValue(site.getParameter(HW_FLAG_NAME).getValue());
 	    	this.distanceXParam.setValue(this.eqkRupture, this.site);
 		}
 	}
@@ -587,15 +598,15 @@ NamedObjectAPI, ParameterChangeListener {
 		int iTd= searchTdIndex(Td);
 		// //		System.out.println("From searchTdIndex, Td = "+ per[iTd] +", mag= "+ mag+ " iTd= "+iTd);
 
-		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
+		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, hw, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
 
 	    // //System.out.println("From getMean, pga_rock= "+ pga_rock);
 
-		double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
+		double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, hw, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
 
-		double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
+		double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, hw, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
 //System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
 
@@ -607,7 +618,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		double mean = 0.0;
 		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
-		mean = (getMean(iper,0, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
+		mean = (getMean(iper,0, vs30, rRup, rJB, hw, rX, f_rv, f_nm, mag, dip, rupWidth,
 				depthTop, depthTo1pt0kmPerSec, pga_rock,0, 0))+f10;
 //System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
 
@@ -669,7 +680,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		double pga_rock = Double.NaN;
 
-		pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
+		pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, hw, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
 
 //		System.out.println("Inside getStdDev, pga_rock= "+ pga_rock);
@@ -696,6 +707,7 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param.setValue(VS30_DEFAULT);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
 		flagVSParam.setValue(VS_FLAG_DEFAULT);
+		flagHWParam.setValue(HW_FLAG_DEFAULT);
 
 
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
@@ -730,7 +742,6 @@ NamedObjectAPI, ParameterChangeListener {
 		meanIndependentParams.clear();
 		meanIndependentParams.addParameter(magParam);
 		meanIndependentParams.addParameter(fltTypeParam);
-//		meanIndependentParams.addParameter(flagHWParam);
 		meanIndependentParams.addParameter(rupTopDepthParam);
 		meanIndependentParams.addParameter(rupWidthParam);
 		meanIndependentParams.addParameter(dipParam);
@@ -739,6 +750,7 @@ NamedObjectAPI, ParameterChangeListener {
 //		meanIndependentParams.addParameter(flagVSParam);
 		meanIndependentParams.addParameter(distanceRupParam);
 		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
+		meanIndependentParams.addParameter(flagHWParam);
 		meanIndependentParams.addParameter(distanceXParam);
 
 		meanIndependentParams.addParameter(componentParam);
@@ -804,6 +816,16 @@ NamedObjectAPI, ParameterChangeListener {
 		flagVSParam.setInfo(VS_FLAG_INFO);
 		flagVSParam.setNonEditable();
 
+		StringConstraint constraintHW = new StringConstraint();
+		constraintHW.addString(HW_FLAG_HW);
+		constraintHW.addString(HW_FLAG_FW);
+		constraintHW.setNonEditable();
+		flagHWParam = new StringParameter(HW_FLAG_NAME, constraintHW, null);
+		flagHWParam.setInfo(HW_FLAG_INFO);
+		flagHWParam.setNonEditable();
+
+		
+		
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
@@ -1166,7 +1188,7 @@ return f10;
 
 
 	public double getMean(int iper, int iTd, double vs30, double rRup, 
-			double rJB, double rX, double f_rv,
+			double rJB, double hw, double rX, double f_rv,
 			double f_nm, double mag, double dip, 
 			double rupWidth, double depthTop,
 			double depthTo1pt0kmPerSec,
@@ -1174,10 +1196,10 @@ return f10;
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
 
-		double hw = 0.0;
-		if(rX<=0.0){
-			hw = 1.0;
-		}
+//		double hw = 0.0;
+//		if(rX<=0.0){
+//			hw = 1.0;
+//		}
 		
 		// Added 2001-09-29 to make sure Eq 9 works correctly (no negative number allowed for Rx
 		rX=Math.abs(rX);
@@ -1293,7 +1315,7 @@ return f10;
 			f8=a18[iper]*(rRup - 100.0)*T6;
 		}
 
-//System.out.println("Inside Eqn getMean, per="+per[iper]+" rJB="+rJB+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
+System.out.println("Inside Eqn getMean, per="+per[iper]+" rJB="+rJB+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
 
 		// "Compute Mean"  - which is actually the median! Eq. 1 and 22
 		// TODO add flag for aftershock and term in equation below
@@ -1485,6 +1507,15 @@ System.out.println("dterm="+ dterm + " sigma="+sigma+"tau"+tau);
 				vsm = 1;
 			}
 		}
+		else if (pName.equals(HW_FLAG_NAME)) {
+			String flagHW = (String)flagHWParam.getValue();
+			if (flagHW.equals(HW_FLAG_HW)) {
+				hw = 1.0 ;
+			}
+			else if (flagHW.equals(HW_FLAG_FW)) {
+				hw = 0.0;
+			}
+		}
 
 		else if (pName.equals(DistanceRupParameter.NAME)) {
 			rRup = ( (Double) val).doubleValue();
@@ -1521,6 +1552,7 @@ System.out.println("dterm="+ dterm + " sigma="+sigma+"tau"+tau);
 		vs30Param.removeParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
 		flagVSParam.removeParameterChangeListener(this);
+		flagHWParam.removeParameterChangeListener(this);
 		distanceRupParam.removeParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
 		distanceXParam.removeParameterChangeListener(this);
@@ -1547,6 +1579,7 @@ System.out.println("dterm="+ dterm + " sigma="+sigma+"tau"+tau);
 		vs30Param.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
 		flagVSParam.addParameterChangeListener(this);
+		flagHWParam.addParameterChangeListener(this);
 
 		distanceRupParam.addParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.addParameterChangeListener(this);
@@ -1593,6 +1626,7 @@ System.out.println("dterm="+ dterm + " sigma="+sigma+"tau"+tau);
 		site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
 		site.addParameter(attenRel.getParameter(attenRel.DEPTH_1pt0_NAME));
 		site.addParameter(attenRel.getParameter(attenRel.VS_FLAG_NAME));
+		site.addParameter(attenRel.getParameter(attenRel.HW_FLAG_NAME));
 
 		Location loc;
 		for(double dist=-0.3; dist<=0.3; dist+=0.01) {
