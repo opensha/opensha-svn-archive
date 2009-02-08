@@ -107,7 +107,7 @@ NamedObjectAPI, ParameterChangeListener {
 //	protected StringParameter flagHWParam;
 //	public final static String AS_FLAG_NAME = "Flag for aftershock.";
 //	public final static String AS_FLAG_INFO = 
-//		"Select 1 for aftershocks, 0 for mainshocks, foreshocks and swarms.";
+//		"Select Aftershock or Mainshock for mainshocks, foreshocks and swarms.";
 //	public final static String AS_FLAG_AS = "Aftershock";
 //	public final static String AS_FLAG_MS = "Mainshock";
 //	public final static String AS_FLAG_DEFAULT = AS_FLAG_MS;
@@ -575,35 +575,41 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
+		
+		if (rJB==9.0){
+			rJB=10.0;
+		}	else if (rJB==4.5){
+				rJB=5.0;
+		}
 
 		// Returns the index of the period just below Td (Eq. 21)
 		double Td=Math.pow(10,-1.25+0.3*mag );
 		int iTd= searchTdIndex(Td);
-//		System.out.println("From searchTdIndex, Td = "+ per[iTd] +", mag= "+ mag+ " iTd= "+iTd);
+		// //		System.out.println("From searchTdIndex, Td = "+ per[iTd] +", mag= "+ mag+ " iTd= "+iTd);
 
 		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
 
-	    //System.out.println("From getMean, pga_rock= "+ pga_rock);
+	    // //System.out.println("From getMean, pga_rock= "+ pga_rock);
 
 		double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
 
 		double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
-//		System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
+//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
 
 		double f5 = getf5(iper, vs30, pga_rock);
-//		System.out.println("From getf5, f5 = "+f5);
+//System.out.println("From getf5, f5 = "+f5);
 
 		double f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-//		System.out.println("From getf10, f10 = "+f10);
+//System.out.println("From getf10, f10 = "+f10);
 
 		double mean = 0.0;
 		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
 		mean = (getMean(iper,0, vs30, rRup, rJB, rX, f_rv, f_nm, mag, dip, rupWidth,
 				depthTop, depthTo1pt0kmPerSec, pga_rock,0, 0))+f10;
-//				System.out.println("Inside getMean, for iper<iTd+1 = "+ Math.exp(mean));
+//System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
 
 //			if(iper==0){
 //				double f51100 = getf5(iper, 1100.0, pga_rock);
@@ -618,12 +624,12 @@ NamedObjectAPI, ParameterChangeListener {
 			double mean1100AtTd = (medSa1100AtTd0)*Math.pow(Math.pow(10,-1.25+0.3*mag)/per[iper],2);
 			double f51100 = getf5(iper, 1100.0, pga_rock);
 			f5 = getf5(iper, vs30, pga_rock);
-			//System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
+//System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
 			f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-			//System.out.println("Inside getMean, f10 = "+f10);
+//System.out.println("Inside getMean, f10 = "+f10);
 
 			mean = (Math.log(mean1100AtTd) -f51100+f5+f10);
-//			System.out.println("Inside getMean pga_rock=" +pga_rock+", mean1100atTd= " + mean1100AtTd + ", mean = "+mean);
+//System.out.println("Inside getMean pga_rock=" +pga_rock+", mean1100atTd= " + mean1100AtTd + ", mean = "+mean);
 		}
 
 		return mean; 
@@ -1168,8 +1174,10 @@ return f10;
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
 
-		double hw = 0;
-		if(rX<0) hw = 1;
+		double hw = 0.0;
+		if(rX<=0.0){
+			hw = 1.0;
+		}
 		
 		// Added 2001-09-29 to make sure Eq 9 works correctly (no negative number allowed for Rx
 		rX=Math.abs(rX);
@@ -1211,13 +1219,16 @@ return f10;
 			f5 = (a10[iper]+b[iper]*N)*Math.log(vs30Star / VLIN[iper]);
 		}
 
+//System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f5=" +f5+" v1=" +v1+" vs30Star=" +vs30Star);
+
+		
 		//"Hanging wall model": f4 (Eq. 7) term and required computation of T1, T2, T3, T4 and T5 (Eqs. 8-12)
-		if(hw>0){
+		if(hw==1.0){
 			double T1, T2, T3, T4, T5;
 
 			//T1 (Eq. 8)
 			if (rJB<30.0) {
-				T1=1-rJB/30.0;
+				T1=1.0-rJB/30.0;
 			} else {
 				T1=0.0;
 			}
@@ -1225,9 +1236,9 @@ return f10;
 			//T2 (Eq. 9) - rewritten 2009-01-29 to be consistent with ES paper
 			double rXtest = rupWidth*Math.cos(Math.toRadians(dip));
 		    if (rX>rXtest || dip==90.0) {
-				T2 = 0.5 + rX / (2.0*rXtest);
-			} else {
 				T2 = 1.0;
+			} else {
+				T2 = 0.5 + rX / (2.0*rXtest);
 			}
 
 			//T3 (Eq. 10)
@@ -1253,9 +1264,11 @@ return f10;
 				T5 = 1.0;
 			}   
 			f4 = a14[iper]*T1*T2*T3*T4*T5;
+//			System.out.println("Inside Eqn getMean, f4=" +f4+" T1=" +T1+" T2=" +T2+" T3=" +T3+" T4=" +T4);
 		} else {
 			f4=0.0;
 		}
+		
 		
 		// "Depth to top of rupture model": f6 term (eq. 13)
 		if(depthTop<10.0) {
@@ -1277,12 +1290,10 @@ return f10;
 		if(rRup<100) {
 			f8 = 0.0;
 		} else {
-			f8=a18[iper]*(rRup - 100)*T6;
+			f8=a18[iper]*(rRup - 100.0)*T6;
 		}
 
-//		System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
-
-
+//System.out.println("Inside Eqn getMean, per="+per[iper]+" rJB="+rJB+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
 
 		// "Compute Mean"  - which is actually the median! Eq. 1 and 22
 		// TODO add flag for aftershock and term in equation below
@@ -1309,18 +1320,20 @@ return f10;
 			//NOTE: I created variables with the PGA suffix because it's easier to read the equations below (CGoulet)
 			double  v1, vs30Star, dterm, s1, s1PGA, s2, s2PGA,  sigma0, sigma0PGA, tau0, tau0PGA, sigmaB, sigmaBPGA, tauB, tauBPGA, sigma, tau;  
 
+			//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
 			//Vs30 dependent term v1 (Eq. 6)
-			if(per[iper]<=0.5 && per[iper]>-1.0) {
+			if(per[iper]==-1.0) {
+				v1 = 862.0;
+			} else if(per[iper]<=0.5 && per[iper]>-1.0) {
 				v1=1500.0;
 			} else if(per[iper] > 0.5 && per[iper] <=1.0) {
 				v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
 			} else if(per[iper] > 1.0 && per[iper] <2.0) {
 				v1=Math.exp(6.76-0.297*Math.log(per[iper]));
-			} else if(per[iper]>=2.0) {
-				v1 = 700.0;
 			} else { 
-				v1=862.0;
+				v1 = 700.0;
 			}
+			
 			//Vs30 dependent term vs30Star (Eq. 5)
 			if(vs30<v1) {
 				vs30Star = vs30;
@@ -1336,6 +1349,7 @@ return f10;
 			if(vs30<VLIN[iper]){
 				dterm=b[iper]*pga_rock*(-1.0/(pga_rock+c)+1.0/(pga_rock+c*Math.pow(vs30Star/VLIN[iper],N)));
 			}
+	
 			// Define appropriate s1 and s2 values depending on how Vs30 was obtained
 			// measured or estimated), using the vsm flag defined above which is input in the GUI
 			if(vsm>0){
@@ -1388,6 +1402,9 @@ return f10;
 			// get tau - inter-event term (Eq. 25)
 			tau = Math.sqrt(Math.pow(tau0,2)+Math.pow(dterm,2)*Math.pow(tauBPGA,2)+2.0*dterm*tauB*tauBPGA*rho[iper]);
 
+System.out.println("dterm="+ dterm + " sigma="+sigma+"tau"+tau);
+
+			
 			// compute total sigma
 			double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
 
