@@ -83,7 +83,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 * Down-dip width of fault rupture param
 	 */
 	protected WarningDoubleParameter rupWidthParam;
-	public final static String RUP_WIDTH_NAME = "Down-Dip Width";
+	public final static String RUP_WIDTH_NAME = "Down-Dip Width (km)";
 	public final static String RUP_WIDTH_UNITS = "km";
 	public final static String RUP_WIDTH_INFO = "Fault down-dip rupture width (km).";
 	public final static Double RUP_WIDTH_MIN = new Double(0.1);
@@ -95,7 +95,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
 	 */
 	protected WarningDoubleParameter depthTo1pt0kmPerSecParam;
-	public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec (m).";
+	public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec (m)";
 	public final static String DEPTH_1pt0_UNITS = "m";
 	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
 	public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
@@ -104,7 +104,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// VSFlag vs30 (measured or estimated)
 	protected StringParameter flagVSParam;
-	public final static String VS_FLAG_NAME = "Flag for Vs30 value.";
+	public final static String VS_FLAG_NAME = "Vs30 value.";
 	public final static String VS_FLAG_INFO = 
 		"Select how Vs30 was obtained.";
 	public final static String VS_FLAG_M = "Measured";
