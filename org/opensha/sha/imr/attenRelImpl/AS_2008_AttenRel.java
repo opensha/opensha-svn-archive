@@ -552,7 +552,7 @@ NamedObjectAPI, ParameterChangeListener {
 	public double getMean() {
 		// CG: Below used for validation for OUT files from Ken 
 		// to differentiate MS (f_as=0) from AS (f_as=1)
-		//		double f_as=1.0;
+//				double f_as=0.0;
 		
 		// check if distance is beyond the user specified max
 		if (rRup > USER_MAX_DISTANCE) {
@@ -569,11 +569,11 @@ NamedObjectAPI, ParameterChangeListener {
 		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
 		// but Ken's files specify rJB directly. 
 		// The following if statements take care of the two problems encountered
-		//		if (rJB==9.0){
-		//				rJB=10.0;
-		//		}	else if (rJB==4.5){
-		//				rJB=5.0;
-		//		}
+//				if (rJB==9.0){
+//						rJB=10.0;
+//				}	else if (rJB==4.5){
+//						rJB=5.0;
+//				}
 
 		// Returns the index of the period just below Td (Eq. 21)
 		double Td=Math.pow(10,-1.25+0.3*mag );
@@ -582,19 +582,8 @@ NamedObjectAPI, ParameterChangeListener {
 		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
 				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
 
-
-		double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
-
-		double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-				rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
-//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
-
-		double f5 = getf5(iper, vs30, pga_rock);
-//System.out.println("From getf5, f5 = "+f5);
-
 		double f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-//System.out.println("From getf10, f10 = "+f10);
+		//System.out.println("From getf10, f10 = "+f10);
 
 		double mean = 0.0;
 		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
@@ -603,6 +592,16 @@ NamedObjectAPI, ParameterChangeListener {
 //System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
 
 		} else {
+			double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
+					rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
+
+			double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
+					rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
+	//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
+
+			double f5 = getf5(iper, vs30, pga_rock);
+	//System.out.println("From getf5, f5 = "+f5);
+
 			double medSa1100AtTd0 = Math.exp(Math.log(medSa1100WithTdPlus/medSa1100WithTdMinus)/Math.log(per[iTd+1]/per[iTd])*Math.log(Math.pow(10,-1.25+0.3*mag)/per[iTd]) + Math.log(medSa1100WithTdMinus));
 			double mean1100AtTd = (medSa1100AtTd0)*Math.pow(Math.pow(10,-1.25+0.3*mag)/per[iper],2);
 			double f51100 = getf5(iper, 1100.0, pga_rock);
@@ -625,7 +624,7 @@ NamedObjectAPI, ParameterChangeListener {
 	public double getStdDev() {
 		// CG: Below used for validation for OUT files from Ken 
 		// to differentiate MS (f_as=0) from AS (f_as=1)
-		//		double f_as=1.0;
+//				double f_as=0.0;
 		
 		if (intensityMeasureChanged) {
 			setCoeffIndex();  // intensityMeasureChanged is set to false in this method
@@ -637,11 +636,11 @@ NamedObjectAPI, ParameterChangeListener {
 		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
 		// but Ken's files specify rJB directly. 
 		// The following if statements take care of the two problems encountered
-		//		if (rJB==9.0){
-		//				rJB=10.0;
-		//		}	else if (rJB==4.5){
-		//				rJB=5.0;
-		//		}
+//				if (rJB==9.0){
+//						rJB=10.0;
+//				}	else if (rJB==4.5){
+//						rJB=5.0;
+//				}
 		
 		double pga_rock = Double.NaN;
 
@@ -704,7 +703,6 @@ NamedObjectAPI, ParameterChangeListener {
 		meanIndependentParams.addParameter(dipParam);
 		meanIndependentParams.addParameter(vs30Param);
 		meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
-//		meanIndependentParams.addParameter(flagVSParam);
 		meanIndependentParams.addParameter(distanceRupParam);
 		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
 		meanIndependentParams.addParameter(distanceXParam);
@@ -763,16 +761,6 @@ NamedObjectAPI, ParameterChangeListener {
 		flagVSParam.setInfo(VS_FLAG_INFO);
 		flagVSParam.setNonEditable();
 
-		StringConstraint constraintAS = new StringConstraint();
-		constraintAS.addString(AS_FLAG_AS);
-		constraintAS.addString(AS_FLAG_MS);
-		constraintAS.setNonEditable();
-		flagASParam = new StringParameter(AS_FLAG_NAME, constraintAS, null);
-		flagASParam.setInfo(AS_FLAG_INFO);
-		flagASParam.setNonEditable();
-
-		
-		
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
@@ -825,8 +813,15 @@ NamedObjectAPI, ParameterChangeListener {
 		DoubleConstraint warnRupWidthConstraint = new DoubleConstraint(RUP_WIDTH_WARN_MIN, RUP_WIDTH_WARN_MAX);
 		warnRupWidthConstraint.setNonEditable();
 		rupWidthParam.setWarningConstraint(warnRupWidthConstraint);
-		
 
+		StringConstraint constraintAS = new StringConstraint();
+		constraintAS.addString(AS_FLAG_AS);
+		constraintAS.addString(AS_FLAG_MS);
+		constraintAS.setNonEditable();
+		flagASParam = new StringParameter(AS_FLAG_NAME, constraintAS, null);
+		flagASParam.setInfo(AS_FLAG_INFO);
+		flagASParam.setNonEditable();
+		
 		eqkRuptureParams.clear();
 		eqkRuptureParams.addParameter(magParam);
 		eqkRuptureParams.addParameter(fltTypeParam);
@@ -856,7 +851,6 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
 		distRupMinusJB_OverRupParam.setNonEditable();
 		
-		
 		distanceXParam = new DistanceX_Parameter();
 		DoubleConstraint warnDX = new DoubleConstraint(DISTANCE_X_WARN_MIN, DISTANCE_X_WARN_MAX);
 		warnDX.setNonEditable();
@@ -867,7 +861,6 @@ NamedObjectAPI, ParameterChangeListener {
 		propagationEffectParams.addParameter(distanceRupParam);
 		propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
 		propagationEffectParams.addParameter(distanceXParam);
-
 	}
 
 	/**
@@ -911,13 +904,10 @@ NamedObjectAPI, ParameterChangeListener {
 		pgvParam.setWarningConstraint(warn);
 		pgvParam.setNonEditable();
 
-
 		// Add the warning listeners:
 		saParam.addParameterChangeWarningListener(warningListener);
 		pgaParam.addParameterChangeWarningListener(warningListener);
 		pgvParam.addParameterChangeWarningListener(warningListener);
-
-
 
 		// Put parameters in the supportedIMParams list:
 		supportedIMParams.clear();
@@ -982,24 +972,9 @@ NamedObjectAPI, ParameterChangeListener {
 		return SHORT_NAME;
 	}
 
-
 	/**
-	 * 
-	 * @param iper
-	 * @param vs30
-	 * @param rRup
-	 * @param rJB
-	 * @param rX
-	 * @param f_rv
-	 * @param f_nm
-	 * @param mag
-	 * @param depthTop
-	 * @param depthTo1pt0kmPerSec
-	 * @param pga_rock
-	 * @return
+	 * Returns the index for Td, to be used in getMean for constant displacement model
 	 */
-	//@param rX
-
 	public int searchTdIndex (double Td) {
 		//double[] TestTd = new double[23];
 		int iTd = 22;
@@ -1009,10 +984,12 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		}
 //		System.out.println("Inside searchTdIndex iTd = "+iTd +", Td = "+Td+", mag \t" +mag);
-		
 		return iTd;
 	}
 
+	/**
+	 * Returns the value of f5 for vs30, to be used in getMean for constant displacement model
+	 */
 	public double getf5(int iper, double vs30, double pga_rock) {
 		double vs30Star, v1, f5;
 		//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
@@ -1028,7 +1005,6 @@ NamedObjectAPI, ParameterChangeListener {
 		} else { 
 			v1 = 700.0;
 		}
-
 		
 		//Vs30 dependent term vs30Star (Eq. 5)
 		if(vs30<v1) {
@@ -1045,6 +1021,9 @@ NamedObjectAPI, ParameterChangeListener {
 	return f5;
 	}
 	
+	/**
+	 * Returns the value of f10 to be applied to the final median computation
+	 */
 	public double getf10(int iper, double vs30, double mag, double depthTo1pt0kmPerSec) {
 	
 	// "Soil depth model": f10 term (eq. 16) and required z1Hat, a21, e2 and a22 computation (eqs. 17-20)
@@ -1094,24 +1073,15 @@ NamedObjectAPI, ParameterChangeListener {
 	
 
 	// Eq. 18
-//	if(per[iper]==-1.0) {
-//	   a21test = (a10[16] + b[16]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//	} else {
 	   a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//	}
 		
 	if(vs30>=1000.0){
 		a21=0.0;
 	} else if(a21test<0.0 && vs30<1000.0) {
 		a21=-(a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//	} else if(per[iper]==-1.0){
-//		int tempiper=0;
-//		a21=-(a10[tempiper] + b[tempiper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-//		System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" a10="+a10[tempiper]+" b[iper]="+b[tempiper]+" N="+ N + " vs30Star="+ vs30Star +" v1="+v1+" c2="+c2);
 	}	else {
 		a21 = e2;
 	}
-
 	
 	// Eq. 20
 	if(per[iper]<2.0){
@@ -1126,13 +1096,13 @@ NamedObjectAPI, ParameterChangeListener {
 	} else {
 		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
 	}
-	
 //System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
-	
-return f10;
+	return f10;
 }
-	
-
+	  /**
+	   * Calculates the median of the IM pdf. <p>
+	   * @return  
+	   */
 
 	public double getMean(int iper, int iTd, double vs30, double rRup, 
 			double rJB, double f_as, double rX, double f_rv,
@@ -1188,7 +1158,6 @@ return f10;
 		}
 
 //System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f5=" +f5+" v1=" +v1+" vs30Star=" +vs30Star);
-
 		
 		//"Hanging wall model": f4 (Eq. 7) term and required computation of T1, T2, T3, T4 and T5 (Eqs. 8-12)
 		if(hw==1.0){
@@ -1260,18 +1229,17 @@ return f10;
 		}
 
 //System.out.println("Inside Eqn getMean, per="+per[iper]+" rJB="+rJB+" hw="+hw+" f1=" +f1+" f4=" +f4+" f5=" +f5+" f6=" +f6+" f8=" +f8);
-
-		double cgMean;
-			cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm +a15[iper]*f_as + f4 + f5 + f6 +f8; 
+		double cgMean = f1 + a12[iper]*f_rv +a13[iper]*f_nm +a15[iper]*f_as + f4 + f5 + f6 +f8; 
 
 		return cgMean;
 	}
 
 	/**
-	 * 
 	 * @param iper
 	 * @param stdDevType
 	 * @param component
+	 * @param vs30
+	 * @param vsm (vs flag for measured/estimated)
 	 * @return
 	 */
 	public double getStdDev(int iper, String stdDevType, String component, double vs30, double pga_rock, double vsm) {
@@ -1303,7 +1271,7 @@ return f10;
 			} else {
 				vs30Star = v1;
 			}
-//TODO
+
 			// sugmaamp=0.3 for all periods as per page 81. below equation 23
 			double sigmaamp=0.3;
 			
@@ -1372,6 +1340,7 @@ return f10;
 
 //System.out.println("PGArock="+pga_rock+" vsm="+vsm+" dterm="+ dterm + " sigma="+sigma+" tau="+tau);
 //System.out.println("test PGA index, a1 at index 1="+a1[1]+" at index 2="+a1[2]);
+
 			// compute total sigma
 			double sigma_total = Math.sqrt(tau*tau + sigma*sigma);
 
@@ -1386,7 +1355,6 @@ return f10;
 				return tau;
 			else
 				return Double.NaN;   // just in case invalid stdDev given			  
-
 		}
 	}
 
