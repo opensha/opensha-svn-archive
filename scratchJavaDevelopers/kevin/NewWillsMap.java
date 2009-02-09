@@ -3,8 +3,12 @@ package scratchJavaDevelopers.kevin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import org.opensha.data.Location;
@@ -14,11 +18,14 @@ import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 public class NewWillsMap {
 	
-	public static final String BIN_FILE = "/home/scec-00/kmilner/wills/out.bin";
-//	public static final String BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
+//	public static final String BIN_FILE = "/home/scec-00/kmilner/wills/out.bin";
+	public static final String BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	public static final int nx = 49867;
 	public static final int ny = 44016;
+	
+	public static final int short_bits = 2;
+	public static final long sizeOfX = nx * short_bits;
 	
 	public static final double spacing = 0.00021967246502752;
 	
@@ -69,6 +76,8 @@ public class NewWillsMap {
 	}
 	
 	private void calcNew() throws IOException {
+//		FileWriter fw = new FileWriter("/tmp/newXYZ.txt");
+		
 		int num = region.getNumGridLocs();
 		
 		RandomAccessFile file = new RandomAccessFile(new File(BIN_FILE), "r");
@@ -79,13 +88,18 @@ public class NewWillsMap {
 		long prevSeek = 0;
 		int posSeeks = 0;
 		int negSeeks = 0;
+		
+		byte[] recordBuffer = new byte[2];
+		ByteBuffer record = ByteBuffer.wrap(recordBuffer);
+		record.order(ByteOrder.LITTLE_ENDIAN);
+		ShortBuffer shortBuff = record.asShortBuffer();
 		for (int i=0; i<num; i++) {
 			Location loc = region.getGridLocation(i);
 			
 			if (loc.getLatitude() < yll_corner || loc.getLatitude() > yul_corner || loc.getLongitude() < xll_corner
 					|| loc.getLongitude() > xur_corner) {
-				if (i % modVal == 0)
-					System.out.println("Skipping " + i + " for: " + loc.toString());
+//				if (i % modVal == 0)
+//					System.out.println("Skipping " + i + " for: " + loc.toString());
 				continue;
 			}
 			
@@ -95,27 +109,35 @@ public class NewWillsMap {
 			else
 				posSeeks++;
 			prevSeek = seek;
-			if (i % modVal == 0) {
-				System.out.println("Seeking " + i + " to " + seek + " for " + loc.toString() + " pos: " + posSeeks + ", neg: " + negSeeks);
-			}
+//			if (i % modVal == 0) {
+//				System.out.println("Seeking " + i + " to " + seek + " for " + loc.toString() + " pos: " + posSeeks + ", neg: " + negSeeks);
+//			}
 //			System.out.println("Seeking to " + seek);
 			
 			file.seek(seek);
-			int val = file.readShort();
-			if (val > 0)
+			file.read(recordBuffer);
+			int val = shortBuff.get(0);
+			
+//			System.out.println(val);
+			if (val > 0) {
 				setVals++;
+//				fw.write(loc.getLongitude() + " " + loc.getLatitude() + " " + val + "\n");
+//				fw.write(loc.getLatitude() + " " + loc.getLongitude() + " " + val + "\n");
+			}
 //			System.out.println("Read: " + val);
 		}
 		long time = System.currentTimeMillis() - start;
-		System.out.println("Set " + setVals + "/" + num);
+		System.out.println("Set " + setVals + "/" + num + " pos: " + posSeeks + ", neg: " + negSeeks);
 		printTime(time);
+//		fw.close();
 	}
 	
 	public static long getFilePosition(double lat, double lon) {
 		long x = getX(lon);
 		long y = getY(lat);
 		
-		return x * y * 2;
+		long pos = (y * sizeOfX) + x * short_bits;
+		return pos;
 	}
 	
 	public static long getX(double lon) {
@@ -123,7 +145,7 @@ public class NewWillsMap {
 	}
 	
 	public static long getY(double lat) {
-		return (long)((lat - yll_corner) / spacing + 0.5);
+		return (long)((yul_corner - lat) / spacing + 0.5);
 	}
 
 	/**
@@ -132,7 +154,7 @@ public class NewWillsMap {
 	 */
 	public static void main(String[] args) throws IOException {
 		EvenlyGriddedGeographicRegion region = new EvenlyGriddedRELM_TestingRegion();
-		region.setGridSpacing(0.015);
+		region.setGridSpacing(0.02);
 		
 		NewWillsMap wills = new NewWillsMap(region);
 		
