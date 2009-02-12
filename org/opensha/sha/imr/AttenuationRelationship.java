@@ -354,6 +354,7 @@ public abstract class AttenuationRelationship
   protected BooleanParameter aftershockParam = null;
   public final static String AFTERSHOCK_NAME = "Aftershock";
   public final static String AFTERSHOCK_INFO = "Indicates whether earthquake is an aftershock";
+  public final Boolean  AFTERSHOCK_DEFAULT = false;
 
 
 
@@ -402,7 +403,7 @@ public abstract class AttenuationRelationship
   protected BooleanParameter hangingWallFlagParam = null;
   public final static String HANGING_WALL_FLAG_NAME = "Site on Hanging Wall";
   public final static String HANGING_WALL_FLAG_INFO = "Indicates whether the site is on the hanging wall";
-  public final static Boolean HANGING_WALL_FLAG_DEFAULT = true;
+  public final static Boolean HANGING_WALL_FLAG_DEFAULT = false;
 
 
   /**
@@ -438,6 +439,17 @@ public abstract class AttenuationRelationship
   protected final static Double VS30_MIN = new Double(0.0);
   protected final static Double VS30_MAX = new Double(5000.0);
   // warning values set in subclasses
+  
+  /**
+   *  Vs flag Parameter - indicates whether vs was measured or inferred/estimated
+   */
+	protected StringParameter vsFlagParam;
+	public final static String VS_FLAG_NAME = "Flag for Vs30 value.";
+	public final static String VS_FLAG_INFO = "Select how Vs30 was obtained.";
+	public final static String VS_FLAG_M = "Measured";
+	public final static String VS_FLAG_I = "Inferred";
+	public final static String VS_FLAG_DEFAULT = VS_FLAG_I;
+
 
 
   /**
@@ -455,6 +467,20 @@ public abstract class AttenuationRelationship
   protected final static Double DEPTH_2pt5_MIN = new Double(0.0);
   protected final static Double DEPTH_2pt5_MAX = new Double(30000.0);
   // warning values set in subclasses
+
+
+	/**
+	 * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
+	 * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
+	 */
+	protected WarningDoubleParameter depthTo1pt0kmPerSecParam;
+	public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec";
+	public final static String DEPTH_1pt0_UNITS = "m";
+	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
+	public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
+	protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
+	protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
+	// warning values set in subclasses
 
 
   /**
@@ -1064,6 +1090,14 @@ public abstract class AttenuationRelationship
     vs30Param = new WarningDoubleParameter(VS30_NAME, vs30Constraint,
                                            VS30_UNITS);
     vs30Param.setInfo(VS30_INFO);
+    
+	StringConstraint constraintVS = new StringConstraint();
+	constraintVS.addString(VS_FLAG_M);
+	constraintVS.addString(VS_FLAG_I);
+	constraintVS.setNonEditable();
+	vsFlagParam = new StringParameter(VS_FLAG_NAME, constraintVS, null);
+	vsFlagParam.setInfo(VS_FLAG_INFO);
+	vsFlagParam.setNonEditable();
 
     // create the depth to 2.5 shear-wave velocity parameter
     DoubleConstraint c = new DoubleConstraint(DEPTH_2pt5_MIN, DEPTH_2pt5_MAX);
@@ -1072,7 +1106,17 @@ public abstract class AttenuationRelationship
     depthTo2pt5kmPerSecParam = new WarningDoubleParameter(DEPTH_2pt5_NAME, c,
         DEPTH_2pt5_UNITS);
     depthTo2pt5kmPerSecParam.setInfo(DEPTH_2pt5_INFO);
+    
+	// create the depth to 1.0 shear-wave velocity parameter
+	DoubleConstraint c2 = new DoubleConstraint(DEPTH_1pt0_MIN,DEPTH_1pt0_MAX);
+    c2.setNullAllowed(true);
+    c2.setNonEditable();
+	depthTo1pt0kmPerSecParam = new WarningDoubleParameter(DEPTH_1pt0_NAME,c2, DEPTH_1pt0_UNITS);
+	depthTo1pt0kmPerSecParam.setInfo(DEPTH_1pt0_INFO);
   }
+  
+  
+  
 
   /**
    *  Creates the following potential-Earthquake Parameters for subclasses: magParam

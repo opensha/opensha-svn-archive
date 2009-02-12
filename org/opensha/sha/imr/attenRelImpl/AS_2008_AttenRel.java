@@ -111,15 +111,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String VS_FLAG_E = "Estimated";
 	public final static String VS_FLAG_DEFAULT = VS_FLAG_E;
 
-	// ASFlag (Atfershock or mainshock)
-	protected StringParameter flagASParam;
-	public final static String AS_FLAG_NAME = "Flag for aftershock.";
-	public final static String AS_FLAG_INFO = 
-		"Select aftershock for aftershock or mainshock for mainshocks, foreshock or swarms.";
-	public final static String AS_FLAG_AS = "Aftershock";
-	public final static String AS_FLAG_MS = "Mainshock";
-	public final static String AS_FLAG_DEFAULT = AS_FLAG_MS;
-
 	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
 	 */
@@ -471,6 +462,8 @@ NamedObjectAPI, ParameterChangeListener {
 			rupWidthParam.setValue(1.0);
 
 		dipParam.setValue(surface.getAveDip());
+    	aftershockParam.setValue(false);
+
 
 //		setFaultTypeFromRake(eqkRupture.getAveRake());
 		this.eqkRupture = eqkRupture;
@@ -514,7 +507,6 @@ NamedObjectAPI, ParameterChangeListener {
 	    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
 	    	distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
 	    	
-			flagASParam.setValue(site.getParameter(AS_FLAG_NAME).getValue());
 	    	this.distanceXParam.setValue(this.eqkRupture, this.site);
 		}
 	}
@@ -658,7 +650,7 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	public void setParamDefaults() {
 
-		flagASParam.setValue(AS_FLAG_DEFAULT);
+		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
 	
 		magParam.setValue(MAG_DEFAULT);
 		fltTypeParam.setValue(FLT_TYPE_DEFAULT);
@@ -695,7 +687,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// params that the mean depends upon
 		meanIndependentParams.clear();
-		meanIndependentParams.addParameter(flagASParam);
+		meanIndependentParams.addParameter(aftershockParam);
 		meanIndependentParams.addParameter(magParam);
 		meanIndependentParams.addParameter(fltTypeParam);
 		meanIndependentParams.addParameter(rupTopDepthParam);
@@ -784,12 +776,6 @@ NamedObjectAPI, ParameterChangeListener {
 		magParam.addParameterChangeWarningListener(warningListener);
 		magParam.setNonEditable();
 
-		DoubleConstraint warn1 = new DoubleConstraint(DIP_MIN, DIP_MAX);
-		warn.setNonEditable();
-		dipParam.setWarningConstraint(warn1);
-		dipParam.addParameterChangeWarningListener(warningListener);
-		dipParam.setNonEditable();
-
 		DoubleConstraint warn2 = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
 		warn.setNonEditable();
 		rupTopDepthParam.setWarningConstraint(warn2);
@@ -813,14 +799,6 @@ NamedObjectAPI, ParameterChangeListener {
 		DoubleConstraint warnRupWidthConstraint = new DoubleConstraint(RUP_WIDTH_WARN_MIN, RUP_WIDTH_WARN_MAX);
 		warnRupWidthConstraint.setNonEditable();
 		rupWidthParam.setWarningConstraint(warnRupWidthConstraint);
-
-		StringConstraint constraintAS = new StringConstraint();
-		constraintAS.addString(AS_FLAG_AS);
-		constraintAS.addString(AS_FLAG_MS);
-		constraintAS.setNonEditable();
-		flagASParam = new StringParameter(AS_FLAG_NAME, constraintAS, null);
-		flagASParam.setInfo(AS_FLAG_INFO);
-		flagASParam.setNonEditable();
 		
 		eqkRuptureParams.clear();
 		eqkRuptureParams.addParameter(magParam);
@@ -828,6 +806,8 @@ NamedObjectAPI, ParameterChangeListener {
 		eqkRuptureParams.addParameter(dipParam);
 		eqkRuptureParams.addParameter(rupTopDepthParam);
 		eqkRuptureParams.addParameter(rupWidthParam);
+		eqkRuptureParams.addParameter(aftershockParam);
+
 	}
 
 	/**
@@ -1416,16 +1396,12 @@ NamedObjectAPI, ParameterChangeListener {
 				vsm = 1;
 			}
 		}
-		else if (pName.equals(AS_FLAG_NAME)) {
-			String flagAS = (String)flagASParam.getValue();
-			if (flagAS.equals(AS_FLAG_AS)) {
-				f_as=0.0 ;
-			}
-			else if (flagAS.equals(AS_FLAG_MS)) {
-				f_as=1.0;
-			}
+		else if (pName.equals(AFTERSHOCK_NAME)) {
+			if(((Boolean)val).booleanValue())
+				f_as = 1;
+			else
+				f_as = 0;
 		}
-
 		else if (pName.equals(DistanceRupParameter.NAME)) {
 			rRup = ( (Double) val).doubleValue();
 		}
@@ -1461,7 +1437,7 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param.removeParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
 		flagVSParam.removeParameterChangeListener(this);
-		flagASParam.removeParameterChangeListener(this);
+		aftershockParam.removeParameterChangeListener(this);
 		distanceRupParam.removeParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
 		distanceXParam.removeParameterChangeListener(this);
@@ -1488,7 +1464,7 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
 		flagVSParam.addParameterChangeListener(this);
-		flagASParam.addParameterChangeListener(this);
+		aftershockParam.addParameterChangeListener(this);
 
 		distanceRupParam.addParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.addParameterChangeListener(this);
