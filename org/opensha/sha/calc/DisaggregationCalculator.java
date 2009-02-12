@@ -512,8 +512,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 		  dist_binEdges[i+1] = dist_center[i] + deltaDist/2;
 	  }
  // hack test:
-	  double[] temp = {0,1,2,5,10,20,50,100,200};
-	  setDistanceRange(temp);
+//	  double[] temp = {0,1,2,5,10,20,50,100,200};
+//	  setDistanceRange(temp);
   }
   
  
