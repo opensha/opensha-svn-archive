@@ -59,9 +59,15 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
     /** this distance measure for the DistanceSeisParameter */
     protected double distanceSeis;
+    
+    /** this distance measure for the DistanceX_Parameter */
+    protected double distanceX;
+    protected DistanceX_Parameter distanceX_Parameter = new DistanceX_Parameter();
+
 
     // this tells whether values are out of date w/ respect to current Site and EqkRupture
     protected boolean STALE = true;
+    protected boolean DISTANCE_X_STALE = true;
 
     /** No Argument consructor */
     public PropagationEffect() {
@@ -97,6 +103,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     public void setSite(Site site) {
         this.site = site;
         STALE = true;
+        DISTANCE_X_STALE = true;
     }
 
     /**
@@ -115,6 +122,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     public void setEqkRupture(EqkRupture eqkRupture) {
         this.eqkRupture = eqkRupture;
         STALE = true;
+        DISTANCE_X_STALE = true;
     }
 
     /** Sets both the EqkRupture and Site object */
@@ -122,6 +130,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
         this.eqkRupture = eqkRupture;
         this.site = site;
         STALE = true;
+        DISTANCE_X_STALE = true;
     }
 
 
@@ -142,8 +151,54 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
         return new Double(distanceJB);
       else if(paramName.equals(DistanceSeisParameter.NAME))
         return new Double(distanceSeis);
+      else if(paramName.equals(DistanceX_Parameter.NAME)) {
+          if(this.DISTANCE_X_STALE == true)
+              computeDistanceX();
+          return new Double(distanceX);
+      }
       else
         throw new RuntimeException("Parameter not supported");
+    }
+    
+    /**
+     * This returns rupture distance
+     * @return
+     */
+    public double getDistanceRup() {
+        if(STALE == true)
+            computeParamValues();
+    	return distanceRup;
+    }
+
+    /**
+     * This returns distance JB (shortest horz distance to surface projection of rupture)
+     * @return
+     */
+    public double getDistanceJB() {
+        if(STALE == true)
+            computeParamValues();
+    	return distanceJB;
+    }
+
+    /**
+     * This returns distance seis
+     * @return
+     */
+    public double getDistanceSeis() {
+        if(STALE == true)
+            computeParamValues();
+    	return distanceSeis;
+    }
+
+
+    /**
+     * This returns distance X (see DistanceX_Parameter)
+     * @return
+     */
+    public double getDistanceX() {
+        if(this.DISTANCE_X_STALE == true)
+            computeDistanceX();
+    	return distanceX;
     }
 
 
@@ -187,6 +242,9 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
       return isParamSupported(param.getName());
     }
 
+    	private void computeDistanceX() {
+    		distanceX = ((Double)distanceX_Parameter.getValue(eqkRupture, site)).doubleValue();
+    	}
 
 
     /**

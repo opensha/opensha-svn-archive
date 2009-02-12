@@ -18,7 +18,8 @@ import org.opensha.calc.RelativeLocation;
  * <b>Title:</b> DistanceX_Parameter<p>
  *
  * <b>Description:</b> Special subclass of PropagationEffectParameter.
- * This finds the shortest distance to the rupture trace extended to infinity
+ * This finds the shortest distance to the rupture trace extended to infinity.  
+ * Values >= 0 are on the hanging wall, and values < 0 are on the foot wall.
  * <p>
  *
   * @author Ned Field
@@ -93,77 +94,80 @@ public class DistanceX_Parameter
     		Location siteLoc = site.getLocation();
 
     		EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
-    		
+
     		// not sure what to do if point source, so I'll set value as NaN for now
-    		if(rupSurf.getNumCols() == 1)
+    		if(rupSurf.getNumCols() == 1) {
     			this.setValue(Double.NaN);
-    		
-    		// We should probably set something here here too if it's vertical strike-slip
-    		// (to avoid unnecessary calculations)
-
-    		// get points projected off the ends
-    		Location firstTraceLoc = rupSurf.getLocation(0, 0); 						// first trace point
-    		Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
-    		
-    		// get point projected from first trace point in opposite direction of the ave trace
-    		Direction dir = RelativeLocation.getDirection(lastTraceLoc, firstTraceLoc); 		
-    		dir.setHorzDistance(1000); // project to 1000 km
-    		Location projectedLoc1 = RelativeLocation.getLocation(firstTraceLoc, dir);
-
-    		
-    		// get point projected from last trace point in ave trace direction
-    		dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
-    		Location projectedLoc2 = RelativeLocation.getLocation(lastTraceLoc, dir);
-
-    		// point down dip by adding 90 degrees to the azimuth
-    		dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
-
-    		// get points projected in the down dip directions at the ends of the new trace
-    		Location projectedLoc3 = RelativeLocation.getLocation(projectedLoc1, dir);
-
-    		Location projectedLoc4 = RelativeLocation.getLocation(projectedLoc2, dir);
-
-    		LocationList locsForExtendedTrace = new LocationList();
-    		LocationList locsForRegion = new LocationList();
-
-    		locsForExtendedTrace.addLocation(projectedLoc1);
-    		locsForRegion.addLocation(projectedLoc1);
-    		for(int c=0; c<rupSurf.getNumCols(); c++) {
-    			locsForExtendedTrace.addLocation(rupSurf.getLocation(0, c));
-    			locsForRegion.addLocation(rupSurf.getLocation(0, c));     	
     		}
-    		locsForExtendedTrace.addLocation(projectedLoc2);
-    		locsForRegion.addLocation(projectedLoc2);
+    		else {
 
-    		// finish the region
-    		locsForRegion.addLocation(projectedLoc4);
-    		locsForRegion.addLocation(projectedLoc3);
-    		
-    		// write these out if in debug mode
-    		if(D) {
-    			System.out.println("Projected Trace:");
-    			for(int l=0; l<locsForExtendedTrace.size(); l++) {
-    				Location loc = locsForExtendedTrace.getLocationAt(l);
-    					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+    			// We should probably set something here here too if it's vertical strike-slip
+    			// (to avoid unnecessary calculations)
+
+    			// get points projected off the ends
+    			Location firstTraceLoc = rupSurf.getLocation(0, 0); 						// first trace point
+    			Location lastTraceLoc = rupSurf.getLocation(0, rupSurf.getNumCols()-1); 	// last trace point
+
+    			// get point projected from first trace point in opposite direction of the ave trace
+    			Direction dir = RelativeLocation.getDirection(lastTraceLoc, firstTraceLoc); 		
+    			dir.setHorzDistance(1000); // project to 1000 km
+    			Location projectedLoc1 = RelativeLocation.getLocation(firstTraceLoc, dir);
+
+
+    			// get point projected from last trace point in ave trace direction
+    			dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
+    			Location projectedLoc2 = RelativeLocation.getLocation(lastTraceLoc, dir);
+
+    			// point down dip by adding 90 degrees to the azimuth
+    			dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
+
+    			// get points projected in the down dip directions at the ends of the new trace
+    			Location projectedLoc3 = RelativeLocation.getLocation(projectedLoc1, dir);
+
+    			Location projectedLoc4 = RelativeLocation.getLocation(projectedLoc2, dir);
+
+    			LocationList locsForExtendedTrace = new LocationList();
+    			LocationList locsForRegion = new LocationList();
+
+    			locsForExtendedTrace.addLocation(projectedLoc1);
+    			locsForRegion.addLocation(projectedLoc1);
+    			for(int c=0; c<rupSurf.getNumCols(); c++) {
+    				locsForExtendedTrace.addLocation(rupSurf.getLocation(0, c));
+    				locsForRegion.addLocation(rupSurf.getLocation(0, c));     	
     			}
-    			System.out.println("Region:");
-       			for(int l=0; l<locsForRegion.size(); l++) {
-    				Location loc = locsForRegion.getLocationAt(l);
+    			locsForExtendedTrace.addLocation(projectedLoc2);
+    			locsForRegion.addLocation(projectedLoc2);
+
+    			// finish the region
+    			locsForRegion.addLocation(projectedLoc4);
+    			locsForRegion.addLocation(projectedLoc3);
+
+    			// write these out if in debug mode
+    			if(D) {
+    				System.out.println("Projected Trace:");
+    				for(int l=0; l<locsForExtendedTrace.size(); l++) {
+    					Location loc = locsForExtendedTrace.getLocationAt(l);
     					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+    				}
+    				System.out.println("Region:");
+    				for(int l=0; l<locsForRegion.size(); l++) {
+    					Location loc = locsForRegion.getLocationAt(l);
+    					System.out.println(loc.getLatitude()+"\t"+ loc.getLongitude()+"\t"+ loc.getDepth());
+    				}
     			}
+
+    			GeographicRegion polygon = new GeographicRegion(locsForRegion);
+    			boolean isInside = polygon.isLocationInside(siteLoc);
+
+    			double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);
+
+    			if(isInside || distToExtendedTrace == 0.0) // zero values are always on the hanging wall
+    				this.setValue(distToExtendedTrace);
+    			else 
+    				this.setValue(-distToExtendedTrace);
     		}
-
-    		GeographicRegion polygon = new GeographicRegion(locsForRegion);
-    		boolean isInside = polygon.isLocationInside(siteLoc);
-
-    		double distToExtendedTrace = locsForExtendedTrace.getMinHorzDistToLine(siteLoc);
-
-    		if(isInside) 
-    			this.setValue(distToExtendedTrace);
-    		else 
-    			this.setValue(-distToExtendedTrace);
     	}
-        else this.setValue(null);
+    	else this.setValue(null);
     }
 
 

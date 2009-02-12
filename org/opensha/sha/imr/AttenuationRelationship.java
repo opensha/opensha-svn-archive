@@ -395,6 +395,15 @@ public abstract class AttenuationRelationship
   public final static Double RUP_TOP_DEFAULT = new Double(0);
   protected final static Double RUP_TOP_MIN = new Double(0);
   protected final static Double RUP_TOP_MAX = new Double(30);
+  
+  /**
+   * Aftershock parameter, indicates whether or not an event is an aftershock
+   */
+  protected BooleanParameter hangingWallFlagParam = null;
+  public final static String HANGING_WALL_FLAG_NAME = "Site on Hanging Wall";
+  public final static String HANGING_WALL_FLAG_INFO = "Indicates whether the site is on the hanging wall";
+  public final static Boolean HANGING_WALL_FLAG_DEFAULT = true;
+
 
   /**
    * Component Parameter, reserved for representing the component of shaking

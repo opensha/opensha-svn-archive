@@ -19,7 +19,7 @@ import org.opensha.sha.surface.*;
  * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Chiou & Youngs (2008, Earthquake Spectra, Volume 24, No. 1, pages 173–215).  <p>
  *
- * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
+ * Supported Intensity-Measure Parameters:<p>
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>pgaParam - Peak Ground Velocity
@@ -30,32 +30,41 @@ import org.opensha.sha.surface.*;
  * <LI>magParam - moment Magnitude
  * <LI>fltTypeParam - Style of faulting
  * <LI>rupTopDepthParam - depth to top of rupture
- * <LI>dipParam - rupture surface dip
- * <LI>rupWidthParam - down dip width of rupture
+ * <LI>dipParam - rupture-surface dip
+ * <LI>aftershockParam - indicates whether event is an aftershock
+ * <LI>vs30Param - Vs-30 of the site
+ * <LI>flagVSParam - indicates whether Vs30 is measured or estimated
+ * <LI>depthTo1pt0kmPerSecParam - depth to where Vs is 1.0 km/sec
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <li>distRupMinusJB_OverRupParam - used as a proxy for hanging wall effect
- * <LI>vs30Param 
+ * <li>distRupMinusJB_OverRupParam - used to set distJB
+ * <li>distRupMinusDistX_OverRupParam - used to set distX
+ * <LI>hangingWallFlagParam - indicates whether site is on the hanging wall
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL></p>
+ * 
  *<p>
  * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
  * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).
+ * AttenuationRelationshipApplet).  The same is true for distRupMinusDistX_OverRupParam.
+ * <p>
+ * When setting parameters from a passed-in EqkRupture, aftershockParam is always set to false
+ * (we could change this if aftershock info is added to an EqkRupture, but it's not clear this
+ * is justified).
+ * <p>
+ * It has been assumed that F_inferred and F_measured cannot both be zero or 1 (must be the opposite); 
+ * in other words: F_inf = (1-F_meas)
+ * <p>
+ * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation (1).
  * <p>
  * Verification :This model has been tested ...
  * 
- * Important Implementation Notes:
- * 
- * Passed in EqkRupture gets assigned as not an aftershock (for now, or until we add this attributed to eqk rup)
- * 
- * I've assumed that F_inferred and F_measured cannot both be zero or 1 (must be the opposite); in othe words: F_inf = (1-F_meas)
  * 
  * Need to confirm implementation of depthTo1km/sec being null (set using equation (1))
  * 
- * ToDo: 1) Change DistX to distRupMinusDistXParam to make plotting sensible 
- * 2) move new parameters that are same as in AS08 to parent class (after Christing is done);
- * 3) fill in parameters above; 4) update/create web page
+ * ToDo:
+ * 2) move new parameters that are same as in AS08 to parent class (after Christine is done);
+ * 4) update/create web page
  * 
  * 
  *</p>
@@ -123,7 +132,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 	private int iper;
 	private double vs30, rRup, distRupMinusJB_OverRup, dip, mag, f_rv, f_nm, depthTop;
-	private double rX, aftershock, f_meas;
+	private double distRupMinusDistX_OverRup, aftershock, f_meas, f_hw;
 	private String stdDevType;
 	private boolean parameterChange;
 	private double depthTo1pt0kmPerSec;  // defined this way to support null values
@@ -181,12 +190,18 @@ NamedObjectAPI, ParameterChangeListener {
 	 */
 	private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
 	private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
-
+	
 	/**
-	 * Horizontal distance to top edge of fault rupture
+	 * This sets distance X - the horizontal distance to surface projection of the top edge of the rupture, 
+	 * extended to infinity off the ends
 	 */
-	protected DistanceX_Parameter distanceXParam;
-	private final static Double DISTANCE_X_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
+	private DoubleParameter distRupMinusDistX_OverRupParam = null;
+    public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
+    public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
+    private final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
+    private final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
+    private final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
+
 	
 	// VSFlag vs30 (measured or estimated)
 	protected StringParameter flagVSParam;
@@ -195,7 +210,9 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String VS_FLAG_M = "Measured";
 	public final static String VS_FLAG_I = "Inferred";
 	public final static String VS_FLAG_DEFAULT = VS_FLAG_I;
-
+	
+	// this is for computing distance metrics efficiently
+	private PropagationEffect propagationEffect;
 
 	// for issuing warnings:
 	private transient ParameterChangeWarningListener warningListener = null;
@@ -223,6 +240,10 @@ NamedObjectAPI, ParameterChangeListener {
 
 		initIndependentParamLists(); // This must be called after the above
 		initParameterEventListeners(); //add the change listeners to the parameters
+		
+	    propagationEffect = new PropagationEffect();
+	    propagationEffect.fixDistanceJB(true); // this ensures that it's exatly zero over the discretized rupture surfaces
+
 
 	}
 
@@ -295,10 +316,26 @@ NamedObjectAPI, ParameterChangeListener {
 
 		if ( (this.site != null) && (this.eqkRupture != null)) {
 
-			distanceRupParam.setValue(eqkRupture, site);
-			distRupMinusJB_OverRupParam.setValue(eqkRupture, site);
-			distanceXParam.setValue(this.eqkRupture, this.site);
-
+			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
+			distanceRupParam.setValueIgnoreWarning(propagationEffect.getDistanceRup()); // this sets rRup too
+			double dist_jb = propagationEffect.getDistanceJB();
+			double distX = propagationEffect.getDistanceX();
+			if(rRup>0.0) {
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+				if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
+					distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
+					hangingWallFlagParam.setValue(true);
+				}
+				else {
+					distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
+					hangingWallFlagParam.setValue(false);
+				}
+			}
+			else {
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0);
+				distRupMinusDistX_OverRupParam.setValue(0);
+				hangingWallFlagParam.setValue(true);
+			}
 		}
 	}
 
@@ -345,7 +382,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 
 
-		return getMean(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, depthTo1pt0kmPerSec, rX, dip, 
+		return getMean(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, depthTo1pt0kmPerSec, distRupMinusDistX_OverRup, f_hw, dip, 
 				mag, depthTop, aftershock);
 	}
 
@@ -358,7 +395,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 
 		// I NEED TO DO THE THINGS DONE IN getMean() BEFORE CALLING THIS!!!!!
-		return getStdDev(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, rX, dip, mag, depthTop, aftershock, stdDevType, f_meas);
+		return getStdDev(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock, stdDevType, f_meas);
 	}
 
 	/**
@@ -380,7 +417,7 @@ NamedObjectAPI, ParameterChangeListener {
 		pgaParam.setValue(PGA_DEFAULT);
 		componentParam.setValue(COMPONENT_DEFAULT);
 		stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
-		distanceXParam.setValue(DISTANCE_X_DEFAULT);
+		distRupMinusDistX_OverRupParam.setValue(DIST_RUP_MINUS_DIST_X_DEFAULT);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
 		flagVSParam.setValue(VS_FLAG_DEFAULT);
 		vs30 = ( (Double) vs30Param.getValue()).doubleValue(); 
@@ -400,30 +437,32 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// params that the mean depends upon
 		meanIndependentParams.clear();
-		meanIndependentParams.addParameter(distanceRupParam);
-		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
-		meanIndependentParams.addParameter(vs30Param);
 		meanIndependentParams.addParameter(magParam);
 		meanIndependentParams.addParameter(fltTypeParam);
 		meanIndependentParams.addParameter(dipParam);
 		meanIndependentParams.addParameter(rupTopDepthParam);
-		meanIndependentParams.addParameter(distanceXParam);
-		meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
 		meanIndependentParams.addParameter(aftershockParam);
+		meanIndependentParams.addParameter(vs30Param);
+		meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
+		meanIndependentParams.addParameter(distanceRupParam);
+		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
+		meanIndependentParams.addParameter(distRupMinusDistX_OverRupParam);
+		meanIndependentParams.addParameter(hangingWallFlagParam);
 		meanIndependentParams.addParameter(componentParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
-		stdDevIndependentParams.addParameter(distanceRupParam);
-		stdDevIndependentParams.addParameter(distRupMinusJB_OverRupParam);
-		stdDevIndependentParams.addParameter(vs30Param);
 		stdDevIndependentParams.addParameter(magParam);
 		stdDevIndependentParams.addParameter(fltTypeParam);
 		stdDevIndependentParams.addParameter(dipParam);
 		stdDevIndependentParams.addParameter(rupTopDepthParam);
-		stdDevIndependentParams.addParameter(distanceXParam);
 		stdDevIndependentParams.addParameter(aftershockParam);
+		stdDevIndependentParams.addParameter(vs30Param);
 		stdDevIndependentParams.addParameter(flagVSParam);
+		stdDevIndependentParams.addParameter(distanceRupParam);
+		stdDevIndependentParams.addParameter(distRupMinusJB_OverRupParam);
+		stdDevIndependentParams.addParameter(distRupMinusDistX_OverRupParam);
+		stdDevIndependentParams.addParameter(hangingWallFlagParam);
 		stdDevIndependentParams.addParameter(stdDevTypeParam);
 		stdDevIndependentParams.addParameter(componentParam);
 
@@ -547,16 +586,19 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.setWarningConstraint(warn2);
 		distRupMinusJB_OverRupParam.setNonEditable();
 
-		distanceXParam = new DistanceX_Parameter();
-		DoubleConstraint warnDX = new DoubleConstraint(DISTANCE_X_WARN_MIN, DISTANCE_X_WARN_MAX);
-		warnDX.setNonEditable();
-		distanceXParam.setWarningConstraint(warnDX);
-		distanceXParam.addParameterChangeWarningListener(warningListener);
-		distanceXParam.setNonEditable();
+		distRupMinusDistX_OverRupParam = new DoubleParameter(DIST_RUP_MINUS_DIST_X_NAME, DIST_RUP_MINUS_DIST_X_MIN, DIST_RUP_MINUS_DIST_X_MAX);
+		distRupMinusDistX_OverRupParam.setInfo(DIST_RUP_MINUS_DIST_X_INFO);
+		distRupMinusDistX_OverRupParam.setNonEditable();
+		
+	    // create Aftershock parameter
+	    hangingWallFlagParam = new BooleanParameter(HANGING_WALL_FLAG_NAME, HANGING_WALL_FLAG_DEFAULT);
+	    aftershockParam.setInfo(HANGING_WALL_FLAG_INFO);
+
 
 		propagationEffectParams.addParameter(distanceRupParam);
 		propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
-		propagationEffectParams.addParameter(distanceXParam);
+		propagationEffectParams.addParameter(distRupMinusDistX_OverRupParam);
+		propagationEffectParams.addParameter(hangingWallFlagParam);
 
 	}
 
@@ -669,18 +711,35 @@ NamedObjectAPI, ParameterChangeListener {
 		return SHORT_NAME;
 	}
 
-
+	/**
+	 * This gets the mean for specific parameter settings.  We might want another 
+	 * version that takes the actual SA period rather than the period index.
+	 * @param iper
+	 * @param vs30
+	 * @param f_rv
+	 * @param f_nm
+	 * @param rRup
+	 * @param distRupMinusJB_OverRup
+	 * @param depthTo1pt0kmPerSec
+	 * @param distRupMinusDistX_OverRup
+	 * @param f_hw
+	 * @param dip
+	 * @param mag
+	 * @param depthTop
+	 * @param aftershock
+	 * @return
+	 */
 	public double getMean(int iper, double vs30, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
-			double depthTo1pt0kmPerSec, double rX, double dip, double mag, double depthTop, double aftershock) {
+			double depthTo1pt0kmPerSec, double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
 			
 
 		if(lnYref_is_not_fresh)
-			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, rX, dip, mag, depthTop, aftershock);
+			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, f_hw, distRupMinusDistX_OverRup, dip, mag, depthTop, aftershock);
 
 		
 		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
 		double basinDepth;
-		if(depthTo1pt0kmPerSec == Double.NaN)
+		if(Double.isNaN(depthTo1pt0kmPerSec))
 			basinDepth = Math.exp(28.5 - 3.82*Math.log(Math.pow(vs30,8)+Math.pow(378.7,8))/8);
 		else
 			basinDepth = depthTo1pt0kmPerSec;
@@ -705,13 +764,12 @@ NamedObjectAPI, ParameterChangeListener {
 	 * update lnYref if so (more efficient since it's compute for both mean and stddev)
 	 * 
 	 * @param iper
-	 * @param vs30
 	 * @param f_rv
 	 * @param f_nm
 	 * @param rRup
-	 * @param distanceJB
-	 * @param depthTo1pt0kmPerSec
-	 * @param rX
+	 * @param distRupMinusJB_OverRup
+	 * @param distRupMinusDistX_OverRup
+	 * @param f_hw
 	 * @param dip
 	 * @param mag
 	 * @param depthTop
@@ -719,13 +777,11 @@ NamedObjectAPI, ParameterChangeListener {
 	 * @return
 	 */
 	private void compute_lnYref(int iper, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
-								double rX, double dip, double mag, double depthTop, double aftershock) {
+								double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock) {
 		// compute rJB
 		double distanceJB = rRup - distRupMinusJB_OverRup*rRup;
-		
-		double f_hw = 1;
-		if(rX<0) f_hw = 0;
-
+		double distX  = rRup - distRupMinusDistX_OverRup*rRup;
+				
 		double cosDelta = Math.cos(dip*Math.PI/180);
 		double altDist = Math.sqrt(distanceJB*distanceJB+depthTop*depthTop);
 
@@ -741,22 +797,43 @@ NamedObjectAPI, ParameterChangeListener {
 
 		(cg1[iper] + cg2[iper]/Math.cosh(Math.max(mag-cg3,0.0)))*rRup +
 
-		c9[iper] * f_hw * Math.tanh(rX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
+		c9[iper] * f_hw * Math.tanh(distX*cosDelta*cosDelta/c9a[iper]) * (1-altDist/(rRup+0.001));
 		
 		lnYref_is_not_fresh = false;
-		
+	
+//		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
+
 	}
 
 
+	/**
+	 * This gets the standard deviation for specific parameter settings.  We might want another 
+	 * version that takes the actual SA period rather than the period index.
+	 * @param iper
+	 * @param vs30
+	 * @param f_rv
+	 * @param f_nm
+	 * @param rRup
+	 * @param distRupMinusJB_OverRup
+	 * @param distRupMinusDistX_OverRup
+	 * @param f_hw
+	 * @param dip
+	 * @param mag
+	 * @param depthTop
+	 * @param aftershock
+	 * @param stdDevType
+	 * @param f_meas
+	 * @return
+	 */
 	public double getStdDev(int iper, double vs30, double f_rv, double f_nm, double rRup, double distRupMinusJB_OverRup,
-			double rX, double dip, double mag, double depthTop, double aftershock, String stdDevType, double f_meas) {
+			double distRupMinusDistX_OverRup, double f_hw, double dip, double mag, double depthTop, double aftershock, String stdDevType, double f_meas) {
 
 		double magTest = Math.min(Math.max(mag, 5.0), 7.0) - 5.0;
 
 		double tau = tau1[iper] + (tau2[iper]-tau1[iper])/2 * magTest;
 
 		if(lnYref_is_not_fresh)
-			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, rX, dip, mag, depthTop, aftershock);
+			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock);
 
 		double b = phi2[iper]*(Math.exp(phi3[iper]*(Math.min(vs30, 1130)-360)) - Math.exp(phi3[iper]*(1130-360)));  // Equation 10
 		double c = phi4[iper];   // Equation 10
@@ -823,8 +900,8 @@ NamedObjectAPI, ParameterChangeListener {
 		else if (pName.equals(STD_DEV_TYPE_NAME)) {
 			stdDevType = (String) val;
 		}
-		else if(pName.equals(distanceXParam.getName())){
-			rX = ((Double)val).doubleValue();
+		else if(pName.equals(distRupMinusDistX_OverRupParam.getName())){
+			distRupMinusDistX_OverRup = ((Double)val).doubleValue();
 		}
 		else if(pName.equals(DEPTH_1pt0_NAME)){
 			if(val == null)
@@ -849,6 +926,14 @@ NamedObjectAPI, ParameterChangeListener {
 				f_meas = 0;
 			}
 		}
+		else if (pName.equals(HANGING_WALL_FLAG_NAME)) {
+			if(((Boolean)val)) {
+				f_hw = 1.0;
+			}
+			else {
+				f_hw = 0.0;
+			}
+		}
 	}
 
 	/**
@@ -861,13 +946,14 @@ NamedObjectAPI, ParameterChangeListener {
 		dipParam.removeParameterChangeListener(this);
 		magParam.removeParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
-		distanceXParam.removeParameterChangeListener(this);
+		distRupMinusDistX_OverRupParam.removeParameterChangeListener(this);
 		fltTypeParam.removeParameterChangeListener(this);
 		rupTopDepthParam.removeParameterChangeListener(this);
 		stdDevTypeParam.removeParameterChangeListener(this);
 		periodParam.removeParameterChangeListener(this);
 		aftershockParam.removeParameterChangeListener(this);
 		flagVSParam.removeParameterChangeListener(this);
+		hangingWallFlagParam.removeParameterChangeListener(this);
 		this.initParameterEventListeners();
 	}
 
@@ -883,13 +969,14 @@ NamedObjectAPI, ParameterChangeListener {
 		dipParam.addParameterChangeListener(this);
 		magParam.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
-		distanceXParam.removeParameterChangeListener(this);
+		distRupMinusDistX_OverRupParam.removeParameterChangeListener(this);
 		fltTypeParam.addParameterChangeListener(this);
 		rupTopDepthParam.addParameterChangeListener(this);
 		stdDevTypeParam.addParameterChangeListener(this);
 		periodParam.addParameterChangeListener(this);
 		aftershockParam.addParameterChangeListener(this);
 		flagVSParam.addParameterChangeListener(this);
+		hangingWallFlagParam.addParameterChangeListener(this);
 	}
 
 	/**
