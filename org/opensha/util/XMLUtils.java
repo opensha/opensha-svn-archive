@@ -1,13 +1,17 @@
 package org.opensha.util;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.metadata.XMLSaveable;
 
@@ -32,6 +36,12 @@ public class XMLUtils {
 		doc.addElement(DEFAULT_ROOT_NAME);
 		
 		return doc;
+	}
+	
+	public static Document loadDocument(String path) throws MalformedURLException, DocumentException {
+		SAXReader read = new SAXReader();
+		
+		return read.read(new File(path));
 	}
 	
 	public static void writeObjectToXMLAsRoot(XMLSaveable obj, String fileName) throws IOException {
