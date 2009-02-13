@@ -187,11 +187,11 @@ public class CEA_HazardCurveLocalModeApp extends HazardCurveServerModeApplicatio
 	  ArrayList<String> classNames = new ArrayList<String>();
 	  classNames.add(AttenuationRelationshipsInstance.BA_2008_CLASS_NAME);
 	  classNames.add(AttenuationRelationshipsInstance.CB_2008_CLASS_NAME);
-	  classNames.add(AttenuationRelationshipsInstance.BJF_CLASS_NAME);
-	  classNames.add(AttenuationRelationshipsInstance.AS_CLASS_NAME);
-	  classNames.add(AttenuationRelationshipsInstance.C_CLASS_NAME);
-	  classNames.add(AttenuationRelationshipsInstance.SCEMY_CLASS_NAME);
-	  classNames.add(AttenuationRelationshipsInstance.F_CLASS_NAME);
+	  classNames.add(AttenuationRelationshipsInstance.BJF_1997_CLASS_NAME);
+	  classNames.add(AttenuationRelationshipsInstance.AS_1997_CLASS_NAME);
+	  classNames.add(AttenuationRelationshipsInstance.C_1997_CLASS_NAME);
+	  classNames.add(AttenuationRelationshipsInstance.SCEMY_1997_CLASS_NAME);
+	  classNames.add(AttenuationRelationshipsInstance.F_2000_CLASS_NAME);
 	  
      imrGuiBean = new IMR_GuiBean(this, classNames);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
