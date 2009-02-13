@@ -150,7 +150,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
                               EqkRupForecast eqkRupForecast) throws java.rmi.
       RemoteException {
 
-    double rate, mean, stdDev, condProb;
+    double rate, condProb;
 
     DecimalFormat f1 = new DecimalFormat("000000");
     DecimalFormat f2 = new DecimalFormat("00.00");
@@ -264,8 +264,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
               "Exceedance probability is zero! (thus the NaNs below)");
 
         // get the mean, stdDev, epsilon, dist, and mag
-        mean = imr.getMean();
-        stdDev = imr.getStdDev();
         epsilon = imr.getEpsilon();
         distRup.setValue(rupture, site);
         dist = ( (Double) distRup.getValue()).doubleValue();
