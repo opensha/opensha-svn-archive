@@ -161,12 +161,18 @@ public class SiteTranslator
     // (e.g., used by BJF-1997 and Field-2000) site type
     else if (param.getName().equals(AttenuationRelationship.VS30_NAME)) {
       double val = getVS30FromWillsClass(wc);
-      if (val <= 0 || val == Double.NaN || (val + "").equals(Double.NaN + ""))
-        return false;
-      else {
-    	  param.setValue(new Double(val));
-          return true;
+      if (val <= 0 || val == Double.NaN || (val + "").equals(Double.NaN + "")) {
+//    	System.out.println("Found a NaN, returning false! (" + wc + ")");
+    	// lets see if it's a VS value, and not a wills class...
+    	try {
+			val = Double.parseDouble(wc);
+//			System.out.println(wc + " is a vs30 value, lets use that!");
+		} catch (NumberFormatException e) {
+			return false;
+		}
       }
+      param.setValue(new Double(val));
+      return true;
     }
 
     // Campbell_1997_AttenRel.BASIN_DEPTH_NAME
@@ -269,7 +275,28 @@ public class SiteTranslator
     		param.setValue(new Boolean(false));
         return true;
     }
-
+    // AS_2008
+    else if(param.getName().equals(AttenuationRelationship.DEPTH_1pt0_NAME))
+    	return false;
+    else if(param.getName().equals(AttenuationRelationship.VS_FLAG_NAME)) {
+    	if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD) || wc.equals(WILLS_C)
+    			|| wc.equals(WILLS_BC) || wc.equals(WILLS_B)) {
+//    		System.out.println("We found a wills class, setting flag to Measured");
+            param.setValue(AttenuationRelationship.VS_FLAG_M);
+            return true;
+          }
+          else {
+        	try {
+				double convVal = Double.parseDouble(wc);
+				param.setValue(AttenuationRelationship.VS_FLAG_M);
+//				System.out.println("We got a vs value, setting flag to Measured");
+			} catch (NumberFormatException e) {
+				param.setValue(AttenuationRelationship.VS_FLAG_I);
+//				System.out.println("No vs given, setting flag to Estimated");
+			}
+            return true;
+          }
+    }
     // site type not found
     else {
       throw new RuntimeException(C + " does not support the site type: " +
