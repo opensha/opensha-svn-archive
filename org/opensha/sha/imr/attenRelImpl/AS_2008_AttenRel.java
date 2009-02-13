@@ -129,7 +129,7 @@ NamedObjectAPI, ParameterChangeListener {
     public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
     private final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
     private final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
-    private final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
+    public final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
 
 	
 
@@ -522,8 +522,8 @@ NamedObjectAPI, ParameterChangeListener {
 				}
 			}
 			else {
-				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0);
-				distRupMinusDistX_OverRupParam.setValue(0);
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
+				distRupMinusDistX_OverRupParam.setValue(0.0);
 				hangingWallFlagParam.setValue(true);
 			}
 		}
