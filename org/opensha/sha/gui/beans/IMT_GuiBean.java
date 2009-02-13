@@ -87,7 +87,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
 
         // added by Ned so the default period is 1.0 sec (this is a hack).
         if( ((String) independentParam.getName()).equals("SA Period") ) {
-          independentParam.setValue(new Double(1.0));
+        	if (independentParam.isAllowed(new Double(1.0)))
+        		independentParam.setValue(new Double(1.0));
         }
 
         param1.addIndependentParameter(independentParam);
