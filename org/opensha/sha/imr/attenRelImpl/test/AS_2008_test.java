@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
+import org.opensha.param.BooleanParameter;
+import org.opensha.param.DoubleParameter;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
@@ -114,6 +116,19 @@ public class AS_2008_test extends NGATest {
 				//				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(as_2008.FLT_TYPE_UNKNOWN);
 				as_2008.getParameter(as_2008.FLT_TYPE_NAME).setValue(AS_2008_AttenRel.FLT_TYPE_DEFAULT);
 			
+			BooleanParameter hangingWallFlagParam = (BooleanParameter)as_2008.getParameter(AS_2008_AttenRel.HANGING_WALL_FLAG_NAME);
+			if(fileName.contains("_FW"))
+				hangingWallFlagParam.setValue(false);
+			else
+				hangingWallFlagParam.setValue(true);
+			
+			BooleanParameter aftershockParam = (BooleanParameter)as_2008.getParameter(AS_2008_AttenRel.AFTERSHOCK_NAME);
+			
+			if (fileName.contains("_AS_"))
+				aftershockParam.setValue(true);
+			else
+				aftershockParam.setValue(false);
+			
 			boolean estVs30 = false;
 			if (fileName.contains("SIGEST"))
 				estVs30 = true;
@@ -137,27 +152,34 @@ public class AS_2008_test extends NGATest {
 
 						//Rrup is used for this one
 						double rRup = Double.parseDouble(st.nextToken().trim());
+						
 						dist_jb = Double.parseDouble(st.nextToken().trim());
-//						System.out.println("rRup: " + rRup + " dist_jb: " + dist_jb);
-						as_2008.getParameter(DistanceRupParameter.NAME).setValue(rRup);
-//						as_2008.getParameter(DistanceRupParameter.NAME).setValue(dist_jb);
-						//					System.out.println("Before rjb get");
-						DistRupMinusJB_OverRupParameter param = (DistRupMinusJB_OverRupParameter)as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME);
-						//					System.out.println("rjb param retreived");
-						double rupMinusJB = (rRup-dist_jb)/rRup;
-						if (rRup != 0 && rupMinusJB != Double.NaN && !(new String(rupMinusJB + "").contains("NaN"))) {
-							//						System.out.println("setting to " + rupMinusJB + " (" + rRup + ", " + dist_jb + ")");
-							//						param.setValueIgnoreWarning(new Double(rupMinusJB));
-							param.setValueIgnoreWarning(new Double(0.1));
-//							System.out.println("New rupMinusJB: " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
-							//						System.out.println("rjb is set");
-						} else {
-							//						System.out.println("It's NaN!!!! Setting to default I guess..");
-							param.setValueIgnoreWarning(AS_2008_AttenRel.DISTANCE_RUP_MINUS_DEFAULT);
-//							System.out.println("New rupMinusJB (default): " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
+						
+						if (dist_jb==9.0){
+							dist_jb=10.0;
+						} else if (dist_jb==4.5){
+							dist_jb=5.0;
 						}
+						
+						as_2008.getParameter(DistanceRupParameter.NAME).setValue(rRup);
+						DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = (DistRupMinusJB_OverRupParameter)as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME);
+						
+						
 						double rx = Double.parseDouble(st.nextToken()); // R(x) ( Horizontal distance from top of rupture perpendicular to fault strike)
-						as_2008.getParameter(DistanceX_Parameter.NAME).setValue(new Double(rx));
+						DoubleParameter distRupMinusDistX_OverRupParam = (DoubleParameter)as_2008.getParameter(AS_2008_AttenRel.DIST_RUP_MINUS_DIST_X_NAME);
+						
+						if (rRup > 0) {
+							distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+							if(rx >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
+								distRupMinusDistX_OverRupParam.setValue((rRup-rx)/rRup);
+							}
+							else {
+								distRupMinusDistX_OverRupParam.setValue((rRup+rx)/rRup);  // switch sign of distX here
+							}
+						} else {
+							distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
+							distRupMinusDistX_OverRupParam.setValue(0.0);
+						}
 
 						double dip = Double.parseDouble(st.nextToken()); // dip
 						as_2008.getParameter(as_2008.DIP_NAME).setValue(new Double(dip));
@@ -180,9 +202,9 @@ public class AS_2008_test extends NGATest {
 						((WarningDoubleParameter)as_2008.getParameter(as_2008.VS30_NAME)).setValueIgnoreWarning(new Double(vs30));
 						
 						if (estVs30)	// vs30 is estimated
-							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AS_2008_AttenRel.VS_FLAG_E);
+							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AttenuationRelationship.VS_FLAG_I);
 						else			// vs30 is measured
-							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AS_2008_AttenRel.VS_FLAG_M);
+							as_2008.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).setValue(AttenuationRelationship.VS_FLAG_M);
 
 						double zsed = Double.parseDouble(st.nextToken()); // Zsed, sediment/basin depth
 						as_2008.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).setValue(new Double(zsed));
@@ -209,7 +231,7 @@ public class AS_2008_test extends NGATest {
 //								"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 								"\n"+
 								testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
-
+								System.out.println("Line: " + fileLine);
 								System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for "+failedResultMetadata);
 								//							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
 								printOpenSHAParams(as_2008);
@@ -235,7 +257,7 @@ public class AS_2008_test extends NGATest {
 							"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 							"\n"+
 							testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
-
+							System.out.println("Line: " + fileLine);
 							System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for +"+failedResultMetadata);
 							printOpenSHAParams(as_2008);
 //							System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
@@ -259,7 +281,7 @@ public class AS_2008_test extends NGATest {
 								"\n\tSet distRupMinusJB_OverRupParam = " + as_2008.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue() + 
 								"\n"+
 								testValString+" from OpenSHA = "+openSHA_Val+"  should be = "+tested_Val;
-
+								System.out.println("Line: " + fileLine);
 								System.out.println("Test number= "+i+"("+j+"/"+numLines+")"+" failed for +"+failedResultMetadata);
 								printOpenSHAParams(as_2008);
 								//System.out.println("OpenSHA Median = "+medianFromOpenSHA+"   Target Median = "+targetMedian);
@@ -310,13 +332,15 @@ public class AS_2008_test extends NGATest {
 		System.out.print("\tRrup = " + attenRel.getParameter(DistanceRupParameter.NAME).getValue());
 		System.out.println("\t(Rrup-Rjb)/Rrup = " + attenRel.getParameter(DistRupMinusJB_OverRupParameter.NAME).getValue());
 		System.out.print("Fault Type = " + attenRel.getParameter(AS_2008_AttenRel.FLT_TYPE_NAME).getValue());
-		System.out.print("\tDistanceX = " + attenRel.getParameter(DistanceX_Parameter.NAME).getValue());
+		System.out.print("\t(distRup-distX)/distRup = " + attenRel.getParameter(AS_2008_AttenRel.DIST_RUP_MINUS_DIST_X_NAME).getValue());
 		System.out.println("\tDip = " + attenRel.getParameter(AS_2008_AttenRel.DIP_NAME).getValue());
 		System.out.print("DDWidth = " + attenRel.getParameter(AS_2008_AttenRel.RUP_WIDTH_NAME).getValue());
 		System.out.print("\tzTor = " + attenRel.getParameter(AS_2008_AttenRel.RUP_TOP_NAME).getValue());
 		System.out.print("\tVs30 = " + attenRel.getParameter(AS_2008_AttenRel.VS30_NAME).getValue());
 		System.out.println ("\tVs30 flag = " + attenRel.getParameter(AS_2008_AttenRel.VS_FLAG_NAME).getValue());
-		System.out.println("Depthto1km/sec = " + attenRel.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
+		System.out.print("Depthto1km/sec = " + attenRel.getParameter(AS_2008_AttenRel.DEPTH_1pt0_NAME).getValue());
+		System.out.print("\tHanging Wall Flag: = " + attenRel.getParameter(AS_2008_AttenRel.HANGING_WALL_FLAG_NAME).getValue());
+		System.out.println();
 	}
 
 	/**
