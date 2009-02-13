@@ -398,7 +398,7 @@ public abstract class AttenuationRelationship
   protected final static Double RUP_TOP_MAX = new Double(30);
   
   /**
-   * Aftershock parameter, indicates whether or not an event is an aftershock
+   * Hanging wall parameter, indicates whether site is on the hanging wall
    */
   protected BooleanParameter hangingWallFlagParam = null;
   public final static String HANGING_WALL_FLAG_NAME = "Site on Hanging Wall";

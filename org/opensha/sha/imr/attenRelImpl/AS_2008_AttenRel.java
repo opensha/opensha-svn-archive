@@ -21,8 +21,8 @@ import org.opensha.util.FileUtils;
 /**
  * <b>Title:</b> AS_2008_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship published by Abrahamson & Silva (see reference below) <p>
- * <b>Reference:</b> Abrahamson, N. and Silva, W. (2008) "Summary of the Abrahamson & Silva NGA Ground-Motion Relations", Earthquake Spectra, 24(1) , pp. 67-97 <p>
+ * <b>Description:</b> This implements the Attenuation Relationship published by Abrahamson & Silva (2008,
+ * "Summary of the Abrahamson & Silva NGA Ground-Motion Relations", Earthquake Spectra, 24(1) , pp. 67-97) <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -35,21 +35,25 @@ import org.opensha.util.FileUtils;
  * <LI>magParam - Moment magnitude
  * <LI>fltTypeParam - Style of faulting (SS, REV, NORM)
  * <LI>rupTopDepthParam - Depth to top of rupture (km)
- * <LI>rupWidth - Down-dip rupture width (km)
  * <LI>dipParam - Rupture surface dip (degrees)
+ * <LI>rupWidth - Down-dip rupture width (km)
+ * <LI>aftershockParam - indicates whether event is an aftershock
  * <LI>vs30Param - Average shear wave velocity of top 30 m of soil/rock (m/s)
+ * <LI>vsFlagParam - indicates whether Vs30 is measured or estimated
  * <LI>depthTo1pt0kmPerSecParam - Depth to shear wave velocity Vs=1.0km/s (m)
- * <LI>flagVSParam - how Vs30 was obtained (measured of estimated)
- * <LI>flagAS - flag for aftershocks
  * <LI>distanceRupParam - Closest distance to surface projection of fault (km)
  * <LI>distRupMinusJB_OverRupParam =  - used as a proxy for hanging wall effect;
- * <LI>distanceXParam - Horz dist to inf extension of top edge of rupture; neg values are on the foot wall;
+ * <li>distRupMinusDistX_OverRupParam - used to set distX
+ * <LI>hangingWallFlagParam - indicates whether site is on the hanging wall
  * <LI>componentParam - Component of shaking - Only GMRotI50 is supported
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL>
  * <p>
- * Verification : Not done as of June 28 2008
+ * Verification : working on this ...
  * </p>
+ * To Do: 1) hard-code coefficients now that it's final (don't read from file)? 2) figure out how to set 
+ * depthTo1pt0kmPerSecParam if value is null (they say to use Equation (8) on page 96, but there is no
+ * such equation); 3) update web page
  *
  * @author     Christine Goulet & Ned Field
  * @created    2008
@@ -102,15 +106,6 @@ NamedObjectAPI, ParameterChangeListener {
 	protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
 	protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
 
-	// VSFlag vs30 (measured or estimated)
-	protected StringParameter flagVSParam;
-	public final static String VS_FLAG_NAME = "Vs30 value.";
-	public final static String VS_FLAG_INFO = 
-		"Select how Vs30 was obtained.";
-	public final static String VS_FLAG_M = "Measured";
-	public final static String VS_FLAG_E = "Estimated";
-	public final static String VS_FLAG_DEFAULT = VS_FLAG_E;
-
 	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
 	 */
@@ -125,11 +120,18 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0.0);
 	
 	/**
-	 * Horizontal distance to top edge of fault rupture
+	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
+	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
+	 * (due to inefficiencies)
 	 */
-	protected DistanceX_Parameter distanceXParam;
-	private final static Double DISTANCE_X_DEFAULT = new Double(DISTANCE_RUP_DEFAULT);
+	private DoubleParameter distRupMinusDistX_OverRupParam = null;
+    public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
+    public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
+    private final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
+    private final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
+    private final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
 
+	
 
 	// change component default from that of parent
 	String COMPONENT_DEFAULT = this.COMPONENT_GMRotI50;
@@ -137,12 +139,12 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// primitive form of parameters
 	private int iper;
-	double mag, f_rv, f_nm, depthTop, rupWidth, dip, f_as;
-	double vs30, vsm, depthTo1pt0kmPerSec;
-	private double rRup, distRupMinusJB_OverRup, rX;
+	double mag, f_rv, f_nm, depthTop, rupWidth, dip, f_as, f_hw;
+	double vs30, vsm, depthTo1pt0kmPerSec, pga_rock;
+	private double rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup;
 	private String component, stdDevType;
 
-	private boolean parameterChange;
+	private boolean parameterChange, rock_pga_is_not_fresh;
 
 	// Local variables declaration
 	double[] per,VLIN,b,a1,a2,a8,a10,a12,a13,a14,a15,a16,a18,s1e,s2e,s1m,s2m,s3,s4,rho;
@@ -202,8 +204,8 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 
 		initEqkRuptureParams();
-		initPropagationEffectParams();
 		initSiteParams();
+		initPropagationEffectParams();
 		initOtherParams();
 
 		initIndependentParamLists(); // This must be called after the above
@@ -455,13 +457,15 @@ NamedObjectAPI, ParameterChangeListener {
 		double depth = surface.getLocation(0, 0).getDepth();
 		rupTopDepthParam.setValue(depth);
 		
+		dipParam.setValue(surface.getAveDip());
+
 		double rupWidth = surface.getSurfaceWidth();
 		if(rupWidth>=1)
 			rupWidthParam.setValue(surface.getSurfaceWidth());
 		else
-			rupWidthParam.setValue(1.0);
+			throw new RuntimeException("fix this");
+//			rupWidthParam.setValue(1.0);
 
-		dipParam.setValue(surface.getAveDip());
     	aftershockParam.setValue(false);
 
 
@@ -487,7 +491,7 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
 		depthTo1pt0kmPerSecParam.setValueIgnoreWarning(site.getParameter(this.DEPTH_1pt0_NAME).
 				getValue());
-		flagVSParam.setValue(site.getParameter(VS_FLAG_NAME).getValue());
+		vsFlagParam.setValue(site.getParameter(VS_FLAG_NAME).getValue());
 
 		this.site = site;
 		setPropagationEffectParams();
@@ -501,13 +505,27 @@ NamedObjectAPI, ParameterChangeListener {
 
 		if ( (this.site != null) && (this.eqkRupture != null)) {
 
-			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
 			
-	    	distanceRupParam.setValueIgnoreWarning(propagationEffect.getParamValue(distanceRupParam.NAME)); // this sets rRup too
-	    	double dist_jb = ((Double)propagationEffect.getParamValue(DistanceJBParameter.NAME)).doubleValue();
-	    	distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
-	    	
-	    	this.distanceXParam.setValue(this.eqkRupture, this.site);
+			propagationEffect.setAll(this.eqkRupture, this.site); // use this for efficiency
+			distanceRupParam.setValueIgnoreWarning(propagationEffect.getDistanceRup()); // this sets rRup too
+			double dist_jb = propagationEffect.getDistanceJB();
+			double distX = propagationEffect.getDistanceX();
+			if(rRup>0.0) {
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning((rRup-dist_jb)/rRup);
+				if(distX >= 0.0) {  // sign determines whether it's on the hanging wall (distX is always >= 0 in distRupMinusDistX_OverRupParam)
+					distRupMinusDistX_OverRupParam.setValue((rRup-distX)/rRup);
+					hangingWallFlagParam.setValue(true);
+				}
+				else {
+					distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
+					hangingWallFlagParam.setValue(false);
+				}
+			}
+			else {
+				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0);
+				distRupMinusDistX_OverRupParam.setValue(0);
+				hangingWallFlagParam.setValue(true);
+			}
 		}
 	}
 
@@ -544,8 +562,8 @@ NamedObjectAPI, ParameterChangeListener {
 	public double getMean() {
 		// CG: Below used for validation for OUT files from Ken 
 		// to differentiate MS (f_as=0) from AS (f_as=1)
-//				double f_as=0.0;
-		
+//		double f_as=0.0;
+
 		// check if distance is beyond the user specified max
 		if (rRup > USER_MAX_DISTANCE) {
 			return VERY_SMALL_MEAN;
@@ -556,57 +574,80 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
-		
+		double rX  = rRup - distRupMinusDistX_OverRup*rRup;
+
+
 		// CG: Below used for validation for OUT files from Ken 
 		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
 		// but Ken's files specify rJB directly. 
 		// The following if statements take care of the two problems encountered
-//				if (rJB==9.0){
-//						rJB=10.0;
-//				}	else if (rJB==4.5){
-//						rJB=5.0;
-//				}
+//		if (rJB==9.0){
+//		rJB=10.0;
+//		}	else if (rJB==4.5){
+//		rJB=5.0;
+//		}
 
 		// Returns the index of the period just below Td (Eq. 21)
 		double Td=Math.pow(10,-1.25+0.3*mag );
 		int iTd= searchTdIndex(Td);
 
-		double pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
+		// compute rock PGA (note that value of depthTo1pt0kmPerSec has no influence)
+		computeRockPGA(rJB, rX); 
+		
+		double basinDepth;
+		if(Double.isNaN(depthTo1pt0kmPerSec))
+			throw new RuntimeException("figure out what to add here (their page 96 refers to non-existent equation (8)");
+		else
+			basinDepth = depthTo1pt0kmPerSec;
 
-		double f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
+
+		double f10 = getf10(iper, vs30, basinDepth);
 		//System.out.println("From getf10, f10 = "+f10);
 
 		double mean = 0.0;
 		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
-		mean = (getMean(iper,0, vs30, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip, rupWidth,
-				depthTop, depthTo1pt0kmPerSec, pga_rock,0, 0))+f10;
-//System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
+			mean = (getMean(iper,0, vs30, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip, rupWidth,
+					depthTop, basinDepth, pga_rock))+f10;
+//			System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
 
 		} else {
 			double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-					rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
+					rupWidth, depthTop, basinDepth,  pga_rock));
 
 			double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-					rupWidth, depthTop, depthTo1pt0kmPerSec,  pga_rock, 0.0, 0.0));
-	//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
+					rupWidth, depthTop, basinDepth,  pga_rock));
+			//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
 
 			double f5 = getf5(iper, vs30, pga_rock);
-	//System.out.println("From getf5, f5 = "+f5);
+			//System.out.println("From getf5, f5 = "+f5);
 
 			double medSa1100AtTd0 = Math.exp(Math.log(medSa1100WithTdPlus/medSa1100WithTdMinus)/Math.log(per[iTd+1]/per[iTd])*Math.log(Math.pow(10,-1.25+0.3*mag)/per[iTd]) + Math.log(medSa1100WithTdMinus));
 			double mean1100AtTd = (medSa1100AtTd0)*Math.pow(Math.pow(10,-1.25+0.3*mag)/per[iper],2);
 			double f51100 = getf5(iper, 1100.0, pga_rock);
 			f5 = getf5(iper, vs30, pga_rock);
-//System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
-			f10 = getf10(iper, vs30, mag, depthTo1pt0kmPerSec);
-//System.out.println("Inside getMean, f10 = "+f10);
+//			System.out.println("From getf5, f51100 = "+f51100+", f5="+f5);
+//			f10 = getf10(iper, vs30, basinDepth);	// ????????? isn't this already computed?
+//			System.out.println("Inside getMean, f10 = "+f10);
 
 			mean = (Math.log(mean1100AtTd) -f51100+f5+f10);
-//System.out.println("Inside getMean pga_rock=" +pga_rock+", mean1100atTd= " + mean1100AtTd + ", mean = "+mean);
+//			System.out.println("Inside getMean pga_rock=" +pga_rock+", mean1100atTd= " + mean1100AtTd + ", mean = "+mean);
 		}
 
 		return mean; 
+	}
+	
+	
+	/**
+	 * This computes rock PGA if it's not fresh.  
+	 * @param rJB
+	 * @param rX
+	 */
+	private void computeRockPGA(double rJB, double rX) {
+		if(rock_pga_is_not_fresh) {
+			pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
+					rupWidth, depthTop, 0.0,  0.0));   // Note that value of depthTo1pt0kmPerSec has no influence
+			rock_pga_is_not_fresh = false;
+		}
 	}
 
 
@@ -623,6 +664,8 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
+		double rX  = rRup - distRupMinusDistX_OverRup*rRup;
+
 
 		// CG: Below used for validation for OUT files from Ken 
 		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
@@ -634,10 +677,8 @@ NamedObjectAPI, ParameterChangeListener {
 //						rJB=5.0;
 //				}
 		
-		double pga_rock = Double.NaN;
-
-		pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-				rupWidth, depthTop, depthTo1pt0kmPerSec,  0.0, 0.0, 0.0));
+		// compute rock PGA
+		computeRockPGA(rJB, rX);
 
 		double stdDev = getStdDev(iper, stdDevType, component, vs30, pga_rock, vsm);
 
@@ -655,25 +696,26 @@ NamedObjectAPI, ParameterChangeListener {
 		magParam.setValue(MAG_DEFAULT);
 		fltTypeParam.setValue(FLT_TYPE_DEFAULT);
 		rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
-		rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
 		dipParam.setValue(DIP_DEFAULT);
+		rupWidthParam.setValue(RUP_WIDTH_DEFAULT);
+		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
 		
 		vs30Param.setValue(VS30_DEFAULT);
+		vsFlagParam.setValue(VS_FLAG_DEFAULT);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
-		flagVSParam.setValue(VS_FLAG_DEFAULT);
-
+		
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-	    distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
-		distanceXParam.setValue(DISTANCE_X_DEFAULT);
+		distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
+		distRupMinusDistX_OverRupParam.setValue(DIST_RUP_MINUS_DIST_X_DEFAULT);
+		hangingWallFlagParam.setValue(HANGING_WALL_FLAG_DEFAULT);
 
-		saParam.setValue(SA_DEFAULT);	
-		periodParam.setValue(PERIOD_DEFAULT);
-		dampingParam.setValue(DAMPING_DEFAULT);
-		pgaParam.setValue(PGA_DEFAULT);
-		pgvParam.setValue(PGV_DEFAULT);
 		componentParam.setValue(COMPONENT_DEFAULT);
 		stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 		
+		saParam.setValue(SA_DEFAULT);
+		periodParam.setValue(PERIOD_DEFAULT);
+		dampingParam.setValue(DAMPING_DEFAULT);
+		pgaParam.setValue(PGA_DEFAULT);
 	}
 
 	/**
@@ -687,25 +729,25 @@ NamedObjectAPI, ParameterChangeListener {
 
 		// params that the mean depends upon
 		meanIndependentParams.clear();
-		meanIndependentParams.addParameter(aftershockParam);
 		meanIndependentParams.addParameter(magParam);
 		meanIndependentParams.addParameter(fltTypeParam);
 		meanIndependentParams.addParameter(rupTopDepthParam);
-		meanIndependentParams.addParameter(rupWidthParam);
 		meanIndependentParams.addParameter(dipParam);
+		meanIndependentParams.addParameter(rupWidthParam);
+		meanIndependentParams.addParameter(aftershockParam);
 		meanIndependentParams.addParameter(vs30Param);
 		meanIndependentParams.addParameter(depthTo1pt0kmPerSecParam);
 		meanIndependentParams.addParameter(distanceRupParam);
 		meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
-		meanIndependentParams.addParameter(distanceXParam);
-
+		meanIndependentParams.addParameter(distRupMinusDistX_OverRupParam);
+		meanIndependentParams.addParameter(hangingWallFlagParam);
 		meanIndependentParams.addParameter(componentParam);
 
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
 		stdDevIndependentParams.addParameterList(meanIndependentParams);
 		stdDevIndependentParams.addParameter(stdDevTypeParam);
-		meanIndependentParams.addParameter(flagVSParam);
+		stdDevIndependentParams.addParameter(vsFlagParam);
 
 
 		// params that the exceed. prob. depends upon
@@ -745,18 +787,10 @@ NamedObjectAPI, ParameterChangeListener {
 		depthTo1pt0kmPerSecParam.addParameterChangeWarningListener(warningListener);
 		depthTo1pt0kmPerSecParam.setNonEditable();
 
-		StringConstraint constraintVS = new StringConstraint();
-		constraintVS.addString(VS_FLAG_M);
-		constraintVS.addString(VS_FLAG_E);
-		constraintVS.setNonEditable();
-		flagVSParam = new StringParameter(VS_FLAG_NAME, constraintVS, null);
-		flagVSParam.setInfo(VS_FLAG_INFO);
-		flagVSParam.setNonEditable();
-
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
+		siteParams.addParameter(vsFlagParam);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
-		siteParams.addParameter(flagVSParam);
 	}
 
 	/**
@@ -803,8 +837,8 @@ NamedObjectAPI, ParameterChangeListener {
 		eqkRuptureParams.clear();
 		eqkRuptureParams.addParameter(magParam);
 		eqkRuptureParams.addParameter(fltTypeParam);
-		eqkRuptureParams.addParameter(dipParam);
 		eqkRuptureParams.addParameter(rupTopDepthParam);
+		eqkRuptureParams.addParameter(dipParam);
 		eqkRuptureParams.addParameter(rupWidthParam);
 		eqkRuptureParams.addParameter(aftershockParam);
 
@@ -831,16 +865,18 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusJB_OverRupParam.addParameterChangeWarningListener(warningListener);
 		distRupMinusJB_OverRupParam.setNonEditable();
 		
-		distanceXParam = new DistanceX_Parameter();
-		DoubleConstraint warnDX = new DoubleConstraint(DISTANCE_X_WARN_MIN, DISTANCE_X_WARN_MAX);
-		warnDX.setNonEditable();
-		distanceXParam.setWarningConstraint(warnDX);
-		distanceXParam.addParameterChangeWarningListener(warningListener);
-		distanceXParam.setNonEditable();
+		distRupMinusDistX_OverRupParam = new DoubleParameter(DIST_RUP_MINUS_DIST_X_NAME, DIST_RUP_MINUS_DIST_X_MIN, DIST_RUP_MINUS_DIST_X_MAX);
+		distRupMinusDistX_OverRupParam.setInfo(DIST_RUP_MINUS_DIST_X_INFO);
+		distRupMinusDistX_OverRupParam.setNonEditable();
+		
+	    // create hanging wall parameter
+	    hangingWallFlagParam = new BooleanParameter(HANGING_WALL_FLAG_NAME, HANGING_WALL_FLAG_DEFAULT);
+	    hangingWallFlagParam.setInfo(HANGING_WALL_FLAG_INFO);
 
 		propagationEffectParams.addParameter(distanceRupParam);
 		propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
-		propagationEffectParams.addParameter(distanceXParam);
+		propagationEffectParams.addParameter(distRupMinusDistX_OverRupParam);
+		propagationEffectParams.addParameter(hangingWallFlagParam);
 	}
 
 	/**
@@ -961,7 +997,8 @@ NamedObjectAPI, ParameterChangeListener {
 		for(int i=2;i<=22;++i){
 			if (Td>= per[i] && Td< per[i+1] ) {
 				iTd = i;
-		}
+				break;
+			}
 		}
 //		System.out.println("Inside searchTdIndex iTd = "+iTd +", Td = "+Td+", mag \t" +mag);
 		return iTd;
@@ -1004,92 +1041,92 @@ NamedObjectAPI, ParameterChangeListener {
 	/**
 	 * Returns the value of f10 to be applied to the final median computation
 	 */
-	public double getf10(int iper, double vs30, double mag, double depthTo1pt0kmPerSec) {
-	
-	// "Soil depth model": f10 term (eq. 16) and required z1Hat, a21, e2 and a22 computation (eqs. 17-20)
-	double z1Hat, e2, a21test, a21, a22, f10;
-	// Requires V1 and Vs30 star from f5
-	double vs30Star, v1;
-	//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
-	//Vs30 dependent term v1 (Eq. 6)
-	if(per[iper]==-1.0) {
-		v1 = 862.0;
-	} else if(per[iper]<=0.5 && per[iper]>-1.0) {
-		v1=1500.0;
-	} else if(per[iper] > 0.5 && per[iper] <=1.0) {
-		v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
-	} else if(per[iper] > 1.0 && per[iper] <2.0) {
-		v1=Math.exp(6.76-0.297*Math.log(per[iper]));
-	} else { 
-		v1 = 700.0;
-	}
-//Vs30 dependent term vs30Star (Eq. 5)
-	if(vs30<v1) {
-		vs30Star = vs30;
-	} else {
-		vs30Star = v1;
-	}
-	
-	// Eq. 17
-	if(vs30<180.0) {
-		z1Hat = Math.exp(6.745);
-	} else if(vs30>=180.0 && vs30<=500.0) {
-		z1Hat = Math.exp(6.745-1.35*Math.log(vs30/180.0));
-	} else {
-		z1Hat = Math.exp(5.394-4.48*Math.log(vs30/500.0));
-	}
-	
-	// Eq. 19
-	if((per[iper]<0.35 && per[iper]>-1.0) || vs30>1000.0) {
-//	if(per[iper]<0.35 || vs30>1000.0) {
-		e2=0.0;
-	} else if(per[iper]>=0.35 && per[iper]<2.0) {
-		e2 = -0.25*Math.log(vs30/1000)*Math.log(per[iper]/0.35);
-	} else if(per[iper]==-1.0) {
-		e2 = -0.25*Math.log(vs30/1000)*Math.log(1.0/0.35);
-	} else {// if per[iper]>2.0
-		e2 = -0.25*Math.log(vs30/1000)*Math.log(2.0/0.35);
-	}
-	
+	public double getf10(int iper, double vs30, double depthTo1pt0kmPerSec) {
 
-	// Eq. 18
-	   a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-		
-	if(vs30>=1000.0){
-		a21=0.0;
-	} else if(a21test<0.0 && vs30<1000.0) {
-		a21=-(a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
-	}	else {
-		a21 = e2;
-	}
-	
-	// Eq. 20
-	if(per[iper]<2.0){
-		a22 = 0.0;
-	} else {
-		a22 = 0.0625*(per[iper]-2.0);
-	}
+		// "Soil depth model": f10 term (eq. 16) and required z1Hat, a21, e2 and a22 computation (eqs. 17-20)
+		double z1Hat, e2, a21test, a21, a22, f10;
+		// Requires V1 and Vs30 star from f5
+		double vs30Star, v1;
+		//"Site response model": f5_pga1100 (Eq. 5) term and required computation for v1 and vs30Star
+		//Vs30 dependent term v1 (Eq. 6)
+		if(per[iper]==-1.0) {
+			v1 = 862.0;
+		} else if(per[iper]<=0.5 && per[iper]>-1.0) {
+			v1=1500.0;
+		} else if(per[iper] > 0.5 && per[iper] <=1.0) {
+			v1=Math.exp(8.0-0.795*Math.log(per[iper]/0.21));
+		} else if(per[iper] > 1.0 && per[iper] <2.0) {
+			v1=Math.exp(6.76-0.297*Math.log(per[iper]));
+		} else { 
+			v1 = 700.0;
+		}
+//		Vs30 dependent term vs30Star (Eq. 5)
+		if(vs30<v1) {
+			vs30Star = vs30;
+		} else {
+			vs30Star = v1;
+		}
 
-	// Eq. 16
-	if(depthTo1pt0kmPerSec>=200){
-		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2)) + a22*Math.log(depthTo1pt0kmPerSec/200.0);
-	} else {
-		f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+		// Eq. 17
+		if(vs30<180.0) {
+			z1Hat = Math.exp(6.745);
+		} else if(vs30>=180.0 && vs30<=500.0) {
+			z1Hat = Math.exp(6.745-1.35*Math.log(vs30/180.0));
+		} else {
+			z1Hat = Math.exp(5.394-4.48*Math.log(vs30/500.0));
+		}
+
+		// Eq. 19
+		if((per[iper]<0.35 && per[iper]>-1.0) || vs30>1000.0) {
+//			if(per[iper]<0.35 || vs30>1000.0) {
+			e2=0.0;
+		} else if(per[iper]>=0.35 && per[iper]<2.0) {
+			e2 = -0.25*Math.log(vs30/1000)*Math.log(per[iper]/0.35);
+		} else if(per[iper]==-1.0) {
+			e2 = -0.25*Math.log(vs30/1000)*Math.log(1.0/0.35);
+		} else {// if per[iper]>2.0
+			e2 = -0.25*Math.log(vs30/1000)*Math.log(2.0/0.35);
+		}
+
+
+		// Eq. 18
+		a21test = (a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))+e2*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+
+		if(vs30>=1000.0){
+			a21=0.0;
+		} else if(a21test<0.0 && vs30<1000.0) {
+			a21=-(a10[iper] + b[iper]*N)*Math.log(vs30Star/Math.min(v1, 1000.0))/Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+		}	else {
+			a21 = e2;
+		}
+
+		// Eq. 20
+		if(per[iper]<2.0){
+			a22 = 0.0;
+		} else {
+			a22 = 0.0625*(per[iper]-2.0);
+		}
+
+		// Eq. 16
+		if(depthTo1pt0kmPerSec>=200){
+			f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2)) + a22*Math.log(depthTo1pt0kmPerSec/200.0);
+		} else {
+			f10 = a21*Math.log((depthTo1pt0kmPerSec+c2)/(z1Hat+c2));
+		}
+//		System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
+		return f10;
 	}
-//System.out.println("Inside getf10, iper="+iper+" per[iper]="+per[iper]+" per[16]=" +per[16]+" z1hat="+z1Hat+" a21test="+a21test+" a21 "+ a21 + " a22 "+ a22 +" e2="+e2+" f10 "+f10);
-	return f10;
-}
 	  /**
-	   * Calculates the median of the IM pdf. <p>
+	   * Calculates the median IML, but does not include the f10 term (which is why it was made private). <p>
 	   * @return  
 	   */
 
-	public double getMean(int iper, int iTd, double vs30, double rRup, 
+	private double getMean(int iper, int iTd, double vs30, double rRup, 
 			double rJB, double f_as, double rX, double f_rv,
 			double f_nm, double mag, double dip, 
 			double rupWidth, double depthTop,
 			double depthTo1pt0kmPerSec,
-			double pga_rock, double medSa1100WithTdMinus, double medSa1100WithTdPlus) {
+			double pga_rock) {
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
 
@@ -1347,6 +1384,7 @@ NamedObjectAPI, ParameterChangeListener {
 		String pName = e.getParameterName();
 		Object val = e.getNewValue();
 		parameterChange = true;
+		rock_pga_is_not_fresh = true;
 		
 //		System.out.println(pName+"\t"+val);
 		
@@ -1371,14 +1409,28 @@ NamedObjectAPI, ParameterChangeListener {
 		else if (pName.equals(RUP_TOP_NAME)) {
 			depthTop = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(RUP_WIDTH_NAME)) {
-			rupWidth = ( (Double) val).doubleValue();
-		}
 		else if (pName.equals(DIP_NAME)) {
 			dip = ( (Double) val).doubleValue();
 		}
+		else if (pName.equals(RUP_WIDTH_NAME)) {
+			rupWidth = ( (Double) val).doubleValue();
+		}
+		else if (pName.equals(AFTERSHOCK_NAME)) {
+			if(((Boolean)val).booleanValue())
+				f_as = 1;
+			else
+				f_as = 0;
+		}
 		else if (pName.equals(VS30_NAME)) {
 			vs30 = ( (Double) val).doubleValue();
+		}
+		else if (pName.equals(VS_FLAG_NAME)) {
+			if(((String)val).equals(VS_FLAG_M)) {
+				vsm = 1;
+			}
+			else {
+				vsm = 0;
+			}
 		}
 		else if (pName.equals(DEPTH_1pt0_NAME)) {
 			depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
@@ -1387,31 +1439,23 @@ NamedObjectAPI, ParameterChangeListener {
 			else
 				depthTo1pt0kmPerSec = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(VS_FLAG_NAME)) {
-			String flagVS = (String)flagVSParam.getValue();
-			if (flagVS.equals(VS_FLAG_E)) {
-				vsm = 0 ;
-			}
-			else if (flagVS.equals(VS_FLAG_M)) {
-				vsm = 1;
-			}
-		}
-		else if (pName.equals(AFTERSHOCK_NAME)) {
-			if(((Boolean)val).booleanValue())
-				f_as = 1;
-			else
-				f_as = 0;
-		}
 		else if (pName.equals(DistanceRupParameter.NAME)) {
 			rRup = ( (Double) val).doubleValue();
 		}
 		else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
 			distRupMinusJB_OverRup = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(distanceXParam.getName())) {
-			 rX= ( (Double) val).doubleValue();
+		else if(pName.equals(distRupMinusDistX_OverRupParam.getName())){
+			distRupMinusDistX_OverRup = ((Double)val).doubleValue();
 		}
-
+		else if (pName.equals(HANGING_WALL_FLAG_NAME)) {
+			if(((Boolean)val)) {
+				f_hw = 1.0;
+			}
+			else {
+				f_hw = 0.0;
+			}
+		}
 		else if (pName.equals(STD_DEV_TYPE_NAME)) {
 			stdDevType = (String) val;
 		}
@@ -1432,19 +1476,22 @@ NamedObjectAPI, ParameterChangeListener {
 		magParam.removeParameterChangeListener(this);
 		fltTypeParam.removeParameterChangeListener(this);
 		rupTopDepthParam.removeParameterChangeListener(this);
-		rupWidthParam.removeParameterChangeListener(this);
 		dipParam.removeParameterChangeListener(this);
-		vs30Param.removeParameterChangeListener(this);
-		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
-		flagVSParam.removeParameterChangeListener(this);
+		rupWidthParam.removeParameterChangeListener(this);
 		aftershockParam.removeParameterChangeListener(this);
+		
+		vs30Param.removeParameterChangeListener(this);
+		vsFlagParam.removeParameterChangeListener(this);
+		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
+
 		distanceRupParam.removeParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
-		distanceXParam.removeParameterChangeListener(this);
-		stdDevTypeParam.removeParameterChangeListener(this);
+		distRupMinusDistX_OverRupParam.removeParameterChangeListener(this);
+		hangingWallFlagParam.removeParameterChangeListener(this);
+		
 		componentParam.removeParameterChangeListener(this);
+		stdDevTypeParam.removeParameterChangeListener(this);
 		periodParam.removeParameterChangeListener(this);
-
 
 		this.initParameterEventListeners();
 	}
@@ -1458,20 +1505,21 @@ NamedObjectAPI, ParameterChangeListener {
 		magParam.addParameterChangeListener(this);
 		fltTypeParam.addParameterChangeListener(this);
 		rupTopDepthParam.addParameterChangeListener(this);
-		rupWidthParam.addParameterChangeListener(this);
 		dipParam.addParameterChangeListener(this);
+		rupWidthParam.addParameterChangeListener(this);
+		aftershockParam.addParameterChangeListener(this);
 		
 		vs30Param.addParameterChangeListener(this);
+		vsFlagParam.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
-		flagVSParam.addParameterChangeListener(this);
-		aftershockParam.addParameterChangeListener(this);
 
 		distanceRupParam.addParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.addParameterChangeListener(this);
-		distanceXParam.addParameterChangeListener(this);
+		distRupMinusDistX_OverRupParam.addParameterChangeListener(this);
+		hangingWallFlagParam.addParameterChangeListener(this);
 		
-		stdDevTypeParam.addParameterChangeListener(this);
 		componentParam.addParameterChangeListener(this);
+		stdDevTypeParam.addParameterChangeListener(this);
 		periodParam.addParameterChangeListener(this);
 	}
 

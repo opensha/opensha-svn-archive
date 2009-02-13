@@ -175,8 +175,9 @@ NamedObjectAPI, ParameterChangeListener {
 	private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
 	
 	/**
-	 * This sets distance X - the horizontal distance to surface projection of the top edge of the rupture, 
-	 * extended to infinity off the ends
+	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
+	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
+	 * (due to inefficiencies)
 	 */
 	private DoubleParameter distRupMinusDistX_OverRupParam = null;
     public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
@@ -384,13 +385,16 @@ NamedObjectAPI, ParameterChangeListener {
 		rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
 		dipParam.setValue(DIP_DEFAULT);
 		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
+
 		vs30Param.setValue(VS30_DEFAULT);
 		vsFlagParam.setValue(VS_FLAG_I);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
+
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
 		distRupMinusJB_OverRupParam.setValue(DISTANCE_RUP_MINUS_DEFAULT);
 		distRupMinusDistX_OverRupParam.setValue(DIST_RUP_MINUS_DIST_X_DEFAULT);
 		hangingWallFlagParam.setValue(HANGING_WALL_FLAG_DEFAULT);
+
 		componentParam.setValue(COMPONENT_DEFAULT);
 		stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 		
@@ -554,7 +558,7 @@ NamedObjectAPI, ParameterChangeListener {
 		distRupMinusDistX_OverRupParam.setInfo(DIST_RUP_MINUS_DIST_X_INFO);
 		distRupMinusDistX_OverRupParam.setNonEditable();
 		
-	    // create Aftershock parameter
+	    // create hanging wall parameter
 	    hangingWallFlagParam = new BooleanParameter(HANGING_WALL_FLAG_NAME, HANGING_WALL_FLAG_DEFAULT);
 	    hangingWallFlagParam.setInfo(HANGING_WALL_FLAG_INFO);
 
