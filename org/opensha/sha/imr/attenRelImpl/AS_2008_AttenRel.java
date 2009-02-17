@@ -1129,13 +1129,17 @@ NamedObjectAPI, ParameterChangeListener {
 			double pga_rock) {
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
-
+		
 		double hw = 0.0;
-			   f4=0.0;
-
-		if(rX>=0.0){
+		if ((Boolean)hangingWallFlagParam.getValue())
 			hw = 1.0;
-		}
+//		System.out.println("hw: " + hw + ", " + hangingWallFlagParam.getValue());
+		
+		f4=0.0;
+
+//		if(rX>=0.0){
+//			hw = 1.0;
+//		}
 		
 		//"Base model": f1 term (Eq. 2), dependent on magnitude and distance
 		rR=Math.sqrt(Math.pow(rRup,2)+Math.pow(c4,2)); // Eq. 3
