@@ -1130,10 +1130,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
 		
-		double hw = 0.0;
-		if ((Boolean)hangingWallFlagParam.getValue())
-			hw = 1.0;
-//		System.out.println("hw: " + hw + ", " + hangingWallFlagParam.getValue());
+		boolean hw = (Boolean)hangingWallFlagParam.getValue();
 		
 		f4=0.0;
 
@@ -1181,7 +1178,7 @@ NamedObjectAPI, ParameterChangeListener {
 //System.out.println("Inside Eqn getMean, per="+per[iper]+" hw="+hw+" f5=" +f5+" v1=" +v1+" vs30Star=" +vs30Star);
 		
 		//"Hanging wall model": f4 (Eq. 7) term and required computation of T1, T2, T3, T4 and T5 (Eqs. 8-12)
-		if(hw==1.0){
+		if(hw){
 			double T1, T2, T3, T4, T5;
 
 			//T1 (Eq. 8)
