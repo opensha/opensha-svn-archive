@@ -194,7 +194,7 @@ public class CY_2008_test extends NGATest {
 							discrep = result;
 						if(result > tolerance){
 							String failedResultMetadata = "Results from file "+fileName+" failed for  calculation for " +
-							"AS-2008 attenuation with the following parameter settings:\n"+
+							"CY-2008 attenuation with the following parameter settings:\n"+
 							"  \tSA at period = "+period[k]+"\n\tMag = "+(float)mag+
 							"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 							"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
@@ -223,7 +223,7 @@ public class CY_2008_test extends NGATest {
 						discrep = result;
 					if(result > tolerance){
 						String failedResultMetadata = "Results from file "+fileName+" failed for  calculation for " +
-						"AS-2008 attenuation with the following parameter settings (PGA):\n"+
+						"CY-2008 attenuation with the following parameter settings (PGA):\n"+
 						"  \tMag = "+(float)mag+
 						"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 						"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
@@ -250,7 +250,7 @@ public class CY_2008_test extends NGATest {
 						discrep = result;
 					if(result > tolerance){
 						String failedResultMetadata = "Results from file "+fileName+" failed for  calculation for " +
-						"AS-2008 attenuation with the following parameter settings (PGV):\n"+
+						"CY-2008 attenuation with the following parameter settings (PGV):\n"+
 						"  \tMag = "+(float)mag+
 						"  rrup = "+(float)rRup+"  rjb = "+(float)dist_jb+"\n\t"+ "FaultType = "+fltType+
 						"  rx = "+(float)rx+"  dip = "+(float)dip+"\n\t"+ "w = "+(float)w+
