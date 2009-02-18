@@ -30,6 +30,9 @@ public class CY_2008_test extends NGATest {
 		super(name, RESULT_SET_PATH);
 	}
 	
+	private static final boolean SA_ONLY = false;
+	private static final boolean SA_PGA_ONLY = false;
+	
 	public static void main(String[] args) {
 //		junit.swingui.TestRunner.run(AS_2008_test.class);
 		CY_2008_test test = new CY_2008_test("CY 2008");
@@ -213,6 +216,9 @@ public class CY_2008_test extends NGATest {
 							return -1;
 						}
 					}
+					
+					if (SA_ONLY)
+						continue;
 
 					cy_08.setIntensityMeasure(CY_2008_AttenRel.PGA_NAME);
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
@@ -241,6 +247,10 @@ public class CY_2008_test extends NGATest {
 						
 						return -1;
 					};
+					
+					if (SA_PGA_ONLY)
+						continue;
+					
 					cy_08.setIntensityMeasure(CY_2008_AttenRel.PGV_NAME);
 					if(isMedian) openSHA_Val = Math.exp(cy_08.getMean());
 					else openSHA_Val = cy_08.getStdDev();
