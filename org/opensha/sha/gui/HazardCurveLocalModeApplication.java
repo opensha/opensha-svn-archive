@@ -54,6 +54,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String WGCEP_AVG_UCERF_2_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2";
   public final static String YUCCA_MOUNTAIN_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF";
   public final static String YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.YuccaMountain.YuccaMountainERF_List";
+  public final static String CYBERSHAKE_ERF_LIST_CLASS_NAME="org.opensha.cybershake.openshaAPIs.CyberShakeERF";
+  public final static String CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME="org.opensha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF";
   
   protected final static String appURL = "http://www.opensha.org/applications/hazCurvApp/HazardCurveApp.jar";
 
@@ -135,6 +137,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
+      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
       
       try {
         erfGuiBean = new ERF_GuiBean(erf_Classes);

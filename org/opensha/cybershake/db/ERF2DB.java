@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.calc.RelativeLocation;
+import org.opensha.cybershake.openshaAPIs.CyberShakeEqkRupture;
+import org.opensha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
+import org.opensha.cybershake.openshaAPIs.CyberShakeProbEqkSource;
 import org.opensha.data.Location;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
@@ -59,6 +62,144 @@ public  class ERF2DB implements ERF2DBAPI{
 		return erfs;
 	}
 	
+	public ArrayList<CyberShakeProbEqkSource> getSources(int erfID) {
+		ArrayList<CyberShakeProbEqkSource> sources = new ArrayList<CyberShakeProbEqkSource>();
+
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		ArrayList<String> names = new ArrayList<String>();
+
+		this.loadSourceList(erfID, ids, names);
+
+		if (ids.size() != names.size()) {
+			throw new RuntimeException("Source ID list and Names list are different sizes!");
+		}
+		
+		int maxID = 0;
+		for (int id : ids) {
+			if (id > maxID)
+				maxID = id;
+		}
+
+		for (int i=0; i< ids.size(); i++) {
+			int sourceID = ids.get(i);
+			String name = names.get(i);
+
+			System.out.println("Loading source " + sourceID + "/" + maxID + " (" + name + ")");
+
+			CyberShakeProbEqkSource source = new CyberShakeProbEqkSource(name);
+
+			ArrayList<Integer> rupIDs = this.getRuptureIDs(erfID, sourceID);
+			for (int rupID : rupIDs) {
+				CyberShakeEqkRupture rup = this.getRupture(erfID, sourceID, rupID);
+				source.addRupture(rup);
+			}
+
+			sources.add(source);
+		}
+
+		return sources;
+	}
+	
+	public CyberShakeEqkRupture getRupture(int erfID, int sourceID, int rupID) {
+		double mag = this.getRuptureDouble("Mag", erfID, sourceID, rupID);
+		double prob = this.getRuptureDouble("Prob", erfID, sourceID, rupID);
+//		CyberShakeEvenlyGriddedSurface surface = getRuptureSurface(erfID, sourceID, rupID);
+//		return new CyberShakeEqkRupture(mag, prob, surface, null, sourceID, rupID, erfID);
+		return new CyberShakeEqkRupture(mag, prob, null, sourceID, rupID, erfID, this);
+	}
+	
+	public CyberShakeEvenlyGriddedSurface getRuptureSurface(int erfID, int sourceID, int rupID) {
+		System.out.print("Loading surface for " + sourceID + " " + rupID + "...");
+		
+		int numRows = getRuptureInt("Num_Rows", erfID, sourceID, rupID);
+		int numCols = getRuptureInt("Num_Columns", erfID, sourceID, rupID);
+		double spacing = getRuptureDouble("Grid_Spacing", erfID, sourceID, rupID);
+		ArrayList<Location> locs = this.getRuptureSurfacePoints(erfID, sourceID, rupID);
+		
+		CyberShakeEvenlyGriddedSurface surface = new CyberShakeEvenlyGriddedSurface(numRows, numCols, spacing);
+		surface.setAllLocations(locs);
+		
+		System.out.println("DONE");
+		
+		return surface;
+	}
+	
+	public ArrayList<Location> getRuptureSurfacePoints(int erfID, int sourceID, int rupID) {
+		ArrayList<Location> locs = new ArrayList<Location>();
+		
+		String sql = "SELECT Lat,Lon,Depth from Points WHERE ERF_ID = "+"'"+erfID+"' and "+
+		"Source_ID = '"+sourceID+"' and Rupture_ID = '"+rupID+"' ORDER BY Point_ID";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try{
+			rs.first();
+			while (!rs.isAfterLast()) {
+				double lat = rs.getDouble("Lat");
+				double lon = rs.getDouble("Lon");
+				double depth = rs.getDouble("Depth");
+				locs.add(new Location(lat, lon, depth));
+				rs.next();
+			}
+			rs.close();
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return locs;
+	}
+	
+	public int getRuptureInt(String column, int erfId,int sourceId,int rupId) {
+
+		String sql = "SELECT " + column + " from Ruptures WHERE ERF_ID = "+"'"+erfId+"' and "+
+		"Source_ID = '"+sourceId+"' and Rupture_ID = '"+rupId+"'";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		int data = 0;
+		try{
+			rs.first();
+			data = Integer.parseInt(rs.getString(column));
+			rs.close();
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public double getRuptureDouble(String column, int erfId, int sourceId, int rupId) {
+
+		String sql = "SELECT " + column + " from Ruptures WHERE ERF_ID = "+"'"+erfId+"' and "+
+		"Source_ID = '"+sourceId+"' and Rupture_ID = '"+rupId+"'";
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+//			TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		double data = Double.NaN;
+		try{
+			rs.first();
+			data = Double.parseDouble(rs.getString(column));
+			rs.close();
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+
 	/**
 	 * Get a list of all ERFs in the database
 	 * @return

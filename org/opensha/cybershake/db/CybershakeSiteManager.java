@@ -22,7 +22,7 @@ public class CybershakeSiteManager {
 		}
 		System.out.println("Site inserted with ID=" + siteID);
 		
-		System.out.println("Setting site type");
+		System.out.println("Setting site type to " + typeID);
 		site2db.setSiteType(siteID, typeID);
 		
 		CybershakeSiteInfo2DB.CUT_OFF_DISTANCE = cutoffDistance;

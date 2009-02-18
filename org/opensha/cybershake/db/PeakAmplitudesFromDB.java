@@ -51,6 +51,37 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return vals;
 	}
 	
+	public boolean hasAmps(int siteID, int erfID) {
+		String sql = "SELECT Site_ID FROM PeakAmplitudes WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID
+					+ " LIMIT 1";
+		
+//		System.out.println(sql);
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return false;
+			try {
+				rs.getString(1);
+			} catch (Exception e) {
+				return false;
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public boolean hasAmps(int siteID, int erfID, int rupVarScenID, int sgtVarID) {
 		String sql = "SELECT Site_ID FROM PeakAmplitudes WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID
 					+ " AND Rup_Var_Scenario_ID=" + rupVarScenID + " AND SGT_Variation_ID=" + sgtVarID
@@ -116,7 +147,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		sql += "SELECT distinct IM_Type_ID from PeakAmplitudes";
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
-		System.out.println(sql);
+//		System.out.println(sql);
 
 		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
 		ResultSet rs = null;
@@ -132,7 +163,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 				int id = rs.getInt("IM_Type_ID");
 				String measure = rs.getString("IM_Type_Measure");
 				Double value = rs.getDouble("IM_Type_Value");
-				String units = rs.getString("IM_Type_Units");
+				String units = rs.getString("Units");
 				ims.add(new CybershakeIM(id, measure, value, units));
 				rs.next();
 			}
@@ -288,7 +319,6 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
         "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
         "and IM_Type_ID = '"+im.getID()+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
 //		System.out.println(sql);
-		double imVal = Double.NaN;
 		ResultSet rs = null;
 		ArrayList<Double> vals = new ArrayList<Double>();
 		try {
@@ -448,7 +478,9 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
-		amps.getPeakAmpSiteRecords();
+//		amps.getPeakAmpSiteRecords();
+		
+		System.out.println(amps.hasAmps(90, 35));
 		
 		db.destroy();
 		

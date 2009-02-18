@@ -15,7 +15,7 @@ public class HazardCurveComputation {
 	private PeakAmplitudesFromDBAPI peakAmplitudes;
 	private ERF2DBAPI erfDB;
 	private SiteInfo2DBAPI siteDB;
-	private double CONVERSION_TO_G = 980;
+	public static final double CONVERSION_TO_G = 980;
 	
 //	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
 	

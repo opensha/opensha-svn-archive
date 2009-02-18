@@ -33,6 +33,7 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 	
 	JButton editButton = new JButton("Edit Site");
 	JButton insertButton = new JButton("Add Site");
+	JButton batchAddButton = new JButton("Add Site(s) from File");
 	JButton deleteButton = new JButton("Delete Site(s)");
 	JButton reloadButton = new JButton("Reload Sites");
 	
@@ -42,6 +43,7 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 	private boolean readOnly = false;
 	
 	private SingleSiteAddEditGUI addGUI = null;
+	private BatchSiteAddGUI batchAddGUI = null;
 
 	public SitesGUI(DBAccess db) {
 		super("CyberShake Sites");
@@ -64,6 +66,9 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 		insertButton.addActionListener(this);
 		insertButton.setEnabled(!readOnly);
 		
+		batchAddButton.addActionListener(this);
+		batchAddButton.setEnabled(!readOnly);
+		
 		editButton.addActionListener(this);
 		editButton.setEnabled(false);
 		
@@ -73,6 +78,8 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 		bottomPanel.add(reloadButton);
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(insertButton);
+		bottomPanel.add(new JSeparator());
+		bottomPanel.add(batchAddButton);
 		bottomPanel.add(new JSeparator());
 		bottomPanel.add(editButton);
 		bottomPanel.add(new JSeparator());
@@ -119,6 +126,11 @@ public class SitesGUI extends JFrame implements ActionListener, ListSelectionLis
 				addGUI = new SingleSiteAddEditGUI(db, model, null);
 			
 			addGUI.setVisible(true);
+		} else if (e.getSource() == batchAddButton) {
+			if (batchAddGUI == null)
+				batchAddGUI = new BatchSiteAddGUI(db, model);
+			
+			batchAddGUI.setVisible(true);
 		} else if (e.getSource() == editButton) {
 			ListSelectionModel lsm = table.getSelectionModel();
 			CybershakeSite site = model.getSiteAtRow(lsm.getMinSelectionIndex());

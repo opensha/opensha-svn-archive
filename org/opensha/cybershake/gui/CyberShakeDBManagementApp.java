@@ -1,5 +1,6 @@
 package org.opensha.cybershake.gui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,6 +81,14 @@ public class CyberShakeDBManagementApp {
 		DBAccess db = null;
 		
 		String usage = "CyberShakeDBManagementApp [db_pass_file]";
+		
+		if (args.length == 1) {
+			// if password file doesn't exist, ignore it
+			if (!(new File(args[0])).exists()) {
+				System.err.println("WARNING: Password file doesn't exist, ignoring: " + args[0]);
+				args = new String[0];
+			}
+		}
 		
 		if (args.length == 0) {
 			// prompt for pass

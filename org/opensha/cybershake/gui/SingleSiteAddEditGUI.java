@@ -115,7 +115,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(null);
 	}
 	
-	private EqkRupForecast loadERF() {
+	public static EqkRupForecast loadERF() {
 		return MeanUCERF2_ToDB.createUCERF2ERF();
 	}
 	
@@ -137,17 +137,47 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 	private String getLongName() {
 		String longName = longNameField.getText().trim();
 		
-		if (longName.length() < 2) {
+		if (!isLongNameValid(longName)) {
 			showAddError("Long name must be at least 2 characters");
 			return null;
 		}
 		return longName;
 	}
 	
+	public static boolean isShortNameValid(String shortName) {
+		if (shortName.contains(" ") || shortName.length() < 2 || shortName.length() > SitesGUI.MAX_SHORT_NAME_CHARS)
+			return false;
+		return true;
+	}
+	
+	public static boolean isLongNameValid(String longName) {
+		if (longName.length() < 2)
+			return false;
+		return true;
+	}
+	
+	public static boolean isLatValid(double lat) {
+		if (lat < -90 || lat > 90)
+			return false;
+		return true;
+	}
+	
+	public static boolean isLonValid(double lon) {
+		if (lon < -180 || lon > 180)
+			return false;
+		return true;
+	}
+	
+	public static boolean isCutoffValid(double cutoff) {
+		if (cutoff <= 0)
+			return false;
+		return true;
+	}
+	
 	private void insertSite() {
 		String shortName = shortNameField.getText().trim();
 		
-		if (shortName.contains(" ") || shortName.length() < 2 || shortName.length() > SitesGUI.MAX_SHORT_NAME_CHARS) {
+		if (!isShortNameValid(shortName)) {
 			showAddError("Short name must be between 2 and " + SitesGUI.MAX_SHORT_NAME_CHARS
 					+ " characters\nand cannot contain spaces.");
 			return;
@@ -161,7 +191,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		try {
 			lat = Double.parseDouble(latField.getText().trim());
 			
-			if (lat < -90 || lat > 90) {
+			if (!isLonValid(lat)) {
 				showAddError(latField.getText().trim() + " must be between -90 and 90");
 				return;
 			}
@@ -174,7 +204,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		try {
 			lon = Double.parseDouble(lonField.getText().trim());
 			
-			if (lon < -180 || lon > 180) {
+			if (!isLonValid(lon)) {
 				showAddError(lonField.getText().trim() + " must be between -180 and 180");
 				return;
 			}
@@ -187,7 +217,7 @@ public class SingleSiteAddEditGUI extends JFrame implements ActionListener {
 		try {
 			cutoff = Double.parseDouble(cutoffField.getText().trim());
 			
-			if (cutoff <= 0) {
+			if (!isCutoffValid(cutoff)) {
 				showAddError(cutoffField.getText().trim() + " must be greater than 0");
 				return;
 			}
