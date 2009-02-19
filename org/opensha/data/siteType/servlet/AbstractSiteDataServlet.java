@@ -1,6 +1,5 @@
 package org.opensha.data.siteType.servlet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,8 +27,6 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
 	public AbstractSiteDataServlet(SiteDataAPI<Element> data) {
 		super();
-		
-		debug("CWD: " + new File(".").getAbsolutePath());
 		
 		this.data = data;
 		this.debugName = data.getShortName() + " servlet";

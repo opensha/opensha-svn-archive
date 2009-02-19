@@ -46,6 +46,10 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	private String type;
 	
 	public CVM4BasinDepth(String type, boolean useServlet) throws IOException {
+		this(type, null, useServlet);
+	}
+	
+	public CVM4BasinDepth(String type, File dataFile, boolean useServlet) throws IOException {
 		this.useServlet = useServlet;
 		this.type = type;
 		
@@ -55,13 +59,14 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 		if (useServlet) {
 			
 		} else {
-			String fileName;
-			if (type.equals(TYPE_DEPTH_TO_1_0))
-				fileName = DEPTH_1_0_FILE;
-			else
-				fileName = DEPTH_2_5_FILE;
+			if (dataFile == null) {
+				if (type.equals(TYPE_DEPTH_TO_1_0))
+					dataFile = new File(DEPTH_1_0_FILE);
+				else
+					dataFile = new File(DEPTH_2_5_FILE);
+			}
 			
-			file = new RandomAccessFile(new File(fileName), "r");
+			file = new RandomAccessFile(dataFile, "r");
 			
 			calc.setStartBottom(true);
 			calc.setStartLeft(true);
