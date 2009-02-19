@@ -489,8 +489,8 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		// first if the buffer is full, make room for it
 		if (imValsBuff.size() >= IM_VALS_BUFF_SIZE) {
-			imValsBuff.pop();
-			imValsBuffKeys.pop();
+			imValsBuff.removeFirst();
+			imValsBuffKeys.removeFirst();
 		}
 
 		// now add it to the buffer
