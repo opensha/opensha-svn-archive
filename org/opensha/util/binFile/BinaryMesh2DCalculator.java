@@ -15,6 +15,8 @@ public class BinaryMesh2DCalculator {
 	private long ny;
 	private int numType;
 	
+	private long maxFilePos;
+	
 	private int meshOrder = FAST_XY;
 	
 	private int numBytesPerPoint;
@@ -31,6 +33,8 @@ public class BinaryMesh2DCalculator {
 		
 		this.nx = nx;
 		this.ny = ny;
+		
+		this.maxFilePos = (nx - 1) * (ny - 1) * numBytesPerPoint;
 		
 		this.numType = numType;
 	}
@@ -61,6 +65,10 @@ public class BinaryMesh2DCalculator {
 
 	public void setNY(int ny) {
 		this.ny = ny;
+	}
+
+	public long getMaxFilePos() {
+		return maxFilePos;
 	}
 
 	public int getMeshOrder() {

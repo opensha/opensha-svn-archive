@@ -1,6 +1,8 @@
 package org.opensha.util.binFile;
 
 import org.opensha.data.Location;
+import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.exceptions.RegionConstraintException;
 
 public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		BinaryMesh2DCalculator {
@@ -25,6 +27,10 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		this.gridSpacing = gridSpacing;
 	}
 	
+	public long[] calcClosestLocationIndices(Location loc) {
+		return calcClosestLocationIndices(loc.getLatitude(), loc.getLongitude());
+	}
+	
 	public long[] calcClosestLocationIndices(double lat, double lon) {
 		long x = calcX(lon);
 		long y = calcY(lat);
@@ -34,10 +40,18 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		return pt;
 	}
 	
+	public long calcClosestLocationIndex(Location loc) {
+		return calcClosestLocationIndex(loc.getLatitude(), loc.getLongitude());
+	}
+	
 	public long calcClosestLocationIndex(double lat, double lon) {
 		long pt[] = calcClosestLocationIndices(lat, lon);
 		
 		return this.calcMeshIndex(pt[0], pt[1]);
+	}
+	
+	public long calcClosestLocationFileIndex(Location loc) {
+		return calcClosestLocationFileIndex(loc.getLatitude(), loc.getLongitude());
 	}
 	
 	public long calcClosestLocationFileIndex(double lat, double lon) {
@@ -51,6 +65,10 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		double lon = minLon + x * gridSpacing;
 		
 		return new Location(lat, lon);
+	}
+	
+	public Location calcClosestLocation(Location loc) {
+		return calcClosestLocation(loc.getLatitude(), loc.getLongitude());
 	}
 	
 	public Location calcClosestLocation(double lat, double lon) {
@@ -107,6 +125,15 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 
 	public void setStartLeft(boolean startLeft) {
 		this.startLeft = startLeft;
+	}
+	
+	public RectangularGeographicRegion getApplicableRegion() {
+		try {
+			return new RectangularGeographicRegion(minLat, maxLat, minLon, maxLon);
+		} catch (RegionConstraintException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
