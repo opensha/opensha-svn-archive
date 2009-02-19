@@ -12,18 +12,42 @@ import org.opensha.data.LocationList;
 
 public class SiteDataServletAccessor<Element> {
 	
-	String url;
+	private String url;
+	
+	private int maxLocsPerRequest = 1000;
 	
 	public SiteDataServletAccessor(String servletURL) {
 		this.url = servletURL;
 	}
 	
+	public int getMaxLocsPerRequest() {
+		return maxLocsPerRequest;
+	}
+
+	public void setMaxLocsPerRequest(int maxLocsPerRequest) {
+		this.maxLocsPerRequest = maxLocsPerRequest;
+	}
+
 	public Element getValue(Location loc) throws IOException {
 		return (Element)getResult(loc);
 	}
 	
 	public ArrayList<Element> getValues(LocationList locs) throws IOException {
-		return (ArrayList<Element>)getResult(locs);
+		ArrayList<Element> result = null;
+		
+		if (maxLocsPerRequest > 0 && locs.size() > maxLocsPerRequest) {
+			result = new ArrayList<Element>();
+			
+			for (LocationList partialLocs : locs.split(maxLocsPerRequest)) {
+				System.out.println("Requesting " + partialLocs.size() + " values");
+				result.addAll((ArrayList<Element>)getResult(partialLocs));
+			}
+		} else {
+			System.out.println("Requesting " + locs.size() + " values");
+			result = (ArrayList<Element>)getResult(locs);
+		}
+		
+		return result;
 	}
 	
 	private Object getResult(Object request) throws IOException {

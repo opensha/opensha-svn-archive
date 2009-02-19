@@ -14,6 +14,7 @@ import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.SiteDataAPI;
 import org.opensha.data.siteType.SiteDataToXYZ;
+import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -34,6 +35,9 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	
 	public static final String DEPTH_2_5_FILE = "data/siteType/CVM4/depth_2.5.bin";
 	public static final String DEPTH_1_0_FILE = "data/siteType/CVM4/depth_1.0.bin";
+	
+	public static final String SERVLET_2_5_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_2_5";
+	public static final String SERVLET_1_0_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_1_0";
 	
 	private RandomAccessFile file = null;
 	private GeolocatedRectangularBinaryMesh2DCalculator calc = null;
@@ -138,8 +142,20 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0, false);
-		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/basin.txt");
+//		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0, false);
+//		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/basin.txt");
+		
+		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_2_5_URL);
+		LocationList locs = new LocationList();
+		locs.addLocation(new Location(34.01920, -118.28800));
+		locs.addLocation(new Location(34.91920, -118.3200));
+		locs.addLocation(new Location(34.781920, -118.88600));
+		locs.addLocation(new Location(34.21920, -118.38600));
+		locs.addLocation(new Location(34.61920, -118.18600));
+		
+		ArrayList<Double> vals = serv.getValues(locs);
+		for (double val : vals)
+			System.out.println(val);
 	}
 
 }

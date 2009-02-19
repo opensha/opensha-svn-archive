@@ -29,8 +29,8 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	public static final String NAME = "CGS/Wills Site Classification Map (2006)";
 	public static final String SHORT_NAME = "Wills2006";
 	
-//	public static final String BIN_FILE = "/home/scec-00/kmilner/wills/out.bin";
-	public static final String BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
+	public static final String SERVER_BIN_FILE = "/export/opensha/data/siteData/wills2006.bin";
+	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	private RandomAccessFile file = null;
 	private byte[] recordBuffer = null;
@@ -40,13 +40,13 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	
 	private boolean useServlet;
 	
-	public WillsMap2006() throws IOException {
-		this(false);
+	public WillsMap2006(File dataFile) throws IOException {
+		this(dataFile, false);
 	}
 	
 	private GeographicRegion applicableRegion;
 	
-	public WillsMap2006(boolean useServlet) throws IOException {
+	public WillsMap2006(File dataFile, boolean useServlet) throws IOException {
 		this.useServlet = useServlet;
 		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
@@ -55,7 +55,7 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 		if (useServlet) {
 			
 		} else {
-			file = new RandomAccessFile(new File(BIN_FILE), "r");
+			file = new RandomAccessFile(dataFile, "r");
 			
 			recordBuffer = new byte[2];
 			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
@@ -131,7 +131,7 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	public static void main(String[] args) throws IOException {
 		double nan = Double.NaN;
 		
-		WillsMap2006 map = new WillsMap2006();
+		WillsMap2006 map = new WillsMap2006(new File(DEBUG_BIN_FILE));
 		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills.txt");
 	}
 
