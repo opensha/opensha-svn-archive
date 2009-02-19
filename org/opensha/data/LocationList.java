@@ -285,4 +285,29 @@ public class LocationList implements java.io.Serializable, XMLSaveable, Iterable
 	public Iterator<Location> iterator() {
 		return this.listIterator();
 	}
+	
+	public ArrayList<LocationList> split(int pieceSize) {
+		ArrayList<LocationList> lists = new ArrayList<LocationList>();
+		
+		// quickly handle the trivial case
+		if (pieceSize <= 0 || this.size() <= pieceSize) {
+			lists.add(this);
+			return lists;
+		}
+		
+		LocationList cur = new LocationList();
+		
+		for (int i=0; i<this.size(); i++) {
+			if (i % pieceSize == 0 && i > 0) {
+				lists.add(cur);
+				cur = new LocationList();
+			}
+			cur.addLocation(this.getLocationAt(i));
+		}
+		
+		if (cur.size() > 0)
+			lists.add(cur);
+		
+		return lists;
+	}
 }
