@@ -33,7 +33,7 @@ import org.opensha.metadata.XMLSaveable;
  * @version    1.0
  */
 
-public class LocationList implements java.io.Serializable, XMLSaveable{
+public class LocationList implements java.io.Serializable, XMLSaveable, Iterable<Location> {
 
 	private static final long serialVersionUID = 0xA9F494E;
 	
@@ -127,7 +127,7 @@ public class LocationList implements java.io.Serializable, XMLSaveable{
      *
      * @return    Description of the Return Value
      */
-    public ListIterator listIterator() { return locations.listIterator(); }
+    public ListIterator<Location> listIterator() { return locations.listIterator(); }
 
 
     /**  Removes all Locations from this list */
@@ -281,4 +281,8 @@ public class LocationList implements java.io.Serializable, XMLSaveable{
 
     	return locs;
     }
+
+	public Iterator<Location> iterator() {
+		return this.listIterator();
+	}
 }
