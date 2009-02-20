@@ -22,6 +22,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.opensha.cybershake.db.CybershakeSite;
+import org.opensha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.cybershake.db.CybershakeSiteManager;
 import org.opensha.cybershake.db.CybershakeSiteType;
 import org.opensha.cybershake.db.DBAccess;
@@ -110,7 +111,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 		this.label.setText(text);
 	}
 	
-	private static CybershakeSite getSiteForLine(String line, int defaultType) {
+	private static CybershakeCutoffSite getSiteForLine(String line, int defaultType) {
 		// first we need to grab the description, then we can use a tokenizer
 		int firstQuote = line.indexOf("\"");
 		String quoteSub = line.substring(firstQuote + 1);
@@ -151,7 +152,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 				typeID = Integer.parseInt(tok.nextToken());
 			}
 			
-			CybershakeSite site = new CybershakeSite(-1, lat, lon, longName, shortName, typeID);
+			CybershakeCutoffSite site = new CybershakeCutoffSite(-1, lat, lon, longName, shortName, typeID, cutoff);
 			
 //			System.out.println("Loaded site: " + site);
 			
@@ -162,14 +163,26 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 		}
 	}
 	
-	private ArrayList<CybershakeSite> getSitesForLines(ArrayList<String> lines, int defaultType) {
-		ArrayList<CybershakeSite> sites = new ArrayList<CybershakeSite>();
+	public static class CybershakeCutoffSite extends CybershakeSite {
+
+		public double cutoff;
+		public CybershakeCutoffSite(int id, double lat, double lon,
+				String name, String short_name, int type_id, double cutoff) {
+			super(id, lat, lon, name, short_name, type_id);
+			this.cutoff = cutoff;
+		}
+		
+	}
+	
+	private ArrayList<CybershakeCutoffSite> getSitesForLines(ArrayList<String> lines, int defaultType) {
+		ArrayList<CybershakeCutoffSite> sites = new ArrayList<CybershakeCutoffSite>();
 		for (String line : lines) {
 			line = line.trim();
 			if (line.startsWith("#") || line.length() == 0)
 				continue;
-			
-			sites.add(getSiteForLine(line, defaultType));
+			CybershakeCutoffSite site = getSiteForLine(line, defaultType);
+			System.out.println("Loaded site: " + site);
+			sites.add(site);
 		}
 		return sites;
 	}
@@ -193,7 +206,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 				return;
 			}
 			int defaultType = types.get(typeBox.getSelectedIndex()).getID();
-			ArrayList<CybershakeSite> sites = getSitesForLines(lines, defaultType);
+			ArrayList<CybershakeCutoffSite> sites = getSitesForLines(lines, defaultType);
 			
 			EqkRupForecast erf = SingleSiteAddEditGUI.loadERF();
 			
@@ -210,9 +223,9 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 					"If everything looks correct, hit 'YES' to add site, or 'NO' to cancel";
 			int response = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
 			if (response == JOptionPane.YES_OPTION) {
-				for (CybershakeSite site : sites) {
+				for (CybershakeCutoffSite site : sites) {
 					System.out.println("Site: " + site);
-					boolean success = CybershakeSiteManager.insertCybershakeSite(db, site, erf, erfID, 200, site.id);
+					boolean success = CybershakeSiteManager.insertCybershakeSite(db, site, erf, erfID, site.cutoff, site.type_id);
 					if (success) {
 						model.reloadSites();
 					}
@@ -246,7 +259,7 @@ public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentL
 	}
 	
 	public static void main(String args[]) {
-		BatchSiteAddGUI.getSiteForLine("SITE \"My Test Site\" 34 -118 200", 1);
+		System.out.println(BatchSiteAddGUI.getSiteForLine("SITE \"My Test Site\" 34 -118 200 3", 1));
 	}
 
 }
