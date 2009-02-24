@@ -49,6 +49,8 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	
 	private String type;
 	
+	private SiteDataServletAccessor<Double> servlet = null;
+	
 	public CVM4BasinDepth(String type, boolean useServlet) throws IOException {
 		this(type, null, useServlet);
 	}
@@ -61,7 +63,10 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, gridSpacing);
 		
 		if (useServlet) {
-			
+			if (type.equals(TYPE_DEPTH_TO_1_0))
+				servlet = new SiteDataServletAccessor<Double>(SERVLET_1_0_URL);
+			else
+				servlet = new SiteDataServletAccessor<Double>(SERVLET_2_5_URL);
 		} else {
 			if (dataFile == null) {
 				if (type.equals(TYPE_DEPTH_TO_1_0))
@@ -109,7 +114,7 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-			throw new RuntimeException("Servlet not implemented yet!");
+			return servlet.getValue(loc);
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -128,13 +133,17 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	}
 
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		
-		for (int i=0; i<locs.size(); i++) {
-			vals.add(this.getValue(locs.getLocationAt(i)));
+		if (useServlet) {
+			return servlet.getValues(locs);
+		} else {
+			ArrayList<Double> vals = new ArrayList<Double>();
+			
+			for (Location loc : locs) {
+				vals.add(this.getValue(loc));
+			}
+			
+			return vals;
 		}
-		
-		return vals;
 	}
 
 	public boolean isValueValid(Double el) {

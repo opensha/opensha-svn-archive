@@ -35,7 +35,7 @@ public interface SiteDataAPI<Element> {
 	public GeographicRegion getApplicableRegion();
 	
 	/**
-	 * This gives the resolution  of the dataset in degrees.
+	 * This gives the resolution of the dataset in degrees, or 0 for infinite resolution.
 	 * 
 	 * We could possibly add a 'units' field to allow for resolution in KM
 	 * @return

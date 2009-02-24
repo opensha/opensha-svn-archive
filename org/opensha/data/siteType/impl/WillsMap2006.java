@@ -13,6 +13,7 @@ import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.SiteDataAPI;
 import org.opensha.data.siteType.SiteDataToXYZ;
+import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -32,6 +33,8 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	public static final String SERVER_BIN_FILE = "/export/opensha/data/siteData/wills2006.bin";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
+	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2006";
+	
 	private RandomAccessFile file = null;
 	private byte[] recordBuffer = null;
 	private ShortBuffer shortBuff = null;
@@ -40,33 +43,39 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	
 	private boolean useServlet;
 	
-	public WillsMap2006(File dataFile) throws IOException {
-		this(dataFile, false);
+	private SiteDataServletAccessor<Double> servlet = null;
+	
+	public WillsMap2006() throws IOException {
+		this.useServlet = true;
+		
+		initCommon();
+		
+		servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
 	}
 	
 	private GeographicRegion applicableRegion;
 	
-	public WillsMap2006(File dataFile, boolean useServlet) throws IOException {
-		this.useServlet = useServlet;
+	public WillsMap2006(File dataFile) throws IOException {
+		this.useServlet = false;
 		
+		initCommon();
+		
+		file = new RandomAccessFile(dataFile, "r");
+		
+		recordBuffer = new byte[2];
+		ByteBuffer record = ByteBuffer.wrap(recordBuffer);
+		record.order(ByteOrder.LITTLE_ENDIAN);
+		shortBuff = record.asShortBuffer();
+	}
+	
+	private void initCommon() {
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
 				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
 		
-		if (useServlet) {
-			
-		} else {
-			file = new RandomAccessFile(dataFile, "r");
-			
-			recordBuffer = new byte[2];
-			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-			record.order(ByteOrder.LITTLE_ENDIAN);
-			shortBuff = record.asShortBuffer();
-			
-			calc.setStartBottom(false);
-			calc.setStartLeft(true);
-			
-			applicableRegion = calc.getApplicableRegion();
-		}
+		calc.setStartBottom(false);
+		calc.setStartLeft(true);
+		
+		applicableRegion = calc.getApplicableRegion();
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -95,7 +104,7 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-			throw new RuntimeException("Servlet not implemented yet!");
+			return servlet.getValue(loc);
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -115,13 +124,17 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	}
 
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
-		ArrayList<Double> vals = new ArrayList<Double>();
-		
-		for (Location loc : locs) {
-			vals.add(this.getValue(loc));
+		if (useServlet) {
+			return servlet.getValues(locs);
+		} else {
+			ArrayList<Double> vals = new ArrayList<Double>();
+			
+			for (Location loc : locs) {
+				vals.add(this.getValue(loc));
+			}
+			
+			return vals;
 		}
-		
-		return vals;
 	}
 	
 	public boolean isValueValid(Double val) {
@@ -129,10 +142,22 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		double nan = Double.NaN;
 		
-		WillsMap2006 map = new WillsMap2006(new File(DEBUG_BIN_FILE));
+		WillsMap2006 map = new WillsMap2006();
 		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills.txt");
+		
+//		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_URL);
+//		
+//		LocationList locs = new LocationList();
+//		locs.addLocation(new Location(34.01920, -118.28800));
+//		locs.addLocation(new Location(34.91920, -118.3200));
+//		locs.addLocation(new Location(34.781920, -118.88600));
+//		locs.addLocation(new Location(34.21920, -118.38600));
+//		locs.addLocation(new Location(34.61920, -118.18600));
+//		
+//		ArrayList<Double> vals = map.getValues(locs);
+//		for (double val : vals)
+//			System.out.println(val);
 	}
 
 }
