@@ -69,7 +69,7 @@ public interface SiteDataAPI<Element> {
 	 * @param loc
 	 * @return
 	 */
-	public Location getClosestDataLocation(Location loc);
+	public Location getClosestDataLocation(Location loc) throws IOException;
 	
 	/**
 	 * Get the value at the closest location

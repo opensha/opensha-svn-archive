@@ -21,6 +21,8 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 	
 	public static DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	
+	public static String OP_GET_CLOSEST = "Get Closest Location";
+	
 	private SiteDataAPI<Element> data;
 	
 	private String debugName;
@@ -69,8 +71,24 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 				LocationList locs = (LocationList)obj;
 				ArrayList<Element> e = data.getValues(locs);
 				out.writeObject(e);
+			} else if (obj instanceof String) {
+				String op = (String)obj;
+				if (op.equals(OP_GET_CLOSEST)) {
+					obj = in.readObject();
+					if (!(obj instanceof Location)) {
+						fail(out, "A location must be given for closest location operation");
+						return;
+					}
+					Location loc = (Location)obj;
+					Location close = data.getClosestDataLocation(loc);
+					out.writeObject(loc);
+				} else {
+					fail(out, "Unknown operation: " + op);
+					return;
+				}
 			} else {
 				fail(out, "You must give either a Location or a LocationList!");
+				return;
 			}
 			
 			out.flush();

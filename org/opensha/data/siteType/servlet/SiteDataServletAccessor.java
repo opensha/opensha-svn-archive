@@ -32,6 +32,10 @@ public class SiteDataServletAccessor<Element> {
 		return (Element)getResult(loc);
 	}
 	
+	public Location getClosestLocation(Location loc) throws IOException {
+		return (Location)getResult(loc, AbstractSiteDataServlet.OP_GET_CLOSEST);
+	}
+	
 	public ArrayList<Element> getValues(LocationList locs) throws IOException {
 		ArrayList<Element> result = null;
 		
@@ -51,10 +55,19 @@ public class SiteDataServletAccessor<Element> {
 	}
 	
 	private Object getResult(Object request) throws IOException {
+		return getResult(request, null);
+	}
+	
+	private Object getResult(Object request, String operation) throws IOException {
 		URLConnection servletConnection = this.openServletConnection();
 		
 		ObjectOutputStream outputToServlet = new
 				ObjectOutputStream(servletConnection.getOutputStream());
+		
+		// we have an operation to specify
+		if (operation != null && operation.length() > 0) {
+			outputToServlet.writeObject(operation);
+		}
 		
 		outputToServlet.writeObject(request);
 		
