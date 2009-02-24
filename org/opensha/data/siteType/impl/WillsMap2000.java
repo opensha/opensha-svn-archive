@@ -34,7 +34,7 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 	
 	private boolean useServlet;
 	
-	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2006";
+	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2000";
 	
 	SiteDataServletAccessor<String> servlet = null;
 	
@@ -112,20 +112,20 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 	public static void main(String[] args) throws IOException {
 		
 		WillsMap2000 map = new WillsMap2000();
-		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills2000.txt");
+//		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills2000.txt");
 		
-//		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_URL);
-//		
-//		LocationList locs = new LocationList();
-//		locs.addLocation(new Location(34.01920, -118.28800));
-//		locs.addLocation(new Location(34.91920, -118.3200));
-//		locs.addLocation(new Location(34.781920, -118.88600));
-//		locs.addLocation(new Location(34.21920, -118.38600));
-//		locs.addLocation(new Location(34.61920, -118.18600));
-//		
-//		ArrayList<Double> vals = map.getValues(locs);
-//		for (double val : vals)
-//			System.out.println(val);
+		SiteDataServletAccessor<String> serv = new SiteDataServletAccessor<String>(SERVLET_URL);
+		
+		LocationList locs = new LocationList();
+		locs.addLocation(new Location(34.01920, -118.28800));
+		locs.addLocation(new Location(34.91920, -118.3200));
+		locs.addLocation(new Location(34.781920, -118.88600));
+		locs.addLocation(new Location(34.21920, -118.38600));
+		locs.addLocation(new Location(34.61920, -118.18600));
+		
+		ArrayList<String> vals = map.getValues(locs);
+		for (String val : vals)
+			System.out.println(val);
 	}
 
 }
