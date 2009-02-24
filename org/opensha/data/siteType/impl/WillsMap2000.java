@@ -55,8 +55,10 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (useServlet)
+		if (useServlet) {
 			servlet = new SiteDataServletAccessor<String>(SERVLET_URL);
+			servlet.setMaxLocsPerRequest(10000);
+		}
 	}
 
 	public GeographicRegion getApplicableRegion() {
