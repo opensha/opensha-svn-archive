@@ -115,30 +115,6 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 		return vals;
 	}
 	
-	public static final OrderedSiteDataProviderList createSiteTypeDefaults() {
-		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
-		
-		try {
-			providers.add(new WillsMap2006());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		providers.add(new WillsMap2000());
-		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		providers.add(new CVM2BasinDepth());
-		
-		return new OrderedSiteDataProviderList(providers);
-	}
-	
 	public int size() {
 		return providers.size();
 	}
@@ -208,5 +184,47 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 
 	public Iterator<SiteDataAPI<?>> iterator() {
 		return providers.iterator();
+	}
+	
+	/**
+	 * Creates the default list of site data providers:
+	 * 
+	 * <UL>
+	 * <LI> 1. Wills 2006 (servlet access)
+	 * <LI> 2. Wills 2000 (servlet access)
+	 * <LI> 3. CVM 4 Depth 2.5 (servlet access)
+	 * <LI> 4. CVM 4 Depth 1.0 (servlet access)
+	 * <LI> 5. CVM 2 Depth 2.5 (servlet access)
+	 * </UL>
+	 * 
+	 * @return
+	 */
+	public static final OrderedSiteDataProviderList createSiteTypeDefaults() {
+		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		
+		/*		Wills 2006			*/
+		try {
+			providers.add(new WillsMap2006());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		Wills 2000			*/
+		providers.add(new WillsMap2000());
+		/*		CVM 4 Depth 2.5		*/
+		try {
+			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 4 Depth 1.0		*/
+		try {
+			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 2 Depth 2.5		*/
+		providers.add(new CVM2BasinDepth());
+		
+		return new OrderedSiteDataProviderList(providers);
 	}
 }

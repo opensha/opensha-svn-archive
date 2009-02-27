@@ -27,6 +27,8 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 	
 	private SiteDataServletAccessor<Double> servlet = null;
 	
+	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM2";
+	
 	private GeolocatedRectangularBinaryMesh2DCalculator calc = null;
 	
 	private RandomAccessFile file = null;
@@ -49,7 +51,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 		useServlet = true;
 		initCommon();
 		
-		
+		servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
 	}
 	
 	public CVM2BasinDepth(String fileName) throws IOException {
@@ -79,7 +81,10 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 	}
 
 	public Location getClosestDataLocation(Location loc) throws IOException {
-		return calc.calcClosestLocation(loc);
+		if (useServlet)
+			return servlet.getClosestLocation(loc);
+		else
+			return calc.calcClosestLocation(loc);
 	}
 	
 	public String getName() {
@@ -111,8 +116,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-//			return servlet.getValue(loc);
-			return null;
+			return servlet.getValue(loc);
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -130,26 +134,34 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 			return dobVal;
 		}
 	}
+	
+	public ArrayList<Double> getValues(LocationList locs) throws IOException {
+		if (useServlet) {
+			return servlet.getValues(locs);
+		} else {
+			return super.getValues(locs);
+		}
+	}
 
 	public boolean isValueValid(Double el) {
 		return el >=0 && !Double.isNaN(el);
 	}
 	
 	public static void main(String[] args) throws IOException {
-		CVM2BasinDepth map = new CVM2BasinDepth(FILE_NAME);
+//		CVM2BasinDepth map = new CVM2BasinDepth(FILE_NAME);
+		CVM2BasinDepth map = new CVM2BasinDepth();
 		SiteDataToXYZ.writeXYZ(map, 0.01, "/tmp/basin.txt");
 		
-//		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_2_5_URL);
-//		LocationList locs = new LocationList();
-//		locs.addLocation(new Location(34.01920, -118.28800));
-//		locs.addLocation(new Location(34.91920, -118.3200));
-//		locs.addLocation(new Location(34.781920, -118.88600));
-//		locs.addLocation(new Location(34.21920, -118.38600));
-//		locs.addLocation(new Location(34.61920, -118.18600));
-//		
-//		ArrayList<Double> vals = serv.getValues(locs);
-//		for (double val : vals)
-//			System.out.println(val);
+		LocationList locs = new LocationList();
+		locs.addLocation(new Location(34.01920, -118.28800));
+		locs.addLocation(new Location(34.91920, -118.3200));
+		locs.addLocation(new Location(34.781920, -118.88600));
+		locs.addLocation(new Location(34.21920, -118.38600));
+		locs.addLocation(new Location(34.61920, -118.18600));
+		
+		ArrayList<Double> vals = map.getValues(locs);
+		for (double val : vals)
+			System.out.println(val);
 	}
 
 }
