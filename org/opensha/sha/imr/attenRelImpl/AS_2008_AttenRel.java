@@ -95,18 +95,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
 
 	/**
-	 * Depth 1.0 km/sec Parameter, reserved for representing the depth to where
-	 * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
-	 */
-	protected WarningDoubleParameter depthTo1pt0kmPerSecParam;
-	public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec (m)";
-	public final static String DEPTH_1pt0_UNITS = "m";
-	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
-	public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
-	protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
-	protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
-
-	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
 	 */
 	private DistanceRupParameter distanceRupParam;

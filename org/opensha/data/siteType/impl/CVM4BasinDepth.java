@@ -1,7 +1,6 @@
 package org.opensha.data.siteType.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -12,15 +11,14 @@ import java.util.ArrayList;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.data.siteType.SiteDataAPI;
-import org.opensha.data.siteType.SiteDataToXYZ;
+import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
-public class CVM4BasinDepth implements SiteDataAPI<Double> {
+public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	
-	public static final String NAME = "SCEC Community Velocity Model Basin Depth";
+	public static final String NAME = "SCEC Community Velocity Model Version 4 Basin Depth";
 	public static final String SHORT_NAME = "CVM4";
 	
 	public static final double minLat = 31;
@@ -33,8 +31,8 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	
 	public static final double gridSpacing = 0.005;
 	
-	public static final String DEPTH_2_5_FILE = "data/siteType/CVM4/depth_2.5.bin";
-	public static final String DEPTH_1_0_FILE = "data/siteType/CVM4/depth_1.0.bin";
+	public static final String DEPTH_2_5_FILE = "data/siteData/CVM4/depth_2.5.bin";
+	public static final String DEPTH_1_0_FILE = "data/siteData/CVM4/depth_1.0.bin";
 	
 	public static final String SERVLET_2_5_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_2_5";
 	public static final String SERVLET_1_0_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_1_0";
@@ -56,6 +54,7 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	}
 	
 	public CVM4BasinDepth(String type, File dataFile, boolean useServlet) throws IOException {
+		super();
 		this.useServlet = useServlet;
 		this.type = type;
 		
@@ -103,6 +102,12 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 	public String getShortName() {
 		return SHORT_NAME;
 	}
+	
+	public String getMetadata() {
+		return type + ", extracted from version 4 of the SCEC Community Velocity Model with patches from" +
+				"Geoff Ely and others. Extracted Feb 17, 2009 by Kevin Milner.\n\n" +
+				"It has a grid spacing of " + gridSpacing + " degrees";
+	}
 
 	public double getResolution() {
 		return gridSpacing;
@@ -110,6 +115,11 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 
 	public String getType() {
 		return type;
+	}
+	
+	// TODO: what should we set this to?
+	public String getTypeFlag() {
+		return TYPE_FLAG_MEASURED;
 	}
 
 	public Double getValue(Location loc) throws IOException {
@@ -128,7 +138,8 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 			double val = floatBuff.get(0);
 			
 			// convert to KM
-			return val / 1000d;
+			Double dobVal = (double)val / 1000d;
+			return dobVal;
 		}
 	}
 
@@ -136,18 +147,12 @@ public class CVM4BasinDepth implements SiteDataAPI<Double> {
 		if (useServlet) {
 			return servlet.getValues(locs);
 		} else {
-			ArrayList<Double> vals = new ArrayList<Double>();
-			
-			for (Location loc : locs) {
-				vals.add(this.getValue(loc));
-			}
-			
-			return vals;
+			return super.getValues(locs);
 		}
 	}
 
-	public boolean isValueValid(Double el) {
-		return el.equals(Double.NaN);
+	public boolean isValueValid(Double val) {
+		return val != null && !Double.isNaN(val);
 	}
 	
 	public static void main(String[] args) throws IOException {

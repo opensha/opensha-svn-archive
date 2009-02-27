@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Authenticator;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,6 +21,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridResources;
@@ -32,6 +34,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.servlet.ManagementServletAccessor;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
@@ -69,8 +72,13 @@ public class CreateDataManager extends StepManager {
 	
 	private IMT_Info imtInfo = new IMT_Info();
 	
+	HazardMapApplet applet;
+	
+	ArrayList<NamedGeographicRegion> regions;
+	
 	public CreateDataManager(HazardMapApplet parent) {
 		super(parent, null, parent.getConsole());
+		this.applet = parent;
 		
 		// SSL's not working from within an applet, at least for now. Just use it if it's an application.
 //		if (!parent.isApplet())
@@ -78,15 +86,29 @@ public class CreateDataManager extends StepManager {
 		
 		manager = new ManagementServletAccessor(ManagementServletAccessor.SERVLET_URL, false);
 		resources = getResourcesList();
+		regions = getRegionsList();
 		
 		this.createSteps();
 		
 		this.init();
 	}
 	
+	private ArrayList<NamedGeographicRegion> getRegionsList() {
+		try {
+			return manager.getGeographicRegiongs();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.parent.loadStep();
+		return null;
+	}
+	
 	private GridResourcesList getResourcesList() {
 		HTTPAuthenticator auth = new HTTPAuthenticator();
-		UserAuthDialog dialog = auth.getDialog();
 		Authenticator.setDefault(auth);
 		
 		while (true) {
@@ -145,7 +167,7 @@ public class CreateDataManager extends StepManager {
 	
 	private Step createRegionStep() {
 		try {
-			sitesGuiBean = this.hazard.createSitesGUIBean();
+			sitesGuiBean = this.hazard.createSitesGUIBean(regions);
 		} catch (RegionConstraintException e) {
 			throw new RuntimeException(e);
 		}
@@ -313,6 +335,9 @@ public class CreateDataManager extends StepManager {
 			ManagementServletAccessor manage = new ManagementServletAccessor(ManagementServletAccessor.SERVLET_URL, false);
 			
 			manage.submit(document);
+			
+			// show status area
+			this.applet.loadStatusOption();
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

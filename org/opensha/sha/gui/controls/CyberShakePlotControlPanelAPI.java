@@ -80,7 +80,7 @@ public interface CyberShakePlotControlPanelAPI {
     /**
      * Returns the Set Site Params from Web Services control panel.
      */
-    public SetSiteParamsFromWebServicesControlPanel getCVMControl();
+    public SiteDataControlPanel getCVMControl();
     
     /**
      * sets the range for X and Y axis

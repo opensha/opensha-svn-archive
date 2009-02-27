@@ -47,6 +47,7 @@ import org.opensha.sha.gui.controls.PEER_TestCaseSelectorControlPanelAPI;
 import org.opensha.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
+import org.opensha.sha.gui.controls.SiteDataControlPanel;
 import org.opensha.sha.gui.controls.SitesOfInterestControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
@@ -199,7 +200,7 @@ public class HazardCurveServerModeApplication extends JFrame
   protected ERF_EpistemicListControlPanel epistemicControlPanel;
   protected SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   protected SitesOfInterestControlPanel sitesOfInterest;
-  protected SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
+  protected SiteDataControlPanel cvmControlPanel;
   protected X_ValuesInCurveControlPanel xValuesPanel;
   protected RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
   protected PlottingOptionControl plotOptionControl;
@@ -1989,14 +1990,14 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   private void initCVMControl() {
     if(this.cvmControlPanel==null)
-      cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
+      cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean, this.siteGuiBean);
     cvmControlPanel.pack();
     cvmControlPanel.setVisible(true);
   }
   
-  public SetSiteParamsFromWebServicesControlPanel getCVMControl() {
+  public SiteDataControlPanel getCVMControl() {
 	  if(this.cvmControlPanel==null)
-	      cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
+	      cvmControlPanel = new SiteDataControlPanel(this, this.imrGuiBean, this.siteGuiBean);
 	  return cvmControlPanel;
   }
 

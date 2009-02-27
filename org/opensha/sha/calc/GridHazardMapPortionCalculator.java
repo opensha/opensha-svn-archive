@@ -231,7 +231,7 @@ public class GridHazardMapPortionCalculator {
 								skipBasin = true;
 							
 							boolean skipType = false;
-							if (type.contains("NA"))
+							if (type.contains("NA") || type.contains("NaN"))
 								skipType = true;
 
 							Iterator it = site.getParametersIterator();

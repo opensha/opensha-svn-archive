@@ -14,7 +14,7 @@ public class SiteDataServletAccessor<Element> {
 	
 	private String url;
 	
-	private int maxLocsPerRequest = 1000;
+	private int maxLocsPerRequest = 10000;
 	
 	public SiteDataServletAccessor(String servletURL) {
 		this.url = servletURL;

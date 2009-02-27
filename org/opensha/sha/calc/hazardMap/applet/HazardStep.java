@@ -7,6 +7,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -150,8 +151,8 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 		return imtGuiBean;
 	}
 	
-	public SitesInGriddedRegionGuiBean createSitesGUIBean() throws RegionConstraintException {
-		SitesInGriddedRegionGuiBean sitesGuiBean = new SitesInGriddedRegionGuiBean();
+	public SitesInGriddedRegionGuiBean createSitesGUIBean(ArrayList<NamedGeographicRegion> regions) throws RegionConstraintException {
+		sitesGuiBean = new SitesInGriddedRegionGuiBean(regions);
 		sitesGuiBean.addSiteParams(this.getIMR().getSiteParamsIterator());
 		return sitesGuiBean;
 	}

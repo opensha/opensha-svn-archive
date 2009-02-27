@@ -22,6 +22,8 @@ public class StatusCheckManager extends StepManager {
 		steps.add(statusStep);
 		
 		this.init();
+		
+//		this.
 	}
 
 }

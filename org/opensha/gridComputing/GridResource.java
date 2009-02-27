@@ -49,6 +49,14 @@ public abstract class GridResource implements XMLSaveable, Serializable {
 			rp.setName("Abe (NCSA/TeraGrid)");
 			rp.writeToFile(outDir + "2abe.xml");
 			
+			rp = ResourceProvider.STEELE_GLIDE_INS();
+			rp.setName("Steel (Purdue/TeraGrid)");
+			rp.writeToFile(outDir + "5steele.xml");
+			
+			rp = ResourceProvider.STEELE_NO_GLIDE_INS();
+			rp.setName("Steel WITH GLIDE INS (Purdue/TeraGrid)");
+			rp.writeToFile(outDir + "6steele_glide_in.xml");
+			
 			// SUBMIT
 			outDir = mainDir + XMLPresetLoader.DEFAULT_SUBMIT_SUBDIR + "/";
 			SubmitHost submit = SubmitHost.AFTERSHOCK;

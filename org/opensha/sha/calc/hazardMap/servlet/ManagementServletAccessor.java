@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Authenticator;
-import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 import org.dom4j.Document;
+import org.dom4j.Element;
 import org.opensha.gridComputing.GridResourcesList;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.cron.CronOperation;
 import org.opensha.util.http.HTTPAuthenticator;
 
@@ -56,6 +58,45 @@ public class ManagementServletAccessor extends ServletAccessor {
 		GridResourcesList list = (GridResourcesList)obj;
 		
 		return list;
+	}
+	
+	public ArrayList<NamedGeographicRegion> getGeographicRegiongs() throws IOException, ClassNotFoundException {
+		URLConnection servletConnection = this.openServletConnection(ssl);
+		
+		ObjectOutputStream outputToServlet = new
+		ObjectOutputStream(servletConnection.getOutputStream());
+
+		// send the operation to servlet
+		System.out.println("Sending Operation...");
+		outputToServlet.writeObject(ManagementServlet.OP_GET_REGIONS);
+		
+		System.out.println("Closing Output...");
+		outputToServlet.flush();
+		outputToServlet.close();
+		
+		ObjectInputStream inputFromServlet = new
+		ObjectInputStream(servletConnection.getInputStream());
+		
+		Object obj = inputFromServlet.readObject();
+		
+		if (obj instanceof Boolean) {
+			String message = (String)inputFromServlet.readObject();
+			
+			throw new RuntimeException("Region List Request Failed: " + message);
+		}
+		
+		ArrayList<Document> docs = (ArrayList<Document>)obj;
+		
+		ArrayList<NamedGeographicRegion> regions = new ArrayList<NamedGeographicRegion>();
+		
+		for (Document doc : docs) {
+			Element el = doc.getRootElement().element(NamedGeographicRegion.XML_METADATA_NAME);
+			NamedGeographicRegion region = NamedGeographicRegion.fromXMLMetadata(el);
+			System.out.println("Loaded region: " + region.getName());
+			regions.add(region);
+		}
+		
+		return regions;
 	}
 	
 	public String submit(Document doc) throws IOException, ClassNotFoundException {

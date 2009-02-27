@@ -7,8 +7,6 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.WarningDoubleParameter;
-import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.util.FileUtils;
@@ -17,8 +15,6 @@ import org.opensha.sha.param.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.*;
-import junit.framework.TestCase;
 
 public class AS_2008_test extends NGATest {
 

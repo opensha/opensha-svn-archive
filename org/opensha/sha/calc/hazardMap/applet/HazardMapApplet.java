@@ -99,7 +99,7 @@ public class HazardMapApplet extends JApplet implements OptionPanelListener, Loa
 		System.out.println("Done loading Create Option!");
 	}
 	
-	private void loadStatusOption() {
+	protected void loadStatusOption() {
 		if (status == null) {
 			status = new StatusCheckManager(this);
 			

@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
-public class WillsMap2006 implements SiteDataAPI<Double> {
+public class WillsMap2006 extends AbstractSiteData<Double> {
 	
 	public static final int nx = 49867;
 	public static final int ny = 44016;
@@ -46,6 +46,7 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	private SiteDataServletAccessor<Double> servlet = null;
 	
 	public WillsMap2006() throws IOException {
+		super();
 		this.useServlet = true;
 		
 		initCommon();
@@ -56,6 +57,7 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	private GeographicRegion applicableRegion;
 	
 	public WillsMap2006(File dataFile) throws IOException {
+		super();
 		this.useServlet = false;
 		
 		initCommon();
@@ -93,13 +95,27 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 	public String getShortName() {
 		return SHORT_NAME;
 	}
+	
+	public String getMetadata() {
+		return "Vs30 values from Wills site classifications as described in:\n\n" +
+				"Developing a Map of Geologically Defined Site-Condition Categories for California\n" +
+				"by C. J. Wills and K. B. Clahan\n" +
+				"Bulletin of the Seismological Society of America; August 2006; v. 96; no. 4A; p. 1483-1501;\n\n" +
+				"The dataset contains Vs values translated from Wills site classifications, and was tranferred " +
+				"electronically from Chris Wills to Kevin Milner January, 2009 and subsequently converted to " +
+				"binary data for fast I/O. It has a grid spacing of " + spacing + " degrees";
+	}
 
 	public double getResolution() {
 		return spacing;
 	}
 
 	public String getType() {
-		return SiteDataAPI.TYPE_VS30;
+		return TYPE_VS30;
+	}
+	
+	public String getTypeFlag() {
+		return TYPE_FLAG_MEASURED;
 	}
 
 	public Double getValue(Location loc) throws IOException {
@@ -127,18 +143,12 @@ public class WillsMap2006 implements SiteDataAPI<Double> {
 		if (useServlet) {
 			return servlet.getValues(locs);
 		} else {
-			ArrayList<Double> vals = new ArrayList<Double>();
-			
-			for (Location loc : locs) {
-				vals.add(this.getValue(loc));
-			}
-			
-			return vals;
+			return super.getValues(locs);
 		}
 	}
 	
 	public boolean isValueValid(Double val) {
-		return val.equals(Double.NaN);
+		return val != null && !Double.isNaN(val);
 	}
 	
 	public static void main(String[] args) throws IOException {

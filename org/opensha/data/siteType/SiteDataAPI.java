@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.param.ParameterList;
 
 public interface SiteDataAPI<Element> {
 	
-	// TYPES
+	/* ************ Site Data Types ************ */
 	
 	/**
 	 * Vs 30 data type - Shear Wave velocity at 30 meter depth (m/sec)
@@ -27,6 +28,19 @@ public interface SiteDataAPI<Element> {
 	 * Depth to first Vs30 = 1.0 km/sec (km)
 	 */
 	public static final String TYPE_DEPTH_TO_1_0 = "Depth to Vs = 1.0 km/sec";
+	
+	/* ************ Type Flags ************ */
+	
+	/**
+	 * Flag for site data with measured values
+	 */
+	public static final String TYPE_FLAG_MEASURED = "Measured";
+	/**
+	 * Flag for site data with inferred values
+	 */
+	public static final String TYPE_FLAG_INFERRED = "Inferred";
+	
+	/* ************ Site Data API ************ */
 	
 	/**
 	 * This gives the applicable region for this data set.
@@ -64,6 +78,13 @@ public interface SiteDataAPI<Element> {
 	public String getType();
 	
 	/**
+	 * Get the flag for this type, such as "Measured" or "Inferred"
+	 * 
+	 * @return
+	 */
+	public String getTypeFlag();
+	
+	/**
 	 * Get the location of the closest data point
 	 * 
 	 * @param loc
@@ -80,6 +101,15 @@ public interface SiteDataAPI<Element> {
 	public Element getValue(Location loc) throws IOException;
 	
 	/**
+	 * Get the value, with metadata, at the closest location
+	 * 
+	 * @param loc
+	 * @return
+	 * @throws IOException
+	 */
+	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException;
+	
+	/**
 	 * Get the value for each location in the given location list
 	 * 
 	 * @param loc
@@ -94,4 +124,29 @@ public interface SiteDataAPI<Element> {
 	 * @return
 	 */
 	public boolean isValueValid(Element el);
+	
+	/**
+	 * Returns true if there is data for the given site
+	 * 
+	 * @param loc - The location
+	 * @param checkValid - Boolean for checking the validity of the value at the specified location
+	 * @return
+	 */
+	public boolean hasDataForLocation(Location loc, boolean checkValid);
+	
+	/**
+	 * Returns a list of adjustable parameters. For many types of site data, this will be empty, but for
+	 * more complex ones like WaldGlobalVs2007, it's more complicated.
+	 * 
+	 * @return
+	 */
+	public ParameterList getAdjustableParameterList();
+	
+	/**
+	 * Returns the metadata for this dataset.
+	 * 
+	 * @return
+	 */
+	public String getMetadata();
+	
 }

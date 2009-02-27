@@ -8,14 +8,14 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
-import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.data.siteType.translate.WillsClassTranslator;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
-public class WillsMap2000 implements SiteDataAPI<String> {
+public class WillsMap2000 extends AbstractSiteData<String> {
 	
 	public static final String NAME = "CGS/Wills Site Classification Map (2000)";
 	public static final String SHORT_NAME = "Wills2000";
@@ -48,6 +48,7 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 	}
 	
 	public WillsMap2000(boolean useServlet) {
+		super();
 		this.useServlet = useServlet;
 		try {
 			applicableRegion = new RectangularGeographicRegion(minLat, maxLat, minLon, maxLon);
@@ -86,9 +87,25 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 	public String getShortName() {
 		return SHORT_NAME;
 	}
+	
+	public String getMetadata() {
+		return "Wills site classifications as defined in:\n\n" +
+				"A Site-Conditions Map for California Based on Geology and Shear-Wave Velocity\n" +
+				"by C. J. Wills, M. Petersen, W. A. Bryant, M. Reichle, G. J. Saucedo, " +
+				"S. Tan, G. Taylor, and J. Treiman\n" +
+				"Bulletin of the Seismological Society of America, 90, 6B, pp. S187–S208, December 2000\n\n" +
+				"NOTE: The gridded datafile used for this dataset had lat/lon values rounded to two decimal places " +
+				"resulting in an irregular mesh, therefore data results are not precise. It is recommended that you " +
+				"use the 2006 version of the map. " +
+				"It has a grid spacing of apporximately " + spacing + " degrees";
+	}
 
 	public String getType() {
 		return TYPE_WILLS_CLASS;
+	}
+	
+	public String getTypeFlag() {
+		return TYPE_FLAG_MEASURED;
 	}
 
 	public String getValue(Location loc) throws IOException {
@@ -114,20 +131,20 @@ public class WillsMap2000 implements SiteDataAPI<String> {
 	public static void main(String[] args) throws IOException {
 		
 		WillsMap2000 map = new WillsMap2000();
-//		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills2000.txt");
-		
-		SiteDataServletAccessor<String> serv = new SiteDataServletAccessor<String>(SERVLET_URL);
-		
-		LocationList locs = new LocationList();
-		locs.addLocation(new Location(34.01920, -118.28800));
-		locs.addLocation(new Location(34.91920, -118.3200));
-		locs.addLocation(new Location(34.781920, -118.88600));
-		locs.addLocation(new Location(34.21920, -118.38600));
-		locs.addLocation(new Location(34.61920, -118.18600));
-		
-		ArrayList<String> vals = map.getValues(locs);
-		for (String val : vals)
-			System.out.println(val);
+		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills2000.txt");
+//		
+//		SiteDataServletAccessor<String> serv = new SiteDataServletAccessor<String>(SERVLET_URL);
+//		
+//		LocationList locs = new LocationList();
+//		locs.addLocation(new Location(34.01920, -118.28800));
+//		locs.addLocation(new Location(34.91920, -118.3200));
+//		locs.addLocation(new Location(34.781920, -118.88600));
+//		locs.addLocation(new Location(34.21920, -118.38600));
+//		locs.addLocation(new Location(34.61920, -118.18600));
+//		
+//		ArrayList<String> vals = map.getValues(locs);
+//		for (String val : vals)
+//			System.out.println(val);
 	}
 
 }

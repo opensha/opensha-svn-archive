@@ -813,7 +813,7 @@ extends JFrame implements ParameterChangeListener {
 		site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(loc.getLatitude()));
 		site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(loc.getLongitude()));
 		site.getParameterListEditor().refreshParamEditor();
-		application.getCVMControl().setSelectedIMRButton_actionPerformed(null);
+		application.getCVMControl().setSiteParams();
 	}
 
 	/**

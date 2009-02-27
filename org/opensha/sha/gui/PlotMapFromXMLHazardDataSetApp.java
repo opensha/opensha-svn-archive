@@ -389,7 +389,7 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 		// fill the combo box with available data sets
 		dataSetCombo.removeAllItems();
 		serverRegions.clear();
-		
+			
 		Collections.sort(serverDocs, new HazardXMLDocumentComparator());
 		
 		for (Document doc : serverDocs) {
@@ -412,9 +412,9 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-			Element jobElem = root.element(GridJob.XML_METADATA_NAME);
-			String jobName = jobElem.attributeValue("jobID");
 //			HazardMapJob job = HazardMapJob.fromXMLMetadata(root.element(HazardMapJob.XML_METADATA_NAME));
+			Element jobElem = root.element("hazardMapJob");
+			String jobName = jobElem.attributeValue("jobName");
 			EvenlyGriddedGeographicRegion region = EvenlyGriddedGeographicRegion.fromXMLMetadata(root.element(EvenlyGriddedGeographicRegion.XML_METADATA_NAME));
 			serverRegions.add(region);
 //			jobs.add(job);
@@ -846,8 +846,19 @@ public class PlotMapFromXMLHazardDataSetApp extends JApplet implements Parameter
 			Document doc1 = (Document) o1;
 			Document doc2 = (Document) o2;
 			
-			String name1 = doc1.getRootElement().element(GridJob.XML_METADATA_NAME).attributeValue("jobName");
-			String name2 = doc2.getRootElement().element(GridJob.XML_METADATA_NAME).attributeValue("jobName");
+			Element jobElem = doc1.getRootElement().element("hazardMapJob");
+			String jobName = jobElem.attributeValue("jobName");
+			System.out.println("JobName: " + jobName);
+			
+			jobElem = doc2.getRootElement().element("hazardMapJob");
+			if (jobElem == null) {
+				jobElem = doc2.getRootElement().element("GridJob");
+			}
+			String jobName2 = jobElem.attributeValue("jobName");
+			System.out.println("comparing " + jobName + " to " + jobName2);
+			
+			String name1 = doc1.getRootElement().element("hazardMapJob").attributeValue("jobName");
+			String name2 = doc2.getRootElement().element("hazardMapJob").attributeValue("jobName");
 
 			return c.compare(name1, name2);
 		}

@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake;
 
 
 import org.opensha.data.TimeSpan;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.data.Location;
 import org.opensha.data.region.GeographicRegion;
@@ -76,7 +77,7 @@ public interface ERF_API extends NamedObjectAPI{
    *
    * @return
    */
-  public ListIterator getAdjustableParamsIterator();
+  public ListIterator<ParameterAPI> getAdjustableParamsIterator();
 
   /**
    * This function finds whether a particular location lies in applicable

@@ -21,6 +21,7 @@ public class ManagementServlet extends ConfLoadingServlet {
 	public static final String NAME = "ManagementServlet";
 	
 	public static final String OP_GET_RESOURCES = "GetResources";
+	public static final String OP_GET_REGIONS = "GetRegoins";
 	
 	public ManagementServlet() {
 		super(NAME);
@@ -61,6 +62,9 @@ public class ManagementServlet extends ConfLoadingServlet {
 			} else if (functionDesired.equals(OP_GET_RESOURCES)) {
 				debug("Handling GET_RESOURCES Operation");
 				handleGetResources(in, out);
+			} else if (functionDesired.equals(OP_GET_REGIONS)) {
+				debug("Handling GET_REGIONS Operation");
+				handleGetRegions(in, out);
 			} else {
 				fail(out, "Unknown request: " + functionDesired);
 				return;
@@ -83,6 +87,18 @@ public class ManagementServlet extends ConfLoadingServlet {
 		
 		try {
 			out.writeObject(presets.getGridResourcesList());
+			
+			out.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			fail(out, e.getMessage());
+		}
+	}
+	
+	private void handleGetRegions(ObjectInputStream in, ObjectOutputStream out) throws IOException {
+		try {
+			out.writeObject(this.confLoader.getGeographicRegionsDocs());
 			
 			out.close();
 		} catch (Exception e) {

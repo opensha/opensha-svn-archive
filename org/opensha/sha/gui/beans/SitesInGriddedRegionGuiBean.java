@@ -13,9 +13,11 @@ import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 import org.opensha.data.Location;
 import org.opensha.data.region.*;
+import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
 
@@ -100,22 +102,23 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String RECTANGULAR_NAME = "Rectangular Region";
 	public final static String CUSTOM_NAME = "Custom Region";
 	public final static String RELM_TESTING_NAME = "RELM Testing Region";
+	public final static String RELM_COLLECTION_NAME = "RELM Collection Region";
 	public final static String SO_CAL_NAME = "Southern California Region";
 	public final static String NO_CAL_NAME = "Northern Caliofnia Region";
 	
+	ArrayList<NamedGeographicRegion> presets;
+	
 	private StringParameter regionSelect;
-
-	/**
-	 * constuctor which builds up mapping between IMRs and their related sites
-	 */
-	public SitesInGriddedRegionGuiBean() throws RegionConstraintException {
-
+	
+	public SitesInGriddedRegionGuiBean(ArrayList<NamedGeographicRegion> presets) throws RegionConstraintException {
 		ArrayList<String> presetsStr = new ArrayList<String>();
 		presetsStr.add(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
 //		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
-		presetsStr.add(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME);
-		presetsStr.add(SitesInGriddedRegionGuiBean.SO_CAL_NAME);
-		presetsStr.add(SitesInGriddedRegionGuiBean.NO_CAL_NAME);
+		for (NamedGeographicRegion preset : presets) {
+			presetsStr.add(preset.getName());
+		}
+		
+		this.presets = presets;
 		
 		regionSelect = new StringParameter(REGION_SELECT_NAME, presetsStr);
 		regionSelect.setValue(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
@@ -165,6 +168,24 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * constuctor which builds up mapping between IMRs and their related sites
+	 */
+	public SitesInGriddedRegionGuiBean() throws RegionConstraintException {
+		this(generateDefaultRegions());
+	}
+	
+	public static ArrayList<NamedGeographicRegion> generateDefaultRegions() {
+		ArrayList<NamedGeographicRegion> regions = new ArrayList<NamedGeographicRegion>();
+		
+		regions.add(new NamedGeographicRegion(new RELM_TestingRegion().getRegionOutline(), RELM_TESTING_NAME));
+		regions.add(new NamedGeographicRegion(new RELM_CollectionRegion().getRegionOutline(), RELM_COLLECTION_NAME));
+		regions.add(new NamedGeographicRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), SO_CAL_NAME));
+		regions.add(new NamedGeographicRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), NO_CAL_NAME));
+		
+		return regions;
 	}
 
 
@@ -339,30 +360,19 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	
 	private boolean updateNumSites() {
 		String name = (String)(regionSelect.getValue());
-		SitesInGriddedRegionAPI region = null;
-		double gridSpacingD = ((Double)gridSpacing.getValue()).doubleValue();
-		if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME)) {
-			double minLatitude= ((Double)minLat.getValue()).doubleValue();
-			double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
-			double minLongitude=((Double)minLon.getValue()).doubleValue();
-			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
-			//checkLatLonParamValues();
-			try {
-				region= new SitesInGriddedRectangularRegion(minLatitude,
-						maxLatitude,minLongitude,maxLongitude,
-						gridSpacingD);
-			} catch (RegionConstraintException e1) {
-//				e1.printStackTrace();
-			}
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME)) {
-			region = new SitesInGriddedRegion(new RELM_TestingRegion().getRegionOutline(), gridSpacingD);
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.NO_CAL_NAME)) {
-			region = new SitesInGriddedRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), gridSpacingD);
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.SO_CAL_NAME)) {
-			region = new SitesInGriddedRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), gridSpacingD);
+		try {
+			createAndUpdateSites();
+		} catch (RegionConstraintException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		if (region != null) {
-			numSites.setValue(region.getNumGridLocs());
+		if (gridRectRegion != null) {
+			numSites.setValue(gridRectRegion.getNumGridLocs());
+			LocationList locs = gridRectRegion.getRegionOutline();
+			for (int i=0; i<locs.size(); i++) {
+				Location loc = locs.getLocationAt(i);
+				System.out.println(loc.getLatitude() + " " + loc.getLongitude());
+			}
 			return true;
 		}
 		return false;
@@ -431,12 +441,13 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
 					maxLatitude,minLongitude,maxLongitude,
 					gridSpacingD);
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.RELM_TESTING_NAME)) {
-			gridRectRegion = new SitesInGriddedRegion(new RELM_TestingRegion().getRegionOutline(), gridSpacingD);
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.NO_CAL_NAME)) {
-			gridRectRegion = new SitesInGriddedRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), gridSpacingD);
-		} else if (name.equalsIgnoreCase(SitesInGriddedRegionGuiBean.SO_CAL_NAME)) {
-			gridRectRegion = new SitesInGriddedRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), gridSpacingD);
+		} else {
+			for (NamedGeographicRegion region : presets) {
+				if (name.equals(region.getName())) {
+					gridRectRegion = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacingD);
+					break;
+				}
+			}
 		}
 
 	}

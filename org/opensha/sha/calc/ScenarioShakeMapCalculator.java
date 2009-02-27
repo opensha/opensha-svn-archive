@@ -301,8 +301,6 @@ public class ScenarioShakeMapCalculator {
       //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
       return xyzDataFile;
-    }catch(RuntimeException e){
-      throw new RuntimeException(e.getMessage());
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");

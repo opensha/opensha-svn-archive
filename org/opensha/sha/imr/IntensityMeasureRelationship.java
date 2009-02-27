@@ -430,7 +430,7 @@ public abstract class IntensityMeasureRelationship
     }
     catch (ParameterException e) {}
 
-    ListIterator it = supportedIMParams.getParametersIterator();
+    ListIterator<ParameterAPI> it = supportedIMParams.getParametersIterator();
     while (it.hasNext()) {
 
       DependentParameterAPI param = (DependentParameterAPI) it.next();
@@ -454,7 +454,7 @@ public abstract class IntensityMeasureRelationship
    *
    * @return    The Site Parameters Iterator
    */
-  public ListIterator getSiteParamsIterator() {
+  public ListIterator<ParameterAPI> getSiteParamsIterator() {
     return siteParams.getParametersIterator();
   }
 
@@ -467,7 +467,7 @@ public abstract class IntensityMeasureRelationship
    *
    * @return    Iterator for otherParameters
    */
-  public ListIterator getOtherParamsIterator() {
+  public ListIterator<ParameterAPI> getOtherParamsIterator() {
     return otherParams.getParametersIterator();
   }
 
@@ -476,7 +476,7 @@ public abstract class IntensityMeasureRelationship
    *
    * @return    The EqkRupture Parameters Iterator
    */
-  public ListIterator getEqkRuptureParamsIterator() {
+  public ListIterator<ParameterAPI> getEqkRuptureParamsIterator() {
     return eqkRuptureParams.getParametersIterator();
   }
 
@@ -487,7 +487,7 @@ public abstract class IntensityMeasureRelationship
    *
    * @return    The Propagation Effect Parameters Iterator
    */
-  public ListIterator getPropagationEffectParamsIterator() {
+  public ListIterator<ParameterAPI> getPropagationEffectParamsIterator() {
     return propagationEffectParams.getParametersIterator();
   }
 
@@ -497,7 +497,7 @@ public abstract class IntensityMeasureRelationship
    *
    * @return    The Supported Intensity-Measures Iterator
    */
-  public ListIterator getSupportedIntensityMeasuresIterator() {
+  public ListIterator<ParameterAPI> getSupportedIntensityMeasuresIterator() {
     return supportedIMParams.getParametersIterator();
   }
   

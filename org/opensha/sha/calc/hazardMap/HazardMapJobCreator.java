@@ -17,6 +17,9 @@ import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.StorageHost;
@@ -36,6 +39,9 @@ public class HazardMapJobCreator {
 	public static final String OUTPUT_FILES_DIR_NAME = "outfiles";
 	public static final String SUBMIT_FILES_DIR_NAME = "submitfiles";
 	public static final String SCRIPT_FILES_DIR_NAME = "scriptfiles";
+	
+	public static final boolean APPEND_DOT_COMMAND = true;
+	public static final boolean DOT_UPDATE = true;
 
 	public static final String LOG_SCRIPT_DIR_NAME = "log_sh";
 
@@ -85,6 +91,10 @@ public class HazardMapJobCreator {
 	public static int NUM_JOB_RETRIES = 3;
 	public static double TAR_WALL_TIME_PER_CURVE = 0.05;
 	public static int TAR_WALL_TIME_MIN = 5;
+	
+	public static int DAGMAN_MAX_IDLE = 50;
+	public static int DAGMAN_MAX_PRE = 3;
+	public static int DAGMAN_MAX_POST = 5;
 
 	private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
 
@@ -105,8 +115,8 @@ public class HazardMapJobCreator {
 
 	boolean stageOut = false;
 
-	String willsFileName = "/etc/cvmfiles/usgs_cgs_geology_60s_mod.txt";
-	String basinFileName = "/etc/cvmfiles/basindepth_OpenSHA.txt";
+//	String willsFileName = "/" + WillsSiteClass.WILLS_FILE;
+//	String basinFileName = "/data/siteType/CVM2/basindepth_OpenSHA.txt";
 
 	boolean gravityLink = false;
 
@@ -264,8 +274,10 @@ public class HazardMapJobCreator {
 		FileWriter fr = new FileWriter(outputDir + jobFileName);
 
 		fr.write("universe = " + rp.getUniverse() + "\n");
-		fr.write("globusrsl = " + globusrsl + "\n");
-		fr.write("globusscheduler = " + globusscheduler + "\n");
+		if (rp.isGridUniverse()) {
+			fr.write("globusrsl = " + globusrsl + "\n");
+			fr.write("globusscheduler = " + globusscheduler + "\n");
+		}
 		String requirements = rp.getRequirements();
 		if (requirements.length() > 0)
 			fr.write("requirements = " + requirements + "\n");
@@ -451,11 +463,6 @@ public class HazardMapJobCreator {
 	}
 
 	private String createCVMJobFile(String jobName, int startIndex, int endIndex) {
-		boolean forCPT = false;
-
-		if (calcParams.getSitesPerJob() < 50000) // in case i forget to change forCPT to false when doing a regular run
-			forCPT = false;
-
 		String fileName = jobName + ".cvm";
 
 		if (skipCVMFiles) // we're skipping creation of the CVM files
@@ -477,26 +484,32 @@ public class HazardMapJobCreator {
 		}
 //		System.out.println("Locations: " + locs.size());
 		try {
-			ArrayList willsSiteClassList = null;
-			ArrayList basinDepth = null;
+			ArrayList<Double> vs = null;
+			ArrayList<Double> basinDepth = null;
 
-			if (cvmFromFile) {
-				WillsSiteClass wills = new WillsSiteClass(locs, willsFileName);
-				wills.setLoadFromJar(true);
-				willsSiteClassList=  wills.getWillsSiteClass();
-				BasinDepthClass basin = new BasinDepthClass(locs, basinFileName);
-				basin.setLoadFromJar(true);
-				basinDepth = basin.getBasinDepth();
-			} else {
-				willsSiteClassList= ConnectToCVM.getWillsSiteTypeFromCVM(locs);
-				basinDepth= ConnectToCVM.getBasinDepthFromCVM(locs);
-			}
+//			if (cvmFromFile) {
+//				WillsSiteClass wills = new WillsSiteClass(locs, willsFileName);
+//				wills.setLoadFromJar(true);
+//				willsSiteClassList=  wills.getWillsSiteClass();
+//				BasinDepthClass basin = new BasinDepthClass(locs, basinFileName);
+//				basin.setLoadFromJar(true);
+//				basinDepth = basin.getBasinDepth();
+//			} else {
+//				willsSiteClassList= ConnectToCVM.getWillsSiteTypeFromCVM(locs);
+//				basinDepth= ConnectToCVM.getBasinDepthFromCVM(locs);
+//			}
+			
+			WillsMap2006 wills = new WillsMap2006();
+			CVM4BasinDepth basin = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true);
+			
+			vs = wills.getValues(locs);
+			basinDepth = basin.getValues(locs);
 
-			if (willsSiteClassList == null) {
+			if (vs == null) {
 				System.err.println("Wills is NULL!");
-				willsSiteClassList = new ArrayList();
+				vs = new ArrayList<Double>();
 				for (int i=0; i<(endIndex - startIndex); i++) {
-					willsSiteClassList.add("NA");
+					vs.add(Double.NaN);
 				}
 			}
 
@@ -508,7 +521,7 @@ public class HazardMapJobCreator {
 				}
 			}
 
-			if (willsSiteClassList.size() != basinDepth.size() || basinDepth.size() != (endIndex - startIndex + 1)) {
+			if (vs.size() != basinDepth.size() || basinDepth.size() != (endIndex - startIndex + 1)) {
 				System.err.println("ERROR: not the same size!!!!!");
 				return "";
 			}
@@ -516,40 +529,15 @@ public class HazardMapJobCreator {
 			int cvmVals = 0;
 			FileWriter fr = new FileWriter(outputDir + fileName);
 //			System.out.println("Wills Size: " + willsSiteClassList.size());
-			for (int i=0; i< willsSiteClassList.size(); i++) {
+			for (int i=0; i< vs.size(); i++) {
 				//System.out.println("Site Type: " + willsSiteClassList.get(i));
 				//System.out.println("Site Basin: " + basinDepth.get(i));
 				double lat = locs.getLocationAt(i).getLatitude();
 				double lon = locs.getLocationAt(i).getLongitude();
-				if (forCPT) {
-					lat = lat * 1000d;
-					lat = (double)Math.rint(lat);
-					lat = lat / 1000d;
-					lon = lon * 1000d;
-					lon = (double)Math.rint(lon);
-					lon = lon / 1000d;
-				}
+				
 				fr.write(lat + "\t");
 				fr.write(lon + "\t");
-				if (forCPT) {
-					int num = 0;
-					if (((String)willsSiteClassList.get(i)).equals("E"))
-						num = 7;
-					else if (((String)willsSiteClassList.get(i)).equals("DE"))
-						num = 6;
-					else if (((String)willsSiteClassList.get(i)).equals("D"))
-						num = 5;
-					else if (((String)willsSiteClassList.get(i)).equals("CD"))
-						num = 4;
-					else if (((String)willsSiteClassList.get(i)).equals("C"))
-						num = 3;
-					else if (((String)willsSiteClassList.get(i)).equals("BC"))
-						num = 2;
-					else if (((String)willsSiteClassList.get(i)).equals("B"))
-						num = 1;
-					fr.write(num + "\t" + basinDepth.get(i) + "\n");
-				} else
-					fr.write(willsSiteClassList.get(i) + "\t" + basinDepth.get(i) + "\n");
+				fr.write(vs.get(i) + "\t" + basinDepth.get(i) + "\n");
 				fr.flush();
 				cvmVals++;
 			}
@@ -896,6 +884,8 @@ public class HazardMapJobCreator {
 		String jobName = "curves_";
 		String tarJobName = "tar_";
 		String untarJobName = "untar_";
+		
+		boolean isGridUniverse = rp.isGridUniverse();
 
 		try {
 			BufferedOutputStream fos = new BufferedOutputStream (new FileOutputStream(outputDir+"/main.dag"));
@@ -946,7 +936,7 @@ public class HazardMapJobCreator {
 			else
 				testMessage = STATUS_TEST_JOB;
 			str.append("Script PRE test " + createLogShellScript("test", testMessage) + "\n");
-			if (rp.isGridUniverse()) {
+			if (isGridUniverse) {
 				str.append("Script POST test " + retValScript + " " + outputDir + "testJob.out" + "\n");
 			}
 			str.append("RETRY test " + NUM_JOB_RETRIES + "\n");
@@ -998,7 +988,9 @@ public class HazardMapJobCreator {
 				curveJobNames.add(thisJobName);
 				str.append("Job " + thisJobName + " " + "Job_" + region + ".sub" + "\n");
 				str.append("Script PRE " + thisJobName + " " + curvePreScript + "\n");
-				String jobOut = submitHost.getPath() + "/" + job.getJobID() + "/out/Job_" + region + ".out";
+				String jobOut = "";
+				if (isGridUniverse)
+					jobOut = submitHost.getPath() + "/" + job.getJobID() + "/out/Job_" + region + ".out";
 				str.append("Script POST " + thisJobName + " " + curvePostScript + " " + jobOut + "\n");
 				str.append("RETRY " + thisJobName + " " + NUM_JOB_RETRIES + "\n");
 
@@ -1006,7 +998,9 @@ public class HazardMapJobCreator {
 					String thisTarName = tarJobName + thisJobName;
 					String thisUntarName = untarJobName + thisJobName;
 					str.append("Job " + thisTarName + " " + submitHost.getPath() + "/" + job.getJobID() + "/" + tgzSubDir + "/Tar_" + region + ".sub" + "\n");
-					String tarOut = submitHost.getPath() + "/" + job.getJobID() + "/" + tgzSubDir + "/out/" + region + ".out";
+					String tarOut = "";
+					if (isGridUniverse)
+						tarOut = submitHost.getPath() + "/" + job.getJobID() + "/" + tgzSubDir + "/out/" + region + ".out";
 					str.append("Script POST " + thisTarName + " " + submitHost.getPath() + "/" + job.getJobID() + "/" + stageOutScriptDir + "/StageOut_" + region + ".sh" + " " + tarOut + "\n");
 					str.append("RETRY " + thisTarName + " " + NUM_JOB_RETRIES + "\n");
 					str.append("Job " + thisUntarName + " " + submitHost.getPath() + "/" + job.getJobID() + "/" + tgzUnzipDir + "/UnTar_" + region + ".sub" + "\n");
@@ -1117,6 +1111,16 @@ public class HazardMapJobCreator {
 				str.append("CHILD ");
 				str.append("postProcess" + "\n");
 			}
+			
+			if (APPEND_DOT_COMMAND) {
+				str.append("\n");
+				str.append("# This will create a file that can be used to visualize the DAG\n");
+				str.append("DOT dag.dot");
+				if (DOT_UPDATE) {
+					str.append(" UPDATE");
+				}
+				str.append("\n");
+			}
 
 			fos.write(str.toString().getBytes());
 			fos.close();
@@ -1214,15 +1218,31 @@ public class HazardMapJobCreator {
 
 			FileWriter fr = new FileWriter(outputDir + "/" + tarScriptName);
 			
-			String executable = "/bin/sh";
-			String arguments = this.rpWrapperScript + " /bin/tar -czv --files-from " + tarInputName + " --file " + tarFileName;
+			String progExec = "/bin/tar";
+			String progArgs = "-czv --files-from " + tarInputName + " --file " + tarFileName;
+			String executable = "";
+			String arguments = "";
+			if (rp.isGridUniverse()) {
+				executable = "/bin/sh";
+				arguments = this.rpWrapperScript + " " + progExec + " " + progArgs;
+			} else {
+				executable = progExec;
+				arguments = progArgs;
+			}
 
-			fr.write("universe = grid" + "\n");
+			fr.write("universe = " + rp.getUniverse() + "\n");
+			String requirements = rp.getRequirements();
+			if (requirements.length() > 0)
+				fr.write("requirements = " + requirements + "\n");
+			fr.write("should_transfer_files = yes" + "\n");
+			fr.write("WhenToTransferOutput = ON_EXIT" + "\n");
 			fr.write("executable = " + executable + "\n");
 			fr.write("arguments = " + arguments + "\n");
 			fr.write("notification = NEVER" + "\n");
-			fr.write("globusrsl = (jobtype=single)(maxwalltime=" + getTarWallTime(job.getCalcParams().getSitesPerJob()) + ")" + "\n");
-			fr.write("globusscheduler = " + rp.getHostName() + "/" + rp.getBatchScheduler() + "\n");
+			if (rp.isGridUniverse()) {
+				fr.write("globusrsl = (jobtype=single)(maxwalltime=" + getTarWallTime(job.getCalcParams().getSitesPerJob()) + ")" + "\n");
+				fr.write("globusscheduler = " + rp.getHostName() + "/" + rp.getBatchScheduler() + "\n");
+			}
 			fr.write("copy_to_spool = false" + "\n");
 			fr.write("error = " + outputDir + "/" + tgzSubDir + "/err/" + regionName + ".err" + "\n");
 			fr.write("log = " + outputDir + "/" + tgzSubDir + "/log/" + regionName + ".log" + "\n");
@@ -1359,7 +1379,8 @@ public class HazardMapJobCreator {
 			String binPath = this.submitHost.getCondorPath();
 			if (!binPath.endsWith(File.separator))
 				binPath += File.separator;
-			fw.write(binPath + "condor_submit_dag main.dag" + "\n");
+			String dagArgs = "-maxidle " + DAGMAN_MAX_IDLE + " -MaxPre " + DAGMAN_MAX_PRE + " -MaxPost " + DAGMAN_MAX_POST;
+			fw.write(binPath + "condor_submit_dag " + dagArgs + " main.dag" + "\n");
 			fw.close();
 			if (run) {
 				this.logMessage(STATUS_SUBMIT_DAG);
