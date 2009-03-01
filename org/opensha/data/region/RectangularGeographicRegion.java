@@ -21,6 +21,16 @@ public class RectangularGeographicRegion extends GeographicRegion {
   
   private final static String C = "RectangularGeographicRegion";
   private final static boolean D = false;
+  
+  public static RectangularGeographicRegion createEntireGlobeRegion() {
+	  try {
+		return new RectangularGeographicRegion(-90, 90, -180, 180);
+	} catch (RegionConstraintException e) {
+		// it should never get here
+		e.printStackTrace();
+		return null;
+	}
+  }
 
 
   /**
