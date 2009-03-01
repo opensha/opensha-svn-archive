@@ -1,10 +1,11 @@
 package org.opensha.data.siteType.gui.beans;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -17,19 +18,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.opensha.data.siteType.OrderedSiteDataProviderList;
 import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValue;
 import org.opensha.data.siteType.util.SiteDataTypeParameterNameMap;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.FakeParameterListener;
 
 public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, ListSelectionListener {
 	
@@ -58,6 +57,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	
 	private ParameterListEditor paramEdit = null;
 	
+	private SiteDataCellRenderer cellRenderer = null;
+	
 	public OrderedSiteDataGUIBean(OrderedSiteDataProviderList list) {
 		this(list, null);
 	}
@@ -68,19 +69,35 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		this.attenRel = attenRel;
 		this.list = list;
 		
+		cellRenderer = new SiteDataCellRenderer(list.size());
+		
 		dataList = new JList();
 		dataList.setLayoutOrientation(JList.VERTICAL);
-		dataList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		dataList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		dataList.addListSelectionListener(this);
+		dataList.setCellRenderer(cellRenderer);
 		
-		dataList.setSelectedIndex(0);
+		dataList.setSelectedIndex(-1);
 		currentData = list.getProvider(0);
 		
 		updateList();
 		updateDataGUI();
 		
+		JPanel northPanel = new JPanel();
+		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+		
+		Font titleFont = new Font("Title", Font.BOLD, 20);
+		Font subtitleFont = new Font("Title", Font.ITALIC, 14);
+		JLabel title = new JLabel("Available Data Sources");
+		title.setFont(titleFont);
+		JLabel subtitle = new JLabel("Sorted by priority, colored by data type.");
+		subtitle.setFont(subtitleFont);
+		
+		northPanel.add(title);
+		northPanel.add(subtitle);
+		
 		JPanel selectorPanel = new JPanel(new BorderLayout());
-		selectorPanel.add(new JLabel("Available Data Sources"), BorderLayout.NORTH);
+		selectorPanel.add(northPanel, BorderLayout.NORTH);
 		selectorPanel.add(dataList, BorderLayout.CENTER);
 		
 		JPanel buttonPanel = new JPanel(new BorderLayout());
@@ -103,6 +120,11 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		disableButton.addActionListener(this);
 		helpButton.addActionListener(this);
 		
+		enableButton.setEnabled(false);
+		disableButton.setEnabled(false);
+		upButton.setEnabled(false);
+		downButton.setEnabled(false);
+		
 		selectorPanel.add(buttonPanel, BorderLayout.SOUTH);
 		metadataArea.setLineWrap(true);
 		metadataArea.setWrapStyleWord(true);
@@ -123,16 +145,23 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		int num = 1;
 		for (int i=0; i<list.size(); i++) {
 			SiteDataAPI<?> provider = list.getProvider(i);
+			cellRenderer.setType(i, provider.getType());
 			if (attenRel == null || map.isTypeApplicable(provider.getType(), attenRel)) {
 				if (list.isEnabled(i)) {
-					names.add((num) + ". " + provider.getShortName() + " (" + provider.getType() + ")");
+					names.add((num) + ". " + provider.getName() + " (" + provider.getType() + ")");
 					num++;
+					cellRenderer.setEnabled(i, true);
+					cellRenderer.setApplicable(i, true);
 				} else {
-					names.add("<disabled> " + provider.getShortName() + " (" + provider.getType() + ")");
+					names.add("<disabled> " + provider.getName() + " (" + provider.getType() + ")");
+					cellRenderer.setEnabled(i, false);
+					cellRenderer.setApplicable(i, true);
 				}
 			} else {
 				list.setEnabled(i, false);
-				names.add("<not applicable> " + provider.getShortName() + " (" + provider.getType() + ")");
+				cellRenderer.setEnabled(i, false);
+				cellRenderer.setApplicable(i, false);
+				names.add("<not applicable> " + provider.getName() + " (" + provider.getType() + ")");
 			}
 		}
 		
@@ -145,7 +174,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		for (int i=0; i<list.size(); i++)
 			list.setEnabled(i, true);
 		this.updateList();
-		dataList.setSelectedIndex(0);
+		dataList.setSelectedIndex(-1);
 		currentData = list.getProvider(0);
 		updateDataGUI();
 	}
@@ -214,12 +243,22 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	
 	public void valueChanged(ListSelectionEvent e) {
 		int index = dataList.getSelectedIndex();
-		if (index >= 0) {
-			SiteDataAPI<?> newData = list.getProvider(index);
-			if (newData != currentData) {
-				currentData = newData;
-				updateDataGUI();
-			}
+		
+		boolean somethingSelected = index >= 0;
+		
+		if (!somethingSelected) {
+			index = 0;
+		}
+		
+		enableButton.setEnabled(somethingSelected);
+		disableButton.setEnabled(somethingSelected);
+		upButton.setEnabled(somethingSelected);
+		downButton.setEnabled(somethingSelected);
+		
+		SiteDataAPI<?> newData = list.getProvider(index);
+		if (newData != currentData) {
+			currentData = newData;
+			updateDataGUI();
 		}
 	}
 	
@@ -262,19 +301,14 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		meta += currentData.getMetadata() + "\n";
 		metadataArea.setText(meta);
 		
+		metadataArea.setCaretPosition(0);
+		
 		ParameterList paramList = currentData.getAdjustableParameterList();
-//		paramList.set
-		if (paramEdit == null) {
-			paramEdit = new ParameterListEditor(paramList);
-			this.dataPanel.add(paramEdit, BorderLayout.CENTER);
-		} else {
-			paramEdit.setParameterList(paramList);
-			paramEdit.refreshParamEditor();
+		if (paramEdit != null) {
+			this.dataPanel.remove(paramEdit);
 		}
-		if (paramList.size() == 0)
-			paramEdit.setTitle("No Adjustable Parameters");
-		else
-			paramEdit.setTitle("Adjustable Parameters");
+		paramEdit = currentData.getParameterListEditor();
+		this.dataPanel.add(paramEdit, BorderLayout.CENTER);
 		
 		this.dataPanel.validate();
 	}
@@ -282,26 +316,53 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	public OrderedSiteDataProviderList getProviderList() {
 		return list;
 	}
+	
+	public static Component getDataDisplayComponent(ArrayList<SiteDataValue<?>> datas) {
+		String text;
+		
+		if (datas == null || datas.size() == 0) {
+			text = "No data available";
+		} else {
+			text = "";
+			for (SiteDataValue<?> data : datas) {
+				if (text.length() > 0)
+					text += "\n\n";
+				text += "Source: " + data.getSourceName() + "\n";
+				text += "\tType: " + data.getType() + "\n";
+				text += "\tType Flag: " + data.getFlag() + "\n";
+				text += "\tValue: " + data.getValue();
+			}
+		}
+		
+		JTextArea area = new JTextArea(15, 40);
+		
+		area.setText(text);
+		area.setLineWrap(true);
+		area.setWrapStyleWord(true);
+		area.setEditable(false);
+		
+		JScrollPane scroll = new JScrollPane(area);
+		area.setCaretPosition(0);
+		
+		return scroll;
+	}
+	
+	public static void showDataDisplayDialog(ArrayList<SiteDataValue<?>> datas, Component parent) {
+		Component comp = getDataDisplayComponent(datas);
+		
+		JOptionPane.showMessageDialog(parent, comp, "Site Data Values", JOptionPane.INFORMATION_MESSAGE);
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		JFrame window = new JFrame();
-		OrderedSiteDataProviderList list = OrderedSiteDataProviderList.createSiteTypeDefaults();
+		OrderedSiteDataProviderList list = OrderedSiteDataProviderList.createDebugSiteDataProviders();
 		
 		AttenuationRelationshipAPI attenRel = null;
 		
 		OrderedSiteDataGUIBean bean = new OrderedSiteDataGUIBean(list, attenRel);
-		
-//		attenRel = new CB_2003_AttenRel(new FakeParameterListener());
-//		bean.setAttenuationRelationship(attenRel);
-//		attenRel = new Field_2000_AttenRel(new FakeParameterListener());
-//		bean.setAttenuationRelationship(attenRel);
-//		attenRel = new BA_2008_AttenRel(new FakeParameterListener());
-//		bean.setAttenuationRelationship(attenRel);
-		attenRel = new CB_2008_AttenRel(new FakeParameterListener());
-		bean.setAttenuationRelationship(attenRel);
 		
 		window.setContentPane(bean);
 		window.setSize(width, 600);

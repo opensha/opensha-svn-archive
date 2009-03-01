@@ -1,15 +1,18 @@
 package org.opensha.data.siteType;
 
+import java.awt.BorderLayout;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.param.ParameterList;
+import org.opensha.param.editor.ParameterListEditor;
 
 public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> {
 	
 	protected ParameterList paramList;
+	protected ParameterListEditor paramEdit = null;
 	
 	public AbstractSiteData() {
 		paramList = new ParameterList();
@@ -54,6 +57,25 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 
 	public ParameterList getAdjustableParameterList() {
 		return paramList;
+	}
+	
+	protected void initParamListEditor() {
+		paramEdit = new ParameterListEditor(paramList);
+		
+		if (paramList.size() == 0)
+			paramEdit.setTitle("No Adjustable Parameters");
+		else
+			paramEdit.setTitle("Adjustable Parameters");
+	}
+	
+	public ParameterListEditor getParameterListEditor() {
+		if (paramEdit == null) {
+			initParamListEditor();
+		} else {
+			paramEdit.refreshParamEditor();
+		}
+		
+		return paramEdit;
 	}
 	
 }

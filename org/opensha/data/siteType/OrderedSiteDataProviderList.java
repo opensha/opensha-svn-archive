@@ -9,6 +9,7 @@ import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.impl.CVM2BasinDepth;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.WaldGlobalVs2007;
 import org.opensha.data.siteType.impl.WillsMap2000;
 import org.opensha.data.siteType.impl.WillsMap2006;
 
@@ -68,13 +69,48 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 	}
 	
 	private SiteDataValue<?> getCheckedDataFromProvider(SiteDataAPI provider, Location loc) throws IOException {
+		return getCheckedDataFromProvider(provider, loc, checkValues);
+	}
+	
+	private SiteDataValue<?> getCheckedDataFromProvider(SiteDataAPI provider, Location loc, boolean checkValid) throws IOException {
 		if (provider.hasDataForLocation(loc, false)) {
 			SiteDataValue<?> val = provider.getAnnotatedValue(loc);
-			if (!checkValues || provider.isValueValid(val.getValue())) {
+			if (!checkValid || provider.isValueValid(val.getValue())) {
 				return val;
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * This method returns a list of the best available data for this location,
+	 * where "best" is defined by the order of this provider list.
+	 * 
+	 * The result will have, at most, one of each site data type (so, for example,
+	 * if there are multiple Vs30 sources, only the "best" one will be used).
+	 * 
+	 * @param loc
+	 * @return
+	 */
+	public ArrayList<SiteDataValue<?>> getAllAvailableData(Location loc) {
+		ArrayList<SiteDataValue<?>> vals = new ArrayList<SiteDataValue<?>>();
+		
+		for (int i=0; i<providers.size(); i++) {
+			if (!this.isEnabled(i))
+				continue;
+			SiteDataAPI<?> provider = providers.get(i);
+			try {
+				SiteDataValue<?> val = this.getCheckedDataFromProvider(provider, loc, false);
+				if (val != null) {
+					vals.add(val);
+				}
+			} catch (IOException e) {
+				System.out.println("IOException...skipping provider: " + provider.getShortName());
+				continue;
+			}
+		}
+		
+		return vals;
 	}
 	
 	/**
@@ -94,7 +130,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 		for (int i=0; i<providers.size(); i++) {
 			if (!this.isEnabled(i))
 				continue;
-			SiteDataAPI provider = providers.get(i);
+			SiteDataAPI<?> provider = providers.get(i);
 			String type = provider.getType();
 			// if we already have this data type, then skip it
 			if (completedTypes.contains(type))
@@ -199,7 +235,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 	 * 
 	 * @return
 	 */
-	public static final OrderedSiteDataProviderList createSiteTypeDefaults() {
+	public static final OrderedSiteDataProviderList createSiteDataProviderDefaults() {
 		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
 		
 		/*		Wills 2006			*/
@@ -226,5 +262,17 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 		providers.add(new CVM2BasinDepth());
 		
 		return new OrderedSiteDataProviderList(providers);
+	}
+	
+	/**
+	 * Creates the dubugging list of site data providers:
+	 * 
+	 * @return
+	 */
+	public static final OrderedSiteDataProviderList createDebugSiteDataProviders() {
+		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
+		list.add(new WaldGlobalVs2007());
+		
+		return list;
 	}
 }

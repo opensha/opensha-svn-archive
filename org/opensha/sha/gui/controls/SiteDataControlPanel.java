@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.opensha.data.Location;
 import org.opensha.data.siteType.OrderedSiteDataProviderList;
@@ -26,13 +29,14 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 	
 	private IMR_GuiBean imrGuiBean;
 	private Site_GuiBean siteGuiBean;
-	private OrderedSiteDataGUIBean guiBean;
+	private OrderedSiteDataGUIBean dataGuiBean;
 	
 	private AttenuationRelationshipAPI attenRel;
 	
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	
 	private JButton setButton = new JButton("Set IMR Params");
+	private JButton viewButton = new JButton("View Data");
 	
 	private SiteTranslator trans = null;
 	
@@ -44,16 +48,18 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		attenRel = imrGuiBean.getSelectedIMR_Instance();
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
 		
-		guiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteTypeDefaults(), attenRel);
+		dataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults(), attenRel);
 		
+		viewButton.addActionListener(this);
 		setButton.addActionListener(this);
 		
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
 		
 		bottomPanel.add(setButton);
+		bottomPanel.add(viewButton);
 		
-		mainPanel.add(guiBean, BorderLayout.CENTER);
+		mainPanel.add(dataGuiBean, BorderLayout.CENTER);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
 		this.setContentPane(mainPanel);
@@ -62,14 +68,11 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 	}
 
 	public void attenuationRelationshipChange(AttenuationRelationshipChangeEvent event) {
-		guiBean.setAttenuationRelationship(event.getNewAttenRel());
+		dataGuiBean.setAttenuationRelationship(event.getNewAttenRel());
 	}
 	
 	public void setSiteParams() {
-		OrderedSiteDataProviderList list = guiBean.getProviderList();
-		Location loc = siteGuiBean.getSite().getLocation();
-		
-		ArrayList<SiteDataValue<?>> data = list.getBestAvailableData(loc);
+		ArrayList<SiteDataValue<?>> data = loadData();
 		
 		if (data == null || data.size() == 0)
 			return;
@@ -87,10 +90,31 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		this.siteGuiBean.getParameterListEditor().refreshParamEditor();
 		this.dispose();
 	}
+	
+	public void displayData(ArrayList<SiteDataValue<?>> datas) {
+		OrderedSiteDataGUIBean.showDataDisplayDialog(datas, this);
+	}
+	
+	private ArrayList<SiteDataValue<?>> loadData() {
+		return loadData(false);
+	}
+	
+	private ArrayList<SiteDataValue<?>> loadData(boolean all) {
+		OrderedSiteDataProviderList list = dataGuiBean.getProviderList();
+		Location loc = siteGuiBean.getSite().getLocation();
+		
+		if (all)
+			return list.getAllAvailableData(loc);
+		else
+			return list.getBestAvailableData(loc);
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == setButton) {
 			this.setSiteParams();
+		} else if (e.getSource() == viewButton) {
+			ArrayList<SiteDataValue<?>> data = loadData(true);
+			this.displayData(data);
 		}
 	}
 }

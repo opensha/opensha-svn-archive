@@ -5,10 +5,12 @@ import java.util.ArrayList;
 
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
+import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
+import org.opensha.param.editor.ParameterListEditor;
 
-public interface SiteDataAPI<Element> {
+public interface SiteDataAPI<Element> extends NamedObjectAPI {
 	
 	/* ************ Site Data Types ************ */
 	
@@ -141,6 +143,15 @@ public interface SiteDataAPI<Element> {
 	 * @return
 	 */
 	public ParameterList getAdjustableParameterList();
+	
+	/**
+	 * Returns an editor for the parameter list. This is required because some data providers might have
+	 * more complex parameters schemes that require direct access to the parameter editor (such as for enabling
+	 * or disabling of parameters). 
+	 * 
+	 * @return
+	 */
+	public ParameterListEditor getParameterListEditor();
 	
 	/**
 	 * Returns the metadata for this dataset.

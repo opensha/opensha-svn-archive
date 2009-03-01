@@ -119,7 +119,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
     /** Sets the parameterList. Simple javabean method */
-    public void setParameterList( ParameterList paramList ) { parameterList = paramList; }
+    public void setParameterList( ParameterList paramList ) {
+    	parameterList = paramList;
+    	addParameters();
+    }
 
     /** gets the parameterList. Simple javabean method */
     public ParameterList getParameterList() { return parameterList; }
