@@ -185,6 +185,10 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 		this.enabled.add(index, true);
 	}
 	
+	public void set(int index, SiteDataAPI<?> data) {
+		this.providers.set(index, data);
+	}
+	
 	public void promote(int index) {
 		this.swap(index, index - 1);
 	}
@@ -235,7 +239,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 	 * 
 	 * @return
 	 */
-	public static final OrderedSiteDataProviderList createSiteDataProviderDefaults() {
+	public static OrderedSiteDataProviderList createSiteDataProviderDefaults() {
 		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
 		
 		/*		Wills 2006			*/
@@ -265,11 +269,25 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 	}
 	
 	/**
-	 * Creates the dubugging list of site data providers:
+	 * Same as createSiteDataProviderDefaults, but returns a cached version of each one
 	 * 
 	 * @return
 	 */
-	public static final OrderedSiteDataProviderList createDebugSiteDataProviders() {
+	public static OrderedSiteDataProviderList createCachedSiteDataProviderDefaults() {
+		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
+		for (int i=0; i<list.size(); i++) {
+			CachedSiteDataWrapper<?> cached = new CachedSiteDataWrapper(list.getProvider(i));
+			list.set(i, cached);
+		}
+		return list;
+	}
+	
+	/**
+	 * Creates the debugging list of site data providers:
+	 * 
+	 * @return
+	 */
+	public static OrderedSiteDataProviderList createDebugSiteDataProviders() {
 		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
 		list.add(new WaldGlobalVs2007());
 		

@@ -32,7 +32,7 @@ public class SiteDataApplet extends Applet implements ActionListener {
 	private JButton allButton = new JButton("View All Available Data");
 	
 	public SiteDataApplet() {
-		bean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults());
+		bean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults());
 		
 		this.setLayout(new BorderLayout());
 		

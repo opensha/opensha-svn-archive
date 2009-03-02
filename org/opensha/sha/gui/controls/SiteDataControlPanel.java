@@ -48,7 +48,7 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		attenRel = imrGuiBean.getSelectedIMR_Instance();
 		imrGuiBean.addAttenuationRelationshipChangeListener(this);
 		
-		dataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults(), attenRel);
+		dataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createCachedSiteDataProviderDefaults(), attenRel);
 		
 		viewButton.addActionListener(this);
 		setButton.addActionListener(this);
