@@ -33,8 +33,13 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
 		return new SiteDataValue<Element>(provider.getType(), provider.getTypeFlag(), val, provider.getName());
 	}
 	
+	/**
+	 * Returns the value from the underlying site data object, keeping track of the value in
+	 * the cache. If the value is already in the cache, then just use that value.
+	 */
 	public Element getValue(Location loc) throws IOException {
 		int size = locsCache.size();
+		// first we see if its in the cache
 		for (int i=0; i<size; i++) {
 			Location dataLoc = locsCache.get(i);
 			if (loc.equals(dataLoc)) {
@@ -85,7 +90,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
 	}
 
 	public String getName() {
-		return provider.getMetadata();
+		return provider.getName();
 	}
 
 	public ParameterListEditor getParameterListEditor() {
