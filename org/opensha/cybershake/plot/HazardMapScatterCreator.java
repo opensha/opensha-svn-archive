@@ -338,7 +338,7 @@ public class HazardMapScatterCreator {
 			symbols.add(circle);
 			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, CybershakeSite.TYPE_TEST_SITE));
 			
-			boolean writeEmptySites = true;
+			boolean writeEmptySites = false;
 			boolean labels = true;
 			
 			String outputDir = args[5];
