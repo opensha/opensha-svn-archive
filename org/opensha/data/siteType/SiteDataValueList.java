@@ -160,7 +160,6 @@ public class SiteDataValueList<E> implements XMLSaveable {
 		
 		for (int i=0; i<vals.size(); i++) {
 			E val = vals.get(i);
-			Element valEl = valsEl.addElement("V");
 			
 			if (val instanceof Double) {
 				Double dVal = (Double)val;
@@ -176,6 +175,8 @@ public class SiteDataValueList<E> implements XMLSaveable {
 						continue;
 				}
 			}
+			
+			Element valEl = valsEl.addElement("V");
 			
 			// if we have more complex types, we can do comparisons on 'type'
 			// then add complex types
