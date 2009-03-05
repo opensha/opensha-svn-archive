@@ -113,6 +113,7 @@ public class SiteDataValueList<E> implements XMLSaveable {
 		el.addAttribute("Type", getType());
 		el.addAttribute("TypeFlag", getFlag());
 		el.addAttribute("SourceName", getSourceName());
+		el.addAttribute("Num", size() + "");
 		
 		Element valsEl = el.addElement("Values");
 		
@@ -161,9 +162,25 @@ public class SiteDataValueList<E> implements XMLSaveable {
 			E val = vals.get(i);
 			Element valEl = valsEl.addElement("V");
 			
+			if (val instanceof Double) {
+				Double dVal = (Double)val;
+				if (dVal.isNaN())
+					continue;
+			} else if (val instanceof String) {
+				String sVal = (String)val;
+				if (type.equals(SiteDataAPI.TYPE_VS30)) {
+					if (sVal.equals("NA"))
+						continue;
+				} else {
+					if (sVal.length() == 0)
+						continue;
+				}
+			}
+			
 			// if we have more complex types, we can do comparisons on 'type'
 			// then add complex types
 			valEl.addAttribute("v", val.toString());
+			valEl.addAttribute("i", i + "");
 		}
 		
 		return el;
@@ -173,6 +190,7 @@ public class SiteDataValueList<E> implements XMLSaveable {
 		String type = dataElement.attributeValue("Type");
 		String flag = dataElement.attributeValue("TypeFlag");
 		String name = dataElement.attributeValue("SourceName");
+		int num = Integer.parseInt(dataElement.attributeValue("Num"));
 		if (name != null && name.equals("null"))
 			name = null;
 		
@@ -200,18 +218,29 @@ public class SiteDataValueList<E> implements XMLSaveable {
 		
 		ArrayList vals = null;
 		
-		if (isDouble)
+		if (isDouble) {
 			vals = new ArrayList<Double>();
-		else if (isString)
+			for (int i=0; i<num; i++) {
+				vals.add(Double.NaN);
+			}
+		} else if (isString) {
 			vals = new ArrayList<String>();
+			for (int i=0; i<num; i++) {
+				if (type.equals(SiteDataAPI.TYPE_WILLS_CLASS))
+					vals.add("NA");
+				else
+					vals.add("");
+			}
+		}
 		
 		while (valsIt.hasNext()) {
 			Element valEl = valsIt.next();
 			String strVal = valEl.attributeValue("v");
+			int i = Integer.parseInt(valEl.attributeValue("i"));
 			if (isString)
-				vals.add(strVal);
+				vals.set(i, strVal);
 			else if (isDouble)
-				vals.add(Double.parseDouble(strVal));
+				vals.set(i, Double.parseDouble(strVal));
 		}
 		
 		SiteDataValueList<?> list = null;

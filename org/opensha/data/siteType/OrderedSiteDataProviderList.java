@@ -11,6 +11,7 @@ import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.impl.CVM2BasinDepth;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.USGSBayAreaBasinDepth;
 import org.opensha.data.siteType.impl.WaldGlobalVs2007;
 import org.opensha.data.siteType.impl.WillsMap2000;
 import org.opensha.data.siteType.impl.WillsMap2006;
@@ -236,7 +237,9 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * <LI> 2. Wills 2000 (servlet access)
 	 * <LI> 3. CVM 4 Depth 2.5 (servlet access)
 	 * <LI> 4. CVM 4 Depth 1.0 (servlet access)
-	 * <LI> 5. CVM 2 Depth 2.5 (servlet access)
+	 * <LI> 5. USGS Bay Area Depth 2.5 (servlet access)
+	 * <LI> 6. USGS Bay Area Depth 1.0 (servlet access)
+	 * <LI> 7. CVM 2 Depth 2.5 (servlet access)
 	 * </UL>
 	 * 
 	 * @return
@@ -261,6 +264,18 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		/*		CVM 4 Depth 1.0		*/
 		try {
 			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		USGS Bay Area Depth 2.5		*/
+		try {
+			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		USGS Bay Area Depth 1.0		*/
+		try {
+			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

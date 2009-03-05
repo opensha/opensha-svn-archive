@@ -4,14 +4,20 @@ import java.awt.BorderLayout;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.siteType.impl.CVM2BasinDepth;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.USGSBayAreaBasinDepth;
 import org.opensha.data.siteType.impl.WillsMap2000;
 import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.param.DoubleParameter;
+import org.opensha.param.Parameter;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 
@@ -187,6 +193,13 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		org.dom4j.Element paramsEl = el.addElement("DataParameters");
 		addXMLParameters(paramsEl);
 		
+		Iterator<ParameterAPI> paramIt = this.paramList.iterator();
+		org.dom4j.Element paramsElement = el.addElement(Parameter.XML_GROUP_METADATA_NAME);
+		while (paramIt.hasNext()) {
+			ParameterAPI param = paramIt.next();
+			paramsElement = param.toXMLMetadata(paramsElement);
+		}
+		
 		return root;
 	}
 	
@@ -205,8 +218,30 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 			provider = WillsMap2000.fromXMLParams(paramsEl);
 		} else if (name.equals(WillsMap2006.NAME)) {
 			provider = WillsMap2006.fromXMLParams(paramsEl);
+		} else if (name.equals(USGSBayAreaBasinDepth.NAME)) {
+			provider = USGSBayAreaBasinDepth.fromXMLParams(paramsEl);
 		} else {
 			throw new RuntimeException("Cannot load Site Data Provider '" + name + "' from XML!");
+		}
+		
+		// add params
+//		System.out.println("Setting params...");
+		org.dom4j.Element paramsElement = dataElem.element(Parameter.XML_GROUP_METADATA_NAME);
+		for (ParameterAPI param : provider.getAdjustableParameterList()) {
+//			System.out.println("Setting param " + param.getName());
+			Iterator<org.dom4j.Element> it = paramsElement.elementIterator();
+			while (it.hasNext()) {
+				org.dom4j.Element el = it.next();
+				if (param.getName().equals(el.attribute("name").getValue())) {
+//					System.out.println("Found a match!");
+					if (param.setValueFromXMLMetadata(el)) {
+//						System.out.println("Parameter set successfully!");
+					} else {
+						System.out.println("Parameter could not be set from XML!");
+						System.out.println("It is possible that the parameter type doesn't yet support loading from XML");
+					}
+				}
+			}
 		}
 		
 		if (cacheSize > 0) {

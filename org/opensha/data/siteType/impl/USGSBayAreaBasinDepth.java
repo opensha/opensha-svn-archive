@@ -112,7 +112,7 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
 	public String getMetadata() {
 		return type + ", extracted from version 8.3.0 of the USGS Bay Area Velocity Model (used in the SF06" +
-				"simulation project. Extracted March 4, 2009 by Kevin Milner.\n\n" +
+				" simulation project). Extracted March 4, 2009 by Kevin Milner.\n\n" +
 				"It has a grid spacing of " + gridSpacing + " degrees";
 	}
 
@@ -189,10 +189,12 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
 	public static void main(String args[]) {
 		try {
-			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_1_0, DEPTH_1_0_FILE, false);
+			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_2_5, DEPTH_2_5_FILE, true);
 //			SiteDataToXYZ.writeXYZ(cvm, gridSpacing, "/tmp/sfbasin.txt");
 			
 			System.out.println(cvm.getValue(new Location(35.1, -125)));
+			System.out.println(cvm.getValue(new Location(36.1, -125)));
+			System.out.println(cvm.getValue(new Location(40, -124)));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
