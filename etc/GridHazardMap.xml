@@ -50,6 +50,7 @@
 		<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
 		<pathelement location="${Required.Libraries.home}/Jama-1.0.2.jar"/>
 		<pathelement location="${Required.Libraries.home}/jh.jar"/>
+		<pathelement location="${Required.Libraries.home}/commons-cli-1.1.jar"/>
 		<pathelement location="${jdk.home}/lib/charsets.jar"/>
 		<pathelement location="${jdk.home}/lib/classes.jar"/>
 		<pathelement location="${jdk.home}/lib/dt.jar"/>
@@ -134,9 +135,9 @@
 		</exec>
 	</target>
 	<target name="resource">
-		<copy todir="${dest}/etc/cvmfiles" overwrite="true">
+		<!-- <copy todir="${dest}/etc/cvmfiles" overwrite="true">
 			<fileset dir="${src}/etc/cvmfiles"/>
-		</copy>
+		</copy> -->
 		<copy todir="${dest}/etc/img" overwrite="true">
 			<fileset dir="${src}/etc/img"/>
 		</copy>
@@ -170,10 +171,14 @@
 				<include name="**/*.asc"/>
 			</fileset>
 		</copy>
-		<copy todir="${dest}" overwrite="true"
-			file="${src}/campbell_2006_coeff.txt"/>
-		<copy todir="${dest}" overwrite="true"
-			file="${src}/campbell_2008_coeff.txt"/>
+		<!--			IMR Resources				-->
+		<copy file="../campbell_2008_coeff.txt" todir="${dest}/" overwrite="true" />
+		<copy file="../campbell_2006_coeff.txt" todir="${dest}/" overwrite="true" />
+		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
+				<include name="*.txt" />
+			</fileset>
+		</copy>
 	</target>
 	<target name="unjarfiles">
 		<unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
@@ -184,6 +189,7 @@
 		<unjar src="${Required.Libraries.home}/ojdbc14.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/log4j-1.2.4.jar" dest="${dest}" />
 	</target>
 	<target depends="javacompile" name="compile"/>
 	<target depends="compile" name="make"/>

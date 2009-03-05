@@ -7,7 +7,7 @@
   and the Ant output directory might be "classes.ant".
 -->
 <project basedir="." default="jarfile" name="HazardSpectrumServerApp_test">
-	 <property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home"/>
+	<property name="jdk.home" value="/usr/lib/jvm/jdk1.6.0_03"/>
 	  <property name="dest" value="../classes.ant"/>
 	  <property name="Required.Libraries.home" value="../lib"/>
 	  <property name="src" value="../"/>
@@ -77,19 +77,22 @@
     <exclude name="cache files/"/>
   </patternset>
   <target name="javacompile">
-    <javac
-      bootclasspathref="project.class.path"
-      debug="true"
-      deprecation="false"
-      optimize="true"
-      destdir="${dest}"
-      nowarn="false"
-      source="1.5"
-      target="1.5"
-      failonerror="yes"
-      verbose="no"
-      classpath="${dest}">
-      <src path="${src}"/>
+  	  			<javac
+  	  	      debug="true"
+  	  	      deprecation="false"
+  	  	      optimize="true"
+  	  	      destdir="${dest}"
+  	  	      nowarn="false"
+  	  	      source="1.5"
+  	  	      target="1.5"
+  	  	      failonerror="yes"
+  	  	      verbose="no"
+  	  	      fork="yes"
+  	  	      memoryInitialSize="512m"
+  	  	      memoryMaximumSize="1024m"
+  	  		  classpath="${dest}:${Required.Libraries.home}">
+  	  					<classpath refid="project.class.path"/>
+  	  				<src path="${src}"/>
       <include name="org/opensha/sha/imr/attenRelImpl/**"/>
       <exclude name="org/opensha/sha/imr/attenRelImpl/gui/**"/>
       <exclude name="org/opensha/sha/imr/attenRelImpl/test/**"/>
@@ -142,6 +145,13 @@
     <copy todir="${dest}/etc/img" overwrite="true">
       <fileset dir="${src}/etc/img"/>
     </copy>
+  	
+  	<copy todir="${dest}" overwrite="true"
+  	  				file="${src}/campbell_2006_coeff.txt"/>
+  	  			<copy todir="${dest}" overwrite="true"
+  	  				file="${src}/campbell_2008_coeff.txt"/>
+  	  	<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl" overwrite="true"
+  	  	  				file="${src}/org/opensha/sha/imr/attenRelImpl/as_2008_coeff.txt"/>
   </target>
   <target depends="javacompile" name="compile"/>
   <target depends="compile" name="make"/>
@@ -155,12 +165,14 @@
     <unjar src="${Required.Libraries.home}/jpedal.jar" dest="${dest}" />
   	<unjar src="${Required.Libraries.home}/jcommon-1.0.5.jar" dest="${dest}" />
   	<unjar src="${Required.Libraries.home}/jfreechart-1.0.2.jar" dest="${dest}" />
+  	<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
     <jar destfile="HazardSpectrumServerModeApp.jar" basedir="${dest}" manifest="HazSpectrumServerMode_MANIFEST.MF">
       <include name="org/**"/>
       <include name="com/**"/>
       <include name="etc/**"/>
+    	<include name="*.txt"/>
     </jar>
     <antcall target="postcompile" />
   </target>
