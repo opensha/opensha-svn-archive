@@ -179,12 +179,12 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		return super.addXMLParameters(paramsEl);
 	}
 	
-	public static CVM4BasinDepth fromXMLParams(org.dom4j.Element paramsElem) throws IOException {
+	public static USGSBayAreaBasinDepth fromXMLParams(org.dom4j.Element paramsElem) throws IOException {
 		boolean useServlet = Boolean.parseBoolean(paramsElem.attributeValue("useServlet"));
 		String fileName = paramsElem.attributeValue("fileName");
 		String type = paramsElem.attributeValue("type");
 		
-		return new CVM4BasinDepth(type, fileName, useServlet);
+		return new USGSBayAreaBasinDepth(type, fileName, useServlet);
 	}
 	
 	public static void main(String args[]) {
