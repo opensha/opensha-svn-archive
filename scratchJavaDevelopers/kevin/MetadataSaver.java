@@ -28,6 +28,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 
 public class MetadataSaver implements ParameterChangeWarningListener {
 
@@ -44,7 +45,7 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 //		span.setStartTime(2017);
 //		erf.setTimeSpan(span);
 
-		AttenuationRelationship imr = new BJF_1997_AttenRel(this);
+		AttenuationRelationship imr = new CB_2008_AttenRel(this);
 		// set default parameters
 		imr.setParamDefaults();
 		// set the Intensity Measure Type
@@ -69,7 +70,6 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		int sitesPerJob = 100;
 		double maxSourceDistance = 200;
 		boolean useCVM = false;
-		boolean basinFromCVM = false;
 		boolean serializeERF = true;
 		String configFileName = jobID + ".xml";
 		int maxWallTime = 40;
@@ -79,7 +79,7 @@ public class MetadataSaver implements ParameterChangeWarningListener {
 		String email = "kmilner@usc.edu";
 		
 		GridResources resources = new GridResources(submit, rp, storage);
-		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, basinFromCVM, serializeERF);
+		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, serializeERF);
 		
 		HazardMapJob job = new HazardMapJob(resources, calcParams, jobID, jobName, email, configFileName);
 //		HazardMapJob job = new HazardMapJob(jobName, rp_host, rp_batchScheduler, rp_javaPath, rp_storagePath, rp_globusrsl, repo_host, repo_storagePath, HazardMapJob.DEFAULT_SUBMIT_HOST, HazardMapJob.DEFAULT_SUBMIT_HOST_PATH, HazardMapJob.DEFAULT_DEPENDENCY_PATH, sitesPerJob, useCVM, saveERF, metadataFileName);
