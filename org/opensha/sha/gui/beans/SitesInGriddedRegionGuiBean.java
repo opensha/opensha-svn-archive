@@ -24,12 +24,12 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
- * <p>Title:SitesInGriddedRectangularRegionGuiBean </p>
+ * <p>SitesInGriddedRegionGuiBean </p>
  * <p>Description: This creates the Gridded Region parameter Editor with Site Params
  * for the selected Attenuation Relationship in the Application.
  * </p>
- * @author Nitin Gupta & Vipin Gupta
- * @date March 11, 2003
+ * @author Kevin Milner
+ * @date March 4, 2009
  * @version 1.0
  */
 
@@ -53,26 +53,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public final static String REGION_SELECT_NAME = "Region Type/Preset";
 	public final static String NUM_SITES_NAME = "Number Of Sites";
 
-	public final static String DEFAULT = "Default  ";
-
-
-	// min and max limits of lat and lon for which CVM can work
-	private static final double MIN_CVM_LAT = 32.0;
-	private static final double MAX_CVM_LAT = 36.0;
-	private static final double MIN_CVM_LON = -121.0;
-	private static final double MAX_CVM_LON = -114.0;
-
+	public final static String DEFAULT = "Default ";
 
 	// title for site paramter panel
 	public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
 	//Site Params ArrayList
-	ArrayList siteParams ;
+	ArrayList<ParameterAPI> siteParams = new ArrayList<ParameterAPI>();
 
 	//Static String for setting the site Params
 	public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
-	public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the CGS Preliminary Site Conditions Map of CA (web service)";
-	public final static String SET_SITES_USING_SCEC_CVM = "Use both CGS Map and SCEC Basin Depth (web services)";
+	public final static String USE_SITE_DATA = "Use site data providers";
 
 	/**
 	 * Longitude and Latitude paramerts to be added to the site params list
@@ -94,36 +85,38 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private StringParameter siteParam;
 
 	//SiteTranslator
-	SiteTranslator siteTrans = new SiteTranslator();
+	private SiteTranslator siteTrans = new SiteTranslator();
 
 	//instance of class EvenlyGriddedRectangularGeographicRegion
-	private SitesInGriddedRegionAPI gridRectRegion;
-	
+	private SitesInGriddedRegionAPI gridRegion;
+
 	public final static String RECTANGULAR_NAME = "Rectangular Region";
 	public final static String CUSTOM_NAME = "Custom Region";
+
+	// names for defaults
 	public final static String RELM_TESTING_NAME = "RELM Testing Region";
 	public final static String RELM_COLLECTION_NAME = "RELM Collection Region";
 	public final static String SO_CAL_NAME = "Southern California Region";
 	public final static String NO_CAL_NAME = "Northern Caliofnia Region";
-	
+
 	ArrayList<NamedGeographicRegion> presets;
-	
+
 	private StringParameter regionSelect;
-	
+
 	public SitesInGriddedRegionGuiBean(ArrayList<NamedGeographicRegion> presets) throws RegionConstraintException {
 		ArrayList<String> presetsStr = new ArrayList<String>();
 		presetsStr.add(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
-//		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
+		//		presetsStr.add(SitesInGriddedRegionGuiBean.CUSTOM_NAME);
 		for (NamedGeographicRegion preset : presets) {
 			presetsStr.add(preset.getName());
 		}
-		
+
 		this.presets = presets;
-		
+
 		regionSelect = new StringParameter(REGION_SELECT_NAME, presetsStr);
 		regionSelect.setValue(SitesInGriddedRegionGuiBean.RECTANGULAR_NAME);
 		regionSelect.addParameterChangeListener(this);
-		
+
 		//defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
 		//parameterList.addParameter(defaultVs30);
 		minLat.addParameterChangeFailListener(this);
@@ -131,7 +124,7 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		maxLat.addParameterChangeFailListener(this);
 		maxLon.addParameterChangeFailListener(this);
 		gridSpacing.addParameterChangeFailListener(this);
-		
+
 		minLat.addParameterChangeListener(this);
 		minLon.addParameterChangeListener(this);
 		maxLat.addParameterChangeListener(this);
@@ -139,10 +132,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		gridSpacing.addParameterChangeListener(this);
 
 		//creating the String Param for user to select how to get the site related params
-		ArrayList siteOptions = new ArrayList();
+		ArrayList<String> siteOptions = new ArrayList<String>();
 		siteOptions.add(SET_ALL_SITES);
-		siteOptions.add(SET_SITE_USING_WILLS_SITE_TYPE);
-		siteOptions.add(SET_SITES_USING_SCEC_CVM);
+		siteOptions.add(USE_SITE_DATA);
 		siteParam = new StringParameter(SITE_PARAM_NAME,siteOptions,(String)siteOptions.get(0));
 		siteParam.addParameterChangeListener(this);
 
@@ -156,9 +148,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		parameterList.addParameter(gridSpacing);
 		parameterList.addParameter(numSites);
 		parameterList.addParameter(siteParam);
-		
+
 		updateNumSites();
-		
+
 		editorPanel.removeAll();
 		addParameters();
 		createAndUpdateSites();
@@ -176,65 +168,48 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public SitesInGriddedRegionGuiBean() throws RegionConstraintException {
 		this(generateDefaultRegions());
 	}
-	
+
 	public static ArrayList<NamedGeographicRegion> generateDefaultRegions() {
 		ArrayList<NamedGeographicRegion> regions = new ArrayList<NamedGeographicRegion>();
-		
+
 		regions.add(new NamedGeographicRegion(new RELM_TestingRegion().getRegionOutline(), RELM_TESTING_NAME));
 		regions.add(new NamedGeographicRegion(new RELM_CollectionRegion().getRegionOutline(), RELM_COLLECTION_NAME));
 		regions.add(new NamedGeographicRegion(new EvenlyGriddedSoCalRegion().getRegionOutline(), SO_CAL_NAME));
 		regions.add(new NamedGeographicRegion(new EvenlyGriddedNoCalRegion().getRegionOutline(), NO_CAL_NAME));
-		
+
 		return regions;
 	}
-
-
-	/**
-	 * This function adds the site params to the existing list.
-	 * Parameters are NOT cloned.
-	 * If paramter with same name already exists, then it is not added
-	 *
-	 * @param it : Iterator over the site params in the IMR
-	 */
-	public void addSiteParams(Iterator it) {
-		Parameter tempParam;
-		ArrayList siteTempVector= new ArrayList();
-		while(it.hasNext()) {
-			tempParam = (Parameter)it.next();
-			if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
-				parameterList.addParameter(tempParam);
-				//adding the parameter to the vector,
-				//ArrayList is used to pass the add the site parameters to the gridded region sites.
-				siteTempVector.add(tempParam);
+	
+	private void reloadSiteParams() {
+		boolean useData = this.isUseSiteData();
+		
+		Iterator<ParameterAPI> it = parameterList.getParametersIterator();
+		
+		while (it.hasNext()) {
+			ParameterAPI param = it.next();
+			
+			if (isSiteParam(param)) {
+				parameterList.removeParameter(param);
+				String name = param.getName();
+				
+				if (useData) {
+					if (!name.startsWith(DEFAULT))
+						param.setName(DEFAULT + name);
+				} else {
+					if (name.startsWith(DEFAULT))
+						param.setName(name.replaceFirst(DEFAULT, ""));
+				}
+				System.out.println("Reloaded: " + name);
+				parameterList.addParameter(param);
 			}
 		}
-		//adding the Site Params to the ArrayList, so that we can add those later if we want to.
-		siteParams = siteTempVector;
-		gridRectRegion.addSiteParams(siteTempVector.iterator());
-		setSiteParamsVisible();
-	}
-
-	/**
-	 * This function adds the site params to the existing list.
-	 * Parameters are cloned.
-	 * If paramter with same name already exists, then it is not added
-	 *
-	 * @param it : Iterator over the site params in the IMR
-	 */
-	public void addSiteParamsClone(Iterator it) {
-		Parameter tempParam;
-		ArrayList v= new ArrayList();
-		while(it.hasNext()) {
-			tempParam = (Parameter)it.next();
-			if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
-				Parameter cloneParam = (Parameter)tempParam.clone();
-				parameterList.addParameter(cloneParam);
-				//adding the cloned parameter in the siteList.
-				v.add(cloneParam);
-			}
-		}
-		gridRectRegion.addSiteParams(v.iterator());
-		setSiteParamsVisible();
+		
+		this.refreshParamEditor();
+		editorPanel.removeAll();
+		addParameters();
+		editorPanel.validate();
+		editorPanel.repaint();
+		setTitle(GRIDDED_SITE_PARAMS);
 	}
 
 	/**
@@ -242,26 +217,42 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @param it
 	 */
-	public void replaceSiteParams(Iterator it) {
+	public void replaceSiteParams(Iterator<ParameterAPI> it) {
+		boolean useData = this.isUseSiteData();
+		
 		// first remove all the parameters except latitude and longitude
-		Iterator siteIt = parameterList.getParameterNamesIterator();
+		Iterator<ParameterAPI> siteIt = parameterList.getParametersIterator();
 		while(siteIt.hasNext()) { // remove all the parameters except latitude and longitude and gridSpacing
-			String paramName = (String)siteIt.next();
-			if(!paramName.equalsIgnoreCase(MIN_LATITUDE) &&
-					!paramName.equalsIgnoreCase(MIN_LONGITUDE) &&
-					!paramName.equalsIgnoreCase(MAX_LATITUDE) &&
-					!paramName.equalsIgnoreCase(MAX_LONGITUDE) &&
-					!paramName.equalsIgnoreCase(GRID_SPACING) &&
-					!paramName.equalsIgnoreCase(SITE_PARAM_NAME) &&
-					!paramName.equalsIgnoreCase(REGION_SELECT_NAME) &&
-					!paramName.equalsIgnoreCase(NUM_SITES_NAME))
-				parameterList.removeParameter(paramName);
+			ParameterAPI param = siteIt.next();
+			if(isSiteParam(param)) {
+				parameterList.removeParameter(param);
+				System.out.println("Removed: " + param.getName());
+			}
 		}
-		//removing the existing sites Params from the gridded Region sites
-		gridRectRegion.removeSiteParams();
+		
+		siteParams.clear();
 
 		// now add all the new params
-		addSiteParams(it);
+		while (it.hasNext()) {
+			ParameterAPI param = (ParameterAPI)it.next().clone();
+			String name = param.getName();
+			if (useData) {
+				if (!name.startsWith(DEFAULT))
+					param.setName(DEFAULT + name);
+			} else {
+				if (name.startsWith(DEFAULT))
+					param.setName(name.replaceFirst(DEFAULT, ""));
+			}
+			parameterList.addParameter(param);
+			siteParams.add(param);
+			System.out.println("Added: " + param.getName());
+		}
+		
+		editorPanel.removeAll();
+		addParameters();
+		editorPanel.validate();
+		editorPanel.repaint();
+		setTitle(GRIDDED_SITE_PARAMS);
 	}
 
 
@@ -271,8 +262,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return
 	 */
-	public Iterator getAllSites() {
-		return gridRectRegion.getSitesIterator();
+	public Iterator<Site> getAllSites() {
+		return gridRegion.getSitesIterator();
 	}
 
 
@@ -281,8 +272,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 *
 	 * @return
 	 */
-	public Iterator getSitesClone() {
-		ListIterator lIt=gridRectRegion.getGridLocationsIterator();
+	public Iterator<Site> getSitesClone() {
+		ListIterator lIt=gridRegion.getGridLocationsIterator();
 		ArrayList newSiteVector=new ArrayList();
 		while(lIt.hasNext())
 			newSiteVector.add(new Site((Location)lIt.next()));
@@ -308,16 +299,20 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	private void updateGriddedSiteParams() throws
 	RegionConstraintException {
 
-		ArrayList v= new ArrayList();
+		ArrayList<ParameterAPI> v= new ArrayList<ParameterAPI>();
 		createAndUpdateSites();
 		//getting the site params for the first element of the siteVector
 		//becuase all the sites will be having the same site Parameter
-		Iterator it = siteParams.iterator();
+		Iterator<ParameterAPI> it = siteParams.iterator();
 		while(it.hasNext())
 			v.add((ParameterAPI)it.next());
-		gridRectRegion.addSiteParams(v.iterator());
+		gridRegion.addSiteParams(v.iterator());
 	}
 
+
+	public ArrayList<ParameterAPI> getSiteParams() {
+		return siteParams;
+	}
 
 
 	/**
@@ -357,18 +352,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				"Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
 		);
 	}
-	
+
 	private boolean updateNumSites() {
-		String name = (String)(regionSelect.getValue());
 		try {
 			createAndUpdateSites();
 		} catch (RegionConstraintException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (gridRectRegion != null) {
-			numSites.setValue(gridRectRegion.getNumGridLocs());
-			LocationList locs = gridRectRegion.getRegionOutline();
+		if (gridRegion != null) {
+			numSites.setValue(gridRegion.getNumGridLocs());
+			LocationList locs = gridRegion.getRegionOutline();
 			for (int i=0; i<locs.size(); i++) {
 				Location loc = locs.getLocationAt(i);
 				System.out.println(loc.getLatitude() + " " + loc.getLongitude());
@@ -384,15 +378,15 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	 */
 	public void parameterChange(ParameterChangeEvent e){
 		ParameterAPI param = ( ParameterAPI ) e.getSource();
-		
+
 		boolean update = false;
-		
+
 		if (param == regionSelect || param == minLat || param == maxLat || param == minLon || param == maxLon || param == gridSpacing) {
 			update = updateNumSites();
 		}
 
 		if(param.getName().equals(SITE_PARAM_NAME))
-			setSiteParamsVisible();
+			reloadSiteParams();
 		else if (param == regionSelect || update) {
 			String name = (String)(regionSelect.getValue());
 			parameterList.clear();
@@ -403,17 +397,17 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 				parameterList.addParameter(minLat);
 				parameterList.addParameter(maxLat);
 			} else if (name.equals(SitesInGriddedRegionGuiBean.CUSTOM_NAME)) {
-				
+
 			} else {
-				
+
 			}
-			
+
 			parameterList.addParameter(gridSpacing);
 			parameterList.addParameter(numSites);
 			parameterList.addParameter(siteParam);
-			
+
 			editorPanel.removeAll();
-		    addParameters();
+			addParameters();
 			editorPanel.validate();
 			editorPanel.repaint();
 		}
@@ -438,36 +432,27 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			double minLongitude=((Double)minLon.getValue()).doubleValue();
 			double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 			//checkLatLonParamValues();
-			gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
+			gridRegion= new SitesInGriddedRectangularRegion(minLatitude,
 					maxLatitude,minLongitude,maxLongitude,
 					gridSpacingD);
 		} else {
 			for (NamedGeographicRegion region : presets) {
 				if (name.equals(region.getName())) {
-					gridRectRegion = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacingD);
+					gridRegion = new SitesInGriddedRegion(region.getRegionOutline(), gridSpacingD);
 					break;
 				}
 			}
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @return boolean specifying use of Wills Site Types from the CVM in calculation
 	 */
-	public boolean isSiteTypeFromCVM() {
-		return ((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM) || ((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE);
+	public boolean isUseSiteData() {
+		return ((String)siteParam.getValue()).equals(USE_SITE_DATA);
 	}
-	
-	/**
-	 * 
-	 * @return boolean specifying use of Basin Depth from the CVM in calculation
-	 */
-	public boolean isBasinDepthFromCVM() {
-		return ((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM);
-	}
-
 
 	/**
 	 *
@@ -476,207 +461,98 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 	public SitesInGriddedRegionAPI getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
 		updateGriddedSiteParams();
+
+		return gridRegion;
+	}
+	
+	private boolean isSiteParam(ParameterAPI param) {
+		String name = param.getName();
 		
-		return gridRectRegion;
+//		System.out.println("Is site param: " + name);
+		
+		if (name.equalsIgnoreCase(MAX_LATITUDE))
+			return false;
+		if (name.equalsIgnoreCase(MIN_LATITUDE))
+			return false;
+		if (name.equalsIgnoreCase(MAX_LONGITUDE))
+			return false;
+		if (name.equalsIgnoreCase(MIN_LONGITUDE))
+			return false;
+		if (name.equalsIgnoreCase(GRID_SPACING))
+			return false;
+		if (name.equalsIgnoreCase(SITE_PARAM_NAME))
+			return false;
+		if (name.equalsIgnoreCase(REGION_SELECT_NAME))
+			return false;
+		if (name.equalsIgnoreCase(NUM_SITES_NAME))
+			return false;
+//		System.out.println("YES!");
+		return true;
 	}
 
-
-	/**
-	 * Make the site params visible depending on the choice user has made to
-	 * set the site Params
-	 */
-	private void setSiteParamsVisible(){
-
-		//getting the Gridded Region site Object ParamList Iterator
-		Iterator it = parameterList.getParametersIterator();
-		//if the user decides to fill the values from the CVM
-		if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM)||
-				((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE)){
-			//editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
-			while(it.hasNext()){
-				//adds the default site Parameters becuase each site will have different site types and default value
-				//has to be given if site lies outside the bounds of CVM
-				ParameterAPI tempParam= (ParameterAPI)it.next();
-				if(!tempParam.getName().equalsIgnoreCase(this.MAX_LATITUDE) &&
-						!tempParam.getName().equalsIgnoreCase(this.MIN_LATITUDE) &&
-						!tempParam.getName().equalsIgnoreCase(this.MAX_LONGITUDE) &&
-						!tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
-						!tempParam.getName().equalsIgnoreCase(this.GRID_SPACING) &&
-						!tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME) &&
-						!tempParam.getName().equalsIgnoreCase(this.REGION_SELECT_NAME) &&
-						!tempParam.getName().equalsIgnoreCase(this.NUM_SITES_NAME)){
-
-					//removing the existing site Params from the List and adding the
-					//new Site Param with site as being defaults
-					parameterList.removeParameter(tempParam.getName());
-					if(!tempParam.getName().startsWith(this.DEFAULT))
-						//getting the Site Param Value corresponding to the Will Site Class "DE" for the seleted IMR  from the SiteTranslator
-						siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
-
-					//creating the new Site Param, with "Default " added to its name, with existing site Params
-					ParameterAPI newParam = (ParameterAPI)tempParam.clone();
-					//If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
-					if(!newParam.getName().startsWith(this.DEFAULT))
-						newParam.setName(this.DEFAULT+newParam.getName());
-					//making the new parameter to uneditable same as the earlier site Param, so that
-					//only its value can be changed and not it properties
-					newParam.setNonEditable();
-					newParam.addParameterChangeFailListener(this);
-
-					//adding the parameter to the List if not already exists
-					if(!parameterList.containsParameter(newParam.getName()))
-						parameterList.addParameter(newParam);
-				}
-			}
-		}
-		//if the user decides to go in with filling all the sites with the same site parameter,
-		//then make that site parameter visible to te user
-		else if(((String)siteParam.getValue()).equals(SET_ALL_SITES)){
-			while(it.hasNext()){
-				//removing the default Site Type Params if same site is to be applied to whole region
-				ParameterAPI tempParam= (ParameterAPI)it.next();
-				if(tempParam.getName().startsWith(this.DEFAULT))
-					parameterList.removeParameter(tempParam.getName());
-			}
-			//Adding the Site related params to the ParameterList
-			ListIterator it1 = siteParams.listIterator();
-			while(it1.hasNext()){
-				ParameterAPI tempParam = (ParameterAPI)it1.next();
-				if(!parameterList.containsParameter(tempParam.getName()))
-					parameterList.addParameter(tempParam);
-			}
-		}
-
-		//creating the ParameterList Editor with the updated ParameterList
-		editorPanel.removeAll();
-		addParameters();
-		editorPanel.validate();
-		editorPanel.repaint();
-		setTitle(GRIDDED_SITE_PARAMS);
-	}
-
-	/**
-	 * set the Site Params from the CVM
-	 */
-	private void setSiteParamsFromCVM(){
-
-		// give latitude and longitude to the servlet
-		Double lonMin = (Double)parameterList.getParameter(this.MIN_LONGITUDE).getValue();
-		Double lonMax = (Double)parameterList.getParameter(this.MAX_LONGITUDE).getValue();
-		Double latMin = (Double)parameterList.getParameter(MIN_LATITUDE).getValue();
-		Double latMax = (Double)parameterList.getParameter(MAX_LATITUDE).getValue();
-		Double gridSpacing = (Double)parameterList.getParameter(GRID_SPACING).getValue();
-
-		// if values in longitude and latitude are invalid
-		if(lonMin == null || latMin == null) {
-			JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-			return ;
-		}
-
-		CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
-		if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM))
-			//if we are setting the each site type using Wills site type and SCEC basin depth
-			gridRectRegion.setSiteParamsForRegionFromServlet(true);
-		else if(((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE))
-			//if we are setting each site using the Wills site type. basin depth is taken as default.
-			gridRectRegion.setSiteParamsForRegionFromServlet(false);
-		calcProgress.dispose();
-	}
-
-	/**
-	 * This function makes sure that Lat and Lon params are within the
-	 * range and min values are not greater than max values, ie. checks
-	 * if the user has filled in the correct values.
-	 */
-	/*private void checkLatLonParamValues() throws ParameterException{
-
-    double minLatitude= ((Double)minLat.getValue()).doubleValue();
-    double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
-    double minLongitude=((Double)minLon.getValue()).doubleValue();
-    double maxLongitude=((Double)maxLon.getValue()).doubleValue();
-
-    if(maxLatitude <= minLatitude){
-      throw new ParameterException("Max Lat. must be greater than Min Lat");
-    }
-
-    if(maxLongitude <= minLongitude){
-      throw new ParameterException("Max Lon. must be greater than Min Lon");
-    }
-
-  }*/
-
-
-
-	/**
-	 * This function creates a Region object on the server and save it there. It then
-	 * returns the path to the file where that gridded object is stored.
-	 * @return
-	 */
-	public String openConnectionToServer() throws RegionConstraintException, RuntimeException{
-
-		//checks the values of the Lat and Lon to see if user has filled in the values correctly.
-		//checkLatLonParamValues();
-
-		try{
-
-			if(D) System.out.println("starting to make connection with servlet");
-			URL griddedRegionCalcServlet = new
-			URL("http://gravity.usc.edu/OpenSHA/servlet/GriddedRegionServlet");
-
-
-			URLConnection servletConnection = griddedRegionCalcServlet.openConnection();
-			if(D) System.out.println("connection established");
-
-			// inform the connection that we will send output and accept input
-			servletConnection.setDoInput(true);
-			servletConnection.setDoOutput(true);
-
-			// Don't use a cached version of URL connection.
-			servletConnection.setUseCaches (false);
-			servletConnection.setDefaultUseCaches (false);
-			// Specify the content type that we will send binary data
-			servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
-
-			ObjectOutputStream outputToServlet = new
-			ObjectOutputStream(servletConnection.getOutputStream());
-
-
-			//sends the parameterList in the SitesInGriddedRectangularRegionGuiBean to the server
-			outputToServlet.writeObject(parameterList);
-			//sends the arraylist of site Param List to the server
-			outputToServlet.writeObject(siteParams);
-
-			outputToServlet.flush();
-			outputToServlet.close();
-
-			// Receive the "actual webaddress of all the gmt related files"
-			// from the servlet after it has received all the data
-			ObjectInputStream inputToServlet = new
-			ObjectInputStream(servletConnection.getInputStream());
-
-			//absolute path of the file where we have stored the file for the region object
-			Object regionFilePath =(Object)inputToServlet.readObject();
-			//if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
-			inputToServlet.close();
-
-			if(regionFilePath instanceof RegionConstraintException)
-				throw (RegionConstraintException)regionFilePath;
-			else if(regionFilePath instanceof String)
-				return (String)regionFilePath;
-			else
-				throw (Exception)regionFilePath;
-		}
-		catch(RegionConstraintException e){
-			throw new RegionConstraintException(e.getMessage());
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Server is down , please try again later");
-		}
-
-	}
-
-
-
+//	/**
+//	 * Make the site params visible depending on the choice user has made to
+//	 * set the site Params
+//	 */
+//	private void setSiteParamsVisible(){
+//		Iterator<ParameterAPI> it = parameterList.getParametersIterator();
+//		
+//		siteParams.clear();
+//		
+//		//if the user decides to fill the values from the CVM
+//		if(isUseSiteData()){
+//			//editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
+//			while(it.hasNext()){
+//				//adds the default site Parameters becuase each site will have different site types and default value
+//				//has to be given if site lies outside the bounds of CVM
+//				ParameterAPI tempParam= (ParameterAPI)it.next();
+//				if(isSiteParam(tempParam)){
+//
+//					//removing the existing site Params from the List and adding the
+//					//new Site Param with site as being defaults
+//					parameterList.removeParameter(tempParam.getName());
+//
+//					//creating the new Site Param, with "Default " added to its name, with existing site Params
+//					ParameterAPI newParam = (ParameterAPI)tempParam.clone();
+//					//If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
+//					if(!newParam.getName().startsWith(this.DEFAULT))
+//						newParam.setName(this.DEFAULT+newParam.getName());
+//					//making the new parameter to uneditable same as the earlier site Param, so that
+//					//only its value can be changed and not it properties
+//					newParam.setNonEditable();
+//					newParam.addParameterChangeFailListener(this);
+//
+//					//adding the parameter to the List if not already exists
+//					if(!parameterList.containsParameter(newParam.getName()))
+//						parameterList.addParameter(newParam);
+//					siteParams.add(newParam);
+//				}
+//			}
+//		}
+//		//if the user decides to go in with filling all the sites with the same site parameter,
+//		//then make that site parameter visible to te user
+//		else {
+//			while(it.hasNext()){
+//				//removing the default Site Type Params if same site is to be applied to whole region
+//				ParameterAPI tempParam= (ParameterAPI)it.next();
+//				if(tempParam.getName().startsWith(this.DEFAULT))
+//					parameterList.removeParameter(tempParam.getName());
+//			}
+//			//Adding the Site related params to the ParameterList
+//			ListIterator it1 = siteParams.listIterator();
+//			while(it1.hasNext()){
+//				ParameterAPI tempParam = (ParameterAPI)it1.next();
+//				if(!parameterList.containsParameter(tempParam.getName()))
+//					parameterList.addParameter(tempParam);
+//			}
+//		}
+//
+//		//creating the ParameterList Editor with the updated ParameterList
+//		editorPanel.removeAll();
+//		addParameters();
+//		editorPanel.validate();
+//		editorPanel.repaint();
+//		setTitle(GRIDDED_SITE_PARAMS);
+//	}
 
 }

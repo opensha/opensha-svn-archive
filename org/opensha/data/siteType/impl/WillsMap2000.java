@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
@@ -126,6 +127,24 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	public boolean isValueValid(String val) {
 		Set<String> keys = WillsClassTranslator.wills_vs30_map.keySet();
 		return keys.contains(val);
+	}
+	
+	@Override
+	protected Element addXMLParameters(Element paramsEl) {
+		paramsEl.addAttribute("useServlet", this.useServlet + "");
+		paramsEl.addAttribute("fileName", this.fileName);
+		return super.addXMLParameters(paramsEl);
+	}
+	
+	public static WillsMap2000 fromXMLParams(org.dom4j.Element paramsElem) {
+		boolean useServlet = Boolean.parseBoolean(paramsElem.attributeValue("useServlet"));
+		String fileName = paramsElem.attributeValue("fileName");
+		
+		if (useServlet) {
+			return new WillsMap2000(true);
+		} else {
+			return new WillsMap2000(fileName);
+		}
 	}
 	
 	public static void main(String[] args) throws IOException {

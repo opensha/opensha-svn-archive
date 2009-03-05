@@ -143,8 +143,12 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 		return (EqkRupForecast)erfBean.getSelectedERF_Instance();
 	}
 	
-	public IntensityMeasureRelationshipAPI getIMR() {
+	public AttenuationRelationshipAPI getIMR() {
 		return imrGuiBean.getSelectedIMR_Instance();
+	}
+	
+	public IMR_GuiBean getIMRGuiBean() {
+		return imrGuiBean;
 	}
 	
 	public IMT_GuiBean getIMTGuiBean() {
@@ -153,7 +157,7 @@ public class HazardStep extends JPanel implements IMR_GuiBeanAPI {
 	
 	public SitesInGriddedRegionGuiBean createSitesGUIBean(ArrayList<NamedGeographicRegion> regions) throws RegionConstraintException {
 		sitesGuiBean = new SitesInGriddedRegionGuiBean(regions);
-		sitesGuiBean.addSiteParams(this.getIMR().getSiteParamsIterator());
+		sitesGuiBean.replaceSiteParams(this.getIMR().getSiteParamsIterator());
 		return sitesGuiBean;
 	}
 

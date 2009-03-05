@@ -11,11 +11,14 @@ import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 
 public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements ParameterChangeListener {
+	
+	private static final boolean D = false;
 	
 	public static final String NAME = "Global Vs30 from Topographic Slope (Wald 2007)";
 	public static final String SHORT_NAME = "Wald2007";
@@ -39,8 +42,8 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	private ArbitrarilyDiscretizedFuncParameter coeffFuncParam;
 	public static final String COEFF_FUNC_PARAM_NAME = "Topographic Slope Translation Coefficients";
 	
-	private ArbitrarilyDiscretizedFunc activeFunc = createActiveCoefficients();
-	private ArbitrarilyDiscretizedFunc stableFunc = createStableCoefficients();
+	private final ArbitrarilyDiscretizedFunc activeFunc = createActiveCoefficients();
+	private final ArbitrarilyDiscretizedFunc stableFunc = createStableCoefficients();
 	private ArbitrarilyDiscretizedFunc customFunc = null;
 	
 	public static ArbitrarilyDiscretizedFunc createActiveCoefficients() {
@@ -95,12 +98,14 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		
 		coeffPresetParam = new StringParameter(COEFF_SELECT_PARAM_NAME, coeffNames, COEFF_ACTIVE_NAME);
 		
-		coeffFuncParam = new ArbitrarilyDiscretizedFuncParameter(COEFF_FUNC_PARAM_NAME, activeFunc);
+		coeffFuncParam = new ArbitrarilyDiscretizedFuncParameter(COEFF_FUNC_PARAM_NAME, activeFunc.deepClone());
 		coeffFuncParam.setNonEditable();
 		
 		coeffPresetParam.addParameterChangeListener(this);
 		coeffFuncParam.addParameterChangeListener(this);
 		
+		this.paramList.addParameter(minVs30Param);
+		this.paramList.addParameter(maxVs30Param);
 		this.paramList.addParameter(coeffPresetParam);
 		this.paramList.addParameter(coeffFuncParam);
 	}
@@ -158,32 +163,54 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 
 	public void parameterChange(ParameterChangeEvent event) {
 		String paramName = event.getParameterName();
-		
+		if (D) System.out.println("WaldparameterChange start...");
 		if (paramName == COEFF_SELECT_PARAM_NAME) {
-			System.out.println("Coeff select changed...");
+			if (D) System.out.println("Coeff select changed...");
 			String val = (String)coeffPresetParam.getValue();
+			
+			// if we're switching away from a custom function, we want to store that
+			ArbitrarilyDiscretizedFunc oldFunc = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
+			if (!ArbitrarilyDiscretizedFuncTableModel.areFunctionPointsEqual(oldFunc, activeFunc)
+					&& !ArbitrarilyDiscretizedFuncTableModel.areFunctionPointsEqual(oldFunc, stableFunc)) {
+				// the function has been edited...store it
+				customFunc = oldFunc;
+			}
+				
 			if (val == COEFF_ACTIVE_NAME) {
-				coeffFuncParam.setValue(activeFunc);
+				coeffFuncParam.setValue(activeFunc.deepClone());
 			} else if (val == COEFF_STABLE_NAME) {
-				coeffFuncParam.setValue(stableFunc);
+				coeffFuncParam.setValue(stableFunc.deepClone());
 			} else if (val == COEFF_CUSTOM_NAME) {
 				if (customFunc == null) {
-					customFunc = activeFunc;
+					customFunc = activeFunc.deepClone();
 				}
-				coeffFuncParam.setValue(stableFunc);
+				coeffFuncParam.setValue(customFunc);
 			}
 			refreshParams();
 		} else if (paramName == COEFF_FUNC_PARAM_NAME) {
-			System.out.println("Coeff func changed...");
+			if (D) System.out.println("Coeff func changed...");
+			ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
+			if (D) {
+				for (int i=0; i<func.getNum(); i++) {
+					System.out.println("x: " + func.getX(i) + ", y: " + func.getY(i));
+				}
+			}
 		}
+		if (D) System.out.println("WaldparameterChange DONE");
 	}
 	
 	private void refreshParams() {
+		if (D) System.out.println("WaldRefreshParams start...");
 		String val = (String)coeffPresetParam.getValue();
 		ParameterEditor funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
 		funcEditor.setEnabled(val == COEFF_CUSTOM_NAME);
-		System.out.println("REFRESH!!!");
+		if (D) System.out.println("WaldRefreshParams refreshing params...");
+//		funcEditor.refreshParamEditor();
 		paramEdit.refreshParamEditor();
+		funcEditor.validate();
+		paramEdit.validate();
+//		paramEdit.refreshParamEditor();
+		if (D) System.out.println("WaldRefreshParams DONE");
 	}
 
 	@Override

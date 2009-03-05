@@ -17,6 +17,7 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.OrderedSiteDataProviderList;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridJob;
 import org.opensha.gridComputing.GridResources;
@@ -76,6 +77,11 @@ public class HazardMapMetadataJobCreator {
 		if (job.getCalcParams().isSerializeERF()) {
 			this.saveERF(root, job, outputDir);
 		}
+		OrderedSiteDataProviderList siteDataList = null;
+		if (job.getCalcParams().isUseCVM()) {
+			Element siteDataEl = root.element(OrderedSiteDataProviderList.XML_METADATA_NAME);
+			siteDataList = OrderedSiteDataProviderList.fromXMLMetadata(siteDataEl);
+		}
 		// write out new metadata file
 		String metadataFileName = outputDir + job.getConfigFileName();
 		this.writeCalcMetadataFile(metadata, metadataFileName);
@@ -84,9 +90,9 @@ public class HazardMapMetadataJobCreator {
 		HazardMapJobCreator creator;
 
 		if (startDAG >= 0 && endDAG > startDAG)
-			creator = new HazardMapJobCreator(outputDir, sites, startDAG, endDAG, job);
+			creator = new HazardMapJobCreator(outputDir, sites, startDAG, endDAG, job, siteDataList);
 		else
-			creator = new HazardMapJobCreator(outputDir, sites, job);
+			creator = new HazardMapJobCreator(outputDir, sites, job, siteDataList);
 		creator.setLogDirectory(logDirectory);
 		creator.logStart();
 		creator.addAllProgressListeners(progressListeners);

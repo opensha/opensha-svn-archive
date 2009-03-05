@@ -1,7 +1,6 @@
 package org.opensha.data.siteType.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -9,38 +8,36 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
-import org.opensha.data.siteType.CachedSiteDataWrapper;
+import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
-import org.opensha.util.XMLUtils;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
-public class CVM4BasinDepth extends AbstractSiteData<Double> {
+public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
-	public static final String NAME = "SCEC Community Velocity Model Version 4 Basin Depth";
-	public static final String SHORT_NAME = "CVM4";
+	public static final String NAME = "USGS Bay Area Velocity Model Release 8.3.0";
+	public static final String SHORT_NAME = "USGSBayAreaBasin";
 	
-	public static final double minLat = 31;
-	public static final double minLon = -121;
+	public static final double minLat = 35;
+	public static final double minLon = -127;
 	
-	private static final int nx = 1701;
-	private static final int ny = 1101;
+	private static final int nx = 851;
+	private static final int ny = 651;
 	
 	private static final long MAX_FILE_POS = (nx-1) * (ny-1) * 4;
 	
-	public static final double gridSpacing = 0.005;
+	public static final double gridSpacing = 0.01;
 	
-	public static final String DEPTH_2_5_FILE = "data/siteData/CVM4/depth_2.5.bin";
-	public static final String DEPTH_1_0_FILE = "data/siteData/CVM4/depth_1.0.bin";
+	public static final String DEPTH_2_5_FILE = "data/siteData/SF06/depth_2.5.bin";
+	public static final String DEPTH_1_0_FILE = "data/siteData/SF06/depth_1.0.bin";
 	
-	public static final String SERVLET_2_5_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_2_5";
-	public static final String SERVLET_1_0_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/CVM4_1_0";
+	public static final String SERVLET_2_5_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SF06_2_5";
+	public static final String SERVLET_1_0_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SF06_1_0";
 	
 	private RandomAccessFile file = null;
 	private String fileName = null;
@@ -55,12 +52,12 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	private String type;
 	
 	private SiteDataServletAccessor<Double> servlet = null;
-	
-	public CVM4BasinDepth(String type, boolean useServlet) throws IOException {
+
+	public USGSBayAreaBasinDepth(String type, boolean useServlet) throws IOException {
 		this(type, null, useServlet);
 	}
 	
-	public CVM4BasinDepth(String type, String dataFile, boolean useServlet) throws IOException {
+	public USGSBayAreaBasinDepth(String type, String dataFile, boolean useServlet) throws IOException {
 		super();
 		this.useServlet = useServlet;
 		this.fileName = dataFile;
@@ -114,8 +111,8 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	}
 	
 	public String getMetadata() {
-		return type + ", extracted from version 4 of the SCEC Community Velocity Model with patches from" +
-				"Geoff Ely and others. Extracted Feb 17, 2009 by Kevin Milner.\n\n" +
+		return type + ", extracted from version 8.3.0 of the USGS Bay Area Velocity Model (used in the SF06" +
+				"simulation project. Extracted March 4, 2009 by Kevin Milner.\n\n" +
 				"It has a grid spacing of " + gridSpacing + " degrees";
 	}
 
@@ -146,6 +143,11 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 			
 			// this is in meters
 			double val = floatBuff.get(0);
+			
+			if (val >= 100000000.0) {
+//				System.out.println("Found a too big...");
+				return Double.NaN;
+			}
 			
 			// convert to KM
 			Double dobVal = (double)val / 1000d;
@@ -185,77 +187,15 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 		return new CVM4BasinDepth(type, fileName, useServlet);
 	}
 	
-	public static void main(String[] args) throws IOException {
-		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0, true);
-		
-		Document doc = XMLUtils.createDocumentWithRoot();
-		org.dom4j.Element root = doc.getRootElement();
-		org.dom4j.Element mapEl = map.toXMLMetadata(root).element(XML_METADATA_NAME);
-		
-		XMLUtils.writeDocumentToFile("/tmp/cvm4.xml", doc);
-		
-		map = (CVM4BasinDepth)AbstractSiteData.fromXMLMetadata(mapEl);
-		
-		CachedSiteDataWrapper<Double> cache = new CachedSiteDataWrapper<Double>(map);
-//		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/basin.txt");
-		LocationList locs = new LocationList();
-		locs.addLocation(new Location(34.01920, -118.28800));
-		locs.addLocation(new Location(34.91920, -118.3200));
-		locs.addLocation(new Location(34.781920, -118.88600));
-		locs.addLocation(new Location(34.21920, -118.38600));
-		locs.addLocation(new Location(34.781920, -118.88600));
-		locs.addLocation(new Location(34.21920, -118.38600));
-		locs.addLocation(new Location(34.781920, -118.88600));
-		locs.addLocation(new Location(34.21920, -118.38600));
-		locs.addLocation(new Location(34.7920, -118.800));
-		locs.addLocation(new Location(34.2920, -118.3860));
-		locs.addLocation(new Location(34.61920, -118.18600));
-		locs.addLocation(new Location(34.7920, -118.800));
-		locs.addLocation(new Location(34.2920, -118.3860));
-		locs.addLocation(new Location(34.7920, -118.800));
-		locs.addLocation(new Location(34.2920, -118.3860));
-		locs.addLocation(new Location(34.7920, -118.800));
-		locs.addLocation(new Location(34.2920, -118.3860));
-		
-		map.getValues(locs);
-		
-		long time = System.currentTimeMillis();
-		for (Location loc : locs) {
-			double val = map.getValue(loc);
+	public static void main(String args[]) {
+		try {
+			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_1_0, DEPTH_1_0_FILE, false);
+//			SiteDataToXYZ.writeXYZ(cvm, gridSpacing, "/tmp/sfbasin.txt");
+			
+			System.out.println(cvm.getValue(new Location(35.1, -125)));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-//		ArrayList<Double> vals = cache.getValues(locs);
-		double secs = (double)(System.currentTimeMillis() - time) / 1000d;
-		System.out.println("Raw time: " + secs + "s");
-		
-		time = System.currentTimeMillis();
-		for (Location loc : locs) {
-			double val = cache.getValue(loc);
-		}
-//		ArrayList<Double> vals2 = map.getValues(locs);
-		secs = (double)(System.currentTimeMillis() - time) / 1000d;
-		System.out.println("Cache time: " + secs + "s");
-		
-		time = System.currentTimeMillis();
-		for (Location loc : locs) {
-			double val = map.getValue(loc);
-		}
-//		ArrayList<Double> vals = cache.getValues(locs);
-		secs = (double)(System.currentTimeMillis() - time) / 1000d;
-		System.out.println("Raw time: " + secs + "s");
-		
-		time = System.currentTimeMillis();
-		for (Location loc : locs) {
-			double val = cache.getValue(loc);
-		}
-//		ArrayList<Double> vals2 = map.getValues(locs);
-		secs = (double)(System.currentTimeMillis() - time) / 1000d;
-		System.out.println("Cache time: " + secs + "s");
-		
-		
-		
-		
-//		for (double val : vals)
-//			System.out.println(val);
 	}
 
 }

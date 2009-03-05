@@ -87,11 +87,11 @@ public class Asset implements Cloneable {
 	 */
 	public void setAssetParameters( String[] assetList ) {
 		ParameterList list = getParameterList();
-		ListIterator<Parameter> iter = (ListIterator<Parameter>) list.getParametersIterator();
+		ListIterator<ParameterAPI> iter = (ListIterator<ParameterAPI>) list.getParametersIterator();
 		Integer i = 0;
 		Object val = null;
 		while( iter.hasNext() ) {
-			Parameter param = iter.next();
+			ParameterAPI param = iter.next();
 			if ( param.getType().equals("IntegerParameter") ) {
 				val = Integer.parseInt(assetList[i]);
 			}

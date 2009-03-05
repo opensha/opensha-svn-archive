@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
@@ -12,8 +14,12 @@ import org.opensha.data.siteType.impl.CVM4BasinDepth;
 import org.opensha.data.siteType.impl.WaldGlobalVs2007;
 import org.opensha.data.siteType.impl.WillsMap2000;
 import org.opensha.data.siteType.impl.WillsMap2006;
+import org.opensha.metadata.XMLSaveable;
+import org.opensha.util.XMLUtils;
 
-public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
+public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "OrderedSiteDataProviderList";
 	
 	// ordered list of providers...0 is highest priority
 	private ArrayList<SiteDataAPI<?>> providers;
@@ -83,11 +89,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 	}
 	
 	/**
-	 * This method returns a list of the best available data for this location,
-	 * where "best" is defined by the order of this provider list.
-	 * 
-	 * The result will have, at most, one of each site data type (so, for example,
-	 * if there are multiple Vs30 sources, only the "best" one will be used).
+	 * This method returns a list of the data from every enabled provider
 	 * 
 	 * @param loc
 	 * @return
@@ -100,7 +102,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 				continue;
 			SiteDataAPI<?> provider = providers.get(i);
 			try {
-				SiteDataValue<?> val = this.getCheckedDataFromProvider(provider, loc, false);
+				SiteDataValue<?> val = provider.getAnnotatedValue(loc);
 				if (val != null) {
 					vals.add(val);
 				}
@@ -263,7 +265,11 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 			e.printStackTrace();
 		}
 		/*		CVM 2 Depth 2.5		*/
-		providers.add(new CVM2BasinDepth());
+		try {
+			providers.add(new CVM2BasinDepth());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		return new OrderedSiteDataProviderList(providers);
 	}
@@ -292,5 +298,113 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>> {
 		list.add(new WaldGlobalVs2007());
 		
 		return list;
+	}
+	
+	public void printList() {
+		int size = size();
+		for (int i=0; i<size; i++) {
+			SiteDataAPI<?> provider = this.getProvider(i);
+			boolean enabled = this.isEnabled(i);
+			
+			if (enabled)
+				System.out.println(i + ". " + provider);
+			else
+				System.out.println(i + ". <disabled> " + provider);
+		}
+	}
+
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		Element listEl = el.addElement("ProviderList");
+		
+		for (int i=0; i<size(); i++) {
+			SiteDataAPI<?> provider = this.getProvider(i);
+			
+			Element provEl = listEl.addElement("Provider");
+			provEl.addAttribute("Priority", i + "");
+			provEl.addAttribute("Enabled", this.isEnabled(i) + "");
+			
+			provider.toXMLMetadata(provEl);
+		}
+		
+		return root;
+	}
+	
+	public static OrderedSiteDataProviderList fromXMLMetadata(Element orderedListEl) throws IOException {
+		Element listEl = orderedListEl.element("ProviderList");
+		
+		Iterator<Element> it = listEl.elementIterator();
+		
+		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<Boolean> enableds = new ArrayList<Boolean>();
+		ArrayList<Integer> priorities = new ArrayList<Integer>();
+		
+		while (it.hasNext()) {
+			Element provEl = it.next();
+			int priority = Integer.parseInt(provEl.attributeValue("Priority"));
+			boolean enabled = Boolean.parseBoolean(provEl.attributeValue("Enabled"));
+			Element subEl = provEl.element(SiteDataAPI.XML_METADATA_NAME);
+			
+			SiteDataAPI<?> provider = AbstractSiteData.fromXMLMetadata(subEl);
+			
+			providers.add(provider);
+			priorities.add(priority);
+			enableds.add(enabled);
+		}
+		
+		ArrayList<SiteDataAPI<?>> ordered = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<Boolean> orderedEnableds = new ArrayList<Boolean>();
+		
+		for (int i=0; i<providers.size(); i++) {
+			SiteDataAPI<?> provider = null;
+			boolean enabled = false;
+			for (int j=0; j<priorities.size(); j++) {
+				int priority = priorities.get(j);
+				if (priority == i) {
+					provider = providers.get(j);
+					enabled = enableds.get(j);
+					break;
+				}
+			}
+			
+			if (provider ==  null) {
+				throw new RuntimeException("Malformed list!");
+			}
+			
+			ordered.add(provider);
+			orderedEnableds.add(enabled);
+		}
+		
+		OrderedSiteDataProviderList list = new OrderedSiteDataProviderList(ordered);
+		
+		for (int i=0; i<orderedEnableds.size(); i++) {
+			list.setEnabled(i, orderedEnableds.get(i));
+		}
+		
+		return list;
+	}
+	
+	public static void main(String args[]) throws IOException {
+		System.out.println("Orig:");
+		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
+		list.setEnabled(0, false);
+		list.setEnabled(3, false);
+		list.printList();
+		
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		
+		list.toXMLMetadata(root);
+		
+		Element el = root.element(XML_METADATA_NAME);
+		
+		XMLUtils.writeDocumentToFile("/tmp/list.xml", doc);
+		
+		list = OrderedSiteDataProviderList.fromXMLMetadata(el);
+		
+		System.out.println("After:");
+		
+		list.printList();
 	}
 }

@@ -35,7 +35,7 @@ public class SitePanel {
 		siteBean.addSiteParams(imr.getSiteParamsIterator());
 		siteBean.getParameterListEditor().getParameterEditor("Latitude").setEnabled(false);
 		siteBean.getParameterListEditor().getParameterEditor("Longitude").setEnabled(false);
-		siteBean.getParameterListEditor().getParameterEditor("Vs30").setEnabled(false);
+//		siteBean.getParameterListEditor().getParameterEditor("Vs30").setEnabled(false);
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints gridbagc = setGridBagConstraints();
 		sitePanel.setLayout(gridbag);

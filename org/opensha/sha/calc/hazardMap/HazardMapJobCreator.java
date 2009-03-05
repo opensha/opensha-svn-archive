@@ -14,10 +14,16 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.StringTokenizer;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.OrderedSiteDataProviderList;
 import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValue;
+import org.opensha.data.siteType.SiteDataValueList;
+import org.opensha.data.siteType.SiteDataValueListList;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
 import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.exceptions.RegionConstraintException;
@@ -30,6 +36,7 @@ import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 import org.opensha.util.FileNameComparator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.RunScript;
+import org.opensha.util.XMLUtils;
 
 
 public class HazardMapJobCreator {
@@ -131,13 +138,18 @@ public class HazardMapJobCreator {
 	public int nameLength = 7;
 
 	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>(); 
+	
+	private OrderedSiteDataProviderList siteDataList;
 
-	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites, HazardMapJob job) {
-		this(outputDir, sites, 0, sites.getNumGridLocs() - 1, job);
+	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites,
+				HazardMapJob job, OrderedSiteDataProviderList siteDataList) {
+		this(outputDir, sites, 0, sites.getNumGridLocs() - 1, job, siteDataList);
 	}
 
-	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites, int startIndex, int endIndex, HazardMapJob job) {
+	public HazardMapJobCreator(String outputDir, SitesInGriddedRegionAPI sites, int startIndex, int endIndex,
+				HazardMapJob job, OrderedSiteDataProviderList siteDataList) {
 		this.job = job;
+		this.siteDataList = siteDataList;
 		this.sites = sites;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
@@ -465,8 +477,9 @@ public class HazardMapJobCreator {
 	private String createCVMJobFile(String jobName, int startIndex, int endIndex) {
 		String fileName = jobName + ".cvm";
 
-		if (skipCVMFiles) // we're skipping creation of the CVM files
+		if (skipCVMFiles) {// we're skipping creation of the CVM files
 			return fileName;
+		}
 
 		LocationList locs = new LocationList();
 
@@ -483,70 +496,34 @@ public class HazardMapJobCreator {
 			}
 		}
 //		System.out.println("Locations: " + locs.size());
-		try {
-			ArrayList<Double> vs = null;
-			ArrayList<Double> basinDepth = null;
-
-//			if (cvmFromFile) {
-//				WillsSiteClass wills = new WillsSiteClass(locs, willsFileName);
-//				wills.setLoadFromJar(true);
-//				willsSiteClassList=  wills.getWillsSiteClass();
-//				BasinDepthClass basin = new BasinDepthClass(locs, basinFileName);
-//				basin.setLoadFromJar(true);
-//				basinDepth = basin.getBasinDepth();
-//			} else {
-//				willsSiteClassList= ConnectToCVM.getWillsSiteTypeFromCVM(locs);
-//				basinDepth= ConnectToCVM.getBasinDepthFromCVM(locs);
-//			}
-			
-			WillsMap2006 wills = new WillsMap2006();
-			CVM4BasinDepth basin = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true);
-			
-			vs = wills.getValues(locs);
-			basinDepth = basin.getValues(locs);
-
-			if (vs == null) {
-				System.err.println("Wills is NULL!");
-				vs = new ArrayList<Double>();
-				for (int i=0; i<(endIndex - startIndex); i++) {
-					vs.add(Double.NaN);
+		
+		ArrayList<SiteDataValueList<?>> datas = new ArrayList<SiteDataValueList<?>>(); 
+		
+		for (int i=0; i<this.siteDataList.size(); i++) {
+			SiteDataAPI<?> provider = siteDataList.getProvider(i);
+			if (siteDataList.isEnabled(i)) {
+				try {
+					SiteDataValueList<?> data = provider.getAnnotatedValues(locs);
+					datas.add(data);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-
-			if (basinDepth == null) {
-				System.err.println("Basin is NULL!");
-				basinDepth = new ArrayList();
-				for (int i=0; i<(endIndex - startIndex); i++) {
-					basinDepth.add(1.0);
-				}
-			}
-
-			if (vs.size() != basinDepth.size() || basinDepth.size() != (endIndex - startIndex + 1)) {
-				System.err.println("ERROR: not the same size!!!!!");
-				return "";
-			}
-
-			int cvmVals = 0;
-			FileWriter fr = new FileWriter(outputDir + fileName);
-//			System.out.println("Wills Size: " + willsSiteClassList.size());
-			for (int i=0; i< vs.size(); i++) {
-				//System.out.println("Site Type: " + willsSiteClassList.get(i));
-				//System.out.println("Site Basin: " + basinDepth.get(i));
-				double lat = locs.getLocationAt(i).getLatitude();
-				double lon = locs.getLocationAt(i).getLongitude();
-				
-				fr.write(lat + "\t");
-				fr.write(lon + "\t");
-				fr.write(vs.get(i) + "\t" + basinDepth.get(i) + "\n");
-				fr.flush();
-				cvmVals++;
-			}
-			fr.close();
-//			System.out.println("Wrote " + cvmVals + " values!");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "";
 		}
+		
+		SiteDataValueListList lists = new SiteDataValueListList(datas);
+		
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		
+		lists.toXMLMetadata(root);
+		
+		try {
+			XMLUtils.writeDocumentToFile(outputDir + fileName, doc);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		return fileName;
 	}
 
@@ -1369,17 +1346,25 @@ public class HazardMapJobCreator {
 			fw.write("fi" + "\n");
 			fw.write("" + "\n");
 			fw.write("cd "+outputDir+"\n");
+			// make the stage out transfer scripts executable
 			if (stageOut) {
 				fw.write("/bin/chmod -R +x " + outputDir + "/" + stageOutScriptDir + "\n");
 			}
+			// make the log scripts executable
 			fw.write("/bin/chmod +x " + outputDir + LOG_SCRIPT_DIR_NAME + "/" + "*.sh" + "\n");
+			// make the return value checker script executable
 			fw.write("/bin/chmod +x " + retValScript + "\n");
+			// let the command wrapper script executable
 			fw.write("/bin/chmod +x " + wrapperScript + "\n");
+			// make this submit script executable for easy manual resubmits later
+			fw.write("/bin/chmod +x " + scriptFileName + "\n");
 			fw.write("\n");
 			String binPath = this.submitHost.getCondorPath();
 			if (!binPath.endsWith(File.separator))
 				binPath += File.separator;
-			String dagArgs = "-maxidle " + DAGMAN_MAX_IDLE + " -MaxPre " + DAGMAN_MAX_PRE + " -MaxPost " + DAGMAN_MAX_POST;
+			String dagArgs = "-maxidle " + DAGMAN_MAX_IDLE + " -MaxPre " + DAGMAN_MAX_PRE + 
+							" -MaxPost " + DAGMAN_MAX_POST + 
+							" -OldRescue 0 -AutoRescue 1";
 			fw.write(binPath + "condor_submit_dag " + dagArgs + " main.dag" + "\n");
 			fw.close();
 			if (run) {

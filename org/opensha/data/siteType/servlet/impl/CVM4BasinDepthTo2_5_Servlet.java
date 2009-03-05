@@ -13,6 +13,6 @@ public class CVM4BasinDepthTo2_5_Servlet extends
 	private static final String FILE = "/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF/data/siteData/CVM4/depth_2.5.bin";
 	
 	public CVM4BasinDepthTo2_5_Servlet() throws IOException {
-		super(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, new File(FILE), false));
+		super(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, FILE, false));
 	}
 }

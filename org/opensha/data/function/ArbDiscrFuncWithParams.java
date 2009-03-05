@@ -143,7 +143,7 @@ public class ArbDiscrFuncWithParams
      * Since this is a clone, you can modify it without changing the original.
      * @return
      */
-    public DiscretizedFuncAPI deepClone(){
+    public ArbDiscrFuncWithParams deepClone(){
 
         ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
         function.setTolerance( this.getTolerance() );

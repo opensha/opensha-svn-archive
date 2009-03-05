@@ -137,14 +137,12 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		// get the default function for the specified IMT
 		ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
 		
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, maxDistance, outputDir);
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, null, maxDistance, outputDir);
 		
-		calculator.timer = this.timer;
-		calculator.lessPrints = this.lessPrints;
-		calculator.skipPoints = this.skipPoints;
-		calculator.skipFactor = this.skipFactor;
-		calculator.useCVM = this.useCVM;
-		calculator.cvmFileName = this.cvmFileName;
+		calculator.setTimer(timer);
+		calculator.setLessPrints(lessPrints);
+		calculator.setSkipPoints(skipPoints);
+		calculator.setSkipFactor(skipFactor);
 		
 		if (timer) {
 			System.out.println(getTime(start) + " seconds total pre-calculator overhead");

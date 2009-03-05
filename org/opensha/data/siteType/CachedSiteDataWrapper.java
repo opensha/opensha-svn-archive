@@ -3,13 +3,18 @@ package org.opensha.data.siteType;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.text.AttributeSet.ParagraphAttribute;
+
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.param.event.ParameterChangeListener;
 
-public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
+public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, ParameterChangeListener {
 	
 	private int cacheSize;
 	private int cacheSizeMinusOne;
@@ -26,6 +31,10 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
 		this.cacheSize = cacheSize;
 		cacheSizeMinusOne = cacheSize - 1;
 		this.provider = provider;
+		ParameterList params = this.provider.getAdjustableParameterList();
+		for (ParameterAPI param : params) {
+			param.addParameterChangeListener(this);
+		}
 	}
 	
 	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException {
@@ -67,6 +76,14 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
 		dataCache.add(0, data);
 		
 		return data;
+	}
+	
+	/**
+	 * Clear the cache. This is called if parameters are updated.
+	 */
+	public void clearCache() {
+		this.locsCache.clear();
+		this.dataCache.clear();
 	}
 
 	public ArrayList<Element> getValues(LocationList locs) throws IOException {
@@ -126,6 +143,20 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element> {
 	 */
 	public static void main(String[] args) {
 		
+	}
+
+	public org.dom4j.Element toXMLMetadata(org.dom4j.Element root) {
+		return provider.toXMLMetadata(root);
+	}
+
+	public SiteDataValueList<Element> getAnnotatedValues(LocationList locs)
+			throws IOException {
+		return provider.getAnnotatedValues(locs);
+	}
+
+	public void parameterChange(ParameterChangeEvent event) {
+		System.out.println("Parameter changed...clearing cache!");
+		this.clearCache();
 	}
 
 }

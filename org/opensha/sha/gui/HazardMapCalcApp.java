@@ -427,7 +427,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 		attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 		// create the Site Gui Bean object
 		sitesGuiBean = new SitesInGriddedRegionGuiBean();
-		sitesGuiBean.addSiteParams(attenRel.getSiteParamsIterator());
+		sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
 		// show the sitebean in JPanel
 		gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -740,8 +740,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
 			int maxWallTime = this.gridGuiBean.get_maxWallTime();
 			double maxSourceDistance;
-			boolean useCVM = sitesGuiBean.isSiteTypeFromCVM();
-			boolean basinFromCVM = sitesGuiBean.isBasinDepthFromCVM();
+			boolean useCVM = sitesGuiBean.isUseSiteData();
 			boolean saveERF = this.gridGuiBean.get_saveERF();
 			
 			if(distanceControlPanel == null ) maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
@@ -755,7 +754,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 			StorageHost storage = StorageHost.HPC;
 			
 			GridResources resources = new GridResources(submit, rp, storage);
-			HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, basinFromCVM, saveERF);
+			HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, saveERF);
 			
 			HazardMapJob job = new HazardMapJob(resources, calcParams, jobName, jobName, email, metadataFileName);
 

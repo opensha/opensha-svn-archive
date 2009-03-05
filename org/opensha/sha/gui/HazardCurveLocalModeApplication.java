@@ -118,7 +118,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
       erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
+//      erf_Classes.add(NSHMP08_CEUS_ERF_CLASS_NAME);
       erf_Classes.add(YUCCA_MOUNTAIN_CLASS_NAME);
       erf_Classes.add(YUCCA_MOUNTAIN_ERF_LIST_CLASS_NAME);
       erf_Classes.add(WGCEP_UCERF_2_CLASS_NAME);
@@ -137,8 +137,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
       erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
-      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
-      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
+//      erf_Classes.add(CYBERSHAKE_ERF_LIST_CLASS_NAME);
+//      erf_Classes.add(CYBERSHAKE_ERF_WRAPPER_LIST_CLASS_NAME);
       
       try {
         erfGuiBean = new ERF_GuiBean(erf_Classes);

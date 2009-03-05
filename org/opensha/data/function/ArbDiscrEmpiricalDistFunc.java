@@ -63,7 +63,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * Since this is a clone, you can modify it without changing the original.
      * @return
      */
-    public DiscretizedFuncAPI deepClone(){
+    public ArbDiscrEmpiricalDistFunc deepClone(){
 
         ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc(  );
         function.setInfo(getInfo());

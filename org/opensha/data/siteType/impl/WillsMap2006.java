@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
@@ -35,7 +36,10 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	
 	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/Wills2006";
 	
+	private GeographicRegion applicableRegion;
+	
 	private RandomAccessFile file = null;
+	private String fileName = null;
 	private byte[] recordBuffer = null;
 	private ShortBuffer shortBuff = null;
 	
@@ -46,31 +50,18 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	private SiteDataServletAccessor<Double> servlet = null;
 	
 	public WillsMap2006() throws IOException {
-		super();
-		this.useServlet = true;
-		
-		initCommon();
-		
-		servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+		this(true, null);
 	}
 	
-	private GeographicRegion applicableRegion;
-	
-	public WillsMap2006(File dataFile) throws IOException {
-		super();
-		this.useServlet = false;
-		
-		initCommon();
-		
-		file = new RandomAccessFile(dataFile, "r");
-		
-		recordBuffer = new byte[2];
-		ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-		record.order(ByteOrder.LITTLE_ENDIAN);
-		shortBuff = record.asShortBuffer();
+	public WillsMap2006(String dataFile) throws IOException {
+		this(false, dataFile);
 	}
 	
-	private void initCommon() {
+	private WillsMap2006(boolean useServlet, String dataFile) throws IOException {
+		super();
+		this.useServlet = useServlet;
+		this.fileName = dataFile;
+		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
 				BinaryMesh2DCalculator.TYPE_SHORT,nx, ny, minLat, minLon, spacing);
 		
@@ -78,6 +69,19 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		calc.setStartLeft(true);
 		
 		applicableRegion = calc.getApplicableRegion();
+		
+		if (useServlet) {
+			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+		} else {
+			file = new RandomAccessFile(new File(dataFile), "r");
+			
+			recordBuffer = new byte[2];
+			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
+			record.order(ByteOrder.LITTLE_ENDIAN);
+			shortBuff = record.asShortBuffer();
+		}
+		this.paramList.addParameter(minVs30Param);
+		this.paramList.addParameter(maxVs30Param);
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -120,7 +124,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-			return servlet.getValue(loc);
+			return certifyMinMaxVs30(servlet.getValue(loc));
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -135,13 +139,17 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 			if (val <= 0)
 				return Double.NaN;
 			
-			return (double)val;
+			return certifyMinMaxVs30((double)val);
 		}
 	}
 
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
 		if (useServlet) {
-			return servlet.getValues(locs);
+			ArrayList<Double> vals = servlet.getValues(locs);
+			for (int i=0; i<vals.size(); i++) {
+				vals.set(i, certifyMinMaxVs30(vals.get(i)));
+			}
+			return vals;
 		} else {
 			return super.getValues(locs);
 		}
@@ -149,6 +157,20 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	
 	public boolean isValueValid(Double val) {
 		return val != null && !Double.isNaN(val);
+	}
+	
+	@Override
+	protected Element addXMLParameters(Element paramsEl) {
+		paramsEl.addAttribute("useServlet", this.useServlet + "");
+		paramsEl.addAttribute("fileName", this.fileName);
+		return super.addXMLParameters(paramsEl);
+	}
+	
+	public static WillsMap2006 fromXMLParams(org.dom4j.Element paramsElem) throws IOException {
+		boolean useServlet = Boolean.parseBoolean(paramsElem.attributeValue("useServlet"));
+		String fileName = paramsElem.attributeValue("fileName");
+		
+		return new WillsMap2006(useServlet, fileName);
 	}
 	
 	public static void main(String[] args) throws IOException {

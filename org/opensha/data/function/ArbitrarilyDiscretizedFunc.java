@@ -592,7 +592,7 @@ if(debug) {
      * Since this is a clone, you can modify it without changing the original.
      * @return
      */
-    public DiscretizedFuncAPI deepClone(){
+    public ArbitrarilyDiscretizedFunc deepClone(){
 
         ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc(  );
         function.setName(getName());

@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Authenticator;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,6 +24,8 @@ import org.dom4j.Element;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.OrderedSiteDataProviderList;
+import org.opensha.data.siteType.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridResources;
 import org.opensha.gridComputing.GridResourcesList;
@@ -38,17 +41,20 @@ import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.servlet.ManagementServletAccessor;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.GridParametersGuiBean;
+import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
+import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
+import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 import org.opensha.util.XMLUtils;
 import org.opensha.util.http.HTTPAuthenticator;
 import org.opensha.util.http.InstallSSLCert;
 import org.opensha.util.http.StaticPasswordAuthenticator;
 
-public class CreateDataManager extends StepManager {
+public class CreateDataManager extends StepManager implements AttenuationRelationshipChangeListener {
 	
 	boolean useSSL = false;
 	
@@ -58,10 +64,12 @@ public class CreateDataManager extends StepManager {
 	private Step hazardStep;
 	private Step regionStep;
 	private Step gridStep;
+	private Step siteDataStep;
 	private Step submitStep;
 	
 	private SitesInGriddedRegionGuiBean sitesGuiBean;
 	private GridParametersGuiBean gridGuiBean;
+	private OrderedSiteDataGUIBean siteDataGuiBean;
 	
 	GridResourcesList resources;
 	
@@ -151,10 +159,12 @@ public class CreateDataManager extends StepManager {
 		hazardStep = this.createHazardStep();
 		regionStep = this.createRegionStep();
 		gridStep = this.createGridStep();
+		siteDataStep = this.createSiteDataStep();
 		submitStep = this.createSubmitStep();
 		
 		steps.add(hazardStep);
 		steps.add(regionStep);
+		steps.add(siteDataStep);
 		steps.add(gridStep);
 		steps.add(submitStep);
 	}
@@ -184,6 +194,16 @@ public class CreateDataManager extends StepManager {
 		gridGuiBean.setSubmitHostsVisible(false);
 		
 		return new Step(gridGuiBean, "Grid Computing Settings");
+	}
+	
+	private Step createSiteDataStep() {
+		siteDataGuiBean = new OrderedSiteDataGUIBean(OrderedSiteDataProviderList.createSiteDataProviderDefaults(),
+							hazard.getIMR());
+		
+		IMR_GuiBean imrGuiBean = hazard.getIMRGuiBean();
+		imrGuiBean.addAttenuationRelationshipChangeListener(this);
+		
+		return new Step(siteDataGuiBean, "Site Data Providers");
 	}
 	
 	private Step createSubmitStep() {
@@ -253,83 +273,108 @@ public class CreateDataManager extends StepManager {
 		frame.setVisible(true);
 	}
 	
-	protected void submit(String name, String email) {
+	public Document getSubmitDoc(String name, String email) throws InvocationTargetException, RuntimeException, RegionConstraintException {
 		String id = System.currentTimeMillis() + "";
 		
 		Document document = XMLUtils.createDocumentWithRoot();
 		Element root = document.getRootElement();
 		
+		// ***** ERF
+		System.out.println("Saving ERF");
+		EqkRupForecast erf = hazard.getERF();
+		
+		root = erf.toXMLMetadata(root);
+		
+		// ***** IMR/IMT
+		System.out.println("Saving IMR/IMT");
+		IntensityMeasureRelationshipAPI imr = hazard.getIMR();
+		
+		IMT_GuiBean imtGuiBean = hazard.getIMTGuiBean();
+		
+		String imt = (String)(imtGuiBean.getIntensityMeasure().getName());
+		if (imt == null)
+			System.out.println("NULL IMT!!!");
+		imr.setIntensityMeasure(imt);
+		ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.DAMPING_NAME);
+		if (dampingParam != null) {
+			double damping = (Double)dampingParam.getValue();
+			imr.getParameter(AttenuationRelationship.DAMPING_NAME).setValue(damping);
+		}
+		ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME);
+		if (periodParam != null) {
+			double period = (Double)periodParam.getValue();
+			imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
+		}
+		ArrayList<ParameterAPI> siteParams = sitesGuiBean.getSiteParams();
+		Iterator<ParameterAPI> imrParams = imr.getSiteParamsIterator();
+		while (imrParams.hasNext()) {
+			ParameterAPI imrParam = imrParams.next();
+			for (ParameterAPI param : siteParams) {
+				String siteParamName = param.getName();
+				if (siteParamName.endsWith(imrParam.getName())) {
+					System.out.println("Setting IMR param: " + imrParam.getName() + " to: " + param.getValue());
+					imrParam.setValue(param.getValue());
+				}
+			}
+		}
+		
+		root = imr.toXMLMetadata(root);
+		
+		// ***** Region
+		System.out.println("Saving Site/Region info");
+		SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+
+		root = griddedRegionSites.toXMLMetadata(root);
+		
+		// ***** Site Data
+		if (sitesGuiBean.isUseSiteData()) {
+			System.out.println("Saving Site Data info");
+			OrderedSiteDataProviderList dataList = siteDataGuiBean.getProviderList();
+			
+			root = dataList.toXMLMetadata(root);
+		}
+		
+		// ***** Function
+		System.out.println("Saving Hazard Function");
+//		if (!useCustomX_Values) {
+		// TODO: add custom x vals
+		ArbitrarilyDiscretizedFunc function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
+//		}
+		
+		root = function.toXMLMetadata(root);
+		
+		// ***** Grid Params
+		System.out.println("Saving Grid Params");
+		int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
+		int maxWallTime = this.gridGuiBean.get_maxWallTime();
+		double maxSourceDistance;
+		boolean useCVM = sitesGuiBean.isUseSiteData();
+		boolean saveERF = this.gridGuiBean.get_saveERF();
+		
+//		if(distanceControlPanel == null )
+		// TODO: add custom max source distance
+		maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+//		else maxSourceDistance = new Double(distanceControlPanel.getDistance());
+		
+		String metadataFileName = id + ".xml";
+		
+		ResourceProvider rp = this.gridGuiBean.get_resourceProvider();
+		SubmitHost submit = this.gridGuiBean.get_submitHost();
+		StorageHost storage = this.resources.getStorageHosts().get(0);
+		
+		GridResources resources = new GridResources(submit, rp, storage);
+		HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, saveERF);
+		
+		HazardMapJob job = new HazardMapJob(resources, calcParams, id, name, email, metadataFileName);
+
+		root = job.toXMLMetadata(root);
+		
+		return document;
+	}
+	
+	protected void submit(String name, String email) {
 		try {
-			// ***** ERF
-			System.out.println("Saving ERF");
-			EqkRupForecast erf = hazard.getERF();
-			
-			root = erf.toXMLMetadata(root);
-			
-			// ***** IMR/IMT
-			System.out.println("Saving IMR/IMT");
-			IntensityMeasureRelationshipAPI imr = hazard.getIMR();
-			
-			IMT_GuiBean imtGuiBean = hazard.getIMTGuiBean();
-			
-			String imt = (String)(imtGuiBean.getIntensityMeasure().getName());
-			if (imt == null)
-				System.out.println("NULL IMT!!!");
-			imr.setIntensityMeasure(imt);
-			ParameterAPI dampingParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.DAMPING_NAME);
-			if (dampingParam != null) {
-				double damping = (Double)dampingParam.getValue();
-				imr.getParameter(AttenuationRelationship.DAMPING_NAME).setValue(damping);
-			}
-			ParameterAPI periodParam = imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME);
-			if (periodParam != null) {
-				double period = (Double)periodParam.getValue();
-				imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(period);
-			}
-			
-			root = imr.toXMLMetadata(root);
-			
-			// ***** Region
-			System.out.println("Saving Site/Region info");
-			SitesInGriddedRegionAPI griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-
-			root = griddedRegionSites.toXMLMetadata(root);
-			
-			// ***** Function
-			System.out.println("Saving Hazard Function");
-//			if (!useCustomX_Values) {
-			// TODO: add custom x vals
-			ArbitrarilyDiscretizedFunc function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
-//			}
-			
-			root = function.toXMLMetadata(root);
-			
-			// ***** Grid Params
-			System.out.println("Saving Grid Params");
-			int sitesPerJob = this.gridGuiBean.get_sitesPerJob();
-			int maxWallTime = this.gridGuiBean.get_maxWallTime();
-			double maxSourceDistance;
-			boolean useCVM = sitesGuiBean.isSiteTypeFromCVM();
-			boolean basinFromCVM = sitesGuiBean.isBasinDepthFromCVM();
-			boolean saveERF = this.gridGuiBean.get_saveERF();
-			
-//			if(distanceControlPanel == null )
-			// TODO: add custom max source distance
-			maxSourceDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
-//			else maxSourceDistance = new Double(distanceControlPanel.getDistance());
-			
-			String metadataFileName = id + ".xml";
-			
-			ResourceProvider rp = this.gridGuiBean.get_resourceProvider();
-			SubmitHost submit = this.gridGuiBean.get_submitHost();
-			StorageHost storage = this.resources.getStorageHosts().get(0);
-			
-			GridResources resources = new GridResources(submit, rp, storage);
-			HazardMapCalculationParameters calcParams = new HazardMapCalculationParameters(maxWallTime, sitesPerJob, maxSourceDistance, useCVM, basinFromCVM, saveERF);
-			
-			HazardMapJob job = new HazardMapJob(resources, calcParams, id, name, email, metadataFileName);
-
-			root = job.toXMLMetadata(root);
+			Document document = this.getSubmitDoc(name, email);
 			
 			System.out.println("Submitting Job!");
 			ManagementServletAccessor manage = new ManagementServletAccessor(ManagementServletAccessor.SERVLET_URL, false);
@@ -354,5 +399,10 @@ public class CreateDataManager extends StepManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void attenuationRelationshipChange(
+			AttenuationRelationshipChangeEvent event) {
+		this.siteDataGuiBean.setAttenuationRelationship(event.getNewAttenRel());
 	}
 }

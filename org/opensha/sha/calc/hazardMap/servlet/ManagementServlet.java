@@ -70,6 +70,7 @@ public class ManagementServlet extends ConfLoadingServlet {
 				return;
 			}
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace(System.out);
 			fail(out, "ClassNotFoundException: " + e.getMessage());
 			return;
 		}
@@ -132,6 +133,7 @@ public class ManagementServlet extends ConfLoadingServlet {
 			
 			success(out);
 		} catch (Exception e) {
+			e.printStackTrace(System.out);
 			fail(out, e.getMessage());
 		}
 	}

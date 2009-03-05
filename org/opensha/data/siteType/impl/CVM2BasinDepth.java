@@ -1,5 +1,6 @@
 package org.opensha.data.siteType.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -7,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
+import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
@@ -32,6 +34,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 	private GeolocatedRectangularBinaryMesh2DCalculator calc = null;
 	
 	private RandomAccessFile file = null;
+	private String fileName = null;
 	
 	private byte[] recordBuffer = null;
 	private FloatBuffer floatBuff = null;
@@ -46,34 +49,38 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 	
 	public static final double gridSpacing = 0.01;
 	
-	public CVM2BasinDepth() {
-		super();
-		useServlet = true;
-		initCommon();
-		
-		servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+	public CVM2BasinDepth() throws IOException {
+		this(null, true);
 	}
 	
 	public CVM2BasinDepth(String fileName) throws IOException {
-		super();
-		useServlet = false;
-		initCommon();
-		
-		file = new RandomAccessFile(fileName, "r");
-		
-		calc.setStartBottom(true);
-		calc.setStartLeft(true);
-		
-		recordBuffer = new byte[4];
-		ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-		record.order(ByteOrder.LITTLE_ENDIAN);
-		
-		floatBuff = record.asFloatBuffer();
+		this(fileName, false);
 	}
 	
-	private void initCommon() {
+	private CVM2BasinDepth(String fileName, boolean useServlet) throws FileNotFoundException {
+		super();
+		this.useServlet = useServlet;
+		this.fileName = fileName;
+		
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
 				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, gridSpacing);
+		
+		if (useServlet) {
+			servlet = new SiteDataServletAccessor<Double>(SERVLET_URL);
+		} else {
+			file = new RandomAccessFile(fileName, "r");
+			
+			calc.setStartBottom(true);
+			calc.setStartLeft(true);
+			
+			recordBuffer = new byte[4];
+			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
+			record.order(ByteOrder.LITTLE_ENDIAN);
+			
+			floatBuff = record.asFloatBuffer();
+		}
+		this.paramList.addParameter(minBasinDoubleParam);
+		this.paramList.addParameter(maxBasinDoubleParam);
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -116,7 +123,7 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
-			return servlet.getValue(loc);
+			return certifyMinMaxBasinDepth(servlet.getValue(loc));
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -131,13 +138,17 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 			
 			// convert to KM
 			Double dobVal = (double)val / 1000d;
-			return dobVal;
+			return certifyMinMaxBasinDepth(dobVal);
 		}
 	}
 	
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
 		if (useServlet) {
-			return servlet.getValues(locs);
+			ArrayList<Double> vals = servlet.getValues(locs);
+			for (int i=0; i<vals.size(); i++) {
+				vals.set(i, certifyMinMaxBasinDepth(vals.get(i)));
+			}
+			return vals;
 		} else {
 			return super.getValues(locs);
 		}
@@ -145,6 +156,20 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 
 	public boolean isValueValid(Double el) {
 		return el >=0 && !Double.isNaN(el);
+	}
+	
+	@Override
+	protected Element addXMLParameters(Element paramsEl) {
+		paramsEl.addAttribute("useServlet", this.useServlet + "");
+		paramsEl.addAttribute("fileName", this.fileName);
+		return super.addXMLParameters(paramsEl);
+	}
+	
+	public static CVM2BasinDepth fromXMLParams(org.dom4j.Element paramsElem) throws FileNotFoundException {
+		boolean useServlet = Boolean.parseBoolean(paramsElem.attributeValue("useServlet"));
+		String fileName = paramsElem.attributeValue("fileName");
+		
+		return new CVM2BasinDepth(fileName, useServlet);
 	}
 	
 	public static void main(String[] args) throws IOException {

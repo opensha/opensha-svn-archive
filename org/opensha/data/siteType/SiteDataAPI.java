@@ -7,10 +7,13 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 
-public interface SiteDataAPI<Element> extends NamedObjectAPI {
+public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
+	
+	public static final String XML_METADATA_NAME = "SiteDataAPI";
 	
 	/* ************ Site Data Types ************ */
 	
@@ -110,6 +113,15 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI {
 	 * @throws IOException
 	 */
 	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException;
+	
+	/**
+	 * Get the values, with metadata, at the closest locations
+	 * 
+	 * @param locs
+	 * @return
+	 * @throws IOException
+	 */
+	public SiteDataValueList<Element> getAnnotatedValues(LocationList locs) throws IOException;
 	
 	/**
 	 * Get the value for each location in the given location list

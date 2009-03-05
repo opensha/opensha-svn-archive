@@ -311,6 +311,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		this.dataPanel.add(paramEdit, BorderLayout.CENTER);
 		
 		this.dataPanel.validate();
+		this.dataPanel.repaint();
+		this.validate();
 	}
 	
 	public OrderedSiteDataProviderList getProviderList() {

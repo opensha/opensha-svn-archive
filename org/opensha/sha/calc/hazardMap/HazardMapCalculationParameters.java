@@ -10,16 +10,14 @@ public class HazardMapCalculationParameters extends GridCalculationParameters {
 	private int sitesPerJob;
 	private double maxSourceDistance;
 	private boolean useCVM;
-	private boolean basinFromCVM;
 	private boolean serializeERF;
 
-	public HazardMapCalculationParameters(int maxWallTime, int sitesPerJob, double maxSourceDistance, boolean useCVM, boolean basinFromCVM, boolean serializeERF) {
+	public HazardMapCalculationParameters(int maxWallTime, int sitesPerJob, double maxSourceDistance, boolean useCVM, boolean serializeERF) {
 		super(maxWallTime);
 		
 		this.sitesPerJob = sitesPerJob;
 		this.maxSourceDistance = maxSourceDistance;
 		this.useCVM = useCVM;
-		this.basinFromCVM = basinFromCVM;
 		this.serializeERF = serializeERF;
 	}
 	
@@ -29,7 +27,6 @@ public class HazardMapCalculationParameters extends GridCalculationParameters {
 		sitesPerJob = Integer.parseInt(element.attribute("sitesPerJob").getValue());
 		maxSourceDistance = Double.parseDouble(element.attribute("maxSourceDistance").getValue());
 		useCVM = Boolean.parseBoolean(element.attribute("useCVM").getValue());
-		basinFromCVM = Boolean.parseBoolean(element.attribute("basinFromCVM").getValue());
 		serializeERF = Boolean.parseBoolean(element.attribute("serializeERF").getValue());
 	}
 
@@ -42,7 +39,6 @@ public class HazardMapCalculationParameters extends GridCalculationParameters {
 		xml.addAttribute("sitesPerJob", sitesPerJob + "");
 		xml.addAttribute("maxSourceDistance", (float)maxSourceDistance + "");
 		xml.addAttribute("useCVM", useCVM + "");
-		xml.addAttribute("basinFromCVM", basinFromCVM + "");
 		xml.addAttribute("serializeERF", serializeERF + "");
 		
 		return root;
@@ -56,7 +52,6 @@ public class HazardMapCalculationParameters extends GridCalculationParameters {
 		str += "\tsitesPerJob: " + sitesPerJob + "\n";
 		str += "\tmaxSourceDistance: " + maxSourceDistance + "\n";
 		str += "\tuseCVM: " + useCVM + "\n";
-		str += "\tbasinFromCVM: " + basinFromCVM + "\n";
 		str += "\tserializeERF: " + serializeERF;
 		
 		return str;
@@ -74,9 +69,9 @@ public class HazardMapCalculationParameters extends GridCalculationParameters {
 		return useCVM;
 	}
 
-	public boolean isBasinFromCVM() {
-		return basinFromCVM;
-	}
+//	public boolean isBasinFromCVM() {
+//		return basinFromCVM;
+//	}
 
 	public boolean isSerializeERF() {
 		return serializeERF;

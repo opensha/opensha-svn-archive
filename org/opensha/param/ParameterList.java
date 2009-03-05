@@ -44,23 +44,27 @@ import org.opensha.param.editor.ParameterEditor;
  * @version 1.0
  */
 
-public class ParameterList implements Serializable {
+public class ParameterList implements Serializable, Iterable<ParameterAPI> {
 
 
     // *******************/
     // Variables
     // *******************/
 
-    /** Class name for debugging. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3799009507357699361L;
+	/** Class name for debugging. */
     protected final static String C = "ParameterList";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
     /** Internal vector list of parameters. */
-    protected ArrayList params = new ArrayList();
+    protected ArrayList<ParameterAPI> params = new ArrayList<ParameterAPI>();
 
     /** Internal list of constraint name mapped to parameter name. */
-    protected Hashtable constraintNameMap = new Hashtable();
+    protected Hashtable<String, String> constraintNameMap = new Hashtable<String, String>();
 
 
     /* **********************/
@@ -83,7 +87,7 @@ public class ParameterList implements Serializable {
      */
     public void addParameterList(ParameterList list2) throws ParameterException{
 
-        ListIterator it = list2.getParametersIterator();
+        ListIterator<ParameterAPI> it = list2.getParametersIterator();
         while( it.hasNext() ){
             ParameterAPI param = (ParameterAPI)it.next();
             if( !this.containsParameter(param) ){ this.addParameter(param); }        }
@@ -252,12 +256,12 @@ public class ParameterList implements Serializable {
      * Returns an iterator of all parameters in the list. Returns the list in
      * the order the elements were added.
      */
-    public ListIterator getParametersIterator(){
+    public ListIterator<ParameterAPI> getParametersIterator(){
 
-        ArrayList v = new ArrayList();
+        ArrayList<ParameterAPI> v = new ArrayList<ParameterAPI>();
         int size = this.params.size();
         for(int i = 0; i<size;++i) {
-          Object obj = params.get(i);
+          ParameterAPI obj = params.get(i);
           v.add(obj);
         }
 
@@ -305,7 +309,7 @@ public class ParameterList implements Serializable {
 
       ParameterList paramList = (ParameterList) obj;
 
-      ListIterator it = paramList.getParametersIterator();
+      ListIterator<ParameterAPI> it = paramList.getParametersIterator();
 
       if(size() != paramList.size())
         return -1;
@@ -327,8 +331,8 @@ public class ParameterList implements Serializable {
      * Returns an iterator of all parameter names of the paramters in the list.
      * Returns the list in the order the elements were added.
      */
-    public ListIterator getParameterNamesIterator(){
-        ArrayList v = new ArrayList();
+    public ListIterator<String> getParameterNamesIterator(){
+        ArrayList<String> v = new ArrayList<String>();
         int size = this.params.size();
          for(int i = 0; i<size;++i) {
             ParameterAPI obj = (ParameterAPI)params.get(i);
@@ -354,18 +358,18 @@ public class ParameterList implements Serializable {
         if( this.size() != list.size() ) return false;
 
         // Check each individual Parameter
-        ListIterator it = this.getParametersIterator();
+        ListIterator<ParameterAPI> it = this.getParametersIterator();
         while(it.hasNext()){
 
             // This list's parameter
-            ParameterAPI param1 = (ParameterAPI)it.next();
+            ParameterAPI param1 = it.next();
 
             // List may not contain parameter with this list's parameter name
             if ( !list.containsParameter(param1.getName()) ) return false;
 
             // Found two parameters with same name, check equals, actually redundent,
             // because that is what equals does
-            ParameterAPI param2 = (ParameterAPI)list.getParameter(param1.getName());
+            ParameterAPI param2 = list.getParameter(param1.getName());
             if( !param1.equals(param2) ) return false;
 
             // Now try compare to to see if value the same, can fail if two values
@@ -392,11 +396,11 @@ public class ParameterList implements Serializable {
         if( this.size() != list.size() ) return false;
 
         // Check each individual Parameter
-        ListIterator it = this.getParametersIterator();
+        ListIterator<ParameterAPI> it = this.getParametersIterator();
         while(it.hasNext()){
 
             // This list's parameter
-            ParameterAPI param1 = (ParameterAPI)it.next();
+            ParameterAPI param1 = it.next();
 
             // List may not contain parameter with this list's parameter name
             if ( !list.containsParameter(param1.getName()) ) return false;
@@ -434,7 +438,7 @@ public class ParameterList implements Serializable {
        StringBuffer b = new StringBuffer();
        boolean first = true;
 
-       ArrayList v=new ArrayList();
+       ArrayList<String> v=new ArrayList<String>();
 
        int vectorSize = params.size();
        for(int i = 0; i<vectorSize;++i) {
@@ -442,7 +446,7 @@ public class ParameterList implements Serializable {
            v.add(param.getName());
        }
 
-       Iterator it = v.iterator();
+       Iterator<String> it = v.iterator();
        while(it.hasNext()){
 
            String key = (String)it.next();
@@ -528,5 +532,10 @@ public class ParameterList implements Serializable {
       }
       return -1;
     }
+
+
+	public Iterator<ParameterAPI> iterator() {
+		return this.params.iterator();
+	}
 
 }

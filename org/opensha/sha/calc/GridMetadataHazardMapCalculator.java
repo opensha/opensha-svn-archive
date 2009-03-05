@@ -22,6 +22,7 @@ import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.SiteDataValueListList;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.gridComputing.GridJob;
 import org.opensha.param.event.ParameterChangeWarningEvent;
@@ -35,6 +36,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.util.FileUtils;
+import org.opensha.util.XMLUtils;
 
 
 /**
@@ -155,19 +157,23 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		} else {
 			hazFunction = DiscretizedFunc.fromXMLMetadata(hazFuncElem);
 		}
-
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, maxDistance, outputDir);
-
-		calculator.timer = this.timer;
-		calculator.lessPrints = this.lessPrints;
-		calculator.skipPoints = this.skipPoints;
-		calculator.skipFactor = this.skipFactor;
-		calculator.useCVM = this.useCVM;
-		calculator.cvmFileName = this.cvmFileName;
+		
+		SiteDataValueListList siteDataVals = null;
 		
 		if (useCVM) {
-			calculator.basinFromCVM = calcParams.isBasinFromCVM();
+			Document doc = XMLUtils.loadDocument(cvmFileName);
+			Element el = doc.getRootElement();
+			Element valsEl = el.element(SiteDataValueListList.XML_METADATA_NAME);
+			
+			siteDataVals = SiteDataValueListList.fromXMLMetadata(valsEl);
 		}
+
+		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, siteDataVals, maxDistance, outputDir);
+
+		calculator.setTimer(timer);
+		calculator.setLessPrints(lessPrints);
+		calculator.setSkipPoints(skipPoints);
+		calculator.setSkipFactor(skipFactor);
 
 		if (timer) {
 			System.out.println(getTime(start) + " seconds total pre-calculator overhead");
@@ -207,12 +213,15 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		if (args.length < 3) { // this is a debug run
 			System.err.println("RUNNING FROM DEBUG MODE!");
 			args = new String[4];
-			args[0] = 0 + "";
-			args[1] = 1 + "";
-			args[2] = "output.xml";
-			args[2] = "cvm_test.xml";
-			args[3] = "cvm_test.cvm";
-			outputDir = "/home/kevin/OpenSHA/condor/test_results/";
+//			args[0] = 0 + "";
+//			args[1] = 50+ "";
+			args[0] = 30600 + "";
+			args[1] = 30650 + "";
+			args[2] = "/home/kevin/OpenSHA/test/hazMap/meta.xml";
+//			args[2] = "cvm_test.xml";
+			args[3] = "/home/kevin/OpenSHA/test/hazMap/00000_00050.cvm";
+			args[3] = "/home/kevin/OpenSHA/test/hazMap/30600_30650.cvm";
+			outputDir = "/home/kevin/OpenSHA/test/hazMap/";
 		}
 		// get start and end index of sites to do within region from command line
 		int startIndex = Integer.parseInt(args[0]);

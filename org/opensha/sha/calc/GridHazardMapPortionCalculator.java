@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -27,6 +28,8 @@ import org.opensha.data.region.RELM_TestingRegion;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.region.SitesInGriddedRegion;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
+import org.opensha.data.siteType.SiteDataValue;
+import org.opensha.data.siteType.SiteDataValueListList;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
@@ -61,25 +64,23 @@ import org.opensha.util.FileUtils;
  */
 public class GridHazardMapPortionCalculator {
 
-	boolean xLogFlag = true;
+	private boolean xLogFlag = true;
 	private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
-	boolean timer = true;
-	boolean lessPrints = false;
-	ArrayList<Long> curveTimes = new ArrayList<Long>();
-	boolean skipPoints = false;
-	int skipFactor = 10;
+	private boolean timer = true;
+	private boolean lessPrints = false;
+	private ArrayList<Long> curveTimes = new ArrayList<Long>();
+	private boolean skipPoints = false;
+	private int skipFactor = 10;
 	
-	SitesInGriddedRegionAPI sites;
+	private SitesInGriddedRegionAPI sites;
 	
-	boolean useCVM = false;
-	String cvmFileName = "";
-	boolean basinFromCVM = false;
+	private EqkRupForecastAPI erf;
+	private AttenuationRelationshipAPI imr;
+	private double maxDistance;
+	private String outputDir;
+	private ArbitrarilyDiscretizedFunc hazFunction;
 	
-	EqkRupForecastAPI erf;
-	AttenuationRelationshipAPI imr;
-	double maxDistance;
-	String outputDir;
-	ArbitrarilyDiscretizedFunc hazFunction;
+	private SiteDataValueListList siteDataValues;
 
 	/**
 	 * Sets variables for calculation of hazard curves in hazard map
@@ -90,7 +91,9 @@ public class GridHazardMapPortionCalculator {
 	 * @param maxDistance - maximum source distance for calculation
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
-	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf, AttenuationRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction, double maxDistance, String outputDir) {
+	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf,
+			AttenuationRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
+			SiteDataValueListList siteDataValues, double maxDistance, String outputDir) {
 		this.sites = sites;
 		
 		this.erf = erf;
@@ -98,6 +101,7 @@ public class GridHazardMapPortionCalculator {
 		this.maxDistance = maxDistance;
 		this.outputDir = outputDir;
 		this.hazFunction = hazFunction;
+		this.siteDataValues = siteDataValues;
 		
 		// show timing results if debug mode and timer is selected
 		timer = true;
@@ -158,18 +162,16 @@ public class GridHazardMapPortionCalculator {
 			}
 			
 			// use the CVM
-			ArrayList<String> cvmStr = null;
 			SiteTranslator siteTranslator = new SiteTranslator();
 			ArrayList<ParameterAPI> defaultSiteParams = null;
-			if (useCVM) {
-				System.out.println("Loading CVM from " + cvmFileName);
-				cvmStr = FileUtils.loadFile(cvmFileName);
-				
-				Iterator it = imr.getSiteParamsIterator();
+			boolean hasSiteData = siteDataValues != null;
+			if (hasSiteData) {
+				Iterator<ParameterAPI> it = imr.getSiteParamsIterator();
 				
 				defaultSiteParams = new ArrayList<ParameterAPI>();
 				while (it.hasNext()) {
-					ParameterAPI param = (ParameterAPI)it.next();
+					ParameterAPI param = it.next();
+					System.out.println("Loaded default param: " + param.getName() + ", Value: " + param.getValue());
 					defaultSiteParams.add((ParameterAPI)param.clone());
 				}
 			}
@@ -199,76 +201,123 @@ public class GridHazardMapPortionCalculator {
 					// it will read the sites along latitude lines, starting with the southernmost
 					// latitude in the region, and going west to east along that latitude line.
 					site = sites.getSite(j);
-					if (useCVM) {
-						if ((j - startIndex) >= cvmStr.size()) {
+					if (hasSiteData) {
+						// the index in the cvm files for this site's data
+						int cvmIndex = j - startIndex;
+						Location loc = site.getLocation();
+						if ((cvmIndex) >= siteDataValues.size()) {
 							System.err.println("WARNING: CVM index out of bounds! (index: " + j + ")");
-							System.err.println("Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+							System.err.println("Location: " + loc.getLatitude() + ", " + loc.getLongitude());
 						} else {
-							String cvm = cvmStr.get(j - startIndex);
-							StringTokenizer tok = new StringTokenizer(cvm);
-							double lat = Double.parseDouble(tok.nextToken());
-							double lon = Double.parseDouble(tok.nextToken());
-							String type = tok.nextToken();
-							double depth;
-							if (basinFromCVM) {
-								String depthStr = tok.nextToken();
-								if (depthStr.contains("NaN")) {
-									depth = Double.NaN;
-								} else
-									depth = Double.parseDouble(depthStr);
-							} else
-								depth = Double.NaN;
-
-							if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
-								if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
-									System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
-									System.err.println("CVM Location: " + lat + ", " + lon + " REAL Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+							ArrayList<SiteDataValue<?>> datas = siteDataValues.getDataList(cvmIndex);
+							if (siteDataValues.hasLocations()) {
+								Location newLoc = siteDataValues.getDataLocation(cvmIndex);
+								if (Math.abs(loc.getLatitude() - newLoc.getLatitude()) >= sites.getGridSpacing()) {
+									if (Math.abs(loc.getLongitude() - newLoc.getLongitude()) >= sites.getGridSpacing()) {
+										System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
+										System.err.println("CVM Location: " + newLoc + " REAL Location: " + loc);
+									}
 								}
 							}
-							
-							boolean skipBasin = false;
-							if ((depth + "").contains("NaN"))
-								skipBasin = true;
-							
-							boolean skipType = false;
-							if (type.contains("NA") || type.contains("NaN"))
-								skipType = true;
-
-							Iterator it = site.getParametersIterator();
-							while(it.hasNext()){
-								ParameterAPI tempParam = (ParameterAPI)it.next();
+							System.out.println("Site Data Values:");
+							for (SiteDataValue<?> val : datas) {
+								System.out.println("\t" + val.getType() + ": " + val.getValue());
+							}
+							Iterator<ParameterAPI> it = site.getParametersIterator();
+							while (it.hasNext()) {
+								ParameterAPI param = it.next();
 								
-								boolean flag = false;
-								
-								// this is a basin depth
-								if (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
-									if (skipBasin) {
-//										System.out.println("****SKIPPING A BASIN SET!!!!");
-										flag = false;
-									} else {
-										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-										flag = siteTranslator.setParameterValue(tempParam,type,depth);
-									}
-								} else { // this is a site type/vs30
-									if (skipType) {
-//										System.out.println("****SKIPPING A TYPE SET!!!!");
-										flag = false;
-									} else {
-										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-										flag = siteTranslator.setParameterValue(tempParam,type,depth);
-									}
-								}
-
+								boolean flag = siteTranslator.setParameterValue(param, datas);
+								System.out.println("Setting " + param.getName() + " from site data: " + flag);
 								if (!flag) {
-									for (ParameterAPI param : defaultSiteParams) {
-										if (tempParam.getName().equals(param.getName())) {
-											tempParam.setValue(param.getValue());
+									// if we couldn't set the parameter from this set of data, then we need
+									// to use the default value
+									boolean success = false;
+									for (ParameterAPI defaultParam : defaultSiteParams) {
+										if (defaultParam.getName().equals(param.getName())) {
+											System.out.println("Setting " + param.getName() + " to default: " + defaultParam.getValue());
+											param.setValue(defaultParam.getValue());
+											success = true;
+											break;
 										}
 									}
+									if (!success)
+										throw new RuntimeException("Couldn't set param from default vals!");
 								}
 							}
+							siteTranslator.setAllSiteParams(imr, datas);
 						}
 					}
+//					if (useCVM) {
+//						if ((j - startIndex) >= cvmStr.size()) {
+//							System.err.println("WARNING: CVM index out of bounds! (index: " + j + ")");
+//							System.err.println("Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+//						} else {
+//							String cvm = cvmStr.get(j - startIndex);
+//							StringTokenizer tok = new StringTokenizer(cvm);
+//							double lat = Double.parseDouble(tok.nextToken());
+//							double lon = Double.parseDouble(tok.nextToken());
+//							String type = tok.nextToken();
+//							double depth;
+////							if (basinFromCVM) {
+////								String depthStr = tok.nextToken();
+////								if (depthStr.contains("NaN")) {
+////									depth = Double.NaN;
+////								} else
+////									depth = Double.parseDouble(depthStr);
+////							} else
+//								depth = Double.NaN;
+//
+//							if (Math.abs(lat - site.getLocation().getLatitude()) >= sites.getGridSpacing()) {
+//								if (Math.abs(lon - site.getLocation().getLongitude()) >= sites.getGridSpacing()) {
+//									System.err.println("WARNING: CVM data is for the WRONG LOCATION! (index: " + j + ")");
+//									System.err.println("CVM Location: " + lat + ", " + lon + " REAL Location: " + site.getLocation().getLatitude() + ", " + site.getLocation().getLongitude());
+//								}
+//							}
+//							
+//							boolean skipBasin = false;
+//							if ((depth + "").contains("NaN"))
+//								skipBasin = true;
+//							
+//							boolean skipType = false;
+//							if (type.contains("NA") || type.contains("NaN"))
+//								skipType = true;
+//
+//							Iterator it = site.getParametersIterator();
+//							while(it.hasNext()){
+//								ParameterAPI tempParam = (ParameterAPI)it.next();
+//								
+//								boolean flag = false;
+//								
+//								// this is a basin depth
+//								if (tempParam.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME) || tempParam.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+//									if (skipBasin) {
+////										System.out.println("****SKIPPING A BASIN SET!!!!");
+//										flag = false;
+//									} else {
+//										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+//										flag = siteTranslator.setParameterValue(tempParam,type,depth);
+//									}
+//								} else { // this is a site type/vs30
+//									if (skipType) {
+////										System.out.println("****SKIPPING A TYPE SET!!!!");
+//										flag = false;
+//									} else {
+//										//Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+//										flag = siteTranslator.setParameterValue(tempParam,type,depth);
+//									}
+//								}
+//
+//								if (!flag) {
+//									for (ParameterAPI param : defaultSiteParams) {
+//										if (tempParam.getName().equals(param.getName())) {
+//											tempParam.setValue(param.getValue());
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
 				} catch (RegionConstraintException e) {
 					System.out.println("No More Sites!");
 					break;
@@ -431,16 +480,16 @@ public class GridHazardMapPortionCalculator {
 	 * @param arb
 	 * @return A function with points (Log(x), 1)
 	 */
-	private ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
+	public static ArbitrarilyDiscretizedFunc getLogFunction(DiscretizedFuncAPI arb) {
 		ArbitrarilyDiscretizedFunc new_func = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
-		if (this.xLogFlag) {
+//		if (this.xLogFlag) {
 			for (int i = 0; i < arb.getNum(); ++i)
 				new_func.set(Math.log(arb.getX(i)), 1);
 			return new_func;
-		}
-		else
-			throw new RuntimeException("Unsupported IMT");
+//		}
+//		else
+//			throw new RuntimeException("Unsupported IMT");
 	}
 
 
@@ -451,18 +500,50 @@ public class GridHazardMapPortionCalculator {
 	 * @param logHazFunction - calculated hazard curve with log x values
 	 * @return
 	 */
-	private ArbitrarilyDiscretizedFunc unLogFunction(
+	public static ArbitrarilyDiscretizedFunc unLogFunction(
 			ArbitrarilyDiscretizedFunc oldHazFunc, ArbitrarilyDiscretizedFunc logHazFunction) {
 		int numPoints = oldHazFunc.getNum();
 		ArbitrarilyDiscretizedFunc hazFunc = new ArbitrarilyDiscretizedFunc();
 		// take log only if it is PGA, PGV or SA
-		if (this.xLogFlag) {
+//		if (this.xLogFlag) {
 			for (int i = 0; i < numPoints; ++i) {
 				hazFunc.set(oldHazFunc.getX(i), logHazFunction.getY(i));
 			}
 			return hazFunc;
-		}
-		else
-			throw new RuntimeException("Unsupported IMT");
+//		}
+//		else
+//			throw new RuntimeException("Unsupported IMT");
+	}
+
+	public boolean isTimer() {
+		return timer;
+	}
+
+	public void setTimer(boolean timer) {
+		this.timer = timer;
+	}
+
+	public boolean isSkipPoints() {
+		return skipPoints;
+	}
+
+	public void setSkipPoints(boolean skipPoints) {
+		this.skipPoints = skipPoints;
+	}
+
+	public int getSkipFactor() {
+		return skipFactor;
+	}
+
+	public void setSkipFactor(int skipFactor) {
+		this.skipFactor = skipFactor;
+	}
+
+	public boolean isLessPrints() {
+		return lessPrints;
+	}
+
+	public void setLessPrints(boolean lessPrints) {
+		this.lessPrints = lessPrints;
 	}
 }

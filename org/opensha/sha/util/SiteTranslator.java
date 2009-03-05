@@ -397,7 +397,7 @@ implements java.io.Serializable {
 		if (dep2p5Data != null) {
 			Double val = (Double)dep2p5Data.getValue();
 			if (Double.isNaN(val)) {
-				val = null;
+				return false;
 			}
 			if (debug) System.out.println("setSiteParamsForData: +++ Setting dep 2.5: " + val);
 			if (param instanceof WarningDoubleParameter)
