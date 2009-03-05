@@ -114,7 +114,7 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   */
  public  DiscretizedFunc getPDF_Test() {
 
-   EvenlyDiscretizedFunc pdfFunc = (EvenlyDiscretizedFunc)func.deepClone();
+   EvenlyDiscretizedFunc pdfFunc = (EvenlyDiscretizedFunc)(DiscretizedFunc)func.deepClone();
    double deltaX = pdfFunc.getDelta();
    int numPoints = pdfFunc.getNum();
    double x;
