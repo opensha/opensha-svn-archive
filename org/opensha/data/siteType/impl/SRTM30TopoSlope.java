@@ -11,11 +11,9 @@ import java.util.ArrayList;
 import org.opensha.calc.ArcsecondConverter;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
-import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
@@ -36,14 +34,13 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 	public static final double minLon = 0;
 	public static final double minLat = -90;
 	
-	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30_PLUS_TOPO";
+	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30_Plus_Slope";
 	
 	private boolean useServlet;
 	
 	private GeographicRegion region;
 	
 	private RandomAccessFile file = null;
-	private String fileName = null;
 	private byte[] recordBuffer = null;
 	private FloatBuffer floatBuff = null;
 	
@@ -131,6 +128,8 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
+			System.out.println("Seek pos: " + pos);
+			
 			if (pos < 0 || pos > calc.getMaxFilePos())
 				return Double.NaN;
 			
@@ -156,13 +155,13 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String args[]) throws IOException, RegionConstraintException {
-		SRTM30TopoSlope data = new SRTM30TopoSlope("/home/kevin/data/topo30");
+		SRTM30TopoSlope data = new SRTM30TopoSlope();
 		
 		System.out.println(data.getValue(new Location(34, -115)));
 		
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
-		
-		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
+//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
+//		
+//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}
 }
