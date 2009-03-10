@@ -33,6 +33,14 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	 * Depth to first Vs30 = 1.0 km/sec (km)
 	 */
 	public static final String TYPE_DEPTH_TO_1_0 = "Depth to Vs = 1.0 km/sec";
+	/**
+	 * Elevation (m)
+	 */
+	public static final String TYPE_ELEVATION = "Elevation (m)";
+	/**
+	 * Topographic Slope, aka "scalar magnitudes of gradient vectors" from GMT (m/m)
+	 */
+	public static final String TYPE_TOPOGRAPHIC_SLOPE = "Elevation (m)";
 	
 	/* ************ Type Flags ************ */
 	
