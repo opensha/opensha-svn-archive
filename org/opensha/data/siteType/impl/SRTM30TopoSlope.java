@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import org.opensha.calc.ArcsecondConverter;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
+import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
@@ -65,7 +67,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 			
 			recordBuffer = new byte[4];
 			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-			record.order(ByteOrder.BIG_ENDIAN);
+			record.order(ByteOrder.LITTLE_ENDIAN);
 			floatBuff = record.asFloatBuffer();
 		}
 		
@@ -159,9 +161,9 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		
 		System.out.println(data.getValue(new Location(34, -115)));
 		
-//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
-//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
+		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");
 	}
 }
