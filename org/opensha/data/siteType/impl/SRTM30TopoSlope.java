@@ -63,7 +63,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		} else {
 			file = new RandomAccessFile(new File(fileName), "r");
 			
-			recordBuffer = new byte[2];
+			recordBuffer = new byte[4];
 			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
 			record.order(ByteOrder.BIG_ENDIAN);
 			floatBuff = record.asFloatBuffer();
@@ -128,7 +128,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
-			System.out.println("Seek pos: " + pos);
+//			System.out.println("Seek pos: " + pos);
 			
 			if (pos < 0 || pos > calc.getMaxFilePos())
 				return Double.NaN;

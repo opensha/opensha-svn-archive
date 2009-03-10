@@ -36,7 +36,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 	public static final double minLon = 0;
 	public static final double minLat = -90;
 	
-	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30_PLUS";
+	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30_Plus";
 	
 	private boolean useServlet;
 	
@@ -154,13 +154,14 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String args[]) throws IOException, RegionConstraintException {
-		SRTM30Topography data = new SRTM30Topography("/home/kevin/data/topo30");
+//		SRTM30Topography data = new SRTM30Topography("/home/kevin/data/topo30");
+		SRTM30Topography data = new SRTM30Topography();
 		
-		System.out.println(data.getValue(new Location(34, -115)));
+		System.out.println(data.getValue(new Location(35, -115)));
 		
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
+//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
-		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
+//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}
 }
