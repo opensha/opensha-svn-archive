@@ -5,19 +5,13 @@ import java.util.Date;
 public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardCurveRecord> {
 	
 	private int curveID;
-	private int siteID;
-	private int erfID;
-	private int rupVarScenID;
-	private int sgtVarID;
+	private int runID;
 	private int imTypeID;
 	private Date date;
 	
-	public CybershakeHazardCurveRecord(int curveID, int siteID, int erfID, int rupVarScenID, int sgtVarID, int imTypeID, Date date) {
+	public CybershakeHazardCurveRecord(int curveID, int runID, int imTypeID, Date date) {
 		this.curveID = curveID;
-		this.siteID = siteID;
-		this.erfID = erfID;
-		this.rupVarScenID = rupVarScenID;
-		this.sgtVarID = sgtVarID;
+		this.runID = runID;
 		this.imTypeID = imTypeID;
 		this.date = date;
 	}
@@ -26,20 +20,8 @@ public class CybershakeHazardCurveRecord implements Comparable<CybershakeHazardC
 		return curveID;
 	}
 
-	public int getSiteID() {
-		return siteID;
-	}
-
-	public int getErfID() {
-		return erfID;
-	}
-
-	public int getRupVarScenID() {
-		return rupVarScenID;
-	}
-
-	public int getSgtVarID() {
-		return sgtVarID;
+	public int getRunID() {
+		return runID;
 	}
 
 	public int getImTypeID() {

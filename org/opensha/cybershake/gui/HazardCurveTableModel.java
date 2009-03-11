@@ -7,36 +7,51 @@ import javax.swing.table.AbstractTableModel;
 
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.cybershake.db.CybershakeIM;
+import org.opensha.cybershake.db.CybershakeRun;
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
+import org.opensha.cybershake.db.Runs2DB;
 import org.opensha.cybershake.db.SiteInfo2DB;
 
 public class HazardCurveTableModel extends AbstractTableModel {
 	
 	public static int NUM_COLUMNS = 10;
 	
-	HazardCurve2DB curve2db;
-	SiteInfo2DB site2db;
+	private HazardCurve2DB curve2db;
+	private SiteInfo2DB site2db;
+	private Runs2DB runs2db;
 	
-	ArrayList<CybershakeHazardCurveRecord> curves = new ArrayList<CybershakeHazardCurveRecord>();
+	private ArrayList<CybershakeHazardCurveRecord> curves = new ArrayList<CybershakeHazardCurveRecord>();
+	private ArrayList<CybershakeRun> runs = new ArrayList<CybershakeRun>();
 	
-	HashMap<Integer, CybershakeSite> siteID_NameMap = new HashMap<Integer, CybershakeSite>();
-	HashMap<Integer, CybershakeIM> imTypeMap = new HashMap<Integer, CybershakeIM>();
+	private HashMap<Integer, CybershakeSite> siteID_NameMap = new HashMap<Integer, CybershakeSite>();
+	private HashMap<Integer, CybershakeIM> imTypeMap = new HashMap<Integer, CybershakeIM>();
 	
 	public HazardCurveTableModel(DBAccess db) {
 		this.curve2db = new HazardCurve2DB(db);
 		this.site2db = new SiteInfo2DB(db);
+		this.runs2db = new Runs2DB(db);
 		
 		this.reloadCurves();
 	}
 	
+	public CybershakeRun getRunForCurve(CybershakeHazardCurveRecord curve) {
+		for (CybershakeRun run : runs) {
+			if (run.getRunID() == curve.getRunID())
+				return run;
+		}
+		return null;
+	}
+	
 	public void reloadCurves() {
 		curves = curve2db.getAllHazardCurveRecords();
+		runs = runs2db.getRuns();
 		for (CybershakeHazardCurveRecord curve : curves) {
-			CybershakeSite site = siteID_NameMap.get(curve.getSiteID());
+			CybershakeRun run = getRunForCurve(curve);
+			CybershakeSite site = siteID_NameMap.get(run.getSiteID());
 			if (site == null) {
-				site = site2db.getSiteFromDB(curve.getSiteID());
+				site = site2db.getSiteFromDB(run.getSiteID());
 				siteID_NameMap.put(site.id, site);
 			}
 			CybershakeIM im = imTypeMap.get(curve.getImTypeID());
@@ -93,30 +108,31 @@ public class HazardCurveTableModel extends AbstractTableModel {
 
 	public Object getValueAt(int row, int col) {
 		CybershakeHazardCurveRecord curve = getCurveAtRow(row);
+		CybershakeRun run = getRunForCurve(curve);
 		
 		if (col == 0) {
 			return curve.getCurveID();
 		} else if (col == 1) {
-			return curve.getSiteID();
+			return run.getSiteID();
 		} else if (col == 2) {
-			CybershakeSite site = siteID_NameMap.get(curve.getSiteID());
+			CybershakeSite site = siteID_NameMap.get(run.getSiteID());
 			return site.short_name;
 		} else if (col == 3) {
-			CybershakeSite site = siteID_NameMap.get(curve.getSiteID());
+			CybershakeSite site = siteID_NameMap.get(run.getSiteID());
 			return site.name;
 		} else if (col == 4) {
 			return curve.getDate();
 		} else if (col == 5) {
-			return curve.getErfID();
+			return run.getERFID();
 		} else if (col == 6) {
 			return curve.getImTypeID();
 		} else if (col == 7) {
 			CybershakeIM im = imTypeMap.get(curve.getImTypeID());
 			return im.getVal();
 		} else if (col == 8) {
-			return curve.getRupVarScenID();
+			return run.getRupVarScenID();
 		} else if (col == 9) {
-			return curve.getSgtVarID();
+			return run.getSgtVarID();
 		}
 		
 		return null;

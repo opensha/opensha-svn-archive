@@ -8,20 +8,64 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 
 	
 	private DBAccess dbaccess;
+	private Runs2DB runs2db;
+	
+	public static final String TABLE_NAME = "PeakAmplitudes_New";
 
 	
 	public PeakAmplitudesFromDB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
+		runs2db = new Runs2DB(dbaccess);
 	}
 	
 	public ArrayList<Integer> getPeakAmpSites() {
-		return getDistinctIntVal("Site_ID", null);
+		ArrayList<Integer> runs = getPeakAmpRunIDs();
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		
+		for (int id : runs) {
+			ids.add(runs2db.getSiteID(id));
+		}
+		
+		return ids;
+	}
+	
+	public ArrayList<Integer> getPeakAmpRunIDs() {
+		return getDistinctIntVal("Run_ID", null);
+	}
+	
+	public ArrayList<CybershakeRun> getPeakAmpRuns() {
+		ArrayList<Integer> ids = getPeakAmpRunIDs();
+		ArrayList<CybershakeRun> runs = new ArrayList<CybershakeRun>();
+		
+		for (int id : ids) {
+			runs.add(runs2db.getRun(id));
+		}
+		
+		return runs;
+	}
+	
+	public ArrayList<CybershakeRun> getPeakAmpRuns(int siteID, int erfID, int sgtVarID, int rupVarScenID) {
+		ArrayList<CybershakeRun> runs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarScenID, null, null, null, null);
+		ArrayList<Integer> ids = getPeakAmpRunIDs();
+		
+		ArrayList<CybershakeRun> ampsRuns = new ArrayList<CybershakeRun>();
+		
+		for (CybershakeRun run : runs) {
+			for (int id : ids) {
+				if (id == run.getRunID()) {
+					ampsRuns.add(run);
+					break;
+				}
+			}
+		}
+		
+		return ampsRuns;
 	}
 	
 	public ArrayList<Integer> getDistinctIntVal(String selectCol, String whereClause) {
 		ArrayList<Integer> vals = new ArrayList<Integer>();
 		
-		String sql = "SELECT distinct " + selectCol + " FROM PeakAmplitudes";
+		String sql = "SELECT distinct " + selectCol + " FROM " + TABLE_NAME;
 		
 		if (whereClause != null && whereClause.length() > 0) {
 			sql += " WHERE " + whereClause;
@@ -52,91 +96,41 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	}
 	
 	public boolean hasAmps(int siteID, int erfID) {
-		String sql = "SELECT Site_ID FROM PeakAmplitudes WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID
-					+ " LIMIT 1";
-		
-//		System.out.println(sql);
-		
-		ResultSet rs = null;
-		try {
-			rs = dbaccess.selectData(sql);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			rs.first();
-			if (rs.isAfterLast())
-				return false;
-			try {
-				rs.getString(1);
-			} catch (Exception e) {
-				return false;
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		return true;
+		return hasAmps(siteID, erfID, -1, -1);
 	}
 	
 	public boolean hasAmps(int siteID, int erfID, int rupVarScenID, int sgtVarID) {
-		String sql = "SELECT Site_ID FROM PeakAmplitudes WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID
-					+ " AND Rup_Var_Scenario_ID=" + rupVarScenID + " AND SGT_Variation_ID=" + sgtVarID
-					+ " LIMIT 1";
+		ArrayList<Integer> runs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenID, null, null, null, null);
+		if (runs.size() == 0)
+			return false;
 		
-//		System.out.println(sql);
+		ArrayList<Integer> ampsRuns = getPeakAmpRunIDs();
 		
-		ResultSet rs = null;
-		try {
-			rs = dbaccess.selectData(sql);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		for (int id : runs) {
+			for (int ampsRun : ampsRuns) {
+				if (id == ampsRun)
+					return true;
+			}
 		}
+		
+		return false;
+	}
+	
+	public boolean hasAmps(int runID) {
+		String sql = "SELECT * FROM " + TABLE_NAME + " WHERE Run_ID=" + runID + " LIMIT 1";
+		
 		try {
-			rs.first();
-			if (rs.isAfterLast())
-				return false;
+			ResultSet rs = dbaccess.selectData(sql);
+			
+			boolean good = rs.first();
+			
 			rs.close();
+			
+			return good;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
 		}
-		
-		return true;
-	}
-	
-	public ArrayList<CybershakePeakAmplitudeSiteRecord> getPeakAmpSiteRecords() {
-		ArrayList<CybershakePeakAmplitudeSiteRecord> amps = new ArrayList<CybershakePeakAmplitudeSiteRecord>();
-		
-		ArrayList<Integer> sites = this.getPeakAmpSites();
-		
-		ArrayList<Integer> rupVarScenIDs = this.getDistinctIntVal("Rup_Var_Scenario_ID", null);
-		ArrayList<Integer> sgtIDs = this.getDistinctIntVal("SGT_Variation_ID", null);
-		
-		for (int siteID : sites) {
-			// get all of the ERF_IDs
-			String whereClause = "Site_ID=" + siteID;
-			ArrayList<Integer> erfIDs = this.getDistinctIntVal("ERF_ID", whereClause);
-			for (int erfID : erfIDs) {
-				// get all rup var scen IDs
-				for (int rvID : rupVarScenIDs) {
-					// get all of the SGT var IDs
-					for (int sgtID : sgtIDs) {
-						if (hasAmps(siteID, erfID, rvID, sgtID)) {
-							CybershakePeakAmplitudeSiteRecord record = new CybershakePeakAmplitudeSiteRecord(siteID, erfID, rvID, sgtID);
-							amps.add(record);
-							System.out.println("Loaded " + record);
-						}
-					}
-				}
-			}
-		}
-		
-		return amps;
 	}
 	
 	/**
@@ -144,7 +138,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(){
 		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
-		sql += "SELECT distinct IM_Type_ID from PeakAmplitudes";
+		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
 //		System.out.println(sql);
@@ -174,9 +168,8 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return ims;
 	}
 	
-	public int countAmps(int siteID, int erfID, int sgtVariation, int rupVarID, CybershakeIM im) {
-		String sql = "SELECT count(*) from PeakAmplitudes where ERF_ID=" + erfID +" and Site_ID=" + siteID
-				+" and Rup_Var_Scenario_ID="+rupVarID+" and SGT_Variation_ID=" + sgtVariation;
+	public int countAmps(int runID, CybershakeIM im) {
+		String sql = "SELECT count(*) from " + TABLE_NAME + " where Run_ID=" + runID;
 		if (im != null)
 			sql += " and IM_Type_ID="+im.getID();
 //		System.out.println(sql);
@@ -202,12 +195,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int sgtVariation, int rupVarID) {
-		String whereClause = "Site_ID="+siteID + " AND ERF_ID="+erfID + " AND SGT_Variation_ID="+sgtVariation + 
-			" AND Rup_Var_Scenario_ID="+rupVarID;
+	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
+		String whereClause = "Run_ID="+runID;
 		long startTime = System.currentTimeMillis();
 		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
-		sql += "SELECT distinct IM_Type_ID from PeakAmplitudes WHERE " + whereClause;
+		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE " + whereClause;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
 		System.out.println(sql);
@@ -282,10 +274,10 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @param rupVarId
 	 * @returns the IM Value for the particular IM type
 	 */
-	public double getIM_Value(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId,int rupVarId, CybershakeIM im){
-		String sql = "SELECT distinct IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
-        "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type_ID = '"+im.getID()+"' and Rup_Var_ID = '"+rupVarId+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
+	public double getIM_Value(int runID, int srcId, int rupId, int rupVarId, CybershakeIM im){
+		String sql = "SELECT distinct IM_Value from " + TABLE_NAME + " where Source_ID = '"+srcId+"' "+
+        "and Run_ID =  '"+runID +"' and Rupture_ID = '"+rupId+"' " +
+        "and IM_Type_ID = '"+im.getID()+"' and Rup_Var_ID = '"+rupVarId+"'";
 //		System.out.println(sql);
 		double imVal = Double.NaN;
 		ResultSet rs = null;
@@ -314,10 +306,9 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @throws SQLException 
 	 * @returns the a list of IM Values for the particular IM type
 	 */
-	public ArrayList<Double> getIM_Values(int siteId,int erfId,int sgtVariation, int rvid, int srcId,int rupId, CybershakeIM im) throws SQLException{
-		String sql = "SELECT IM_Value from PeakAmplitudes where Source_ID = '"+srcId+"' "+
-        "and ERF_ID =  '"+erfId +"' and Rupture_ID = '"+rupId+"'  and  Site_ID =  '"+siteId+"' "+
-        "and IM_Type_ID = '"+im.getID()+"' and SGT_Variation_ID= '" + sgtVariation + "' and Rup_Var_Scenario_ID='" + rvid + "'";
+	public ArrayList<Double> getIM_Values(int runID, int srcId, int rupId, CybershakeIM im) throws SQLException{
+		String sql = "SELECT IM_Value from " + TABLE_NAME + " where Run_ID=" + runID + " and Source_ID = '"+srcId+"' "+
+        "and Rupture_ID = '"+rupId+"' and IM_Type_ID = '"+im.getID()+"'";
 //		System.out.println(sql);
 		ResultSet rs = null;
 		ArrayList<Double> vals = new ArrayList<Double>();
@@ -399,25 +390,25 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return vars;
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, int siteID, int erfID, int sgtVariation, int rupVarID) {
-		return this.getIMForPeriod(period, siteID, erfID, sgtVariation, rupVarID, null);
+	public CybershakeIM getIMForPeriod(double period, int runID) {
+		return this.getIMForPeriod(period, runID, null);
 	}
 	
-	public CybershakeIM getIMForPeriod(double period, int siteID, int erfID, int sgtVariation, int rupVarID, HazardCurve2DB curve2db) {
+	public CybershakeIM getIMForPeriod(double period, int runID, HazardCurve2DB curve2db) {
 		ArrayList<Double> periods = new ArrayList<Double>();
 		periods.add(period);
 		
-		return getIMForPeriods(periods, siteID, erfID, sgtVariation, rupVarID, curve2db).get(0);
+		return getIMForPeriods(periods, runID, curve2db).get(0);
 	}
 	
-	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int siteID, int erfID, int sgtVariation, int rupVarID) {
-		return this.getIMForPeriods(periods, siteID, erfID, sgtVariation, rupVarID, null);
+	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int runID) {
+		return this.getIMForPeriods(periods, runID, null);
 	}
 	
-	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int siteID, int erfID, int sgtVariation, int rupVarID, HazardCurve2DB curve2db) {
-		ArrayList<CybershakeIM> supported = this.getSupportedIMs(siteID, erfID, sgtVariation, rupVarID);
+	public ArrayList<CybershakeIM> getIMForPeriods(ArrayList<Double> periods, int runID, HazardCurve2DB curve2db) {
+		ArrayList<CybershakeIM> supported = this.getSupportedIMs(runID);
 		if (curve2db != null) {
-			supported.addAll(curve2db.getSupportedIMs(siteID, erfID, rupVarID, sgtVariation));
+			supported.addAll(curve2db.getSupportedIMs(runID));
 		}
 		
 		ArrayList<CybershakeIM> matched = new ArrayList<CybershakeIM>();
@@ -449,21 +440,20 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return matched;
 	}
 	
-	public int deleteAllAmpsForSite(int siteId) {
-		String sql = "DELETE FROM PeakAmplitudes WHERE Site_ID="+siteId;
-		System.out.println(sql);
-		try {
-			return dbaccess.insertUpdateOrDeleteData(sql);
-		} catch (SQLException e) {
-//			TODO Auto-generated catch block
-			e.printStackTrace();
-			return -1;
+	public int deleteAllAmpsForSite(int siteID) {
+		ArrayList<Integer> runs = runs2db.getRunIDs(siteID);
+		int rows = 0;
+		for (int runID : runs) {
+			int num = deleteAmpsForRun(runID);
+			if (num < 0)
+				return -1;
+			
 		}
+		return rows;
 	}
 	
-	public int deleteAmpsForSite(int siteId,int erfId,int sgtVariation, int rvid) {
-		String sql = "DELETE FROM PeakAmplitudes WHERE ERF_ID="+erfId +" AND Site_ID="+siteId+
-			" AND SGT_Variation_ID=" + sgtVariation + " and Rup_Var_Scenario_ID=" + rvid;
+	public int deleteAmpsForRun(int runID) {
+		String sql = "DELETE FROM " + TABLE_NAME + " WHERE Run_ID="+runID;
 		System.out.println(sql);
 		try {
 			return dbaccess.insertUpdateOrDeleteData(sql);
@@ -478,9 +468,19 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
-//		amps.getPeakAmpSiteRecords();
+		System.out.println(amps.getPeakAmpSites().size() + " sites");
+		System.out.println(amps.getPeakAmpRuns().size() + " runs");
 		
-		System.out.println(amps.hasAmps(90, 35));
+		System.out.println("Amps for 90, 36? " + amps.hasAmps(90, 36) + " (false!)");
+		System.out.println("Amps for 90, 35? " + amps.hasAmps(90, 35) + " (true!)");
+		System.out.println("Amps for run 1? " + amps.hasAmps(1) + " (false!)");
+		System.out.println("Amps for run 216? " + amps.hasAmps(216) + " (true!)");
+		
+		for (CybershakeIM im : amps.getSupportedIMs()) {
+			System.out.println("IM: " + im);
+		}
+		
+		System.out.println("Count for 216: " + amps.countAmps(216, null));
 		
 		db.destroy();
 		

@@ -33,6 +33,7 @@ import org.opensha.cybershake.db.ERF2DBAPI;
 import org.opensha.cybershake.db.HazardCurve2DB;
 import org.opensha.cybershake.db.HazardCurveComputation;
 import org.opensha.cybershake.db.PeakAmplitudesFromDBAPI;
+import org.opensha.cybershake.db.Runs2DB;
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
@@ -164,7 +165,8 @@ extends JFrame implements ParameterChangeListener {
 	private ERF2DBAPI erf2db = new ERF2DB(db);
 
 	private HazardCurveComputation hazCurve = new HazardCurveComputation(db);
-	PeakAmplitudesFromDBAPI peakAmps2DB = hazCurve.getPeakAmpsAccessor();
+	private Runs2DB runs2db = new Runs2DB(db);
+	private PeakAmplitudesFromDBAPI peakAmps2DB = hazCurve.getPeakAmpsAccessor();
 
 	//current selection of site, srcId and rupId from the cyberShake database
 	private CybershakeSite selectedSite;
@@ -337,8 +339,13 @@ extends JFrame implements ParameterChangeListener {
 		dbCurves = new ArrayList<Integer>();
 		ampCurves = new ArrayList<Integer>();
 
-//		saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
-		ArrayList<CybershakeIM> ampIms = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id, selectedSGTVariation, selectedRupVarScenario);
+//		saPeriods = hazCurve.getSupportedSA_PeriodStrings(selectedSite.id, this.selectedERF.id selectedSGTVariation, selectedRupVarScenario);
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(selectedSite.id, selectedERF.id, selectedSGTVariation, selectedRupVarScenario, null, null, null, null);
+		ArrayList<CybershakeIM> ampIms = null;
+		if (runIDs.size() > 0)
+			ampIms = hazCurve.getSupportedSA_PeriodStrings(runIDs.get(0));
+		else
+			ampIms = new ArrayList<CybershakeIM>();
 		ArrayList<CybershakeIM> curveIms = curve2db.getSupportedIMs(selectedSite.id, this.selectedERF.id, selectedRupVarScenario, selectedSGTVariation);
 		
 		if (!isDeterministic) {
@@ -1018,9 +1025,11 @@ extends JFrame implements ParameterChangeListener {
 		
 		if (overwrite)
 			curve2db.replaceHazardCurve(id, currentHazardCurve);
-		else
-			curve2db.insertHazardCurve(siteID, erfID, rupVarID, sgtID,
+		else {
+			int runID = runs2db.getRunIDs(siteID, erfID, sgtID, rupVarID, null, null, null, null).get(0);
+			curve2db.insertHazardCurve(runID,
 					imID, currentHazardCurve);
+		}
 		this.loadSA_PeriodParam();
 		listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam);
 		this.publishButton.setEnabled(false);

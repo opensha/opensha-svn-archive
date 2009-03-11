@@ -204,6 +204,24 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			}
 		}
 		
+		// now make sure they're all there...
+		for (ParameterAPI param : siteParams) {
+			if (!parameterList.containsParameter(param)) {
+				if (isSiteParam(param)) {
+					String name = param.getName();
+					if (useData) {
+						if (!name.startsWith(DEFAULT))
+							param.setName(DEFAULT + name);
+					} else {
+						if (name.startsWith(DEFAULT))
+							param.setName(name.replaceFirst(DEFAULT, ""));
+					}
+//					System.out.println("Reloaded: " + name);
+					parameterList.addParameter(param);
+				}
+			}
+		}
+		
 		this.refreshParamEditor();
 		editorPanel.removeAll();
 		addParameters();
@@ -405,6 +423,8 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			parameterList.addParameter(gridSpacing);
 			parameterList.addParameter(numSites);
 			parameterList.addParameter(siteParam);
+			reloadSiteParams();
+			refreshParamEditor();
 
 			editorPanel.removeAll();
 			addParameters();

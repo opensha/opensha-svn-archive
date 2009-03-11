@@ -3,12 +3,17 @@ package org.opensha.data.siteType.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.opensha.calc.ArcsecondConverter;
 import org.opensha.data.Location;
+import org.opensha.data.LocationList;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
+import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel;
@@ -23,15 +28,11 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	public static final String NAME = "Global Vs30 from Topographic Slope (Wald 2007)";
 	public static final String SHORT_NAME = "Wald2007";
 	
-	private boolean useServlet;
 	private GeographicRegion region = RectangularGeographicRegion.createEntireGlobeRegion();
 	
 	public static final double arcSecondSpacing = 30.0;
-	private static final double arcSecondRadians = arcSecondSpacing * StrictMath.PI / 648000d;
 	// for 30 arc seconds this is 0.008333333333333333
-	public static final double spacing = StrictMath.toDegrees(arcSecondRadians);
-	
-	private SiteDataServletAccessor<Double> servlet = null;
+	public static final double spacing = ArcsecondConverter.getDegrees(arcSecondSpacing);
 	
 	private StringParameter coeffPresetParam;
 	public static final String COEFF_SELECT_PARAM_NAME = "Region Type";
@@ -46,20 +47,32 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	private final ArbitrarilyDiscretizedFunc stableFunc = createStableCoefficients();
 	private ArbitrarilyDiscretizedFunc customFunc = null;
 	
+	private SRTM30TopoSlope srtm30_Slope;
+	
+	private ArbitrarilyDiscretizedFunc coeffFunc;
+	
+	/**
+	 * Creates function for active tectonic regions from Allen & Wald 2008
+	 * @return
+	 */
 	public static ArbitrarilyDiscretizedFunc createActiveCoefficients() {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		
-		func.set(1.0e-4,	180);
-		func.set(2.2e-3,	240);
-		func.set(6.3e-3,	300);
+		func.set(3e-4,		180);
+		func.set(3.5e-3,	240);
+		func.set(0.010,		300);
 		func.set(0.018,		360);
 		func.set(0.050,		490);
 		func.set(0.10,		620);
-		func.set(0.138,		760);
+		func.set(0.14,		760);
 		
 		return func;
 	}
 	
+	/**
+	 * Creates function for stable tectonic regions from Wald & Allen 2007
+	 * @return
+	 */
 	public static ArbitrarilyDiscretizedFunc createStableCoefficients() {
 		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 		
@@ -74,21 +87,8 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		return func;
 	}
 	
-	public WaldGlobalVs2007() {
-		this(null, true);
-	}
-	
-	public WaldGlobalVs2007(String fileName) {
-		this(fileName, false);
-	}
-	
-	private WaldGlobalVs2007(String fileName, boolean useServlet) {
-		this.useServlet = useServlet;
-		if (useServlet) {
-			// TODO: implement this!
-		} else {
-			// TODO: implement this!
-		}
+	public WaldGlobalVs2007() throws IOException {
+		srtm30_Slope = new SRTM30TopoSlope();
 		
 		ArrayList<String> coeffNames = new ArrayList<String>();
 		
@@ -104,6 +104,8 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		coeffPresetParam.addParameterChangeListener(this);
 		coeffFuncParam.addParameterChangeListener(this);
 		
+		coeffFunc = (ArbitrarilyDiscretizedFunc) coeffFuncParam.getValue();
+		
 		this.paramList.addParameter(minVs30Param);
 		this.paramList.addParameter(maxVs30Param);
 		this.paramList.addParameter(coeffPresetParam);
@@ -115,11 +117,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	}
 
 	public Location getClosestDataLocation(Location loc) throws IOException {
-		if (useServlet)
-			return servlet.getClosestLocation(loc);
-		else
-			// TODO: implement this!
-			return null;
+		return srtm30_Slope.getClosestDataLocation(loc);
 	}
 
 	public String getMetadata() {
@@ -151,10 +149,44 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	public String getTypeFlag() {
 		return TYPE_FLAG_INFERRED;
 	}
+	
+	private double getVs30(double slope) {
+//		System.out.println("old: " + slope);
+//		slope = slope / 100d;
+//		System.out.println("new: " + slope);
+		double vs;
+		if (slope <= coeffFunc.getMinX())
+			vs = coeffFunc.getY(0);
+		else if (slope >= coeffFunc.getMaxX())
+			vs = coeffFunc.getY(coeffFunc.getNum()-1);
+		else
+			vs = coeffFunc.getInterpolatedY(slope);
+		
+		if (D) System.out.println("Translated slope of " + slope + " to Vs30 of " + vs);
+		return vs;
+	}
 
 	public Double getValue(Location loc) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		Double slope = srtm30_Slope.getValue(loc);
+		
+		if (!srtm30_Slope.isValueValid(slope))
+			return Double.NaN;
+		
+		double vs30 = getVs30(slope);
+		
+		return vs30;
+	}
+	
+	@Override
+	public ArrayList<Double> getValues(LocationList locs) throws IOException {
+		ArrayList<Double> slopes = srtm30_Slope.getValues(locs);
+		ArrayList<Double> vs30 = new ArrayList<Double>();
+		
+		for (int i=0; i<slopes.size(); i++) {
+			vs30.add(getVs30(slopes.get(i)));
+		}
+		
+		return vs30;
 	}
 
 	public boolean isValueValid(Double el) {
@@ -189,10 +221,10 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 			refreshParams();
 		} else if (paramName == COEFF_FUNC_PARAM_NAME) {
 			if (D) System.out.println("Coeff func changed...");
-			ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
+			coeffFunc = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
 			if (D) {
-				for (int i=0; i<func.getNum(); i++) {
-					System.out.println("x: " + func.getX(i) + ", y: " + func.getY(i));
+				for (int i=0; i<coeffFunc.getNum(); i++) {
+					System.out.println("x: " + coeffFunc.getX(i) + ", y: " + coeffFunc.getY(i));
 				}
 			}
 		}
@@ -200,6 +232,8 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	}
 	
 	private void refreshParams() {
+		if (this.paramEdit == null)
+			return;
 		if (D) System.out.println("WaldRefreshParams start...");
 		String val = (String)coeffPresetParam.getValue();
 		ParameterEditor funcEditor = this.paramEdit.getParameterEditor(COEFF_FUNC_PARAM_NAME);
@@ -212,10 +246,57 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 //		paramEdit.refreshParamEditor();
 		if (D) System.out.println("WaldRefreshParams DONE");
 	}
+	
+	public void setCoeffFunction(ArbitrarilyDiscretizedFunc func) {
+		String selected = (String)coeffPresetParam.getValue();
+		if (!selected.equals(COEFF_CUSTOM_NAME)) {
+			coeffPresetParam.setValue(COEFF_CUSTOM_NAME);
+		}
+		this.coeffFuncParam.setValue(func);
+	}
+	
+	public ArbitrarilyDiscretizedFunc getCoeffFunctionClone() {
+		return coeffFunc.deepClone();
+	}
+	
+	public static void printMapping(ArbitrarilyDiscretizedFunc func) {
+		for (int i=0; i<func.getNum(); i++) {
+			System.out.println(func.getX(i) + "\t=>\t" + func.getY(i));
+		}
+	}
 
 	@Override
 	protected void initParamListEditor() {
 		super.initParamListEditor();
 		refreshParams();
+	}
+	
+	public static void main(String args[]) throws IOException, RegionConstraintException {
+		WaldGlobalVs2007 data = new WaldGlobalVs2007();
+		
+		System.out.println(data.getValue(new Location(34, -118)));
+		System.out.println(data.getValue(new Location(34, -10)));
+		
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -117, 0.01);
+//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
+		
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		func.set(0.000032,	180);
+		func.set(0.0022,	240);
+		func.set(0.0063,	300);
+		func.set(0.018,		360);
+		func.set(0.05,		490);
+		func.set(0.01,		620);
+		func.set(0.138,		760);
+		data.setCoeffFunction(func);
+//		
+		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_vs30.txt");
+		
+		System.out.println(data.getCoeffFunctionClone());
+		
+		System.out.println("Active Tectonic:");
+		printMapping(createActiveCoefficients());
+		System.out.println("Stable Continent:");
+		printMapping(createStableCoefficients());
 	}
 }

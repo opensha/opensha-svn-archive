@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.dom4j.DocumentException;
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
+import org.opensha.cybershake.db.CybershakeRun;
 import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
@@ -68,10 +69,12 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	private static final String ERF_COMPARISON_FILE = "org/opensha/cybershake/conf/MeanUCERF.xml";
 	private static final String CB_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cb2008.xml";
 	private static final String BA_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/ba2008.xml";
+	private static final String AS_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/as2008.xml";
 	
 	private EqkRupForecast erf = null;
 	private AttenuationRelationship cb2008 = null;
 	private AttenuationRelationship ba2008 = null;
+	private AttenuationRelationship as2008 = null;
 
 	public HazardCurveGUI(DBAccess db) {
 		super("Hazard Curves");
@@ -188,12 +191,13 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	}
 	
 	private void plotCurve(CybershakeHazardCurveRecord curve) {
-		HazardCurvePlotter plotter = this.getPlotter(curve.getErfID(), curve.getRupVarScenID(), curve.getSgtVarID());
+		CybershakeRun run = model.getRunForCurve(curve);
+		HazardCurvePlotter plotter = this.getPlotter();
 		
-		plotter.setMaxSourceSiteDistance(curve.getSiteID());
+		plotter.setMaxSourceSiteDistance(run.getSiteID());
 //		plotter.set
 		
-		plotter.plotCurve(curve.getCurveID());
+		plotter.plotCurve(curve.getCurveID(), run);
 		
 		GraphPanel gp = plotter.getGraphPanel();
 		
@@ -207,13 +211,9 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		graphWindow.setVisible(true);
 	}
 	
-	private HazardCurvePlotter getPlotter(int erfID, int rupVarScenID, int sgtVarID) {
+	private HazardCurvePlotter getPlotter() {
 		if (plotter == null) {
-			plotter = new HazardCurvePlotter(db, erfID, rupVarScenID, sgtVarID);
-		} else {
-			plotter.setERFID(erfID);
-			plotter.setRupVarScenarioID(rupVarScenID);
-			plotter.setSGTVarID(sgtVarID);
+			plotter = new HazardCurvePlotter(db);
 		}
 		if (this.plotComparisonsCheck.isSelected()) {
 			try {
@@ -221,6 +221,7 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 					erf = ERFSaver.LOAD_ERF_FROM_FILE(this.getClass().getResource("/" + ERF_COMPARISON_FILE));
 				}
 				plotter.setERFComparison(erf);
+				plotter.clearAttenuationRelationshipComparisions();
 				if (cb2008 == null) {
 					cb2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + CB_2008_ATTEN_REL_FILE));
 				}
@@ -229,6 +230,10 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 					ba2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + BA_2008_ATTEN_REL_FILE));
 				}
 				plotter.addAttenuationRelationshipComparision(ba2008);
+				if (as2008 == null) {
+					as2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + AS_2008_ATTEN_REL_FILE));
+				}
+				plotter.addAttenuationRelationshipComparision(as2008);
 			} catch (DocumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -373,9 +373,11 @@ implements java.io.Serializable {
 				if (data.getFlag().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
 					if (debug) System.out.println("setSiteParamsForData: +++ Setting VS measured");
 					param.setValue(AttenuationRelationship.VS_FLAG_M); // set it to measured
+					return true;
 				} else {
 					if (debug) System.out.println("setSiteParamsForData: +++ Setting VS inferred");
 					param.setValue(AttenuationRelationship.VS_FLAG_I); // set it to inferred
+					return true;
 				}
 			}
 		}
@@ -393,18 +395,19 @@ implements java.io.Serializable {
 	 */
 	public boolean setDepthTo2p5Param(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// this will get the first (highest priority) data that works
-		SiteDataValue<?> dep2p5Data = getDataForType(datas, SiteDataAPI.TYPE_DEPTH_TO_2_5);
-		if (dep2p5Data != null) {
-			Double val = (Double)dep2p5Data.getValue();
-			if (Double.isNaN(val)) {
-				return false;
+		for (SiteDataValue<?> data : datas) {
+			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+				Double val = (Double)data.getValue();
+				if (Double.isNaN(val)) {
+					continue;
+				}
+				if (debug) System.out.println("setSiteParamsForData: +++ Setting dep 2.5: " + val);
+				if (param instanceof WarningDoubleParameter)
+					((WarningDoubleParameter)param).setValueIgnoreWarning(val);
+				else
+					param.setValue(val);
+				return true;
 			}
-			if (debug) System.out.println("setSiteParamsForData: +++ Setting dep 2.5: " + val);
-			if (param instanceof WarningDoubleParameter)
-				((WarningDoubleParameter)param).setValueIgnoreWarning(val);
-			else
-				param.setValue(val);
-			return true;
 		}
 		return false;
 	}
@@ -419,18 +422,18 @@ implements java.io.Serializable {
 	 */
 	public boolean setDepthTo1p0Param(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// this will get the first (highest priority) data that works
-		SiteDataValue<?> dep1p0Data = getDataForType(datas, SiteDataAPI.TYPE_DEPTH_TO_1_0);
-		if (dep1p0Data != null) {
-			// convert to meters
-			Double val = (Double)dep1p0Data.getValue();
-			if (Double.isNaN(val)) {
-				val = null;
-			} else {
-				val = val * 1000d;
+		for (SiteDataValue<?> data : datas) {
+			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+				Double val = (Double)data.getValue();
+				if (Double.isNaN(val)) {
+					continue;
+				} else {
+					val = val * 1000d;
+				}
+				if (debug) System.out.println("setSiteParamsForData: +++ Setting dep 1.0: " + val);
+				param.setValue(val);
+				return true;
 			}
-			if (debug) System.out.println("setSiteParamsForData: +++ Setting dep 1.0: " + val);
-			param.setValue(val);
-			return true;
 		}
 		return false;
 	}
@@ -463,7 +466,7 @@ implements java.io.Serializable {
 			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
-					return false;
+					continue;
 				// if we also have depth to 2.5...then use that to confirm soft soil
 				SiteDataValue<?> dep2p5Data = getDataForType(datas, SiteDataAPI.TYPE_DEPTH_TO_2_5);
 				Double dep = null;
@@ -522,7 +525,7 @@ implements java.io.Serializable {
 			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
-					return false;
+					continue;
 				// if we also have depth to 2.5...then use that to confirm soft soil
 				SiteDataValue<?> dep2p5Data = getDataForType(datas, SiteDataAPI.TYPE_DEPTH_TO_2_5);
 				Double dep = null;
@@ -630,7 +633,7 @@ implements java.io.Serializable {
 			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
-					return false;
+					continue;
 				if(vsVal>180 && vsVal<=400) {
 					param.setValue(Campbell_1997_AttenRel.SITE_TYPE_FIRM_SOIL);
 					return true;

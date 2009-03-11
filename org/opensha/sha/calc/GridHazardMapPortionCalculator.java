@@ -245,7 +245,7 @@ public class GridHazardMapPortionCalculator {
 										throw new RuntimeException("Couldn't set param from default vals!");
 								}
 							}
-							siteTranslator.setAllSiteParams(imr, datas);
+//							siteTranslator.setAllSiteParams(imr, datas);
 						}
 					}
 //					if (useCVM) {

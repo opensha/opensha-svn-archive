@@ -257,25 +257,25 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		providers.add(new WillsMap2000());
 		/*		CVM 4 Depth 2.5		*/
 		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true));
+			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		CVM 4 Depth 1.0		*/
 		try {
-			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
+			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		USGS Bay Area Depth 2.5		*/
 		try {
-			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5, true));
+			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/*		USGS Bay Area Depth 1.0		*/
 		try {
-			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0, true));
+			providers.add(new USGSBayAreaBasinDepth(SiteDataAPI.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -310,7 +310,11 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 */
 	public static OrderedSiteDataProviderList createDebugSiteDataProviders() {
 		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
-		list.add(new WaldGlobalVs2007());
+		try {
+			list.add(new WaldGlobalVs2007());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		return list;
 	}

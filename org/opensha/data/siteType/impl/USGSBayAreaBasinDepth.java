@@ -52,6 +52,14 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	private String type;
 	
 	private SiteDataServletAccessor<Double> servlet = null;
+	
+	public USGSBayAreaBasinDepth(String type) throws IOException {
+		this(type, null, true);
+	}
+	
+	public USGSBayAreaBasinDepth(String type, String dataFile) throws IOException {
+		this(type, dataFile, false);
+	}
 
 	public USGSBayAreaBasinDepth(String type, boolean useServlet) throws IOException {
 		this(type, null, useServlet);

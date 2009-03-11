@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
-import org.opensha.cybershake.db.CybershakePeakAmplitudeSiteRecord;
 import org.opensha.cybershake.db.CybershakeSite;
-import org.opensha.cybershake.db.CybershakeSiteManager;
 import org.opensha.cybershake.db.CybershakeSiteType;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
-import org.opensha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.cybershake.db.SiteInfo2DB;
 
 public class SitesTableModel extends AbstractTableModel {

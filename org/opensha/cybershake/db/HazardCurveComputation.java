@@ -15,6 +15,7 @@ public class HazardCurveComputation {
 	private PeakAmplitudesFromDBAPI peakAmplitudes;
 	private ERF2DBAPI erfDB;
 	private SiteInfo2DBAPI siteDB;
+	private Runs2DB runs2db;
 	public static final double CONVERSION_TO_G = 980;
 	
 //	private ArrayList<ProgressListener> progressListeners = new ArrayList<ProgressListener>();
@@ -23,6 +24,7 @@ public class HazardCurveComputation {
 		peakAmplitudes = new PeakAmplitudesFromDB(db);
 		erfDB = new ERF2DB(db);
 		siteDB = new SiteInfo2DB(db);
+		runs2db = new Runs2DB(db);
 	}
 	
 	
@@ -40,12 +42,11 @@ public class HazardCurveComputation {
 	 * 
 	 * @returns the List of supported Peak amplitudes for a given site, ERF ID, SGT Var ID, and Rup Var ID
 	 */
-	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(int siteID, int erfID, int sgtVariation, int rupVarID){
+	public ArrayList<CybershakeIM> getSupportedSA_PeriodStrings(int runID){
 		
-		return peakAmplitudes.getSupportedIMs(siteID, erfID, sgtVariation, rupVarID);
+		return peakAmplitudes.getSupportedIMs(runID);
 	}
 	
-
 	/**
 	 * Computes the Hazard Curve at the given site 
 	 * @param imlVals
@@ -57,20 +58,63 @@ public class HazardCurveComputation {
 	 */
 	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, String site,int erfId, int sgtVariation, int rvid,
 			                                     int srcId,int rupId,CybershakeIM imType){
+		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid);
+		if (run == null)
+			return null;
+		else
+			return computeDeterministicCurve(imlVals, run, srcId, rupId, imType);
+	}
+	
+	private CybershakeRun getRun(String site, int erfID, int sgtVarID, int rupVarID) {
+		int siteID = siteDB.getSiteId(site);
+		ArrayList<CybershakeRun> runIDs = runs2db.getRuns(siteID, erfID, sgtVarID, rupVarID, null, null, null, null);
+		if (runIDs == null || runIDs.size() < 0)
+			return null;
+		return runIDs.get(0);
+	}
+	
+	/**
+	 * Computes the Hazard Curve at the given runID 
+	 * @param imlVals
+	 * @param runID
+	 * @param srcId
+	 * @param rupId
+	 * @param imType
+	 */
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, int runID,
+			                                     int srcId,int rupId,CybershakeIM imType){
+		CybershakeRun run = runs2db.getRun(runID);
+		if (run == null)
+			return null;
+		else
+			return computeDeterministicCurve(imlVals, run, srcId, rupId, imType);
+	}
+	
+
+	/**
+	 * Computes the Hazard Curve at the given run 
+	 * @param imlVals
+	 * @param run
+	 * @param srcId
+	 * @param rupId
+	 * @param imType
+	 */
+	public DiscretizedFuncAPI computeDeterministicCurve(ArrayList imlVals, CybershakeRun run,
+			                                     int srcId,int rupId,CybershakeIM imType){
 		
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
-		int siteId = siteDB.getSiteId(site);
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
 		
+		int runID = run.getRunID();
 		
-		double qkProb = erfDB.getRuptureProb(erfId, srcId, rupId);
+		double qkProb = erfDB.getRuptureProb(run.getERFID(), srcId, rupId);
 		ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
-		ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(erfId, srcId, rupId);
+		ArrayList<Integer> rupVariations = peakAmplitudes.getRupVarationsForRupture(run.getERFID(), srcId, rupId);
 		int size = rupVariations.size();
 		for(int i=0;i<size;++i){
 			int rupVarId =  rupVariations.get(i);
-			double imVal = peakAmplitudes.getIM_Value(siteId, erfId, sgtVariation, rvid, srcId, rupId, rupVarId, imType);
+			double imVal = peakAmplitudes.getIM_Value(runID, srcId, rupId, rupVarId, imType);
 			function.set(imVal/CONVERSION_TO_G,1);
 		}
 		setIMLProbs(imlVals,hazardFunc, function.getNormalizedCumDist(), qkProb);
@@ -94,7 +138,6 @@ public class HazardCurveComputation {
 		return computeHazardCurve(imlVals, site, erfId, sgtVariation, rvid, imType);
 	}
 	
-	
 	/**
 	 * Computes the Hazard Curve at the given site 
 	 * @param imlVals
@@ -103,26 +146,58 @@ public class HazardCurveComputation {
 	 * @param imType
 	 */
 	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, String site,int erfId,int sgtVariation, int rvid, CybershakeIM imType){
+		CybershakeRun run = getRun(site, erfId, sgtVariation, rvid);
+		if (run == null)
+			return null;
+		else
+			return computeHazardCurve(imlVals, run, imType);
+	}
+	
+	/**
+	 * Computes the Hazard Curve at the given site 
+	 * @param imlVals
+	 * @param site
+	 * @param erfName
+	 * @param imType
+	 */
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, int runID, CybershakeIM imType){
+		CybershakeRun run = runs2db.getRun(runID);
+		if (run == null)
+			return null;
+		else
+			return computeHazardCurve(imlVals, run, imType);
+	}
+	
+	/**
+	 * Computes the Hazard Curve at the given site 
+	 * @param imlVals
+	 * @param site
+	 * @param erfName
+	 * @param imType
+	 */
+	public DiscretizedFuncAPI computeHazardCurve(ArrayList imlVals, CybershakeRun run, CybershakeIM imType){
 		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
-		int siteId = siteDB.getSiteId(site);
+		int siteID = run.getSiteID();
+		int erfID = run.getERFID();
+		int runID = run.getRunID();
 		int numIMLs  = imlVals.size();
 		for(int i=0; i<numIMLs; ++i) hazardFunc.set(((Double)imlVals.get(i)).doubleValue(), 1.0);
 		
-		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(site, erfId);
+		ArrayList<Integer> srcIdList = siteDB.getSrcIdsForSite(siteID, erfID);
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
 //			updateProgress(srcIndex, numSrcs);
 			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
-			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(site, erfId, srcId);
+			ArrayList<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
 			int numRupSize = rupIdList.size();
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
 				int rupId = rupIdList.get(rupIndex);
-				double qkProb = erfDB.getRuptureProb(erfId, srcId, rupId);
+				double qkProb = erfDB.getRuptureProb(erfID, srcId, rupId);
 				ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc();
 				ArrayList<Double> imVals;
 				try {
-					imVals = peakAmplitudes.getIM_Values(siteId, erfId, sgtVariation, rvid, srcId, rupId, imType);
+					imVals = peakAmplitudes.getIM_Values(runID, srcId, rupId, imType);
 				} catch (SQLException e) {
 					return null;
 				}

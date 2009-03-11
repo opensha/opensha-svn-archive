@@ -13,12 +13,15 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 
 public class HazardCurve2DB {
-
+	
+	public static final String TABLE_NAME = "Hazard_Curves_New";
 	
 	private DBAccess dbaccess;
+	private Runs2DB runs2db;
 	
 	public HazardCurve2DB(DBAccess dbaccess){
 		this.dbaccess = dbaccess;
+		runs2db = new Runs2DB(dbaccess);
 	}
 	
 	public ArrayList<Integer> getAllHazardCurveIDs(int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
@@ -28,8 +31,29 @@ public class HazardCurve2DB {
 		return this.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 	}
 	
+	public ArrayList<Integer> getAllHazardCurveIDs(ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+		ArrayList<Integer> curveIDs = new ArrayList<Integer>();
+		ArrayList<Integer> runIDs = new ArrayList<Integer>();
+		
+		for (int erfID : erfIDs) {
+			runIDs.addAll(runs2db.getRunIDs(-1, erfID, sgtVarID, -1, null, null, null, null));
+		}
+		
+		for (int runID : runIDs) {
+			curveIDs.addAll(getAllHazardCurveIDs(runID, imTypeID));
+		}
+		
+		return curveIDs;
+	}
+	
 	public ArrayList<CybershakeHazardCurveRecord> getHazardCurveRecordsForSite(int siteID) {
-		return getAllHazardCurveRecords("Site_ID=" + siteID);
+		ArrayList<Integer> runs = runs2db.getRunIDs(siteID);
+		String runWhere = Runs2DB.getRunsWhereStatement(runs);
+		
+		if (runWhere == null)
+			return new ArrayList<CybershakeHazardCurveRecord>();
+		
+		return getAllHazardCurveRecords(runWhere);
 	}
 	
 	public ArrayList<CybershakeHazardCurveRecord> getAllHazardCurveRecords() {
@@ -38,13 +62,13 @@ public class HazardCurve2DB {
 	
 	private ArrayList<CybershakeHazardCurveRecord> getAllHazardCurveRecords(String whereClause) {
 		
-		String sql = "SELECT * FROM Hazard_Curves";
+		String sql = "SELECT * FROM " + TABLE_NAME;
 		
 		if (whereClause != null && whereClause.length() > 0) {
 			sql += " WHERE " + whereClause;
 		}
 		
-//		System.out.println(sql);
+		System.out.println(sql);
 		
 		ArrayList<CybershakeHazardCurveRecord> curves = new ArrayList<CybershakeHazardCurveRecord>();
 		
@@ -52,25 +76,22 @@ public class HazardCurve2DB {
 		try {
 			rs = dbaccess.selectData(sql);
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			return null;
 		}
 		
 		try {
-			rs.first();
-			while (!rs.isAfterLast()) {
+			boolean valid = rs.first();
+			while (valid) {
 				int curveID = rs.getInt("Hazard_Curve_ID");
-				int siteID = rs.getInt("Site_ID");
-				int erfID = rs.getInt("ERF_ID");
-				int rupVarScenID = rs.getInt("Rup_Var_Scenario_ID");
-				int sgtVarID = rs.getInt("SGT_Variation_ID");
+				int runID = rs.getInt("Run_ID");
 				int imTypeID = rs.getInt("IM_Type_ID");
 				Date date = rs.getDate("Curve_Date");
 				
-				curves.add(new CybershakeHazardCurveRecord(curveID, siteID, erfID, rupVarScenID, sgtVarID, imTypeID, date));
+				CybershakeHazardCurveRecord record = new CybershakeHazardCurveRecord(curveID, runID, imTypeID, date);
+				curves.add(record);
 				
-				rs.next();
+				valid = rs.next();
 			}
 			rs.close();
 			
@@ -81,19 +102,12 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public ArrayList<Integer> getAllHazardCurveIDs(ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+	public ArrayList<Integer> getAllHazardCurveIDs(int runID, int imTypeID) {
 		
-		String sql = "SELECT Hazard_Curve_ID FROM Hazard_Curves WHERE ERF_ID in (";
-		boolean first = true;
-		for (int erfID : erfIDs) {
-			if (first)
-				first = false;
-			else
-				sql += ",";
-			sql += erfID;
-		}
-		sql += 	") AND Rup_Var_Scenario_ID=" + rupVarScenarioID + " AND SGT_Variation_ID=" + sgtVarID + 
-					" AND IM_Type_ID=" + imTypeID + " ORDER BY Curve_Date desc";
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE Run_ID=" + runID;
+		if (imTypeID >= 0)
+			sql += " AND IM_Type_ID=" + imTypeID; 
+		sql += " ORDER BY Curve_Date desc";
 		
 //		System.out.println(sql);
 		
@@ -103,7 +117,6 @@ public class HazardCurve2DB {
 		try {
 			rs = dbaccess.selectData(sql);
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			return null;
 		}
@@ -134,14 +147,16 @@ public class HazardCurve2DB {
 	}
 	
 	public ArrayList<Integer> getAllHazardCurveIDsForSite(int siteID, int erfID, int rupVarScenarioID, int sgtVarID) {
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
 		
-		String sql = "SELECT Hazard_Curve_ID FROM Hazard_Curves WHERE ERF_ID=" + erfID;
-		sql += 	" AND Rup_Var_Scenario_ID=" + rupVarScenarioID + " AND SGT_Variation_ID=" + sgtVarID + 
-					" AND Site_ID=" + siteID + " ORDER BY Curve_Date desc";
+		String whereClause = Runs2DB.getRunsWhereStatement(runIDs);
+		if (whereClause == null || whereClause.length() != 0)
+			return ids;
+		
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE " + whereClause + " ORDER BY Curve_Date desc";
 		
 //		System.out.println(sql);
-		
-		ArrayList<Integer> ids = new ArrayList<Integer>();
 		
 		ResultSet rs = null;
 		try {
@@ -177,11 +192,45 @@ public class HazardCurve2DB {
 		}
 	}
 	
+	public int getHazardCurveID(int runID, int imTypeID) {
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE Run_ID=" + runID + " AND IM_Type_ID=" + imTypeID
+					+ " ORDER BY Curve_Date desc";
+		
+//		System.out.println(sql);
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+		
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return -1;
+			int id = rs.getInt("Hazard_Curve_ID");
+			rs.close();
+			
+			return id;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int getHazardCurveID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
 		
-		String sql = "SELECT Hazard_Curve_ID FROM Hazard_Curves WHERE Site_ID=" + siteID + " AND ERF_ID=" + erfID + 
-					" AND Rup_Var_Scenario_ID=" + rupVarScenarioID + " AND SGT_Variation_ID=" + sgtVarID + 
-					" AND IM_Type_ID=" + imTypeID + " ORDER BY Curve_Date";
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
+		
+		String whereClause = Runs2DB.getRunsWhereStatement(runIDs);
+		if (whereClause == null || whereClause.length() != 0)
+			return -1;
+		
+		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE " + whereClause + " AND IM_Type_ID=" + imTypeID
+					+ " ORDER BY Curve_Date desc";
 		
 //		System.out.println(sql);
 		
@@ -209,7 +258,7 @@ public class HazardCurve2DB {
 	}
 	
 	public int getSiteIDFromCurveID(int hcID) {
-		String sql = "SELECT Site_ID FROM Hazard_Curves WHERE Hazard_Curve_ID=" + hcID;
+		String sql = "SELECT Run_ID FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + hcID;
 
 //		System.out.println(sql);
 
@@ -221,23 +270,26 @@ public class HazardCurve2DB {
 			e1.printStackTrace();
 			return -1;
 		}
-
+		int id = -1;
+		
 		try {
 			rs.first();
 			if (rs.isAfterLast())
 				return -1;
-			int id = rs.getInt("Site_ID");
+			id = rs.getInt("Run_ID");
 			rs.close();
-
-			return id;
 		} catch (SQLException e) {
 //			e.printStackTrace();
 			return -1;
 		}
+		if (id >= 0) {
+			return runs2db.getSiteID(id);
+		}
+		return -1;
 	}
 	
 	public Date getDateForCurve(int hcID) {
-		String sql = "SELECT Curve_Date FROM Hazard_Curves WHERE Hazard_Curve_ID=" + hcID;
+		String sql = "SELECT Curve_Date FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + hcID;
 
 //		System.out.println(sql);
 
@@ -295,8 +347,8 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	public void insertHazardCurve(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID, DiscretizedFuncAPI hazardFunc) {
-		int id = this.insertHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, imTypeID);
+	public void insertHazardCurve(int runID, int imTypeID, DiscretizedFuncAPI hazardFunc) {
+		int id = this.insertHazardCurveID(runID, imTypeID);
 		this.insertHazardCurvePoints(id, hazardFunc);
 	}
 	
@@ -308,7 +360,7 @@ public class HazardCurve2DB {
 	}
 	
 	public int deleteHazardCurveID(int curveID) {
-		String sql = "DELETE FROM Hazard_Curves WHERE Hazard_Curve_ID=" + curveID;
+		String sql = "DELETE FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + curveID;
 		System.out.println(sql);
 		try {
 			return dbaccess.insertUpdateOrDeleteData(sql);
@@ -341,7 +393,7 @@ public class HazardCurve2DB {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String date = format.format(now);
 		
-		String sql = "UPDATE Hazard_Curves SET Curve_Date='" + date + "' WHERE Hazard_Curve_ID="+curveID;
+		String sql = "UPDATE " + TABLE_NAME + " SET Curve_Date='" + date + "' WHERE Hazard_Curve_ID="+curveID;
 		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
@@ -352,15 +404,15 @@ public class HazardCurve2DB {
 		}
 	}
 	
-	private int insertHazardCurveID(int siteID, int erfID, int rupVarScenarioID, int sgtVarID, int imTypeID) {
+	private int insertHazardCurveID(int runID, int imTypeID) {
 		
 		Date now = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String date = format.format(now);
 		
-		String sql = "INSERT into Hazard_Curves"+ 
-		"(Site_ID,ERF_ID,Rup_Var_Scenario_ID,SGT_Variation_ID,IM_Type_ID,Curve_Date)"+
-		"VALUES("+siteID+","+erfID+","+rupVarScenarioID+","+sgtVarID+","+imTypeID+",'"+date+"')";
+		String sql = "INSERT into " + TABLE_NAME + 
+		"(Run_ID,IM_Type_ID,Curve_Date)"+
+		"VALUES("+runID+","+imTypeID+",'"+date+"')";
 		System.out.println(sql);
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
@@ -370,7 +422,7 @@ public class HazardCurve2DB {
 			return -1;
 		}
 		
-		return this.getHazardCurveID(siteID, erfID, rupVarScenarioID, sgtVarID, imTypeID);
+		return this.getHazardCurveID(runID, imTypeID);
 	}
 	
 	private void insertHazardCurvePoints(int id, DiscretizedFuncAPI hazardFunc) {
@@ -394,7 +446,7 @@ public class HazardCurve2DB {
 	}
 	
 	public int getIMTypeIDForCurve(int curveID) {
-		String sql = "SELECT IM_Type_ID FROM Hazard_Curves WHERE Hazard_Curve_ID=" + curveID;
+		String sql = "SELECT IM_Type_ID FROM " + TABLE_NAME + " WHERE Hazard_Curve_ID=" + curveID;
 
 //		System.out.println(sql);
 
@@ -463,12 +515,10 @@ public class HazardCurve2DB {
 	/**
 	 * @returns the supported SA Period as list of strings.
 	 */
-	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation) {
-		String whereClause = "Site_ID="+siteID + " AND ERF_ID="+erfID + " AND SGT_Variation_ID="+sgtVariation + 
-			" AND Rup_Var_Scenario_ID="+rupVarID;
+	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
 		long startTime = System.currentTimeMillis();
 		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units from IM_Types I JOIN (";
-		sql += "SELECT distinct IM_Type_ID from Hazard_Curves WHERE " + whereClause;
+		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE Run_ID=" + runID;
 		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
 		
 //		System.out.println(sql);
@@ -500,6 +550,19 @@ public class HazardCurve2DB {
 		}
 		long duration = System.currentTimeMillis() - startTime;
 //		System.out.println("Total SA Period Select Time: " + ((double)duration / 1000) + " sec");
+		return ims;
+	}
+	
+	/**
+	 * @returns the supported SA Period as list of strings.
+	 */
+	public ArrayList<CybershakeIM>  getSupportedIMs(int siteID, int erfID, int rupVarID, int sgtVariation) {
+		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVariation, rupVarID, null, null, null, null);
+		ArrayList<CybershakeIM> ims = new ArrayList<CybershakeIM>();
+		
+		for (int runID : runIDs) {
+			ims.addAll(getSupportedIMs(runID));
+		}
 		return ims;
 	}
 	

@@ -17,7 +17,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
-import org.opensha.cybershake.db.CybershakePeakAmplitudeSiteRecord;
+import org.opensha.cybershake.db.CybershakeRun;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.PeakAmplitudesFromDB;
 
@@ -100,7 +100,7 @@ public class PeakAmpsGUI extends JFrame implements ActionListener, ListSelection
 			ArrayList<Integer> rows = getSelectedRows();
 			
 			for (int row : rows) {
-				CybershakePeakAmplitudeSiteRecord amps = model.getAmpsAtRow(row);
+				CybershakeRun amps = model.getAmpsAtRow(row);
 				System.out.println("Deleting amps: " + amps);
 				
 				int num = this.model.deleteAmps(amps);

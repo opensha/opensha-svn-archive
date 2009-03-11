@@ -296,5 +296,16 @@ public boolean isRectangular() {
 	}
 	return false;
 }
+
+
+@Override
+public String toString() {
+	String str = "GeographicRegion\n" +
+					"\tMinimum Lat: " + this.getMinLat() + "\n" +
+					"\tMinimum Lon: " + this.getMinLon() + "\n" +
+					"\tMaximum Lat: " + this.getMaxLat() + "\n" +
+					"\tMaximum Lon: " + this.getMaxLon();
+	return str;
+}
   
 }

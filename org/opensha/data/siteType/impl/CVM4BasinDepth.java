@@ -56,8 +56,34 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	
 	private SiteDataServletAccessor<Double> servlet = null;
 	
+	/**
+	 * Constructor for creating a CVM accessor using servlets
+	 * 
+	 * @param type
+	 * @throws IOException
+	 */
+	public CVM4BasinDepth(String type) throws IOException {
+		this(type, null, true);
+	}
+	
+	/**
+	 * Constructor for creating a CVM accessor using either servlets or default file names
+	 * 
+	 * @param type
+	 * @throws IOException
+	 */
 	public CVM4BasinDepth(String type, boolean useServlet) throws IOException {
 		this(type, null, useServlet);
+	}
+	
+	/**
+	 * Constructor for creating a CVM accessor using the given file
+	 * 
+	 * @param type
+	 * @throws IOException
+	 */
+	public CVM4BasinDepth(String type, String dataFile) throws IOException {
+		this(type, dataFile, false);
 	}
 	
 	public CVM4BasinDepth(String type, String dataFile, boolean useServlet) throws IOException {
@@ -186,7 +212,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0, true);
+		CVM4BasinDepth map = new CVM4BasinDepth(TYPE_DEPTH_TO_1_0);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		org.dom4j.Element root = doc.getRootElement();

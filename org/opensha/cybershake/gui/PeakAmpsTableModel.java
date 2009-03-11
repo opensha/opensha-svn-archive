@@ -6,7 +6,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
-import org.opensha.cybershake.db.CybershakePeakAmplitudeSiteRecord;
+import org.opensha.cybershake.db.CybershakeRun;
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.PeakAmplitudesFromDB;
@@ -14,12 +14,12 @@ import org.opensha.cybershake.db.SiteInfo2DB;
 
 public class PeakAmpsTableModel extends AbstractTableModel {
 	
-	public static int NUM_COLUMNS = 7;
+	public static int NUM_COLUMNS = 8;
 	
 	PeakAmplitudesFromDB amps2db;
 	SiteInfo2DB site2db;
 	
-	ArrayList<CybershakePeakAmplitudeSiteRecord> amps = new ArrayList<CybershakePeakAmplitudeSiteRecord>();
+	ArrayList<CybershakeRun> ampsRuns = new ArrayList<CybershakeRun>();
 	
 	HashMap<Integer, CybershakeSite> siteID_NameMap = new HashMap<Integer, CybershakeSite>();
 	HashMap<String, Integer> countMap = new HashMap<String, Integer>();
@@ -32,9 +32,9 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 	}
 	
 	public void reloadAmps() {
-		amps = amps2db.getPeakAmpSiteRecords();
+		ampsRuns = amps2db.getPeakAmpRuns();
 		
-		for (CybershakePeakAmplitudeSiteRecord amp : amps) {
+		for (CybershakeRun amp : ampsRuns) {
 			int siteID = amp.getSiteID();
 			
 			CybershakeSite site = siteID_NameMap.get(siteID);
@@ -53,18 +53,18 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 	}
 
 	public int getRowCount() {
-		return amps.size();
+		return ampsRuns.size();
 	}
 	
 	public void loadCount(int row) {
-		CybershakePeakAmplitudeSiteRecord record = this.getAmpsAtRow(row);
+		CybershakeRun run = this.getAmpsAtRow(row);
 		
-		int count = this.amps2db.countAmps(record.getSiteID(), record.getErfID(), record.getSgtVarID(), record.getRupVarScenID(), null);
+		int count = this.amps2db.countAmps(run.getRunID(), null);
 		
-		countMap.put(record.toString(), new Integer(count));
+		countMap.put(run.toString(), new Integer(count));
 	}
 	
-	public int deleteAmps(CybershakePeakAmplitudeSiteRecord record) {
+	public int deleteAmps(CybershakeRun record) {
 		// if it's not a test site, prompt the user
 		CybershakeSite site = getSiteForRecord(record);
 		if (site.type_id != CybershakeSite.TYPE_TEST_SITE) {
@@ -77,13 +77,14 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 				return -1;
 		}
 		
-		int num = this.amps2db.deleteAmpsForSite(record.getSiteID(), record.getErfID(), record.getSgtVarID(), record.getRupVarScenID());
+		int num = this.amps2db.deleteAmpsForRun(record.getRunID());
 		
 		return num;
 	}
 	
 	// columns:
-	// 0: Site_ID | 1: Site Short Name | 2: Site Long Name | 3: ERF_ID | 4: Rup_Var_Scen_ID | 5: SGT_Var_ID | 6: Count
+	// 0: Site_ID | 1: Site Short Name | 2: Site Long Name | 3: Run_ID | 4: ERF_ID |
+	//		5: Rup_Var_Scen_ID | 6: SGT_Var_ID | 7: Count
 
 	public String getColumnName(int col) {
 		if (col == 0) {
@@ -93,29 +94,31 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 		} else if (col == 2) {
 			return "Site Long Name";
 		} else if (col == 3) {
-			return "ERF ID";
+			return "Run ID";
 		} else if (col == 4) {
-			return "Rup Var Scen ID";
+			return "ERF ID";
 		} else if (col == 5) {
-			return "SGT Var ID";
+			return "Rup Var Scen ID";
 		} else if (col == 6) {
+			return "SGT Var ID";
+		} else if (col == 7) {
 			return "Count";
 		}
 		
 		return "";
 	}
 	
-	public CybershakePeakAmplitudeSiteRecord getAmpsAtRow(int row) {
+	public CybershakeRun getAmpsAtRow(int row) {
 		row = this.getRowCount() - row - 1;
-		return amps.get(row);
+		return ampsRuns.get(row);
 	}
 	
-	private CybershakeSite getSiteForRecord(CybershakePeakAmplitudeSiteRecord record) {
+	private CybershakeSite getSiteForRecord(CybershakeRun record) {
 		return siteID_NameMap.get(record.getSiteID());
 	}
 
 	public Object getValueAt(int row, int col) {
-		CybershakePeakAmplitudeSiteRecord amps = getAmpsAtRow(row);
+		CybershakeRun amps = getAmpsAtRow(row);
 		
 		if (col == 0) {
 			return amps.getSiteID();
@@ -126,12 +129,14 @@ public class PeakAmpsTableModel extends AbstractTableModel {
 			CybershakeSite site = getSiteForRecord(amps);
 			return site.name;
 		} else if (col == 3) {
-			return amps.getErfID();
+			return amps.getRunID();
 		} else if (col == 4) {
-			return amps.getRupVarScenID();
+			return amps.getERFID();
 		} else if (col == 5) {
-			return amps.getSgtVarID();
+			return amps.getRupVarScenID();
 		} else if (col == 6) {
+			return amps.getSgtVarID();
+		} else if (col == 7) {
 			Integer count = countMap.get(amps.toString());
 			if (count == null) {
 				return "(not counted)";

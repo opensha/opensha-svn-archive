@@ -444,7 +444,6 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 		 return siteList;	
      }
 
-
 	/**
 	 * 
 	 * @param siteShortName
@@ -452,9 +451,18 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @returns the list of rupture ids 
 	 */
 	public ArrayList<Integer> getRupIdsForSite(String siteShortName, int erf_id, int srcId) {
-		// TODO Auto-generated method stub
 		int siteId = this.getSiteId(siteShortName);
-		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"' and ERF_ID = '" + erf_id + "' " + 
+		return getRupIdsForSite(siteId, erf_id, srcId);
+	}
+	
+	/**
+	 * 
+	 * @param siteShortName
+	 * @param srcId
+	 * @returns the list of rupture ids 
+	 */
+	public ArrayList<Integer> getRupIdsForSite(int siteID, int erf_id, int srcId) {
+		String sql = "Select Rupture_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " + 
 		             " and Source_ID ='"+srcId+"' order by Rupture_ID asc";
 		ArrayList<Integer> rupList = new ArrayList<Integer>();
 		ResultSet rs = null;
@@ -485,7 +493,16 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 */
 	public void getSrcIfoForSite(String siteShortName, int erf_id, ArrayList<Integer> ids) {
 		int siteId = this.getSiteId(siteShortName);
-		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"' and ERF_ID = '" + erf_id + "' " +
+		getSrcIfoForSite(siteId, erf_id, ids);
+	}
+	
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public void getSrcIfoForSite(int siteID, int erf_id, ArrayList<Integer> ids) {
+		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
 		             " group by Source_ID order by Source_ID asc";
 		System.out.println(sql);
 		ResultSet rs = null;
@@ -507,16 +524,24 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * 
 	 * @param siteShortName short site name as in database for Cybershake site
 	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
 	 */
 	public ArrayList<Integer> getSrcIdsForSite(String siteShortName, int erf_id) {
-		// TODO Auto-generated method stub
 		int siteId = this.getSiteId(siteShortName);
-		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteId+"' and ERF_ID = '" + erf_id + "' " +
+		return getSrcIdsForSite(siteId, erf_id);
+	}
+
+	/**
+	 * 
+	 * @param siteShortName short site name as in database for Cybershake site
+	 * @returns the Earthquake rupture forecast source id's for a given cybershake site.
+	 */
+	public ArrayList<Integer> getSrcIdsForSite(int  siteID, int erf_id) {
+		String sql = "Select Source_ID from CyberShake_Site_Ruptures where CS_Site_ID = "+"'"+siteID+"' and ERF_ID = '" + erf_id + "' " +
 		             " group by Source_ID order by Source_ID asc";
 		System.out.println(sql);
 		ArrayList<Integer> srcIdList = new ArrayList<Integer>();

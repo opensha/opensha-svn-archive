@@ -13,6 +13,7 @@ import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurveComputation;
 import org.opensha.cybershake.db.PeakAmplitudesFromDB;
+import org.opensha.cybershake.db.Runs2DB;
 import org.opensha.cybershake.db.SiteInfo2DB;
 import org.opensha.data.DataPoint2D;
 import org.opensha.data.Site;
@@ -57,6 +58,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	DBAccess db = null;
 	SiteInfo2DB site2db = null;
 	PeakAmplitudesFromDB ampsDB = null;
+	Runs2DB runs2db = null;
 
 	ArrayList<CybershakeSite> sites = null;
 	CybershakeSite csSite = null;
@@ -143,6 +145,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 		db = Cybershake_OpenSHA_DBApplication.db;
 		site2db = new SiteInfo2DB(db);
 		ampsDB = new PeakAmplitudesFromDB(db);
+		runs2db = new Runs2DB(db);
 		sites = site2db.getAllSitesFromDB();
 		dbConnInitialized = true;
 	}
@@ -477,7 +480,8 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 
 		// if we made it this far, then it's not in the buffer...we'll need to get it manually
 //		System.out.println("Loading amps for " + erfID + " " + srcID + " " + rupID);
-		ArrayList<Double> imVals = ampsDB.getIM_Values(siteID, erfID, sgtVarID, rupVarID, srcID, rupID, im);
+		int runID = runs2db.getLatestRunID(siteID, erfID, sgtVarID, rupVarID, null, null, null, null);
+		ArrayList<Double> imVals = ampsDB.getIM_Values(runID, srcID, rupID, im);
 
 //		String valStr = "";
 		for (int i=0; i<imVals.size(); i++) {
