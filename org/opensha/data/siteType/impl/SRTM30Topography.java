@@ -155,8 +155,8 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		// top of mammoth
 		System.out.println(data.getValue(new Location(37.630173, -119.032681)));
 		
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
-//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
+//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}
