@@ -298,7 +298,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		meta += "Type: " + currentData.getType() + "\n";
 		meta += "Type Flag: " + currentData.getTypeFlag() + "\n";
 		meta += "Resolution: " + currentData.getResolution() + " degrees\n\n";
-		meta += currentData.getMetadata() + "\n";
+		meta += currentData.getMetadata() + "\n\n";
+		meta += "Region: " + currentData.getApplicableRegion().toString();
 		metadataArea.setText(meta);
 		
 		metadataArea.setCaretPosition(0);
