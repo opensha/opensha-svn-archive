@@ -74,7 +74,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
 				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, spacing);
 		
-		calc.setStartBottom(false);
+		calc.setStartBottom(true);
 		calc.setStartLeft(true);
 		
 		try {
@@ -155,8 +155,8 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(32, -118)));
 		
-		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
-//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
+//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
 		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");
 	}
