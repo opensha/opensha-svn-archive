@@ -74,7 +74,7 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 		calc = new GeolocatedRectangularBinaryMesh2DCalculator(
 				BinaryMesh2DCalculator.TYPE_FLOAT, nx, ny, minLat, minLon, spacing);
 		
-		calc.setStartBottom(true);
+		calc.setStartBottom(false);
 		calc.setStartLeft(true);
 		
 		try {
