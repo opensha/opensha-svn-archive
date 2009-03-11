@@ -31,9 +31,9 @@ public class SRTM30TopoSlope extends AbstractSiteData<Double> {
 	public static final double spacing = ArcsecondConverter.getDegrees(arcSecondSpacing);
 	
 	public static final int nx = 43200;
-	public static final int ny = 21600;
+	public static final int ny = 18000;
 	
-	public static final double minLon = 0;
+	public static final double minLon = -180;
 	public static final double minLat = -90;
 	
 	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30_Slope";
