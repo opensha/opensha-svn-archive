@@ -33,7 +33,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 	public static final int nx = 43200;
 	public static final int ny = 18000;
 	
-	public static final double minLon = 0;
+	public static final double minLon = -180;
 	public static final double minLat = -60;
 	
 	public static final String SERVLET_URL = "http://opensha.usc.edu:8080/OpenSHA/SiteData/SRTM30";
