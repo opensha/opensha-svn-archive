@@ -23,8 +23,8 @@ import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
 public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	
-	public static final String NAME = "SRTM30 Topographic Slope";
-	public static final String SHORT_NAME = "SRTM30_Slope";
+	public static final String NAME = "SRTM30 Plus Topographic Slope";
+	public static final String SHORT_NAME = "SRTM30_Plus_Slope";
 	
 	public static final double arcSecondSpacing = 30.0;
 	// for 30 arc seconds this is 0.008333333333333333
