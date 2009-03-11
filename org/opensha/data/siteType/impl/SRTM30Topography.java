@@ -67,7 +67,7 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 			
 			recordBuffer = new byte[2];
 			ByteBuffer record = ByteBuffer.wrap(recordBuffer);
-			record.order(ByteOrder.BIG_ENDIAN);
+			record.order(ByteOrder.LITTLE_ENDIAN);
 			shortBuff = record.asShortBuffer();
 		}
 		
@@ -155,9 +155,9 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		// top of mammoth
 		System.out.println(data.getValue(new Location(37.630173, -119.032681)));
 		
-//		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 		
-//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
+		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo2.txt");
 	}
 }

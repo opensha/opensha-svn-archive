@@ -159,11 +159,12 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	public static void main(String args[]) throws IOException, RegionConstraintException {
 		SRTM30PlusTopoSlope data = new SRTM30PlusTopoSlope();
 		
-		System.out.println(data.getValue(new Location(34, -115)));
+		System.out.println(data.getValue(new Location(34, -118)));
+		System.out.println(data.getValue(new Location(32, -118)));
 		
 		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(32, 35, -121, -115, 0.02);
 //		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(-60, 60, -180, 180, 1);
 //		
-		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");
+//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_slope.txt");
 	}
 }
