@@ -11,10 +11,12 @@ import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
+import org.opensha.data.siteType.SiteDataAPI;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.param.BooleanParameter;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel;
 import org.opensha.param.editor.ParameterEditor;
@@ -23,12 +25,10 @@ import org.opensha.param.event.ParameterChangeListener;
 
 public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements ParameterChangeListener {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	public static final String NAME = "Global Vs30 from Topographic Slope (Wald 2007)";
 	public static final String SHORT_NAME = "Wald2007";
-	
-	private GeographicRegion region = RectangularGeographicRegion.createEntireGlobeRegion();
 	
 	public static final double arcSecondSpacing = 30.0;
 	// for 30 arc seconds this is 0.008333333333333333
@@ -47,9 +47,24 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	private final ArbitrarilyDiscretizedFunc stableFunc = createStableCoefficients();
 	private ArbitrarilyDiscretizedFunc customFunc = null;
 	
-	private SRTM30TopoSlope srtm30_Slope;
+	private SRTM30TopoSlope srtm30_Slope = null;
+	private SRTM30PlusTopoSlope srtm30plus_Slope = null;
+	
+	private SiteDataAPI<Double> slopeProvider;
 	
 	private ArbitrarilyDiscretizedFunc coeffFunc;
+	
+	private BooleanParameter interpolateParam;
+	public static final String INTERPOLATE_PARAM_NAME = "Interpolate Between Slope Values";
+	public static final Boolean INTERPOLATE_PARAM_DEFAULT = true;
+	
+	private StringParameter demParam;
+	public static final String DEM_SELECT_PARAM_NAME = "Digital Elevation Model";
+	public static final String DEM_SRTM30 = "SRTM30 Version 2";
+	public static final String DEM_SRTM30_PLUS = "SRTM30 Plus Version 5 (NOTE: contains bathymetry)";
+	public static final String DEM_SELECT_DEFAULT = DEM_SRTM30;
+	
+	private boolean interpolate = true;
 	
 	/**
 	 * Creates function for active tectonic regions from Allen & Wald 2008
@@ -89,6 +104,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	
 	public WaldGlobalVs2007() throws IOException {
 		srtm30_Slope = new SRTM30TopoSlope();
+		srtm30plus_Slope = new SRTM30PlusTopoSlope();
 		
 		ArrayList<String> coeffNames = new ArrayList<String>();
 		
@@ -106,6 +122,20 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		
 		coeffFunc = (ArbitrarilyDiscretizedFunc) coeffFuncParam.getValue();
 		
+		interpolateParam = new BooleanParameter(INTERPOLATE_PARAM_NAME, INTERPOLATE_PARAM_DEFAULT);
+		interpolateParam.addParameterChangeListener(this);
+		
+		ArrayList<String> demNames = new ArrayList<String>();
+		
+		demNames.add(DEM_SRTM30);
+		demNames.add(DEM_SRTM30_PLUS);
+		
+		demParam = new StringParameter(DEM_SELECT_PARAM_NAME, demNames, DEM_SELECT_DEFAULT);
+		demParam.addParameterChangeListener(this);
+		slopeProvider = srtm30_Slope;
+		
+		this.paramList.addParameter(demParam);
+		this.paramList.addParameter(interpolateParam);
 		this.paramList.addParameter(minVs30Param);
 		this.paramList.addParameter(maxVs30Param);
 		this.paramList.addParameter(coeffPresetParam);
@@ -113,7 +143,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	}
 
 	public GeographicRegion getApplicableRegion() {
-		return region;
+		return slopeProvider.getApplicableRegion();
 	}
 
 	public Location getClosestDataLocation(Location loc) throws IOException {
@@ -127,7 +157,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 				"By Trevor I. Allen and David J. Wald\n" +
 				"U.S. Geological Survey Open-File Report 2007-1357\n" +
 				"\n" +
-				"Digital Elevation model in use is SRTM30, 30 arc second";
+				"Digital Elevation model in use is '" + slopeProvider.getName() + "', 30 arc second";
 	}
 
 	public String getName() {
@@ -159,8 +189,13 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 			vs = coeffFunc.getY(0);
 		else if (slope >= coeffFunc.getMaxX())
 			vs = coeffFunc.getY(coeffFunc.getNum()-1);
-		else
-			vs = coeffFunc.getInterpolatedY(slope);
+		else {
+			if (interpolate)
+				vs = coeffFunc.getInterpolatedY(slope);
+			else {
+				vs = coeffFunc.getClosestY(slope);
+			}
+		}
 		
 		if (D) System.out.println("Translated slope of " + slope + " to Vs30 of " + vs);
 		return vs;
@@ -174,7 +209,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		
 		double vs30 = getVs30(slope);
 		
-		return vs30;
+		return certifyMinMaxVs30(vs30);
 	}
 	
 	@Override
@@ -183,7 +218,7 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		ArrayList<Double> vs30 = new ArrayList<Double>();
 		
 		for (int i=0; i<slopes.size(); i++) {
-			vs30.add(getVs30(slopes.get(i)));
+			vs30.add(certifyMinMaxVs30(getVs30(slopes.get(i))));
 		}
 		
 		return vs30;
@@ -222,11 +257,28 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		} else if (paramName == COEFF_FUNC_PARAM_NAME) {
 			if (D) System.out.println("Coeff func changed...");
 			coeffFunc = (ArbitrarilyDiscretizedFunc)coeffFuncParam.getValue();
-			if (D) {
-				for (int i=0; i<coeffFunc.getNum(); i++) {
-					System.out.println("x: " + coeffFunc.getX(i) + ", y: " + coeffFunc.getY(i));
-				}
+			double prevX = 0;
+			double prevY = 0;
+			for (int i=0; i<coeffFunc.getNum(); i++) {
+				double x = coeffFunc.getX(i);
+				double y = coeffFunc.getY(i);
+				if (x < prevX || y < prevY)
+					System.err.println("WARNING: portion of coefficient function has negative slope!");
+				prevX = x;
+				prevY = y;
+				if (D) System.out.println("x: " + coeffFunc.getX(i) + ", y: " + coeffFunc.getY(i));
 			}
+		} else if (paramName == INTERPOLATE_PARAM_NAME) {
+			interpolate = (Boolean)interpolateParam.getValue();
+			if (D) System.out.println("Interpolate changed: " + interpolate);
+		} else if (paramName == DEM_SELECT_PARAM_NAME) {
+			String newDem = (String)demParam.getValue();
+			if (newDem == DEM_SRTM30) {
+				slopeProvider = srtm30_Slope;
+			} else if (newDem == DEM_SRTM30_PLUS) {
+				slopeProvider = srtm30plus_Slope;
+			}
+			if (D) System.out.println("DEM changed: " + slopeProvider.getName());
 		}
 		if (D) System.out.println("WaldparameterChange DONE");
 	}
@@ -273,6 +325,10 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 	
 	public static void main(String args[]) throws IOException, RegionConstraintException {
 		WaldGlobalVs2007 data = new WaldGlobalVs2007();
+		SRTM30TopoSlope sdata = new SRTM30TopoSlope();
+		SRTM30PlusTopoSlope spdata = new SRTM30PlusTopoSlope();
+		SRTM30Topography tdata = new SRTM30Topography();
+		SRTM30PlusTopography tpdata = new SRTM30PlusTopography();
 		
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(data.getValue(new Location(34, -10)));
@@ -286,11 +342,11 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		func.set(0.0063,	300);
 		func.set(0.018,		360);
 		func.set(0.05,		490);
-		func.set(0.01,		620);
+		func.set(0.1,		620);
 		func.set(0.138,		760);
 		data.setCoeffFunction(func);
 //		
-		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_vs30.txt");
+//		SiteDataToXYZ.writeXYZ(data, region, "/tmp/topo_vs30.txt");
 		
 		System.out.println(data.getCoeffFunctionClone());
 		
@@ -298,5 +354,12 @@ public class WaldGlobalVs2007 extends AbstractSiteData<Double> implements Parame
 		printMapping(createActiveCoefficients());
 		System.out.println("Stable Continent:");
 		printMapping(createStableCoefficients());
+		
+		Location loc = new Location(34.5, -117.51);
+		System.out.println("Slope: " + sdata.getValue(loc));
+		System.out.println("Elevation: " + tdata.getValue(loc));
+		System.out.println("Plus Slope: " + spdata.getValue(loc));
+		System.out.println("Plus Elevation: " + tpdata.getValue(loc));
+		System.out.println("Vs30: " + data.getValue(loc));
 	}
 }

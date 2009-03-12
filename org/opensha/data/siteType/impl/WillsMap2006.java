@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -173,10 +175,13 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		return new WillsMap2006(useServlet, fileName);
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, RegionConstraintException {
 		
 		WillsMap2006 map = new WillsMap2006();
-		SiteDataToXYZ.writeXYZ(map, 0.02, "/tmp/wills.txt");
+		
+		EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(37, 38.5, -122.75, -121.5, 0.01);
+		
+		SiteDataToXYZ.writeXYZ(map, region, "/tmp/wills.txt");
 		
 //		SiteDataServletAccessor<Double> serv = new SiteDataServletAccessor<Double>(SERVLET_URL);
 //		

@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
+import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
@@ -195,10 +197,11 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		return new USGSBayAreaBasinDepth(type, fileName, useServlet);
 	}
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws RegionConstraintException {
 		try {
 			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_2_5, DEPTH_2_5_FILE, true);
-//			SiteDataToXYZ.writeXYZ(cvm, gridSpacing, "/tmp/sfbasin.txt");
+			EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(37, 38.5, -122.75, -121.5, 0.01);
+			SiteDataToXYZ.writeXYZ(cvm, region, "/tmp/sfbasin.txt");
 			
 			System.out.println(cvm.getValue(new Location(35.1, -125)));
 			System.out.println(cvm.getValue(new Location(36.1, -125)));
