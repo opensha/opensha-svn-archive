@@ -52,9 +52,6 @@ import org.opensha.sha.surface.*;
  * (we could change this if aftershock info is added to an EqkRupture, but it's not clear this
  * is justified).
  * <p>
- * It has been assumed that F_inferred and F_measured cannot both be zero or 1 (must be the opposite); 
- * in other words: F_inf = (1-F_meas)
- * <p>
  * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation (1).
  * <p>
  * Verification :This model has been tested ...
@@ -748,6 +745,7 @@ NamedObjectAPI, ParameterChangeListener {
 		// compute rJB
 		double distanceJB = rRup - distRupMinusJB_OverRup*rRup;
 		double distX  = rRup - distRupMinusDistX_OverRup*rRup;
+// System.out.println(depthTop);
 				
 		double cosDelta = Math.cos(dip*Math.PI/180);
 		double altDist = Math.sqrt(distanceJB*distanceJB+depthTop*depthTop);
@@ -866,7 +864,7 @@ NamedObjectAPI, ParameterChangeListener {
 		}
 		else if (pName.equals(VS_FLAG_NAME)) {
 			if(((String)val).equals(VS_FLAG_M)) {
-				f_meas = 1;
+				f_meas = 1;  // Bob Youngs confirmed by email that this is correct (f_meas=1-f_inf)
 			}
 			else {
 				f_meas = 0;
