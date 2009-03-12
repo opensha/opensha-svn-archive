@@ -149,6 +149,34 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
         return true;
     }
     
+    public double getClosestX(double y) {
+		double x = Double.NaN;
+		double dist = Double.POSITIVE_INFINITY;
+		for (int i=0; i<getNum(); i++) {
+			double newY = getY(i);
+			double newDist = Math.abs(newY - y);
+			if (newDist < dist) {
+				dist = newDist;
+				x = getX(i);
+			}
+		}
+		return x;
+	}
+
+	public double getClosestY(double x) {
+		double y = Double.NaN;
+		double dist = Double.POSITIVE_INFINITY;
+		for (int i=0; i<getNum(); i++) {
+			double newX = getX(i);
+			double newDist = Math.abs(newX - x);
+			if (newDist < dist) {
+				dist = newDist;
+				y = getY(i);
+			}
+		}
+		return y;
+	}
+    
     
     public Element toXMLMetadata(Element root) {
     	Element xml = root.addElement(DiscretizedFunc.XML_METADATA_NAME);

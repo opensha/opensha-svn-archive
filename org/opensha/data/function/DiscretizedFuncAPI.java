@@ -287,5 +287,21 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * else returns false
      */
     public boolean areAllXValuesInteger(double tolerance);
+    
+    /**
+     * Get the Y value for the point with closest X
+     * 
+     * @param x
+     * @return
+     */
+    public double getClosestY(double x);
+    
+    /**
+     * Get the X value for the point with closest Y
+     * 
+     * @param y
+     * @return
+     */
+    public double getClosestX(double y);
 
 }
