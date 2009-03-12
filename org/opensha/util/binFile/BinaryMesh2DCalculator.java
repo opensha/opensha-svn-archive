@@ -3,7 +3,7 @@ package org.opensha.util.binFile;
 public class BinaryMesh2DCalculator {
 	
 	public static final int FAST_XY = 0;
-	public static final int FASE_YX = 1;
+	public static final int FAST_YX = 1;
 	
 	public static final int TYPE_SHORT = 0;
 	public static final int TYPE_INT = 1;
@@ -11,8 +11,8 @@ public class BinaryMesh2DCalculator {
 	public static final int TYPE_FLOAT = 3;
 	public static final int TYPE_DOUBLE = 4;
 	
-	private long nx;
-	private long ny;
+	protected long nx;
+	protected long ny;
 	private int numType;
 	
 	private long maxFilePos;
@@ -34,7 +34,7 @@ public class BinaryMesh2DCalculator {
 		this.nx = nx;
 		this.ny = ny;
 		
-		this.maxFilePos = (nx - 1) * (ny - 1) * numBytesPerPoint;
+		this.maxFilePos = calcMaxFilePos();
 		
 		this.numType = numType;
 	}
@@ -57,6 +57,7 @@ public class BinaryMesh2DCalculator {
 
 	public void setNX(int nx) {
 		this.nx = nx;
+		maxFilePos = calcMaxFilePos();
 	}
 
 	public long getNY() {
@@ -65,10 +66,15 @@ public class BinaryMesh2DCalculator {
 
 	public void setNY(int ny) {
 		this.ny = ny;
+		maxFilePos = calcMaxFilePos();
 	}
 
 	public long getMaxFilePos() {
 		return maxFilePos;
+	}
+	
+	private long calcMaxFilePos() {
+		return (nx - 1) * (ny - 1) * numBytesPerPoint;
 	}
 
 	public int getMeshOrder() {
