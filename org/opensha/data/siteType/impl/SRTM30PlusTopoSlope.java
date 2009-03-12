@@ -140,7 +140,8 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 			
 			double val = floatBuff.get(0);
 			
-			return val;
+			// for now divide by 100
+			return val / 100;
 		}
 	}
 	
