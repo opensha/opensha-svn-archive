@@ -352,6 +352,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		if (intensityMeasureChanged) {
 			setCoeffIndex();// intensityMeasureChanged is set to false in this method
+			lnYref_is_not_fresh = true;
 		}
 
 
@@ -365,6 +366,7 @@ NamedObjectAPI, ParameterChangeListener {
 	public double getStdDev() {
 		if (intensityMeasureChanged) {
 			setCoeffIndex();// intensityMeasureChanged is set to false in this method
+			lnYref_is_not_fresh = true;
 		}
 
 		// I NEED TO DO THE THINGS DONE IN getMean() BEFORE CALLING THIS!!!!!
@@ -698,7 +700,7 @@ NamedObjectAPI, ParameterChangeListener {
 			
 
 		if(lnYref_is_not_fresh)
-			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, f_hw, distRupMinusDistX_OverRup, dip, mag, depthTop, aftershock);
+			compute_lnYref(iper, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock);
 
 		
 		// set basinDepth default if depthTo1pt0kmPerSec is NaN 
@@ -766,6 +768,7 @@ NamedObjectAPI, ParameterChangeListener {
 		
 		lnYref_is_not_fresh = false;
 	
+		
 //		System.out.println(rRup+"\t"+distanceJB+"\t"+distX+"\t"+f_hw+"\t"+lnYref);
 
 	}
