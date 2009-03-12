@@ -7,7 +7,7 @@ import org.opensha.exceptions.RegionConstraintException;
 public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		BinaryMesh2DCalculator {
 	
-	public static final boolean D = true;
+	public static final boolean D = false;
 	
 	private double minLat;
 	private double maxLat;
@@ -20,6 +20,8 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	
 	private boolean wrapX = false;
 	private boolean wrapY= false;
+	
+	private boolean allLonPos = false;
 
 	/**
 	 * Creates a new GeolocatedRectangularBinaryMesh2DCalculator assuming that the data starts at the bottom left
@@ -41,6 +43,9 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 		this.maxLat = minLat + gridSpacing * (ny-1);
 		this.maxLon = minLon + gridSpacing * (nx-1);
 		this.gridSpacing = gridSpacing;
+		
+		if (minLon >= 0)
+			allLonPos = true;
 		
 		if (D) {
 			System.out.println("minLat: " + minLat + ", maxLat: " + maxLat);
@@ -138,6 +143,8 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	}
 	
 	private long calcX(double lon) {
+		if (allLonPos && lon < 0)
+			lon += 360;
 		if (startLeft)
 			return ((long)((lon - minLon) / gridSpacing + 0.5));
 		else
