@@ -651,6 +651,7 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevTypeParam = new StringParameter(STD_DEV_TYPE_NAME,
 				stdDevTypeConstraint,
 				STD_DEV_TYPE_DEFAULT);
+		stdDevType = STD_DEV_TYPE_DEFAULT;
 		stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
 		stdDevTypeParam.setNonEditable();
 
