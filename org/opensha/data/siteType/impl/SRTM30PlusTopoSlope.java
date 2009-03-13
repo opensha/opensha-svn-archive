@@ -140,8 +140,7 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 			
 			double val = floatBuff.get(0);
 			
-			// for now divide by 100
-			return val / 100;
+			return val;
 		}
 	}
 	
@@ -158,8 +157,8 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	}
 	
 	public static void main(String args[]) throws IOException, RegionConstraintException {
-		SRTM30PlusTopography tdata = new SRTM30PlusTopography("/tmp/opensha_data/siteData/srtm30_plus_v5.0");
-		SRTM30PlusTopoSlope data = new SRTM30PlusTopoSlope("/tmp/opensha_data/siteData/wald_allen_vs30/srtm30_plus_v5.0_grad.bin");
+		SRTM30PlusTopography tdata = new SRTM30PlusTopography();
+		SRTM30PlusTopoSlope data = new SRTM30PlusTopoSlope();
 		
 		System.out.println(data.getValue(new Location(34, -118)));
 		System.out.println(tdata.getValue(new Location(34, -118)));
