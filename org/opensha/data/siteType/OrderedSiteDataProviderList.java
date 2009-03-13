@@ -11,9 +11,14 @@ import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.impl.CVM2BasinDepth;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.SRTM30PlusTopoSlope;
+import org.opensha.data.siteType.impl.SRTM30PlusTopography;
+import org.opensha.data.siteType.impl.SRTM30TopoSlope;
+import org.opensha.data.siteType.impl.SRTM30Topography;
 import org.opensha.data.siteType.impl.USGSBayAreaBasinDepth;
-import org.opensha.data.siteType.impl.WaldGlobalVs2007;
+import org.opensha.data.siteType.impl.WaldAllenGlobalVs30;
 import org.opensha.data.siteType.impl.WillsMap2000;
+import org.opensha.data.siteType.impl.WillsMap2000TranslatedVs30;
 import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.util.XMLUtils;
@@ -290,6 +295,47 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	}
 	
 	/**
+	 * Creates the default list of site data providers, but with wills classes translated to doubles so that they can
+	 * be mapped.
+	 * 
+	 * @return
+	 */
+	public static OrderedSiteDataProviderList createSiteDataMapProviders() {
+		ArrayList<SiteDataAPI<?>> providers = createDebugSiteDataProviders().getList();
+		
+		for (int i=0; i<providers.size(); i++) {
+			if (providers.get(i).getName() == WillsMap2000.NAME) {
+				WillsMap2000TranslatedVs30 wills = new WillsMap2000TranslatedVs30();
+				providers.set(i, wills);
+				break;
+			}
+		}
+		
+		try {
+			providers.add(new SRTM30PlusTopography());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			providers.add(new SRTM30PlusTopoSlope());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			providers.add(new SRTM30Topography());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			providers.add(new SRTM30TopoSlope());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return new OrderedSiteDataProviderList(providers);
+	}
+	
+	/**
 	 * Same as createSiteDataProviderDefaults, but returns a cached version of each one
 	 * 
 	 * @return
@@ -311,7 +357,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	public static OrderedSiteDataProviderList createDebugSiteDataProviders() {
 		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
 		try {
-			list.add(new WaldGlobalVs2007());
+			list.add(new WaldAllenGlobalVs30());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

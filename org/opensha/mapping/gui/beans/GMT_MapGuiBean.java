@@ -15,8 +15,10 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.data.*;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 
 import org.opensha.exceptions.GMT_MapException;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: GMT_MapGuiBean</p>
@@ -165,6 +167,10 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
       getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
       getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
     }
+  }
+  
+  public EvenlyGriddedRectangularGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	  return gmtMap.getEvenlyGriddedGeographicRegion();
   }
 
   /**

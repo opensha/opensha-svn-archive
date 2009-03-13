@@ -148,6 +148,18 @@ implements java.io.Serializable {
 			return Double.NaN;
 	}
 	
+	public static String getWillsVs30TranslationString() {
+		String str = "";
+		
+		for (String wills : wills_vs30_map.keySet()) {
+			if (str.length() > 0)
+				str += "\n";
+			str += wills + "\t=>\t" + wills_vs30_map.get(wills);
+		}
+		
+		return str;
+	}
+	
 	public static SiteDataTypeParameterNameMap DATA_TYPE_PARAM_NAME_MAP = createMap();
 
 	public SiteTranslator() {

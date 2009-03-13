@@ -49,6 +49,16 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 		doGet(request,response);
 	}
 	
+	private Location getLocation(double pt[]) {
+		if (pt.length == 2) {
+			return new Location(pt[0], pt[1]);
+		} else if (pt.length == 3) {
+			return new Location(pt[0], pt[1], pt[2]);
+		} else {
+			return null;
+		}
+	}
+	
 	// Process the HTTP Get request
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		debug("Handling GET");
@@ -69,6 +79,25 @@ public abstract class AbstractSiteDataServlet<Element> extends HttpServlet {
 			} else if (obj instanceof LocationList) {
 				// this is a multiple location request
 				LocationList locs = (LocationList)obj;
+				ArrayList<Element> e = data.getValues(locs);
+				out.writeObject(e);
+			} else if (obj instanceof double[]) {
+				// this is a single location request
+				Location loc = getLocation((double[])obj);
+				if (loc == null)
+					fail(out, "Invalid location!");
+				Element e = data.getValue(loc);
+				out.writeObject(e);
+			} else if (obj instanceof ArrayList) {
+				// this is a multiple location request
+				ArrayList<double[]> pts = (ArrayList<double[]>)obj;
+				LocationList locs = new LocationList();
+				for (double[] pt : pts) {
+					Location loc = getLocation(pt);
+					if (loc == null)
+						fail(out, "Invalid location!");
+					locs.addLocation(loc);
+				}
 				ArrayList<Element> e = data.getValues(locs);
 				out.writeObject(e);
 			} else if (obj instanceof String) {

@@ -40,7 +40,7 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	/**
 	 * Topographic Slope, aka "scalar magnitudes of gradient vectors" from GMT (m/m)
 	 */
-	public static final String TYPE_TOPOGRAPHIC_SLOPE = "Elevation (m)";
+	public static final String TYPE_TOPOGRAPHIC_SLOPE = "Topographic Slope (m/m)";
 	
 	/* ************ Type Flags ************ */
 	

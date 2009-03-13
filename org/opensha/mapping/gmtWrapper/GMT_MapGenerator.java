@@ -8,9 +8,11 @@ import java.net.*;
 
 import org.opensha.param.*;
 import org.opensha.data.XYZ_DataSetAPI;
+import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 //import org.opensha.webservices.client.*;
 import org.opensha.util.RunScript;
 import org.opensha.exceptions.GMT_MapException;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -789,6 +791,17 @@ public class GMT_MapGenerator implements Serializable{
     }
     return (double) ((float) niceTick);
 
+  }
+  
+  public EvenlyGriddedRectangularGeographicRegion getEvenlyGriddedGeographicRegion() throws RegionConstraintException {
+	// Get the limits and discretization of the map
+	    double minLat = ((Double) minLatParam.getValue()).doubleValue();
+	    double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
+	    double minLon = ((Double) minLonParam.getValue()).doubleValue();
+	    double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
+	    double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+	    
+	    return new EvenlyGriddedRectangularGeographicRegion(minLat, maxLat, minLon, maxLon, gridSpacing);
   }
 
   /**

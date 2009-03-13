@@ -355,6 +355,39 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		
 		JOptionPane.showMessageDialog(parent, comp, "Site Data Values", JOptionPane.INFORMATION_MESSAGE);
 	}
+	
+	public SiteDataAPI<?> getSelectedProvider() {
+		int index = this.dataList.getSelectedIndex();
+		if (index < 0)
+			return null;
+		return list.getProvider(index);
+	}
+	
+	public ArrayList<SiteDataAPI<?>> getSelectedProviders() {
+		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		int indexes[] = this.dataList.getSelectedIndices();
+		for (int index : indexes) {
+			providers.add(list.getProvider(index));
+		}
+		return providers;
+	}
+	
+	public void addListSelectionListener(ListSelectionListener listener) {
+		this.dataList.addListSelectionListener(listener);
+	}
+	
+	public void removeListSelectionListener(ListSelectionListener listener) {
+		this.dataList.removeListSelectionListener(listener);
+	}
+	
+	/**
+	 * Returns true if one or more items are selected in the list.
+	 * 
+	 * @return
+	 */
+	public boolean isSelected() {
+		return dataList.getSelectedIndex() >= 0;
+	}
 
 	/**
 	 * @param args
