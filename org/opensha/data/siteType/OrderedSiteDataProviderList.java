@@ -245,6 +245,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * <LI> 5. USGS Bay Area Depth 2.5 (servlet access)
 	 * <LI> 6. USGS Bay Area Depth 1.0 (servlet access)
 	 * <LI> 7. CVM 2 Depth 2.5 (servlet access)
+	 * <LI> 8. Topographic Slope Vs30 (Wald and Allen 2007/2008) (servlet access)
 	 * </UL>
 	 * 
 	 * @return
@@ -260,6 +261,12 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		}
 		/*		Wills 2000			*/
 		providers.add(new WillsMap2000());
+		/*		Topographic Slope	*/
+		try {
+			providers.add(new WaldAllenGlobalVs30());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		/*		CVM 4 Depth 2.5		*/
 		try {
 			providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
@@ -355,14 +362,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 * @return
 	 */
 	public static OrderedSiteDataProviderList createDebugSiteDataProviders() {
-		OrderedSiteDataProviderList list = createSiteDataProviderDefaults();
-		try {
-			list.add(new WaldAllenGlobalVs30());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return list;
+		return createSiteDataProviderDefaults();
 	}
 	
 	public void printList() {

@@ -1,6 +1,8 @@
 package org.opensha.param.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +29,7 @@ import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.DataPoint2DException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
 import org.opensha.param.ParameterAPI;
+import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel.ArbitrarilyDiscretizedFuncTableCellRenderer;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
@@ -58,6 +61,8 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor i
 	boolean yDataGood;
 
 	private boolean isFocusListenerForX = false;
+	
+	private ArbitrarilyDiscretizedFuncTableCellRenderer renderer;
 
 	/** No-Arg constructor calls parent constructor */
 	public ArbitrarilyDiscretizedFuncParameterEditor() {
@@ -137,10 +142,11 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor i
 		table = new JTable(tableModel);
 		tableModel.addTableModelListener(this);
 //		table.setDefaultEditor(Double.class, new ArbitrarilyDiscretizedFuncTableCellEditor());
-		table.setDefaultRenderer(Double.class, tableModel.getRenderer());
+		renderer = tableModel.getRenderer();
+		table.setDefaultRenderer(Double.class, renderer);
 		
 		JScrollPane scroll = new JScrollPane(table);
-		scroll.setSize(100, 200);
+		scroll.setPreferredSize(new Dimension(100, 200));
 
 		widgetPanel.setLayout(new BorderLayout());
 		widgetPanel.add(scroll, BorderLayout.CENTER);
@@ -303,6 +309,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor i
 //		this.yValsTextArea.setEnabled(isEnabled);
 		
 		this.table.setEnabled(isEnabled);
+		this.tableModel.setEnabled(isEnabled);
 		this.addButton.setEnabled(isEnabled);
 		this.removeButton.setEnabled(isEnabled);
 		

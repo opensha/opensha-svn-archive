@@ -1,5 +1,6 @@
 package org.opensha.param.editor;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 
@@ -17,6 +18,10 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 	private boolean xEditable = true;
 	
 	public static DecimalFormat format;
+	
+	public final static Color disabledColor = new Color(210, 210, 210);
+	
+	ArbitrarilyDiscretizedFuncTableCellRenderer renderer = null;
 	
 	static {
 		format = new DecimalFormat();
@@ -176,6 +181,14 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 			return false;
 		return true;
 	}
+	
+	public void setEnabled(boolean isEnabled) {
+		ArbitrarilyDiscretizedFuncTableCellRenderer renderer = getRenderer();
+		if (isEnabled)
+			renderer.setBackground(Color.WHITE);
+		else
+			renderer.setBackground(disabledColor);
+	}
 
 	/**
 	 *  This empty implementation is provided so users don't have to implement
@@ -210,6 +223,8 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 			this.setPreferredSize(new Dimension(20, 8));
 		}
 		
+		
+		
 		public void setValue(Object value) {
 			setText((value == null) ? "" : format.format(value));
 		}
@@ -225,7 +240,9 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 	}
 	
 	public ArbitrarilyDiscretizedFuncTableCellRenderer getRenderer() {
-		return new ArbitrarilyDiscretizedFuncTableCellRenderer();
+		if (renderer == null)
+			renderer = new ArbitrarilyDiscretizedFuncTableCellRenderer();
+		return renderer;
 	}
 
 }

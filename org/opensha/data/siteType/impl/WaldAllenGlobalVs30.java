@@ -25,7 +25,7 @@ import org.opensha.param.event.ParameterChangeListener;
 
 public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements ParameterChangeListener {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	
 	public static final String NAME = "Global Vs30 from Topographic Slope (Wald & Allen 2008)";
 	public static final String SHORT_NAME = "GlobalTopoSlopeVs30";
@@ -136,10 +136,10 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		
 		this.paramList.addParameter(demParam);
 		this.paramList.addParameter(interpolateParam);
-		this.paramList.addParameter(minVs30Param);
-		this.paramList.addParameter(maxVs30Param);
 		this.paramList.addParameter(coeffPresetParam);
 		this.paramList.addParameter(coeffFuncParam);
+		this.paramList.addParameter(minVs30Param);
+		this.paramList.addParameter(maxVs30Param);
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -207,7 +207,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	}
 
 	public Double getValue(Location loc) throws IOException {
-		Double slope = srtm30_Slope.getValue(loc);
+		Double slope = slopeProvider.getValue(loc);
 		
 		if (!srtm30_Slope.isValueValid(slope))
 			return Double.NaN;
@@ -219,6 +219,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	
 	@Override
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
+		// it more efficient to get all of the slopes, and then translate them
 		ArrayList<Double> slopes = slopeProvider.getValues(locs);
 		ArrayList<Double> vs30 = new ArrayList<Double>();
 		
