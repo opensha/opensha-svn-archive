@@ -369,7 +369,6 @@ NamedObjectAPI, ParameterChangeListener {
 			lnYref_is_not_fresh = true;
 		}
 
-		// I NEED TO DO THE THINGS DONE IN getMean() BEFORE CALLING THIS!!!!!
 		return getStdDev(iper, vs30, f_rv, f_nm, rRup, distRupMinusJB_OverRup, distRupMinusDistX_OverRup, f_hw, dip, mag, depthTop, aftershock, stdDevType, f_meas);
 	}
 
