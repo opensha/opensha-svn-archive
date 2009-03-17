@@ -915,19 +915,19 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Options ops = new Options();
 		
 		// ERF
-		Option erf = new Option("e", "erf-id", false, "ERF ID");
+		Option erf = new Option("e", "erf-id", true, "ERF ID");
 		erf.setRequired(false);
 		ops.addOption(erf);
 		
-		Option rv = new Option("r", "rv-id", false, "Rupture Variation ID");
+		Option rv = new Option("r", "rv-id", true, "Rupture Variation ID");
 		rv.setRequired(false);
 		ops.addOption(rv);
 		
-		Option sgt = new Option("sgt", "sgt-var-id", false, "STG Variation ID");
+		Option sgt = new Option("sgt", "sgt-var-id", true, "STG Variation ID");
 		sgt.setRequired(false);
 		ops.addOption(sgt);
 		
-		Option run = new Option("R", "run-id", false, "Rupture Variation ID");
+		Option run = new Option("R", "run-id", true, "Rupture Variation ID");
 		run.setRequired(false);
 		ops.addOption(run);
 		
