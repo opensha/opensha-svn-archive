@@ -13,8 +13,6 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
 import org.opensha.sha.surface.StirlingGriddedSurface;
 
-import sun.text.CompactShortArray.Iterator;
-
 public class NGA_Site_EqkRup_Tests {
 	
 	public NGA_Site_EqkRup_Tests() {
