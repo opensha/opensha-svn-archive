@@ -916,19 +916,19 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		// ERF
 		Option erf = new Option("e", "erf-id", false, "ERF ID");
-		erf.setRequired(true);
+		erf.setRequired(false);
 		ops.addOption(erf);
 		
 		Option rv = new Option("r", "rv-id", false, "Rupture Variation ID");
-		rv.setRequired(true);
+		rv.setRequired(false);
 		ops.addOption(rv);
 		
 		Option sgt = new Option("sgt", "sgt-var-id", false, "STG Variation ID");
-		sgt.setRequired(true);
+		sgt.setRequired(false);
 		ops.addOption(sgt);
 		
 		Option run = new Option("R", "run-id", false, "Rupture Variation ID");
-		run.setRequired(true);
+		run.setRequired(false);
 		ops.addOption(run);
 		
 		Option erfFile = new Option("ef", "erf-file", true, "XML ERF description file for comparison");

@@ -54,6 +54,8 @@ public class Runs2DB {
 		if (where != null && where.length() > 0)
 			sql += " WHERE" + where;
 		
+		sql += " ORDER BY Run_ID desc";
+		
 		System.out.println(sql);
 		
 		ArrayList<Integer> ids = new ArrayList<Integer>();
