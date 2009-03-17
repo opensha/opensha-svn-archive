@@ -447,17 +447,11 @@ NamedObjectAPI, ParameterChangeListener {
 		
 		dipParam.setValue(surface.getAveDip());
 
-		double rupWidth = surface.getSurfaceWidth();
-		if(rupWidth>=1)
-			rupWidthParam.setValue(surface.getSurfaceWidth());
-		else
-			throw new RuntimeException("fix this");
-//			rupWidthParam.setValue(1.0);
-
+		// this means line sources will have zero width
+		rupWidthParam.setValue(surface.getSurfaceWidth());
+		
     	aftershockParam.setValue(false);
 
-
-//		setFaultTypeFromRake(eqkRupture.getAveRake());
 		this.eqkRupture = eqkRupture;
 		setPropagationEffectParams();
 
@@ -1178,7 +1172,7 @@ NamedObjectAPI, ParameterChangeListener {
 			
 			//T2 (Eq. 9) - rewritten 2009-01-29 to be consistent with ES paper
 			double rXtest = rupWidth*Math.cos(Math.toRadians(dip));
-		    if (rX>rXtest || dip==90.0) {
+		    if (rX>rXtest || dip==90.0) {	// if site is beyond the surface projection
 				T2 = 1.0;
 			} else {
 				T2 = 0.5 + rX / (2.0*rXtest);
