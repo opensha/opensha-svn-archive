@@ -14,7 +14,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 
 public class HazardCurve2DB {
 	
-	public static final String TABLE_NAME = "Hazard_Curves_New";
+	public static final String TABLE_NAME = "Hazard_Curves";
 	
 	private DBAccess dbaccess;
 	private Runs2DB runs2db;

@@ -10,7 +10,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	private DBAccess dbaccess;
 	private Runs2DB runs2db;
 	
-	public static final String TABLE_NAME = "PeakAmplitudes_New";
+	public static final String TABLE_NAME = "PeakAmplitudes";
 
 	
 	public PeakAmplitudesFromDB(DBAccess dbaccess){
