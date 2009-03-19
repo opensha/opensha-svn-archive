@@ -39,31 +39,7 @@ public class STEP_mainTest extends TestCase {
 	protected void tearDown() {
 	}
 
-	public ObsEqkRupList _testLoadEvents() {
-		//double strike1=  -1.0;
-		try {
-			//set test event file path
-			//stepmain.setEventsFilePath(cubeFilePath_TEST);			
-			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
-			assertTrue(eqkRupList.size() > 0);
-			//assertTrue("Should throw Exception with strike : " + strike1,false);
-			ListIterator <ObsEqkRupture> newIt = eqkRupList.listIterator ();
-			 ObsEqkRupture newEvent;
-			 while (newIt.hasNext()) {
-			      newEvent = (ObsEqkRupture) newIt.next();
-			      //double newMag = newEvent.getMag();
-			      assertTrue(newEvent.getMag() >= 3);
-			      logger.info("newEvent " + newEvent.getInfo());
-			 }
-			 return eqkRupList;
-		}
-		catch(Exception e)
-		{
-			// System.err.println("Exception thrown as Expected:  "+e);
-			e.printStackTrace();
-		}
-		return null;
-	}
+	
 	
 	/**
 	 * test all the load process functions as in the 
@@ -102,6 +78,42 @@ public class STEP_mainTest extends TestCase {
 		}
 	}
 	
+	/**
+	 * load new events
+	 * this can be tested separately
+	 * @return
+	 */
+	public ObsEqkRupList _testLoadEvents() {
+		//double strike1=  -1.0;
+		try {
+			//set test event file path
+			//stepmain.setEventsFilePath(cubeFilePath_TEST);			
+			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
+			assertTrue(eqkRupList.size() > 0);
+			//assertTrue("Should throw Exception with strike : " + strike1,false);
+			ListIterator <ObsEqkRupture> newIt = eqkRupList.listIterator ();
+			 ObsEqkRupture newEvent;
+			 while (newIt.hasNext()) {
+			      newEvent = (ObsEqkRupture) newIt.next();
+			      //double newMag = newEvent.getMag();
+			      assertTrue(newEvent.getMag() >= 3);
+			      logger.info("newEvent " + newEvent.getInfo());
+			 }
+			 return eqkRupList;
+		}
+		catch(Exception e)
+		{
+			// System.err.println("Exception thrown as Expected:  "+e);
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * process aftershocks
+	 * this need be run after events loaded
+	 * @return
+	 */
 	public void _testProcessAfterShocks(ObsEqkRupList newObsEqkRuptureList) {
 		//double strike1=  -1.0;
 		try {
@@ -123,7 +135,11 @@ public class STEP_mainTest extends TestCase {
 		}
 	}
 	
-	
+	/**
+	 * process broadscasting
+	 * this need be run after eq events, bgGrid loaded, and aftershock processed
+	 * @return
+	 */
 	private void _testProcessForcast(ArrayList<HypoMagFreqDistAtLoc> hypList) {
 		//double strike1=  -1.0;
 		try {
