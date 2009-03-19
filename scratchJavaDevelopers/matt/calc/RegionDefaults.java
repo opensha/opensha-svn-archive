@@ -21,15 +21,24 @@ public class RegionDefaults {
   /**
    * This class contains many of the variables that are specific
    * to a region.  Default values are set.
+   * 
+   * 
    */
-
-  public static String cubeFilePath = "/home/matthew/mProjects/TestJavaCode/merge.nts";
-  public static String outputHazardPath = "/home/matthew/mProjects/TestJavaCode/STEP_Probs.txt";
-  public static String backgroundHazardPath = "/home/matthew/mProjects/TestJavaCode/STEP_backGround.txt";
-  public static String STEP_AftershockObjectFile = "/home/matthew/mProjects/TestJavaCode/STEP_AftershockObj";
-  public static String outputAftershockRatePath = "/home/matthew/mProjects/TestJavaCode/TimeDepRates.txt";
+  
+  
+  public static String TEST_Path = "data/mattg_test";
+  
+  //input files
+  public static String cubeFilePath =  TEST_Path + "/merge.nts";
+  public static String backgroundHazardPath = TEST_Path +  "/STEP_backGround.txt";
+  //BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+  
+  //output files
+  public static String outputHazardPath = TEST_Path + "/STEP_Probs.txt"; 
+  public static String STEP_AftershockObjectFile = TEST_Path +  "/STEP_AftershockObj";
+  public static String outputAftershockRatePath =  TEST_Path + "/TimeDepRates.txt";
   //this is for Damage States
-  public static String outputHazCurvePath = "/home/matthew/mProjects/TestJavaCode/HazCurve_Probs.txt";
+  public static String outputHazCurvePath = TEST_Path + "/HazCurve_Probs.txt";
   
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;
@@ -65,8 +74,6 @@ public class RegionDefaults {
   // the minimum mag to be used when comparing the cummulative of the 
   // background to that of an individual sequence
   public static int minCompareMag = 0;
-
-
 
   public static final double RAKE=0.0;
   public static final double DIP=90.0;
