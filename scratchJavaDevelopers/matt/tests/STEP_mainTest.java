@@ -179,7 +179,7 @@ public class STEP_mainTest extends TestCase {
 			  //3. test locations equal
 			  assertEquals(hyploc, bgLoc);	
 			  //4.test mag freq value
-			  double maxFreqVal = _testHypoMagFreqDistVal(hypoMagDistAtLoc );
+			  double maxFreqVal = getMaxHypoMagFreqDistVal(hypoMagDistAtLoc );
 			  if(init){//at init state all  freq value is 0
 				  assertTrue(maxFreqVal == 0d);
 			  }else{//value no longer 0, as some events added
@@ -189,7 +189,7 @@ public class STEP_mainTest extends TestCase {
 		
 	}
 
-	private double _testHypoMagFreqDistVal(HypoMagFreqDistAtLoc hypoMagDistAtLoc ) {
+	private double getMaxHypoMagFreqDistVal(HypoMagFreqDistAtLoc hypoMagDistAtLoc ) {
 		IncrementalMagFreqDist[] magFreqDists = hypoMagDistAtLoc.getMagFreqDist();
 		double maxVal = 0;
 		  for(IncrementalMagFreqDist magFreqDist:magFreqDists){
