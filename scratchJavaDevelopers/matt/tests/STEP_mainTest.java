@@ -42,6 +42,7 @@ public class STEP_mainTest extends TestCase {
 	public ObsEqkRupList _testLoadEvents() {
 		//double strike1=  -1.0;
 		try {
+			//set test event file path
 			//stepmain.setEventsFilePath(cubeFilePath_TEST);			
 			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
 			assertTrue(eqkRupList.size() > 0);
