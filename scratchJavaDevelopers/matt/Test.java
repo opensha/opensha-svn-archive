@@ -28,7 +28,7 @@ public class Test {
       while(st.hasMoreTokens()){
       backGroundRatesLine[i++] = Double.parseDouble(st.nextToken().trim());
           }
-    backGroundRates.add(backGroundRatesLine);
+       backGroundRates.add(backGroundRatesLine);
     }
     }
     catch(Exception e){e.printStackTrace();
@@ -37,6 +37,5 @@ public class Test {
   public static void main(String[] args) {
     Test test1 = new Test();
   }
-
 
 }
