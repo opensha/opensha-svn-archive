@@ -48,7 +48,7 @@ public class STEP_main {
 
 	private static RegionDefaults rDefs;
 	private static GregorianCalendar currentTime;
-	private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
+	private final static String BACKGROUND_RATES_FILE_NAME = RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt";
 	private BackGroundRatesGrid bgGrid = null;
 	private ArrayList<PointEqkSource> sourceList;
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
@@ -61,7 +61,7 @@ public class STEP_main {
 	 * load: ActiveSTEP_AIC_AftershockForecastList
 	 * each object is a STEP_AftershockHypoMagFreqDistForecast
 	 */
-	private static ArrayList STEP_AftershockForecastList =  new ArrayList();
+	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
 
 
 	public STEP_main() {
@@ -88,7 +88,7 @@ public class STEP_main {
 	}
 
 
-	public static ArrayList getSTEP_AftershockForecastList(){
+	public static ArrayList <STEP_CombineForecastModels> getSTEP_AftershockForecastList(){
 		return STEP_AftershockForecastList;
 	}
 
@@ -175,9 +175,8 @@ public class STEP_main {
 		//System.out.println("Number of Aftershock Models ="+numAftershockModels);
 		STEP_CombineForecastModels forecastModel;
 
-		synchronized(STEP_AftershockForecastList) {//lock STEP_AftershockForecastList
+		synchronized(bgGrid) {//lock bgGrid
 			for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
-
 				forecastModel =
 					(STEP_CombineForecastModels)STEP_AftershockForecastList.get(modelLoop);
 
@@ -360,7 +359,6 @@ public class STEP_main {
 					++numMainshocks;
 				}
 			}//end of loop1 -- new events
-
 		}
 		return numMainshocks;
 
@@ -446,22 +444,28 @@ public class STEP_main {
 
 	private void createStepSources(ArrayList<HypoMagFreqDistAtLoc> hypoMagDist){
 		System.out.println("Creating STEP sources");
-		sourceList = new ArrayList<PointEqkSource>();
+		if(sourceList == null){
+			sourceList = new ArrayList<PointEqkSource>();
+		}else{
+			sourceList.clear();
+		}
 		int size = hypoMagDist.size();
 		System.out.println("NumSources in hypList = "+size);
-		for(int i=0;i<size;++i){
-			HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
-			Location loc = hypoLocMagDist.getLocation();
-			IncrementalMagFreqDist magDist = hypoLocMagDist.getFirstMagFreqDist();
-			double rate = magDist.getY(0);
-			if(rate ==0)
-				continue;
-			else if(rate !=0){
-				//System.out.println("Writing out sources with rates not zero");
-				PointEqkSource source = new PointEqkSource(loc,magDist,
-						RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
-						RegionDefaults.DIP,RegionDefaults.minForecastMag);
-				sourceList.add(source);     
+		synchronized(sourceList){
+			for(int i=0;i<size;++i){
+				HypoMagFreqDistAtLoc hypoLocMagDist = hypoMagDist.get(i);
+				Location loc = hypoLocMagDist.getLocation();
+				IncrementalMagFreqDist magDist = hypoLocMagDist.getFirstMagFreqDist();
+				double rate = magDist.getY(0);
+				if(rate ==0)
+					continue;
+				else if(rate !=0){
+					//System.out.println("Writing out sources with rates not zero");
+					PointEqkSource source = new PointEqkSource(loc,magDist,
+							RegionDefaults.forecastLengthDays,RegionDefaults.RAKE,
+							RegionDefaults.DIP,RegionDefaults.minForecastMag);
+					sourceList.add(source);     
+				}
 			}
 		}
 	}

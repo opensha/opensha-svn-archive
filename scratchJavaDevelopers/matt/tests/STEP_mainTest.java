@@ -1,5 +1,6 @@
 package scratchJavaDevelopers.matt.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,8 +30,10 @@ public class STEP_mainTest extends TestCase {
 	
 	private static Logger logger = Logger.getLogger(STEP_mainTest.class);
 	private STEP_main stepmain = new STEP_main();
-	public STEP_mainTest() {
+	public STEP_mainTest() {		
 		super();
+		File datadir = new File(RegionDefaults.TEST_Path);
+		logger.info("data dir  "  + datadir.getAbsolutePath() );
 	}
 
 	protected void setUp() {
@@ -44,7 +47,7 @@ public class STEP_mainTest extends TestCase {
 	/**
 	 * test all the load process functions as in the 
 	 * calc_STEP method in the STEP_main class
-	 * as results of some methods are used in following method, it is imporssible
+	 * as results of some methods are used in following method, it is impossible
 	 * to do separate test for each method in STEP_main
 	 */
 	public void testCalc_STEP() {
@@ -131,7 +134,7 @@ public class STEP_mainTest extends TestCase {
 		catch(Exception e)
 		{
 			// System.err.println("Exception thrown as Expected:  "+e);
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 	
@@ -142,17 +145,16 @@ public class STEP_mainTest extends TestCase {
 	 */
 	private void _testProcessForcast(ArrayList<HypoMagFreqDistAtLoc> hypList) {
 		//double strike1=  -1.0;
-		try {
+	 try {
 			//assertTrue(true);
-			stepmain.processForcasts(hypList );
-			
+			stepmain.processForcasts(hypList );			
+			}
+			catch(Exception e)
+			{
+				// System.err.println("Exception thrown as Expected:  "+e);
+				e.printStackTrace();
+			}
 		}
-		catch(Exception e)
-		{
-			// System.err.println("Exception thrown as Expected:  "+e);
-			e.printStackTrace();
-		}
-	}
 	
 
 	public void _testHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc> hypList, boolean init) {

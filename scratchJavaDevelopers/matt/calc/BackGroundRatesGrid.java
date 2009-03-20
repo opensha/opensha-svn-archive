@@ -1030,6 +1030,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	      try {
 	       backgroundRateFileLines = FileUtils.loadJarFile( BACKGROUND_RATES_FILE_NAME );
 	      } catch(Exception e) {
+	    	 
 	        throw new RuntimeException("Background file could not be loaded");
 	      }
 	      backgroundRatesFileAlreadyRead = true;
