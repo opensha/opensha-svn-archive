@@ -504,7 +504,7 @@ public abstract class AttenuationRelationship
 	public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
 	public final static String DEPTH_1pt0_UNITS = "m";
 	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
-	public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
+	public final static Double DEPTH_1pt0_DEFAULT = new Double("100.0");
 	protected final static Double DEPTH_1pt0_MIN = new Double(0.0);
 	protected final static Double DEPTH_1pt0_MAX = new Double(30000.0);
 	// warning values set in subclasses
