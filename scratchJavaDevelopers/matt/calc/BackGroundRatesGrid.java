@@ -1,9 +1,11 @@
 package scratchJavaDevelopers.matt.calc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
 import org.opensha.param.DoubleParameter;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
@@ -13,16 +15,20 @@ import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.magdist.*;
 import org.opensha.util.FileUtils;
 
+import scratchJavaDevelopers.matt.tests.STEP_mainTest;
+
 public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
+	private static Logger logger = Logger.getLogger(BackGroundRatesGrid.class);
 	
 	private double minForecastMag, maxForecastMag, deltaForecastMag;
+	private double minMagInSourceFile = 2.0;
 	private double[] seqIndAtNode;
 	// booleans to help decide if sources need to be made
 	private boolean deltaSourcesAlreadyMade = false;
 	private boolean backgroundSourcesAlreadyMade = false;
 	private boolean backgroundRatesFileAlreadyRead = false;
 	private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
-
+	private String bgGridFilename = BACKGROUND_RATES_FILE_NAME;
 
 	  // misc values
 	  private static final double RAKE=0.0;
@@ -34,19 +40,52 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	private ArrayList hypoMagFreqDist;
 	private ArrayList backGroundSourceList;
 	
-	
-	public BackGroundRatesGrid(String fileName){
-		this.loadBackGroundGridFromFile(fileName);
-		createBackGroundRegion();
-		//region must be initialised before this can be done
+	 public BackGroundRatesGrid()
+	    {
+	       
+	    }
+
+	    public BackGroundRatesGrid(double minForecastMag, double maxForecastMag, double deltaForecastMag)
+	    {
+	        this.minForecastMag = minForecastMag;
+	        this.maxForecastMag = maxForecastMag;
+	        this.deltaForecastMag = deltaForecastMag;
+	    }
+
+	   
+
+	    public void initialize()
+	    {
+	        loadBackGroundGridFromFile(bgGridFilename);
+	        createBackGroundRegion();
+	        initSeqIndices();
+	    }
+
+	    /**
+	     * //region must be initialised before this can be done
 		// set to a dummy value representing the background so that 
 		// it can be changed to a sequence index if required later
 		// this indicates the sequence that contributes rates at this
 		// index.  -1 means no sequence does.
-		seqIndAtNode = new double[this.region.getNumGridLocs()];
-		java.util.Arrays.fill(seqIndAtNode,-1);
-		
-	}
+	     */
+	    public void initSeqIndices()
+	    {
+	        if(seqIndAtNode == null)
+	            seqIndAtNode = new double[region.getNumGridLocs()];
+	        logger.info((new StringBuilder()).append("seqIndAtNode ").append(seqIndAtNode.length).toString());
+	        Arrays.fill(seqIndAtNode, -1D);
+	    }
+
+	    public void setBgGridFilename(String bgGridFilename)
+	    {
+	        this.bgGridFilename = bgGridFilename;
+	    }
+	    
+		public BackGroundRatesGrid(String fileName){		
+			 setBgGridFilename(fileName);
+		      initialize();
+			
+		}
 	
 	/**
 	 * Setting the Relm Region to the region for the STEP code.
@@ -1046,7 +1085,8 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	    ListIterator it = backgroundRateFileLines.listIterator();
 
 	    StringTokenizer st;
-
+        
+	    int forecastMagStart = getForecastMagStart();
 	    while( it.hasNext() ) {
 
 	      // get next line
@@ -1066,7 +1106,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	    		  maxForecastMag,numForecastMags);
 
 	      // skip the mag=2, 2.1, ... 3.9
-	      for(int j=0; j<20; j++) st.nextToken();
+	      for(int j=0; j < forecastMagStart; j++) st.nextToken();
 
 	      for(int i=0;i<numForecastMags;i++) {
 	        double rate = Double.parseDouble(st.nextToken());
@@ -1077,6 +1117,15 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	    }
 	    backgroundSourcesAlreadyMade = true;
 	}
+	
+	public int getForecastMagStart()
+	    {
+	        double diff = minForecastMag - minMagInSourceFile;
+	        if(diff <= 0.0D)
+	            return 0;
+	        else
+	            return (int)Math.round(diff / deltaForecastMag);
+	    }
 	
 	public void setBackGroundRegion(EvenlyGriddedGeographicRegionAPI backGroundRegion){
 		this.region = backGroundRegion;
@@ -1152,5 +1201,27 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 		//hypoMagFreqDist.set(ithLocation, locDist);
 		hypoMagFreqDist.set(ithLocation, newFreqDistAtLoc);
 	}
+
+	public double[] getSeqIndAtNode() {
+		return seqIndAtNode;
+	}
+
+	public boolean isBackgroundSourcesAlreadyMade() {
+		return backgroundSourcesAlreadyMade;
+	}
+
+	public boolean isBackgroundRatesFileAlreadyRead() {
+		return backgroundRatesFileAlreadyRead;
+	}
+
+	public ArrayList getBackGroundSourceList() {
+		return backGroundSourceList;
+	}
+
+	public ArrayList getHypoMagFreqDist() {
+		return hypoMagFreqDist;
+	}
+	
+	
 
 }
