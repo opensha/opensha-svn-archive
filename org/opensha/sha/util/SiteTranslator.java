@@ -435,7 +435,7 @@ implements java.io.Serializable {
 	public boolean setDepthTo1p0Param(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// this will get the first (highest priority) data that works
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
 				Double val = (Double)data.getValue();
 				if (Double.isNaN(val)) {
 					continue;
