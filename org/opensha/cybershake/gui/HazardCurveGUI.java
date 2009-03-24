@@ -70,11 +70,13 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 	private static final String CB_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cb2008.xml";
 	private static final String BA_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/ba2008.xml";
 	private static final String AS_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/as2008.xml";
+	private static final String CY_2008_ATTEN_REL_FILE = "org/opensha/cybershake/conf/cy2008.xml";
 	
 	private EqkRupForecast erf = null;
 	private AttenuationRelationship cb2008 = null;
 	private AttenuationRelationship ba2008 = null;
 	private AttenuationRelationship as2008 = null;
+	private AttenuationRelationship cy2008 = null;
 
 	public HazardCurveGUI(DBAccess db) {
 		super("Hazard Curves");
@@ -234,6 +236,10 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 					as2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + AS_2008_ATTEN_REL_FILE));
 				}
 				plotter.addAttenuationRelationshipComparision(as2008);
+				if (cy2008 == null) {
+					cy2008 = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(this.getClass().getResource("/" + CY_2008_ATTEN_REL_FILE));
+				}
+				plotter.addAttenuationRelationshipComparision(cy2008);
 			} catch (DocumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

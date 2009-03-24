@@ -116,7 +116,21 @@ public class HazardCurveFetcher {
 		erfIDs.add(35);
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, erfIDs, 3, 5, 21);
 		
-		fetcher.saveAllCurvesToDir(outDir);
+//		fetcher.saveAllCurvesToDir(outDir);
+		
+		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		for (CybershakeSite site : sites) {
+			String str = site.lon + ", " + site.lat + ", " + site.short_name + ", ";
+			if (site.type_id == CybershakeSite.TYPE_POI)
+				str += "Point of Interest";
+			else if (site.type_id == CybershakeSite.TYPE_BROADBAND_STATION)
+				str += "Seismic Station";
+			else if (site.type_id == CybershakeSite.TYPE_PRECARIOUS_ROCK)
+				str += "Precarious Rock";
+			else if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
+				continue;
+			System.out.println(str);
+		}
 		
 		System.exit(0);
 	}

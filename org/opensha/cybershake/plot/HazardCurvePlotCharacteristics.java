@@ -106,7 +106,7 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	}
 	
 	public HazardCurvePlotCharacteristics(double xMin, double xMax, double yMin, double yMax, boolean xLog, boolean yLog) {
-		this.attenRelColors = this.getDefaultColors();
+		this.attenRelColors = getDefaultColors();
 		
 		this.customAxis = true;
 		
@@ -134,8 +134,8 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 		attenRelColors.add(Color.blue);
 		attenRelColors.add(Color.green);
 		attenRelColors.add(Color.orange);
-		attenRelColors.add(Color.YELLOW);
-		attenRelColors.add(Color.RED);
+		attenRelColors.add(Color.CYAN);
+		attenRelColors.add(Color.MAGENTA);
 		
 		return attenRelColors;
 	}

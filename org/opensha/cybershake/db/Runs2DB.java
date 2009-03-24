@@ -231,17 +231,20 @@ public class Runs2DB {
 		Runs2DB runs2db = new Runs2DB(Cybershake_OpenSHA_DBApplication.db);
 		ArrayList<CybershakeRun> runs = runs2db.getRuns();
 		
+		SiteInfo2DB sites2db = new SiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+		
+		String str = null;
 		for (CybershakeRun run : runs) {
-			System.out.println(run);
+			if (run.getERFID() == 35) {
+				CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
+				if (str == null)
+					str = "";
+				else
+					str += ", ";
+				str += site.short_name;
+			}
 		}
-		
-		ArrayList<Integer> asdf = new ArrayList<Integer>();
-		asdf.add(3);
-		asdf.add(1);
-		asdf.add(6);
-		System.out.println(getRunsWhereStatement(asdf));
-		
-		System.exit(0);
+		System.out.println(str);
 	}
 
 }

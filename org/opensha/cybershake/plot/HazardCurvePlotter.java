@@ -5,6 +5,7 @@ import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -76,6 +77,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	public static final String TYPE_PNG = "png";
 	public static final String TYPE_JPG = "jpg";
 	public static final String TYPE_JPEG = "jpeg";
+	public static final String TYPE_TXT = "txt";
 	
 	public static final String TYPE_DEFAULT = TYPE_PDF;
 	
@@ -504,7 +506,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			String outFile = outDir + outFileName;
 			if (calcOnly)
 				continue;
-			this.plotCurve(curveID, run);
+			boolean textOnly = types.size() == 1 && types.get(0) == TYPE_TXT;
+			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run, textOnly);
 			for (String type : types) {
 				type = type.toLowerCase();
 				
@@ -517,6 +520,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 						atLeastOne = true;
 					} else if (type.equals(TYPE_JPG) || type.equals(TYPE_JPEG)) {
 						plotCurvesToJPG(outFile + ".jpg");
+						atLeastOne = true;
+					} else if (type.equals(TYPE_TXT)) {
+						plotCurvesToTXT(outFile + ".txt", curves);
 						atLeastOne = true;
 					} else
 						System.err.println("Unknown plotting type: " + type + "...Skipping!");
@@ -542,7 +548,14 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		this.plotCurve(curveID, run);
 	}
 	
-	public void plotCurve(int curveID, CybershakeRun run) {
+	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run) {
+		return plotCurve(curveID, run, false);
+	}
+	
+	ArrayList<String> curveNames = new ArrayList<String>();
+	
+	public ArrayList<DiscretizedFuncAPI> plotCurve(int curveID, CybershakeRun run, boolean textOnly) {
+		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
 		
@@ -565,19 +578,23 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		
 		ArrayList<DiscretizedFuncAPI> curves = new ArrayList<DiscretizedFuncAPI>();
 		curves.add(curve);
+		curveNames.add("CyberShake Hazard Curve. Site: " + csSite.toString());
 		
 		if (erf != null && attenRels.size() > 0) {
 			System.out.println("Plotting comparisons!");
-			this.plotComparisions(curves, im, curveID, chars);
+			curveNames.addAll(this.plotComparisions(curves, im, curveID, chars));
 		}
 		
 		curve.setInfo(this.getCyberShakeCurveInfo(csSite, run, im));
 		
 		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
 		
-		System.out.println("Plotting Curve!");
-		
-		plotCurvesToGraphPanel(chars, im, curves, title);
+		if (!textOnly) {
+			System.out.println("Plotting Curve!");
+			
+			plotCurvesToGraphPanel(chars, im, curves, title);
+		}
+		return curves;
 	}
 
 	private void plotCurvesToPDF(String outFile) throws IOException {
@@ -593,6 +610,35 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 	private void plotCurvesToJPG(String outFile) throws IOException {
 		System.out.println("Saving JPG to: " + outFile);
 		ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
+	}
+	
+	private void plotCurvesToTXT(String outFile, ArrayList<DiscretizedFuncAPI> curves) throws IOException {
+		System.out.println("Saving TXT to: " + outFile);
+		
+		boolean useNames = false;
+		if (curves.size() == curveNames.size())
+			useNames = true;
+		
+		FileWriter fw = new FileWriter(outFile);
+		
+		fw.write("# Curves: " + curves.size() + "\n");
+		
+		for (int i=0; i<curves.size(); i++) {
+			DiscretizedFuncAPI curve = curves.get(i);
+			
+			String header = "# Name: ";
+			if (useNames)
+				header += curveNames.get(i);
+			else
+				header += "Curve " + i;
+			
+			fw.write(header + "\n");
+			
+			for (int j=0; j<curve.getNum(); j++) {
+				fw.write(curve.getX(j) + "\t" + curve.getY(j) + "\n");
+			}
+		}
+		fw.close();
 	}
 
 	private void plotCurvesToGraphPanel( ArrayList<PlotCurveCharacterstics> chars, CybershakeIM im,
@@ -623,7 +669,8 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		return (periodInt / 100) + "";
 	}
 	
-	private void plotComparisions(ArrayList<DiscretizedFuncAPI> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
+	private ArrayList<String> plotComparisions(ArrayList<DiscretizedFuncAPI> curves, CybershakeIM im, int curveID, ArrayList<PlotCurveCharacterstics> chars) {
+		ArrayList<String> names = new ArrayList<String>();
 		System.out.println("Setting ERF Params");
 		this.setERFParams();
 		
@@ -649,11 +696,13 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
 				System.out.println("done!");
 				curves.add(curve);
+				names.add(attenRel.getName());
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 			i++;
 		}
+		return names;
 	}
 	
 	public String getCyberShakeCurveInfo(CybershakeSite site, CybershakeRun run, CybershakeIM im) {
@@ -962,7 +1011,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option output = new Option("o", "output-dir", true, "Output directory");
 		ops.addOption(output);
 		
-		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, and jpg. Multiple types can be " + 
+		Option type = new Option("t", "type", true, "Plot save type. Options are png, pdf, jpg, and txt. Multiple types can be " + 
 				"comma separated (default is " + TYPE_DEFAULT + ")");
 		ops.addOption(type);
 		
