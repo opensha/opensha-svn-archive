@@ -108,9 +108,9 @@ public class CY_2008_test extends NGATest {
 			aftershockParam.setValue(false);
 		
 		if (fileName.contains("SIGMEAS"))
-			cy_08.getParameter(CY_2008_AttenRel.VS_FLAG_NAME).setValue(AttenuationRelationship.VS_FLAG_M);
+			cy_08.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).setValue(AttenuationRelationship.VS30_TYPE_MEASURED);
 		else
-			cy_08.getParameter(CY_2008_AttenRel.VS_FLAG_NAME).setValue(AttenuationRelationship.VS_FLAG_I);
+			cy_08.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).setValue(AttenuationRelationship.VS30_TYPE_INFERRED);
 		
 		try {
 			ArrayList<String> testDataLines = FileUtils.loadFile(file.getAbsolutePath());
@@ -327,7 +327,7 @@ public class CY_2008_test extends NGATest {
 //		str += "\nDDWidth = " + attenRel.getParameter(CY_2008_AttenRel.RUP_WIDTH_NAME).getValue();
 		str += "\nzTor = " + attenRel.getParameter(CY_2008_AttenRel.RUP_TOP_NAME).getValue();
 		str += "\tVs30 = " + attenRel.getParameter(CY_2008_AttenRel.VS30_NAME).getValue();
-		str += "\tVs30 flag = " + attenRel.getParameter(CY_2008_AttenRel.VS_FLAG_NAME).getValue();
+		str += "\tVs30 flag = " + attenRel.getParameter(CY_2008_AttenRel.VS30_TYPE_NAME).getValue();
 		str += "\nDepthto1km/sec = " + attenRel.getParameter(CY_2008_AttenRel.DEPTH_1pt0_NAME).getValue();
 		str += "\tHanging Wall Flag: = " + attenRel.getParameter(CY_2008_AttenRel.HANGING_WALL_FLAG_NAME).getValue();
 		str += "\n";
