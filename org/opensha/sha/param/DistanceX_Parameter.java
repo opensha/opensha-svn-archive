@@ -95,9 +95,9 @@ public class DistanceX_Parameter
 
     		EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 
-    		// not sure what to do if point source, so I'll set value as NaN for now
+    		// set to zero if it's a point source
     		if(rupSurf.getNumCols() == 1) {
-    			this.setValue(Double.NaN);
+    			this.setValue(0.0);
     		}
     		else {
 
@@ -117,7 +117,7 @@ public class DistanceX_Parameter
     			// get point projected from last trace point in ave trace direction
     			dir.setAzimuth(dir.getAzimuth()+180);  // flip to ave trace dir
     			Location projectedLoc2 = RelativeLocation.getLocation(lastTraceLoc, dir);
-
+//System.out.println("HERE21 "+projectedLoc1+"\t"+projectedLoc2);
     			// point down dip by adding 90 degrees to the azimuth
     			dir.setAzimuth(dir.getAzimuth()+90);  // now point down dip
 

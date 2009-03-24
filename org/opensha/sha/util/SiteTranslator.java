@@ -179,8 +179,8 @@ implements java.io.Serializable {
 		// params common to Vs30 and Wills Classes
 		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS30_NAME);
-		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS_FLAG_NAME);
-		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS_FLAG_NAME);
+		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_TYPE_NAME);
+		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS30_TYPE_NAME);
 		map.addMapping(SiteDataAPI.TYPE_VS30,			AS_1997_AttenRel.SITE_TYPE_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AS_1997_AttenRel.SITE_TYPE_NAME);
 		map.addMapping(SiteDataAPI.TYPE_VS30,			SadighEtAl_1997_AttenRel.SITE_TYPE_NAME);
@@ -234,7 +234,7 @@ implements java.io.Serializable {
 			// VS 30/Wills Site Class
 			if (paramName.equals(AttenuationRelationship.VS30_NAME)) {
 				return setVS30Param(param, datas, debug);
-			} else if (paramName.equals(AttenuationRelationship.VS_FLAG_NAME)) {
+			} else if (paramName.equals(AttenuationRelationship.VS30_TYPE_NAME)) {
 				return setVS30FlagParam(param, datas, debug);
 			} else if (paramName.equals(AS_1997_AttenRel.SITE_TYPE_NAME)) {
 				return setAS_SiteType(param, datas, debug);
@@ -384,11 +384,11 @@ implements java.io.Serializable {
 			if (isVS30ValueValid(vsValue)) {
 				if (data.getFlag().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
 					if (debug) System.out.println("setSiteParamsForData: +++ Setting VS measured");
-					param.setValue(AttenuationRelationship.VS_FLAG_M); // set it to measured
+					param.setValue(AttenuationRelationship.VS30_TYPE_MEASURED); // set it to measured
 					return true;
 				} else {
 					if (debug) System.out.println("setSiteParamsForData: +++ Setting VS inferred");
-					param.setValue(AttenuationRelationship.VS_FLAG_I); // set it to inferred
+					param.setValue(AttenuationRelationship.VS30_TYPE_INFERRED); // set it to inferred
 					return true;
 				}
 			}
