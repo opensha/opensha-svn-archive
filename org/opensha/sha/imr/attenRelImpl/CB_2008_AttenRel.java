@@ -19,7 +19,10 @@ import org.opensha.util.FileUtils;
 /**
  * <b>Title:</b> CB_2008_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship published by Campbell & Bozorgnia (2008, Earthquake Spectra, pre-print) <p>
+ * <b>Description:</b> This implements the Attenuation Relationship published by Campbell & Bozorgnia 
+ * (2008, "NGA Ground Motion Model for the Geometric Mean Horizontal Component of PGA, PGV, PGD and 
+ * 5% Damped Linear Elastic Response Spectra for Periods Ranging from 0.01 to 10 s", 
+ * Earthquake Spectra, 24(1) , pp. 139-171) <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -36,20 +39,21 @@ import org.opensha.util.FileUtils;
  * <LI>dipParam - rupture surface dip
  * <LI>distanceRupParam - closest distance to surface projection of fault
  * <li>distRupMinusJB_OverRupParam - used as a proxy for hanging wall effect
- * <LI>vs30Param 
- * <li>depthTo2pt5kmPerSecParam
+ * <LI>vs30Param - average Vs over top 30 meters
+ * <li>depthTo2pt5kmPerSecParam - depth to where Vs30 equals 2.5 km/sec
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
- * <li>
  * </UL></p>
  * <p>
  * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
  * should not be held constant when distanceRupParameter is changed (e.g., in the 
- * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec SA should 
- * not be less than that of PGA (the latter being given if so).
+ * AttenuationRelationshipApplet).  This includes the stipulation that the mean of 0.2-sec  (or less)  SA 
+ * should not be less than that of PGA (the latter being given if so). If depthTo2pt5kmPerSec is null 
+ * (unknown), it is set as 2 km if vs30 <= 2500, and zero otherwise.
  * <p>
- * Verification :
- * Need to add Junit tests.
+ * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
+ * implemented in the JUnit test class CB_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
+ * parameters are set properly when Site and EqkRupture objects are passed in.
  * </p>
  *
  * @author     Ned Field

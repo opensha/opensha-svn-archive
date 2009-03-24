@@ -397,6 +397,19 @@ public abstract class AttenuationRelationship
   protected final static Double RUP_TOP_MIN = new Double(0);
   protected final static Double RUP_TOP_MAX = new Double(30);
   
+
+	/**
+	 * Down-dip width of fault rupture param
+	 */
+	protected WarningDoubleParameter rupWidthParam;
+	public final static String RUP_WIDTH_NAME = "Down-Dip Width (km)";
+	public final static String RUP_WIDTH_UNITS = "km";
+	public final static String RUP_WIDTH_INFO = "Fault down-dip rupture width (km).";
+	public final static Double RUP_WIDTH_MIN = new Double(0.1);
+	public final static Double RUP_WIDTH_MAX = new Double(100.0);
+	public final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
+
+  
   /**
    * Hanging wall parameter, indicates whether site is on the hanging wall
    */
@@ -404,6 +417,20 @@ public abstract class AttenuationRelationship
   public final static String HANGING_WALL_FLAG_NAME = "Site on Hanging Wall";
   public final static String HANGING_WALL_FLAG_INFO = "Indicates whether the site is on the hanging wall";
   public final static Boolean HANGING_WALL_FLAG_DEFAULT = false;
+
+  
+	/**
+	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
+	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
+	 * (due to inefficiencies)
+	 */
+  protected DoubleParameter distRupMinusDistX_OverRupParam = null;
+	public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
+	public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
+	public final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
+	public final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
+	public final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
+
 
 
   /**
@@ -443,12 +470,12 @@ public abstract class AttenuationRelationship
   /**
    *  Vs flag Parameter - indicates whether vs was measured or inferred/estimated
    */
-	protected StringParameter vsFlagParam;
-	public final static String VS_FLAG_NAME = "Flag for Vs30 value.";
-	public final static String VS_FLAG_INFO = "Select how Vs30 was obtained.";
-	public final static String VS_FLAG_M = "Measured";
-	public final static String VS_FLAG_I = "Inferred";
-	public final static String VS_FLAG_DEFAULT = VS_FLAG_I;
+	protected StringParameter vs30_TypeParam;
+	public final static String VS30_TYPE_NAME = "Vs30 Type";
+	public final static String VS30_TYPE_INFO = "Indicates how Vs30 was obtained";
+	public final static String VS30_TYPE_MEASURED = "Measured";
+	public final static String VS30_TYPE_INFERRED = "Inferred";
+	public final static String VS30_TYPE_DEFAULT = VS30_TYPE_INFERRED;
 
 
 
@@ -474,7 +501,7 @@ public abstract class AttenuationRelationship
 	 * shear-wave velocity = 1.0 km/sec ("Z1.0 (m)" in PEER's 2008 NGA flat file);
 	 */
 	protected WarningDoubleParameter depthTo1pt0kmPerSecParam;
-	public final static String DEPTH_1pt0_NAME = "Depth to Vs = 1.0 km/sec";
+	public final static String DEPTH_1pt0_NAME = "Depth 1.0 km/sec";
 	public final static String DEPTH_1pt0_UNITS = "m";
 	public final static String DEPTH_1pt0_INFO = "The depth to where shear-wave velocity = 1.0 km/sec";
 	public final static Double DEPTH_1pt0_DEFAULT = new Double("1000.0");
@@ -1092,12 +1119,12 @@ public abstract class AttenuationRelationship
     vs30Param.setInfo(VS30_INFO);
     
 	StringConstraint constraintVS = new StringConstraint();
-	constraintVS.addString(VS_FLAG_M);
-	constraintVS.addString(VS_FLAG_I);
+	constraintVS.addString(VS30_TYPE_MEASURED);
+	constraintVS.addString(VS30_TYPE_INFERRED);
 	constraintVS.setNonEditable();
-	vsFlagParam = new StringParameter(VS_FLAG_NAME, constraintVS, null);
-	vsFlagParam.setInfo(VS_FLAG_INFO);
-	vsFlagParam.setNonEditable();
+	vs30_TypeParam = new StringParameter(VS30_TYPE_NAME, constraintVS, null);
+	vs30_TypeParam.setInfo(VS30_TYPE_INFO);
+	vs30_TypeParam.setNonEditable();
 
     // create the depth to 2.5 shear-wave velocity parameter
     DoubleConstraint c = new DoubleConstraint(DEPTH_2pt5_MIN, DEPTH_2pt5_MAX);

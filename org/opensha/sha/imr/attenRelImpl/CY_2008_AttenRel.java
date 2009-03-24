@@ -54,9 +54,10 @@ import org.opensha.sha.surface.*;
  * <p>
  * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation (1).
  * <p>
- * Verification :This model has been tested ...
+ * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
+ * implemented in the JUnit test class CY_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
+ * parameters are set properly when Site and EqkRupture objects are passed in.
  * 
- * ToDo: update/create web page
  * 
  * 
  *</p>
@@ -76,7 +77,7 @@ NamedObjectAPI, ParameterChangeListener {
 	private final static boolean D = false;
 
 	// Name of IMR
-	public final static String NAME = "Chiou & Youngs (2008) - Unverified!";
+	public final static String NAME = "Chiou & Youngs (2008)";
 	public final static String SHORT_NAME = "CY2008";
 //	private static final long serialVersionUID = 1234567890987654360L;
 
@@ -171,18 +172,6 @@ NamedObjectAPI, ParameterChangeListener {
 	private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
 	private final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0);
 	
-	/**
-	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
-	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
-	 * (due to inefficiencies)
-	 */
-	private DoubleParameter distRupMinusDistX_OverRupParam = null;
-    public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
-    public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
-    private final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
-    private final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
-    private final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
-
 	
 	// this is for computing distance metrics efficiently
 	private PropagationEffect propagationEffect;
@@ -270,7 +259,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		vs30Param.setValue(site.getParameter(VS30_NAME).getValue());
 		depthTo1pt0kmPerSecParam.setValue(site.getParameter(DEPTH_1pt0_NAME).getValue());
-		vsFlagParam.setValue(site.getParameter(VS_FLAG_NAME).getValue());
+		vs30_TypeParam.setValue(site.getParameter(VS30_TYPE_NAME).getValue());
 		this.site = site;
 		setPropagationEffectParams();
 
@@ -385,7 +374,7 @@ NamedObjectAPI, ParameterChangeListener {
 		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
 
 		vs30Param.setValue(VS30_DEFAULT);
-		vsFlagParam.setValue(VS_FLAG_I);
+		vs30_TypeParam.setValue(VS30_TYPE_INFERRED);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
 
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
@@ -435,7 +424,7 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevIndependentParams.addParameter(dipParam);
 		stdDevIndependentParams.addParameter(aftershockParam);
 		stdDevIndependentParams.addParameter(vs30Param);
-		stdDevIndependentParams.addParameter(vsFlagParam);
+		stdDevIndependentParams.addParameter(vs30_TypeParam);
 		stdDevIndependentParams.addParameter(distanceRupParam);
 		stdDevIndependentParams.addParameter(distRupMinusJB_OverRupParam);
 		stdDevIndependentParams.addParameter(distRupMinusDistX_OverRupParam);
@@ -446,7 +435,7 @@ NamedObjectAPI, ParameterChangeListener {
 		// params that the exceed. prob. depends upon
 		exceedProbIndependentParams.clear();
 		exceedProbIndependentParams.addParameterList(meanIndependentParams);
-		exceedProbIndependentParams.addParameter(vsFlagParam);
+		exceedProbIndependentParams.addParameter(vs30_TypeParam);
 		exceedProbIndependentParams.addParameter(stdDevTypeParam);
 		exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
 		exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
@@ -483,7 +472,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
-		siteParams.addParameter(vsFlagParam);
+		siteParams.addParameter(vs30_TypeParam);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
 
 	}
@@ -865,8 +854,8 @@ NamedObjectAPI, ParameterChangeListener {
 		else if (pName.equals(VS30_NAME)) {
 			vs30 = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(VS_FLAG_NAME)) {
-			if(((String)val).equals(VS_FLAG_M)) {
+		else if (pName.equals(VS30_TYPE_NAME)) {
+			if(((String)val).equals(VS30_TYPE_MEASURED)) {
 				f_meas = 1;  // Bob Youngs confirmed by email that this is correct (f_meas=1-f_inf)
 			}
 			else {
@@ -914,7 +903,7 @@ NamedObjectAPI, ParameterChangeListener {
 		dipParam.removeParameterChangeListener(this);
 		aftershockParam.removeParameterChangeListener(this);
 		vs30Param.removeParameterChangeListener(this);
-		vsFlagParam.removeParameterChangeListener(this);
+		vs30_TypeParam.removeParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
 		distanceRupParam.removeParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
@@ -937,7 +926,7 @@ NamedObjectAPI, ParameterChangeListener {
 		dipParam.addParameterChangeListener(this);
 		aftershockParam.addParameterChangeListener(this);
 		vs30Param.addParameterChangeListener(this);
-		vsFlagParam.addParameterChangeListener(this);
+		vs30_TypeParam.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
 		distanceRupParam.addParameterChangeListener(this);
 		distRupMinusJB_OverRupParam.addParameterChangeListener(this);

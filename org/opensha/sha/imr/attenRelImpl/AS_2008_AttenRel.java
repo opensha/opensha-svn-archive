@@ -47,13 +47,22 @@ import org.opensha.util.FileUtils;
  * <LI>hangingWallFlagParam - indicates whether site is on the hanging wall
  * <LI>componentParam - Component of shaking - Only GMRotI50 is supported
  * <LI>stdDevTypeParam - The type of standard deviation
- * </UL>
+ * </UL><p>
+ * 
  * <p>
- * Verification : working on this ...
- * </p>
- * To Do: 1) hard-code coefficients now that it's final (don't read from file)? 2) figure out how to set 
- * depthTo1pt0kmPerSecParam if value is null (they say to use Equation (8) on page 96, but there is no
- * such equation); 3) update web page
+ * NOTES: distRupMinusJB_OverRupParam is used rather than distancJBParameter because the latter 
+ * should not be held constant when distanceRupParameter is changed (e.g., in the 
+ * AttenuationRelationshipApplet).  The same is true for distRupMinusDistX_OverRupParam.
+ * <p>
+ * When setting parameters from a passed-in EqkRupture, aftershockParam is always set to false
+ * (we could change this if aftershock info is added to an EqkRupture, but it's not clear this
+ * is justified).
+ * <p>
+ * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using ???? (still need to find out).
+ * <p>
+ * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
+ * implemented in the JUnit test class AS_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
+ * parameters are set properly when Site and EqkRupture objects are passed in.
  *
  * @author     Christine Goulet & Ned Field
  * @created    2008
@@ -84,17 +93,6 @@ NamedObjectAPI, ParameterChangeListener {
 	public final static String FLT_TYPE_DEFAULT = FLT_TYPE_STRIKE_SLIP;
 
 	/**
-	 * Down-dip width of fault rupture param
-	 */
-	protected WarningDoubleParameter rupWidthParam;
-	public final static String RUP_WIDTH_NAME = "Down-Dip Width (km)";
-	public final static String RUP_WIDTH_UNITS = "km";
-	public final static String RUP_WIDTH_INFO = "Fault down-dip rupture width (km).";
-	public final static Double RUP_WIDTH_MIN = new Double(0.1);
-	public final static Double RUP_WIDTH_MAX = new Double(100.0);
-	public final static Double RUP_WIDTH_DEFAULT = new Double(10.0);
-
-	/**
 	 * The DistanceRupParameter, closest distance to fault surface.
 	 */
 	private DistanceRupParameter distanceRupParam;
@@ -107,18 +105,6 @@ NamedObjectAPI, ParameterChangeListener {
 	private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
 	public final static Double DISTANCE_RUP_MINUS_DEFAULT = new Double(0.0);
 	
-	/**
-	 * This sets distance X (relative to dist rup) - the horizontal distance to surface projection of the top edge of the rupture, 
-	 * extended to infinity off the ends.  This is not a formal propagation parameter because it's not used that way here
-	 * (due to inefficiencies)
-	 */
-	private DoubleParameter distRupMinusDistX_OverRupParam = null;
-    public final static String DIST_RUP_MINUS_DIST_X_NAME = "(distRup-distX)/distRup";
-    public final static String DIST_RUP_MINUS_DIST_X_INFO = "(DistanceRup - DistanceX)/DistanceRup";
-    private final static Double DIST_RUP_MINUS_DIST_X_MIN = new Double(Double.NEGATIVE_INFINITY);
-    private final static Double DIST_RUP_MINUS_DIST_X_MAX = new Double(Double.POSITIVE_INFINITY);
-    public final static Double DIST_RUP_MINUS_DIST_X_DEFAULT = new Double(0.0);
-
 	
 
 	// change component default from that of parent
@@ -473,7 +459,7 @@ NamedObjectAPI, ParameterChangeListener {
 		vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
 		depthTo1pt0kmPerSecParam.setValueIgnoreWarning(site.getParameter(this.DEPTH_1pt0_NAME).
 				getValue());
-		vsFlagParam.setValue(site.getParameter(VS_FLAG_NAME).getValue());
+		vs30_TypeParam.setValue(site.getParameter(VS30_TYPE_NAME).getValue());
 
 		this.site = site;
 		setPropagationEffectParams();
@@ -500,8 +486,11 @@ NamedObjectAPI, ParameterChangeListener {
 				}
 				else {
 					distRupMinusDistX_OverRupParam.setValue((rRup+distX)/rRup);  // switch sign of distX here
+//System.out.println(((rRup+distX)/rRup)+"\t"+rRup+"\t"+distX);
 					hangingWallFlagParam.setValue(false);
 				}
+//System.out.println("rRup="+rRup+"  dist_jb="+dist_jb+"  distX="+distX+"  distRupMinusJB_OverRupParam="+
+//distRupMinusJB_OverRupParam.getValue()+"  distRupMinusDistX_OverRupParam="+distRupMinusDistX_OverRupParam.getValue());
 			}
 			else {
 				distRupMinusJB_OverRupParam.setValueIgnoreWarning(0.0);
@@ -683,7 +672,7 @@ NamedObjectAPI, ParameterChangeListener {
 		aftershockParam.setValue(AFTERSHOCK_DEFAULT);
 		
 		vs30Param.setValue(VS30_DEFAULT);
-		vsFlagParam.setValue(VS_FLAG_DEFAULT);
+		vs30_TypeParam.setValue(VS30_TYPE_DEFAULT);
 		depthTo1pt0kmPerSecParam.setValue(DEPTH_1pt0_DEFAULT);
 		
 		distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
@@ -729,7 +718,7 @@ NamedObjectAPI, ParameterChangeListener {
 		stdDevIndependentParams.clear();
 		stdDevIndependentParams.addParameterList(meanIndependentParams);
 		stdDevIndependentParams.addParameter(stdDevTypeParam);
-		stdDevIndependentParams.addParameter(vsFlagParam);
+		stdDevIndependentParams.addParameter(vs30_TypeParam);
 
 
 		// params that the exceed. prob. depends upon
@@ -771,7 +760,7 @@ NamedObjectAPI, ParameterChangeListener {
 
 		siteParams.clear();
 		siteParams.addParameter(vs30Param);
-		siteParams.addParameter(vsFlagParam);
+		siteParams.addParameter(vs30_TypeParam);
 		siteParams.addParameter(depthTo1pt0kmPerSecParam);
 	}
 
@@ -1407,8 +1396,8 @@ NamedObjectAPI, ParameterChangeListener {
 		else if (pName.equals(VS30_NAME)) {
 			vs30 = ( (Double) val).doubleValue();
 		}
-		else if (pName.equals(VS_FLAG_NAME)) {
-			if(((String)val).equals(VS_FLAG_M)) {
+		else if (pName.equals(VS30_TYPE_NAME)) {
+			if(((String)val).equals(VS30_TYPE_MEASURED)) {
 				vsm = 1;
 			}
 			else {
@@ -1464,7 +1453,7 @@ NamedObjectAPI, ParameterChangeListener {
 		aftershockParam.removeParameterChangeListener(this);
 		
 		vs30Param.removeParameterChangeListener(this);
-		vsFlagParam.removeParameterChangeListener(this);
+		vs30_TypeParam.removeParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.removeParameterChangeListener(this);
 
 		distanceRupParam.removeParameterChangeListener(this);
@@ -1493,7 +1482,7 @@ NamedObjectAPI, ParameterChangeListener {
 		aftershockParam.addParameterChangeListener(this);
 		
 		vs30Param.addParameterChangeListener(this);
-		vsFlagParam.addParameterChangeListener(this);
+		vs30_TypeParam.addParameterChangeListener(this);
 		depthTo1pt0kmPerSecParam.addParameterChangeListener(this);
 
 		distanceRupParam.addParameterChangeListener(this);
@@ -1541,7 +1530,7 @@ NamedObjectAPI, ParameterChangeListener {
 		Site site = new Site();
 		site.addParameter(attenRel.getParameter(attenRel.VS30_NAME));
 		site.addParameter(attenRel.getParameter(attenRel.DEPTH_1pt0_NAME));
-		site.addParameter(attenRel.getParameter(attenRel.VS_FLAG_NAME));
+		site.addParameter(attenRel.getParameter(attenRel.VS30_TYPE_NAME));
 
 		Location loc;
 		for(double dist=-0.3; dist<=0.3; dist+=0.01) {

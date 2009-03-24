@@ -493,6 +493,22 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
+    	Location line_loc1 = new Location (0.250405,0.0,5.0);
+    	Location line_loc2 = new Location (9.250495,-0.0,5.0);
+    	Location loc = new Location (0.9,0.0225,0.0);
+    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
+    	
+    	
+    	loc = new Location(0.8999999999999999,0.0225,0.0);
+    	line_loc1 = new Location(0.25040500405004046,0.0,5.0);
+    	line_loc2 = new Location(9.25049500495005,-2.2242586363405688E-15,5.0);
+    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc1, line_loc2));
+    	     		
+//    	System.out.println(RelativeLocation.getApproxHorzDistToLine(loc, line_loc2, line_loc1));
+    	// 3.199187934236039
+    	
+    	
+/*
       System.out.println("test1:");
       Location loc1 = new Location(34.5,-128,0);
       Location loc2 = new Location (33.3,-125,0);
@@ -518,7 +534,7 @@ public final class RelativeLocation {
 
       System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc1 to Line = "+ getApproxHorzDistToLine_2(pt1,loc1,loc2));
       System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc2 to Line = "+ getApproxHorzDistToLine_2(pt2,loc1,loc2));
-
+*/
 
       //t1 = System.currentTimeMillis();
       //for(int i=0; i < 1000000; i++) //junk = getHorzDistance(pt1,pt2);
@@ -810,7 +826,8 @@ public final class RelativeLocation {
       double y1 = 111.111*(lineLoc1.getLatitude()-loc.getLatitude());
       double y2 = 111.111*(lineLoc2.getLatitude()-loc.getLatitude());
 
-      if( x1 != x2) {
+ //     if( x1 != x2) { 
+      if( Math.abs(x1-x2) > 1e-6) {    // this prevents numerical precision leading to inf slope; 1e-6 is mm precision
         double slope = (y2-y1)/(x2-x1);
         double intercept = y2 - slope*x2;
         double xTarget = -slope*intercept/(1 + slope*slope);
@@ -853,6 +870,10 @@ public final class RelativeLocation {
         }
       }
     }
+    
+    
+    
+
 }
 
 

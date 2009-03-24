@@ -16,8 +16,10 @@ import org.opensha.util.FaultUtils;
 /**
  * <b>Title:</b> BA_2008_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Boore (2008), as described in a pre-print of their 2008 Earthquake Spectra paper <p>
+ * <b>Description:</b> This implements the Attenuation Relationship published by Boore & Atkinson (2008,
+ * "Ground-Motion Prediction Equations for the Average Horizontal Component of PGA, PGV, and 5%-Damped PSA 
+ * at Spectral Periods between 0.01 s and 10.0 s", Earthquake Spectra, 24(1) , pp. 99-138)
+ * 
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -37,7 +39,9 @@ import org.opensha.util.FaultUtils;
  * 
  *<p>
  *
- * Verification: need to implement Junit tests.
+ * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
+ * implemented in the JUnit test class BA_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
+ * parameters are set properly when Site and EqkRupture objects are passed in.
  * 
  *</p>
  *
