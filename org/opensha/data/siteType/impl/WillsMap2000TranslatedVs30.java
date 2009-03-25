@@ -58,12 +58,12 @@ public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
 		return SHORT_NAME;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_VS30;
 	}
 
-	public String getTypeFlag() {
-		return map.getTypeFlag();
+	public String getDataMeasurementType() {
+		return map.getDataMeasurementType();
 	}
 
 	public Double getValue(Location loc) throws IOException {

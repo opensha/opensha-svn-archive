@@ -23,7 +23,7 @@ import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.util.XMLUtils;
 
-public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XMLSaveable {
+public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XMLSaveable, Cloneable {
 	
 	public static final String XML_METADATA_NAME = "OrderedSiteDataProviderList";
 	
@@ -139,7 +139,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			if (!this.isEnabled(i))
 				continue;
 			SiteDataAPI<?> provider = providers.get(i);
-			String type = provider.getType();
+			String type = provider.getDataType();
 			// if we already have this data type, then skip it
 			if (completedTypes.contains(type))
 				continue;
@@ -376,6 +376,40 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			else
 				System.out.println(i + ". <disabled> " + provider);
 		}
+	}
+	
+	/**
+	 * Removes all providers that are currently disabled
+	 */
+	public void removeDisabledProviders() {
+		ArrayList<SiteDataAPI<?>> newProvs = new ArrayList<SiteDataAPI<?>>();
+		ArrayList<Boolean> newEnabled = new ArrayList<Boolean>();
+		
+		for (int i=0; i<providers.size(); i++) {
+			if (this.isEnabled(i)) {
+				newProvs.add(providers.get(i));
+				newEnabled.add(new Boolean(true));
+			}
+		}
+		
+		this.providers = newProvs;
+		this.enabled = newEnabled;
+	}
+	
+	/**
+	 * Makes a shallow copy of this OrderedSiteDataProviderList
+	 */
+	@Override
+	public Object clone() {
+		ArrayList<SiteDataAPI<?>> list = (ArrayList<SiteDataAPI<?>>)this.getList().clone();
+		
+		OrderedSiteDataProviderList newList = new OrderedSiteDataProviderList(list);
+		
+		for (int i=0; i<this.size(); i++) {
+			newList.setEnabled(i, this.isEnabled(i));
+		}
+		
+		return newList;
 	}
 
 	public Element toXMLMetadata(Element root) {

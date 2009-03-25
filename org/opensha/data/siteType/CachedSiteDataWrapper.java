@@ -39,7 +39,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 	
 	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException {
 		Element val = this.getValue(loc);
-		return new SiteDataValue<Element>(provider.getType(), provider.getTypeFlag(), val, provider.getName());
+		return new SiteDataValue<Element>(provider.getDataType(), provider.getDataMeasurementType(), val, provider.getName());
 	}
 	
 	/**
@@ -122,12 +122,12 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 		return provider.getShortName();
 	}
 
-	public String getType() {
-		return provider.getType();
+	public String getDataType() {
+		return provider.getDataType();
 	}
 
-	public String getTypeFlag() {
-		return provider.getTypeFlag();
+	public String getDataMeasurementType() {
+		return provider.getDataMeasurementType();
 	}
 
 	public boolean hasDataForLocation(Location loc, boolean checkValid) {

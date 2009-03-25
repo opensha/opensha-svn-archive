@@ -145,15 +145,15 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		int num = 1;
 		for (int i=0; i<list.size(); i++) {
 			SiteDataAPI<?> provider = list.getProvider(i);
-			cellRenderer.setType(i, provider.getType());
-			if (attenRel == null || map.isTypeApplicable(provider.getType(), attenRel)) {
+			cellRenderer.setType(i, provider.getDataType());
+			if (attenRel == null || map.isTypeApplicable(provider.getDataType(), attenRel)) {
 				if (list.isEnabled(i)) {
-					names.add((num) + ". " + provider.getName() + " (" + provider.getType() + ")");
+					names.add((num) + ". " + provider.getName() + " (" + provider.getDataType() + ")");
 					num++;
 					cellRenderer.setEnabled(i, true);
 					cellRenderer.setApplicable(i, true);
 				} else {
-					names.add("<disabled> " + provider.getName() + " (" + provider.getType() + ")");
+					names.add("<disabled> " + provider.getName() + " (" + provider.getDataType() + ")");
 					cellRenderer.setEnabled(i, false);
 					cellRenderer.setApplicable(i, true);
 				}
@@ -161,7 +161,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 				list.setEnabled(i, false);
 				cellRenderer.setEnabled(i, false);
 				cellRenderer.setApplicable(i, false);
-				names.add("<not applicable> " + provider.getName() + " (" + provider.getType() + ")");
+				names.add("<not applicable> " + provider.getName() + " (" + provider.getDataType() + ")");
 			}
 		}
 		
@@ -295,8 +295,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	
 	private void updateDataGUI() {
 		String meta = "Name: " + currentData.getName() + "\n";
-		meta += "Type: " + currentData.getType() + "\n";
-		meta += "Type Flag: " + currentData.getTypeFlag() + "\n";
+		meta += "Type: " + currentData.getDataType() + "\n";
+		meta += "Type Flag: " + currentData.getDataMeasurementType() + "\n";
 		meta += "Resolution: " + currentData.getResolution() + " degrees\n\n";
 		meta += currentData.getMetadata() + "\n\n";
 		meta += "Region: " + currentData.getApplicableRegion().toString();
@@ -331,8 +331,8 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 				if (text.length() > 0)
 					text += "\n\n";
 				text += "Source: " + data.getSourceName() + "\n";
-				text += "\tType: " + data.getType() + "\n";
-				text += "\tType Flag: " + data.getFlag() + "\n";
+				text += "\tType: " + data.getDataType() + "\n";
+				text += "\tType Flag: " + data.getDataMeasurementType() + "\n";
 				text += "\tValue: " + data.getValue();
 			}
 		}

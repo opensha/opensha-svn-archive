@@ -69,12 +69,12 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 	
 	public SiteDataValue<Element> getAnnotatedValue(Location loc) throws IOException {
 		Element val = this.getValue(loc);
-		return new SiteDataValue<Element>(this.getType(), this.getTypeFlag(), val, this.getName());
+		return new SiteDataValue<Element>(this.getDataType(), this.getDataMeasurementType(), val, this.getName());
 	}
 	
 	public SiteDataValueList<Element> getAnnotatedValues(LocationList locs) throws IOException {
 		ArrayList<Element> vals = this.getValues(locs);
-		return new SiteDataValueList<Element>(this.getType(), this.getTypeFlag(), vals, this.getName());
+		return new SiteDataValueList<Element>(this.getDataType(), this.getDataMeasurementType(), vals, this.getName());
 	}
 
 	/**

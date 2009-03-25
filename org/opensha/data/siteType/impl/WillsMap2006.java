@@ -116,11 +116,11 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 		return spacing;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_VS30;
 	}
 	
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

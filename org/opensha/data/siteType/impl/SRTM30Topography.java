@@ -109,11 +109,11 @@ public class SRTM30Topography extends AbstractSiteData<Double> {
 		return SHORT_NAME;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_ELEVATION;
 	}
 
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

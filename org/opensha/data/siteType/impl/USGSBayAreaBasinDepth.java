@@ -130,12 +130,12 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 		return gridSpacing;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return type;
 	}
 	
 	// TODO: what should we set this to?
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

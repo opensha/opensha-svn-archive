@@ -75,7 +75,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isValidMapping(SiteDataValue<?> value, String paramName) {
-		return this.containsMapping(value.getType(), paramName);
+		return this.containsMapping(value.getDataType(), paramName);
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	 * @return
 	 */
 	public boolean isTypeApplicable(SiteDataValue<?> value, AttenuationRelationshipAPI attenRel) {
-		return isTypeApplicable(value.getType(), attenRel);
+		return isTypeApplicable(value.getDataType(), attenRel);
 	}
 	
 	private void printParamsForType(String type) {

@@ -18,11 +18,11 @@ public class SiteDataValue<Element> {
 		this.sourceName = sourceName;
 	}
 	
-	public String getType() {
+	public String getDataType() {
 		return type;
 	}
 
-	public String getFlag() {
+	public String getDataMeasurementType() {
 		return flag;
 	}
 

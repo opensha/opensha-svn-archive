@@ -221,7 +221,7 @@ public class GridHazardMapPortionCalculator {
 							}
 							System.out.println("Site Data Values:");
 							for (SiteDataValue<?> val : datas) {
-								System.out.println("\t" + val.getType() + ": " + val.getValue());
+								System.out.println("\t" + val.getDataType() + ": " + val.getValue());
 							}
 							Iterator<ParameterAPI> it = site.getParametersIterator();
 							while (it.hasNext()) {

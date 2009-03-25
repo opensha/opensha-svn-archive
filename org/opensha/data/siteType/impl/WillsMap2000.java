@@ -101,11 +101,11 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 				"It has a grid spacing of apporximately " + spacing + " degrees";
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_WILLS_CLASS;
 	}
 	
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

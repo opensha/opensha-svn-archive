@@ -113,11 +113,11 @@ public class CVM2BasinDepth extends AbstractSiteData<Double> {
 				"I/O February 2009.";
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_DEPTH_TO_2_5;
 	}
 
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

@@ -84,18 +84,18 @@ public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	public String getShortName();
 	
 	/** 
-	 * Get the type of this dataset
+	 * Get the data type of this dataset
 	 * 
 	 * @return
 	 */
-	public String getType();
+	public String getDataType();
 	
 	/**
-	 * Get the flag for this type, such as "Measured" or "Inferred"
+	 * Get the measurement type for this data, such as "Measured" or "Inferred"
 	 * 
 	 * @return
 	 */
-	public String getTypeFlag();
+	public String getDataMeasurementType();
 	
 	/**
 	 * Get the location of the closest data point

@@ -314,7 +314,7 @@ implements java.io.Serializable {
 				for (SiteDataValue<?> data : datas) {
 					if (typeStr.length() > 0)
 						typeStr += ", ";
-					typeStr += data.getType();
+					typeStr += data.getDataType();
 				}
 				System.out.println("setSiteParamsForData: No mapping exists for type(s): " + typeStr);
 			}
@@ -394,7 +394,7 @@ implements java.io.Serializable {
 	 */
 	private SiteDataValue<?> getDataForType(Collection<SiteDataValue<?>> datas, String type) {
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(type)) {
+			if (data.getDataType().equals(type)) {
 				return data;
 			}
 		}
@@ -428,7 +428,7 @@ implements java.io.Serializable {
 		
 		// iterate over the data finding the first one you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				// this is just a plain VS 30 value
 				vsValue = (Double)data.getValue();
 				if (debug) System.out.println("setSiteParamsForData: Got VS: " + vsValue);
@@ -437,7 +437,7 @@ implements java.io.Serializable {
 					param.setValue(vsValue);
 					return true;
 				}
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				// this is a Wills Site Class that needs to be translated
 				vsValue = getVS30FromWillsClass((String)data.getValue());
 				if (debug) System.out.println("setSiteParamsForData: Got translated VS: " + vsValue
@@ -470,15 +470,15 @@ implements java.io.Serializable {
 		// or wills class, use the flag from the data to set the parameter
 		for (SiteDataValue<?> data : datas) {
 			Double vsValue = null;
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				// this is just a plain VS 30 value
 				vsValue = (Double)data.getValue();
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				// this is a Wills Site Class that needs to be translated
 				vsValue = getVS30FromWillsClass((String)data.getValue());
 			}
 			if (isVS30ValueValid(vsValue)) {
-				if (data.getFlag().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
+				if (data.getDataMeasurementType().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
 					if (debug) System.out.println("setSiteParamsForData: +++ Setting VS measured");
 					param.setValue(AttenuationRelationship.VS30_TYPE_MEASURED); // set it to measured
 					return true;
@@ -504,7 +504,7 @@ implements java.io.Serializable {
 	public boolean setDepthTo2p5Param(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// this will get the first (highest priority) data that works
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
 				Double val = (Double)data.getValue();
 				if (Double.isNaN(val)) {
 					continue;
@@ -531,7 +531,7 @@ implements java.io.Serializable {
 	public boolean setDepthTo1p0Param(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// this will get the first (highest priority) data that works
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_1_0)) {
 				Double val = (Double)data.getValue();
 				if (Double.isNaN(val)) {
 					continue;
@@ -571,7 +571,7 @@ implements java.io.Serializable {
 	public boolean setAS_SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
 					continue;
@@ -589,7 +589,7 @@ implements java.io.Serializable {
 					param.setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
 				}
 				return true;
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
 					param.setValue(AS_1997_AttenRel.SITE_TYPE_SOIL);
@@ -630,7 +630,7 @@ implements java.io.Serializable {
 	public boolean setSCEMY_SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
 					continue;
@@ -648,7 +648,7 @@ implements java.io.Serializable {
 					param.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_ROCK);
 				}
 				return true;
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
 					param.setValue(SadighEtAl_1997_AttenRel.SITE_TYPE_SOIL);
@@ -685,7 +685,7 @@ implements java.io.Serializable {
 	public boolean setCampbellBasinDepth(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
 					param.setValue(new Double(5.0));
@@ -699,7 +699,7 @@ implements java.io.Serializable {
 					param.setValue(new Double(0.0));
 					return true;
 				}
-			} else if (data.getType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
 				Double depth = (Double)data.getValue();
 				param.setValue(depth);
 				return true;
@@ -738,7 +738,7 @@ implements java.io.Serializable {
 	public boolean setCampbellSiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (!isVS30ValueValid(vsVal))
 					continue;
@@ -752,7 +752,7 @@ implements java.io.Serializable {
 					param.setValue(Campbell_1997_AttenRel.SITE_TYPE_HARD_ROCK);
 					return true;
 				}
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
 					param.setValue(Campbell_1997_AttenRel.SITE_TYPE_FIRM_SOIL);
@@ -805,7 +805,7 @@ implements java.io.Serializable {
 	public boolean setCB03SiteType(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if(vsVal>180 && vsVal<=300) {
 					param.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_SOIL);
@@ -820,7 +820,7 @@ implements java.io.Serializable {
 					param.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_ROCK);
 					return true;
 				}
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_DE) || wc.equals(WILLS_D)) {
 					param.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_SOIL);
@@ -899,13 +899,13 @@ implements java.io.Serializable {
 	public boolean setCS05SoftSoil(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		// iterate over the data finding the first one (highest priority) you can use
 		for (SiteDataValue<?> data : datas) {
-			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
+			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
 				if (vsVal < 180) {
 					param.setValue(vsVal);
 					return true;
 				}
-			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
+			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_E))
 					param.setValue(new Boolean(true));

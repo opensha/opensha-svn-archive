@@ -116,11 +116,11 @@ public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 		return SHORT_NAME;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_TOPOGRAPHIC_SLOPE;
 	}
 
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_MEASURED;
 	}
 

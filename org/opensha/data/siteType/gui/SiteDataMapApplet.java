@@ -89,12 +89,12 @@ public class SiteDataMapApplet extends Applet implements ActionListener, ListSel
 					boolean custom = (Boolean)customParam.getValue();
 					if (!custom) {
 						customParam.setValue(new Boolean(true));
-						String label = doubProvider.getName() + " -  " + doubProvider.getType();
+						String label = doubProvider.getName() + " -  " + doubProvider.getDataType();
 						
 						if (label.length() > 20)
-							label = doubProvider.getShortName() + " - " + doubProvider.getType();
+							label = doubProvider.getShortName() + " - " + doubProvider.getDataType();
 						if (label.length() > 20)
-							label = doubProvider.getType();
+							label = doubProvider.getDataType();
 						System.out.println("Label: " + label);
 						label = "'" + label + "'";
 						mapBean.getParameterList().getParameter(

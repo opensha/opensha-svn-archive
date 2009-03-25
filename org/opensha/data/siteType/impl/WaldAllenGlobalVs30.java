@@ -177,11 +177,11 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		return SHORT_NAME;
 	}
 
-	public String getType() {
+	public String getDataType() {
 		return TYPE_VS30;
 	}
 
-	public String getTypeFlag() {
+	public String getDataMeasurementType() {
 		return TYPE_FLAG_INFERRED;
 	}
 	
