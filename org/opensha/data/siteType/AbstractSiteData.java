@@ -1,11 +1,8 @@
 package org.opensha.data.siteType;
 
-import java.awt.BorderLayout;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 
 import org.dom4j.Element;
 import org.opensha.data.Location;
