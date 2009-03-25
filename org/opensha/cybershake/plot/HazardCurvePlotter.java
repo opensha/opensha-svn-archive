@@ -976,7 +976,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		sgt.setRequired(false);
 		ops.addOption(sgt);
 		
-		Option run = new Option("R", "run-id", true, "Rupture Variation ID");
+		Option run = new Option("R", "run-id", true, "Run ID");
 		run.setRequired(false);
 		ops.addOption(run);
 		
@@ -1018,7 +1018,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		Option width = new Option("w", "width", true, "Plot width (default = " + PLOT_WIDTH_DEFAULT + ")");
 		ops.addOption(width);
 		
-		Option height = new Option("h", "height", true, "Plot width (default = " + PLOT_HEIGHT_DEFAULT + ")");
+		Option height = new Option("h", "height", true, "Plot height (default = " + PLOT_HEIGHT_DEFAULT + ")");
 		ops.addOption(height);
 		
 		Option vs30 = new Option("v", "vs30", true, "Specify default Vs30 for sites with no Vs30 data, or leave blank " + 
@@ -1063,7 +1063,7 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			try {
 				CommandLine cmd = parser.parse( options, args);
 				
-				if (cmd.hasOption("help")) {
+				if (cmd.hasOption("help") || cmd.hasOption("?")) {
 					printHelp(options);
 				}
 				
