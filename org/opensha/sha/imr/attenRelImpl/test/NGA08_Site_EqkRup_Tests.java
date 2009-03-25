@@ -2,6 +2,8 @@ package org.opensha.sha.imr.attenRelImpl.test;
 
 import java.util.ListIterator;
 
+import junit.framework.TestCase;
+
 import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.param.ParameterAPI;
@@ -23,7 +25,7 @@ import org.opensha.sha.surface.StirlingGriddedSurface;
  * @author field
  *
  */
-public class NGA08_Site_EqkRup_Tests {
+public class NGA08_Site_EqkRup_Tests extends TestCase {
 	
 	private final static boolean D = false;
 	
@@ -117,10 +119,6 @@ public class NGA08_Site_EqkRup_Tests {
 		}
 
 		mkDistMatrices();
-		
-		
-		
-		test();
 	}
 
 	/**
@@ -215,8 +213,8 @@ public class NGA08_Site_EqkRup_Tests {
 	/**
 	 * This is the actual test
 	 */
-	private void test() {
-		
+	private boolean doTest(AttenuationRelationship attenRel) {
+		System.out.println("Testing " + attenRel.getName());
 		// set hard-coded eqk rupture stuff
 		eqkRup.setMag(mag);
 		
@@ -226,9 +224,9 @@ public class NGA08_Site_EqkRup_Tests {
 		site.getParameter(AttenuationRelationship.DEPTH_2pt5_NAME).setValue(new Double(depth2pt5));
 		site.getParameter(AttenuationRelationship.DEPTH_1pt0_NAME).setValue(new Double(depth1pt0));
 
-
-		System.out.println("STARTING TESTS");
 		int counter=0;
+		
+		boolean success = true;
 
 		for(int irake=0;irake<rakes.length;irake++) {
 			rake = rakes[irake];
@@ -240,34 +238,70 @@ public class NGA08_Site_EqkRup_Tests {
 					site.setLocation(new Location(lats[lat],lons[lon]));
 
 
-					as08.setSite(site);
+					attenRel.setSite(site);
 					cb08.setSite(site);
 					cy08.setSite(site);
 					ba08.setSite(site);
 
-					as08.setEqkRupture(eqkRup);
+					attenRel.setEqkRupture(eqkRup);
 					cb08.setEqkRupture(eqkRup);
 					cy08.setEqkRupture(eqkRup);
 					ba08.setEqkRupture(eqkRup);
 
-					boolean testResult = checkAttenRel(lat, lon, as08);
-					if(!testResult) System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-					testResult = checkAttenRel(lat, lon, cb08);
-					if(!testResult) System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-					testResult = checkAttenRel(lat, lon, cy08);
-					if(!testResult) System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-					testResult = checkAttenRel(lat, lon, ba08);
-					if(!testResult) System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+					boolean testResult = checkAttenRel(lat, lon, attenRel);
+					if (!testResult) {
+						success = false;
+					}
 				}
 			}
 			counter +=1;
-			System.out.println("DONE WITH RAKE "+counter);
+			if (D) System.out.println("DONE WITH RAKE "+counter);
 		}
-		System.out.println("DONE TESTING");
-
+		if (success) {
+			System.out.println("Success!");
+			return true;
+		} else {
+			System.out.println("FAILURE!");
+			return false;
+		}
+	}
+	
+	/**
+	 * This tests AS 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
+	 */
+	public void testAS08() {
+		assertTrue(doTest(as08));
+	}
+	
+	/**
+	 * This tests CB 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
+	 */
+	public void testCB08() {
+		assertTrue(doTest(cb08));
+	}
+	
+	/**
+	 * This tests BA 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
+	 */
+	public void testBA08() {
+		assertTrue(doTest(ba08));
+	}
+	
+	/**
+	 * This tests CY 2008 as a JUnit test. It will be run by JUnit because the method starts with 'test'
+	 */
+	public void testCY08() {
+		assertTrue(doTest(cy08));
+	}
+	
+	/**
+	 * This runs all tests without using JUnit
+	 */
+	public void runAllTests() {
+		doTest(as08);
+		doTest(cb08);
+		doTest(ba08);
+		doTest(cy08);
 	}
 	
 	
@@ -462,7 +496,7 @@ public class NGA08_Site_EqkRup_Tests {
 	public static void main(String[] args) {
 		
 		NGA08_Site_EqkRup_Tests test = new NGA08_Site_EqkRup_Tests();
-
+		test.runAllTests();
 	}
 
 }
