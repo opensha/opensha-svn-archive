@@ -7,10 +7,8 @@ import java.util.ListIterator;
 
 import org.opensha.data.siteType.SiteDataAPI;
 import org.opensha.data.siteType.SiteDataValue;
-import org.opensha.data.siteType.translate.WillsClassTranslator;
 import org.opensha.data.siteType.util.SiteDataTypeParameterNameMap;
 import org.opensha.param.*;
-import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 
@@ -441,7 +439,7 @@ implements java.io.Serializable {
 				}
 			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				// this is a Wills Site Class that needs to be translated
-				vsValue = WillsClassTranslator.getVS30((String)data.getValue());
+				vsValue = getVS30FromWillsClass((String)data.getValue());
 				if (debug) System.out.println("setSiteParamsForData: Got translated VS: " + vsValue
 						+ " from " + data.getValue());
 				if (isVS30ValueValid(vsValue)) {
@@ -477,7 +475,7 @@ implements java.io.Serializable {
 				vsValue = (Double)data.getValue();
 			} else if (data.getType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				// this is a Wills Site Class that needs to be translated
-				vsValue = WillsClassTranslator.getVS30((String)data.getValue());
+				vsValue = getVS30FromWillsClass((String)data.getValue());
 			}
 			if (isVS30ValueValid(vsValue)) {
 				if (data.getFlag().equals(SiteDataAPI.TYPE_FLAG_MEASURED)) {
