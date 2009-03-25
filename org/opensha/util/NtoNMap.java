@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Class representing an N to N mapping. Similar to the java Map interface, but returns Collection's of values
- * instead of individual values.
+ * for each key instead of individual values.
  * 
  * @author Kevin Milner
  *

@@ -12,6 +12,13 @@ import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.NtoNMap;
 
+/**
+ * This class represents an N to N mapping between site data types and parameter names. If
+ * a mapping exists, then the given parameter can be set by the given site data type. 
+ * 
+ * @author Kevin Milner
+ *
+ */
 public class SiteDataTypeParameterNameMap extends NtoNMap<String, String> {
 	
 	public SiteDataTypeParameterNameMap() {

@@ -16,10 +16,15 @@ import org.opensha.sha.imr.attenRelImpl.*;
 
 /**
  * <p>Title: SiteTranslator</p>
- * <p>Description: This object sets the value of a site parameter from the
- * Wills Site Type (Wills et al., 2000, BSSA, v. 90, S187-S208) and (optionally) from
- * Basin-Depth-2.5 (the depth in m where the shear-wave velocity equals 2.5 km/sec).
- * The conversions from the Wills Site Types (E, DE, D, CD, C, BC, B) and basin-depth
+ * <p>Description: This object sets the value of a site parameter from one or more
+ * of the following types of site data:<p>
+ * <UL>
+ * <LI> Vs30 (average shear-wave velocity in the upper 30 meters of a site)
+ * <LI> Wills Site Type (Wills et al., 2000, BSSA, v. 90, S187-S208)
+ * <LI> Basin-Depth-2.5 (the depth in m where the shear-wave velocity equals 2.5 km/sec)
+ * <LI> Basin-Depth-1.0 (the depth in m where the shear-wave velocity equals 1.0 km/sec)
+ * </UL>
+ * <p>The conversions from the Wills Site Types (E, DE, D, CD, C, BC, B) and basin-depth
  * are given below (NA means nothing is set).  All of these translations were authorized
  * by the attenuation-rlationship authors (except for Sadigh, who used a dataset similar
  * to Abrahamson & Silve (1997) so that translation is applied).  The main method tests
@@ -96,7 +101,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
  *
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author: Ned Field & Nitin Gupta & Vipin Gupta
+ * @author: Ned Field, Nitin Gupta, Vipin Gupta, and Kevin Milner
  * @version 1.0
  */
 
@@ -148,6 +153,11 @@ implements java.io.Serializable {
 			return Double.NaN;
 	}
 	
+	/**
+	 * Returns a String representation of the Wills Class -> Vs30 translation table
+	 * 
+	 * @return
+	 */
 	public static String getWillsVs30TranslationString() {
 		String str = "";
 		
@@ -166,17 +176,23 @@ implements java.io.Serializable {
 		
 	}
 	
+	/**
+	 * Creates a mapping between site data types and site parameter names. This is useful if you
+	 * want to see if a given site data type can be used to set a given parameter.
+	 * 
+	 * @return
+	 */
 	private static SiteDataTypeParameterNameMap createMap() {
 		SiteDataTypeParameterNameMap map = new SiteDataTypeParameterNameMap();
 		
-		// params that can be set from raw VS 30 only
+		/*				params that can be set from raw VS 30 only						*/
 		// ...NONE!
 		
-		// params that can be set from Wills Classes only
+		/*				params that can be set from Wills Classes only					*/
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	Campbell_1997_AttenRel.BASIN_DEPTH_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	ShakeMap_2003_AttenRel.WILLS_SITE_NAME);
 		
-		// params common to Vs30 and Wills Classes
+		/*				params common to Vs30 and Wills Classes							*/
 		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	AttenuationRelationship.VS30_NAME);
 		map.addMapping(SiteDataAPI.TYPE_VS30,			AttenuationRelationship.VS30_TYPE_NAME);
@@ -192,36 +208,70 @@ implements java.io.Serializable {
 		map.addMapping(SiteDataAPI.TYPE_VS30,			CS_2005_AttenRel.SOFT_SOIL_NAME);
 		map.addMapping(SiteDataAPI.TYPE_WILLS_CLASS,	CS_2005_AttenRel.SOFT_SOIL_NAME);
 		
-		// params that can be set from Depth to Vs = 2.5 KM/sec
+		/*				params that can be set from Depth to Vs = 2.5 KM/sec			*/
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	AttenuationRelationship.DEPTH_2pt5_NAME);
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	Field_2000_AttenRel.BASIN_DEPTH_NAME);
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_2_5,	Campbell_1997_AttenRel.BASIN_DEPTH_NAME);
 		
-		// params that can be set from Depth to Vs = 1.0 KM/sec
+		/*				params that can be set from Depth to Vs = 1.0 KM/sec			*/
 		map.addMapping(SiteDataAPI.TYPE_DEPTH_TO_1_0,	AttenuationRelationship.DEPTH_1pt0_NAME);
 		
 		return map;
 	}
 
+	/**
+	 * Method to set a site parameter from a single site data value
+	 * 
+	 * @param param
+	 * @param datas
+	 * @param debug
+	 * @return true if the parameter was set, false otherwise
+	 */
 	public boolean setParameterValue(ParameterAPI param, SiteDataValue<?> data) {
 		return setParameterValue(param, data, D);
 	}
 	
+	/**
+	 * Method to set a site parameter from a single site data value
+	 * 
+	 * @param param
+	 * @param datas
+	 * @param debug
+	 * @return true if the parameter was set, false otherwise
+	 */
 	public boolean setParameterValue(ParameterAPI param, SiteDataValue<?> data, boolean debug) {
 		ArrayList<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
 		return setParameterValue(param, datas, debug);
 	}
 	
+	/**
+	 * Method to set a site parameter from a given set of site data.
+	 * 
+	 * @param param
+	 * @param datas
+	 * @param debug
+	 * @return true if the parameter was set, false otherwise
+	 */
 	public boolean setParameterValue(ParameterAPI param, Collection<SiteDataValue<?>> datas) {
 		return setParameterValue(param, datas, D);
 	}
 
+	/**
+	 * Method to set a site parameter from a given set of site data. The first site data value
+	 * in the set that can be used to set the parameter will be used.
+	 * 
+	 * @param param
+	 * @param datas
+	 * @param debug
+	 * @return true if the parameter was set, false otherwise
+	 */
 	public boolean setParameterValue(ParameterAPI param, Collection<SiteDataValue<?>> datas, boolean debug) {
 		String paramName = param.getName();
 		if (debug) System.out.println("setSiteParamsForData: Handling parameter: " + paramName);
 		
-		// first lets make sure there's a valid mapping
+		// first lets make sure there's a valid mapping, which means that the given parameter can be set
+		// by at least one of the given site data types
 		boolean mapping = false;
 		for (SiteDataValue<?> data : datas) {
 			if (DATA_TYPE_PARAM_NAME_MAP.isValidMapping(data, paramName)) {
@@ -275,20 +325,54 @@ implements java.io.Serializable {
 		return false;
 	}
 	
+	/**
+	 * Convenience method to set all site params in the given attenuation relationship instance from a single
+	 * site data value. Returns true if at least one parameter was set.
+	 * 
+	 * @param imr
+	 * @param datas
+	 * @return true if at least one parameter was set.
+	 */
 	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, SiteDataValue<?> data) {
 		return setAllSiteParams(imr, data, D);
 	}
 	
+	/**
+	 * Convenience method to set all site params in the given attenuation relationship instance from a single
+	 * site data value. Returns true if at least one parameter was set.
+	 * 
+	 * @param imr
+	 * @param datas
+	 * @param debug
+	 * @return true if at least one parameter was set.
+	 */
 	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, SiteDataValue<?> data, boolean debug) {
 		Collection<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
 		datas.add(data);
 		return setAllSiteParams(imr, datas, debug);
 	}
 	
+	/**
+	 * Convenience method to set all site params in the given attenuation relationship instance from the given
+	 * set of data. Returns true if at least one parameter was set.
+	 * 
+	 * @param imr
+	 * @param datas
+	 * @return true if at least one parameter was set.
+	 */
 	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, Collection<SiteDataValue<?>> datas) {
 		return setAllSiteParams(imr, datas, D);
 	}
 	
+	/**
+	 * Convenience method to set all site params in the given attenuation relationship instance from the given
+	 * set of data. Returns true if at least one parameter was set.
+	 * 
+	 * @param imr
+	 * @param datas
+	 * @param debug
+	 * @return true if at least one parameter was set.
+	 */
 	public boolean setAllSiteParams(AttenuationRelationshipAPI imr, Collection<SiteDataValue<?>> datas, boolean debug) {
 		boolean setSomething = false;
 		
@@ -303,6 +387,13 @@ implements java.io.Serializable {
 		return setSomething;
 	}
 	
+	/**
+	 * Returns the first data value of a given type
+	 * 
+	 * @param datas
+	 * @param type
+	 * @return
+	 */
 	private SiteDataValue<?> getDataForType(Collection<SiteDataValue<?>> datas, String type) {
 		for (SiteDataValue<?> data : datas) {
 			if (data.getType().equals(type)) {
@@ -312,6 +403,12 @@ implements java.io.Serializable {
 		return null;
 	}
 	
+	/**
+	 * Checks to see if the specified Vs30 value is greater than 0, not null, and not NaN.
+	 * 
+	 * @param vsValue
+	 * @return
+	 */
 	private boolean isVS30ValueValid(Double vsValue) {
 		return vsValue != null && !vsValue.isNaN() && vsValue > 0;
 	}
@@ -321,7 +418,7 @@ implements java.io.Serializable {
 	 * and is highest priority,that is used. Otherwise if a Wills Site Classification is available,
 	 * it is translated into Vs30 and used.
 	 * 
-	 * See getVS30FromWillsClass() for Wills translation values.
+	 * See <code>getVS30FromWillsClass</code> for Wills translation values.
 	 * 
 	 * @param param
 	 * @param datas
@@ -371,7 +468,8 @@ implements java.io.Serializable {
 		// Follow the same methodology as that used to set the Vs30 param so we make sure we get the flag
 		// from the vs data source that was actually used
 		
-		// iterate over the data finding the first one you can use
+		// iterate over the data finding the first one you can use. once you find a valid Vs30 value
+		// or wills class, use the flag from the data to set the parameter
 		for (SiteDataValue<?> data : datas) {
 			Double vsValue = null;
 			if (data.getType().equals(SiteDataAPI.TYPE_VS30)) {
@@ -616,7 +714,7 @@ implements java.io.Serializable {
 	/**
 	 * Campbell_1997_AttenRel.SITE_TYPE_NAME (Campbell (1997))<p>
 	 * 
-	 * If using a Wills class is available, set it as follows:
+	 * If using a Wills class, set it as follows:
 	 * 
 	 * <UL>
 	 * <LI> NA 					if E
@@ -773,7 +871,7 @@ implements java.io.Serializable {
 			}
 		}
 		
-		// TODO: figure out what to do with a VS 30 value heree
+		// TODO: figure out what to do with a VS 30 value here
 		return false;
 	}
 	
