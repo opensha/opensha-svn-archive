@@ -329,7 +329,7 @@ public class CreateDataManager extends StepManager implements AttenuationRelatio
 		// ***** Site Data
 		if (sitesGuiBean.isUseSiteData()) {
 			System.out.println("Saving Site Data info");
-			OrderedSiteDataProviderList dataList = siteDataGuiBean.getProviderList();
+			OrderedSiteDataProviderList dataList = (OrderedSiteDataProviderList)siteDataGuiBean.getProviderList().clone();
 			// there's no reason to store info about or ever instantiate the disabled providers
 			dataList.removeDisabledProviders();
 			
