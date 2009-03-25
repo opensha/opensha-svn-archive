@@ -5,7 +5,7 @@ import java.util.*;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
-import org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.param.*;
 

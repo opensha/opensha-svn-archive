@@ -6,13 +6,14 @@ import org.opensha.data.LocationList;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.sha.imr.attenRelImpl.depricated.*;
 
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningListener;
@@ -80,6 +81,7 @@ implements ParameterChangeWarningListener {
 	 */
 	protected final static String BJF_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel";
 	protected final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
+	protected final static String AS_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
 	protected final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
 	protected final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SadighEtAl_1997_AttenRel";
 	protected final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
@@ -89,10 +91,12 @@ implements ParameterChangeWarningListener {
 	protected final static String SEA_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SEA_1999_AttenRel";
 	//protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
 	protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
-	protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-	protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
-	protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
-	protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
+	protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.AS_2005_prelim_AttenRel";
+	protected final static String CY_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel";
+	protected final static String BOORE_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel";
+	protected final static String BOORE_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BA_2008_AttenRel";
+	protected final static String CB_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel";
+	protected final static String CB_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
 	//protected final static String SS_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
 	protected final static String BS_2003_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
 	protected final static String BC_2004_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.BC_2004_AttenRel";
@@ -111,14 +115,20 @@ implements ParameterChangeWarningListener {
 		attenRelClasses.add(CY_2006_CLASS_NAME);
 		imNames.add(CB_2006_AttenRel.NAME);
 		attenRelClasses.add(CB_2006_CLASS_NAME);
+		imNames.add(CB_2008_AttenRel.NAME);
+		attenRelClasses.add(CB_2008_CLASS_NAME);
 		imNames.add(BA_2006_AttenRel.NAME);
 		attenRelClasses.add(BOORE_2006_CLASS_NAME);
+		imNames.add(BA_2008_AttenRel.NAME);
+		attenRelClasses.add(BOORE_2008_CLASS_NAME);
 		imNames.add(CS_2005_AttenRel.NAME);
 		attenRelClasses.add(CS_CLASS_NAME);
 		imNames.add(BJF_1997_AttenRel.NAME);
 		attenRelClasses.add(BJF_CLASS_NAME);
 		imNames.add(AS_1997_AttenRel.NAME);
 		attenRelClasses.add(AS_CLASS_NAME);
+		imNames.add(AS_2008_AttenRel.NAME);
+		attenRelClasses.add(AS_2008_CLASS_NAME);
 		imNames.add(Campbell_1997_AttenRel.NAME);
 		attenRelClasses.add(C_CLASS_NAME);
 		imNames.add(SadighEtAl_1997_AttenRel.NAME);
@@ -426,6 +436,11 @@ implements ParameterChangeWarningListener {
 		Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
 		while (it.hasNext()) {
 			ParameterAPI tempParam = (ParameterAPI) it.next();
+			
+			// we currently can't set Depth to Vs=1.0 km/sec, so skip
+			if (tempParam.getName().equals(AS_2008_AttenRel.DEPTH_1pt0_NAME))
+				continue;
+			
 			//adding the site Params from the CVM, if site is out the range of CVM then it
 			//sets the site with whatever site Parameter Value user has choosen in the application
 			boolean flag = siteTranslator.setParameterValue(tempParam, willsClass,

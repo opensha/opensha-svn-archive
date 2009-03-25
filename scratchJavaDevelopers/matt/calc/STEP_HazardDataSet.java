@@ -26,7 +26,7 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
-import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.FileUtils;
 

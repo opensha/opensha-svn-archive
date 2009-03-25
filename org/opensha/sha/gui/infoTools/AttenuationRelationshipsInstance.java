@@ -32,11 +32,11 @@ public class AttenuationRelationshipsInstance {
 	public final static String CB_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
 	public final static String SM_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 	public final static String USGS_2004_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
-	public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-	public final static String CB_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2006_AttenRel";
+	public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.AS_2005_prelim_AttenRel";
+	public final static String CB_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel";
 	public final static String CB_2008_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel";
-	public final static String CY_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2006_AttenRel";
-	public final static String Boore_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel";
+	public final static String CY_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.CY_2006_AttenRel";
+	public final static String Boore_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel";
 	public final static String CS_2005_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
 	//public final static String SS_2006_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SiteSpecific_2006_AttenRel";
 	public final static String BS_2003_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.BS_2003_AttenRel";
@@ -95,7 +95,7 @@ public class AttenuationRelationshipsInstance {
 		supportedAttenRelClasses.add(SCEMY_1997_CLASS_NAME);
 		
 		// OTHER
-		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
+//		supportedAttenRelClasses.add(CyberShake_CLASS_NAME);
 	}
 
 	/**

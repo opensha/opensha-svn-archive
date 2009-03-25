@@ -17,7 +17,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.BA_2006_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.data.Location;
 import org.opensha.data.Direction;
