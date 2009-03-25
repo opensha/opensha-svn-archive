@@ -7,7 +7,6 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
-import org.opensha.data.siteType.translate.WillsClassTranslator;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.util.SiteTranslator;
 

@@ -12,9 +12,9 @@ import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.data.siteType.AbstractSiteData;
 import org.opensha.data.siteType.SiteDataToXYZ;
 import org.opensha.data.siteType.servlet.SiteDataServletAccessor;
-import org.opensha.data.siteType.translate.WillsClassTranslator;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
+import org.opensha.sha.util.SiteTranslator;
 
 public class WillsMap2000 extends AbstractSiteData<String> {
 	
@@ -125,7 +125,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	}
 
 	public boolean isValueValid(String val) {
-		Set<String> keys = WillsClassTranslator.wills_vs30_map.keySet();
+		Set<String> keys = SiteTranslator.wills_vs30_map.keySet();
 		return keys.contains(val);
 	}
 	
