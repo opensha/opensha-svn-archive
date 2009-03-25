@@ -7,12 +7,11 @@
 
     <property name="app.name" value="geonet-after-shock"/>
 	<property name="dir.base" value="../.."/>   
-    <property name="dir.src" value="../.."/>   
-    <property name="dir.build" value="../../build"/>
+    <property name="dir.src" value="${dir.base}"/>   
+    <property name="dir.build" value="${dir.base}/build"/>
     <property name="dir.classes" value="${dir.build}/classes"/>	
-	<property name="dir.lib" value="../../lib"/>
-	<property name="lib.root" value="../../.."/>
-	<property name="dir.data" value="../../data"/>  
+	<property name="dir.lib" value="${dir.base}/lib"/>
+	<property name="dir.data" value="${dir.base}/data"/>  
 	
     
 	<!-- Configure Mule classpath (mirrors wrapper.conf settings -->

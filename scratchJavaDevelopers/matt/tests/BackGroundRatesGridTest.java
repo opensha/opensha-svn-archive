@@ -13,6 +13,11 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import scratchJavaDevelopers.matt.calc.BackGroundRatesGrid;
 import scratchJavaDevelopers.matt.calc.RegionDefaults;
 
+/**
+ * test the BackGroundRatesGrid class
+ * @author baishan
+ *
+ */
 public class BackGroundRatesGridTest  extends TestCase {
 	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class);
 	private BackGroundRatesGrid bgGrid1;

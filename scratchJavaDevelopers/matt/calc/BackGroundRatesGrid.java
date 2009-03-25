@@ -19,7 +19,7 @@ import scratchJavaDevelopers.matt.tests.STEP_mainTest;
 
 public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	private static Logger logger = Logger.getLogger(BackGroundRatesGrid.class);
-	
+
 	private double minForecastMag, maxForecastMag, deltaForecastMag;
 	private double minMagInSourceFile = 2.0;
 	private double[] seqIndAtNode;
@@ -30,72 +30,72 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	private final static String BACKGROUND_RATES_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/step/AllCal96ModelDaily.txt";
 	private String bgGridFilename = BACKGROUND_RATES_FILE_NAME;
 
-	  // misc values
-	  private static final double RAKE=0.0;
-	  private static final double DIP=90.0;
-	  private static final double DEPTH=0;
-	  private final double GRID_SPACING= 0.1; 
-	
-	
+	// misc values
+	private static final double RAKE=0.0;
+	private static final double DIP=90.0;
+	private static final double DEPTH=0;
+	private final double GRID_SPACING= 0.1; 
+
+
 	private ArrayList hypoMagFreqDist;
 	private ArrayList backGroundSourceList;
-	
-	 public BackGroundRatesGrid()
-	    {
-	       
-	    }
 
-	    public BackGroundRatesGrid(double minForecastMag, double maxForecastMag, double deltaForecastMag)
-	    {
-	        this.minForecastMag = minForecastMag;
-	        this.maxForecastMag = maxForecastMag;
-	        this.deltaForecastMag = deltaForecastMag;
-	    }
+	public BackGroundRatesGrid()
+	{
 
-	   
+	}
 
-	    public void initialize()
-	    {
-	        loadBackGroundGridFromFile(bgGridFilename);
-	        createBackGroundRegion();
-	        initSeqIndices();
-	    }
+	public BackGroundRatesGrid(double minForecastMag, double maxForecastMag, double deltaForecastMag)
+	{
+		this.minForecastMag = minForecastMag;
+		this.maxForecastMag = maxForecastMag;
+		this.deltaForecastMag = deltaForecastMag;
+	}
 
-	    /**
-	     * //region must be initialised before this can be done
+	public BackGroundRatesGrid(String fileName){		
+		setBgGridFilename(fileName);
+		initialize();
+
+	}
+
+	public void initialize()
+	{
+		loadBackGroundGridFromFile(bgGridFilename);
+		createBackGroundRegion();
+		initSeqIndices();
+	}
+
+	/**
+	 * //region must be initialised before this can be done
 		// set to a dummy value representing the background so that 
 		// it can be changed to a sequence index if required later
 		// this indicates the sequence that contributes rates at this
 		// index.  -1 means no sequence does.
-	     */
-	    public void initSeqIndices()
-	    {
-	        if(seqIndAtNode == null)
-	            seqIndAtNode = new double[region.getNumGridLocs()];
-	        logger.info((new StringBuilder()).append("seqIndAtNode ").append(seqIndAtNode.length).toString());
-	        Arrays.fill(seqIndAtNode, -1D);
-	    }
+	 */
+	public void initSeqIndices()
+	{
+		if(seqIndAtNode == null)
+			seqIndAtNode = new double[region.getNumGridLocs()];
+		logger.info((new StringBuilder()).append("seqIndAtNode ").append(seqIndAtNode.length).toString());
+		Arrays.fill(seqIndAtNode, -1D);
+	}
 
-	    public void setBgGridFilename(String bgGridFilename)
-	    {
-	        this.bgGridFilename = bgGridFilename;
-	    }
-	    
-		public BackGroundRatesGrid(String fileName){		
-			 setBgGridFilename(fileName);
-		      initialize();
-			
-		}
+	public void setBgGridFilename(String bgGridFilename)
+	{
+		this.bgGridFilename = bgGridFilename;
+	}
+
 	
+
 	/**
 	 * Setting the Relm Region to the region for the STEP code.
 	 */
 	private void createBackGroundRegion(){
-	 /**
-	  * creates locationlist of california boundary.
-	  * @return
-	  */
-	   /*LocationList locList = new LocationList();
+		/**
+		 * creates locationlist of california boundary.
+		 * @return
+		 */
+		/*LocationList locList = new LocationList();
 	   locList.addLocation(new Location(41.998016,-124.210136));
 	   locList.addLocation(new Location(41.995640,-123.820290));
 	   locList.addLocation(new Location(41.997173,-123.726974));
@@ -1037,121 +1037,126 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	   locList.addLocation(new Location(41.958057,-124.205978));
 	   locList.addLocation(new Location(41.983608,-124.203751));
 	   locList.addLocation(new Location(41.998016,-124.210136));*/
-	   
-	   SitesInGriddedRectangularRegion region;
-	try {
-		region = new 
-		    SitesInGriddedRectangularRegion(32,43.3,-125.0,-112.4,RegionDefaults.gridSpacing);
-		this.setBackGroundRegion(region);
-	} catch (RegionConstraintException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	   
-		   /*locList.addLocation(new Location(42.009655,-124.407951));
+
+		SitesInGriddedRectangularRegion region;
+		try {
+			region = new 
+			SitesInGriddedRectangularRegion(32,43.3,-125.0,-112.4,RegionDefaults.gridSpacing);
+			this.setBackGroundRegion(region);
+		} catch (RegionConstraintException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		/*locList.addLocation(new Location(42.009655,-124.407951));
 		   locList.addLocation(new Location(42.2,-114.130432));
 		   locList.addLocation(new Location(32.534878,-124.407951));
 		   locList.addLocation(new Location(32.534878,-114.130432));*/
 
 	}
-	
+
 	/**
 	 * I am not sure how the background grid will be loaded but this may be
 	 * needed
 	 *
 	 */
 	public void loadBackGroundGridFromFile(String fileName){
-		
-	    // Debug
+
+		// Debug
 		ArrayList backgroundRateFileLines = null;
-	    //read background rates file if needed
-	    if(!backgroundRatesFileAlreadyRead){
-	      try {
-	       backgroundRateFileLines = FileUtils.loadJarFile( BACKGROUND_RATES_FILE_NAME );
-	      } catch(Exception e) {
-	    	 
-	        throw new RuntimeException("Background file could not be loaded");
-	      }
-	      backgroundRatesFileAlreadyRead = true;
-	    }
+		//read background rates file if needed
+		if(!backgroundRatesFileAlreadyRead){
+			try {
+				backgroundRateFileLines = FileUtils.loadJarFile( BACKGROUND_RATES_FILE_NAME );
+			} catch(Exception e) {
 
-	    hypoMagFreqDist = new ArrayList();
-	    double lat, lon;
+				throw new RuntimeException("Background file could not be loaded");
+			}
+			backgroundRatesFileAlreadyRead = true;
+		}
 
-	    IncrementalMagFreqDist magFreqDist;
-	    PointEqkSource ptSource;
+		hypoMagFreqDist = new ArrayList();
+		double lat, lon;
 
-	    // Get iterator over input-file lines
-	    ListIterator it = backgroundRateFileLines.listIterator();
+		IncrementalMagFreqDist magFreqDist;
+		PointEqkSource ptSource;
 
-	    StringTokenizer st;
-        
-	    int forecastMagStart = getForecastMagStart();
-	    while( it.hasNext() ) {
+		// Get iterator over input-file lines
+		ListIterator it = backgroundRateFileLines.listIterator();
 
-	      // get next line
-	      st = new StringTokenizer(it.next().toString());
+		StringTokenizer st;
 
-	      // skip the event ID
-	      st.nextToken();
+		int forecastMagStart = getForecastMagStart();
+		while( it.hasNext() ) {
+			// get next line
+			st = new StringTokenizer(it.next().toString());
 
-	      // get lat and lon
-	      lon =  Double.parseDouble(st.nextToken());
-	      lat =  Double.parseDouble(st.nextToken());
+			// skip the event ID
+			st.nextToken();
 
-	      int numForecastMags = 1 +
-	        (int) ( (maxForecastMag - minForecastMag) /
-	        		this.deltaForecastMag);
-	      magFreqDist = new IncrementalMagFreqDist(minForecastMag,
-	    		  maxForecastMag,numForecastMags);
+			// get lat and lon
+			lon =  Double.parseDouble(st.nextToken());
+			lat =  Double.parseDouble(st.nextToken());
 
-	      // skip the mag=2, 2.1, ... 3.9
-	      for(int j=0; j < forecastMagStart; j++) st.nextToken();
+			int numForecastMags = 1 + (int) ( (maxForecastMag - minForecastMag) / this.deltaForecastMag);
+			magFreqDist = new IncrementalMagFreqDist(minForecastMag, maxForecastMag, numForecastMags);
 
-	      for(int i=0;i<numForecastMags;i++) {
-	        double rate = Double.parseDouble(st.nextToken());
-	        magFreqDist.set(i,rate);
-	      }
-	      Location loc = new Location(lat,lon,DEPTH);
-	      hypoMagFreqDist.add(new HypoMagFreqDistAtLoc(magFreqDist,loc));
-	    }
-	    backgroundSourcesAlreadyMade = true;
+			//??? skip the mag=2, 2.1, ... 3.9 -- numForecastMags=20?, is it necessarily 3.9?, is it dependent on minForecastMag?
+			for(int j=0; j < forecastMagStart; j++) st.nextToken();
+			
+			//get the forecast rates
+			for(int i = 0;i < numForecastMags; i++) {
+				if(st.hasMoreTokens()){
+					double rate = Double.parseDouble(st.nextToken());
+					magFreqDist.set(i,rate);
+				}
+			}
+			Location loc = new Location(lat,lon,DEPTH);
+			hypoMagFreqDist.add(new HypoMagFreqDistAtLoc(magFreqDist,loc));
+		}
+		backgroundSourcesAlreadyMade = true;
 	}
-	
+
+	/**
+	 * get the index of the minForecastMag in the Bg grid rate source file 
+	 * 
+	 * @return
+	 */
 	public int getForecastMagStart()
-	    {
-	        double diff = minForecastMag - minMagInSourceFile;
-	        if(diff <= 0.0D)
-	            return 0;
-	        else
-	            return (int)Math.round(diff / deltaForecastMag);
-	    }
-	
+	{
+		double diff = minForecastMag - minMagInSourceFile;
+		if(diff <= 0.0D){
+			return 0;
+		}else{
+			return (int)Math.round(diff / deltaForecastMag);
+		}
+	}
+
 	public void setBackGroundRegion(EvenlyGriddedGeographicRegionAPI backGroundRegion){
 		this.region = backGroundRegion;
 	}
-	
+
 	/**
 	 * setMinForecastMag
 	 */
 	public void setMinForecastMag(double minMag) {
 		this.minForecastMag = minMag;
 	}
-	
+
 	/**
 	 * setMaxForecastMag
 	 */
 	public void setMaxForecastMag(double maxMag) {
 		this.maxForecastMag = maxMag;
 	}
-	
+
 	/**
 	 * setDeltaForecastMag
 	 */
 	public void setDeltaForecastMag(double deltaMag) {
 		this.deltaForecastMag = deltaMag;
 	}
-	
+
 	/**
 	 * setSeqIndAtNode
 	 * @param ithLocation
@@ -1163,25 +1168,25 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	public void setSeqIndAtNode(int ithLocation, int seqInd){
 		seqIndAtNode[ithLocation] = seqInd;
 	}
-	
+
 	public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation){
-		
+
 		return (HypoMagFreqDistAtLoc)hypoMagFreqDist.get(ithLocation);
 	}
 
-	
+
 	public ArrayList<HypoMagFreqDistAtLoc> getMagDistList(){
 		return hypoMagFreqDist;
 	}
-	
-	
+
+
 	/**
 	 * setMagFreqDistAtLoc
 	 * @param locDist
 	 * @param ithLocation
 	 * set the (gridded) IncrementalMagFreqDist at this location 
 	 */
-	
+
 	public void setMagFreqDistAtLoc(IncrementalMagFreqDist locDist, int ithLocation){
 		/**
 		 * changed Nitin's original definition here as hypoMagFreqDist needs a Location
@@ -1192,12 +1197,12 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 		if (locDist.getClass().isInstance(tgrd)){
 	        System.out.println("is GRDdist" + ithLocation);
 		}
-		**/
-		
+		 **/
+
 		HypoMagFreqDistAtLoc tmpFreqDistAtLoc = (HypoMagFreqDistAtLoc)this.hypoMagFreqDist.get(ithLocation);	
 		Location tmpLoc = tmpFreqDistAtLoc.getLocation();
 		HypoMagFreqDistAtLoc newFreqDistAtLoc = new HypoMagFreqDistAtLoc(locDist,tmpLoc);
-		
+
 		//hypoMagFreqDist.set(ithLocation, locDist);
 		hypoMagFreqDist.set(ithLocation, newFreqDistAtLoc);
 	}
@@ -1221,7 +1226,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 	public ArrayList getHypoMagFreqDist() {
 		return hypoMagFreqDist;
 	}
-	
-	
+
+
 
 }

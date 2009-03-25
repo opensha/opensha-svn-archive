@@ -103,7 +103,7 @@ public class STEP_main {
 	/**
 	 * calc_STEP
 	 */
-	private  void calc_STEP() {
+	public  void calc_STEP() {
 
 		//ArrayList New_AftershockForecastList = null;	 
 
@@ -206,7 +206,7 @@ public class STEP_main {
 				double t_seqSumOver4 = 0;
 				if (forecastModel.getMainShock().getMag() > 7.0){
 					HypoMagFreqDistAtLoc t_seqDistAtLoc;    	  
-					for (int as=0;as<asZoneSize;++as){
+					for (int as = 0; as < asZoneSize; ++as){
 						//t_seqLoc = aftershockZoneList.getLocationAt(as);
 						t_seqDistAtLoc = forecastModel.getHypoMagFreqDistAtLoc(as);
 						t_seqSumOver4 += t_seqDistAtLoc.getFirstMagFreqDist().getCumRate(0);

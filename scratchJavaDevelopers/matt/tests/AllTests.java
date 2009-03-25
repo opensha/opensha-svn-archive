@@ -1,6 +1,5 @@
 package scratchJavaDevelopers.matt.tests;
 
-import org.opensha.util.tests.FaultUtilsTests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -11,6 +10,7 @@ public class AllTests extends TestCase {
 		    TestSuite suite = new TestSuite();
 		    suite.addTest(new TestSuite(STEP_mainTest.class));
 		    suite.addTest(new TestSuite(BackGroundRatesGridTest.class));
+		    suite.addTest(new TestSuite(STEP_HazardDataSetTest.class));
 		    return suite;	
 		  }
 
