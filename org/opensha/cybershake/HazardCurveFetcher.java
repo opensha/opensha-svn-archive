@@ -26,6 +26,7 @@ public class HazardCurveFetcher {
 	
 	public HazardCurveFetcher(DBAccess db, ArrayList<Integer> erfIDs, int rupVarScenarioID, int sgtVarID, int imTypeID) {
 		this.initDBConnections(db);
+		System.out.println("rupV: " + rupVarScenarioID + " sgtV: " + sgtVarID);
 		ids = curve2db.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFuncAPI>();
