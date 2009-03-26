@@ -60,6 +60,8 @@ public class STEP_main {
 	 * First load the active aftershock sequence objects from the last run
 	 * load: ActiveSTEP_AIC_AftershockForecastList
 	 * each object is a STEP_AftershockHypoMagFreqDistForecast
+	 * ?? 1. any reason for using a static ???
+	 * ?? 2. how long period this List is to store shocks??
 	 */
 	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
 
@@ -170,7 +172,7 @@ public class STEP_main {
 	public void processForcasts(ArrayList<HypoMagFreqDistAtLoc> hypList) {
 		int numAftershockModels = STEP_AftershockForecastList.size();
 
-		logger.info("numAftershockModels  " + numAftershockModels);
+		logger.info("processForcasts0 numAftershockModels  " + numAftershockModels);
 
 		//System.out.println("Number of Aftershock Models ="+numAftershockModels);
 		STEP_CombineForecastModels forecastModel;

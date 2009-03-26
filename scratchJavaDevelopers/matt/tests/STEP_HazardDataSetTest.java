@@ -100,7 +100,6 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		for(double val: stepBothProbVals){
 			//logger.info("val "  + val);
 			assertTrue(val>=0 && val <=1);
-		}
-	
+		}	
 	}
 }
