@@ -36,7 +36,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
    **/
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"AS2000.txt";
 
 

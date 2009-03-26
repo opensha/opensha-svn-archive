@@ -29,7 +29,7 @@ public class Spudich_1999_test extends TestCase implements ParameterChangeWarnin
 
   SEA_1999_AttenRel spudich_1999 = null;
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String Spudich_1999_RESULTS = RESULT_SET_PATH +"Spudich1999.txt";
 
   //Tolerence to check if the results fall within the range.

@@ -37,7 +37,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
    **/
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String CB_2003_RESULTS = RESULT_SET_PATH +"CB2003.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes

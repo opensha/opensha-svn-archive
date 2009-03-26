@@ -37,7 +37,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
    **/
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"SADIGH.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes

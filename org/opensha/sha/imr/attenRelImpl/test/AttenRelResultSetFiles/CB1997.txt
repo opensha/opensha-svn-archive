@@ -1,0 +1,3777 @@
+CAMPBELL (1997) w/ ERRATUM (2000, 2001) CHANGES
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.347693
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.443265
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.557782
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.631317
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.680222
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.623419
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.495674
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.337477
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.234062
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.170817
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.110371
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.071303
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.043392
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.023981
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.216276
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.275574
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.346629
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.392672
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.424264
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.389847
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.310553
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.181095
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.113146
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.076475
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.045472
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.027852
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.016381
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.009775
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.383724
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.489201
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.615586
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.696741
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.750713
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.688024
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.547041
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.372450
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.258318
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.188519
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.121809
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.078692
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.047889
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.026466
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.197625
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.250153
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.311585
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.350497
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.375618
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.345216
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.277431
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.191435
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.133973
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.098558
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.064258
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.041762
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.025619
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.014215
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.250388
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.319038
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.401301
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.454606
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.491180
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.451335
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.359535
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.209658
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.130992
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.088537
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.052644
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.032245
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.018965
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.011317
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.209801
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.265565
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.330782
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.372092
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.398760
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.366486
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.294524
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.203230
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.142228
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.104630
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.068217
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.044335
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.027197
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.015091
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.289880
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.369358
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.464595
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.526308
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.568650
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.522521
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.416242
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.242726
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.151653
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.102501
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.060948
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037331
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.021956
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.013102124
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.457028
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.554239
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.693947
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.801300
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.898606
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.857178
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.720068
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.531144
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.383821
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.293028
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.195115
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.131594
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.078028
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.046579
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.493223
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.568961
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.708827
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.835016
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.974633
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.967641
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.858821
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.677847
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.507323
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.401167
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.273227
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.191333
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.110375
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.070499
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.493223
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.568961
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.708827
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.835016
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.974633
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.967641
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.858821
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.757578
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.598084
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.516940
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.376371
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.276778
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.161811
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.112466
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.423490
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.539897
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.679379
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.768945
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.828510
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.759325
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.603731
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.411047
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.285088
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.208055
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.134432
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.086847
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.052851
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.029209
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.446579
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.515154
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.641793
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.756049
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.882462
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.876131
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.777603
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.576458
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.418655
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.314864
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.206533
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.140695
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.080555
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.049059
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.470927
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.491545
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.606287
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.743369
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.939928
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 1.010907
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 1.001549
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.798443
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.603586
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.463182
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.306141
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.218712
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.117640
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.078205
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.470927
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.491545
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.606287
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.743369
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.939928
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 1.010907
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 1.001549
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.892359
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.711569
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.596852
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.421709
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.316384
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.172461
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.124761
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.493223
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.568961
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.708827
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.835016
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.974633
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.967641
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.858821
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.677847
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.507323
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.401167
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.273227
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.191333
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.110375
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.070499
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.493223
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.568961
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.708827
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.835016
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.974633
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.967641
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.858821
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.677847
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.507323
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.401167
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.273227
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.191333
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.110375
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.070499
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.470927
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.491545
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.606287
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.743369
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.939928
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 1.010907
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 1.001549
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.892359
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.711569
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.596852
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.421709
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.316384
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.172461
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.124761
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.470927
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.491545
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.606287
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.743369
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.939928
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 1.010907
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 1.001549
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.892359
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.711569
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.596852
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.421709
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.316384
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.172461
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.124761
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.5
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.380000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.466154
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.4
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.380000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.466154
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.466154
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.474400
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.545853
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.545853
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 3.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.390000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.474342
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.390000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.474342
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.474342
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.391623
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.475677
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.475677
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 30.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.467596
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.539950
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.539950
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 50.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.550000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.612699
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.612699
+
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.292896
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.484281
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.680254
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.710740
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.578776
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.452015
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.279895
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.141741
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.097277
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.076077
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.050003
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.034074
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.017881
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.011673
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.150402
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.248541
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.348978
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.364938
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.298005
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.233343
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.144765
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.067079
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.044151
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.031506
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.019160
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.012723
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.007187
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.004815
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.305950
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.505866
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.710573
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.742417
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.604572
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.472162
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.292370
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.148058
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.101613
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.079468
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.052231
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.035592
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.018678
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012193
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.139432
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.228898
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.318262
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.330483
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.267675
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.209636
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.131207
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.067340
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.046634
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.036763
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.024382
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.016715
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.008842
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.005795
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.164805
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.272343
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.382399
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.399888
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.326544
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.255690
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.158628
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.073503
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.048379
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.034523
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.020995
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.013941
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.007875
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.005276
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.140101
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.229996
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.319790
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.332069
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.268960
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.210643
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.131837
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.067664
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.046857
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.036940
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.024499
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.016795
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.008884
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.005823
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.180588
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.298425
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.419020
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.438184
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.357816
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.280176
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.173820
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.080542
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.053012
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.037829
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.023006
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.015276
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.008629
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.005781
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.344896
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.542448
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.758159
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.808138
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.684948
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.556765
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.364251
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.199844
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.142901
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.116326
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.079687
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.055077
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.029799
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.020105
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.372210
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.556857
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.774416
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.842142
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.742898
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.628514
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.434440
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.255041
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.188882
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.158754
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.112604
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.078853
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.043697
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.030410
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.372210
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.556857
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.774416
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.842142
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.742898
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.628514
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.434440
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.285040
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.222673
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.206046
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.164871
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.115771
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.074628
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.053261
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.319586
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.528412
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.742243
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.775507
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.631518
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.493206
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.305401
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.154657
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.106142
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.083010
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.054559
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.037179
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.019510
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.012737
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.337010
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.504195
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.701179
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.762501
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.672642
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.569076
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.393355
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.216894
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.155870
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.124994
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.084351
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.058886
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.030764
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.021175
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.355385
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.481088
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.662387
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.749713
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.716444
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.656617
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.506640
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.300416
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.224722
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.183296
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.126168
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.090137
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.046573
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.033734
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.355385
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.481088
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.662387
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.749713
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.716444
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.656617
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.506640
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.335752
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.264925
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.237898
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.184732
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.132337
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.079540
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.059083
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.372210
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.556857
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.774416
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.842142
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.742898
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.628514
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.434440
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.255041
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.188882
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.158754
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.112604
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.078853
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.043697
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.030410
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.372210
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.556857
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.774416
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.842142
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.742898
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.628514
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.434440
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.255041
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.188882
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.158754
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.112604
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.078853
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.043697
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.030410
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.355385
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.481088
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.662387
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.749713
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.716444
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.656617
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.506640
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.335752
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.264925
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.237898
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.184732
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.132337
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.079540
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.059083
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Median") = 0.355385
+
+SetParameter("SA Period") = 0.05
+GetValue("Median") = 0.481088
+
+SetParameter("SA Period") = 0.075
+GetValue("Median") = 0.662387
+
+SetParameter("SA Period") = 0.10
+GetValue("Median") = 0.749713
+
+SetParameter("SA Period") = 0.15
+GetValue("Median") = 0.716444
+
+SetParameter("SA Period") = 0.20
+GetValue("Median") = 0.656617
+
+SetParameter("SA Period") = 0.30
+GetValue("Median") = 0.506640
+
+SetParameter("SA Period") = 0.50
+GetValue("Median") = 0.335752
+
+SetParameter("SA Period") = 0.75
+GetValue("Median") = 0.264925
+
+SetParameter("SA Period") = 1.00
+GetValue("Median") = 0.237898
+
+SetParameter("SA Period") = 1.50
+GetValue("Median") = 0.184732
+
+SetParameter("SA Period") = 2.00
+GetValue("Median") = 0.132337
+
+SetParameter("SA Period") = 3.00
+GetValue("Median") = 0.079540
+
+SetParameter("SA Period") = 4.00
+GetValue("Median") = 0.059083
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.5
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.523450
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.607783
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.4
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.523450
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.607783
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.607783
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.595529
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.670862
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.670862
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 3.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.530754
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.614085
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.530754
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.614085
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.614085
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.531948
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.615117
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.615117
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 30.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.590124
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.666068
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.666068
+
+
+SetIntensityMeasure(SA)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 50.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.657343
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.726292
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.726292
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+
+GetValue("Median") = 13.75252
+
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+
+GetValue("Median") = 6.71409
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+
+GetValue("Median") = 14.29382
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+GetValue("Median") = 7.66209
+
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+
+GetValue("Median") = 7.32039
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+
+GetValue("Median") = 7.66048
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 7.98144
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 20.83967
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 28.59762
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 42.17278
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 14.85643
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 21.94917
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 31.72375
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 46.78286
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 28.59762
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 28.59762
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 46.78286
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+
+GetValue("Median") = 46.78286
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.5
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+GetValue("Std. Dev.") = 0.384708
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.4
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+GetValue("Std. Dev.") = 0.384708
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+
+GetValue("Std. Dev.") = 0.478179
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 3.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+GetValue("Std. Dev.") = 0.394588
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+GetValue("Std. Dev.") = 0.394588
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+GetValue("Std. Dev.") = 0.396193
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 30.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+GetValue("Std. Dev.") = 0.471430
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 50.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+
+GetValue("Std. Dev.") = 0.553263
+
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 5.66349
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Other"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 2.43803
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+
+GetValue("Median") = 6.18821
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 3.42106
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Unknown"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 2.79448
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 6.76155
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 3.59570
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+
+GetValue("Median") = 3.20305
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 6.76155
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+
+GetValue("Median") = 6.76155
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 6.76155
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 6.76155
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 12.53268
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 1.0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 16.27438
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Soft-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 18.06810
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 6.76155
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 0.5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 13.19992
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 18.05340
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Firm-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 20.04320
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 16.27438
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Rock"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 16.27438
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 1
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 20.04320
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Campbell Site Type") = "Generic-Soil"
+SetParameter("Campbell-Basin-Depth") = 5
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Component") = "Vertical"
+
+GetValue("Median") = 20.04320
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.5
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.487852
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.4
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.487852
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 6.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (Mag Dependent)"
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.564496
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 3.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.495681
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 10.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.495681
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 20.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.496960
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 30.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.558790
+
+
+SetIntensityMeasure(PGV)
+SetParameter("Magnitude") = 7.0
+SetParameter("DistanceSeis") = 50.0
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Fault Type") = "Reverse"
+SetParameter("Campbell Site Type") = "Hard-Rock"
+SetParameter("Campbell-Basin-Depth") = 0.0
+SetParameter("Component") = "Vertical"
+
+GetValue("Std. Dev.") = 0.629365

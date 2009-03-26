@@ -21,7 +21,7 @@ public class BA_2006_test extends TestCase implements ParameterChangeWarningList
 	
 	  private BA_2006_AttenRel ba_2006 = null;
 	
-	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/BA06/";
+	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/NGA_ModelsTestFiles/depricated/BA06/";
 	  //private static final String BA_2006_RESULTS = RESULT_SET_PATH +"BA2006_NGA.txt";
 	
 	  //Tolerence to check if the results fall within the range.

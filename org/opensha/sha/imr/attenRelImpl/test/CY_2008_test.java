@@ -19,7 +19,7 @@ import org.opensha.util.FileUtils;
 
 public class CY_2008_test extends NGATest {
 	
-	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/CY08/";
+	private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/NGA_ModelsTestFiles/CY08/";
 	
 	private CY_2008_AttenRel cy_08;
 	

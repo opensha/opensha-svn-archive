@@ -259,6 +259,7 @@ public class AttenRelResultsChecker {
       }
       }catch(Exception e){
       e.printStackTrace();
+      return false;
     }
     // test cases vector that contains the failed test number
     //if the size of this vector is not zero then return false(to make sure that some test did failed)

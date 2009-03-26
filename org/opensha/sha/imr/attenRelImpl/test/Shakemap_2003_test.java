@@ -29,7 +29,7 @@ public class Shakemap_2003_test extends TestCase implements ParameterChangeWarni
 
   ShakeMap_2003_AttenRel shakemap_2003 = null;
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String ShakeMap_2003_RESULTS = RESULT_SET_PATH +"shakemap2003.txt";
 
   //Tolerence to check if the results fall within the range.

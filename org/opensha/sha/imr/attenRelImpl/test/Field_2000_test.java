@@ -29,7 +29,7 @@ public class Field_2000_test extends TestCase implements ParameterChangeWarningL
 
   Field_2000_AttenRel field_2000 = null;
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String FIELD_2000_RESULTS = RESULT_SET_PATH +"FIELD.txt";
 
   //Tolerence to check if the results fall within the range.

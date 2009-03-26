@@ -29,7 +29,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   BJF_1997_AttenRel bjf_1997 = null;
 
-  private static final String RESULT_SET_PATH = "AttenRelResultSet/";
+  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/";
   private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"BOORE.txt";
 
   //Tolerence to check if the results fall within the range.

@@ -20,7 +20,7 @@ public class CB_2006_test extends TestCase implements ParameterChangeWarningList
 	
 	  private CB_2006_AttenRel cb_2006 = null;
 	
-	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/AttenRelResultSet/NGA_ModelsTestFiles/CB06/";
+	  private static final String RESULT_SET_PATH = "org/opensha/sha/imr/attenRelImpl/test/AttenRelResultSetFiles/NGA_ModelsTestFiles/depricated/CB06/";
 	  //private static final String CB_2006_RESULTS = RESULT_SET_PATH +"CB2006_NGA.txt";
 	
 	  private double[] period={0.010,0.020,0.030,0.050,0.075,0.10,0.15,0.20,0.25,0.30,0.40,0.50,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
