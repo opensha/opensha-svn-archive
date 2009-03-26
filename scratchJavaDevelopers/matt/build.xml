@@ -23,7 +23,11 @@
 	
     <target name="clean"
             description="Clean the output directory (start from scratch).">
-        <delete dir="${dir.build}"/>
+        <delete >
+    	<fileset dir="${dir.build}" >
+	            <include name="**/*"/>
+	        </fileset>
+    	</delete>
     </target>
 	
 	<target name="help"
@@ -56,6 +60,7 @@
                source="1.5"
                target="1.5">        	
         	<include name="scratchJavaDevelopers/matt/**"/>
+        	
             <classpath refid="classpath"/>
         </javac>       
         
@@ -64,11 +69,12 @@
    <target name="package"
            depends="compile"
            description="Package the application">
-
-        <jar jarfile="${dir.build}/${app.name}.jar"
-             basedir="${dir.classes}">
-        </jar>
+		<delete file ="${dir.build}/${app.name}.jar"/>
    	
+        <jar jarfile="${dir.build}/${app.name}.jar"
+             basedir="${dir.classes}">        	
+        	<exclude name="scratchJavaDevelopers/matt/tests/**"/>
+        </jar>   	
    </target>
 	
 	<!-- <fileset dir="${dir.src}" includes="data/mattg_test/"/> -->	
@@ -93,12 +99,12 @@
 		        </fileset>
 			</classpath>
 		</junit>
-        
+        <!--data no longer needed -->		
         <delete >
 			<fileset dir="." >
 	            <include name="data/"/>
 	        </fileset>
-		 </delete>
+		 </delete>		
 	</target> 
-  
+	
 </project>
