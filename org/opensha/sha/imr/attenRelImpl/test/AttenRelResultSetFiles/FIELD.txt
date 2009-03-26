@@ -5,7 +5,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 620
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Magnitude") = 7
-SetParameter("Basin-Depth-2.5") = 0.0
+SetParameter("Field-Basin-Depth") = 0.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.258683
@@ -25,7 +25,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 620
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Magnitude") = 7
-SetParameter("Basin-Depth-2.5") = 5.0
+SetParameter("Field-Basin-Depth") = 5.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.361623
@@ -45,7 +45,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 620
 SetParameter("Fault Type") = "Other/Unknown"
 SetParameter("Magnitude") = 7
-SetParameter("Basin-Depth-2.5") = 0.0
+SetParameter("Field-Basin-Depth") = 0.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.253814
@@ -65,7 +65,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 620
 SetParameter("Fault Type") = "Other/Unknown"
 SetParameter("Magnitude") = 7
-SetParameter("Basin-Depth-2.5") = 5.0
+SetParameter("Field-Basin-Depth") = 5.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.354817
@@ -85,7 +85,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 310
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Magnitude") = 7
-SetParameter("Basin-Depth-2.5") = 5.0
+SetParameter("Field-Basin-Depth") = 5.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.402360
@@ -105,7 +105,7 @@ SetParameter("DistanceJB") = 10
 SetParameter("Vs30") = 620
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Magnitude") = 6
-SetParameter("Basin-Depth-2.5") = 5.0
+SetParameter("Field-Basin-Depth") = 5.0
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.248539

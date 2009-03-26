@@ -11,7 +11,7 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 
 public abstract class NGATest extends TestCase implements ParameterChangeWarningListener {
 	
-	public static double tolerance = 1;
+	public static double tolerance = 0.5;
 	
 	private String dir;
 	
