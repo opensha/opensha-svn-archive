@@ -36,11 +36,15 @@ public class HazardCurve2DB {
 		ArrayList<Integer> runIDs = new ArrayList<Integer>();
 		
 		for (int erfID : erfIDs) {
-			runIDs.addAll(runs2db.getRunIDs(-1, erfID, sgtVarID, -1, null, null, null, null));
+			ArrayList<Integer> newIDs = runs2db.getRunIDs(-1, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
+			if (newIDs != null && newIDs.size() > 0)
+				runIDs.addAll(newIDs);
 		}
 		
 		for (int runID : runIDs) {
-			curveIDs.addAll(getAllHazardCurveIDs(runID, imTypeID));
+			ArrayList<Integer> newIDs = getAllHazardCurveIDs(runID, imTypeID);
+			if (newIDs != null && newIDs.size() > 0)
+				curveIDs.addAll(newIDs);
 		}
 		
 		return curveIDs;
