@@ -37,7 +37,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	private boolean willSiteClass = true;
 	//private boolean willSiteClass = false;
 	private AttenuationRelationship attenRel;
-	private static final String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
+	public static final String STEP_BG_FILE_NAME = RegionDefaults.backgroundHazardPath;
 	private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
 	private static final double IML_VALUE = Math.log(0.126);
 	private static final double SA_PERIOD = 1;
