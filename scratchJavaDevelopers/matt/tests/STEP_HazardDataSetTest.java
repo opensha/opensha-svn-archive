@@ -12,6 +12,16 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import scratchJavaDevelopers.matt.calc.STEP_HazardDataSet;
 import scratchJavaDevelopers.matt.calc.STEP_main;
 
+/**
+ * 
+ *  backgroundHazardPath is defined in RegionDefaults as STEP_backGround.txt and 
+	the file is attached.  This is the back ground Probability file.  This is the 
+	probability of exceeding MMI VI.  The file above is the RATE of M>4 
+	earthquakes in all Magnitude bins.	
+	
+ * @author baishan
+ *
+ */
 public class STEP_HazardDataSetTest  extends TestCase {
 	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class);
 	private STEP_main stepmain  ;
@@ -94,12 +104,18 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		logger.info("testCalcStepProbValues " );
 		SitesInGriddedRectangularRegion region = step_HazardDataSet.getDefaultRegion();//
 		//logger.info("region.getNumGridLocs " + region.getNumGridLocs());
+		double[] bgVals = step_HazardDataSet.getBGVals(region.getNumGridLocs(),step_HazardDataSet.STEP_BG_FILE_NAME);
 		double[] stepBothProbVals = step_HazardDataSet.calcStepProbValues(region);
 		//logger.info("stepBothProbVals "  + stepBothProbVals.length);		
-		assertTrue(stepBothProbVals.length == region.getNumGridLocs());
-		for(double val: stepBothProbVals){
-			//logger.info("val "  + val);
-			assertTrue(val>=0 && val <=1);
-		}	
+		int num = stepBothProbVals.length;
+		assertTrue(num == region.getNumGridLocs());
+		for(int i = 0 ; i < num; i++){
+			double totalVal = stepBothProbVals[i];
+			double bgVal = stepBothProbVals[i];
+			//logger.info("bgVal "  + bgVal);
+			//logger.info("totalVal "  + totalVal);
+			assertTrue(totalVal>=0 && totalVal <=1);
+			assertTrue(totalVal>=bgVal );
+		}
 	}
 }

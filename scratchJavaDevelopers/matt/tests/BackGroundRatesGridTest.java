@@ -22,12 +22,18 @@ public class BackGroundRatesGridTest  extends TestCase {
 	private static Logger logger = Logger.getLogger(BackGroundRatesGridTest.class);
 	private BackGroundRatesGrid bgGrid1;
 	private BackGroundRatesGrid bgGrid2;
+	private BackGroundRatesGrid bgGrid3;
 	protected void setUp() {
 		//simple bg grid as in STEP_Main, with only one mag freq value
-		bgGrid1 = new BackGroundRatesGrid(RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt");
+		bgGrid1 = new BackGroundRatesGrid(0,0,0);
+		bgGrid1.setBgGridFilename(RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt");
+		bgGrid1.initialize();	
+		//RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt"
 		//BackGroundRatesGrid with a range of mag freq values
 		bgGrid2 = new BackGroundRatesGrid(4, 8, 0.1);
 		bgGrid2.setBgGridFilename(RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt");
+		
+		bgGrid3 = new BackGroundRatesGrid(RegionDefaults.TEST_Path + "/AllCal96ModelDaily.txt");
 		
 	}
 
@@ -37,9 +43,11 @@ public class BackGroundRatesGridTest  extends TestCase {
 	public void testBgRatesGridStart() {
 		int start1 = bgGrid1.getForecastMagStart();
 		int start2 = bgGrid2.getForecastMagStart();
-		logger.info("start1 " + start1 + " start2 " + start2);
+		int start3 = bgGrid3.getForecastMagStart();
+		logger.info("start1 " + start1 + " start2 " + start2 + " start3 " + start3);
 		assertTrue(start1 == 0);
 		assertTrue(start2 == 20);
+		assertTrue(start3 == 20);
 		
 		assertTrue(bgGrid1.isBackgroundRatesFileAlreadyRead());
 		assertTrue(bgGrid1.isBackgroundSourcesAlreadyMade());

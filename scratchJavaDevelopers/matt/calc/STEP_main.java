@@ -394,6 +394,7 @@ public class STEP_main {
 	public ObsEqkRupList  loadNewEvents() {
 		CubeToObsEqkRupture getNewEvents = null;
 		try {
+			logger.info("eventsFilePath  " + eventsFilePath );
 			getNewEvents = new CubeToObsEqkRupture(eventsFilePath );
 			return  getNewEvents.getAllObsEqkRupEvents(); 
 		}

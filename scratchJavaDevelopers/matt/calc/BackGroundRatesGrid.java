@@ -42,6 +42,9 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 
 	public BackGroundRatesGrid()
 	{
+	  minForecastMag = RegionDefaults.minForecastMag;
+	  maxForecastMag =  RegionDefaults.maxForecastMag;
+	  deltaForecastMag = RegionDefaults.deltaForecastMag;
 
 	}
 
@@ -52,7 +55,13 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 		this.deltaForecastMag = deltaForecastMag;
 	}
 
-	public BackGroundRatesGrid(String fileName){		
+	/**
+	 * 
+	 * @param fileName
+	 */
+	public BackGroundRatesGrid(String fileName){	
+		//take default values for minForecastMag, maxForecastMag, deltaForecastMag??
+		this();
 		setBgGridFilename(fileName);
 		initialize();
 
@@ -1087,6 +1096,7 @@ public class BackGroundRatesGrid extends GriddedHypoMagFreqDistForecast{
 		StringTokenizer st;
 
 		int forecastMagStart = getForecastMagStart();
+		logger.info(" forecastMagStart " + forecastMagStart);
 		while( it.hasNext() ) {
 			// get next line
 			st = new StringTokenizer(it.next().toString());
