@@ -336,12 +336,10 @@ public class HazardCurve2DB {
 		}
 
 		try {
-			rs.first();
-			while (!rs.isAfterLast()) {
+			while (rs.next()) {
 				double x = rs.getDouble("X_Value");
 				double y = rs.getDouble("Y_Value");
 				hazardFunc.set(x, y);
-				rs.next();
 			}
 			rs.close();
 			return hazardFunc;
