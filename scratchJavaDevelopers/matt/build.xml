@@ -30,8 +30,7 @@
     	</delete>
     </target>
 	
-	<target name="help"
-	        description="Clean the output directory (start from scratch).">
+	<target name="help">
 	    <echo>
 	        base.dir: ${dir.base}
 	    	export  ANT_OPTS="-Xms512m -Xmx1g"

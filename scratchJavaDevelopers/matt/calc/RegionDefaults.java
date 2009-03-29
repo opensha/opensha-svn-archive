@@ -39,6 +39,8 @@ public class RegionDefaults {
   public static String outputAftershockRatePath =  TEST_Path + "/TimeDepRates.txt";
   //this is for Damage States
   public static String outputHazCurvePath = TEST_Path + "/HazCurve_Probs.txt";
+  //STEP_Rates
+  public static String outputSTEP_Rates = TEST_Path + "/STEP_Rates.txt";
   
   public static double minMagForMainshock = 3.0;
   public static double minForecastMag = 4.0;

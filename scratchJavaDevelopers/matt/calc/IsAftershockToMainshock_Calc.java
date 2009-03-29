@@ -21,6 +21,7 @@ public class IsAftershockToMainshock_Calc {
   private ObsEqkRupture newEvent;
   private STEP_CombineForecastModels mainshockModel;
   private boolean isInZone;
+  private boolean sameEvent;
 
   public IsAftershockToMainshock_Calc(ObsEqkRupture newEvent,
                                       STEP_CombineForecastModels
@@ -36,11 +37,22 @@ public class IsAftershockToMainshock_Calc {
   public boolean get_isAftershock() {
     return isInZone;
   }
+  
+  
 
-  /**
+  public boolean isSameEvent() {
+	return sameEvent;
+}
+
+/**
    * Calc_IsAftershockToPrev
    */
   private boolean Calc_IsAftershockToMainshock() {
+	  sameEvent = false;
+	  if(mainshockModel.getMainShock().equalsObsEqkRupEvent(newEvent)){
+		  sameEvent = true;
+	  }
+	  
     boolean isInZone;
     EvenlyGriddedGeographicRegionAPI aftershockZone;
     aftershockZone = mainshockModel.getAfterShockZone();

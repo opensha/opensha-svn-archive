@@ -41,7 +41,7 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 	private static final String STEP_HAZARD_OUT_FILE_NAME = RegionDefaults.outputHazardPath;
 	private static final double IML_VALUE = Math.log(0.126);
 	private static final double SA_PERIOD = 1;
-	private static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
+	public static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
 	private DecimalFormat locFormat = new DecimalFormat("0.0000");
 	private STEP_main stepMain ;
 
@@ -301,7 +301,10 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		}
 
 		return probVals;
-	}	 
+	}
+	
+	
+	
 
 
 	/**

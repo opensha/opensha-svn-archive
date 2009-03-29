@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.util.FileUtils;
 
 import scratchJavaDevelopers.matt.calc.STEP_HazardDataSet;
 import scratchJavaDevelopers.matt.calc.STEP_main;
@@ -118,4 +119,12 @@ public class STEP_HazardDataSetTest  extends TestCase {
 			assertTrue(totalVal>=bgVal );
 		}
 	}
+	
+	public void testSTEP_AftershockForecastListFromFile(){
+	  //stepAftershockList
+	  //Object stepAftershockListObj = step_HazardDataSet.readSTEP_AftershockForecastListFromFile();
+	  //logger.info("stepAftershockListObj " + stepAftershockListObj.getClass());
+	}
+
+
 }

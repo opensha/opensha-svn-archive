@@ -14,6 +14,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.util.FileUtils;
 
 //tested
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
@@ -55,16 +56,21 @@ public class STEP_main {
 
 	private String eventsFilePath = RegionDefaults.cubeFilePath;
 	private String bgRatesFilePath = BACKGROUND_RATES_FILE_NAME;
+	//public static final String STEP_AFTERSHOCK_OBJECT_FILE = RegionDefaults.STEP_AftershockObjectFile;
 
 	/**
 	 * First load the active aftershock sequence objects from the last run
 	 * load: ActiveSTEP_AIC_AftershockForecastList
 	 * each object is a STEP_AftershockHypoMagFreqDistForecast
 	 * ?? 1. any reason for using a static ???
-	 * ?? 2. how long period this List is to store shocks??
+	 * 
 	 */
-	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
+	private static ArrayList <STEP_CombineForecastModels> STEP_AftershockForecastList;// =  new ArrayList <STEP_CombineForecastModels> ();
 
+	//read from serialized file
+    static{
+			readSTEP_AftershockForecastListFromFile();
+		}
 
 	public STEP_main() {
 		// System.out.println("11111");
@@ -153,7 +159,8 @@ public class STEP_main {
 		 */
 		createRateFile(bgGrid);
 		createStepSources(hypList);//add to sourceList
-		createRateFile(sourceList);
+		//not sure what this file is for
+		createRateFile(sourceList,RegionDefaults.outputSTEP_Rates );
 		/**
 		 * now remove all model elements that are newer than
 		 * 7 days (or whatever is defined in RegionDefaults)
@@ -263,22 +270,31 @@ public class STEP_main {
 		ListIterator newIt = newObsEqkRuptureList.listIterator();
 		logger.info("newObsEqkRuptureList size " + newObsEqkRuptureList.size());
 		boolean isAftershock = false;
-		int indexNum, maxMagInd = -1;
+		//int maxMagInd = -1;
 		int numMainshocks = STEP_AftershockForecastList.size();	    
 		logger.info("numMainshocks  " + numMainshocks);	    
 		double maxMag = 0, msMag, newMag;
 
 		synchronized(STEP_AftershockForecastList) {//lock STEP_AftershockForecastList
 			// loop over new events
-			while (newIt.hasNext()) {
+			loop1: while (newIt.hasNext()) {
 				newEvent = (ObsEqkRupture) newIt.next();
 				newMag = newEvent.getMag();
 				//System.out.println("new mainshock mag = "+newMag);
 
 				//System.out.println("number of main shock="+numMainshocks);
+				
+				int maxMagInd = -1; //!!! set to init value each round
 				//loop over existing mainshocks
-				for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
+				loop2: for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
 					mainshockModel = (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
+					
+					//see if the event already in the list ??????
+					if(isObsEqkRupEventEqual(mainshockModel.getMainShock(), newEvent)){//this event is already in the list
+						logger.info(">>> same event");
+						continue loop1;
+					}
+					
 					mainshock = mainshockModel.getMainShock();
 					msMag = mainshock.getMag();
 					//if (msMag >= 7.0)
@@ -290,7 +306,7 @@ public class STEP_main {
 
 					// returns boolean if event is in aftershockzone, but does not set anything
 					IsAftershockToMainshock_Calc seeIfAftershock =
-						new IsAftershockToMainshock_Calc(newEvent, mainshockModel);
+						new IsAftershockToMainshock_Calc(newEvent, mainshockModel);	
 					if (seeIfAftershock.get_isAftershock()) {
 						// if the new event is larger than the mainshock, make the mainshock
 						// static so that it will no longer accept aftershocks.
@@ -363,7 +379,6 @@ public class STEP_main {
 			}//end of loop1 -- new events
 		}
 		return numMainshocks;
-
 	}
 
 
@@ -409,12 +424,12 @@ public class STEP_main {
 	}
 
 
-	private void createRateFile(ArrayList<PointEqkSource> sourcelist){
+	private void createRateFile(ArrayList<PointEqkSource> sourcelist, String outputFile){
 		int size = sourcelist.size();
 		FileWriter fw = null;
 		System.out.println("Writing file");
 		try {
-			fw = new FileWriter("STEP_Rates");
+			fw = new FileWriter(outputFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -515,8 +530,30 @@ public class STEP_main {
 			fr.close();
 		}catch(IOException ee){
 			ee.printStackTrace();
-		}      
+		}    
 
+	}
+	
+    /**
+     * read the serialized step forcast objects back from file
+     * this object is written into file in the class:STEP_HazardDataSet
+     * to save and get objects in the format of serialized object 
+     * could cause exception when the classes change between subsequent runs
+     * and since the List STEP_CombineForecastModels stores all the events ever 
+     * in such case, we will need to run all the events to restore this List
+     * ??? is it better to save / read in plain file or database?
+     */
+    public static synchronized void   readSTEP_AftershockForecastListFromFile( ){		
+		//stepAftershockList
+    	try{
+    		STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
+	    } catch ( Exception ex) {
+			//ex.printStackTrace();
+			logger.error("readSTEP_AftershockForecastListFromFile error " + ex );
+			//create an empty List
+			STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
+		}
+		//logger.info("stepAftershockListObj " + stepAftershockListObj.getClass());
 	}
 
 
@@ -543,6 +580,58 @@ public class STEP_main {
 	public BackGroundRatesGrid getBgGrid() {
 		return bgGrid;
 	}
+	
+	
+	/**
+	 * check two event is equal
+	 * the equalsObsEqkRupEvent method in ObsEqkRupture class
+	 * doesnt seem correct
+	 * 
+	 * @param obsRupEvent0
+	 * @param obsRupEvent
+	 * @return
+	 */
+	public boolean isObsEqkRupEventEqual(ObsEqkRupture obsRupEvent0, ObsEqkRupture obsRupEvent){
+	    //if any of the condition is not true else return false
+	    if(!obsRupEvent0.getEventId().equals(obsRupEvent.getEventId() ))
+	    {
+	    	//logger.info(">> check 1 id1=" + obsRupEvent0.getEventId() + " id2=" + obsRupEvent.getEventId());
+	      return false;
+	    }
+	    		
+		if(obsRupEvent0.getEventVersion() != obsRupEvent.getEventVersion() )
+		{
+	    	//logger.info(">> check 2");
+	       return false;
+	    }
+	    			
+		if(!obsRupEvent0.getMagType().equals(obsRupEvent.getMagType() )){
+	    	//logger.info(">> check 3");
+		      return false;
+		    }
+		if(obsRupEvent0.getMagError() != obsRupEvent.getMagError()){
+	    	//logger.info(">> check 4");
+		      return false;
+		    }
+		
+		if(obsRupEvent0.getHypoLocHorzErr() != obsRupEvent.getHypoLocHorzErr()){
+	    	//logger.info(">> check 5");
+		      return false;
+		    }
+		
+		if( obsRupEvent0.getHypoLocVertErr() != obsRupEvent.getHypoLocVertErr()){
+	    	//logger.info(">> check 6");
+		      return false;
+		    }
+		
+		 if(obsRupEvent0.getMag() != obsRupEvent.getMag()){
+	    	//logger.info(">> check 7");
+	      return false;
+	    }
+
+	    return true;
+	  }
+	
 
 
 }
