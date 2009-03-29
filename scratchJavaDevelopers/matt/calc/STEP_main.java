@@ -593,38 +593,13 @@ public class STEP_main {
 	 */
 	public boolean isObsEqkRupEventEqual(ObsEqkRupture obsRupEvent0, ObsEqkRupture obsRupEvent){
 	    //if any of the condition is not true else return false
-	    if(!obsRupEvent0.getEventId().equals(obsRupEvent.getEventId() ))
-	    {
-	    	//logger.info(">> check 1 id1=" + obsRupEvent0.getEventId() + " id2=" + obsRupEvent.getEventId());
-	      return false;
-	    }
-	    		
-		if(obsRupEvent0.getEventVersion() != obsRupEvent.getEventVersion() )
-		{
-	    	//logger.info(">> check 2");
-	       return false;
-	    }
-	    			
-		if(!obsRupEvent0.getMagType().equals(obsRupEvent.getMagType() )){
-	    	//logger.info(">> check 3");
-		      return false;
-		    }
-		if(obsRupEvent0.getMagError() != obsRupEvent.getMagError()){
-	    	//logger.info(">> check 4");
-		      return false;
-		    }
-		
-		if(obsRupEvent0.getHypoLocHorzErr() != obsRupEvent.getHypoLocHorzErr()){
-	    	//logger.info(">> check 5");
-		      return false;
-		    }
-		
-		if( obsRupEvent0.getHypoLocVertErr() != obsRupEvent.getHypoLocVertErr()){
-	    	//logger.info(">> check 6");
-		      return false;
-		    }
-		
-		 if(obsRupEvent0.getMag() != obsRupEvent.getMag()){
+	    if(!obsRupEvent0.getEventId().equals(obsRupEvent.getEventId() )||
+		    obsRupEvent0.getEventVersion() != obsRupEvent.getEventVersion() ||
+		    !obsRupEvent0.getMagType().equals(obsRupEvent.getMagType() )||
+		    obsRupEvent0.getMagError() != obsRupEvent.getMagError()||
+		    obsRupEvent0.getHypoLocHorzErr() != obsRupEvent.getHypoLocHorzErr()||
+		    obsRupEvent0.getHypoLocVertErr() != obsRupEvent.getHypoLocVertErr()||
+		    obsRupEvent0.getMag() != obsRupEvent.getMag()){
 	    	//logger.info(">> check 7");
 	      return false;
 	    }
