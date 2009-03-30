@@ -94,7 +94,9 @@ public class STEP_HazardDataSet implements ParameterChangeWarningListener{
 		//5.1. backup aftershocks
 		ArrayList stepAftershockList= stepMain.getSTEP_AftershockForecastList();
 		//saving the STEP_Aftershock list object to the file
-		FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+		synchronized(stepAftershockList){
+			FileUtils.saveObjectInFile(STEP_AFTERSHOCK_OBJECT_FILE, stepAftershockList);
+		}
 	}
 
 

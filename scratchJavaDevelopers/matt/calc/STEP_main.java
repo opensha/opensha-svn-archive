@@ -543,7 +543,7 @@ public class STEP_main {
      * in such case, we will need to run all the events to restore this List
      * ??? is it better to save / read in plain file or database?
      */
-    public static synchronized void   readSTEP_AftershockForecastListFromFile( ){		
+    public static  void   readSTEP_AftershockForecastListFromFile( ){		
 		//stepAftershockList
     	try{
     		STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
