@@ -547,7 +547,9 @@ public class STEP_main {
 		//stepAftershockList
     	try{
     		STEP_AftershockForecastList = (ArrayList<STEP_CombineForecastModels>) FileUtils.loadObject(RegionDefaults.STEP_AftershockObjectFile);
-	    } catch ( Exception ex) {
+    		if(STEP_AftershockForecastList == null)
+    		    STEP_AftershockForecastList =  new ArrayList <STEP_CombineForecastModels> ();
+    	} catch ( Exception ex) {
 			//ex.printStackTrace();
 			logger.error("readSTEP_AftershockForecastListFromFile error " + ex );
 			//create an empty List
