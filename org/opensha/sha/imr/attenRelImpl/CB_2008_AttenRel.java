@@ -22,7 +22,7 @@ import org.opensha.util.FileUtils;
  * <b>Description:</b> This implements the Attenuation Relationship published by Campbell & Bozorgnia 
  * (2008, "NGA Ground Motion Model for the Geometric Mean Horizontal Component of PGA, PGV, PGD and 
  * 5% Damped Linear Elastic Response Spectra for Periods Ranging from 0.01 to 10 s", 
- * Earthquake Spectra, 24(1) , pp. 139-171) <p>
+ * Earthquake Spectra, Volume 24, Number 1, pp. 139-171) <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>

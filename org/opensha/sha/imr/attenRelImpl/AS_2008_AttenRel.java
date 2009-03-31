@@ -22,7 +22,7 @@ import org.opensha.util.FileUtils;
  * <b>Title:</b> AS_2008_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship published by Abrahamson & Silva (2008,
- * "Summary of the Abrahamson & Silva NGA Ground-Motion Relations", Earthquake Spectra, 24(1) , pp. 67-97) <p>
+ * "Summary of the Abrahamson & Silva NGA Ground-Motion Relations", Earthquake Spectra, Volume 24, Number 1, pp. 67-97) <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>

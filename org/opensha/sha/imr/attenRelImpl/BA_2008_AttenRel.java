@@ -18,7 +18,7 @@ import org.opensha.util.FaultUtils;
  *
  * <b>Description:</b> This implements the Attenuation Relationship published by Boore & Atkinson (2008,
  * "Ground-Motion Prediction Equations for the Average Horizontal Component of PGA, PGV, and 5%-Damped PSA 
- * at Spectral Periods between 0.01 s and 10.0 s", Earthquake Spectra, 24(1) , pp. 99-138)
+ * at Spectral Periods between 0.01 s and 10.0 s", Earthquake Spectra, Volume 24, Number 1, pp. 99-138)
  * 
  *
  * Supported Intensity-Measure Parameters:<p>
