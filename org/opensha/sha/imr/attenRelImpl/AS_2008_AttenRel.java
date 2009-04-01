@@ -58,7 +58,7 @@ import org.opensha.util.FileUtils;
  * (we could change this if aftershock info is added to an EqkRupture, but it's not clear this
  * is justified).
  * <p>
- * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using ???? (still need to find out).
+ * If depthTo1pt0kmPerSecParam is null, it is set from Vs30 using their equation (17).
  * <p>
  * Verification - This model has been tested against: 1) a verification file generated independently by Ken Campbell,
  * implemented in the JUnit test class AS_2008_test; and  2) by the test class NGA08_Site_EqkRup_Tests, which makes sure
@@ -527,13 +527,10 @@ NamedObjectAPI, ParameterChangeListener {
 	}
 
 	/**
-	 * Calculates the mean of the exceedance probability distribution. <p>
+	 * Calculates the mean
 	 * @return    The mean value
 	 */
 	public double getMean() {
-		// CG: Below used for validation for OUT files from Ken 
-		// to differentiate MS (f_as=0) from AS (f_as=1)
-//		double f_as=0.0;
 
 		// check if distance is beyond the user specified max
 		if (rRup > USER_MAX_DISTANCE) {
@@ -547,17 +544,6 @@ NamedObjectAPI, ParameterChangeListener {
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
 		double rX  = rRup - distRupMinusDistX_OverRup*rRup;
 
-
-		// CG: Below used for validation for OUT files from Ken 
-		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
-		// but Ken's files specify rJB directly. 
-		// The following if statements take care of the two problems encountered
-//		if (rJB==9.0){
-//		rJB=10.0;
-//		}	else if (rJB==4.5){
-//		rJB=5.0;
-//		}
-
 		// Returns the index of the period just below Td (Eq. 21)
 		double Td=Math.pow(10,-1.25+0.3*mag );
 		int iTd= searchTdIndex(Td);
@@ -566,11 +552,16 @@ NamedObjectAPI, ParameterChangeListener {
 		computeRockPGA(rJB, rX); 
 		
 		double basinDepth;
-		if(Double.isNaN(depthTo1pt0kmPerSec))
-			throw new RuntimeException("figure out what to add here (their page 96 refers to non-existent equation (8)");
+		if(Double.isNaN(depthTo1pt0kmPerSec)) {
+			if(vs30<180) basinDepth = Math.exp(6.745);
+			else if (vs30>500)  basinDepth = Math.exp(5.394-4.48*Math.log(vs30/500));
+			else  basinDepth = Math.exp(6.745-1.35*Math.log(vs30/180));	
+// System.out.println("basin depth from vs30 = "+basinDepth);
+		}
 		else
 			basinDepth = depthTo1pt0kmPerSec;
 
+// System.out.println("basin depth = "+basinDepth);
 
 		double f10 = getf10(iper, vs30, basinDepth);
 		//System.out.println("From getf10, f10 = "+f10);
@@ -578,15 +569,15 @@ NamedObjectAPI, ParameterChangeListener {
 		double mean = 0.0;
 		if(per[iper]<Td || (Td>=10.0 && iTd==22)) {
 			mean = (getMean(iper,0, vs30, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip, rupWidth,
-					depthTop, basinDepth, pga_rock))+f10;
+					depthTop, pga_rock))+f10;
 //			System.out.println("From getMean, if(per<Td), mean = "+ Math.exp(mean));
 
 		} else {
 			double medSa1100WithTdMinus = Math.exp(getMean(iTd,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-					rupWidth, depthTop, basinDepth,  pga_rock));
+					rupWidth, depthTop,  pga_rock));
 
 			double medSa1100WithTdPlus = Math.exp(getMean(iTd+1,0 , 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-					rupWidth, depthTop, basinDepth,  pga_rock));
+					rupWidth, depthTop,  pga_rock));
 			//System.out.println("From getMean, pga_rock = "+pga_rock+" Tdminus = "+per[iTd]+", meanSa1100TdMinus= "+ medSa1100WithTdMinus +", Tdplus = "+per[iTd+1]+", meanSa1100TdPlus= "+ medSa1100WithTdPlus);
 
 			double f5 = getf5(iper, vs30, pga_rock);
@@ -616,7 +607,7 @@ NamedObjectAPI, ParameterChangeListener {
 	private void computeRockPGA(double rJB, double rX) {
 		if(rock_pga_is_not_fresh) {
 			pga_rock = Math.exp(getMean(1,0, 1100.0, rRup, rJB, f_as, rX, f_rv, f_nm, mag, dip,
-					rupWidth, depthTop, 0.0,  0.0));   // Note that value of depthTo1pt0kmPerSec has no influence
+					rupWidth, depthTop,  0.0));   
 			rock_pga_is_not_fresh = false;
 		}
 	}
@@ -626,9 +617,6 @@ NamedObjectAPI, ParameterChangeListener {
 	 * @return    The stdDev value
 	 */
 	public double getStdDev() {
-		// CG: Below used for validation for OUT files from Ken 
-		// to differentiate MS (f_as=0) from AS (f_as=1)
-//				double f_as=0.0;
 		
 		if (intensityMeasureChanged) {
 			setCoeffIndex();  // intensityMeasureChanged is set to false in this method
@@ -637,17 +625,6 @@ NamedObjectAPI, ParameterChangeListener {
 		double rJB = rRup - distRupMinusJB_OverRup*rRup;
 		double rX  = rRup - distRupMinusDistX_OverRup*rRup;
 
-
-		// CG: Below used for validation for OUT files from Ken 
-		// Because rJB in OpenSHA is computed based on Rup and distRupMinusJB_OverRup
-		// but Ken's files specify rJB directly. 
-		// The following if statements take care of the two problems encountered
-//				if (rJB==9.0){
-//						rJB=10.0;
-//				}	else if (rJB==4.5){
-//						rJB=5.0;
-//				}
-		
 		// compute rock PGA
 		computeRockPGA(rJB, rX);
 
@@ -1088,7 +1065,7 @@ NamedObjectAPI, ParameterChangeListener {
 		return f10;
 	}
 	  /**
-	   * Calculates the median IML, but does not include the f10 term (which is why it was made private). <p>
+	   * Calculates the median IML, but does not include the f10 term from depthTo1pt0kmPerSec (which is why it was made private). <p>
 	   * @return  
 	   */
 
@@ -1096,7 +1073,6 @@ NamedObjectAPI, ParameterChangeListener {
 			double rJB, double f_as, double rX, double f_rv,
 			double f_nm, double mag, double dip, 
 			double rupWidth, double depthTop,
-			double depthTo1pt0kmPerSec,
 			double pga_rock) {
 
 		double rR, v1, vs30Star, f1, f4, f5, f6, f8;
@@ -1405,7 +1381,6 @@ NamedObjectAPI, ParameterChangeListener {
 			}
 		}
 		else if (pName.equals(DEPTH_1pt0_NAME)) {
-			depthTo1pt0kmPerSec = (Double)depthTo1pt0kmPerSecParam.getValue();
 			if(val == null)
 				depthTo1pt0kmPerSec = Double.NaN;  // can't set the default here because vs30 could still change
 			else
