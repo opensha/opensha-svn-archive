@@ -1,6 +1,8 @@
 package org.opensha.sha.imr;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.dom4j.Attribute;
@@ -42,6 +44,8 @@ public abstract class IntensityMeasureRelationship
     implements IntensityMeasureRelationshipAPI {
 
   private final static String NAME = "Intensity Measure Relationship";
+  
+  protected String url_info_string;
   
   public final static String XML_METADATA_NAME = "IMR";
   public final static String XML_METADATA_IMT_NAME = "IntensityMeasure";
@@ -604,4 +608,19 @@ public abstract class IntensityMeasureRelationship
 	  
 	  return imr;
   }
+  
+  
+  /**
+   * This provides a URL where more info on this model can be obtained
+   * @throws MalformedURLException if returned URL is not a valid URL.
+   * @returns the URL to the AttenuationRelationship document on the Web.
+   * 
+   * This default implementation returns nothing
+   */
+  public URL getInfoURL() throws MalformedURLException{
+	  return new URL(null);
+  }
+
+
+
 }

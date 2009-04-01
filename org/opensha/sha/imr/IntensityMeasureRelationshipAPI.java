@@ -1,5 +1,7 @@
 package org.opensha.sha.imr;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.opensha.data.*;
@@ -206,5 +208,13 @@ public interface IntensityMeasureRelationshipAPI
    * @return    The Supported Intensity-Measures Iterator
    */
   public ListIterator getSupportedIntensityMeasuresIterator();
+  
+  /**
+   * This provides a URL where additional info can be found
+   * @throws MalformedURLException if returned URL is not a valid URL.
+   * @returns the URL to the AttenuationRelationship document on the Web.
+   */
+  public URL getInfoURL() throws MalformedURLException;
+
 
 }

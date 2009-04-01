@@ -1558,7 +1558,7 @@ public class AttenuationRelationshipApplet extends JFrame
   
   void attenRelInfobutton_actionPerformed(ActionEvent e) {
 	    try {
-	    	URL url = attenRel.getAttenuationRelationshipURL();
+	    	URL url = attenRel.getInfoURL();
 	    	if(url == null){
 	    		hb.setDisplayed(false);
 	    		JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");

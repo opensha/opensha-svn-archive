@@ -63,9 +63,11 @@ public class BA_2008_AttenRel
   public final static String SHORT_NAME = "Boore2008";
   private static final long serialVersionUID = 1234567890987654353L;
 
-
   // Name of IMR
   public final static String NAME = "Boore & Atkinson (2008)";
+  
+  // URL Info String
+  private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/BA_2008.html";
 
   
   // coefficients:
@@ -714,12 +716,13 @@ public class BA_2008_AttenRel
   }
 
   /**
-   * 
+   * This provides a URL where more info on this model can be obtained
    * @throws MalformedURLException if returned URL is not a valid URL.
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
-  public URL getAttenuationRelationshipURL() throws MalformedURLException{
-	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/BA_2008.html");
-  }   
+  public URL getInfoURL() throws MalformedURLException{
+	  return new URL(URL_INFO_STRING);
+  }
+
   
 }

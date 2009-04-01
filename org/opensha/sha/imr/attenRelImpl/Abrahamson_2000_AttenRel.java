@@ -59,6 +59,10 @@ public class Abrahamson_2000_AttenRel
   public final static String NAME = "Abrahamson (2000)";
   public final static String SHORT_NAME = "Abrahamson2000";
   private static final long serialVersionUID = 1234567890987654351L;
+  
+  // URL Info String
+  private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/Abrahamson_2000.html";
+
 
 
   // style of faulting options
@@ -1285,13 +1289,15 @@ public class Abrahamson_2000_AttenRel
     }
   }
   
+  
   /**
-   * 
+   * This provides a URL where more info on this model can be obtained
    * @throws MalformedURLException if returned URL is not a valid URL.
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
-  public URL getAttenuationRelationshipURL() throws MalformedURLException{
-	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/Abrahamson_2000.html");
+  public URL getInfoURL() throws MalformedURLException{
+	  return new URL(URL_INFO_STRING);
   }
+
   
 }

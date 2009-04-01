@@ -839,11 +839,13 @@ public class SadighEtAl_1997_AttenRel
   }
   
   /**
-   * 
+   * This provides a URL where more info on this model can be obtained
    * @throws MalformedURLException if returned URL is not a valid URL.
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
-  public URL getAttenuationRelationshipURL() throws MalformedURLException{
+  public URL getInfoURL() throws MalformedURLException{
 	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/SadighEtAl_1997.html");
-  } 
+  }
+
+  
 }

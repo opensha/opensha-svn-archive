@@ -174,8 +174,8 @@ public class AttenuationRelationshipGuiBean
      * If AttenuationRelationship specific URL does not exist then it returns
      * generic AttenuationRelationship URL.
      */
-    public URL getAttenuationRelationshipURL() throws MalformedURLException{
-    	return attenRel.getAttenuationRelationshipURL();
+    public URL getInfoURL() throws MalformedURLException{
+    	return attenRel.getInfoURL();
     }
     
     /**

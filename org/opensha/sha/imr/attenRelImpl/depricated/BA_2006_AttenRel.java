@@ -726,7 +726,7 @@ public class BA_2006_AttenRel
    * @throws MalformedURLException if returned URL is not a valid URL.
    * @returns the URL to the AttenuationRelationship document on the Web.
    */
-  public URL getAttenuationRelationshipURL() throws MalformedURLException{
+  public URL getInfoURL() throws MalformedURLException{
 	  return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/BA_2006.html");
   }   
   

@@ -85,6 +85,10 @@ NamedObjectAPI, ParameterChangeListener {
 	private final static boolean D = false;
 	public final static String SHORT_NAME = "AS2008";
 	private static final long serialVersionUID = 1234567890987654358L;
+	
+	  // URL Info String
+	  private final static String URL_INFO_STRING = "http://www.opensha.org/documentation/modelsImplemented/attenRel/AS_2008.html";
+
 
 	// style of faulting param options
 	public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
@@ -1470,14 +1474,14 @@ NamedObjectAPI, ParameterChangeListener {
 		periodParam.addParameterChangeListener(this);
 	}
 
-	/**
-	 * 
-	 * @throws MalformedURLException if returned URL is not a valid URL.
-	 * @returns the URL to the AttenuationRelationship document on the Web.
-	 */
-	public URL getAttenuationRelationshipURL() throws MalformedURLException{
-		return new URL("http://www.opensha.org/documentation/modelsImplemented/attenRel/AS_2008.html");
-	}   
+	  /**
+	   * This provides a URL where more info on this model can be obtained
+	   * @throws MalformedURLException if returned URL is not a valid URL.
+	   * @returns the URL to the AttenuationRelationship document on the Web.
+	   */
+	  public URL getInfoURL() throws MalformedURLException{
+		  return new URL(URL_INFO_STRING);
+	  }
 
 	/**
 	 * CG: This comment was for CB 2008. Need to check with Ned what's the reason behind it:
