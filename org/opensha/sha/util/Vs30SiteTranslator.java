@@ -17,15 +17,15 @@ import org.opensha.sha.imr.AttenuationRelationship;
  Abrahamson & Silva (1997) & Abrahamson (2000):
  ----------------------------------------------
 
- NA 				if Vs30²180
- Deep-Soil			if Vs30 ² 400 m/s & Basin-Depth-2.5 ³ 100 m
+ NA 				if Vs30ï¿½180
+ Deep-Soil			if Vs30 ï¿½ 400 m/s & Basin-Depth-2.5 ï¿½ 100 m
  Rock/Shallow-Soil		otherwise
 
  Sadigh et al. (1997):
  ---------------------
 
- NA 				if Vs30²180
- Deep-Soil			if Vs30 ² 400 m/s & Basin-Depth-2.5 ³ 100 m
+ NA 				if Vs30ï¿½180
+ Deep-Soil			if Vs30 ï¿½ 400 m/s & Basin-Depth-2.5 ï¿½ 100 m
  Rock				otherwise
 
  Boore et al. (1997)
@@ -36,12 +36,12 @@ import org.opensha.sha.imr.AttenuationRelationship;
  Campbell (1997)
  ---------------
 
- NA 				if Vs30²180
- Firm-Soil			if 180<Vs30²400
- Soft-Rock			if 400<Vs30²500
+ NA 				if Vs30ï¿½180
+ Firm-Soil			if 180<Vs30ï¿½400
+ Soft-Rock			if 400<Vs30ï¿½500
  Hard-Rock			if 500>Vs30
 
- Campbell-Basin-Depth = 0                    		if Vs30 ³ 400
+ Campbell-Basin-Depth = 0                    		if Vs30 ï¿½ 400
  Campbell-Basin-Depth = Basin-Depth-2.5      	if Vs30 < 400
 
  Field (2000)
@@ -53,16 +53,16 @@ import org.opensha.sha.imr.AttenuationRelationship;
  Campbell & Bozorgnia (2003)
  ---------------------------
 
- NA 			if Vs30²180
- Firm-Soil		if 180<Vs30²300
- Very-Firm-Soil	        if 300<Vs30²400
- Soft-Rock		if 400<Vs30²500
+ NA 			if Vs30ï¿½180
+ Firm-Soil		if 180<Vs30ï¿½300
+ Very-Firm-Soil	        if 300<Vs30ï¿½400
+ Soft-Rock		if 400<Vs30ï¿½500
  Firm-Rock		if 500>Vs30
 
  ShakeMap (2003)
  ---------------
 Unfortunately Wills et al. (2000) do not give a unique mapping between Vs30 and their classification.
-The following is based on the average value for each class. If it's not exactly one of these, NA is returned.
+The following is based on the average value for each class (their Table 4). If it's not exactly one of these, NA is returned.
 Note that we couldn't just use mid points because Vs30 for BC is greater than for B.
 
 
