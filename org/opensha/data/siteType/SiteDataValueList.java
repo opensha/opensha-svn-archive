@@ -1,21 +1,25 @@
 package org.opensha.data.siteType;
 
-import java.beans.XMLEncoder;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.util.XMLUtils;
 
+/**
+ * This class represents a list of site data values. The advantage that it has over an ArrayList of
+ * SiteDataValue objects is that it only stores the metadata for the values once, instead of once
+ * for each value.
+ * 
+ * @author Kevin Milner
+ *
+ * @param <E>
+ */
 public class SiteDataValueList<E> implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataValueList";

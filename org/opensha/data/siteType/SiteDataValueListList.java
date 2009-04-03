@@ -10,6 +10,13 @@ import org.opensha.data.Location;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.util.XMLUtils;
 
+/**
+ * This represents a list of site data value lists. It is most useful for applications such
+ * as hazard maps, and for XML saving/loading.
+ * 
+ * @author Kevin Milner
+ *
+ */
 public class SiteDataValueListList implements XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataValuesList";

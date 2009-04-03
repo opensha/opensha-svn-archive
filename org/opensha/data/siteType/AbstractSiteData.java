@@ -18,6 +18,14 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 
+/**
+ * Abstract implementation of SiteDataAPI. It handles some of the basic methods, such as
+ * getValues, and getAnnnotatedValue(s). It also creates default parameters for convenience.
+ * 
+ * @author Kevin Milner
+ *
+ * @param <Element>
+ */
 public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> {
 	
 	protected ParameterList paramList;

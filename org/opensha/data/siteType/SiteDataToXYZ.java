@@ -8,6 +8,13 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 
+/**
+ * This class takes a SiteDataAPI object and writes it's data to a GMT XYZ file for a given region.
+ * If no region is given, the applicable region for the data provider is used.
+ * 
+ * @author Kevin Milner
+ *
+ */
 public class SiteDataToXYZ {
 	
 	public static void writeXYZ(SiteDataAPI<?> data, EvenlyGriddedGeographicRegion region,

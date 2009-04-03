@@ -1,5 +1,13 @@
 package org.opensha.data.siteType;
 
+/**
+ * This represents a single site data value, along with metadata describing it's
+ * type and source. It is returned by the SiteDataAPI.getAnnotatedValue method. 
+ * 
+ * @author Kevin
+ *
+ * @param <Element>
+ */
 public class SiteDataValue<Element> {
 	
 	private String type;

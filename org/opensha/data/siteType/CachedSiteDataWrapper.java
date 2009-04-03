@@ -3,8 +3,6 @@ package org.opensha.data.siteType;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.text.AttributeSet.ParagraphAttribute;
-
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;
@@ -14,6 +12,14 @@ import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 
+/**
+ * This is a class that takes and SiteDataAPI class and wraps it to add a cache for faster retrieval
+ * of data in situations where the same location may be requested often.
+ * 
+ * @author Kevin Milner
+ *
+ * @param <Element>
+ */
 public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, ParameterChangeListener {
 	
 	private int cacheSize;

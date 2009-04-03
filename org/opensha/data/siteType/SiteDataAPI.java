@@ -11,6 +11,18 @@ import org.opensha.metadata.XMLSaveable;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
 
+/**
+ * This is the basic API for a class that provides site type information,
+ * such as Vs30 and basin depth. It also contains the static strings for
+ * specifying types of data.
+ * 
+ * It uses generics to allow for any type of data object to be used, from
+ * Strings and Doubles to an arbitrarily complex object.
+ * 
+ * @author Kevin Milner
+ *
+ * @param <Element>
+ */
 public interface SiteDataAPI<Element> extends NamedObjectAPI, XMLSaveable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataAPI";

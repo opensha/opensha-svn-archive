@@ -401,7 +401,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	 */
 	@Override
 	public Object clone() {
-		ArrayList<SiteDataAPI<?>> list = (ArrayList<SiteDataAPI<?>>)this.getList().clone();
+		ArrayList<SiteDataAPI<?>> list = (ArrayList<SiteDataAPI<?>>)this.providers.clone();
 		
 		OrderedSiteDataProviderList newList = new OrderedSiteDataProviderList(list);
 		
