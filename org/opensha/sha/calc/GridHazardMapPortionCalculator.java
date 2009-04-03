@@ -37,6 +37,7 @@ import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;
@@ -328,7 +329,45 @@ public class GridHazardMapPortionCalculator {
 					ParameterAPI param = (ParameterAPI)it.next();
 					System.out.println(param.getName() + ": " + param.getValue());
 				}
-
+				
+				// get the location from the site for output file naming
+				String lat = decimalFormat.format(site.getLocation().getLatitude());
+				String lon = decimalFormat.format(site.getLocation().getLongitude());
+				String prefix = "";
+				String curveDir = "curves/";
+				String jobDir = lat + "/";
+				prefix += outputDir;
+				prefix += curveDir;
+				File curveDirFile = new File(prefix);
+				if (!curveDirFile.exists()) {
+					curveDirFile.mkdir();
+				}
+				
+				prefix += jobDir;
+				File dir = new File(prefix);
+				if (!dir.exists()) {
+					dir.mkdir();
+//					chmod(dir.getAbsolutePath());
+				}
+				String outFileName = prefix + lat + "_" + lon + ".txt";
+				
+				// check to see if the file exists...like for a repair run
+				File outFileFile = new File(outFileName);
+				if (outFileFile.exists()) {
+					ArbitrarilyDiscretizedFunc fileFunc = loadCurveFile(outFileName);
+					if (fileFunc != null) {
+						int numPts = hazFunction.getNum();
+						if (fileFunc.getNum() == numPts && fileFunc.getX(0) == hazFunction.getX(0)
+								&& fileFunc.getX(numPts -1) == hazFunction.getX(numPts - 1)) {
+							// if we're in here then the file loaded fine as a function, has the same number
+							// of points, and has the same starting and ending x value...we can skip this site!
+							if (print)
+								System.out.println("Skipping a Hazard Curve!");
+							continue;
+						}
+					}
+				}
+				
 				// take the log of the hazard function and to send to the calculator
 				ArbitrarilyDiscretizedFunc logHazFunction = getLogFunction(hazFunction);
 
@@ -339,9 +378,6 @@ public class GridHazardMapPortionCalculator {
 				if (print)
 					System.out.println("Calculated a curve!");
 				
-				// get the location from the site for output file naming
-				String lat = decimalFormat.format(site.getLocation().getLatitude());
-				String lon = decimalFormat.format(site.getLocation().getLongitude());
 				// convert the hazard function back from log values
 				hazFunction = unLogFunction(hazFunction, logHazFunction);
 				
@@ -361,23 +397,6 @@ public class GridHazardMapPortionCalculator {
 				}
 
 				// write the result to the file
-				String prefix = "";
-				String curveDir = "curves/";
-				String jobDir = lat + "/";
-				prefix += outputDir;
-				prefix += curveDir;
-				File curveDirFile = new File(prefix);
-				if (!curveDirFile.exists()) {
-					curveDirFile.mkdir();
-				}
-				
-				prefix += jobDir;
-				File dir = new File(prefix);
-				if (!dir.exists()) {
-					dir.mkdir();
-//					chmod(dir.getAbsolutePath());
-				}
-				String outFileName = prefix + lat + "_" + lon + ".txt";
 				if (print)
 					System.out.println("Writing Results to File: " + outFileName);
 				File outFile = new File(outFileName);
@@ -513,6 +532,16 @@ public class GridHazardMapPortionCalculator {
 //		}
 //		else
 //			throw new RuntimeException("Unsupported IMT");
+	}
+	
+	public static ArbitrarilyDiscretizedFunc loadCurveFile(String fileName) {
+		try {
+			ArbitrarilyDiscretizedFunc func = MakeXYZFromHazardMapDir.loadFuncFromFile(fileName);
+			return func;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public boolean isTimer() {

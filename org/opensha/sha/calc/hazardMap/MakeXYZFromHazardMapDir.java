@@ -98,20 +98,7 @@ public class MakeXYZFromHazardMapDir {
 
 	public double handleFile(String fileName, boolean isProbAt_IML, double val) {
 		try {
-			ArrayList fileLines = FileUtils.loadFile(fileName);
-			String dataLine;
-			StringTokenizer st;
-			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-
-			for(int i=0;i<fileLines.size();++i) {
-				dataLine=(String)fileLines.get(i);
-				st=new StringTokenizer(dataLine);
-				//using the currentIML and currentProb we interpolate the iml or prob
-				//value entered by the user.
-				double currentIML = Double.parseDouble(st.nextToken());
-				double currentProb= Double.parseDouble(st.nextToken());
-				func.set(currentIML, currentProb);
-			}
+			ArbitrarilyDiscretizedFunc func = loadFuncFromFile(fileName);
 			
 			return getCurveVal(func, isProbAt_IML, val);
 		} catch (FileNotFoundException e) {
@@ -120,6 +107,24 @@ public class MakeXYZFromHazardMapDir {
 			e.printStackTrace();
 		}
 		return Double.NaN;
+	}
+	
+	public static ArbitrarilyDiscretizedFunc loadFuncFromFile(String fileName) throws FileNotFoundException, IOException {
+		ArrayList<String> fileLines = FileUtils.loadFile(fileName);
+		String dataLine;
+		StringTokenizer st;
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+
+		for(int i=0;i<fileLines.size();++i) {
+			dataLine=(String)fileLines.get(i);
+			st=new StringTokenizer(dataLine);
+			//using the currentIML and currentProb we interpolate the iml or prob
+			//value entered by the user.
+			double currentIML = Double.parseDouble(st.nextToken());
+			double currentProb= Double.parseDouble(st.nextToken());
+			func.set(currentIML, currentProb);
+		}
+		return func;
 	}
 	
 	public static double getCurveVal(DiscretizedFuncAPI func, boolean isProbAt_IML, double val) {
