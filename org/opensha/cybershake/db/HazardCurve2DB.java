@@ -321,7 +321,7 @@ public class HazardCurve2DB {
 	}
 	
 	public DiscretizedFuncAPI getHazardCurve(int id) {
-		DiscretizedFuncAPI hazardFunc = new ArbitrarilyDiscretizedFunc();
+		DiscretizedFuncAPI hazardFunc = null;
 		
 		String sql = "SELECT X_Value, Y_Value FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + id + 
 						" ORDER BY X_Value";
@@ -337,6 +337,8 @@ public class HazardCurve2DB {
 
 		try {
 			while (rs.next()) {
+				if (hazardFunc == null)
+					hazardFunc = new ArbitrarilyDiscretizedFunc();
 				double x = rs.getDouble("X_Value");
 				double y = rs.getDouble("Y_Value");
 				hazardFunc.set(x, y);

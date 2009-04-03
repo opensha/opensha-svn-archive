@@ -508,6 +508,10 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == TYPE_TXT;
 			ArrayList<DiscretizedFuncAPI> curves = this.plotCurve(curveID, run, textOnly);
+			if (curves == null) {
+				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
+				continue;
+			}
 			for (String type : types) {
 				type = type.toLowerCase();
 				
@@ -558,6 +562,9 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 		curveNames.clear();
 		System.out.println("Fetching Curve!");
 		DiscretizedFuncAPI curve = curve2db.getHazardCurve(curveID);
+		
+		if (curve == null)
+			return null;
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		chars.add(new PlotCurveCharacterstics(this.plotChars.getCyberShakeLineType(), this.plotChars.getCyberShakeColor(), 1));
