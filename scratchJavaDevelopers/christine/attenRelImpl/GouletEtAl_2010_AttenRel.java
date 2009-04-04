@@ -708,4 +708,4 @@ public class GouletEtAl_2010_AttenRel
         return b.toString();
       }
     }
-  }
+}
