@@ -692,21 +692,20 @@ public class GouletEtAl_2010_AttenRel
      *
      * @return    Description of the Return Value
      */
+    
+    
     public String toString() {
-
-      StringBuffer b = new StringBuffer();
-      b.append(C);
-      b.append("\n  Period = " + period);
-      b.append("\n  b1 = " + b1);
-      b.append("\n  vRef = " + vRef);
-      b.append("\n  c = " + c);
-      b.append("\n  b2 = " + b2);
-      b.append("\n  tau = " + tau);
-      b.append("\n  e1 = " + e1);
-      b.append("\n e3 = " + e3);
-      return b.toString();
+        StringBuffer b = new StringBuffer();
+        b.append(C);
+        b.append("\n  Period = " + period);
+        b.append("\n  b1 = " + b1);
+        b.append("\n  vRef = " + vRef);
+        b.append("\n  c = " + c);
+        b.append("\n  b2 = " + b2);
+        b.append("\n  tau = " + tau);
+        b.append("\n  e1 = " + e1);
+        b.append("\n e3 = " + e3);
+        return b.toString();
+      }
     }
   }
-
-}
-
