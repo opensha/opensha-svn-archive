@@ -662,21 +662,22 @@ public class GouletEtAl_2010_AttenRel
      *
      * @param  name  Description of the Parameter
      */
-    public GouletEtAl_2010_AttenRelCoefficients(String name, double period, 
-    		double b1, double vRef, double c, double b2, 
-    		double tau, double e1, double e3) {
-
-      this.name = name;
-      this.period = period;
-      this.b1 = b1;
-      this.vRef = vRef;
-      this.c = c;
-      this.b2 = b2;
-      this.tau = tau;
-      this.e1 = e1;
-      this.e3 = e3;
-    }
-
+    public GouletEtAl_2010_AttenRelCoefficients(String name, double period,
+            double b1, double vRef, double c,
+            double b2, double tau,
+            double e1, double e3) {
+    	
+        this.name = name;
+        this.period = period;
+        this.b1 = b1;
+        this.vRef = vRef;
+        this.c = c;
+        this.b2 = b2;
+        this.tau = tau;
+        this.e1 = e1;
+        this.e3 = e3;
+      }
+    	
     /**
      *  Gets the name attribute
      *
@@ -707,5 +708,5 @@ public class GouletEtAl_2010_AttenRel
     }
   }
 
-
 }
+
