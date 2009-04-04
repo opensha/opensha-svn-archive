@@ -61,7 +61,7 @@ public class GouletEtAl_2010_AttenRel
   protected final static Double VS30_WARN_MAX = new Double(760.0);
 
  
-  protected AS_1997_AttenRel as_1997_attenRel;
+  protected CB_2008_AttenRel cb_2008_attenRel;
   /**
    * The current set of coefficients based on the selected intensityMeasure
    */
@@ -119,24 +119,24 @@ public class GouletEtAl_2010_AttenRel
 
     this.warningListener = warningListener;
 
-    as_1997_attenRel = new AS_1997_AttenRel(warningListener);
+    cb_2008_attenRel = new CB_2008_AttenRel(warningListener);
     // set the site type to rock
-    as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
-        as_1997_attenRel.SITE_TYPE_ROCK);
+//    cb_2008_attenRel.getParameter(cb_2008_attenRel.SITE_TYPE_NAME).setValue(
+//        cb_2008_attenRel.SITE_TYPE_ROCK);
     // set the component to ave horz
-    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-        as_1997_attenRel.COMPONENT_AVE_HORZ);
+//    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
+//        cb_2008_attenRel.COMPONENT_AVE_HORZ);
 
-    // overide local params with those in as_1997_attenRel
-    this.sigmaTruncTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_TYPE_NAME);
-    this.sigmaTruncLevelParam = (DoubleParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.SIGMA_TRUNC_LEVEL_NAME);
-    this.exceedProbParam = (DoubleParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.EXCEED_PROB_NAME);
-    this.stdDevTypeParam = (StringParameter) as_1997_attenRel.getParameter(
-        as_1997_attenRel.STD_DEV_TYPE_NAME);
-    this.periodParam = (DoubleDiscreteParameter) as_1997_attenRel.getParameter(
+    // overide local params with those in cb_2008_attenRel
+    this.sigmaTruncTypeParam = (StringParameter) cb_2008_attenRel.getParameter(
+        cb_2008_attenRel.SIGMA_TRUNC_TYPE_NAME);
+    this.sigmaTruncLevelParam = (DoubleParameter) cb_2008_attenRel.getParameter(
+        cb_2008_attenRel.SIGMA_TRUNC_LEVEL_NAME);
+    this.exceedProbParam = (DoubleParameter) cb_2008_attenRel.getParameter(
+        cb_2008_attenRel.EXCEED_PROB_NAME);
+    this.stdDevTypeParam = (StringParameter) cb_2008_attenRel.getParameter(
+        cb_2008_attenRel.STD_DEV_TYPE_NAME);
+    this.periodParam = (DoubleDiscreteParameter) cb_2008_attenRel.getParameter(
         PERIOD_NAME);
 
     initCoefficients();
@@ -167,7 +167,7 @@ public class GouletEtAl_2010_AttenRel
    * @throws InvalidRangeException thrown if rake is out of bounds
    */
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
-    this.as_1997_attenRel.setEqkRupture(eqkRupture);
+    this.cb_2008_attenRel.setEqkRupture(eqkRupture);
     this.eqkRupture = eqkRupture;
   }
 
@@ -186,8 +186,8 @@ public class GouletEtAl_2010_AttenRel
 	  AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
 	  AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());  
 	  this.site = site;
-	  // set the location in as_1997_attenRel
-	  as_1997_attenRel.setSiteLocation(site.getLocation());
+	  // set the location in cb_2008_attenRel
+	  cb_2008_attenRel.setSiteLocation(site.getLocation());
   }
 
   /**
@@ -226,8 +226,8 @@ public class GouletEtAl_2010_AttenRel
     double asRockSA, lnAF;
 
     // get AS-1997 SA for rock
-    as_1997_attenRel.setIntensityMeasure(im);
-    asRockSA = as_1997_attenRel.getMean();
+    cb_2008_attenRel.setIntensityMeasure(im);
+    asRockSA = cb_2008_attenRel.getMean();
     
         // get the amp factor
     double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
@@ -260,8 +260,8 @@ public class GouletEtAl_2010_AttenRel
   private double getStdDevForCG(){
 	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
-	  as_1997_attenRel.setIntensityMeasure(im);
-	  double asRockStdDev = as_1997_attenRel.getStdDev();
+	  cb_2008_attenRel.setIntensityMeasure(im);
+	  double asRockStdDev = cb_2008_attenRel.getStdDev();
 	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
 	  return Math.sqrt(stdDev);
   }
@@ -274,12 +274,12 @@ public class GouletEtAl_2010_AttenRel
 	    AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
 	    AF_SlopeParam.setValue(this.AF_SLOPE_PARAM_DEFAULT);
 	    AF_StdDevParam.setValue(this.AF_STD_DEV_DEFAULT);
-	    as_1997_attenRel.setParamDefaults();
+	    cb_2008_attenRel.setParamDefaults();
 	    // re-set the site type to rock and component to ave horz
-	    as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(
-	        as_1997_attenRel.SITE_TYPE_ROCK);
-	    as_1997_attenRel.getParameter(as_1997_attenRel.COMPONENT_NAME).setValue(
-	        as_1997_attenRel.COMPONENT_AVE_HORZ);
+//	    cb_2008_attenRel.getParameter(cb_2008_attenRel.SITE_TYPE_NAME).setValue(
+//	        cb_2008_attenRel.SITE_TYPE_ROCK);
+//	    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
+//	        cb_2008_attenRel.COMPONENT_AVE_HORZ);
   }
   
   
@@ -296,56 +296,56 @@ public class GouletEtAl_2010_AttenRel
 
     // params that the mean depends upon
     meanIndependentParams.clear();
-    ListIterator it = as_1997_attenRel.getMeanIndependentParamsIterator();
-    String ignoreStr1 = as_1997_attenRel.SITE_TYPE_NAME;
-    String ignoreStr2 = as_1997_attenRel.COMPONENT_NAME;
+    ListIterator it = cb_2008_attenRel.getMeanIndependentParamsIterator();
+//    String ignoreStr1 = cb_2008_attenRel.SITE_TYPE_NAME;
+//    String ignoreStr2 = cb_2008_attenRel.COMPONENT_NAME;
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+//      if (!ignoreStr1.equals(param.getName()) &&
+//          !ignoreStr2.equals(param.getName())) {
         meanIndependentParams.addParameter(param);
-      }
+//      }
     }
     meanIndependentParams.addParameter(AF_AddRefAccParam);
     meanIndependentParams.addParameter(AF_InterceptParam);
     meanIndependentParams.addParameter(AF_SlopeParam);
     meanIndependentParams.addParameter(AF_StdDevParam);
-    meanIndependentParams.addParameter(componentParam);
+ //   meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     
-    it = as_1997_attenRel.getStdDevIndependentParamsIterator();
+    it = cb_2008_attenRel.getStdDevIndependentParamsIterator();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+//      if (!ignoreStr1.equals(param.getName()) &&
+//          !ignoreStr2.equals(param.getName())) {
         stdDevIndependentParams.addParameter(param);
-      }
+//      }
     }
     
     stdDevIndependentParams.addParameter(AF_AddRefAccParam);
     stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
     stdDevIndependentParams.addParameter(AF_StdDevParam);
-    stdDevIndependentParams.addParameter(componentParam);
+  //  stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    it = as_1997_attenRel.getExceedProbIndependentParamsIterator();
+    it = cb_2008_attenRel.getExceedProbIndependentParamsIterator();
     while (it.hasNext()) {
       Parameter param = (Parameter) it.next();
-      if (!ignoreStr1.equals(param.getName()) &&
-          !ignoreStr2.equals(param.getName())) {
+//      if (!ignoreStr1.equals(param.getName()) &&
+//          !ignoreStr2.equals(param.getName())) {
         exceedProbIndependentParams.addParameter(param);
-      }
+//      }
     }
     
     exceedProbIndependentParams.addParameter(AF_AddRefAccParam);
     exceedProbIndependentParams.addParameter(AF_InterceptParam);
     exceedProbIndependentParams.addParameter(AF_SlopeParam);
     exceedProbIndependentParams.addParameter(AF_StdDevParam);
-    exceedProbIndependentParams.addParameter(componentParam);
+//    exceedProbIndependentParams.addParameter(componentParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -364,10 +364,10 @@ public class GouletEtAl_2010_AttenRel
     super.initSiteParams();
 
     // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-    warn.setNonEditable();
-   
-    //make the AF intercept paarameter
+//    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
+//    warn.setNonEditable();
+ 
+    //make the AF intercept parameter
     AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
     		AF_InterceptparamConstraint,this.AF_INTERCEPT_PARAM_DEFAULT);
     AF_InterceptParam.setInfo(this.AF_INTERCEPT_PARAM_INFO);
@@ -395,6 +395,11 @@ public class GouletEtAl_2010_AttenRel
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_StdDevParam);
 
+    ListIterator it = cb_2008_attenRel.getSiteParamsIterator();
+	  while (it.hasNext()) {
+		  siteParams.addParameter( (Parameter) it.next());
+	  }
+
 
   }
 
@@ -409,7 +414,7 @@ public class GouletEtAl_2010_AttenRel
     super.initEqkRuptureParams();
 
     eqkRuptureParams.clear();
-    ListIterator it = as_1997_attenRel.getEqkRuptureParamsIterator();
+    ListIterator it = cb_2008_attenRel.getEqkRuptureParamsIterator();
     while (it.hasNext()) {
       eqkRuptureParams.addParameter( (Parameter) it.next());
     }
@@ -421,7 +426,7 @@ public class GouletEtAl_2010_AttenRel
    */
   protected void initPropagationEffectParams() {
     propagationEffectParams.clear();
-    ListIterator it = as_1997_attenRel.getPropagationEffectParamsIterator();
+    ListIterator it = cb_2008_attenRel.getPropagationEffectParamsIterator();
     while (it.hasNext()) {
       propagationEffectParams.addParameter( (Parameter) it.next());
     }
@@ -436,7 +441,7 @@ public class GouletEtAl_2010_AttenRel
   protected void initSupportedIntensityMeasureParams() {
 
     supportedIMParams.clear();
-    Iterator it = as_1997_attenRel.getSupportedIntensityMeasuresIterator();
+    Iterator it = cb_2008_attenRel.getSupportedIntensityMeasuresIterator();
     while (it.hasNext()) {
       supportedIMParams.addParameter( (Parameter) it.next());
     }
@@ -462,7 +467,7 @@ public class GouletEtAl_2010_AttenRel
     // add this to the list
     otherParams.clear();
     otherParams.addParameter(componentParam);
-    Iterator it = as_1997_attenRel.getOtherParamsIterator();
+    Iterator it = cb_2008_attenRel.getOtherParamsIterator();
     Parameter param;
     while (it.hasNext()) {
       param = (Parameter) it.next();
