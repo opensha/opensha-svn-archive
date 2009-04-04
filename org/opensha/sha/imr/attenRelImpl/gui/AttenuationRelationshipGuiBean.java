@@ -33,7 +33,7 @@ import org.opensha.data.*;
  * @version    1.0
  */
 
-public class AttenuationRelationshipGuiBean
+public class AttenuationRelationshipGuiBean 
          implements
         NamedObjectAPI,
         ParameterChangeListener
@@ -42,6 +42,7 @@ public class AttenuationRelationshipGuiBean
 
     protected final static String C = "AttenuationRelationshipGuiBean";
     protected final static boolean D = false;
+    
 
     public final static String IM_NAME = "Intensity Measure Type";
     public final static String X_AXIS_NAME = "X-Axis";

@@ -1561,13 +1561,13 @@ public class AttenuationRelationshipApplet extends JFrame
 	    	URL url = attenRel.getInfoURL();
 	    	if(url == null){
 	    		hb.setDisplayed(false);
-	    		JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");
+	    		JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
 	    		return;
 	    	}
 			hb.setCurrentURL(url);
 		} catch (MalformedURLException e1) {
 			hb.setDisplayed(false);
-			JOptionPane.showMessageDialog(this, "No information exists for the selected AttenuationRelationship");
+			JOptionPane.showMessageDialog(this, "No information exists for the selected Attenuation Relationship");
     		return;
 		}
   }  
