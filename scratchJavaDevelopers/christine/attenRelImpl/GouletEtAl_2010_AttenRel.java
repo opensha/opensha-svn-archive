@@ -246,12 +246,16 @@ public class GouletEtAl_2010_AttenRel
    * @return    The stdDev value for Goulet et al (2010) Site Correction Model
    */
   private double getStdDevForCG(){
+	  cb_2008_attenRel.setIntensityMeasure(im);
+	  double cbRockSA;
+	  cbRockSA = cb_2008_attenRel.getMean();
 	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
+      double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
 	  double tau = coeffs.tau;
-	  cb_2008_attenRel.setIntensityMeasure(im);
 	  double cbRockStdDev = cb_2008_attenRel.getStdDev();
-	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(cbRockStdDev, 2)+Math.pow(stdDevAF, 2);
+//	  double stdDev = Math.pow(bVal+1, 2)*(Math.pow(cbRockStdDev, 2)-Math.pow(tau,2))+Math.pow(stdDevAF, 2)+Math.pow(tau, 2);
+	  double stdDev = Math.pow(bVal*Math.exp(cbRockSA)/(Math.exp(cbRockSA)+cVal)+1, 2)*(Math.pow(cbRockStdDev, 2)-Math.pow(tau,2))+Math.pow(stdDevAF, 2)+Math.pow(tau, 2);;
 	  return Math.sqrt(stdDev);
   }
 
@@ -515,56 +519,56 @@ public class GouletEtAl_2010_AttenRel
         SA_NAME + "/" + (new Double("0.075")).doubleValue(),
         0.075, 0.292);
     GouletEtAl_2010_AttenRelCoefficients coeff5 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.10")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.1")).doubleValue(),
         0.10, 0.286);
     GouletEtAl_2010_AttenRelCoefficients coeff6 = new GouletEtAl_2010_AttenRelCoefficients(
         SA_NAME + "/" + (new Double("0.15")).doubleValue(),
         0.15, 0.280);
     GouletEtAl_2010_AttenRelCoefficients coeff7 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.20")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.2")).doubleValue(),
         0.20, 0.249);
     GouletEtAl_2010_AttenRelCoefficients coeff8 = new GouletEtAl_2010_AttenRelCoefficients(
         SA_NAME + "/" + (new Double("0.25")).doubleValue(),
         0.25, 0.240);
     GouletEtAl_2010_AttenRelCoefficients coeff9 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.30")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.3")).doubleValue(),
         0.30, 0.215);
     GouletEtAl_2010_AttenRelCoefficients coeff10 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.40")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.4")).doubleValue(),
         0.40, 0.217);
     GouletEtAl_2010_AttenRelCoefficients coeff11 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.50")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.5")).doubleValue(),
         0.50, 0.214);
     GouletEtAl_2010_AttenRelCoefficients coeff12 = new GouletEtAl_2010_AttenRelCoefficients(
         SA_NAME + "/" + (new Double("0.75")).doubleValue(),
         0.75, 0.227);
     GouletEtAl_2010_AttenRelCoefficients coeff13 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("1.0")).doubleValue(),
         1.00, 0.255);
     GouletEtAl_2010_AttenRelCoefficients coeff14 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("1.50")).doubleValue(),
+        SA_NAME + "/" + (new Double("1.5")).doubleValue(),
         1.50, 0.296);
     GouletEtAl_2010_AttenRelCoefficients coeff15 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("2.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("2.0")).doubleValue(),
         2.00, 0.296);
     GouletEtAl_2010_AttenRelCoefficients coeff16 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("3.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("3.0")).doubleValue(),
         3.00, 0.326);
     GouletEtAl_2010_AttenRelCoefficients coeff17 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("4.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("4.0")).doubleValue(),
         4.00, 0.297);
     GouletEtAl_2010_AttenRelCoefficients coeff18 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("5.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("5.0")).doubleValue(),
         5.00, 0.359);
     GouletEtAl_2010_AttenRelCoefficients coeff19 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("7.50")).doubleValue(),
+        SA_NAME + "/" + (new Double("7.5")).doubleValue(),
         7.50, 0.428);
     GouletEtAl_2010_AttenRelCoefficients coeff20 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("10.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("10.0")).doubleValue(),
         10.00, 0.485);
     // add zero-period case; same as 0.01 sec.
     GouletEtAl_2010_AttenRelCoefficients coeff21 = new GouletEtAl_2010_AttenRelCoefficients(
-        SA_NAME + "/" + (new Double("0.00")).doubleValue(),
+        SA_NAME + "/" + (new Double("0.0")).doubleValue(),
         0.00, 0.219);
 
     horzCoeffs.put(coeff.getName(), coeff);
