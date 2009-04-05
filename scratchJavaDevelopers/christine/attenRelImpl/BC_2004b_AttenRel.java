@@ -223,20 +223,20 @@ public class BC_2004b_AttenRel
    */
   public double getMean() throws IMRException {
 
-    double asRockSA, lnAF;
+    double cbRockSA, lnAF;
 
     // get AS-1997 SA for rock
     cb_2008_attenRel.setIntensityMeasure(im);
-    asRockSA = cb_2008_attenRel.getMean();
+    cbRockSA = cb_2008_attenRel.getMean();
     
         // get the amp factor
     double aVal = ((Double)AF_InterceptParam.getValue()).doubleValue();
     double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
     double cVal = ((Double)AF_AddRefAccParam.getValue()).doubleValue();
-    lnAF = aVal+bVal*Math.log(Math.exp(asRockSA)+cVal);   
+    lnAF = aVal+bVal*Math.log(Math.exp(cbRockSA)+cVal);   
 
     // return the result
-    return lnAF + asRockSA;
+    return lnAF + cbRockSA;
   }
 
 
@@ -244,7 +244,7 @@ public class BC_2004b_AttenRel
    * Returns the Std Dev.
    */
   public double getStdDev(){
-	  
+
 	  String stdDevType = stdDevTypeParam.getValue().toString();
 	  if (stdDevType.equals(STD_DEV_TYPE_NONE)) { // "None (zero)"
 		  return 0;
@@ -261,8 +261,9 @@ public class BC_2004b_AttenRel
 	  double bVal = ((Double)AF_SlopeParam.getValue()).doubleValue();
 	  double stdDevAF = ((Double)this.AF_StdDevParam.getValue()).doubleValue();
 	  cb_2008_attenRel.setIntensityMeasure(im);
-	  double asRockStdDev = cb_2008_attenRel.getStdDev();
-	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(asRockStdDev, 2)+Math.pow(stdDevAF, 2);
+	  double cbRockStdDev = cb_2008_attenRel.getStdDev();
+//	  double stdDev = Math.pow(bVal*Math.exp(cbRockSA)/(Math.exp(cbRockSA)+cVal)+1, 2)*Math.pow(cbRockStdDev, 2)+Math.pow(stdDevAF, 2);
+	  double stdDev = Math.pow(bVal+1, 2)*Math.pow(cbRockStdDev, 2)+Math.pow(stdDevAF, 2);
 	  return Math.sqrt(stdDev);
   }
 
