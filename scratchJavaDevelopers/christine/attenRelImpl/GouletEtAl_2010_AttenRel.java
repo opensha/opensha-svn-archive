@@ -30,7 +30,6 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * <UL>
  * <LI>distanceRupParam - closest distance to surface projection of fault
  * <LI>vs30Param - Average 30-meter shear-wave velocity at the site
- * <LI>softSoilParam - To overide Vs30 and apply NEHPR E (see INFO for details)
  * <LI>fltTypeParam - Style of faulting
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
@@ -485,7 +484,8 @@ public class GouletEtAl_2010_AttenRel
    *  This creates the hashtable of coefficients for the supported
    *  intensityMeasures (im).  The key is the im parameter name, plus the
    *  period value for SA (separated by "/").  For example, the key for SA
-   *  at 1.0 second period is "SA/1.0".
+   *  at 1.0 second period is "SA/1.0". 
+   *  The values below are for Tau from CB 2008 NGA Earthquake Spectra paper.
    */
   protected void initCoefficients() {
 
