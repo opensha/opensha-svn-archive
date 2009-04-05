@@ -12,6 +12,8 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
+//import scratchJavaDevelopers.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
+
 /**
  * <b>Title:</b> Goulet et al SiteSpecific_2010_AttenRel<p>
  *
