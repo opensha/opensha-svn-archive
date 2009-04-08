@@ -52,6 +52,8 @@ public class BS_2003b_AttenRel
   public final static String SHORT_NAME = "BS2006";
   private static final long serialVersionUID = 1234567890987654356L;
 
+//  % Override the default value to GMRotI50
+  public final static String COMPONENT_DEFAULT = COMPONENT_GMRotI50;
 
 
   // warning constraint fields:
@@ -374,6 +376,7 @@ public class BS_2003b_AttenRel
   
   public void setParamDefaults() {
 
+	    cb_2008_attenRel.setParamDefaults();
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
 	  vs30Param.setValue(VS30S_PARAM_DEFAULT);
     softSoilParam.setValue(new Boolean(false));
@@ -382,12 +385,13 @@ public class BS_2003b_AttenRel
     AF_SlopeParam.setValue(this.AF_SLOPE_PARAM_DEFAULT);
     AF_StdDevParam.setValue(this.AF_STD_DEV_DEFAULT);
     numRunsParam.setValue(this.NUM_RUNS_PARAM_DEFAULT);
-    cb_2008_attenRel.setParamDefaults();
     // re-set the site type to rock and component to ave horz
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.SITE_TYPE_NAME).setValue(
 //        cb_2008_attenRel.SITE_TYPE_ROCK);
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
 //        cb_2008_attenRel.COMPONENT_AVE_HORZ);
+    componentParam.setValue(cb_2008_attenRel.getParameter(COMPONENT_NAME).getValue()); 
+
     // re-set the site type to rock and component to ave horz
     double rockVS = 1100.00;
     cb_2008_attenRel.getParameter(cb_2008_attenRel.VS30_NAME).setValue(rockVS);
@@ -426,7 +430,7 @@ public class BS_2003b_AttenRel
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(softSoilParam);
     meanIndependentParams.addParameter(numRunsParam);
-    meanIndependentParams.addParameter(componentParam);
+//    meanIndependentParams.addParameter(componentParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
@@ -451,7 +455,7 @@ public class BS_2003b_AttenRel
     stdDevIndependentParams.addParameter(vs30Param);
     stdDevIndependentParams.addParameter(softSoilParam);
     stdDevIndependentParams.addParameter(numRunsParam);
-    stdDevIndependentParams.addParameter(componentParam);
+//    stdDevIndependentParams.addParameter(componentParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
@@ -475,7 +479,7 @@ public class BS_2003b_AttenRel
     exceedProbIndependentParams.addParameter(vs30Param);
     exceedProbIndependentParams.addParameter(softSoilParam);
     exceedProbIndependentParams.addParameter(numRunsParam);
-    exceedProbIndependentParams.addParameter(componentParam);
+//    exceedProbIndependentParams.addParameter(componentParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -603,8 +607,9 @@ public class BS_2003b_AttenRel
     // super.initOtherParams();
 
     // the Component Parameter (not supporting AS_1997's vertical)
+	  
     StringConstraint constraint = new StringConstraint();
-    constraint.addString(COMPONENT_AVE_HORZ);
+    constraint.addString(COMPONENT_GMRotI50);
     constraint.setNonEditable();
     componentParam = new StringParameter(COMPONENT_NAME, constraint,
                                          COMPONENT_DEFAULT);
