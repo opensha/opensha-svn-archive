@@ -74,10 +74,10 @@ public class BS_2003b_AttenRel
   private BS_2003_AttenRelCoefficients coeffs = null;
 
   // VS30S Vs30 of soil column
-  private DoubleParameter VS30SParam;
-  public final static String VS30S_PARAM_NAME = "Vs30 soil";
-  public final static String VS30S_PARAM_INFO = 
-	  "Vs30 of the soil column above rock.";
+//  private DoubleParameter VS30SParam;
+//  public final static String VS30S_PARAM_NAME = "Vs30 soil";
+//  public final static String VS30S_PARAM_INFO = 
+//	  "Vs30 of the soil column above rock.";
   private DoubleConstraint Vs30SparamConstraint = new DoubleConstraint(50,2000);
   public final static double VS30S_PARAM_DEFAULT = 500;
 
@@ -212,7 +212,7 @@ public class BS_2003b_AttenRel
     AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
     AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     
-    VS30SParam.setValue(site.getParameter(VS30_NAME).getValue());
+    vs30Param.setValue(site.getParameter(VS30_NAME).getValue());
 //    VS30SParam.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
     softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
     numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
@@ -320,7 +320,7 @@ public class BS_2003b_AttenRel
 	  boolean softSoilCase = ((Boolean)this.softSoilParam.getValue()).booleanValue();
 	  double stdError = stdDevAF/(Math.sqrt(numRuns));
 	  double stdDev_gNet;
-	  double vs30S = ((Double)VS30SParam.getValue()).doubleValue();
+	  double vs30S = ((Double)vs30Param.getValue()).doubleValue();
 	  if(vs30S <= 180 || softSoilCase)
 		  stdDev_gNet = 0.38;
 	  else
@@ -346,7 +346,7 @@ public class BS_2003b_AttenRel
       }
       else {
         try {
-          vs30S = ( (Double) VS30SParam.getValue()).doubleValue();
+          vs30S = ( (Double) vs30Param.getValue()).doubleValue();
         }
         catch (NullPointerException e) {
           throw new IMRException(C + ": getMean(): " + ERR);
@@ -375,7 +375,7 @@ public class BS_2003b_AttenRel
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    VS30SParam.setValue(VS30_DEFAULT);
+	  vs30Param.setValue(VS30S_PARAM_DEFAULT);
     softSoilParam.setValue(new Boolean(false));
     AF_AddRefAccParam.setValue(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT);
     AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
@@ -412,6 +412,10 @@ public class BS_2003b_AttenRel
       Parameter param = (Parameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
+      	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
+      	// we only want to include the one that changes
+      	if (param.getName().equals(VS30_NAME))
+      		continue;
         meanIndependentParams.addParameter(param);
 //      }
     }
@@ -419,7 +423,7 @@ public class BS_2003b_AttenRel
     meanIndependentParams.addParameter(AF_InterceptParam);
     meanIndependentParams.addParameter(AF_SlopeParam);
     meanIndependentParams.addParameter(AF_StdDevParam);
-    meanIndependentParams.addParameter(VS30SParam);
+    meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(softSoilParam);
     meanIndependentParams.addParameter(numRunsParam);
     meanIndependentParams.addParameter(componentParam);
@@ -432,6 +436,10 @@ public class BS_2003b_AttenRel
       Parameter param = (Parameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
+      	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
+    	// we only want to include the one that changes
+    	if (param.getName().equals(VS30_NAME))
+    		continue;
         stdDevIndependentParams.addParameter(param);
 //      }
     }
@@ -440,7 +448,7 @@ public class BS_2003b_AttenRel
     stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
     stdDevIndependentParams.addParameter(AF_StdDevParam);
-    stdDevIndependentParams.addParameter(VS30SParam);
+    stdDevIndependentParams.addParameter(vs30Param);
     stdDevIndependentParams.addParameter(softSoilParam);
     stdDevIndependentParams.addParameter(numRunsParam);
     stdDevIndependentParams.addParameter(componentParam);
@@ -452,6 +460,10 @@ public class BS_2003b_AttenRel
       Parameter param = (Parameter) it.next();
 //      if (!ignoreStr1.equals(param.getName()) &&
 //          !ignoreStr2.equals(param.getName())) {
+      	// we don't want to add vs30 twice, and since vs30 is fixed for the wrapped CB 2008
+    	// we only want to include the one that changes
+    	if (param.getName().equals(VS30_NAME))
+    		continue;
         exceedProbIndependentParams.addParameter(param);
 //      }
     }
@@ -460,7 +472,7 @@ public class BS_2003b_AttenRel
     exceedProbIndependentParams.addParameter(AF_InterceptParam);
     exceedProbIndependentParams.addParameter(AF_SlopeParam);
     exceedProbIndependentParams.addParameter(AF_StdDevParam);
-    exceedProbIndependentParams.addParameter(VS30SParam);
+    exceedProbIndependentParams.addParameter(vs30Param);
     exceedProbIndependentParams.addParameter(softSoilParam);
     exceedProbIndependentParams.addParameter(numRunsParam);
     exceedProbIndependentParams.addParameter(componentParam);
@@ -493,9 +505,11 @@ public class BS_2003b_AttenRel
     softSoilParam.setInfo(SOFT_SOIL_INFO);
     
     //make the AF intercept paarameter
-    VS30SParam = new DoubleParameter(this.VS30S_PARAM_NAME,
-    		Vs30SparamConstraint,this.VS30S_PARAM_DEFAULT);
-    VS30SParam.setInfo(this.VS30S_PARAM_INFO);
+    vs30Param.setConstraint(Vs30SparamConstraint);
+    vs30Param.setValueIgnoreWarning(VS30S_PARAM_DEFAULT);
+//    VS30SParam = new DoubleParameter(this.VS30S_PARAM_NAME,
+//    		Vs30SparamConstraint,this.VS30S_PARAM_DEFAULT);
+//    VS30SParam.setInfo(this.VS30S_PARAM_INFO);
 
     //make the AF intercept paarameter
     AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
@@ -530,7 +544,7 @@ public class BS_2003b_AttenRel
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_StdDevParam);
-    siteParams.addParameter(VS30SParam);
+    siteParams.addParameter(vs30Param);
     siteParams.addParameter(softSoilParam);
     siteParams.addParameter(numRunsParam);
   }
