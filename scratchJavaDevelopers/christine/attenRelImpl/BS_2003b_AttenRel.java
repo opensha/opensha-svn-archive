@@ -73,7 +73,7 @@ public class BS_2003b_AttenRel
    */
   private BS_2003_AttenRelCoefficients coeffs = null;
 
-  // VS30 soil column
+  // VS30S Vs30 of soil column
   private DoubleParameter VS30SParam;
   public final static String VS30S_PARAM_NAME = "Vs30 soil";
   public final static String VS30S_PARAM_INFO = 
@@ -492,6 +492,11 @@ public class BS_2003b_AttenRel
     softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
     softSoilParam.setInfo(SOFT_SOIL_INFO);
     
+    //make the AF intercept paarameter
+    VS30SParam = new DoubleParameter(this.VS30S_PARAM_NAME,
+    		Vs30SparamConstraint,this.VS30S_PARAM_DEFAULT);
+    VS30SParam.setInfo(this.VS30S_PARAM_INFO);
+
     //make the AF intercept paarameter
     AF_InterceptParam = new DoubleParameter(this.AF_INTERCEPT_PARAM_NAME,
     		AF_InterceptparamConstraint,this.AF_INTERCEPT_PARAM_DEFAULT);
