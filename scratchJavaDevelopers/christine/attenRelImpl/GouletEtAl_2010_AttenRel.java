@@ -68,7 +68,7 @@ public class GouletEtAl_2010_AttenRel
   public final static String AF_INTERCEPT_PARAM_NAME = "AF Intercept";
   public final static String AF_INTERCEPT_PARAM_INFO = 
 	  "Intercept of the median regression model for the ground response analyses";
-  private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-2,2);
+  private DoubleConstraint AF_InterceptparamConstraint = new DoubleConstraint(-4,4);
   public final static double AF_INTERCEPT_PARAM_DEFAULT = 0;
   
   //Slope Param
@@ -76,7 +76,7 @@ public class GouletEtAl_2010_AttenRel
   public final static String AF_SLOPE_PARAM_NAME = "AF Slope";
   public final static String AF_SLOPE_PARAM_INFO = 
 	  "Slope of the median regression model for the ground response analyses";
-  private DoubleConstraint AF_slopeParamConstraint = new DoubleConstraint(-1,1);
+  private DoubleConstraint AF_slopeParamConstraint = new DoubleConstraint(-4,1);
   public final static double AF_SLOPE_PARAM_DEFAULT = 0;
   
   //Additive refeerence acceleration param
@@ -86,7 +86,7 @@ public class GouletEtAl_2010_AttenRel
 	  "Additive reference acceleration of the median regression model for the ground response " +
 	  "analyses. This parameter improves the linear model fit for low Sa(rock) / PGA(rock)" +
 	  "values and leads to more relaistic predictons than quadratic models";
-  private DoubleConstraint AFaddRefAccParamConstraint = new DoubleConstraint(0,0.5);
+  private DoubleConstraint AFaddRefAccParamConstraint = new DoubleConstraint(0,10);
   public final static double AF_ADDITIVE_REF_ACCERLATION_DEFAULT = 0.03;
   
   //Std. Dev AF param
@@ -273,6 +273,10 @@ public class GouletEtAl_2010_AttenRel
 //	        cb_2008_attenRel.SITE_TYPE_ROCK);
 //	    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
 //	        cb_2008_attenRel.COMPONENT_AVE_HORZ);
+	    // re-set the site type to rock and component to ave horz
+	    double rockVS = 1100.00;
+	    cb_2008_attenRel.getParameter(cb_2008_attenRel.VS30_NAME).setValue(rockVS);
+
   }
 
   /**
