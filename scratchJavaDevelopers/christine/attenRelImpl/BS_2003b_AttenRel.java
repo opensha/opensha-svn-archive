@@ -27,7 +27,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>distanceRupParam - closest distance to surface projection of fault
- * <LI>vs30Param - Average 30-meter shear-wave velocity at the site
+ * <LI>VS30SParam - Average 30-meter shear-wave velocity at the site
  * <LI>softSoilParam - To overide Vs30 and apply NEHPR E (see INFO for details)
  * <LI>fltTypeParam - Style of faulting
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
@@ -48,15 +48,15 @@ public class BS_2003b_AttenRel
   // debugging stuff:
   private final static String C = "BS_2003b_AttenRel";
   private final static boolean D = false;
-  public final static String NAME = "Baturay and Stewart (2003)";
+  public final static String NAME = "Baturay and Stewart (2003) with CB 2008";
   public final static String SHORT_NAME = "BS2006";
   private static final long serialVersionUID = 1234567890987654356L;
 
 
 
   // warning constraint fields:
-  protected final static Double VS30_WARN_MIN = new Double(50.0);
-  protected final static Double VS30_WARN_MAX = new Double(760.0);
+  protected final static Double VS30S_WARN_MIN = new Double(50.0);
+  protected final static Double VS30S_WARN_MAX = new Double(760.0);
 
   // the Soft Soil Parameter
   private BooleanParameter softSoilParam = null;
@@ -72,7 +72,15 @@ public class BS_2003b_AttenRel
    * The current set of coefficients based on the selected intensityMeasure
    */
   private BS_2003_AttenRelCoefficients coeffs = null;
-  
+
+  // VS30 soil column
+  private DoubleParameter VS30SParam;
+  public final static String VS30S_PARAM_NAME = "Vs30 soil";
+  public final static String VS30S_PARAM_INFO = 
+	  "Vs30 of the soil column above rock.";
+  private DoubleConstraint Vs30SparamConstraint = new DoubleConstraint(50,2000);
+  public final static double VS30S_PARAM_DEFAULT = 500;
+
   
   //Intercept param
   private DoubleParameter AF_InterceptParam;
@@ -141,8 +149,8 @@ public class BS_2003b_AttenRel
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.SITE_TYPE_NAME).setValue(
 //        cb_2008_attenRel.SITE_TYPE_ROCK);
     // set the component to ave horz
-    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
-        cb_2008_attenRel.COMPONENT_AVE_HORZ);
+//    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
+//        cb_2008_attenRel.COMPONENT_AVE_HORZ);
 
     // overide local params with those in cb_2008_attenRel
     this.sigmaTruncTypeParam = (StringParameter) cb_2008_attenRel.getParameter(
@@ -189,7 +197,7 @@ public class BS_2003b_AttenRel
   }
 
   /**
-   *  This sets the site-related parameter (vs30Param) based on what is in
+   *  This sets the site-related parameter (VS30SParam) based on what is in
    *  the Site object passed in.  WarningExceptions are ingored
    *
    * @param  site             The new site value which contains a Vs30 Parameter
@@ -204,7 +212,8 @@ public class BS_2003b_AttenRel
     AF_SlopeParam.setValue(site.getParameter(AF_SLOPE_PARAM_NAME).getValue());
     AF_StdDevParam.setValue(site.getParameter(AF_STD_DEV_PARAM_NAME).getValue());
     
-    vs30Param.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
+    VS30SParam.setValue(site.getParameter(VS30_NAME).getValue());
+//    VS30SParam.setValueIgnoreWarning(site.getParameter(VS30_NAME).getValue());
     softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
     numRunsParam.setValue(site.getParameter(NUM_RUNS_PARAM_NAME).getValue());
     this.site = site;
@@ -311,8 +320,8 @@ public class BS_2003b_AttenRel
 	  boolean softSoilCase = ((Boolean)this.softSoilParam.getValue()).booleanValue();
 	  double stdError = stdDevAF/(Math.sqrt(numRuns));
 	  double stdDev_gNet;
-	  double vs30 = ((Double)vs30Param.getValue()).doubleValue();
-	  if(vs30 <= 180 || softSoilCase)
+	  double vs30S = ((Double)VS30SParam.getValue()).doubleValue();
+	  if(vs30S <= 180 || softSoilCase)
 		  stdDev_gNet = 0.38;
 	  else
 		  stdDev_gNet = 0.56;
@@ -325,19 +334,19 @@ public class BS_2003b_AttenRel
    */
   private double getStdDevForCS() throws IMRException {
 
-      double vs30, sigmaV, sigmaAS;
+      double vs30S, sigmaV, sigmaAS;
 
       // get As-1997 stdDev
 //      cb_2008_attenRel.setIntensityMeasure(im);
 //      sigmaAS = cb_2008_attenRel.getStdDev();
 
-      // set vs30 from the parameters
+      // set vs30S from the parameters
       if ( ( (Boolean) softSoilParam.getValue()).booleanValue()) {
-        vs30 = 174;
+        vs30S = 174;
       }
       else {
         try {
-          vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+          vs30S = ( (Double) VS30SParam.getValue()).doubleValue();
         }
         catch (NullPointerException e) {
           throw new IMRException(C + ": getMean(): " + ERR);
@@ -346,13 +355,13 @@ public class BS_2003b_AttenRel
 
  
       // set sigmaV
-      if (vs30 < 260) {
+      if (vs30S < 260) {
         sigmaV = coeffs.e1;
       }
-      else if (vs30 < 360) {
+      else if (vs30S < 360) {
         sigmaV = coeffs.e1 +
             ( (coeffs.e3 - coeffs.e1) / Math.log(360.0 / 260.0)) *
-            Math.log(vs30 / 260.0);
+            Math.log(vs30S / 260.0);
       }
       else {
         sigmaV = coeffs.e3;
@@ -366,7 +375,7 @@ public class BS_2003b_AttenRel
   public void setParamDefaults() {
 
     //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-    vs30Param.setValue(VS30_DEFAULT);
+    VS30SParam.setValue(VS30_DEFAULT);
     softSoilParam.setValue(new Boolean(false));
     AF_AddRefAccParam.setValue(this.AF_ADDITIVE_REF_ACCERLATION_DEFAULT);
     AF_InterceptParam.setValue(this.AF_INTERCEPT_PARAM_DEFAULT);
@@ -377,8 +386,12 @@ public class BS_2003b_AttenRel
     // re-set the site type to rock and component to ave horz
 //    cb_2008_attenRel.getParameter(cb_2008_attenRel.SITE_TYPE_NAME).setValue(
 //        cb_2008_attenRel.SITE_TYPE_ROCK);
-    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
-        cb_2008_attenRel.COMPONENT_AVE_HORZ);
+//    cb_2008_attenRel.getParameter(cb_2008_attenRel.COMPONENT_NAME).setValue(
+//        cb_2008_attenRel.COMPONENT_AVE_HORZ);
+    // re-set the site type to rock and component to ave horz
+    double rockVS = 1100.00;
+    cb_2008_attenRel.getParameter(cb_2008_attenRel.VS30_NAME).setValue(rockVS);
+
   }
 
   /**
@@ -406,7 +419,7 @@ public class BS_2003b_AttenRel
     meanIndependentParams.addParameter(AF_InterceptParam);
     meanIndependentParams.addParameter(AF_SlopeParam);
     meanIndependentParams.addParameter(AF_StdDevParam);
-    meanIndependentParams.addParameter(vs30Param);
+    meanIndependentParams.addParameter(VS30SParam);
     meanIndependentParams.addParameter(softSoilParam);
     meanIndependentParams.addParameter(numRunsParam);
     meanIndependentParams.addParameter(componentParam);
@@ -427,7 +440,7 @@ public class BS_2003b_AttenRel
     stdDevIndependentParams.addParameter(AF_InterceptParam);
     stdDevIndependentParams.addParameter(AF_SlopeParam);
     stdDevIndependentParams.addParameter(AF_StdDevParam);
-    stdDevIndependentParams.addParameter(vs30Param);
+    stdDevIndependentParams.addParameter(VS30SParam);
     stdDevIndependentParams.addParameter(softSoilParam);
     stdDevIndependentParams.addParameter(numRunsParam);
     stdDevIndependentParams.addParameter(componentParam);
@@ -447,7 +460,7 @@ public class BS_2003b_AttenRel
     exceedProbIndependentParams.addParameter(AF_InterceptParam);
     exceedProbIndependentParams.addParameter(AF_SlopeParam);
     exceedProbIndependentParams.addParameter(AF_StdDevParam);
-    exceedProbIndependentParams.addParameter(vs30Param);
+    exceedProbIndependentParams.addParameter(VS30SParam);
     exceedProbIndependentParams.addParameter(softSoilParam);
     exceedProbIndependentParams.addParameter(numRunsParam);
     exceedProbIndependentParams.addParameter(componentParam);
@@ -465,15 +478,15 @@ public class BS_2003b_AttenRel
    */
   protected void initSiteParams() {
 
-    // create vs30 Parameter:
+    // create vs30S Parameter:
     super.initSiteParams();
 
     // create and add the warning constraint:
-    DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
+    DoubleConstraint warn = new DoubleConstraint(VS30S_WARN_MIN, VS30S_WARN_MAX);
     warn.setNonEditable();
-    vs30Param.setWarningConstraint(warn);
-    vs30Param.addParameterChangeWarningListener(warningListener);
-    vs30Param.setNonEditable();
+//    VS30SParam.setWarningConstraint(warn);
+//    VS30SParam.addParameterChangeWarningListener(warningListener);
+//    VS30SParam.setNonEditable();
 
     // make the Soft Soil parameter
     softSoilParam = new BooleanParameter(SOFT_SOIL_NAME, SOFT_SOIL_DEFAULT);
@@ -512,7 +525,7 @@ public class BS_2003b_AttenRel
     siteParams.addParameter(AF_InterceptParam);
     siteParams.addParameter(AF_SlopeParam);
     siteParams.addParameter(AF_StdDevParam);
-    siteParams.addParameter(vs30Param);
+    siteParams.addParameter(VS30SParam);
     siteParams.addParameter(softSoilParam);
     siteParams.addParameter(numRunsParam);
   }
