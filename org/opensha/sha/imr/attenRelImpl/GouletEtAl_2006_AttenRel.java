@@ -40,9 +40,9 @@ public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
 	  as_1997_attenRel.setIntensityMeasure(im);
 	  double asRockMean = as_1997_attenRel.getMean();
 	  double asRockStdDev = as_1997_attenRel.getStdDev();
-	  double stdDev = Math.pow((bVal*asRockMean)/(asRockMean+cVal)+1, 2)*
-	                  (Math.pow(asRockStdDev,2)-Math.pow(tau, 2))+Math.pow(stdDevAF,2)+Math.pow(tau,2);
-	  return Math.sqrt(stdDev);
+	  double stdDev = Math.pow((bVal*Math.exp(asRockMean))/(Math.exp(asRockMean)+cVal)+1, 2)*
+	                  (Math.pow(Math.exp(asRockStdDev),2)-Math.pow(tau, 2))+Math.pow(stdDevAF,2)+Math.pow(tau,2);
+	  return Math.sqrt(stdDev-0.3*0.3);
   }
 
   
