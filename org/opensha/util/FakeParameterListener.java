@@ -7,6 +7,15 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 
+/**
+ * This is simply a class that implements all of the ParameterChangeListeners, without 
+ * actually doing anything. It is most useful when instantiating AttenuationRelationship
+ * objects when you don't care about about ParameterChange events, especially for quick
+ * tests.
+ * 
+ * @author kevin
+ *
+ */
 public class FakeParameterListener implements ParameterChangeFailListener,
 		ParameterChangeListener, ParameterChangeWarningListener {
 
@@ -16,7 +25,7 @@ public class FakeParameterListener implements ParameterChangeFailListener,
 	}
 
 	public void parameterChange(ParameterChangeEvent event) {
-		// do nothingb
+		// do nothing
 
 	}
 
