@@ -139,6 +139,15 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 		this.add(dataPanel, BorderLayout.CENTER);
 	}
 	
+	public void refreshAll() {
+		int[] selected = this.dataList.getSelectedIndices();
+		this.updateList();
+		this.dataList.setSelectedIndices(selected);
+		this.dataPanel.validate();
+		this.validate();
+		this.repaint();
+	}
+	
 	private void updateList() {
 		ArrayList<String> names = new ArrayList<String>();
 		

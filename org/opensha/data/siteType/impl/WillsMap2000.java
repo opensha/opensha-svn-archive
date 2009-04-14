@@ -18,7 +18,7 @@ import org.opensha.sha.util.SiteTranslator;
 
 public class WillsMap2000 extends AbstractSiteData<String> {
 	
-	public static final String NAME = "CGS/Wills Site Classification Map (2000)";
+	public static final String NAME = "CGS/Wills Preliminary Site Classification Map (2000)";
 	public static final String SHORT_NAME = "Wills2000";
 	
 	public static final double minLat = 31.4;

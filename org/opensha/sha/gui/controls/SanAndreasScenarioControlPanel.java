@@ -20,7 +20,6 @@ import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.data.Location;
 import org.opensha.data.Direction;
 import org.opensha.calc.RelativeLocation;
-import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.*;
 
 
@@ -270,7 +269,7 @@ public class SanAndreasScenarioControlPanel {
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.5));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-115));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.02));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(regionGuiBean.SET_SITES_USING_SCEC_CVM);
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(SitesInGriddedRectangularRegionGuiBean.USE_SITE_DATA);
 
 
     // Set some of the mapping params:

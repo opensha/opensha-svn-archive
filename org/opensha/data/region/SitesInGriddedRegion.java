@@ -1,10 +1,17 @@
 package org.opensha.data.region;
 
 import java.util.*;
+import java.io.IOException;
 import java.io.Serializable;
 
 
 import org.opensha.data.*;
+import org.opensha.data.siteType.OrderedSiteDataProviderList;
+import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValue;
+import org.opensha.data.siteType.SiteDataValueList;
+import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
@@ -25,269 +32,251 @@ import org.opensha.exceptions.RegionConstraintException;
  */
 
 public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
-                                          implements SitesInGriddedRegionAPI,Serializable{
+implements SitesInGriddedRegionAPI,Serializable{
 
-  //Debug parameter
-  public static final boolean D= false;
+	//Debug parameter
+	public static final boolean D= false;
 
-  //definition for the Siet Object
-  Site site = new Site();
+	//definition for the Siet Object
+	Site site = new Site();
 
+	ArrayList<SiteDataValueList<?>> siteDataValueLists = null;
 
-  //set the same site type for each site
-  private boolean setSameSiteParams = true;
+	//set the same site type for each site
+	private boolean setSameSiteParams = true;
 
-  //wills site class and basinDepth ArrayList
-  ArrayList willsSiteClassList,basinDepth;
+	//ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
+	private ArrayList defaultSiteParams;
 
-  //ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
-  private ArrayList defaultSiteParams;
+	//Instance of the site TransLator class
+	SiteTranslator siteTranslator = new SiteTranslator();
 
-  //Instance of the site TransLator class
-  SiteTranslator siteTranslator = new SiteTranslator();
-
-  /**
-   *class constructor
-   * @param minLat
-   * @param maxLat
-   * @param minLon
-   * @param maxLon
-   * @param gridSpacing
-   */
-  public SitesInGriddedRegion(LocationList locList,
-                              double gridSpacing) {
-   super(locList,gridSpacing);
-  }
-
-
-
-  /**
-   * Gets the list for Site Params for region from application called this function.
-   * @param willsSiteClass : String Array of Wills Site Class Values
-   * @param bd : double Array of Basin Depth Values
-   */
-  public void setSiteParamsForRegion(String[] willsSiteClass, double[] bd){
-
-    //as we are getting the values from application and want to set the site params
-    if(willsSiteClass != null && bd != null && willsSiteClass.length != bd.length)
-      throw new RuntimeException("Invalid Range Site Type Values, both Wills "+
-                                 "Site Class and Basindepth should have same number of values");
-
-    //if either wills site class or basin depth are not null
-    if(willsSiteClass !=null || bd!=null){
-      //either wills site class or basin depth are not null then each site needs
-      //to be filled up with actaul site type parameters.
-       setSameSiteParams = false;
-       //if wills site class vlaues are not null then fill their values
-       if(willsSiteClass !=null){
-         int size = willsSiteClass.length;
-         willsSiteClassList = new ArrayList();
-         for(int i=0;i<size;++i)
-           willsSiteClassList.add(new String(willsSiteClass[i]));
-       }
-       //If basin depth Values are not null, then fill in their values
-       if(bd !=null){
-         int size = bd.length;
-         basinDepth = new ArrayList();
-         for(int i=0;i<size;++i)
-           basinDepth.add(new Double(bd[i]));
-       }
-       else{ //if basin depth is null then fill the array with double NaN vals.
-         int size = willsSiteClassList.size();
-         basinDepth = new ArrayList();
-         for(int i=0;i<size;++i)
-           basinDepth.add(new Double(Double.NaN));
-       }
-    }
-  }
-
-
-
-  /**
-   * Gets the list for Site Params for region from servlet hosted at web server.
-   *
-   * After calling this function one should also call setDefaultSiteParams() , in
-   * order to the default value for the site parameters, in case we don't get
-   * any value from servlet.
-   *
-   * @param connectForBasinDepth : boolean to know if basin depth also required along with
-   * Wills Site class values to the Site Parameters for each location in the region.
-   */
-  public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth){
-    setSameSiteParams = false;
-    //getting the list of Locations in the region
-    LocationList locList = getGridLocationsList();
-    try{
-      //getting the wills site class values from servlet
-      willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
-    }catch(Exception e){
-      /*willsSiteClassList = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-          getGridSpacing(),WILLS_SITE_CLASS_FILE);*/
-      //throw new RuntimeException(e.getMessage());
-    }
-
-    if(!connectForBasinDepth){ //if we don't need to get the basin depth values
-      //to set the site parameters.So setting all Values to be Double.NaN
-      int size = willsSiteClassList.size();
-      basinDepth = new ArrayList();
-      for(int i=0;i<size;++i)
-        basinDepth.add(new Double(Double.NaN));
-    }
-    else if(connectForBasinDepth){ //if we need to get the Basin depth values to
-      // set the site parameters for each location in the region.
-      try{
-        willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
-        basinDepth = ConnectToCVM.getBasinDepthFromCVM(locList);
-      }catch(Exception e){
-        /*willsSiteClassList = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-        getGridSpacing(),WILLS_SITE_CLASS_FILE);
-        basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-        getGridSpacing(),BASIN_DEPTH_FILE);*/
-        //throw new RuntimeException(e.getMessage());
-      }
-    }
-
-  }
-
-
-
-
-  /**
-   * Gets the site at specified index.
-   * @param index
-   * @returns site at the index
-   */
-  public Site getSite(int index) throws RegionConstraintException {
-     site.setLocation(getGridLocation(index));
-     String siteInfo=null;
-     if(!setSameSiteParams){
-       //getting the Site Parameters Iterator
-       Iterator it = site.getParametersIterator();
-       //checking to see if we are getting the correct value for willsSiteClassList and basin depth.
-       if(D){
-         System.out.println(site.getLocation().toString()+"\t"+willsSiteClassList.get(index)+
-                            "\t\t"+((Double)basinDepth.get(index)).doubleValue());
-       }
-       while(it.hasNext()){
-         ParameterAPI tempParam = (ParameterAPI)it.next();
-
-         //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-         boolean flag = siteTranslator.setParameterValue(tempParam,(String)willsSiteClassList.get(index),
-                                                         ((Double)basinDepth.get(index)).doubleValue());
-         //If the value was outside the bounds of CVM
-         //and site has no value from CVM then set its value to the default Site Params shown in the application.
-         if(!flag){
-           //iterating over the default site parameters to set the Site Param if
-           //no value has been obtained from the CVM for that site.
-           Iterator it1 = defaultSiteParams.iterator();
-           while(it1.hasNext()){
-             ParameterAPI param = (ParameterAPI)it1.next();
-             if(tempParam.getName().equals(param.getName()))
-               tempParam.setValue(param.getValue());
-           }
-         }
-       }
-
-     }
-     return site;
-  }
-
-  /**
-   * Add this site-type parameter to all the sites in the gridded region
-   * @param it
-   */
- public void addSiteParams(Iterator it) {
-   //iterator of all the site types supported by the selecetd IMR for that gridded region
-   while(it.hasNext()){
-     ParameterAPI tempParam=(ParameterAPI)it.next();
-   if(!site.containsParameter(tempParam))
-     site.addParameter(tempParam);
-   }
- }
-
-
- /**
-  * This function removes the site types params from the site
-  * @param it
-  */
- public void removeSiteParams(){
-
-   ListIterator it1=site.getParametersIterator();
-   while(it1.hasNext())
-       site.removeParameter((ParameterAPI)it1.next());
- }
-
- /**
-  * This function craetes the iterator of all the site within that region and
-  * return its iterator
-  * @return
-  */
- public Iterator getSitesIterator(){
-   ArrayList sitesVector=new ArrayList();
-   //get the iterator of all the locations within that region
-   ListIterator it=this.getGridLocationsIterator();
-   //get the iterator for all the site types
-   ListIterator siteParamsIt = site.getParametersIterator();
-   while(it.hasNext()){
-     //create the site object and add it to tbe ArrayList List
-     Site newSite = new Site((Location)it.next());
-     while(siteParamsIt.hasNext()){
-       ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
-       if(!newSite.containsParameter(tempParam))
-         newSite.addParameter(tempParam);
-     }
-     sitesVector.add(newSite);
-   }
-   return sitesVector.iterator();
- }
-
-
-
- /**
-  * This function is called if the site Params need to be set using WILLS site type
-  * and basin depth from the SCEC basin depth values.
-  */
-
- /**
-  * Calling this function will set the Site Params to whatever their value is currently.
-  * All sites will be having the same value for those Site Parameters.
-  */
- public void setSameSiteParams(){
-   setSameSiteParams = true;
-   willsSiteClassList = null;
-   basinDepth = null;
- }
-
- /**
-  * Sets the default Site Parameters in case CVM don't cover the regions
-  * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
-  */
- public void setDefaultSiteParams(ArrayList defaultSiteParams){
-   //this.defaultSiteParams = defaultSiteParams;
-	if (this.defaultSiteParams != null)
-		this.defaultSiteParams.clear();
-	else
-		this.defaultSiteParams = new ArrayList<ParameterAPI>();
-	for (ParameterAPI param : (ArrayList<ParameterAPI>)defaultSiteParams) {
-		this.defaultSiteParams.add((ParameterAPI)param.clone());
+	/**
+	 *class constructor
+	 * @param minLat
+	 * @param maxLat
+	 * @param minLon
+	 * @param maxLon
+	 * @param gridSpacing
+	 */
+	public SitesInGriddedRegion(LocationList locList,
+			double gridSpacing) {
+		super(locList,gridSpacing);
 	}
- }
+
+	public void setSiteParamsForRegion(OrderedSiteDataProviderList providers) throws IOException {
+		setSameSiteParams = false;
+		//getting the list of Locations in the region
+		LocationList locList = getGridLocationsList();
+		
+		siteDataValueLists = new ArrayList<SiteDataValueList<?>>();
+		
+		for (int i=0; i<providers.size(); i++) {
+			if (!providers.isEnabled(i)) {
+				continue;
+			}
+			SiteDataAPI<?> provider = providers.getProvider(i);
+			
+			ArrayList<?> vals = provider.getValues(locList);
+			siteDataValueLists.add(new SiteDataValueList(vals, provider));
+		}
+	}
+
+	/**
+	 * Gets the list for Site Params for region from application called this function.
+	 * @param willsSiteClass : String Array of Wills Site Class Values
+	 * @param bd : double Array of Basin Depth Values
+	 */
+	@Deprecated
+	public void setSiteParamsForRegion(String[] willsSiteClass, double[] bd){
+
+		//as we are getting the values from application and want to set the site params
+		if(willsSiteClass != null && bd != null && willsSiteClass.length != bd.length)
+			throw new RuntimeException("Invalid Range Site Type Values, both Wills "+
+			"Site Class and Basindepth should have same number of values");
+		
+		siteDataValueLists = new ArrayList<SiteDataValueList<?>>();
+
+		//if either wills site class or basin depth are not null
+		if(willsSiteClass !=null || bd!=null){
+			//either wills site class or basin depth are not null then each site needs
+			//to be filled up with actaul site type parameters.
+			setSameSiteParams = false;
+			//if wills site class vlaues are not null then fill their values
+			if(willsSiteClass !=null){
+				ArrayList<String> willsData = new ArrayList<String>();
+				for (String wills : willsSiteClass) {
+					willsData.add(wills);
+				}
+				siteDataValueLists.add(new SiteDataValueList<String>(SiteDataAPI.TYPE_WILLS_CLASS,
+						SiteDataAPI.TYPE_FLAG_MEASURED, willsData, null));
+			}
+			//If basin depth Values are not null, then fill in their values
+			if(bd !=null){
+				ArrayList<Double> basinData = new ArrayList<Double>();
+				for (double basin : bd) {
+					basinData.add(basin);
+				}
+				siteDataValueLists.add(new SiteDataValueList<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
+						SiteDataAPI.TYPE_FLAG_MEASURED, basinData, null));
+			}
+		}
+	}
 
 
- /**
-  *
-  * @returns the Wills Class Values for each site
-  */
- public ArrayList getWillsClassVector(){
-   return this.willsSiteClassList;
- }
 
- /**
-  *
-  * @returns the basin depth values for each site
-  */
- public ArrayList getBasinDepthVector(){
-   return this.basinDepth;
- }
+	/**
+	 * Gets the list for Site Params for region from servlet hosted at web server.
+	 *
+	 * After calling this function one should also call setDefaultSiteParams() , in
+	 * order to the default value for the site parameters, in case we don't get
+	 * any value from servlet.
+	 *
+	 * @param connectForBasinDepth : boolean to know if basin depth also required along with
+	 * Wills Site class values to the Site Parameters for each location in the region.
+	 */
+	@Deprecated
+	public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth){
+		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		try {
+			providers.add(new WillsMap2006());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		if (connectForBasinDepth) {
+			try {
+				providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		OrderedSiteDataProviderList providerList = new OrderedSiteDataProviderList(providers);
+		try {
+			setSiteParamsForRegion(providerList);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+
+
+
+	/**
+	 * Gets the site at specified index.
+	 * @param index
+	 * @returns site at the index
+	 */
+	public Site getSite(int index) throws RegionConstraintException {
+		site.setLocation(getGridLocation(index));
+		String siteInfo=null;
+		if(!setSameSiteParams){
+			//getting the Site Parameters Iterator
+			Iterator<ParameterAPI> it = site.getParametersIterator();
+			//checking to see if we are getting the correct value for willsSiteClassList and basin depth.
+			if(D){
+				System.out.println(site.getLocation().toString());
+			}
+			while(it.hasNext()) {
+				ParameterAPI tempParam = it.next();
+				
+				ArrayList<SiteDataValue<?>> datas = new ArrayList<SiteDataValue<?>>();
+				for (SiteDataValueList<?> dataList : siteDataValueLists) {
+					datas.add(dataList.getValue(index));
+				}
+				
+				boolean flag = siteTranslator.setParameterValue(tempParam, datas);
+				
+				if (!flag) {
+					Iterator<ParameterAPI> it1 = defaultSiteParams.iterator();
+					while(it1.hasNext()){
+						ParameterAPI param = it1.next();
+						if(tempParam.getName().equals(param.getName()))
+							tempParam.setValue(param.getValue());
+					}
+				}
+			}
+		}
+		return site;
+	}
+
+	/**
+	 * Add this site-type parameter to all the sites in the gridded region
+	 * @param it
+	 */
+	public void addSiteParams(Iterator it) {
+		//iterator of all the site types supported by the selecetd IMR for that gridded region
+		while(it.hasNext()){
+			ParameterAPI tempParam=(ParameterAPI)it.next();
+			if(!site.containsParameter(tempParam))
+				site.addParameter(tempParam);
+		}
+	}
+
+
+	/**
+	 * This function removes the site types params from the site
+	 * @param it
+	 */
+	public void removeSiteParams(){
+
+		ListIterator it1=site.getParametersIterator();
+		while(it1.hasNext())
+			site.removeParameter((ParameterAPI)it1.next());
+	}
+
+	/**
+	 * This function craetes the iterator of all the site within that region and
+	 * return its iterator
+	 * @return
+	 */
+	public Iterator getSitesIterator(){
+		ArrayList sitesVector=new ArrayList();
+		//get the iterator of all the locations within that region
+		ListIterator it=this.getGridLocationsIterator();
+		//get the iterator for all the site types
+		ListIterator siteParamsIt = site.getParametersIterator();
+		while(it.hasNext()){
+			//create the site object and add it to tbe ArrayList List
+			Site newSite = new Site((Location)it.next());
+			while(siteParamsIt.hasNext()){
+				ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
+				if(!newSite.containsParameter(tempParam))
+					newSite.addParameter(tempParam);
+			}
+			sitesVector.add(newSite);
+		}
+		return sitesVector.iterator();
+	}
+
+
+
+	/**
+	 * This function is called if the site Params need to be set using WILLS site type
+	 * and basin depth from the SCEC basin depth values.
+	 */
+
+	/**
+	 * Calling this function will set the Site Params to whatever their value is currently.
+	 * All sites will be having the same value for those Site Parameters.
+	 */
+	public void setSameSiteParams(){
+		setSameSiteParams = true;
+		siteDataValueLists = null;
+	}
+
+	/**
+	 * Sets the default Site Parameters in case CVM don't cover the regions
+	 * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
+	 */
+	public void setDefaultSiteParams(ArrayList defaultSiteParams){
+		//this.defaultSiteParams = defaultSiteParams;
+		if (this.defaultSiteParams != null)
+			this.defaultSiteParams.clear();
+		else
+			this.defaultSiteParams = new ArrayList<ParameterAPI>();
+		for (ParameterAPI param : (ArrayList<ParameterAPI>)defaultSiteParams) {
+			this.defaultSiteParams.add((ParameterAPI)param.clone());
+		}
+	}
 
 }

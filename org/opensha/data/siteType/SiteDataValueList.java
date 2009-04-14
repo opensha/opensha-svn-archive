@@ -30,6 +30,14 @@ public class SiteDataValueList<E> implements XMLSaveable {
 	private String sourceName = null;
 	private LocationList locs = null;
 	
+	public SiteDataValueList(ArrayList<E> values, SiteDataAPI<E> source) {
+		this(values, source, null);
+	}
+	
+	public SiteDataValueList(ArrayList<E> values, SiteDataAPI<E> source, LocationList locs) {
+		this(source.getDataType(), source.getDataMeasurementType(), values, source.getName(), locs);
+	}
+	
 	public SiteDataValueList(String type, String flag, ArrayList<E> values, String sourceName) {
 		this(type, flag, values, sourceName, null);
 	}

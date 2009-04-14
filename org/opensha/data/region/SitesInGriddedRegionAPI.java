@@ -1,10 +1,12 @@
 package org.opensha.data.region;
 
 import java.util.*;
+import java.io.IOException;
 import java.io.Serializable;
 
 
 import org.opensha.data.*;
+import org.opensha.data.siteType.OrderedSiteDataProviderList;
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
@@ -77,6 +79,18 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
  public void setDefaultSiteParams(ArrayList defaultSiteParams);
 
  /**
+  * Sets the list for Site Data providers for region.
+  *
+  * After calling this function one should also call setDefaultSiteParams() , in
+  * order to the default value for the site parameters, in case we don't get
+  * any value from servlet.
+  * 
+  * @param providers
+  * @throws IOException
+  */
+ public void setSiteParamsForRegion(OrderedSiteDataProviderList providers) throws IOException;
+ 
+ /**
   * Gets the list for Site Params for region from servlet hosted at web server.
   *
   * After calling this function one should also call setDefaultSiteParams() , in
@@ -86,6 +100,7 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   * @param connectForBasinDepth : boolean to know if basin depth also required along with
   * Wills Site class values to the Site Parameters for each location in the region.
   */
+ @Deprecated
   public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth);
 
   /**
@@ -93,19 +108,7 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
    * @param willsSiteClass : String Array of Wills Site Class Values
    * @param bd : double Array of Basin Depth Values
    */
+  @Deprecated
   public void setSiteParamsForRegion(String[] willsSiteClass, double[] bd);
-
-
- /**
-  *
-  * @returns the Wills Class Values for each site
-  */
- public ArrayList getWillsClassVector();
-
- /**
-  *
-  * @returns the basin depth values for each site
-  */
- public ArrayList getBasinDepthVector();
 
 }

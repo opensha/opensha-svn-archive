@@ -159,6 +159,24 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		return vals;
 	}
 	
+	public void enableOnlyFirstForEachType() {
+		ArrayList<String> doneTypes = new ArrayList<String>();
+		
+		for (int i=0; i<size(); i++) {
+			String type = getProvider(i).getDataType();
+			boolean enabled = true;
+			for (String oldType : doneTypes) {
+				if (oldType.equals(type)) {
+					enabled = false;
+					break;
+				}
+			}
+			this.setEnabled(i, enabled);
+			if (enabled)
+				doneTypes.add(type);
+		}
+	}
+	
 	public int size() {
 		return providers.size();
 	}
@@ -357,6 +375,42 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	}
 	
 	/**
+	 * Creates a list with just Vs30 from Wills and Depth to 2.5 for compatibility with the old
+	 * pieces of code which were hardcoded to only use those 2. 
+	 * 
+	 * @return
+	 */
+	public static OrderedSiteDataProviderList createCompatibilityProviders(boolean useOldData) {
+		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
+		
+		if (useOldData) {
+			/*		Wills 2000			*/
+			providers.add(new WillsMap2000());
+			/*		CVM 2				*/
+			try {
+				providers.add(new CVM2BasinDepth());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			/*		Wills 2006			*/
+			try {
+				providers.add(new WillsMap2006());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			/*		CVM 4				*/
+			try {
+				providers.add(new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return new OrderedSiteDataProviderList(providers);
+	}
+	
+	/**
 	 * Creates the debugging list of site data providers:
 	 * 
 	 * @return
@@ -394,6 +448,20 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		
 		this.providers = newProvs;
 		this.enabled = newEnabled;
+	}
+	
+	public String toString() {
+		String str =  "OrderedSiteDataProviderList - " + size() + " providers.\n";
+		for (int i=0; i<size(); i++) {
+			SiteDataAPI<?> prov = this.getProvider(i);
+			String enabledStr;
+			if (isEnabled(i))
+				enabledStr = " (enabled)";
+			else
+				enabledStr = " (disabled)";
+			str += "\n" + i + ". " + prov.getName() + ": " + prov.getDataType() + enabledStr;
+		}
+		return str;
 	}
 	
 	/**
