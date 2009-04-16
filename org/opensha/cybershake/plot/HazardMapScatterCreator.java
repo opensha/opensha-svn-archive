@@ -125,6 +125,8 @@ public class HazardMapScatterCreator {
 	}
 	
 	private ScatterSymbol getSymbol(CybershakeSite site, ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym) {
+		if (symbols == null)
+			return defaultSym;
 		for (ScatterSymbol symbol : symbols) {
 			if (symbol.use(site)) {
 				return symbol;
@@ -244,14 +246,30 @@ public class HazardMapScatterCreator {
 	}
 	
 	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script, boolean labels) throws IOException {
+		writeScatterMarkerScript(symbols, defaultSym, script, labels, false);
+	}
+
+	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script,
+			boolean labels, boolean curveSitesOnly) throws IOException {
+		writeScatterMarkerScript(symbols, defaultSym, script, labels, curveSitesOnly, 10);
+	}
+	
+	public void writeScatterMarkerScript(ArrayList<ScatterSymbol> symbols, ScatterSymbol defaultSym, String script,
+			boolean labels, boolean curveSitesOnly, double fontSize) throws IOException {
 		FileWriter write = new FileWriter(script);
 		
 		writeInitScriptLines(write);
 		
 		double size = 0.18;
-		double fontSize = 10;
+//		double fontSize = 10;
 		
-		for (CybershakeSite site : this.getAllSites()) {
+		ArrayList<CybershakeSite> sites;
+		if (curveSitesOnly)
+			sites = this.sites;
+		else
+			sites = this.getAllSites();
+		
+		for (CybershakeSite site : sites) {
 			
 			double val = -1d;
 			String line = this.getGMTSymbolLine(symbols, defaultSym, site, val, size);
@@ -270,6 +288,20 @@ public class HazardMapScatterCreator {
 		}
 		
 		write.close();
+	}
+	
+	public static ArrayList<ScatterSymbol> getCyberShakeCymbols(double scaleFactor) {
+		ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, CybershakeSite.TYPE_BROADBAND_STATION, scaleFactor));
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, scaleFactor * 0.85));
+		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, scaleFactor * 0.75);
+		symbols.add(circle);
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, CybershakeSite.TYPE_TEST_SITE));
+		return symbols;
+	}
+	
+	public static ArrayList<ScatterSymbol> getCyberShakeCymbols() {
+		return getCyberShakeCymbols(1.0);
 	}
 	
 	public static void main(String args[]) {
@@ -331,12 +363,8 @@ public class HazardMapScatterCreator {
 //		map.printCurves();
 //		map.printVals();
 			
-			ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, CybershakeSite.TYPE_BROADBAND_STATION));
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, 0.85));
+			ArrayList<ScatterSymbol> symbols = getCyberShakeCymbols();
 			ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, 0.75);
-			symbols.add(circle);
-			symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, CybershakeSite.TYPE_TEST_SITE));
 			
 			boolean writeEmptySites = false;
 			boolean labels = true;

@@ -30,7 +30,13 @@ public class HazardCurveFetcher {
 		ids = curve2db.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFuncAPI>();
-		for (int id : ids) {
+		ArrayList<Integer> siteIDs = new ArrayList<Integer>();
+		for (int i=ids.size()-1; i>=0; i--) {
+			int id = ids.get(i);
+			if (siteIDs.contains(id)) {
+				ids.remove(i);
+				continue;
+			}
 			sites.add(site2db.getSiteFromDB(curve2db.getSiteIDFromCurveID(id)));
 			DiscretizedFuncAPI curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
