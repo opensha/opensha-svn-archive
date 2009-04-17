@@ -7,8 +7,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import java.util.ArrayList;
 /**
  * <p>Title:  FractileCurveCalculator</p>
- * <p>Description: This class calculates fractiles based on various hazard curves
- * and their relative weights</p>
+ * <p>Description: This class calculates fractiles from a list of discretized functions (e.g., hazzard curves) and their relative weights</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
