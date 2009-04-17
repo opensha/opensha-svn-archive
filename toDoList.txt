@@ -3,16 +3,23 @@
 
 HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
 
-Nitin's ToDo
-------------
-1)Progress bar that states application starting based on christine comments- Done
-2)Add the note for the windows users for saving the jar files as jar rather then as zip files. Based on Christine comments- Done
-3)finish up the Ken Hudnut control panel - Done
-4)work on the IM_Event set calculator for Keith and generate the files in the format as specified by him.
-5)Meeting with Keith on Feb 1st for structural application
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
 
+Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
 
-GMT Map Generator
+	Subduction Interface
+	Subduction IntraSlab
+	Shallow Crustal in Active Tectonic Regions
+	Shallow Crustal in Stable Tectonic Regions
+
+ProbEqkSource	Define field to declare what type of source it is
+		(e.g., subduction zone vs normal vs reverse ...) and add to API.
+		Ned will work on what the various options should be.
+
+ERF		-extend API to include getting max and min magnitude, and the various types of
+		sources generated (to check for compatibility with each chosen IMR)
+
+GMT Map Generator (are these already done?)
 -----------------
 1. Change to 72 dpi
 2. Add -F option to xyz2grd
@@ -23,8 +30,6 @@ GMT Map Generator
 
 
 Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
-
-Mean/sigma calculator at multiple sites (for Nico, Patti, and Cybershake)
 
 Patti comments
 ---------------
@@ -82,15 +87,13 @@ find them useful.
 
 
 
-NGA models implementation
-
 Hazus PSHA dataset calculator - GUI-based app?
 
 Cybershake Scatter plotter
 
-Warning/Disclaimer message is blank if no intenet access (put html in jar file).
+Warning/Disclaimer message is blank if no internet access (put html in jar file).
 
-Latest JFreeChart
+Latest JFreeChart?
 
 
 EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
@@ -102,30 +105,24 @@ Implement new version checking/download option in all apps (skip if no internet 
 Attenuation Relationship Plotter
 
 	Buttons at the bottom right disappear if window is too narrow
-	
-Implement RELM ERFs (discuss with Ned)
 
-Do MFD & gridded forecast stuff on Ned's hand written notes.
+Do MFD & gridded forecast stuff on Ned's email to himself.
 
 Implement mag PDF option in single fault ERFs (ned will do)
 
-Continue working on the all-ruptures-in-fault-system tool (Vipin)
-
-Create ability to map rate(³M,lat,lon) and plot MFD(region) for any ERF (needed for RELM).
+Create ability to map rate(ï¿½M,lat,lon) and plot MFD(region) for any ERF (needed for RELM).
 
 Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
 
-UCERF 1.0 validation (Ned)
+Vs30 worldwide tool
 
-Vs30 worldwide tool (Ned should talk to David Wald)
-
-ERF2GriddedSeisRateCalc - Ned needs to look it over.
+ERF2GriddedSeisRateCalc - Ned needs to look it over (redundant with note above?).
 
 Work on html-based help documentation.
 
 Nitin has to look on how to get the OpenSHA code to the source-forge.
 
-Implement:
+Implement (has Matt done much of this???):
 
 	CubeObsEqkRuptureGeneratior - makes ObsEqkRupture(s) from a String (of list of Strings)
 
@@ -145,23 +142,17 @@ Implement:
 	Other classes .................. (once done tell ned and he'll update STEP doc)
 
 
-Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.  Note also that the polygon does not need to be created until asked for.
-
-Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations simultaneously with the polygon in the parent class, SausageGeographicRegion, for efficiency).
-
 Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
-Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  Nitin
+Nitin - prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  
 
-Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
+Access PEER NGA data file for comparisons in our apps.
 
-Revisit PEER results plotter & data submission tool.
+Revisit PEER results plotter (& data submission tool?); implement tests as JUnit.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
-
-Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
+Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use SCEC VDO?
 
 Ned needs to document WG02_EqkRupForecast (Java docs).
 
@@ -174,8 +165,6 @@ Add faults to GMT plotting options.
 add site translation for SEA_1999_AttenRel
 
 Revise CVS setup document. It should includes the libraries that the person needs to include and classes that needs to be compiled as RMI.
-
-Implement point source correction option in PropagationEffect.
 
 Make email lists for the following (with on-line archives):
 
@@ -190,18 +179,9 @@ Peter Powers' stress chance calculator (and Jeremy's work)?
 
 Formally test all applications before publication (this will take planning).
 
-Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
-
-	Subduction Interface
-	Subduction IntraSlab
-	Shallow Crustal in Active Tectonic Regions
-	Shallow Crustal in Stable Tectonic Regions
-
-Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
+Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
 
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
-
-Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
 
 Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot (this is done); 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available. This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
 
@@ -234,15 +214,6 @@ Should we create an AjustableParametersAPI for all objects that have a list of a
 
 
 Relax the single ERF instance at one time in the ERF and RupFroERF GUI beans if needed and memory is not an issue.
-
-Implement NGA relationships when ready.
-
-ProbEqkSource	Define field to declare what type of source it is
-		(e.g., subduction zone vs normal vs reverse ...) and add to API.
-		Ned will work on what the various options should be.
-
-ERF		-extend API to include getting max and min magnitude, and the various types of
-		sources generated (to check for compatibility with each chosen IMR)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
