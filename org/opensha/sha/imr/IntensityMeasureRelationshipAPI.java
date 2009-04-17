@@ -128,6 +128,15 @@ public interface IntensityMeasureRelationshipAPI
    * @return                   True if this is a supported IMT
    */
   public boolean isIntensityMeasureSupported(ParameterAPI type);
+  
+  /**
+   * Checks if the Parameter is a supported intensity-Measure (checking
+   * only the name).
+   * @param intensityMeasure Name of the intensity Measure parameter
+   * @return
+   */
+  public boolean isIntensityMeasureSupported(String intensityMeasure);
+
 
   /**
    *  Sets the probEqkRupture, site, and intensityMeasure objects
