@@ -63,6 +63,7 @@ import org.opensha.sha.fault.FaultTrace;
  *
  */
 public class SoSAF_SubSectionInversion {
+//	private final static String SEG_RATE_FILE_NAME = "scratchJavaDevelopers/ned/SSAF_Inversion/Appendix_C_Table7_Modified.xls";
 	private final static String SEG_RATE_FILE_NAME = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/Appendix_C_Table7_091807.xls";
 	public final static String ROOT_PATH = "/Users/field/workspace/OpenSHA/scratchJavaDevelopers/ned/SSAF_Inversion/";
 
@@ -1279,6 +1280,7 @@ public class SoSAF_SubSectionInversion {
 	private void getPaleoSegRateConstraints() {
 		segRateConstraints   = new ArrayList<SegRateConstraint>();
 		try {				
+//			System.out.println(SEG_RATE_FILE_NAME);
 			POIFSFileSystem fs = new POIFSFileSystem(getClass().getClassLoader().getResourceAsStream(SEG_RATE_FILE_NAME));
 			HSSFWorkbook wb = new HSSFWorkbook(fs);
 			HSSFSheet sheet = wb.getSheetAt(0);
@@ -1317,7 +1319,7 @@ public class SoSAF_SubSectionInversion {
 				String name = subSectionList.get(closestFaultSectionIndex).getSectionName()+" --"+siteName;
 				SegRateConstraint segRateConstraint = new SegRateConstraint(name);
 				segRateConstraint.setSegRate(closestFaultSectionIndex, rate, sigma, lower95Conf, upper95Conf);
-// System.out.println(name+"\t"+closestFaultSectionIndex+"\t"+rate+"\t"+sigma+"\t"+lower95Conf+"\t"+upper95Conf);
+ //System.out.println(name+"\t"+closestFaultSectionIndex+"\t"+rate+"\t"+sigma+"\t"+lower95Conf+"\t"+upper95Conf);
 				segRateConstraints.add(segRateConstraint);
 			}
 		}catch(Exception e) {
@@ -2080,7 +2082,7 @@ public class SoSAF_SubSectionInversion {
 		double relative_aPrioriRupWt = 100;
 		double relative_smoothnessWt = 10;
 		boolean wtedInversion = true;
-		double minRupRate = 0;
+		double minRupRate = 1e-6;
 		boolean applyProbVisible = true;
 		double moRateReduction =0.1;
 		boolean transitionAseisAtEnds = true; 
