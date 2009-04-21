@@ -81,8 +81,12 @@ Note that we couldn't just use mid points because Vs30 for BC is greater than fo
  * @author: Ned Field & Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
-
+@Deprecated
 public class Vs30SiteTranslator implements java.io.Serializable{
+	/* 
+	 * ***** DEPRICATED *****
+	 * send Vs30 SiteDataValue object o SiteTranslator instead
+	 */
 
   private final static String C = "SiteTranslator";
   private final static boolean D = false;
