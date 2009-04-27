@@ -2,49 +2,52 @@
 
 <project basedir="." default="build" name="Compile">
 
-	<property name="dest" value="../classes"/>
-	<property name="tmpdest" value="../classes.temp"/>
-	<property name="src" value="../"/>
+	<property name="dest" value="../classes" />
+	<property name="tmpdest" value="../classes.temp" />
+	<property name="src" value="../" />
 
 	<target name="compile">
-		<javac
-				debug="true"
-				deprecation="false"
-				optimize="true"
-				destdir="${tmpdest}"
-				nowarn="true"
-				source="1.5"
-				target="1.5"
-				failonerror="yes"
-				verbose="no"
-				fork="yes"
-				memoryInitialSize="512m"
-				memoryMaximumSize="1024m">
+		<javac debug="true" deprecation="false" optimize="true" destdir="${tmpdest}" nowarn="true" source="1.5" target="1.5" failonerror="yes" verbose="no" fork="yes" memoryInitialSize="512m" memoryMaximumSize="1024m">
 
-			<src path="${src}"/>
+			<src path="${src}" />
 			<include name="scratchJavaDevelopers/**" />
 			<include name="org/**" />
 			<include name="com/**" />
+			<include name="nnls/**" />
 			<exclude name="**/_nobuild/**" />
 		</javac>
 	</target>
 
 	<target name="init">
-		<mkdir dir="${tmpdest}"/>
+		<mkdir dir="${tmpdest}" />
 	</target>
 
 	<target name="precompilecleanup">
-		<delete dir="${tmpdest}" failonerror="yes" verbose="no"/>
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
 
 	<target name="build" depends="precompilecleanup,init,compile">
-		<delete dir="${dest}" failonerror="yes" verbose="no"/>
+		<delete dir="${dest}" failonerror="yes" verbose="no" />
 
 		<move todir="${dest}">
-			<fileset dir="${tmpdest}"/>
+			<fileset dir="${tmpdest}" />
 		</move>
-		
-		<delete dir="${tmpdest}" failonerror="yes" verbose="no"/>
+
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
+	</target>
+
+	<target name="jar" depends="precompilecleanup,init,compile">
+		<jar destfile="OpenSHA_classes_only.jar" basedir="${dest}">
+			<!-- <include name="org/**"/>
+			<include name="etc/**"/>
+			<include name="com/**"/>
+			<include name="campbell_2006_coeff.txt"/>
+			<include name="campbell_2008_coeff.txt"/>
+			<include name="nnls/**"/>
+			<include name="oracle/**"/>
+			<include name="scratchJavaDevelopers/**"/> -->
+		</jar>
+		<delete dir="${tmpdest}" failonerror="yes" verbose="no" />
 	</target>
 
 
