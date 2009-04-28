@@ -42,9 +42,13 @@ public class SiteDataServletAccessor<Element> {
 		if (maxLocsPerRequest > 0 && locs.size() > maxLocsPerRequest) {
 			result = new ArrayList<Element>();
 			
+			int done = 0;
+			int tot = locs.size();
 			for (LocationList partialLocs : locs.split(maxLocsPerRequest)) {
-				System.out.println("Requesting " + partialLocs.size() + " values");
+				float frac = (float)done / (float)tot * 100f;
+				System.out.println("Requesting " + partialLocs.size() + " values (" + frac + " % done)");
 				result.addAll((ArrayList<Element>)getResult(partialLocs));
+				done += partialLocs.size();
 			}
 		} else {
 			System.out.println("Requesting " + locs.size() + " values");

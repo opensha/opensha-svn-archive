@@ -119,6 +119,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 			
 			floatBuff = record.asFloatBuffer();
 		}
+		initDefaultBasinParams();
 		this.paramList.addParameter(minBasinDoubleParam);
 		this.paramList.addParameter(maxBasinDoubleParam);
 	}
@@ -155,7 +156,7 @@ public class CVM4BasinDepth extends AbstractSiteData<Double> {
 	
 	// TODO: what should we set this to?
 	public String getDataMeasurementType() {
-		return TYPE_FLAG_MEASURED;
+		return TYPE_FLAG_INFERRED;
 	}
 
 	public Double getValue(Location loc) throws IOException {

@@ -100,6 +100,7 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 			
 			floatBuff = record.asFloatBuffer();
 		}
+		initDefaultBasinParams();
 		this.paramList.addParameter(minBasinDoubleParam);
 		this.paramList.addParameter(maxBasinDoubleParam);
 	}
@@ -136,7 +137,7 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
 	// TODO: what should we set this to?
 	public String getDataMeasurementType() {
-		return TYPE_FLAG_MEASURED;
+		return TYPE_FLAG_INFERRED;
 	}
 
 	public Double getValue(Location loc) throws IOException {
@@ -199,9 +200,10 @@ public class USGSBayAreaBasinDepth extends AbstractSiteData<Double> {
 	
 	public static void main(String args[]) throws RegionConstraintException {
 		try {
-			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_2_5, DEPTH_2_5_FILE, true);
-			EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(37, 38.5, -122.75, -121.5, 0.01);
-			SiteDataToXYZ.writeXYZ(cvm, region, "/tmp/sfbasin.txt");
+			USGSBayAreaBasinDepth cvm = new USGSBayAreaBasinDepth(TYPE_DEPTH_TO_1_0, DEPTH_2_5_FILE, true);
+//			EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(37, 38.5, -122.75, -121.5, 0.01);
+//			SiteDataToXYZ.writeXYZ(cvm, region, "/tmp/sfbasin.txt");
+			SiteDataToXYZ.writeXYZ(cvm, 0.05, "/tmp/sfbasin.txt");
 			
 			System.out.println(cvm.getValue(new Location(35.1, -125)));
 			System.out.println(cvm.getValue(new Location(36.1, -125)));

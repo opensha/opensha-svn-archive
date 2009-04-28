@@ -30,6 +30,9 @@ public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
 			map = new WillsMap2000(useServlet);
 		else
 			map = new WillsMap2000(fileName);
+		initDefaultVS30Params();
+		this.paramList.addParameter(minVs30Param);
+		this.paramList.addParameter(maxVs30Param);
 	}
 
 	public GeographicRegion getApplicableRegion() {
@@ -65,10 +68,16 @@ public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
 	public String getDataMeasurementType() {
 		return map.getDataMeasurementType();
 	}
+	
+	private Double getValueFromWillsClass(String wills) {
+		Double val = SiteTranslator.getVS30FromWillsClass(wills);
+		
+		return certifyMinMaxVs30(val);
+	}
 
 	public Double getValue(Location loc) throws IOException {
 		String wills = map.getValue(loc);
-		return SiteTranslator.getVS30FromWillsClass(wills);
+		return getValueFromWillsClass(wills);
 	}
 	
 	public ArrayList<Double> getValues(LocationList locs) throws IOException {
@@ -76,7 +85,7 @@ public class WillsMap2000TranslatedVs30 extends AbstractSiteData<Double> {
 		ArrayList<Double> vsVals = new ArrayList<Double>();
 		
 		for (String wills : willsVals) {
-			vsVals.add(SiteTranslator.getVS30FromWillsClass(wills));
+			vsVals.add(getValueFromWillsClass(wills));
 		}
 		return vsVals;
 	}

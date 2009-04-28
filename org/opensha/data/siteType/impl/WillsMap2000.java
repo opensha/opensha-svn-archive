@@ -106,7 +106,7 @@ public class WillsMap2000 extends AbstractSiteData<String> {
 	}
 	
 	public String getDataMeasurementType() {
-		return TYPE_FLAG_MEASURED;
+		return TYPE_FLAG_INFERRED;
 	}
 
 	public String getValue(Location loc) throws IOException {

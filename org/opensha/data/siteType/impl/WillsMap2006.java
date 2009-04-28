@@ -82,6 +82,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 			record.order(ByteOrder.LITTLE_ENDIAN);
 			shortBuff = record.asShortBuffer();
 		}
+		initDefaultVS30Params();
 		this.paramList.addParameter(minVs30Param);
 		this.paramList.addParameter(maxVs30Param);
 	}
@@ -121,7 +122,7 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	}
 	
 	public String getDataMeasurementType() {
-		return TYPE_FLAG_MEASURED;
+		return TYPE_FLAG_INFERRED;
 	}
 
 	public Double getValue(Location loc) throws IOException {

@@ -35,41 +35,49 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 	public static final Double PARAM_MIN_BASIN_DEPTH_DOUBLE_MIN = 0.0d;
 	public static final Double PARAM_MIN_BASIN_DEPTH_DOUBLE_MAX = 100000d;
 	public static final Double PARAM_MIN_BASIN_DEPTH_DOUBLE_DEFAULT = PARAM_MIN_BASIN_DEPTH_DOUBLE_MIN;
+	public static final String PARAM_MIN_BASIN_INFO = "This can be used to constrain the minimum basin depth value " +
+	"returned by the basin depth provider. If the provider gives a value that is less than this minimum value," +
+	"the minimum value will be used.";
 	/**
 	 * Parameter for specifying minimum basin depth
 	 */
-	protected DoubleParameter minBasinDoubleParam = new DoubleParameter(PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME,
-			PARAM_MIN_BASIN_DEPTH_DOUBLE_MIN, PARAM_MIN_BASIN_DEPTH_DOUBLE_MAX, PARAM_MIN_BASIN_DEPTH_DOUBLE_DEFAULT);
+	protected DoubleParameter minBasinDoubleParam = null;
 	
 	public static final String PARAM_MAX_BASIN_DEPTH_DOUBLE_NAME = "Maximum Basin Depth";
 	public static final Double PARAM_MAX_BASIN_DEPTH_DOUBLE_MIN = 0.0d;
 	public static final Double PARAM_MAX_BASIN_DEPTH_DOUBLE_MAX = 100000d;
 	public static final Double PARAM_MAX_BASIN_DEPTH_DOUBLE_DEFAULT = PARAM_MAX_BASIN_DEPTH_DOUBLE_MAX;
+	public static final String PARAM_MAX_BASIN_INFO = "This can be used to constrain the maximum basin depth value " +
+	"returned by the basin depth provider. If the provider gives a value that is greater than this maximum value," +
+	"the maximum value will be used.";
 	/**
 	 * Parameter for specifying maximum basin depth
 	 */
-	protected DoubleParameter maxBasinDoubleParam = new DoubleParameter(PARAM_MAX_BASIN_DEPTH_DOUBLE_NAME,
-			PARAM_MAX_BASIN_DEPTH_DOUBLE_MIN, PARAM_MAX_BASIN_DEPTH_DOUBLE_MAX, PARAM_MAX_BASIN_DEPTH_DOUBLE_DEFAULT);
+	protected DoubleParameter maxBasinDoubleParam = null;
 	
 	public static final String PARAM_MIN_VS30_NAME = "Minimum Vs30";
 	public static final Double PARAM_MIN_VS30_MIN = 0.0d;
 	public static final Double PARAM_MIN_VS30_MAX = 100000d;
 	public static final Double PARAM_MIN_VS30_DEFAULT = PARAM_MIN_VS30_MIN;
+	public static final String PARAM_MIN_VS30_INFO = "This can be used to constrain the minimum Vs30 value " +
+			"returned by the Vs30 provider. If the provider gives a value that is less than this minimum value," +
+			"the minimum value will be used.";
 	/**
 	 * Parameter for specifying minimum Vs30
 	 */
-	protected DoubleParameter minVs30Param = new DoubleParameter(PARAM_MIN_VS30_NAME,
-			PARAM_MIN_VS30_MIN, PARAM_MIN_VS30_MAX, PARAM_MIN_VS30_DEFAULT);
+	protected DoubleParameter minVs30Param = null;
 	
 	public static final String PARAM_MAX_VS30_NAME = "Maximum Vs30";
 	public static final Double PARAM_MAX_VS30_MIN = 0.0d;
 	public static final Double PARAM_MAX_VS30_MAX = 5000d;
 	public static final Double PARAM_MAX_VS30_DEFAULT = PARAM_MAX_VS30_MAX;
+	public static final String PARAM_MAX_VS30_INFO = "This can be used to constrain the maximum Vs30 value " +
+	"returned by the Vs30 provider. If the provider gives a value that is greater than this maximum value," +
+	"the maximum value will be used.";
 	/**
 	 * Parameter for specifying maximum Vs30
 	 */
-	protected DoubleParameter maxVs30Param = new DoubleParameter(PARAM_MAX_VS30_NAME,
-			PARAM_MAX_VS30_MIN, PARAM_MAX_VS30_MAX, PARAM_MAX_VS30_DEFAULT);
+	protected DoubleParameter maxVs30Param = null;
 	
 	public AbstractSiteData() {
 		paramList = new ParameterList();
@@ -141,6 +149,61 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 	}
 	
 	/**
+	 * This initializes the min/max basin depth parameters. They are initially set to null
+	 * to save memory/time for site data providers that don't use them.
+	 * 
+	 * They will still need to be manually added to the parameter list.
+	 */
+	protected void initDefaultBasinParams() {
+		// create the min basin depth param
+		minBasinDoubleParam = new DoubleParameter(PARAM_MIN_BASIN_DEPTH_DOUBLE_NAME,
+				PARAM_MIN_BASIN_DEPTH_DOUBLE_MIN, PARAM_MIN_BASIN_DEPTH_DOUBLE_MAX, PARAM_MIN_BASIN_DEPTH_DOUBLE_DEFAULT);
+		minBasinDoubleParam.setInfo(PARAM_MIN_BASIN_INFO);
+		// create the max basin depth param
+		maxBasinDoubleParam = new DoubleParameter(PARAM_MAX_BASIN_DEPTH_DOUBLE_NAME,
+				PARAM_MAX_BASIN_DEPTH_DOUBLE_MIN, PARAM_MAX_BASIN_DEPTH_DOUBLE_MAX, PARAM_MAX_BASIN_DEPTH_DOUBLE_DEFAULT);
+		maxBasinDoubleParam.setInfo(PARAM_MAX_BASIN_INFO);
+	}
+	
+	/**
+	 * This initializes the min/max Vs30 parameters. They are initially set to null
+	 * to save memory/time for site data providers that don't use them.
+	 * 
+	 * They will still need to be manually added to the parameter list.
+	 */
+	protected void initDefaultVS30Params() {
+		// create the min Vs30 param
+		minVs30Param = new DoubleParameter(PARAM_MIN_VS30_NAME,
+				PARAM_MIN_VS30_MIN, PARAM_MIN_VS30_MAX, PARAM_MIN_VS30_DEFAULT);
+		minVs30Param.setInfo(PARAM_MIN_VS30_INFO);
+		// create the max Vs30 param
+		maxVs30Param = new DoubleParameter(PARAM_MAX_VS30_NAME,
+				PARAM_MAX_VS30_MIN, PARAM_MAX_VS30_MAX, PARAM_MAX_VS30_DEFAULT);
+		maxVs30Param.setInfo(PARAM_MAX_VS30_INFO);
+	}
+	
+	/**
+	 * Helper method that takes a value, min, and max. If min < val < max,
+	 * val is returned. Else if val > max, max is returned, and if val < min,
+	 * min is returned. If val is NaN, NaN is returned;
+	 * 
+	 * @param val
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	private Double getDoubleInMinMaxRange(Double val, Double min, Double max) {
+		if (val.isNaN())
+			return val;
+		
+		if (min != null && val < min)
+			return min;
+		if (max != null && val > max)
+			return max;
+		return val;
+	}
+	
+	/**
 	 * Helper method for checking if the basin depth is within the min/max
 	 * 
 	 * @param val
@@ -150,11 +213,7 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		Double min = (Double) minBasinDoubleParam.getValue();
 		Double max = (Double) maxBasinDoubleParam.getValue();
 		
-		if (min != null && val < min)
-			return min;
-		if (max != null && val > max)
-			return max;
-		return val;
+		return getDoubleInMinMaxRange(val, min, max);
 	}
 	
 	/**
@@ -167,11 +226,7 @@ public abstract class AbstractSiteData<Element> implements SiteDataAPI<Element> 
 		Double min = (Double) minVs30Param.getValue();
 		Double max = (Double) maxVs30Param.getValue();
 		
-		if (min != null && val < min)
-			return min;
-		if (max != null && val > max)
-			return max;
-		return val;
+		return getDoubleInMinMaxRange(val, min, max);
 	}
 	
 	/**

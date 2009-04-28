@@ -11,6 +11,7 @@ import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.siteType.impl.CVM2BasinDepth;
 import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.MeanTopoSlope;
 import org.opensha.data.siteType.impl.SRTM30PlusTopoSlope;
 import org.opensha.data.siteType.impl.SRTM30PlusTopography;
 import org.opensha.data.siteType.impl.SRTM30TopoSlope;
@@ -353,6 +354,11 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		}
 		try {
 			providers.add(new SRTM30TopoSlope());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			providers.add(new MeanTopoSlope());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -55,7 +55,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 	private ArbitrarilyDiscretizedFunc coeffFunc;
 	
 	private BooleanParameter interpolateParam;
-	public static final String INTERPOLATE_PARAM_NAME = "Interpolate Between Slope Values";
+	public static final String INTERPOLATE_PARAM_NAME = "Interpolate Between Slope Values (Linear)";
 	public static final Boolean INTERPOLATE_PARAM_DEFAULT = true;
 	
 	private StringParameter demParam;
@@ -134,6 +134,7 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		demParam.addParameterChangeListener(this);
 		slopeProvider = srtm30_Slope;
 		
+		initDefaultVS30Params();
 		this.paramList.addParameter(demParam);
 		this.paramList.addParameter(interpolateParam);
 		this.paramList.addParameter(coeffPresetParam);
@@ -228,6 +229,29 @@ public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements Par
 		}
 		
 		return vs30;
+	}
+	
+	/**
+	 * Helper method for setting interpolation.
+	 * 
+	 * @param interpolate - if true, linearly interpolate vs30 values
+	 */
+	public void setInterpolateValues(boolean interpolate) {
+		this.interpolateParam.setValue(interpolate);
+	}
+	
+	/**
+	 * Helper method for setting active coefficients
+	 */
+	public void setActiveCoefficients() {
+		this.coeffPresetParam.setValue(COEFF_ACTIVE_NAME);
+	}
+	
+	/**
+	 * Helper method for setting stable coefficients
+	 */
+	public void setStableCoefficients() {
+		this.coeffPresetParam.setValue(COEFF_STABLE_NAME);
 	}
 
 	public boolean isValueValid(Double el) {

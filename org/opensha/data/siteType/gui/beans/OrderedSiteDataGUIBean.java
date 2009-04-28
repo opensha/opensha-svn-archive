@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -375,6 +376,7 @@ public class OrderedSiteDataGUIBean extends JPanel implements ActionListener, Li
 	public ArrayList<SiteDataAPI<?>> getSelectedProviders() {
 		ArrayList<SiteDataAPI<?>> providers = new ArrayList<SiteDataAPI<?>>();
 		int indexes[] = this.dataList.getSelectedIndices();
+		Arrays.sort(indexes);
 		for (int index : indexes) {
 			providers.add(list.getProvider(index));
 		}
