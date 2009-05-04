@@ -77,8 +77,11 @@ NamedObjectAPI, ParameterChangeListener {
 
 	// Name of IMR
 	public final static String NAME = "Abrahamson & Silva (2008)";
-	private final static String AS_2008_CoeffFile = "org" + File.separator + "opensha" + File.separator + "sha"
-			+ File.separator + "imr" + File.separator + "attenRelImpl" + File.separator + "as_2008_coeff.txt";
+	
+	// Coeff file
+//	private final static String AS_2008_CoeffFile = "org" + File.separator + "opensha" + File.separator + "sha"
+//			+ File.separator + "imr" + File.separator + "attenRelImpl" + File.separator + "as_2008_coeff.txt";
+	private final static String AS_2008_CoeffFile = "as_2008_coeff.txt";
 
 	// Debugging stuff
 	private final static String C = "AS_2008_CG_AttenRel";
@@ -201,7 +204,8 @@ NamedObjectAPI, ParameterChangeListener {
 	@SuppressWarnings("unchecked")
 	private void readCoeffFile(){
 		try{
-			ArrayList<String> coeff= FileUtils.loadJarFile(AS_2008_CoeffFile);
+//			ArrayList<String> coeff= FileUtils.loadJarFile(AS_2008_CoeffFile);
+			ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(AS_2008_CoeffFile));
 			//reading the Period
 			String perLine = coeff.get(0);
 			ArrayList period = new ArrayList<Double>();
@@ -386,10 +390,10 @@ NamedObjectAPI, ParameterChangeListener {
 			this.createCoeffArray(rho_sList, rho);
 			rho_sList = null;
 
-
-		}catch(IOException e){
-			System.out.println(AS_2008_CoeffFile+" file Not Found");
-			e.printStackTrace();
+		} catch(Exception e) {
+			throw new RuntimeException(AS_2008_CoeffFile+" file Not Found", e);
+//			System.out.println(AS_2008_CoeffFile+" file Not Found");
+//			e.printStackTrace();
 		}
 	}
 

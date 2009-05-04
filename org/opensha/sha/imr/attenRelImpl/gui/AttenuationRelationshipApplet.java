@@ -23,6 +23,8 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
 
+import scratchJavaDevelopers.christine.attenRelImpl.BS_2003b_AttenRel;
+import scratchJavaDevelopers.christine.attenRelImpl.GouletEtAl_2010_AttenRel;
 import scratchJavaDevelopers.jennie.attenRelImpl.ToroEtAl_1997_AttenRel;
 
 import javax.help.*;
@@ -53,7 +55,7 @@ public class AttenuationRelationshipApplet extends JFrame
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.10.22";
+    protected final static String version = "0.10.23";
     //protected final static String version = "0";
     protected final static boolean D = false;
 
@@ -201,6 +203,8 @@ public class AttenuationRelationshipApplet extends JFrame
     protected final static String GOULET_2006_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel";
     protected final static String TORO_97_CLASS_NAME="scratchJavaDevelopers.jennie.attenRelImpl.ToroEtAl_1997_AttenRel";
     protected final static String AS_2008_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel";
+    protected final static String GOULET_2010_CLASS_NAME="scratchJavaDevelopers.christine.attenRelImpl.GouletEtAl_2010_AttenRel";
+    protected final static String BS_2003b_CLASS_NAME="scratchJavaDevelopers.christine.attenRelImpl.BS_2003b_AttenRel";
     /**
      *  ArrayList that maps picklist attenRel string names to the real fully qualified
      *  class names
@@ -218,6 +222,8 @@ public class AttenuationRelationshipApplet extends JFrame
     static {
     	imNames.add(CY_2008_AttenRel.NAME);
     	attenRelClasses.add(CY_2008_CLASS_NAME);
+    	imNames.add(AS_2008_AttenRel.NAME);
+    	attenRelClasses.add(AS_2008_CLASS_NAME);
     	imNames.add(CB_2008_AttenRel.NAME);
     	attenRelClasses.add(CB_2008_CLASS_NAME);
     	imNames.add(BA_2008_AttenRel.NAME);
@@ -256,9 +262,10 @@ public class AttenuationRelationshipApplet extends JFrame
     	attenRelClasses.add(SEA_CLASS_NAME);
     	imNames.add(ToroEtAl_1997_AttenRel.NAME);
     	attenRelClasses.add(TORO_97_CLASS_NAME);
-    	imNames.add(AS_2008_AttenRel.NAME);
-    	attenRelClasses.add(AS_2008_CLASS_NAME);
-
+//    	imNames.add(GouletEtAl_2010_AttenRel.NAME);
+//    	attenRelClasses.add(GOULET_2010_CLASS_NAME);
+    	imNames.add(BS_2003b_AttenRel.NAME);
+    	attenRelClasses.add(BS_2003b_CLASS_NAME);
 
     	//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
@@ -888,8 +895,6 @@ public class AttenuationRelationshipApplet extends JFrame
 
         if ( choice.equals( currentAttenuationRelationshipName ) )
             return;
-        else
-            currentAttenuationRelationshipName = choice;
 
         if ( D )
             System.out.println( S + "Starting: New AttenuationRelationship = " + choice );
@@ -897,8 +902,14 @@ public class AttenuationRelationshipApplet extends JFrame
         // Clear the current traces
         //Plot needs to be cleared only if X or Y axis are changed, not otherwise
         if(newGraph)  clearPlot(true);
-        int currentSelectedAttenRelIndex = this.imNames.indexOf(currentAttenuationRelationshipName);
-        attenRel = attenRels.setImr( currentSelectedAttenRelIndex, this );
+        int currentSelectedAttenRelIndex = this.imNames.indexOf(choice);
+        try {
+			attenRel = attenRels.setImr( currentSelectedAttenRelIndex, this );
+		} catch (Exception e) {
+			attenRelComboBox.setSelectedIndex(imNames.indexOf(currentAttenuationRelationshipName));
+			throw new RuntimeException("Failed to load Attenuation Relationship: " + choice, e);
+		}
+        currentAttenuationRelationshipName = choice;
 
         sheetPanel.removeAll();
         sheetPanel.add( attenRel.getIndependentsEditor(),
@@ -1340,7 +1351,12 @@ public class AttenuationRelationshipApplet extends JFrame
 
         if ( e.getSource().equals( attenRelComboBox ) ){
           // this.customAxis =false;
-          updateChoosenAttenuationRelationship();
+          try {
+			updateChoosenAttenuationRelationship();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(this, e1.getMessage());
+		}
         }
         else if( e.getSource().equals( plotColorCheckBox ) ){
 
