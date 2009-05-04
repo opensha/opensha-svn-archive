@@ -35,6 +35,8 @@ public class HazardCurve2DB {
 		ArrayList<Integer> curveIDs = new ArrayList<Integer>();
 		ArrayList<Integer> runIDs = new ArrayList<Integer>();
 		
+//		System.out.println("1");
+		
 		if (erfIDs == null) {
 			ArrayList<Integer> newIDs = runs2db.getRunIDs(-1, -1, sgtVarID, rupVarScenarioID, null, null, null, null);
 			if (newIDs != null && newIDs.size() > 0)
@@ -47,12 +49,25 @@ public class HazardCurve2DB {
 			}
 		}
 		
+//		System.out.println("2");
+		ArrayList<CybershakeHazardCurveRecord> records = getAllHazardCurveRecords();
 		
-		for (int runID : runIDs) {
-			ArrayList<Integer> newIDs = getAllHazardCurveIDs(runID, imTypeID);
-			if (newIDs != null && newIDs.size() > 0)
-				curveIDs.addAll(newIDs);
+		for (CybershakeHazardCurveRecord record : records) {
+			int typeID = record.getImTypeID();
+			if ((typeID < 0 || typeID == imTypeID) && runIDs.contains(record.getRunID())) {
+				curveIDs.add(record.getCurveID());
+			}
 		}
+//		System.out.println("3");
+		
+//		for (int runID : runIDs) {
+//			System.out.println("runID: " + runID);
+//			ArrayList<Integer> newIDs = getAllHazardCurveIDs(runID, imTypeID);
+//			if (newIDs != null && newIDs.size() > 0)
+//				curveIDs.addAll(newIDs);
+//		}
+//		
+//		System.out.println("4");
 		
 		return curveIDs;
 	}

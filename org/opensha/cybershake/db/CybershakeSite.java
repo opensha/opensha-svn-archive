@@ -1,11 +1,16 @@
 package org.opensha.cybershake.db;
 
+import org.opensha.data.Location;
+
 public class CybershakeSite {
 	
 	public static final int TYPE_POI = 1;
 	public static final int TYPE_PRECARIOUS_ROCK = 2;
 	public static final int TYPE_BROADBAND_STATION = 3;
 	public static final int TYPE_TEST_SITE = 4;
+	public static final int TYPE_GRID_20_KM = 5;
+	public static final int TYPE_GRID_10_KM = 6;
+	public static final int TYPE_GRID_05_KM = 7;
 	
 	public int id;
 	public double lat;
@@ -25,6 +30,10 @@ public class CybershakeSite {
 	
 	public CybershakeSite(double lat, double lon, String name, String short_name) {
 		this(-1, lat, lon, name, short_name, -1);
+	}
+	
+	public Location createLocation() {
+		return new Location(lat, lon);
 	}
 	
 	public String toString() {

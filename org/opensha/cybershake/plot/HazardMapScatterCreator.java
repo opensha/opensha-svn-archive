@@ -296,6 +296,10 @@ public class HazardMapScatterCreator {
 		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, scaleFactor * 0.85));
 		ScatterSymbol circle = new ScatterSymbol(ScatterSymbol.SYMBOL_CIRCLE, CybershakeSite.TYPE_POI, scaleFactor * 0.75);
 		symbols.add(circle);
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVERTED_TRIANGLE, CybershakeSite.TYPE_GRID_20_KM, scaleFactor * 0.85));
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVERTED_TRIANGLE, CybershakeSite.TYPE_GRID_10_KM, scaleFactor * 0.85));
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVERTED_TRIANGLE, CybershakeSite.TYPE_GRID_05_KM, scaleFactor * 0.85));
+		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, scaleFactor * 0.85));
 		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_INVISIBLE, CybershakeSite.TYPE_TEST_SITE));
 		return symbols;
 	}

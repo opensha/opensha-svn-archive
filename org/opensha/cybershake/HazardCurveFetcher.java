@@ -11,6 +11,9 @@ import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
 import org.opensha.cybershake.db.HazardCurve2DB;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.impl.CVM4BasinDepth;
+import org.opensha.data.siteType.impl.WillsMap2006;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 
 public class HazardCurveFetcher {
@@ -28,9 +31,11 @@ public class HazardCurveFetcher {
 		this.initDBConnections(db);
 		System.out.println("rupV: " + rupVarScenarioID + " sgtV: " + sgtVarID);
 		ids = curve2db.getAllHazardCurveIDs(erfIDs, rupVarScenarioID, sgtVarID, imTypeID);
+//		System.out.println("Got " + ids.size() + " IDs");
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFuncAPI>();
 		ArrayList<Integer> siteIDs = new ArrayList<Integer>();
+		System.out.println("Start loop...");
 		for (int i=ids.size()-1; i>=0; i--) {
 			int id = ids.get(i);
 			if (siteIDs.contains(id)) {
@@ -41,6 +46,7 @@ public class HazardCurveFetcher {
 			DiscretizedFuncAPI curve = curve2db.getHazardCurve(id);
 			funcs.add(curve);
 		}
+//		System.out.println("Out of constructor!");
 	}
 	
 	private void initDBConnections(DBAccess db) {
@@ -113,19 +119,27 @@ public class HazardCurveFetcher {
 		}
 	}
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
 		String outDir = "/home/kevin/CyberShake/curve_data";
 		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		
+		System.out.println("1");
 		
 		ArrayList<Integer> erfIDs = new ArrayList<Integer>();
 		erfIDs.add(34);
 		erfIDs.add(35);
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, erfIDs, 3, 5, 21);
 		
+		System.out.println("2");
+		
 //		fetcher.saveAllCurvesToDir(outDir);
 		
+		WillsMap2006 wills = new WillsMap2006();
+		CVM4BasinDepth cvm = new CVM4BasinDepth(SiteDataAPI.TYPE_DEPTH_TO_2_5);
+		
 		ArrayList<CybershakeSite> sites = fetcher.getCurveSites();
+		String tot = "";
 		for (CybershakeSite site : sites) {
 			String str = site.lon + ", " + site.lat + ", " + site.short_name + ", ";
 			if (site.type_id == CybershakeSite.TYPE_POI)
@@ -136,8 +150,15 @@ public class HazardCurveFetcher {
 				str += "Precarious Rock";
 			else if (site.type_id == CybershakeSite.TYPE_TEST_SITE)
 				continue;
+			else
+				str += "Unknown";
+			double vs30 = wills.getValue(site.createLocation());
+			double basin = cvm.getValue(site.createLocation());
+			str += ", " + vs30 + ", " + basin;
 			System.out.println(str);
+			tot += str + "\n";
 		}
+		System.out.print(tot);
 		
 		System.exit(0);
 	}
