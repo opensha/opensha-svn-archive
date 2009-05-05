@@ -8,7 +8,7 @@
 -->
 <project basedir="." default="jarfile" name="attenuationrelationship_test">
 	<property name="jbuilder.home" value="/Developer/Applications/JBuilder-2005/JBuilder.framework"/>
-	<property name="jdk.home" value="/usr/lib/jvm/jdk1.6.0_03"/>
+	<property name="jdk.home" value="/usr/lib/jvm/java-1.5.0-sun"/>
 	<property name="dest" value="../classes.ant"/>
 	<property name="JUnit.home" value="${jbuilder.home}/thirdparty/junit3.8"/>
 	<property name="Unit.Test.home" value="${jbuilder.home}/lib"/>

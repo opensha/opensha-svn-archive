@@ -195,7 +195,8 @@ public class CB_2008_AttenRel
   
   private void readCoeffFile(){
 	  try{
-		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
+//		ArrayList<String> coeff= FileUtils.loadJarFile(CB_2008_CoeffFile);
+		ArrayList<String> coeff= FileUtils.loadFile(this.getClass().getResource(CB_2008_CoeffFile));
 		//reading the Period
 		String perLine = coeff.get(0);
 		ArrayList period = new ArrayList<Double>();
@@ -390,9 +391,8 @@ public class CB_2008_AttenRel
 		rho_sList = null;
 		
 		
-	  }catch(IOException e){
-		  System.out.println(CB_2008_CoeffFile+" file Not Found");
-		  e.printStackTrace();
+	  }catch(Exception e){
+		 throw new RuntimeException(CB_2008_CoeffFile+" file Not Found", e);
 	  }
   }
   

@@ -48,6 +48,7 @@
 		<pathelement location="${Required.Libraries.home}/junit.jar"/>
 		<pathelement location="${Required.Libraries.home}/nnls.jar"/>
 		<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
+		<pathelement location="${Required.Libraries.home}/BrowserLauncher2-1_3.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
@@ -176,11 +177,9 @@
 		</copy>
 
 		<!--			IMR Resources				-->
-		<copy file="../campbell_2008_coeff.txt" todir="${dest}/" overwrite="true" />
-		<copy file="../campbell_2006_coeff.txt" todir="${dest}/" overwrite="true" />
 		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
-				<include name="*.txt" />
+				<include name="**/*.txt" />
 			</fileset>
 		</copy>
 	</target>
@@ -200,16 +199,19 @@
 		<unjar src="${Required.Libraries.home}/ojdbc14.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/BrowserLauncher2-1_3.jar" dest="${dest}" />
 	</target>
 	<target name="jarfile" depends="precompilecleanup,init,make,rmi,package,unjarfiles">
 		<jar destfile="HazardSpectrumLocalModeApp.jar" basedir="${dest}" manifest="HazardSpectrumLocalMode_MANIFEST.MF">
 			<include name="org/**"/>
 			<include name="com/**"/>
 			<include name="etc/**"/>
-			<include name="*.txt"/>
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
 			<include name="scratchJavaDevelopers/**"/>
+			<include name="edu/**"/>
+			<include name="at/**"/>
+			<include name="net/**"/>
 		</jar>
 		<antcall target="precompilecleanup"/>
 	</target>

@@ -51,6 +51,7 @@
 		<pathelement location="${Required.Libraries.home}/Jama-1.0.2.jar"/>
 		<pathelement location="${Required.Libraries.home}/jh.jar"/>
 		<pathelement location="${Required.Libraries.home}/commons-cli-1.1.jar"/>
+		<pathelement location="${Required.Libraries.home}/BrowserLauncher2-1_3.jar"/>
 		<pathelement location="${jdk.home}/lib/charsets.jar"/>
 		<pathelement location="${jdk.home}/lib/classes.jar"/>
 		<pathelement location="${jdk.home}/lib/dt.jar"/>
@@ -135,48 +136,42 @@
 		</exec>
 	</target>
 	<target name="resource">
-		<!-- <copy todir="${dest}/etc/cvmfiles" overwrite="true">
-			<fileset dir="${src}/etc/cvmfiles"/>
-		</copy> -->
 		<copy todir="${dest}/etc/img" overwrite="true">
 			<fileset dir="${src}/etc/img"/>
 		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/"/>
-		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/Frankel96/" overwrite="true"
-  		file="${src}/org/opensha/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt"/>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/Frankel96/" overwrite="true"
-  	  		file="${src}/org/opensha/sha/earthquake/rupForecastImpl/Frankel96/CAagrid.asc"/>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/step/" overwrite="true"
-  	  		file="${src}/org/opensha/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt"/>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WG02/" overwrite="true"
-  	  	  	file="${src}/org/opensha/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt"/>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_0/backSeisFiles" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_0/backSeisFiles"/>
-		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF1/InputFiles_WGCEP_UCERF1/"/>
-		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data/">
-				<include name="**/*.txt"/>
-				<include name="**/*.xls"/>
-				<include name="**/*.xml"/>
+
+		<!--			ERF Resources				-->
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/">
+				<include name="Frankel02/**"/>
+				<include name="Frankel96/**"/>
+				<include name="step/**"/>
+				<include name="WG02/singleIterationWithModes.OpenSHA.30yr.txt"/>
+				<include name="WGCEP_UCERF1/**"/>
+				<include name="YuccaMountain/**"/>
+				<include name="NSHMP_CEUS08/inputFiles/*.txt"/>
 			</fileset>
 		</copy>
-		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/" overwrite="true">
-			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis/">
-				<include name="**/*.txt"/>
-				<include name="**/*.asc"/>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/data">
+				<include name="**/*.txt" />
+				<include name="**/*.xml" />
+				<include name="**/*.xls" />
 			</fileset>
 		</copy>
+
+		<copy todir="${dest}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_Final/griddedSeis">
+				<include name="**/*.txt" />
+				<include name="**/*.asc" />
+			</fileset>
+		</copy>
+
 		<!--			IMR Resources				-->
-		<copy file="../campbell_2008_coeff.txt" todir="${dest}/" overwrite="true" />
-		<copy file="../campbell_2006_coeff.txt" todir="${dest}/" overwrite="true" />
 		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
-				<include name="*.txt" />
+				<include name="**/*.txt" />
 			</fileset>
 		</copy>
 	</target>
@@ -190,6 +185,7 @@
 		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/log4j-1.2.4.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/BrowserLauncher2-1_3.jar" dest="${dest}" />
 	</target>
 	<target depends="javacompile" name="compile"/>
 	<target depends="compile" name="make"/>
@@ -203,8 +199,9 @@
 			<include name="org/**"/>
 			<include name="etc/**"/>
 			<include name="com/**"/>
-			<include name="campbell_2006_coeff.txt"/>
-			<include name="campbell_2008_coeff.txt"/>
+			<include name="edu/**"/>
+			<include name="at/**"/>
+			<include name="net/**"/>
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
 			<include name="scratchJavaDevelopers/**"/>

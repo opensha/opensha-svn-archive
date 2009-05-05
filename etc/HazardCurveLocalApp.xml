@@ -50,6 +50,7 @@
 		<pathelement location="${Required.Libraries.home}/nnls.jar"/>
 		<pathelement location="${Required.Libraries.home}/ojdbc14.jar"/>
 		<pathelement location="${Required.Libraries.home}/mysql-connector-java-3.1.6-bin.jar"/>
+		<pathelement location="${Required.Libraries.home}/BrowserLauncher2-1_3.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/charsets.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"/>
 		<pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/dt.jar"/>
@@ -176,11 +177,9 @@
 		</copy>
 
 		<!--			IMR Resources				-->
-		<copy file="../campbell_2008_coeff.txt" todir="${dest}/" overwrite="true" />
-		<copy file="../campbell_2006_coeff.txt" todir="${dest}/" overwrite="true" />
 		<copy todir="${dest}/org/opensha/sha/imr/attenRelImpl/" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/">
-				<include name="*.txt" />
+				<include name="**/*.txt" />
 			</fileset>
 		</copy>
 	</target>
@@ -193,6 +192,7 @@
 		<unjar src="${Required.Libraries.home}/dom4j.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/poi-2.5.1-final-20040804.jar" dest="${dest}" />
 		<unjar src="${Required.Libraries.home}/f2jutil.jar" dest="${dest}" />
+		<unjar src="${Required.Libraries.home}/BrowserLauncher2-1_3.jar" dest="${dest}" />
 	</target>
 	<target depends="javacompile" name="compile"/>
 	<target depends="compile" name="make"/>
@@ -205,11 +205,12 @@
 			<include name="org/**"/>
 			<include name="com/**"/>
 			<include name="etc/**"/>
-			<include name="campbell_2006_coeff.txt"/>
-			<include name="campbell_2008_coeff.txt"/>
 			<include name="nnls/**"/>
 			<include name="oracle/**"/>
 			<include name="scratchJavaDevelopers/**"/>
+			<include name="edu/**"/>
+			<include name="at/**"/>
+			<include name="net/**"/>
 		</jar>
 	</target>
 	<target name="precompilecleanup">
