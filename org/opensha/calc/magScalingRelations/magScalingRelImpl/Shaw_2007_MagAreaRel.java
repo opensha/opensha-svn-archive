@@ -5,10 +5,7 @@ import org.opensha.calc.magScalingRelations.*;
 /**
  * <b>Title:</b>Shaw_2007_MagAreaRel<br>
  *
- * <b>Description:</b>  This implements the "Ellsworth-B Mag-Area Rel." 
- * published as Equation 4.5b in WGCEP-2002 
- * (http://pubs.usgs.gov/of/2003/of03-214/WG02_OFR-03-214_Chapter4.pdf).
- * The equation is Mag=4.2+log10(Area).<p>
+ * <b>Description:</b>  .<p>
  *
  * @author Edward H. Field
  * @version 1.0
