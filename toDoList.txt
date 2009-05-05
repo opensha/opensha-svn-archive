@@ -1,11 +1,25 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
 
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
+BROADER ISSUES:
+--------------
 
-Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
+Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
+
+fork project and truncate one end (for verification purposes as we move forward)
+
+Rename/reconsider ERF APIs.  How to handle a stochastic event set?
+
+Revise IMR APIs (& convert CyberShake to this?).
+
+Develop strategy for instantiation of model components for each type of calculation from XML files (this involves looking at calculators, GUI beans, control panels, and model components).  See discussion of "Solve Our MetaData Issues" below for related issues.
+
+Look into using triangular surfaces (or at least change API to accommodate these later)?
+
+Implement system for managing development (TRAC?)
+
+Create capability to associate IMRs to specific source types in the calculations (this will require discussions with GEM and NSHMP).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
 
 	Subduction Interface
 	Subduction IntraSlab
@@ -19,17 +33,113 @@ ProbEqkSource	Define field to declare what type of source it is
 ERF		-extend API to include getting max and min magnitude, and the various types of
 		sources generated (to check for compatibility with each chosen IMR)
 
-GMT Map Generator (are these already done?)
------------------
-1. Change to 72 dpi
-2. Add -F option to xyz2grd
-3. Add following Params:
-   DPI (default = 72)
-   Apply GMT Smoothing (default = yes) - If value is "yes", apply -T option to grdimage
-4. For log plots, write NaNs instead of using 10e-16
 
+MINOR ISSUES:
+------------
+
+Multi IMR options on scenario shakemap calculator is not working properly in terms of only listing what IMRs support the chosen IMT.
+
+Our PEER PSHA verification applications are broken (remove, or should we update with final results)?
+
+HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
+
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
 
 Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
+
+Hazus PSHA dataset calculator - GUI-based app?
+
+Warning/Disclaimer message is blank if no internet access (put html in jar file).
+
+Latest JFreeChart?
+
+EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
+
+FractileListEstimate - add this to the parameter editor
+
+Implement new version checking/download option in all apps (skip if no internet access)
+
+Attenuation Relationship Plotter
+
+	Buttons at the bottom right disappear if window is too narrow
+
+Do MFD & gridded forecast stuff on Ned's email to himself.
+
+Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
+
+Vs30 worldwide tool
+
+Work on html-based help documentation.
+
+Revisit PEER results plotter (& data submission tool?); implement tests as JUnit.
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
+
+Implement color schemes at (including option for the visually impaired):
+
+	http://geography.uoregon.edu/datagraphics/color_scales.htm
+
+Add faults to GMT plotting options.
+
+add site translation for SEA_1999_AttenRel
+
+Make email lists for the following (with on-line archives):
+
+	users@OpenSHA.org
+	developers@OpenSHA.org
+	leaders@OpenSHA.org
+	advisors@OpenSHA.org
+
+Figure out how to add the OpenSHA logo to shakeMaps.
+
+Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
+
+SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
+
+Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
+
+Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
+
+
+
+
+**************** LONG TERM (LOWER PRIORITY): ****************
+-------------------------------------------------------------
+
+
+Relax the single ERF instance at one time in the ERF and RupFroERF GUI beans if needed and memory is not an issue.
+
+Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
+
+EvenlyGriddedSurface: have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
+
+Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
+
+DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
+
+IMT_GuiBean - the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+
+Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
+
+Decide on and implement a licensing agreement.
+
+Vector PSHA?
+
+Pathway 1.5?
+
+AttenRelApp:
+
+	Problem:  if you violate a parameter constraint when hitting the add trace button
+	(rather than hitting return in the parameter editor) you need to hit add trace again
+	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
+	time of exception throwing is lost).
+
+JFreechart problem: If the the upperBound and lowerBound of the axis are the same then JFreechart only adds a small increment to axis range, so because of this in our AttenuationRelaitonshipApp when we choose the BJF attenRel and on Y-Axis choose the Std. Dev. we get same values for all X-values. In other words, our lowerBound and upperBound are the same. JFrechart does provide a method to handle and specify minimum range between the Upperbound and LowerBound of the axis but we can't just add a number to specify the range.
+
+
+
+********* OLD STUFF (NO LONGER NEEDED?) ****************
+--------------------------------------------------------
 
 Patti comments
 ---------------
@@ -85,42 +195,8 @@ find them useful.
 -----------------------------
 
 
-
-
-Hazus PSHA dataset calculator - GUI-based app?
-
 Cybershake Scatter plotter
 
-Warning/Disclaimer message is blank if no internet access (put html in jar file).
-
-Latest JFreeChart?
-
-
-EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
-
-FractileListEstimate - add this to the parameter editor
-
-Implement new version checking/download option in all apps (skip if no internet access)
-
-Attenuation Relationship Plotter
-
-	Buttons at the bottom right disappear if window is too narrow
-
-Do MFD & gridded forecast stuff on Ned's email to himself.
-
-Implement mag PDF option in single fault ERFs (ned will do)
-
-Create ability to map rate(�M,lat,lon) and plot MFD(region) for any ERF (needed for RELM).
-
-Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
-
-Vs30 worldwide tool
-
-ERF2GriddedSeisRateCalc - Ned needs to look it over (redundant with note above?).
-
-Work on html-based help documentation.
-
-Nitin has to look on how to get the OpenSHA code to the source-forge.
 
 Implement (has Matt done much of this???):
 
@@ -142,44 +218,14 @@ Implement (has Matt done much of this???):
 	Other classes .................. (once done tell ned and he'll update STEP doc)
 
 
+
 Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
 Nitin - prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  
 
 Access PEER NGA data file for comparisons in our apps.
 
-Revisit PEER results plotter (& data submission tool?); implement tests as JUnit.
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
-
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use SCEC VDO?
-
-Ned needs to document WG02_EqkRupForecast (Java docs).
-
-Implement color schemes at (including option for the visually impaired):
-
-	http://geography.uoregon.edu/datagraphics/color_scales.htm
-
-Add faults to GMT plotting options.
-
-add site translation for SEA_1999_AttenRel
-
-Revise CVS setup document. It should includes the libraries that the person needs to include and classes that needs to be compiled as RMI.
-
-Make email lists for the following (with on-line archives):
-
-	users@OpenSHA.org
-	developers@OpenSHA.org
-	leaders@OpenSHA.org
-	advisors@OpenSHA.org
-
-Figure out how to add the OpenSHA logo to shakeMaps.
-
-Peter Powers' stress chance calculator (and Jeremy's work)?
-
-Formally test all applications before publication (this will take planning).
-
-Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
 
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
@@ -204,45 +250,4 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and
 	SimpleFaultParam) must contain all info needed by their respective editor to recreate the
 	object; this info is stored in their dependent parameter list.
-
-SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
-
-Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
-
-**************** LONG TERM (LOWER PRIORITY): ****************
--------------------------------------------------------------
-
-
-Relax the single ERF instance at one time in the ERF and RupFroERF GUI beans if needed and memory is not an issue.
-
-Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
-
-EvenlyGriddedSurface: have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
-
-(even lower priority below)
-
-Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
-
-Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
-
-DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
-
-IMT_GuiBean - the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
-
-Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
-
-Decide on and implement a licensing agreement.
-
-Vector PSHA?
-
-Pathway 1.5?
-
-AttenRelApp:
-
-	Problem:  if you violate a parameter constraint when hitting the add trace button
-	(rather than hitting return in the parameter editor) you need to hit add trace again
-	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
-	time of exception throwing is lost).
-
-JFreechart problem: If the the upperBound and lowerBound of the axis are the same then JFreechart only adds a small increment to axis range, so because of this in our AttenuationRelaitonshipApp when we choose the BJF attenRel and on Y-Axis choose the Std. Dev. we get same values for all X-values. In other words, our lowerBound and upperBound are the same. JFrechart does provide a method to handle and specify minimum range between the Upperbound and LowerBound of the axis but we can't just add a number to specify the range.
 
