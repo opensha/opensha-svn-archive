@@ -36,7 +36,7 @@ import org.opensha.data.NamedObjectAPI;
 public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
     NamedObjectAPI,java.io.Serializable{
 
-	private static final long serialVersionUID = 0xB141F6E;
+	private static final long serialVersionUID = 2798699443929196424l;
 	
     /** Class name used for debbuging */
     protected final static String C = "DiscretizedFunc";

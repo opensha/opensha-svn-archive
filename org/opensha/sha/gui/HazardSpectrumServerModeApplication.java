@@ -94,7 +94,7 @@ public class HazardSpectrumServerModeApplication
         //adding the RMI based ERF's to the application
         erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
         erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
-        erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+//        erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
         erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
         erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
         erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);

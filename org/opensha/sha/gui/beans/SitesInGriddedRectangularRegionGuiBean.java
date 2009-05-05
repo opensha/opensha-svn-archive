@@ -18,6 +18,7 @@ import org.opensha.data.Location;
 import org.opensha.data.region.*;
 import org.opensha.data.siteType.OrderedSiteDataProviderList;
 import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValueList;
 import org.opensha.data.siteType.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
@@ -543,6 +544,22 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 		//checkLatLonParamValues();
 
 		try{
+			createAndUpdateSites();
+			String regionSitesParamVal = (String)parameterList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
+			ArrayList<SiteDataValueList<?>> valsList;
+			if (regionSitesParamVal.equals(USE_SITE_DATA)) {
+				OrderedSiteDataProviderList dataProviders;
+				if (dataGuiBean != null) {
+					dataProviders = dataGuiBean.getProviderList();
+				} else {
+					dataProviders = defaultProviderList;
+				}
+				gridRectRegion.setSiteParamsForRegion(dataProviders);
+				valsList = gridRectRegion.getSiteDataValueLists();
+			} else {
+				valsList = new ArrayList<SiteDataValueList<?>>();
+			}
+			
 
 			if(D) System.out.println("starting to make connection with servlet");
 			URL griddedRegionCalcServlet = new
@@ -570,6 +587,9 @@ ParameterChangeFailListener, ParameterChangeListener, Serializable {
 			outputToServlet.writeObject(parameterList);
 			//sends the arraylist of site Param List to the server
 			outputToServlet.writeObject(siteParams);
+			
+			System.out.println("Sending values list: " + valsList.size());
+			outputToServlet.writeObject(valsList);
 
 			outputToServlet.flush();
 			outputToServlet.close();

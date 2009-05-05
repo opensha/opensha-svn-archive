@@ -1,6 +1,7 @@
 package org.opensha.data.siteType;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -20,7 +21,7 @@ import org.opensha.util.XMLUtils;
  *
  * @param <E>
  */
-public class SiteDataValueList<E> implements XMLSaveable {
+public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataValueList";
 	

@@ -135,6 +135,15 @@ implements SitesInGriddedRegionAPI,Serializable{
 			siteDataValueLists.add(new SiteDataValueList(vals, provider));
 		}
 	}
+	
+	public void setSiteDataValueLists(ArrayList<SiteDataValueList<?>> siteDataValueLists) {
+		setSameSiteParams = false;
+		this.siteDataValueLists = siteDataValueLists;
+	}
+	
+	public ArrayList<SiteDataValueList<?>> getSiteDataValueLists() {
+		return siteDataValueLists;
+	}
 
 	/**
 	 * Gets the list for Site Params for region from servlet hosted at web server.
