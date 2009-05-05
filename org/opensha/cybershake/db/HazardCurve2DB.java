@@ -252,7 +252,7 @@ public class HazardCurve2DB {
 		ArrayList<Integer> runIDs = runs2db.getRunIDs(siteID, erfID, sgtVarID, rupVarScenarioID, null, null, null, null);
 		
 		String whereClause = Runs2DB.getRunsWhereStatement(runIDs);
-		if (whereClause == null || whereClause.length() != 0)
+		if (whereClause == null || whereClause.length() == 0)
 			return -1;
 		
 		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE " + whereClause + " AND IM_Type_ID=" + imTypeID
@@ -347,7 +347,7 @@ public class HazardCurve2DB {
 		
 		String sql = "SELECT X_Value, Y_Value FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + id + 
 						" ORDER BY X_Value";
-//		System.out.println(sql);
+		System.out.println(sql);
 
 		ResultSet rs = null;
 		try {
