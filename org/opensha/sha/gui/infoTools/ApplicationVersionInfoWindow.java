@@ -136,7 +136,7 @@ public class ApplicationVersionInfoWindow
 
   public void yesButton_actionPerformed(ActionEvent actionEvent) {
     try {
-      org.opensha.util.BrowserLauncher.openURL(urlToApp);
+    	edu.stanford.ejalbert.BrowserLauncher.openURL(urlToApp);
     }
     catch (Exception ex) {
       ex.printStackTrace();

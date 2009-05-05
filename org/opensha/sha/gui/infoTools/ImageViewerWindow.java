@@ -318,7 +318,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     HyperlinkEvent.EventType type = e.getEventType();  // what happened?
     if (type == HyperlinkEvent.EventType.ACTIVATED) {     // Click!
       try{
-       org.opensha.util.BrowserLauncher.openURL(e.getURL().toString());
+    	  edu.stanford.ejalbert.BrowserLauncher.openURL(e.getURL().toString());
       }catch(Exception ex) { ex.printStackTrace(); }
 
       //displayPage(e.getURL());   // Follow the link; display new page

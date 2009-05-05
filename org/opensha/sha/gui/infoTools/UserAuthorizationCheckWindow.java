@@ -295,7 +295,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
    */
   public void newUserButton_actionPerformed(ActionEvent actionEvent) {
     try {
-      org.opensha.util.BrowserLauncher.openURL(
+    	edu.stanford.ejalbert.BrowserLauncher.openURL(
           "http://gravity.usc.edu:8080/usermanagement/AccountRequest.do");
     }
     catch (Exception ex) {
@@ -310,7 +310,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
    */
   public void forgetPassButton_actionPerformed(ActionEvent actionEvent) {
     try{
-      org.opensha.util.BrowserLauncher.openURL("http://gravity.usc.edu:8080/usermanagement/PasswdRequest.do");
+    	edu.stanford.ejalbert.BrowserLauncher.openURL("http://gravity.usc.edu:8080/usermanagement/PasswdRequest.do");
     }catch(Exception ex) { ex.printStackTrace(); }
   }
 

@@ -51,7 +51,9 @@ import java.io.IOException;
  *
  * @author Eric Albert (<a href="mailto:ejalbert@cs.stanford.edu">ejalbert@cs.stanford.edu</a>)
  * @version 1.4b1 (Released June 20, 2001)
+ * @deprecated -- new version is included as a library, and works better (especially on linux)
  */
+@Deprecated
  public class BrowserLauncher {
 
         /**

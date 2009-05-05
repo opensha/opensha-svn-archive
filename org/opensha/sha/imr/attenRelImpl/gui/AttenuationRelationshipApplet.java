@@ -55,7 +55,7 @@ public class AttenuationRelationshipApplet extends JFrame
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    protected final static String version = "0.10.23";
+    protected final static String version = "0.10.24";
     //protected final static String version = "0";
     protected final static boolean D = false;
 

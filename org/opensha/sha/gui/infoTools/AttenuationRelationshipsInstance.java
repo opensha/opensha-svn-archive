@@ -56,10 +56,12 @@ public class AttenuationRelationshipsInstance {
 
 		//adds all the AttenRel classes to the ArrayList
 		// ******** ORDER THEM BY YEAR, NEWEST FIRST ********
+		// 2009
+		
 		// 2008
-		supportedAttenRelClasses.add(AS_2008_CLASS_NAME);
-		supportedAttenRelClasses.add(BA_2008_CLASS_NAME);
 		supportedAttenRelClasses.add(CB_2008_CLASS_NAME);
+		supportedAttenRelClasses.add(BA_2008_CLASS_NAME);
+		supportedAttenRelClasses.add(AS_2008_CLASS_NAME);
 		supportedAttenRelClasses.add(CY_2008_CLASS_NAME);
 		// 2007
 		
