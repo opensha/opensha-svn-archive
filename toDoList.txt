@@ -7,17 +7,19 @@ BROADER ISSUES:
 
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
-fork project and truncate one end (for verification purposes as we move forward)
+fork project and truncate one end? (for verification purposes as we move forward)
 
 Rename/reconsider ERF APIs.  How to handle a stochastic event set?
 
 Revise IMR APIs (& convert CyberShake to this?).
 
+Move common parameters (including IMTs) out of abstract IMR and into a sub-directory (easier to find this way?)?
+
 Develop strategy for instantiation of model components for each type of calculation from XML files (this involves looking at calculators, GUI beans, control panels, and model components).  See discussion of "Solve Our MetaData Issues" below for related issues.
 
 Look into using triangular surfaces (or at least change API to accommodate these later)?
 
-Implement system for managing development (TRAC?)
+Implement system for managing development (TRAC?); also update instructions on how to access code.
 
 Create capability to associate IMRs to specific source types in the calculations (this will require discussions with GEM and NSHMP).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
 
@@ -33,6 +35,15 @@ ProbEqkSource	Define field to declare what type of source it is
 ERF		-extend API to include getting max and min magnitude, and the various types of
 		sources generated (to check for compatibility with each chosen IMR)
 
+Update topo files, and include global coverage (see milner email on April 3, 2009)
+
+Need to review the new site translator class (what Kevin put together)
+
+Evaluate Kevin's implementation of site class for region web services
+
+Revise Event set data calculator (see emails)
+
+Update server based apps (Kevin can explain issue)
 
 MINOR ISSUES:
 ------------
@@ -44,6 +55,8 @@ Our PEER PSHA verification applications are broken (remove, or should we update 
 HazardSpectrumApp crashes if source and site are more than the "Max Source-Site Distance" value (try defaults with point-source ERF).
 
 Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).  HAS THIS BEEN FIXED?
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
 
 Site Translator needs to be fixed to handle the soft Soil case for Choi and Stewart model.
 
@@ -67,13 +80,9 @@ Do MFD & gridded forecast stuff on Ned's email to himself.
 
 Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
 
-Vs30 worldwide tool
-
 Work on html-based help documentation.
 
 Revisit PEER results plotter (& data submission tool?); implement tests as JUnit.
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  DID NITIN DO THIS?
 
 Implement color schemes at (including option for the visually impaired):
 
