@@ -290,7 +290,7 @@ public class HazardMapScatterCreator {
 		write.close();
 	}
 	
-	public static ArrayList<ScatterSymbol> getCyberShakeCymbols(double scaleFactor) {
+	public static ArrayList<ScatterSymbol> getCyberShakeSymbols(double scaleFactor) {
 		ArrayList<ScatterSymbol> symbols = new ArrayList<ScatterSymbol>();
 		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_SQUARE, CybershakeSite.TYPE_BROADBAND_STATION, scaleFactor));
 		symbols.add(new ScatterSymbol(ScatterSymbol.SYMBOL_DIAMOND, CybershakeSite.TYPE_PRECARIOUS_ROCK, scaleFactor * 0.85));
@@ -305,7 +305,7 @@ public class HazardMapScatterCreator {
 	}
 	
 	public static ArrayList<ScatterSymbol> getCyberShakeCymbols() {
-		return getCyberShakeCymbols(1.0);
+		return getCyberShakeSymbols(1.0);
 	}
 	
 	public static void main(String args[]) {

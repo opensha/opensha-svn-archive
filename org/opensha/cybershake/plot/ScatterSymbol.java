@@ -41,6 +41,10 @@ public class ScatterSymbol {
 		return sym;
 	}
 	
+	public void setSymbol(String symbol) {
+		this.sym = symbol;
+	}
+	
 	public int getSiteTypeID() {
 		return siteTypeID;
 	}
