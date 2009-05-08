@@ -45,6 +45,43 @@ Revise Event set data calculator (see emails)
 
 Update server based apps (Kevin can explain issue)
 
+Codebase
+	¥	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
+		math |  calc | utils | io]); Extract db connections to common util class??
+	¥	Review parameter framework
+	¥	Revise exception handling
+	¥	Use enums where applicable (e.g. fault_type and std_dev in IMR).
+	¥	Clear out Sys.out.println and use of C & D for naming/debugging... use logging with warn levels.
+	¥	Improve common editors (e.g. string, double, editors); handle warning param better.
+	¥	Survey other custom editors for possible improvements (e.g. Rupture Editor)
+	¥	Move to Java WebStart and/or bundled applications
+	¥	Better integration of threading and use of wait-cursor
+	¥	Persistence framework that does not require explicit read/write XML in each class
+	¥	Code Formatting - 4 space indent
+	¥	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
+	¥	Alternative to nnls in more recent math package
+	¥	Upgrade to JFreeChart current version; buy dev guide.
+	¥	Evaluate move to Maven for project management
+	¥	Define potential broader structure for OpenSHA OpenRisk commons.
+
+Documentation
+	¥	Map/UML of each calculator/application
+	¥	Leave no public method uncommented
+	¥	Check, edit, or provide explicit description of major class hierarchies (e.g. IMR-AttRel, ERF)
+	¥	No black boxes
+
+Web
+	¥	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
+	¥	Use Drupal, Django, or other for user site?
+	¥	Better user/download tracking
+
+Other notes
+	¥	ArbitrarilyDiscretizedFunction - can this be DiscritizedFunction with isUniform() method?
+	¥	Review overlap between sha.fault and sha.surface
+	¥	Review PropogationEffect
+	¥	Fix ArbDiscretizedXYZ_dataSet ??
+
+
 MINOR ISSUES:
 ------------
 
@@ -63,8 +100,6 @@ Site Translator needs to be fixed to handle the soft Soil case for Choi and Stew
 Hazus PSHA dataset calculator - GUI-based app?
 
 Warning/Disclaimer message is blank if no internet access (put html in jar file).
-
-Latest JFreeChart?
 
 EstimateParameterEditor - problem with IntegerEstimate (won't recover if non ints included)
 
@@ -227,8 +262,6 @@ Implement (has Matt done much of this???):
 	Other classes .................. (once done tell ned and he'll update STEP doc)
 
 
-
-Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
 Nitin - prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  
 
