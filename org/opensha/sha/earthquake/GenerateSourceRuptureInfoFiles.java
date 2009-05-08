@@ -9,7 +9,7 @@ import java.io.*;
 /**
  * <p>Title: GenerateSourceRuptureInfoFiles</p>
  *
- * <p>Description: This allows the user to create the Metadata files for source,
+ * <p>Description: This allows the user to create various lists for an earthquake rupture forecast,
  * rupture and ERF.</p>
  *
  * @author Nitin Gupta

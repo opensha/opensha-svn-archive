@@ -12,14 +12,9 @@ import java.util.ListIterator;
 
 /**
  * <p>Title: ERF_API</p>
- * <p>Description: This defines the interface for the ERF_LIST and EqkRupForecast
- * classes. Both ERF_List and EqkRupForcast classes implements this interface.
- * It is the parent interface that both ERF_List and EqkRupForecast have to implement.
- * This interface is needed so that common functions for both list and single forecast
- * can go in this interface. In the application one does not have care if it is a list
- * or single ERF because it will call the respective methods of the classes automatically
- * based on who soever object was created.</p>
- * @author : Nitin Gupta and Vipin Gupta
+ * <p>Description: This defines the common interface that applies to both an EqkRupForecast 
+ * and an ERF_LIST (the methods that are common betwen the two).</p>
+ * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @created Sept 30,2004
  * @version 1.0
  */
@@ -27,18 +22,17 @@ import java.util.ListIterator;
 public interface ERF_API extends NamedObjectAPI{
 
   /**
-   * This method updates the forecast according to the currently specified
-   * parameters.  Call this once before looping over the getRupture() or
-   * getSource() methods to ensure a fresh forecast.  This approach was chosen
-   * over checking whether parameters have changed during each getRupture() etc.
-   * method call because a user might inadvertently change a parameter value in
-   * the middle of the loop.  This approach is also faster.
+   * This method tells the forecast that the user is done setting parameters and that
+   * it can now prepare itself for use.  We could avoid needing this method if the 
+   * forecast updated every time a parameter was changed, but this would be very inefficient
+   * with forecasts that take a lot of time to update.  This also avoids problems associated
+   * with accidentally changing a parameter in the middle of a calculation.
    * @return
    */
   public void updateForecast();
 
   /**
-   * Update and save the serialized forecast into the file
+   * Update and save the serialized forecast into a file
    */
   public String updateAndSaveForecast();
 
@@ -63,10 +57,10 @@ public interface ERF_API extends NamedObjectAPI{
 
 
   /**
-   * Loops over all the adjustable parameters and set parameter with the given
+   * This will set the parameter with the given
    * name to the given value.
    * @param name String Name of the Adjustable Parameter
-   * @param value Object Parameeter Value
+   * @param value Object Parameter Value
    * @return boolean boolean to see if it was successful in setting the parameter
    * value.
    */
@@ -78,6 +72,13 @@ public interface ERF_API extends NamedObjectAPI{
    * @return
    */
   public ListIterator<ParameterAPI> getAdjustableParamsIterator();
+  
+  /**
+   * Gets the Adjustable parameter list for the ERF
+   * @return
+   */
+  public ParameterList getAdjustableParameterList();
+
 
   /**
    * This function finds whether a particular location lies in applicable
@@ -95,10 +96,5 @@ public interface ERF_API extends NamedObjectAPI{
    */
   public GeographicRegion getApplicableRegion() ;
 
-  /**
-   * Gets the Adjustable parameter list for the ERF
-   * @return
-   */
-  public ParameterList getAdjustableParameterList();
 
 }

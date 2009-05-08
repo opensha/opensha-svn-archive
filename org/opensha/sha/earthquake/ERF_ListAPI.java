@@ -8,7 +8,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
 
 /**
  * <p>Title: ERF_ListAPI</p>
- * <p>Description: </p>
+ * <p>Description: This represents an epistemic list of earthquake rupture forecasts and their associated weights.</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @created June 19,2003
  * @version 1.0
@@ -31,10 +31,10 @@ public interface ERF_ListAPI extends ERF_API{
    * @param index
    * @returns the instance of the remotely existing ERF in the ERF List
    * on the server given the index.
-   * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
+   * **NOTE: All the functionality in this functionality remains same as that of getERF but only differs
    * when returning each ERF from the ERF List. getERF() return the instance of the
-   * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this functin
-   * return back the RemoteEqkRupForecastAPI. This is useful becuase whole ERF object does not
+   * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this function
+   * return back the RemoteEqkRupForecastAPI. This is useful because whole ERF object does not
    * get transfer to the users machine, just a stub of the remotely existing ERF gets
    * transferred.
    */

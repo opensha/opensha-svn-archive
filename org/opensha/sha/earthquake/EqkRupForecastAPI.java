@@ -11,7 +11,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 
 /**
  * <b>Title:</b> EqkRupForecast<br>
- * <b>Description: Earthquake Rupture Forecast</b> <br>
+ * <b>Description: This is the API for an Earthquake Rupture Forecast</b> <br>
  *
  * @author Nitin Gupta & Vipin Gupta
  * @date Aug 27, 2002
@@ -36,7 +36,8 @@ public interface EqkRupForecastAPI extends ERF_API{
       * Return the earhthquake source at index i.   Note that this returns a
       * pointer to the source held internally, so that if any parameters
       * are changed, and this method is called again, the source obtained
-      * by any previous call to this method will no longer be valid.
+      * by any previous call to this method will no longer be valid.  
+      * This is done for memory conservation.
       *
       * @param iSource : index of the desired source (only "0" allowed here).
       *

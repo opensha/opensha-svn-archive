@@ -16,7 +16,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
 
 /**
  * <p>Title: ERF_List </p>
- * <p>Description: This class holds the list of Eqk Rup Forecast </p>
+ * <p>Description: This is the abstract implementation of ERF_EpistemicListAPI </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Edward (Ned) Field, Nitin Gupta and Vipin Gupta
