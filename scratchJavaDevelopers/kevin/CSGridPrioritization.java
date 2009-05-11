@@ -1,5 +1,7 @@
 package scratchJavaDevelopers.kevin;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
@@ -277,18 +279,38 @@ public class CSGridPrioritization {
 		return list;
 	}
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
+		boolean stdout;
+		String outFile = "";
+		if (args.length == 0) {
+			stdout = true;
+		} else {
+			stdout = false;
+			outFile = args[0];
+		}
+		
 		boolean isProbAt_IML = false;
 		double level = 0.0004;
 		int imTypeID = 21;
 		CSGridPrioritization grid = new CSGridPrioritization(Cybershake_OpenSHA_DBApplication.db, isProbAt_IML, level, imTypeID);
 		ArrayList<CybershakeDiffSite> list = grid.getMasterPriorityList();
 		grid.printArray(true, true);
+		
+		FileWriter fw = null;
+		if (!stdout) {
+			fw = new FileWriter(outFile);
+		}
 		int i=0;
 		for (CybershakeDiffSite site : list) {
-			System.out.println(i + ". " + site);
+			String line = i + ". " + site;
+			if (stdout)
+				System.out.println(line);
+			else
+				fw.write(line + "\n");
 			i++;
 		}
+		if (fw != null)
+			fw.close();
 		System.exit(0);
 	}
 
