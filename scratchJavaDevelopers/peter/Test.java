@@ -6,7 +6,7 @@ package scratchJavaDevelopers.peter;
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
- * @version 1.0
+ * @version $Id$
  */
 
 public class Test {
