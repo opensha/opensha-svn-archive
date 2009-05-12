@@ -3,7 +3,13 @@ package nnls;
 
 import org.netlib.util.*;
 
-
+/**
+ * This code was originally downloaded from http://www.imaging.robarts.ca/~cjones/software/,
+ * and subsequently modified slightly by Vipin Gupta in some presently unknown way.  Ned Field
+ * could review old emails to figure out these modifications if needed.
+ * @author Craig Jones with modifications by Vipin Gupta
+ *
+ */
 class Nnls {
 
 //	c      IMPLICIT DOUBLE PRECISION (A-H,O-Z) 
