@@ -7,6 +7,8 @@ BROADER ISSUES:
 
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
+Take "API" out of filenames
+
 fork project and truncate one end? (for verification purposes as we move forward)
 
 Rename/reconsider ERF APIs.  How to handle a stochastic event set?
@@ -63,7 +65,7 @@ Codebase
 	¥	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
 	¥	Alternative to nnls in more recent math package
 	¥	Upgrade to JFreeChart current version; buy dev guide.
-	¥	Evaluate move to Maven for project management
+	¥	Evaluate move to Maven for build process (jar files etc)
 	¥	Define potential broader structure for OpenSHA OpenRisk commons.
 
 Documentation
