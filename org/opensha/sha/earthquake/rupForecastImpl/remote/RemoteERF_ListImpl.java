@@ -27,7 +27,7 @@ public class RemoteERF_ListImpl
     extends UnicastRemoteObject implements
     RemoteERF_ListAPI{
 
-  private ERF_List erfList = null;
+  private ERF_EpistemicList erfList = null;
   private static final boolean D = false;
   private ArrayList listenerList = new ArrayList();
 
@@ -40,7 +40,7 @@ public class RemoteERF_ListImpl
    */
   public RemoteERF_ListImpl(String className) throws java.rmi.RemoteException,
       IOException {
-    erfList = (ERF_List) org.opensha.util.ClassUtils.
+    erfList = (ERF_EpistemicList) org.opensha.util.ClassUtils.
         createNoArgConstructorClassInstance(className);
    }
 

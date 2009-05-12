@@ -14,7 +14,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
  * @version 1.0
  */
 
-public interface ERF_ListAPI extends ERF_API{
+public interface ERF_EpistemicListAPI extends ERF_API{
 
 
 

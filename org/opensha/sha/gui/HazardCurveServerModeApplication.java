@@ -28,7 +28,7 @@ import org.opensha.param.WarningDoubleParameter;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.DisaggregationCalculator;
-import org.opensha.sha.earthquake.ERF_List;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
@@ -1190,7 +1190,7 @@ public class HazardCurveServerModeApplication extends JFrame
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
-    if (forecast instanceof ERF_List && isProbCurve) {
+    if (forecast instanceof ERF_EpistemicList && isProbCurve) {
       //if add on top get the name of ERF List forecast
       if (addData)
         prevSelectedERF_List = forecast.getName();
@@ -1506,7 +1506,7 @@ public class HazardCurveServerModeApplication extends JFrame
                                   AttenuationRelationshipAPI imr,
                                   ERF_API eqkRupForecast) {
 
-    ERF_List erfList  = (ERF_List)eqkRupForecast;
+	  ERF_EpistemicList erfList  = (ERF_EpistemicList)eqkRupForecast;
 
     numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in the list
 

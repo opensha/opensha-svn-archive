@@ -30,7 +30,7 @@ import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.ERF_List;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.calc.FractileCurveCalculator;
@@ -864,7 +864,7 @@ public class HazardSpectrumApplication extends JApplet
       // check whether this forecast is a Forecast List
       // if this is forecast list , handle it differently
       boolean isEqkForecastList = false;
-      if(eqkRupForecast instanceof ERF_List)  {
+      if(eqkRupForecast instanceof ERF_EpistemicList)  {
         handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
         this.hazCalcDone = true;
         return;
@@ -998,7 +998,7 @@ public class HazardSpectrumApplication extends JApplet
                                   double imlProbValue,boolean imlAtProb,
                                   boolean probAtIML) {
 
-   ERF_List erfList  = (ERF_List)eqkRupForecast;
+	  ERF_EpistemicList erfList  = (ERF_EpistemicList)eqkRupForecast;
 
    //checks how many SA Periods has been completed
    this.numSA_PeriodValDone =0;

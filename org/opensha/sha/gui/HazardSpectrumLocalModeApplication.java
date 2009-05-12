@@ -21,7 +21,7 @@ import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.earthquake.ERF_API;
-import org.opensha.sha.earthquake.ERF_List;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
@@ -273,7 +273,7 @@ public class HazardSpectrumLocalModeApplication
     }
     xAxisName = X_AXIS_LABEL;
 
-    if (forecast instanceof ERF_List && isProbCurve) {
+    if (forecast instanceof ERF_EpistemicList && isProbCurve) {
       //if add on top get the name of ERF List forecast
       if (addData)
         prevSelectedERF_List = forecast.getName();
@@ -579,7 +579,7 @@ public class HazardSpectrumLocalModeApplication
                                     ERF_API forecast,
                                     double imlProbValue) {
 
-    ERF_List erfList = (ERF_List) forecast;
+	  ERF_EpistemicList erfList = (ERF_EpistemicList) forecast;
 
     numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in the list
 

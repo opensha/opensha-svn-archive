@@ -14,7 +14,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.*;
-import org.opensha.sha.earthquake.ERF_List;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.param.MagFreqDistParameter;
@@ -384,7 +384,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    public boolean isEpistemicList() {
      try{
        ERF_API eqkRupForecast = getSelectedERF_Instance();
-       if(eqkRupForecast instanceof ERF_List)
+       if(eqkRupForecast instanceof ERF_EpistemicList)
          return true;
      }catch(Exception e){
        e.printStackTrace();

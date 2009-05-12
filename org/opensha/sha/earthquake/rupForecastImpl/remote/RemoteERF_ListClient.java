@@ -23,7 +23,7 @@ import org.opensha.data.region.GeographicRegion;
  * @version 1.0
  */
 
-public class RemoteERF_ListClient extends ERF_List implements 
+public class RemoteERF_ListClient extends ERF_EpistemicList implements 
 	ParameterChangeListener{
 
   private RemoteERF_ListAPI erfListServer = null;

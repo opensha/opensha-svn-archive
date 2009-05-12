@@ -26,7 +26,7 @@ import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.DisaggregationCalculator;
-import org.opensha.sha.earthquake.ERF_List;
+import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
