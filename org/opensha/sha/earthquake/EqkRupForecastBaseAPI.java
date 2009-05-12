@@ -11,7 +11,7 @@ import java.util.ListIterator;
 
 
 /**
- * <p>Title: ERF_API</p>
+ * <p>Title: EqkRupForecastBaseAPI</p>
  * <p>Description: This defines the common interface that applies to both an EqkRupForecast 
  * and an ERF_LIST (the methods that are common betwen the two).</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
@@ -19,7 +19,7 @@ import java.util.ListIterator;
  * @version 1.0
  */
 
-public interface ERF_API extends NamedObjectAPI{
+public interface EqkRupForecastBaseAPI extends NamedObjectAPI{
 
   /**
    * This method tells the forecast that the user is done setting parameters and that

@@ -23,7 +23,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.
 		Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -63,7 +63,7 @@ public class LossCurveApplication extends JFrame {
 	private static JPanel creditPanel = null;
 	
 	/* Static Parameters used for Calculation */
-	private static ERF_API forecast = null;
+	private static EqkRupForecastBaseAPI forecast = null;
 	private static AttenuationRelationshipAPI imr = null;
 
 	

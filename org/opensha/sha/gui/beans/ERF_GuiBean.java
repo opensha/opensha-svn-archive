@@ -15,7 +15,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.SimpleFaultParameter;
@@ -55,7 +55,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
   boolean showProgressBar = true;
 
   //instance of the selected ERF
-  ERF_API eqkRupForecast = null;
+  EqkRupForecastBaseAPI eqkRupForecast = null;
   //instance of progress bar to show the progress of updation of forecast
   CalcProgressBar progress= null;
 
@@ -144,7 +144,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    private String getERFName(String className) {
      try{
        Object obj = this.createERFClassInstance(className);
-       String name = new String (((ERF_API)obj).getName());
+       String name = new String (((EqkRupForecastBaseAPI)obj).getName());
        obj = null;
        return name;
      }catch(Exception e){
@@ -186,7 +186,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
      String erfClassName = (String)erfClasses.get(0);
      // make the ERF objects to get their adjustable parameters
-     eqkRupForecast = (ERF_API ) createERFClassInstance(erfClassName);
+     eqkRupForecast = (EqkRupForecastBaseAPI ) createERFClassInstance(erfClassName);
 
      // make the forecast selection parameter
      StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
@@ -331,7 +331,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     * It returns the forecast without updating the forecast
     * @return
     */
-   public ERF_API getSelectedERF_Instance() throws InvocationTargetException{
+   public EqkRupForecastBaseAPI getSelectedERF_Instance() throws InvocationTargetException{
      //updating the MagDist Editor
      updateMagDistParam();
      //update the fault Parameter
@@ -345,7 +345,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     * It returns the ERF after updating its forecast
     * @return
     */
-   public ERF_API getSelectedERF() throws InvocationTargetException{
+   public EqkRupForecastBaseAPI getSelectedERF() throws InvocationTargetException{
      getSelectedERF_Instance();
      if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
@@ -383,7 +383,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     */
    public boolean isEpistemicList() {
      try{
-       ERF_API eqkRupForecast = getSelectedERF_Instance();
+       EqkRupForecastBaseAPI eqkRupForecast = getSelectedERF_Instance();
        if(eqkRupForecast instanceof ERF_EpistemicList)
          return true;
      }catch(Exception e){
@@ -469,7 +469,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        try{
          for(int i=0;i<size;++i){
            if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
-             eqkRupForecast = (ERF_API)this.createERFClassInstance((String)erfClasses.get(i));
+             eqkRupForecast = (EqkRupForecastBaseAPI)this.createERFClassInstance((String)erfClasses.get(i));
              break;
            }
          }
@@ -569,7 +569,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    /**
     * Sets the EqkRupForecast in the ERF_GuiBean
     */
-   public void setERF(ERF_API eqkRupForecast){
+   public void setERF(EqkRupForecastBaseAPI eqkRupForecast){
      this.eqkRupForecast = eqkRupForecast;
      isNewERF_Instance = true;
      String erfName = eqkRupForecast.getName();

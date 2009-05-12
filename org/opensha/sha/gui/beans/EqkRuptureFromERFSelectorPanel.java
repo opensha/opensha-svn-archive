@@ -39,7 +39,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import java.awt.event.ActionListener;
 import org.opensha.param.LocationParameter;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
 /**
  * <p>Title: EqkRuptureFromERFSelectorPanel</p>
@@ -143,7 +143,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    * Gui Bean. This will allow it to extract the ERF from that GuiBean.
    * @param erfGuiBean ERF_GuiBean
    */
-  public EqkRuptureFromERFSelectorPanel(ERF_API erf,ArrayList erfClassNames) {
+  public EqkRuptureFromERFSelectorPanel(EqkRupForecastBaseAPI erf,ArrayList erfClassNames) {
     supportedERFClassNames = erfClassNames;
     parameterList = new ParameterList();
     try {
@@ -279,7 +279,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * Sets the selected ERF in the ERF GuiBean
   * @param erf EqkRupForecastAPI
   */
- public void setEqkRupForecast(ERF_API erf){
+ public void setEqkRupForecast(EqkRupForecastBaseAPI erf){
    if(erf !=null){
      showAllAdjustableParamForERF = false;
      this.erf = (EqkRupForecastAPI) erf;

@@ -28,7 +28,7 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -848,7 +848,7 @@ public class HazardSpectrumApplication extends JApplet
       // whwther to show progress bar in case of update forecast
       erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
       // get the selected forecast model
-      ERF_API eqkRupForecast = null;
+      EqkRupForecastBaseAPI eqkRupForecast = null;
       try{
         //gets the instance of the selected ERF
         eqkRupForecast = erfGuiBean.getSelectedERF();
@@ -994,7 +994,7 @@ public class HazardSpectrumApplication extends JApplet
    */
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  ERF_API eqkRupForecast,
+                                  EqkRupForecastBaseAPI eqkRupForecast,
                                   double imlProbValue,boolean imlAtProb,
                                   boolean probAtIML) {
 

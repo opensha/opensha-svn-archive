@@ -44,7 +44,7 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -619,7 +619,7 @@ public class BCR_Application extends JFrame
     //starting the calculation
     isHazardCalcDone = false;
 
-    ERF_API forecast = null;
+    EqkRupForecastBaseAPI forecast = null;
  
     // get the selected forecast model
     try {
@@ -742,7 +742,7 @@ public class BCR_Application extends JFrame
   }
   
   private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
-		  Site site,ERF_API forecast,AttenuationRelationshipAPI imr){
+		  Site site,EqkRupForecastBaseAPI forecast,AttenuationRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();

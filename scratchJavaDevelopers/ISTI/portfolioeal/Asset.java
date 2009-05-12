@@ -15,7 +15,7 @@ import org.opensha.exceptions.ParameterException;
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.*;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
@@ -186,7 +186,7 @@ public class Asset implements Cloneable {
 	 * @return The EAL for the asset.  This will be summed up with all of the EAL's
 	 * for the other assets in the list.
 	 */
-	public double calculateEAL( AttenuationRelationshipAPI imr, double distance, Site site, ERF_API erf, PortfolioEALCalculatorController controller ) {
+	public double calculateEAL( AttenuationRelationshipAPI imr, double distance, Site site, EqkRupForecastBaseAPI erf, PortfolioEALCalculatorController controller ) {
 		// Edit the site with the asset values
 		siteSetup(site);
 		Site newSite = getSite();
@@ -211,7 +211,7 @@ public class Asset implements Cloneable {
 		startCalcProgressBar();
 		
 		// Setup for the forcast gotten from the ERF
-		ERF_API forecast = null;
+		EqkRupForecastBaseAPI forecast = null;
 		
 		// Setup for the annualized rates gotten from the hazard function with the HazardCurveCalculator
 		ArbitrarilyDiscretizedFunc annualizedRates = null;

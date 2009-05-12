@@ -18,7 +18,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
  * @version 1.0
  */
 
-public interface EqkRupForecastAPI extends ERF_API{
+public interface EqkRupForecastAPI extends EqkRupForecastBaseAPI{
 
      /**
       *

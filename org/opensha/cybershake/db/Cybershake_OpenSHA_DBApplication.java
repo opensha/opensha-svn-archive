@@ -9,7 +9,7 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.gui.UserAuthDialog;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.util.FileUtils;
 

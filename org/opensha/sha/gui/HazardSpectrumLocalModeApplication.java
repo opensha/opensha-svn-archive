@@ -20,7 +20,7 @@ import org.opensha.param.DependentParameterAPI;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -217,7 +217,7 @@ public class HazardSpectrumLocalModeApplication
     //starting the calculation
     isHazardCalcDone = false;
     numERFsInEpistemicList = 0;
-    ERF_API forecast = null;
+    EqkRupForecastBaseAPI forecast = null;
     EqkRupture rupture = null;
     if (!this.isProbCurve)
       rupture = this.erfRupSelectorGuiBean.getRupture();
@@ -576,7 +576,7 @@ public class HazardSpectrumLocalModeApplication
    */
   protected void handleForecastList(Site site,
                                     AttenuationRelationshipAPI imr,
-                                    ERF_API forecast,
+                                    EqkRupForecastBaseAPI forecast,
                                     double imlProbValue) {
 
 	  ERF_EpistemicList erfList = (ERF_EpistemicList) forecast;

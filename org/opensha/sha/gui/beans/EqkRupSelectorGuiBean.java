@@ -23,7 +23,7 @@ import org.opensha.data.Location;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
 
 /**
@@ -74,10 +74,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //supported ERF classes
   private ArrayList supportedERF_Classes;
 
-  private ERF_API eqkRupForecast;
+  private EqkRupForecastBaseAPI eqkRupForecast;
 
 
-  public EqkRupSelectorGuiBean(ERF_API erf,ArrayList erfClassNames )throws InvocationTargetException{
+  public EqkRupSelectorGuiBean(EqkRupForecastBaseAPI erf,ArrayList erfClassNames )throws InvocationTargetException{
     eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(erf, erfClassNames);
     eqkRupForecast = erf;
     supportedERF_Classes = erfClassNames;
@@ -195,7 +195,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * this ERF_RupSelectorGuiBean to get the rupture.
    * @param forecast EqkRupForecastAPI
    */
-  public void setEqkRupForecastModel(ERF_API forecast){
+  public void setEqkRupForecastModel(EqkRupForecastBaseAPI forecast){
     this.eqkRupForecast = forecast;
     if(!isUserCreatedEqkRupture)
       ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).setEqkRupForecast(forecast);
@@ -336,7 +336,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    *
    * @return ERF_API
    */
-  public ERF_API getSelectedEqkRupForecastModel(){
+  public EqkRupForecastBaseAPI getSelectedEqkRupForecastModel(){
     return ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).getSelectedERF_Instance();
   }
 

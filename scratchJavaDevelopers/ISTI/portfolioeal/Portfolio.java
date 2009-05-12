@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.opensha.data.Site;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 
 
@@ -73,7 +73,7 @@ public class Portfolio {
 	 * @param controller The controller
 	 */
 	public double calculatePortfolioEAL( AttenuationRelationshipAPI imr, double value,
-										 Site site, ERF_API erf,
+										 Site site, EqkRupForecastBaseAPI erf,
 										 PortfolioEALCalculatorController controller ) {
 		String toWrite = "";
 		try {

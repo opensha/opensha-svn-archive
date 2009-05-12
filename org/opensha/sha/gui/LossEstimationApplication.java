@@ -68,7 +68,7 @@ import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.DisaggregationCalculatorAPI;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
@@ -877,7 +877,7 @@ public class LossEstimationApplication extends JFrame
     //starting the calculation
     isHazardCalcDone = false;
 
-    ERF_API forecast = null;
+    EqkRupForecastBaseAPI forecast = null;
  
     // get the selected forecast model
     try {
@@ -968,7 +968,7 @@ public class LossEstimationApplication extends JFrame
   }
   
   private ArbitrarilyDiscretizedFunc calcHazardCurve(String imt, double period, ArrayList<Double> imls,
-		  Site site,ERF_API forecast,AttenuationRelationshipAPI imr){
+		  Site site,EqkRupForecastBaseAPI forecast,AttenuationRelationshipAPI imr){
 	  // initialize the values in condProbfunc with log values as passed in hazFunction
 	    // intialize the hazard function
 	    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();

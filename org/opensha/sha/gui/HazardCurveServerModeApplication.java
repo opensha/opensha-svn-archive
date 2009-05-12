@@ -71,7 +71,7 @@ import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.calc.DisaggregationCalculatorAPI;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
@@ -1141,7 +1141,7 @@ public class HazardCurveServerModeApplication extends JFrame
     //starting the calculation
     isHazardCalcDone = false;
 
-    ERF_API forecast = null;
+    EqkRupForecastBaseAPI forecast = null;
     ProbEqkRupture rupture = null;
     if (!this.isProbCurve)
       rupture = (ProbEqkRupture)this.erfRupSelectorGuiBean.getRupture();
@@ -1504,7 +1504,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   protected void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  ERF_API eqkRupForecast) {
+                                  EqkRupForecastBaseAPI eqkRupForecast) {
 
 	  ERF_EpistemicList erfList  = (ERF_EpistemicList)eqkRupForecast;
 
@@ -1727,7 +1727,7 @@ public class HazardCurveServerModeApplication extends JFrame
     else {
       boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
       if (!isCustomRupture) {
-        ERF_API eqkRupForecast = erfRupSelectorGuiBean.
+        EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean.
             getSelectedEqkRupForecastModel();
         erfGuiBean.setERF(eqkRupForecast);
       }
@@ -1746,7 +1746,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   protected void initERFSelector_GuiBean() {
 
-    ERF_API erf = null;
+    EqkRupForecastBaseAPI erf = null;
     try {
       erf = erfGuiBean.getSelectedERF();
     }

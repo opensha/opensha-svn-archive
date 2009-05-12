@@ -63,7 +63,7 @@ public abstract class ERF_EpistemicList implements ERF_EpistemicListAPI,
    * @return
    */
   public EqkRupForecastAPI getERF(int index) {
-    ERF_API eqkRupForecast = (ERF_API)erf_List.get(index);
+    EqkRupForecastBaseAPI eqkRupForecast = (EqkRupForecastBaseAPI)erf_List.get(index);
     eqkRupForecast.setTimeSpan(timeSpan);
     return (EqkRupForecastAPI)eqkRupForecast;
   }

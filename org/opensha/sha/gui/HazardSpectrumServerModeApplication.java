@@ -6,7 +6,7 @@ import java.awt.Toolkit;
 
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import java.util.ArrayList;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import java.lang.reflect.InvocationTargetException;
@@ -123,7 +123,7 @@ public class HazardSpectrumServerModeApplication
     else {
       boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
       if (!isCustomRupture) {
-        ERF_API eqkRupForecast = erfRupSelectorGuiBean.
+        EqkRupForecastBaseAPI eqkRupForecast = erfRupSelectorGuiBean.
             getSelectedEqkRupForecastModel();
         erfGuiBean.setERF(eqkRupForecast);
       }
@@ -142,7 +142,7 @@ public class HazardSpectrumServerModeApplication
    */
   protected void initERFSelector_GuiBean() {
 
-    ERF_API erf = null;
+    EqkRupForecastBaseAPI erf = null;
     try {
       erf = erfGuiBean.getSelectedERF();
     }

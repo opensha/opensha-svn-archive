@@ -6,7 +6,7 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
-import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.data.region.GeographicRegion;
 import java.util.EventObject;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import org.opensha.exceptions.DataPoint2DException;
  * @version 1.0
  */
 public abstract  class GriddedHypoMagFreqDistForecast
-    implements ERF_API, HypoMagFreqDistAtMultLocsAPI, ParameterChangeListener {
+    implements EqkRupForecastBaseAPI, HypoMagFreqDistAtMultLocsAPI, ParameterChangeListener {
 
 
 
