@@ -28,13 +28,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 import org.jfree.chart.ChartUtilities;
-import org.opensha.cybershake.db.CybershakeERF;
 import org.opensha.cybershake.db.CybershakeIM;
 import org.opensha.cybershake.db.CybershakeRun;
 import org.opensha.cybershake.db.CybershakeSite;
 import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.cybershake.db.DBAccess;
-import org.opensha.cybershake.db.ERF2DB;
 import org.opensha.cybershake.db.HazardCurve2DB;
 import org.opensha.cybershake.db.HazardCurveComputation;
 import org.opensha.cybershake.db.PeakAmplitudesFromDB;
@@ -59,14 +57,12 @@ import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.PlotControllerAPI;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.FileUtils;
 
 import scratchJavaDevelopers.kevin.XMLSaver.AttenRelSaver;
 import scratchJavaDevelopers.kevin.XMLSaver.ERFSaver;
@@ -376,12 +372,22 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 			}
 			periodNum++;
 			int curveID = curve2db.getHazardCurveID(runID, im.getID());
+			int numPoints = 0;
+			if (curveID >= 0)
+				numPoints= curve2db.getNumHazardCurvePoints(curveID);
 			
-			if (curveID < 0) {
+			System.out.println("Num points: " + numPoints);
+			
+			// if no curveID exists, or the curve has 0 points
+			if (curveID < 0 || numPoints < 1) {
 				if (!cmd.hasOption("n")) {
 					if (!cmd.hasOption("f")) {
 						// lets ask the user what they want to do
-						System.out.println("The selected curve does not exist in the database: " + siteID + " period="
+						if (curveID >= 0)
+							System.out.println("A record for the selected curve exists in the database, but there " +
+									"are no data points: " + curveID + " period=" + im.getVal());
+						else
+							System.out.println("The selected curve does not exist in the database: " + siteID + " period="
 									+ im.getVal() + " run=" + runID);
 						boolean skip = false;
 						// open up standard input
@@ -492,8 +498,12 @@ public class HazardCurvePlotter implements GraphPanelAPI, PlotControllerAPI {
 					DiscretizedFuncAPI curve = curveCalc.computeHazardCurve(imVals, run, im);
 					HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
 					System.out.println("Inserting curve into database...");
-					curve2db_write.insertHazardCurve(runID, im.getID(), curve);
-					curveID = curve2db.getHazardCurveID(runID, im.getID());
+					if (curveID >= 0) {
+						curve2db_write.insertHazardCurvePoints(curveID, curve);
+					} else {
+						curve2db_write.insertHazardCurve(runID, im.getID(), curve);
+						curveID = curve2db.getHazardCurveID(runID, im.getID());
+					}
 				} else {
 					System.out.println("Curve not found in DB, and no-add option supplied!");
 					return false;

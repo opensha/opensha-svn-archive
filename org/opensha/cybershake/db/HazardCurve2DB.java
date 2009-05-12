@@ -218,6 +218,34 @@ public class HazardCurve2DB {
 		}
 	}
 	
+	public int getNumHazardCurvePoints(int curveID) {
+		String sql = "SELECT count(*) FROM Hazard_Curve_Points WHERE Hazard_Curve_ID=" + curveID;
+		
+		System.out.println(sql);
+		
+		ResultSet rs = null;
+		try {
+			rs = dbaccess.selectData(sql);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return -1;
+		}
+		
+		try {
+			rs.first();
+			if (rs.isAfterLast())
+				return -1;
+			int id = rs.getInt(1);
+			rs.close();
+			
+			return id;
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int getHazardCurveID(int runID, int imTypeID) {
 		String sql = "SELECT Hazard_Curve_ID FROM " + TABLE_NAME + " WHERE Run_ID=" + runID + " AND IM_Type_ID=" + imTypeID
 					+ " ORDER BY Curve_Date desc";
@@ -451,7 +479,7 @@ public class HazardCurve2DB {
 		return this.getHazardCurveID(runID, imTypeID);
 	}
 	
-	private void insertHazardCurvePoints(int id, DiscretizedFuncAPI hazardFunc) {
+	public void insertHazardCurvePoints(int id, DiscretizedFuncAPI hazardFunc) {
 		String sql = "INSERT into Hazard_Curve_Points "+ 
 				"(Hazard_Curve_ID,X_Value,Y_Value) "+
 				"VALUES";
