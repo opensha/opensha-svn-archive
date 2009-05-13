@@ -128,6 +128,17 @@ implements java.io.Serializable {
 		wills_vs30_map.put(WILLS_DE,	180d);
 		wills_vs30_map.put(WILLS_E,		Double.NaN);
 	}
+
+	public static SiteDataTypeParameterNameMap DATA_TYPE_PARAM_NAME_MAP = createMap();
+
+	
+	/**
+	 * Constructor
+	 */
+	public SiteTranslator() {
+		
+	}
+
 	
 	/**
 	 * Translates a Wills Site classification to a Vs30 value
@@ -166,12 +177,6 @@ implements java.io.Serializable {
 		}
 		
 		return str;
-	}
-	
-	public static SiteDataTypeParameterNameMap DATA_TYPE_PARAM_NAME_MAP = createMap();
-
-	public SiteTranslator() {
-		
 	}
 	
 	/**
