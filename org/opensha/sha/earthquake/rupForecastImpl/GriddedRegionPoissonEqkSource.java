@@ -1,12 +1,12 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.data.function.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 import java.util.ArrayList;
 import java.util.Iterator;

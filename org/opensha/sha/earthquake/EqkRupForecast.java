@@ -18,7 +18,6 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.event.TimeSpanChangeListener;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -26,7 +25,9 @@ import java.util.HashMap;
 import java.util.Set;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
-import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
+
+import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.param.StringParameter;
 import org.opensha.param.BooleanParameter;

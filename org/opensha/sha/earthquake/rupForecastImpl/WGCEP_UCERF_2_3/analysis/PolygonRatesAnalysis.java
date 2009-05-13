@@ -11,8 +11,8 @@ import java.util.Arrays;
 import org.opensha.data.Location;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
@@ -20,7 +20,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UnsegmentedSou
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.EmpiricalModelDataFetcher;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * Analyze the rate in various polygons as defined in Appendix I of UCERF2 report

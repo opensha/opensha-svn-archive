@@ -41,10 +41,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.NonCA
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelSummaryFinal;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSeis.NSHMP_GridSourceGenerator;
 import org.opensha.sha.earthquake.util.EqkSourceNameComparator;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
 import org.opensha.data.Location;

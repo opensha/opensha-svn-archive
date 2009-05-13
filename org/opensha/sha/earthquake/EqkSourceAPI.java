@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.LocationList;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <p>Title: EqkSourceAPI</p>

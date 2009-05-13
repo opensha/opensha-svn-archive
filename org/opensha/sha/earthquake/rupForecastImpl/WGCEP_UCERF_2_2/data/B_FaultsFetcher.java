@@ -15,9 +15,9 @@ import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.FaultSegmentData;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.surface.StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * @author vipingupta

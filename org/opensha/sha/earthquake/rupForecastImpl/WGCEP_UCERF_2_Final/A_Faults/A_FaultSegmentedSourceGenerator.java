@@ -16,10 +16,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.EmpiricalM
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.FaultSegmentData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.SegRateConstraint;
-import org.opensha.sha.fault.EvenlyGriddedSurfFromSimpleFaultData;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 

@@ -3,14 +3,14 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel96;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 
 /**

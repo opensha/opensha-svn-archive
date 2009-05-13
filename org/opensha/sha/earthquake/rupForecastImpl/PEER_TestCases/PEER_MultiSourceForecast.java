@@ -11,8 +11,7 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Direction;
 import org.opensha.calc.*;
 import org.opensha.param.*;
-import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.magdist.*;
@@ -205,7 +204,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
       if (depthUpper > depthLower)
-          throw new RuntimeException("Upper Seis Depth must be ² Lower Seis Depth");
+          throw new RuntimeException("Upper Seis Depth must be ï¿½ Lower Seis Depth");
 
       //gets the change in latitude for grid spacing specified
       double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);

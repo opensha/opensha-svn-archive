@@ -9,8 +9,8 @@ import java.util.Iterator;
 import org.opensha.calc.FaultMomentCalc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
-import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.surface.StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * @author Vipin Gupta and Ned Field

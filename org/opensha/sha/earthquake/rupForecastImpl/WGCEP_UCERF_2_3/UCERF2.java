@@ -50,13 +50,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegmentTi
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.FrankelGriddedSurface;
-import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
 
@@ -150,11 +150,11 @@ public class UCERF2 extends EqkRupForecast {
 	private StringParameter floaterTypeParam;
 	
 	// rate for M>=5
-	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
+	public final static String TOT_MAG_RATE_PARAM_NAME = "Total Mï¿½5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.6);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
+	private final static String TOT_MAG_RATE_INFO = "Total rate of Mï¿½5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 
 	// Aftershock/Foreshock Fraction
@@ -946,7 +946,7 @@ public class UCERF2 extends EqkRupForecast {
 	 */
 	private void  makeBackgroundGridSources() {
 
-		// get the total rate of M³5 events & b-value
+		// get the total rate of Mï¿½5 events & b-value
 		double rate = ((Double)totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
 

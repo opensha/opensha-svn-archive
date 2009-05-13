@@ -4,7 +4,7 @@ import scratchJavaDevelopers.matt.calc.*;
 
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import java.util.ArrayList;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;

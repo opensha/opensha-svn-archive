@@ -7,7 +7,7 @@ import org.opensha.data.Location;
 import org.opensha.data.Site;
 import org.opensha.data.NamedObjectAPI;
 import org.opensha.data.region.GeographicRegion;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <p>Title: ProbEqkSource</p>

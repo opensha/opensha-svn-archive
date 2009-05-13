@@ -13,11 +13,9 @@ import org.opensha.calc.MomentMagCalc;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.util.*;
 import org.opensha.data.Location;
-import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.exceptions.FaultException;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
@@ -1258,7 +1256,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 	     }
 	     
 	     System.out.println("Background Sources:");
-//	     double backCorr = 0.83;  // this brings the total rate of forecasted M³5 events equal to Karen's 3.3
+//	     double backCorr = 0.83;  // this brings the total rate of forecasted Mï¿½5 events equal to Karen's 3.3
 	     double backCorr = 1.0;  
 	     for(int i=0; i < frankCast.frankelBackgrSeisSources.size(); i++) {
 	    	 ProbEqkSource source = (ProbEqkSource) frankCast.frankelBackgrSeisSources.get(i);

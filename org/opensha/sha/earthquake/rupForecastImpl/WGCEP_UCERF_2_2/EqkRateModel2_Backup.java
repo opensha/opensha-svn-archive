@@ -49,13 +49,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.SegmentTi
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.data.UCERF1MfdReader;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.gui.A_FaultsMFD_Plotter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.griddedSeis.NSHMP_GridSourceGenerator;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.magdist.*;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.FrankelGriddedSurface;
-import org.opensha.sha.surface.StirlingGriddedSurface;
 import org.opensha.util.FileUtils;
 
 
@@ -149,11 +149,11 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 	private DoubleParameter rupOffset_Param;
 	
 	// rate for M>=5
-	public final static String TOT_MAG_RATE_PARAM_NAME = "Total M³5 Rate";
+	public final static String TOT_MAG_RATE_PARAM_NAME = "Total Mï¿½5 Rate";
 	public final static Double TOT_MAG_RATE_MIN = new Double(2.0);
 	public final static Double TOT_MAG_RATE_MAX = new Double(20.0);
 	public final static Double TOT_MAG_RATE_DEFAULT = new Double(3.6);
-	private final static String TOT_MAG_RATE_INFO = "Total rate of M³5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
+	private final static String TOT_MAG_RATE_INFO = "Total rate of Mï¿½5 events in the RELM test region (e.g, 3.60 for no aftershocks, or 7.84 including aftershocks)";
 	private DoubleParameter totalMagRateParam ;
 	
 	// Aftershock/Foreshock Fraction
@@ -1004,7 +1004,7 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 		
 		//MagAreaRelationship magAreaRel = this.getMagAreaRelationship();
 		
-		// get the total rate of M³5 events
+		// get the total rate of Mï¿½5 events
 		double rate = ((Double) totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double) regionB_ValParam.getValue()).doubleValue();
 		double magMax = ((Double)meanMagCorrectionParam.getValue()).doubleValue();
@@ -1025,7 +1025,7 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 	
 	private void  makeBackgroundGridSources() {
 		
-		// get the total rate of M³5 events & b-value
+		// get the total rate of Mï¿½5 events & b-value
 		double rate = ((Double)totalMagRateParam.getValue()).doubleValue();
 		double bValue = ((Double)regionB_ValParam.getValue()).doubleValue();
 		
@@ -1437,9 +1437,9 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 		}
 		
 		if(includeAftershocks)
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(M³5)=6.69; b= 1.0)");
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog including aftershocks (Rate(Mï¿½5)=6.69; b= 1.0)");
 		else
-			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(M³5)=3.22; b= 0.8)");
+			newFunc.setInfo("Cumulative MFD for Karen Felzer's best-fit to observed catalog excluding aftershocks (Rate(Mï¿½5)=3.22; b= 0.8)");
 		
 		return newFunc;
 		/*EvenlyDiscretizedFunc obsBestFitCumMFD = new IncrementalMagFreqDist(this.MIN_MAG, this.NUM_MAG, this.DELTA_MAG);
@@ -2006,7 +2006,7 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 									" , " + slipModelOptions.get(islip));
 							continue;
 						}
-						// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
+						// print out pred rate of Mï¿½6.5 and ratio with respect to obsBestFitCumMFD at same mag
 						double predCumRate = getTotalMFD().getCumRate(6.5);
 						
 						System.out.println((float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+
@@ -2070,7 +2070,7 @@ public class EqkRateModel2_Backup extends EqkRupForecast {
 											" , " + slipModelOptions.get(islip));
 									continue;
 								}
-								// print out pred rate of M³6.5 and ratio with respect to obsBestFitCumMFD at same mag
+								// print out pred rate of Mï¿½6.5 and ratio with respect to obsBestFitCumMFD at same mag
 								double predCumRate = getTotalMFD().getCumRate(6.5);
 								ratio = (predCumRate/obVal);
 								str = (float)(predCumRate/obVal)+" , "+(float)predCumRate+" , "+magAreaOptions.get(imag)+

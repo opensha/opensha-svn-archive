@@ -4,7 +4,7 @@ import scratchJavaDevelopers.matt.calc.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.fault.*;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.Location;
 import org.opensha.data.function.EvenlyDiscretizedFunc;

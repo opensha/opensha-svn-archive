@@ -10,8 +10,7 @@ import org.opensha.data.Location;
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.param.*;
-import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.magdist.*;
@@ -424,7 +423,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
        if(D) {
          System.out.println(S);
-         System.out.println("   rate³5="+(float)grMagFreqDist.getCumRate(5.05));
+         System.out.println("   rateï¿½5="+(float)grMagFreqDist.getCumRate(5.05));
          System.out.println("   segType = "+segType);
          System.out.println("   faultModel = "+faultModel);
          System.out.println("   magUpper = "+magUpper);

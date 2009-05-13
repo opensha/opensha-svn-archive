@@ -3,8 +3,8 @@ package org.opensha.sha.earthquake.observedEarthquake;
 import java.util.*;
 
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.data.Location;
-import org.opensha.sha.surface.PointSurface;
 
 /**
  * <p>Title: ObsEqkRupture </p>

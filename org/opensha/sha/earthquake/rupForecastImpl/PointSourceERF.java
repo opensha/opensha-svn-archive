@@ -6,11 +6,11 @@ import org.opensha.data.TimeSpan;
 
 import org.opensha.data.Location;
 import org.opensha.param.*;
-import org.opensha.sha.surface.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.faultSurface.*;
 
 
 /**

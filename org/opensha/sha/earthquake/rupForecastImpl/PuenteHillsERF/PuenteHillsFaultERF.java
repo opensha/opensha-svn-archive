@@ -6,8 +6,7 @@ import org.opensha.data.TimeSpan;
 
 import org.opensha.param.*;
 import org.opensha.data.Location;
-import org.opensha.sha.surface.*;
-import org.opensha.sha.fault.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;

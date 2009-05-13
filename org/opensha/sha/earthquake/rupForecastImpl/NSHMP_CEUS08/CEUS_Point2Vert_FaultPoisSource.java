@@ -5,10 +5,8 @@ import org.opensha.data.*;
 import org.opensha.data.function.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.surface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
-import org.opensha.sha.surface.*;
 
 // temp for testing
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;

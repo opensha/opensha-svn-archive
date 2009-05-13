@@ -1,8 +1,8 @@
 package org.opensha.sha.earthquake.region;
 
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.region.*;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 
 /**

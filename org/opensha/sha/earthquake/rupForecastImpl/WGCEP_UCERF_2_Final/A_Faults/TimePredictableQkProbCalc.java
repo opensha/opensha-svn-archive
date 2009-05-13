@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults;
 
-import org.opensha.sha.earthquake.calc.BPT_DistCalc;
+import org.opensha.sha.earthquake.recurInterval.BPT_DistCalc;
 
 
 /**

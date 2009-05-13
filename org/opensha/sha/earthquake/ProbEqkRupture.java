@@ -4,11 +4,12 @@ package org.opensha.sha.earthquake;
 
 import org.opensha.data.*;
 import org.opensha.exceptions.InvalidRangeException;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.PointSurface;
+
 import java.util.ListIterator;
 import org.opensha.param.ParameterAPI;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.PointSurface;
 
 /**
  * <p>Title:ProbEqkRupture </p>

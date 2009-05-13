@@ -3,11 +3,8 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.calc.magScalingRelations.*;
-import org.opensha.sha.surface.*;
 
 import java.util.ArrayList;
 

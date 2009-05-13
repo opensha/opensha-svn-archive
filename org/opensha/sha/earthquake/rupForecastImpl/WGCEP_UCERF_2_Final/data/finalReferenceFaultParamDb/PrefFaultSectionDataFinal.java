@@ -25,7 +25,7 @@ import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 /**
  * <p>Title: PrefFaultSectionDataFinal.java </p>
  * <p>Description: This class reads the Preferred Fault Section Data from an XML file.

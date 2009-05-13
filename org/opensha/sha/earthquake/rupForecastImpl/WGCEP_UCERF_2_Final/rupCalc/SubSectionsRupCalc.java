@@ -11,7 +11,7 @@ import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * This class finds all the ruptures that includes 1 or more subsections. The subsections should

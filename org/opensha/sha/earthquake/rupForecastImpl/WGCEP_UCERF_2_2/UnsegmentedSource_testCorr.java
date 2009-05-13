@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * @author vipingupta

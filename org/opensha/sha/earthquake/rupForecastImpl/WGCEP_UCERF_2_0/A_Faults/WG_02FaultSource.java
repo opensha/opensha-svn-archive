@@ -6,14 +6,13 @@ import java.util.Iterator;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
 import org.opensha.data.*;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.calc.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
@@ -862,10 +861,10 @@ private IncrementalMagFreqDist getReSampledMFD(IncrementalMagFreqDist magFreqDis
 			  throw new RuntimeException("Invalid truncation type value. Value values are 0, 1 and 2");
 	    
 		  //magSigma is positive; 
-		  if(magSigma<0) throw new RuntimeException ("Magnitude Sigma should be ³ 0 ");
+		  if(magSigma<0) throw new RuntimeException ("Magnitude Sigma should be ï¿½ 0 ");
 	     
 		  // magTruncLevel us positive
-		  if(magTruncLevel<0) throw new RuntimeException("Truncation Level for magnitude should ³ 0");
+		  if(magTruncLevel<0) throw new RuntimeException("Truncation Level for magnitude should ï¿½ 0");
 	}
 
   /**

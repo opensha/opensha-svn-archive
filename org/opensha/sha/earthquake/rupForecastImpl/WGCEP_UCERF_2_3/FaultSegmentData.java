@@ -11,8 +11,8 @@ import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegRateConstraint;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.SegmentTimeDepData;
-import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.surface.StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 /**
  * @author Vipin Gupta and Ned Field

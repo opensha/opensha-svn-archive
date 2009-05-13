@@ -1,8 +1,8 @@
 package org.opensha.sha.earthquake.rupForecastImpl.WG02;
 
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.magdist.GaussianMagFreqDist;

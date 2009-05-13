@@ -3,7 +3,6 @@ package org.opensha.sha.earthquake.rupForecastImpl.Frankel02;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.sha.surface.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
@@ -11,7 +10,7 @@ import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.sha.earthquake.*;
 
 
-import org.opensha.sha.fault.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 ;
 

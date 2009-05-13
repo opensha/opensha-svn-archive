@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.calc.magScalingRelations.*;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 
 
 /**
