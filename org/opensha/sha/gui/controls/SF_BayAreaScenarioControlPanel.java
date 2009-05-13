@@ -14,7 +14,6 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.mapping.gui.beans.*;
 
 /**
  * <p>Title: SF_BayAreaScenarioControlPanel</p>

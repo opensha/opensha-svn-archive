@@ -40,7 +40,6 @@ import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.mapping.gui.beans.*;
 import org.opensha.util.FileUtils;
 import org.opensha.util.SystemPropertiesUtils;
 
