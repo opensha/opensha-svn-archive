@@ -21,7 +21,7 @@ import org.opensha.util.FileUtils;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.servlets.*;
 
-import unusedArchive.HazardMapCalcServlet;
+//import unusedArchive.HazardMapCalcServlet;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
@@ -36,7 +36,12 @@ import unusedArchive.HazardMapCalcServlet;
 
 public class HazardMapViewerServlet  extends HttpServlet {
 
-  // directory where all the hazard map data sets will be saved
+
+    public static final String PARENT_DIR = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapDatasets/";
+    public  static final String METADATA_FILE_NAME = "metadata.txt";
+    public  static final String SITES_FILE_NAME = "sites.txt";
+
+    // directory where all the hazard map data sets will be saved
   public static final String GET_DATA = "Get Data";
   public static final String MAKE_MAP = "Make Map";
 
@@ -72,7 +77,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
           isProbAt_IML = false;
         // create the XYZ data set
         XYZ_DataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
-        String metadataFileName = HazardMapCalcServlet.PARENT_DIR+
+        String metadataFileName = PARENT_DIR+
                selectedSet+"/"+"map_info.txt";
         FileWriter fw = new FileWriter(metadataFileName);
         fw.write(metadata);
@@ -130,7 +135,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
    //Hashtable for storing the lats from each dataSet
    Hashtable latHash= new Hashtable();
    try {
-     File dirs =new File(HazardMapCalcServlet.PARENT_DIR);
+     File dirs =new File(PARENT_DIR);
      File[] dirList=dirs.listFiles(); // get the list of all the data in the parent directory
 
      // for each data set, read the meta data and sites info
@@ -140,8 +145,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
          // READ THE METADATA FILE
          String dataSetDescription= new String();
          try {
-           File f = new File(HazardMapCalcServlet.PARENT_DIR+
-               dirList[i].getName()+"/"+HazardMapCalcServlet.METADATA_FILE_NAME);
+           File f = new File(PARENT_DIR+
+               dirList[i].getName()+"/"+METADATA_FILE_NAME);
            if (!f.exists()) continue;
            FileReader dataReader = new FileReader(f);
            BufferedReader in = new BufferedReader(dataReader);
@@ -155,9 +160,9 @@ public class HazardMapViewerServlet  extends HttpServlet {
            in.close();
 
            // READ THE SITES FILE
-           FileReader sitesReader = new FileReader(HazardMapCalcServlet.PARENT_DIR
+           FileReader sitesReader = new FileReader(PARENT_DIR
                + dirList[i].getName() +
-               "/"+HazardMapCalcServlet.SITES_FILE_NAME);
+               "/"+SITES_FILE_NAME);
            BufferedReader sitesin = new BufferedReader(sitesReader);
            // first line in the file contains the min lat, max lat, discretization interval
            String latitude = sitesin.readLine();
@@ -217,7 +222,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
     ArrayList zVals= new ArrayList();
 
     //searching the directory for the list of the files.
-    File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
+    File dir = new File(PARENT_DIR+selectedSet+"/");
     File[] fileList=dir.listFiles();
 
     //number of files in selected dataset
@@ -342,7 +347,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
         try {
           //reading the hazard Curve to find interpolate the iml or Prob value
           String fileToRead = lat+"_"+ lon+".txt";
-          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileToRead);
+          fileLines = FileUtils.loadFile(PARENT_DIR+selectedSet+"/"+fileToRead);
           String dataLine;
           StringTokenizer st;
           ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();

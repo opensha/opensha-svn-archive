@@ -11,8 +11,6 @@ import org.opensha.data.Location;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.gui.servlets.*;
 
-import unusedArchive.HazardMapCalcServlet;
-
 /**
  * <p>Title: HazardDataSetPlotterCalcServlet  </p>
  * <p>Description: This class does the calculation for the HazardDataSetPloter.
@@ -24,6 +22,9 @@ import unusedArchive.HazardMapCalcServlet;
  */
 
 public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
+
+    public static final String PARENT_DIR = "/opt/install/apache-tomcat-5.5.20/webapps/OpenSHA/HazardMapDatasets/";
+    public  static final String SITES_FILE_NAME = "sites.txt";
 
   /**
    *
@@ -73,7 +74,7 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
    private ArrayList getDataSet(String selectedSet,double selectedLat,double selectedLon){
 
      //searching the directory for the list of the files.
-     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
+     File dir = new File(PARENT_DIR+selectedSet+"/");
      String[] fileList=dir.list();
      //formatting of the text double Decimal numbers for 2 places of decimal.
      DecimalFormat d= new DecimalFormat("0.00##");
@@ -83,8 +84,8 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
      //getting the selected dataset
      // READ THE SITES FILE
      try{
-       FileReader sitesReader = new FileReader(HazardMapCalcServlet.PARENT_DIR
-           + selectedSet +"/"+HazardMapCalcServlet.SITES_FILE_NAME);
+       FileReader sitesReader = new FileReader(PARENT_DIR
+           + selectedSet +"/"+SITES_FILE_NAME);
        BufferedReader sitesin = new BufferedReader(sitesReader);
        // first line in the file contains the min lat, max lat, discretization interval
        latitude = sitesin.readLine();
@@ -149,7 +150,7 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
        System.out.println("Selected Lat and Lon:"+latForFile+" , "+lonForFile);
        System.out.println("Selected Lat and Lon for comparison:"+latForComparison+" , "+lonForComparison);
        String fileName =  d.format(latForFile)+"_"+d.format(lonForFile)+".txt";
-       ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileName);
+       ArrayList listfiles = FileUtils.loadFile(PARENT_DIR+selectedSet+"/"+fileName);
        return listfiles;
      }catch(Exception e){
        System.out.println("Error reading the lat lon file");
