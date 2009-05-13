@@ -6,8 +6,7 @@ import org.opensha.calc.*;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 
 /**
  * <p>Title: </p>
