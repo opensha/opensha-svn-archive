@@ -16,7 +16,7 @@ import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: PrefFaultSectionDataDB_DAO.java </p>

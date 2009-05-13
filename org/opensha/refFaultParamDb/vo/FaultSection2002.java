@@ -1,7 +1,7 @@
 package org.opensha.refFaultParamDb.vo;
 
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
  * <p>Title: FaultSection2002.java </p>

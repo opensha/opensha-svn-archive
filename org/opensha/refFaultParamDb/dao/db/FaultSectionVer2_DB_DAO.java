@@ -11,7 +11,8 @@ import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
 
 import oracle.spatial.geometry.JGeometry;
-import org.opensha.sha.fault.FaultTrace;
+
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 

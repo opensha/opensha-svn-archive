@@ -23,7 +23,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;

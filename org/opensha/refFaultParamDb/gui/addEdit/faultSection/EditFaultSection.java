@@ -24,7 +24,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.SectionSource;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.data.Location;

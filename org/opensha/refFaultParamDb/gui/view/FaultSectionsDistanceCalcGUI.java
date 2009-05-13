@@ -25,12 +25,12 @@ import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.FrankelGriddedSurface;
-import org.opensha.sha.surface.StirlingGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.FrankelGriddedSurface;
+import org.opensha.sha.faultSurface.SimpleFaultData;
+import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 
 import java.util.Iterator;
 

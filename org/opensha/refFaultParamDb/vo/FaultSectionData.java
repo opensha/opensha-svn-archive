@@ -4,7 +4,7 @@ import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.data.estimate.NormalEstimate;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: FaultSectionVer2.java </p>

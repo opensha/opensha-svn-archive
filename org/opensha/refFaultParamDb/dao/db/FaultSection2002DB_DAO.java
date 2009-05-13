@@ -6,7 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import oracle.spatial.geometry.JGeometry;
-import org.opensha.sha.fault.FaultTrace;
+
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.data.Location;
 import java.awt.geom.Point2D;
 

@@ -10,9 +10,9 @@ import java.util.Iterator;
 import org.dom4j.Element;
 import org.opensha.data.Location;
 import org.opensha.metadata.XMLSaveable;
-import org.opensha.sha.fault.EqualLengthSubSectionsTrace;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.SimpleFaultData;
+import org.opensha.sha.faultSurface.EqualLengthSubSectionsTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
  * This class saves the preferred values (rather than the estimate) from the FaultSectionData

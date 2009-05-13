@@ -6,7 +6,8 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import java.io.FileWriter;
-import org.opensha.sha.fault.FaultTrace;
+
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.data.Location;
 
 /**

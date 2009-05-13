@@ -16,7 +16,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.estimate.DiscreteValueEstimate;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;

@@ -8,6 +8,7 @@ import java.io.*;
 import org.opensha.data.Location;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.*;
 import org.opensha.util.*;
 import org.opensha.param.event.ParameterChangeWarningListener;
@@ -15,7 +16,6 @@ import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.*;
 
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
 import org.opensha.data.XYZ_DataSetAPI;
