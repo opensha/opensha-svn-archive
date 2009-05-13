@@ -19,7 +19,7 @@ import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.data.Location;
 import org.opensha.data.Direction;
 import org.opensha.calc.RelativeLocation;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: PuenteHillsScenarioTestControlPanel</p>
