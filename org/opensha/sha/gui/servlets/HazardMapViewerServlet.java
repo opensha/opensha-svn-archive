@@ -21,6 +21,8 @@ import org.opensha.util.FileUtils;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.servlets.*;
 
+import unusedArchive.HazardMapCalcServlet;
+
 /**
  * <p>Title: HazardMapViewerServlet</p>
  * <p>Description: This servlet is hosted on web server gravity.usc.edu.

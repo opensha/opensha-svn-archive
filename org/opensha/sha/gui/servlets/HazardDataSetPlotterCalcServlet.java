@@ -11,6 +11,8 @@ import org.opensha.data.Location;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.gui.servlets.*;
 
+import unusedArchive.HazardMapCalcServlet;
+
 /**
  * <p>Title: HazardDataSetPlotterCalcServlet  </p>
  * <p>Description: This class does the calculation for the HazardDataSetPloter.
