@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 
 
 import org.opensha.sha.earthquake.rupForecastImpl.step.*;
-import org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.param.event.ParameterChangeWarningListener;
@@ -15,7 +14,7 @@ import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.WarningDoubleParameter;
 import org.opensha.data.region.SitesInGriddedRegion;
-import org.opensha.sha.calc.HazardMapCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.*;

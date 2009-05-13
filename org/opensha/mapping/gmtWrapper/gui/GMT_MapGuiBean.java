@@ -1,4 +1,4 @@
-package org.opensha.mapping.gui.beans;
+package org.opensha.mapping.gmtWrapper.gui;
 
 import java.awt.*;
 import java.util.*;

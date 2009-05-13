@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.disaggregation;
 
 
 import java.util.*;
@@ -16,9 +16,8 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.DistanceRupParameter;
 
 
-import org.opensha.sha.calc.sort.DisaggregationSourceRuptureInfo;
-import org.opensha.sha.calc.sort.DisaggregationSourceRuptureComparator;
-import java.io.FileWriter;
+import org.opensha.sha.calc.HazardCurveCalculator;
+
 import java.io.*;
 import org.opensha.data.Location;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;

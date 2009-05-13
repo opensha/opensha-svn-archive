@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.hazardMap.grid;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import org.opensha.util.FileUtils;
  * @author kevin
  *
  */
-public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningListener {
+public class HardcodedHazardMapCalculator implements ParameterChangeWarningListener {
 
 	boolean timer = true;
 	boolean loadERFFromFile = false;
@@ -60,7 +60,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 	 * @param debug - flag to enable debugging mode. if true, the timer and graph window will be enabled
 	 * 		if hard coded in.
 	 */
-	public GridHardcodedHazardMapCalculator(SitesInGriddedRegionAPI sites, int startIndex, int endIndex, boolean debug) {
+	public HardcodedHazardMapCalculator(SitesInGriddedRegionAPI sites, int startIndex, int endIndex, boolean debug) {
 		this.sites = sites;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
@@ -137,7 +137,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 		// get the default function for the specified IMT
 		ArbitrarilyDiscretizedFunc hazFunction = imtInfo.getDefaultHazardCurve(imr.getIntensityMeasure().getName());
 		
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, null, maxDistance, outputDir);
+		HazardMapPortionCalculator calculator = new HazardMapPortionCalculator(sites, erf, imr, hazFunction, null, maxDistance, outputDir);
 		
 		calculator.setTimer(timer);
 		calculator.setLessPrints(lessPrints);
@@ -198,7 +198,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			int endIndex = Integer.parseInt(args[1]);
 			try {
 				// run the calculator with debugging disabled
-				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, false);
+				HardcodedHazardMapCalculator calc = new HardcodedHazardMapCalculator(sites, startIndex, endIndex, false);
 				if (args.length >=3) {
 					try {
 						boolean timer = Boolean.parseBoolean(args[2]);
@@ -245,7 +245,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 			try {
 				System.err.println("RUNNING FROM DEBUG MODE!");
 				// run the calculator with debugging enabled
-				GridHardcodedHazardMapCalculator calc = new GridHardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
+				HardcodedHazardMapCalculator calc = new HardcodedHazardMapCalculator(sites, startIndex, endIndex, true);
 				calc.timer = true;
 				calc.lessPrints = false;
 				calc.loadERFFromFile = false;
@@ -254,7 +254,7 @@ public class GridHardcodedHazardMapCalculator implements ParameterChangeWarningL
 				calc.useCVM = false;
 				//calc.cvmFileName = "/home/kevin/OpenSHA/condor/RELM_0.1.cvm";
 				calc.cvmFileName = "/home/kevin/OpenSHA/condor/jobs/jobTest/000100_000200.cvm";
-				calc.outputDir = GridHardcodedHazardMapCalculator.DEBUG_RESULT_FOLDER;
+				calc.outputDir = HardcodedHazardMapCalculator.DEBUG_RESULT_FOLDER;
 				calc.calculateCurves();
 				System.out.println("Total execution time: " + calc.getTime(start));
 				// if nothing was calculated, just exit

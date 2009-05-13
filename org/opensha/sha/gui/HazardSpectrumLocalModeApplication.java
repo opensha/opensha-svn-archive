@@ -38,9 +38,9 @@ import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.util.FileUtils;
 
 import java.net.URL;

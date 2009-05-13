@@ -21,13 +21,13 @@ import java.util.Collections;
 import java.net.*;
 import java.io.*;
 
-import org.opensha.sha.calc.HazardMapCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
+import org.opensha.mapping.gmtWrapper.gui.GMT_MapGuiBean;
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;

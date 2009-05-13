@@ -52,7 +52,7 @@ import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.gridComputing.GridJob;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
-import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
+import org.opensha.mapping.gmtWrapper.gui.GMT_MapGuiBean;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;

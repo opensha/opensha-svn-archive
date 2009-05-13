@@ -6,8 +6,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import org.opensha.sha.calc.DisaggregationCalculatorAPI;
-import org.opensha.sha.calc.DisaggregationCalculator;
+
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
 
 /**
  * <p>Title: RemoteDisaggregationCalcClient</p>

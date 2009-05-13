@@ -3,8 +3,8 @@ package org.opensha.sha.calc.remoteCalc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import org.opensha.sha.calc.DisaggregationCalculatorAPI;
-import org.opensha.sha.calc.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;
 
 /**
  * <p>Title: RemoteDisaggregationCalcFactoryImpl</p>

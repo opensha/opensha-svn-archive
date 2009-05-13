@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.sort;
+package org.opensha.sha.calc.disaggregation;
 
 import org.opensha.sha.earthquake.EqkRupture;
 import java.util.Comparator;

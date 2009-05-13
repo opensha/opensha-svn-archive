@@ -1,4 +1,4 @@
-package org.opensha.sha.calc.sort;
+package org.opensha.sha.calc.disaggregation;
 
 /**
  * <p>Title: DisaggregationSourceInfo</p>

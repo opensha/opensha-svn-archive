@@ -6,8 +6,8 @@ import java.util.Random;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.region.SitesInGriddedRegionAPI;
 import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.sha.calc.GridHazardMapPortionCalculator;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.calc.hazardMap.grid.HazardMapPortionCalculator;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.AttenuationRelationship;
 
@@ -33,7 +33,7 @@ public class WallTimeEstimator {
 		double times = 0;
 		for (int i=0; i<numSamples; i++) {
 			long start = System.currentTimeMillis();
-			ArbitrarilyDiscretizedFunc logFunc = GridHazardMapPortionCalculator.getLogFunction(hazFunction);
+			ArbitrarilyDiscretizedFunc logFunc = HazardMapPortionCalculator.getLogFunction(hazFunction);
 			
 			int siteNum = rand.nextInt(numLocs);
 			
@@ -45,7 +45,7 @@ public class WallTimeEstimator {
 				e.printStackTrace();
 			}
 			
-			hazFunction = GridHazardMapPortionCalculator.unLogFunction(hazFunction, logFunc);
+			hazFunction = HazardMapPortionCalculator.unLogFunction(hazFunction, logFunc);
 			long end = System.currentTimeMillis();
 			times += (double)(end - start) / 1000d;
 		}

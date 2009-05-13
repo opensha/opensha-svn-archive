@@ -18,7 +18,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.calc.HazardMapCalculator;
+import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
@@ -194,7 +194,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 
      try{
        forecast.updateForecast();
-       HazardMapCalculator calc = new HazardMapCalculator();
+       HazardMapCalculatorOld calc = new HazardMapCalculatorOld();
        calc.getHazardMapCurves("frankel02_hazardmap_standalone",true,getX_ValuesForHazardCurve(),
                                griddedRegionSites,attenRel,forecast,getParametersInfo(),"niting@usc.edu");
 

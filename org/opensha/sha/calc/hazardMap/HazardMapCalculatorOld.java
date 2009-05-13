@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.hazardMap;
 
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -15,6 +15,7 @@ import java.util.Iterator;
 import org.opensha.data.function.*;
 import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
+import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.data.region.*;
@@ -31,7 +32,7 @@ import org.opensha.data.region.*;
  * @version 1.0
  */
 
-public class HazardMapCalculator {
+public class HazardMapCalculatorOld {
 
   protected final static String C = "HazardMapCalculator";
   protected final static boolean D = false;

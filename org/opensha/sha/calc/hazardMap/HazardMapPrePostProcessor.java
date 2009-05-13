@@ -14,7 +14,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.sha.calc.GridMetadataHazardMapCalculator;
+import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.MailUtil;
 
@@ -153,10 +153,10 @@ public class HazardMapPrePostProcessor {
 		// get the start time
 		long startTime = 0;
 		long endTime = System.currentTimeMillis();
-		File startTimeFile = new File(GridMetadataHazardMapCalculator.START_TIME_FILE);
+		File startTimeFile = new File(MetadataHazardMapCalculator.START_TIME_FILE);
 		if (startTimeFile.exists()) {
 			try {
-				ArrayList<String> startTimeLines = FileUtils.loadFile(GridMetadataHazardMapCalculator.START_TIME_FILE);
+				ArrayList<String> startTimeLines = FileUtils.loadFile(MetadataHazardMapCalculator.START_TIME_FILE);
 				if (startTimeLines != null) {
 					if (startTimeLines.size() > 0) {
 						String startTimeString = startTimeLines.get(0);
@@ -222,7 +222,7 @@ public class HazardMapPrePostProcessor {
 		String startTimeString = startCal.getTime().toString();
 
 		try {
-			FileWriter fw = new FileWriter(GridMetadataHazardMapCalculator.START_TIME_FILE);
+			FileWriter fw = new FileWriter(MetadataHazardMapCalculator.START_TIME_FILE);
 			fw.write(System.currentTimeMillis() + "");
 			fw.flush();
 			fw.close();

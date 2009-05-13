@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.hazardMap.grid;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -37,6 +37,7 @@ import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
@@ -63,7 +64,7 @@ import org.opensha.util.FileUtils;
  * @author kevin
  *
  */
-public class GridHazardMapPortionCalculator {
+public class HazardMapPortionCalculator {
 
 	private boolean xLogFlag = true;
 	private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
@@ -92,7 +93,7 @@ public class GridHazardMapPortionCalculator {
 	 * @param maxDistance - maximum source distance for calculation
 	 * @param outputDir - directory to store results (or empty string for current working directory)
 	 */
-	public GridHazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf,
+	public HazardMapPortionCalculator(SitesInGriddedRegionAPI sites, EqkRupForecastAPI erf,
 			AttenuationRelationshipAPI imr, ArbitrarilyDiscretizedFunc hazFunction,
 			SiteDataValueListList siteDataValues, double maxDistance, String outputDir) {
 		this.sites = sites;

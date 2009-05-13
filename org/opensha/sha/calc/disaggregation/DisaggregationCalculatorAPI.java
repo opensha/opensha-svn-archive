@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.disaggregation;
 
 import java.rmi.Remote;
 

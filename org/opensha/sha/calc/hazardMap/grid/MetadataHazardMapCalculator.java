@@ -1,4 +1,4 @@
-package org.opensha.sha.calc;
+package org.opensha.sha.calc.hazardMap.grid;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -48,7 +48,7 @@ import org.opensha.util.XMLUtils;
  * @author kevin
  *
  */
-public class GridMetadataHazardMapCalculator implements ParameterChangeWarningListener {
+public class MetadataHazardMapCalculator implements ParameterChangeWarningListener {
 
 	boolean timer = true;
 	boolean loadERFFromFile = false;
@@ -79,7 +79,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 	 * @param debug - flag to enable debugging mode. if true, the timer and graph window will be enabled
 	 * 		if hard coded in.
 	 */
-	public GridMetadataHazardMapCalculator(String metadataFileName, int startIndex, int endIndex, boolean debug) {
+	public MetadataHazardMapCalculator(String metadataFileName, int startIndex, int endIndex, boolean debug) {
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 		this.debug = debug;
@@ -168,7 +168,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 			siteDataVals = SiteDataValueListList.fromXMLMetadata(valsEl);
 		}
 
-		GridHazardMapPortionCalculator calculator = new GridHazardMapPortionCalculator(sites, erf, imr, hazFunction, siteDataVals, maxDistance, outputDir);
+		HazardMapPortionCalculator calculator = new HazardMapPortionCalculator(sites, erf, imr, hazFunction, siteDataVals, maxDistance, outputDir);
 
 		calculator.setTimer(timer);
 		calculator.setLessPrints(lessPrints);
@@ -243,7 +243,7 @@ public class GridMetadataHazardMapCalculator implements ParameterChangeWarningLi
 		try {
 			// run the calculator with debugging disabled
 			String metadataFileName = args[2];
-			GridMetadataHazardMapCalculator calc = new GridMetadataHazardMapCalculator(metadataFileName, startIndex, endIndex, false);
+			MetadataHazardMapCalculator calc = new MetadataHazardMapCalculator(metadataFileName, startIndex, endIndex, false);
 			if (args.length >=4 && args[3].toLowerCase().contains("cvm")) {
 				calc.useCVM = true;
 				calc.cvmFileName = args[3];

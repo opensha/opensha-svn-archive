@@ -8,7 +8,6 @@ import java.net.*;
 import java.util.*;
 
 
-import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
 
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.StringParameterEditor;

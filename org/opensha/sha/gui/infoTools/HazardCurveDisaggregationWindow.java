@@ -6,7 +6,7 @@ import javax.swing.text.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 
-import org.opensha.sha.calc.DisaggregationCalculator;
+import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 
 /**
  * <p>Title: HazardCurveDisaggregationWindow</p>
