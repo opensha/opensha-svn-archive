@@ -399,7 +399,7 @@ public class OldSiteTranslator
    * @param args
    */
   public static void main(String args[]) {
-    Temp siteTrans = new Temp();
+	  OldSiteTranslator siteTrans = new OldSiteTranslator();
 
     AttenuationRelationship ar;
     ar = new AS_1997_AttenRel(null);
