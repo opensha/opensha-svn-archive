@@ -4,7 +4,7 @@ package org.opensha.sha.nga;
 import java.util.*;
 
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.data.*;
 
 /**
