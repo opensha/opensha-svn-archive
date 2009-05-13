@@ -8,7 +8,7 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 public class CyberShakeProbEqkSource extends ProbEqkSource {
 	

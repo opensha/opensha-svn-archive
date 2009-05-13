@@ -5,11 +5,11 @@ import java.util.*;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.*;
-import org.opensha.sha.surface.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;

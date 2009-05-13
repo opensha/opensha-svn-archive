@@ -17,9 +17,9 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.surface.EvenlyGridCenteredSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
-import org.opensha.sha.surface.PointSurface;
+import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.PointSurface;
 
 public  class ERF2DB implements ERF2DBAPI{
 	

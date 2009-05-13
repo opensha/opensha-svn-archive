@@ -13,7 +13,8 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+
 import java.util.ListIterator;
 import org.opensha.data.Location;
 import org.opensha.calc.RelativeLocation;

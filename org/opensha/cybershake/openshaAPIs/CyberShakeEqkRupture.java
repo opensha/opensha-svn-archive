@@ -4,7 +4,7 @@ import org.opensha.cybershake.db.ERF2DB;
 import org.opensha.data.Location;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.util.FaultUtils;
 
 public class CyberShakeEqkRupture extends ProbEqkRupture {

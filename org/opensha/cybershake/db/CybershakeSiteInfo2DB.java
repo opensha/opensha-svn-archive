@@ -13,8 +13,8 @@ import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.surface.EvenlyGridCenteredSurface;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 public class CybershakeSiteInfo2DB {
 
