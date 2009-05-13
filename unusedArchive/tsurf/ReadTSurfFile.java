@@ -3,7 +3,7 @@ package unusedArchive.tsurf;
 import java.io.*;
 import java.util.*;
 
-import org.opensha.sha.fault.tsurf.*;
+//import org.opensha.sha.fault.tsurf.*;
 
 /**
  * <p>Title: ReadTSurfFile</p>
