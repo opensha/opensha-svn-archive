@@ -13,8 +13,8 @@ import org.opensha.param.editor.ParameterListEditor;
 
 /**
  * This is the basic API for a class that provides site type information,
- * such as Vs30 and basin depth. It also contains the static strings for
- * specifying types of data.
+ * such as Vs30 and basin depth, for a particular region. It also contains 
+ * the static strings for specifying types of data.
  * 
  * It uses generics to allow for any type of data object to be used, from
  * Strings and Doubles to an arbitrarily complex object.
