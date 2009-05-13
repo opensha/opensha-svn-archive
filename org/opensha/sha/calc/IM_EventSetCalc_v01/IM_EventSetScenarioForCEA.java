@@ -9,6 +9,8 @@ import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValue;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -24,7 +26,6 @@ import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.sha.util.Vs30SiteTranslator;
 
 
 
@@ -52,7 +53,7 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	private final static String BA2006_TEST_FILE = "BA_2006_TestFile.txt";
 	private final static String CY2006_TEST_FILE = "CY_2006_TestFile.txt";
 	  // site translator
-	private Vs30SiteTranslator siteTranslator = new Vs30SiteTranslator();
+	private SiteTranslator siteTranslator = new SiteTranslator();
 	
 	private double minLat = Double.MAX_VALUE;
 	private double maxLat = Double.MIN_VALUE;
@@ -223,8 +224,9 @@ public class IM_EventSetScenarioForCEA implements ParameterChangeWarningListener
 	      ParameterAPI tempParam = (ParameterAPI) it.next();
 	      //adding the site Params from the CVM, if site is out the range of CVM then it
 	      //sets the site with whatever site Parameter Value user has choosen in the application
-	      boolean flag = siteTranslator.setSiteParams(tempParam, vs30,
-	          Double.NaN);
+	      SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+	    		  SiteDataAPI.TYPE_FLAG_INFERRED, new Double(vs30));
+	      boolean flag = siteTranslator.setParameterValue(tempParam, val);
 
 	      if (!flag) {
 	        String message = "cannot set the site parameter \"" + tempParam.getName() +
