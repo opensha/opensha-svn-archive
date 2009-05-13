@@ -12,8 +12,9 @@ import java.util.Comparator;
 import java.util.StringTokenizer;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.gui.servlets.HazardMapCalcServlet;
 import org.opensha.util.FileUtils;
+
+import unusedArchive.HazardMapCalcServlet;
 
 public class ExpectedHazardCurveChecker {
 	
