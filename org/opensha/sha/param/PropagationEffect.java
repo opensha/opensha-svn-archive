@@ -7,9 +7,9 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 
 /**

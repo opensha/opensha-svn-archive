@@ -6,7 +6,7 @@ import javax.swing.*;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.param.*;
 import org.opensha.sha.param.editor.*;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * <p>Title: SimpleFaultParameterGUI</p>

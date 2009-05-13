@@ -6,9 +6,8 @@ import java.util.*;
 import org.dom4j.Element;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
-import org.opensha.sha.surface.*;
 import org.opensha.exceptions.ParameterException;
-import org.opensha.sha.fault.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.data.Location;
 
 
