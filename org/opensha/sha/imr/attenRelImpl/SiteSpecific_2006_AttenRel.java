@@ -7,6 +7,8 @@ import java.util.*;
 
 import org.opensha.data.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.siteType.SiteDataAPI;
+import org.opensha.data.siteType.SiteDataValue;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
@@ -14,7 +16,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.DistanceJBParameter;
 import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.util.Vs30SiteTranslator;
+import org.opensha.sha.util.SiteTranslator;
 
 /**
  * <b>Title:</b> SiteSpecific_2006_AttenRel<p>
@@ -194,7 +196,7 @@ public class SiteSpecific_2006_AttenRel
   //Rock AttenuationRealtiobnships instances
   private AttenuationRelationshipAPI attenRel;
   
-  private Vs30SiteTranslator vs30Trans = new Vs30SiteTranslator();
+  private SiteTranslator vs30Trans = new SiteTranslator();
   
 
   /**
@@ -335,7 +337,9 @@ public class SiteSpecific_2006_AttenRel
 		  ParameterAPI siteParam = ((AS_1997_AttenRel)attenRel).getParameter
 		                            (AS_1997_AttenRel.SITE_TYPE_NAME);
 		  //set the site parameter to rock
-		  vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		  SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+	    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+	      vs30Trans.setParameterValue(siteParam, val);
 		    // set the component to ave horz
 		  attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
 				  AttenuationRelationship.COMPONENT_AVE_HORZ);
@@ -355,7 +359,9 @@ public class SiteSpecific_2006_AttenRel
 		   ParameterAPI siteParam = ((BJF_1997_AttenRel)attenRel).getParameter
                                    (BJF_1997_AttenRel.VS30_NAME);
            //set the site parameter to rock
-           vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		   SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+		    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+		   vs30Trans.setParameterValue(siteParam, val);
 		   // set the component to ave horz
 		   attenRel.getParameter(AttenuationRelationship.COMPONENT_NAME).setValue(
 				   AttenuationRelationship.COMPONENT_AVE_HORZ);
@@ -374,7 +380,9 @@ public class SiteSpecific_2006_AttenRel
 		    ParameterAPI siteParam = ((Campbell_1997_AttenRel)attenRel).getParameter
                                     (Campbell_1997_AttenRel.SITE_TYPE_NAME);
 		    //set the site parameter to rock
-		    vs30Trans.setSiteParams(siteParam,760,Double.NaN);
+		    SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+		    		  SiteDataAPI.TYPE_FLAG_INFERRED, 760d);
+		    vs30Trans.setParameterValue(siteParam, val);
 		    // set the component to ave horz
 		    attenRel.getParameter(Campbell_1997_AttenRel.COMPONENT_NAME).setValue(
 			    	  Campbell_1997_AttenRel.COMPONENT_AVE_HORZ);
