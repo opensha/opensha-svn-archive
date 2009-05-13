@@ -6,15 +6,15 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 import java.io.FileWriter;
 import java.util.ListIterator;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
+import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.exceptions.DataPoint2DException;
-import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import java.util.ArrayList;
 
 /**

@@ -1,7 +1,8 @@
 package scratchJavaDevelopers.interns;
 
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
+
 import java.util.ArrayList;
 
 /**

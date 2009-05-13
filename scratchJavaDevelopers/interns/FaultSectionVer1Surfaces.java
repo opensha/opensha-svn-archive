@@ -9,13 +9,11 @@ import java.util.StringTokenizer;
 import java.util.HashMap;
 
 
-import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
-import org.opensha.sha.surface.*;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.util.FileUtils;
 
 /**

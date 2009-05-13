@@ -7,8 +7,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.fault.SimpleFaultData;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 
 /**
  * This class reads the fault sections ver2 from the database. It makes gridded suface using the fault trace.

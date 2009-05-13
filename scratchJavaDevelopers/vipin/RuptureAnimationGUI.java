@@ -4,7 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
+
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurface;
+import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
+
 import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
@@ -31,8 +35,6 @@ import java.net.URLConnection;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import org.opensha.util.FileUtils;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
-import org.opensha.sha.surface.GriddedSurface;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>

@@ -51,7 +51,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.util.RunScript;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.data.finalReferenceFaultParamDb.DeformationModelPrefDataFinal;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * This class does an inversion for the rate of events in an unsegmented model:
