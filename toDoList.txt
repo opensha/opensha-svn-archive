@@ -7,9 +7,21 @@ BROADER ISSUES:
 
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
+Take "API" out of filenames
+
 fork project and truncate one end? (for verification purposes as we move forward)
 
-Rename/reconsider ERF APIs.  How to handle a stochastic event set?
+Merge contents of org.nshmp (new location) into the rest of the project
+
+Figure out where to put org.opensha.refFaultParamDb
+
+Clean up contents of org.opensha.sha.gui.infoTools
+
+Figure out if commons.webservices (new location) is being used, and if so, what to do with it (e.g., are there security issues?) - Kevin will report back on this.
+
+Clean up existing EventSetDataCalc versions with the next version
+
+Implement stochastic event sets in hazard curve calculator?
 
 Revise IMR APIs (& convert CyberShake to this?).
 
@@ -63,7 +75,7 @@ Codebase
 	¥	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
 	¥	Alternative to nnls in more recent math package
 	¥	Upgrade to JFreeChart current version; buy dev guide.
-	¥	Evaluate move to Maven for project management
+	¥	Evaluate move to Maven for build process (jar files etc)
 	¥	Define potential broader structure for OpenSHA OpenRisk commons.
 
 Documentation
