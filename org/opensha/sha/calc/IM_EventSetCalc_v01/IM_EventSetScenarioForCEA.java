@@ -11,6 +11,7 @@ import org.opensha.data.Site;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
@@ -22,7 +23,6 @@ import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.sha.util.Vs30SiteTranslator;
 

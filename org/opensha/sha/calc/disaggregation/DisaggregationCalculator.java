@@ -13,6 +13,7 @@ import org.opensha.param.Parameter;
 import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.param.DistanceRupParameter;
 
 
@@ -20,7 +21,6 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 
 import java.io.*;
 import org.opensha.data.Location;
-import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.calc.RelativeLocation;
 import java.net.URL;
 import org.opensha.data.XYZ_DataSetAPI;
