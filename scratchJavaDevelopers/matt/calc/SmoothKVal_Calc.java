@@ -7,7 +7,8 @@ import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.fault.*;
+import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.SimpleFaultData;
 
 /**
  * <p>Title: </p>
