@@ -11,10 +11,10 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.calc.*;
 import org.opensha.sha.param.*;
-import org.opensha.sha.surface.PointSurface;
 
 /**
  * <b>Title:</b> USGS_Combined_2004_AttenRel<p>

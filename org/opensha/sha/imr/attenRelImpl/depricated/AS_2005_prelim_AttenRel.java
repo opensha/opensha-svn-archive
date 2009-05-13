@@ -8,9 +8,9 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
+import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.sha.surface.*;
 
 /**
  * <b>Title:</b> AS_2005_prelim_AttenRel<p>
