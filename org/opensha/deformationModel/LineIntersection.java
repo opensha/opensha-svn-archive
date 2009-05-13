@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 
 import org.opensha.calc.RelativeLocation;
 import org.opensha.data.Location;
-import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.faultSurface.FaultTrace;
 
 /**
  * Given a line and a FaultTrace, this class finds the point of intersection 

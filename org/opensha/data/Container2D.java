@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.opensha.exceptions.InvalidArrayShapeException;
 import org.opensha.exceptions.NotResizableException;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 
 /**
  *  <b>Title:</b> Container2D<p>

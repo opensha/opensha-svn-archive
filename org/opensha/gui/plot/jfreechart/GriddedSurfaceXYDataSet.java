@@ -8,7 +8,7 @@ import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.opensha.data.*;
-import org.opensha.sha.surface.*;
+import org.opensha.sha.faultSurface.*;
 
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>
