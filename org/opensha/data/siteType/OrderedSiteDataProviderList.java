@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.data.Location;
@@ -32,6 +35,8 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	private ArrayList<SiteDataAPI<?>> providers;
 	private ArrayList<Boolean> enabled = new ArrayList<Boolean>();
 	private boolean checkValues = true;
+	
+	private ArrayList<ChangeListener> changeListeners = null;
 	
 	public OrderedSiteDataProviderList(ArrayList<SiteDataAPI<?>> providers) {
 		this.providers = providers;
@@ -176,6 +181,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			if (enabled)
 				doneTypes.add(type);
 		}
+		fireChangeEvent();
 	}
 	
 	public int size() {
@@ -214,14 +220,17 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	
 	public void set(int index, SiteDataAPI<?> data) {
 		this.providers.set(index, data);
+		fireChangeEvent();
 	}
 	
 	public void promote(int index) {
 		this.swap(index, index - 1);
+		fireChangeEvent();
 	}
 	
 	public void demote(int index) {
 		this.swap(index, index + 1);
+		fireChangeEvent();
 	}
 	
 	public void swap(int index1, int index2) {
@@ -247,6 +256,15 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 	
 	public void setEnabled(int index, boolean enabled) {
 		this.enabled.set(index, enabled);
+		fireChangeEvent();
+	}
+	
+	public boolean isAtLeastOneEnabled() {
+		for (Boolean en : enabled) {
+			if (en)
+				return true;
+		}
+		return false;
 	}
 
 	public Iterator<SiteDataAPI<?>> iterator() {
@@ -454,6 +472,7 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 		
 		this.providers = newProvs;
 		this.enabled = newEnabled;
+		fireChangeEvent();
 	}
 	
 	public String toString() {
@@ -468,6 +487,22 @@ public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XM
 			str += "\n" + i + ". " + prov.getName() + ": " + prov.getDataType() + enabledStr;
 		}
 		return str;
+	}
+	
+	public void addChangeListener(ChangeListener listener) {
+		if (changeListeners == null)
+			changeListeners = new ArrayList<ChangeListener>();
+		if (!changeListeners.contains(changeListeners))
+			changeListeners.add(listener);
+	}
+	
+	private void fireChangeEvent() {
+		if (changeListeners == null || changeListeners.size() == 0)
+			return;
+		ChangeEvent e = new ChangeEvent(this);
+		for (ChangeListener listener : changeListeners) {
+			listener.stateChanged(e);
+		}
 	}
 	
 	/**

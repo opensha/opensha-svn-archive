@@ -47,7 +47,7 @@ public class ArbitrarilyDiscretizedFuncTableModel extends AbstractTableModel {
 				double y = newFunc.getY(i);
 				func.set(x, y);
 			}
-			System.out.println("Update firing event");
+			if (D) System.out.println("Update firing event");
 			this.fireTableDataChanged();
 		} else {
 			if (D) {

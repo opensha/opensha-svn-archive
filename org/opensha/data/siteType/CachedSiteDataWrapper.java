@@ -22,6 +22,9 @@ import org.opensha.param.event.ParameterChangeListener;
  */
 public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, ParameterChangeListener {
 	
+	/** If true print out debug statements. */
+	protected final static boolean D = false;
+	
 	private int cacheSize;
 	private int cacheSizeMinusOne;
 	private SiteDataAPI<Element> provider;
@@ -161,7 +164,7 @@ public class CachedSiteDataWrapper<Element> implements SiteDataAPI<Element>, Par
 	}
 
 	public void parameterChange(ParameterChangeEvent event) {
-		System.out.println("Parameter changed...clearing cache!");
+		if (D) System.out.println("Parameter changed...clearing cache!");
 		this.clearCache();
 	}
 

@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.opensha.data.Location;
 import org.opensha.data.siteType.OrderedSiteDataProviderList;
@@ -25,7 +24,8 @@ import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 import org.opensha.sha.util.SiteTranslator;
 
-public class SiteDataControlPanel extends JFrame implements AttenuationRelationshipChangeListener, ActionListener {
+public class SiteDataControlPanel extends JFrame implements AttenuationRelationshipChangeListener,
+					ActionListener, ChangeListener {
 	
 	private IMR_GuiBean imrGuiBean;
 	private Site_GuiBean siteGuiBean;
@@ -62,6 +62,9 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 		mainPanel.add(dataGuiBean, BorderLayout.CENTER);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 		
+		enableButtons();
+		dataGuiBean.getProviderList().addChangeListener(this);
+		
 		this.setContentPane(mainPanel);
 		this.setSize(OrderedSiteDataGUIBean.width, 600);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -69,6 +72,7 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 
 	public void attenuationRelationshipChange(AttenuationRelationshipChangeEvent event) {
 		dataGuiBean.setAttenuationRelationship(event.getNewAttenRel());
+		enableButtons();
 	}
 	
 	public void setSiteParams() {
@@ -116,5 +120,16 @@ public class SiteDataControlPanel extends JFrame implements AttenuationRelations
 			ArrayList<SiteDataValue<?>> data = loadData(true);
 			this.displayData(data);
 		}
+	}
+	
+	private void enableButtons() {
+		boolean enable = dataGuiBean.getProviderList().isAtLeastOneEnabled();
+		setButton.setEnabled(enable);
+		viewButton.setEnabled(enable);
+	}
+
+	public void stateChanged(ChangeEvent e) {
+		if (e.getSource() == dataGuiBean.getProviderList())
+			enableButtons();
 	}
 }

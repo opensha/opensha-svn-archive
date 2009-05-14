@@ -46,7 +46,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor i
 	/** Class name for debugging. */
 	protected final static String C = "DiscretizedFuncParameterEditor";
 	/** If true print out debug statements. */
-	protected final static boolean D = true;
+	protected final static boolean D = false;
 	
 	private ArbitrarilyDiscretizedFuncTableModel tableModel;
 	private JTable table;
