@@ -41,7 +41,7 @@ public class SsS1Calculator {
   
   protected Connection conn = null;
   protected PreparedStatement query = null;
-  protected static final String STUB = "SELECT * FROM UH_DATA_2008 " +
+  protected static final String STUB = "SELECT * FROM hc_owner.HC_DATA_2008_VW " +
   		"WHERE LAT >= ? AND LAT <= ? AND LON >= ? AND LON <= ?" +
   		"ORDER BY LAT DESC, LON ASC";
   
