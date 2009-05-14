@@ -1,4 +1,4 @@
-package scratchJavaDevelopers.kevin;
+package scratchJavaDevelopers.kevin.cybershake;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,12 +13,24 @@ import org.opensha.cybershake.db.SiteInfo2DB;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 
+/**
+ * This class is used to prioritize the sites to be calculated in CyberShake. as we create the first
+ * map (April-June(ish), 2009)
+ * 
+ * @author kevin
+ *
+ */
 public class CSGridPrioritization {
 	
 	public static final int box_nx = 39;
 	public static final int box_ny = 22;
 	
 	public static final int num_grid_sites = 802;
+	
+	// multiplyer for the weight of diagonals
+	private static final double diag_scale_factor = 1.0 / Math.sqrt(2.0);
+	
+	public static final boolean allow_diags = false;
 	
 	private DBAccess db;
 	
@@ -34,6 +46,7 @@ public class CSGridPrioritization {
 	int imTypeID;
 	
 	public CSGridPrioritization(DBAccess db, boolean isProbAt_IML, double level, int imTypeID) {
+		System.out.println("DIAG SCALE: " + diag_scale_factor);
 		this.db = db;
 		site2db = new SiteInfo2DB(db);
 		curve2db = new HazardCurve2DB(db);
@@ -149,10 +162,15 @@ public class CSGridPrioritization {
 								Double diff = 0d;
 								if (diffs[x][y] != null)
 									diff = diffs[x][y];
-								String str = diff.toString();
-								while (str.length() < 4)
-									str += "0";
-								line += "[(" + str.substring(0, 4) + ")]";
+								if (diff > 0) {
+									String str = diff.toString();
+									while (str.length() < 4)
+										str += "0";
+									line += "[ " + str.substring(0, 4) + " ]";
+								}
+								else {
+									line += "[      ]";
+								}
 							}
 						}
 					}else {
@@ -233,6 +251,12 @@ public class CSGridPrioritization {
 		} else if (mat[0][2] != null && mat[4][2] != null) {
 			xDiff = Math.abs(mat[0][2] - mat[4][2]);
 			System.out.println("OUTER XDIF: " + xDiff);
+		} else if (allow_diags && mat[1][1] != null && mat[3][3] != null) {
+			xDiff = Math.abs(mat[1][1] - mat[3][3]) * diag_scale_factor;
+			System.out.println("INNER DIAG XDIF: " + xDiff);
+		} else if (allow_diags && mat[0][0] != null && mat[4][4] != null) {
+			xDiff = Math.abs(mat[0][0] - mat[4][4]) * diag_scale_factor;
+			System.out.println("OUTER DIAG XDIF: " + xDiff);
 		}
 		Double yDiff = null;
 		if (mat[2][1] != null && mat[2][3] != null) {
@@ -241,6 +265,12 @@ public class CSGridPrioritization {
 		} else if (mat[2][0] != null && mat[2][4] != null) {
 			yDiff = Math.abs(mat[2][0] - mat[2][4]);
 			System.out.println("OUTER YDIF: " + yDiff);
+		} else if (allow_diags && mat[3][1] != null && mat[1][3] != null) {
+			xDiff = Math.abs(mat[3][1] - mat[1][3]) * diag_scale_factor;
+			System.out.println("INNER DIAG YDIF: " + xDiff);
+		} else if (allow_diags && mat[0][4] != null && mat[4][0] != null) {
+			xDiff = Math.abs(mat[0][4] - mat[4][0]) * diag_scale_factor;
+			System.out.println("OUTER DIAG YDIF: " + xDiff);
 		}
 		if (xDiff == null && yDiff == null)
 			return 0;
