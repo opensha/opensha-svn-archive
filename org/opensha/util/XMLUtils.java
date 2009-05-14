@@ -15,12 +15,29 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.opensha.metadata.XMLSaveable;
 
+/**
+ * Static XML utility functions for creating XML documents, parsing XML files,
+ * and saving XML to a file.
+ * 
+ * @author kevin
+ *
+ */
 public class XMLUtils {
 	
+	/**
+	 * Default name for document root element
+	 */
 	public static String DEFAULT_ROOT_NAME="OpenSHA";
 	
 	public static OutputFormat format = OutputFormat.createPrettyPrint();
 	
+	/**
+	 * Writes an XML document to a file
+	 * 
+	 * @param fileName
+	 * @param document
+	 * @throws IOException
+	 */
 	public static void writeDocumentToFile(String fileName, Document document) throws IOException {
 		
 		XMLWriter writer;
@@ -30,6 +47,11 @@ public class XMLUtils {
 		writer.close();
 	}
 	
+	/**
+	 * Creates a new XML document with a root element.
+	 * 
+	 * @return
+	 */
 	public static Document createDocumentWithRoot() {
 		Document doc = DocumentHelper.createDocument();
 		
@@ -38,12 +60,25 @@ public class XMLUtils {
 		return doc;
 	}
 	
+	/**
+	 * Loads an XML document from a file path
+	 * 
+	 * @return XML document
+	 */
 	public static Document loadDocument(String path) throws MalformedURLException, DocumentException {
 		SAXReader read = new SAXReader();
 		
 		return read.read(new File(path));
 	}
 	
+	/**
+	 * Convenience method to write an XMLSaveable object to a file. It will be the only Element
+	 * in the XML document under the default document root. 
+	 * 
+	 * @param obj
+	 * @param fileName
+	 * @throws IOException
+	 */
 	public static void writeObjectToXMLAsRoot(XMLSaveable obj, String fileName) throws IOException {
 		Document document = createDocumentWithRoot();
 		
@@ -54,10 +89,25 @@ public class XMLUtils {
 		writeDocumentToFile(fileName, document);
 	}
 	
+	/**
+	 * Convenience method for writing a java 'Color' object to XML with the default
+	 * element name of 'Color'
+	 * 
+	 * @param parent
+	 * @param color
+	 */
 	public static void colorToXML(Element parent, Color color) {
 		colorToXML(parent, color, "Color");
 	}
 	
+	/**
+	 * Convenience method for writing a java 'Color' object to XML with the given
+	 * element name
+	 * 
+	 * @param parent
+	 * @param color
+	 * @param elName
+	 */
 	public static void colorToXML(Element parent, Color color, String elName) {
 		Element el = parent.addElement(elName);
 		el.addAttribute("r", color.getRed() + "");
@@ -66,6 +116,12 @@ public class XMLUtils {
 		el.addAttribute("a", color.getAlpha() + "");
 	}
 	
+	/**
+	 * Convenience method for loading a java 'Color' object from XML
+	 * 
+	 * @param colorEl
+	 * @return
+	 */
 	public static Color colorFromXML(Element colorEl) {
 		int r = Integer.parseInt(colorEl.attributeValue("r"));
 		int g = Integer.parseInt(colorEl.attributeValue("g"));

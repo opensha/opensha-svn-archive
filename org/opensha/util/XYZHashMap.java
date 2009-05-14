@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+/**
+ * HashMap that loads and stores the values in a Generic Mapping Tools stle XYZ files.
+ * 
+ * @author kevin
+ *
+ */
 public class XYZHashMap extends HashMap<String, Double> {
 
 	public XYZHashMap(String xyzFile) throws FileNotFoundException, IOException {

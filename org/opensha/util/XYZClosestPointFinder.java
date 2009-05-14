@@ -5,6 +5,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.data.Location;
+
+/**
+ * This class takes the path to a Generic Mapping Tools style XYZ file and loads in all of the
+ * locations and values. It then allows one to find the value from the file that is closest to
+ * a given location.
+ * 
+ * @author kevin
+ *
+ */
 public class XYZClosestPointFinder {
 	ArrayList<double[]> vals;
 	
@@ -31,10 +41,48 @@ public class XYZClosestPointFinder {
 		}
 	}
 	
+	/**
+	 * Returns the value at the closest location in the XYZ file (no matter how far
+	 * away the closest point is).
+	 * 
+	 * @param loc
+	 * @return
+	 */
+	public double getClosestVal(Location loc) {
+		return getClosestVal(loc.getLatitude(), loc.getLongitude());
+	}
+	
+	/**
+	 * Returns the value at the closest location in the XYZ file (no matter how far
+	 * away the closest point is).
+	 * 
+	 * @param lat
+	 * @param lon
+	 * @return
+	 */
 	public double getClosestVal(double lat, double lon) {
 		return getClosestVal(lat, lon, Double.MAX_VALUE);
 	}
 	
+	/**
+	 * Returns the value at the closest location in the XYZ file within a given tolerance.
+	 * 
+	 * @param loc
+	 * @param tolerance
+	 * @return
+	 */
+	public double getClosestVal(Location loc, double tolerance) {
+		return getClosestVal(loc.getLatitude(), loc.getLongitude(), tolerance);
+	}
+	
+	/**
+	 * Returns the value at the closest location in the XYZ file within a given tolerance.
+	 * 
+	 * @param lat
+	 * @param lon
+	 * @param tolerance
+	 * @return
+	 */
 	public double getClosestVal(double lat, double lon, double tolerance) {
 		double closest = Double.MAX_VALUE;
 		double closeVal = 0;
