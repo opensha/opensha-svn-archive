@@ -5,9 +5,14 @@
 BROADER ISSUES:
 --------------
 
+
+Revise IMR APIs (& convert CyberShake to this?).
+
 Develop a complete set of Junit tests for the entire project (that at least tests whether any important changes have occurred).
 
 Take "API" out of filenames
+
+Remove the use of "* in import statements (to make refactoring easier)
 
 fork project and truncate one end? (for verification purposes as we move forward)
 
@@ -27,11 +32,7 @@ Clean up contents of org.opensha.sha.gui.infoTools
 
 Figure out if commons.webservices (new location) is being used, and if so, what to do with it (e.g., are there security issues?) - Kevin will report back on this.
 
-Clean up existing EventSetDataCalc versions with the next version
-
 Implement stochastic event sets in hazard curve calculator?
-
-Revise IMR APIs (& convert CyberShake to this?).
 
 Move common parameters (including IMTs) out of abstract IMR and into a sub-directory (easier to find this way?)?
 
@@ -63,7 +64,7 @@ Need to review the new site translator class (what Kevin put together)
 
 Evaluate Kevin's implementation of site class for region web services
 
-Revise Event set data calculator (see emails)
+Revise Event set data calculator (see emails), and consolidate versions into one dir (or get rid of old versions)
 
 Codebase
 	�	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
