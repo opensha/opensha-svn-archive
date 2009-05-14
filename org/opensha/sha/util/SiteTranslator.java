@@ -840,10 +840,11 @@ implements java.io.Serializable {
 		for (SiteDataValue<?> data : datas) {
 			if (data.getDataType().equals(SiteDataAPI.TYPE_VS30)) {
 				Double vsVal = (Double)data.getValue();
-				if (vsVal < 180) {
-					param.setValue(vsVal);
+				if (isVS30ValueValid(vsVal)) {
+					param.setValue(new Boolean(vsVal < 180));
 					return true;
 				}
+				return false;
 			} else if (data.getDataType().equals(SiteDataAPI.TYPE_WILLS_CLASS)) {
 				String wc = (String)data.getValue();
 				if (wc.equals(WILLS_E))
@@ -1077,45 +1078,57 @@ implements java.io.Serializable {
 		params.add(ar.getParameter(AttenuationRelationship.DEPTH_1pt0_NAME));
 		
 		ar = new AS_1997_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME));
 		
 		ar = new CB_2003_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME));
 		
 		ar = new CS_2005_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(CS_2005_AttenRel.SOFT_SOIL_NAME));
 		
 		ar = new Campbell_1997_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "") + "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
 		params.add(ar.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME));
 		
 		ar = new DahleEtAl_1995_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(DahleEtAl_1995_AttenRel.SITE_TYPE_NAME));
 		
 		ar = new Field_2000_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME));
 		
 		ar = new SadighEtAl_1997_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
 		
 		ar = new SEA_1999_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(SEA_1999_AttenRel.SITE_TYPE_NAME));
 		
 		ar = new ShakeMap_2003_AttenRel(null);
-		attenNames += "," + ar.getName();
+		attenNames += "," + ar.getName().replaceAll(",", "");
 		params.add(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
 		
 		params.add(new StringParameter("Atten Rel Names", attenNames));
 		
 		return params;
+	}
+	
+	private String getTableValLine(ArrayList<ParameterAPI> params, SiteDataValue<?> val) {
+		String line = val.getValue() + "";
+		for (ParameterAPI param : params) {
+			boolean flag = setParameterValue(param, val);
+			if (flag)
+				line += "," + param.getValue();
+			else
+				line += ",N/A";
+		}
+		return line;
 	}
 	
 	private void generateConversionTables() throws IOException {
@@ -1139,17 +1152,14 @@ implements java.io.Serializable {
 		fw.write(attenTitles + "\n");
 		fw.write(paramNames + "\n");
 		
-		for (double vs30=170d; vs30<1000d; vs30+=10d) {
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+		SiteDataValue<?> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+				SiteDataAPI.TYPE_FLAG_INFERRED, Double.NaN);
+		String line = getTableValLine(params, val);
+		fw.write(line + "\n");
+		for (double vs30=150d; vs30<1000d; vs30+=10d) {
+			val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
 					SiteDataAPI.TYPE_FLAG_INFERRED, vs30);
-			String line = vs30 + "";
-			for (ParameterAPI param : params) {
-				boolean flag = setParameterValue(param, val);
-				if (flag)
-					line += "," + param.getValue();
-				else
-					line += ",N/A";
-			}
+			line = getTableValLine(params, val);
 			fw.write(line + "\n");
 		}
 		fw.write(empty + "\n");
@@ -1157,17 +1167,14 @@ implements java.io.Serializable {
 		fw.write("Wills Class" + empty.substring(1) + "\n");
 		fw.write(attenTitles + "\n");
 		fw.write(paramNames + "\n");
+		val = new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
+				SiteDataAPI.TYPE_FLAG_INFERRED, "NA");
+		line = getTableValLine(params, val);
+		fw.write(line + "\n");
 		for (String wills : wills_vs30_map.keySet()) {
-			SiteDataValue<String> val = new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
+			val = new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
 					SiteDataAPI.TYPE_FLAG_INFERRED, wills);
-			String line = wills + "";
-			for (ParameterAPI param : params) {
-				boolean flag = setParameterValue(param, val);
-				if (flag)
-					line += "," + param.getValue();
-				else
-					line += ",N/A";
-			}
+			line = getTableValLine(params, val);
 			fw.write(line + "\n");
 		}
 		fw.write(empty + "\n");
@@ -1175,17 +1182,14 @@ implements java.io.Serializable {
 		fw.write("Depth to Vs=2.5" + empty.substring(1) + "\n");
 		fw.write(attenTitles + "\n");
 		fw.write(paramNames + "\n");
+		val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
+				SiteDataAPI.TYPE_FLAG_INFERRED, Double.NaN);
+		line = getTableValLine(params, val);
+		fw.write(line + "\n");
 		for (double depth2_5=0d; depth2_5<3d; depth2_5+=0.1d) {
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
+			val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
 					SiteDataAPI.TYPE_FLAG_INFERRED, depth2_5);
-			String line = (float)depth2_5 + "";
-			for (ParameterAPI param : params) {
-				boolean flag = setParameterValue(param, val);
-				if (flag)
-					line += "," + param.getValue();
-				else
-					line += ",N/A";
-			}
+			line = getTableValLine(params, val);
 			fw.write(line + "\n");
 		}
 		fw.write(empty + "\n");
@@ -1193,17 +1197,14 @@ implements java.io.Serializable {
 		fw.write("Depth to Vs=1.0" + empty.substring(1) + "\n");
 		fw.write(attenTitles + "\n");
 		fw.write(paramNames + "\n");
+		val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_1_0,
+				SiteDataAPI.TYPE_FLAG_INFERRED, Double.NaN);
+		line = getTableValLine(params, val);
+		fw.write(line + "\n");
 		for (double depth1_0=0d; depth1_0<3d; depth1_0+=0.1d) {
-			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_1_0,
+			val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_1_0,
 					SiteDataAPI.TYPE_FLAG_INFERRED, depth1_0);
-			String line = (float)depth1_0 + "";
-			for (ParameterAPI param : params) {
-				boolean flag = setParameterValue(param, val);
-				if (flag)
-					line += "," + param.getValue();
-				else
-					line += ",N/A";
-			}
+			line = getTableValLine(params, val);
 			fw.write(line + "\n");
 		}
 		fw.write(empty + "\n");
