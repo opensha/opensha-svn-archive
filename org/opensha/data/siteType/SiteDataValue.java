@@ -10,28 +10,28 @@ package org.opensha.data.siteType;
  */
 public class SiteDataValue<Element> {
 	
-	private String type;
-	private String flag;
+	private String dataType;
+	private String dataMeasurementType;
 	private Element value;
 	private String sourceName = null;
 
-	public SiteDataValue(String type, String flag, Element value) {
-		this(type, flag, value, null);
+	public SiteDataValue(String dataType, String dataMeasurementType, Element value) {
+		this(dataType, dataMeasurementType, value, null);
 	}
 	
-	public SiteDataValue(String type, String flag, Element value, String sourceName) {
-		this.type = type;
-		this.flag = flag;
+	public SiteDataValue(String dataType, String dataMeasurementType, Element value, String sourceName) {
+		this.dataType = dataType;
+		this.dataMeasurementType = dataMeasurementType;
 		this.value = value;
 		this.sourceName = sourceName;
 	}
 	
 	public String getDataType() {
-		return type;
+		return dataType;
 	}
 
 	public String getDataMeasurementType() {
-		return flag;
+		return dataMeasurementType;
 	}
 
 	public Element getValue() {
@@ -44,7 +44,7 @@ public class SiteDataValue<Element> {
 
 	@Override
 	public String toString() {
-		String str = "Type: " + type + ", Flag: " + flag + ", Value: " + value;
+		String str = "Type: " + dataType + ", Measurement Type: " + dataMeasurementType + ", Value: " + value;
 		if (sourceName != null)
 			str += ", Source: " + sourceName;
 		return str;

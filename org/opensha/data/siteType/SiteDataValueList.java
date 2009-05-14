@@ -25,8 +25,8 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	
 	public static final String XML_METADATA_NAME = "SiteDataValueList";
 	
-	private String type;
-	private String flag;
+	private String dataType;
+	private String dataMeasurementType;
 	private ArrayList<E> values;
 	private String sourceName = null;
 	private LocationList locs = null;
@@ -39,13 +39,15 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 		this(source.getDataType(), source.getDataMeasurementType(), values, source.getName(), locs);
 	}
 	
-	public SiteDataValueList(String type, String flag, ArrayList<E> values, String sourceName) {
-		this(type, flag, values, sourceName, null);
+	public SiteDataValueList(String dataType, String dataMeasurementType,
+								ArrayList<E> values, String sourceName) {
+		this(dataType, dataMeasurementType, values, sourceName, null);
 	}
 	
-	public SiteDataValueList(String type, String flag, ArrayList<E> values, String sourceName, LocationList locs) {
-		this.type = type;
-		this.flag = flag;
+	public SiteDataValueList(String dataType, String dataMeasurementType,
+								ArrayList<E> values, String sourceName, LocationList locs) {
+		this.dataType = dataType;
+		this.dataMeasurementType = dataMeasurementType;
 		this.values = values;
 		this.sourceName = sourceName;
 		this.locs = locs;
@@ -60,11 +62,11 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	}
 	
 	public String getType() {
-		return type;
+		return dataType;
 	}
 
 	public String getFlag() {
-		return flag;
+		return dataMeasurementType;
 	}
 	
 	/**
@@ -74,7 +76,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 	 * @return
 	 */
 	public SiteDataValue<E> getValue(int index) {
-		return new SiteDataValue<E>(type, flag, values.get(index), sourceName);
+		return new SiteDataValue<E>(dataType, dataMeasurementType, values.get(index), sourceName);
 	}
 	
 	public Location getLocationAt(int index) {
@@ -114,7 +116,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 
 	@Override
 	public String toString() {
-		String str = "Type: " + type + ", Flag: " + flag + ", Num: " + values.size();
+		String str = "Type: " + dataType + ", Measurement Type: " + dataMeasurementType + ", Num: " + values.size();
 		if (sourceName != null)
 			str += ", Source: " + sourceName;
 		return str;
@@ -180,7 +182,7 @@ public class SiteDataValueList<E> implements XMLSaveable, Serializable {
 					continue;
 			} else if (val instanceof String) {
 				String sVal = (String)val;
-				if (type.equals(SiteDataAPI.TYPE_VS30)) {
+				if (dataType.equals(SiteDataAPI.TYPE_VS30)) {
 					if (sVal.equals("NA"))
 						continue;
 				} else {
