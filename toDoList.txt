@@ -11,7 +11,15 @@ Take "API" out of filenames
 
 fork project and truncate one end? (for verification purposes as we move forward)
 
-Merge contents of org.nshmp (new location) into the rest of the project
+Merge contents of org.nshmp (new location) into the rest of the project.  Eric says he's not using the following:
+
+	nshmp.sha.calc.remote.api.*
+	nshmp.sha.calc.remote.*
+	nshmp.sha.gui.beans.NFPA_GuiBean.java
+	nshmp.sha.nico.*
+	nshmp.sha.pager.*
+	nshmp.util.AppConfigurer.java
+
 
 Figure out where to put org.opensha.refFaultParamDb
 
@@ -58,42 +66,42 @@ Evaluate Kevin's implementation of site class for region web services
 Revise Event set data calculator (see emails)
 
 Codebase
-	¥	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
+	ï¿½	Extract tools to scec-commons or eq-commons (domain? org.scec.commons.[ui | 
 		math |  calc | utils | io]); Extract db connections to common util class??
-	¥	Review parameter framework
-	¥	Revise exception handling
-	¥	Use enums where applicable (e.g. fault_type and std_dev in IMR) - Peter will 
+	ï¿½	Review parameter framework
+	ï¿½	Revise exception handling
+	ï¿½	Use enums where applicable (e.g. fault_type and std_dev in IMR) - Peter will 
 		explain and propose something
-	¥	Clear out Sys.out.println and use of C & D for naming/debugging ... use logging 
+	ï¿½	Clear out Sys.out.println and use of C & D for naming/debugging ... use logging 
 		with warn levels.  Peter will propose something
-	¥	Improve common editors (e.g. string, double, editors); handle warning param better.
-	¥	Survey other custom editors for possible improvements (e.g. Rupture Editor)
-	¥	Move to Java WebStart and/or bundled applications
-	¥	Better integration of threading and use of wait-cursor
-	¥	Persistence framework that does not require explicit read/write XML in each class
-	¥	Code Formatting - 4 space indent
-	¥	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
-	¥	Alternative to nnls in more recent math package
-	¥	Upgrade to JFreeChart current version; buy dev guide.
-	¥	Evaluate move to Maven for build process (jar files etc)
-	¥	Define potential broader structure for OpenSHA OpenRisk commons.
+	ï¿½	Improve common editors (e.g. string, double, editors); handle warning param better.
+	ï¿½	Survey other custom editors for possible improvements (e.g. Rupture Editor)
+	ï¿½	Move to Java WebStart and/or bundled applications
+	ï¿½	Better integration of threading and use of wait-cursor
+	ï¿½	Persistence framework that does not require explicit read/write XML in each class
+	ï¿½	Code Formatting - 4 space indent
+	ï¿½	Use correct modifiers (public protected private (e.g. HazardCurveCalculator)
+	ï¿½	Alternative to nnls in more recent math package
+	ï¿½	Upgrade to JFreeChart current version; buy dev guide.
+	ï¿½	Evaluate move to Maven for build process (jar files etc)
+	ï¿½	Define potential broader structure for OpenSHA OpenRisk commons.
 
 Documentation
-	¥	Map/UML of each calculator/application
-	¥	Leave no public method uncommented
-	¥	Check, edit, or provide explicit description of major class hierarchies (e.g. IMR-AttRel, ERF)
-	¥	No black boxes
+	ï¿½	Map/UML of each calculator/application
+	ï¿½	Leave no public method uncommented
+	ï¿½	Check, edit, or provide explicit description of major class hierarchies (e.g. IMR-AttRel, ERF)
+	ï¿½	No black boxes
 
 Web
-	¥	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
-	¥	Use Drupal, Django, or other for user site?
-	¥	Better user/download tracking
+	ï¿½	Requirements for content of user site (e.g. demos, tutorial, any technical documentation?)
+	ï¿½	Use Drupal, Django, or other for user site?
+	ï¿½	Better user/download tracking
 
 Other notes
-	¥	ArbitrarilyDiscretizedFunction - can this be DiscritizedFunction with isUniform() method?
-	¥	Review overlap between sha.fault and sha.surface
-	¥	Review PropogationEffect
-	¥	Fix ArbDiscretizedXYZ_dataSet ??
+	ï¿½	ArbitrarilyDiscretizedFunction - can this be DiscritizedFunction with isUniform() method?
+	ï¿½	Review overlap between sha.fault and sha.surface
+	ï¿½	Review PropogationEffect
+	ï¿½	Fix ArbDiscretizedXYZ_dataSet ??
 
 
 Make email lists for the following (with on-line archives):
