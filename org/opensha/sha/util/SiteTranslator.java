@@ -1,5 +1,7 @@
 package org.opensha.sha.util;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,80 +24,10 @@ import org.opensha.sha.imr.attenRelImpl.*;
  * <LI> Basin-Depth-2.5 (the depth in m where the shear-wave velocity equals 2.5 km/sec)
  * <LI> Basin-Depth-1.0 (the depth in m where the shear-wave velocity equals 1.0 km/sec)
  * </UL>
- * <p>The conversions from the Wills Site Types (E, DE, D, CD, C, BC, B) and basin-depth
- * are given below (NA means nothing is set).  All of these translations were authorized
- * by the attenuation-rlationship authors (except for Sadigh, who used a dataset similar
- * to Abrahamson & Silve (1997) so that translation is applied).  The main method tests
- * the translations of all currently implemented attenuation-relationship site-related
- * parameters.<p>
- *
- *
- * AS_1997_AttenRel.SITE_TYPE_NAME (Abrahamson & Silva (1997) & Abrahamson (2000))<p>
- * <UL>
- * <LI> NA 				if E
- * <LI> Deep-Soil			if DE, D, or CD
- * <LI> Rock/Shallow-Soil		if C, BC, or B
- * </UL>
- *
- * SCEMY_1997_AttenRel.SITE_TYPE_NAME (Sadigh et al. (1997)):<p>
- * <UL>
- * <LI> NA 				if E
- * <LI> Deep-Soil			if DE, D, or CD
- * <LI> Rock		                if C, BC, or B
- * </UL>
- *
- * AttenuationRelationship.VS30_NAME (Boore et al. (1997) & Field (2000))<p>
- * <LI> <UL>
- * <LI> Vs30 = NA			if E
- * <LI> Vs30 = 180			if DE
- * <LI> Vs30 = 270			if D
- * <LI> Vs30 = 360			if CD
- * <LI> Vs30 = 560			if C
- * <LI> Vs30 = 760			if BC
- * <LI> Vs30 = 1000			if B
- * <LI> </UL>
- *
- * Campbell_1997_AttenRel.SITE_TYPE_NAME (Campbell (1997))<p>
- * <UL>
- * <LI> NA 				if E
- * <LI> Firm-Soil			if DE, D, or CD
- * <LI> Soft-Rock			if C
- * <LI> Hard-Rock			if BC or B
- * </UL>
- *
- * Campbell_1997_AttenRel.BASIN_DEPTH_NAME (Campbell (1997))<p>
- * <UL>
- * <LI> Campbell-Basin-Depth = NaN      if E
- * <LI> Campbell-Basin-Depth = 0.0      if B or BC
- * <LI> Campbell-Basin-Depth = 1.0      if C
- * <LI> Campbell-Basin-Depth = 5.0      if CD, D, or DE
- * </UL>
- *
- * Field_2000_AttenRel.BASIN_DEPTH_NAME (Field (2000))<p>
- * <UL>
- * <LI> Basin-Depth-2.5 = Basin-Depth-2.5
- * </UL>
- *
- * CB_2003_AttenRel.SITE_TYPE_NAME (Campbell & Bozorgnia (2003))<p>
- * <UL>
- * <LI> NA 			if E
- * <LI> Firm-Soil		if DE or D
- * <LI> Very-Firm-Soil	        if CD
- * <LI> Soft-Rock		if C
- * <LI> BC-Bounday              if BC
- * <LI> Firm-Rock		if B�
- * </UL>
- *
- * ShakeMap_2003_AttenRel.WILLS_SITE_NAME (ShakeMap (2003))<p>
- * <LI> <UL>
- * <LI> E                      if E
- * <LI> DE                     if DE
- * <LI> D                      if D
- * <LI> CD                     if CD
- * <LI> C                      if C
- * <LI> BC                     if BC
- * <LI> B                      if B
- * </UL>
+ * <p>All of these translations were authorizedby the attenuation-rlationship authors
+ * (except for Sadigh, who used a dataset similar to Abrahamson & Silve (1997) so that
+ * translation is applied).  The main method tests the translations of all currently
+ * implemented attenuation-relationship site-related parameters.<p>
  *
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -706,6 +638,8 @@ implements java.io.Serializable {
 				}
 			} else if (data.getDataType().equals(SiteDataAPI.TYPE_DEPTH_TO_2_5)) {
 				Double depth = (Double)data.getValue();
+				if (depth.isNaN())
+					return false;
 				param.setValue(depth);
 				return true;
 			}
@@ -1126,14 +1060,167 @@ implements java.io.Serializable {
 			System.out.println("\t" + WILLS_E + " --> " + "*** can't set ***");
 		}
 	}
+	
+	private ArrayList<ParameterAPI> getTableParameters() {
+		ArrayList<ParameterAPI> params = new ArrayList<ParameterAPI>();
+		
+		String attenNames = "";
+		
+		AttenuationRelationship ar;
+		ar = new CB_2008_AttenRel(null);
+		attenNames += ",(multiple),(multiple)";
+		params.add(ar.getParameter(AttenuationRelationship.VS30_NAME));
+		params.add(ar.getParameter(AttenuationRelationship.DEPTH_2pt5_NAME));
+		
+		ar = new CY_2008_AttenRel(null);
+		attenNames += ",(multiple)";
+		params.add(ar.getParameter(AttenuationRelationship.DEPTH_1pt0_NAME));
+		
+		ar = new AS_1997_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME));
+		
+		ar = new CB_2003_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME));
+		
+		ar = new CS_2005_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(CS_2005_AttenRel.SOFT_SOIL_NAME));
+		
+		ar = new Campbell_1997_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
+		params.add(ar.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME));
+		
+		ar = new DahleEtAl_1995_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(DahleEtAl_1995_AttenRel.SITE_TYPE_NAME));
+		
+		ar = new Field_2000_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME));
+		
+		ar = new SadighEtAl_1997_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(SadighEtAl_1997_AttenRel.SITE_TYPE_NAME));
+		
+		ar = new SEA_1999_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(SEA_1999_AttenRel.SITE_TYPE_NAME));
+		
+		ar = new ShakeMap_2003_AttenRel(null);
+		attenNames += "," + ar.getName();
+		params.add(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
+		
+		params.add(new StringParameter("Atten Rel Names", attenNames));
+		
+		return params;
+	}
+	
+	private void generateConversionTables() throws IOException {
+		ArrayList<ParameterAPI> params = getTableParameters();
+		
+		// the last one here is just a string param with the names of the atten rels.
+		// get the value then remove it from the list.
+		
+		String attenTitles = (String)(params.remove(params.size() - 1).getValue());
+		
+		FileWriter fw = new FileWriter("siteTrans.csv");
+		
+		
+		String empty = "";
+		String paramNames = "";
+		for (ParameterAPI param : params) {
+			paramNames += "," + param.getName();
+			empty += ",";
+		}
+		fw.write("Vs30" + empty.substring(1) + "\n");
+		fw.write(attenTitles + "\n");
+		fw.write(paramNames + "\n");
+		
+		for (double vs30=170d; vs30<1000d; vs30+=10d) {
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_VS30,
+					SiteDataAPI.TYPE_FLAG_INFERRED, vs30);
+			String line = vs30 + "";
+			for (ParameterAPI param : params) {
+				boolean flag = setParameterValue(param, val);
+				if (flag)
+					line += "," + param.getValue();
+				else
+					line += ",N/A";
+			}
+			fw.write(line + "\n");
+		}
+		fw.write(empty + "\n");
+		
+		fw.write("Wills Class" + empty.substring(1) + "\n");
+		fw.write(attenTitles + "\n");
+		fw.write(paramNames + "\n");
+		for (String wills : wills_vs30_map.keySet()) {
+			SiteDataValue<String> val = new SiteDataValue<String>(SiteDataAPI.TYPE_WILLS_CLASS,
+					SiteDataAPI.TYPE_FLAG_INFERRED, wills);
+			String line = wills + "";
+			for (ParameterAPI param : params) {
+				boolean flag = setParameterValue(param, val);
+				if (flag)
+					line += "," + param.getValue();
+				else
+					line += ",N/A";
+			}
+			fw.write(line + "\n");
+		}
+		fw.write(empty + "\n");
+		
+		fw.write("Depth to Vs=2.5" + empty.substring(1) + "\n");
+		fw.write(attenTitles + "\n");
+		fw.write(paramNames + "\n");
+		for (double depth2_5=0d; depth2_5<3d; depth2_5+=0.1d) {
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_2_5,
+					SiteDataAPI.TYPE_FLAG_INFERRED, depth2_5);
+			String line = (float)depth2_5 + "";
+			for (ParameterAPI param : params) {
+				boolean flag = setParameterValue(param, val);
+				if (flag)
+					line += "," + param.getValue();
+				else
+					line += ",N/A";
+			}
+			fw.write(line + "\n");
+		}
+		fw.write(empty + "\n");
+		
+		fw.write("Depth to Vs=1.0" + empty.substring(1) + "\n");
+		fw.write(attenTitles + "\n");
+		fw.write(paramNames + "\n");
+		for (double depth1_0=0d; depth1_0<3d; depth1_0+=0.1d) {
+			SiteDataValue<Double> val = new SiteDataValue<Double>(SiteDataAPI.TYPE_DEPTH_TO_1_0,
+					SiteDataAPI.TYPE_FLAG_INFERRED, depth1_0);
+			String line = (float)depth1_0 + "";
+			for (ParameterAPI param : params) {
+				boolean flag = setParameterValue(param, val);
+				if (flag)
+					line += "," + param.getValue();
+				else
+					line += ",N/A";
+			}
+			fw.write(line + "\n");
+		}
+		fw.write(empty + "\n");
+		
+		fw.close();
+	}
 
 	/**
 	 * This main method tests the translation of all currently implemented attenuation
 	 * relationship site-dependent parameters.
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String args[]) {
+	public static void main(String args[]) throws IOException {
 		SiteTranslator siteTrans = new SiteTranslator();
+		
+		siteTrans.generateConversionTables();
 
 		AttenuationRelationship ar;
 		ar = new AS_1997_AttenRel(null);
