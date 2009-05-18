@@ -2,7 +2,8 @@ package org.opensha.tests.calc;
 
 import junit.framework.TestCase;
 import java.text.DecimalFormat;
-import org.opensha.calc.GaussianDistCalc;
+
+import org.opensha.commons.calc.GaussianDistCalc;
 /**
  * <p>Title: TestGaussianDistCalc.java </p>
  * <p>Description: Tests the GaussianDistCalc class functions </p>

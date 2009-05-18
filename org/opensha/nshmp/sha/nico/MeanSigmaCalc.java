@@ -21,7 +21,9 @@ import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.*;
 import java.rmi.RemoteException;
-import org.opensha.calc.RelativeLocation;
+
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.text.DecimalFormat;
 
 /**

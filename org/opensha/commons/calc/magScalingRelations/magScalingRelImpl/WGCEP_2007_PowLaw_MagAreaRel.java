@@ -1,21 +1,22 @@
-package org.opensha.calc.magScalingRelations.magScalingRelImpl;
+package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 import org.opensha.calc.magScalingRelations.*;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 
 /**
- * <b>Title:</b>Somerville_2006_MagAreaRel<br>
+ * <b>Title:</b>Ellsworth_A_WG02_MagAreaRel<br>
  *
- * <b>Description:</b>  This implements the "Somerville (2006) Mag-Area Rel." 
- * published ?????.  The equation is Mag=3.98+log10(Area).<p>
+ * <b>Description:</b>  This implements Ross Stein's powerlaw fit that he made for 
+ * WGCEP 2007.(Appendix D).  The equation is Mag=4.2775*A^0.0726.<p>
  *
  * @author Edward H. Field
  * @version 1.0
  */
 
-public class Somerville_2006_MagAreaRel extends MagAreaRelationship {
+public class WGCEP_2007_PowLaw_MagAreaRel extends MagAreaRelationship {
 
-    final static String C = "Somerville_2006_MagAreaRel";
-    public final static String NAME = "Somerville (2006)";
+    final static String C = "WGCEP_2007_PowLaw_MagAreaRel";
+    public final static String NAME = "WGCEP (2007) power law";
 
     /**
      * Computes the median magnitude from rupture area.
@@ -23,7 +24,7 @@ public class Somerville_2006_MagAreaRel extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-    		return  3.98 + Math.log(area)*lnToLog;
+    		return 4.2775*Math.pow(area, 0.0726);
     }
 
     /**
@@ -38,7 +39,7 @@ public class Somerville_2006_MagAreaRel extends MagAreaRelationship {
      * @return median area in km
      */
     public double getMedianArea(double mag){
-          return Math.pow(10.0,mag-3.98);
+          return Math.pow(mag/4.2775,1.0/0.0726);
    }
 
     /**

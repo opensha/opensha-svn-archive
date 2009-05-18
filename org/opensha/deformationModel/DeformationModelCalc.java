@@ -2,7 +2,7 @@ package org.opensha.deformationModel;
 
 import java.util.ArrayList;
 
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.Location;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.EvenlyDiscretizedFunc;

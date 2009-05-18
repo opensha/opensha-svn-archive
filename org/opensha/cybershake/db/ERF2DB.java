@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;
 import org.opensha.cybershake.openshaAPIs.CyberShakeProbEqkSource;

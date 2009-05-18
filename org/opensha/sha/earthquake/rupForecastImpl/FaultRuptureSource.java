@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;

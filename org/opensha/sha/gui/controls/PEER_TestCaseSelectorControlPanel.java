@@ -22,7 +22,7 @@ import org.opensha.data.*;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.awt.*;
 import javax.swing.*;

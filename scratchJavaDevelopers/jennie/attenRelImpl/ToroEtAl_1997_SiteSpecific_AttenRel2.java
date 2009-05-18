@@ -3,7 +3,7 @@ package scratchJavaDevelopers.jennie.attenRelImpl;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import org.opensha.calc.GaussianDistCalc;
+import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.data.*;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.*;

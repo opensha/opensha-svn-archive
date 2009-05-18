@@ -1,4 +1,4 @@
-package org.opensha.calc;
+package org.opensha.commons.calc;
 
 import org.opensha.data.function.*;
 

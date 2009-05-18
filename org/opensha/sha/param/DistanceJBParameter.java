@@ -8,7 +8,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 /**
  * <b>Title:</b> DistanceJBParameter<p>

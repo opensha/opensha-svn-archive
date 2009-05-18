@@ -20,11 +20,13 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfFromSimpleFaultData;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.*;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
+import org.opensha.commons.calc.nnls.NNLSWrapper;
 
 //import cj.math.nnls.NNLSWrapper;
-import nnls.NNLSWrapper;
 
 
 /**

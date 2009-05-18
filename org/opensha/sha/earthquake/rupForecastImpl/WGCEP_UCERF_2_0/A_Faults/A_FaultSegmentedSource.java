@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.opensha.calc.FaultMomentCalc;
-import org.opensha.calc.MomentMagCalc;
-import org.opensha.calc.RelativeLocation;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.Site;

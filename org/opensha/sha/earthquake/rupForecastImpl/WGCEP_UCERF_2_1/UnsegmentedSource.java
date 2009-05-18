@@ -15,8 +15,11 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 
 /**

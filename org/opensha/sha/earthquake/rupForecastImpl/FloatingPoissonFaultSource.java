@@ -6,7 +6,10 @@ import java.util.Iterator;
 import org.opensha.calc.magScalingRelations.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
+import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 

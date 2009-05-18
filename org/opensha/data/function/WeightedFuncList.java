@@ -2,7 +2,7 @@ package org.opensha.data.function;
 
 import java.util.*;
 
-import org.opensha.calc.FractileCurveCalculator;
+import org.opensha.commons.calc.FractileCurveCalculator;
 
 /**
  * <p>Title: WeightedFuncList</p>

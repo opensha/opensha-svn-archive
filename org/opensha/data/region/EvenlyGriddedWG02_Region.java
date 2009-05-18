@@ -2,7 +2,7 @@
  * 
  */
 package org.opensha.data.region;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 
 import org.opensha.data.Location;

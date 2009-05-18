@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.opensha.param.*;
-import org.opensha.calc.MomentMagCalc;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.util.*;
 import org.opensha.data.Location;
 import org.opensha.sha.faultSurface.*;

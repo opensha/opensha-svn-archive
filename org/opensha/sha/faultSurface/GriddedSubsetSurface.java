@@ -3,7 +3,7 @@ package org.opensha.sha.faultSurface;
 import java.util.*;
 import org.opensha.exceptions.LocationException;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 /**
  * <b>Title:</b> GriddedSubsetSurface<p>

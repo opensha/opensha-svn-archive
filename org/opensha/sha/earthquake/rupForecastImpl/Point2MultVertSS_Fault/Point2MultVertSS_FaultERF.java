@@ -7,7 +7,7 @@ import org.opensha.param.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 
 
 /**

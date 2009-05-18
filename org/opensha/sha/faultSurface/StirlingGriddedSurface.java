@@ -3,7 +3,7 @@ package org.opensha.sha.faultSurface;
 import java.util.*;
 
 
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.exceptions.*;
 import org.opensha.data.*;
 

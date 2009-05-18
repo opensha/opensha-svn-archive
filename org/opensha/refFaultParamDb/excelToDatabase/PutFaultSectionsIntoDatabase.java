@@ -23,7 +23,8 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import org.opensha.calc.RelativeLocation;
+
+import org.opensha.commons.calc.RelativeLocation;
 
 /**
  * <p>Title: PutFaultSectionsIntoDatabase.java </p>

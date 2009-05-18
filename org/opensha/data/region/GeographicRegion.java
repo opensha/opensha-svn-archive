@@ -6,7 +6,7 @@ import java.awt.Polygon;
 import org.dom4j.Element;
 import org.opensha.data.*;
 import org.opensha.metadata.XMLSaveable;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 /**
  * <p>Title: GeographicRegion </p>

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.opensha.param.*;
-import org.opensha.calc.MomentMagCalc;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
@@ -24,6 +23,8 @@ import org.opensha.exceptions.FaultException;
 import org.opensha.data.TimeSpan;
 import org.opensha.data.region.*;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>

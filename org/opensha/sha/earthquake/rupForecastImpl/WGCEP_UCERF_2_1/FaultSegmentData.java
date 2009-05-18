@@ -6,7 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.calc.FaultMomentCalc;
+import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.SegRateConstraint;
 import org.opensha.sha.faultSurface.SimpleFaultData;

@@ -5,7 +5,7 @@ package org.opensha.sha.faultSurface;
 
 import java.util.ArrayList;
 
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.Direction;
 import org.opensha.data.Location;
 

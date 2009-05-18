@@ -1,7 +1,6 @@
 package org.opensha.sha.earthquake.rupForecastImpl;
 
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.calc.magScalingRelations.*;
@@ -10,6 +9,12 @@ import java.util.ArrayList;
 
 // temp for testing
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
+import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 
 /**
  * <p>Title: Point2MultVertSS_FaultSource </p>

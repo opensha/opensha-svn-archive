@@ -21,7 +21,8 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 
 import java.io.*;
 import org.opensha.data.Location;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.net.URL;
 import org.opensha.data.XYZ_DataSetAPI;
 import java.net.URLConnection;

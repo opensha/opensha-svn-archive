@@ -1,5 +1,5 @@
 package org.opensha.data.estimate;
-import org.opensha.calc.GaussianDistCalc;
+import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.EvenlyDiscretizedFunc;

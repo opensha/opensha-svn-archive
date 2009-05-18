@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.sha.earthquake.*;
 
 

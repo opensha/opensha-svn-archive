@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.Iterator;
 
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.data.TimeSpan;
 import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;

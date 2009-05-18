@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.calc.MomentMagCalc;
+import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.Location;

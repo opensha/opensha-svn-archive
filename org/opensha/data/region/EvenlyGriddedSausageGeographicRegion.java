@@ -6,8 +6,8 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import java.util.ArrayList;
 import org.opensha.data.Direction;
-import org.opensha.calc.RelativeLocation;
-import java.io.FileWriter;
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.io.*;
 
 

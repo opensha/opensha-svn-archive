@@ -3,7 +3,7 @@ package scratchJavaDevelopers.matt.calc;
 import java.util.*;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;

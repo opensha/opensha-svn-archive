@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.metadata.XMLSaveable;
 

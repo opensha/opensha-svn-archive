@@ -4,6 +4,9 @@ import org.opensha.util.FileUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.calc.*;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+
 import java.util.*;
 import java.io.*;
 

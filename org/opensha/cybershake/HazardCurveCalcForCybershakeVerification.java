@@ -17,7 +17,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 import java.util.ListIterator;
 import org.opensha.data.Location;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 
 /**

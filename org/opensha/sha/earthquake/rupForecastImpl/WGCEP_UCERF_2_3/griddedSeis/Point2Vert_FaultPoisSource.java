@@ -3,14 +3,14 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.griddedSeis;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.*;
 import org.opensha.data.function.*;
-import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
-import org.opensha.calc.magScalingRelations.MagLengthRelationship;
 
 // temp for testing
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 
 import java.util.ArrayList;
 import java.util.Iterator;

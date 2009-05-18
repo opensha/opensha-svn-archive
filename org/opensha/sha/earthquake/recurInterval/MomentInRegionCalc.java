@@ -5,7 +5,7 @@ package org.opensha.sha.earthquake.recurInterval;
 
 import java.util.Iterator;
 
-import org.opensha.calc.MomentMagCalc;
+import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.GeographicRegion;

@@ -17,6 +17,8 @@ import java.util.Iterator;
 
 
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.TimeSpan;

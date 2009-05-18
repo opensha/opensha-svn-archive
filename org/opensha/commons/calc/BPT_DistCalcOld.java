@@ -1,4 +1,4 @@
-package org.opensha.calc;
+package org.opensha.commons.calc;
 
 //The following are needed only for the tests
 import java.text.DecimalFormat;

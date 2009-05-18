@@ -1,21 +1,24 @@
-package org.opensha.calc.magScalingRelations.magScalingRelImpl;
+package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 import org.opensha.calc.magScalingRelations.*;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 
 /**
  * <b>Title:</b>Ellsworth_A_WG02_MagAreaRel<br>
  *
- * <b>Description:</b>  This implements Ross Stein's powerlaw fit that he made for 
- * WGCEP 2007.(Appendix D).  The equation is Mag=4.2775*A^0.0726.<p>
+ * <b>Description:</b>  This implements the "Ellsworth-A Mag-Area Rel." 
+ * published as Equation 4.5a in WGCEP-2002 
+ * (http://pubs.usgs.gov/of/2003/of03-214/WG02_OFR-03-214_Chapter4.pdf).
+ * The equation is Mag=4.1+log10(Area).<p>
  *
  * @author Edward H. Field
  * @version 1.0
  */
 
-public class WGCEP_2007_PowLaw_MagAreaRel extends MagAreaRelationship {
+public class Ellsworth_A_WG02_MagAreaRel extends MagAreaRelationship {
 
-    final static String C = "WGCEP_2007_PowLaw_MagAreaRel";
-    public final static String NAME = "WGCEP (2007) power law";
+    final static String C = "Ellsworth_A_WG02_MagAreaRel";
+    public final static String NAME = "Ellsworth-A (WGCEP, 2002, Eq 4.5a)";
 
     /**
      * Computes the median magnitude from rupture area.
@@ -23,14 +26,14 @@ public class WGCEP_2007_PowLaw_MagAreaRel extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-    		return 4.2775*Math.pow(area, 0.0726);
+    		return  4.1 + Math.log(area)*lnToLog;
     }
 
     /**
      * Gives the standard deviation for magnitude
      * @return standard deviation
      */
-    public double getMagStdDev(){ return Double.NaN;}
+    public double getMagStdDev(){ return 0.12;}
 
     /**
      * Computes the median rupture area from magnitude
@@ -38,7 +41,7 @@ public class WGCEP_2007_PowLaw_MagAreaRel extends MagAreaRelationship {
      * @return median area in km
      */
     public double getMedianArea(double mag){
-          return Math.pow(mag/4.2775,1.0/0.0726);
+          return Math.pow(10.0,mag-4.1);
    }
 
     /**

@@ -34,7 +34,7 @@ import org.opensha.data.function.DiscretizedFuncList;
 import org.opensha.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.calc.FractileCurveCalculator;
+import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.beans.HazardDataSiteSelectionGuiBean;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;

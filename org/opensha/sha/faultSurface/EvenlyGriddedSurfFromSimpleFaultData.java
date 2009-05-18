@@ -7,7 +7,7 @@ import java.util.ListIterator;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import org.opensha.util.FaultUtils;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.Location;
 import java.io.IOException;
 

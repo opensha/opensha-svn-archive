@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.*;
 import org.opensha.data.function.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 

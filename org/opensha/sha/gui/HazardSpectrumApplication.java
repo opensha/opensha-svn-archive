@@ -33,7 +33,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-import org.opensha.calc.FractileCurveCalculator;
+import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.data.Site;
 
 /**

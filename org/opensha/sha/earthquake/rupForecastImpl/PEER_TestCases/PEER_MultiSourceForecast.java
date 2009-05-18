@@ -16,7 +16,9 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.magdist.*;
 
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 
 /**

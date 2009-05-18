@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
-import org.opensha.calc.ArcsecondConverter;
+import org.opensha.commons.calc.ArcsecondConverter;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;

@@ -1,23 +1,24 @@
-package org.opensha.calc.magScalingRelations.magScalingRelImpl;
+package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 import org.opensha.calc.magScalingRelations.*;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 
 /**
- * <b>Title:</b>Ellsworth_A_WG02_MagAreaRel<br>
+ * <b>Title:</b>Ellsworth_B_WG02_MagAreaRel<br>
  *
- * <b>Description:</b>  This implements the "Ellsworth-A Mag-Area Rel." 
- * published as Equation 4.5a in WGCEP-2002 
+ * <b>Description:</b>  This implements the "Ellsworth-B Mag-Area Rel." 
+ * published as Equation 4.5b in WGCEP-2002 
  * (http://pubs.usgs.gov/of/2003/of03-214/WG02_OFR-03-214_Chapter4.pdf).
- * The equation is Mag=4.1+log10(Area).<p>
+ * The equation is Mag=4.2+log10(Area).<p>
  *
  * @author Edward H. Field
  * @version 1.0
  */
 
-public class Ellsworth_A_WG02_MagAreaRel extends MagAreaRelationship {
+public class Ellsworth_B_WG02_MagAreaRel extends MagAreaRelationship {
 
-    final static String C = "Ellsworth_A_WG02_MagAreaRel";
-    public final static String NAME = "Ellsworth-A (WGCEP, 2002, Eq 4.5a)";
+    final static String C = "Ellsworth_B_WG02_MagAreaRel";
+    public final static String NAME = "Ellsworth-B (WGCEP, 2002, Eq 4.5b)";
 
     /**
      * Computes the median magnitude from rupture area.
@@ -25,7 +26,7 @@ public class Ellsworth_A_WG02_MagAreaRel extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-    		return  4.1 + Math.log(area)*lnToLog;
+    		return  4.2 + Math.log(area)*lnToLog;
     }
 
     /**
@@ -40,7 +41,7 @@ public class Ellsworth_A_WG02_MagAreaRel extends MagAreaRelationship {
      * @return median area in km
      */
     public double getMedianArea(double mag){
-          return Math.pow(10.0,mag-4.1);
+          return Math.pow(10.0,mag-4.2);
    }
 
     /**

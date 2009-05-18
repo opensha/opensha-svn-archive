@@ -1,7 +1,7 @@
 package org.opensha.sha.magdist;
 
 import org.opensha.data.function.*;
-import org.opensha.calc.MomentMagCalc;
+import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.data.DataPoint2D;
 import org.opensha.exceptions.*;
 

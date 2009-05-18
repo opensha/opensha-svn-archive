@@ -10,8 +10,8 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
-import org.opensha.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.FaultSegmentData;
@@ -32,7 +32,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_Fau
 public class WriteTimeDepUnsegmentedProbAndGain {
 	private final static String PATH = "org/opensha/sha/earthquake/rupForecastImpl/WGCEP_UCERF_2_3/analysis/files/";
 	
-	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Mag³6.7, "+
+	private final static String README_TEXT = "This Excel spreadsheet tabulates Rupture Probability, Rupture Prob for Magï¿½6.7, "+
 		" andRupture Gain (each on a different sheet) for all Type-A fault (including unsegmented models, which is why segment "+
 		" rates are not listed) and for various logic-tree branches."+
 		" The exact parameter settings for each logic-tree branch are listed in the \"Parameter Settings\""+

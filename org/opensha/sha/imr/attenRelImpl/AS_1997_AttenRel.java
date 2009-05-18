@@ -7,6 +7,7 @@ import java.util.*;
 import java.awt.*;
 
 import org.opensha.calc.*;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

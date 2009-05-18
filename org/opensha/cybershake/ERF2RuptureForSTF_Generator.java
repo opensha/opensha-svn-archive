@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;

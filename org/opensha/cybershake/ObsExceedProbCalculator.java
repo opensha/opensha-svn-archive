@@ -14,7 +14,7 @@ import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;

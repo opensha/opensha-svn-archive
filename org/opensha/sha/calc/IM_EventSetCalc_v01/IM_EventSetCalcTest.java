@@ -9,7 +9,8 @@ import org.opensha.util.SystemPropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import org.opensha.calc.GaussianDistCalc;
+
+import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.io.File;
 

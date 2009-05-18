@@ -1,4 +1,4 @@
-package org.opensha.calc;
+package org.opensha.commons.calc;
 
 //  The following is needed only by getCDF_Alt() which is commented out below.
 // import edu.uah.math.psol.distributions.*;
@@ -287,8 +287,8 @@ public final class GaussianDistCalc {
      *
      *
      * @param exceedProb  The target exceedance probability
-     * @param lowerTruncLevel   The lower truncation level must be ² 0
-     * @param upperTruncLevel  The upper truncation level must be ² 0
+     * @param lowerTruncLevel   The lower truncation level must be ï¿½ 0
+     * @param upperTruncLevel  The upper truncation level must be ï¿½ 0
      * @param tolerance   The tolerance
      * @return  The SRV found for the target exceedProb
      */
@@ -297,7 +297,7 @@ public final class GaussianDistCalc {
         if(lowerTruncLevel >= 0 )
             throw new RuntimeException("GaussianDistCalc.getStandRandVar(): lowerTruncLevel should be < 0");
         if(upperTruncLevel < 0 )
-            throw new RuntimeException("GaussianDistCalc.getStandRandVar(): upperTruncLevel should be ³ 0");
+            throw new RuntimeException("GaussianDistCalc.getStandRandVar(): upperTruncLevel should be ï¿½ 0");
 
 
         float delta = 1;

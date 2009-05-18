@@ -1,7 +1,8 @@
 package org.opensha.data.region;
 
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.io.IOException;
 import java.util.ListIterator;
 import java.io.FileWriter;

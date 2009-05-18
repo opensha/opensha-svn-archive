@@ -15,10 +15,16 @@ import java.util.StringTokenizer;
 
 
 
-import org.opensha.calc.FaultMomentCalc;
-import org.opensha.calc.MomentMagCalc;
-import org.opensha.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_A_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Shaw_2007_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
+import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WGCEP_2007_PowLaw_MagAreaRel;
 import org.opensha.data.Location;
 import org.opensha.data.LocationList;
 import org.opensha.data.TimeSpan;

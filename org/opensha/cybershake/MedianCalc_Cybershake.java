@@ -23,7 +23,8 @@ import java.util.*;
 import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.text.DecimalFormat;
 import java.lang.reflect.*;
 import org.opensha.sha.param.PropagationEffect;

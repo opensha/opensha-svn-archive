@@ -1,4 +1,4 @@
-package nnls;
+package org.opensha.commons.calc.nnls;
 
 
 import org.netlib.util.*;

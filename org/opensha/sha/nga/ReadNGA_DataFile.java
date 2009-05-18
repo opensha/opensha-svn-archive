@@ -6,7 +6,7 @@ import java.io.*;
 
 import org.opensha.util.FileUtils;
 import org.opensha.data.*;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.util.SiteTranslator;
 

@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.*;
 
 import org.opensha.calc.*;
+import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

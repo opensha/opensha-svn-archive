@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.opensha.data.LocationList;
 import java.util.ArrayList;
-import org.opensha.calc.RelativeLocation;
-import java.io.FileWriter;
+
+import org.opensha.commons.calc.RelativeLocation;
+
 import java.io.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.Location;

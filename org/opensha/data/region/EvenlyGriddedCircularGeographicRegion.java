@@ -7,7 +7,7 @@ import org.opensha.data.Location;
 import java.io.IOException;
 import java.io.FileWriter;
 import org.opensha.data.Direction;
-import org.opensha.calc.RelativeLocation;
+import org.opensha.commons.calc.RelativeLocation;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
