@@ -19,9 +19,9 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 
 
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
+
+
+
 import org.opensha.nshmp.exceptions.*;
 import org.opensha.nshmp.sha.data.*;
 import org.opensha.nshmp.sha.data.api.*;

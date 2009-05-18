@@ -13,7 +13,7 @@ import org.opensha.commons.param.ParameterAPI;
 
 
 
-import org.opensha.param.*;
+
 
 /**
  * <b>Title:</b> AttenuationRelationshipAPI<br>

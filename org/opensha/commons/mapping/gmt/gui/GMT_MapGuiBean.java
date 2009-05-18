@@ -6,8 +6,8 @@ import javax.swing.*;
 
 
 
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
+
+
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;

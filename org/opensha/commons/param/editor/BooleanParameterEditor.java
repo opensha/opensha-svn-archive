@@ -6,10 +6,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.opensha.commons.param.ParameterAPI;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
-import org.opensha.param.event.*;
+
+
+
+
 
 /**
  * <p>Title: BooleanParameterEditor</p>

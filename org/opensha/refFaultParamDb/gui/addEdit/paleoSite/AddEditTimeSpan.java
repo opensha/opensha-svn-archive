@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.opensha.commons.param.StringListParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
-import org.opensha.param.estimate.*;
+
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.*;
 import javax.swing.*;

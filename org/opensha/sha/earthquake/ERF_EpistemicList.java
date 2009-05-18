@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.EventObject;
 
-import org.opensha.param.event.*;
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.GeographicRegion;

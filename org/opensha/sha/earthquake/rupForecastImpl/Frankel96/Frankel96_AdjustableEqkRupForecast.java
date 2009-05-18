@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.opensha.param.*;
+
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;

@@ -4,8 +4,8 @@ package org.opensha.sha.param;
 import java.util.*;
 
 import org.dom4j.Element;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
 import org.opensha.sha.faultSurface.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ParameterException;

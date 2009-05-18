@@ -17,7 +17,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 

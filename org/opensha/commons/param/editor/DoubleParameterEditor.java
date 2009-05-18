@@ -7,7 +7,7 @@ import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.ParameterAPI;
 
-import org.opensha.param.*;
+
 import javax.swing.border.*;
 
 /**

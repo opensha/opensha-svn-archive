@@ -6,7 +6,7 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
-import org.opensha.param.*;
+
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;

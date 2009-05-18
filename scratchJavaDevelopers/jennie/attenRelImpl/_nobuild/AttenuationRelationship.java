@@ -8,7 +8,7 @@ import java.util.*;
 
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 

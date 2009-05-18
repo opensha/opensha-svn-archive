@@ -9,7 +9,7 @@ import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.param.*;
+
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;

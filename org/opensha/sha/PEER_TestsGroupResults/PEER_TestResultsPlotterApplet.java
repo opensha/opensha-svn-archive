@@ -30,9 +30,9 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 
 import org.opensha.util.*;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
+
+
+
 
 import org.opensha.commons.calc.FunctionListCalc;
 import org.opensha.commons.data.NamedObjectAPI;

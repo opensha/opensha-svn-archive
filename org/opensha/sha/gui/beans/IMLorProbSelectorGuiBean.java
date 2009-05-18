@@ -10,9 +10,9 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.param.editor.*;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
+
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 

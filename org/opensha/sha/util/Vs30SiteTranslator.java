@@ -6,7 +6,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.param.*;
+
 import org.opensha.sha.imr.AttenuationRelationship;
 
 

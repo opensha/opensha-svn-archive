@@ -4,8 +4,8 @@ import java.util.*;
 
 
 
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;

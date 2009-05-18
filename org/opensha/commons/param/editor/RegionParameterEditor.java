@@ -5,8 +5,8 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;

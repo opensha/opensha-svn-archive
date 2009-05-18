@@ -7,8 +7,8 @@ import java.io.*;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;

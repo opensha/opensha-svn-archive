@@ -15,7 +15,7 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
-import org.opensha.param.*;
+
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 
 /**

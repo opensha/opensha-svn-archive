@@ -5,7 +5,7 @@ import java.util.*;
 import org.dom4j.Element;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.calc.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;

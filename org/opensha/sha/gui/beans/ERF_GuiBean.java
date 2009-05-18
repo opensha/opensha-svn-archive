@@ -8,7 +8,7 @@ import java.util.ListIterator;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.param.event.*;
+
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;

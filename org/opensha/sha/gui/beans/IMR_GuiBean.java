@@ -28,8 +28,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import org.opensha.param.*;
-import org.opensha.param.event.*;
+
+
 import org.opensha.sha.gui.infoTools.AttenuationRelationshipsInstance;
 
 /**

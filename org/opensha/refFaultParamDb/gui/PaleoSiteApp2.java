@@ -3,7 +3,7 @@ package org.opensha.refFaultParamDb.gui;
 import javax.swing.*;
 import java.awt.*;
 
-import org.opensha.param.editor.*;
+
 import java.util.ArrayList;
 
 import org.opensha.refFaultParamDb.data.*;

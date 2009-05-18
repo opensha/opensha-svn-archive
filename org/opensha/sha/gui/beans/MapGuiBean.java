@@ -11,7 +11,7 @@ import java.awt.event.*;
 
 
 import org.opensha.sha.mapping.*;
-import org.opensha.param.*;
+
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;

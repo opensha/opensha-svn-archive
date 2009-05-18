@@ -17,7 +17,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
-import org.opensha.param.*;
+
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;

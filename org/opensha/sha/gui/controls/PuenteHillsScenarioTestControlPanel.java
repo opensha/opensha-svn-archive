@@ -8,7 +8,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.param.*;
+
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;

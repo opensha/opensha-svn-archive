@@ -12,7 +12,7 @@ import org.opensha.commons.param.StringConstraint;
 
 
 import java.util.ArrayList;
-import org.opensha.param.*;
+
 
 /**
  * <p>Title: DoubleEstimateConstraint.java </p>

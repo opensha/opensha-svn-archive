@@ -36,7 +36,7 @@ import org.opensha.sha.param.MagFreqDistParameter;
 import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
 import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
 import org.opensha.sha.param.MagPDF_Parameter;
-import org.opensha.param.*;
+
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 /**
  * <p>Title:MagFreqDistApp </p>

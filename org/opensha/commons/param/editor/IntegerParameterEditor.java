@@ -8,7 +8,7 @@ import org.opensha.commons.exceptions.WarningException;
 import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterAPI;
 
-import org.opensha.param.*;
+
 
 /**
  * <b>Title:</b> IntegerParameterEditor<p>

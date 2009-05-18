@@ -20,8 +20,8 @@ import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.param.event.*;
-import org.opensha.param.*;
+
+
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;

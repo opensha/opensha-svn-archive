@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.param.*;
+
 import org.opensha.sha.imr.attenRelImpl.*;
 /**
  * <p>Title: IMT_Info</p>

@@ -19,9 +19,9 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 
 
 
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
+
+
+
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.OvalBorder;

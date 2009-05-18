@@ -6,7 +6,7 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.ParameterAPI;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.earthquake.*;
 
 /**

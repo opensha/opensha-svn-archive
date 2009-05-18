@@ -9,9 +9,9 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.param.*;
+
 import org.opensha.sha.imr.*;
-import org.opensha.param.event.*;
+
 
 
 import java.util.*;

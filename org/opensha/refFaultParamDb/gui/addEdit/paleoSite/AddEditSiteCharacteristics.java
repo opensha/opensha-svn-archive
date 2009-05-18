@@ -2,9 +2,9 @@ package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
-import org.opensha.param.editor.*;
+
+
+
 import java.awt.Container;
 
 import org.opensha.commons.data.Location;

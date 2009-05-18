@@ -12,7 +12,7 @@ import javax.swing.Timer;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
-import org.opensha.param.event.*;
+
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;

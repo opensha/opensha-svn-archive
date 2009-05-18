@@ -11,10 +11,10 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
-import org.opensha.param.event.*;
+
+
+
+
 
 /**
  * <p>Title: ParameterListParameterEditor</p>

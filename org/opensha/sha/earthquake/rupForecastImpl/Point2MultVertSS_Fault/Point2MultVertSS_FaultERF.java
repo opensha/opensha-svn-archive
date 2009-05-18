@@ -2,7 +2,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault;
 
 import java.util.ArrayList;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;

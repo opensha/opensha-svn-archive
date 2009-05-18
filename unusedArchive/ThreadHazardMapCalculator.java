@@ -14,7 +14,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.util.*;
-import org.opensha.param.event.*;
+
 
 import unusedArchive.SubmitJobForMultiprocessorComputation;
 

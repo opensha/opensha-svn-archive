@@ -1,7 +1,7 @@
 package org.opensha.commons.param.estimate;
 
 import org.dom4j.Element;
-import org.opensha.param.*;
+
 
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.exceptions.ConstraintException;

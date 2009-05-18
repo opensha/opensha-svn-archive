@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;

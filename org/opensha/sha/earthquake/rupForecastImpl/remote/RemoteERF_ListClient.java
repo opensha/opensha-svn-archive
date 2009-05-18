@@ -8,8 +8,8 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 import org.opensha.sha.earthquake.*;
-import org.opensha.param.event.*;
-import org.opensha.param.*;
+
+
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.param.ParameterAPI;

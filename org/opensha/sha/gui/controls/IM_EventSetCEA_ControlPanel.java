@@ -7,8 +7,8 @@ import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.calc.IM_EventSetCalc_v01.IM_EventSetScenarioForCEA;
 import org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
+
+
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;

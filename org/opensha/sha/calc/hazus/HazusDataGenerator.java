@@ -6,8 +6,8 @@ import java.util.ListIterator;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.param.event.*;
-import org.opensha.param.*;
+
+
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;

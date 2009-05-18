@@ -3,7 +3,7 @@ package org.opensha.sha.param;
 import java.util.ArrayList;
 
 import org.opensha.commons.param.ParameterConstraint;
-import org.opensha.param.*;
+
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**

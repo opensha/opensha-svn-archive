@@ -7,9 +7,9 @@ import java.awt.event.*;
 import org.opensha.sha.PEER_TestsGroupResults.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
 import org.opensha.sha.gui.*;
-import org.opensha.param.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.event.*;
+
+
+
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.param.editor.*;

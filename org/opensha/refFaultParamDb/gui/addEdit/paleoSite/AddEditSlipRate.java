@@ -1,8 +1,8 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
-import org.opensha.param.*;
-import org.opensha.param.estimate.*;
+
+
 import java.util.ArrayList;
 import java.awt.*;
 

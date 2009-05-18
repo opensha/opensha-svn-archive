@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 import java.util.ArrayList;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;

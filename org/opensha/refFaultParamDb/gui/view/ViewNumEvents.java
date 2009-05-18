@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.gui.view;
 
 
 import java.awt.*;
-import org.opensha.param.*;
+
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;

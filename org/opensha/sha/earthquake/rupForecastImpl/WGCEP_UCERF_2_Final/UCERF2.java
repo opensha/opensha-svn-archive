@@ -43,7 +43,7 @@ import org.opensha.commons.param.ParameterListParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
-import org.opensha.param.*;
+
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;

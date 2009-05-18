@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.dom4j.Element;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.magdist.*;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;

@@ -1,9 +1,9 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import javax.swing.*;
-import org.opensha.param.*;
-import org.opensha.param.event.*;
-import org.opensha.param.editor.*;
+
+
+
 import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.*;

@@ -9,7 +9,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.exceptions.RegionConstraintException;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 

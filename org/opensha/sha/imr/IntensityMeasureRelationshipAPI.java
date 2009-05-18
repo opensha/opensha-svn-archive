@@ -11,7 +11,7 @@ import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.ParameterAPI;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.*;
 

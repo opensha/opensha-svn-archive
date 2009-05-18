@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.MagFreqDistParameter;

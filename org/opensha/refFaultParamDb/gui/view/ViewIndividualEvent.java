@@ -2,12 +2,12 @@ package org.opensha.refFaultParamDb.gui.view;
 
 import javax.swing.*;
 import java.awt.*;
-import org.opensha.param.*;
-import org.opensha.param.estimate.*;
-import org.opensha.param.editor.*;
-import org.opensha.param.editor.estimate.*;
+
+
+
+
 import java.util.ArrayList;
-import org.opensha.param.event.*;
+
 import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;

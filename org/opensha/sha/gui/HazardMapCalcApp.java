@@ -19,7 +19,7 @@ import org.dom4j.io.XMLWriter;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
-import org.opensha.param.event.*;
+
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.data.region.GeographicRegion;

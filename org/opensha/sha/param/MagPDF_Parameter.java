@@ -15,7 +15,7 @@ import org.opensha.commons.param.ParameterConstraintAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 
-import org.opensha.param.*;
+
 import org.opensha.sha.magdist.*;
 
 /**

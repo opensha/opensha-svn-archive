@@ -20,7 +20,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.*;
 

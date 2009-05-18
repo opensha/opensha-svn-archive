@@ -13,7 +13,7 @@ import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
-import org.opensha.param.*;
+
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 

@@ -5,7 +5,7 @@ import java.util.*;
 import org.dom4j.Element;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.calc.*;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

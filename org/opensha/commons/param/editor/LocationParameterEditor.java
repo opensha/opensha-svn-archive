@@ -5,9 +5,9 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-import org.opensha.param.*;
-import org.opensha.param.event.*;
-import org.opensha.param.event.*;
+
+
+
 import org.opensha.commons.data.Location;
 import org.opensha.commons.param.LocationParameter;
 import org.opensha.commons.param.ParameterAPI;

@@ -8,7 +8,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 
 
-import org.opensha.param.*;
+
 import org.opensha.sha.faultSurface.*;
 import org.opensha.util.*;
 
