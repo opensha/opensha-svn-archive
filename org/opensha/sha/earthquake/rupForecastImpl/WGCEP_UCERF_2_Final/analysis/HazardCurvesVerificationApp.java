@@ -10,10 +10,10 @@ import java.text.DecimalFormat;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.data.Location;
-import org.opensha.data.Site;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.WarningParameterAPI;

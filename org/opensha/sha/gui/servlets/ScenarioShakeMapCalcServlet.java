@@ -6,6 +6,9 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.param.*;

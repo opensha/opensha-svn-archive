@@ -11,10 +11,10 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
-import org.opensha.data.Location;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;

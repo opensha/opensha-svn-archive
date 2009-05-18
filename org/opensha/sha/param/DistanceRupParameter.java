@@ -8,6 +8,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
 
 
 /**

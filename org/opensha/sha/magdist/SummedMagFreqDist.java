@@ -3,9 +3,9 @@ package org.opensha.sha.magdist;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.data.DataPoint2D;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.DataPoint2D;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.exceptions.*;
 
 

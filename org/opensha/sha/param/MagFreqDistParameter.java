@@ -6,7 +6,7 @@ import org.dom4j.Element;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.magdist.*;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 /**
  *  <b>Title:</b> MagFreqDistParameter<p>

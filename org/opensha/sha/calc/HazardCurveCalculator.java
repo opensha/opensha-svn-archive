@@ -5,11 +5,12 @@ package org.opensha.sha.calc;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.*;
-import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 
 
 /**

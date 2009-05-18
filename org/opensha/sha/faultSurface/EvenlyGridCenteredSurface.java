@@ -1,6 +1,6 @@
 package org.opensha.sha.faultSurface;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 
 /**

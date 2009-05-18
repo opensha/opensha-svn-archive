@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.util.FileUtils;
 
 public class MakeXYZFromHazardMapDir {

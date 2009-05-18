@@ -9,8 +9,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Point2Vert_SS_FaultPoisSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;

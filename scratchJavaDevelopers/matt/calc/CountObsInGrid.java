@@ -5,10 +5,12 @@ package scratchJavaDevelopers.matt.calc;
 
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.earthquake.griddedForecast.*;
-import org.opensha.data.region.EvenlyGriddedCircularGeographicRegion;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.data.*;
 import java.io.IOException;
 import java.io.FileNotFoundException;

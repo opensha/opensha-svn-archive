@@ -10,9 +10,9 @@ import javax.servlet.ServletException;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.util.FileUtils;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.servlets.*;
 import org.opensha.util.RunScript;
 

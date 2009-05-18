@@ -12,6 +12,7 @@ import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.*;
 
 /**

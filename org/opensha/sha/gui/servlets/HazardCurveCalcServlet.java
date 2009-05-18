@@ -9,11 +9,12 @@ import java.rmi.RemoteException;
 
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.util.FileUtils;
-import org.opensha.data.Site;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.function.*;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: HazardCurveCalcServlet </p>

@@ -1,5 +1,5 @@
 package org.opensha.refFaultParamDb.data;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 /**
  * <p>Title: TimeEstimate.java </p>
  * <p>Description: Allows the user to specify a time estimate. This estimate

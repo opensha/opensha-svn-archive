@@ -8,7 +8,7 @@ import javax.swing.*;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.param.event.*;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 /**
  * <p>Title: LocationParameterEditor</p>

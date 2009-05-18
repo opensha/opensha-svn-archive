@@ -8,10 +8,10 @@ import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.TableXYDataset;
-import org.opensha.data.NamedObjectAPI;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.DiscretizedFuncList;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 
 /**

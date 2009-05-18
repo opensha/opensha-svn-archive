@@ -8,7 +8,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import org.opensha.util.FaultUtils;
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+
 import java.io.IOException;
 
 

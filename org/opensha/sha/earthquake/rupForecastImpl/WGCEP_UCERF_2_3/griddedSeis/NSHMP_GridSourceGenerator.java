@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;

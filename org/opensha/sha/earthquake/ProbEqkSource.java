@@ -3,10 +3,10 @@ package org.opensha.sha.earthquake;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.opensha.data.Location;
-import org.opensha.data.Site;
-import org.opensha.data.NamedObjectAPI;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**

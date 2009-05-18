@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.dom4j.Element;
 import org.opensha.data.*;
-import org.opensha.data.region.GeographicRegion;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
@@ -13,6 +12,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.GeographicRegion;
 
 /**
  * <b>Title:</b> DistanceX_Parameter<p>

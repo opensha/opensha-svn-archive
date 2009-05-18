@@ -12,7 +12,8 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
+
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import org.opensha.exceptions.*;

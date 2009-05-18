@@ -3,7 +3,7 @@ package scratchJavaDevelopers.martinez;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
 /**
  * This class computes the expected annualized damage factor for a given building using a hazard curve.

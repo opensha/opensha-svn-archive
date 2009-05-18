@@ -7,10 +7,10 @@ import java.util.ListIterator;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.data.Location;
-import org.opensha.data.Site;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.ParameterException;
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.*;

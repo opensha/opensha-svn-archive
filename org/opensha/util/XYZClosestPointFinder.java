@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 /**
  * This class takes the path to a Generic Mapping Tools style XYZ file and loads in all of the

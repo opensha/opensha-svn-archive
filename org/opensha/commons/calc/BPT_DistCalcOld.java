@@ -1,7 +1,7 @@
 package org.opensha.commons.calc;
 
 //The following are needed only for the tests
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 
 /**

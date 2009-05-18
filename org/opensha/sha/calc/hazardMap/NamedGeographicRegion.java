@@ -1,8 +1,8 @@
 package org.opensha.sha.calc.hazardMap;
 
 import org.dom4j.Element;
-import org.opensha.data.LocationList;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.GeographicRegion;
 
 public class NamedGeographicRegion extends GeographicRegion {
 

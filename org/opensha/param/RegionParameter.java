@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
 import org.opensha.exceptions.ParameterException;

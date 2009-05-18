@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.ListIterator;
 
-import org.opensha.data.siteType.SiteDataAPI;
-import org.opensha.data.siteType.SiteDataValue;
-import org.opensha.data.siteType.util.SiteDataTypeParameterNameMap;
+import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
 import org.opensha.param.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;

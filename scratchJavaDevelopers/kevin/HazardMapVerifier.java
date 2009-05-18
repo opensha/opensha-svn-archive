@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.util.FileUtils;
 
 public class HazardMapVerifier {

@@ -1,6 +1,6 @@
 package org.opensha.sha.cybershake.openshaAPIs;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.earthquake.ProbEqkRupture;

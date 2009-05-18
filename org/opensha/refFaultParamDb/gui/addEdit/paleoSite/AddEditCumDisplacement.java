@@ -15,7 +15,7 @@ import org.opensha.gui.LabeledBoxPanel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.ParameterChangeListener;

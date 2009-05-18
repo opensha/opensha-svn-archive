@@ -2,7 +2,6 @@ package org.opensha.sha.earthquake.rupForecastImpl;
 
 import java.util.ArrayList;
 
-import org.opensha.data.TimeSpan;
 
 import org.opensha.param.*;
 import org.opensha.sha.param.*;
@@ -11,6 +10,7 @@ import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;

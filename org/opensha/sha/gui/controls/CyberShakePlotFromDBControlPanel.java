@@ -22,9 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
-import org.opensha.data.Location;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.gui.UserAuthDialog;
 import org.opensha.param.DoubleDiscreteParameter;

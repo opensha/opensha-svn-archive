@@ -1,7 +1,7 @@
 package org.opensha.nshmp.sha.calc;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.ui.DataDisplayFormatter;
 

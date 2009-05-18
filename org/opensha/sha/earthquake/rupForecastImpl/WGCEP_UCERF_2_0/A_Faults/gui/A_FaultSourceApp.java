@@ -32,7 +32,7 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-import org.opensha.data.ValueWeight;
+import org.opensha.commons.data.ValueWeight;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.DoubleValueWeightParameter;

@@ -4,17 +4,16 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;
-import java.util.ListIterator;
 
-import org.opensha.data.Location;
-import org.opensha.data.TimeSpan;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 
 
 

@@ -5,10 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.siteType.SiteDataAPI;
-import org.opensha.data.siteType.impl.CVM4BasinDepth;
-import org.opensha.data.siteType.impl.WillsMap2006;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;

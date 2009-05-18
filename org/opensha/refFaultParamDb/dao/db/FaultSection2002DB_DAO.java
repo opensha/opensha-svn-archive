@@ -8,7 +8,8 @@ import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import oracle.spatial.geometry.JGeometry;
 
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+
 import java.awt.geom.Point2D;
 
 /**

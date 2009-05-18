@@ -3,7 +3,7 @@
  */
 package org.opensha.param;
 
-import org.opensha.data.ValueWeight;
+import org.opensha.commons.data.ValueWeight;
 import org.opensha.exceptions.EditableException;
 
 /**

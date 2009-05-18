@@ -2,8 +2,8 @@ package org.opensha.sha.cybershake.db;
 
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 
 public interface SiteInfo2DBAPI {
 	

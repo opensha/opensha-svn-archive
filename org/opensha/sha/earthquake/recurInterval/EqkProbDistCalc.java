@@ -1,6 +1,6 @@
 package org.opensha.sha.earthquake.recurInterval;
 
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.IntegerParameter;
 import org.opensha.param.ParameterList;

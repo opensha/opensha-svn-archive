@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Container2D;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Container2D;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.exceptions.LocationException;
 
 /**

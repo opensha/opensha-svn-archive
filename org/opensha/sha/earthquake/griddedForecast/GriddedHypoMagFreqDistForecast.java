@@ -1,13 +1,15 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.data.*;
 import org.opensha.param.ParameterList;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.data.region.GeographicRegion;
 import java.util.EventObject;
 import java.util.ArrayList;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;

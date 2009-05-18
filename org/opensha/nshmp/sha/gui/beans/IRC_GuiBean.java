@@ -20,8 +20,8 @@ import javax.swing.JSplitPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.data.Location;
-import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;

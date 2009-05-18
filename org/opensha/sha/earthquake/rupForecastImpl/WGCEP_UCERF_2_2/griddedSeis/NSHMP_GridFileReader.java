@@ -8,8 +8,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.gui.GraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;

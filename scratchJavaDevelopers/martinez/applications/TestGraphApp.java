@@ -1,6 +1,6 @@
 package scratchJavaDevelopers.martinez.applications;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 import scratchJavaDevelopers.martinez.beans.GraphingBean;
 

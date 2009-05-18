@@ -14,7 +14,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.opensha.data.Site;
+import org.opensha.commons.data.Site;
+
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;

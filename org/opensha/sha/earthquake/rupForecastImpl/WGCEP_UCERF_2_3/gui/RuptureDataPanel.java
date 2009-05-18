@@ -22,8 +22,8 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.A_Faults.A_FaultSegmentedSourceGenerator;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.data.UCERF1MfdReader;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;

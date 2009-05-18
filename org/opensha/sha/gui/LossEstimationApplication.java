@@ -16,12 +16,12 @@ import java.io.*;
 
 
 import org.jfree.data.Range;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;

@@ -2,8 +2,8 @@ package org.opensha.nshmp.util.ui;
 
 import java.text.DecimalFormat;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 
 /**
  * <p>Title: DataDisplayFormatter</p>

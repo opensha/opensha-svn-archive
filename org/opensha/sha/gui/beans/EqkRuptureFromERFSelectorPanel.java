@@ -21,7 +21,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.Timer;
 import java.awt.*;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.IntegerParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;

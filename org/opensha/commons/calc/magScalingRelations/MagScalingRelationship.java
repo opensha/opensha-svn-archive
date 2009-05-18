@@ -1,6 +1,7 @@
 package org.opensha.commons.calc.magScalingRelations;
 
 import org.opensha.util.FaultUtils;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.data.*;
 
 /**

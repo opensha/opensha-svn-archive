@@ -5,9 +5,9 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.data.region.*;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 /**
  * <p>Title: WillsSiteClassForGriddedRegionServlet  </p>

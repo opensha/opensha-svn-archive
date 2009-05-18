@@ -3,6 +3,8 @@ package org.opensha.sha.imr.attenRelImpl;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Site;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

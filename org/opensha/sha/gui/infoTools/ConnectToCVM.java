@@ -4,11 +4,10 @@ package org.opensha.sha.gui.infoTools;
 import java.util.*;
 import java.io.Serializable;
 import java.net.*;
-import java.io.Serializable;
 import java.io.*;
 
 import org.opensha.sha.gui.servlets.siteEffect.*;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.LocationList;
 import org.opensha.exceptions.RegionConstraintException;
 
 /**

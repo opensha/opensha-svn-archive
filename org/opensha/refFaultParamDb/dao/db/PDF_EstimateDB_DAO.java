@@ -1,12 +1,12 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.PDF_Estimate;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.dao.exception.UpdateException;
-import org.opensha.data.estimate.PDF_Estimate;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 

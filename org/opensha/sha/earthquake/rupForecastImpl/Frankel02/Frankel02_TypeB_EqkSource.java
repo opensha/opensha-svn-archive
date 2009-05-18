@@ -7,6 +7,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.*;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.*;
 
 

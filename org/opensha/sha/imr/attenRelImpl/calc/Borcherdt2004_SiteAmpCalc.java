@@ -1,6 +1,6 @@
  package org.opensha.sha.imr.attenRelImpl.calc;
 
- import org.opensha.data.function.EvenlyDiscretizedFunc;
+ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 /**
  * <p>Title: Borcherdt2004_SiteAmpCalc </p>

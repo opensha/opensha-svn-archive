@@ -9,7 +9,7 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.calc.HazusMapCalculator;
 import org.opensha.sha.earthquake.*;
 

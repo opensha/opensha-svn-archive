@@ -19,11 +19,12 @@ import java.util.Iterator;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Somerville_2006_MagAreaRel;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.ValueWeight;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 
-import org.opensha.data.LocationList;
-import org.opensha.data.TimeSpan;
-import org.opensha.data.ValueWeight;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.param.*;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -49,7 +50,6 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.magdist.*;
 import org.opensha.util.FileUtils;
 
-import org.opensha.data.Location;
 
 
 /**

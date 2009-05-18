@@ -1,6 +1,6 @@
 package org.opensha.util.binFile.test;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.util.binFile.BinaryMesh2DCalculator;
 import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 

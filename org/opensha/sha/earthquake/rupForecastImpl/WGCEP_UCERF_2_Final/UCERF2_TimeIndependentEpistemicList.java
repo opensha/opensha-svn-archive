@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.Ellsworth_B_WG02_MagAreaRel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.HanksBakun2002_MagAreaRel;
-import org.opensha.data.TimeSpan;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.param.Parameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;

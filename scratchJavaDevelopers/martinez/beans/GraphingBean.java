@@ -15,7 +15,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 

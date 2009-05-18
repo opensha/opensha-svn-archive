@@ -1,7 +1,5 @@
 package org.opensha.nshmp.sha.nico;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
@@ -15,7 +13,6 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.data.Site;
 import java.util.*;
 import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
@@ -23,6 +20,9 @@ import org.opensha.util.*;
 import java.rmi.RemoteException;
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 
 import java.text.DecimalFormat;
 

@@ -1,5 +1,8 @@
 package org.opensha.sha.imr.attenRelImpl;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Site;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

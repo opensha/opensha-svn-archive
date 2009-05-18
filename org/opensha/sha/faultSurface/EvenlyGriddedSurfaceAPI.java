@@ -2,7 +2,8 @@ package org.opensha.sha.faultSurface;
 import java.lang.ArrayIndexOutOfBoundsException;
 
 import java.util.*;
-import org.opensha.data.Location;
+
+import org.opensha.commons.data.Location;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.*;
 

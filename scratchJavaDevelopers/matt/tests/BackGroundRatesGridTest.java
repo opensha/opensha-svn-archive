@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.opensha.data.DataPoint2D;
+import org.opensha.commons.data.DataPoint2D;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -75,7 +75,7 @@ public class BackGroundRatesGridTest  extends TestCase {
 		//2. there is only 1 mag 
 		assertTrue(num == 1);
 		logger.info("hypoMagFreqDist0 " +  hypoMagFreqDist0);
-		org.opensha.data.DataPoint2D point = hypoMagFreqDist0.get(0);
+		org.opensha.commons.data.DataPoint2D point = hypoMagFreqDist0.get(0);
 		//3. the mag==0
 		assertTrue( point.getX()  == 0);
 		

@@ -3,9 +3,12 @@ package org.opensha.refFaultParamDb.gui.view;
 import org.opensha.gui.LabeledBoxPanel;
 import java.awt.*;
 import javax.swing.JButton;
-import org.opensha.data.estimate.LogNormalEstimate;
+
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.LogNormalEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+
 import javax.swing.JPanel;
-import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
@@ -18,7 +21,6 @@ import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSlipRate;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 

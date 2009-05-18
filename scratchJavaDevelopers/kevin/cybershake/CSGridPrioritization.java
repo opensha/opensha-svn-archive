@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeSite;

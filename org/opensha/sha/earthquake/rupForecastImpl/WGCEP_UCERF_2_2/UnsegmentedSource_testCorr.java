@@ -6,7 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;

@@ -5,8 +5,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.gui;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 
 /**

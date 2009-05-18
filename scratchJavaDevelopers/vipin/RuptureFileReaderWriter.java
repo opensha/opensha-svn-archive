@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.StringTokenizer;
-import org.opensha.data.Location;
+
+import org.opensha.commons.data.Location;
+
 import java.io.File;
 import java.net.URLConnection;
 import java.io.InputStreamReader;

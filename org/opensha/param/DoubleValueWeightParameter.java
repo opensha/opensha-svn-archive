@@ -4,7 +4,7 @@
 package org.opensha.param;
 
 import org.dom4j.Element;
-import org.opensha.data.ValueWeight;
+import org.opensha.commons.data.ValueWeight;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.EditableException;
 import org.opensha.exceptions.ParameterException;

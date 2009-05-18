@@ -10,7 +10,6 @@ import java.text.DecimalFormat;
 
 import org.opensha.data.function.*;
 import org.opensha.param.Parameter;
-import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -20,11 +19,12 @@ import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 import java.io.*;
-import org.opensha.data.Location;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.XYZ_DataSetAPI;
 
 import java.net.URL;
-import org.opensha.data.XYZ_DataSetAPI;
 import java.net.URLConnection;
 import org.opensha.sha.param.DistanceSeisParameter;
 import org.opensha.sha.param.PropagationEffect;

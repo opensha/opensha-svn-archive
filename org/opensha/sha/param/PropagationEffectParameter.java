@@ -1,5 +1,6 @@
 package org.opensha.sha.param;
 
+import org.opensha.commons.data.Site;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

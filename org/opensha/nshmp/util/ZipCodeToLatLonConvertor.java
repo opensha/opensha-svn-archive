@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**

@@ -1,6 +1,6 @@
 package unusedArchive.tsurf;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 /**
  * <p>Title: Vertex</p>

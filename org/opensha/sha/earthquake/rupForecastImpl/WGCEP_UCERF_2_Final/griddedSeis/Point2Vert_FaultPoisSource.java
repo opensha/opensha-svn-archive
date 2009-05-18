@@ -11,6 +11,10 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 
 import java.util.ArrayList;
 import java.util.Iterator;

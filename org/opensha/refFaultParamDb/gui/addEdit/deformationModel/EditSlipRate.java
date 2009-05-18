@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.param.estimate.EstimateParameter;

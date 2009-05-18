@@ -3,7 +3,7 @@ package org.opensha.nshmp.sha.gui.beans;
 
 import java.util.ArrayList;
 
-import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;

@@ -4,9 +4,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.util.Vector;
 
-import org.opensha.data.Location;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.nshmp.sha.data.HazardDataMinerServletMode;
 import org.opensha.nshmp.util.GlobalConstants;

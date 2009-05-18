@@ -10,7 +10,9 @@ import org.opensha.sha.faultSurface.GriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSurfaceAPI;
 
 import java.util.StringTokenizer;
-import org.opensha.data.Location;
+
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
@@ -19,7 +21,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
-import org.opensha.data.LocationList;
 import org.opensha.exceptions.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

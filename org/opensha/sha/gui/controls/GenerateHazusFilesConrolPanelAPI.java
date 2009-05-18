@@ -1,7 +1,7 @@
 package org.opensha.sha.gui.controls;
 
 
-import org.opensha.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 
 /**

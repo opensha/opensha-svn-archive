@@ -5,11 +5,11 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.analysis;
 
 import java.util.ArrayList;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.region.EvenlyGriddedNoCalRegion;
-import org.opensha.data.region.EvenlyGriddedSoCalRegion;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedNoCalRegion;
+import org.opensha.commons.data.region.EvenlyGriddedSoCalRegion;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_3.UCERF2;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;

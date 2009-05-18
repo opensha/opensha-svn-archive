@@ -8,17 +8,23 @@ import java.util.ArrayList;
 
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.data.*;
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.estimate.DiscretizedFuncEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.IntegerEstimate;
+import org.opensha.commons.data.estimate.LogNormalEstimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.data.estimate.*;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.StringParameter;
 
 import org.opensha.refFaultParamDb.gui.view.*;
-import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.exceptions.*;
 import org.opensha.param.event.ParameterChangeListener;

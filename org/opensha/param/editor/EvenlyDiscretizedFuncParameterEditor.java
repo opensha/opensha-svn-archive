@@ -6,8 +6,10 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
-import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;

@@ -12,6 +12,8 @@ import javax.swing.text.*;
 
 import org.jfree.data.*;
 
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.*;
 import org.opensha.gui.*;
 import org.opensha.param.*;

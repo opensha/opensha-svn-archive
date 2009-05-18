@@ -18,7 +18,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.sha.data.calc.ResidentialSiteCalc;

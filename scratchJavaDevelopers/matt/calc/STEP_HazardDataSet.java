@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.region.SitesInGriddedRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.WarningParameterAPI;

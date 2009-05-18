@@ -16,7 +16,7 @@ import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.jfree.data.Range;

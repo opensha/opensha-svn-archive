@@ -5,8 +5,8 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
+import org.opensha.commons.data.Location;
 import org.opensha.data.region.*;
-import org.opensha.data.Location;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 
 /**

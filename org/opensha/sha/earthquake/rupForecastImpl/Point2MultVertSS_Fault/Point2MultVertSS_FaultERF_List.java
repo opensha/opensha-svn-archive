@@ -2,13 +2,13 @@ package org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault;
 
 import java.util.ArrayList;
 
-import org.opensha.data.TimeSpan;
 import org.opensha.param.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.SingleFaultRuptureERF;
 import org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.data.TimeSpan;
 
 
 /**

@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;

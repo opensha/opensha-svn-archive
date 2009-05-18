@@ -2,7 +2,7 @@ package scratchJavaDevelopers.martinez.LossCurveSandbox.calculators;
 
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 /**
  * This abstract base class defines an API for sub classes to implement in order

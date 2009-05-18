@@ -5,12 +5,12 @@ import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.siteType.SiteDataAPI;
-import org.opensha.data.siteType.SiteDataValue;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.siteData.SiteDataAPI;
+import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;

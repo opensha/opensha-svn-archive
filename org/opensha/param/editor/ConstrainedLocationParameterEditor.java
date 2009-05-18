@@ -11,7 +11,7 @@ import org.opensha.param.LocationConstraint;
 import org.opensha.param.LocationParameter;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.exceptions.*;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 /**
  * <b>Title:</b> ConstrainedLocationParameterEditor<p>

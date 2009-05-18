@@ -6,7 +6,7 @@ import java.awt.*;
 
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.ParameterAPI;
-import org.opensha.data.TimeSpan;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.param.ParameterList;
 import javax.swing.*;
 

@@ -16,8 +16,8 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 import scratchJavaDevelopers.martinez.beans.CreditBean;

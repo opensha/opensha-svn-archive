@@ -1,7 +1,7 @@
 package org.opensha.param;
 
 import org.dom4j.Element;
-import org.opensha.data.NamedObjectAPI;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.metadata.XMLSaveable;

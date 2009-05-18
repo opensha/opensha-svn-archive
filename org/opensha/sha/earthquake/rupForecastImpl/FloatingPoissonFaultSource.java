@@ -9,6 +9,9 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.MagAreaRelationship;
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.commons.calc.magScalingRelations.MagScalingRelationship;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 

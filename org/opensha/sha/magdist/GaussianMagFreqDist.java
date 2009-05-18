@@ -1,6 +1,6 @@
 package org.opensha.sha.magdist;
 
-import org.opensha.data.DataPoint2D;
+import org.opensha.commons.data.DataPoint2D;
 import org.opensha.exceptions.*;
 
 

@@ -2,8 +2,8 @@ package org.opensha.nshmp.sha.data;
 
 import java.rmi.RemoteException;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 
 /**

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
 import org.opensha.exceptions.InvalidRangeException;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.GeographicRegionAPI;
 import java.util.Collections;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
-import org.opensha.data.region.GeographicRegionAPI;
 
 /**
  * <p>Title: ObsEqkRupList</p>

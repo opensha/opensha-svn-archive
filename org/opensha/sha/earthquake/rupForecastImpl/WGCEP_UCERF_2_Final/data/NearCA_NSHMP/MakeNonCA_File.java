@@ -7,9 +7,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.util.FileUtils;
 
 /**

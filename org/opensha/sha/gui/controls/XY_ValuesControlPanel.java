@@ -4,7 +4,9 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+
 import java.util.StringTokenizer;
 
 /**

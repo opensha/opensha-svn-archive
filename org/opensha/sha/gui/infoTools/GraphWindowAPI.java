@@ -3,7 +3,7 @@ package org.opensha.sha.gui.infoTools;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 

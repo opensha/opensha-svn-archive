@@ -5,13 +5,13 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.Location;
-import org.opensha.data.Site;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.param.PropagationEffect;

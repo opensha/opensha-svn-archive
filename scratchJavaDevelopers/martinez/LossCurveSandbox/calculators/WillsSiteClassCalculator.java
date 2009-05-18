@@ -8,8 +8,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 
 /**
  * <p>

@@ -7,10 +7,10 @@ import java.io.*;
 import java.util.*;
 
 import org.opensha.param.ParameterList;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.siteType.SiteDataValueList;
 import org.opensha.param.ParameterAPI;
 import org.opensha.util.FileUtils;
 import org.opensha.exceptions.RegionConstraintException;

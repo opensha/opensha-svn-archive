@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-import org.opensha.data.TimeSpan;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Direction;
 
 import org.opensha.param.*;
 import org.opensha.sha.faultSurface.*;
@@ -19,6 +15,10 @@ import org.opensha.sha.magdist.*;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 
 /**

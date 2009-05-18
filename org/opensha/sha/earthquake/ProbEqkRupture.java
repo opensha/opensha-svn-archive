@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake;
 
 
 
+import org.opensha.commons.data.Location;
 import org.opensha.data.*;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;

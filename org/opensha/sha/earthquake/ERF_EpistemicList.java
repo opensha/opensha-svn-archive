@@ -6,11 +6,11 @@ import java.util.ListIterator;
 import java.util.EventObject;
 
 import org.opensha.param.event.*;
-import org.opensha.data.Location;
-import org.opensha.data.TimeSpan;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterAPI;
-import org.opensha.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 
 

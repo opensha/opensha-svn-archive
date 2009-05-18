@@ -9,6 +9,7 @@ import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>

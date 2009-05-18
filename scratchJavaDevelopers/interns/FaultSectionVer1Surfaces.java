@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 import java.util.HashMap;
 
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 

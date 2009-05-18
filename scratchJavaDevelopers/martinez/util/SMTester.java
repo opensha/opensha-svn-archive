@@ -1,6 +1,6 @@
 package scratchJavaDevelopers.martinez.util;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.SDSsS1Calculator;
 import org.opensha.nshmp.sha.calc.SMSsS1Calculator;

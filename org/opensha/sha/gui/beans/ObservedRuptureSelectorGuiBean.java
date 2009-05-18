@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.io.*;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.IntegerParameter;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.ParameterList;
@@ -29,8 +29,6 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.nga.EqkRuptureFromNGA;

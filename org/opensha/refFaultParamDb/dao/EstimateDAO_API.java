@@ -1,6 +1,6 @@
 package org.opensha.refFaultParamDb.dao;
 
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 /**

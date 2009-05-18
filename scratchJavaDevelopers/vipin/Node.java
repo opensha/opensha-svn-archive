@@ -1,7 +1,8 @@
 package scratchJavaDevelopers.vipin;
 
 import java.util.ArrayList;
-import org.opensha.data.Location;
+
+import org.opensha.commons.data.Location;
 
 /**
  * <p>Title: Node.java </p>

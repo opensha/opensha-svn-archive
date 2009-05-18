@@ -15,7 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.BeanAPI;
 import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.LocationBean;

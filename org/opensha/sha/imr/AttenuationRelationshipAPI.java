@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.data.*;
 import org.opensha.data.function.*;
 import org.opensha.exceptions.*;

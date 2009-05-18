@@ -8,7 +8,8 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
+
 import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;

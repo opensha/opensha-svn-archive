@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 
 public class SiteInfo2DB implements SiteInfo2DBAPI {
 

@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.GregorianCalendar;
 
 import org.opensha.util.FileUtils;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+
 import java.io.FileWriter;
 
 

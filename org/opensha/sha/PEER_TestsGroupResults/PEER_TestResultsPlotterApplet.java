@@ -35,6 +35,11 @@ import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.data.*;
 import org.opensha.commons.calc.FunctionListCalc;
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.sha.gui.controls.*;
 
 

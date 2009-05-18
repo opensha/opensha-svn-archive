@@ -5,6 +5,9 @@ import java.util.Iterator;
 
 import org.opensha.data.*;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;

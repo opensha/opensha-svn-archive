@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.data.DataPoint2D;
-import org.opensha.data.Site;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.DataPoint2D;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.IMRException;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.exceptions.WarningException;

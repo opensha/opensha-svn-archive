@@ -1,6 +1,6 @@
 package org.opensha.nshmp.sha.calc;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: StdDisplacementCalc</p>

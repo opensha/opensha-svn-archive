@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.util.FileUtils;
 
 

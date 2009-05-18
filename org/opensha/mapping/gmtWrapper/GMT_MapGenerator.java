@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.exceptions.GMT_MapException;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.BooleanParameter;
@@ -545,7 +545,7 @@ public class GMT_MapGenerator implements Serializable{
       }
       bf.close();
       }catch(Exception e) { e.printStackTrace(); }
-      this.xyzDataSet = new org.opensha.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
+      this.xyzDataSet = new org.opensha.commons.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
   }
 
 

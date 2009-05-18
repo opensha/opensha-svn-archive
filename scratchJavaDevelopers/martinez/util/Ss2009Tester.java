@@ -1,6 +1,6 @@
 package scratchJavaDevelopers.martinez.util;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.sha.calc.SsS1Calculator;
 import org.opensha.nshmp.util.GlobalConstants;
 

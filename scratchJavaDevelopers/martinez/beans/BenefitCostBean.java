@@ -5,7 +5,7 @@ import java.util.EventListener;
 
 import javax.swing.*;
 
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;

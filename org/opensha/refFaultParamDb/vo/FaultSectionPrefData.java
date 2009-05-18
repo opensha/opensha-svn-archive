@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.dom4j.Element;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.EqualLengthSubSectionsTrace;
 import org.opensha.sha.faultSurface.FaultTrace;

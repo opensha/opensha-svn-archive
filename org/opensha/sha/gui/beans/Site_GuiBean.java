@@ -10,8 +10,9 @@ import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.data.Site;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;

@@ -8,6 +8,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.param.*;

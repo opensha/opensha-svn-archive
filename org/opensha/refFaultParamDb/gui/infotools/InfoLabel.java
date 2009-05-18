@@ -1,11 +1,18 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 import javax.swing.JLabel;
 import java.awt.Color;
+
+import org.opensha.commons.data.estimate.DiscretizedFuncEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.FractileListEstimate;
+import org.opensha.commons.data.estimate.LogNormalEstimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.data.estimate.*;
-import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.data.*;
 import java.util.ArrayList;
-import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  * <p>Title: InfoLabel.java </p>
@@ -353,7 +360,7 @@ public class InfoLabel extends JLabel {
    text+=  "Min =&nbsp;&nbsp;"+minXStr+"  ["+minProbStr+"]<br>";
    text+=  "Pref =&nbsp;&nbsp;"+prefXStr+"  ["+prefProbStr+"]<br>";
    text+=  "Max =&nbsp;&nbsp;"+maxXStr+"  ["+maxProbStr+"]<br>";
-   text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is ² each value.<br>";
+   text+=  "<br> Numbers in brackets are probabilities that "+xAxisName+" is ï¿½ each value.<br>";
 
    return text;
  }

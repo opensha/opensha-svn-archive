@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.vo;
 
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.data.TimeAPI;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 
 /**
  * <p>Title: PaleoEvent.java </p>

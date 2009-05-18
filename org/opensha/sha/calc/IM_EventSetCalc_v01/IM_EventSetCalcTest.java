@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.GaussianDistCalc;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+
 import java.io.File;
 
 /**

@@ -1,6 +1,6 @@
 package org.opensha.sha.cybershake.db;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 public class CybershakeSite {
 	

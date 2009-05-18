@@ -1,9 +1,9 @@
 package org.opensha.refFaultParamDb.vo;
 
-import org.opensha.data.estimate.DiscreteValueEstimate;
-import org.opensha.data.estimate.Estimate;
-import org.opensha.data.estimate.MinMaxPrefEstimate;
-import org.opensha.data.estimate.NormalEstimate;
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**

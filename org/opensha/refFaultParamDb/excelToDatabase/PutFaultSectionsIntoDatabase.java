@@ -10,14 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import java.util.StringTokenizer;
-import org.opensha.data.estimate.MinMaxPrefEstimate;
-import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.data.estimate.NormalEstimate;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
@@ -25,6 +19,12 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: PutFaultSectionsIntoDatabase.java </p>

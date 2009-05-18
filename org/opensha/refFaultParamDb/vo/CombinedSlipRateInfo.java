@@ -1,6 +1,6 @@
 package org.opensha.refFaultParamDb.vo;
 
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 
 /**
  * <p>Title: CombinedSlipRateInfo.java </p>

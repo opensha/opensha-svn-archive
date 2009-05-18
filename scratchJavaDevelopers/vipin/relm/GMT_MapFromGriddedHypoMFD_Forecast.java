@@ -1,22 +1,22 @@
 package scratchJavaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
 import java.io.FileWriter;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
-import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.exceptions.DataPoint2DException;
 
 import java.util.ArrayList;

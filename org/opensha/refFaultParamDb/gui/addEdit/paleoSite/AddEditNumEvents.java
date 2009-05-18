@@ -14,14 +14,14 @@ import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.estimate.IntegerEstimate;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
-import org.opensha.data.estimate.IntegerEstimate;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
-import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: AddEditNumEvents.java </p>

@@ -1,9 +1,9 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
-import org.opensha.data.estimate.FractileListEstimate;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.FractileListEstimate;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.sql.SQLException;
 import java.sql.ResultSet;

@@ -5,7 +5,7 @@ import java.util.ListIterator;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.util.FileUtils;

@@ -4,6 +4,8 @@ import java.util.*;
 
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
 import org.opensha.exceptions.*;
 import org.opensha.data.*;
 

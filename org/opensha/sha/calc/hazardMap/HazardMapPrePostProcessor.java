@@ -13,7 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
 import org.opensha.util.FileUtils;
 import org.opensha.util.MailUtil;

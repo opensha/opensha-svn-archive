@@ -6,7 +6,9 @@ import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.param.editor.*;
 import java.awt.Container;
-import org.opensha.data.Location;
+
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.estimate.Estimate;
 import java.awt.*;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import java.awt.event.ActionListener;
@@ -34,7 +36,6 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.estimate.EstimateConstraint;
-import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;

@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.opensha.data.TimeSpan;
-import org.opensha.data.estimate.DiscreteValueEstimate;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.IntegerParameter;

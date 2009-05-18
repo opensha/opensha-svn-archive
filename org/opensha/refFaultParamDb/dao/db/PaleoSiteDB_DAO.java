@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Contributor;

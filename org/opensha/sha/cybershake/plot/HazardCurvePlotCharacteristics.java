@@ -11,7 +11,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.metadata.XMLSaveable;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;

@@ -11,8 +11,8 @@ import java.net.URLConnection;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncList;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.calc.HazardDataCalc;
 import org.opensha.nshmp.util.GlobalConstants;

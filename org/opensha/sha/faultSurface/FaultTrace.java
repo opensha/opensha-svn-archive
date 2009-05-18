@@ -4,6 +4,9 @@ import java.util.*;
 import org.opensha.util.*;
 import org.opensha.data.*;
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.NamedObjectAPI;
 
 // Fix - Needs more comments
 

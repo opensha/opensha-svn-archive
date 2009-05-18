@@ -8,7 +8,7 @@ import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.faultSurface.*;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 
 /**

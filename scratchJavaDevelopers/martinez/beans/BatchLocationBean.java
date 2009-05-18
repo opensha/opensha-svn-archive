@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;

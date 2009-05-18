@@ -11,9 +11,9 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedGeographicRegion;
-import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 public class NewWillsMap {

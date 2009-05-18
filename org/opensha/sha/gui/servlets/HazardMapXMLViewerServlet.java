@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.util.FileUtils;

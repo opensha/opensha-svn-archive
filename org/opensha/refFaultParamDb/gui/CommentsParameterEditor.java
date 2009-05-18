@@ -7,7 +7,9 @@ import org.opensha.param.*;
 import org.opensha.param.editor.ParameterEditor;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
-import org.opensha.data.function.DiscretizedFuncAPI;
+
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;

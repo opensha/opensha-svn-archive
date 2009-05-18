@@ -13,13 +13,13 @@ import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.data.Site;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.SystemPropertiesUtils;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
-import org.opensha.data.LocationList;
 
 /**
  * <p>Title:SetSiteParamsFromWebServicesControlPanel </p>

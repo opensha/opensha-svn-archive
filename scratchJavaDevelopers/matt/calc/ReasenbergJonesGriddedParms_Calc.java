@@ -1,11 +1,11 @@
 package scratchJavaDevelopers.matt.calc;
 
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import java.util.*;
-import org.opensha.data.region.CircularGeographicRegion;
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 
 /**
  * <p>Title: </p>

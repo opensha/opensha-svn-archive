@@ -19,7 +19,7 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;

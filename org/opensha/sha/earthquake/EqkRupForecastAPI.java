@@ -1,12 +1,11 @@
 package org.opensha.sha.earthquake;
 
 
-import java.util.Iterator;
 import java.util.*;
-import java.util.ListIterator;
-import org.opensha.data.region.GeographicRegion;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.GeographicRegion;
 
 
 /**

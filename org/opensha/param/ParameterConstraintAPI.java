@@ -1,6 +1,6 @@
 package org.opensha.param;
 
-import org.opensha.data.NamedObjectAPI;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.exceptions.EditableException;
 
 /**

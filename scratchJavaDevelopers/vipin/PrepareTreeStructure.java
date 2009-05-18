@@ -2,14 +2,14 @@ package scratchJavaDevelopers.vipin;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import org.opensha.data.LocationList;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 
 import java.io.*;
 import org.opensha.exceptions.*;
-import org.opensha.data.Location;
 import java.text.DecimalFormat;
 
 /**

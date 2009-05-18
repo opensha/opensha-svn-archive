@@ -1,8 +1,8 @@
 package scratchJavaDevelopers.matt.calc;
 
-import org.opensha.data.region.EvenlyGriddedSausageGeographicRegion;
-import org.opensha.data.region.CircularGeographicRegion;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;

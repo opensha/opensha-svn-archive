@@ -1,7 +1,7 @@
 package org.opensha.sha.magdist;
 
 import org.opensha.commons.calc.MomentMagCalc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.exceptions.*;
 
 /**

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jfree.data.Range;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**

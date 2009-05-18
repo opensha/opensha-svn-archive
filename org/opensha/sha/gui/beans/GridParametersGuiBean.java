@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.gridComputing.GridResourcesList;
 import org.opensha.gridComputing.ResourceProvider;
 import org.opensha.gridComputing.ResourceProviderEditor;

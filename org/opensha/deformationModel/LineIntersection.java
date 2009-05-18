@@ -7,7 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.sha.faultSurface.FaultTrace;
 
 /**

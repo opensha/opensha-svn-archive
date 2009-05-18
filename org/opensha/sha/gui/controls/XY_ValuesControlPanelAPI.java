@@ -1,6 +1,7 @@
 package org.opensha.sha.gui.controls;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+
 import java.util.ArrayList;
 
 /**

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;

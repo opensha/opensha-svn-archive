@@ -19,11 +19,12 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
-import org.opensha.data.estimate.NormalEstimate;
-import org.opensha.data.estimate.DiscreteValueEstimate;
-import org.opensha.data.estimate.MinMaxPrefEstimate;
-import org.opensha.data.estimate.PDF_Estimate;
-import org.opensha.data.estimate.Estimate;
+
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**

@@ -4,8 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 
 import java.awt.event.*;

@@ -4,6 +4,13 @@ import java.util.*;
 import scratchJavaDevelopers.matt.calc.*;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.CircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedCircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedSausageGeographicRegion;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;

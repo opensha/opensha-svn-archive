@@ -4,8 +4,8 @@ import java.util.ListIterator;
 
 import junit.framework.TestCase;
 
-import org.opensha.data.Location;
-import org.opensha.data.Site;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;

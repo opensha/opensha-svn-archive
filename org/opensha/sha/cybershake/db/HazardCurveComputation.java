@@ -3,10 +3,9 @@ package org.opensha.sha.cybershake.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
-//import org.opensha.util.ProgressListener;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
 public class HazardCurveComputation {
 

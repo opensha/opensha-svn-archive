@@ -7,8 +7,9 @@ import java.util.*;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.XYZ_DataSetAPI;
+
 import java.awt.event.*;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 

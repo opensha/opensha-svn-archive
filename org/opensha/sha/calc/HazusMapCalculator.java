@@ -6,9 +6,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.data.function.*;
-import org.opensha.data.Location;
-import org.opensha.data.Site;
 import org.opensha.param.DoubleDiscreteParameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;

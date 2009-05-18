@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Vector;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 
 import scratchJavaDevelopers.martinez.LossCurveSandbox.beans.VulnerabilityBean;
 import scratchJavaDevelopers.martinez.LossCurveSandbox.calculators.SiteClassException;

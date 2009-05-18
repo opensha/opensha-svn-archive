@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.TimeSpan;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.StringParameter;
 import org.opensha.param.event.ParameterChangeEvent;

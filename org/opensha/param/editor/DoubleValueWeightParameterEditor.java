@@ -5,7 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
 
-import org.opensha.data.ValueWeight;
+import org.opensha.commons.data.ValueWeight;
 import org.opensha.param.DoubleConstraint;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.DoubleValueWeightConstraint;

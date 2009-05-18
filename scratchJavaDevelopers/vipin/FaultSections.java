@@ -1,8 +1,10 @@
 package scratchJavaDevelopers.vipin;
 
 import java.util.HashMap;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+
 import java.util.StringTokenizer;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;

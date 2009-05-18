@@ -4,7 +4,8 @@ import java.text.DecimalFormat;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Iterator;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.util.RunScript;
 //import org.opensha.cme.SRBDrop.SRBDrop;
 import org.opensha.util.FileUtils;

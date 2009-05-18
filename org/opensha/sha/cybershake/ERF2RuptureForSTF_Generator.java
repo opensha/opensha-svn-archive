@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
-import org.opensha.data.region.CircularGeographicRegion;
-import org.opensha.data.region.RectangularGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.region.CircularGeographicRegion;
+import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;

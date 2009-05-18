@@ -3,6 +3,9 @@ package org.opensha.sha.nga.calc;
 import java.util.*;
 
 
+import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.data.*;
 import org.opensha.sha.nga.*;
 import org.opensha.data.function.*;

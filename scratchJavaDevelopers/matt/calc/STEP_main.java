@@ -17,11 +17,11 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.util.FileUtils;
 
 //tested
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 
 //tested
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
 
 import java.io.FileWriter;
 import java.io.IOException;

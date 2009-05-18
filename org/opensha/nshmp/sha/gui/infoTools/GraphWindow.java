@@ -31,7 +31,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;

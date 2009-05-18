@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
-import org.opensha.data.region.CircularGeographicRegion;
-import org.opensha.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.CircularGeographicRegion;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEqkRupture;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeEvenlyGriddedSurface;

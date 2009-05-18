@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;

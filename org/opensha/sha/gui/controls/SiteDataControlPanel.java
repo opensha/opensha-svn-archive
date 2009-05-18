@@ -13,10 +13,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.opensha.data.Location;
-import org.opensha.data.siteType.OrderedSiteDataProviderList;
-import org.opensha.data.siteType.SiteDataValue;
-import org.opensha.data.siteType.gui.beans.OrderedSiteDataGUIBean;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
+import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;

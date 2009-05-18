@@ -6,8 +6,8 @@ package org.opensha.sha.faultSurface;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Direction;
-import org.opensha.data.Location;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
 
 /**
  *  <b>Title:</b> EqualLengthSubSectionsTrace<p>

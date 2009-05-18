@@ -1,8 +1,8 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
-import org.opensha.data.estimate.NormalEstimate;
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.sql.SQLException;
 import java.sql.ResultSet;

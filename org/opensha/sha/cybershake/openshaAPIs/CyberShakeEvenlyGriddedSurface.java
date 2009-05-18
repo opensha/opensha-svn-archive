@@ -2,7 +2,7 @@ package org.opensha.sha.cybershake.openshaAPIs;
 
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 
 public class CyberShakeEvenlyGriddedSurface extends EvenlyGriddedSurface {

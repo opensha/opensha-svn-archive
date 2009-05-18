@@ -26,7 +26,8 @@ import javax.swing.*;
 
 import org.opensha.sha.earthquake.EqkRupForecast;
 import java.util.EventObject;
-import org.opensha.data.TimeSpan;
+
+import org.opensha.commons.data.TimeSpan;
 
 /**
  * <p>Title: ERF_GuiBean </p>

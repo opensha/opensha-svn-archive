@@ -4,6 +4,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.step.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import junit.framework.*;
+
+import org.opensha.commons.data.Location;
 import org.opensha.data.*;
 
 /**

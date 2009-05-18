@@ -2,6 +2,8 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.A_Faults;
 
 import org.netlib.util.doubleW;
 import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.*;
 import org.opensha.sha.earthquake.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.gui.A_FaultsMFD_Plotter;

@@ -2,7 +2,7 @@ package org.opensha.sha.calc.disaggregation;
 
 import java.rmi.Remote;
 
-import org.opensha.data.Site;
+import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 

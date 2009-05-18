@@ -4,6 +4,7 @@ import java.util.ListIterator;
 import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.*;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.data.*;
 import org.opensha.param.ParameterList;
 import org.opensha.param.DoubleParameter;

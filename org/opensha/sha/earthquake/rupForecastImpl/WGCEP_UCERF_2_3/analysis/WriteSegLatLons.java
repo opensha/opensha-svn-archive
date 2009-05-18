@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.vo.DeformationModelSummary;

@@ -6,9 +6,10 @@ import org.opensha.refFaultParamDb.dao.exception.*;
 import org.opensha.refFaultParamDb.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-import org.opensha.data.estimate.DiscreteValueEstimate;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.refFaultParamDb.tests.AllTests;
 /**
  *

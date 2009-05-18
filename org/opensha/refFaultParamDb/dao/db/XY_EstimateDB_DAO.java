@@ -5,7 +5,8 @@ import org.opensha.refFaultParamDb.dao.exception.*;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import org.opensha.data.function.DiscretizedFuncAPI;
+
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 /**
  * <p>Title: XY_EstimateDB_DAO.java </p>
  * <p>Description: </p>

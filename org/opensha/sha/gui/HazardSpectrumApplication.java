@@ -34,7 +34,10 @@ import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.commons.calc.FractileCurveCalculator;
-import org.opensha.data.Site;
+import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.function.DiscretizedFuncList;
 
 /**
  * <p>Title: HazardSpectrumApplication</p>

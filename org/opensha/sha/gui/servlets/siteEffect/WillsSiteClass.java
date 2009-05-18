@@ -3,6 +3,9 @@ package org.opensha.sha.gui.servlets.siteEffect;
 import java.util.*;
 import java.io.*;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.data.region.*;
 import org.opensha.data.*;
 import org.opensha.exceptions.RegionConstraintException;

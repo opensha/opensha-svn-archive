@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.nshmp.exceptions.LocationErrorException;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.ParameterAPI;

@@ -7,11 +7,11 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.data.Location;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;

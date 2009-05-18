@@ -24,7 +24,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.exceptions.ConstraintException;
 import org.opensha.exceptions.DataPoint2DException;
 import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;

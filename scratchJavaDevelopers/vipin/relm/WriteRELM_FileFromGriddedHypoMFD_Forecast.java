@@ -10,13 +10,13 @@ import java.io.FileWriter;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.data.region.EvenlyGriddedRELM_TestingRegion;
-import org.opensha.data.region.RELM_CollectionRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
+import org.opensha.commons.data.region.RELM_CollectionRegion;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;
-import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**

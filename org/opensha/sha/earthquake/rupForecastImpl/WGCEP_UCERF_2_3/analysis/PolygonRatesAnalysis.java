@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.opensha.data.Location;
-import org.opensha.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.data.region.GeographicRegion;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
+import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;

@@ -1,6 +1,6 @@
 package org.opensha.sha.gui.beans;
 
-import org.opensha.data.Location;
+import org.opensha.commons.data.Location;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.sha.earthquake.EqkRupture;

@@ -3,11 +3,12 @@ package org.opensha.sha.earthquake.griddedForecast;
 import java.util.*;
 import scratchJavaDevelopers.matt.calc.*;
 
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.data.Location;
 
 /**
  * <p>Title: </p>

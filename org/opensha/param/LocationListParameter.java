@@ -3,8 +3,8 @@ package org.opensha.param;
 import java.util.ListIterator;
 
 import org.dom4j.Element;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
 import org.opensha.exceptions.ParameterException;
 
 /**

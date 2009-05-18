@@ -3,8 +3,8 @@ package org.opensha.sha.earthquake;
 import java.util.Iterator;
 import java.util.ArrayList;
 
-import org.opensha.data.NamedObjectAPI;
-import org.opensha.data.LocationList;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 
 /**

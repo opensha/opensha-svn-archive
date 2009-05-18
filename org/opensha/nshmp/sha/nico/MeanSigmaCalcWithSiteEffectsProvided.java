@@ -4,13 +4,13 @@ import java.rmi.RemoteException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.io.FileNotFoundException;
-import org.opensha.data.Site;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
 import org.opensha.util.FileUtils;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 
 /**
  * <p>Title: MeanSigmaCalcWithSiteEffectsProvided</p>

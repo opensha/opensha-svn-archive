@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.opensha.data.DataPoint2D;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.DataPoint2D;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 
 public class HazardCurve2DB {
 	

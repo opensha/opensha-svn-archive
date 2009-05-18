@@ -1,4 +1,11 @@
 package org.opensha.param.estimate;
+import org.opensha.commons.data.estimate.DiscreteValueEstimate;
+import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.FractileListEstimate;
+import org.opensha.commons.data.estimate.IntegerEstimate;
+import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
+import org.opensha.commons.data.estimate.NormalEstimate;
+import org.opensha.commons.data.estimate.PDF_Estimate;
 import org.opensha.data.estimate.*;
 import org.opensha.data.estimate.*;
 import org.opensha.exceptions.EditableException;

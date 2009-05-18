@@ -1,5 +1,5 @@
 package org.opensha.sha.magdist;
-import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 
 
 

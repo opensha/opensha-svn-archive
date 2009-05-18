@@ -7,6 +7,10 @@ import java.util.*;
 import java.awt.*;
 
 import org.opensha.commons.calc.RelativeLocation;
+import org.opensha.commons.data.Direction;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.NamedObjectAPI;
+import org.opensha.commons.data.Site;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;

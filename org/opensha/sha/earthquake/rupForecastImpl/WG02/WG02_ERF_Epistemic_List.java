@@ -12,15 +12,15 @@ import java.util.List;
 
 import org.opensha.param.*;
 import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.data.Location;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
-import org.opensha.data.TimeSpan;
 
 /**
  * <p>Title: WG02_ERF_Epistemic_List</p>

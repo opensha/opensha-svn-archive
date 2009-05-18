@@ -13,7 +13,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
 import org.opensha.param.event.*;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 

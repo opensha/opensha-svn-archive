@@ -15,10 +15,11 @@ import org.opensha.param.event.*;
 import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.data.function.DiscretizedFuncAPI;
+
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.lang.reflect.*;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import java.text.DecimalFormat;

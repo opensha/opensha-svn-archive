@@ -10,13 +10,13 @@ import java.util.Iterator;
 
 import org.opensha.param.*;
 import org.opensha.commons.calc.MomentMagCalc;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.data.Location;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
-import org.opensha.data.TimeSpan;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 

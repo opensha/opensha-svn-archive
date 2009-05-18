@@ -2,7 +2,7 @@ package org.opensha.nshmp.sha.data;
 
 import java.text.DecimalFormat;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.sha.data.region.RegionBounds;
 import org.opensha.nshmp.sha.io.DataRecord;
 import org.opensha.nshmp.sha.io.HazardCurves_Record;

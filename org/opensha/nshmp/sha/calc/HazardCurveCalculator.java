@@ -2,8 +2,8 @@ package org.opensha.nshmp.sha.calc;
 
 import java.text.DecimalFormat;
 
-import org.opensha.data.Location;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.nshmp.exceptions.ZipCodeErrorException;
 import org.opensha.nshmp.sha.data.SiteInterpolation;
 import org.opensha.nshmp.sha.io.DataFileNameSelectorForHazardCurves;

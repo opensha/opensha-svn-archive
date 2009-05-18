@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-import org.opensha.data.TimeSpan;
-import org.opensha.data.Location;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.param.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.earthquake.*;

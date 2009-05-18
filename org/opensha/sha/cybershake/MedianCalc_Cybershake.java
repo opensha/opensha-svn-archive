@@ -12,9 +12,9 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.param.ParameterAPI;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;

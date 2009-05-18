@@ -7,7 +7,7 @@ import java.util.*;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 
 /**

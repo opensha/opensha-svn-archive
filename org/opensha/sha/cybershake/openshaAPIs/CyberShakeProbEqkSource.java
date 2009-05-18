@@ -3,9 +3,9 @@ package org.opensha.sha.cybershake.openshaAPIs;
 import java.util.ArrayList;
 
 import org.opensha.commons.calc.RelativeLocation;
-import org.opensha.data.Location;
-import org.opensha.data.LocationList;
-import org.opensha.data.Site;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.LocationList;
+import org.opensha.commons.data.Site;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;

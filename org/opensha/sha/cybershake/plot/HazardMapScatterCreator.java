@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-import org.opensha.data.Location;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.data.Location;
+import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.db.CybershakeSite;

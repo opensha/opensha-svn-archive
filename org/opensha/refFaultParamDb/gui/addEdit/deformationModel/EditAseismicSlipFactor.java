@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.opensha.data.estimate.Estimate;
+import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.param.estimate.EstimateParameter;

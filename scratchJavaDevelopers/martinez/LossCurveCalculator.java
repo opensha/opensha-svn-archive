@@ -3,7 +3,7 @@ package scratchJavaDevelopers.martinez;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 
 import Jama.Matrix;
 
