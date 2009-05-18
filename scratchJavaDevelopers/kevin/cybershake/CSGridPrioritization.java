@@ -4,14 +4,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.cybershake.db.CybershakeHazardCurveRecord;
-import org.opensha.cybershake.db.CybershakeSite;
-import org.opensha.cybershake.db.Cybershake_OpenSHA_DBApplication;
-import org.opensha.cybershake.db.DBAccess;
-import org.opensha.cybershake.db.HazardCurve2DB;
-import org.opensha.cybershake.db.SiteInfo2DB;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
+import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
+import org.opensha.sha.cybershake.db.CybershakeSite;
+import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
+import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.HazardCurve2DB;
+import org.opensha.sha.cybershake.db.SiteInfo2DB;
 
 /**
  * This class is used to prioritize the sites to be calculated in CyberShake. as we create the first
