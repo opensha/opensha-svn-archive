@@ -10,11 +10,11 @@ import java.util.HashMap;
 
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 import org.opensha.sha.faultSurface.*;
-import org.opensha.util.FileUtils;
 
 /**
  * This class reads the Fault Section Ver 1 and provides API so that they can be viewed in Geo3D.

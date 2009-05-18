@@ -7,8 +7,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.util.FileUtils;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.util.FileUtils;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
@@ -120,8 +120,8 @@ public class HazardMapCalcServlet extends HttpServlet {
       fw.write("cd "+newDir+"\n");
       fw.write("cp  "+eqkRupForecastLocation+" "+newDir+this.ERF_FILE_NAME+"\n");
       fw.close();
-      org.opensha.util.RunScript.runScript(new String[]{"sh", "-c", "sh "+newDir+getERF_FileName});
-      org.opensha.util.RunScript.runScript(new String[]{"sh", "-c", "rm "+newDir+getERF_FileName});
+      org.opensha.commons.util.RunScript.runScript(new String[]{"sh", "-c", "sh "+newDir+getERF_FileName});
+      org.opensha.commons.util.RunScript.runScript(new String[]{"sh", "-c", "rm "+newDir+getERF_FileName});
       if(D) System.out.println("after wget");
 
       // now run the calculation on grid

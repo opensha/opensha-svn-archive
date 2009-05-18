@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
@@ -14,7 +15,6 @@ import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.util.FileUtils;
 
 public class CyberShakeERF extends EqkRupForecast {
 	

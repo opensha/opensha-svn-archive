@@ -25,7 +25,7 @@ import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.util.XMLUtils;
+import org.opensha.commons.util.XMLUtils;
 
 public class OrderedSiteDataProviderList implements Iterable<SiteDataAPI<?>>, XMLSaveable, Cloneable {
 	

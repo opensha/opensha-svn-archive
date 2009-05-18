@@ -45,7 +45,7 @@ public class RemoteEqkRupForecast_Impl
     */
    public RemoteEqkRupForecast_Impl(String className)
        throws java.rmi.RemoteException, IOException {
-     eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(className);
+     eqkRupForecast = (EqkRupForecast)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(className);
    }
 
    /**
@@ -57,7 +57,7 @@ public class RemoteEqkRupForecast_Impl
     */
    public RemoteEqkRupForecast_Impl(ArrayList params,ArrayList paramTypes,String className)
        throws java.rmi.RemoteException, IOException {
-     eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
+     eqkRupForecast = (EqkRupForecast)org.opensha.commons.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
    }
 
    /* (non-Javadoc)
@@ -98,7 +98,7 @@ public class RemoteEqkRupForecast_Impl
      String parentDir = "/opt/install/apache-tomcat-5.5.20/webapps/";
      String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
      String fileName = System.currentTimeMillis() + ".javaobject";
-     org.opensha.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
+     org.opensha.commons.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
                                               eqkRupForecast);
      return parentDir + subDir + fileName;
    }

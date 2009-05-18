@@ -4,7 +4,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 
-import org.opensha.util.MailUtil;
+import org.opensha.commons.util.MailUtil;
+
 import java.util.Properties;
 
 /**

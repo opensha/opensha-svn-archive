@@ -24,7 +24,7 @@ import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
-import org.opensha.util.RunScript;
+import org.opensha.commons.util.RunScript;
 
 /**
  * <p>Title: GMT_MapGenerator</p>

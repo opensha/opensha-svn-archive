@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.util.XMLUtils;
 
 public class CyberShakeUCERFWrapper_ERF extends EqkRupForecast {
 	

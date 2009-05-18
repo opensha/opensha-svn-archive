@@ -41,7 +41,7 @@ public class RemoteERF_ListImpl
    */
   public RemoteERF_ListImpl(String className) throws java.rmi.RemoteException,
       IOException {
-    erfList = (ERF_EpistemicList) org.opensha.util.ClassUtils.
+    erfList = (ERF_EpistemicList) org.opensha.commons.util.ClassUtils.
         createNoArgConstructorClassInstance(className);
    }
 
@@ -190,7 +190,7 @@ public class RemoteERF_ListImpl
     String parentDir = "/opt/install/apache-tomcat-5.5.20/webapps/";
     String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
     String fileName = System.currentTimeMillis() + ".javaobject";
-    org.opensha.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
+    org.opensha.commons.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
                                                 erfList);
     return parentDir + subDir + fileName;
   }

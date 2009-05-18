@@ -13,10 +13,10 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.gui.controls.CyberShakePlotFromDBControlPanel;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.util.XMLUtils;
 
 public class HazardCurvePlotCharacteristics implements XMLSaveable {
 	

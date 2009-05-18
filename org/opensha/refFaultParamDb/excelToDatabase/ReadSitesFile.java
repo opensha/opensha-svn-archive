@@ -30,7 +30,7 @@ public class ReadSitesFile {
   private final static int FAULT_SECTION_ID = 1;
   public ReadSitesFile() {
     try {
-     ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
+     ArrayList referencesList = org.opensha.commons.util.FileUtils.loadFile(FILENAME);
      String line;
      StringTokenizer tokenizer;
      for (int i = 0; i < referencesList.size(); ++i) {

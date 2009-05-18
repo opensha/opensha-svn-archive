@@ -44,6 +44,7 @@ import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ImageUtils;
 
 /**
  * <p>Title: HazardSpectrumApplication</p>

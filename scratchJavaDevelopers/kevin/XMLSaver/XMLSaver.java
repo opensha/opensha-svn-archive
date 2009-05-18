@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.util.XMLUtils;
+import org.opensha.commons.util.XMLUtils;
 
 
 public abstract class XMLSaver extends JFrame implements ActionListener {

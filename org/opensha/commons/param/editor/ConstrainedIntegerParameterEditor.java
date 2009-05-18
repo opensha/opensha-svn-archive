@@ -3,9 +3,9 @@ package org.opensha.commons.param.editor;
 import org.opensha.commons.param.IntegerConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.util.ParamUtils;
 
 
-import org.opensha.util.ParamUtils;
 import java.awt.*;
 
 

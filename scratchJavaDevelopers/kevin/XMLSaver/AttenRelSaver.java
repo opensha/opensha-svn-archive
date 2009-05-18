@@ -12,6 +12,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.opensha.commons.util.FakeParameterListener;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
@@ -19,7 +20,6 @@ import org.opensha.sha.gui.beans.IMR_GuiBeanAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
 import org.opensha.sha.imr.attenRelImpl.CY_2008_AttenRel;
-import org.opensha.util.FakeParameterListener;
 
 public class AttenRelSaver extends XMLSaver implements IMR_GuiBeanAPI {
 	

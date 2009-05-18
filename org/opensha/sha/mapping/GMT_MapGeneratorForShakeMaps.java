@@ -15,11 +15,11 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.BooleanParameter;
 import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.util.RunScript;
 
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.util.RunScript;
 
 /**
  * <p>Title: GMT_MapGeneratorForShakeMaps</p>

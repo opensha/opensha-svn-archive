@@ -5,7 +5,7 @@ import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
 
 /**
  * <p>Title: GlobalConstants</p>

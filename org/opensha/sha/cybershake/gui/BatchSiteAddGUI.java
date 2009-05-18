@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.CybershakeSiteManager;
@@ -29,7 +30,6 @@ import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.util.FileUtils;
 
 public class BatchSiteAddGUI extends JFrame implements ActionListener, DocumentListener {
 	

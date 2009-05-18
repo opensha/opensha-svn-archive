@@ -12,10 +12,10 @@ import java.util.*;
 import java.lang.RuntimeException;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.util.ImageUtils;
 
 
 
-import org.opensha.util.ImageUtils;
 
 
 

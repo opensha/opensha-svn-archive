@@ -20,6 +20,7 @@ import org.opensha.commons.param.DependentParameterAPI;
 import org.opensha.commons.param.DoubleDiscreteParameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -41,7 +42,6 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.SpectrumCalculator;
 import org.opensha.sha.calc.SpectrumCalculatorAPI;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
-import org.opensha.util.FileUtils;
 
 import java.net.URL;
 import java.rmi.RemoteException;

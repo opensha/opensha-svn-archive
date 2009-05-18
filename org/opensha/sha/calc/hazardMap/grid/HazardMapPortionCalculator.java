@@ -36,6 +36,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeWarningEvent;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.nshmp.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
@@ -52,7 +53,6 @@ import org.opensha.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.FileUtils;
 
 
 /**

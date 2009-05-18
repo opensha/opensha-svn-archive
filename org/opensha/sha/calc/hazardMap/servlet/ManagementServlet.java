@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.gridComputing.XMLPresetLoader;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;
 import org.opensha.sha.calc.hazardMap.cron.CronOperation;
-import org.opensha.util.XMLUtils;
 
 public class ManagementServlet extends ConfLoadingServlet {
 	

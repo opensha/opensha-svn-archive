@@ -18,7 +18,7 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.param.ParameterList;
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.servlets.*;
 
 //import unusedArchive.HazardMapCalcServlet;

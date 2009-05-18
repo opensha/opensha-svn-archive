@@ -24,9 +24,9 @@ import org.opensha.commons.gridComputing.GridResources;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.RunScript;
 import org.opensha.sha.earthquake.EqkRupForecast;
-import org.opensha.util.FileUtils;
-import org.opensha.util.RunScript;
 
 
 public class HazardMapMetadataJobCreator {

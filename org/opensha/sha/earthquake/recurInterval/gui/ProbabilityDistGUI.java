@@ -35,6 +35,7 @@ import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.earthquake.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.recurInterval.EqkProbDistCalc;
 import org.opensha.sha.earthquake.recurInterval.ExponentialDistCalc;
@@ -42,7 +43,6 @@ import org.opensha.sha.earthquake.recurInterval.LognormalDistCalc;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 
-import org.opensha.util.ImageUtils;
 
 /**
  * 

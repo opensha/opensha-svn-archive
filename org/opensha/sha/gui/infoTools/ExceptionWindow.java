@@ -7,7 +7,7 @@ import java.io.*;
 import java.net.*;
 
 
-import org.opensha.util.MailUtil;
+import org.opensha.commons.util.MailUtil;
 
 
 /**

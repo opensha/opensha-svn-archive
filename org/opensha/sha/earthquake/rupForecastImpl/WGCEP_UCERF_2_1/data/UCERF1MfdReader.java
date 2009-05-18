@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * This reads the UCERF 1 MFD from the text file.

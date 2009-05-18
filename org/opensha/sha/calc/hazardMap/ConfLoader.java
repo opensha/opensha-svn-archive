@@ -10,9 +10,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.gridComputing.XMLPresetLoader;
+import org.opensha.commons.util.FileNameComparator;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.cron.CronConfLoader;
-import org.opensha.util.FileNameComparator;
-import org.opensha.util.XMLUtils;
 
 public class ConfLoader {
 	

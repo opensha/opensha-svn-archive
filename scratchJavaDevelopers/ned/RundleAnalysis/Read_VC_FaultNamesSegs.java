@@ -1,7 +1,8 @@
 package scratchJavaDevelopers.ned.RundleAnalysis;
 
 
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
+
 import java.util.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -6,9 +6,9 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.util.FileUtils;
 
 /**
  * Java code to associate fault names with each combined event info.

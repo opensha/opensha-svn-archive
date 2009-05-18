@@ -20,12 +20,12 @@ import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.sha.calc.HazardCurveCalculator;
-import org.opensha.util.FileUtils;
-import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**
@@ -802,7 +802,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
   * @returns the String containing the values selected for different parameters
   */
  public String getParametersInfo() {
-   String systemSpecificLineSeparator = org.opensha.util.SystemPropertiesUtils.getSystemLineSeparator();
+   String systemSpecificLineSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemLineSeparator();
    String metadata = "IMR Param List:" + systemSpecificLineSeparator +
        "---------------" + systemSpecificLineSeparator +
        this.imrGuiBean.getVisibleParametersCloned().

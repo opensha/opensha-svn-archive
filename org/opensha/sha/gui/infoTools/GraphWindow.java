@@ -6,7 +6,8 @@ import java.util.ArrayList;
 
 import org.jfree.chart.ChartUtilities;
 import org.jfree.data.Range;
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;

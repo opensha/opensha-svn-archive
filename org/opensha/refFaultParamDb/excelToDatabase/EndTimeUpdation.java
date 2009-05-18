@@ -7,9 +7,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.util.FileUtils;
 
 /**
  * Update the end time from 0 AD to Publication year. It came from Peter Bird's updates

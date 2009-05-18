@@ -10,7 +10,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.util.XMLUtils;
+import org.opensha.commons.util.XMLUtils;
 
 /**
  * This class represents a list of site data values. The advantage that it has over an ArrayList of

@@ -7,12 +7,12 @@ import java.io.BufferedReader;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.util.FileUtils;
 
 import java.io.File;
 import java.net.URLConnection;
 import java.io.InputStreamReader;
 import java.io.InputStream;
-import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: RuptureFileReaderWriter.java </p>

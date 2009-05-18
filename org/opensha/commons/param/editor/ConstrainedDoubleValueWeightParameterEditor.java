@@ -8,7 +8,7 @@ import javax.swing.border.Border;
 import org.opensha.commons.param.DoubleConstraint;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.WarningParameterAPI;
-import org.opensha.util.ParamUtils;
+import org.opensha.commons.util.ParamUtils;
 
 /**
  *<b>Title:</b> ConstrainedDoubleValueWeightParameterEditor<p>

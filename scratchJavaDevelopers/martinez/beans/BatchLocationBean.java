@@ -32,7 +32,7 @@ import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeFailEvent;
 import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.commons.param.event.ParameterChangeListener;
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
 
 import scratchJavaDevelopers.martinez.util.BatchFileReader;
 

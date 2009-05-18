@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
 
 /**
  * This bean provides a simplified way to give credit to contributors of applications in a

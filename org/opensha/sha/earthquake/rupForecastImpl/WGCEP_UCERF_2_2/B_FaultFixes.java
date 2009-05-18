@@ -6,7 +6,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * It reads the text file for B Fault fixes.

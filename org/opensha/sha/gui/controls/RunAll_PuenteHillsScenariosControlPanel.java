@@ -1,10 +1,11 @@
 package org.opensha.sha.gui.controls;
 
 import java.util.*;
+
+import org.opensha.commons.util.RunScript;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.gui.beans.*;
-import org.opensha.util.RunScript;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;

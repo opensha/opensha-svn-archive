@@ -18,6 +18,7 @@ import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.util.FileUtils;
 
 
 
@@ -26,7 +27,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.util.FileUtils;
 
 /**
  * <b>Title:</b> CB_2006_AttenRel<p>

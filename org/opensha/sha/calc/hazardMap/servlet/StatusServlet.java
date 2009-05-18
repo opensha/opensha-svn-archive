@@ -22,10 +22,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.gridComputing.StorageHost;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;
-import org.opensha.util.FileUtils;
 
 public class StatusServlet extends ConfLoadingServlet {
 	

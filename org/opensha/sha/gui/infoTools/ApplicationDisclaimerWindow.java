@@ -6,7 +6,9 @@ import javax.swing.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.util.ImageUtils;
+
+import org.opensha.commons.util.ImageUtils;
+
 import javax.swing.border.Border;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;

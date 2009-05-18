@@ -35,6 +35,8 @@ import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
@@ -43,8 +45,6 @@ import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
 import org.opensha.sha.calc.hazardMap.servlet.ManagementServletAccessor;
-import org.opensha.util.FileUtils;
-import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 
@@ -960,7 +960,7 @@ implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, IMR_GuiBeanA
 	 * @returns the String containing the values selected for different parameters
 	 */
 	public String getParametersInfo() {
-		String systemSpecificLineSeparator = org.opensha.util.SystemPropertiesUtils.getSystemLineSeparator();
+		String systemSpecificLineSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemLineSeparator();
 		String metadata = "IMR Param List:" + systemSpecificLineSeparator +
 		"---------------" + systemSpecificLineSeparator +
 		this.imrGuiBean.getVisibleParametersCloned().

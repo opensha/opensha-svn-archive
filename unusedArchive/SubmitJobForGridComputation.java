@@ -6,8 +6,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.util.RunScript;
-//import org.opensha.cme.SRBDrop.SRBDrop;
+import org.opensha.commons.util.RunScript;
 
 /**
  * <p>Title: SubmitJobForGridComputation</p>

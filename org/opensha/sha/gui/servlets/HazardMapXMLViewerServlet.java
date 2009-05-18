@@ -21,8 +21,8 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.MakeXYZFromHazardMapDir;
-import org.opensha.util.FileUtils;
 
 
 /**

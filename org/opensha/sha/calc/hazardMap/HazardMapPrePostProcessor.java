@@ -14,9 +14,9 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.MailUtil;
 import org.opensha.sha.calc.hazardMap.grid.MetadataHazardMapCalculator;
-import org.opensha.util.FileUtils;
-import org.opensha.util.MailUtil;
 
 
 public class HazardMapPrePostProcessor {

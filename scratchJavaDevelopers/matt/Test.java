@@ -1,6 +1,7 @@
 package scratchJavaDevelopers.matt;
 
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
+
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 

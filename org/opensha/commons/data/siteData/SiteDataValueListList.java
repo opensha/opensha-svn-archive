@@ -8,7 +8,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.util.XMLUtils;
+import org.opensha.commons.util.XMLUtils;
 
 /**
  * This represents a list of site data value lists. It is most useful for applications such

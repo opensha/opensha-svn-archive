@@ -52,9 +52,9 @@ import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
+import org.opensha.commons.util.DataUtil;
+import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.util.DataUtil;
-import org.opensha.util.SystemPropertiesUtils;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;

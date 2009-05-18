@@ -42,6 +42,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -59,8 +61,6 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.util.ImageUtils;
-import org.opensha.util.SystemPropertiesUtils;
 
 import scratchJavaDevelopers.martinez.BenefitCostCalculator;
 import scratchJavaDevelopers.martinez.EALCalculator;

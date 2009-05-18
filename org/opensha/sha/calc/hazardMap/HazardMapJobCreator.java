@@ -30,13 +30,13 @@ import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.gridComputing.ResourceProvider;
 import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
+import org.opensha.commons.util.FileNameComparator;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
-import org.opensha.util.FileNameComparator;
-import org.opensha.util.FileUtils;
-import org.opensha.util.RunScript;
-import org.opensha.util.XMLUtils;
 
 
 public class HazardMapJobCreator {

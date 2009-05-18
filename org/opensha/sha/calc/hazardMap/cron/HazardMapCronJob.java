@@ -15,9 +15,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.RollingFileAppender;
 import org.dom4j.DocumentException;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.HazardMapMetadataJobCreator;
 import org.opensha.sha.calc.hazardMap.servlet.StatusServlet;
-import org.opensha.util.FileUtils;
 
 public class HazardMapCronJob {
 	

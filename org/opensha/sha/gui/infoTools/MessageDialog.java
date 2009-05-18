@@ -6,7 +6,8 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.event.HyperlinkEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.opensha.util.ImageUtils;
+
+import org.opensha.commons.util.ImageUtils;
 
 /**
  * <p>Title: MessageDialog</p>

@@ -12,8 +12,8 @@ import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: GriddedRegionServlet </p>

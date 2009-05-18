@@ -22,6 +22,7 @@ import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 

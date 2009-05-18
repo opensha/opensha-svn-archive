@@ -6,10 +6,10 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
-import org.opensha.util.RunScript;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
-import org.opensha.util.FileUtils;
-import org.opensha.util.SystemPropertiesUtils;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.SystemPropertiesUtils;
 
 
 /**

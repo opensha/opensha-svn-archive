@@ -2,10 +2,10 @@ package org.opensha.sha.cybershake.openshaAPIs;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.cybershake.db.ERF2DB;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
-import org.opensha.util.FaultUtils;
 
 public class CyberShakeEqkRupture extends ProbEqkRupture {
 	

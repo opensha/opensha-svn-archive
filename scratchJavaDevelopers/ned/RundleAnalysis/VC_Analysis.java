@@ -1,10 +1,10 @@
 package scratchJavaDevelopers.ned.RundleAnalysis;
 
-import org.opensha.util.FileUtils;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.calc.MomentMagCalc;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.util.FileUtils;
 
 import java.util.*;
 import java.io.*;

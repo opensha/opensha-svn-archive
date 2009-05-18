@@ -7,8 +7,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.util.FileUtils;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.HazardMapSubmissionMethods;

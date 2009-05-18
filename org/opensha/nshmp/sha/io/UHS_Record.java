@@ -3,8 +3,8 @@ package org.opensha.nshmp.sha.io;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.opensha.commons.util.ByteSwapUtil;
 import org.opensha.nshmp.util.GlobalConstants;
-import org.opensha.util.ByteSwapUtil;
 
 
 /**

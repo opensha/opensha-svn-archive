@@ -76,7 +76,7 @@ public class OpenSHA_UsersDBDAO implements OpenSHA_UsersDAO {
         String toEmailList="";
         ArrayList emailList = getAdminEmailList();
         for(int i=0; i<emailList.size();++i) toEmailList=toEmailList+","+emailList.get(i).toString();
-        org.opensha.util.MailUtil.sendMail(SMTP_HOST,FROM,toEmailList,SCEC_ADMIN_MAIL_SUBJECT,message);
+        org.opensha.commons.util.MailUtil.sendMail(SMTP_HOST,FROM,toEmailList,SCEC_ADMIN_MAIL_SUBJECT,message);
       }
       return true;
     }
@@ -124,7 +124,7 @@ public class OpenSHA_UsersDBDAO implements OpenSHA_UsersDAO {
       updatedUserVO.getApprovalStatus() == OpenSHA_UsersVO.APPROVED) {
      approvalDate = datetime;
      String message =  "Your account on OpenSHA-CME system has been Approved";
-     org.opensha.util.MailUtil.sendMail(SMTP_HOST,FROM,updatedUserVO.getEmail(),MAIL_SUBJECT,message);
+     org.opensha.commons.util.MailUtil.sendMail(SMTP_HOST,FROM,updatedUserVO.getEmail(),MAIL_SUBJECT,message);
    }
 
    String update = new String("update "+TABLE_NAME+" set first_name=\""+
@@ -182,7 +182,7 @@ public class OpenSHA_UsersDBDAO implements OpenSHA_UsersDAO {
      updatePassword(email,password);
      String message =  "Your username on OpenSHA-CME system is : "+this.getUser(email).getUsername()+"\n"+
          "Your password on OpenSHA-CME system is : "+password;
-     org.opensha.util.MailUtil.sendMail(SMTP_HOST,FROM,email,MAIL_SUBJECT,message);
+     org.opensha.commons.util.MailUtil.sendMail(SMTP_HOST,FROM,email,MAIL_SUBJECT,message);
    }
 
   /**
@@ -442,7 +442,7 @@ public class OpenSHA_UsersDBDAO implements OpenSHA_UsersDAO {
     OpenSHA_UsersVO vo = getUser(email);
     if(vo!=null) {
       String message = "Your username on OpenSHA-CME system is : "+vo.getUsername();
-      org.opensha.util.MailUtil.sendMail(SMTP_HOST,FROM,email,MAIL_SUBJECT,message);
+      org.opensha.commons.util.MailUtil.sendMail(SMTP_HOST,FROM,email,MAIL_SUBJECT,message);
     }
   }
 

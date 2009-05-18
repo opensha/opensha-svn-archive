@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
@@ -15,7 +16,6 @@ import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
-import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>

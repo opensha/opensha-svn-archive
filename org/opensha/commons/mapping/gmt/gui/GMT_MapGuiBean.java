@@ -9,7 +9,6 @@ import javax.swing.*;
 
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
@@ -21,6 +20,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
 
 
 

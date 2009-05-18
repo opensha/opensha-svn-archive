@@ -51,7 +51,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     public DB_ConnectionPool() {
       Properties p = new Properties();
       try {
-        String fileSeparator = org.opensha.util.SystemPropertiesUtils.getSystemFileSeparator();
+        String fileSeparator = org.opensha.commons.util.SystemPropertiesUtils.getSystemFileSeparator();
         FileInputStream  inpStream =  new FileInputStream("org"+fileSeparator+
             "opensha"+fileSeparator+"refFaultParamDb"+fileSeparator+"dao"+fileSeparator+
             "db"+fileSeparator+"DB_AccessProp.dat");

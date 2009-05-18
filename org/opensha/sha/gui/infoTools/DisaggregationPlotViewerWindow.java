@@ -6,7 +6,8 @@ import java.net.*;
 import javax.swing.event.*;
 
 
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;

@@ -14,12 +14,12 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.util.FileUtils;
 
 //tested
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
+import org.opensha.commons.util.FileUtils;
 
 //tested
 

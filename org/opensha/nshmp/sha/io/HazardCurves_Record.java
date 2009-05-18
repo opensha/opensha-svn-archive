@@ -3,7 +3,7 @@ package org.opensha.nshmp.sha.io;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.opensha.util.ByteSwapUtil;
+import org.opensha.commons.util.ByteSwapUtil;
 
 /**
  * <p>Title: HazardCurves_Record </p>

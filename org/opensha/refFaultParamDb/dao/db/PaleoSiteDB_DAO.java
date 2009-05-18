@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Contributor;
@@ -26,7 +27,6 @@ import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>

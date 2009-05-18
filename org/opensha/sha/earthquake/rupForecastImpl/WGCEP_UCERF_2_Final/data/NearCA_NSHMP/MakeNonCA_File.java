@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * Make Non CA faults file from the combined files given by NSHMP. 

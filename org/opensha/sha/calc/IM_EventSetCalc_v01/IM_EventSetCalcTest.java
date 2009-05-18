@@ -4,14 +4,14 @@ package org.opensha.sha.calc.IM_EventSetCalc_v01;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-import org.opensha.util.FileUtils;
-import org.opensha.util.SystemPropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.GaussianDistCalc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
 
 import java.io.File;
 

@@ -2,7 +2,7 @@ package org.opensha.commons.calc.magScalingRelations.magScalingRelImpl;
 
 
 import org.opensha.commons.calc.magScalingRelations.MagLengthRelationship;
-import org.opensha.util.FaultUtils;
+import org.opensha.commons.util.FaultUtils;
 
 
 /**

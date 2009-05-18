@@ -17,11 +17,11 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.TreeBranchWeightsParameter;
 import org.opensha.commons.param.estimate.EstimateConstraint;
 import org.opensha.commons.param.estimate.EstimateParameter;
+import org.opensha.commons.util.FileUtils;
 
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
-import org.opensha.util.FileUtils;
 
 /**
  * Yucca Mountain ERF List that iterates over all logic tree branches

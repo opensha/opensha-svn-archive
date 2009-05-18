@@ -13,10 +13,10 @@ import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.util.FileUtils;
 
 
 import org.opensha.sha.magdist.*;
-import org.opensha.util.FileUtils;
 
 import scratchJavaDevelopers.matt.tests.STEP_mainTest;
 

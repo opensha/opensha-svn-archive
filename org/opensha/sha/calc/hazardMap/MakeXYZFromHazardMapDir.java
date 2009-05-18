@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 public class MakeXYZFromHazardMapDir {
 	

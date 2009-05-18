@@ -36,6 +36,8 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
@@ -44,8 +46,6 @@ import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-import org.opensha.util.FileUtils;
-import org.opensha.util.SystemPropertiesUtils;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>

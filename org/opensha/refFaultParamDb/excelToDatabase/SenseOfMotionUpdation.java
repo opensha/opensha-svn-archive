@@ -4,9 +4,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
-import org.opensha.util.FileUtils;
 
 /**
  * Update sense of motion in database from Peter Bird's excel sheets

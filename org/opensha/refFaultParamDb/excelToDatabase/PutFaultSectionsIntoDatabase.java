@@ -5,7 +5,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
@@ -25,6 +24,7 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: PutFaultSectionsIntoDatabase.java </p>

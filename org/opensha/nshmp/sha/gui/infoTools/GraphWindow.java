@@ -32,12 +32,12 @@ import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.util.ImageUtils;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
-import org.opensha.util.ImageUtils;
 
 /**
  * <p>Title: GraphWindow</p>

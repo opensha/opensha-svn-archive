@@ -6,7 +6,9 @@ import java.net.*;
 import javax.swing.event.*;
 
 
-import org.opensha.util.ImageUtils;
+import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -18,7 +20,6 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
-import org.opensha.util.SystemPropertiesUtils;
 
 
 /**

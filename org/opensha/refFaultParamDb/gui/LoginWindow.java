@@ -4,12 +4,12 @@ import javax.swing.*;
 
 import java.awt.event.*;
 
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.login.RequestUserAccount;
 import org.opensha.refFaultParamDb.gui.login.GetAccountInfo;
 import org.opensha.refFaultParamDb.gui.login.ChangePassword;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
-import org.opensha.util.ClassUtils;
 
 /**
  * <p>Title: LoginWindow</p>

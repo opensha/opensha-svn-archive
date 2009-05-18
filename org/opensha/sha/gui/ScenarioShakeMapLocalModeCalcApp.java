@@ -6,13 +6,13 @@ import java.awt.Toolkit;
 
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.gui.infoTools.ApplicationVersionInfoWindow;
-import org.opensha.util.FileUtils;
 
 import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: ScenarioShakeMapLocalModeCalcApplication</p>

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import org.opensha.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPT;
 
 public class CPTGen {
 	

@@ -28,6 +28,7 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegion;
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>

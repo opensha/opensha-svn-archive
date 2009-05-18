@@ -7,8 +7,8 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.util.FileUtils;
 
 import scratchJavaDevelopers.matt.calc.STEP_HazardDataSet;
 import scratchJavaDevelopers.matt.calc.STEP_main;

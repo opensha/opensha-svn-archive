@@ -13,11 +13,11 @@ import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
+import org.opensha.commons.util.ClassUtils;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
-import org.opensha.util.ClassUtils;
 
 /**
  * <p>Title: EstimateInstancesDB_DAO.java </p>

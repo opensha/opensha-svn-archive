@@ -2,9 +2,9 @@ package org.opensha.commons.data.region;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
+import org.opensha.commons.util.FileUtils;
 
 import scratchJavaDevelopers.vipin.relm.CreateRELM_GriddedRegion;
-import org.opensha.util.FileUtils;
 
 import java.io.FileWriter;
 import java.util.ArrayList;

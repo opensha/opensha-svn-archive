@@ -44,6 +44,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.opensha.commons.util.DataUtil;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import org.opensha.nshmp.sha.gui.beans.ASCE7_GuiBean;
 import org.opensha.nshmp.sha.gui.beans.AnalysisOptionsGuiBeanAPI;
@@ -58,7 +59,6 @@ import org.opensha.nshmp.sha.gui.infoTools.NSHMP_MapViewFrame;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.MapUtil;
 import org.opensha.nshmp.util.Versioner;
-import org.opensha.util.DataUtil;
 
 
 /**

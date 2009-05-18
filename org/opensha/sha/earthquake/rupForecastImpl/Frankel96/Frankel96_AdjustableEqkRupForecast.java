@@ -15,6 +15,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.FaultException;
 import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;

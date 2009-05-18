@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.StringTokenizer;
 
-import org.opensha.util.RunScript;
+import org.opensha.commons.util.RunScript;
 
 /**
  * <p>Title: GRD_InfoFromFile </p>

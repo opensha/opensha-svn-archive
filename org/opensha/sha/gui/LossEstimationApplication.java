@@ -24,6 +24,9 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ImageUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
 
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecast;
@@ -58,9 +61,6 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.util.FileUtils;
-import org.opensha.util.ImageUtils;
-import org.opensha.util.SystemPropertiesUtils;
 
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculatorAPI;

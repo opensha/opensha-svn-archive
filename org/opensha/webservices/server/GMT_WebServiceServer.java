@@ -4,7 +4,7 @@ import javax.activation.*;
 import java.io.*;
 
 import org.opensha.webservices.GMT_WebServiceAPI;
-import org.opensha.util.RunScript;
+import org.opensha.commons.util.RunScript;
 /**
  * <p>Title: </p>
  * <p>Description: </p>

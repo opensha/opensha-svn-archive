@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 
-import org.opensha.util.ParamUtils;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.gui.SidesBorder;
@@ -17,6 +16,7 @@ import org.opensha.commons.param.ParameterAPI;
 import org.opensha.commons.param.TranslatedWarningDoubleParameter;
 import org.opensha.commons.param.WarningParameterAPI;
 import org.opensha.commons.param.translate.TranslatorAPI;
+import org.opensha.commons.util.ParamUtils;
 
 
 

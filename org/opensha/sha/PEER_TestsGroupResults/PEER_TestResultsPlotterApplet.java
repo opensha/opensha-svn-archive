@@ -42,6 +42,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
+import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.gui.controls.*;
 
 

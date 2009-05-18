@@ -17,7 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import scratchJavaDevelopers.martinez.beans.ProgressBar;
-import org.opensha.util.ImageUtils;
+
+import org.opensha.commons.util.ImageUtils;
 
 public class ProgressTest {
 	private static ProgressBar progress = null;

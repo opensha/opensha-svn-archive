@@ -2,7 +2,8 @@ package org.opensha.sha.gui.infoTools;
 
 import java.io.*;
 import sun.net.smtp.SmtpClient;
-import org.opensha.util.MailUtil;
+
+import org.opensha.commons.util.MailUtil;
 
 /**
  * <p>Title: HazardMapCalcPostProcessing.java </p>

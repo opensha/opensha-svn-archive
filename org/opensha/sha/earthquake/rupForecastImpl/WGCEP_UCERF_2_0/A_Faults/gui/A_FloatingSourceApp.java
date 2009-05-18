@@ -47,6 +47,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;
@@ -68,7 +69,6 @@ import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
-import org.opensha.util.FileUtils;
 
 /**
  * @author vipingupta

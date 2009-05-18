@@ -7,8 +7,8 @@ import java.util.*;
 import java.text.DecimalFormat;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.util.FileUtils;
 
-import org.opensha.util.FileUtils;
 import org.opensha.sha.gui.servlets.*;
 
 /**

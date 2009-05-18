@@ -19,6 +19,7 @@ import org.opensha.commons.param.IntegerParameter;
 import org.opensha.commons.param.editor.IntegerParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.util.FileUtils;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.axis.NumberAxis;
@@ -36,7 +37,6 @@ import java.io.File;
 import java.net.URLConnection;
 import java.io.InputStreamReader;
 import java.io.InputStream;
-import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>

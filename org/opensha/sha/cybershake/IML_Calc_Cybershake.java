@@ -12,14 +12,14 @@ import java.util.StringTokenizer;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.FileUtils;
-import org.opensha.util.SystemPropertiesUtils;
 
 /**
  * @author nitingupta

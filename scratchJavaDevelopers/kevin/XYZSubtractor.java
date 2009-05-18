@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.util.FileUtils;
-import org.opensha.util.XYZHashMap;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.XYZHashMap;
 
 public class XYZSubtractor {
 	

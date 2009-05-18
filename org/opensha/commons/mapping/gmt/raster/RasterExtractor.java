@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 
 public class RasterExtractor {

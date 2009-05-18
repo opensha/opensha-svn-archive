@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
 
 /**
  * <p>Title: ScatterPlotForDisaggregation </p>

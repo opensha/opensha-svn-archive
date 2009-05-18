@@ -16,6 +16,7 @@ import org.opensha.commons.param.StringConstraint;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.util.FaultUtils;
 
 
 

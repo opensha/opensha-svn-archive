@@ -1,6 +1,6 @@
 package org.opensha.commons.calc.magScalingRelations;
 
-import org.opensha.util.FaultUtils;
+import org.opensha.commons.util.FaultUtils;
 
 
 /**

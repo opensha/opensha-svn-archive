@@ -12,9 +12,9 @@ import java.util.TreeSet;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
-import org.opensha.util.FileUtils;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.RunScript;
 import org.opensha.sha.gui.servlets.*;
-import org.opensha.util.RunScript;
 
 /**
  * <p>Title: CyberShakeHazardDataSelectorServlet</p>

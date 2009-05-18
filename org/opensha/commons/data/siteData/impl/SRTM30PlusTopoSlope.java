@@ -18,8 +18,8 @@ import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.util.binFile.BinaryMesh2DCalculator;
-import org.opensha.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.BinaryMesh2DCalculator;
+import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalculator;
 
 public class SRTM30PlusTopoSlope extends AbstractSiteData<Double> {
 	

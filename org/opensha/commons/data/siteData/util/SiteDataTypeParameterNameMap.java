@@ -6,11 +6,11 @@ import java.util.ListIterator;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.NtoNMap;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.NtoNMap;
 
 /**
  * This class represents an N to N mapping between site data types and parameter names. If

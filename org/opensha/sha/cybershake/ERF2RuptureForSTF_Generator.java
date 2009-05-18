@@ -15,6 +15,7 @@ import org.opensha.commons.data.region.CircularGeographicRegion;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.SystemPropertiesUtils;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -23,7 +24,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.faultSurface.PointSurface;
-import org.opensha.util.SystemPropertiesUtils;
 
 /**
  * <p>Title: ERF2RuptureForSTF_Generator</p>

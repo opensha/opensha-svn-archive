@@ -8,7 +8,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.util.XMLUtils;
+import org.opensha.commons.util.XMLUtils;
 
 public abstract class GridResource implements XMLSaveable, Serializable {
 	

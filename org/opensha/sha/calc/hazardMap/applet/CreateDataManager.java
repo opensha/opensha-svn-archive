@@ -34,6 +34,10 @@ import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.util.XMLUtils;
+import org.opensha.commons.util.http.HTTPAuthenticator;
+import org.opensha.commons.util.http.InstallSSLCert;
+import org.opensha.commons.util.http.StaticPasswordAuthenticator;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculationParameters;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
@@ -49,10 +53,6 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.IntensityMeasureRelationshipAPI;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeEvent;
 import org.opensha.sha.imr.event.AttenuationRelationshipChangeListener;
-import org.opensha.util.XMLUtils;
-import org.opensha.util.http.HTTPAuthenticator;
-import org.opensha.util.http.InstallSSLCert;
-import org.opensha.util.http.StaticPasswordAuthenticator;
 
 public class CreateDataManager extends StepManager implements AttenuationRelationshipChangeListener {
 	
