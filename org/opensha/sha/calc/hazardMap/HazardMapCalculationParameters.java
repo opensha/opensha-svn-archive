@@ -1,7 +1,7 @@
 package org.opensha.sha.calc.hazardMap;
 
 import org.dom4j.Element;
-import org.opensha.gridComputing.GridCalculationParameters;
+import org.opensha.commons.gridComputing.GridCalculationParameters;
 
 public class HazardMapCalculationParameters extends GridCalculationParameters {
 	

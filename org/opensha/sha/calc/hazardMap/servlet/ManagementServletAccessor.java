@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.opensha.gridComputing.GridResourcesList;
+import org.opensha.commons.gridComputing.GridResourcesList;
 import org.opensha.sha.calc.hazardMap.NamedGeographicRegion;
 import org.opensha.sha.calc.hazardMap.cron.CronOperation;
 import org.opensha.util.http.HTTPAuthenticator;

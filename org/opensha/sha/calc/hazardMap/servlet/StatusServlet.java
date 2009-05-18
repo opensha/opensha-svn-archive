@@ -21,7 +21,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.gridComputing.StorageHost;
+import org.opensha.commons.gridComputing.StorageHost;
 import org.opensha.sha.calc.hazardMap.CalculationStatus;
 import org.opensha.sha.calc.hazardMap.HazardMapJob;
 import org.opensha.sha.calc.hazardMap.HazardMapJobCreator;

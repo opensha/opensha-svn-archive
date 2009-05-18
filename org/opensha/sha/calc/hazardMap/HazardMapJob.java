@@ -2,8 +2,8 @@ package org.opensha.sha.calc.hazardMap;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.gridComputing.GridJob;
-import org.opensha.gridComputing.GridResources;
+import org.opensha.commons.gridComputing.GridJob;
+import org.opensha.commons.gridComputing.GridResources;
 
 public class HazardMapJob extends GridJob {
 

@@ -9,7 +9,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.opensha.gridComputing.XMLPresetLoader;
+import org.opensha.commons.gridComputing.XMLPresetLoader;
 import org.opensha.sha.calc.hazardMap.cron.CronConfLoader;
 import org.opensha.util.FileNameComparator;
 import org.opensha.util.XMLUtils;

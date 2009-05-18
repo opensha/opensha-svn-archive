@@ -28,6 +28,11 @@ import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegionAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.gridComputing.GlobusRSL;
+import org.opensha.commons.gridComputing.GridResources;
+import org.opensha.commons.gridComputing.ResourceProvider;
+import org.opensha.commons.gridComputing.StorageHost;
+import org.opensha.commons.gridComputing.SubmitHost;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
@@ -40,11 +45,6 @@ import org.opensha.util.FileUtils;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.servlets.siteEffect.BasinDepthClass;
-import org.opensha.gridComputing.GlobusRSL;
-import org.opensha.gridComputing.GridResources;
-import org.opensha.gridComputing.ResourceProvider;
-import org.opensha.gridComputing.StorageHost;
-import org.opensha.gridComputing.SubmitHost;
 
 
 /**

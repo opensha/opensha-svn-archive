@@ -1,4 +1,4 @@
-package org.opensha.gridComputing;
+package org.opensha.commons.gridComputing;
 
 import org.dom4j.Element;
 

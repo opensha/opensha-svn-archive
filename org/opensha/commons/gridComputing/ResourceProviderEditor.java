@@ -1,4 +1,4 @@
-package org.opensha.gridComputing;
+package org.opensha.commons.gridComputing;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
