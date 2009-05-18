@@ -31,7 +31,7 @@ import org.opensha.commons.util.ImageUtils;
 
 
 
-import org.opensha.util.*;
+
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.attenRelImpl.*;

@@ -21,7 +21,7 @@ import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.TreeBranchWeightsParameter;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
-import org.opensha.util.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;

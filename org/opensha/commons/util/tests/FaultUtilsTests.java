@@ -3,7 +3,7 @@ package org.opensha.commons.util.tests;
 import junit.framework.*;
 
 import org.opensha.commons.util.FaultUtils;
-import org.opensha.util.*;
+
 
 
 public class FaultUtilsTests extends TestCase {

@@ -23,7 +23,7 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.depricated.BA_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.depricated.CB_2006_AttenRel;
-import org.opensha.util.*;
+
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.sha.param.SimpleFaultParameter;
 import org.opensha.sha.util.SiteTranslator;

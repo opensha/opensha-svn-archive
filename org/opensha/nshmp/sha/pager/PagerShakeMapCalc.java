@@ -20,7 +20,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.*;
-import org.opensha.util.*;
+
 
 
 import org.opensha.sha.util.SiteTranslator;

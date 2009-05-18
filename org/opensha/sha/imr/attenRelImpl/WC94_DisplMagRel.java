@@ -19,7 +19,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.util.*;
+
 
 /**
  * <b>Title:</b> WC94_DisplMagRel<p>

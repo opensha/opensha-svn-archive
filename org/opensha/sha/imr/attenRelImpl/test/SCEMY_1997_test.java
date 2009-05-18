@@ -14,7 +14,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
 
 
 
-import org.opensha.util.*;
+
 
 
 /**

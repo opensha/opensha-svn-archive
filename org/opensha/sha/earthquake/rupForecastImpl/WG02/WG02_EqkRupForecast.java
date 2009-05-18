@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 
-import org.opensha.util.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 

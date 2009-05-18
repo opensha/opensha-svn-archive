@@ -22,7 +22,7 @@ import org.opensha.commons.param.DoubleParameter;
 import org.opensha.commons.param.StringParameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.util.FileUtils;
-import org.opensha.util.*;
+
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.earthquake.*;

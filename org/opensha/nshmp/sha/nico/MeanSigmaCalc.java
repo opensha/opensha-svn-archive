@@ -12,7 +12,7 @@ import org.opensha.sha.imr.attenRelImpl.*;
 import java.util.*;
 import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.util.*;
+
 import java.rmi.RemoteException;
 
 import org.opensha.commons.calc.RelativeLocation;

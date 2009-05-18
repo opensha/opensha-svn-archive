@@ -11,7 +11,7 @@ import org.opensha.commons.util.FaultUtils;
 
 
 import org.opensha.sha.faultSurface.*;
-import org.opensha.util.*;
+
 
 /**
  *

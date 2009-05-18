@@ -10,7 +10,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.SystemPropertiesUtils;
 
-import org.opensha.util.*;
+
 
 /**
  * <p>Title: GMT_MapGeneratorServlet </p>

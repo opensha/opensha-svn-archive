@@ -29,7 +29,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.util.*;
+
 
 /**
  * <b>Title:</b> AS_1997_AttenRel<p>

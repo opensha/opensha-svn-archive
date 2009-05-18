@@ -7,7 +7,7 @@ import javax.swing.*;
 
 import org.opensha.commons.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.util.*;
+
 
 /**
  * <p>Title: AttenuationRelationshipWebBasedApplet</p>

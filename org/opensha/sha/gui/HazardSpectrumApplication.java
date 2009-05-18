@@ -20,7 +20,7 @@ import org.jfree.data.Range;
 
 
 
-import org.opensha.util.*;
+
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.gui.infoTools.*;

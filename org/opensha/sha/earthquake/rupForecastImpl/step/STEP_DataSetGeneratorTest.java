@@ -25,7 +25,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-import org.opensha.util.*;
+
 
 
 import org.opensha.sha.util.SiteTranslator;

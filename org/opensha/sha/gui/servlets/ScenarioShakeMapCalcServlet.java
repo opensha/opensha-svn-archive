@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.util.*;
+
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>

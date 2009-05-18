@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.net.URL;
 
 
-import org.opensha.util.*;
+
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.commons.data.Location;
