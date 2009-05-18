@@ -31,6 +31,8 @@ import javax.swing.border.TitledBorder;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.Versioner;
 
+import edu.stanford.ejalbert.BrowserLauncher;
+
 /**
  * <p>Title: ProbabilisticHazardGui</p>
  *
@@ -247,7 +249,8 @@ public class ProbabilisticHazardGui
 	private void okButton_notCurrent(ActionEvent actionEvent) {
 		this.dispose();
 		try {
-			org.opensha.util.BrowserLauncher.openURL(DOWNLOAD_PAGE);
+		    BrowserLauncher bl = new BrowserLauncher();
+			bl.openURLinBrowser(DOWNLOAD_PAGE);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Could not open the download page.  Please visit:\n\n\t" +
 				DOWNLOAD_PAGE + "\n\nto update your version" +

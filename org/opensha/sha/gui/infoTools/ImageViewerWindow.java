@@ -6,7 +6,6 @@ import java.net.*;
 import javax.swing.event.*;
 
 
-import org.opensha.util.BrowserLauncher;
 import org.opensha.util.ImageUtils;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

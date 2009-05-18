@@ -2,12 +2,14 @@ package org.opensha.nshmp.sha.gui.infoTools;
 
 import java.awt.*;
 import javax.swing.*;
+
+import edu.stanford.ejalbert.BrowserLauncher;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import org.opensha.util.BrowserLauncher;
 
 /**
  * <p>Title: NSHMP_MapViewFrame</p>
@@ -102,7 +104,8 @@ public class NSHMP_MapViewFrame
     int selectedIndex = mapList.getSelectedIndex();
     String fileToRead = mapFiles[selectedIndex];
     try {
-      org.opensha.util.BrowserLauncher.openURL(fileToRead);
+        BrowserLauncher bl = new BrowserLauncher();
+        bl.openURLinBrowser(fileToRead);
     }
     catch (Exception ex) {
       ex.printStackTrace();
