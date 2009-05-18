@@ -5,8 +5,8 @@ import java.io.*;
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.param.StringConstraint;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.StringConstraint;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;

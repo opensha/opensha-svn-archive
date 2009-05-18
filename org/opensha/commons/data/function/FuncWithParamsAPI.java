@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.exceptions.DataPoint2DException;
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterList;
 
 /**
  * <b>Title:</b> FuncWithParamsAPI<p>

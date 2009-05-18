@@ -3,7 +3,8 @@ package org.opensha.sha.param.editor.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import org.opensha.param.ParameterAPI;
+
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.param.*;
 import org.opensha.sha.param.editor.*;
 import org.opensha.sha.faultSurface.FaultTrace;

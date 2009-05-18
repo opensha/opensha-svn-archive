@@ -4,9 +4,9 @@ import java.util.*;
 
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.param.BooleanParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.WarningDoubleParameter;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.WarningDoubleParameter;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.AS_2008_AttenRel;
 import org.opensha.util.FileUtils;

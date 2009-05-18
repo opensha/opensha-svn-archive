@@ -6,6 +6,15 @@ import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.WarningException;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleDiscreteParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraint;
+import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import org.opensha.param.*;
 import org.opensha.param.event.*;
@@ -171,7 +180,7 @@ public abstract class WarningDoublePropagationEffectParameter
         else if ( value == null ){
             if(D) System.out.println(S + "Setting allowed and recommended null value: ");
             this.value = null;
-            org.opensha.param.event.ParameterChangeEvent event = new org.opensha.param.event.ParameterChangeEvent(
+            org.opensha.commons.param.event.ParameterChangeEvent event = new org.opensha.commons.param.event.ParameterChangeEvent(
                        this, getName(), getValue(), value );
             firePropertyChange( event );
         }
@@ -188,7 +197,7 @@ public abstract class WarningDoublePropagationEffectParameter
         else {
             if(D) System.out.println(S + "Setting allowed and recommended value: ");
             this.value = value;
-            org.opensha.param.event.ParameterChangeEvent event = new org.opensha.param.event.ParameterChangeEvent(
+            org.opensha.commons.param.event.ParameterChangeEvent event = new org.opensha.commons.param.event.ParameterChangeEvent(
                        this, getName(), getValue(), value );
             firePropertyChange( event );
         }

@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import org.opensha.sha.gui.beans.SitesInGriddedRegionGuiBean;
 

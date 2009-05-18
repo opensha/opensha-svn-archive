@@ -27,14 +27,14 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import org.jfree.data.Range;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.data.function.DiscretizedFuncList;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.beans.HazardDataSiteSelectionGuiBean;
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;

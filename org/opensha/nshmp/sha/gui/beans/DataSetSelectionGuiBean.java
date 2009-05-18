@@ -8,9 +8,9 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>

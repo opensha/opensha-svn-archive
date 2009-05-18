@@ -12,9 +12,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
-import org.opensha.param.estimate.EstimateConstraint;
-import org.opensha.param.estimate.EstimateParameter;
+import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.commons.param.estimate.EstimateConstraint;
+import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;

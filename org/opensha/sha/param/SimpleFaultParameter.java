@@ -9,6 +9,15 @@ import org.opensha.param.event.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.ParameterListParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 
 /**

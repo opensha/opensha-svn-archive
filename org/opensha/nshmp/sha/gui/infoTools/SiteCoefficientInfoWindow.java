@@ -31,11 +31,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.nshmp.sha.data.calc.FaFvCalc;
 import org.opensha.nshmp.util.GlobalConstants;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: SiteCoefficientInfoWindow</p>
@@ -46,7 +46,7 @@ import org.opensha.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 public class SiteCoefficientInfoWindow
-    extends JDialog implements org.opensha.param.event.ParameterChangeListener {
+    extends JDialog implements org.opensha.commons.param.event.ParameterChangeListener {
   private JPanel mainPanel = new JPanel();
   private JPanel fafvPanel = new JPanel();
   private JPanel faPanel = new JPanel();

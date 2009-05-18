@@ -18,12 +18,12 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.param.BooleanParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.IntegerParameter;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringConstraint;
-import org.opensha.param.StringParameter;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.util.RunScript;
 
 /**

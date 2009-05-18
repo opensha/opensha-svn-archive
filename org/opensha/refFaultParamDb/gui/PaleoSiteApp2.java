@@ -18,9 +18,12 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 
-import org.opensha.param.StringParameter;
 
 import org.opensha.refFaultParamDb.gui.view.*;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
@@ -28,8 +31,6 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;

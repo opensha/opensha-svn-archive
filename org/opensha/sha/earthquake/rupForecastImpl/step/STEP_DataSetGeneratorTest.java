@@ -9,10 +9,6 @@ import java.text.DecimalFormat;
 import org.opensha.sha.earthquake.rupForecastImpl.step.*;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
-import org.opensha.param.event.ParameterChangeWarningListener;
-import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.param.WarningParameterAPI;
-import org.opensha.param.WarningDoubleParameter;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
@@ -20,13 +16,17 @@ import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.region.SitesInGriddedRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.*;
 
 
-import org.opensha.param.ParameterAPI;
 import org.opensha.sha.util.SiteTranslator;
 
 /**

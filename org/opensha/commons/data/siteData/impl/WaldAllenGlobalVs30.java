@@ -15,13 +15,13 @@ import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataToXYZ;
 import org.opensha.commons.data.siteData.servlet.SiteDataServletAccessor;
 import org.opensha.commons.exceptions.RegionConstraintException;
-import org.opensha.param.ArbitrarilyDiscretizedFuncParameter;
-import org.opensha.param.BooleanParameter;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ArbitrarilyDiscretizedFuncTableModel;
-import org.opensha.param.editor.ParameterEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.commons.param.ArbitrarilyDiscretizedFuncParameter;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ArbitrarilyDiscretizedFuncTableModel;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 public class WaldAllenGlobalVs30 extends AbstractSiteData<Double> implements ParameterChangeListener {
 	

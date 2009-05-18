@@ -1,10 +1,11 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.*;
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.editor.StringParameterEditor;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringParameter;
+
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.editor.StringParameterEditor;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import java.awt.event.ActionListener;

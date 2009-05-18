@@ -12,11 +12,11 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.Parameter;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 
 /**
  * Abstract implementation of SiteDataAPI. It handles some of the basic methods, such as

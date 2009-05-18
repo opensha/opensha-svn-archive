@@ -22,23 +22,23 @@ import javax.swing.Timer;
 import java.awt.*;
 
 import org.opensha.commons.data.Location;
-import org.opensha.param.IntegerParameter;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringConstraint;
-import org.opensha.param.StringParameter;
-import org.opensha.param.IntegerConstraint;
-import org.opensha.param.editor.ParameterEditor;
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.commons.param.IntegerConstraint;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.LocationParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import java.awt.event.ActionListener;
-import org.opensha.param.LocationParameter;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
 /**

@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.param.ParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast;

@@ -6,13 +6,13 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
-import org.opensha.param.ParameterList;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
-import org.opensha.param.ParameterAPI;
 import org.opensha.util.FileUtils;
 
 /**

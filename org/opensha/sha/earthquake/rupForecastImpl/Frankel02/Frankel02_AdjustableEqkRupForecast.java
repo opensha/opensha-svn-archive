@@ -18,6 +18,9 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_Region;
 import org.opensha.commons.data.region.RELM_TestingRegion;
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.util.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
@@ -27,7 +30,6 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.EqkRateModel2_
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_0.A_Faults.gui.WG02_RuptureModelsGraphWindowAPI_Impl;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
-import org.opensha.param.event.ParameterChangeEvent;
 import java.util.EventObject;
 
 

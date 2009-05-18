@@ -19,12 +19,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.addEdit.faultSection.EditFaultSection;
@@ -32,10 +30,12 @@ import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.estimate.Estimate;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 
 /**

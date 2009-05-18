@@ -9,6 +9,7 @@ import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.ParameterAPI;
 
 
 

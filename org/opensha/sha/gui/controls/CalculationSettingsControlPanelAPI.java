@@ -1,6 +1,6 @@
 package org.opensha.sha.gui.controls;
 
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterList;
 /**
  * <p>Title: CalculationSettingsControlPanelAPI</p>
  * <p>Description: This interface has to be implemented by the class that needs to use

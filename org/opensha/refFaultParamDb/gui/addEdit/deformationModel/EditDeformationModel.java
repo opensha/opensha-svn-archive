@@ -19,11 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.editor.StringParameterEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;

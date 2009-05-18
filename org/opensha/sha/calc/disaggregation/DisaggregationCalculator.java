@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.text.DecimalFormat;
 
 
-import org.opensha.param.Parameter;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
@@ -23,6 +22,7 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.param.Parameter;
 
 import java.net.URL;
 import java.net.URLConnection;

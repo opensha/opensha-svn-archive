@@ -12,17 +12,17 @@ import java.util.StringTokenizer;
 import javax.swing.*;
 import java.awt.*;
 
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.StringParameter;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.commons.data.Location;
-import org.opensha.param.editor.ParameterEditor;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 
 

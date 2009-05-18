@@ -9,11 +9,11 @@ import java.util.*;
 
 
 
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.StringParameterEditor;
 import org.opensha.util.*;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.StringParameterEditor;
 
 
 

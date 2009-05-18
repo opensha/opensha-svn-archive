@@ -16,7 +16,7 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
-import org.opensha.param.ParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.SystemPropertiesUtils;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;

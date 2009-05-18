@@ -27,8 +27,8 @@ import org.opensha.commons.data.siteData.gui.beans.OrderedSiteDataGUIBean;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 
 public class SiteDataMapApplet extends Applet implements ActionListener, ListSelectionListener {
 	

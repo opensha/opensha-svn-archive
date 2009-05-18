@@ -15,10 +15,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
 
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
-import org.opensha.param.Parameter;
-import org.opensha.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 import com.isti.util.gui.IstiFileChooser;

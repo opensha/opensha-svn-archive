@@ -17,8 +17,11 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 

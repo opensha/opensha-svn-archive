@@ -1,6 +1,14 @@
 package org.opensha.sha.gui.beans;
 
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.DoubleDiscreteParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.param.*;
 import org.opensha.sha.imr.*;
 import org.opensha.param.event.*;

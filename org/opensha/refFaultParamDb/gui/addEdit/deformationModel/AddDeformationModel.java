@@ -14,9 +14,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.StringParameterEditor;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.StringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelSummaryDB_DAO;

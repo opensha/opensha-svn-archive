@@ -8,6 +8,7 @@ import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.ParameterAPI;
 
 
 import org.opensha.param.*;

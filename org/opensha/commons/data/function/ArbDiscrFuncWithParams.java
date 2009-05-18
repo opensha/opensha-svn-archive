@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.commons.data.DataPoint2D;
 import org.opensha.commons.data.DataPoint2DComparatorAPI;
+import org.opensha.commons.param.ParameterList;
 
 import org.opensha.param.*;
 

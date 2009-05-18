@@ -22,12 +22,12 @@ import java.net.*;
 import java.io.*;
 
 import org.opensha.sha.calc.hazardMap.HazardMapCalculatorOld;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.commons.mapping.gmt.gui.GMT_MapGuiBean;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;

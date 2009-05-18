@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringParameter;
-import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.sha.cybershake.db.CybershakeERF;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;

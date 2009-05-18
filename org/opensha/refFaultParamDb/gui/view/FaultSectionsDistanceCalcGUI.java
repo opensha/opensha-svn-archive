@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;

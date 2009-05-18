@@ -3,8 +3,8 @@ package org.opensha.sha.gui.controls;
 import java.awt.*;
 import javax.swing.JFrame;
 
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.controls.CalculationSettingsControlPanelAPI;
 
 /**

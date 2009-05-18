@@ -12,6 +12,9 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 
 import scratchJavaDevelopers.ISTI.portfolioeal.gui.PortfolioEALCalculatorView;
 import org.opensha.param.*;

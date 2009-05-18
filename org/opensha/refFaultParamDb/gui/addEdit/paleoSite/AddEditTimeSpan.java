@@ -3,13 +3,13 @@ package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.param.StringListParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.param.estimate.*;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.*;
 import javax.swing.*;
-import org.opensha.param.StringParameter;
-import org.opensha.param.StringListParameter;
-import org.opensha.param.editor.ConstrainedStringListParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;

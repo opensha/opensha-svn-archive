@@ -14,6 +14,10 @@ import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_Mag
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.exceptions.FaultException;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.util.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.sha.magdist.*;
@@ -21,7 +25,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
-import org.opensha.param.event.ParameterChangeEvent;
 import java.util.EventObject;
 
 

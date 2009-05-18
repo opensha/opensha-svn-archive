@@ -1,14 +1,14 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import javax.swing.JButton;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import java.util.ArrayList;
 import java.awt.*;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

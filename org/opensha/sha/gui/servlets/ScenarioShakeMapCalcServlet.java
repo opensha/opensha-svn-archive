@@ -11,6 +11,9 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 
 import org.opensha.param.*;
@@ -341,7 +344,7 @@ public class ScenarioShakeMapCalcServlet
    *
    */
   private Object createIMRClassInstance(String className,
-                                        org.opensha.param.event.ParameterChangeWarningListener
+                                        org.opensha.commons.param.event.ParameterChangeWarningListener
                                         listener) {
     try {
 

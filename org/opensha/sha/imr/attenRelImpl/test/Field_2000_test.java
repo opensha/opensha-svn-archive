@@ -4,6 +4,8 @@ package org.opensha.sha.imr.attenRelImpl.test;
 import junit.framework.*;
 import java.util.*;
 
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.imr.attenRelImpl.*;

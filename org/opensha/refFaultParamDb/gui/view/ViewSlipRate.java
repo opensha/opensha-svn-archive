@@ -7,10 +7,10 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.LogNormalEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.param.StringParameter;
 
 import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
-import org.opensha.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

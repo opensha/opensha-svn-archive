@@ -8,8 +8,8 @@ import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.NamedObjectAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 
 /**
  * This is the basic API for a class that provides site type information,

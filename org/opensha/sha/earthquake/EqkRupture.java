@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.opensha.commons.data.Location;
 import org.opensha.commons.exceptions.InvalidRangeException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 
 
 import org.opensha.param.*;

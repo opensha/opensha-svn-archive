@@ -1,11 +1,11 @@
 package org.opensha.util;
 
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeFailEvent;
-import org.opensha.param.event.ParameterChangeFailListener;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeFailEvent;
+import org.opensha.commons.param.event.ParameterChangeFailListener;
+import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 /**
  * This is simply a class that implements all of the ParameterChangeListeners, without 

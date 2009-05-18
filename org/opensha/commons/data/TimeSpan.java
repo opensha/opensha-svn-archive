@@ -11,18 +11,18 @@ import java.util.ListIterator;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.opensha.param.DoubleConstraint;
-import org.opensha.param.DoubleDiscreteConstraint;
-import org.opensha.param.DoubleDiscreteParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.IntegerConstraint;
-import org.opensha.param.IntegerParameter;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringConstraint;
-import org.opensha.param.StringParameter;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.TimeSpanChangeListener;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.DoubleDiscreteParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.IntegerConstraint;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.event.TimeSpanChangeListener;
 
 /**
  *  <b>Title:</b> TimeSpan<p>

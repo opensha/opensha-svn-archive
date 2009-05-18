@@ -2,7 +2,7 @@ package scratchJavaDevelopers.ISTI.portfolioeal.gui;
 
 import java.util.Iterator;
 
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.gui.beans.Site_GuiBean;
 
 /**

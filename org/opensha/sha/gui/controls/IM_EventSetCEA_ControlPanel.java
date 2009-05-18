@@ -21,6 +21,9 @@ import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Direction;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.faultSurface.SimpleFaultData;
 
 

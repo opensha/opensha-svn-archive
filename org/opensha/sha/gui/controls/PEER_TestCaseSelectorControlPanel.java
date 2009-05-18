@@ -25,6 +25,7 @@ import org.opensha.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.awt.*;
 import javax.swing.*;

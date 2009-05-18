@@ -6,13 +6,13 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.opensha.param.DoubleParameter;
 import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.DoubleParameter;
 
 
 import org.opensha.sha.magdist.*;

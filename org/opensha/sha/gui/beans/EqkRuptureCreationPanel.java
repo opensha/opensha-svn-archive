@@ -8,6 +8,16 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.opensha.commons.data.Location;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.LocationParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 import org.opensha.param.*;
 import org.opensha.param.editor.*;

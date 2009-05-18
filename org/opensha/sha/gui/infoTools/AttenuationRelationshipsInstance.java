@@ -128,7 +128,7 @@ public class AttenuationRelationshipsInstance {
 	 *
 	 */
 
-	public ArrayList createIMRClassInstance( org.opensha.param.event.ParameterChangeWarningListener listener){
+	public ArrayList createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener){
 		ArrayList<AttenuationRelationship> AttenRelObjects = new ArrayList<AttenuationRelationship>();
 		String S = C + ": createIMRClassInstance(): ";
 		int size = supportedAttenRelClasses.size();
@@ -157,7 +157,7 @@ public class AttenuationRelationshipsInstance {
 	 *
 	 */
 
-	public AttenuationRelationship createIMRClassInstance( org.opensha.param.event.ParameterChangeWarningListener listener, String className){
+	public AttenuationRelationship createIMRClassInstance( org.opensha.commons.param.event.ParameterChangeWarningListener listener, String className){
 		String S = C + ": createIMRClassInstance(): ";
 		try {
 			Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );

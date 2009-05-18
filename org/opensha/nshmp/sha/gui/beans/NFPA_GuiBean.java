@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.nshmp.exceptions.AnalysisOptionNotSupportedException;
 import org.opensha.nshmp.sha.data.DataGenerator_FEMA;
 import org.opensha.nshmp.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import org.opensha.nshmp.util.GlobalConstants;
 import org.opensha.nshmp.util.RegionUtil;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: FEMA_GuiBean</p>

@@ -6,6 +6,7 @@ import org.opensha.param.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.gui.LabeledBoxPanel;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JPanel;

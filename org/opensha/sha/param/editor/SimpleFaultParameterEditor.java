@@ -12,6 +12,8 @@ import org.opensha.sha.param.*;
 import org.opensha.sha.param.editor.*;
 import org.opensha.sha.faultSurface.*;
 import org.opensha.commons.data.Location;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.param.editor.gui.*;
 
 

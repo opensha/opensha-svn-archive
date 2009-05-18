@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.EditableException;
 import org.opensha.commons.exceptions.ParameterException;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.param.StringConstraint;
-import org.opensha.param.StringParameter;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
 
 /**
  * @author nitingupta

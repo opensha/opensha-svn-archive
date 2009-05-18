@@ -3,8 +3,8 @@ package org.opensha.commons.data;
 import java.io.Serializable;
 import java.util.ListIterator;
 
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
 
 /**
  *  <b>Title:</b> Site<p>

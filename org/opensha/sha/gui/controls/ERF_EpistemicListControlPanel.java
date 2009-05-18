@@ -6,11 +6,13 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeFailEvent;
+import org.opensha.commons.param.event.ParameterChangeFailListener;
 import org.opensha.param.event.*;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterConstraintAPI;
 
 
 /**

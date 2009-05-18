@@ -26,8 +26,8 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.util.SiteDataTypeParameterNameMap;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.sha.util.SiteTranslator;
 

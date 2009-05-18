@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import org.opensha.param.editor.IntegerTextField;
+import org.opensha.commons.param.editor.IntegerTextField;
 
 /**
  * <b>Title:</b> SubRectanglePanel<p>

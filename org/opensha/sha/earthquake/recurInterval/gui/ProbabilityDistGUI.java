@@ -30,11 +30,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
 import org.jfree.data.Range;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.earthquake.recurInterval.BPT_DistCalc;
 import org.opensha.sha.earthquake.recurInterval.EqkProbDistCalc;
 import org.opensha.sha.earthquake.recurInterval.ExponentialDistCalc;

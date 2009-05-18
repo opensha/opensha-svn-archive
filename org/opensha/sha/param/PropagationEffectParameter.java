@@ -1,6 +1,9 @@
 package org.opensha.sha.param;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.param.DependentParameter;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.ParameterAPI;
 
 
 import org.opensha.param.*;

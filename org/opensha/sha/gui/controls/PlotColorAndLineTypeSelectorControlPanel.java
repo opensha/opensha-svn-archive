@@ -6,15 +6,15 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.StringParameter;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.editor.ConstrainedDoubleParameterEditor;
-import org.opensha.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedDoubleParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanel</p>

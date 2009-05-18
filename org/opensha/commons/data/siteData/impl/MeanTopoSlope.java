@@ -8,7 +8,7 @@ import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.data.siteData.AbstractSiteData;
 import org.opensha.commons.data.siteData.SiteDataAPI;
 import org.opensha.commons.data.siteData.util.MeanTopoSlopeCalculator;
-import org.opensha.param.DoubleParameter;
+import org.opensha.commons.param.DoubleParameter;
 
 public class MeanTopoSlope extends AbstractSiteData<Double> {
 	

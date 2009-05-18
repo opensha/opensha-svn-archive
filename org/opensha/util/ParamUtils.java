@@ -1,10 +1,10 @@
 package org.opensha.util;
 
-import org.opensha.param.DoubleConstraint;
-import org.opensha.param.DoubleDiscreteConstraint;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.param.WarningParameterAPI;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.WarningParameterAPI;
 
 /**
  * <b>Title:</b>ParamUtils<p>

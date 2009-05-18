@@ -14,9 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.estimate.Estimate;
-import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
-import org.opensha.param.estimate.EstimateConstraint;
-import org.opensha.param.estimate.EstimateParameter;
+import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.commons.param.estimate.EstimateConstraint;
+import org.opensha.commons.param.estimate.EstimateParameter;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.DeformationModelDB_DAO;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;

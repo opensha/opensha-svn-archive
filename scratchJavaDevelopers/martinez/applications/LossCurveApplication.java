@@ -20,8 +20,8 @@ import javax.swing.*;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;

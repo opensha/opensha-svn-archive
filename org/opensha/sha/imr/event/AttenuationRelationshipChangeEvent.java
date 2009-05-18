@@ -1,7 +1,8 @@
 package org.opensha.sha.imr.event;
 
 import java.util.EventObject;
-import org.opensha.param.ParameterAPI;
+
+import org.opensha.commons.param.ParameterAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 
 /**

@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.region.GeographicRegion;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 /**
  * This is a class that takes and SiteDataAPI class and wraps it to add a cache for faster retrieval

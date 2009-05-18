@@ -1,11 +1,11 @@
 package org.opensha.sha.gui.beans;
 
 import org.opensha.commons.data.Location;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.editor.ParameterEditor;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterEditor;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.sha.earthquake.EqkRupture;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
 
 /**
  * <p>Title: EqkRupSelectorGuiBeanAPI</p>

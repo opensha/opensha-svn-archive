@@ -15,14 +15,14 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
 
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringParameter;
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.XYZ_DataSetAPI;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
 
 
 /**

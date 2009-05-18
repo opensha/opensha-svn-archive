@@ -12,6 +12,9 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
 
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.*;

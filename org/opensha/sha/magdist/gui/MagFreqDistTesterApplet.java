@@ -28,6 +28,7 @@ import org.opensha.commons.gui.OvalBorder;
 import org.opensha.commons.gui.SidesBorder;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.opensha.commons.gui.plot.jfreechart.MyTickUnits;
+import org.opensha.commons.param.editor.ParameterListEditor;
 
 
 import org.opensha.util.ImageUtils;

@@ -4,10 +4,10 @@ package org.opensha.sha.gui.beans;
 import java.util.Iterator;
 import java.awt.*;
 
-import org.opensha.param.editor.ParameterListEditor;
-import org.opensha.param.ParameterAPI;
 import org.opensha.commons.data.TimeSpan;
-import org.opensha.param.ParameterList;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import javax.swing.*;
 
 

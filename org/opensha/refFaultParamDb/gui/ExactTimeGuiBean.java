@@ -1,4 +1,8 @@
 package org.opensha.refFaultParamDb.gui;
+import org.opensha.commons.param.IntegerConstraint;
+import org.opensha.commons.param.IntegerParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.refFaultParamDb.data.ExactTime;

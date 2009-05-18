@@ -3,8 +3,8 @@ package org.opensha.sha.gui.controls;
 import java.awt.*;
 import javax.swing.JFrame;
 
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.editor.DoubleParameterEditor;
 import org.opensha.sha.calc.HazardCurveCalculator;
 
 /**

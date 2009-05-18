@@ -14,13 +14,15 @@ import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.GeographicRegion;
 import org.opensha.commons.metadata.MetadataLoader;
 import org.opensha.commons.metadata.XMLSaveable;
-import org.opensha.param.Parameter;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.event.ParameterChangeWarningListener;
-import org.opensha.param.event.TimeSpanChangeListener;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.event.TimeSpanChangeListener;
 import java.util.HashMap;
 import java.util.Set;
 import java.lang.reflect.InvocationTargetException;
@@ -29,8 +31,6 @@ import java.text.DecimalFormat;
 import org.opensha.sha.earthquake.recurInterval.ERF2GriddedSeisRatesCalc;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.imr.IntensityMeasureRelationship;
-import org.opensha.param.StringParameter;
-import org.opensha.param.BooleanParameter;
 
 
 

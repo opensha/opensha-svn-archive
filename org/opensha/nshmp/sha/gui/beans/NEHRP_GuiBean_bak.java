@@ -11,6 +11,12 @@ import javax.swing.border.*;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.RectangularGeographicRegion;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 
 import org.opensha.param.*;

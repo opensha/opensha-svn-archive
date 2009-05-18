@@ -8,8 +8,6 @@ import javax.swing.*;
 
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
@@ -18,6 +16,11 @@ import org.opensha.commons.data.region.EvenlyGriddedRectangularGeographicRegion;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.RegionConstraintException;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 
 

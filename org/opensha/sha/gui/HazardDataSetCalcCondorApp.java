@@ -18,6 +18,8 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.exceptions.RegionConstraintException;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;

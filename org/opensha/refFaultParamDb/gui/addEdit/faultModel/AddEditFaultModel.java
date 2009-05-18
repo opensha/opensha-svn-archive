@@ -21,8 +21,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultModelSummaryDB_DAO;
@@ -32,8 +34,6 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.view.SectionInfoFileWriter;
 import org.opensha.refFaultParamDb.vo.FaultModelSummary;
 import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.event.ParameterChangeEvent;
 
 
 /**

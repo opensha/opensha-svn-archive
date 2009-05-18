@@ -6,6 +6,15 @@ import java.util.EventListener;
 import javax.swing.*;
 
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.editor.StringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeFailEvent;
+import org.opensha.commons.param.event.ParameterChangeFailListener;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;

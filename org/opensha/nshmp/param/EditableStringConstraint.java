@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.opensha.commons.exceptions.ConstraintException;
-import org.opensha.param.StringConstraint;
+import org.opensha.commons.param.StringConstraint;
 
 /**
  * <p>Title: EditableStringConstraint </p>

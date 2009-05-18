@@ -1,20 +1,11 @@
 package org.opensha.refFaultParamDb.gui.addEdit.paleoSite;
 
 import javax.swing.JPanel;
-import org.opensha.param.StringParameter;
-import org.opensha.param.DoubleParameter;
 import java.util.ArrayList;
-import org.opensha.param.event.ParameterChangeListener;
-import org.opensha.param.editor.ConstrainedStringParameterEditor;
-import org.opensha.param.editor.DoubleParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.param.event.ParameterChangeEvent;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.HashMap;
-import org.opensha.param.estimate.EstimateParameter;
-import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
-import org.opensha.param.estimate.EstimateConstraint;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -25,6 +16,15 @@ import org.opensha.commons.data.estimate.Estimate;
 import org.opensha.commons.data.estimate.MinMaxPrefEstimate;
 import org.opensha.commons.data.estimate.NormalEstimate;
 import org.opensha.commons.data.estimate.PDF_Estimate;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.DoubleParameterEditor;
+import org.opensha.commons.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.commons.param.estimate.EstimateConstraint;
+import org.opensha.commons.param.estimate.EstimateParameter;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**

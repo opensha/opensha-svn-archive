@@ -12,6 +12,10 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 import org.opensha.commons.gui.LabeledBoxPanel;
 import org.opensha.commons.gui.TitledBorderPanel;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddEditSiteCharacteristics;
 import org.opensha.refFaultParamDb.gui.addEdit.paleoSite.AddSiteInfo;

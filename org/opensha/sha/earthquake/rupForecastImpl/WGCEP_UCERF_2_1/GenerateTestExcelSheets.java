@@ -13,11 +13,11 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.ParameterListParameter;
-import org.opensha.param.StringConstraint;
-import org.opensha.param.StringParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.ParameterListParameter;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.A_Faults.A_FaultSegmentedSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_1.data.A_FaultsFetcher;
 

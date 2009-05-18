@@ -11,6 +11,11 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurfaceAPI;
 import org.opensha.commons.calc.RelativeLocation;
 import org.opensha.commons.data.Location;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
 
 

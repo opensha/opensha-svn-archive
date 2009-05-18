@@ -1,6 +1,6 @@
 package org.opensha.sha.imr.attenRelImpl;
 
-import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 public class GouletEtAl_2006_AttenRel extends BC_2004_AttenRel {
 

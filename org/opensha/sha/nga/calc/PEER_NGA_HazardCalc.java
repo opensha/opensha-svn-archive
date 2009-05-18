@@ -7,12 +7,12 @@ import org.opensha.commons.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.ParameterAPI;
 
 import org.opensha.sha.nga.*;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.param.ParameterAPI;
 
 /**
  * <p>Title: PEER_NGA_HazardCalc</p>

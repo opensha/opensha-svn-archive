@@ -1,6 +1,5 @@
 package scratchJavaDevelopers.vipin.relm;
 
-import org.opensha.param.ParameterList;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 
@@ -14,6 +13,7 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.commons.data.region.EvenlyGriddedRELM_TestingRegion;
 import org.opensha.commons.data.region.RELM_CollectionRegion;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_2.UCERF2;

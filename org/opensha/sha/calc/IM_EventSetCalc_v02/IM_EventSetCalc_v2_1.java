@@ -13,10 +13,6 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.sha.imr.attenRelImpl.depricated.*;
 
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.event.ParameterChangeWarningListener;
-import org.opensha.param.WarningParameterAPI;
-import org.opensha.param.event.ParameterChangeWarningEvent;
 import java.util.*;
 import java.io.*;
 import org.opensha.sha.util.SiteTranslator;
@@ -26,6 +22,10 @@ import org.opensha.commons.data.Location;
 import org.opensha.commons.data.LocationList;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 import java.text.DecimalFormat;
 import java.lang.reflect.*;

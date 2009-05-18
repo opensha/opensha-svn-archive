@@ -6,8 +6,8 @@ import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 
-import org.opensha.param.event.ParameterChangeWarningEvent;
-import org.opensha.param.event.ParameterChangeWarningListener;
+import org.opensha.commons.param.event.ParameterChangeWarningEvent;
+import org.opensha.commons.param.event.ParameterChangeWarningListener;
 
 public abstract class NGATest extends TestCase implements ParameterChangeWarningListener {
 	

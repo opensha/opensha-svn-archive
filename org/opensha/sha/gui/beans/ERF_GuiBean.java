@@ -8,11 +8,6 @@ import java.util.ListIterator;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.param.ParameterList;
-import org.opensha.param.StringParameter;
-import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.ERF_EpistemicList;
 import org.opensha.sha.earthquake.EqkRupForecastBaseAPI;
@@ -28,6 +23,15 @@ import org.opensha.sha.earthquake.EqkRupForecast;
 import java.util.EventObject;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeFailEvent;
+import org.opensha.commons.param.event.ParameterChangeFailListener;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 /**
  * <p>Title: ERF_GuiBean </p>

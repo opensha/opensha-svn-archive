@@ -6,6 +6,7 @@ import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.param.editor.ParameterEditor;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.param.*;
 import org.opensha.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
@@ -13,7 +14,6 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.SingleMagFreqDist;
 import org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
-import org.opensha.param.editor.ParameterEditor;
 
 /**
  * <p>Title: PuenteHillsScenarioTestControlPanel</p>

@@ -1,15 +1,16 @@
 package scratchJavaDevelopers.vipin;
 
 import javax.swing.JPanel;
-import org.opensha.param.StringParameter;
-import org.opensha.param.DoubleParameter;
+
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DoubleParameter;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.editor.ParameterListEditor;
 import java.util.ArrayList;
-import org.opensha.param.ParameterList;
-import org.opensha.param.editor.ParameterListEditor;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import org.opensha.param.BooleanParameter;
 
 /**
  * <p>Title: RuptureFilterGuiBean.java </p>

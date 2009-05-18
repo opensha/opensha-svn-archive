@@ -18,6 +18,25 @@ import org.opensha.commons.data.function.ArbDiscrFuncWithParams;
 import org.opensha.commons.data.function.DiscretizedFuncAPI;
 import org.opensha.commons.exceptions.ConstraintException;
 import org.opensha.commons.exceptions.ParameterException;
+import org.opensha.commons.param.BooleanParameter;
+import org.opensha.commons.param.DependentParameterAPI;
+import org.opensha.commons.param.DiscreteParameterConstraintAPI;
+import org.opensha.commons.param.DoubleConstraint;
+import org.opensha.commons.param.DoubleDiscreteConstraint;
+import org.opensha.commons.param.DoubleDiscreteParameter;
+import org.opensha.commons.param.ParameterAPI;
+import org.opensha.commons.param.ParameterConstraintAPI;
+import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.StringConstraint;
+import org.opensha.commons.param.StringParameter;
+import org.opensha.commons.param.TranslatedWarningDoubleParameter;
+import org.opensha.commons.param.WarningDoubleParameter;
+import org.opensha.commons.param.WarningParameterAPI;
+import org.opensha.commons.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.commons.param.editor.ParameterEditorAPI;
+import org.opensha.commons.param.editor.ParameterListEditor;
+import org.opensha.commons.param.event.ParameterChangeEvent;
+import org.opensha.commons.param.event.ParameterChangeListener;
 
 import org.opensha.util.*;
 
@@ -157,7 +176,7 @@ public class AttenuationRelationshipGuiBean
         // Create AttenRel class dynamically from string name
         if ( className == null || className.equals( "" ) )
             throw new ParameterException( S + "AttenRel Class name cannot be empty or null" );
-        attenRel = ( AttenuationRelationshipAPI ) createAttenRelClassInstance( className,  (org.opensha.param.event.ParameterChangeWarningListener)applet );
+        attenRel = ( AttenuationRelationshipAPI ) createAttenRelClassInstance( className,  (org.opensha.commons.param.event.ParameterChangeWarningListener)applet );
         attenRel.setParamDefaults();
 
         // Create the control parameters for this attenRel
@@ -201,7 +220,7 @@ public class AttenuationRelationshipGuiBean
      * </code><p>
      *
      */
-    public static Object createAttenRelClassInstance( String className, org.opensha.param.event.ParameterChangeWarningListener listener){
+    public static Object createAttenRelClassInstance( String className, org.opensha.commons.param.event.ParameterChangeWarningListener listener){
         String S = C + ": createAttenRelClassInstance(): ";
         try {
 
