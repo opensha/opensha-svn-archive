@@ -9,7 +9,6 @@ import org.opensha.commons.data.XYZ_DataSetAPI;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParameterAPI;
 
-import org.opensha.sha.nga.*;
 
 import org.opensha.sha.imr.*;
 import org.opensha.sha.util.SiteTranslator;
