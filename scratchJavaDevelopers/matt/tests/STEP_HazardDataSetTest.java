@@ -33,6 +33,7 @@ public class STEP_HazardDataSetTest  extends TestCase {
 		step_HazardDataSet = new STEP_HazardDataSet(false);
 		step_HazardDataSet.runStepmain();		
 		step_HazardDataSet.createShakeMapAttenRelInstance();
+		logger.info("IML_VALUE " + STEP_HazardDataSet.IML_VALUE);
 	}
 
 	protected void tearDown() {

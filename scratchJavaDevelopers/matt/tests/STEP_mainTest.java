@@ -64,7 +64,7 @@ public class STEP_mainTest extends TestCase {
 			//set test event file path
 			//stepmain.setEventsFilePath(cubeFilePath_TEST);			
 			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
-			assertTrue(eqkRupList.size() == 3538);
+			assertEquals("eqkRupList.size is 3538", 3538, eqkRupList.size()   );
 			//assertTrue("Should throw Exception with strike : " + strike1,false);
 			ListIterator <ObsEqkRupture> newIt = eqkRupList.listIterator ();
 			ObsEqkRupture newEvent;
@@ -95,7 +95,7 @@ public class STEP_mainTest extends TestCase {
 	 */
 	public void testCalc_STEP() {
 		//1. load events
-		ObsEqkRupList newObsEqkRuptureList = _testLoadEvents();
+		ObsEqkRupList newObsEqkRuptureList = assertLoadEvents();
 		//double strike1=  -1.0;
 		try {
 			//2. test load background
@@ -106,15 +106,15 @@ public class STEP_mainTest extends TestCase {
 			//test size
 			assertTrue(hypList.size() > 0);
 			//hypList just initialized
-			_testHypoMagFreqDist(hypList, true);
+			assertHypoMagFreqDist(hypList, true);
 
 			//3. test process aftershocks
-			_testProcessAfterShocks(newObsEqkRuptureList);
+			assertProcessAfterShocks(newObsEqkRuptureList);
 
 			//4.test forcasting
-			_testProcessForcast(hypList);
+			assertProcessForcast(hypList);
 			//test Mag Freq again, and freq value may be >0
-			_testHypoMagFreqDist(hypList , false);
+			assertHypoMagFreqDist(hypList , false);
 
 		}
 		catch(Exception e)
@@ -131,11 +131,11 @@ public class STEP_mainTest extends TestCase {
 	 * this can be tested separately
 	 * @return
 	 */
-	public ObsEqkRupList _testLoadEvents() {
+	private ObsEqkRupList assertLoadEvents() {
 		//double strike1=  -1.0;
 		try {
 			//set test event file path
-			//stepmain.setEventsFilePath(cubeFilePath_TEST);			
+			//stepmain.setEventsFilePath(cubeFilePathassert);			
 			ObsEqkRupList   eqkRupList = stepmain.loadNewEvents();
 			assertTrue(eqkRupList.size() ==1);
 			//assertTrue("Should throw Exception with strike : " + strike1,false);
@@ -144,7 +144,7 @@ public class STEP_mainTest extends TestCase {
 			while (newIt.hasNext()) {
 				newEvent = (ObsEqkRupture) newIt.next();
 				//double newMag = newEvent.getMag();
-				assertTrue(newEvent.getMag() == 6.7);
+				assertEquals("newEvent mag==6.7",  6.7, newEvent.getMag() );
 				logger.info("newEvent " + newEvent.getInfo());
 			}
 			return eqkRupList;
@@ -162,7 +162,7 @@ public class STEP_mainTest extends TestCase {
 	 * this need be run after events loaded
 	 * @return
 	 */
-	public void _testProcessAfterShocks(ObsEqkRupList newObsEqkRuptureList) {
+	private void assertProcessAfterShocks(ObsEqkRupList newObsEqkRuptureList) {
 		//double strike1=  -1.0;
 		try {
 			List stepAfterShocks = stepmain.getSTEP_AftershockForecastList();
@@ -174,7 +174,7 @@ public class STEP_mainTest extends TestCase {
 			int numAfter = stepAfterShocks.size();
 			logger.info("2 stepAfterShocks " + stepAfterShocks.size());
 
-			assertTrue(numAfter > numBefore);
+			assertTrue("should be more stepAfterShocks after processing", numAfter >= numBefore);
 		}
 		catch(Exception e)
 		{
@@ -188,7 +188,7 @@ public class STEP_mainTest extends TestCase {
 	 * this need be run after eq events, bgGrid loaded, and aftershock processed
 	 * @return
 	 */
-	private void _testProcessForcast(ArrayList<HypoMagFreqDistAtLoc> hypList) {
+	private void assertProcessForcast(ArrayList<HypoMagFreqDistAtLoc> hypList) {
 		//double strike1=  -1.0;
 		try {
 			//assertTrue(true);
@@ -202,7 +202,7 @@ public class STEP_mainTest extends TestCase {
 	}
 
 
-	public void _testHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc> hypList, boolean init) {
+	private void assertHypoMagFreqDist(ArrayList<HypoMagFreqDistAtLoc> hypList, boolean init) {
 		LocationList bgLocList = stepmain.getBgGrid().getEvenlyGriddedGeographicRegion().getGridLocationsList();
 		ArrayList<HypoMagFreqDistAtLoc> hypForecastList = stepmain.getBgGrid().getMagDistList();
 
